@@ -86,8 +86,6 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
 
-    hm2_encoder_read(hm2);  // read the latch/ctrl register if we're looking for an index pulse
-
     hm2_raw_read(hm2);
 }
 

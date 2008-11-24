@@ -198,20 +198,11 @@ encoders:
 
     expose QFilterRate: lets you determine encoder sample frequency, input to filter
 
-    freaks out on index...
-
     fancy velocity computation
 
-        US Patent 4,639,884 (granted Jan 27 1987, expired ???)
+        implement the Auslander state machine, with the current RT estimator
 
-            requires "a large number" of clocks per quadrature transition,
-            "at all speeds"
-
-            computer periodically gets (count, timestamp) datapoints
-
-            v = (d count)/(d time)
-
-        when is encoder velocity used?  when threading, i think
+        when is encoder velocity used?  for feed-per-rev mode on lathes, says cradek
 
         performance:
 

@@ -205,20 +205,20 @@ typedef struct {
 #define HM2_ENCODER_INDEX_MASK          (1<<9)
 #define HM2_ENCODER_INDEX_MASK_POLARITY (1<<8)
 #define HM2_ENCODER_INDEX_JUSTONCE      (1<<6)
-#define HM2_ENCODER_CLEAR_INDEX         (1<<5)
+#define HM2_ENCODER_CLEAR_ON_INDEX      (1<<5)
+#define HM2_ENCODER_LATCH_ON_INDEX      (1<<4)
 #define HM2_ENCODER_INDEX_POLARITY      (1<<3)
 
-#define HM2_ENCODER_MASK  (HM2_ENCODER_FILTER | HM2_ENCODER_COUNTER_MODE | \
-        HM2_ENCODER_INDEX_MASK | HM2_ENCODER_INDEX_MASK_POLARITY | \
-        HM2_ENCODER_INDEX_JUSTONCE | HM2_ENCODER_CLEAR_INDEX | \
-        HM2_ENCODER_INDEX_POLARITY)
+#define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
 typedef struct {
 
     struct {
 
         struct {
-            hal_s32_t *count;
+            hal_s32_t *rawcounts;    // raw encoder counts
+            hal_s32_t *zero_offset;  // raw encoder counts when index most recently latched it
+            hal_s32_t *count;        // (rawcounts - zero_offset)
             hal_float_t *position;
             hal_float_t *velocity;
             hal_bit_t *reset;
@@ -240,6 +240,8 @@ typedef struct {
 
     u16 prev_count;
     u16 prev_timestamp;
+
+    s32 prev_rawcounts;
 
     u32 prev_control;
 
@@ -686,7 +688,6 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2);
 int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_encoder_tram_init(hostmot2_t *hm2);
 void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns);
-void hm2_encoder_read(hostmot2_t *hm2);
 void hm2_encoder_write(hostmot2_t *hm2);
 void hm2_encoder_cleanup(hostmot2_t *hm2);
 void hm2_encoder_print_module(hostmot2_t *hm2);

@@ -17,6 +17,39 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+
+//
+//  This file contains the driver for the HostMot2 encoder v2 Module.
+//
+//  It supports Index and Index Mask, and high-fidelity velocity 
+//  estimation.
+//
+//
+//  Velocity estimation is made possible by a cool feature of the HostMot2
+//  firmware:
+//
+//      The FPGA synthesizes a configurable-frequency "timestamp clock" by
+//      dividing ClockLow (33 MHz on the PCI cards, 50 MHz on the 7i43) by
+//      the value in the Timestamp Divider Register.
+//
+//      When a quadrature counter in the hostmot2 FPGA detects an edge in
+//      the input Gray code, it increments the count and latches both the
+//      (16-bit) count and the bottom 16 bits of the timestamp clock into
+//      the Counter Register.
+//
+//  The velocity estimator used by the driver is similar to one described
+//  by David Auslander in a paper titled "Vehicle-based Control Computer
+//  Systems" (UCB ITS PRR 95 3), available at:
+//
+//      <http://repositories.cdlib.org/its/path/reports/UCB-ITS-PRR-95-3/>
+//
+//  This driver uses a "transition logic based switching algorithm" similar
+//  to the one described in section 15.2, except that it uses a simple
+//  Reciprocal Time velocity estimator instead of the Least Squares
+//  estimator used in Auslander's paper.
+//
+
+
 #include <linux/slab.h>
 
 #include "rtapi.h"
@@ -51,7 +84,7 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
         do_flag(
             &hm2->encoder.control_reg[i],
             *e->hal.pin.index_enable,
-            HM2_ENCODER_CLEAR_INDEX | HM2_ENCODER_INDEX_JUSTONCE
+            HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_INDEX_JUSTONCE
         );
 
         do_flag(
@@ -98,7 +131,7 @@ void hm2_encoder_write(hostmot2_t *hm2) {
     hm2_encoder_update_control_register(hm2);
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        if ((hm2->encoder.instance[i].prev_control & HM2_ENCODER_MASK) != (hm2->encoder.control_reg[i] & HM2_ENCODER_MASK)) {
+        if ((hm2->encoder.instance[i].prev_control & HM2_ENCODER_CONTROL_MASK) != (hm2->encoder.control_reg[i] & HM2_ENCODER_CONTROL_MASK)) {
             need_update = 1;
             break;
         }
@@ -237,6 +270,20 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
         for (i = 0; i < hm2->encoder.num_instances; i ++) {
             // pins
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.rawcounts", hm2->llio->name, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawcounts), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.zero_offset", hm2->llio->name, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.zero_offset), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.count", hm2->llio->name, i);
             r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
@@ -321,10 +368,11 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
 
-            // init hal objects
-            *hm2->encoder.instance[i].hal.pin.count = 0;  // FIXME: useless
-            *hm2->encoder.instance[i].hal.pin.position = 0.0;  // FIXME: useless
-            *hm2->encoder.instance[i].hal.pin.velocity = 0.0;  // FIXME: useless
+            //
+            // init the hal objects that need it
+            // the things not initialized here will be set by hm2_encoder_tram_init()
+            //
+
             *hm2->encoder.instance[i].hal.pin.reset = 0;
             *hm2->encoder.instance[i].hal.pin.index_enable = 0;
 
@@ -400,43 +448,27 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
     // all the encoders start where they are
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        hm2->encoder.instance[i].prev_count = hm2->encoder.counter_reg[i] & 0x0000ffff;
-        hm2->encoder.instance[i].prev_timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
-    }
-}
+        u16 count, timestamp;
 
+        count = hm2->encoder.counter_reg[i] & 0x0000ffff;
+        timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
 
-// if we're looking for an index pulse, read the latch/ctrl register
-void hm2_encoder_read(hostmot2_t *hm2) {
-    int i;
-    u32 latch_ctrl;
+        *hm2->encoder.instance[i].hal.pin.rawcounts = count;
+        *hm2->encoder.instance[i].hal.pin.zero_offset = count;
 
-    for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        if (0 == (hm2->encoder.control_reg[i] & HM2_ENCODER_CLEAR_INDEX)) continue;
-
-        // we've told this encoder to looking for index, so read the latch/ctrl register now
-        hm2->llio->read(
-            hm2->llio,
-            hm2->encoder.latch_control_addr + (i * sizeof(u32)),
-            &latch_ctrl,
-            sizeof(u32)
-        );
-
-        if (latch_ctrl & HM2_ENCODER_CLEAR_INDEX) continue;
-
-        // 
-        // if we get here, we asked for clear-on-index and we got it
-        //
-
-        *hm2->encoder.instance[i].hal.pin.index_enable = 0;
         *hm2->encoder.instance[i].hal.pin.count = 0;
+        *hm2->encoder.instance[i].hal.pin.position = 0.0;
+        *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
+
+        hm2->encoder.instance[i].prev_count = count;
+        hm2->encoder.instance[i].prev_timestamp = timestamp;
+        hm2->encoder.instance[i].prev_rawcounts = count;
+
     }
 }
 
 
 
-
-#define f_period_s ((hal_float_t)(l_period_ns * 1e-9))
 
 void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
@@ -450,7 +482,6 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         s32 count_diff;
         s32 timestamp_diff_tsdiv_clocks;
         hal_float_t timestamp_diff_s;
-        hal_float_t new_position;
 
         e = &hm2->encoder.instance[i];
 
@@ -464,6 +495,76 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
         // 
+        // figure out current rawcounts accumulated by the driver
+        // 
+
+        count_diff = (s32)count - (s32)e->prev_count;
+        if (count_diff > 32768) count_diff -= 65536;
+        if (count_diff < -32768) count_diff += 65536;
+
+        *e->hal.pin.rawcounts = e->prev_rawcounts + count_diff;
+
+
+        //
+        // if we've told the FPGA we're looking for an index pulse:
+        //     read the latch/ctrl register
+        //     if it's triggered set zero_offset to the rawcounts version of the latched count
+        //
+
+        if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
+            u32 latch_ctrl;
+
+            hm2->llio->read(
+                hm2->llio,
+                hm2->encoder.latch_control_addr + (i * sizeof(u32)),
+                &latch_ctrl,
+                sizeof(u32)
+            );
+
+            if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_INDEX)) {
+                // hm2 reports index event occurred
+
+                u16 latched_count;
+
+                latched_count = (latch_ctrl >> 16) & 0xffff;
+
+                count_diff = (s32)latched_count - (s32)e->prev_count;
+                if (count_diff > 32768) count_diff -= 65536;
+                if (count_diff < -32768) count_diff += 65536;
+
+                *e->hal.pin.zero_offset = e->prev_rawcounts + count_diff;
+
+                *e->hal.pin.index_enable = 0;
+            }
+        }
+
+
+        // 
+        // reset count if the user wants us to (by just setting the zero offset to the current rawcounts)
+        //
+
+        if (*e->hal.pin.reset) {
+            *e->hal.pin.zero_offset = *e->hal.pin.rawcounts;
+        }
+
+
+        // 
+        // now we know the current rawcounts and zero_offset, which tells us the current count
+        // from that we easily compute scaled position
+        //
+
+        *e->hal.pin.count = *e->hal.pin.rawcounts - *e->hal.pin.zero_offset;
+
+        // sanity check
+        if (e->hal.param.scale == 0.0) {
+            WARN("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
+            e->hal.param.scale = 1.0;
+        }
+
+        *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
+
+
+        // 
         // figure out the time since the previous encoder change
         // 
 
@@ -473,51 +574,23 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
         // 
-        // figure out current count as accumulated by the driver
-        // 
-
-        count_diff = (s32)count - (s32)e->prev_count;
-
-        if (count_diff > 32768) count_diff -= 65536;
-        if (count_diff < -32768) count_diff += 65536;
-        *e->hal.pin.count += count_diff;
-
-
-        // 
-        // reset count if the user wants us to
+        // figure out current velocity
         //
-
-        if (*e->hal.pin.reset) {
-            *e->hal.pin.count = 0;
-        }
-
-
-        // 
-        // figure out current scaled position & velocity
-        //
-
-        if (e->hal.param.scale == 0.0) {
-            WARN("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
-            e->hal.param.scale = 1.0;
-        }
-        new_position = *e->hal.pin.count / e->hal.param.scale;
 
         if (timestamp_diff_s == 0.0) {
             *e->hal.pin.velocity = 0.0;  // FIXME: exponential decay or some other better guesstimate
         } else {
-            *e->hal.pin.velocity = (new_position - *e->hal.pin.position) / timestamp_diff_s;
+            *e->hal.pin.velocity = ((*e->hal.pin.rawcounts - e->prev_rawcounts) / timestamp_diff_s) / e->hal.param.scale;
         }
-
-        *e->hal.pin.position = new_position;
 
 
         // 
         // done!
         //
 
-        // now we're here
         e->prev_count = count;
         e->prev_timestamp = timestamp;
+        e->prev_rawcounts = *e->hal.pin.rawcounts;
     }
 }
 
@@ -544,6 +617,7 @@ void hm2_encoder_print_module(hostmot2_t *hm2) {
         PRINT("        hw:\n");
         PRINT("            counter = %04x.%04x\n", (hm2->encoder.counter_reg[i] >> 16), (hm2->encoder.counter_reg[i] & 0xffff));
         PRINT("            latch/control = %04x.%04x\n", (hm2->encoder.control_reg[i] >> 16), (hm2->encoder.control_reg[i] & 0xffff));
+        PRINT("            prev_control = %04x.%04x\n", (hm2->encoder.instance[i].prev_control >> 16), (hm2->encoder.instance[i].prev_control & 0xffff));
     }
 }
 
