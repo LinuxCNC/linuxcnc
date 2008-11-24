@@ -399,8 +399,8 @@ bit
 \noun on 
 float
 \noun default 
- - a 32 bit floating point value, with approximately 24 bits of resolution
- and over 200 bits of dynamic range.
+ - a 64 bit floating point value, with approximately 53 bits of resolution
+ and over 1000 bits of dynamic range.
 \layout Itemize
 
 
