@@ -143,6 +143,15 @@ typedef struct {
     int prev;			/* previous element in list */
 } hal_list_t;
 
+/** HAL "oldname" data structure.
+    When a pin or parameter gets an alias, this structure is used to
+    store the original name.
+*/
+typedef struct {
+    int next_ptr;		/* next struct (used for free list only) */
+    char name[HAL_NAME_LEN + 1];	/* the original name */
+} hal_oldname_t;
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -171,6 +180,7 @@ typedef struct {
     int thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
+    int oldname_free_ptr;	/* list of free oldname structs */
     int comp_free_ptr;		/* list of free component structs */
     int pin_free_ptr;		/* list of free pin structs */
     int sig_free_ptr;		/* list of free signal structs */
@@ -209,7 +219,8 @@ typedef struct {
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
-    hal_data_u dummysig;		/* if unlinked, data_ptr points here */
+    int oldname;		/* old name if aliased, else zero */
+    hal_data_u dummysig;	/* if unlinked, data_ptr points here */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
@@ -235,6 +246,7 @@ typedef struct {
     int next_ptr;		/* next parameter in linked list */
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
+    int oldname;		/* old name if aliased, else zero */
     hal_type_t type;		/* data type */
     hal_param_dir_t dir;	/* data direction */
     char name[HAL_NAME_LEN + 1];	/* parameter name */
@@ -313,7 +325,7 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x00000008	/* version code */
+#define HAL_VER   0x0000000A	/* version code */
 #define HAL_SIZE  131000
 
 /* These pointers are set by hal_init() to point to the shmem block

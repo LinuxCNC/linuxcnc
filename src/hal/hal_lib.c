@@ -128,6 +128,7 @@ hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
 static hal_param_t *alloc_param_struct(void);
+static hal_oldname_t *halpr_alloc_oldname_struct(void);
 #ifdef RTAPI
 static hal_funct_t *alloc_funct_struct(void);
 #endif /* RTAPI */
@@ -141,6 +142,7 @@ static void unlink_pin(hal_pin_t * pin);
 static void free_pin_struct(hal_pin_t * pin);
 static void free_sig_struct(hal_sig_t * sig);
 static void free_param_struct(hal_param_t * param);
+static void free_oldname_struct(hal_oldname_t * oldname);
 #ifdef RTAPI
 static void free_funct_struct(hal_funct_t * funct);
 #endif /* RTAPI */
@@ -669,6 +671,129 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate variable '%s'\n", name);
 	    return HAL_INVAL;
+	}
+	/* didn't find it yet, look at next one */
+	prev = &(ptr->next_ptr);
+	next = *prev;
+    }
+}
+
+int hal_pin_alias(const char *pin_name, const char *alias)
+{
+    int *prev, next, cmp;
+    hal_pin_t *pin, *ptr;
+    hal_oldname_t *oldname;
+
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_alias called before init\n");
+	return HAL_INVAL;
+    }
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_alias called while HAL locked\n");
+	return HAL_PERM;
+    }
+    if (alias != NULL ) {
+	if (strlen(alias) >= HAL_NAME_LEN) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    if (alias != NULL ) {
+	pin = halpr_find_pin_by_name(alias);
+	if ( pin != NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    /* once we unlink the pin from the list, we don't want to have to
+       abort the change and repair things.  So we allocate an oldname
+       struct here, then free it (which puts it on the free list).  This
+       allocation might fail, in which case we abort the command.  But
+       if we actually need the struct later, the next alloc is guaranteed
+       to succeed since at least one struct is on the free list. */
+    oldname = halpr_alloc_oldname_struct();
+    if ( oldname == NULL ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for pin_alias\n");
+	return HAL_INVAL;
+    }
+    free_oldname_struct(oldname);
+    /* find the pin and unlink it from pin list */
+    prev = &(hal_data->pin_list_ptr);
+    next = *prev;
+    while (1) {
+	if (next == 0) {
+	    /* reached end of list, not found */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: pin '%s' not found\n", pin_name);
+	    return HAL_INVAL;
+	}
+	pin = SHMPTR(next);
+	if ( strcmp(pin->name, pin_name) == 0 ) {
+	    /* found it, unlink from list */
+	    *prev = pin->next_ptr;
+	    break;
+	}
+	if (pin->oldname != 0 ) {
+	    oldname = SHMPTR(pin->oldname);
+	    if (strcmp(oldname->name, pin_name) == 0) {
+		/* found it, unlink from list */
+		*prev = pin->next_ptr;
+		break;
+	    }
+	}
+	/* didn't find it yet, look at next one */
+	prev = &(pin->next_ptr);
+	next = *prev;
+    }
+    if ( alias != NULL ) {
+	/* adding a new alias */
+	if ( pin->oldname == 0 ) {
+	    /* save old name (only if not already saved) */
+	    oldname = halpr_alloc_oldname_struct();
+	    pin->oldname = SHMOFF(oldname);
+	    rtapi_snprintf(oldname->name, HAL_NAME_LEN, "%s", pin->name);
+	}
+	/* change pin's name to 'alias' */
+	rtapi_snprintf(pin->name, HAL_NAME_LEN, "%s", alias);
+    } else {
+	/* removing an alias */
+	if ( pin->oldname != 0 ) {
+	    /* restore old name (only if pin is aliased) */
+	    oldname = SHMPTR(pin->oldname);
+	    rtapi_snprintf(pin->name, HAL_NAME_LEN, "%s", oldname->name);
+	    pin->oldname = 0;
+	    free_oldname_struct(oldname);
+	}
+    }
+    /* insert pin back into list in proper place */
+    prev = &(hal_data->pin_list_ptr);
+    next = *prev;
+    while (1) {
+	if (next == 0) {
+	    /* reached end of list, insert here */
+	    pin->next_ptr = next;
+	    *prev = SHMOFF(pin);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	ptr = SHMPTR(next);
+	cmp = strcmp(ptr->name, pin->name);
+	if (cmp > 0) {
+	    /* found the right place for it, insert here */
+	    pin->next_ptr = next;
+	    *prev = SHMOFF(pin);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -1967,6 +2092,7 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 {
     int next;
     hal_pin_t *pin;
+    hal_oldname_t *oldname;
 
     /* search pin list for 'name' */
     next = hal_data->pin_list_ptr;
@@ -1975,6 +2101,13 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 	if (strcmp(pin->name, name) == 0) {
 	    /* found a match */
 	    return pin;
+	}
+	if (pin->oldname != 0 ) {
+	    oldname = SHMPTR(pin->oldname);
+	    if (strcmp(oldname->name, name) == 0) {
+		/* found a match */
+		return pin;
+	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = pin->next_ptr;
@@ -2007,6 +2140,7 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 {
     int next;
     hal_param_t *param;
+    hal_oldname_t *oldname;
 
     /* search parameter list for 'name' */
     next = hal_data->param_list_ptr;
@@ -2015,6 +2149,13 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 	if (strcmp(param->name, name) == 0) {
 	    /* found a match */
 	    return param;
+	}
+	if (param->oldname != 0 ) {
+	    oldname = SHMPTR(param->oldname);
+	    if (strcmp(oldname->name, name) == 0) {
+		/* found a match */
+		return param;
+	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = param->next_ptr;
@@ -2413,6 +2554,7 @@ static int init_hal_data(void)
     hal_data->thread_list_ptr = 0;
     hal_data->base_period = 0;
     hal_data->threads_running = 0;
+    hal_data->oldname_free_ptr = 0;
     hal_data->comp_free_ptr = 0;
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
@@ -2596,6 +2738,29 @@ static hal_param_t *alloc_param_struct(void)
 	p->data_ptr = 0;
 	p->owner_ptr = 0;
 	p->type = 0;
+	p->name[0] = '\0';
+    }
+    return p;
+}
+
+static hal_oldname_t *halpr_alloc_oldname_struct(void)
+{
+    hal_oldname_t *p;
+
+    /* check the free list */
+    if (hal_data->oldname_free_ptr != 0) {
+	/* found a free structure, point to it */
+	p = SHMPTR(hal_data->oldname_free_ptr);
+	/* unlink it from the free list */
+	hal_data->oldname_free_ptr = p->next_ptr;
+	p->next_ptr = 0;
+    } else {
+	/* nothing on free list, allocate a brand new one */
+	p = shmalloc_dn(sizeof(hal_oldname_t));
+    }
+    if (p) {
+	/* make sure it's empty */
+	p->next_ptr = 0;
 	p->name[0] = '\0';
     }
     return p;
@@ -2797,6 +2962,7 @@ static void free_pin_struct(hal_pin_t * pin)
 
     unlink_pin(pin);
     /* clear contents of struct */
+    if ( pin->oldname != 0 ) free_oldname_struct(SHMPTR(pin->oldname));
     pin->data_ptr_addr = 0;
     pin->owner_ptr = 0;
     pin->type = 0;
@@ -2836,6 +3002,7 @@ static void free_sig_struct(hal_sig_t * sig)
 static void free_param_struct(hal_param_t * p)
 {
     /* clear contents of struct */
+    if ( p->oldname != 0 ) free_oldname_struct(SHMPTR(p->oldname));
     p->data_ptr = 0;
     p->owner_ptr = 0;
     p->type = 0;
@@ -2843,6 +3010,15 @@ static void free_param_struct(hal_param_t * p)
     /* add it to free list (params use the same struct as src vars) */
     p->next_ptr = hal_data->param_free_ptr;
     hal_data->param_free_ptr = SHMOFF(p);
+}
+
+static void free_oldname_struct(hal_oldname_t * oldname)
+{
+    /* clear contents of struct */
+    oldname->name[0] = '\0';
+    /* add it to free list */
+    oldname->next_ptr = hal_data->oldname_free_ptr;
+    hal_data->oldname_free_ptr = SHMOFF(oldname);
 }
 
 #ifdef RTAPI
