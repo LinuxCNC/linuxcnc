@@ -108,6 +108,9 @@ int rtapi_init(const char *modname)
     /* get shared memory block from OS and save its address */
     errno = 0;
     rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
+    // the check for -1 here is because rtai_malloc (in at least
+    // rtai 3.6.1, and probably others) has a bug where it
+    // sometimes returns -1 on error
     if (rtapi_data == NULL || rtapi_data == (rtapi_data_t*)-1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
@@ -442,7 +445,10 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    }
 	    /* no, map it */
 	    shmem_addr_array[shmem_id] = rtai_malloc(key, shmem->size);
-	    if (shmem_addr_array[shmem_id] == NULL) {
+            // the check for -1 here is because rtai_malloc (in at least
+            // rtai 3.6.1, and probably others) has a bug where it
+            // sometimes returns -1 on error
+            if (shmem_addr_array[shmem_id] == NULL || shmem_addr_array[shmem_id] == (void*)-1) {
 		/* map failed */
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: ERROR: failed to map shmem\n");
@@ -474,7 +480,10 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem = &(shmem_array[n]);
     /* now get shared memory block from OS and save its address */
     shmem_addr_array[shmem_id] = rtai_malloc(key, size);
-    if (shmem_addr_array[shmem_id] == NULL) {
+    // the check for -1 here is because rtai_malloc (in at least
+    // rtai 3.6.1, and probably others) has a bug where it
+    // sometimes returns -1 on error
+    if (shmem_addr_array[shmem_id] == NULL || shmem_addr_array[shmem_id] == (void*)-1) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not create shmem %d\n", n);
