@@ -5227,6 +5227,39 @@ G17 XY Plane
 \layout Standard
 
 Program G17 to select the XY-plane.
+ Figure(
+\begin_inset LatexCommand \ref{fig:XY-Plane}
+
+\end_inset 
+
+) shows the orientation of the XZ plane.
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+XY Plane
+\begin_inset LatexCommand \label{fig:XY-Plane}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/G17.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Section
 
 G18 XZ Plane
@@ -5281,7 +5314,7 @@ G19 YZ Plane
 
 \layout Standard
 
-G18 to select the XZ-plane, or G19 to select the YZ-plane.
+G19 to select the YZ-plane.
  The effects of having a plane selected are discussed in Section 
 \begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
 
