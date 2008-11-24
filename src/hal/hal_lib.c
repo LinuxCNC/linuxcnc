@@ -124,7 +124,6 @@ static void *shmalloc_dn(long int size);
     All of these functions assume that the caller has already
     grabbed the hal_data mutex.
 */
-static hal_alias_t *halpr_alloc_alias_struct(void);
 hal_comp_t *halpr_alloc_comp_struct(void);
 static hal_pin_t *alloc_pin_struct(void);
 static hal_sig_t *alloc_sig_struct(void);
@@ -137,9 +136,6 @@ static hal_funct_entry_t *alloc_funct_entry_struct(void);
 static hal_thread_t *alloc_thread_struct(void);
 #endif /* RTAPI */
 
-static void remove_alias_from_pin(hal_pin_t * pin);
-static void remove_alias_from_param(hal_param_t * param);
-static void free_alias_struct(hal_alias_t * alias);
 static void free_comp_struct(hal_comp_t * comp);
 static void unlink_pin(hal_pin_t * pin);
 static void free_pin_struct(hal_pin_t * pin);
@@ -184,11 +180,6 @@ int hal_init(const char *name)
 
     if (name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
-	return HAL_INVAL;
-    }
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: component name '%s' is too long\n", name);
 	return HAL_INVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
@@ -596,17 +587,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
 	return HAL_INVAL;
     }
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin name '%s' is too long\n", name);
-	return HAL_INVAL;
-    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called while HAL locked\n");
 	return HAL_PERM;
     }
-
+    
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -680,95 +666,6 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     }
 }
 
-int hal_pin_alias(const char *pin_name, const char *alias)
-{
-    int *prev, next, cmp;
-    hal_pin_t *pin;
-    hal_alias_t *new, *ptr;
-
-    if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called before init\n");
-	return HAL_INVAL;
-    }
-    if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin_alias called while HAL locked\n");
-	return HAL_PERM;
-    }
-    if (alias != NULL ) {
-	if (strlen(alias) >= HAL_NAME_LEN) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: alias name '%s' is too long\n", alias);
-	    return HAL_INVAL;
-	}
-    }
-    /* get mutex before accessing shared data */
-    rtapi_mutex_get(&(hal_data->mutex));
-    if (alias != NULL ) {
-	pin = halpr_find_pin_by_name(alias);
-	if ( pin != NULL ) {
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
-	    return HAL_INVAL;
-	}
-    }
-    pin = halpr_find_pin_by_name(pin_name);
-    if ( pin == NULL ) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin '%s' not found\n", pin_name);
-	return HAL_INVAL;
-    }
-    /* remove any existing alias */
-    remove_alias_from_pin(pin);
-    /* is that all we needed to do? */
-    if ( alias == NULL ) {
-	rtapi_mutex_give(&(hal_data->mutex));
-	return HAL_SUCCESS;
-    }
-    /* allocate a new structure */
-    new = halpr_alloc_alias_struct();
-    if (new == 0) {
-	/* alloc failed */
-	rtapi_mutex_give(&(hal_data->mutex));
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: insufficient memory for alias '%s'\n", alias);
-	return HAL_NOMEM;
-    }
-    /* initialize the structure */
-    new->owner_ptr = SHMOFF(pin);
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", alias);
-    /* attach it to the pin */
-    pin->alias = SHMOFF(new);
-    /* insert new structure in alias list */
-    prev = &(hal_data->pin_alias_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
-	}
-	ptr = SHMPTR(next);
-	cmp = strcmp(ptr->name, new->name);
-	if (cmp > 0) {
-	    /* found the right place for it, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
-	}
-	/* didn't find it yet, look at next one */
-	prev = &(ptr->next_ptr);
-	next = *prev;
-    }
-}
-
-
 /***********************************************************************
 *                      "SIGNAL" FUNCTIONS                              *
 ************************************************************************/
@@ -786,11 +683,6 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return HAL_INVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: signal name '%s' is too long\n", name);
-	return HAL_INVAL;
-    }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called while HAL is locked\n");
@@ -1190,11 +1082,6 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	return HAL_INVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: parameter name '%s' is too long\n", name);
-	return HAL_INVAL;
-    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called while HAL locked\n");
@@ -1388,11 +1275,6 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	return HAL_INVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: function name '%s' is too long\n", name);
-	return HAL_INVAL;
-    }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called while HAL locked\n");
@@ -1508,11 +1390,6 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	return HAL_INVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: thread name '%s' is too long\n", name);
-	return HAL_INVAL;
-    }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called while HAL is locked\n");
@@ -2060,7 +1937,6 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 {
     int next;
     hal_pin_t *pin;
-    hal_alias_t *alias;
 
     /* search pin list for 'name' */
     next = hal_data->pin_list_ptr;
@@ -2069,13 +1945,6 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 	if (strcmp(pin->name, name) == 0) {
 	    /* found a match */
 	    return pin;
-	}
-	if (pin->alias != 0 ) {
-	    alias = SHMPTR(pin->alias);
-	    if (strcmp(alias->name, name) == 0) {
-		/* found a match */
-		return pin;
-	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = pin->next_ptr;
@@ -2108,7 +1977,6 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 {
     int next;
     hal_param_t *param;
-    hal_alias_t *alias;
 
     /* search parameter list for 'name' */
     next = hal_data->param_list_ptr;
@@ -2117,13 +1985,6 @@ hal_param_t *halpr_find_param_by_name(const char *name)
 	if (strcmp(param->name, name) == 0) {
 	    /* found a match */
 	    return param;
-	}
-	if (param->alias != 0 ) {
-	    alias = SHMPTR(param->alias);
-	    if (strcmp(alias->name, name) == 0) {
-		/* found a match */
-		return param;
-	    }
 	}
 	/* didn't find it yet, look at next one */
 	next = param->next_ptr;
@@ -2514,8 +2375,6 @@ static int init_hal_data(void)
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */
-    hal_data->pin_alias_list_ptr = 0;
-    hal_data->param_alias_list_ptr = 0;
     hal_data->comp_list_ptr = 0;
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
@@ -2524,7 +2383,6 @@ static int init_hal_data(void)
     hal_data->thread_list_ptr = 0;
     hal_data->base_period = 0;
     hal_data->threads_running = 0;
-    hal_data->alias_free_ptr = 0;
     hal_data->comp_free_ptr = 0;
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
@@ -2603,30 +2461,6 @@ static void *shmalloc_dn(long int size)
     return retval;
 }
 
-static hal_alias_t *halpr_alloc_alias_struct(void)
-{
-    hal_alias_t *p;
-
-    /* check the free list */
-    if (hal_data->alias_free_ptr != 0) {
-	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->alias_free_ptr);
-	/* unlink it from the free list */
-	hal_data->alias_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
-    } else {
-	/* nothing on free list, allocate a brand new one */
-	p = shmalloc_dn(sizeof(hal_alias_t));
-    }
-    if (p) {
-	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->owner_ptr = 0;
-	p->name[0] = '\0';
-    }
-    return p;
-}
-
 hal_comp_t *halpr_alloc_comp_struct(void)
 {
     hal_comp_t *p;
@@ -2674,7 +2508,6 @@ static hal_pin_t *alloc_pin_struct(void)
 	p->next_ptr = 0;
 	p->data_ptr_addr = 0;
 	p->owner_ptr = 0;
-	p->alias = 0;
 	p->type = 0;
 	p->dir = 0;
 	p->signal = 0;
@@ -2732,7 +2565,6 @@ static hal_param_t *alloc_param_struct(void)
 	p->next_ptr = 0;
 	p->data_ptr = 0;
 	p->owner_ptr = 0;
-	p->alias = 0;
 	p->type = 0;
 	p->name[0] = '\0';
     }
@@ -2826,76 +2658,6 @@ static hal_thread_t *alloc_thread_struct(void)
     return p;
 }
 #endif /* RTAPI */
-
-static void remove_alias_from_pin(hal_pin_t * pin)
-{
-    int *prev, next;
-    hal_alias_t *alias;
-
-    if ( pin->alias == 0 ) {
-	/* no alias on this pin, done */
-	return;
-    }
-    /* search the alias list */
-    prev = &(hal_data->pin_alias_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	alias = SHMPTR(next);
-	if ( next == pin->alias ) { 
-	    /* found it, unlink from list */
-	    *prev = alias->next_ptr;
-	    /* and delete it */
-	    free_alias_struct(alias);
-	    /* only one alias per pin, so we're done */
-	    pin->alias = 0;
-	    return;
-	} else {
-	    /* no match, try the next one */
-	    prev = &(alias->next_ptr);
-	}
-	next = *prev;
-    }
-}
-
-static void remove_alias_from_param(hal_param_t * param)
-{
-    int *prev, next;
-    hal_alias_t *alias;
-
-    if ( param->alias == 0 ) {
-	/* no alias on this parameter, done */
-	return;
-    }
-    /* search the alias list */
-    prev = &(hal_data->param_alias_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	alias = SHMPTR(next);
-	if ( next == param->alias ) { 
-	    /* found it, unlink from list */
-	    *prev = alias->next_ptr;
-	    /* and delete it */
-	    free_alias_struct(alias);
-	    /* only one alias per param, so we're done */
-	    param->alias = 0;
-	    return;
-	} else {
-	    /* no match, try the next one */
-	    prev = &(alias->next_ptr);
-	}
-	next = *prev;
-    }
-}
-
-static void free_alias_struct(hal_alias_t * alias)
-{
-    /* clear contents of struct */
-    alias->owner_ptr = 0;
-    alias->name[0] = '\0';
-    /* add it to free list */
-    alias->next_ptr = hal_data->alias_free_ptr;
-    hal_data->alias_free_ptr = SHMOFF(alias);
-}
 
 static void free_comp_struct(hal_comp_t * comp)
 {
@@ -3004,7 +2766,6 @@ static void free_pin_struct(hal_pin_t * pin)
 {
 
     unlink_pin(pin);
-    remove_alias_from_pin(pin);
     /* clear contents of struct */
     pin->data_ptr_addr = 0;
     pin->owner_ptr = 0;
@@ -3044,7 +2805,6 @@ static void free_sig_struct(hal_sig_t * sig)
 
 static void free_param_struct(hal_param_t * p)
 {
-    remove_alias_from_param(p);
     /* clear contents of struct */
     p->data_ptr = 0;
     p->owner_ptr = 0;
