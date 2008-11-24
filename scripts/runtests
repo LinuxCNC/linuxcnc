@@ -12,6 +12,7 @@ TOPDIR=$(cd $MYDIR/..; pwd)
 NUM=0
 FAIL=0; FAIL_NAMES=""
 XFAIL=0
+VERBOSE=0
 
 clean () {
     find $* \( -name "stderr" -or -name "result" \) -print0 | xargs -0 rm -f
@@ -20,7 +21,14 @@ clean () {
 run_shell_script () {
     testname=$(basename $1)
     testdir=$(dirname $1)
-    (cd $testdir; bash -x $testname > result 2> stderr)
+
+    pushd $testdir > /dev/null
+    if [ $VERBOSE -eq 1 ]; then
+        (bash -x $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+    else
+        bash -x $testname > result 2> stderr
+    fi
+    popd > /dev/null
 }
 
 run_without_overruns () {
@@ -28,7 +36,15 @@ run_without_overruns () {
     testdir=$(dirname $1)
     for i in $(seq 10); do
         if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test" 1>&2 ; fi
-	(cd $testdir; halrun -f $testname > result 2> stderr)
+
+        pushd $testdir > /dev/null
+        if [ $VERBOSE -eq 1 ]; then
+            (halrun -f $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+        else
+            halrun -f $testname > result 2> stderr
+        fi
+        popd > /dev/null
+
         exitcode=$?
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
@@ -131,15 +147,19 @@ Usage:
 
     $P -c tests
 	Remove temporary files from an earlier test run.
+
+    $P -v
+        Show stdout and stderr (normally it's hidden).
 EOF
 }
 
 CLEAN_ONLY=0
 NOCLEAN=0
-while getopts cnh opt; do
+while getopts cnvh opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
+    v) VERBOSE=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
