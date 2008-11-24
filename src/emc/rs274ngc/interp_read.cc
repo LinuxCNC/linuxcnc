@@ -1443,7 +1443,6 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   double value;
   int status;
   int param_cnt;
-  char oNameBuf[LINELEN+1];
   int oNumber;
 
   CHK((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -1452,17 +1451,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
   // so... we can have a parameter contain a function pointer!
   *counter += 1;
 
-  if(line[*counter] == '<')
-  {
-      read_name(line, counter, oNameBuf);
-  }
-  else
-  {
-     CHP(read_integer_value(line, counter, &oNumber,
-                            parameters));
+  CHP(read_integer_value(line, counter, &oNumber,
+                         parameters));
 
-     logDebug("In: %s line:%d |%s|", name, block->line_number, line);
-  }
+  logDebug("In: %s line:%d |%s|", name, block->line_number, line);
 
   block->o_number = oNumber;
 
