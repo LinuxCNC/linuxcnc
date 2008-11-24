@@ -60,7 +60,6 @@
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
-static void print_pin_aliases(char **patterns);
 static void print_sig_info(int type, char **patterns);
 static void print_script_sig_info(int type, char **patterns);
 static void print_param_info(int type, char **patterns);
@@ -314,24 +313,6 @@ int do_addf_cmd(char *func, char *thread, char **opt) {
     return retval;
 }
 
-int do_alias_cmd(char *pinparam, char *name, char *alias) {
-    int retval;
-
-    if ( strcmp (pinparam, "pin" ) == 0 ) {
-	retval = hal_pin_alias(name, alias);
-//    } else if ( strcmp (pinparam, "param" ) == 0 ) {
-//	retval = hal_param_alias(name, alias);
-    } else {
-	retval = HAL_INVAL;
-    }
-    if(retval == 0) {
-        halcmd_info("%s '%s' aliased to '%s'\n",
-                    pinparam, name, alias);
-    } else {
-        halcmd_error("alias failed\n");
-    }
-    return retval;	
-}
 
 int do_delf_cmd(char *func, char *thread) {
     int retval;
@@ -898,7 +879,6 @@ int do_show_cmd(char *type, char **patterns)
 	/* print everything */
 	print_comp_info(NULL);
 	print_pin_info(-1, NULL);
-	print_pin_aliases(NULL);
 	print_sig_info(-1, NULL);
 	print_param_info(-1, NULL);
 	print_funct_info(NULL);
@@ -907,7 +887,6 @@ int do_show_cmd(char *type, char **patterns)
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
 	print_pin_info(-1, patterns);
-	print_pin_aliases(patterns);
 	print_sig_info(-1, patterns);
 	print_param_info(-1, patterns);
 	print_funct_info(patterns);
@@ -935,8 +914,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_funct_info(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(patterns);
-    } else if (strcmp(type, "alias") == 0) {
-	print_pin_aliases(patterns);
     } else {
 	halcmd_error("Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1525,52 +1502,20 @@ static void print_comp_info(char **patterns)
 
 static void print_pin_info(int type, char **patterns)
 {
-    hal_pin_t *curr_pin, *pin;
-    hal_alias_t *curr_alias, *alias;
+    int next;
+    hal_pin_t *pin;
     hal_comp_t *comp;
     hal_sig_t *sig;
     void *dptr;
-    char *name;
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
 	halcmd_output("Owner   Type  Dir         Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
-    /* we want to lists pins with aliases using the alias, not the original
-       name.  So we traverse both the pin and alias lists at the same time
-       outputing whichever comes first in sort order */
-    curr_pin = hal_data->pin_list_ptr ? SHMPTR(hal_data->pin_list_ptr) : NULL;
-    curr_alias = hal_data->pin_alias_list_ptr ? SHMPTR(hal_data->pin_alias_list_ptr) : NULL;
-    while (1) {
-	while (( curr_pin != NULL ) && ( curr_pin->alias != 0 )) {
-	    /* pin has alias, skip it (will be printed using the alias) */
-	    curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
-	}
-	if (( curr_pin != NULL ) && ( curr_alias != NULL )) {
-	    // entries in both lists, compare them
-	    if ( strcmp(curr_pin->name, curr_alias->name) < 0 ) {
-		// do pin
-		pin = curr_pin;
-		curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
-	    } else {
-		// do alias
-		pin = SHMPTR(curr_alias->owner_ptr);
-		curr_alias = curr_alias->next_ptr ? SHMPTR(curr_alias->next_ptr) : NULL;
-	    }
-	} else if ( curr_pin != NULL ) {
-	    // no aliases left, do pin
-	    pin = curr_pin;
-	    curr_pin = curr_pin->next_ptr ? SHMPTR(curr_pin->next_ptr) : NULL;
-	} else if ( curr_alias != NULL ) {
-	    // no pins left, do alias
-	    pin = SHMPTR(curr_alias->owner_ptr);
-	    curr_alias = curr_alias->next_ptr ? SHMPTR(curr_alias->next_ptr) : NULL;
-	} else {
-	    // reached end of both lists
-	    break;
-	}
-	// test against pattern
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	pin = SHMPTR(next);
 	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
 	    comp = SHMPTR(pin->owner_ptr);
 	    if (pin->signal != 0) {
@@ -1580,62 +1525,28 @@ static void print_pin_info(int type, char **patterns)
 		sig = 0;
 		dptr = &(pin->dummysig);
 	    }
-	    if (pin->alias != 0) {
-		alias = SHMPTR(pin->alias);
-		name = alias->name;
-	    } else {
-		name = pin->name;
-	    }
 	    if (scriptmode == 0) {
 		halcmd_output(" %5d  %5s %-3s  %9s  %s",
 		    comp->comp_id,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
 		    data_value((int) pin->type, dptr),
-		    name);
+		    pin->name);
 	    } else {
 		halcmd_output("%s %s %s %s %s",
 		    comp->name,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
 		    data_value2((int) pin->type, dptr),
-		    name);
-	    }
+		    pin->name);
+	    } 
 	    if (sig == 0) {
 		halcmd_output("\n");
 	    } else {
 		halcmd_output(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
 	    }
 	}
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-static void print_pin_aliases(char **patterns)
-{
-    int next;
-    hal_alias_t *alias;
-    hal_pin_t *pin;
-
-    if (scriptmode == 0) {
-	halcmd_output("Pin Aliases:\n");
-	halcmd_output(" %-41s  %s\n", "Alias", "Original Name");
-    }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_alias_list_ptr;
-    while (next != 0) {
-	alias = SHMPTR(next);
-	pin = SHMPTR(alias->owner_ptr);
-	if ( match(patterns, pin->name) || match(patterns, alias->name) ) {
-	    if (scriptmode == 0) {
-		/* 41 is HAL_NAME_LEN */
-		halcmd_output(" %-41s  %s\n", alias->name, pin->name);
-	    } else {
-		halcmd_output(" %s  %s\n", alias->name, pin->name);
-	    }
-	}
-	next = alias->next_ptr;
+	next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
@@ -2003,11 +1914,6 @@ static void print_mem_status()
     active = count_list(hal_data->thread_list_ptr);
     recycled = count_list(hal_data->thread_free_ptr);
     halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
-    // count aliases
-    active = count_list(hal_data->pin_alias_list_ptr);
-    active += count_list(hal_data->param_alias_list_ptr);
-    recycled = count_list(hal_data->alias_free_ptr);
-    halcmd_output("  active/recycled aliases:  %d/%d\n", active, recycled);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
