@@ -56,6 +56,10 @@ GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 // ModbusReqType must be in the same order as MODBUS_REQ_ in protocol_modbus_master.h
 static char * ModbusReqType[] = {"Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16", "Read_COILS  fnct- 1","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
 #define NBR_MODBUS_PARAMS 6
+static char * SerialSpeed[] = { "300", "600", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", NULL };
+#define NBR_SERIAL_SPEED 9
+static char * PortName[] = {"IP port","","/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3","/dev/ttyUSB0","/dev/ttyUSB1",NULL };
+#define NBR_PORT_NAME 7 
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
 GtkWidget *SerialSpeedEntry;
@@ -65,6 +69,7 @@ GtkWidget *DebugLevelEntry;
 //for modbus configure window
 #define NBR_COM_PARAMS 8
 GtkWidget *EntryComParam[ NBR_COM_PARAMS ];
+GtkWidget *ComboComParam[1];
 GtkWidget *ConfigWindow;
 GtkWidget *DebugButton [ 4 ];
 GtkWidget *OffsetButton[ 1 ];
@@ -246,6 +251,20 @@ int ConvComboToNum( char * text, char ** list )
 			Value++;
 	}
 	return Value;
+}
+
+char* ConvNumToString( int num, char ** list )
+{
+	int Value = 0;
+	char Found = FALSE;
+	while( !Found && list[ Value ]!=NULL )
+	{
+		if ( atoi( list[ Value ] )== num)
+			Found = TRUE;
+		else
+			Value++;
+	}
+	return list[ Value ];
 }
 
 #ifdef MODBUS_IO_MASTER
@@ -532,8 +551,12 @@ GtkWidget * CreateModbusComParametersPage( void )
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_COM_PARAMS ];
 	GtkWidget *LabelComParam[ NBR_COM_PARAMS ];
+        GtkWidget **ComboPortName = &ComboComParam[0];
+        GtkWidget **ComboSerialSpeed = &ComboComParam[1];
         GSList *group;
-	int NumLine;
+        GList * SpeedItemsDevices = NULL;
+        GList * PortItemsDevices = NULL;
+	int NumLine,ScanDev = 0;
 	char BuffLabel[ 50 ];
 	char BuffValue[ 20 ];
 
@@ -547,7 +570,17 @@ GtkWidget * CreateModbusComParametersPage( void )
               gtk_widget_show( LabelComParam[ 0 ]  );     
               return vbox;
              }
-
+        do
+	{
+		SpeedItemsDevices = g_list_append( SpeedItemsDevices, SerialSpeed[ ScanDev++ ] );
+	}
+	while( SerialSpeed[ ScanDev ] );
+        ScanDev = 0;
+        do
+	{
+		PortItemsDevices = g_list_append( PortItemsDevices, PortName[ ScanDev++ ] );
+	}
+	while( PortName[ ScanDev ] );
 	vbox = gtk_vbox_new (FALSE/*homogeneous*/, 0);
 	gtk_widget_show (vbox);
 
@@ -565,6 +598,7 @@ GtkWidget * CreateModbusComParametersPage( void )
 			case 1:
 				sprintf( BuffLabel, "Serial baud rate" );
 				sprintf( BuffValue, "%d", ModbusSerialSpeed );
+                                
 				break;
                         case 2:
 				sprintf( BuffLabel, "After transmit pause - milliseconds" );
@@ -594,6 +628,43 @@ GtkWidget * CreateModbusComParametersPage( void )
 		}
             switch( NumLine )
 		{
+                        case 0:
+                               //port name label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+                                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] );
+
+                                // combo box
+				
+				*ComboPortName = gtk_combo_new( );
+				gtk_combo_set_value_in_list( GTK_COMBO(*ComboPortName), TRUE /*val*/, FALSE /*ok_if_empty*/ );
+				gtk_combo_set_popdown_strings( GTK_COMBO(*ComboPortName), PortItemsDevices );
+				gtk_widget_set_usize( *ComboPortName,125,0 );
+				gtk_box_pack_start ( GTK_BOX (hbox[NumLine]), *ComboPortName, FALSE, FALSE, 0 );
+				gtk_widget_show ( *ComboPortName );
+			        gtk_entry_set_text((GtkEntry*)((GtkCombo *)*ComboPortName)->entry,ModbusSerialPortNameUsed );
+				gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*ComboPortName)->entry),FALSE);
+                                break;
+                        case 1:
+                                // serial speed label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+                                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] );
+
+                                // combo box
+				
+				*ComboSerialSpeed = gtk_combo_new( );
+				gtk_combo_set_value_in_list( GTK_COMBO(*ComboSerialSpeed), TRUE /*val*/, FALSE /*ok_if_empty*/ );
+				gtk_combo_set_popdown_strings( GTK_COMBO(*ComboSerialSpeed), SpeedItemsDevices );
+				gtk_widget_set_usize( *ComboSerialSpeed,125,0 );
+				gtk_box_pack_start ( GTK_BOX (hbox[NumLine]), *ComboSerialSpeed, FALSE, FALSE, 0 );
+				gtk_widget_show ( *ComboSerialSpeed );
+			        gtk_entry_set_text((GtkEntry*)((GtkCombo *)*ComboSerialSpeed)->entry,
+                                                    ConvNumToString( ModbusSerialSpeed,SerialSpeed  ));
+				gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*ComboSerialSpeed)->entry),FALSE);
+                                break;
                          case 5:
                                 //RTS label
                                 LabelComParam[NumLine] = gtk_label_new(BuffLabel);
@@ -701,13 +772,22 @@ GtkWidget * CreateModbusComParametersPage( void )
 
 void GetModbusComParameters( void )
 {
+        GtkWidget **ComboText;
         int update=0;
-        if ( strncmp( ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )),
-            strlen( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] ))) )!=0 )               {   update=TRUE;   }
-        if ( ModbusSerialSpeed != atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) ) ) {   update=TRUE;   }
+        gchar *string;
 
-	strcpy( ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )));
-	ModbusSerialSpeed = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) );
+        ComboText = &ComboComParam[0];
+        string = (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*ComboText)->entry) ;
+        if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 )   {   update=TRUE;   }
+        if ( strncmp( string, PortName[0], strlen(PortName[0]) )==0 )           
+             {     strcpy( ModbusSerialPortNameUsed,"" );
+             }else{
+       	           strcpy( ModbusSerialPortNameUsed,string );
+                  }
+        ComboText = &ComboComParam[1];
+        string = (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*ComboText)->entry) ;
+        if ( ModbusSerialSpeed != atoi(string)) {   update=TRUE;   }
+	ModbusSerialSpeed = atoi( string );
 	ModbusTimeAfterTransmit = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 2 ] )) );
 	ModbusTimeInterFrame = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 3 ] )) );
 	ModbusTimeOutReceipt = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 4 ] )) );
