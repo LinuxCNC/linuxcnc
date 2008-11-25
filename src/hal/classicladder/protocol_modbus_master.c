@@ -177,19 +177,19 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 			case MODBUS_FC_READ_INPUT_REGS:// 4 
                         case MODBUS_FC_READ_COILS:     // 1				
 			case MODBUS_FC_READ_HOLD_REGS: // 3
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
-				break;
+                            AskFrame[ FrameSize++ ] = FirstEle >> 8;
+                            AskFrame[ FrameSize++ ] = FirstEle & 0xff;
+                            AskFrame[ FrameSize++ ] = NbrEles >> 8;
+                            AskFrame[ FrameSize++ ] = NbrEles & 0xff;
+                            break;
 			case MODBUS_FC_FORCE_COIL:     // 5
 			{
 				int BitValue = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
 				BitValue = (BitValue!=0)?MODBUS_BIT_ON:MODBUS_BIT_OFF;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
-				AskFrame[ FrameSize++ ] = (unsigned char)BitValue>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)BitValue;
+				AskFrame[ FrameSize++ ] = FirstEle >> 8;
+				AskFrame[ FrameSize++ ] = FirstEle & 0xff;
+				AskFrame[ FrameSize++ ] = BitValue >> 8;
+				AskFrame[ FrameSize++ ] = BitValue & 0xff;
 				break;
 			}
 			case MODBUS_FC_FORCE_COILS:   // 15
@@ -197,11 +197,11 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				int NbrRealBytes = (NbrEles+7)/8;
 				int ScanEle = 0;
 				int ScanByte, ScanBit;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrRealBytes;
+				AskFrame[ FrameSize++ ] = FirstEle >> 8;
+				AskFrame[ FrameSize++ ] = FirstEle & 0xff;
+				AskFrame[ FrameSize++ ] = NbrEles >> 8;
+				AskFrame[ FrameSize++ ] = NbrEles & 0xff;
+				AskFrame[ FrameSize++ ] = NbrRealBytes & 0xff; /* this may get truncated */
 				for( ScanByte=0; ScanByte<NbrRealBytes; ScanByte++ )
 				{
 					unsigned char Mask = 0x01;
@@ -221,37 +221,37 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 			case MODBUS_FC_WRITE_REG:/*(function 6 */
 			{
 				int Value;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
+				AskFrame[ FrameSize++ ] = FirstEle >> 8;
+				AskFrame[ FrameSize++ ] = FirstEle & 0xff;
 				Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
 //				printf("INFO MODBUS writing: WORD value =%d \n",Value);
-				AskFrame[ FrameSize++ ] = Value>>8;
-				AskFrame[ FrameSize++ ] = Value-((Value>>8)*256);
+				AskFrame[ FrameSize++ ] = Value >> 8;
+				AskFrame[ FrameSize++ ] = Value & 0xff;
 			}	
 			break;
 
 			case MODBUS_FC_WRITE_REGS: /*function 16 */
 			{
 				int i ;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)FirstEle;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles>>8;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles;
-				AskFrame[ FrameSize++ ] = (unsigned char)NbrEles*2;
+				AskFrame[ FrameSize++ ] = FirstEle >> 8;
+				AskFrame[ FrameSize++ ] = FirstEle & 0xff;
+				AskFrame[ FrameSize++ ] = NbrEles >> 8;
+				AskFrame[ FrameSize++ ] = NbrEles & 0xff;
+				AskFrame[ FrameSize++ ] = (NbrEles*2) & 0xff; /* this may get truncated */
 				for (i=0; i <NbrEles; i++)
 				{
 				int Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle +i );
 //				printf("INFO MODBUS writing: WORD value =%d \n",Value);
-				AskFrame[ FrameSize++ ] = Value>>8;
-				AskFrame[ FrameSize++ ] = Value-((Value>>8)*256);
+				AskFrame[ FrameSize++ ] = Value >> 8;
+				AskFrame[ FrameSize++ ] = Value & 0xff;
 				}
 				break;
 			}
 			case MODBUS_FC_DIAGNOSTICS://8
-				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
-				AskFrame[ FrameSize++ ] = 0;//sub function number for echo
-				AskFrame[ FrameSize++ ] = 257>>8;// two bytes of hard coded data
-				AskFrame[ FrameSize++ ] = 257-((257>>8)*256);// to echo
+				AskFrame[ FrameSize++ ] = 0; //sub function number for echo
+				AskFrame[ FrameSize++ ] = 0; //sub function number for echo
+				AskFrame[ FrameSize++ ] = 1; // MSB of hardcoded 257
+				AskFrame[ FrameSize++ ] = 1; // LSB of hardcoded 257
 				break;
 		}
 	}
