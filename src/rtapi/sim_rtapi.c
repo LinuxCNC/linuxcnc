@@ -475,10 +475,8 @@ int sim_rtapi_run_threads(int fd) {
 		struct rtapi_task *task = &task_array[t];
 		if(task->magic == TASK_MAGIC && task->ctx && 
 			(base_periods % task->ratio == 0)) {
-		    int result;
 		    this_ctx = task->ctx;
-		    result = pth_uctx_switch(main_ctx, task->ctx);
-		    if(result == FALSE) _exit(1);
+		    if(pth_uctx_switch(main_ctx, task->ctx) == FALSE) _exit(1);
 		}
 	    }
 	}
