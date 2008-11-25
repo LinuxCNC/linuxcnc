@@ -41,8 +41,8 @@
 
 // mapping variable type
 #define B_VAR   0
-#define I_VAR   1
-#define Q_VAR   2
+#define Q_VAR   1
+#define I_VAR   2
 #define W_VAR   0
 #define QW_VAR  1
 #define IW_VAR  2
