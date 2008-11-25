@@ -341,12 +341,12 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 					}
 					break;
 				case MODBUS_FC_WRITE_REG://function 6
-					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame==1+2+2 )
+					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame==1+2+2 )
 					{	cError=0;	}
 						
 					break;
 				case MODBUS_FC_WRITE_REGS: //function 16
-					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
+					if ( ((RespFrame[1]<<8) | RespFrame[2])==FirstEle && SizeFrame>=1+2+2 )
 					{
 						if ( ((RespFrame[3]<<8) | RespFrame[4])==NbrEles )
 							cError = 0;
@@ -660,7 +660,8 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
                            default:  
 			       break;
                         }
-		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
+		case MODBUS_REQ_REGISTERS_READ:
+		case MODBUS_REQ_HOLD_READ:
                         switch ( MapRegisterRead )
                            {
                             case B_VAR:
