@@ -49,6 +49,11 @@ the board with the hostmot2 driver.  The old bfload(1) firmware loading
 method is not used anymore.  Instead the firmware to load is specified
 in the \fBconfig\fR modparam, as described in the hostmot2(9) manpage,
 in the \fIconfig modparam\fR section.
+
+Some parallel ports require special initialization before they can
+be used.  EMC2 provides a kernel driver that does this initialization
+called probe_parport.  Load this driver before loading hm2_7i43, by
+putting "loadrt probe_parport" in your .hal file.
 .SH Jumper settings
 
 To send the FPGA configuration from the PC, the board must be configured
