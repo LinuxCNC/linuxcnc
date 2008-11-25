@@ -71,13 +71,12 @@ int MapCoilRead;
 int MapCoilWrite;
 #define NBR_COM_PARAMS 10
 GtkWidget *EntryComParam[ NBR_COM_PARAMS ];
-GtkWidget *ComboComParam[1];
+GtkWidget *ComboComParam[2];
 GtkWidget *ConfigWindow;
 GtkWidget *DebugButton [ 4 ];
-GtkWidget *OffsetButton[ 1 ];
-GtkWidget *RtsButton   [ 1 ];
+GtkWidget *OffsetButton[ 2 ];
+GtkWidget *RtsButton   [ 2 ];
 GtkWidget *MapButton   [ 5 ];
-GSList *group;
 #endif
 
 GtkWidget * CreateGeneralParametersPage( void )
@@ -271,7 +270,7 @@ char* ConvNumToString( int num, char ** list )
 }
 
 #ifdef MODBUS_IO_MASTER
-GtkWidget * CreateModbusModulesIO( page )
+GtkWidget * CreateModbusModulesIO( int page )
 {
 	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Register #", "# of Regs", "Logic", "1st I/Q/W Mapped" };
 	GtkWidget *vbox;
