@@ -201,7 +201,8 @@ int ClassicLadder_AllocAll()
                return FALSE;
               }
     rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",CL_SHMEM_KEY, compId, bytes);
-    // Map SHMEM (shared memory).    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
+    // Map SHMEM (shared memory).
+    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
               {
   	       rtapi_print("Failed to map shared memory !\n");
   	       return FALSE;
@@ -210,7 +211,8 @@ int ClassicLadder_AllocAll()
      shmBase[0] = CL_SHMEM_KEY;
      shmBase[1] = bytes;
      InfosGene = (StrInfosGene*)(shmBase+1);
-     InfosGene->GeneralParams.SizesInfos = *pSizesInfos;     memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
+     InfosGene->GeneralParams.SizesInfos = *pSizesInfos;
+     memcpy( &InfosGene->GeneralParams, &GeneralParamsMirror, sizeof( StrGeneralParams ) );
      rtapi_print_msg(RTAPI_MSG_INFO,"INFO----REALTIME allocations for classicladder:\n");
 #endif //end of realtime code
 
@@ -273,7 +275,8 @@ int ClassicLadder_AllocAll()
         pSizesInfos->nbr_arithm_expr,
         pSizesInfos->nbr_sections,
         pSizesInfos->nbr_symbols,
-	pSizesInfos->nbr_phys_words_inputs,	pSizesInfos->nbr_phys_words_outputs);
+	pSizesInfos->nbr_phys_words_inputs,
+	pSizesInfos->nbr_phys_words_outputs);
 
     	// Set global SHMEM pointers for each element
     pByte = (unsigned char *) InfosGene;
@@ -287,7 +290,8 @@ int ClassicLadder_AllocAll()
     CounterArray= (StrCounter *) pByte;
 	   pByte += pSizesInfos->nbr_counters * sizeof(StrCounter);	
     NewTimerArray = (StrTimerIEC *) pByte;
-	   pByte += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);    ArithmExpr = (StrArithmExpr *) pByte;	
+	   pByte += pSizesInfos->nbr_timers_iec * sizeof(StrTimerIEC);
+           ArithmExpr = (StrArithmExpr *) pByte;	
  	   pByte += pSizesInfos->nbr_arithm_expr * sizeof(StrArithmExpr);
     SectionArray = (StrSection *) pByte;	
  	   pByte += pSizesInfos->nbr_sections * sizeof(StrSection);
