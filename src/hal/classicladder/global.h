@@ -52,6 +52,13 @@ extern int ModbusTimeOutReceipt;
 extern int ModbusTimeAfterTransmit;
 extern int ModbusEleOffset;
 extern int ModbusDebugLevel;
+// Variables for Mapping MODBUS
+extern int MapCoilRead;
+extern int MapCoilWrite;
+extern int MapInputs;
+extern int MapHolding;
+extern int MapRegisterRead;
+extern int MapRegisterWrite;
 #endif
 
 extern char * ErrorMessageVarParser;

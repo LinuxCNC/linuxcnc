@@ -67,13 +67,16 @@ GtkWidget *PauseInterFrameEntry;
 GtkWidget *DebugLevelEntry;
 
 //for modbus configure window
-#define NBR_COM_PARAMS 8
+int MapCoilRead;
+int MapCoilWrite;
+#define NBR_COM_PARAMS 10
 GtkWidget *EntryComParam[ NBR_COM_PARAMS ];
 GtkWidget *ComboComParam[1];
 GtkWidget *ConfigWindow;
 GtkWidget *DebugButton [ 4 ];
 GtkWidget *OffsetButton[ 1 ];
 GtkWidget *RtsButton   [ 1 ];
+GtkWidget *MapButton   [ 5 ];
 GSList *group;
 #endif
 
@@ -534,6 +537,29 @@ void GetModbusModulesIOSettings( void )
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[2])))  { ModbusDebugLevel = 2; } 
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (DebugButton[3])))  { ModbusDebugLevel = 3; } 
 }
+
+void map_CoilR_button_callback (GtkWidget *widget, gint data)
+{
+   int i;
+
+   for (i=0; i<2; i++)
+	{
+           if (widget==MapButton[i]) {break;}
+        }
+   MapCoilRead=data;
+   printf("button-%i\n",MapCoilRead);
+}
+void map_CoilW_button_callback (GtkWidget *widget, gint data)
+{
+   int i;
+
+   for (i=2; i<5; i++)
+	{
+           if (widget==MapButton[i]) {break;}
+        }
+   MapCoilWrite=data;
+   printf("button-%i\n",MapCoilWrite);
+}
 static void offset_button_callback (GtkWidget *widget, gint data)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (OffsetButton[0])))  { ModbusEleOffset = 0; } 
@@ -625,6 +651,14 @@ GtkWidget * CreateModbusComParametersPage( void )
 				sprintf( BuffLabel, "Debug level" );
 				sprintf( BuffValue, "%d", ModbusDebugLevel );
 				break;
+                        case 8:
+				sprintf( BuffLabel, "Read Coils/inputs map to" );
+				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				break;
+                        case 9:
+				sprintf( BuffLabel, "Write Coils mappped from" );
+				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				break;
 		}
             switch( NumLine )
 		{
@@ -635,8 +669,7 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
 		                gtk_widget_show( LabelComParam[NumLine] );
 
-                                // combo box
-				
+                                // combo box				
 				*ComboPortName = gtk_combo_new( );
 				gtk_combo_set_value_in_list( GTK_COMBO(*ComboPortName), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 				gtk_combo_set_popdown_strings( GTK_COMBO(*ComboPortName), PortItemsDevices );
@@ -653,8 +686,7 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
 		                gtk_widget_show( LabelComParam[NumLine] );
 
-                                // combo box
-				
+                                // combo box				
 				*ComboSerialSpeed = gtk_combo_new( );
 				gtk_combo_set_value_in_list( GTK_COMBO(*ComboSerialSpeed), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 				gtk_combo_set_popdown_strings( GTK_COMBO(*ComboSerialSpeed), SpeedItemsDevices );
@@ -716,7 +748,7 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                                  G_CALLBACK (offset_button_callback), GINT_TO_POINTER ( 1 ));
                                 break;
                         
-			case 7:
+			case 7: 
                                 //Debug label
                                 LabelComParam[NumLine] = gtk_label_new(BuffLabel);
 		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
@@ -752,6 +784,62 @@ GtkWidget * CreateModbusComParametersPage( void )
                                 g_signal_connect (G_OBJECT (DebugButton[3]), "toggled",
 		                                  G_CALLBACK (debug_button_callback), GINT_TO_POINTER ( 3 ));
                            break;
+                   case 8:
+                                //read coil map label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                MapButton[0]= gtk_radio_button_new_with_label (NULL, "%B");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[0], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[0]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[0]));
+
+                                MapButton[1]= gtk_radio_button_new_with_label (group, "%Q");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[1], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[1]);
+ 
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[MapCoilRead]), TRUE);
+
+                                g_signal_connect (G_OBJECT (MapButton[0]), "toggled",
+ 	                   	                  G_CALLBACK (map_CoilR_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (MapButton[1]), "toggled",
+		                                  G_CALLBACK (map_CoilR_button_callback), GINT_TO_POINTER ( 1 ));
+                          break;
+                   case 9:
+                                //Write coil map label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                MapButton[2]= gtk_radio_button_new_with_label (NULL, "%B");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[2], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[2]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[2]));
+
+                                MapButton[3]= gtk_radio_button_new_with_label (group, "%Q");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[3], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[3]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[3]));
+
+                                MapButton[4]= gtk_radio_button_new_with_label (group, "%I");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[4], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[4]);
+ 
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[MapCoilWrite+2]), TRUE);
+
+                                g_signal_connect (G_OBJECT (MapButton[2]), "toggled",
+ 	                   	                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (MapButton[3]), "toggled",
+		                                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 1 ));
+                                g_signal_connect (G_OBJECT (MapButton[4]), "toggled",
+		                                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 2 ));
+                          break;
+
                 default:
 		/* Labels */
 		LabelComParam[NumLine] = gtk_label_new(BuffLabel);

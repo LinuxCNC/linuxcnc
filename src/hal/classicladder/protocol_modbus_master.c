@@ -46,7 +46,13 @@ int ModbusTimeAfterTransmit;
 
 /* TEMP!!! put this variable in global config instead ? */
 int ModbusEleOffset = 0;
-int ModbusDebugLevel = 0; //1;
+int ModbusDebugLevel = 0; 
+int MapCoilRead= 0;
+int MapCoilWrite= 0;
+int MapInputs= 0;
+int MapHolding= 0;
+int MapRegisterRead= 0;
+int MapRegisterWrite= 0;
 
 int CurrentReq;
 int InvoqIdentifHeaderIP;
@@ -63,6 +69,13 @@ void InitModbusMasterBeforeReadConf( void )
         ModbusTimeOutReceipt = 500;
         ModbusTimeAfterTransmit = 0;
         ModbusDebugLevel= 0;
+        MapCoilRead= 0;
+        MapCoilWrite= 0;
+        MapInputs= 0;
+        MapHolding= 0;
+        MapRegisterRead= 0;
+        MapRegisterWrite= 0;
+
         InitModbusMasterParams ( );
 }
 
@@ -628,6 +641,7 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 {
 	int FirstEle = ModbusReq->FirstModbusElement-ModbusEleOffset;
 	int VarNum;
+        
 	if ( FirstEle<0 )
 		FirstEle = 0;
 	VarNum = ModbusNum-FirstEle+ModbusReq->OffsetVarMapped;
@@ -635,28 +649,74 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 	{
 		case MODBUS_REQ_INPUTS_READ:
                 case MODBUS_REQ_COILS_READ:
-			WriteVar( VAR_MEM_BIT, VarNum, Value );
-			break;
+                       switch ( MapCoilRead )
+                          {
+                           case B_VAR:
+			        WriteVar( VAR_MEM_BIT, VarNum, Value );
+                                break;
+                           case Q_VAR:
+			        WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
+                               break;
+                           default:  
+			       break;
+                        }
 		case MODBUS_REQ_REGISTERS_READ:                case MODBUS_REQ_HOLD_READ:
-                        WriteVar( VAR_MEM_WORD, VarNum, Value );
-			break;
+                        switch ( MapRegisterRead )
+                           {
+                            case B_VAR:
+			         WriteVar( VAR_MEM_WORD, VarNum, Value );
+                                 break;
+                            case Q_VAR:
+			         WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
+                                 break;
+                            default:  
+			         break;
+                           }
+                        
 	}
 }
 int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 {
 	int FirstEle = ModbusReq->FirstModbusElement-ModbusEleOffset;
 	int VarNum;
+
 	if ( FirstEle<0 )
 		FirstEle = 0;
 	VarNum = ModbusNum-FirstEle+ModbusReq->OffsetVarMapped;
 	switch( ModbusReq->TypeReq )
 	{
 		case MODBUS_REQ_COILS_WRITE:
-			return ReadVar( VAR_PHYS_OUTPUT, VarNum );
-			break;
+                        switch ( MapCoilWrite )
+                           {
+                            case B_VAR:
+			         return ReadVar( VAR_MEM_BIT, VarNum );
+                                 break;
+                            case Q_VAR:
+			         return ReadVar( VAR_PHYS_OUTPUT, VarNum );
+                                 break;
+                            case I_VAR:
+			         return ReadVar( VAR_PHYS_INPUT, VarNum );
+                                 break;
+                            default:  
+			         break;
+                           }
+			
 		case MODBUS_REQ_REGISTERS_WRITE:
-			return ReadVar( VAR_MEM_WORD, VarNum );
-			break;
+                        switch ( MapRegisterWrite )
+                            {
+                             case W_VAR:            
+			          return ReadVar( VAR_MEM_BIT, VarNum );
+                                  break;
+                             case QW_VAR:
+			          return ReadVar( VAR_PHYS_WORD_OUTPUT, VarNum );
+                                  break;
+                             case IW_VAR:
+			          return ReadVar( VAR_PHYS_WORD_INPUT, VarNum );
+                                  break;
+                             default:  
+			          break;
+                            }
+			
 	}
 	return 0;
 }

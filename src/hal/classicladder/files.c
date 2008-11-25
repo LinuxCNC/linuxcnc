@@ -1219,7 +1219,27 @@ char LoadComParameters(char * FileName)
 				pParameter = "MODBUS_DEBUG_LEVEL=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] );
-			}
+                                
+                                 pParameter = "MODBUS_MAP_COIL_READ=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					MapCoilRead = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_COIL_WRITE=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+				        MapCoilWrite = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_INPUT=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					MapInputs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_HOLDING=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					MapHolding = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_REGISTER_READ=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					MapRegisterRead = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_REGISTER_WRITE=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					MapRegisterWrite = atoi( &Line[ strlen( pParameter) ] );
+
+                         }
 		}
 		while(LineOk);
 		fclose(File);
@@ -1243,6 +1263,13 @@ char SaveComParameters(char * FileName)
 		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusTimeOutReceipt );
 		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusTimeAfterTransmit );
 		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusDebugLevel );
+
+                fprintf( File,S_LINE "MODBUS_MAP_COIL_READ=%d" E_LINE "\n", MapCoilRead );
+		fprintf( File,S_LINE "MODBUS_MAP_COIL_WRITE=%d" E_LINE "\n", MapCoilWrite );
+		fprintf( File,S_LINE "MODBUS_MAP_INPUT=%d" E_LINE "\n", MapInputs );
+		fprintf( File,S_LINE "MODBUS_MAP_HOLDING=%d" E_LINE "\n", MapHolding );
+		fprintf( File,S_LINE "MODBUS_MAP_REGESTER_READ=%d" E_LINE "\n", MapRegisterRead );
+		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_WRITE=%d" E_LINE "\n", MapRegisterWrite );
 		fclose(File);
 		Okay = TRUE;
 	}

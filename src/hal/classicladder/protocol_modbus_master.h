@@ -30,7 +30,7 @@
 #define MODBUS_MEMORY_PARITY_ERROR 0x08 
 
 
-
+// Request type
 #define MODBUS_REQ_INPUTS_READ 0
 #define MODBUS_REQ_COILS_WRITE 1
 #define MODBUS_REQ_REGISTERS_READ 2
@@ -38,6 +38,14 @@
 #define MODBUS_REQ_COILS_READ 4
 #define MODBUS_REQ_HOLD_READ 5
 #define MODBUS_REQ_DIAGNOSTICS 6
+
+// mapping variable type
+#define B_VAR   0
+#define I_VAR   1
+#define Q_VAR   2
+#define W_VAR   0
+#define QW_VAR  1
+#define IW_VAR  2
 
 #define LGT_SLAVE_ADR 25
 
@@ -54,7 +62,7 @@ typedef struct StrModbusMasterReq
 	char LogicInverted;
 	int OffsetVarMapped;
 }StrModbusMasterReq;
-
+ 
 void InitModbusMasterBeforeReadConf( void );
 void PrepareModbusMaster( void );
 void InitModbusMasterParams( void );
