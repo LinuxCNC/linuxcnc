@@ -95,8 +95,6 @@ typedef struct {
 int comp_id;			/* HAL component ID */
 
 GtkWidget *main_window;
-
-meter_t *meter;
 int small;
 
 /***********************************************************************
@@ -142,6 +140,7 @@ int main(int argc, gchar * argv[])
     char buf[30];
     int initial_type, n, height;
     char *initial_name, *win_name;
+    meter_t *meter;
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
