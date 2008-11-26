@@ -179,6 +179,7 @@ struct command commands[] = {
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
+    {"unalias", FUNCT(do_unalias_cmd), A_TWO },
     {"unlinkp", FUNCT(do_unlinkp_cmd), A_ONE },
     {"unload",  FUNCT(do_unload_cmd),  A_ONE },
     {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },

@@ -50,7 +50,7 @@ static const char *command_table[] = {
     "linkps", "linksp", "linkpp", "unlinkp",
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
     "addf", "delf", "show", "list", "status", "save", "source",
-    "start", "stop", "quit", "exit", "help", "alias",
+    "start", "stop", "quit", "exit", "help", "alias", "unalias", 
     NULL,
 };
 
@@ -60,22 +60,22 @@ static const char *alias_table[] = {
 };
 
 static const char *show_table[] = {
-    "all", "comp", "pin", "sig", "param", "funct", "thread", "alias",
+    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "alias",
     NULL,
 };
 
 static const char *save_table[] = {
-    "all", "comp", "sig", "link", "linka", "net", "neta", "param", "thread", "alias",
+    "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "param", "thread", "alias",
     NULL,
 };
 
 static const char *list_table[] = {
-    "comp", "pin", "sig", "param", "funct", "thread",
+    "comp", "alias", "pin", "sig", "param", "funct", "thread",
     NULL
 };
 
 static const char *status_table[] = {
-    "lock", "mem", "all",
+    "alias", "lock", "mem", "all",
     NULL
 };
 
@@ -176,16 +176,43 @@ static char *thread_generator(const char *text, int state) {
 static char *parameter_generator(const char *text, int state) { 
     static int len;
     static int next;
+    static int aliased;
+    char *name;
+
     if(!state) {
         next = hal_data->param_list_ptr;
         len = strlen(text);
+        aliased = 0;
     }
 
     while(next) {
         hal_param_t *param = SHMPTR(next);
-        next = param->next_ptr;
-	if ( strncmp(text, param->name, len) == 0 )
-            return strdup(param->name);
+        switch (aliased) {
+            case 0: // alias (if any) has not been output
+                if (param->oldname != 0) {
+                    // there's an alias, so use that and do not update the pin pointer
+                    hal_oldname_t *oldname = SHMPTR(param->oldname);
+                    name = oldname->name;
+                    aliased = 1;
+                } else {
+                    // no alias, so use the name and update the pin pointer
+                    name = param->name;
+                    next = param->next_ptr;
+                }
+            break;
+            case 1:  // there is an alias, and it has been processed already
+                name = param->name;
+                next = param->next_ptr;
+                aliased = 0;
+            break;
+            default:
+                // shouldn't be able to get here, so assume we're done
+                rl_attempted_completion_over = 1;
+                return NULL;
+            break;
+        }
+        if ( strncmp(text, name, len) == 0 )
+            return strdup(name);
     }
     return NULL;
 }
@@ -353,10 +380,29 @@ static char *rtcomp_generator(const char *text, int state) {
     return NULL;
 }
 
-
-static char *pin_generator(const char *text, int state) {
+static char *parameter_alias_generator(const char *text, int state) {
     static int len;
     static int next;
+
+    if(!state) {
+        next = hal_data->param_list_ptr;
+        len = strlen(text);
+    }
+
+    while(next) {
+        hal_param_t *param = SHMPTR(next);
+        next = param->next_ptr;
+        if (param->oldname==0) continue;  // no alias here, move along
+        if ( strncmp(text, param->name, len) == 0 )
+            return strdup(param->name);
+    }
+    return NULL;
+}
+
+static char *pin_alias_generator(const char *text, int state) {
+    static int len;
+    static int next;
+
     if(!state) {
         next = hal_data->pin_list_ptr;
         len = strlen(text);
@@ -365,11 +411,56 @@ static char *pin_generator(const char *text, int state) {
     while(next) {
         hal_pin_t *pin = SHMPTR(next);
         next = pin->next_ptr;
+        if (pin->oldname==0) continue;  // no alias here, move along
+        if ( strncmp(text, pin->name, len) == 0 )
+            return strdup(pin->name);
+    }
+    return NULL;
+}
+
+static char *pin_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    static int aliased;
+    char *name;
+
+    if(!state) {
+        next = hal_data->pin_list_ptr;
+        len = strlen(text);
+        aliased = 0;
+    }
+
+    while(next) {
+        hal_pin_t *pin = SHMPTR(next);
+        switch (aliased) {
+            case 0: // alias (if any) has not been output
+                if (pin->oldname != 0) {
+                    // there's an alias, so use that and do not update the pin pointer
+                    hal_oldname_t *oldname = SHMPTR(pin->oldname);
+                    name = oldname->name;
+                    aliased = 1;
+                } else {
+                    // no alias, so use the name and update the pin pointer
+                    name = pin->name;
+                    next = pin->next_ptr;
+                }
+            break;
+            case 1:  // there is an alias, and it has been processed already
+                name = pin->name;
+                next = pin->next_ptr;
+                aliased = 0;
+            break;
+            default:
+                // shouldn't be able to get here, so assume we're done
+                rl_attempted_completion_over = 1;
+                return NULL;
+            break;
+        }
         if ( !writer_match( pin->dir, match_writers ) ) continue;
         if ( !direction_match( pin->dir, match_direction ) ) continue;
         if ( match_type != -1 && match_type != pin->type ) continue; 
-	if ( strncmp(text, pin->name, len) == 0 )
-            return strdup(pin->name);
+	if ( strncmp(text, name, len) == 0 )
+            return strdup(name);
     }
     rl_attempted_completion_over = 1;
     return NULL;
@@ -498,6 +589,12 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = func(text, pin_generator);
     } else if(startswith(buffer, "alias param") && argno == 2) {
         result = func(text, parameter_generator);
+    } else if(startswith(buffer, "unalias ") && argno == 1) {
+        result = completion_matches_table(text, alias_table, func);
+    } else if(startswith(buffer, "unalias pin") && argno == 2) {
+        result = func(text, pin_alias_generator);
+    } else if(startswith(buffer, "unalias param") && argno == 2) {
+        result = func(text, parameter_alias_generator);
     } else if(startswith(buffer, "linkpp ") && argno == 1) {
         result = func(text, pin_generator);
     } else if(startswith(buffer, "linkpp ") && argno == 2) {
