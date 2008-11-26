@@ -147,6 +147,9 @@
 /* Extension for realtime modules */
 #undef MODULE_EXT
 
+/* Define to 1 if asm/msr.h is usable and defines rdtscll */
+#undef MSR_H_USABLE
+
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 

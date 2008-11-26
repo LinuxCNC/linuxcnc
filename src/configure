@@ -2663,13 +2663,74 @@ echo "$as_me: error: Compilers older than gcc 3.x are no longer supported" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+echo "$as_me:$LINENO: checking for usability of rdtscll from asm/msr.h" >&5
+echo $ECHO_N "checking for usability of rdtscll from asm/msr.h... $ECHO_C" >&6
+
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <asm/msr.h>
+#include <stdio.h>
+void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+        MSR_H_USABLE=yes
+
+cat >>confdefs.h <<\_ACEOF
+#define MSR_H_USABLE
+_ACEOF
+
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+MSR_H_USABLE=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+echo "$as_me:$LINENO: result: $MSR_H_USABLE" >&5
+echo "${ECHO_T}$MSR_H_USABLE" >&6
+
 CFLAGS_save=$CFLAGS
 if ! test -z "$KERNELDIR"; then
 	CFLAGS="$CFLAGS -I$KERNELDIR/include"
 fi
 echo "$as_me:$LINENO: checking for usability of linux/joystick.h" >&5
 echo $ECHO_N "checking for usability of linux/joystick.h... $ECHO_C" >&6
-
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -3206,6 +3267,8 @@ if test "${with_kbuild+set}" = set; then
         esac
 
 fi;
+echo "$as_me:$LINENO: result: $BUILD_SYS" >&5
+echo "${ECHO_T}$BUILD_SYS" >&6
 fi
 
 
@@ -3213,8 +3276,6 @@ cat >>confdefs.h <<_ACEOF
 #define MODULE_EXT "$MODEXT"
 _ACEOF
 
-echo "$as_me:$LINENO: result: $BUILD_SYS" >&5
-echo "${ECHO_T}$BUILD_SYS" >&6
 
 
 
