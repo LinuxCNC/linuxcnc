@@ -134,6 +134,7 @@ enum argtype {
     A_ZERO,  /* prototype: f(void) */
     A_ONE,   /* prototype: f(char *arg) */
     A_TWO,   /* prototype: f(char *arg1, char *arg2) */
+    A_THREE, /* prototype: f(char *arg1, char *arg2, char *arg3) */
 
     A_PLUS = 0x100,          /* adds to prototype: char *args[] */
     A_REMOVE_ARROWS = 0x200, /* removes any arrows from command */
@@ -152,6 +153,7 @@ struct command {
 
 struct command commands[] = {
     {"addf",    FUNCT(do_addf_cmd),    A_TWO | A_PLUS },
+    {"alias",   FUNCT(do_alias_cmd),   A_THREE },
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
@@ -394,6 +396,20 @@ static int parse_cmd1(char **argv) {
 	    int(*f)(char *arg, char *arg2, char **rest) =
                 (int(*)(char*,char*,char**))command->func;
 	    return f(ARG(1), ARG(2), REST(3));
+	    break;
+	}
+
+	case A_THREE: {
+	    int(*f)(char *arg, char *arg2, char *arg3) =
+                (int(*)(char*,char*,char*))command->func;
+	    return f(ARG(1), ARG(2), ARG(3));
+	    break;
+	}
+
+	case A_THREE | A_PLUS: {
+	    int(*f)(char *arg, char *arg2, char *arg3, char **rest) =
+                (int(*)(char*,char*,char*,char**))command->func;
+	    return f(ARG(1), ARG(2), ARG(3), REST(4));
 	    break;
 	}
 
