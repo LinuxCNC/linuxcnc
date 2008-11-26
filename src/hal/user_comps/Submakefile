@@ -7,3 +7,21 @@ $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
+
+MODBUSSRCS := hal/user_comps/gs2_vfd.c\
+	hal/user_comps/modbus.c
+MODBUSLDFLAGS := -lglib-2.0
+MODBUSCCFLAGS := -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+USERSRCS += $(MODBUSSRCS)
+
+ $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
+
+../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/libemchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) $(MODBUSLDFLAGS) -o $@ $^
+TARGETS += ../bin/gs2_vfd
+
+../include/%.h: ./hal/user_comps/%.h
+	cp $^ $@
+../include/%.hh: ./hal/user_comps/%.hh
+	cp $^ $@

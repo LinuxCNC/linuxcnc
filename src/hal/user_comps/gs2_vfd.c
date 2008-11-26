@@ -1,0 +1,349 @@
+/*
+   gs2_vfd.c
+   Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
+
+   Based on a work (test-modbus program, part of libmodbus) which is
+   Copyright (C) 2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation, version 2.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+*/
+
+#ifndef ULAPI
+#error This is intended as a userspace component only.
+#endif
+
+#include <stdio.h>
+#include <unistd.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <errno.h>
+#include <getopt.h>
+#include "rtapi.h"
+#include "hal.h"
+#include "modbus.h"
+
+/* Read Registers:
+	0x2100 = status word 1
+	0x2101 = status word 2
+	0x2102 = frequency command
+	0x2103 = actual frequency
+	0x2104 = output current
+	0x2105 = DC bus voltage
+	0x2106 = actual output voltage
+	0x2107 = actual RPM
+	0x2108 + 0x2109 = scale freq (not sure what this actually is - it's the same as 0x2103)
+	0x210A = power factor.  Not sure of the units (1/10 or 1/100)
+	0x210B = load percentage
+	0x210C = Firmware revision (never saw anything other than 0 here)
+	total of 13 registers		*/
+#define START_REGISTER_R	0x2100
+#define NUM_REGISTERS_R		13
+/* write registers:
+	0x91A = Speed reference, in 1/10Hz increments
+	0x91B = RUN command, 0=stop, 1=run
+	0x91C = direction, 0=forward, 1=reverse
+	0x91D = serial fault, 0=no fault, 1=fault (maybe can stop with this?)
+	0x91E = serial fault reset, 0=no reset, 1 = reset fault
+	total of 5 registers */
+#define START_REGISTER_W	0x091A
+#define NUM_REGISTERS_W		5
+#define SLAVE_ADDRESS		1
+
+#undef DEBUG
+//#define DEBUG
+
+/* modbus slave data struct */
+typedef struct {
+	int slave;		/* slave address */
+	int read_reg_start;	/* starting read register number */
+	int read_reg_count;	/* number of registers to read */
+	int write_reg_start;	/* starting write register number */
+	int write_reg_count;	/* number of registers to write */
+} slavedata_t;
+
+/* HAL data struct */
+typedef struct {
+  hal_s32_t	*stat1;		// status words from the VFD.  Maybe split these out sometime
+  hal_s32_t	*stat2;
+  hal_float_t	*freq_cmd;	// frequency command
+  hal_float_t	*freq_out;	// actual output frequency
+  hal_float_t	*curr_out;	// output current
+  hal_float_t	*DCBusV;	// 
+  hal_float_t	*outV;
+  hal_float_t	*RPM;
+  hal_float_t	*scale_freq;
+  hal_float_t	*power_factor;
+  hal_float_t	*load_pct;
+  hal_s32_t	*FW_Rev;
+  hal_s32_t	errorcount;
+  hal_float_t	looptime;
+  hal_float_t	speed_tolerance;
+  hal_s32_t	retval;
+  hal_bit_t	*at_speed;
+  hal_float_t	*speed_command;		// speed command input
+  hal_float_t	motor_hz;		// speeds are scaled in Hz, not RPM
+  hal_float_t	motor_RPM;		// nameplate RPM at default Hz
+  hal_bit_t	*spindle_on;		// 1=turn spindle on, 0=off
+  hal_bit_t	*spindle_fwd;		// direction, 0=fwd, 1=rev
+  hal_bit_t	*err_reset;		// reset errors when 1
+
+  hal_bit_t	old_run;		// so we can detect changes in the run state
+  hal_bit_t	old_dir;
+  hal_bit_t	old_err_reset;
+} haldata_t;
+
+static int done;
+/*
+static struct option long_options = {
+    {"bits", 1, 0, 'b'},
+    {"device", 1, 0, 'd'},
+    {"parity", 1, 0, 'p'},
+    {"rate", 1, 0, 'r'},
+    {"stopbits", 1, 0, 's'},
+    {"verbose", 0, 0, 'v'},
+    {0,0,0,0}
+}
+
+static char option_string = "b:d:p:r:s:v";
+*/
+
+static void quit(int sig) {
+    done = 1;
+}
+
+int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata) {
+//  int write_data[MAX_WRITE_REGS];
+    int retval;
+    hal_float_t hzcalc;
+    
+    if (haldata->motor_hz<10)
+        haldata->motor_hz = 60;
+    if ((haldata->motor_RPM < 600) || (haldata->motor_RPM > 5000))
+        haldata->motor_RPM = 1800;
+    hzcalc = haldata->motor_hz/haldata->motor_RPM;
+    retval=preset_single_register(param, slavedata->slave, slavedata->write_reg_start, abs((int)(*(haldata->speed_command)*hzcalc*10)));
+    if (*(haldata->spindle_on) != haldata->old_run) {
+        if (*haldata->spindle_on)
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+1, 1);
+        else
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+1, 0);
+        haldata->old_run = *(haldata->spindle_on);
+    }
+    if (*(haldata->spindle_fwd) != haldata->old_dir) {
+        if (*haldata->spindle_fwd)
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+2, 0);
+        else
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+2, 1);
+        haldata->old_dir = *(haldata->spindle_fwd);
+    }
+    if (*(haldata->err_reset) != haldata->old_err_reset) {
+        if (*(haldata->err_reset))
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+4, 1);
+        else
+            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+4, 0);
+        haldata->old_err_reset = *(haldata->err_reset);
+    }
+    haldata->retval = retval;
+    return retval;
+}
+
+int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data_block) {
+    int receive_data[MAX_READ_HOLD_REGS];	/* a little padding in there */
+    int retval;
+
+    /* can't do anything with a null HAL data block */
+    if (hal_data_block == NULL)
+        return -1;
+    /* but we can signal an error if the other params are null */
+    if ((param==NULL) || (slavedata == NULL)) {
+        hal_data_block->errorcount++;
+        return -1;
+    }
+    retval = read_holding_registers(param, slavedata->slave, slavedata->read_reg_start,
+                                slavedata->read_reg_count, receive_data);
+    if (retval==slavedata->read_reg_count) {
+        retval = 0;
+        hal_data_block->retval = retval;
+        if (retval==0) {
+        *(hal_data_block->stat1) = receive_data[0];
+        *(hal_data_block->stat2) = receive_data[1];
+        *(hal_data_block->freq_cmd) = receive_data[2] * 0.1;
+        *(hal_data_block->freq_out) = receive_data[3] * 0.1;
+        *(hal_data_block->curr_out) = receive_data[4] * 0.1;
+        *(hal_data_block->DCBusV) = receive_data[5] * 0.1;
+        *(hal_data_block->outV) = receive_data[6] * 0.1;
+        *(hal_data_block->RPM) = receive_data[7];
+        *(hal_data_block->scale_freq) = (receive_data[8] | (receive_data[9] << 16)) * 0.1;
+        *(hal_data_block->power_factor) = receive_data[10];
+        *(hal_data_block->load_pct) = receive_data[11] * 0.1;
+        *(hal_data_block->FW_Rev) = receive_data[12];
+        retval = 0;
+        }
+    } else {
+        hal_data_block->retval = retval;
+        hal_data_block->errorcount++;
+        retval = -1;
+    }
+    return retval;
+}
+
+int main(void)
+{
+    int retval;
+    modbus_param_t mb_param;
+    haldata_t *haldata;
+    slavedata_t slavedata;
+    int hal_comp_id;
+    struct timespec loop_timespec, remaining;
+    int baud, bits, stopbits, debug;
+    int baud_set, bits_set, stopbits_set, debug_set;
+    char device[FILENAME_MAX], parity[250];
+    int device_set, parity_set;
+    done = 0;
+    
+    // assume that nothing is specified on the command line
+    baud_set = bits_set = stopbits_set = debug_set = device_set = parity_set = 0;
+    
+    /* slave / register info */
+    slavedata.slave = SLAVE_ADDRESS;
+    slavedata.read_reg_start = START_REGISTER_R;
+    slavedata.read_reg_count = NUM_REGISTERS_R;
+    slavedata.write_reg_start = START_REGISTER_W;
+    slavedata.write_reg_count = NUM_REGISTERS_R;
+    
+    /* point TERM and INT signals at our quit function */
+    /* if a signal is received between here and the main loop, it should prevent
+            some initialization from happening */
+    signal(SIGINT, quit);
+    signal(SIGTERM, quit);
+    
+    /* Assume 38.4k O-8-1 serial settings, device 1 */
+    modbus_init_rtu(&mb_param, "/dev/ttyS0", 38400, "odd", 8, 1, 0);
+    mb_param.debug = 0;
+    /* the open has got to work, or we're out of business */
+    if (((retval = modbus_connect(&mb_param))!=0) || done) {
+            printf("gs2_vfd: ERROR: couldn't open serial device\n");
+            goto out_noclose;
+    }
+    
+    /* create HAL component */
+    hal_comp_id = hal_init("gs2_vfd");
+    if ((hal_comp_id < 0) || done) {
+            printf("gs2_vfd: ERROR: hal_init failed\n");
+            retval = hal_comp_id;
+            goto out_close;
+    }
+    
+    /* grab some shmem to store the HAL data in */
+    haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
+    if ((haldata == 0) || done) {
+            printf("gs2_vfd: ERROR: unable to allocate shared memory\n");
+            retval = -1;
+            goto out_close;
+    }
+
+    retval = hal_pin_s32_new("gs2_vfd.status-1", HAL_OUT, &(haldata->stat1), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_s32_new("gs2_vfd.status-2", HAL_OUT, &(haldata->stat2), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.frequency-command", HAL_OUT, &(haldata->freq_cmd), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.frequency-out", HAL_OUT, &(haldata->freq_out), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.output-current", HAL_OUT, &(haldata->curr_out), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.DC-bus-volts", HAL_OUT, &(haldata->DCBusV), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.output-voltage", HAL_OUT, &(haldata->outV), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.motor-RPM", HAL_OUT, &(haldata->RPM), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.scale-frequency", HAL_OUT, &(haldata->scale_freq), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.power-factor", HAL_OUT, &(haldata->power_factor), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.load-percentage", HAL_OUT, &(haldata->load_pct), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_s32_new("gs2_vfd.firmware-revision", HAL_OUT, &(haldata->FW_Rev), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_s32_new("gs2_vfd.error-count", HAL_RW, &(haldata->errorcount), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_float_new("gs2_vfd.loop-time", HAL_RW, &(haldata->looptime), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_s32_new("gs2_vfd.retval", HAL_RW, &(haldata->retval), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_new("gs2_vfd.at-speed", HAL_OUT, &(haldata->at_speed), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_float_new("gs2_vfd.speed-command", HAL_IN, &(haldata->speed_command), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_new("gs2_vfd.spindle-on", HAL_IN, &(haldata->spindle_on), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_new("gs2_vfd.spindle-fwd", HAL_IN, &(haldata->spindle_fwd), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_new("gs2_vfd.err-reset", HAL_IN, &(haldata->err_reset), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_float_new("gs2_vfd.tolerance", HAL_RW, &(haldata->speed_tolerance), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_float_new("gs2_vfd.motor-HZ", HAL_RW, &(haldata->motor_hz), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_param_float_new("gs2_vfd.motor-RPM", HAL_RW, &(haldata->motor_RPM), hal_comp_id);
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
+
+    /* make default data match what we expect to use */
+    *(haldata->stat1) = 0;
+    *(haldata->stat2) = 0;
+    *(haldata->freq_cmd) = 0;
+    *(haldata->freq_out) = 0;
+    *(haldata->curr_out) = 0;
+    *(haldata->DCBusV) = 0;
+    *(haldata->outV) = 0;
+    *(haldata->RPM) = 0;
+    *(haldata->scale_freq) = 0;
+    *(haldata->power_factor) = 0;
+    *(haldata->load_pct) = 0;
+    *(haldata->FW_Rev) = 0;
+    haldata->errorcount = 0;
+    haldata->looptime = 0.1;
+    hal_ready(hal_comp_id);
+    haldata->motor_RPM = 1730;
+    haldata->motor_hz = 60;
+    haldata->speed_tolerance = 0.01;
+    *(haldata->err_reset) = 0;
+    *(haldata->spindle_on) = 0;
+    *(haldata->spindle_fwd) = 1;
+    haldata->old_run = -1;		// make sure the initial value gets output
+    haldata->old_dir = -1;
+    haldata->old_err_reset = -1;
+    /* here's the meat of the program.  loop until done (which may be never) */
+    while (done==0) {
+        read_data(&mb_param, &slavedata, haldata);
+        write_data(&mb_param, &slavedata, haldata);
+        /* don't want to scan too fast, and shouldn't delay more than a few seconds */
+        if (haldata->looptime < 0.001) haldata->looptime = 0.001;
+        if (haldata->looptime > 2.0) haldata->looptime = 2.0;
+        loop_timespec.tv_sec = (time_t)(haldata->looptime);
+        loop_timespec.tv_nsec = (long)((haldata->looptime - loop_timespec.tv_sec) * 1000000000l);
+        nanosleep(&loop_timespec, &remaining);
+    }
+    
+    retval = 0;	/* if we get here, then everything is fine, so just clean up and exit */
+out_closeHAL:
+    hal_exit(hal_comp_id);
+out_close:
+    modbus_close(&mb_param);
+out_noclose:
+    return retval;
+}
