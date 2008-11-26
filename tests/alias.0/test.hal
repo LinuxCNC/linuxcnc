@@ -1,0 +1,3 @@
+loadrt and2 count=1
+alias pin and2.0.in0 something
+list pin
