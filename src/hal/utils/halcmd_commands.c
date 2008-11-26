@@ -333,6 +333,23 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
     return retval;	
 }
 
+int do_unalias_cmd(char *pinparam, char *name) {
+    int retval;
+    if (strcmp(pinparam, "pin") == 0) {
+        retval = hal_pin_alias(name, NULL);
+//    } else if ( strcmp (pinparam, "param" ) == 0 ) {
+//      retval = hal_param_alias(name, NULL);
+    } else {
+        return HAL_INVAL;
+    };
+    if(retval == 0) {
+        halcmd_info("%s '%s' unaliased\n",
+                    pinparam, name);
+    } else {
+        halcmd_error("unalias failed\n");
+    }
+    return retval;	
+}
 int do_delf_cmd(char *func, char *thread) {
     int retval;
 
