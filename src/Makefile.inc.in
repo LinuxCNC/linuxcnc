@@ -98,6 +98,10 @@ HAVE_NCURSES = @HAVE_NCURSES@
 # readline support for halcmd
 READLINE_LIBS =  @READLINE_LIBS@
 
+# flags for glib
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
+
 # local flags for GTK include
 GTK_VERSION = @GTK_VER@
 GTK_CFLAGS = @GTK_CFLAGS@

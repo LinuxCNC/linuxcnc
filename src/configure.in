@@ -544,6 +544,16 @@ AC_SUBST([EMC2_IMAGE_DIR])
 # FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
 
+AC_MSG_CHECKING([for glib])
+if pkg-config glib-2.0 >/dev/null 2>&1; then
+  GLIB_VER=`pkg-config glib-2.0 --modversion`
+  AC_MSG_RESULT(yes - $GLIB_VER)
+  GLIB_CFLAGS=`pkg-config glib-2.0 --cflags`
+  GLIB_LIBS=`pkg-config glib-2.0 --libs`
+else
+  AC_MSG_ERROR(no -- required until somebody makes modbus optional)
+fi
+
 AC_MSG_CHECKING([for GTK 2.4.0 or above])
 if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
   GTK_VER=`pkg-config gtk+-2.0 --modversion`
@@ -567,6 +577,8 @@ AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
 
 ##############################################################################
 # Subsection 3.6 - check for utility programs needed to build and run EMC    #
