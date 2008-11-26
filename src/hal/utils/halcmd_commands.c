@@ -2667,6 +2667,19 @@ int do_help_cmd(char *command)
 	printf("exit\n");
 	printf("  Stop processing input and terminate halcmd (when\n");
 	printf("  reading from a file or stdin).\n");
+    } else if (strcmp(command, "alias") == 0) {
+        printf("alias type name alias\n");
+        printf("  Assigns \"alias\" as a second name for the pin or parameter\n");
+        printf("  \"name\".  For most operations, an alias provides a second\n");
+        printf("  name that can be used to refer to a pin or parameter, both the\n");
+        printf("  original name and the alias will work.\n");
+        printf("  \"type\" must be pin or param\n");
+        printf("  \"name\" must be an existing name or alias of the specified type.\n");
+    } else if (strcmp(command, "unalias") == 0) {
+        printf("unalias type name\n");
+        printf("  Removes any alias from the pin or parameter \"name\".\n");
+        printf("  \"type\" must be pin or param\n");
+        printf("  \"name\" must be an existing name or alias of the specified type.\n");
     } else {
 	printf("No help for unknown command '%s'\n", command);
     }
@@ -2698,5 +2711,6 @@ static void print_help_commands(void)
     printf("  status              Display status information\n");
     printf("  save                Print config as commands\n");
     printf("  start, stop         Start/stop realtime threads\n");
+    printf("  alias, unalias      Add or remove pin or parameter name aliases\n");
     printf("  quit, exit          Exit from halcmd\n");
 }
