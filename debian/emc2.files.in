@@ -17,6 +17,7 @@ usr/bin/emcrsh
 usr/bin/emcsh
 usr/bin/emcsvr
 usr/bin/emctop
+usr/bin/gs2_vfd
 usr/bin/halcmd
 usr/bin/hal_input
 usr/bin/hal_joystick
