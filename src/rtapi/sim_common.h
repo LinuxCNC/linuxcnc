@@ -198,7 +198,7 @@ long long rtapi_get_time(void) {
     return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
 }
 
-#if defined(__i386__) || defined(____x86_64__)
+#if defined(__i386__) || defined(__x86_64__)
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
 #else
