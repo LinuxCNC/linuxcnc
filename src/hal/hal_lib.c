@@ -2503,7 +2503,7 @@ static void thread_task(void *arg)
 		/* point to function structure */
 		funct = SHMPTR(funct_entry->funct_ptr);
 		/* update execution time data */
-		funct->runtime = (long int) (end_time - start_time);
+		funct->runtime = (hal_s32_t)(end_time - start_time);
 		if (funct->runtime > funct->maxtime) {
 		    funct->maxtime = funct->runtime;
 		}
@@ -2513,7 +2513,7 @@ static void thread_task(void *arg)
 		start_time = end_time;
 	    }
 	    /* update thread execution time */
-	    thread->runtime = (long int) (end_time - thread_start_time);
+	    thread->runtime = (hal_s32_t)(end_time - thread_start_time);
 	    if (thread->runtime > thread->maxtime) {
 		thread->maxtime = thread->runtime;
 	    }
