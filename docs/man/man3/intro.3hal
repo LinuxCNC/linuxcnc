@@ -63,6 +63,9 @@ information are stored in a block of shared memory and protected with mutexes,
 so that kernel modules and any of several user mode programs can access the
 data.
 
+.SH REALTIME CONSIDERATIONS
+For an explanation of realtime considerations, see \fBintro(3rtapi)\fR.
+
 .SH HAL STATUS CODES
 
 .TP
