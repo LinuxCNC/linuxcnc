@@ -198,10 +198,13 @@ long long rtapi_get_time(void) {
     return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
 }
 
-#if defined(__i386__) || defined(__x86_64__)
+#ifdef MSR_H_USABLE
+#include <asm/msr.h>
+#elif defined(__i386__) || defined(__x86_64__)
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
 #else
+#warning No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
 #endif
 
