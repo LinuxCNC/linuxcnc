@@ -205,7 +205,7 @@ static void wrapper(void *arg)
   /* call the task function with the task argument */
   (task->taskcode) (task->arg);
 
-  rtapi_print("ERROR: reached end of wrapper for task %d\n", task - task_array);
+  rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
 }
 
 
