@@ -1222,9 +1222,17 @@ int emcPositionLoad() {
 
 int emcPositionSave() {
     IniFile ini;
+    const char *posfile;
+
     ini.Open(EMC_INIFILE);
-    const char *posfile = ini.Find("POSITION_FILE", "TRAJ");
+    try {
+        posfile = ini.Find("POSITION_FILE", "TRAJ");
+    } catch (IniFile::Exception e) {
+        ini.Close();
+        return -1;
+    }
     ini.Close();
+
     if(!posfile || !posfile[0]) return 0;
     // like the var file, make sure the posfile is recreated according to umask
     unlink(posfile);
