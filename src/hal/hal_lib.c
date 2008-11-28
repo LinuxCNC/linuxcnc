@@ -1400,6 +1400,129 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     return HAL_SUCCESS;
 }
 
+int hal_param_alias(const char *param_name, const char *alias)
+{
+    int *prev, next, cmp;
+    hal_param_t *param, *ptr;
+    hal_oldname_t *oldname;
+
+    if (hal_data == 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_alias called before init\n");
+	return HAL_INVAL;
+    }
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_alias called while HAL locked\n");
+	return HAL_PERM;
+    }
+    if (alias != NULL ) {
+	if (strlen(alias) >= HAL_NAME_LEN) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: alias name '%s' is too long\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    /* get mutex before accessing shared data */
+    rtapi_mutex_get(&(hal_data->mutex));
+    if (alias != NULL ) {
+	param = halpr_find_param_by_name(alias);
+	if ( param != NULL ) {
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
+	    return HAL_INVAL;
+	}
+    }
+    /* once we unlink the param from the list, we don't want to have to
+       abort the change and repair things.  So we allocate an oldname
+       struct here, then free it (which puts it on the free list).  This
+       allocation might fail, in which case we abort the command.  But
+       if we actually need the struct later, the next alloc is guaranteed
+       to succeed since at least one struct is on the free list. */
+    oldname = halpr_alloc_oldname_struct();
+    if ( oldname == NULL ) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: insufficient memory for param_alias\n");
+	return HAL_INVAL;
+    }
+    free_oldname_struct(oldname);
+    /* find the param and unlink it from pin list */
+    prev = &(hal_data->param_list_ptr);
+    next = *prev;
+    while (1) {
+	if (next == 0) {
+	    /* reached end of list, not found */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: param '%s' not found\n", param_name);
+	    return HAL_INVAL;
+	}
+	param = SHMPTR(next);
+	if ( strcmp(param->name, param_name) == 0 ) {
+	    /* found it, unlink from list */
+	    *prev = param->next_ptr;
+	    break;
+	}
+	if (param->oldname != 0 ) {
+	    oldname = SHMPTR(param->oldname);
+	    if (strcmp(oldname->name, param_name) == 0) {
+		/* found it, unlink from list */
+		*prev = param->next_ptr;
+		break;
+	    }
+	}
+	/* didn't find it yet, look at next one */
+	prev = &(param->next_ptr);
+	next = *prev;
+    }
+    if ( alias != NULL ) {
+	/* adding a new alias */
+	if ( param->oldname == 0 ) {
+	    /* save old name (only if not already saved) */
+	    oldname = halpr_alloc_oldname_struct();
+	    param->oldname = SHMOFF(oldname);
+	    rtapi_snprintf(oldname->name, HAL_NAME_LEN, "%s", param->name);
+	}
+	/* change param's name to 'alias' */
+	rtapi_snprintf(param->name, HAL_NAME_LEN, "%s", alias);
+    } else {
+	/* removing an alias */
+	if ( param->oldname != 0 ) {
+	    /* restore old name (only if param is aliased) */
+	    oldname = SHMPTR(param->oldname);
+	    rtapi_snprintf(param->name, HAL_NAME_LEN, "%s", oldname->name);
+	    param->oldname = 0;
+	    free_oldname_struct(oldname);
+	}
+    }
+    /* insert param back into list in proper place */
+    prev = &(hal_data->param_list_ptr);
+    next = *prev;
+    while (1) {
+	if (next == 0) {
+	    /* reached end of list, insert here */
+	    param->next_ptr = next;
+	    *prev = SHMOFF(param);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	ptr = SHMPTR(next);
+	cmp = strcmp(ptr->name, param->name);
+	if (cmp > 0) {
+	    /* found the right place for it, insert here */
+	    param->next_ptr = next;
+	    *prev = SHMOFF(param);
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return HAL_SUCCESS;
+	}
+	/* didn't find it yet, look at next one */
+	prev = &(ptr->next_ptr);
+	next = *prev;
+    }
+}
+
 /***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/

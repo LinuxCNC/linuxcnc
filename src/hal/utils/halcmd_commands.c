@@ -61,6 +61,7 @@ static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
 static void print_pin_info(int type, char **patterns);
 static void print_pin_aliases(char **patterns);
+static void print_param_aliases(char **patterns);
 static void print_sig_info(int type, char **patterns);
 static void print_script_sig_info(int type, char **patterns);
 static void print_param_info(int type, char **patterns);
@@ -84,6 +85,7 @@ static const char *data_arrow2(int dir);
 static char *data_value(int type, void *valptr);
 static char *data_value2(int type, void *valptr);
 static void save_comps(FILE *dst);
+static void save_aliases(FILE *dst);
 static void save_signals(FILE *dst, int only_unlinked);
 static void save_links(FILE *dst, int arrows);
 static void save_nets(FILE *dst, int arrows);
@@ -319,8 +321,8 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
 
     if ( strcmp (pinparam, "pin" ) == 0 ) {
 	retval = hal_pin_alias(name, alias);
-//    } else if ( strcmp (pinparam, "param" ) == 0 ) {
-//	retval = hal_param_alias(name, alias);
+    } else if ( strcmp (pinparam, "param" ) == 0 ) {
+	retval = hal_param_alias(name, alias);
     } else {
 	retval = HAL_INVAL;
     }
@@ -337,8 +339,8 @@ int do_unalias_cmd(char *pinparam, char *name) {
     int retval;
     if (strcmp(pinparam, "pin") == 0) {
         retval = hal_pin_alias(name, NULL);
-//    } else if ( strcmp (pinparam, "param" ) == 0 ) {
-//      retval = hal_param_alias(name, NULL);
+    } else if ( strcmp (pinparam, "param" ) == 0 ) {
+      retval = hal_param_alias(name, NULL);
     } else {
         return HAL_INVAL;
     };
@@ -918,6 +920,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_pin_aliases(NULL);
 	print_sig_info(-1, NULL);
 	print_param_info(-1, NULL);
+	print_param_aliases(NULL);
 	print_funct_info(NULL);
 	print_thread_info(NULL);
     } else if (strcmp(type, "all") == 0) {
@@ -927,6 +930,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_pin_aliases(patterns);
 	print_sig_info(-1, patterns);
 	print_param_info(-1, patterns);
+	print_param_aliases(patterns);
 	print_funct_info(patterns);
 	print_thread_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
@@ -954,6 +958,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_thread_info(patterns);
     } else if (strcmp(type, "alias") == 0) {
 	print_pin_aliases(patterns);
+	print_param_aliases(patterns);
     } else {
 	halcmd_error("Unknown 'show' type '%s'\n", type);
 	return -1;
@@ -1729,6 +1734,39 @@ static void print_param_info(int type, char **patterns)
     halcmd_output("\n");
 }
 
+static void print_param_aliases(char **patterns)
+{
+    int next;
+    hal_oldname_t *oldname;
+    hal_param_t *param;
+
+    if (scriptmode == 0) {
+	halcmd_output("Parameter Aliases:\n");
+	/* 41 is HAL_NAME_LEN */
+	halcmd_output(" %-41s  %s\n", "Alias", "Original Name");
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	param = SHMPTR(next);
+	if ( param->oldname != 0 ) {
+	    /* name is an alias */
+	    oldname = SHMPTR(param->oldname);
+	    if ( match(patterns, param->name) || match(patterns, oldname->name) ) {
+		if (scriptmode == 0) {
+		    /* 41 is HAL_NAME_LEN */
+		    halcmd_output(" %-41s  %s\n", param->name, oldname->name);
+		} else {
+		    halcmd_output(" %s  %s\n", param->name, oldname->name);
+		}
+	    }
+	}
+	next = param->next_ptr;
+    }
+    rtapi_mutex_give(&(hal_data->mutex));
+    halcmd_output("\n");
+}
+
 static void print_funct_info(char **patterns)
 {
     int next;
@@ -2232,12 +2270,15 @@ int do_save_cmd(char *type, char *filename)
     if (strcmp(type, "all" ) == 0) {
 	/* save everything */
 	save_comps(dst);
+	save_aliases(dst);
         save_signals(dst, 1);
         save_nets(dst, 3);
 	save_params(dst);
 	save_threads(dst);
     } else if (strcmp(type, "comp") == 0) {
 	save_comps(dst);
+    } else if (strcmp(type, "alias") == 0) {
+	save_aliases(dst);
     } else if (strcmp(type, "sig") == 0) {
 	save_signals(dst, 0);
     } else if (strcmp(type, "signal") == 0) {
@@ -2305,6 +2346,39 @@ static void save_comps(FILE *dst)
 	next = comp->next_ptr;
     }
 #endif
+    rtapi_mutex_give(&(hal_data->mutex));
+}
+
+static void save_aliases(FILE *dst)
+{
+    int next;
+    hal_pin_t *pin;
+    hal_param_t *param;
+    hal_oldname_t *oldname;
+
+    fprintf(dst, "# pin aliases\n");
+    rtapi_mutex_get(&(hal_data->mutex));
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	pin = SHMPTR(next);
+	if ( pin->oldname != 0 ) {
+	    /* name is an alias */
+	    oldname = SHMPTR(pin->oldname);
+	    fprintf(dst, "alias pin %s %s\n", oldname->name, pin->name);
+	}
+	next = pin->next_ptr;
+    }
+    fprintf(dst, "# param aliases\n");
+    next = hal_data->param_list_ptr;
+    while (next != 0) {
+	param = SHMPTR(next);
+	if ( param->oldname != 0 ) {
+	    /* name is an alias */
+	    oldname = SHMPTR(param->oldname);
+	    fprintf(dst, "alias param %s %s\n", oldname->name, param->name);
+	}
+	next = param->next_ptr;
+    }
     rtapi_mutex_give(&(hal_data->mutex));
 }
 
