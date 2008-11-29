@@ -26,7 +26,7 @@ class Translated:
         self.straight_traverse_translated(*self.translate(*args))
     def straight_feed(self, *args):
         self.straight_feed_translated(*self.translate(*args))
-    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c):
+    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u=None, offset_v=None, offset_w=None):
         self.offset_x = offset_x #- (self.ox - self.offset_x)
         self.offset_y = offset_y #- (self.oy - self.offset_y)
         self.offset_z = offset_z #- (self.oz - self.offset_z)
