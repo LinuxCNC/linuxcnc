@@ -17,6 +17,10 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#ifndef HOSTMOT2_LOWLEVEL_H
+#define HOSTMOT2_LOWLEVEL_H
+
+
 #ifndef RTAPI
 #error This is a realtime component only!
 #endif
@@ -122,4 +126,6 @@ struct hm2_lowlevel_io_struct {
 int hm2_register(hm2_lowlevel_io_t *llio, char *config);
 void hm2_unregister(hm2_lowlevel_io_t *llio);
 
+
+#endif //  HOSTMOT2_LOWLEVEL_H
 
