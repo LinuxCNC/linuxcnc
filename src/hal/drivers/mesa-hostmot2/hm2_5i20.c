@@ -374,6 +374,7 @@ int rtapi_app_main(void) {
     LL_PRINT("loading Mesa AnyIO HostMot2 driver version " HM2_5I20_VERSION "\n");
     LL_PRINT("*** *** *** *** *** *** *** *** *** *** ** *** *** *** *** *** *** *** *** *** *** ***\n");
     LL_PRINT("*** NOTE: This driver is obsolete, you should use hm2_pci instead, it works better ***\n");
+    LL_PRINT("*** This driver will be removed from TRUNK in January 2009, so switch to hm2_pci!! ***\n");
     LL_PRINT("*** *** *** *** *** *** *** *** *** *** ** *** *** *** *** *** *** *** *** *** *** ***\n");
 
     comp_id = hal_init(HM2_LLIO_NAME);
