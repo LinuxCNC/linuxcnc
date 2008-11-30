@@ -549,8 +549,9 @@ void ButtonReset_click( )
 	InitVars( );
 	PrepareAllDatasBeforeRun( );
 	RunBackIfStopped( );
+//closing and opening modbus again creates double requests for some reason...
 #ifdef MODBUS_IO_MASTER
- if (modmaster) {    PrepareModbusMaster( );    }
+// if (modmaster) {    PrepareModbusMaster( );    }
 #endif
 	MessageInStatusBar("Reset ladder data - Now running.");
 }
@@ -675,9 +676,15 @@ void DoQuitGtkApplication( void )
 void ConfirmQuit( void )
 {
 	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuitGtkApplication );
-	else
-		ShowConfirmationBox( "Sure?", "Do you really want to quit ?\n", DoQuitGtkApplication );
+		ShowConfirmationBox( "Warning!", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuitGtkApplication );
+	else{
+             if (!modmaster)  
+                {  
+                 ShowConfirmationBox( "Confirm!", "Do you really want to quit ?\n", DoQuitGtkApplication );
+                }else{
+                      ShowConfirmationBox( "Warning!", "MODBUS will stop if you quit. Do you really want to quit ?\n", DoQuitGtkApplication );
+                     }
+            }
 }
 gint RungWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
