@@ -165,4 +165,91 @@ er.
  la carte graphique interne.
  Un carte graphique Matrox d'occasion à $5US a résolu le problème.
  EMC n'exige pas de matériel de pointe.
+\layout Section
+
+Adresses des ports
+\layout Standard
+
+Pour ceux qui construisent leur matériel, il est facile et économique d'augmente
+r le nombre d'entrées sorties d'un PC en lui ajoutant une carte PCI fournissant
+ un ou deux ports parallèles supplémentaires.
+ Faire suivre ces ports d'une couche d'opto-isolation est utile pour éviter
+ les courts circuits pouvant détruire la carte, voir même toute la carte
+ mère.
+ EMC2 supporte un maximum de 8 ports parallèles.
+\layout Standard
+
+Certaines parmis les bonnes cartes parallèles sont à base de chipset Netmos.
+ Elles fournissent un signal +5V bien propre, elles sont fournies avec un
+ ou deux ports parallèles.
+ 
+\layout Standard
+
+Pour trouver les adresses d'entrées/sorties de ces cartes, ouvrir une console
+ et utiliser la commande en ligne:
+\layout Quote
+
+lspci -v
+\layout Standard
+
+Rechercher ensuite dans la liste de matériel fournie, le nom du chipset
+ de la nouvelle carte, dans cette exemple c'est l'entrée "NetMos Technology"
+ pour une carte à deux ports:
+\layout Standard
+
+0000:01:0a.0 Communication controller: Netmos Technology PCI 9815 Multi-I/O
+ Controller (rev 01)
+\layout Quote
+
+Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel adapter) 
+\layout Quote
+
+Flags: medium devsel, IRQ 5
+\newline 
+I/O ports at b800 [size=8]
+\newline 
+I/O ports at bc00 [size=8] 
+\newline 
+I/O ports at c000 [size=8] 
+\newline 
+I/O ports at c400 [size=8] 
+\newline 
+I/O ports at c800 [size=8] 
+\newline 
+I/O ports at cc00 [size=16]
+\layout Standard
+
+Après expérimentation, il se trouve que le premier port (incorporé à la
+ carte) utilise la troisième adresse de la liste (c000) et le deuxième port
+ (racccordé par un ruban) utilise la première adresse (b800).
+\layout Standard
+
+Il est alors possible d'ouvrir dans l'éditeur le fichier .hal de la machine
+ et d'insérer l'adresse trouvée à l'endroit approprié.
+\layout Quote
+
+loadrt hal_parport cfg="0x378 0xc000"
+\layout Standard
+
+Noter la présence des guillemets (") encadrant les deux adresses, ils sont
+ obligatoires dès qu'il y a plus d'une carte.
+\layout Standard
+
+Il est nécessaire également d'ajouter les fonctions de lecture ("read")
+ et d'écriture ("write") pour la nouvelle carte.
+ Par exemple,
+\layout Quotation
+
+addf parport.1.read base-thread 1 
+\layout Quotation
+
+addf parport.1.write base-thread -1
+\layout Standard
+
+Noter que les valeurs peuvent être différentes de celles de cet exemple.
+ Les cartes Netmos sont Plug-N-Play, elles peuvent donc changer leur adressage
+ selon le connecteur PCI dans lequel elles sont placées.
+ Si vous modifiez l'installation des cartes PCI de votre machine, n'oubliez
+ pas de vérifier leurs adresses avant de lancer EMC.
+ 
 \the_end
