@@ -1268,7 +1268,7 @@ char SaveComParameters(char * FileName)
 		fprintf( File,S_LINE "MODBUS_MAP_COIL_WRITE=%d" E_LINE "\n", MapCoilWrite );
 		fprintf( File,S_LINE "MODBUS_MAP_INPUT=%d" E_LINE "\n", MapInputs );
 		fprintf( File,S_LINE "MODBUS_MAP_HOLDING=%d" E_LINE "\n", MapHolding );
-		fprintf( File,S_LINE "MODBUS_MAP_REGESTER_READ=%d" E_LINE "\n", MapRegisterRead );
+		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_READ=%d" E_LINE "\n", MapRegisterRead );
 		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_WRITE=%d" E_LINE "\n", MapRegisterWrite );
 		fclose(File);
 		Okay = TRUE;
