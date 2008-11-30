@@ -660,19 +660,24 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
                            default:  
 			       break;
                         }
+                     break;
 		case MODBUS_REQ_REGISTERS_READ:
 		case MODBUS_REQ_HOLD_READ:
                         switch ( MapRegisterRead )
                            {
-                            case B_VAR:
+                            case W_VAR:
 			         WriteVar( VAR_MEM_WORD, VarNum, Value );
                                  break;
-                            case Q_VAR:
-			         WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
+                            case QW_VAR:
+			         WriteVar( VAR_PHYS_WORD_OUTPUT, VarNum, Value );
                                  break;
                             default:  
 			         break;
                            }
+                      break;
+                default:
+                        printf("ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping ");
+                      break;
                         
 	}
 }
@@ -706,7 +711,7 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
                         switch ( MapRegisterWrite )
                             {
                              case W_VAR:            
-			          return ReadVar( VAR_MEM_BIT, VarNum );
+			          return ReadVar( VAR_MEM_WORD, VarNum );
                                   break;
                              case QW_VAR:
 			          return ReadVar( VAR_PHYS_WORD_OUTPUT, VarNum );
@@ -717,6 +722,9 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
                              default:  
 			          break;
                             }
+                default:
+                        printf("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping ");
+                      break;
 			
 	}
 	return 0;
