@@ -103,9 +103,9 @@ void SerialClose( )
 
 void SerialSetRTS( int State )
 {
+     int status;
 	if ( PortIsOpened )
 	{
-		int status;
 		ioctl(fd, TIOCMGET, &status);
 		if ( State )
 			status |= TIOCM_RTS;
