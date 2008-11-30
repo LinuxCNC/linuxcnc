@@ -26,7 +26,7 @@
 
 \layout Chapter
 
-Latency
+Hardware
 \layout Section
 
 Latency Test
@@ -137,4 +137,82 @@ Note that if you get high numbers, there may be ways to improve them.
  video.
  But a $5 used video card solved the problem - EMC does not require bleeding
  edge hardware.
+\layout Section
+
+Port Address
+\layout Standard
+
+For those who build their own hardware, one safeguard against shorting out
+ an on-board parallel port - or even the whole motherboard - is to use an
+ add-on parallel port card.
+ Even if you don't need the extra layer of safety, a parport card is a good
+ way to add extra I/O lines with EMC.
+\layout Standard
+
+One good PCI parport card is made with the Netmos 9815 chipset.
+ It has good +5V signals, and can come in a single or dual ports.
+ 
+\layout Standard
+
+To find the I/O addresses for these cards open a terminal window and use
+ the list pci command:
+\layout Quote
+
+lspci -v
+\layout Standard
+
+Look for the entry with "NetMos" in it.
+ Example of a 2-port card:
+\layout Standard
+
+0000:01:0a.0 Communication controller: Netmos Technology PCI 9815 Multi-I/O
+ Controller (rev 01)
+\layout Quote
+
+Subsystem: LSI Losgic / Symbios Logic 2POS (2 port parallel adapter) 
+\layout Quote
+
+Flags: medium devsel, IRQ 5
+\newline 
+I/O ports at b800 [size=8]
+\newline 
+I/O ports at bc00 [size=8] 
+\newline 
+I/O ports at c000 [size=8] 
+\newline 
+I/O ports at c400 [size=8] 
+\newline 
+I/O ports at c800 [size=8] 
+\newline 
+I/O ports at cc00 [size=16]
+\layout Standard
+
+From experimentation, I've found the first port (the on-card port) uses
+ the third address listed (c000), and the second port (the one that attaches
+ with a ribbon cable) uses the first address listed (b800).
+\layout Standard
+
+You can then open an editor and put the addresses into the appropriate place
+ in your .hal file.
+\layout Quote
+
+loadrt hal_parport cfg="0x378 0xc000"
+\layout Standard
+
+You must also direct emc to run the "read" and "write" functions for the
+ second card.
+ For example,
+\layout Quotation
+
+addf parport.1.read base-thread 1 
+\layout Quotation
+
+addf parport.1.write base-thread -1
+\layout Standard
+
+Please note that your values will differ.
+ The Netmos cards are Plug-N-Play, and might change their settings depending
+ on which slot you put them into, so if you like to 'get under the hood'
+ and re-arrange things, be sure to check these values before you start EMC.
+ 
 \the_end
