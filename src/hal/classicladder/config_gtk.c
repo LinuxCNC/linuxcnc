@@ -69,14 +69,15 @@ GtkWidget *DebugLevelEntry;
 //for modbus configure window
 int MapCoilRead;
 int MapCoilWrite;
-#define NBR_COM_PARAMS 10
+#define NBR_COM_PARAMS 12
 GtkWidget *EntryComParam[ NBR_COM_PARAMS ];
 GtkWidget *ComboComParam[2];
 GtkWidget *ConfigWindow;
 GtkWidget *DebugButton [ 4 ];
 GtkWidget *OffsetButton[ 2 ];
 GtkWidget *RtsButton   [ 2 ];
-GtkWidget *MapButton   [ 5 ];
+GtkWidget *MapButton   [ 10 ];
+GSList *group;
 #endif
 
 GtkWidget * CreateGeneralParametersPage( void )
@@ -165,7 +166,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 				break;
                         case 15:
 				sprintf( BuffLabel, "Current path/filename" );
-                                sprintf( BuffValue, "Not available yet");
+                                //sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
 				break;                                
 			default:
 				sprintf( BuffLabel, "???" );
@@ -527,7 +528,7 @@ void GetModbusModulesIOSettings( void )
 }
 #endif
 
-// These three callback functions will change the global variable as soon as the radio button is changed
+// These 7 callback functions will change the global variable as soon as the radio button is changed
 // you don't have to close the window to update them
  void debug_button_callback (GtkWidget *widget, gint data)
 {
@@ -546,8 +547,8 @@ void map_CoilR_button_callback (GtkWidget *widget, gint data)
            if (widget==MapButton[i]) {break;}
         }
    MapCoilRead=data;
-   printf("button-%i\n",MapCoilRead);
 }
+
 void map_CoilW_button_callback (GtkWidget *widget, gint data)
 {
    int i;
@@ -557,8 +558,31 @@ void map_CoilW_button_callback (GtkWidget *widget, gint data)
            if (widget==MapButton[i]) {break;}
         }
    MapCoilWrite=data;
-   printf("button-%i\n",MapCoilWrite);
 }
+
+
+void map_RegsR_button_callback (GtkWidget *widget, gint data)
+{
+   int i;
+
+   for (i=5; i<8; i++)
+	{
+           if (widget==MapButton[i]) {break;}
+        }
+   MapRegisterRead=data;
+}
+
+void map_RegsW_button_callback (GtkWidget *widget, gint data)
+{
+   int i;
+
+   for (i=8; i<10; i++)
+	{
+           if (widget==MapButton[i]) {break;}
+        }
+   MapRegisterWrite=data;
+}
+
 static void offset_button_callback (GtkWidget *widget, gint data)
 {
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (OffsetButton[0])))  { ModbusEleOffset = 0; } 
@@ -655,7 +679,15 @@ GtkWidget * CreateModbusComParametersPage( void )
 				//sprintf( BuffValue, "%d", ModbusDebugLevel );
 				break;
                         case 9:
-				sprintf( BuffLabel, "Write Coils mappped from" );
+				sprintf( BuffLabel, "Write Coils map from" );
+				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				break;
+                        case 10:
+				sprintf( BuffLabel, "Read register/holding map to" );
+				//sprintf( BuffValue, "%d", ModbusDebugLevel );
+				break;
+                        case 11:
+				sprintf( BuffLabel, "Write registers map from" );
 				//sprintf( BuffValue, "%d", ModbusDebugLevel );
 				break;
 		}
@@ -820,7 +852,7 @@ GtkWidget * CreateModbusComParametersPage( void )
                                 gtk_widget_show (MapButton[2]);
                                 group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[2]));
 
-                                MapButton[3]= gtk_radio_button_new_with_label (group, "%Q");
+                                MapButton[3]= gtk_radio_button_new_with_label (group, "%Q ");
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[3], FALSE, TRUE, 0);
                                 gtk_widget_show (MapButton[3]);
                                 group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[3]));
@@ -829,7 +861,7 @@ GtkWidget * CreateModbusComParametersPage( void )
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[4], FALSE, TRUE, 0);
                                 gtk_widget_show (MapButton[4]);
  
-                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[MapCoilWrite+2]), TRUE);
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[2+MapCoilWrite]), TRUE);
 
                                 g_signal_connect (G_OBJECT (MapButton[2]), "toggled",
  	                   	                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 0 ));
@@ -837,6 +869,61 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 1 ));
                                 g_signal_connect (G_OBJECT (MapButton[4]), "toggled",
 		                                  G_CALLBACK (map_CoilW_button_callback), GINT_TO_POINTER ( 2 ));
+                          break;
+                  case 10:
+                                //read register/holding map label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                MapButton[5]= gtk_radio_button_new_with_label (NULL, "%W");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[5], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[5]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[5]));
+
+                                MapButton[6]= gtk_radio_button_new_with_label (group, "%QW");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[6], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[6]);
+ 
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[5+MapRegisterRead]), TRUE);
+
+                                g_signal_connect (G_OBJECT (MapButton[5]), "toggled",
+ 	                   	                  G_CALLBACK (map_RegsR_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (MapButton[6]), "toggled",
+		                                  G_CALLBACK (map_RegsR_button_callback), GINT_TO_POINTER ( 1 ));
+                          break;
+                  case 11:
+                                //Write register map label
+                                LabelComParam[NumLine] = gtk_label_new(BuffLabel);
+		                gtk_widget_set_usize( LabelComParam[NumLine],200,0 );
+		                gtk_box_pack_start( GTK_BOX(hbox[NumLine]), LabelComParam[NumLine], FALSE, FALSE, 0 );
+		                gtk_widget_show( LabelComParam[NumLine] ); 
+
+                                //radio buttons
+                                MapButton[7]= gtk_radio_button_new_with_label (NULL, "%W");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[7], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[7]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[7]));
+
+                                MapButton[8]= gtk_radio_button_new_with_label (group, "%QW");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[8], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[8]);
+                                group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (MapButton[8]));
+
+                                MapButton[9]= gtk_radio_button_new_with_label (group, "%IW");
+                                gtk_box_pack_start (GTK_BOX (hbox[NumLine]), MapButton[9], FALSE, TRUE, 0);
+                                gtk_widget_show (MapButton[9]);
+ 
+                                gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (MapButton[7+MapRegisterWrite]), TRUE);
+
+                                g_signal_connect (G_OBJECT (MapButton[7]), "toggled",
+ 	                   	                  G_CALLBACK (map_RegsW_button_callback), GINT_TO_POINTER ( 0 ));
+                                g_signal_connect (G_OBJECT (MapButton[8]), "toggled",
+		                                  G_CALLBACK (map_RegsW_button_callback), GINT_TO_POINTER ( 1 ));
+                                g_signal_connect (G_OBJECT (MapButton[9]), "toggled",
+		                                  G_CALLBACK (map_RegsW_button_callback), GINT_TO_POINTER ( 2 ));
                           break;
 
                 default:
@@ -867,7 +954,7 @@ void GetModbusComParameters( void )
         string = (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*ComboText)->entry) ;
         if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 )   {   update=TRUE;   }
         if ( strncmp( string, PortName[0], strlen(PortName[0]) )==0 )           
-             {     strcpy( ModbusSerialPortNameUsed,"" );
+             {     strcpy( ModbusSerialPortNameUsed,"\0" );
              }else{
        	           strcpy( ModbusSerialPortNameUsed,string );
                   }
@@ -878,13 +965,19 @@ void GetModbusComParameters( void )
 	ModbusTimeAfterTransmit = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 2 ] )) );
 	ModbusTimeInterFrame = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 3 ] )) );
 	ModbusTimeOutReceipt = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 4 ] )) );
-	if ( (update) && (modmaster) ) {    PrepareModbusMaster( );    }
+	if ( (update) && (modmaster) ) 
+           {
+            MessageInStatusBar( " To change Modbus port settings, save and reload ladder GUI");
+            PrepareModbusMaster( );
+           }
 }
 void GetSettings( void )
 {	
 #ifdef MODBUS_IO_MASTER
-if(modmaster) {  GetModbusComParameters( );   
-                 GetModbusModulesIOSettings( );   }
+if(modmaster) { 
+                GetModbusComParameters( );   
+                GetModbusModulesIOSettings( ); 
+              }  
 #endif
 #ifndef RT_SUPPORT
         GetGeneralParameters( );
