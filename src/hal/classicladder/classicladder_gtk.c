@@ -544,7 +544,16 @@ void ButtonSaveAs_click( )
 
 void ButtonReset_click( )
 {
+if (InfosGene->LadderState==STATE_RUN)
+	{
+         ShowConfirmationBox("Warning!","Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?",DoReset);
+        }else{
+              DoReset();
+             }
+}
 
+void DoReset()
+{
 	StopRunIfRunning( );
 	InitVars( );
 	PrepareAllDatasBeforeRun( );
@@ -553,7 +562,7 @@ void ButtonReset_click( )
 #ifdef MODBUS_IO_MASTER
 // if (modmaster) {    PrepareModbusMaster( );    }
 #endif
-	MessageInStatusBar("Reset ladder data - Now running.");
+	MessageInStatusBar("Reset ladder data ");
 }
 
 void ButtonConfig_click( )
@@ -676,13 +685,13 @@ void DoQuitGtkApplication( void )
 void ConfirmQuit( void )
 {
 	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Warning!", "Do you really want to quit ?\nIf not saved, all modifications will be lost  \n", DoQuitGtkApplication );
+		ShowConfirmationBox( "Warning!", "If not saved, all modifications will be lost.\nDo you really want to quit ?\n", DoQuitGtkApplication );
 	else{
              if (!modmaster)  
                 {  
                  ShowConfirmationBox( "Confirm!", "Do you really want to quit ?\n", DoQuitGtkApplication );
                 }else{
-                      ShowConfirmationBox( "Warning!", "MODBUS will stop if you quit. Do you really want to quit ?\n", DoQuitGtkApplication );
+                      ShowConfirmationBox( "Warning!", "MODBUS will stop if you quit.\n Do you really want to quit ?\n", DoQuitGtkApplication );
                      }
             }
 }
