@@ -1,22 +1,51 @@
 /*
-   gs2_vfd.c
-   Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
+    gs2_vfd.c
+    Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
 
-   Based on a work (test-modbus program, part of libmodbus) which is
-   Copyright (C) 2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
+    Based on a work (test-modbus program, part of libmodbus) which is
+    Copyright (C) 2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
 
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation, version 2.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation, version 2.
 
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+    You should have received a copy of the GNU Lesser General Public
+    License along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
+
+
+    This is a userspace HAL program, which may be loaded using the halcmd "loadusr" command:
+        loadusr gs2_vfd
+    There are several command-line options.  Options that have a set list of possible values may
+        be set by using any number of characters that are unique.  For example, --rate 5 will use
+        a baud rate of 57600, since no other available baud rates start with "5"
+    -b or --bits <n> (default 8)
+        Set number of data bits to <n>, where n must be from 5 to 8 inclusive
+    -d or --device <path> (default /dev/ttyS0)
+        Set the name of the serial device node to use
+    -g or --debug
+        Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause
+        all modbus messages to be printed in hex on the terminal.
+    -n or --name <string> (default gs2_vfd)
+        Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin
+        and parameter names will begin with <string>.
+    -p or --parity {even,odd,none} (defalt odd)
+        Set serial parity to even, odd, or none.
+    -r or --rate <n> (default 38400)
+        Set baud rate to <n>.  It is an error if the rate is not one of the following:
+        110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200
+    -s or --stopbits {1,2} (default 1)
+        Set serial stop bits to 1 or 2
+    -t or --target <n> (default 1)
+        Set MODBUS target (slave) number.  This must match the device number you set on the GS2.
+    -v or --verbose
+        Turn on debug messages.  Note that if there are serial errors, this may become annoying.
+        At the moment, it doesn't make much difference most of the time.
 */
 
 #ifndef ULAPI
@@ -60,7 +89,6 @@
 	total of 5 registers */
 #define START_REGISTER_W	0x091A
 #define NUM_REGISTERS_W		5
-#define SLAVE_ADDRESS		1
 
 #undef DEBUG
 //#define DEBUG
@@ -106,22 +134,47 @@ typedef struct {
 } haldata_t;
 
 static int done;
-/*
-static struct option long_options = {
+char *modname = "gs2_VFD";
+
+static struct option long_options[] = {
     {"bits", 1, 0, 'b'},
     {"device", 1, 0, 'd'},
+    {"debug", 0, 0, 'g'},
+    {"name", 1, 0, 'n'},
     {"parity", 1, 0, 'p'},
     {"rate", 1, 0, 'r'},
     {"stopbits", 1, 0, 's'},
+    {"target", 1, 0, 't'},
     {"verbose", 0, 0, 'v'},
     {0,0,0,0}
-}
+};
 
-static char option_string = "b:d:p:r:s:v";
-*/
+static char *option_string = "b:d:n:p:r:s:t:v";
+
+static char *bitstrings[] = {"5", "6", "7", "8", NULL};
+static char *paritystrings[] = {"even", "odd", "none", NULL};
+static char *ratestrings[] = {"110", "300", "600", "1200", "2400", "4800", "9600",
+    "19200", "38400", "57600", "115200", NULL};
+static char *stopstrings[] = {"1", "2", NULL};
 
 static void quit(int sig) {
     done = 1;
+}
+
+int match_string(char *string, char **matches) {
+    int len, which, match;
+    which=0;
+    match=-1;
+    if ((matches==NULL) || (string==NULL)) return -1;
+    len = strlen(string);
+    while (matches[which] != NULL) {
+        if ((!strncmp(string, matches[which], len)) && (len <= strlen(matches[which]))) {
+            if (match>=0) return -1;        // multiple matches
+            match=which;
+        }
+        ++which;
+    }
+    return match;
 }
 
 int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata) {
@@ -200,7 +253,7 @@ int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data
     return retval;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     int retval;
     modbus_param_t mb_param;
@@ -208,98 +261,180 @@ int main(void)
     slavedata_t slavedata;
     int hal_comp_id;
     struct timespec loop_timespec, remaining;
-    int baud, bits, stopbits, debug;
-    int baud_set, bits_set, stopbits_set, debug_set;
-    char device[FILENAME_MAX], parity[250];
-    int device_set, parity_set;
+    int baud, bits, stopbits, debug, verbose;
+    char *device, *parity, *endarg, opt;
+    int argindex, argvalue;
     done = 0;
-    
+
     // assume that nothing is specified on the command line
-    baud_set = bits_set = stopbits_set = debug_set = device_set = parity_set = 0;
-    
+    baud = 38400;
+    bits = 8;
+    stopbits = 1;
+    debug = 0;
+    verbose = 0;
+    device = "/dev/ttyS0";
+    parity = "odd";
+
     /* slave / register info */
-    slavedata.slave = SLAVE_ADDRESS;
+    slavedata.slave = 1;
     slavedata.read_reg_start = START_REGISTER_R;
     slavedata.read_reg_count = NUM_REGISTERS_R;
     slavedata.write_reg_start = START_REGISTER_W;
     slavedata.write_reg_count = NUM_REGISTERS_R;
-    
+
+    // process command line options
+    while ((opt=getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {
+        switch(opt) {
+            case 'b':   // serial data bits, probably should be 8 (and defaults to 8)
+                argindex=match_string(optarg, bitstrings);
+                if (argindex<0) {
+                    printf("gs2_vfd: ERROR: invalid number of bits: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                bits = atoi(bitstrings[argindex]);
+                break;
+            case 'd':   // device name, default /dev/ttyS0
+                // could check the device name here, but we'll leave it to the library open
+                if (strlen(optarg) > FILENAME_MAX) {
+                    printf("gs2_vfd: ERROR: device node name is too long: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                device = strdup(optarg);
+                break;
+            case 'g':
+                debug = 1;
+                verbose = 1;
+                break;
+            case 'n':   // module base name
+                if (strlen(optarg) > HAL_NAME_LEN-20) {
+                    printf("gs2_vfd: ERROR: HAL module name too long: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                modname = strdup(optarg);
+                break;
+            case 'p':   // parity, should be a string like "even", "odd", or "none"
+                argindex=match_string(optarg, paritystrings);
+                if (argindex<0) {
+                    printf("gs2_vfd: ERROR: invalid parity: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                parity = paritystrings[argindex];
+                break;
+            case 'r':   // Baud rate, 38400 default
+                argindex=match_string(optarg, ratestrings);
+                if (argindex<0) {
+                    printf("gs2_vfd: ERROR: invalid baud rate: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                baud = atoi(ratestrings[argindex]);
+                break;
+            case 's':   // stop bits, defaults to 1
+                argindex=match_string(optarg, stopstrings);
+                if (argindex<0) {
+                    printf("gs2_vfd: ERROR: invalid number of stop bits: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                stopbits = atoi(stopstrings[argindex]);
+                break;
+            case 't':   // target number (MODBUS ID), default 1
+                argvalue = strtol(optarg, &endarg, 10);
+                if ((*endarg != '\0') || (argvalue < 1) || (argvalue > 254)) {
+                    printf("gs2_vfd: ERROR: invalid slave number: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                slavedata.slave = argvalue;
+                break;
+            case 'v':   // verbose mode (print modbus errors and other information), default 0
+                verbose = 1;
+                break;
+        }
+    }
+
+    printf("%s: device='%s', baud=%d, bits=%d, parity='%s', stopbits=%d, address=%d, verbose=%d\n",
+           modname, device, baud, bits, parity, stopbits, slavedata.slave, debug);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
-    
+
     /* Assume 38.4k O-8-1 serial settings, device 1 */
-    modbus_init_rtu(&mb_param, "/dev/ttyS0", 38400, "odd", 8, 1, 0);
-    mb_param.debug = 0;
+    modbus_init_rtu(&mb_param, device, baud, parity, bits, stopbits, verbose);
+    mb_param.debug = debug;
     /* the open has got to work, or we're out of business */
     if (((retval = modbus_connect(&mb_param))!=0) || done) {
-            printf("gs2_vfd: ERROR: couldn't open serial device\n");
-            goto out_noclose;
+        printf("%s: ERROR: couldn't open serial device\n", modname);
+        goto out_noclose;
     }
-    
+
     /* create HAL component */
-    hal_comp_id = hal_init("gs2_vfd");
+    hal_comp_id = hal_init(modname);
     if ((hal_comp_id < 0) || done) {
-            printf("gs2_vfd: ERROR: hal_init failed\n");
-            retval = hal_comp_id;
-            goto out_close;
+        printf("%s: ERROR: hal_init failed\n", modname);
+        retval = hal_comp_id;
+        goto out_close;
     }
-    
+
     /* grab some shmem to store the HAL data in */
     haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
     if ((haldata == 0) || done) {
-            printf("gs2_vfd: ERROR: unable to allocate shared memory\n");
-            retval = -1;
-            goto out_close;
+        printf("%s: ERROR: unable to allocate shared memory\n", modname);
+        retval = -1;
+        goto out_close;
     }
 
-    retval = hal_pin_s32_new("gs2_vfd.status-1", HAL_OUT, &(haldata->stat1), hal_comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->stat1), hal_comp_id, "%s.status-1", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_s32_new("gs2_vfd.status-2", HAL_OUT, &(haldata->stat2), hal_comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->stat2), hal_comp_id, "%s.status-2", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.frequency-command", HAL_OUT, &(haldata->freq_cmd), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_cmd), hal_comp_id, "%s.frequency-command", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.frequency-out", HAL_OUT, &(haldata->freq_out), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_out), hal_comp_id, "%s.frequency-out", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.output-current", HAL_OUT, &(haldata->curr_out), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->curr_out), hal_comp_id, "%s.output-current", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.DC-bus-volts", HAL_OUT, &(haldata->DCBusV), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->DCBusV), hal_comp_id, "%s.DC-bus-volts", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.output-voltage", HAL_OUT, &(haldata->outV), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->outV), hal_comp_id, "%s.output-voltage", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.motor-RPM", HAL_OUT, &(haldata->RPM), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->RPM), hal_comp_id, "%s.motor-RPM", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.scale-frequency", HAL_OUT, &(haldata->scale_freq), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->scale_freq), hal_comp_id, "%s.scale-frequency", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.power-factor", HAL_OUT, &(haldata->power_factor), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->power_factor), hal_comp_id, "%s.power-factor", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.load-percentage", HAL_OUT, &(haldata->load_pct), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(haldata->load_pct), hal_comp_id, "%s.load-percentage", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_s32_new("gs2_vfd.firmware-revision", HAL_OUT, &(haldata->FW_Rev), hal_comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->FW_Rev), hal_comp_id, "%s.firmware-revision", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_s32_new("gs2_vfd.error-count", HAL_RW, &(haldata->errorcount), hal_comp_id);
+    retval = hal_param_s32_newf(HAL_RW, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_new("gs2_vfd.loop-time", HAL_RW, &(haldata->looptime), hal_comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->looptime), hal_comp_id, "%s.loop-time", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_s32_new("gs2_vfd.retval", HAL_RW, &(haldata->retval), hal_comp_id);
+    retval = hal_param_s32_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_bit_new("gs2_vfd.at-speed", HAL_OUT, &(haldata->at_speed), hal_comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(haldata->at_speed), hal_comp_id, "%s.at-speed", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_float_new("gs2_vfd.speed-command", HAL_IN, &(haldata->speed_command), hal_comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(haldata->speed_command), hal_comp_id, "%s.speed-command", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_bit_new("gs2_vfd.spindle-on", HAL_IN, &(haldata->spindle_on), hal_comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_bit_new("gs2_vfd.spindle-fwd", HAL_IN, &(haldata->spindle_fwd), hal_comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_fwd), hal_comp_id, "%s.spindle-fwd", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_pin_bit_new("gs2_vfd.err-reset", HAL_IN, &(haldata->err_reset), hal_comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(haldata->err_reset), hal_comp_id, "%s.err-reset", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_new("gs2_vfd.tolerance", HAL_RW, &(haldata->speed_tolerance), hal_comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->speed_tolerance), hal_comp_id, "%s.tolerance", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_new("gs2_vfd.motor-HZ", HAL_RW, &(haldata->motor_hz), hal_comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_hz), hal_comp_id, "%s.motor-HZ", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_new("gs2_vfd.motor-RPM", HAL_RW, &(haldata->motor_RPM), hal_comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_RPM), hal_comp_id, "%s.motor-RPM", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
 
     /* make default data match what we expect to use */
