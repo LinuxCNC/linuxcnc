@@ -44,6 +44,9 @@
 <doc name="motion_kinematics" title="Kinematics"/>
 <doc name="motion_pid_theory" title="PID Theory"/>
 
+<doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
+<doc name="drivers_opto22" title="Opto22 Driver"/>
+
 <doc name="common_Glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="GPLD Copyright"/>
 
