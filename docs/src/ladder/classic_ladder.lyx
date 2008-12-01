@@ -574,7 +574,7 @@ Number of S32 inputs
 
 \layout Standard
 
-0
+10
 \end_inset 
 </cell>
 </row>
@@ -600,7 +600,7 @@ Number of S32 outputs
 
 \layout Standard
 
-0
+10
 \end_inset 
 </cell>
 </row>
@@ -1074,8 +1074,8 @@ The COMPARE button allows you to compare variable to values or other variables.
  
 \layout Itemize
 
-The OPERATE button allows you to assign values to variables.
- (eg %W2=7 or %W1=%W2) OPERATE functions can only be placed at the right
+The VARIABLE ASSIGNMENT button allows you to assign values to variables.
+ (eg %W2=7 or %W1=%W2) ASSIGNMENT functions can only be placed at the right
  most side of the section display.
 \layout Standard
 
@@ -1364,18 +1364,30 @@ For arithmetic comparison.
  - You can also use math functions.
  They are ABS (absolute), MOY (french for average) ,AVG (average).
  eg ABS(%W2)=1, MOY(%W1,%W2)<3.
- - There is a list of Variables down the page that can be used for reading
- writing to ladder objects.
+ 
 \layout Standard
 
-For example if you want to find out if word variable #1 is less than 2 times
- the current value of counter #0 the syntax would be:
-\layout LyX-Code
+There is a list of Variables down the page that can be used for reading
+ writing to ladder objects.
+ When a new compare block is opened be sure and delete the # symbol when
+ you enter a compare.
+ 
+\layout Standard
+
+To find out if word variable #1 is less than 2 times the current value of
+ counter #0 the syntax would be:
+\layout Quote
 
 %W1<2*%C0.V
+\layout Standard
+
+To find out if S32in bit 2 is equal to 10 the syntax would be:
+\layout Quote
+
+%IW2=10
 \layout Subsection
 
-OPERATE
+VARIABLE ASSIGNMENT
 \layout Standard
 
 For variable assignment.
@@ -1385,11 +1397,22 @@ For variable assignment.
  keeps them from going beyond.
 \layout Standard
 
-For example to assign a value of 10 to the timer preset of IEC Timer 0 the
- syntax would be:
-\layout LyX-Code
+When a new variable assignment block is opened be sure and delete the #
+ symbol when you enter an assignment.
+ 
+\layout Standard
+
+To assign a value of 10 to the timer preset of IEC Timer 0 the syntax would
+ be:
+\layout Quote
 
 %TM0.P=10
+\layout Standard
+
+To assign the value of 12 to S32out bit 3 the syntax would be:
+\layout Quote
+
+%QW3=12
 \layout Subsection
 
 COILS
@@ -1511,8 +1534,13 @@ List of variables :
 %Bxxx : Bit memory xxx (Boolean) 
 \layout Itemize
 
-%Wxxx : Word memory xxx (32 bits signed integer) can be HAL s32 in and out
- pins if loaded with real time module 
+%Wxxx : Word memory xxx (32 bits signed integer) 
+\layout Itemize
+
+%IWxxx : Word memory xxx (S32in pin)
+\layout Itemize
+
+%QWxxx : Word memory xxx (S32out pin)
 \layout Itemize
 
 %Txx.R : Timer xx running (Boolean, user read only) 
