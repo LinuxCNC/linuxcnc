@@ -57,6 +57,7 @@ DOC_SRCS := \
 	config/stepper_fr.lyx \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
+	examples/gcode.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
