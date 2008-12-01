@@ -47,7 +47,9 @@
 <doc name="motion_pid_theory" title="PID Theory"/>
 
 <doc name="motion_tweaking_steppers" title="Tweaking Steppers Info"/>
+
 <doc name="common_machining_center" title="General Machining Center Info"/>
+
 <doc name="common_Glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="GPLD Copyright"/>
 

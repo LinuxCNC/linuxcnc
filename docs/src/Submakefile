@@ -58,6 +58,9 @@ DOC_SRCS := \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
 	examples/gcode.lyx \
+	examples/spindle.lyx \
+	examples/misc.lyx \
+	examples/mpg.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
@@ -97,10 +100,6 @@ DOC_SRCS := \
 	motion/kinematics.lyx \
 	motion/pid_theory.lyx \
 	motion/tweaking_steppers.lyx \
-	examples/spindle.lyx \
-	examples/misc.lyx \
-	examples/mpg.lyx \
-	examples/gcode.lyx \
 	quickstart/stepper_quickstart.lyx \
 	Master_HAL.lyx \
 	Master_HAL_fr.lyx
