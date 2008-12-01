@@ -47,6 +47,8 @@
 <doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
 <doc name="drivers_opto22" title="Opto22 Driver"/>
 
+<doc name="common_machining_center" title="General Machining Center Info"/>
+
 <doc name="common_Glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="GPLD Copyright"/>
 
