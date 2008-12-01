@@ -15,6 +15,7 @@
 <doc name="gcode_coordinates" title="Coordinate Systems"/>
 <doc name="gcode_mill_canned" title="Canned Cycles"/>
 <doc name="gcode_tool_compensation" title="Tool Shape Compensation"/>
+<doc name="examples_gcode" title="G Code Examples"/>
 
 <doc name="gui_mini" title="MINI"/>
 <doc name="gui_axis" title="AXIS"/>
