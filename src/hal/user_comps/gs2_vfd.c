@@ -134,7 +134,7 @@ typedef struct {
 } haldata_t;
 
 static int done;
-char *modname = "gs2_VFD";
+char *modname = "gs2_vfd";
 
 static struct option long_options[] = {
     {"bits", 1, 0, 'b'},
