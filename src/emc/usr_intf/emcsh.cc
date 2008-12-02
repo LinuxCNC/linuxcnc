@@ -3775,9 +3775,9 @@ static void initMain()
     emcStatus = 0;
 
     emcErrorBuffer = 0;
-    error_string[LINELEN] = 0;
-    operator_text_string[LINELEN] = 0;
-    operator_display_string[LINELEN] = 0;
+    error_string[LINELEN-1] = 0;
+    operator_text_string[LINELEN-1] = 0;
+    operator_display_string[LINELEN-1] = 0;
     programStartLine = 0;
 }
 
