@@ -5,11 +5,6 @@ next steps:
 
     feedback from jmk & cradek:
 
-        rtapi_print(format, args) is unconditional, use this for things the user *must* see
-
-        ERR should for now be used for stuff you want to show up, change the shortcut macros prolly
-
-
         on watchdog bite, keep doing all reads (encoders, gpios, raw)?
         
             reading those things should still work, but what's the use?
