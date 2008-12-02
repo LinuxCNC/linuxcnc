@@ -35,12 +35,6 @@
 \layout Chapter
 
 ClassicLadder 
-\layout Itemize
-
-At this time there is a bug.
- The Save button in the Section Display window does not work, you have to
- use the Save As button.
- 
 \layout Section
 
 Introduction
@@ -691,8 +685,14 @@ ClassicLadder Var window
 \align center 
 
 \begin_inset Graphics
-	filename vars.png
+	filename images/Bit_Vars.png
 	scale 75
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/Word_Vars.png
 
 \end_inset 
 
@@ -932,6 +932,18 @@ Bxxx : Bit memory xxx (boolean)
 \layout Description
 
 Wxxx : Word memory xxx (32 bits integer)
+\layout Description
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+add w32 innies and outies
+\end_inset 
+
+
 \layout Description
 
 Txx,R : Timer xx running (boolean, user read only)
