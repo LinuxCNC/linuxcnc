@@ -141,51 +141,56 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHK((block->f_number == -1.0),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
   }
+
   if (ijk_flag) {
     if (settings->plane == CANON_PLANE_XY) {
       CHK((block->k_flag), NCE_K_WORD_GIVEN_FOR_ARC_IN_XY_PLANE);
-      if (block->i_flag == OFF) /* i or j flag on to get here */
+      if (block->i_flag == OFF) { /* i or j flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'I'));
 	} else {
 	  block->i_number = 0.0;
 	}
-      else if (block->j_flag == OFF)
+      } else if (block->j_flag == OFF) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'J'));
 	} else {
 	  block->j_number = 0.0;
 	}
+      }
     } else if (settings->plane == CANON_PLANE_YZ) {
       CHK((block->i_flag), NCE_I_WORD_GIVEN_FOR_ARC_IN_YZ_PLANE);
-      if (block->j_flag == OFF) /* j or k flag on to get here */
+      if (block->j_flag == OFF) { /* j or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'J'));
 	} else {
 	  block->j_number = 0.0;
 	}
-      else if (block->k_flag == OFF)
+      } else if (block->k_flag == OFF) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'K'));
 	} else {
 	  block->k_number = 0.0;
 	}
+      }
     } else if (settings->plane == CANON_PLANE_XZ) {
       CHK((block->j_flag), NCE_J_WORD_GIVEN_FOR_ARC_IN_XZ_PLANE);
-      if (block->i_flag == OFF) /* i or k flag on to get here */
+      if (block->i_flag == OFF) { /* i or k flag on to get here */
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'I'));
 	} else {
 	  block->i_number = 0.0;
 	}
-      else if (block->k_flag == OFF)
+      } else if (block->k_flag == OFF) {
 	if (settings->ijk_distance_mode == MODE_ABSOLUTE) {
 	  ERF(("%c word missing in absolute center arc", 'K'));
 	} else {
 	  block->k_number = 0.0;
 	}
-    } else
+      }
+    } else {
       ERM(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
+    }
   } else {
     // in R format, we need some XYZ words specified because a full circle is not allowed.
     if (settings->plane == CANON_PLANE_XY) { 
@@ -1900,8 +1905,9 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     static char name[] = "convert_savehome";
     double *p = s->parameters;
     
-    if(s->cutter_comp_side != OFF)
+    if(s->cutter_comp_side != OFF) {
         ERS("Cannot set reference point with cutter compensation in effect");
+    }
 
     if(code == G_28_1) {
         p[5161] = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
@@ -1923,7 +1929,9 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
         p[5187] = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
         p[5188] = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
         p[5189] = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
-    } else ERS("BUG: Code not G28.1 or G38.1");
+    } else {
+        ERS("BUG: Code not G28.1 or G38.1");
+    }
     return INTERP_OK;
 }
 
@@ -2261,15 +2269,17 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
 	    ERS("invalid P-word with M66");
 	    
-	if (block->l_flag == ON)
+	if (block->l_flag == ON) {
 	    type = round_to_int(block->l_number);
-	else 
+	} else {
 	    type = WAIT_MODE_IMMEDIATE;
+        }
 	    
-	if (round_to_int(block->q_number) >= 0)
+	if (round_to_int(block->q_number) >= 0) {
 	    timeout = round_to_int(block->q_number);
-	else
+	} else {
 	    timeout = 0;
+        }
 
 	ret = WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout);
 	//WAIT returns 0 on success, -1 for out of bounds
@@ -2517,10 +2527,11 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if (motion == G_73 || (motion > G_80) && (motion < G_90)) {
+  } else if (motion == G_73 || ((motion > G_80) && (motion < G_90))) {
     CHP(convert_cycle(motion, block, settings));
-  } else
+  } else {
     ERM(NCE_BUG_UNKNOWN_MOTION_CODE);
+  }
 
   return INTERP_OK;
 }
@@ -3871,8 +3882,10 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 {
   static char name[] = "convert_tool_change";
 
-  if (settings->selected_tool_slot < 0) 
+  if (settings->selected_tool_slot < 0) {
     ERM(NCE_TXX_MISSING_FOR_M6);
+  }
+
   if (!settings->tool_change_with_spindle_on) {
       STOP_SPINDLE_TURNING();
       settings->spindle_turning = CANON_STOPPED;
