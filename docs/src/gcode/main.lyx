@@ -7944,12 +7944,14 @@ M0, M1, M2, M30, M60 Program Stopping and Ending
 
 \layout Standard
 
-To stop a running program temporarily (regardless of the setting of the
+To pause a running program temporarily (regardless of the setting of the
  optional stop switch), program M0.
+ EMC2 remains in the Auto Mode so MDI and other manual actions are not enabled.
 \layout Standard
 
-To stop a running program temporarily (but only if the optional stop switch
+To pause a running program temporarily (but only if the optional stop switch
  is on), program M1.
+ EMC2 remains in the Auto Mode so MDI and other manual actions are not enabled.
 \layout Standard
 
 It is OK to program 
