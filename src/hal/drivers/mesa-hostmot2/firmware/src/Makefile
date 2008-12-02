@@ -209,6 +209,6 @@ clean_all :
 makefile.vhd.dep : *.vhd mk_vhdl_deps.py
 	@echo "Making $@"
 	@rm -f $@
-	@./dodeps.py
+	@./mk_vhdl_deps.py
 
 include makefile.vhd.dep
