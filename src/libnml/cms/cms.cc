@@ -638,7 +638,7 @@ void CMS::open(void)
 	    return;
 	}
     }
-    if (isserver || neutral || ProcessType == CMS_REMOTE_TYPE && !force_raw) {
+    if (isserver || neutral || ((ProcessType == CMS_REMOTE_TYPE) && !force_raw)) {
 	switch (neutral_encoding_method) {
 	case CMS_XDR_ENCODING:
 	    updater = new CMS_XDR_UPDATER(this);
