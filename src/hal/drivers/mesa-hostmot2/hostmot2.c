@@ -765,14 +765,11 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         return -EINVAL;
     }
 
-    // NOTE: reset and program_fpga may be NULL
+    // NOTE: reset and program_fpga are allowed be NULL
 
 
     if (config_string == NULL) {
         PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
-        DBG_NO_LL("attempting to register %s\n", llio->name);
-    } else {
-        DBG_NO_LL("attempting to register %s with config \"%s\"\n", llio->name, config_string);
     }
 
 
@@ -860,7 +857,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
 
         if (llio->fpga_part_number == NULL) {
-            WARN("llio did not provide an FPGA part number, cannot verify firmware part number\n");
+            ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
         } else {
             if (strcmp(llio->fpga_part_number, bitfile.b.data) != 0) {
                 ERR(
@@ -1217,7 +1214,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         return;
     }
 
-    WARN_NO_LL("ignoring request to unregister %s: not found\n", llio->name);
+    PRINT_NO_LL("ignoring request to unregister %s: not found\n", llio->name);
     return;
 }
 

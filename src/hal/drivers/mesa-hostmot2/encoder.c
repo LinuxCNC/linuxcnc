@@ -213,7 +213,6 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     if (hm2->config.num_encoders == 0) {
-        INFO("num_encoders=0, skipping encoder MD\n");
         return 0;
     }
 
@@ -557,7 +556,7 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
         // sanity check
         if (e->hal.param.scale == 0.0) {
-            WARN("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
+            ERR("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
             e->hal.param.scale = 1.0;
         }
 

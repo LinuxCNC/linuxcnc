@@ -49,10 +49,10 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
             if (hm2->stepgen.instance[i].hal.param.position_scale >= 0.0) {
                 hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
-                WARN("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
+                ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
             } else {
                 hm2->stepgen.instance[i].hal.param.position_scale = -1.0;
-                WARN("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
+                ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
             }
         }
 
@@ -106,7 +106,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         if (s->hal.param.maxvel > max_pos_per_s) {
             s->hal.param.maxvel = max_pos_per_s;
         } else if (s->hal.param.maxvel < 0.0) {
-            WARN("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
+            ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
             s->hal.param.maxvel = fabs(s->hal.param.maxvel);
         } else if (s->hal.param.maxvel == 0.0) {
             s->hal.param.maxvel = max_pos_per_s;
@@ -115,7 +115,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     // maxaccel may not be negative
     if (s->hal.param.maxaccel < 0.0) {
-        WARN("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
+        ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
         s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
     }
 
@@ -212,7 +212,7 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long l_period_ns) {
 static void hm2_stepgen_update_dir_setup_time(hostmot2_t *hm2, int i) {
     hm2->stepgen.dir_setup_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirsetup * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_setup_time_reg[i] > 0x3FFF) {
-        WARN("stepgen %d has invalid dirsetup, resetting to max\n", i);
+        ERR("stepgen %d has invalid dirsetup, resetting to max\n", i);
         hm2->stepgen.dir_setup_time_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.dirsetup = (double)hm2->stepgen.dir_setup_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -223,7 +223,7 @@ static void hm2_stepgen_update_dir_setup_time(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_dir_hold_time(hostmot2_t *hm2, int i) {
     hm2->stepgen.dir_hold_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirhold * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_hold_time_reg[i] > 0x3FFF) {
-        WARN("stepgen %d has invalid dirhold, resetting to max\n", i);
+        ERR("stepgen %d has invalid dirhold, resetting to max\n", i);
         hm2->stepgen.dir_hold_time_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.dirhold = (double)hm2->stepgen.dir_hold_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -234,7 +234,7 @@ static void hm2_stepgen_update_dir_hold_time(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_pulse_idle_width(hostmot2_t *hm2, int i) {
     hm2->stepgen.pulse_idle_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.stepspace * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_idle_width_reg[i] > 0x3FFF) {
-        WARN("stepgen %d has invalid stepspace, resetting to max\n", i);
+        ERR("stepgen %d has invalid stepspace, resetting to max\n", i);
         hm2->stepgen.pulse_idle_width_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.stepspace = (double)hm2->stepgen.pulse_idle_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -245,7 +245,7 @@ static void hm2_stepgen_update_pulse_idle_width(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
     hm2->stepgen.pulse_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.steplen * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_width_reg[i] > 0x3FFF) {
-        WARN("stepgen %d has invalid steplen, resetting to max\n", i);
+        ERR("stepgen %d has invalid steplen, resetting to max\n", i);
         hm2->stepgen.pulse_width_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.steplen = (double)hm2->stepgen.pulse_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -255,7 +255,7 @@ static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
 
 static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     if (hm2->stepgen.instance[i].hal.param.step_type > 2) {
-        PRINT(
+        ERR(
             "stepgen %d has invalid step_type %d, resetting to 0 (Step/Dir)\n",
             i,
             hm2->stepgen.instance[i].hal.param.step_type
@@ -435,7 +435,6 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     if (hm2->config.num_stepgens == 0) {
-        INFO("num_stepgens=0, skipping stepgen MD\n");
         return 0;
     }
 

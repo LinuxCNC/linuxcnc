@@ -179,7 +179,7 @@ static void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
     bit_number = pin_number % 24;
 
     if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
-        WARN("invalid pin number %d\n", pin_number);
+        ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
         return;
     }
 
@@ -190,7 +190,7 @@ static void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
         hm2->ioport.alt_source_reg[ioport_number] |= (1 << bit_number);
         hm2->pin[pin_number].gtag = hm2->pin[pin_number].sec_tag;
     } else {
-        WARN("invalid pin source 0x%08X\n", source);
+        ERR("hm2_set_pin_source: invalid pin source 0x%08X\n", source);
         return;
     }
 }
@@ -206,12 +206,12 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
     bit_number = pin_number % 24;
 
     if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
-        WARN("invalid pin number %d\n", pin_number);
+        ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
         return;
     }
 
     if ((direction != HM2_PIN_DIR_IS_INPUT) && (direction != HM2_PIN_DIR_IS_OUTPUT)) {
-        WARN("invalid pin direction 0x%08X\n", direction);
+        ERR("hm2_set_pin_direction: invalid pin direction 0x%08X\n", direction);
         return;
     }
 

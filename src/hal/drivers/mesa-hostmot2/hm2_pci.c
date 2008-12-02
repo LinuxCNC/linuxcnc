@@ -169,7 +169,6 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
     control = status | _WRITE_MASK | _LED_MASK;
     outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET);
 
-    THIS_INFO("Successfully programmed %u bytes\n", bitfile->e.size);
     return 0;
 
 

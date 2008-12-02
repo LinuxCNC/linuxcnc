@@ -46,7 +46,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
 
     if (hm2->llio->needs_reset) {
         // user has cleared the bit
-        INFO("trying to recover from IO error or Watchdog bite\n");
+        PRINT("trying to recover from IO error or Watchdog bite\n");
 
         // reset the watchdog status
         hm2->watchdog.status_reg[0] = 0;
@@ -54,10 +54,10 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
         // write all settings out to the FPGA
         hm2_force_write(hm2);
         if ((*hm2->llio->io_error) != 0) {
-            ERR("error recovery failed\n");
+            PRINT("error recovery failed\n");
             return;
         }
-        INFO("error recover successful!\n");
+        PRINT("error recover successful!\n");
 
         hm2->llio->needs_reset = 0;
     }
@@ -107,7 +107,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     if (md->instances != 1) {
-        WARN("MD declares %d watchdogs!  only using the first one...\n", md->instances);
+        PRINT("MD declares %d watchdogs!  only using the first one...\n", md->instances);
     }
 
 
@@ -277,7 +277,7 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
         tmp = 0x7FFFFFFF;
         hm2->watchdog.timer_reg[0] = tmp;
         hm2->watchdog.instance[0].hal.param.timeout_ns = (tmp + 1) / ((double)hm2->watchdog.clock_frequency / (double)(1000 * 1000 * 1000));
-        WARN("requested watchdog timeout is out of range, setting it to max: %u ns\n", hm2->watchdog.instance[0].hal.param.timeout_ns);
+        ERR("requested watchdog timeout is out of range, setting it to max: %u ns\n", hm2->watchdog.instance[0].hal.param.timeout_ns);
     }
 
     // set the watchdog timeout (we'll check for i/o errors later)

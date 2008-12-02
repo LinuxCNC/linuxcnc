@@ -470,7 +470,7 @@ static int hm2_7i43_setup(void) {
         } else {
             board[i].llio.fpga_part_number = "3s200tq144";
         }
-        THIS_INFO("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
+        THIS_DBG("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
 
 
         r = hm2_register(&board[i].llio, config[i]);
