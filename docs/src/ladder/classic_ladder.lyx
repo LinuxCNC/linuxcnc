@@ -1077,15 +1077,33 @@ The COMPARE button allows you to compare variable to values or other variables.
 The VARIABLE ASSIGNMENT button allows you to assign values to variables.
  (eg %W2=7 or %W1=%W2) ASSIGNMENT functions can only be placed at the right
  most side of the section display.
+\layout Subsection
+
+Config Window
+\layout Standard
+
+The config window shows the current project status and has the Modbus setup
+ tabs.
 \layout Standard
 
 
-\begin_inset Note
+\begin_inset Float figure
+placement H
+wide false
 collapsed false
 
-\layout Standard
+\layout Caption
 
-add config window as it is cool
+Config Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/Config.png
+
+\end_inset 
+
+
 \end_inset 
 
 
@@ -1413,6 +1431,42 @@ To assign the value of 12 to S32out bit 3 the syntax would be:
 \layout Quote
 
 %QW3=12
+\layout Standard
+
+The following figure shows an Assignment and a Comparison Example.
+ %QW0 is a S32out bit and %IW0 is a S32in bit.
+ In this case the HAL pin classicladder.0.s32out-00 will be set to a value
+ of 5 and when the HAL pin classicladder.0.s32in-00 is 0 the HAL pin classicladder.
+0.out-00 will be set to True.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Assign/Compare Example
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/AssignCompare-Ladder.png
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/Assignment_Expression.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 COILS
