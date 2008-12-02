@@ -127,7 +127,7 @@ int tryNml()
 #define RETRY_TIME 10.0		// seconds to wait for subsystems to come up
 #define RETRY_INTERVAL 1.0	// seconds between wait tries for a subsystem
 
-    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -141,7 +141,7 @@ int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
@@ -149,7 +149,7 @@ int tryNml()
 	return -1;
     }
 
-    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
 	// messages
     }
@@ -163,7 +163,7 @@ int tryNml()
 	esleep(RETRY_INTERVAL);
 	end -= RETRY_INTERVAL;
     } while (end > 0.0);
-    if (EMC_DEBUG & EMC_DEBUG_NML == 0) {
+    if ((EMC_DEBUG & EMC_DEBUG_NML) == 0) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
 	// messages
     }
