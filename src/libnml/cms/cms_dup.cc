@@ -487,8 +487,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(int &x)
 		errno, strerror(errno), end_current_string);
 	    return (status = CMS_UPDATE_ERROR);
 	}
-	if ((number < ((long) INT_MIN)) || (((long) INT_MAX) < number)
-	    && warning_count < warning_count_max) {
+	if ((number < ((long) INT_MIN)) || ((((long) INT_MAX) < number) && (warning_count < warning_count_max))) {
 	    warning_count++;
 	    rcs_print_error
 		("CMS_DISPLAY_ASCII_UPDATER: (warning) Number %ld out of range for int(%ld,%ld)\n",

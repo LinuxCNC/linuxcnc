@@ -1215,8 +1215,7 @@ void CMS_SERVER_REMOTE_TCP_PORT::switch_function(CLIENT_TCP_PORT *
 	server->write_reply =
 	    (REMOTE_WRITE_REPLY *) server->process_request(&server->
 	    write_req);
-	if (min_compatible_version < 2.58 && min_compatible_version > 1e-6
-	    || server->write_reply->confirm_write) {
+	if (((min_compatible_version < 2.58) && (min_compatible_version > 1e-6)) || server->write_reply->confirm_write) {
 	    if (NULL == server->write_reply) {
 		rcs_print_error("Server could not process request.\n");
 		*((u_long *) temp_buffer) =
