@@ -54,7 +54,7 @@ EMC_STAT *emcStatus = 0;
 
 // the NML channel for errors
 static NML *emcErrorBuffer = 0;
-static char error_string[LINELEN] = "";
+static char error_string[NML_ERROR_LEN] = "";
 
 // the current command numbers, set up updateStatus(), used in main()
 static int emcCommandSerialNumber = 0;
