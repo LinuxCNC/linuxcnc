@@ -471,66 +471,90 @@ macros totally crash-proof. If the function call stack is deeper than
 
 */
 
-#define ERS(string) if (1) {                    \
-  setError ("%s", _(string));                        \
-  _setup.stack_index = 0;                      \
-  strcpy(_setup.stack[_setup.stack_index++], name); \
-  _setup.stack[_setup.stack_index][0] = 0;     \
-  return NCE_VARIABLE;                                \
-  } else
+#define ERS(string)                                        \
+    do {                                                   \
+        setError ("%s", _(string));                        \
+        _setup.stack_index = 0;                            \
+        strcpy(_setup.stack[_setup.stack_index++], name);  \
+        _setup.stack[_setup.stack_index][0] = 0;           \
+        return NCE_VARIABLE;                               \
+    } while(0)
 
-#define ERF(error_args) if (1) {                    \
-  setError error_args;                        \
-  _setup.stack_index = 0;                      \
-  strcpy(_setup.stack[_setup.stack_index++], name); \
-  _setup.stack[_setup.stack_index][0] = 0;     \
-  return NCE_VARIABLE;                                \
-  } else
 
-#define ERM(error_code) if (1) {                    \
-  _setup.stack_index = 0;                      \
-  strcpy(_setup.stack[_setup.stack_index++], name); \
-  _setup.stack[_setup.stack_index][0] = 0;     \
-  return error_code;                                \
-  } else
+#define ERF(error_args)                                    \
+    do {                                                   \
+        setError error_args;                               \
+        _setup.stack_index = 0;                            \
+        strcpy(_setup.stack[_setup.stack_index++], name);  \
+        _setup.stack[_setup.stack_index][0] = 0;           \
+        return NCE_VARIABLE;                               \
+    } while(0)
 
-#define ERP(error_code) if (_setup.stack_index < 49) { \
-  strcpy(_setup.stack[_setup.stack_index++], name);    \
-  _setup.stack[_setup.stack_index][0] = 0;        \
-  return error_code;                                   \
-  } else return error_code
 
-#define CHKS(bad, string) if (bad) {                 \
-  setError ("%s", _(string));                        \
-  _setup.stack_index = 0;                            \
-  strcpy(_setup.stack[_setup.stack_index++], name);  \
-  _setup.stack[_setup.stack_index][0] = 0;           \
-  return NCE_VARIABLE;                               \
-  } else
+#define ERM(error_code)                                    \
+    do {                                                   \
+        _setup.stack_index = 0;                            \
+        strcpy(_setup.stack[_setup.stack_index++], name);  \
+        _setup.stack[_setup.stack_index][0] = 0;           \
+        return error_code;                                 \
+    } while(0)
 
-#define CHKF(bad, error_args) if (bad) {             \
-  setError error_args;                               \
-  _setup.stack_index = 0;                            \
-  strcpy(_setup.stack[_setup.stack_index++], name);  \
-  _setup.stack[_setup.stack_index][0] = 0;           \
-  return NCE_VARIABLE;                               \
-  } else
 
-#define CHK(bad, error_code) if (bad) {             \
-  _setup.stack_index = 0;                      \
-  strcpy(_setup.stack[_setup.stack_index++], name); \
-  _setup.stack[_setup.stack_index][0] = 0;     \
-  return error_code;                                \
-  } else
+#define ERP(error_code)                                        \
+    do {                                                       \
+        if (_setup.stack_index < 49) {                         \
+            strcpy(_setup.stack[_setup.stack_index++], name);  \
+            _setup.stack[_setup.stack_index][0] = 0;           \
+        }                                                      \
+        return error_code;                                     \
+    } while(0)
 
-#define CHP(try_this)                                      \
-  if ((status = (try_this)) != INTERP_OK) {       \
-     if (_setup.stack_index < 49)                          \
-        {strcpy(_setup.stack[_setup.stack_index++], name); \
-         _setup.stack[_setup.stack_index][0] = 0;     \
-         return status;}                                   \
-     else {return status;}                                 \
-  } else
+
+#define CHKS(bad, string)                                      \
+    do {                                                       \
+        if (bad) {                                             \
+            setError ("%s", _(string));                        \
+            _setup.stack_index = 0;                            \
+            strcpy(_setup.stack[_setup.stack_index++], name);  \
+            _setup.stack[_setup.stack_index][0] = 0;           \
+            return NCE_VARIABLE;                               \
+        }                                                      \
+    } while(0)
+
+
+#define CHKF(bad, error_args)                                  \
+    do {                                                       \
+        if (bad) {                                             \
+            setError error_args;                               \
+            _setup.stack_index = 0;                            \
+            strcpy(_setup.stack[_setup.stack_index++], name);  \
+            _setup.stack[_setup.stack_index][0] = 0;           \
+            return NCE_VARIABLE;                               \
+        }                                                      \
+    } while(0)
+
+
+#define CHK(bad, error_code)                                   \
+    do {                                                       \
+        if (bad) {                                             \
+            _setup.stack_index = 0;                            \
+            strcpy(_setup.stack[_setup.stack_index++], name);  \
+            _setup.stack[_setup.stack_index][0] = 0;           \
+            return error_code;                                 \
+        }                                                      \
+    } while(0)
+
+
+#define CHP(try_this)                                              \
+    do {                                                           \
+        if ((status = (try_this)) != INTERP_OK) {                  \
+            if (_setup.stack_index < 49) {                         \
+                strcpy(_setup.stack[_setup.stack_index++], name);  \
+                _setup.stack[_setup.stack_index][0] = 0;           \
+            }                                                      \
+            return status;                                         \
+        }                                                          \
+    } while(0)
 
 
 #define CYCLE_MACRO(call) for (repeat = block->l_number; \

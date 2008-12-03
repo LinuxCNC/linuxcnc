@@ -42,10 +42,20 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 
 #define DEBUG_EMC
 
-#define _logDebug(level, fmt, args...) \
-    if(level < _setup.loggingLevel) \
-        doLog("%02d(%d):%s:%d -- " fmt "\n", \
-                level, getpid(), __FILE__, __LINE__ , ## args)
+#define _logDebug(level, fmt, args...)          \
+    do {                                        \
+        if (level < _setup.loggingLevel) {      \
+            doLog(                              \
+                "%02d(%d):%s:%d -- " fmt "\n",  \
+                level,                          \
+                getpid(),                       \
+                __FILE__,                       \
+                __LINE__ ,                      \
+                ## args                         \
+            );                                  \
+        }                                       \
+    } while(0)
+
 #define logDebug(fmt, args...) _logDebug(0, fmt, ## args)
 
 class Interp {
