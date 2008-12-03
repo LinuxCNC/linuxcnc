@@ -186,73 +186,7 @@ preview false
 
 \layout Part
 
-HAL Specifics
-\layout Standard
-
-
-\begin_inset Include \include{hal/intro.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/tutorial.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/general_ref.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/tools.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/halshow.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/comp.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/halmodule.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Part
-
-EMC related HAL
+Basic HAL
 \layout Standard
 
 
@@ -311,6 +245,72 @@ preview false
 
 
 \begin_inset Include \include{hal/vcp.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Advanced HAL
+\layout Standard
+
+
+\begin_inset Include \include{hal/intro.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/tutorial.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/general_ref.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/tools.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/halshow.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/comp.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{hal/halmodule.lyx}
 preview false
 
 \end_inset 
