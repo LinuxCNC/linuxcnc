@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -1992,7 +1992,7 @@ preview false
 \end_inset 
 
 
-\layout Subsubsection
+\layout Subsection
 
 logic
 \layout Standard
