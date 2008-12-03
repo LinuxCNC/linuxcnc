@@ -52,7 +52,7 @@ ClassicLadder is a free implementation of a ladder interpreter, released
 
 He describes the beginning of the project on his website Original project
  homepage:
-\layout Standard
+\layout Quote
 
 
 \begin_inset Quotes eld
@@ -67,11 +67,11 @@ I decided to program a ladder language only for test purposes at the start,
  And so I started to code the first lines for calculating a rung with minimal
  elements and displaying dynamically it under Gtk, to see if my first idea
  to realise all this works.
-\layout Standard
+\layout Quote
 
 And as quickly I've found that it advanced quite well, I've continued with
  more complex elements : timer, multiples rungs, etc...
-\layout Standard
+\layout Quote
 
 Voila, here is this work...
  and more : I've continued to add features since then.
@@ -1403,6 +1403,10 @@ To find out if S32in bit 2 is equal to 10 the syntax would be:
 \layout Quote
 
 %IW2=10
+\layout Standard
+
+Note: Compare uses the arithmetic equals not the double equals that programmers
+ are use to.
 \layout Subsection
 
 VARIABLE ASSIGNMENT
