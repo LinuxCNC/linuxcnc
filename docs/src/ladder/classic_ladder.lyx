@@ -382,7 +382,7 @@ Number of hal inputs bit pins
 
 \layout Standard
 
-15
+50
 \end_inset 
 </cell>
 </row>
@@ -408,7 +408,7 @@ Number of hal output bit pins
 
 \layout Standard
 
-15
+50
 \end_inset 
 </cell>
 </row>
@@ -923,6 +923,11 @@ You may use all the math symbols and functions from above.
 \layout Section
 
 ClassicLadder Variables
+\begin_inset LatexCommand \index{ClassicLadder Variables}
+
+\end_inset 
+
+
 \layout Standard
 
 List of known variables :
@@ -931,19 +936,14 @@ List of known variables :
 Bxxx : Bit memory xxx (boolean)
 \layout Description
 
-Wxxx : Word memory xxx (32 bits integer)
-\layout Description
+Wxxx : Word memory xxx (32 bits integer) w32in and w32out also use the word
+ memory.
+ See the s32
+\begin_inset LatexCommand \ref{sec:w32-Pins}
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-add w32 innies and outies
 \end_inset 
 
-
+ section for details.
 \layout Description
 
 Txx,R : Timer xx running (boolean, user read only)
@@ -995,6 +995,11 @@ Xxxx,V : Time of activity in seconds of step xxx (sequential language)
 \layout Section
 
 Using JUMP COILs
+\begin_inset LatexCommand \index{JUMP COILs}
+
+\end_inset 
+
+
 \layout Standard
 
 JUMP COILs are used to 'JUMP' to another section-like a goto in BASIC programmin
@@ -1031,6 +1036,11 @@ If the JUMP COIL is true it should JUMP to the new rung right away and not
 \layout Section
 
 Using CALL COILs
+\begin_inset LatexCommand \index{CALL COILs}
+
+\end_inset 
+
+
 \layout Standard
 
 CALL COILs are used to go to a subroutine section then return-like a gosub
@@ -1059,4 +1069,207 @@ Remember to change the lable to the subroutine number you choose before.
 \layout Standard
 
 There can only be one CALL COIL per rung-the rest wil not be called.
+\layout Section
+
+w32 Pins
+\begin_inset LatexCommand \index{w32 Pins}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:w32-Pins}
+
+\end_inset 
+
+
+\layout Standard
+
+As of EMC 2.2.0 The realtime module can export HAL s32 unsigned integer in/out
+ pins.
+\layout Standard
+
+You must specify how many s32 in/out pins you want when loading the realtime
+ module (default is 0 of each).
+\layout Standard
+
+For example to load 5 s32in and 5 s32out pins:
+\layout Quote
+
+loadrt classicladder_rt numS32in=5 numS32out=5
+\layout Standard
+
+This loads the realtime module with the default number of each ladder objects
+ except for it also specifies 5 s32 in pins and 5 s32 out pins.
+\layout Standard
+
+Values of this type can range from -2,147,483,648 to 2,147,483,647.
+ They would correspond to some of the %W variables.
+ For instance if you requested 5 s32in pins and 5 s32out pins %W0-%W4 would
+ correspond to HAL pin name classicladder.0.s32in.00 -04 %W5-%W9 would be HAL
+ pin name classicladder.0.s32out-00 -04 and %W10-99 would be regular (memory)
+ variables.
+\layout Standard
+
+If you request only s32out pins they would start at %W0 and regular words
+ would start after them.
+ so it maps %W variables like this.
+ Number of s32in pins first (if any), then number of s32out pins second
+ (if any) then regular memory variables.
+\layout Standard
+
+For example if you add 2 s32in pins and 3 s32out pins the word relationship
+ would be as shown in the following table.
+\layout Standard
+
+
+\begin_inset Float table
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Using w32's
+\layout Standard
+\align center 
+
+\begin_inset  Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Word
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Hal Pin
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W0
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+classicladder.0.s32in.00
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+classicladder.0.s32in.01
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W2
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+classicladder.0.s32out.00
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W3
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+classicladder.0.s32out.01
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+classicladder.0.s32out.02
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+%W5
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+start of regular words
+\end_inset 
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset 
+
+
+\end_inset 
+
+
 \the_end
