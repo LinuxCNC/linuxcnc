@@ -566,7 +566,7 @@ PyObject *component_exists(PyObject *self, PyObject *args) {
     return PyBool_FromLong(halpr_find_comp_by_name(name) != NULL);
 }
 
-typedef struct shmobject {
+struct shmobject {
     PyObject_HEAD
     halobject *comp;
     int key;
