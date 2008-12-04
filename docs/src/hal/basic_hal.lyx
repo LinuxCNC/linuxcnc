@@ -1,0 +1,63 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Getting Started
+\layout Standard
+
+This section is under construction at the moment...
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+add to html when finished
+\end_inset 
+
+
+\layout Section
+
+Hal Commands
+\layout Subsection
+
+loadrt
+\layout Subsection
+
+loadusr
+\layout Subsection
+
+addf
+\layout Subsection
+
+net
+\layout Subsection
+
+setp
+\the_end
