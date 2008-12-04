@@ -49,7 +49,7 @@
 
 #define LGT_SLAVE_ADR 25
 
-#define NBR_MODBUS_MASTER_REQ 32 /*50: problem with GTK config window: adding vertical scroll else required*/
+#define NBR_MODBUS_MASTER_REQ 16/*50: problem with GTK config window: adding vertical scroll else required*/
 
 typedef struct StrModbusMasterReq
 {

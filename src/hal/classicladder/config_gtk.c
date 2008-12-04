@@ -58,8 +58,8 @@ static char * ModbusReqType[] = {"Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/
 #define NBR_MODBUS_PARAMS 6
 static char * SerialSpeed[] = { "300", "600", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", NULL };
 #define NBR_SERIAL_SPEED 9
-static char * PortName[] = {"IP port","","/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3","/dev/ttyUSB0","/dev/ttyUSB1",NULL };
-#define NBR_PORT_NAME 7 
+static char * PortName[] = {"IP port","/dev/ttyS0","/dev/ttyS1","/dev/ttyS2","/dev/ttyS3","/dev/ttyUSB0","/dev/ttyUSB1",NULL };
+#define NBR_PORT_NAME 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 GtkWidget *SerialPortEntry;
 GtkWidget *SerialSpeedEntry;
@@ -93,6 +93,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 	{
 		char BuffLabel[ 50 ];
 		char BuffValue[ 20 ];
+                
 		int InfoUsed = 0;
 		hbox[NumObj] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumObj]);
@@ -158,15 +159,16 @@ GtkWidget * CreateGeneralParametersPage( void )
 #endif
 			case 13:
 				sprintf( BuffLabel, "Number of S32in HAL pins             " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
 				break;
 			case 14:
 				sprintf( BuffLabel, "Number of S32out HAL pins            " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 				break;
                         case 15:
 				sprintf( BuffLabel, "Current path/filename" );
                                 //sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
+                                sprintf( BuffValue, "Not available yet" );
 				break;                                
 			default:
 				sprintf( BuffLabel, "???" );
@@ -271,27 +273,27 @@ char* ConvNumToString( int num, char ** list )
 }
 
 #ifdef MODBUS_IO_MASTER
-GtkWidget * CreateModbusModulesIO( int page )
+GtkWidget * CreateModbusModulesIO( void )
 {
-	static char * Labels[] = { "Slave Address", "TypeAccess", "1st Register #", "# of Regs", "Logic", "1st I/Q/W Mapped" };
+	static char * Labels[] = { "Slave Address", "Request Type", "1st Modbus Ele.", "Nbr of Ele", "Logic", "1st I/Q/IW/QW mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
-	int NumObj, NumLine, i,ScanDev = 0;
+	int NumObj;
+	int NumLine;
 	GList * ItemsDevices = NULL;
+	int ScanDev = 0;
 	StrModbusMasterReq * pConf;
 	char BuffValue[ 40 ];
 	GtkWidget *ModbusParamLabel[ NBR_MODBUS_PARAMS];	
-	GtkWidget *SerialPortLabel;
-	
 
  	if(modmaster==FALSE) 
             {
              vbox = gtk_vbox_new (FALSE, 0);
               gtk_widget_show (vbox);
-              SerialPortLabel = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
+              ModbusParamLabel[0] = gtk_label_new( "\n  To use modbus you must specify a modbus configure file\n"
 		"                        when loading classicladder use: \n \n loadusr classicladder --modmaster myprogram.clp  " );
-              gtk_box_pack_start(GTK_BOX (vbox), SerialPortLabel, FALSE, FALSE, 0);
-              gtk_widget_show( SerialPortLabel );     
+              gtk_box_pack_start(GTK_BOX (vbox), ModbusParamLabel[0], FALSE, FALSE, 0);
+              gtk_widget_show( ModbusParamLabel[0] );     
               return vbox;
             }
 
@@ -304,46 +306,42 @@ GtkWidget * CreateModbusModulesIO( int page )
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
 
-	for (i=0; i<(NBR_MODBUS_MASTER_REQ/2+1); i++ )
+	for (NumLine=-1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
-                NumLine=i+(page*16)+page;
-		hbox[NumLine] = gtk_hbox_new (FALSE, 0);
-		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine]);
-		gtk_widget_show (hbox[NumLine]);
+		hbox[NumLine+1] = gtk_hbox_new (FALSE, 0);
+		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumLine+1]);
+		gtk_widget_show (hbox[NumLine+1]);
 
 		for (NumObj=0; NumObj<NBR_MODBUS_PARAMS; NumObj++)
 		{
 			switch( NumLine )
 			{
-				case 0:
-                                case 17:
+
+				case -1:
 				{
-					int length;
+					int PixelsLength = 100;
 					GtkWidget **IOParamLabel = &ModbusParamLabel[ NumObj ];
 					switch( NumObj )
-							{ 
-					
-								case 0:
-								case 5:
-									length=120;
-									break;
-								case 1:
-									length=185;
-									break;
-								default:
-									length=100;
-							}
-					
+					{
+						case 0:
+							PixelsLength=120;
+							break;
+						case 5:
+							PixelsLength=140;
+							break;
+						case 1:
+							PixelsLength=195;
+							break;
+					}
 					*IOParamLabel = gtk_label_new( Labels[ NumObj ] );
-
-					gtk_widget_set_usize(*IOParamLabel,length,0);
-					gtk_box_pack_start(GTK_BOX (hbox[ NumLine]), *IOParamLabel, FALSE, FALSE, 0);
+					gtk_widget_set_usize(*IOParamLabel,PixelsLength,0);
+					gtk_box_pack_start(GTK_BOX (hbox[ NumLine+1 ]), *IOParamLabel, FALSE, FALSE, 0);
 					gtk_widget_show( *IOParamLabel );
 					break;
 				}
 				default:
 				{
-					pConf = &ModbusMasterReq[ NumLine-1-page ];
+					pConf = &ModbusMasterReq[ NumLine ];
 					switch( NumObj )
 					{
 						/* For req type (combo-list) */
@@ -354,106 +352,100 @@ GtkWidget * CreateModbusModulesIO( int page )
 							*IOParamDevice = gtk_combo_new( );
 							gtk_combo_set_value_in_list( GTK_COMBO(*IOParamDevice), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 							gtk_combo_set_popdown_strings( GTK_COMBO(*IOParamDevice), ItemsDevices );
-							gtk_widget_set_usize( *IOParamDevice,185,0 );
-							gtk_box_pack_start ( GTK_BOX (hbox[NumLine]), *IOParamDevice, FALSE, FALSE, 0 );
+							gtk_widget_set_usize( *IOParamDevice,195,0 );
+							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+1]), *IOParamDevice, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamDevice );
 					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry, ModbusReqType[ ValueToDisplay ]);
 							gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry),FALSE);
-							
 							break;
 						}
-						/* For flags */
+						/* For flags (checkbutton)*/
 						case 4:
 						{
 							GtkWidget **IOParamFlag = &ModbusParamEntry[ NumLine ][ NumObj ];
 							*IOParamFlag = gtk_check_button_new_with_label( "Inverted" );
 							gtk_widget_set_usize( *IOParamFlag,100,0 );
-							gtk_box_pack_start( GTK_BOX (hbox[NumLine]), *IOParamFlag, FALSE, FALSE, 0 );
+							gtk_box_pack_start( GTK_BOX (hbox[NumLine+1]), *IOParamFlag, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamFlag );
 							if ( pConf->LogicInverted )
 								gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( *IOParamFlag ), TRUE );
 							break;
 						}
-						/* For numbers/strings */
+						/* For numbers/strings (edit widgets)*/
 						default:
-						{int length=100;
+						{
+							int PixelsLength = 100;
 							switch( NumObj )
-							{ 
+							{
 								case 0:
 									strcpy( BuffValue, pConf->SlaveAdr );
-									length=120;
+									PixelsLength = 120;
 									break;
 								case 2:
 									sprintf( BuffValue, "%d", pConf->FirstModbusElement );
-									length=100;
 									break;
 								case 3:
 									sprintf( BuffValue, "%d", pConf->NbrModbusElements );
-									length=100;
 									break;
 								case 5:
 									sprintf( BuffValue, "%d", pConf->OffsetVarMapped );
-									length=120;
+									PixelsLength = 140;
 									break;
 							}
 							{
 								GtkWidget **IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 								*IOParamEntry = gtk_entry_new( );
-								gtk_widget_set_usize( *IOParamEntry,length,0 );
-								gtk_box_pack_start( GTK_BOX (hbox[NumLine]), *IOParamEntry, FALSE, FALSE, 0 );
+								gtk_widget_set_usize( *IOParamEntry,PixelsLength,0 );
+								gtk_box_pack_start( GTK_BOX (hbox[NumLine+1]), *IOParamEntry, FALSE, FALSE, 0 );
 								gtk_widget_show ( *IOParamEntry );
 								gtk_entry_set_text( GTK_ENTRY(*IOParamEntry), BuffValue );
 							}
 							break;
 						}
 					}
-				}//default: bracket
+				}//default:
 			}
 		}
 	}
 	return vbox;
 }
-// Have to adjust the numbering system because  &ModbusMasterReq starts at 0 ends at 31
-// but in &ModbusParamEntry 0 and 17 are header labels and it ends at 33 of course
 void GetModbusModulesIOSettings( void )
 {
 	int NumObj;
-	int NumLine,temp=-1;
+	int NumLine;
 	StrModbusMasterReq * pConf;
 	GtkWidget **IOParamEntry;
 	char * text;
 	char BuffValue[ 40 ];
-
-	for (NumLine=1; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )// start at line 1 to miss the header label at line 0
+	for (NumLine=0; NumLine<NBR_MODBUS_MASTER_REQ; NumLine++ )
 	{
-            if (NumLine==17)  {    temp--; continue;    }// line 17 is the header label of modbus io register page 2. (set temp to -2)
-		pConf = &ModbusMasterReq[ NumLine+temp ];
+		int MaxVars = 0;
+		char DoVerify = FALSE;
+		pConf = &ModbusMasterReq[ NumLine ];
 		strcpy( pConf->SlaveAdr, "" );
 		pConf->LogicInverted = 0;
 
 		for (NumObj=0; NumObj<NBR_IO_PARAMS; NumObj++)
-		{ 
+		{
 			IOParamEntry = &ModbusParamEntry[ NumLine ][ NumObj ];
 			switch( NumObj )
 			{
 				case 0://slave address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					strcpy( BuffValue, text );
-				//	printf("buff-%s\n",BuffValue);
 					break;
 				case 1://type of request
 					pConf->TypeReq = ConvComboToNum( (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry), ModbusReqType );
-				//	printf("buff-%s\n",(char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*IOParamEntry)->entry));
 					break;
 				case 2://first element address
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					pConf->FirstModbusElement = atoi( text );
 					break;
-				case 3://number of reqested items
+				case 3://number of requested items
 					text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 					pConf->NbrModbusElements = atoi( text );
 					break;
-				case 4://invert logic?
+				case 4://invert logic (instead of thinking of that everywhere later...)
 					if ( gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON( *IOParamEntry ) ) )
 						pConf->LogicInverted = 1;
 					break;
@@ -464,61 +456,38 @@ void GetModbusModulesIOSettings( void )
 			}
 		}//for (NumObj=0; 
 		/* verify if not overflowing */
-		//TODO much more error checking for word variable. (s32 in and out are mapped on
-		//     top of word variables, in first, then out, then regular words).
-		switch( pConf->TypeReq )
+		//TODO much more error checking for word variable. 
+switch( pConf->TypeReq )
 		{
-			case	MODBUS_REQ_INPUTS_READ :
-				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_INPUTS )
-				{
-					printf("Error in I/O modbus configure table: Asking to map more modbus inputs then there are I Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-				break;
+			case MODBUS_REQ_INPUTS_READ: 
+			case MODBUS_REQ_COILS_READ: 
+                                                   if (MapCoilRead==B_VAR)  {   MaxVars = NBR_BITS ; DoVerify = TRUE; break;
+                                                                       }else{   MaxVars = NBR_PHYS_OUTPUTS; DoVerify = TRUE; break;    }
+                        case MODBUS_REQ_COILS_WRITE: 
+                                                   if (MapCoilWrite==B_VAR) {   MaxVars = NBR_BITS ; DoVerify = TRUE; break;   }
+                                                   if (MapCoilWrite==I_VAR) {   MaxVars = NBR_PHYS_INPUTS; DoVerify = TRUE; break;   
+                                                                      }else {   MaxVars = NBR_PHYS_OUTPUTS; DoVerify = TRUE; break;   }
+			case MODBUS_REQ_REGISTERS_READ: 
+                        case MODBUS_REQ_HOLD_READ:
+                                                   if (MapRegisterRead==W_VAR) {   MaxVars = NBR_WORDS; DoVerify = TRUE; break;
+                                                                     }else{   MaxVars = NBR_PHYS_WORDS_OUTPUTS; DoVerify = TRUE; break;    }
 
-			case MODBUS_REQ_COILS_WRITE :
-				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_OUTPUTS )
-				{
-					printf("Error in I/O modbus configure table: Asking to map more modbus coils then there are Q Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-				break;
-
-			case	MODBUS_REQ_REGISTERS_READ :
-			case    MODBUS_REQ_HOLD_READ :
-				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
-				{
-					printf("Error in I/O modbus configure table: Asking to map more modbus registers then there are W Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-/*				if ( pConf->OffsetVarMapped< NBR_S32IN )
-				{
-					printf("Error in I/O modbus configure table: Cannot map modbus READ registers onto S32 in Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-				break;
-*/
-			case	 MODBUS_REQ_REGISTERS_WRITE :
-				if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_WORDS )
-				{
-					printf("Error in I/O modbus configure table: Asking to map more modbus registers then there are W Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-				break;
-                       case     MODBUS_REQ_DIAGNOSTICS :
-                                break;
-                       case     MODBUS_REQ_COILS_READ :
-                                if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>= NBR_PHYS_OUTPUTS )
-				{
-					printf("Error in I/O modbus configure table: Asking to map more modbus coils then there are Q Variables.\n" );
-					strcpy( BuffValue, "" );
-				}
-                                break;
-                       default:
-                                printf("Error in I/O modbus configure table: Modbus function not recognized");
-                                break;
-
+			case MODBUS_REQ_REGISTERS_WRITE: 
+                                                   if (MapRegisterWrite==W_VAR) {   MaxVars = NBR_WORDS; DoVerify = TRUE; break;    }
+                                                   if (MapRegisterWrite==IW_VAR) {   MaxVars = NBR_PHYS_WORDS_INPUTS; DoVerify = TRUE; break;
+                                                                     }else{  MaxVars = NBR_PHYS_WORDS_OUTPUTS; DoVerify = TRUE; break;    }
+			
 		}
+		if ( DoVerify )
+		{
+			if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>MaxVars )
+			{
+				printf("Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected...ASKED=%i,MAX=%i\n",  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
+				strcpy( BuffValue, "" );
+				ShowMessageBox("Error","Overflow error for I,B,Q,IQ or WQ mapping detected...","Ok");
+			}
+		}
+		
 		/* done at the end, do not forget multi-task ! */
 		/* the first char is tested to determine a valid request => paranoia mode ;-) */
 		//printf("buffvalue1=%s buffvalue0=%d \n",&BuffValue[ 1 ],BuffValue[ 0 ]);
@@ -707,8 +676,13 @@ GtkWidget * CreateModbusComParametersPage( void )
 				gtk_widget_set_usize( *ComboPortName,125,0 );
 				gtk_box_pack_start ( GTK_BOX (hbox[NumLine]), *ComboPortName, FALSE, FALSE, 0 );
 				gtk_widget_show ( *ComboPortName );
-			        gtk_entry_set_text((GtkEntry*)((GtkCombo *)*ComboPortName)->entry,ModbusSerialPortNameUsed );
-				gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*ComboPortName)->entry),FALSE);
+                                if ( strncmp( ModbusSerialPortNameUsed, "",strlen( ModbusSerialPortNameUsed) )==0 )           
+                                   {
+			            gtk_entry_set_text((GtkEntry*)((GtkCombo *)*ComboPortName)->entry,"IP port");
+                                   }else{
+                                         gtk_entry_set_text((GtkEntry*)((GtkCombo *)*ComboPortName)->entry, ModbusSerialPortNameUsed);
+                                        }
+                        	gtk_editable_set_editable( GTK_EDITABLE((GtkEntry*)((GtkCombo *)*ComboPortName)->entry),FALSE);
                                 break;
                         case 1:
                                 // serial speed label
@@ -952,12 +926,18 @@ void GetModbusComParameters( void )
 
         ComboText = &ComboComParam[0];
         string = (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*ComboText)->entry) ;
-        if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 )   {   update=TRUE;   }
-        if ( strncmp( string, PortName[0], strlen(PortName[0]) )==0 )           
-             {     strcpy( ModbusSerialPortNameUsed,"\0" );
+       // printf("BEFORE port name: ->%s<-->%s<-\n",ModbusSerialPortNameUsed, string);
+        if ( strncmp( string, "IP port", strlen("IP port") )==0 )           
+             {    
+                   if ( strncmp( ModbusSerialPortNameUsed, " ", strlen(" ") )!=0 )  
+                      {   update=TRUE;   strcpy( ModbusSerialPortNameUsed,"" );  }
              }else{
-       	           strcpy( ModbusSerialPortNameUsed,string );
+                    if ( strncmp( ModbusSerialPortNameUsed, string, strlen(string) )!=0 ) 
+                       {
+       	                strcpy( ModbusSerialPortNameUsed,string );update=TRUE;
+                       }
                   }
+      // printf("port name: ->%s<-->%s<-\n",ModbusSerialPortNameUsed, string);
         ComboText = &ComboComParam[1];
         string = (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)*ComboText)->entry) ;
         if ( ModbusSerialSpeed != atoi(string)) {   update=TRUE;   }
@@ -968,8 +948,10 @@ void GetModbusComParameters( void )
 	if ( (update) && (modmaster) ) 
            {
             MessageInStatusBar( " To change Modbus port settings, save and reload ladder GUI");
-            PrepareModbusMaster( );
-           }
+           // PrepareModbusMaster( );
+            }else{
+                  MessageInStatusBar("Updated Modbus configuration");
+                 }
 }
 void GetSettings( void )
 {	
@@ -1000,7 +982,7 @@ void OpenConfigWindowGtk( void )
 	{
                 GetSettings();
 		gtk_widget_hide( ConfigWindow );
-		MessageInStatusBar("Updated Modbus configuration");
+		
 	}
 }
 gint ConfigWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
@@ -1034,10 +1016,8 @@ void IntConfigWindowGtk()
 #ifdef MODBUS_IO_MASTER
         gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
 				 gtk_label_new ("Modbus communication setup") );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( 0 ),
-				 gtk_label_new ("Modbus  I/O register setup 1") );
-        gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO( 1 ),
-				 gtk_label_new ("Modbus  I/O register setup 2") );
+	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO(  ),
+				 gtk_label_new ("Modbus  I/O register setup ") );
 #endif
 
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
