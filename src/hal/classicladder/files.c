@@ -1218,9 +1218,8 @@ char LoadComParameters(char * FileName)
 					ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_DEBUG_LEVEL=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] );
-                                
-                                 pParameter = "MODBUS_MAP_COIL_READ=";
+					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] ); 
+                                pParameter = "MODBUS_MAP_COIL_READ=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					MapCoilRead = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MAP_COIL_WRITE=";
@@ -1273,6 +1272,7 @@ char SaveComParameters(char * FileName)
 		fclose(File);
 		Okay = TRUE;
 	}
+        
 	return (Okay);
 }
 void DeleteTheDefaultSection( )
