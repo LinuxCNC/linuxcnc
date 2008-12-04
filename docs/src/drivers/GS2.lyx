@@ -83,4 +83,89 @@ There are several command-line options.
 -v or --verbose Turn on debug messages.
  Note that if there are serial errors, this may become annoying.
  At the moment, it doesn't make much difference most of the time.
+\layout Standard
+
+Parameters and Pins
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+need to add direction and description
+\end_inset 
+
+
+\layout Itemize
+
+hal_s32_t *stat1; // status words from the VFD.
+ Maybe split these out sometime 
+\layout Itemize
+
+hal_s32_t *stat2; 
+\layout Itemize
+
+hal_float_t *freq_cmd; // frequency command 
+\layout Itemize
+
+hal_float_t *freq_out; // actual output frequency 
+\layout Itemize
+
+hal_float_t *curr_out; // output current 
+\layout Itemize
+
+hal_float_t *DCBusV; // 
+\layout Itemize
+
+hal_float_t *outV; 
+\layout Itemize
+
+hal_float_t *RPM; 
+\layout Itemize
+
+hal_float_t *scale_freq; 
+\layout Itemize
+
+hal_float_t *power_factor; 
+\layout Itemize
+
+hal_float_t *load_pct; 
+\layout Itemize
+
+hal_s32_t *FW_Rev; 
+\layout Itemize
+
+hal_s32_t errorcount; 
+\layout Itemize
+
+hal_float_t looptime; 
+\layout Itemize
+
+hal_float_t speed_tolerance; 
+\layout Itemize
+
+hal_s32_t retval; 
+\layout Itemize
+
+hal_bit_t *at_speed; 
+\layout Itemize
+
+hal_float_t *speed_command; // speed command input 
+\layout Itemize
+
+hal_float_t motor_hz; // speeds are scaled in Hz, not RPM 
+\layout Itemize
+
+hal_float_t motor_RPM; // nameplate RPM at default Hz 
+\layout Itemize
+
+hal_bit_t *spindle_on; // 1=turn spindle on, 0=off 
+\layout Itemize
+
+hal_bit_t *spindle_fwd; // direction, 0=fwd, 1=rev 
+\layout Itemize
+
+hal_bit_t *err_reset; // reset errors when 1
 \the_end
