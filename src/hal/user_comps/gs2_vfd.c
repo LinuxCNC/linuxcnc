@@ -140,6 +140,7 @@ static struct option long_options[] = {
     {"bits", 1, 0, 'b'},
     {"device", 1, 0, 'd'},
     {"debug", 0, 0, 'g'},
+    {"help", 0, 0, 'h'},
     {"name", 1, 0, 'n'},
     {"parity", 1, 0, 'p'},
     {"rate", 1, 0, 'r'},
@@ -149,7 +150,7 @@ static struct option long_options[] = {
     {0,0,0,0}
 };
 
-static char *option_string = "b:d:n:p:r:s:t:v";
+static char *option_string = "b:d:hn:p:r:s:t:v";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
 static char *paritystrings[] = {"even", "odd", "none", NULL};
@@ -213,6 +214,37 @@ int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata
     return retval;
 }
 
+void usage(int argc, char **argv) {
+    printf("Usage:  %s [options]\n", argv[0]);
+    printf(
+    "This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
+    "    loadusr gs2_vfd\n"
+    "There are several command-line options.  Options that have a set list of possible values may\n"
+    "    be set by using any number of characters that are unique.  For example, --rate 5 will use\n"
+    "    a baud rate of 57600, since no other available baud rates start with \"5\"\n"
+    "-b or --bits <n> (default 8)\n"
+    "    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
+    "-d or --device <path> (default /dev/ttyS0)\n"
+    "    Set the name of the serial device node to use\n"
+    "-g or --debug\n"
+    "    Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause\n"
+    "    all modbus messages to be printed in hex on the terminal.\n"
+    "-n or --name <string> (default gs2_vfd)\n"
+    "    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
+    "    and parameter names will begin with <string>.\n"
+    "-p or --parity {even,odd,none} (defalt odd)\n"
+    "    Set serial parity to even, odd, or none.\n"
+    "-r or --rate <n> (default 38400)\n"
+    "    Set baud rate to <n>.  It is an error if the rate is not one of the following:\n"
+    "    110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200\n"
+    "-s or --stopbits {1,2} (default 1)\n"
+    "    Set serial stop bits to 1 or 2\n"
+    "-t or --target <n> (default 1)\n"
+    "    Set MODBUS target (slave) number.  This must match the device number you set on the GS2.\n"
+    "-v or --verbose\n"
+    "    Turn on debug messages.  Note that if there are serial errors, this may become annoying.\n"
+    "    At the moment, it doesn't make much difference most of the time.\n");
+}
 int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data_block) {
     int receive_data[MAX_READ_HOLD_REGS];	/* a little padding in there */
     int retval;
@@ -353,6 +385,11 @@ int main(int argc, char **argv)
                 break;
             case 'v':   // verbose mode (print modbus errors and other information), default 0
                 verbose = 1;
+                break;
+            case 'h':
+            default:
+                usage(argc, argv);
+                exit(0);
                 break;
         }
     }
