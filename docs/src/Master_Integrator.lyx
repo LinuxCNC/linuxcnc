@@ -190,6 +190,15 @@ Basic HAL
 \layout Standard
 
 
+\begin_inset Include \include{hal/basic_hal.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{config/stepper.lyx}
 preview false
 

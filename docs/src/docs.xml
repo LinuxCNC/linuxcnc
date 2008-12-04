@@ -26,6 +26,7 @@
 <doc name="gui_image-to-gcode" title="Image-to-gcode"/>
 
 <doc name="hal_intro" title="Introduction"/>
+<doc name="hal_basic_hal" title="Basic Hal Info"/>
 <doc name="hal_tutorial" title="Tutorial"/>
 <doc name="hal_general_ref" title="General Reference"/>
 <doc name="hal_tools" title="Tools"/>
