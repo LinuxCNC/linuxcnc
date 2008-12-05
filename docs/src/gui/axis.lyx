@@ -2510,6 +2510,11 @@ Advanced Configuration
 \layout Subsection
 
 Program Filters
+\begin_inset LatexCommand \index{Program Filters}
+
+\end_inset 
+
+
 \layout Standard
 
 AXIS has the ability to send loaded files through a 
@@ -2777,6 +2782,11 @@ vars.show_distance_to_go.set(1)
 \layout Subsection
 
 External Editor
+\begin_inset LatexCommand \index{External Editor}
+
+\end_inset 
+
+
 \layout Standard
 
 The menu options File > Edit...
@@ -2796,9 +2806,40 @@ EDITOR=gnome-terminal -e vim
 \layout Subsection
 
 Virtual Control Panel
+\begin_inset LatexCommand \index{Virtual Control Panel}
+
+\end_inset 
+
+
 \layout Standard
 
 AXIS can display a custom virtual control panel in the right-hand pane.
  You can program buttons, indicators, data displays and more.
  For more information, see the Integrators Manual.
+\layout Subsection
+
+Special Comments
+\begin_inset LatexCommand \index{Special Comments}
+
+\end_inset 
+
+
+\layout Standard
+
+Special comments can be inserted into the G Code file to control how the
+ preview of AXIS behaves.
+ In the case where you want to limit the drawing of the preview use these
+ special comments.
+ Anything between the (AXIS,hide) and (AXIS,show) will not be drawn during
+ the preview.
+ Anything after a (AXIS,stop) will not be drawn during the preview.
+\layout Itemize
+
+(AXIS,hide) Stops the preview
+\layout Itemize
+
+(AXIS,show) Resumes the preview
+\layout Itemize
+
+(AXIS, stop) Stops the preview to the end of the file.
 \the_end
