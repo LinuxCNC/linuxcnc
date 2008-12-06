@@ -473,6 +473,7 @@ void LoadNewLadder()
 		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
 
     UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
+    UpdateWindowTitleWithProjectName();
 #ifndef RT_SUPPORT
         OpenHardware( 0 );
         ConfigHardware( );
@@ -499,6 +500,7 @@ void SaveAsLadder(void)
 ////    SaveAllLadderDatas(LadderDirectory);
 	if ( !SaveProjectFiles( InfosGene->LadderDirectory ) )
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
+        UpdateWindowTitleWithProjectName();
 }
 
 
@@ -1225,6 +1227,20 @@ void InitGtkWindows( int argc, char *argv[] )
 	PropertiesInitGtk();
 	ManagerInitGtk( );
 	SymbolsInitGtk( );
+}
+
+void UpdateWindowTitleWithProjectName( void )
+{
+	char Buff[ 250 ];
+	int ScanFileNameOnly = 0;
+	if ( strlen(InfosGene-> LadderDirectory )>2 )
+	{
+		ScanFileNameOnly = strlen(InfosGene-> LadderDirectory )-1;
+		while( ScanFileNameOnly>0 && InfosGene-> LadderDirectory [ScanFileNameOnly-1]!='/' && InfosGene-> LadderDirectory [ScanFileNameOnly-1]!='\\')
+			ScanFileNameOnly--;
+	}
+	sprintf( Buff, "Section Display of %s", &InfosGene-> LadderDirectory [ScanFileNameOnly] );
+	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
 
 void UpdateGtkAfterLoading( char cCreateTimer )

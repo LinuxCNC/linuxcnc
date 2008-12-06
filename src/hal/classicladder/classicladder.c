@@ -111,24 +111,29 @@ void process_options (int argc, char *argv[])
 	int error = 0;
 
 	for (;;) {
-		int option_index = 0;
-		static const char *short_options = "c:";
-		static const struct option long_options[] = {
+		  int option_index = 0;
+		  static const char *short_options = "c:";
+		  static const struct option long_options[] = {
 			{"nogui", no_argument, 0, 'n'},
+                        {"debug",no_argument,0,'d'},
 			{0, 0, 0, 0},		};
 
-		int c = getopt_long(argc, argv, short_options,
+		  int c = getopt_long(argc, argv, short_options,
 				    long_options, &option_index);
-		if (c == EOF) {break;}
+		  if (c == EOF) {break;}
 
-		switch (c) {
-			        case 'n':
-                        nogui = 1;
-                        break;
-					case '?':
-						error = 1;
-						break;		}
-			}
+		  switch (c) {
+                                case 'n':
+                                         nogui = 1;
+                                         break;
+                                case 'd':
+                                rtapi_set_msg_level(RTAPI_MSG_ALL);
+                                         break;
+                                case '?':
+                                         error = 1;
+                                         break;	        
+                             }
+                 }
 
 	if (error)
 		display_help ();
@@ -148,6 +153,8 @@ static void do_exit(int unused) {
 int main( int   argc, char *argv[] )
 {
         int used=0, NumRung;
+        static int old_level ;
+        old_level = rtapi_get_msg_level();
         //HAL_SUPPORT
         compId = hal_init("classicladder");
 	if(compId < 0) return -1;
@@ -187,6 +194,7 @@ int main( int   argc, char *argv[] )
                       if((used==0) || ( (argc - optind) != 0) )  {   LoadProjectFiles( InfosGene->LadderDirectory );   }
 #ifdef GTK_INTERFACE
                       UpdateGtkAfterLoading( TRUE/*cCreateTimer*/ );
+                      UpdateWindowTitleWithProjectName();
 #endif
                       // start running ladder program
                       InfosGene->LadderState = STATE_RUN;
@@ -200,6 +208,7 @@ int main( int   argc, char *argv[] )
         }
          ClassicLadderFreeAll(); 
          CleanTmpDirectory( TmpDirectory, TRUE );
+         rtapi_set_msg_level(old_level);
          hal_exit(compId);
          return 0;
 }

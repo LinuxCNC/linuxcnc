@@ -12,3 +12,4 @@ void quit_appli();
 void InitGtkWindows( int argc, char *argv[] );
 void UpdateGtkAfterLoading( char cCreateTimer );
 void OpenVarsWindow( void );
+void UpdateWindowTitleWithProjectName( void );
