@@ -262,6 +262,7 @@ int main( int   argc, char *argv[] )
 						ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
                                                 InitGtkWindows( argc, argv );
 				                UpdateAllGtkWindows();
+                                                UpdateWindowTitleWithProjectName( );
                                                 MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
                                                 if (!ProjectLoadedOk) 
                                                 {  
@@ -271,6 +272,7 @@ int main( int   argc, char *argv[] )
                                             }else{
                                                            InitGtkWindows( argc, argv );
                                                            UpdateAllGtkWindows();
+                                                           UpdateWindowTitleWithProjectName( );
                                                            MessageInStatusBar("GUI reloaded with existing ladder program");
                                                            if (modmaster) {    PrepareModbusMaster( );    }
                                                   } 

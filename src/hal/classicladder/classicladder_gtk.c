@@ -388,6 +388,7 @@ void LoadNewLadder()
 	if ( !ProjectLoadedOk )
 		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
 	UpdateAllGtkWindows( );
+        UpdateWindowTitleWithProjectName( );
 	MessageInStatusBar( ProjectLoadedOk?"Project loaded (stopped).":"Project failed to load...");
 #ifndef RT_SUPPORT
         OpenHardware( 0 );
@@ -418,6 +419,7 @@ void SaveAsLadder(void)
 	, FALSE/*cForLoadingProject*/);
 	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
 		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
+        UpdateWindowTitleWithProjectName( );
 }
 
 #ifdef GTK2
@@ -978,4 +980,18 @@ void UpdateAllGtkWindows( void )
 	DisplaySymbols( );
         destroyConfigWindow();
         IntConfigWindowGtk( );
+}
+
+void UpdateWindowTitleWithProjectName( void )
+{
+	char Buff[ 250 ];
+	int ScanFileNameOnly = 0;
+	if ( strlen(InfosGene->CurrentProjectFileName )>2 )
+	{
+		ScanFileNameOnly = strlen(InfosGene->CurrentProjectFileName )-1;
+		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='\\')
+			ScanFileNameOnly--;
+	}
+	sprintf( Buff, "Section Display of %s", &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
+	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
