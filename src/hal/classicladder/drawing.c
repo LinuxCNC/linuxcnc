@@ -1047,7 +1047,22 @@ void DrawRungs()
 	StrRung * PtrRung;
 	int FlagAddOrInsertRung = FALSE;
 	int TheEnd = FALSE;
+        GdkColor DynaGdkColor;
+	GdkGC * DynaGcDrawWinColor;
+	DynaGdkColor.pixel = 0xF8F5C2;
+	DynaGdkColor.red = 0xF8;
+	DynaGdkColor.green = 0xF5;
+	DynaGdkColor.blue = 0xC2;
 
+/*	if (!IsTheCurrentRung )
+	{
+		DynaGcBarsColor = drawing_area->style->black_gc;
+	}
+	else */
+	{
+		DynaGcDrawWinColor = gdk_gc_new(pixmap);
+		gdk_gc_set_foreground(DynaGcDrawWinColor,&DynaGdkColor);
+	}
 	// If we are editing and adding a rung, we set a flag to indicate
 	// that there is an extra rung to add (before or after current rung)
 	if ( EditDatas.ModeEdit && EditDatas.DoBeforeFinalCopy == MODE_ADD )
@@ -1064,7 +1079,7 @@ void DrawRungs()
 		FlagAddOrInsertRung = TRUE;
 
 	// Clean all
-	gdk_draw_rectangle(pixmap, drawing_area->style->white_gc, TRUE,
+	gdk_draw_rectangle(pixmap, DynaGcDrawWinColor, TRUE,
 						0, 0, InfosGene->BlockWidth*RUNG_WIDTH+50, InfosGene->PageHeight+50);
 
 	for (ScanY = InfosGene->OffsetHiddenTopRungDisplayed*-1; ScanY<InfosGene->PageHeight && !TheEnd; ScanY=ScanY+(InfosGene->BlockHeight*RUNG_HEIGHT))
