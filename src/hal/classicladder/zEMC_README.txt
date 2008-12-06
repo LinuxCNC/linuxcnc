@@ -22,34 +22,46 @@ classicladder.c:
 --- A config file can be loaded from the comand line for modbus info *depreciated*
 --- to use MODBUS master use --modmaster
 --- to use MODBUS server use --modserver
+--- to set debug level for rtapi_print use --debug
 --- if a program was loaded previouly and you load classicladder again with a ladder program
     specified it will load it instead of ignoring it.
 --- change to put CurrentProjectfileName into infosgene array
+--- change to display ladder program name on section display window
 
 classicladder.h:
 --- small amount added. Add definitions for HAL s32 pins and For HAL support.
 --- changed define for symbols comment length from 30 to 50 for long signal names
+--- add defines for new variable %QW and %IW 
 --- added external variable modmaster
+--- added NBR_PHYS_WORDS_INPUTS and NBR_PHYS_WORDS_OUTPUTS for support of %WQ and %IW variables
+--- added CurrentProjectFileName[ 400 ] to StrInfosGene for Filename to be stored in shared mem
 
 classicladder gtk.c:
 --- removed define for hardware.h
 --- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in 
 --- run/stop and reset buttons send messages to statusbar
+--- classicladder will ask to confirm quit and ( if running ) reset
+--- classicladder warns you that modbus will stop if you quit GUI
+--- change to display ladder program name on section display window
 
 config.c :
 --- added printf so we know when a modbus config file is loading
 
 config_gtk.c:
 --- removed define for hardware.h
---- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configue window
+--- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configure window
 --- modified to show number of s32 in and out pins 
 --- modified modbus page to added options for read hold register, write register(s) and echo
 --- if no modbus config is loaded then the modbus config page tells you this, otherwise it displays normally.
 --- added a communication page for changing com settings radio buttons change settings immediately.
 --- split the i/o page into two pages to improve size of config window
+--- combine the i/o page back to one :)
+--- add radio buttons for selecting variable that modbus maps to
+--- add spin text entry selection for port name and port speed
 
 drawing.c:
 --- added colour to variable names for input (red) and output (blue) in section display drawing area
+--- change background color of section display
 
 edit.c
 --- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
@@ -65,9 +77,10 @@ file.c
 --- modified not to load info into GeneralParamsMirror because only realtime can do that
 --- added function to load modbus com info
 --- added call to re intialize modbus after loading a program
+--- addd function to load/save MODBUS com settings
 
 files_project.c
---- change to infosgene->CurrentProjectFileName
+--- change to infosgene->CurrentProjectFileName to support filenames in shared memory
 
 emc_mods.c and emc_mods.h:
 --- added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
@@ -115,7 +128,7 @@ vars_names.c/.h:
 
 var_names.c:
 --- backported fix from version 7.126 to fix a crash if varible number is not a number
-
+--- added suport for %IW and %QW variables
 
 
 
