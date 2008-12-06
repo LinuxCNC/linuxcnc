@@ -52,3 +52,11 @@ The pointer to the function to be exported
 These macros are portable ways to declare kernel module parameters.  They must
 be used in the global scope, and are not followed by a terminating semicolon.
 They must be used after the associated variable or function has been defined.
+
+.SH NOTES
+EXPORT_FUNCTION makes a symbol available for use by a subsequently loaded
+component.  It is unrelated to hal functions, which are described in
+hal_export_funct(3hal)
+
+.SH REALTIME CONSIDERATIONS
+Not available in userspace code.
