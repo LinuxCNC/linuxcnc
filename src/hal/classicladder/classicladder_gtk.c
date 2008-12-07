@@ -947,6 +947,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		ShowMessageBox( "Config hardware error occured!", InfosGene->HardwareErrMsgToDisplay, "Ok" );
 		InfosGene->HardwareErrMsgToDisplay[ 0 ] = '\0';
 	}
+        CheckForErrors ( );
 	return 1;
 }
 
@@ -994,4 +995,37 @@ void UpdateWindowTitleWithProjectName( void )
 	}
 	sprintf( Buff, "Section Display of %s", &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
 	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
+}
+
+void ShowErrorMessage(const char * title, const char * text, const char * button)
+{
+	/* From the example in gtkdialog help */
+	GtkWidget *dialog, *label, *okay_button;
+	/* Create the widgets */
+	dialog = gtk_dialog_new();
+	label = gtk_label_new (text);
+	okay_button = gtk_button_new_with_label(button);
+	/* Ensure that the dialog box is destroyed when the user clicks ok. */
+	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
+							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
+					okay_button);
+	gtk_widget_grab_focus(okay_button);
+	/* Add the label, and show everything we've added to the dialog. */
+	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+					label);
+	//gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
+	gtk_window_set_title(GTK_WINDOW(dialog),title);
+	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
+	gtk_widget_show_all (dialog);
+}
+void CheckForErrors (void)
+{
+    static int temp;
+        if ( (ReadVar( VAR_ERROR_BIT, 0 )==TRUE) && (temp==0))
+           { 
+             temp=1;
+             ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
+           }
+        if ( ReadVar( VAR_ERROR_BIT, 0 )==FALSE) {    temp=0;  }
 }
