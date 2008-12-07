@@ -54,7 +54,7 @@ GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 //for modbus input/output page
 #ifdef MODBUS_IO_MASTER
 // ModbusReqType must be in the same order as MODBUS_REQ_ in protocol_modbus_master.h
-static char * ModbusReqType[] = {"Read_INPUTS  fnct- 2", "Write_COIL(S)  fnct-5/15", "Read_REGS     fnct- 4", "Write_REG(S)  fnct-6/16", "Read_COILS  fnct- 1","Read_HOLD    fnct- 3","Slave_echo    fnct- 8",NULL };
+static char * ModbusReqType[] = {"Read_discrete_INPUTS  fnctn- 2", "Write_COIL(S)           fnctn-5/15", "Read_Input_REGS     fnctn- 4", "Write_hold_REG(S)    fnctn-6/16", "Read_COILS              fnctn- 1","Read_HOLD_REG      fnctn- 3","Slave_echo              fnctn- 8",NULL };
 #define NBR_MODBUS_PARAMS 6
 static char * SerialSpeed[] = { "300", "600", "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", NULL };
 #define NBR_SERIAL_SPEED 9
@@ -275,7 +275,7 @@ char* ConvNumToString( int num, char ** list )
 #ifdef MODBUS_IO_MASTER
 GtkWidget * CreateModbusModulesIO( void )
 {
-	static char * Labels[] = { "Slave Address", "Request Type", "1st Modbus Ele.", "Nbr of Ele", "Logic", "1st I/Q/IW/QW mapped" };
+	static char * Labels[] = { "Slave Address", "Request Type", "1st Modbus Ele.", "# of Ele", "Logic", "1st Variable mapped" };
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_MODBUS_MASTER_REQ+2 ];
 	int NumObj;
@@ -326,11 +326,14 @@ GtkWidget * CreateModbusModulesIO( void )
 						case 0:
 							PixelsLength=120;
 							break;
-						case 5:
-							PixelsLength=140;
-							break;
 						case 1:
-							PixelsLength=195;
+							PixelsLength=230;
+							break;
+                                                case 3:
+							PixelsLength=70;
+							break;
+                                                case 5:
+							PixelsLength=140;
 							break;
 					}
 					*IOParamLabel = gtk_label_new( Labels[ NumObj ] );
@@ -352,7 +355,7 @@ GtkWidget * CreateModbusModulesIO( void )
 							*IOParamDevice = gtk_combo_new( );
 							gtk_combo_set_value_in_list( GTK_COMBO(*IOParamDevice), TRUE /*val*/, FALSE /*ok_if_empty*/ );
 							gtk_combo_set_popdown_strings( GTK_COMBO(*IOParamDevice), ItemsDevices );
-							gtk_widget_set_usize( *IOParamDevice,195,0 );
+							gtk_widget_set_usize( *IOParamDevice,230,0 );
 							gtk_box_pack_start ( GTK_BOX (hbox[NumLine+1]), *IOParamDevice, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamDevice );
 					        	gtk_entry_set_text((GtkEntry*)((GtkCombo *)*IOParamDevice)->entry, ModbusReqType[ ValueToDisplay ]);
@@ -386,6 +389,7 @@ GtkWidget * CreateModbusModulesIO( void )
 									break;
 								case 3:
 									sprintf( BuffValue, "%d", pConf->NbrModbusElements );
+                                                                        PixelsLength = 70;
 									break;
 								case 5:
 									sprintf( BuffValue, "%d", pConf->OffsetVarMapped );
