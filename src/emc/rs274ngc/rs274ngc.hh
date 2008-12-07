@@ -40,7 +40,7 @@ typedef bool ON_OFF;
 class Interp;
 typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, double *);
 
-#define DEBUG_EMC
+#undef DEBUG_EMC
 
 #define _logDebug(level, fmt, args...)          \
     do {                                        \

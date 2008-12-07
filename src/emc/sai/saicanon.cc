@@ -29,7 +29,6 @@
 * Copyright (c) 2007 All rights reserved.
 *
 * Last change:
-*
 ********************************************************************/
 
 #include "canon.hh"
@@ -748,7 +747,7 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
 void COMMENT(char *s)
-{PRINT1("COMMENT(\"%s\")\n", s);}
+{}
 
 void DISABLE_ADAPTIVE_FEED()
 {PRINT0("DISABLE_ADAPTIVE_FEED()\n");}
