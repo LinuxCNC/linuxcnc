@@ -642,8 +642,10 @@ loadrt classicladder_rt
 Loading the ClassicLadder user module
 \layout Standard
 
-Classicladder hal statements must be placed in the main .hal file for the
- menu to function.
+Classicladder hal commands must executed before the GUI loads or the menu
+ item Ladder Editor will not function.
+ If you used the Stepper Config Wizard place any Classicladder hal commands
+ in the custom.hal file.
 \layout Standard
 
 To load the user module:
@@ -658,29 +660,21 @@ To load a ladder file:
 loadusr classicladder myladder.clp
 \layout Standard
 
-To load the user module without the GUI:
-\layout Quote
+Classicladder Loading Options
+\layout Itemize
 
-loadusr classicladder --nogui
-\layout Standard
+--nogui (loads with out the ladder editor) normally used after debugging
+ is finished.
+\layout Itemize
 
-To load the user module with the modbus port number for modbus server over
- ethernet: 
-\layout Quote
+--modbus_port=port (loads the modbus port number)
+\layout Itemize
 
-loadusr classicladder --modbus_port=port
-\layout Standard
+--modmaster (initializes MODBUS master) should load the ladder program at
+ the same time or the TCP is default port.
+\layout Itemize
 
-To load the user module with a config file:
-\layout Quote
-
-loadusr classicladder --config=file
-\layout Standard
-
-Sets up the ClassicLadder for modbus master over serial or ethernet.
-\layout Quote
-
-loadusr classicladder --config=my modbusfile --nogui myladder.clp
+--modslave (initializes MODBUS slave) only TCP
 \layout Standard
 
 To use ClassicLadder with HAL without EMC.
