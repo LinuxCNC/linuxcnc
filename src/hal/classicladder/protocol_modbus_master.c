@@ -634,7 +634,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 		
 	}
         //set error coil (%E0) as apprioprate  
-        if (RepOk==TRUE) {    WriteVar( VAR_MEM_BIT, 0, FALSE);   }else{    WriteVar( VAR_MEM_BIT, 0, TRUE);   }
+        if (RepOk==TRUE) {    WriteVar( VAR_ERROR_BIT, 0, FALSE);   }else{    WriteVar( VAR_ERROR_BIT, 0, TRUE);   }
 	return RepOk;
 }
 
