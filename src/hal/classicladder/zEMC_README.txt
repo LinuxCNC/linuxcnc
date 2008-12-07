@@ -11,6 +11,7 @@ arrays.c:
 --- this also means adding #ifndef RTAPI around 'CleanAndRemoveTmpDir' call in 'classicladder_free_all'
 --- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays proper info
 --- add CurentProjectFileName to infosgene array so filename is remembered when GUI is closed
+--- add space for %E variables
 
 Calc.c:
 --- removed define for module and RTAI
@@ -21,7 +22,7 @@ classicladder.c:
 --- changed extensively. Removed most of initialization code besides what was added for HAL.
 --- A config file can be loaded from the comand line for modbus info *depreciated*
 --- to use MODBUS master use --modmaster
---- to use MODBUS server use --modserver
+--- to use MODBUS slave use --modslave
 --- to set debug level for rtapi_print use --debug
 --- if a program was loaded previouly and you load classicladder again with a ladder program
     specified it will load it instead of ignoring it.
@@ -35,6 +36,7 @@ classicladder.h:
 --- added external variable modmaster
 --- added NBR_PHYS_WORDS_INPUTS and NBR_PHYS_WORDS_OUTPUTS for support of %WQ and %IW variables
 --- added CurrentProjectFileName[ 400 ] to StrInfosGene for Filename to be stored in shared mem
+--- added defines etc for %E variables
 
 classicladder gtk.c:
 --- removed define for hardware.h
@@ -43,6 +45,8 @@ classicladder gtk.c:
 --- classicladder will ask to confirm quit and ( if running ) reset
 --- classicladder warns you that modbus will stop if you quit GUI
 --- change to display ladder program name on section display window
+--- added CheckErrors() for checking %E variables so a error message can be displayed
+--- added ShowErrorMessage() for same
 
 config.c :
 --- added printf so we know when a modbus config file is loading
@@ -97,6 +101,7 @@ protocol_modbus_master.c
 --- added code for modbus functions 1, 3, 6, 16, and 8 (read coils, read holding register, write single register, write mulitple registers, echo)
 --- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common) and can change this in com page now.
 --- improved debug messages so slave address and function code are easily identified
+--- added a write to %E0 for modbus communication error
 
 protocol_modbus_master.h
 --- added defines for same as above
@@ -122,13 +127,16 @@ SUBMAKEFILE:
 	-DGTK_INTERFACE -DGTK2
 --- added emc_mods.c to compile list
 
+vars_access.c
+--- add %E %IW %QW variables
+
 vars_names.c/.h:
 --- backported fix from version 7.126 to fix a crash if varible number is not a number
 --- fix so if symbol name is blank will return the variable name instead (fix crash)
+--- add %E %IW %QW variables
 
-var_names.c:
---- backported fix from version 7.126 to fix a crash if varible number is not a number
---- added suport for %IW and %QW variables
+vars_names_list.c:
+--- add %E %IW %QW variables
 
 
 
