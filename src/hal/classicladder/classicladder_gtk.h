@@ -15,3 +15,5 @@ void MessageInStatusBar( char * msg );
 void InitGtkWindows( int argc, char *argv[] );
 void UpdateAllGtkWindows( void );
 void UpdateWindowTitleWithProjectName( void );
+void ShowErrorMessage(const char * title, const char * text, const char * button);
+void CheckForErrors (void);
