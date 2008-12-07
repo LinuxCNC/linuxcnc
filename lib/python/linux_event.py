@@ -14,7 +14,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import struct, fcntl, array, os, select, glob, fnmatch, time
+import struct, fcntl, array, os, select, glob, fnmatch, time, re
 
 size_shift = 16
 def SZ(a,b): return a | (b<<size_shift)
@@ -652,20 +652,39 @@ del invert
 KEYBTN_invert = KEY_invert.copy()
 KEYBTN_invert.update(BTN_invert)
 
+def humanize(s):
+    s = re.split("(\d+)", s)
+    def maybe_int(ss):
+        if ss and ss[0] in "0123456789": return int(ss)
+        return ss
+    return map(maybe_int, s)
+
 def find(pattern):
+    if ":" in pattern:
+        pattern, idx = pattern.rsplit(":", 1)
+        idx = int(idx)
+    else:
+        idx = 0
     if os.path.exists("/dev/input/event%s" % pattern):
 	return os.open("/dev/input/event%s" % pattern, os.O_RDWR)
 
     candidates = glob.glob("/dev/input/event*")
+    candidates.sort(key=humanize)
+    successful_opens = 0
     for c in candidates:
 	try:
 	    f = os.open(c, os.O_RDWR)
 	except os.error:
 	    continue
+        successful_opens += 1
 
 	name = get_name(f)
 	if name.find(pattern) != -1 or fnmatch.fnmatch(name, pattern):
-	    return f
+            if idx == 0:
+                return f
+            else:
+                idx -= 1
+                continue
 
         try:
             phys = get_phys(f)
@@ -673,20 +692,39 @@ def find(pattern):
             pass
         else:
             if phys.find(pattern) != -1 or fnmatch.fnmatch(phys, pattern):
-                return f
+                if idx == 0:
+                    return f
+                else:
+                    idx -= 1
+                    continue
 
 	id = InputId.get(f)
 	sid = "Bus=%s Vendor=%04x Product=%04x Version=%04x" % (\
 	    id.bustype, id.vendor, id.product, id.version)
 	if sid.find(pattern) != -1 or fnmatch.fnmatch(sid, pattern):
-	    return f
+            if idx == 0:
+                return f
+            else:
+                idx -= 1
+                continue
 
 	sid = "%04x:%04x" % (id.vendor, id.product)
 	if sid.find(pattern) != -1 or fnmatch.fnmatch(sid, pattern):
-	    return f
+            if idx == 0:
+                return f
+            else:
+                idx -= 1
+                continue
 
 	os.close(f)
-    raise LookupError, "No input device matching %r was found" % pattern
+    if not successful_opens:
+        raise LookupError, """\
+No input devices could be opened.  This usually indicates a misconfigured
+system.  Please read the section 'PERMISSIONS AND UDEV' in the hal_input
+manpage"""
+    raise LookupError, (
+        "No input device matching %r was found (%d devices checked)" 
+            % (pattern, successful_opens))
 
 def decode(map, mapname, code):
     if isinstance(code, str): return code

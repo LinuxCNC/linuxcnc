@@ -186,7 +186,10 @@ for f in sys.argv[1:]:
     if f.startswith("-"):
         parts = f[1:]
     else:
-        d.append(HalInputDevice(w, i, f, parts))
+        try:
+            d.append(HalInputDevice(w, i, f, parts))
+        except LookupError, detail:
+            raise SystemExit, detail
         parts = 'KRAL'
         i += 1
 w.drive()

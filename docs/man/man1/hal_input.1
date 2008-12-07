@@ -36,6 +36,17 @@ This opens \fB/dev/input/event\fIN\fR.  Except for devices that are always
 attached to the system, this number may change over reboots or when the device
 is removed.  For this reason, using an integer is not recommended.
 .PP
+When several devices are identified by the same string, add "\fB:\fIN\fR" where
+\fIN\fR is the index of the desired device.  For example, if \fBMouse\fR
+matches \fBinput3\fR and \fBinput10\fR, then \fBMouse\fR and \fBMouse:0\fR
+select \fBinput3\fR.  Specifying \fBmouse:1\fR selects \fRinput10\fR.
+.PP
+For devices that appear as multiple entries in /dev/input, these indices are
+likely to stay the same every time.  For multiple identical devices, these
+indices are likely to depend on the insertion order, but stay the same across
+reboots as long as the devices are not moved to different ports or unplugged
+while the machine is booted.
+.PP
 If the first character of the \fIinputspec\fR is a "+", then \fBhal_input\fR
 requests exclusive access to the device.  The first device matching an
 \fIinputspec\fR is used.  Any number of \fIinputspec\fRs may be used.
