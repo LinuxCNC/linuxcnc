@@ -54,6 +54,8 @@ int ReadVar(int TypeVar,int Offset)
 	{
 		case VAR_MEM_BIT:
 			return VarArray[Offset];
+                case VAR_ERROR_BIT:
+			return VarArray[Offset];
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_DONE:
 			return TimerArray[Offset].OutputDone;
@@ -119,6 +121,9 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 	switch(TypeVar)
 	{
 		case VAR_MEM_BIT:
+			VarArray[NumVar] = Value;
+			break;
+                case VAR_ERROR_BIT:
 			VarArray[NumVar] = Value;
 			break;
 		case VAR_COUNTER_DONE:

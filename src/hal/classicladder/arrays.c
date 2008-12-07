@@ -112,6 +112,7 @@ StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_symbols = NBR_SYMBOLS_DEF,
         .SizesInfos.nbr_phys_words_inputs = NBR_PHYS_WORDS_INPUTS_DEF,
 	.SizesInfos.nbr_phys_words_outputs = NBR_PHYS_WORDS_OUTPUTS_DEF,
+        .SizesInfos.nbr_error_bits = NBR_ERROR_BITS_DEF,
 	.PeriodicRefreshMilliSecs = PERIODIC_REFRESH_MS_DEF
 };
 
@@ -173,7 +174,7 @@ int ClassicLadder_AllocAll()
     int numBits, numWords;
     pSizesInfos = &GeneralParamsMirror.SizesInfos;
     // Calculate SHMEM size.
-    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs;
+    numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs + pSizesInfos->nbr_error_bits;
     numWords = pSizesInfos->nbr_words+pSizesInfos->nbr_phys_words_inputs+pSizesInfos->nbr_phys_words_outputs;
 #ifdef SEQUENTIAL_SUPPORT
     numBits += NBR_STEPS;
@@ -262,7 +263,7 @@ int ClassicLadder_AllocAll()
 
 // the rest is for both realtime and userspace program
 
-    rtapi_print_msg(RTAPI_MSG_INFO,"Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d IEC timers- %d\n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n  s32in - %d s32out- %d\n",
+      rtapi_print_msg(RTAPI_MSG_INFO,"Sizes: rungs- %d bits- %d words- %d timers- %d mono- %d count- %d IEC timers- %d\n HAL Bin- %d HAL Bout- %d expressions- %d sections- %d symbols - %d\n  s32in - %d s32out- %d Error bits-%d\n",
         pSizesInfos->nbr_rungs,
         pSizesInfos->nbr_bits,
         pSizesInfos->nbr_words,
@@ -276,7 +277,8 @@ int ClassicLadder_AllocAll()
         pSizesInfos->nbr_sections,
         pSizesInfos->nbr_symbols,
 	pSizesInfos->nbr_phys_words_inputs,
-	pSizesInfos->nbr_phys_words_outputs);
+	pSizesInfos->nbr_phys_words_outputs,
+        pSizesInfos->nbr_error_bits);
 
     	// Set global SHMEM pointers for each element
     pByte = (unsigned char *) InfosGene;

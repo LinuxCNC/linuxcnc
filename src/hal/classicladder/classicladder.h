@@ -45,8 +45,9 @@
 #define NBR_SYMBOLS_DEF 100
 #define NBR_PHYS_WORDS_INPUTS_DEF 10
 #define NBR_PHYS_WORDS_OUTPUTS_DEF 10
-#define NBR_S32IN_DEF 0
-#define NBR_S32OUT_DEF 0
+#define NBR_ERROR_BITS_DEF 10
+//#define NBR_S32IN_DEF 0
+//#define NBR_S32OUT_DEF 0
 #define NBR_INPUTS_CONF 5
 #define NBR_OUTPUTS_CONF 5
 
@@ -67,6 +68,7 @@ typedef struct plc_sizeinfo_s {
 	int     nbr_symbols;
         int	nbr_phys_words_inputs;
 	int	nbr_phys_words_outputs;
+        int     nbr_error_bits;
 }plc_sizeinfo_s;
 
 #define NBR_RUNGS 	       InfosGene->GeneralParams.SizesInfos.nbr_rungs
@@ -83,6 +85,7 @@ typedef struct plc_sizeinfo_s {
 #define NBR_SYMBOLS	       InfosGene->GeneralParams.SizesInfos.nbr_symbols
 #define NBR_PHYS_WORDS_INPUTS  InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs
 #define NBR_PHYS_WORDS_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs
+#define NBR_ERROR_BITS 	       InfosGene->GeneralParams.SizesInfos.nbr_error_bits
 
 #define ARITHM_EXPR_SIZE 50
 
@@ -163,6 +166,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_STEP_ACTIVITY 30
 #define VAR_PHYS_INPUT 50
 #define VAR_PHYS_OUTPUT 60
+#define VAR_ERROR_BIT 70
 #define VAR_ARE_WORD 199    /* after it, all vars are no more booleans */
 /* integers */
 #define VAR_MEM_WORD 200

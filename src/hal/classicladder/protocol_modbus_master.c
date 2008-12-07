@@ -621,6 +621,8 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 		else
 		{
 			printf("ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n");
+                        //set error coil 0 on 'MODBUS ERROR'
+                        
 			ErrorCnt++;
 		}
 		if ( ErrorCnt>=3 )
@@ -631,6 +633,8 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 
 		
 	}
+        //set error coil (%E0) as apprioprate  
+        if (RepOk==TRUE) {    WriteVar( VAR_MEM_BIT, 0, FALSE);   }else{    WriteVar( VAR_MEM_BIT, 0, TRUE);   }
 	return RepOk;
 }
 
@@ -724,6 +728,7 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
                             }
                 default:
                         printf("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping ");
+                        
                       break;
 			
 	}
