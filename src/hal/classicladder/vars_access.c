@@ -44,6 +44,8 @@ void InitVars(void)
         VarArray[NumVar] = FALSE;
     for (NumVar=0; NumVar<SIZE_VAR_WORD_ARRAY; NumVar++)
         VarWordArray[NumVar] = 0;
+    //for (NumVar=0; NumVar<NBR_ERROR_BITS_DEF;NumVar++)
+
     /* to tell the GTK application to refresh the bits */
     InfosGene->CmdRefreshVarsBits = TRUE;
 }
@@ -55,7 +57,7 @@ int ReadVar(int TypeVar,int Offset)
 		case VAR_MEM_BIT:
 			return VarArray[Offset];
                 case VAR_ERROR_BIT:
-			return VarArray[Offset];
+			return VarArray[NBR_STEPS+NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+Offset];
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_DONE:
 			return TimerArray[Offset].OutputDone;
@@ -124,7 +126,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			VarArray[NumVar] = Value;
 			break;
                 case VAR_ERROR_BIT:
-			VarArray[NumVar] = Value;
+			VarArray[NBR_STEPS+NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NumVar] = Value;
 			break;
 		case VAR_COUNTER_DONE:
 			CounterArray[NumVar].OutputDone = Value;
