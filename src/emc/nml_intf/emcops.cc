@@ -104,6 +104,9 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     origin.a = 0.0;
     origin.b = 0.0;
     origin.c = 0.0;
+    origin.u = 0.0;
+    origin.v = 0.0;
+    origin.w = 0.0;
 
     toolOffset.tran.x = 0.0;
     toolOffset.tran.y = 0.0;
@@ -111,6 +114,9 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     toolOffset.a = 0.0;
     toolOffset.b = 0.0;
     toolOffset.c = 0.0;
+    toolOffset.u = 0.0;
+    toolOffset.v = 0.0;
+    toolOffset.w = 0.0;
 
     for (t = 0; t < ACTIVE_G_CODES; t++)
 	activeGCodes[t] = -1;
