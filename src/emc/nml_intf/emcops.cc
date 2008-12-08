@@ -89,9 +89,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     position.a = 0.0;
     position.b = 0.0;
     position.c = 0.0;
-    position.u = 0.0;
-    position.v = 0.0;
-    position.w = 0.0;
 
     actualPosition.tran.x = 0.0;
     actualPosition.tran.y = 0.0;
@@ -99,9 +96,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     actualPosition.a = 0.0;
     actualPosition.b = 0.0;
     actualPosition.c = 0.0;
-    actualPosition.u = 0.0;
-    actualPosition.v = 0.0;
-    actualPosition.w = 0.0;
 
     velocity = 1.0;
     acceleration = 1.0;
