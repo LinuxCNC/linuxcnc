@@ -1817,14 +1817,15 @@ proc relief {e args} {
 }
 
 proc update_title {args} {
+    set basetitle [subst [_ "AXIS \$::version on \$::machine"]]
     if {$::taskfile == ""} {
-        wm ti . [_ "AXIS $::version on $::machine (No file)"]
+        set nofile [_ "(no file)"]
+        wm ti . "$basetitle $nofile"
         wm iconname . "AXIS"
     } else {
-        wm ti . "[lindex [file split $::taskfile] end] - AXIS $::version on $::machine"
+        wm ti . "[lindex [file split $::taskfile] end] - $basetitle"
         wm iconname . "[lindex [file split $::taskfile] end]"
     }
-
 }
 
 proc update_state {args} {
