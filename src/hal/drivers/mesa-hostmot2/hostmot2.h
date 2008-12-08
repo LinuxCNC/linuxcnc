@@ -238,12 +238,31 @@ typedef struct {
 
     } hal;
 
-    u16 prev_count;
-    u16 prev_timestamp;
-
-    s32 prev_rawcounts;
+    u16 prev_reg_count;
+    u16 prev_reg_timestamp;
 
     u32 prev_control;
+
+
+    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
+
+
+    //
+    // if state is "moving": 
+    //     0 is current (datapoint[0].rawcount == *hal.pin.rawcounts)
+    //     1 is previous time count changed
+    //     2 is second-previous time count changed
+    //
+    // if state is "stopped": 
+    //     0 is current
+    //     1 is previous time count changed (long ago)
+    //     2 is irrelevant
+    //
+
+    struct {
+        s32 raw_count;
+        u32 raw_timestamp;
+    } datapoint[3];
 
 } hm2_encoder_instance_t;
 
