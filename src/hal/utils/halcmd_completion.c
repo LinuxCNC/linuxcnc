@@ -543,6 +543,12 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     int i;
     char **result = NULL;
 
+    while (isskip(*text)) text++;   // skip initial whitespace
+    while (isskip(*buffer)) {
+        buffer++;
+        start--;
+    }
+    if (start<0) start=0;
     if(start == 0)
         return completion_matches_table(text, command_table, func);
 
