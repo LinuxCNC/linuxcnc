@@ -534,14 +534,16 @@ static inline int isskip(int ch) {
 }
 
 static char *nextword(char *s) {
+    int n;
     s = strchr(s, ' ');
     if(!s) return NULL;
-    return s+1;
+    n = strspn(s, " \t=<>");
+    return &s[n];
 }
 
 char **halcmd_completer(const char *text, int start, int end, hal_completer_func func, char *buffer) {
     int i;
-    char **result = NULL;
+    char **result = NULL, *n;
 
     while (isskip(*text)) text++;   // skip initial whitespace
     while (isskip(*buffer)) {
@@ -589,18 +591,28 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "linksp ") && argno == 2) {
         check_match_type_signal(buffer + 7);
         result = func(text, pin_generator);
-    } else if(startswith(buffer, "alias ") && argno == 1) {
-        result = completion_matches_table(text, alias_table, func);
-    } else if(startswith(buffer, "alias pin") && argno == 2) {
-        result = func(text, pin_generator);
-    } else if(startswith(buffer, "alias param") && argno == 2) {
-        result = func(text, parameter_generator);
-    } else if(startswith(buffer, "unalias ") && argno == 1) {
-        result = completion_matches_table(text, alias_table, func);
-    } else if(startswith(buffer, "unalias pin") && argno == 2) {
-        result = func(text, pin_alias_generator);
-    } else if(startswith(buffer, "unalias param") && argno == 2) {
-        result = func(text, parameter_alias_generator);
+    } else if (startswith(buffer, "alias ")) {
+        if (argno == 1) {
+            result = completion_matches_table(text, alias_table, func);
+        } else if (argno == 2) {
+            n = nextword(buffer);
+            if (startswith(n, "pin")) {
+                result = func(text, pin_generator);
+            } else if (startswith(n, "param")) {
+                result = func(text, parameter_generator);
+            }
+        }
+    } else if(startswith(buffer, "unalias ")) {
+        if (argno == 1) {
+            result = completion_matches_table(text, alias_table, func);
+        } else if (argno == 2) {
+            n = nextword(buffer);
+            if (startswith(n, "pin")) {
+                result = func(text, pin_alias_generator);
+            } else if (startswith(n, "param")) {
+                result = func(text, parameter_alias_generator);
+            }
+        }
     } else if(startswith(buffer, "linkpp ") && argno == 1) {
         result = func(text, pin_generator);
     } else if(startswith(buffer, "linkpp ") && argno == 2) {
@@ -620,32 +632,42 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = func(text, signal_generator);
     } else if(startswith(buffer, "gets ") && argno == 1) {
         result = func(text, signal_generator);
-    } else if(startswith(buffer, "show ") && argno == 1) {
-        result = completion_matches_table(text, show_table, func);
-    } else if(startswith(buffer, "list pin") && argno == 2) {
-        result = func(text, pin_generator);
-    } else if(startswith(buffer, "list sig") && argno == 2) {
-        result = func(text, signal_generator);
-    } else if(startswith(buffer, "list param") && argno == 2) {
-        result = func(text, parameter_generator);
-    } else if(startswith(buffer, "list funct") && argno == 2) {
-        result = func(text, funct_generator);
-    } else if(startswith(buffer, "list thread") && argno == 2) {
-        result = func(text, thread_generator);
-    } else if(startswith(buffer, "show pin") && argno == 2) {
-        result = func(text, pin_generator);
-    } else if(startswith(buffer, "show sig") && argno == 2) {
-        result = func(text, signal_generator);
-    } else if(startswith(buffer, "show param") && argno == 2) {
-        result = func(text, parameter_generator);
-    } else if(startswith(buffer, "show funct") && argno == 2) {
-        result = func(text, funct_generator);
-    } else if(startswith(buffer, "show thread") && argno == 2) {
-        result = func(text, thread_generator);
+    } else if(startswith(buffer, "list ")) {
+        if (argno == 1) {
+            result = completion_matches_table(text, list_table, func);
+        } else if (argno==2) {
+            n = nextword(buffer);
+            if (startswith(n, "pin")) {
+                result = func(text, pin_generator);
+            } else if (startswith(n, "sig")) {
+                result = func(text, signal_generator);
+            } else if (startswith(n, "param")) {
+                result = func(text, parameter_generator);
+            } else if (startswith(n, "funct")) {
+                result = func(text, funct_generator);
+            } else if (startswith(n, "thread")) {
+                result = func(text, thread_generator);
+            }
+        }
+    } else if(startswith(buffer, "show ")) {
+        if (argno == 1) {
+            result = completion_matches_table(text, show_table, func);
+        } else if (argno==2) {
+            n = nextword(buffer);
+            if (startswith(n, "pin")) {
+                result = func(text, pin_generator);
+            } else if (startswith(n, "sig")) {
+                result = func(text, signal_generator);
+            } else if (startswith(n, "param")) {
+                result = func(text, parameter_generator);
+            } else if (startswith(n, "funct")) {
+                result = func(text, funct_generator);
+            } else if (startswith(n, "thread")) {
+                result = func(text, thread_generator);
+            }
+        }
     } else if(startswith(buffer, "save ") && argno == 1) {
         result = completion_matches_table(text, save_table, func);
-    } else if(startswith(buffer, "list ") && argno == 1) {
-        result = completion_matches_table(text, list_table, func);
     } else if(startswith(buffer, "status ") && argno == 1) {
         result = completion_matches_table(text, status_table, func);
     } else if(startswith(buffer, "newsig ") && argno == 2) {
