@@ -217,7 +217,7 @@ static char *parameter_generator(const char *text, int state) {
     return NULL;
 }
 
-static char *funct_generator(const char *text, int state) { 
+static char *funct_generator_common(const char *text, int state, int inuse) { 
     static int len;
     static int next;
     if(!state) {
@@ -228,10 +228,19 @@ static char *funct_generator(const char *text, int state) {
     while(next) {
         hal_funct_t *funct = SHMPTR(next);
         next = funct->next_ptr;
-	if ( strncmp(text, funct->name, len) == 0 )
+	if (( strncmp(text, funct->name, len) == 0 ) 
+            && (!inuse || (funct->users > 0)))
             return strdup(funct->name);
     }
     return NULL;
+}
+
+static char *funct_generator(const char *text, int state) {
+    return funct_generator_common(text, state, 0);
+}
+
+static char *attached_funct_generator(const char *text, int state) {
+    return funct_generator_common(text, state, 1);
 }
 
 static char *signal_generator(const char *text, int state) {
@@ -681,7 +690,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "addf ") && argno == 2) {
         result = func(text, thread_generator);
     } else if(startswith(buffer, "delf ") && argno == 1) {
-        result = func(text, funct_generator);
+        result = func(text, attached_funct_generator);
     } else if(startswith(buffer, "delf ") && argno == 2) {
         result = func(text, thread_generator);
     } else if(startswith(buffer, "help ") && argno == 1) {
