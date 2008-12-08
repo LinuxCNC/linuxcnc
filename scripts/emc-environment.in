@@ -58,10 +58,12 @@ if [ $BASH_VERSINFO -eq 2 ]; then
     complete -o dirnames -f -X '!*.ini' emc axis mdi
     complete -o dirnames -f -X '!*.hal' halrun halcmd
     complete -W 'start stop restart status' realtime
+    complete -C "halcmd -C" halcmd
 else
     complete -o plusdirs -f -X '!*.ini' emc axis mdi
     complete -o plusdirs -f -X '!*.hal' halrun halcmd
     complete -W 'start stop restart status' realtime
+    complete -C "halcmd -C" halcmd
 fi
 
 export PYTHONPATH MANPATH
