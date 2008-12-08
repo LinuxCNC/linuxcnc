@@ -62,7 +62,7 @@
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);
 static int release_HAL_mutex(void);
-static int propose_completion(char *fragment);
+static int propose_completion(char *all, char *fragment, int start);
 
 
 /***********************************************************************
@@ -78,6 +78,7 @@ int main(int argc, char **argv)
     FILE *srcfile = NULL;
     char raw_buf[MAX_CMD_LEN+1];
     int linenumber = 0;
+    char *cf=NULL, *cw=NULL, *cl=NULL;
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
     /* start parsing the command line, options first */
     n = 1;
     while(1) {
-        c = getopt(argc, argv, "+Rc:fi:kqQsvVh");
+        c = getopt(argc, argv, "+RCfi:kqQsvVh");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -138,11 +139,26 @@ int main(int argc, char **argv)
 	    case 'f':
                 filemode = 1;
 		break;
-	    case 'c':
+	    case 'C':
+                cl = getenv("COMP_LINE");
+                cw = getenv("COMP_POINT");
+                if (!cl || !cw) exit(0);
+                c = atoi(cw)-strlen(argv[0])-1;
+                if (c<0) c=0;
+                cl += strlen(argv[0])+1;
+                if (c>0 && cl[c]=='\0') c--;    // if at end of line, back up one char
+                cf=&cl[c];
+                for (n=c; n>0; n--, cf--) {
+                    if (isspace(*cf) || *cf == '=' || *cf == '<' || *cf == '>') {
+                        cf++;
+                        break;
+                    }
+                }
                 halcmd_startup();
-                propose_completion(optarg);
+                propose_completion(cl, cf, n);
                 halcmd_shutdown();
                 exit(0);
+                break;
 #ifndef NO_INI
 	    case 'i':
 		/* -i = allow reading 'setp' values from an ini file */
@@ -315,11 +331,17 @@ static char **completion_callback(const char *text, hal_generator_func cb) {
     return NULL;
 }
 
-static int propose_completion(char *fragment) {
-    int sp=0, len=strlen(fragment), i=0;
-    for(; i<len; i++) if(fragment[i] == ' ') sp = i;
+/* completion text starts with "halcmd", so remove that from the string */
+static int propose_completion(char *all, char *fragment, int start) {
+    int sp=0, len=strlen(all), i=0;
+    if (start<0) { // no arguments yet
+        halcmd_completer("", 0, 0, completion_callback, "");
+        return 0;
+    }
+    for(; i<len; i++) if(all[i] == ' ') sp = i;
     if(sp) sp++;
-    halcmd_completer(fragment+sp, sp, len, completion_callback, fragment);
+    len = strlen(all);
+    halcmd_completer(fragment, sp, len, completion_callback, all);
     return 0;
 }
 
