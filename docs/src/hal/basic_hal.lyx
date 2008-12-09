@@ -181,7 +181,7 @@ and2 [count=N|names=name1[,name2...]]
 Functions
 \layout Quote
 
-and2.all
+and2.all (depreciated)
 \newline 
 and2.n
 \layout Standard
@@ -359,7 +359,7 @@ not [count=n|names=name1[,name2...]]
 Functions
 \layout Quote
 
-not.all
+not.all (depreciated)
 \newline 
 not.n
 \layout Standard
@@ -457,7 +457,7 @@ or2[count=,|names=name1[,name2...]]
 Functions
 \layout Quote
 
-or2.all
+or2.all (depreciated)
 \newline 
 or2.n
 \layout Standard
@@ -634,7 +634,7 @@ xor2[count=,|names=name1[,name2...]]
 Functions
 \layout Quote
 
-xor2.all
+xor2.all (depreciated)
 \newline 
 xor2.n
 \layout Standard
@@ -823,18 +823,4 @@ In the above example one copy of and2 is loaded into real time space and
  the output pin 14 will be on.
 \layout Standard
 
-An "and2" example using the .all function
-\layout Quote
-
-loadrt and2 count=4
-\newline 
-addf and2.all servo-thread
-\layout Standard
-
-In the above example 4 copies of and2 are loaded into real time and added
- to the servo thread using only two lines.
- The disadvantage of using the .all function is you can't decide on the sequencin
-g of their evaluation.
- Also you would not use the .all if you need to add some of the and2's to
- the fast thread and some to the slow thread.
 \the_end
