@@ -181,8 +181,6 @@ and2 [count=N|names=name1[,name2...]]
 Functions
 \layout Quote
 
-and2.all (depreciated)
-\newline 
 and2.n
 \layout Standard
 
@@ -359,8 +357,6 @@ not [count=n|names=name1[,name2...]]
 Functions
 \layout Quote
 
-not.all (depreciated)
-\newline 
 not.n
 \layout Standard
 
@@ -457,8 +453,6 @@ or2[count=,|names=name1[,name2...]]
 Functions
 \layout Quote
 
-or2.all (depreciated)
-\newline 
 or2.n
 \layout Standard
 
@@ -634,8 +628,6 @@ xor2[count=,|names=name1[,name2...]]
 Functions
 \layout Quote
 
-xor2.all (depreciated)
-\newline 
 xor2.n
 \layout Standard
 
