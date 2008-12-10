@@ -78,13 +78,13 @@ entity i43hostmot2 is
       -- the PinDesc and ModuleID records in IDParms.vhd and passed through
 		-- to the lower levels. That is, these next two assignments determine
 		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_SVST4_4;
-		TheModuleID: ModuleIDType := ModuleID_SVST4_4;
+		ThePinDesc: PinDescType := PinDesc_SVST4_6;
+		TheModuleID: ModuleIDType := ModuleID_SVST4_6;
 		PWMRefWidth: integer := 13;	-- PWM resolution is PWMRefWidth-1 bits 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
 		OneWS: boolean := true;
-		UseStepGenPrescaler : boolean := false;
+		UseStepGenPrescaler : boolean := true;
 		UseIRQLogic: boolean := true;
 		UseWatchDog: boolean := true;
 		OffsetToModules: integer := 64;
@@ -129,28 +129,31 @@ end i43hostmot2;
 architecture Behavioral of i43hostmot2 is
 
 	
-signal afcnt : std_logic_vector(3 downto 0);
-signal afilter : std_logic_vector(1 downto 0);
-signal dfcnt : std_logic_vector(3 downto 0);
-signal dfilter : std_logic_vector(1 downto 0);
-signal rfcnt : std_logic_vector(1 downto 0);
-signal rfilter : std_logic;
-signal waitpipe : std_logic;
+signal afcnt : std_logic_vector(1 downto 0) := "00";
+signal afilter : std_logic := '0';
+signal dfcnt : std_logic_vector(1 downto 0) := "00";
+signal dfilter : std_logic := '0';
+signal rfcnt : std_logic_vector(1 downto 0) := "11";
+signal rfilter : std_logic := '1';
+signal acycle : std_logic_vector(3 downto 0) := "0000";
+signal dcycle : std_logic_vector(3 downto 0) := "0000";
+signal waitpipe : std_logic := '0';
+signal oldwaitpipe : std_logic := '0';
 signal alatch : std_logic_vector(AddrWidth-1 downto 0); 
 signal seladd : std_logic_vector(AddrWidth-1 downto 0);
 signal aread : std_logic;
-signal awritele : std_logic;
-signal wasaddr : std_logic;
+signal wasaddr : std_logic := '0';
+signal wasaddrrq : std_logic := '0';
 signal dread : std_logic;
 signal dreadle : std_logic;
-signal dreadte : std_logic;
-signal dwritele : std_logic; 
 signal dwritete : std_logic; 
+signal awritete : std_logic; 
 signal dstrobete : std_logic; 
+signal autoincrq : std_logic := '0';
 signal astrobete : std_logic; 
-signal depp_dstrobe : std_logic;
-signal depp_astrobe : std_logic;
-signal depp_read : std_logic;
+signal depp_dstrobe : std_logic := '1';
+signal depp_astrobe : std_logic := '1';
+signal depp_read : std_logic := '1';
 
 signal wdlatch : std_logic_vector(31 downto 0);
 signal rdlatch : std_logic_vector(31 downto 0);
@@ -163,6 +166,7 @@ signal translateramsel : std_logic;
 
 signal read32 : std_logic;
 signal write32 : std_logic;
+signal dwrite32 : std_logic;
 
 signal ReconfigSel : std_logic;
 signal idata: std_logic_vector(7 downto 0);
@@ -233,7 +237,7 @@ ahostmot2: entity HostMot2
 		obus => obus,
 		addr => seladd(AddrWidth-1 downto 2),
 		read => read32,
-		write => write32,
+		write => dwrite32,
 		clklow => CLK,
 		clkhigh =>  fclk,
 --		int => INT, 
@@ -303,63 +307,75 @@ ahostmot2: entity HostMot2
 			depp_dstrobe <= EPP_DSTROBE;			-- async so one level of FF before anything else
 			depp_astrobe <= EPP_ASTROBE;
 			depp_read <= EPP_READ;
-			afilter(1) <= afilter(0);
-			dfilter(1) <= dfilter(0);
-			if (dfilter = "11") or (afilter = "11") then  -- EPP 1.9 only!
-				waitpipe <= '1';
-			else
-				waitpipe <= '0';
-			end if;	
-
+         oldwaitpipe <= waitpipe;
 			if  depp_astrobe = '0' then
-				if afcnt /= "1111" then 
+				if afcnt /= 3 then 
 					afcnt <= afcnt +1;
 				end if;
 			else
-				if afcnt /= "0000" then 
+				if afcnt /= 0 then 
 					afcnt <= afcnt -1;
 				end if;
 			end if;
-			if afcnt = "1111" then	 
-				afilter(0) <= '1';
+
+			if afcnt = 3 then						-- afilter set 80-100 ns after strobe 	 
+				afilter <= '1';
 			end if;
-			if afcnt = "0000" then 
-				afilter(0) <= '0';
+			if afcnt = 0 then 
+				afilter <= '0';
 			end if;
 
 			if  depp_dstrobe = '0' then
-				if dfcnt /= "1111" then 
+				if dfcnt /= 3 then 
 					dfcnt <= dfcnt +1;
 				end if;
 			else
-				if dfcnt /= "0000" then 
+				if dfcnt /= 0 then 
 					dfcnt <= dfcnt -1;
 				end if;
 			end if;
-			if dfcnt = "1111" then	 
-				dfilter(0) <= '1';
+
+			if dfcnt = 3 then						-- dfilter set 80-100 ns after strobe  
+				dfilter <= '1';
 			end if;
-			if dfcnt = "0000" then 
-				dfilter(0) <= '0';
+			if dfcnt = 0 then 
+				dfilter <= '0';
 			end if;
 
 			if  depp_read = '1' then
-				if rfcnt /= "11" then 
+				if rfcnt /= 3 then 
 					rfcnt <= rfcnt +1;
 				end if;
 			else
-				if rfcnt /= "00" then 
+				if rfcnt /= 0 then 
 					rfcnt <= rfcnt -1;
 				end if;
 			end if;
-			if rfcnt = "11" then	 
+			
+			if rfcnt = 3 then	 
 				rfilter <= '1';
 			end if;
-			if rfcnt = "00" then 
+			if rfcnt = 0 then 
 				rfilter <= '0';
 			end if;
-				
-			if awritele = '1' then 
+
+			if afilter = '1' then					-- if filtered astrobe is true, count timer
+				if acycle /= 15 then					-- dead-ended at 15
+					acycle <= acycle + 1;
+				end if;
+			else
+				acycle <= "0000";						-- otherwise clear
+			end if;		
+
+			if dfilter = '1' then					-- if filtered dstrobe is true, count timer
+				if dcycle /= 15 then					-- dead-ended at 15
+					dcycle <= dcycle + 1;			
+				end if;
+			else
+				dcycle <= "0000";							-- otherwise clear
+			end if;		
+
+			if awritete = '1' then 
 				if wasaddr = '0' then
 					alatch(7 downto 0) <= EPP_DATABUS;
 				else
@@ -367,71 +383,84 @@ ahostmot2: entity HostMot2
 				end if;
 			end if;
 			
+			if (acycle = 15) or (dcycle = 15) then		-- end cycle ~ 400 ns after leading edge of strobe
+				waitpipe <= '1';
+			else
+				waitpipe <= '0';
+			end if;	
+			
 			if dstrobete = '1' then
 				wasaddr <= '0';
 			end if;
 
+			-- second address write writes to high order addresses
+			-- setting the wasaddr bit is deferred so address reads will be correct
+			-- as wasaddr is use to select address readback data
 			if astrobete = '1' then
-				wasaddr <= '1';
+				wasaddrrq <= '1';
 			end if;
-					
-			if dstrobete = '1' and alatch(15) = '1' then	-- auto increment address on data access if address MSB is 1
-				alatch(14 downto 0) <= alatch(14 downto 0) +1;
+			
+			if wasaddrrq = '1' and waitpipe = '0' and oldwaitpipe = '1' then
+				wasaddr <= '1';
+				wasaddrrq <= '0';
 			end if;	
+			
+			-- auto increment logic, increment is deferred until cycle is over
+			-- so that we are guaranteed that the host read has taken place before we 
+			-- increment the address.
+			
+			if dstrobete = '1' and alatch(15) = '1' then
+			-- request post increment address on data access if address MSB is 1
+				autoincrq <= '1'; -- set request
+			end if;	
+
+			if autoincrq = '1' and waitpipe = '0' and oldwaitpipe = '1' then			
+			-- auto increment address on data access if address MSB is 1
+				alatch(14 downto 0) <= alatch(14 downto 0) +1;
+				autoincrq <= '0';	-- clear request
+			end if;
 			
 		end if; -- clk	
 		
 		EPP_WAIT <= waitpipe;
 		
-		if dfilter = "01" and rfilter = '0' then	  -- generate writele 80 ns after leading edge of strobe
-			dwritele <= '1';
-		else
-			dwritele <= '0';
-		end if;
-
-		if dfilter = "10" and rfilter = '0' then	  -- generate writete 80 ns after trailing edge of strobe
+		if (dcycle = 14) and (rfilter = '0') then		-- do internal write ~360 ns from start of strobe 
 			dwritete <= '1';
 		else
 			dwritete <= '0';
 		end if;
 
-		if dfilter = "01" and rfilter = '1' then	  -- generate readle 80 ns after leading edge of strobe
+		if (dcycle = 1) and (rfilter = '1') then		-- do internal data read ~120 ns from start of strobe 
 			dreadle <= '1';
 		else
 			dreadle <= '0';
 		end if;
 
-		if dfilter = "10" and rfilter = '1' then	  -- generate readte 80 ns after trailing edge of strobe
-			dreadte <= '1';
-		else
-			dreadte <= '0';
-		end if;
-
-		if dfilter = "10" then								-- generate writete 80 ns after trailng edge of strobe
+		if dcycle = 14 then									-- ~360 ns from start of strobe  
 			dstrobete <= '1';
 		else
 			dstrobete <= '0';
 		end if;
 
-		if afilter = "10" then								-- generate writete 80 ns after trailng edge of strobe
+		if (acycle = 14) and (rfilter = '0') then	  	-- ~360 ns from start of strobe 
+			awritete <= '1';
+		else
+			awritete <= '0';
+		end if;
+
+		if acycle = 14 then									-- ~360 ns from start of strobe  
 			astrobete <= '1';
 		else
 			astrobete <= '0';
 		end if;
-
-		if afilter = "01" and rfilter  = '0' then	-- generate write 80 ns after leading edge of strobe
-			awritele <= '1';
-		else
-			awritele <= '0';
-		end if;
 		
-		if rfilter = '1' and depp_dstrobe = '0' then
+		if (rfilter = '1') and (dfilter = '1') then
 			dread <= '1';
 		else
 			dread <= '0';
 		end if;
 		
-		if rfilter = '1' and depp_astrobe = '0' then
+		if (rfilter = '1') and (afilter = '1') then
 			aread <= '1';
 		else
 			aread <= '0';
@@ -442,7 +471,8 @@ ahostmot2: entity HostMot2
 	bus_shim32: process (CLK,alatch,EPP_DATABUS) -- 8 to 32 bit bus shim
 	begin
 		if rising_edge(CLK) then
-			if dwritele = '1' then				-- on writes, latch the data in our 32 bit write data latch
+			dwrite32 <= write32;
+			if dwritete = '1' then				-- on writes, latch the data in our 32 bit write data latch
 				case seladd(1 downto 0) is		-- 32 data is written after last byte saved in latch
 					when "00" =>  wdlatch(7 downto 0)   <= EPP_DataBus;
 					when "01" =>  wdlatch(15 downto 8)  <= EPP_DataBus;
@@ -507,7 +537,7 @@ ahostmot2: entity HostMot2
 			ReconfigSel <= '0';		
 		end if;	
 		if rising_edge(CLK) then
-			if dwritele = '1' and ReconfigSel = '1' then
+			if dwritete = '1' and ReconfigSel = '1' then
 				if EPP_DATABUS = x"5A" then
 					ReConfigreg <= '1';
 				end if;
@@ -519,26 +549,27 @@ ahostmot2: entity HostMot2
 	BusDrive: process (aread,dread,idata,alatch)
 	begin
 		EPP_DATABUS <= "ZZZZZZZZ";
-		if dread = '1' then 
+		if dread = '1'  then 
 			EPP_DATABUS <= idata;
 		end if;
-		if aread = '1' then 
+		if aread = '1' then  
 			if wasaddr = '0' then
 				EPP_DATABUS <= alatch(7 downto 0);
 			else
 				EPP_DATABUS <= alatch(15 downto 8);
 			end if;	
 		end if;
-		PARACONFIG <= '1';
-		SPICS <= '1';
-		SPICLK <= '0';
-		SPIOUT <= '0';
 	end process BusDrive;	
 
 	LooseEnds: process
 	begin
+		PARACONFIG <= '1';
+		SPICS <= '1';
+		SPICLK <= '0';
+		SPIOUT <= '0';
 		USBRD <= '1';
 		USBWR <= '0';
+--		LEDS <= not alatch(7 downto 0);
 	end process LooseEnds;	
 
 end;
