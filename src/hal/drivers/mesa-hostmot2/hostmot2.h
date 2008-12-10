@@ -211,6 +211,16 @@ typedef struct {
 
 #define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
+
+typedef struct {
+    s32 raw_count;
+    u32 raw_timestamp;  // FIXME: this is u16
+
+    hal_float_t dt_s;      // time between this datapoint and previous datapoint, in seconds
+    hal_float_t velocity;  // velocity computed for this datapoint
+} hm2_encoder_datapoint_t;
+
+
 typedef struct {
 
     struct {
@@ -244,9 +254,6 @@ typedef struct {
     u32 prev_control;
 
 
-    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
-
-
     //
     // if state is "moving": 
     //     0 is current (datapoint[0].rawcount == *hal.pin.rawcounts)
@@ -259,10 +266,9 @@ typedef struct {
     //     2 is irrelevant
     //
 
-    struct {
-        s32 raw_count;
-        u32 raw_timestamp;
-    } datapoint[3];
+    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
+
+    hm2_encoder_datapoint_t datapoint[3];
 
 } hm2_encoder_instance_t;
 
@@ -287,9 +293,8 @@ typedef struct {
     u32 timestamp_div_reg;  // one register for the whole Function
     hal_float_t seconds_per_tsdiv_clock;
 
-    // these regs are set at init-time and then ignored, so we dont keep
-    // track of their values (though we do note their addresses)
     u32 timestamp_count_addr;
+
     u32 filter_rate_addr;
 } hm2_encoder_t;
 

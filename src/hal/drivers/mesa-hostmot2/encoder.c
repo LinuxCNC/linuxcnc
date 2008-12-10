@@ -463,6 +463,8 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         // "stopped" state they're not used
         hm2->encoder.instance[i].datapoint[1].raw_count = count;
         hm2->encoder.instance[i].datapoint[1].raw_timestamp = timestamp;
+        hm2->encoder.instance[i].datapoint[1].dt_s = 0.0;
+        hm2->encoder.instance[i].datapoint[1].velocity = 0.0;
 
     }
 }
@@ -587,55 +589,64 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
 
 
 /**
+ * @brief Computes an estimate of the velocity between two encoder
+ *     datapoints.
+ *
+ * This is the Relative Time (dS/dT) velocity estimator.
+ *
+ * @param hm2 The hostmot2 instance to work with.
+ *
+ * @param instance The encoder instance index to work with.
+ *
+ * @param d0 The most recent datapoint.  Only .raw_count and .raw_timestamp
+ *     need to be initialized.  .ds_t will be set to the time difference
+ *     (in seconds) between this and the previous datapoint.
+ *     .velocity will be set to the estimated velocity.
+ *
+ * @param d1 The previous datapoint.  Only .raw_count and .raw_timestamp
+ *     need to be initialized.
+ */
+static void hm2_encoder_compute_relative_time_velocity(
+    hostmot2_t *hm2,
+    int instance,
+    hm2_encoder_datapoint_t *d0,
+    hm2_encoder_datapoint_t *d1
+) {
+    s32 raw_counts_diff;
+    s32 timestamp_diff_clocks;
+
+
+    // 
+    // first get the time since the previous encoder change
+    // FIXME: if the encoder's been stopped, this might have rolled over
+    // 
+
+    timestamp_diff_clocks = d0->raw_timestamp - d1->raw_timestamp;
+    if (timestamp_diff_clocks < 0) {
+        timestamp_diff_clocks += 65536;
+    } else if (timestamp_diff_clocks == 0) {
+        // this should never happen while we're moving,
+        // unless it's going too fast for the quadrature
+        // timestamp clock
+        ERR("encoder.%02d velocity too high, clipping!\n", instance);
+        timestamp_diff_clocks = 1;
+    }
+
+    d0->dt_s = (hal_float_t)timestamp_diff_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+
+    raw_counts_diff = d0->raw_count - d1->raw_count;
+
+    d0->velocity = (raw_counts_diff / d0->dt_s) / hm2->encoder.instance[instance].hal.param.scale;
+}
+
+
+
+
+/**
  * @brief Estimates .velocity.
  *
  * This expects the TRAM read to have just finished, and the position
- * information to be updated.
- *
- * The hm2 encoder driver (that's this code!) keeps track of the following
- * information:
- *
- *     * "Current datapoint": The count & timestamp reported most recently
- *       (the calling code just read that from the FPGA).
- *
- *     * "Previous datapoint": The count & timestamp reported last time the
- *       count changed.  This might have been from last time we read it
- *       (ie, the time before this time), or it might have been long before
- *       then (if the encoder is stopped or moving slowly compared to its
- *       resolution).
- *
- *     * "Second-previous datapoint": The count & timestamp reported the
- *       second-most-recent time the count changed.
- *
- *     * "Previous velocity": The velocity between Second-prev and Prev
- *       datapoints.
- *
- * From this we make an estimate of current velocity.
- *
- * If the Current datapoint differs from the Previous datapoint, it's
- * easy, use a Reciprocal Time velocity estimator.  Then push all the
- * datapoints back one, note that we're moving, and we're done.
- *
- * If, on the other hand, the Current datapoint is the *same* as the
- * Previous datapoint, then we're either moving slowly or stopped.
- *
- *     Read the Quadrature Timestamp Count Register, compute a kind of
- *     raw_timestamp.
- *
- *     If difference between the current timestamp and the Prev
- *     datapoint timestamp is greater than some velocity estimation
- *     threshold, set Velocity to zero, note that we're stopped, and
- *     we're done.
- *
- *     Make up a hypothetical "Next datapoint", which has "one encoder
- *     count increment in the same direction as Second-Previous to Previous
- *     motion, one timestamp clock after the current timestamp from the
- *     TSC register."
- *
- *     Use RT estimator to compute "Next velocity" from Prev to Next.
- *
- *     If Next velocity 
- *     
+ * information to have been updated.
  *
  * @param hm2 The hostmot2 structure being worked on.
  *
@@ -643,11 +654,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
  */
 
 static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance) {
-    u16 reg_timestamp;
-
-    s32 timestamp_diff_tsdiv_clocks;
-    hal_float_t timestamp_diff_s;
-
+    int debug=0;
     hm2_encoder_instance_t *e;
 
     e = &hm2->encoder.instance[instance];
@@ -657,12 +664,12 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
     // get the timestamp of the most recent encoder count change (recently read from the FPGA)
     //
 
-    reg_timestamp = (hm2->encoder.counter_reg[instance] >> 16) & 0x0000ffff;
+    e->datapoint[0].raw_timestamp = (hm2->encoder.counter_reg[instance] >> 16) & 0x0000ffff;
 
 
-    if (0 && (instance == 2)) {
+    if (debug && (instance == 2)) {
         int di;
-        PRINT("entering function, encoder.%02d, state=%d, reg_timestamp=%hu\n", instance, e->state, reg_timestamp);
+        PRINT("entering function, encoder.%02d, state=%d\n", instance, e->state);
         for (di = 0; di < 3; di ++) {
             PRINT("    d[%d] = ( %d, %u )\n", di, e->datapoint[di].raw_count, e->datapoint[di].raw_timestamp);
         }
@@ -686,11 +693,6 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
             // moving since last time through the loop.  We do not have
             // enough information to estimate velocity yet.
             //
-            // FIXME: i could make something up here - should i?
-            //
-
-            // FIXME: raw vs reg timestamp
-            e->datapoint[0].raw_timestamp = reg_timestamp;
 
             e->datapoint[1] = e->datapoint[0];
             e->datapoint[2] = e->datapoint[0];
@@ -701,49 +703,13 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
         }
 
         case HM2_ENCODER_MOVING: {
-            s32 raw_counts_diff;
 
             if (e->datapoint[0].raw_count != e->datapoint[1].raw_count) {
                 // moving fast enough to just use the Relative Time estimator
 
-                // FIXME: raw vs reg timestamp
-                e->datapoint[0].raw_timestamp = reg_timestamp;
+                hm2_encoder_compute_relative_time_velocity(hm2, instance, &e->datapoint[0], &e->datapoint[1]);
 
-
-                // 
-                // first get the time since the previous encoder change
-                // FIXME: if the encoder's been stopped, this might have rolled over
-                // 
-
-                timestamp_diff_tsdiv_clocks = e->datapoint[0].raw_timestamp - e->datapoint[1].raw_timestamp;
-                if (timestamp_diff_tsdiv_clocks < 0) {
-                    timestamp_diff_tsdiv_clocks += 65536;
-                } else if (timestamp_diff_tsdiv_clocks == 0) {
-                    // this should never happen while we're moving,
-                    // unless it's going too fast for the quadrature
-                    // timestamp clock
-                    ERR("encoder.%02d velocity too high, clipping!\n", instance);
-
-                    {
-                        int di;
-                        PRINT("encoder.%02d, state=%d\n", instance, e->state);
-                        for (di = 0; di < 3; di ++) {
-                            PRINT("    d[%d] = ( %d, %u )\n", di, e->datapoint[di].raw_count, e->datapoint[di].raw_timestamp);
-                        }
-                    }
-
-                    timestamp_diff_tsdiv_clocks = 1;
-                }
-
-                timestamp_diff_s = (hal_float_t)timestamp_diff_tsdiv_clocks * hm2->encoder.seconds_per_tsdiv_clock;
-
-
-                // 
-                // this is the RT (dS/dT) velocity estimator
-                //
-
-                raw_counts_diff = e->datapoint[0].raw_count - e->datapoint[1].raw_count;
-                *e->hal.pin.velocity = (raw_counts_diff / timestamp_diff_s) / e->hal.param.scale;
+                *e->hal.pin.velocity = e->datapoint[0].velocity;
 
                 e->datapoint[2] = e->datapoint[1];
                 e->datapoint[1] = e->datapoint[0];
@@ -751,18 +717,70 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
                 break;
 
             } else {
-                // We're moving, but we havent taken a step since last
-                // time through the loop.  This is the interesting situation.
+                //
+                // We were moving, but we havent taken a step since last
+                // time through the loop.  This is the interesting
+                // situation.
+                //
+                // Read current time from the Timestamp register, pretend
+                // we just took a step in the same direction as d[1].vel.
+                //
+                // Compute the hypothetical velocity between this made-up
+                // datapoint and d[1] (last time we moved).  We *know*
+                // we're not moving faster than that.
+                //
+                // If the made-up velocity is more than d1.vel, then report
+                // d1.vel.
+                //
+                // Otherwise report the made-up velocity.
+                //
+                // If we've been stopped for too long, report vel=0.0 and
+                // go to the Stopped state.
+                //
 
-                // FIXME: raw vs reg timestamp
-                e->datapoint[0].raw_timestamp = reg_timestamp;
+                // this is the fake datapoint:
+                hm2_encoder_datapoint_t made_up;
+                u32 timestamp_reg;
 
-                *e->hal.pin.velocity = 0.0;
 
-                e->datapoint[2] = e->datapoint[1];
-                e->datapoint[1] = e->datapoint[0];
+                //
+                // get the current timestamp from the FPGA
+                //
 
-                e->state = HM2_ENCODER_STOPPED;
+                hm2->llio->read(
+                    hm2->llio,
+                    hm2->encoder.timestamp_count_addr + (instance * sizeof(u32)),
+                    &timestamp_reg,
+                    sizeof(u32)
+                );
+
+                made_up.raw_timestamp = timestamp_reg & 0xFFFF;
+
+                if (e->datapoint[1].velocity > 0.0) {
+                    made_up.raw_count = e->datapoint[1].raw_count + 1;
+                } else {
+                    made_up.raw_count = e->datapoint[1].raw_count - 1;
+                }
+
+                // now we have a made-up datapoint, run the RT (dS/dT) velocity estimator
+                hm2_encoder_compute_relative_time_velocity(hm2, instance, &made_up, &e->datapoint[1]);
+
+                if (debug && (instance == 2)) {
+                    PRINT("    made_up = ( %d, %u )\n", made_up.raw_count, made_up.raw_timestamp);
+                }
+
+                if (made_up.dt_s >= 0.050) {
+                    e->datapoint[0].velocity = 0.0;
+                    *e->hal.pin.velocity = e->datapoint[0].velocity;
+                    e->state = HM2_ENCODER_STOPPED;
+                    break;
+                }
+
+                if (fabs(made_up.velocity) > fabs(e->datapoint[1].velocity)) {
+                    *e->hal.pin.velocity = e->datapoint[1].velocity;
+                } else {
+                    *e->hal.pin.velocity = made_up.velocity;
+                }
 
                 break;
             }
@@ -773,8 +791,6 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
         default: {
             ERR("encoder.%02d is in unknown state %d, switching to stopped\n", instance, e->state);
 
-            // FIXME: raw vs reg timestamp
-            e->datapoint[0].raw_timestamp = reg_timestamp;
             e->datapoint[1] = e->datapoint[0];
             e->datapoint[2] = e->datapoint[0];
 
