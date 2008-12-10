@@ -69,8 +69,13 @@ The 7i43 communicates with the EMC computer over EPP, the Enhanced
 Parallel Port.  This provides about 1 MBps of throughput, and the
 communication latency is very predictable and reasonably low.
 
-The parallel port must support EPP 1.9.  EPP 1.7 will not work.  The EPP
-mode of the parallel port is sometimes a setting in the BIOS.
+The parallel port must support EPP 1.7 or EPP 1.9.  EPP 1.9 is prefered,
+but EPP 1.7 will work too.  The EPP mode of the parallel port is sometimes
+a setting in the BIOS.
+
+Note that the popular "NetMOS" aka "MosChip 9805" PCI parport cards \fBdo
+not work\fR.  They do not meet the EPP spec, and cannot be reliably used
+with the 7i43.  You have to find another card, sorry.
 
 EPP is very reliable under normal circumstances, but bad cabling
 or excessively long cabling runs may cause communication timeouts.
