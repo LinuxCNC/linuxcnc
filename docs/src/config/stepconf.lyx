@@ -156,8 +156,8 @@ Units
 \layout Description
 
 Driver\SpecialChar ~
-Characteristics
-\begin_inset LatexCommand \index{Driver Characteristics}
+Type
+\begin_inset LatexCommand \index{Driver Type}
 
 \end_inset 
 
@@ -167,6 +167,9 @@ Characteristics
  them.
  If the data sheet gives a value in microseconds, multiply by 1000.
  For example, enter 4.5us as 4500.
+ The Gecko type is for the 201 drive.
+ A list is on the wiki site of most popular drives with the timing values
+ is in the Stepper Drive Timing Page.
 \begin_deeper 
 \layout Standard
 
@@ -501,7 +504,8 @@ Velocity
 
 \end_inset 
 
-
+ Enter the maximum velocity for the axis in units per second.
+ 
 \layout Description
 
 Maximum\SpecialChar ~
