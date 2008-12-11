@@ -74,15 +74,14 @@ use work.IDROMParms.all;
 use work.NumberOfModules.all;	
 use work.MaxPinsPerModule.all;	
 	
-entity I20HostMot2 is
+entity ${prefix}_I20HostMot2 is
   	generic
 	(  
-		-- Note: all pinout/module count information is derived from
-      -- the PinDesc and ModuleID records in IDParms.vhd and passed through
-		-- to the lower levels. That is, these next two assignments determine
-		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_JDosa66;
-		TheModuleID: ModuleIDType := ModuleID_JDosa66;
+		-- Note: all pinout/module count information is derived
+		-- from the PinDesc and ModuleID which are inserted here
+		-- by the build system, using data from the .spec file
+		ThePinDesc: PinDescType := ${pin_desc};
+		TheModuleID: ModuleIDType := ${module_id};
 		PWMRefWidth: integer := 13;	-- PWM resolution is PWMRefWidth-1 bits 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
@@ -143,9 +142,9 @@ entity I20HostMot2 is
 	LEDS: out std_logic_vector(LEDCount -1 downto 0)
 
 	);
-end I20HostMot2;
+end ${prefix}_I20HostMot2;
 
-architecture dataflow of I20HostMot2 is
+architecture dataflow of ${prefix}_I20HostMot2 is
 
 --	alias SYNCLK: std_logic is LCLK;
 -- misc global signals --
@@ -357,4 +356,3 @@ ahostmot2: entity HostMot2
 
 end dataflow;
 
-  
