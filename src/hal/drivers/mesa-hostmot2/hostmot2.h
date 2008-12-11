@@ -214,7 +214,7 @@ typedef struct {
 
 typedef struct {
     s32 raw_count;
-    u32 raw_timestamp;  // FIXME: this is u16
+    s32 raw_timestamp;
 
     hal_float_t dt_s;      // time between this datapoint and previous datapoint, in seconds
     hal_float_t velocity;  // velocity computed for this datapoint
@@ -253,22 +253,10 @@ typedef struct {
 
     u32 prev_control;
 
-
-    //
-    // if state is "moving": 
-    //     0 is current (datapoint[0].rawcount == *hal.pin.rawcounts)
-    //     1 is previous time count changed
-    //     2 is second-previous time count changed
-    //
-    // if state is "stopped": 
-    //     0 is current
-    //     1 is previous time count changed (long ago)
-    //     2 is irrelevant
-    //
+    s32 tsc_num_rollovers;
 
     enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
-
-    hm2_encoder_datapoint_t datapoint[3];
+    hm2_encoder_datapoint_t cur, prev;
 
 } hm2_encoder_instance_t;
 
@@ -294,6 +282,13 @@ typedef struct {
     hal_float_t seconds_per_tsdiv_clock;
 
     u32 timestamp_count_addr;
+    u32 *timestamp_count_reg;
+    u32 prev_timestamp_count_reg;
+
+    // gets set to 2 when TSC Register rollover is detected
+    // gets decremented whenever rollover is *not* detected, but not smaller than 0
+    // this catches a rare corner case where the encoder updates between reading the encoder count/ts register and reading the tsc register
+    int tsc_rollover_flag;
 
     u32 filter_rate_addr;
 } hm2_encoder_t;

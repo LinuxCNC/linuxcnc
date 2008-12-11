@@ -171,44 +171,36 @@ encoder:
 
     fancy velocity computation
 
-        implement the Auslander state machine, with the current RT estimator
+    performance:
 
-        when is encoder velocity used?  for feed-per-rev mode on lathes, says cradek
+        my motor shaft tops out at 8K rpm, which is 133.33333 revs
+        per second
 
-        The timestamp clock is currently set to 1 MHz.  With a 1 KHz servo
-        thread, that's 1000 clocks per thread-run.  After 32 thread-runs
-        we've used half of the 16-bit clock register's range.  The proper
-        thing to do is probably to read the Timestamp register each time,
-        and watch for overruns.  This is only while "moving slow".
+        my highest-resolution encoder has 512 lines, so 2048
+        transitions per revolution, so 275K transitions per second,
+        or 1 transition every 3 or 4 us
 
-        performance:
+        sampling at twice that would mean ~600 Ksamples/sec
 
-            my motor shaft tops out at 8K rpm, which is 133.33333 revs
-            per second
+        with the "quad filter" set to 3 clocks, the low-level input
+        needs about 1 Msample/sec.
 
-            my highest-resolution encoder has 512 lines, so 2048
-            transitions per revolution, so 275K transitions per second,
-            or 1 transition every 3 or 4 us
+        with the "quad filter" set to 15 clocks, the low-level input
+        needs about 5 Msample/sec.
 
-            sampling at twice that would mean ~600 Ksamples/sec
+        it's actually running at 50 MHz, so that shouldnt be a
+        problem...
 
-            with the "quad filter" set to 3 clocks, the low-level input
-            needs about 1 Msample/sec.
+        The firmware is storing the quadrature count in a 16-bit
+        register, which I'm reading about every ms (1 KHz)
 
-            with the "quad filter" set to 15 clocks, the low-level input
-            needs about 5 Msample/sec.
-
-            it's actually running at 50 MHz, so that shouldnt be a
-            problem...
-
-            The firmware is storing the quadrature count in a 16-bit
-            register, which I'm reading about every ms (1 KHz)
-
-            at 275K transitions/second, that should be max 275 counts
-            per reading, which is *fine*
+        at 275K transitions/second, that should be max 275 counts
+        per reading, which is *fine*
 
 
     parameters:
+
+        vel-smoothing-horizon
 
         max-index-vel (optional)
 
