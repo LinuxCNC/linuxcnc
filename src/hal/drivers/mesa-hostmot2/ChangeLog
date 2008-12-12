@@ -1,4 +1,26 @@
 
+released 2008-12-12
+    hm 0.15 
+
+    Fixed a system crash bug in pwmgen.
+
+    All stepgen step_types are now supported.  stepgen velocity-fb now
+    reports the commanded step rate, not the estimated.  Fixed some
+    stepgen bugs.
+
+    Better logging - now doesnt need the RTAPI debug level tweaked to
+    show the useful stuff.
+
+    Much better encoder support.  Index, Index mask, velocity estimation.
+
+    Renamed GPIO HAL objects to make more sense.  Better logging of
+    actual pin usage at driver load time.
+
+    New firmware files from Peter Wallace.
+
+    Misc minor cleanups here and there.
+
+
 released 2008-10-28
     hm2_pci 0.6
 

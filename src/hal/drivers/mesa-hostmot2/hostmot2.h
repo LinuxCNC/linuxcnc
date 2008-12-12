@@ -28,7 +28,7 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.14"
+#define HM2_VERSION "0.15"
 #define HM2_NAME    "hm2"
 
 
