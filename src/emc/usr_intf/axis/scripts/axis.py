@@ -3430,8 +3430,8 @@ def jog_off_all():
 def bind_axis(a, b, d):
     root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
     root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on(d, get_jog_speed(d)), "KeyPress"))
-    root_window.bind("<KeyRelease-%s>" % a, kp_wrap(lambda e: jog_off(d), "KeyRelease"))
-    root_window.bind("<KeyRelease-%s>" % b, kp_wrap(lambda e: jog_off(d), "KeyRelease"))
+    root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
+    root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 def set_tabs(e):
