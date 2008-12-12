@@ -1,6 +1,10 @@
 emc2 (1:2.2.8~cvs) hardy; urgency=low
 
   * Documentation improvements
+  * Fix rare incorrect movement for G2 and G3 arc moves
+  * partial swedish translation now under correct 'sv' language.
+  * hostmot2 improvements: encoder velocity and index mask.  stepgen step
+    types and bugfixes.  better logging.  improved device firmwares.
 
  -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 20:48:20 -0600
 
