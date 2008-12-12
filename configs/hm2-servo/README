@@ -1,0 +1,9 @@
+
+This configuration drives a 3-axis servo machine using a 7i43 board
+and hostmot2.  Developed by Ted Hyde.
+
+For a description of Ted's machine and development process, see here
+(sorry for the rude subject of the email thread, not Ted's fault):
+
+    <http://article.gmane.org/gmane.linux.distributions.emc.user/10427>
+
