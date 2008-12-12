@@ -3132,7 +3132,6 @@ class TclCommands(nf.TclCommands):
         else:
             ensure_mode(emc.MODE_MANUAL)
             c.override_limits()
-            c.wait_complete()
 
     def cycle_view(*args):
         if str(widgets.view_x['relief']) == "sunken":
