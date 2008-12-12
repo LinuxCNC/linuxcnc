@@ -347,25 +347,25 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
 
 
-void hm2_ioport_print_module(int msg_level, hostmot2_t *hm2) {
+void hm2_ioport_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT(msg_level, "IO Ports: %d\n", hm2->ioport.num_instances);
+    PRINT("IO Ports: %d\n", hm2->ioport.num_instances);
     if (hm2->ioport.num_instances <= 0) return;
-    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", hm2->ioport.clock_frequency, hm2_hz_to_mhz(hm2->ioport.clock_frequency));
-    PRINT(msg_level, "    version: %d\n", hm2->ioport.version);
-    PRINT(msg_level, "    data_addr: 0x%04X\n", hm2->ioport.data_addr);
-    PRINT(msg_level, "    ddr_addr: 0x%04X\n", hm2->ioport.ddr_addr);
-    PRINT(msg_level, "    alt_source_addr: 0x%04X\n", hm2->ioport.alt_source_addr);
-    PRINT(msg_level, "    open_drain_addr: 0x%04X\n", hm2->ioport.open_drain_addr);
-    PRINT(msg_level, "    output_invert_addr: 0x%04X\n", hm2->ioport.output_invert_addr);
+    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->ioport.clock_frequency, hm2_hz_to_mhz(hm2->ioport.clock_frequency));
+    PRINT("    version: %d\n", hm2->ioport.version);
+    PRINT("    data_addr: 0x%04X\n", hm2->ioport.data_addr);
+    PRINT("    ddr_addr: 0x%04X\n", hm2->ioport.ddr_addr);
+    PRINT("    alt_source_addr: 0x%04X\n", hm2->ioport.alt_source_addr);
+    PRINT("    open_drain_addr: 0x%04X\n", hm2->ioport.open_drain_addr);
+    PRINT("    output_invert_addr: 0x%04X\n", hm2->ioport.output_invert_addr);
     for (i = 0; i < hm2->ioport.num_instances; i ++) {
-        PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        data_read = 0x%06X\n", hm2->ioport.data_read_reg[i]);
-        PRINT(msg_level, "        data_write = 0x%06X\n", hm2->ioport.data_write_reg[i]);
-        PRINT(msg_level, "        ddr = 0x%06X\n", hm2->ioport.ddr_reg[i]);
-        PRINT(msg_level, "        alt_source = 0x%06X\n", hm2->ioport.alt_source_reg[i]);
-        PRINT(msg_level, "        open_drain = 0x%06X\n", hm2->ioport.open_drain_reg[i]);
-        PRINT(msg_level, "        output_invert = 0x%06X\n", hm2->ioport.output_invert_reg[i]);
+        PRINT("    instance %d:\n", i);
+        PRINT("        data_read = 0x%06X\n", hm2->ioport.data_read_reg[i]);
+        PRINT("        data_write = 0x%06X\n", hm2->ioport.data_write_reg[i]);
+        PRINT("        ddr = 0x%06X\n", hm2->ioport.ddr_reg[i]);
+        PRINT("        alt_source = 0x%06X\n", hm2->ioport.alt_source_reg[i]);
+        PRINT("        open_drain = 0x%06X\n", hm2->ioport.open_drain_reg[i]);
+        PRINT("        output_invert = 0x%06X\n", hm2->ioport.output_invert_reg[i]);
     }
 }
 

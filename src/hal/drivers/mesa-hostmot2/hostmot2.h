@@ -28,16 +28,28 @@
 #include "hostmot2-lowlevel.h"
 
 
-#define HM2_VERSION "0.14"
+#define HM2_VERSION "0.15"
 #define HM2_NAME    "hm2"
 
-#define PRINT_NO_LL(level, fmt, args...)  rtapi_print_msg(level, HM2_NAME ": " fmt, ## args);
 
-#define PRINT(level, fmt, args...)  rtapi_print_msg(level,          HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define ERR(fmt, args...)           rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define WARN(fmt, args...)          rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define INFO(fmt, args...)          rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define DBG(fmt, args...)           rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+//
+// Note: PRINT() and PRINT_NO_LL() use rtapi_print(), all the others use rtapi_print_msg()
+//
+
+#define PRINT_NO_LL(fmt, args...)  rtapi_print(HM2_NAME ": " fmt, ## args);
+
+#define ERR_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME ": " fmt, ## args);
+#define WARN_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME ": " fmt, ## args);
+#define INFO_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME ": " fmt, ## args);
+#define DBG_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME ": " fmt, ## args);
+
+
+#define PRINT(fmt, args...)  rtapi_print(HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+
+#define ERR(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define WARN(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define INFO(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define DBG(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
 
 
 
@@ -193,22 +205,31 @@ typedef struct {
 #define HM2_ENCODER_INDEX_MASK          (1<<9)
 #define HM2_ENCODER_INDEX_MASK_POLARITY (1<<8)
 #define HM2_ENCODER_INDEX_JUSTONCE      (1<<6)
-#define HM2_ENCODER_CLEAR_INDEX         (1<<5)
+#define HM2_ENCODER_CLEAR_ON_INDEX      (1<<5)
+#define HM2_ENCODER_LATCH_ON_INDEX      (1<<4)
 #define HM2_ENCODER_INDEX_POLARITY      (1<<3)
 
-#define HM2_ENCODER_MASK  (HM2_ENCODER_FILTER | HM2_ENCODER_COUNTER_MODE | \
-        HM2_ENCODER_INDEX_MASK | HM2_ENCODER_INDEX_MASK_POLARITY | \
-        HM2_ENCODER_INDEX_JUSTONCE | HM2_ENCODER_CLEAR_INDEX | \
-        HM2_ENCODER_INDEX_POLARITY)
+#define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
+
+
+typedef struct {
+    s32 raw_count;
+    s32 raw_timestamp;
+
+    hal_float_t dt_s;      // time between this datapoint and previous datapoint, in seconds
+    hal_float_t velocity;  // velocity computed for this datapoint
+} hm2_encoder_datapoint_t;
+
 
 typedef struct {
 
     struct {
 
         struct {
-            hal_s32_t *count;
+            hal_s32_t *rawcounts;    // raw encoder counts
+            hal_s32_t *count;        // (rawcounts - zero_offset)
             hal_float_t *position;
-            // hal_float_t *velocity;
+            hal_float_t *velocity;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
         } pin;
@@ -220,14 +241,22 @@ typedef struct {
             hal_bit_t index_mask_invert;
             hal_bit_t counter_mode;
             hal_bit_t filter;
-            // hal_float_t max_index_vel;
-            // hal_float_t velocity_resolution;
+            hal_float_t vel_timeout;
         } param;
 
     } hal;
 
-    u32 prev_counter;
+    s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+
+    u16 prev_reg_count;
+    u16 prev_reg_timestamp;
+
     u32 prev_control;
+
+    s32 tsc_num_rollovers;
+
+    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
+    hm2_encoder_datapoint_t cur, prev;
 
 } hm2_encoder_instance_t;
 
@@ -248,10 +277,19 @@ typedef struct {
     u32 latch_control_addr;
     u32 *control_reg;
 
-    // these regs are set at init-time and then ignored, so we dont keep
-    // track of their values (though we do note their addresses)
     u32 timestamp_div_addr;
+    u32 timestamp_div_reg;  // one register for the whole Function
+    hal_float_t seconds_per_tsdiv_clock;
+
     u32 timestamp_count_addr;
+    u32 *timestamp_count_reg;
+    u32 prev_timestamp_count_reg;
+
+    // gets set to 2 when TSC Register rollover is detected
+    // gets decremented whenever rollover is *not* detected, but not smaller than 0
+    // this catches a rare corner case where the encoder updates between reading the encoder count/ts register and reading the tsc register
+    int tsc_rollover_flag;
+
     u32 filter_rate_addr;
 } hm2_encoder_t;
 
@@ -387,7 +425,6 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
-            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
@@ -403,6 +440,8 @@ typedef struct {
             hal_u32_t stepspace;
             hal_u32_t dirsetup;
             hal_u32_t dirhold;
+
+            hal_u32_t step_type;
         } param;
 
     } hal;
@@ -418,6 +457,8 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
+
+    u32 written_step_type;
 } hm2_stepgen_instance_t;
 
 
@@ -605,7 +646,7 @@ const char *hm2_get_general_function_name(int gtag);
 
 const char *hm2_hz_to_mhz(u32 freq_hz);
 
-void hm2_print_modules(int msg_level, hostmot2_t *hm2);
+void hm2_print_modules(hostmot2_t *hm2);
 
 
 
@@ -630,7 +671,7 @@ void hm2_tram_cleanup(hostmot2_t *hm2);
 
 int hm2_read_pin_descriptors(hostmot2_t *hm2);
 void hm2_configure_pins(hostmot2_t *hm2);
-void hm2_print_pin_usage(int msg_level, hostmot2_t *hm2);
+void hm2_print_pin_usage(hostmot2_t *hm2);
 void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
 
 
@@ -645,7 +686,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_ioport_cleanup(hostmot2_t *hm2);
 void hm2_ioport_force_write(hostmot2_t *hm2);
 void hm2_ioport_write(hostmot2_t *hm2);
-void hm2_ioport_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_ioport_print_module(hostmot2_t *hm2);
 void hm2_ioport_gpio_tram_write_init(hostmot2_t *hm2);
 
 int hm2_ioport_gpio_export_hal(hostmot2_t *hm2);
@@ -664,9 +705,10 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2);
 
 int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_encoder_tram_init(hostmot2_t *hm2);
-void hm2_encoder_process_tram_read(hostmot2_t *hm2);
+void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns);
+void hm2_encoder_write(hostmot2_t *hm2);
 void hm2_encoder_cleanup(hostmot2_t *hm2);
-void hm2_encoder_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_encoder_print_module(hostmot2_t *hm2);
 void hm2_encoder_force_write(hostmot2_t *hm2);
 
 
@@ -677,7 +719,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2);
 //
 
 int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_pwmgen_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_pwmgen_print_module(hostmot2_t *hm2);
 void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
@@ -691,7 +733,7 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
 //
 
 int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_stepgen_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_stepgen_print_module(hostmot2_t *hm2);
 void hm2_stepgen_force_write(hostmot2_t *hm2);
 void hm2_stepgen_write(hostmot2_t *hm2);
 void hm2_stepgen_tram_init(hostmot2_t *hm2);
@@ -706,7 +748,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period);
 // 
 
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_watchdog_print_module(int msg_level, hostmot2_t *hm2);
+void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2);
 void hm2_watchdog_force_write(hostmot2_t *hm2);

@@ -7,7 +7,7 @@
 
 .SH NAME
 
-hm2_pci \- RTAI driver for the Mesa Electronics 5i20, 4i65, and 5i22 Anything IO boards, with HostMot2 firmware.
+hm2_pci \- EMC2 HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68 Anything IO boards, with HostMot2 firmware.
 .SH SYNOPSIS
 
 .HP
@@ -19,9 +19,8 @@ HostMot2 config string, described in the hostmot2(9) manpage.
 .RE
 .SH DESCRIPTION
 
-hm2_pci is an RTAI device driver that interfaces Mesa's PCI and
-PC-104/Plus based Anything I/O boards (with the HostMot2 firmware)
-to the EMC2 HAL.
+hm2_pci is a device driver that interfaces Mesa's PCI and PC-104/Plus
+based Anything I/O boards (with the HostMot2 firmware) to the EMC2 HAL.
 
 The supported boards are: the 5i20, 5i22, and 5i23 (all on PCI); and
 the 4i65 and 4i68 (on PC-104/Plus).

@@ -3,18 +3,23 @@
 next steps:
 
 
+    pins & params use "-" vs "_" inconsistently
+
+
+    write a little userspace helper, a "hostmot2 config wizard":
+
+        tell it what anyio board(s) you have, and what daughter boards on what connectors
+
+        it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
+
+
+    when reading IO Cookie & Config Name, if it fails read it many times
+    to get some more data
+
+
     > Note: Double quotes in hm2_7i43 command took me some time to figure out,
     > as the config modparam single quotes were getting stripped by Bash. This
     > might be something to add to "man hostmot2".
-
-
-    stepgen overshoots with high maxaccel
-
-        velocity_cmd should be renamed to velocity_fb probably 
-
-        cleanup
-
-        look at pluto_step 
 
 
     include .PIN files as docs
@@ -22,7 +27,9 @@ next steps:
         JMK suggested auto-generating man pages from the PIN files...
 
 
-    better sample configs, maybe move my test scripts there, document better
+    better sample configs
+
+        ask cradek to commit his
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -121,12 +128,14 @@ clean the tree:
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: 48 gpio
             other notes: development ended
+            Remove in Jan 2009
 
             driver: m7i43_hm2 DEPRECATED!
             boards supported: 7i43
             firmware source: compiled into driver, sent to board at insmod time
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
+            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK
+            Remove in Jan 2009
 
 
 
@@ -148,52 +157,66 @@ translation ram (tram):
 
 
 
-encoders:
+encoder:
 
-    use shielded encoder wires!
+    rawcounts is s32 - is that ok?  It might overflow on very long,
+    very high-resolution axes, or on things like spindle encoders.
+
+
+    there's at least one bug hiding:
+
+        [ 5440.031253] hm2_5i20.0: initialized AnyIO board at 0000:01:04.0
+        [ 5442.863016] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.863023] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=1, e->tsc_num_rollovers=0
+        [ 5442.863026] hm2/hm2_5i20.0:     cur = ( 1537, 1017 )
+        [ 5442.863028] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.864041] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.864047] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.864050] hm2/hm2_5i20.0:     cur = ( 1537, 2035 )
+        [ 5442.864051] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.865042] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.865048] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.865050] hm2/hm2_5i20.0:     cur = ( 1537, 3041 )
+        [ 5442.865052] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.866042] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.866049] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.866051] hm2/hm2_5i20.0:     cur = ( 1537, 4047 )
+        [ 5442.866052] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.867043] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.867049] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.867051] hm2/hm2_5i20.0:     cur = ( 1537, 5055 )
+        [ 5442.867053] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.868047] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.868055] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.868057] hm2/hm2_5i20.0:     cur = ( 1535, 5697 )
+        [ 5442.868059] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
 
 
     performance:
 
-        my motor shaft is spinning at 8K rpm, which is 133.33333 revs per second
+        my motor shaft tops out at 8K rpm, which is 133.33333 revs
+        per second
 
-        The encoder has 256 lines, so 1024 transitions per revolution, so 136533 transitions per second
+        my highest-resolution encoder has 512 lines, so 2048
+        transitions per revolution, so 275K transitions per second,
+        or 1 transition every 3 or 4 us
 
-        sampling at twice that would mean ~300 Ksamples/sec
+        sampling at twice that would mean ~600 Ksamples/sec
 
-        with the "quad filter" set to 3 clocks, the low-level input needs about 1 Msample/sec.
+        with the "quad filter" set to 3 clocks, the low-level input
+        needs about 1 Msample/sec.
 
-        with the "quad filter" set to 15 clocks, the low-level input needs about 5 Msample/sec.
+        with the "quad filter" set to 15 clocks, the low-level input
+        needs about 5 Msample/sec.
 
-        it's actually running at 50 MHz, so that shouldnt be a problem...
+        it's actually running at 50 MHz, so that shouldnt be a
+        problem...
 
-        The firmware is storing the quadrature count in a 16-bit register, which I'm reading about every ms (1 KHz)
+        The firmware is storing the quadrature count in a 16-bit
+        register, which I'm reading about every ms (1 KHz)
 
-        at 140K transitions/second, that should be max 140 counts per reading, which is *fine*
-
-
-    How is encoder.XX.velocity computed?
-
-
-    missing stuff:
-
-        expose filter rate to HAL (cooked prolly)
-
-        fancy velocity computation
-
-        index mask support
-
-        pins:
-
-            velocity
-
-            optional: a, b, index (available in the control register, which is getting read via fake-TRAM each cycle)
-
-        parameters:
-
-            max-index-vel (optional)
-
-            velocity-resolution (optional)
+        at 275K transitions/second, that should be max 275 counts
+        per reading, which is *fine*
 
 
 
@@ -214,6 +237,10 @@ ioport:
 
 stepgen:
 
+    stepgen overshoots with high maxaccel, but most of the time
+    maxaccel is 0, isn't it?  so the trajectory planner gets to control
+    acceleration?
+
     setting .scale to 1600 (1600 steps/rev) and then commanding position
     to 1600 revs causes chaos, it runs in the wrong direction, some
     overflow bug not handled there...
@@ -224,7 +251,7 @@ stepgen:
 
     test different steps-pre-rev on different stepgen instances
 
-    support other stepping modes
+    support table output mode
 
     support velocity control?
 
@@ -237,18 +264,44 @@ stepgen:
 
 watchdog:
 
-    no known issues
+    currently it's like this: if a watchdog exists, it will be
+    initialized, but if pet_watchdog doesnt run, it'll bite and we wont
+    know about it
+
+    on watchdog bite, keep doing all reads (encoders, gpios, raw)?
+    
+        reading those things should still work, but what's the use?
+
+        wd bites happen for three reasons i think: 
+        
+            epp cable unplugged,
+
+            linux shutdown or crashed,
+
+            user loadrt'ing hm2_pci by hand and not getting to addf & start within 1 second
+
+        In no case does it help to keep reading the FPGA
+
+
+    to keep halcmd-experimentation from tripping the watchdog right
+    away, have the timeout default to 0, meaning no wd
+
+    let the user set wd.timeout if they want
+
+    dont start watchdog at insmod, start it at the first pet_watchdog
+    (warn if it's 0 and suggest maybe 5x the servo thread period)
 
 
 
 
 7i43:
 
-    can't get it to work with the pci card parport...
+    can't get it to work with the pci card parport...  NetMos 9805
+    problem, try a card with another chipset
 
     test with the 400K board again
 
-    needs to support multiple boards
+    needs to support multiple boards (i think this works)
 
 
 5i20, 5i23, 4i65, 4i68:
@@ -327,8 +380,6 @@ planned milestones:
     1.0
 
         add optional tram support
-
-        complete support for encoder
 
         complete support for stepgen
 

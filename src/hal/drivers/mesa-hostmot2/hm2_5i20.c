@@ -371,7 +371,10 @@ static struct pci_driver hm2_5i20_driver = {
 int rtapi_app_main(void) {
     int r = 0;
 
-    LL_INFO("loading Mesa AnyIO HostMot2 driver version " HM2_5I20_VERSION "\n");
+    LL_PRINT("loading Mesa AnyIO HostMot2 driver version " HM2_5I20_VERSION "\n");
+    LL_PRINT("*** *** *** *** *** *** *** *** *** *** ** *** *** *** *** *** *** *** *** *** *** ***\n");
+    LL_PRINT("*** NOTE: This driver is obsolete, you should use hm2_pci instead, it works better ***\n");
+    LL_PRINT("*** *** *** *** *** *** *** *** *** *** ** *** *** *** *** *** *** *** *** *** *** ***\n");
 
     comp_id = hal_init(HM2_LLIO_NAME);
     if (comp_id < 0) return comp_id;

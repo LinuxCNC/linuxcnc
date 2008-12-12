@@ -192,6 +192,12 @@ etc/emc2/sample-configs/hexapod-sim/README
 etc/emc2/sample-configs/hostmot2/README
 etc/emc2/sample-configs/hostmot2/hm2.hal
 etc/emc2/sample-configs/hostmot2/hm2-2-boards.hal
+etc/emc2/sample-configs/hm2-servo/README
+etc/emc2/sample-configs/hm2-servo/emc.nml
+etc/emc2/sample-configs/hm2-servo/m7i43.tbl
+etc/emc2/sample-configs/hm2-servo/m7i43.var
+etc/emc2/sample-configs/hm2-servo/m7i43_th.hal
+etc/emc2/sample-configs/hm2-servo/m7i43_th.ini
 etc/emc2/sample-configs/lathe-pluto/axis_manualtoolchange.hal
 etc/emc2/sample-configs/lathe-pluto/emc.nml
 etc/emc2/sample-configs/lathe-pluto/emc.tbl

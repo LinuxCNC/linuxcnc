@@ -6,7 +6,7 @@
 ..
 .SH NAME
 
-hostmot2 \- RTAI driver for the Mesa Electronics HostMot2 firmware.
+hostmot2 \- EMC2 HAL driver for the Mesa Electronics HostMot2 firmware.
 .SH SYNOPSIS
 
 .HP
@@ -31,9 +31,9 @@ Modules used.
 .RE
 .SH DESCRIPTION
 
-hostmot2 is an RTAI device driver that interfaces the Mesa HostMot2
-firmware to the EMC2 HAL.  This driver by itself does nothing, the boards
-that actually run the firmware require their own drivers before anything
+hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
+to the EMC2 HAL.  This driver by itself does nothing, the boards that
+actually run the firmware require their own drivers before anything
 can happen.  Currently drivers are available for the 5i20, 5i22, 5i23,
 4i65, and 4i68 (all using the hm2_pci module) and the 7i43 (using the
 hm2_7i43 module).
@@ -122,8 +122,9 @@ Encoders have names like "hm2_<BoardType>.<BoardNum>.encoder.<Instance>".
 "Instance" is a two-digit number that corresponds to the HostMot2 encoder
 instance number.  There are 'num_encoders' instances, starting with 00.
 
-Each encoder uses three input IO pins: A, B, and Index (sometimes also
-known as Z)
+Each encoder uses three or four input IO pins, depending on how the
+firmware was compiled.  Three-pin encoders use A, B, and Index (sometimes
+also known as Z).  Four-pin encoders use A, B, Index, and Index-mask.
 
 Each encoder instance has the following pins and parameters:
 
@@ -132,39 +133,57 @@ Pins:
 (s32 out) count: Number of encoder counts since the previous reset.
 (Like CDI.)
 
-(float out) position: Encoder position (count / scale).  (Like CDI.)
+(float out) position: Encoder position in position units (count / scale).
+(Like CDI.)
+
+(float out) velocity: Estimated encoder velocity in position units
+per second.  (Like CDI.)
 
 (bit in) reset: When this pin is TRUE, the count and position pins are
-set to 0.  (Like CDI.)
+set to 0.  The driver does not reset this pin to FALSE after resetting
+the count to 0, that is the user's job.  (Like CDI.)
 
-(bit in/out) index-enable: When this pin is set to True, the count and
-position are reset to zero on the next Index (Phase-Z) pulse.  At the
-same time, index-enable is reset to zero to indicate that the pulse
-has occurred.  (Like CDI.)
+(bit in/out) index-enable: When this pin is set to True, the count
+(and therefore also position) are reset to zero on the next Index
+(Phase-Z) pulse.  At the same time, index-enable is reset to zero to
+indicate that the pulse has occurred.  (Like CDI.)
+
+(s32 out) rawcount: Total number of encoder counts since the start,
+not adjusted for index or reset.  (Like the software encoder component.)
 
 Parameters:
 
 (float r/w) scale: Converts from 'count' units to 'position' units.
 (Like CDI.)
 
-(bit r/w) index_invert: If set to True, the rising edge of the Index
+(bit r/w) index-invert: If set to True, the rising edge of the Index
 input pin triggers the Index event (if index-enable is True).  If set
 to False, the falling edge triggers.
 
-(bit r/w) index_mask: Work in progress, currently only partially
-supported.
+(bit r/w) index-mask: If set to True, the Index input pin only has an
+effect if the Index-Mask input pin is True (or False, depending on the
+index-mask-invert pin below).
 
-(bit r/w) index_mask_invert: Work in progress, currently only partially
-supported.
+(bit r/w) index-mask-invert: If set to True, Index-Mask must be False
+for Index to have an effect.  If set to False, the Index-Mask pin must
+be True.
 
-(bit r/w) counter_mode: Set to False (the default) for Quadrature.
+(bit r/w) counter-mode: Set to False (the default) for Quadrature.
 Set to True for Up/Down.
 
 (bit r/w) filter: If set to True (the default), the quadrature counter
 needs 15 clocks to register a change on any of the three input lines
-(any pulse shorter than this is rejected as noise).  If set to False,
-the quadrature counter needs only 3 clocks to register a change.  FIXME:
-filter clock rate is not controllable yet, but it will be soon.
+(any pulse shorter than this is rejected as noise).  If set to False, the
+quadrature counter needs only 3 clocks to register a change.  The encoder
+sample clock runs at 33 MHz on the PCI AnyIO cards and 50 MHz on the 7i43.
+
+(float r/w) vel-timeout: When the encoder is moving slower than one
+pulse for each time that the driver reads the count from the FPGA (in
+the hm2_read() function), the velocity is harder to estimate.  The driver
+can wait several iterations for the next pulse to arrive, all the while
+reporting the upper bound of the encoder velocity, which can be accurately
+guessed.  This parameter specifies how long to wait for the next pulse,
+before reporting the encoder stopped.  This parameter is in seconds.
 .SH pwmgen
 
 pwmgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>".
@@ -244,7 +263,7 @@ Each stepgen instance has the following pins and parameters:
 
 Pins:
 
-(float input) position_cmd: Target of stepper motion, in arbitrary
+(float input) position-cmd: Target of stepper motion, in arbitrary
 position units.
 
 (s32 output) counts: Feedback position in counts (number of steps).
@@ -255,15 +274,12 @@ position units.
 (float output) velocity-fb: Feedback velocity in arbitrary position
 units per second.
 
-(float output) velocity-cmd: Commanded velocity in arbitrary position
-units per second.
-
 (bit input) enable: Enables output steps.  When false, no steps are
 generated.
 
 Parameters:
 
-(float r/w) position_scale: Converts from counts to position units.
+(float r/w) position-scale: Converts from counts to position units.
 position = counts / position_scale
 
 (float r/w) maxvel: Maximum speed, in position units per second.  If set
@@ -283,6 +299,11 @@ a step begins, in nanoseconds.
 
 (u32 r/w) dirhold: Minimum duration of stable Direction signal after a
 step ends, in nanoseconds.
+
+(u32 r/w) step_type: Output format, like the step_type modparam to the
+software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature.
+In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
+cycle (00 -> 01 -> 11 -> 10 -> 00) for each "step" it takes.
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported

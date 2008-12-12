@@ -46,7 +46,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
 
     if (hm2->llio->needs_reset) {
         // user has cleared the bit
-        INFO("trying to recover from IO error or Watchdog bite\n");
+        PRINT("trying to recover from IO error or Watchdog bite\n");
 
         // reset the watchdog status
         hm2->watchdog.status_reg[0] = 0;
@@ -54,10 +54,10 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
         // write all settings out to the FPGA
         hm2_force_write(hm2);
         if ((*hm2->llio->io_error) != 0) {
-            ERR("error recovery failed\n");
+            PRINT("error recovery failed\n");
             return;
         }
-        INFO("error recover successful!\n");
+        PRINT("error recover successful!\n");
 
         hm2->llio->needs_reset = 0;
     }
@@ -72,7 +72,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
     hm2->llio->read(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, (hm2->watchdog.num_instances * sizeof(u32)));
     if ((*hm2->llio->io_error) != 0) return;
     if (hm2->watchdog.status_reg[0] & 0x1) {
-        WARN("Watchdog has bit!\n");
+        PRINT("Watchdog has bit! (set the .has-bit pin to False to resume)\n");
         *hm2->watchdog.instance[0].hal.pin.has_bit = 1;
         hm2->llio->needs_reset = 1;
     }
@@ -107,7 +107,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     if (md->instances != 1) {
-        WARN("MD declares %d watchdogs!  only using the first one...\n", md->instances);
+        PRINT("MD declares %d watchdogs!  only using the first one...\n", md->instances);
     }
 
 
@@ -235,20 +235,20 @@ fail0:
 }
 
 
-void hm2_watchdog_print_module(int msg_level, hostmot2_t *hm2) {
+void hm2_watchdog_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT(msg_level, "Watchdog: %d\n", hm2->watchdog.num_instances);
+    PRINT("Watchdog: %d\n", hm2->watchdog.num_instances);
     if (hm2->watchdog.num_instances <= 0) return;
-    PRINT(msg_level, "    clock_frequency: %d Hz (%s MHz)\n", hm2->watchdog.clock_frequency, hm2_hz_to_mhz(hm2->watchdog.clock_frequency));
-    PRINT(msg_level, "    version: %d\n", hm2->watchdog.version);
-    PRINT(msg_level, "    timer_addr: 0x%04X\n", hm2->watchdog.timer_addr);
-    PRINT(msg_level, "    status_addr: 0x%04X\n", hm2->watchdog.status_addr);
-    PRINT(msg_level, "    reset_addr: 0x%04X\n", hm2->watchdog.reset_addr);
+    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->watchdog.clock_frequency, hm2_hz_to_mhz(hm2->watchdog.clock_frequency));
+    PRINT("    version: %d\n", hm2->watchdog.version);
+    PRINT("    timer_addr: 0x%04X\n", hm2->watchdog.timer_addr);
+    PRINT("    status_addr: 0x%04X\n", hm2->watchdog.status_addr);
+    PRINT("    reset_addr: 0x%04X\n", hm2->watchdog.reset_addr);
     for (i = 0; i < hm2->watchdog.num_instances; i ++) {
-        PRINT(msg_level, "    instance %d:\n", i);
-        PRINT(msg_level, "        param timeout_ns = %u\n", hm2->watchdog.instance[i].hal.param.timeout_ns);
-        PRINT(msg_level, "        pin has_bit = %d\n", (*hm2->watchdog.instance[i].hal.pin.has_bit));
-        PRINT(msg_level, "        reg timer = 0x%08X\n", hm2->watchdog.timer_reg[i]);
+        PRINT("    instance %d:\n", i);
+        PRINT("        param timeout_ns = %u\n", hm2->watchdog.instance[i].hal.param.timeout_ns);
+        PRINT("        pin has_bit = %d\n", (*hm2->watchdog.instance[i].hal.pin.has_bit));
+        PRINT("        reg timer = 0x%08X\n", hm2->watchdog.timer_reg[i]);
     }
 }
 
@@ -277,7 +277,7 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
         tmp = 0x7FFFFFFF;
         hm2->watchdog.timer_reg[0] = tmp;
         hm2->watchdog.instance[0].hal.param.timeout_ns = (tmp + 1) / ((double)hm2->watchdog.clock_frequency / (double)(1000 * 1000 * 1000));
-        WARN("requested watchdog timeout is out of range, setting it to max: %u ns\n", hm2->watchdog.instance[0].hal.param.timeout_ns);
+        ERR("requested watchdog timeout is out of range, setting it to max: %u ns\n", hm2->watchdog.instance[0].hal.param.timeout_ns);
     }
 
     // set the watchdog timeout (we'll check for i/o errors later)
