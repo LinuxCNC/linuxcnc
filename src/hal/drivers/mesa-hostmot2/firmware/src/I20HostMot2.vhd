@@ -74,9 +74,9 @@ use work.IDROMParms.all;
 use work.NumberOfModules.all;	
 use work.MaxPinsPerModule.all;	
 	
-entity ${prefix}_I20HostMot2 is
+entity HM2_${prefix} is
   	generic
-	(  
+	(
 		-- Note: all pinout/module count information is derived
 		-- from the PinDesc and ModuleID which are inserted here
 		-- by the build system, using data from the .spec file
@@ -142,9 +142,9 @@ entity ${prefix}_I20HostMot2 is
 	LEDS: out std_logic_vector(LEDCount -1 downto 0)
 
 	);
-end ${prefix}_I20HostMot2;
+end HM2_${prefix};
 
-architecture dataflow of ${prefix}_I20HostMot2 is
+architecture dataflow of HM2_${prefix} is
 
 --	alias SYNCLK: std_logic is LCLK;
 -- misc global signals --

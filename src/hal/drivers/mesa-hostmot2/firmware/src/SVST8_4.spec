@@ -1,6 +1,4 @@
-template = """I20HostMot2.vhd"""
-device = """xc2s200-5pq208"""
-constraints = """5i20.ucf"""
+config_pins = 72
 
 module_id =  """
 (

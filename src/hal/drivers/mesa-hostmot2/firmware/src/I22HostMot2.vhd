@@ -73,16 +73,17 @@ use UNISIM.vcomponents.all;
 use work.IDROMParms.all;	
 use work.NumberOfModules.all;	
 use work.MaxPinsPerModule.all;	
-	
-entity I22HostMot2 is  -- also for 5I23 and 4I68
-  	generic
-	(  	
-		-- Note: all pinout/module count information is derived from
-      -- the PinDesc and ModuleID records in IDParms.vhd and passed through
-		-- to the lower levels. That is, these next two assignments determine
-		-- the modules contained and the pinout of a FPGA firmware configuration 
-		ThePinDesc: PinDescType := PinDesc_4xi30;
-		TheModuleID: ModuleIDType := ModuleId_4xi30;
+
+ -- This template works for the 5i22, 5i23 and 4i68
+
+entity HM2_${prefix} is 
+	generic
+	(
+		-- Note: all pinout/module count information is derived
+		-- from the PinDesc and ModuleID which are inserted here
+		-- by the build system, using data from the .spec file
+		ThePinDesc: PinDescType := ${pin_desc};
+		TheModuleID: ModuleIDType := ${module_id};
 		PWMRefWidth: integer := 13;		-- PWM resolution is PWMRefWidth-1 bits, MSB is for symmetrical mode 
 		IDROMType: integer := 2;		
 	   SepClocks: boolean := true;
@@ -95,16 +96,15 @@ entity I22HostMot2 is  -- also for 5I23 and 4I68
 		ClockHigh: integer := ClockHigh22;
 		ClockLow: integer := ClockLow22;
 		BoardNameLow : std_Logic_Vector(31 downto 0) := BoardNameMESA;
-		BoardNameHigh : std_Logic_Vector(31 downto 0) := BoardName5I22;
-		FPGASize: integer := 1000;		-- 5I22-1000
---		FPGASize: integer := 1500;		-- 5I22-1500
-		FPGAPins: integer := 320;		-- 5I22
---		FPGASize: integer := 400;		-- 5I23,4I68
---		FPGAPins: integer := 208;		-- 5I23,4I68
-		IOPorts: integer := 4;			-- 5I22
-		IOWidth: integer := 96;			-- 5I22
---		IOPorts: integer := 3;			-- 5I23,4I68
---		IOWidth: integer := 72;			-- 5I23,4I68
+		BoardNameHigh : std_Logic_Vector(31 downto 0) := BoardName${board_name};
+		-- 5I22-1000 = 1000, 5I22-1500 = 1500, 5I23 or 4I68 = 400
+		FPGASize: integer := ${fpga_size};
+		-- 5I22 = 320, 5I23 or 4I68 = 208
+		FPGAPins: integer := ${fpga_pins};
+		-- 5I22 = 4, 5I23 or 4I68 = 3
+		IOPorts: integer := ${io_ports};
+		-- 5I22 = 96, 5I23 or 4I68 = 72
+		IOWidth: integer := ${io_pins};
 		PortWidth: integer := 24;
 		BusWidth: integer := 32;
 		AddrWidth: integer := 16;
@@ -112,9 +112,8 @@ entity I22HostMot2 is  -- also for 5I23 and 4I68
 		InstStride1: integer := 16;
 		RegStride0: integer := 256;
 		RegStride1: integer := 4;
---		LEDCount: integer := 2			-- 5I23
-		LEDCount: integer := 8			-- 5I22
---		LEDCount: integer := 4			-- 4I68		
+		-- 5I22 = 8, 5I23 = 2, 4I68 = 4
+		LEDCount: integer := ${led_count}
 		);
 	port 
    (
@@ -149,9 +148,9 @@ entity I22HostMot2 is  -- also for 5I23 and 4I68
 	LEDS: out std_logic_vector(LEDCount -1 downto 0)
 
 	);
-end I22HostMot2;
+end HM2_${prefix};
 
-architecture dataflow of I22HostMot2 is
+architecture dataflow of HM2_${prefix} is
 
 --	alias SYNCLK: std_logic is LCLK;
 -- misc global signals --
