@@ -43,7 +43,6 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         u32 acc = hm2->stepgen.accumulator_reg[i];
         s32 counts_delta;
-        double pos_delta;
 
         // those tricky users are always trying to get us to divide by zero
         if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
@@ -68,16 +67,6 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         *(hm2->stepgen.instance[i].hal.pin.counts) += counts_delta;
         hm2->stepgen.instance[i].counts_fractional = acc & 0xFFFF;
         *(hm2->stepgen.instance[i].hal.pin.position_fb) = (double)(*hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
-
-        // get sub-step accurate position delta for velocity smoothing
-        pos_delta = (acc - hm2->stepgen.instance[i].prev_accumulator) / 65536.0;
-        if (pos_delta > 32768.0) {
-            pos_delta -= 65536.0;
-        } else if (pos_delta < -32768.0) {
-            pos_delta += 65536.0;
-        }
-        pos_delta /= hm2->stepgen.instance[i].hal.param.position_scale;
-        *hm2->stepgen.instance[i].hal.pin.velocity_fb = pos_delta / f_period_s;
 
         hm2->stepgen.instance[i].prev_accumulator = acc;
     }
@@ -120,21 +109,21 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     }
 
     if (count_pos_error == 0) {
-        *s->hal.pin.velocity_cmd = 0.0;
+        *s->hal.pin.velocity_fb = 0.0;
     } else {
         double seconds_until_stop;
         double position_at_stop;
         double pos_error_at_stop;
 
         if (s->hal.param.maxaccel > 0.0) {
-            seconds_until_stop = fabs(*s->hal.pin.velocity_cmd) / s->hal.param.maxaccel;
+            seconds_until_stop = fabs(*s->hal.pin.velocity_fb) / s->hal.param.maxaccel;
         } else {
             seconds_until_stop = f_period_s;
         }
 
         position_at_stop = *s->hal.pin.position_fb;
-        position_at_stop += *s->hal.pin.velocity_cmd * seconds_until_stop;
-        if (*s->hal.pin.velocity_cmd > 0) {
+        position_at_stop += *s->hal.pin.velocity_fb * seconds_until_stop;
+        if (*s->hal.pin.velocity_fb > 0) {
             position_at_stop -= s->hal.param.maxaccel * seconds_until_stop * seconds_until_stop / 2.0;
         } else {
             position_at_stop += s->hal.param.maxaccel * seconds_until_stop * seconds_until_stop / 2.0;
@@ -146,15 +135,15 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
             // haven't reached decel phase yet, accelerate at top rate (vel will get clipped later if needed)
             if (pos_error > 0) {
                 if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_cmd -= s->hal.param.maxaccel * f_period_s;
+                    *s->hal.pin.velocity_fb -= s->hal.param.maxaccel * f_period_s;
                 } else {
-                    *s->hal.pin.velocity_cmd = -1.0 * s->hal.param.maxvel;
+                    *s->hal.pin.velocity_fb = -1.0 * s->hal.param.maxvel;
                 }
             } else {
                 if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_cmd += s->hal.param.maxaccel * f_period_s;
+                    *s->hal.pin.velocity_fb += s->hal.param.maxaccel * f_period_s;
                 } else {
-                    *s->hal.pin.velocity_cmd = s->hal.param.maxvel;
+                    *s->hal.pin.velocity_fb = s->hal.param.maxvel;
                 }
             }
         } else {
@@ -162,30 +151,30 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
             // FIXME: this should be proportional to pos_error
             if (pos_error > 0) {
                 if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_cmd = -1.0 * s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                    *s->hal.pin.velocity_fb = -1.0 * s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
                 } else {
                     // FIXME
-                    *s->hal.pin.velocity_cmd = 0.0;
+                    *s->hal.pin.velocity_fb = 0.0;
                 }
             } else {
                 if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_cmd = s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
+                    *s->hal.pin.velocity_fb = s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
                 } else {
                     // FIXME
-                    *s->hal.pin.velocity_cmd = 0.0;
+                    *s->hal.pin.velocity_fb = 0.0;
                 }
             }
         }
     }
 
     // clip velocity to maxvel
-    if (*s->hal.pin.velocity_cmd > s->hal.param.maxvel) {
-        *s->hal.pin.velocity_cmd = s->hal.param.maxvel;
-    } else if (*s->hal.pin.velocity_cmd < -1 * s->hal.param.maxvel) {
-        *s->hal.pin.velocity_cmd = -1 * s->hal.param.maxvel;
+    if (*s->hal.pin.velocity_fb > s->hal.param.maxvel) {
+        *s->hal.pin.velocity_fb = s->hal.param.maxvel;
+    } else if (*s->hal.pin.velocity_fb < -1 * s->hal.param.maxvel) {
+        *s->hal.pin.velocity_fb = -1 * s->hal.param.maxvel;
     }
 
-    steps_per_sec_cmd = *s->hal.pin.velocity_cmd * s->hal.param.position_scale;
+    steps_per_sec_cmd = *s->hal.pin.velocity_fb * s->hal.param.position_scale;
 
     hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency);
 }
@@ -535,8 +524,8 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-cmd", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.velocity_cmd), hm2->llio->comp_id);
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-fb", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.velocity_fb), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -545,14 +534,6 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-fb", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.position_fb), hm2->llio->comp_id);
-            if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
-                r = -ENOMEM;
-                goto fail5;
-            }
-
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-fb", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.velocity_fb), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -643,7 +624,6 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // init
             *(hm2->stepgen.instance[i].hal.pin.position_cmd) = 0.0;
-            *(hm2->stepgen.instance[i].hal.pin.velocity_cmd) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.counts) = 0;
             *(hm2->stepgen.instance[i].hal.pin.position_fb) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = 0.0;

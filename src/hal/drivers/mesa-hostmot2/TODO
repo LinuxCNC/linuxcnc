@@ -2,20 +2,15 @@
 
 next steps:
 
-    for 2.2.8:
 
-        encoder velocity
-
-        stepgen pin renames (& doc)
+    pins & params use "-" vs "_" inconsistently
 
 
-    feedback from jmk & cradek:
+    write a little userspace helper, a "hostmot2 config wizard":
 
-        write a little userspace helper, a "hostmot2 config wizard":
+        tell it what anyio board(s) you have, and what daughter boards on what connectors
 
-            tell it what anyio board(s) you have, and what daughter boards on what connectors
-
-            it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
+        it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
 
 
     when reading IO Cookie & Config Name, if it fails read it many times
@@ -164,12 +159,38 @@ translation ram (tram):
 
 encoder:
 
-    expose QFilterRate: lets you determine encoder sample frequency, input to filter
-
     rawcounts is s32 - is that ok?  It might overflow on very long,
     very high-resolution axes, or on things like spindle encoders.
 
-    fancy velocity computation
+
+    there's at least one bug hiding:
+
+        [ 5440.031253] hm2_5i20.0: initialized AnyIO board at 0000:01:04.0
+        [ 5442.863016] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.863023] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=1, e->tsc_num_rollovers=0
+        [ 5442.863026] hm2/hm2_5i20.0:     cur = ( 1537, 1017 )
+        [ 5442.863028] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.864041] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.864047] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.864050] hm2/hm2_5i20.0:     cur = ( 1537, 2035 )
+        [ 5442.864051] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.865042] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.865048] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.865050] hm2/hm2_5i20.0:     cur = ( 1537, 3041 )
+        [ 5442.865052] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.866042] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.866049] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.866051] hm2/hm2_5i20.0:     cur = ( 1537, 4047 )
+        [ 5442.866052] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.867043] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.867049] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.867051] hm2/hm2_5i20.0:     cur = ( 1537, 5055 )
+        [ 5442.867053] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+        [ 5442.868047] hm2/hm2_5i20.0: encoder.01 dT <= 0, how can this be?
+        [ 5442.868055] hm2/hm2_5i20.0: hm2->encoder.tsc_rollover_flag=0, e->tsc_num_rollovers=0
+        [ 5442.868057] hm2/hm2_5i20.0:     cur = ( 1535, 5697 )
+        [ 5442.868059] hm2/hm2_5i20.0:    prev = ( 1536, 64791 )
+
 
     performance:
 
@@ -198,15 +219,6 @@ encoder:
         per reading, which is *fine*
 
 
-    parameters:
-
-        vel-smoothing-horizon
-
-        max-index-vel (optional)
-
-        velocity-resolution (optional)
-
-
 
 
 pwmgen:
@@ -228,8 +240,6 @@ stepgen:
     stepgen overshoots with high maxaccel, but most of the time
     maxaccel is 0, isn't it?  so the trajectory planner gets to control
     acceleration?
-
-    velocity_cmd should be renamed to velocity_fb probably 
 
     setting .scale to 1600 (1600 steps/rev) and then commanding position
     to 1600 revs causes chaos, it runs in the wrong direction, some
@@ -286,11 +296,12 @@ watchdog:
 
 7i43:
 
-    can't get it to work with the pci card parport...
+    can't get it to work with the pci card parport...  NetMos 9805
+    problem, try a card with another chipset
 
     test with the 400K board again
 
-    needs to support multiple boards
+    needs to support multiple boards (i think this works)
 
 
 5i20, 5i23, 4i65, 4i68:
@@ -369,8 +380,6 @@ planned milestones:
     1.0
 
         add optional tram support
-
-        complete support for encoder
 
         complete support for stepgen
 

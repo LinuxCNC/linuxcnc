@@ -278,13 +278,6 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.zero_offset", hm2->llio->name, i);
-            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.zero_offset), hm2->llio->comp_id);
-            if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
-                goto fail1;
-            }
-
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.count", hm2->llio->name, i);
             r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
@@ -336,14 +329,12 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.index-mask", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
-
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.index-mask-invert", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.index_mask_invert), hm2->llio->comp_id);
@@ -352,7 +343,6 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.counter-mode", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.counter_mode), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
@@ -360,9 +350,15 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.filter", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.filter), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                ERR("error adding param '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.vel-timeout", hm2->llio->name, i);
+            r = hal_param_float_new(name, HAL_RW, &(hm2->encoder.instance[i].hal.param.vel_timeout), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
@@ -383,6 +379,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->encoder.instance[i].hal.param.index_mask_invert = 0;
             hm2->encoder.instance[i].hal.param.counter_mode = 0;
             hm2->encoder.instance[i].hal.param.filter = 1;
+            hm2->encoder.instance[i].hal.param.vel_timeout = 0.5;
 
             hm2->encoder.instance[i].tsc_num_rollovers = 0;
 
@@ -462,11 +459,12 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
 
         *hm2->encoder.instance[i].hal.pin.rawcounts = count;
-        *hm2->encoder.instance[i].hal.pin.zero_offset = count;
 
         *hm2->encoder.instance[i].hal.pin.count = 0;
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
+
+        hm2->encoder.instance[i].zero_offset = count;
 
         hm2->encoder.instance[i].prev_reg_count = count;
         hm2->encoder.instance[i].prev_reg_timestamp = timestamp;
@@ -562,7 +560,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
-            *e->hal.pin.zero_offset = e->prev.raw_count + reg_count_diff;
+            e->zero_offset = e->prev.raw_count + reg_count_diff;
 
             *e->hal.pin.index_enable = 0;
         }
@@ -574,7 +572,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     //
 
     if (*e->hal.pin.reset) {
-        *e->hal.pin.zero_offset = *e->hal.pin.rawcounts;
+        e->zero_offset = *e->hal.pin.rawcounts;
     }
 
 
@@ -585,7 +583,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     // From that we easily compute count and scaled position.
     //
 
-    *e->hal.pin.count = *e->hal.pin.rawcounts - *e->hal.pin.zero_offset;
+    *e->hal.pin.count = *e->hal.pin.rawcounts - e->zero_offset;
 
 
     //
@@ -632,7 +630,6 @@ static void hm2_encoder_compute_relative_time_velocity(
 
     // 
     // first get the time since the previous encoder change
-    // FIXME: if the encoder's been stopped, this might have rolled over
     // 
 
     timestamp_diff_clocks = d0->raw_timestamp - d1->raw_timestamp;
@@ -755,7 +752,7 @@ static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance
                 // now we have a made-up datapoint, run the RT (dS/dT) velocity estimator
                 hm2_encoder_compute_relative_time_velocity(hm2, instance, &made_up, &e->prev);
 
-                if (made_up.dt_s >= 0.5) {
+                if (made_up.dt_s >= e->hal.param.vel_timeout) {
                     e->cur.velocity = 0.0;
                     *e->hal.pin.velocity = e->cur.velocity;
                     e->tsc_num_rollovers = 0;

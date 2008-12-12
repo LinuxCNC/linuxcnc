@@ -227,7 +227,6 @@ typedef struct {
 
         struct {
             hal_s32_t *rawcounts;    // raw encoder counts
-            hal_s32_t *zero_offset;  // raw encoder counts when index most recently latched it
             hal_s32_t *count;        // (rawcounts - zero_offset)
             hal_float_t *position;
             hal_float_t *velocity;
@@ -242,11 +241,12 @@ typedef struct {
             hal_bit_t index_mask_invert;
             hal_bit_t counter_mode;
             hal_bit_t filter;
-            // hal_float_t max_index_vel;
-            // hal_float_t velocity_resolution;
+            hal_float_t vel_timeout;
         } param;
 
     } hal;
+
+    s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
 
     u16 prev_reg_count;
     u16 prev_reg_timestamp;
@@ -425,7 +425,6 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
-            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
