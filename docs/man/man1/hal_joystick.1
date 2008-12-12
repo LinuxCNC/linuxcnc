@@ -25,10 +25,13 @@
 .\"
 .TH HAL_JOYSTICK "1"  "2006-03-13" "EMC Documentation" "HAL User's Manual"
 .SH NAME
-hal_joystick \- control HAL pins with a joystick
+hal_joystick \- \fB(DEPRECATED)\fR control HAL pins with a joystick
 .SH SYNOPSIS
 \fBhal_joystick\fR [\fB-d\fR \fIdevice\fR] [\fB-p\fR \fIprefix\fR]
 .SH DESCRIPTION
+\fBhal_joystick\fR is \fBdeprecated\fR.  Use \fBhal_input(1)\fR instead.
+\fBhal_joystick\fR will be removed from a future version of emc.
+
 \fBhal_joystick\fR allows a joystick to generate HAL (Hardware Abstraction
 Layer) signals.  Although not a hard realtime component, it is quite 
 responsive under moderate system load.  It provides analog (float) HAL
@@ -60,10 +63,12 @@ analog joysticks, the driver may need configured by the user.  See Linux
 documentation for more details.  Once the Linux driver is properly configured,
 the HAL driver will configure itself to match automatically.
 .SH "SEE ALSO"
-
-.SH HISTORY
-
+\fBhal_input(1)\fR
 .SH BUGS
+hal_joystick is incompatible with the way that halcmd waits for components to
+be ready.  This leads to race conditions when connecting signals to
+hal_joystick's pins.
+
 Perhaps the analog axes should have a "scale" parameter that could be used
 to scale the -1.0 to +1.0 range to whatever the user needs. It would also
 allow the direction of an axis to be reversed by using a negative scale.
