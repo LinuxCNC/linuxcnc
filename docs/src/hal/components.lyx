@@ -78,7 +78,7 @@ hal_input.1 = control HAL pins with any Linux input device, including USB
 \layout List
 \labelwidthstring 00.00.0000
 
-hal_joystick.1 = control HAL pins with a joystick (depreciated use hal_input)
+hal_joystick.1 = control HAL pins with a joystick (deprecated use hal_input)
 \layout List
 \labelwidthstring 00.00.0000
 
