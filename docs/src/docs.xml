@@ -23,6 +23,7 @@
 <doc name="gui_axis" title="AXIS"/>
 <doc name="gui_halui" title="halui"/>
 <doc name="gui_tkemc" title="TkEmc"/>
+<doc name="gui_keystick" title="KeyStick"/>
 <doc name="gui_image-to-gcode" title="Image-to-gcode"/>
 
 <doc name="hal_intro" title="Introduction"/>
