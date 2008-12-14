@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python
 #    Copyright 2008 John Kasunich
 #    License: GPL2
 
@@ -12,6 +12,18 @@ import datetime
 import time
 import getopt
 
+def run(*args):
+    sys.stdout.flush()
+    try:
+        retcode = subprocess.call(args)
+    except KeyboardInterrupt:
+        # let the last output from map be printed
+        time.sleep(1)
+        print "ERROR: %s interrupted by user" % args[0]
+        retcode = -1
+    if retcode != 0:
+        print "ERROR: %s failed - see above for error messages" % args[0]
+        sys.exit(1)
 
 def add_deps(fname):
     global dependencies
@@ -268,63 +280,44 @@ dest.close()
 # the first real step in the toolchain: Synthesis
 synlog_fname = prefix + ".syn.log"
 print "invoking XST for synthesis"
-sys.stdout.flush()
-try:
-    retcode = subprocess.call(["xst", "-ifn", scr_fname, "-ofn", synlog_fname])
-    print "XST returned ", retcode
-except KeyboardInterrupt:
-    # let the last output from XST be printed
-    time.sleep(1)
-    print "ERROR: Synthesis interrupted by user"
-    retcode = -1
-if not retcode == 0:
-    print "ERROR: Synthesis Failed - see above for error messages"
-    sys.exit(1)
+run("xst", "-ifn", scr_fname, "-ofn", synlog_fname)
 
 # merge the constraint file into the design
 ngdlog_fname = prefix + ".ngd.log"
 ngd_fname = prefix + ".ngd"
 print "invoking NGDbuild to merge constraints from '%s'" % constraints
-sys.stdout.flush()
-try:
-    retcode = subprocess.call(["ngdbuild", "-uc", constraints, ngc_fname, ngd_fname])
-    print "NGDbuild returned ", retcode
-except KeyboardInterrupt:
-    # let the last output from NGDbuild be printed
-    time.sleep(1)
-    print "ERROR: build interrupted by user"
-    retcode = -1
-if not retcode == 0:
-    print "ERROR: NGDbuild Failed - see above for error messages"
-    sys.exit(1)
+retcode = run("ngdbuild", "-uc", constraints, ngc_fname, ngd_fname)
 # rename log file
 os.rename(prefix+".bld", ngdlog_fname)
 
-# The extensions .nad and .nbd are actually .ncd files - the toolchain
-# uses .ncd for unplaced, placed-but-not-routed, and placed-and-routed files
-# This program uses distinct extensions to preserve the intermediate files,
-# and my sanity
+# the toolchain uses .ncd for unplaced, placed-but-not-routed, and
+# placed-and-routed files This program uses distinct extensions to preserve the
+# intermediate files, and my sanity
 
 # first step of actual device fitting - mapping
 maplog_fname = prefix + ".map.log"
-nad_fname = prefix + ".nad"
+nad_fname = prefix + ".map.ncd"
+pcf_fname = prefix + ".pcf"
 print "invoking map to fit design into device"
-sys.stdout.flush()
-try:
-    retcode = subprocess.call(["map", ngd_fname])
-    print "map returned ", retcode
-except KeyboardInterrupt:
-    # let the last output from map be printed
-    time.sleep(1)
-    print "ERROR: mapping interrupted by user"
-    retcode = -1
-if not retcode == 0:
-    print "ERROR: mapping Failed - see above for error messages"
-    sys.exit(1)
-# rename output file
-os.rename(prefix+".ncd", nad_fname)
-# rename log file
-os.rename(prefix+".mrp", maplog_fname)
+run("map", "-o", nad_fname, ngd_fname)
 
+# second step: placing
+#placelog_fname = prefix + "
+nbd_fname = prefix + ".place.ncd"
+print "invoking par to place design into device"
+retcode = run("par", "-nopad", "-r", nad_fname, '-w', nbd_fname, pcf_fname)
+
+# third step: routing
+ncd_fname = prefix + ".ncd"
+print "invoking par to route the design"
+retcode = run( "par", "-p", nbd_fname, "-w", ncd_fname, pcf_fname)
+
+# Fourth step: bitfile generation
+bit_fname = prefix + ".bit"
+print "invoking bitgen to create bitfile"
+run("bitgen", "-w", ncd_fname, bit_fname, pcf_fname)
+
+print "created bitfile", bit_fname
+sys.stdout.flush()
 
 sys.exit(0)
