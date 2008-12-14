@@ -110,14 +110,42 @@ The syntax and an example:
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 \layout Quote
 
-net my-new-signal function.0.pin-00-in <= paraport.0.pin-11-in
+net both-home-y <= paraport.0.pin-11-in
 \layout Subsection
 
 setp
 \layout Standard
 
-The command "setp" sets the value pin or parameter.
- Some components have parameters that need to be set before use.
+The command "setp" sets the value of a pin or parameter.
+ The values will depend on the type of the pin or parameter.
+ 
+\layout Itemize
+
+bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
+\layout Itemize
+
+float values = a 32 bit floating point value, with approximately 24 bits
+ of resolution and over 200 bits of dynamic range.
+\layout Itemize
+
+s32 values = integer numbers -2147483648 to 2147483647
+\layout Itemize
+
+u32 values = integer numbers 0 to 4294967295
+\layout Standard
+
+For more information on floating point numbers see:
+\layout Standard
+
+
+\begin_inset LatexCommand \url{http://en.wikipedia.org/wiki/Floating_point}
+
+\end_inset 
+
+
+\layout Standard
+
+Some components have parameters that need to be set before use.
  Parameters can be set before use or while running as needed.
  You can not use setp on a pin that is connected to a signal.
 \layout Standard
@@ -128,7 +156,7 @@ The syntax and an example:
 setp <pin/parameter-name> <value>
 \layout Quote
 
-setp function.0.parameter 1
+setp parport.0.pin-08-out TRUE
 \layout Section
 
 Hal Files
