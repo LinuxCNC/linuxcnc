@@ -1311,15 +1311,17 @@ NO_FORCE_HOMING\SpecialChar ~
  Setting NO_FORCE_HOMING = 1 allows the user to make MDI moves and run programs
  without homing the machine first.
  
-\layout Standard
-
-
 \series bold 
 Warning
 \series default 
 : Using this will allow the machine to run past soft limits while in operation
  and is not generally desirable to allow this.
  
+\layout Description
+
+TLO_IS_ALONG_W\SpecialChar ~
+=\SpecialChar ~
+1 Moves the tool length offset from Z to W.
 \layout Subsection
 
 [AXIS_<num>] Section
