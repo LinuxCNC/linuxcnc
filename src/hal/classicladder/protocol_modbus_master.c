@@ -370,7 +370,7 @@ char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 /* Give number of bytes of the response we should receive for the current request */
 int GetModbusResponseLenghtToReceive( void )
 {
-	int LgtResp = 0;
+	int LgtResp = 0, NbrRealBytes;
 	if ( CurrentReq!=-1 )
 	{
 		int NbrEles = ModbusMasterReq[ CurrentReq ].NbrModbusElements;
@@ -379,30 +379,34 @@ int GetModbusResponseLenghtToReceive( void )
 		{
 				case MODBUS_FC_READ_INPUTS:
                                 case MODBUS_FC_READ_COILS:
-				{
-					int NbrRealBytes = (NbrEles+7)/8;
+                                // 1 byte for count of data bytes returned 
+                                // 1 byte for 8 coils if number of coils is not evenly divisable by 8 add another byte
+				        NbrRealBytes = (NbrEles+7)/8;
 					LgtResp++;
 					LgtResp = LgtResp + NbrRealBytes;
-				}
+                                        break;
 				case MODBUS_FC_READ_INPUT_REGS:
 				case MODBUS_FC_READ_HOLD_REGS:
-					LgtResp = LgtResp + (NbrEles*2)+1;  //2 bytes per data and 1 byte for number of datas (max 125)
+                                // 2 bytes per register for data returned and 1 byte for number of registers (max 125)
+					LgtResp = LgtResp + (NbrEles*2)+1;
 					break;
-				case MODBUS_FC_FORCE_COIL:
-					LgtResp = LgtResp+4;// 2 bytes for address 2 for data
-					break;
+				case MODBUS_FC_FORCE_COIL:					
 				case MODBUS_FC_FORCE_COILS:
-					LgtResp = LgtResp+4;// 2 bytes for address 2 for data
-					break;
 				case MODBUS_FC_WRITE_REG:
-					LgtResp = LgtResp+4; // 2 bytes for address 2 for data
+                                // 2 bytes for address 2 for data
+					LgtResp = LgtResp + LgtResp +4; 
 					break;
 				case MODBUS_FC_WRITE_REGS:
-					LgtResp = LgtResp + (NbrEles*2)+2;  // 2 bytes per data and 2 bytes for number of datas (max 125)
+                                // 2 bytes for address start and 2 bytes for number of registers 
+					LgtResp = LgtResp + LgtResp +4; 
 					break;
 				case MODBUS_FC_DIAGNOSTICS://modbus function 8
-					LgtResp = LgtResp+4;// 2 bytes for sub code 2 for data
+                                // 2 bytes for sub code 2 for data
+					LgtResp = LgtResp + LgtResp +4; 
 					break;
+                                default:
+                                        printf("INFO CLASSICLADDER-   MODBUS function code not reconized");
+                                        break;
 		}
 	}
 	if ( ModbusDebugLevel>=3 )
@@ -540,11 +544,11 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <- \n", LgtAskFrame );
+			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  ", LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-                           if (DebugFrame==0) {   printf("Slave address-%X \n", Question[ DebugFrame]);   
-                           }else{   if (DebugFrame==1) {   printf("Function code-%X \nData-", Question[ DebugFrame]);   
+                           if (DebugFrame==0) {   printf("Slave address-%X  ", Question[ DebugFrame]);   
+                           }else{   if (DebugFrame==1) {   printf("Function code-%X  Data-", Question[ DebugFrame]);   
 				       }else{            printf("%X ", Question[ DebugFrame ] );     }}
 			}
 			printf("\n");
