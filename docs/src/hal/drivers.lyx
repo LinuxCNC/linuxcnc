@@ -77,8 +77,7 @@ x
 \begin_inset Quotes erd
 \end_inset 
 
- mode allows a more flexible mode with 8 dedicated outputs, 5 dedicated
- inputs, and 4 open collector pins.
+ mode allows a more flexible mode with 8 outputs, and 9 inputs.
  In other parallel ports, the control group has push-pull drivers and cannot
  be used as an input.
 \begin_inset Foot
