@@ -114,8 +114,7 @@ x
 \begin_inset Quotes erd
 \end_inset 
 
- mode, output a HIGH value on the pin.
- HAL should read the pin as TRUE.
+ mode.  With no device attached, HAL should read the pin as TRUE.
  Next, insert a 470
 \begin_inset Formula $\Omega$
 \end_inset 
@@ -137,8 +136,6 @@ x
 
 The external hardware that drives the control pins should also use open
  collector gates (e.g., 74LS05).
- Generally, the -out HAL pins should be set to TRUE when the physical pin
- is being used as an input.
 \layout Standard
 
 On some machines, BIOS settings may affect whether 
@@ -172,7 +169,16 @@ No other combinations are supported, and a port cannot be changed from input
 \end_inset 
 
  shows two block diagrams, one showing the driver when the data group is
- configured for output, and one showing it configured for input.
+ configured for output, and one showing it configured for input.  For "x"
+ mode, refer to the pin listing of
+\begin_inset Quotes eld
+\end_inset 
+
+halcmd show pin
+\begin_inset Quotes erd
+\end_inset 
+
+ for pin direction assignment.
 \layout Standard
 
 The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parpor
