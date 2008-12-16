@@ -254,7 +254,7 @@ void hm2_watchdog_print_module(hostmot2_t *hm2) {
 
 
 void hm2_watchdog_cleanup(hostmot2_t *hm2) {
-    if (hm2->watchdog.num_instances == 0) return;
+    if (hm2->watchdog.num_instances <= 0) return;
     if (hm2->watchdog.status_reg != NULL) kfree(hm2->watchdog.status_reg);
     if (hm2->watchdog.reset_reg != NULL) kfree(hm2->watchdog.reset_reg);
     if (hm2->watchdog.timer_reg != NULL) kfree(hm2->watchdog.timer_reg);

@@ -448,6 +448,8 @@ fail0:
 void hm2_encoder_tram_init(hostmot2_t *hm2) {
     int i;
 
+    if (hm2->encoder.num_instances <= 0) return;
+
     // "all time is now"
     hm2->encoder.prev_timestamp_count_reg = *hm2->encoder.timestamp_count_reg;
 
@@ -822,7 +824,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
 
-    if (hm2->encoder.num_instances == 0) return;
+    if (hm2->encoder.num_instances <= 0) return;
 
     if (hm2->encoder.prev_timestamp_count_reg > (*hm2->encoder.timestamp_count_reg)) {
         hm2->encoder.tsc_rollover_flag = 2;
@@ -840,6 +842,7 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
 void hm2_encoder_cleanup(hostmot2_t *hm2) {
+    if (hm2->encoder.num_instances <= 0) return;
     kfree(hm2->encoder.control_reg);
 }
 

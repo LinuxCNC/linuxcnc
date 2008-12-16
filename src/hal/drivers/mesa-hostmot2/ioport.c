@@ -544,6 +544,9 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
     int port;
     int port_pin;
 
+    // this should never happen - what's an AnyIO board without IO?
+    if (hm2->ioport.num_instances <= 0) return;
+
     hm2->llio->read(
         hm2->llio,
         hm2->ioport.data_addr,
@@ -570,6 +573,9 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
 void hm2_ioport_gpio_write(hostmot2_t *hm2) {
     int port;
     int port_pin;
+
+    // this should never happen - what's an AnyIO board without IO?
+    if (hm2->ioport.num_instances <= 0) return;
 
     hm2_ioport_write(hm2);  // this updates any config registers that need it
 

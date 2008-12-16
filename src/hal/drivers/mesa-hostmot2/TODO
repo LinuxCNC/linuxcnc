@@ -237,6 +237,8 @@ ioport:
 
 stepgen:
 
+    needs a cleanup() function
+
     stepgen overshoots with high maxaccel, but most of the time
     maxaccel is 0, isn't it?  so the trajectory planner gets to control
     acceleration?
