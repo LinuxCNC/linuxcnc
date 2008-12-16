@@ -8514,7 +8514,7 @@ M66 Input Control
 
 \layout Standard
 
-To control a digital input bit, program 
+To read the value of an analog or digital input pin, program 
 \family typewriter 
 M66 P- E- L- Q-
 \family default 
@@ -8559,6 +8559,8 @@ The L-word specifies the wait type:
 The Q-word specifies the timeout for the waiting.
  If the timeout is exceeded, the wait is interrupt, and the variable #5399
  will be holding the value -1.
+ The Q value is ignored if the L-word is zero (IMMEDIATE).
+ A Q value of zero is an error if the L-word is non-zero.
 \layout Itemize
 
 Mode 0 is the only one permitted for an analog input.
@@ -8566,15 +8568,11 @@ Mode 0 is the only one permitted for an analog input.
 
 M66 wait on an input stops further execution of the program, until the selected
  event (or the programmed timeout) occurs.
- It is an error to program a timeout value of 0 with any mode different
- than mode 0.
- 
 \layout Standard
 
-It is also an error to program M66 with both a P-word and an E-word (thus
- selecting both an analog and a digital input).In EMC2 these inputs are not
- monitored in realtime and thus should not be used for timing-critical applicati
-ons.
+It is an error to program M66 with both a P-word and an E-word (thus selecting
+ both an analog and a digital input).In EMC2 these inputs are not monitored
+ in realtime and thus should not be used for timing-critical applications.
 \layout Section
 
 M100 to M199 User Defined Commands
