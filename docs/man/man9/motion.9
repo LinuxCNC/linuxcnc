@@ -153,6 +153,11 @@ Actual spindle speed feedback; used for G96 feed-per-revolution and constant sur
 \fBmotion.spindle-speed-out\fR OUT float 
 Desired spindle speed in rotations per minute
 
+.TP
+\fBmotion.spindle-at-speed\fR IN bit 
+Motion will pause until this pin is TRUE, under the following conditions: before the
+first feed move after each spindle start or speed change; before the start of every
+chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
 
 .SH PARAMETERS
 
