@@ -90,7 +90,7 @@ typedef struct _modbus_param_t {
 	/* Communication : RTU or TCP */
 	type_com_t type_com;
 	/* Device: "/dev/ttyS0" */
-	char device[11];
+	char device[PATH_MAX];
 	/* whether or not to print errors.  0=no print, 1=print */
 	int print_errors;
 	/* Bauds: 19200 */
