@@ -164,24 +164,6 @@ motion.spindle-revs
 .
 \layout Description
 
-motion.spindle-is-atspeed-in (bit, in) If FALSE at the beginning of a feed
- move, motion will pause until spindle reaches new programmed speed.
- Many VFDs have an 
-\begin_inset Quotes eld
-\end_inset 
-
-at speed
-\begin_inset Quotes erd
-\end_inset 
-
- output.
- Otherwise, it is easy to generate this signal with the 
-\family typewriter 
-near
-\family default 
- component, by comparing requested and actual spindle speeds.
-\layout Description
-
 motion.spindle-on (bit, out) TRUE when spindle should rotate.
 \layout Description
 
@@ -224,6 +206,30 @@ M3
 M4
 \family default 
 ).
+\layout Description
+
+motion.spindle-at-speed (bit, in) Motion will pause until this pin is TRUE,
+ under the following conditions: before the first feed move after each spindle
+ start or speed change; before the start of every chain of spindle-synchronized
+ moves; and if in CSS mode, at every rapid->feed transition.
+ This input can be used to ensure that the spindle is up-to-speed before
+ starting a cut, or that a lathe spindle in CSS mode has slowed down after
+ a large-to-small facing pass before starting the next pass at the large
+ diameter.
+ Many VFDs have an 
+\begin_inset Quotes eld
+\end_inset 
+
+at speed
+\begin_inset Quotes erd
+\end_inset 
+
+ output.
+ Otherwise, it is easy to generate this signal with the 
+\family typewriter 
+near
+\family default 
+ component, by comparing requested and actual spindle speeds.
 \layout Description
 
 motion.tooloffset.w (float, out) shows the w offset in effect; it could come
