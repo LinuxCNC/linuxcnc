@@ -2630,9 +2630,8 @@ Order of Execution
 
 \layout Standard
 
-The order of execution of items on a line is critical to safe and effective
- machine operation.
- Items are executed in the order shown below if they occur on the same line.
+The order of ececution of items on a line is defined not by the position of
+ each item on the line, but by the following list:
 \layout Enumerate
 
 Comment (including message)
