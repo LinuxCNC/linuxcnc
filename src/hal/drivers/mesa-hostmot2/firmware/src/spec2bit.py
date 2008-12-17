@@ -297,7 +297,7 @@ os.rename(prefix+".bld", ngdlog_fname)
 # first step of actual device fitting - mapping
 maplog_fname = prefix + ".map.log"
 nad_fname = prefix + ".map.ncd"
-pcf_fname = prefix + ".pcf"
+pcf_fname = prefix + ".map.pcf"
 print "invoking map to fit design into device"
 run("map", "-o", nad_fname, ngd_fname)
 
