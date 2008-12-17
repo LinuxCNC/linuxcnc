@@ -88,7 +88,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     // some standard sanity checks
     //
 
-    if (!hm2_md_is_consistent(hm2, md_index, 0, 3, 4, 0)) {
+    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 3, 4, 0)) {
         ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }

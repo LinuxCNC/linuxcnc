@@ -502,7 +502,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
 // 
 
 
-int hm2_md_is_consistent(
+int hm2_md_is_consistent_or_complain(
     hostmot2_t *hm2,
     int md_index,
     u8 version,
@@ -512,14 +512,7 @@ int hm2_md_is_consistent(
 ) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
 
-    if (
-        (md->num_registers == num_registers)
-        && (md->version == version)
-        && (md->instance_stride == instance_stride)
-        && (md->multiple_registers == multiple_registers)
-    ) {
-        return 1;
-    }
+    if (hm2_md_is_consistent(hm2, md_index, version, num_registers, instance_stride, multiple_registers)) return 1;
 
     ERR(
         "inconsistent Module Descriptor for %s, not loading driver\n",
@@ -549,6 +542,29 @@ int hm2_md_is_consistent(
         md->multiple_registers,
         multiple_registers
     );
+
+    return 0;
+}
+
+
+int hm2_md_is_consistent(
+    hostmot2_t *hm2,
+    int md_index,
+    u8 version,
+    u8 num_registers,
+    u32 instance_stride,
+    u32 multiple_registers
+) {
+    hm2_module_descriptor_t *md = &hm2->md[md_index];
+
+    if (
+        (md->num_registers == num_registers)
+        && (md->version == version)
+        && (md->instance_stride == instance_stride)
+        && (md->multiple_registers == multiple_registers)
+    ) {
+        return 1;
+    }
 
     return 0;
 }

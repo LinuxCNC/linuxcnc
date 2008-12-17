@@ -633,7 +633,19 @@ typedef struct {
 // misc little helper functions
 //
 
+// this one just returns TRUE if the MD is good, FALSE if not
 int hm2_md_is_consistent(
+    hostmot2_t *hm2,
+    int md_index,
+    u8 version,
+    u8 num_registers,
+    u32 instance_stride,
+    u32 multiple_registers
+);
+
+// this one prints a warning message about the unexpected MD,
+// *then* returns TRUE if the MD is good, FALSE if not
+int hm2_md_is_consistent_or_complain(
     hostmot2_t *hm2,
     int md_index,
     u8 version,
