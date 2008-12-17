@@ -3,7 +3,7 @@ config_pins = 72
 module_id =  """
 (
 (WatchDogTag,	x"00",	ClockLowTag,	x"01",	WatchDogTimeAddr&PadT,	WatchDogNumRegs,	x"00",	WatchDogMPBitMask),
-(IOPortTag,	x"00",	ClockLowTag,	x"02",	PortAddr&PadT,		IOPortNumRegs,		x"00",	IOPortMPBitMask),
+(IOPortTag,	x"00",	ClockLowTag,	x"03",	PortAddr&PadT,		IOPortNumRegs,		x"00",	IOPortMPBitMask),
 (QcountTag,	x"02",	ClockLowTag,	x"08",	QcounterAddr&PadT,	QCounterNumRegs,	x"00",	QCounterMPBitMask),
 (PWMTag,	x"00",	ClockHighTag,	x"08",	PWMValAddr&PadT,	PWMNumRegs,		x"00",	PWMMPBitMask),
 (StepGenTag,	x"00",	ClockLowTag,	x"04",	StepGenRateAddr&PadT,	StepGenNumRegs,		x"00",	StepGenMPBitMask),
