@@ -2630,7 +2630,7 @@ Order of Execution
 
 \layout Standard
 
-The order of ececution of items on a line is defined not by the position of
+The order of execution of items on a line is defined not by the position of
  each item on the line, but by the following list:
 \layout Enumerate
 
