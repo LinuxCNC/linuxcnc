@@ -2698,7 +2698,7 @@ set distance mode (G90, G91).
 set retract mode (G98, G99).
 \layout Enumerate
 
-home (G28, G30) or change coordinate system data (G10) or set axis offsets
+go to reference location (G28, G30) or change coordinate system data (G10) or set axis offsets
  (G92, G92.1, G92.2, G94).
  
 \layout Enumerate
