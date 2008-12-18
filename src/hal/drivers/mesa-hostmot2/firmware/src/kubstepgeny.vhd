@@ -234,7 +234,6 @@ begin
 				end if;
 			end if;	
 			
-			
 			if loadstepmode = '1' then					   								-- our register writes
 				stepmode <= ibus(1 downto 0);
 			end if;
@@ -269,7 +268,13 @@ begin
 		end if; -- clk									-- but setup timer has not started yet (Probably more elegant to use state machine)
 
 		dirchange <= stepdirout xor stepdir;			
-		wewouldcount <= nextmsb xor stepmsb;
+		if (stepmsb = '1' and nextmsb = '0' and stepdir = '0')			-- we would count up
+		or (stepmsb = '0' and nextmsb = '1' and stepdir = '1')  then 	-- we would count down		
+			wewouldcount <= '1';
+		else
+			wewouldcount <= '0';
+		end if;	
+--		wewouldcount <= nextmsb xor stepmsb;
 		waitforhold <= (dirholdwait or ddirholdwait) and dirchange;
 		waitforpulse <= pulsewait or dpulsewait;
 
