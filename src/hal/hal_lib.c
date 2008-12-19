@@ -163,7 +163,7 @@ static void thread_task(void *arg);
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
 
-static int ref_cnt;
+static int ref_cnt = 0;
 
 int hal_init(const char *name)
 {
