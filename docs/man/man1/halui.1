@@ -273,6 +273,8 @@ pin for setting the scale on changing the FO
 .TP
 \fIhalui.feed-override.counts\fR
 counts from an encoder to change FO
+\fIhalui.feed-override.count-enable\fR (default: \fBTRUE\fR)
+When TRUE, modify feed override when counts changes.
 .TP
 \fIhalui.feed-override.increase\fR
 pin for increasing the FO (+=scale)
@@ -289,12 +291,36 @@ pin for setting the scale on changing the SO
 .TP
 \fIhalui.spindle-override.counts\fR
 counts from an encoder for example to change SO
+\fIhalui.spindle-override.count-enable\fR (default: \fBTRUE\fR)
+When TRUE, modify spindle override when counts changes.
 .TP
 \fIhalui.spindle-override.increase\fR
 pin for increasing the SO (+=scale)
 .TP
 \fIhalui.spindle-override.decrease\fR
 pin for decreasing the SO (-=scale)
+.TP
+\fIhalui.spindle-override.value\fR
+current FO value
+.SS maximum velocity
+.TP
+\fIhalui.max-velocity.scale\fR
+pin for setting the scale on changing the maximum velocity
+.TP
+\fIhalui.max-velocity.counts\fR
+counts from an encoder for example to change maximum velocity
+\fIhalui.max-velocity.count-enable\fR (default: \fBTRUE\fR)
+When TRUE, modify max velocity when counts changes.
+.TP
+\fIhalui.max-velocity.increase\fR
+pin for increasing the maximum velocity (+=scale)
+.TP
+\fIhalui.max-velocity.decrease\fR
+pin for decreasing the maximum velocity (-=scale)
+.TP
+\fIhalui.max-velocity.value\fR
+Current value for maximum velocity
+
 
 .SH "SEE ALSO"
 
