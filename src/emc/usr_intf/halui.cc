@@ -181,10 +181,19 @@ DONE: - program:
 DONE: - general:
    halui.abort                         bit // pin to send an abort message (clears out most errors, stops running programs, etc)
 
+DONE: - max-velocity-override
+   halui.max-velocity-override.value           float //current MV value
+   halui.max-velocity-override.scale           float // pin for setting the scale on changing the MV
+   halui.max-velocity-override.counts          s32   //counts from an encoder for example to change MV
+   halui.max-velocity-override.count-enable    bit   // TRUE to modify MV based on counts
+   halui.max-velocity-override.increase        bit   // pin for increasing the MV (+=scale)
+   halui.max-velocity-override.decrease        bit   // pin for decreasing the MV (-=scale)
+
 DONE: - feed-override
    halui.feed-override.value           float //current FO value
    halui.feed-override.scale           float // pin for setting the scale on changing the FO
    halui.feed-override.counts          s32   //counts from an encoder for example to change FO
+   halui.feed-override.count-enable    bit   // TRUE to modify FO based on counts
    halui.feed-override.increase        bit   // pin for increasing the FO (+=scale)
    halui.feed-override.decrease        bit   // pin for decreasing the FO (-=scale)
 
@@ -192,6 +201,7 @@ DONE: - spindle-override
    halui.spindle-override.value           float //current FO value
    halui.spindle-override.scale           float // pin for setting the scale on changing the SO
    halui.spindle-override.counts          s43   //counts from an encoder for example to change SO
+   halui.spindle-override.count-enable    bit   // TRUE to modify SO based on counts
    halui.spindle-override.increase        bit   // pin for increasing the SO (+=scale)
    halui.spindle-override.decrease        bit   // pin for decreasing the SO (-=scale)
 
@@ -285,18 +295,21 @@ struct halui_str {
     hal_float_t *jog_deadband;	//pin for setting the jog analog deadband (where not to move)
 
     hal_s32_t *mv_counts;	//pin for the Max Velocity counting
+    hal_bit_t *mv_count_enable;	//pin for the Max Velocity counting enable
     hal_float_t *mv_scale;	//scale for the Max Velocity counting
     hal_float_t *mv_value;	//current Max Velocity value
     hal_bit_t  *mv_increase;	// pin for increasing the MV (+=scale)
     hal_bit_t  *mv_decrease;	// pin for decreasing the MV (-=scale)
 
     hal_s32_t *fo_counts;	//pin for the Feed Override counting
+    hal_bit_t *fo_count_enable;	//pin for the Feed Override counting enable
     hal_float_t *fo_scale;	//scale for the Feed Override counting
     hal_float_t *fo_value;	//current Feed Override value
     hal_bit_t  *fo_increase;	// pin for increasing the FO (+=scale)
     hal_bit_t  *fo_decrease;	// pin for decreasing the FO (-=scale)
 
     hal_s32_t *so_counts;	//pin for the Spindle Speed Override counting
+    hal_bit_t *so_count_enable;	//pin for the Spindle Speed Override counting enable
     hal_float_t *so_scale;	//scale for the Spindle Speed Override counting
     hal_float_t *so_value;	//current Spindle speed Override value
     hal_bit_t  *so_increase;	// pin for increasing the SO (+=scale)
@@ -877,6 +890,9 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_s32(&(halui_data->mv_counts), "halui.max-velocity.counts");
     if (retval != HAL_SUCCESS) return retval;
     *halui_data->mv_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->mv_count_enable), "halui.max-velocity.count-enable");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->mv_count_enable = 1;
     retval = halui_export_pin_IN_float(&(halui_data->mv_scale), "halui.max-velocity.scale");
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->mv_increase), "halui.max-velocity.increase");
@@ -887,6 +903,9 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
     if (retval != HAL_SUCCESS) return retval;
     *halui_data->fo_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->fo_count_enable), "halui.feed-override.count-enable");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->fo_count_enable = 1;
     retval = halui_export_pin_IN_float(&(halui_data->fo_scale), "halui.feed-override.scale");
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_increase), "halui.feed-override.increase");
@@ -897,6 +916,9 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_s32(&(halui_data->so_counts), "halui.spindle-override.counts");
     if (retval != HAL_SUCCESS) return retval;
     *halui_data->so_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->so_count_enable), "halui.spindle-override.count-enable");
+    if (retval != HAL_SUCCESS) return retval;
+    *halui_data->so_count_enable = 1;
     retval = halui_export_pin_IN_float(&(halui_data->so_scale), "halui.spindle-override.scale");
     if (retval != HAL_SUCCESS) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->so_increase), "halui.spindle-override.increase");
@@ -1678,7 +1700,8 @@ static void check_hal_changes()
     //max-velocity stuff
     counts = *halui_data->mv_counts;
     if(counts != old_halui_data.mv_counts) {
-        sendMaxVelocity( *halui_data->mv_value + (counts - old_halui_data.mv_counts) *
+        if(*halui_data->mv_count_enable)
+            sendMaxVelocity( *halui_data->mv_value + (counts - old_halui_data.mv_counts) *
                 *halui_data->mv_scale);
         old_halui_data.mv_counts = counts;
     }
@@ -1686,7 +1709,8 @@ static void check_hal_changes()
     //feed-override stuff
     counts = *halui_data->fo_counts;
     if(counts != old_halui_data.fo_counts) {
-        sendFeedOverride( *halui_data->fo_value + (counts - old_halui_data.fo_counts) *
+        if(*halui_data->fo_count_enable)
+            sendFeedOverride( *halui_data->fo_value + (counts - old_halui_data.fo_counts) *
                 *halui_data->fo_scale);
         old_halui_data.fo_counts = counts;
     }
@@ -1694,7 +1718,8 @@ static void check_hal_changes()
     //spindle-override stuff
     counts = *halui_data->so_counts;
     if(counts != old_halui_data.so_counts) {
-        sendSpindleOverride( *halui_data->so_value + (counts - old_halui_data.so_counts) *
+        if(*halui_data->so_count_enable)
+            sendSpindleOverride( *halui_data->so_value + (counts - old_halui_data.so_counts) *
                 *halui_data->so_scale);
         old_halui_data.so_counts = counts;
     }
