@@ -40,6 +40,12 @@
 \end_inset 
 
 Introduction
+\layout Standard
+
+This manual is for the person who wants to know more about HAL than is needed
+ to just set up an EMC configuration file.
+ HAL can run without EMC so this manual focuses on the stand alone HAL.
+ For information on EMC related HAL see the Integrators manual.
 \layout Section
 
 
