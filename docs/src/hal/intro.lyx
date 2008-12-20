@@ -40,6 +40,12 @@
 \end_inset 
 
 Introduction
+\layout Standard
+
+This manual is for the person who wants to know more about HAL than is needed
+ to just set up an EMC configuration file.
+ HAL can run without EMC so this manual focuses on the stand alone HAL.
+ For information on EMC related HAL see the Integrators manual.
 \layout Section
 
 
@@ -93,8 +99,8 @@ Any system (including a CNC
 
  machine), consists of interconnected components.
  For the CNC machine, those components might be the main controller, servo
- amps or stepper drives, motors, encoders, limit switches, pushbutton pendants,
- perhaps a VFD for the spindle drive, a PLC to run a toolchanger, etc.
+ amps or stepper drives, motors, encoders, limit switches, push button pendants,
+ perhaps a VFD for the spindle drive, a PLC to run a tool changer, etc.
  The machine builder must select, mount and wire these pieces together to
  make a complete system.
 \layout Subsubsection
@@ -348,7 +354,7 @@ stick out
 
  into the real world.
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
