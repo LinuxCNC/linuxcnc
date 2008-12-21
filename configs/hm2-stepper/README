@@ -1,0 +1,7 @@
+
+This configuration drives a 3-axis stepper machine using a 7i43 board
+and hostmot2.  No limit switches are used, so this should work with very
+basic hardware.
+
+This configuration was derived from Ted Hyde's hm2-servo config.
+
