@@ -1976,6 +1976,7 @@ set kinematics_type -1
 set metric 0
 set max_speed 1
 trace variable taskfile w update_title
+trace variable machine w update_title
 trace variable taskfile w queue_update_state
 trace variable task_state w queue_update_state
 trace variable task_mode w queue_update_state
