@@ -385,7 +385,7 @@ EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
 NOCVS=$(filter-out %CVS,$(1))
 GLOB=$(call NOCVS,$(wildcard $(1)))
-CONFIGS=5axis boss classicladder/cl-estop common dallur-thc demo_mazak demo_sim_cl demo_step_cl etch-servo halui_halvcp hexapod-sim hostmot2 lathe-pluto m5i20 max motenc nist-lathe plasma-thc plasma-thc-sim ppmc puma scara sim stepper stepper-gantry stepper-xyza stg tormach univpwm univstep vismach vti
+CONFIGS=5axis boss classicladder/cl-estop common dallur-thc demo_mazak demo_sim_cl demo_step_cl etch-servo halui_halvcp hexapod-sim hostmot2 lathe-pluto m5i20 max motenc nist-lathe plasma-thc plasma-thc-sim ppmc puma scara sim stepper stepper-gantry stepper-xyza stg tormach univpwm univstep vismach vti Sherline4Axis Sherline3Axis SherlineLathe
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
@@ -519,8 +519,8 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max \
 		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
 		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
-		puma scara boss 5axis) \
-	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl) \
+		puma scara boss 5axis Sherline3Axis Sherline4Axis SherlineLathe) \
+	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
