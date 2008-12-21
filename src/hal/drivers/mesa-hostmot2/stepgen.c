@@ -115,6 +115,8 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         double position_at_stop;
         double pos_error_at_stop;
 
+        // FIXME: this is buggy for maxaccel == 0
+
         if (s->hal.param.maxaccel > 0.0) {
             seconds_until_stop = fabs(*s->hal.pin.velocity_fb) / s->hal.param.maxaccel;
         } else {
