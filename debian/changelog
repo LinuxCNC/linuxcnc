@@ -1,3 +1,9 @@
+emc2 (1:2.2.9~cvs) hardy; urgency=low
+
+  * Add Sherline lathe, 3- and 4-axis mill configurations from Heinz Reimer
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 21 Dec 2008 12:03:19 -0600
+
 emc2 (1:2.2.8) hardy; urgency=low
 
   * Documentation improvements
