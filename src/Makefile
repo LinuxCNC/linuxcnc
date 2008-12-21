@@ -513,8 +513,8 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max \
 		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
 		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
-		puma scara boss) \
-	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl) \
+		puma scara boss Sherline3Axis Sherline4Axis SherlineLathe) \
+	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
