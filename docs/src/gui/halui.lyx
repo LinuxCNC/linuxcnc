@@ -56,15 +56,16 @@ Halui is a HAL based user interface for EMC, it connects HAL pins to NML
  a traditional GUI (mini, Axis, etc.), is provided by HAL pins in Halui.
 \layout Standard
 
-The easiest way to use halui is to add the following to the [HAL] section
- of the ini file
+The easiest way to add halui is to add the following to the [HAL] section
+ of the ini file.
 \layout Quote
 
 HALUI = halui
 \layout Standard
 
 An alternate way to invoke it (especially when using a stepconf generated
- config file) is to include
+ config file) is to include the following in your custom.hal file.
+ Make sure you use the actual path to your ini file.
 \layout Quote
 
 loadusr halui -ini /path/to/inifile.ini
