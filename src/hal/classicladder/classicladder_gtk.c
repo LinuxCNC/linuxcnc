@@ -50,6 +50,7 @@ GtkWidget *FileSelector;
 GtkWidget *ConfirmDialog;
 GtkWidget *RungWindow;
 GtkWidget *StatusBar;
+GtkWidget *dialog,*label, *okay_button;
 gint StatusBarContextId;
 
 #include "drawing.h"
@@ -968,6 +969,7 @@ void InitGtkWindows( int argc, char *argv[] )
 	ManagerInitGtk( );
 	SymbolsInitGtk( );
         IntConfigWindowGtk( );
+        ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
 	gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
 
@@ -997,17 +999,26 @@ void UpdateWindowTitleWithProjectName( void )
 	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
 
+gint ErrorMessageDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	gtk_widget_hide( dialog );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+
 void ShowErrorMessage(const char * title, const char * text, const char * button)
 {
 	/* From the example in gtkdialog help */
-	GtkWidget *dialog, *label, *okay_button;
+	//GtkWidget *label, *okay_button;
 	/* Create the widgets */
 	dialog = gtk_dialog_new();
 	label = gtk_label_new (text);
 	okay_button = gtk_button_new_with_label(button);
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
 	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
-							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
+							GTK_SIGNAL_FUNC (ErrorMessageDeleteEvent), GTK_OBJECT(dialog));
+        gtk_signal_connect( GTK_OBJECT( dialog ), "delete_event",
+		(GtkSignalFunc)ErrorMessageDeleteEvent, 0 );
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
 					okay_button);
 	gtk_widget_grab_focus(okay_button);
@@ -1017,7 +1028,9 @@ void ShowErrorMessage(const char * title, const char * text, const char * button
 	//gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
 	gtk_window_set_title(GTK_WINDOW(dialog),title);
 	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
+        
 	gtk_widget_show_all (dialog);
+        gtk_widget_hide( dialog );
 }
 void CheckForErrors (void)
 {
@@ -1025,7 +1038,9 @@ void CheckForErrors (void)
         if ( (ReadVar( VAR_ERROR_BIT, 0 )==TRUE) && (temp==0))
            { 
              temp=1;
-             ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
+             //ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
+             if ( !GTK_WIDGET_VISIBLE( dialog ) ) {  gtk_widget_show (dialog);  }
            }
         if ( ReadVar( VAR_ERROR_BIT, 0 )==FALSE) {    temp=0;  }
 }
+
