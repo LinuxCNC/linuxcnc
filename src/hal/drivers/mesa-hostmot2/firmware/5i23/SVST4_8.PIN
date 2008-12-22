@@ -42,7 +42,7 @@ Modules in configuration:
 
   Module: StepGen
   There are 8 of StepGen in configuration
-  Version: 0
+  Version: 1
   Registers: 10
   BaseAddress: 2000
   ClockFrequency: 48.000 MHz
