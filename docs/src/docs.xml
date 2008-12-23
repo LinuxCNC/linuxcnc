@@ -3,7 +3,6 @@
 <doc name="common_user_intro" title="Introduction to EMC2"/>
 <doc name="common_System_Requirements" title="System Requirements"/>
 <doc name="common_Getting_EMC" title="Getting EMC Guide"/>
-<doc name="install_compiling_emc2" title="Compiling EMC2"/>
 <doc name="install_installing_emc2" title="Installing EMC2"/>
 <doc name="common_Stepper_Diagnostics" title="Stepper Diagnostics"/>
 <doc name="common_Linux_FAQ" title="Linux FAQ"/>
@@ -30,7 +29,6 @@
 
 <doc name="hal_intro" title="Introduction"/>
 <doc name="hal_basic_hal" title="Basic Hal Info"/>
-<doc name="hal_tutorial" title="Tutorial"/>
 <doc name="hal_general_ref" title="General Reference"/>
 <doc name="hal_tools" title="Tools"/>
 <doc name="hal_halshow" title="Halshow"/>
@@ -47,6 +45,8 @@
 <doc name="code_Code_Notes" title="Code Notes"/>
 <doc name="code_Style_Guide" title="Style Guide"/>
 
+<doc name="hal_tutorial" title="HAL Advanced Tutorial"/>
+<doc name="install_compiling_emc2" title="Compiling EMC2"/>
 <doc name="motion_kinematics" title="Kinematics"/>
 <doc name="motion_pid_theory" title="PID Theory"/>
 
