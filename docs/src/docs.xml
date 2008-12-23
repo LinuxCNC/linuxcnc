@@ -4,6 +4,9 @@
 <doc name="common_Getting_EMC" title="Getting EMC2"/>
 <doc name="install_compiling_emc2" title="Compiling EMC2"/>
 <doc name="install_installing_emc2" title="Installing EMC2"/>
+<doc name="common_Stepper_Diagnostics" title="Stepper Diagnostics"/>
+<doc name="common_Linux_FAQ" title="Linux FAQ"/>
+
 
 <doc name="config_stepconf" title="Configuration Wizard for Stepper-Based Machines"/>
 <doc name="config_ini_config" title="Basic Configuration"/>
