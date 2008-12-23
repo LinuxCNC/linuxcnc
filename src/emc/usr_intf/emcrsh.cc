@@ -2659,6 +2659,7 @@ void *readClient(void *arg)
   
   while (1) {
     len = read(context->cliSock, &str, 1600);
+    if (len <= 0) goto finished;
     str[len] = 0;
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
@@ -2675,20 +2676,19 @@ void *readClient(void *arg)
         if (j > 0)
           {
   	    context->inBuf[j] = 0;
-            if (parseCommand(context) == -1)
-              {
-               close(context->cliSock);
-               free(context);
-	       pthread_exit((void *)0);
-               sessions--;
-              }
+            if (parseCommand(context) == -1) goto finished;
 	    j = 0;
 	}
         i++;	
       }
     buf[0] = 0;
     } 
-  return 0;
+
+finished:
+  close(context->cliSock);
+  free(context);
+  pthread_exit((void *)0);
+  sessions--;  // FIXME: not reached
 }
 
 int sockMain()
