@@ -40,6 +40,13 @@ int SerialCorres[ ] = { B300, B600, B1200, B2400, B4800, B9600, B19200, B38400, 
 
 char PortIsOpened = 0;
 int fd;
+long DATABITS;
+long STOPBITS;
+long PARITYON;
+long PARITY;
+int Data_Bits = 8;   // Number of data bits (7, 6, 7, 8)
+int Stop_Bits = 1;   // Number of stop bits (1 or 2)
+int Parity = 0;      // Parity (00 = NONE, 01 = Odd, 02 = Even, 03 = Mark, 04 = Space)
 struct termios oldtio;
 struct termios newtio;
 
@@ -51,6 +58,7 @@ char SerialOpen( char * SerialPortName, int Speed )
 
 	/* open the device to be non-blocking (read will return immediatly) */
 	fd = open( SerialPortName, O_RDWR | O_NOCTTY | O_NDELAY/*don't wait DTR*/ );
+        //fd = open( SerialPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (fd >=0)
 	{
 		int BaudRate = -1;
@@ -63,12 +71,55 @@ char SerialOpen( char * SerialPortName, int Speed )
 				BaudRate = SerialCorres[ ScanBaudRate ];
 			}
 		}
+switch (Data_Bits)
+      {
+         case 8:
+         default:
+            DATABITS = CS8;
+            break;
+         case 7:
+            DATABITS = CS7;
+            break;
+         case 6:
+            DATABITS = CS6;
+            break;
+         case 5:
+            DATABITS = CS5;
+            break;
+      }  //end of switch data_bits
+      switch (Stop_Bits)
+      {
+         case 1:
+         default:
+            STOPBITS = 0;
+            break;
+         case 2:
+            STOPBITS = CSTOPB;
+            break;
+      }  //end of switch stop bits
+      switch (Parity)
+      {
+         case 0:
+         default:                       //none
+            PARITYON = 0;
+            PARITY = 0;
+            break;
+         case 1:                        //odd
+            PARITYON = PARENB;
+            PARITY = PARODD;
+            break;
+         case 2:                        //even
+            PARITYON = PARENB;
+            PARITY = 0;
+            break;
+      }  //end of switch parity
 		if ( BaudRate!=-1 )
 		{        
 			tcgetattr(fd,&oldtio); /* save current port settings */
 			/* set new port settings */
 			bzero(&newtio, sizeof(newtio));
-			newtio.c_cflag = BaudRate | /*CRTSCTS |*/ CS8 | CLOCAL | CREAD;
+			//newtio.c_cflag = BaudRate | /*CRTSCTS |*/ CS8 | CLOCAL | CREAD;
+                        newtio.c_cflag = BaudRate | DATABITS | STOPBITS | PARITYON | PARITY | CLOCAL | CREAD;
 			//newtio.c_cflag |= PARENB
 			newtio.c_iflag = IGNPAR    | IGNBRK; // | ICRNL;
 			newtio.c_oflag = 0;
