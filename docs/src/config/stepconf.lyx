@@ -142,6 +142,8 @@ Configuration
 \end_inset 
 
  Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
+ If you choose lathe then you need to change the tool table to lathe style.
+ 
 \layout Description
 
 Machine\SpecialChar ~
