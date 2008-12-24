@@ -6564,7 +6564,7 @@ The
 \family typewriter 
 R-
 \family default 
- digression value is less than 1.0.
+ degression value is less than 1.0.
 \layout Itemize
 
 All the required words are not specified
@@ -6747,7 +6747,7 @@ The
 \begin_inset Quotes eld
 \end_inset 
 
-depth digression
+depth degression
 \begin_inset Quotes erd
 \end_inset 
 
@@ -6768,7 +6768,7 @@ R2.0
  selects constant area.
  Values between 1.0 and 2.0 select decreasing depth but increasing area.
  Values above 2.0 select decreasing area.
- Beware that unnecessarily high digression values will cause a large number
+ Beware that unnecessarily high degression values will cause a large number
  of passes to be used.
 \layout Standard
 
