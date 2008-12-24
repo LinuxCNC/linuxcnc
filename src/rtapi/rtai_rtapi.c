@@ -865,7 +865,7 @@ void rtapi_wait(void)
 		    error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
 		    "RTAPI: ERROR: Unexpected realtime delay on task %d\n" 
 		    "This Message will only display once per session.\n"
-		    "Run the Latency Test and resolve before continuing.", 
+		    "Run the Latency Test and resolve before continuing.\n", 
 		    rtapi_task_self());
 	    } else
 #endif
