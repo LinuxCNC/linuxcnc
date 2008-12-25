@@ -5,6 +5,8 @@ next steps:
 
     pins & params use "-" vs "_" inconsistently
 
+    "io-error" should probably be only for 7i43
+
 
     write a little userspace helper, a "hostmot2 config wizard":
 
@@ -22,14 +24,7 @@ next steps:
     > might be something to add to "man hostmot2".
 
 
-    include .PIN files as docs
-
-        JMK suggested auto-generating man pages from the PIN files...
-
-
-    better sample configs
-
-        ask cradek to commit his
+    JMK suggested auto-generating man pages from the PIN files...
 
 
     on driver unload, it should stop all the motors and "safe" the
@@ -363,33 +358,7 @@ how to configure the firmware?
 
 
 
-issues with the 2006-02-06 firmware:
-
-    svst4_4:
-
-        don't know what to do with this MD (LEDs?):
-
-            m7i43_hm2: Module Descriptor 6 at 0x0488:
-            m7i43_hm2:     General Function Tag: 128 ((unknown-gtag-128))
-            m7i43_hm2:     Version: 0
-            m7i43_hm2:     Clock Tag: 1
-            m7i43_hm2:     Instances: 1
-            m7i43_hm2:     Base Address: 0x0200
-            m7i43_hm2:     -- Num Registers: 1
-            m7i43_hm2:     Register Stride: 0x00000100
-            m7i43_hm2:     -- Instance Stride: 0x00000004
-            m7i43_hm2:     -- Multiple Registers: 0x00000000
-
-
-
-
-planned milestones:
-
-    1.0
-
-        add optional tram support
-
-        complete support for stepgen
+support the LED module (gtag 128)
 
 
 
@@ -426,4 +395,7 @@ wishlist:
 
 
     abstract the stepgen code into an EMC2 library
+
+
+    abstract the encoder code into an EMC2 library
 
