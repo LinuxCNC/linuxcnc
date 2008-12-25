@@ -237,6 +237,17 @@ ioport:
 
 stepgen:
 
+    stepgen timing reg fixes:
+
+        The user's requested steplen (in nanoseconds) will be quantized
+        to ClockLow periods (rounded up); the result decremented (but not
+        smaller than 1); and the result of *that* sent to the pulsehold
+        FPGA register.
+
+        The user's requested stepspace (in nanoseconds) will be quantized
+        to ClockLow periods (rounded up); the result decremented (zero
+        ok); and the result of *that* sent to the pulsewait FPGA register.
+
     needs a cleanup() function
 
     stepgen overshoots with high maxaccel, but most of the time
@@ -306,14 +317,9 @@ watchdog:
     needs to support multiple boards (i think this works)
 
 
-5i20, 5i23, 4i65, 4i68:
+5i20, 5i22, 5i23, 4i65, 4i68:
 
     no known issues
-
-
-5i22:
-
-    test with the 1.5M version
 
 
 
