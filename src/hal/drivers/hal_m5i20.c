@@ -337,7 +337,7 @@ rtapi_app_main(void)
 
     if(pCard16 == NULL){
 	// No card present.
-	rtapi_print_msg(RTAPI_MSG_WARN, "M5I20: **** No M5I20 card detected ****\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "M5I20: **** No M5I20 card detected ****\n");
 	hal_exit(driver.componentId);
 	return(-1);
     }
