@@ -83,13 +83,13 @@ clean the tree:
             boards supported: 5i20; 5i22 support planned?
             firmware source: eeprom or userspace
             firmware notes: not sure, a fork off the old hostmot code?
-            other notes: development stalled?
+            other notes: development stalled?  deprecate in favor of hostmot2?
 
             driver: hostmot2
-            boards supported: 5i20, 7i43
+            boards supported: all
             firmware source: request_firmware()/udev
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively developed, all AnyIO boards will be supported by end of summer
+            other notes: actively maintained
 
             driver: m7i43_hm2 DEPRECATED!
             boards supported: 7i43
@@ -110,13 +110,14 @@ clean the tree:
             boards supported: 5i20; 5i22 support planned?
             firmware source: eeprom or userspace
             firmware notes: not sure, a fork off the old hostmot code?
-            other notes: development stalled?
+            other notes: development stalled?  deprecate in favor of hostmot2?
+            jmk intends to remove this <http://www.linuxcnc.org/irc/irc.freenode.net:6667/emcdevel/2008-12-25.txt>
 
             driver: hostmot2
-            boards supported: 5i20, 7i43
+            boards supported: all
             firmware source: request_firmware()/udev
             firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively developed, all AnyIO boards will be supported by end of summer
+            other notes: actively maintained
 
             driver: mesa7i43-gpio DEPRECATED!
             boards supported: 7i43
