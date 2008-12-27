@@ -68,7 +68,7 @@ Informations sur la machine
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Caption
 
@@ -85,6 +85,7 @@ Page d'informations sur la machine
 	filename stepconf-basic_fr.png
 	scale 50
 	keepAspectRatio
+	BoundingBox 0bp 0bp 640bp 460bp
 
 \end_inset 
 
@@ -219,8 +220,9 @@ Page de réglage du port parallèle
 
 \begin_inset Graphics
 	filename stepconf-pinout_fr.png
-	scale 50
+	scale 70
 	keepAspectRatio
+	BoundingBox 0bp 0bp 695bp 605bp
 
 \end_inset 
 
@@ -244,9 +246,32 @@ inverser
 \layout Description
 
 Sorties\SpecialChar ~
-préselectionnées Réglage automatique des pins 2 à 9 selon le standard
- Sherline (Direction sur les pins 2, 4, 6, 8) ou selon le standard Xylotex
- (Direction sur les pins 3, 5, 7, 9).
+préselectionnées
+\begin_inset LatexCommand \index{Sorties preselectionnees}
+
+\end_inset 
+
+ Réglage automatique des pins 2 à 9 selon le standard Sherline (Direction
+ sur les pins 2, 4, 6, 8) ou selon le standard Xylotex (Direction sur les
+ pins 3, 5, 7, 9).
+\layout Description
+
+Entrées\SpecialChar ~
+et\SpecialChar ~
+sorties
+\begin_inset LatexCommand \index{Entrees et sorties}
+
+\end_inset 
+
+ Les entrées ou les sorties non utilisées doivent être placées sur 
+\begin_inset Quotes fld
+\end_inset 
+
+Inutilisée
+\begin_inset Quotes frd
+\end_inset 
+
+.
 \layout Description
 
 Inclure\SpecialChar ~
@@ -254,8 +279,12 @@ une\SpecialChar ~
 configuration\SpecialChar ~
 de\SpecialChar ~
 HAL\SpecialChar ~
-personnalisée Vous permet d'ajouter une personnalisa
-tion de hal dans le fichier 
+personnalisée
+\begin_inset LatexCommand \index{Conf. de HAL personnalisee}
+
+\end_inset 
+
+ Vous permet d'ajouter une personnalisation de hal dans le fichier 
 \begin_inset Quotes fld
 \end_inset 
 
@@ -281,6 +310,11 @@ panneau
 \series bold 
 PyVCP\SpecialChar ~
 personnalisé
+\begin_inset LatexCommand \index{Panneau PYVCP personnalise}
+
+\end_inset 
+
+
 \series default 
  Si coché, le panneau de contrôle PyVCP 
 \family typewriter 
@@ -295,6 +329,30 @@ panel.xml
 
 \family default 
  sera affiché dans la partie droite de la fenêtre principale d'AXIS.
+\layout Standard
+
+
+\series bold 
+Pompe de charge
+\begin_inset LatexCommand \index{Pompe de charge}
+
+\end_inset 
+
+
+\series default 
+ Si votre carte de contrôle gère une pompe de charge, dans la liste déroulante
+ des sorties, sélectionner 
+\begin_inset Quotes fld
+\end_inset 
+
+Pompe de charge
+\begin_inset Quotes frd
+\end_inset 
+
+ sur la sortie qui doit correspondre à l'entrée Pompe de charge de la carte.
+ La sortie pompe de charge sera connectée en interne par Stepconf.
+ Le signal de pompe de charge sera d'environ la moitié de la fréquence maxi
+ des pas affichée sur la page des informations machine.
 \layout Subsection
 
 Configuration des axes
@@ -308,7 +366,7 @@ Configuration des axes
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Caption
 
@@ -323,8 +381,9 @@ Page de configuration des axes
 
 \begin_inset Graphics
 	filename stepconf-axis_fr.png
-	scale 50
+	scale 70
 	keepAspectRatio
+	BoundingBox 0bp 0bp 640bp 460bp
 
 \end_inset 
 
@@ -560,7 +619,7 @@ Configuration de la broche
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Caption
 
@@ -577,6 +636,7 @@ Page configuration de la broche
 	filename stepconf-spindle_fr.png
 	scale 50
 	keepAspectRatio
+	BoundingBox 0bp 0bp 718bp 605bp
 
 \end_inset 
 
@@ -828,7 +888,7 @@ Définir la vitesse et l'accélération
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Caption
 
@@ -1562,7 +1622,7 @@ Inverser
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 
@@ -1591,7 +1651,7 @@ Câblage de contacts NC en série (schéma simplifié)
 
 \begin_inset Float figure
 wide false
-collapsed true
+collapsed false
 
 \layout Standard
 \align center 

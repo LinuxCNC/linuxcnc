@@ -111,6 +111,34 @@ Q
  pour quitter.
 \layout Section
 
+Lister les modules du noyau
+\layout Standard
+
+En cas de problème il est parfois utile de connaître la liste des modules
+ du noyau qui sont chargés.
+ Ouvrez une console et tapez:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+lsmod
+\layout Standard
+
+Si vous voulez, pour le consulter tranquillement, envoyer le résultat de
+ la commande dans un fichier, tapez la sous cette forme:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+lsmod > mes_modules.txt
+\layout Standard
+
+Le fichier mes_modules.txt résultant se trouvera alors dans votre répertoire
+ home si c'est de là que vous avez ouvert la console.
+\layout Section
+
 Editer un fichier en root
 \begin_inset LatexCommand \index{Editer un fichier en root}
 

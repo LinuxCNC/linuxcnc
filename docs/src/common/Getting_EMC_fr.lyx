@@ -27,9 +27,6 @@
 
 \layout Chapter
 
-Où se procurer EMC2
-\layout Section
-
 Trouver de l'aide
 \begin_inset LatexCommand \index{Trouver de l'aide}
 
@@ -41,10 +38,9 @@ Trouver de l'aide
 \end_inset 
 
 
-\layout Standard
+\layout Section
 
-Il y a plusieurs manières de trouver de l'aide pour installer et configurer
- EMC2.
+IRC
 \layout Standard
 
 Sur le canal IRC d'EMC.
@@ -74,6 +70,9 @@ Faites preuve de patience quand vous attendez une réponse, il peut s'écouler
 
 Réglez votre compte IRC avec un unique nom de sorte que les gens sachent
  qui vous êtes.
+\layout Section
+
+Liste de diffusion
 \layout Standard
 
 La liste de diffusion des utilisateurs d'EMC2 à 
@@ -82,6 +81,9 @@ La liste de diffusion des utilisateurs d'EMC2 à
 \end_inset 
 
 .
+\layout Section
+
+Wiki
 \layout Standard
 
 Le Wiki d'EMC, site maintenu par les utilisateurs à 
@@ -90,7 +92,7 @@ Le Wiki d'EMC, site maintenu par les utilisateurs à
 \end_inset 
 
  contient un grand nombre d'informations et d'astuces.
-\layout Section
+\layout Chapter
 
 Charger le logiciel
 \begin_inset LatexCommand \index{Charger le logiciel}
@@ -242,11 +244,6 @@ t.
 \layout Section
 
 Graver le CD
-\begin_inset LatexCommand \index{Graver le CD}
-
-\end_inset 
-
-
 \layout Standard
 
 EMC2 est distribué sous la forme d'un fichier image de CD, appelée image
@@ -258,11 +255,6 @@ EMC2 est distribué sous la forme d'un fichier image de CD, appelée image
 \layout Subsection
 
 Sous Linux
-\begin_inset LatexCommand \index{md5sum}
-
-\end_inset 
-
-
 \layout Standard
 
 Avant de graver un CD, il est fortement recommandé de vérifier la somme
@@ -365,11 +357,6 @@ Lancez Infra Recorder et choisissez le menu 'Actions' puis 'Graver l'image'.
 \layout Section
 
 Tester EMC2
-\begin_inset LatexCommand \index{Tester EMC2}
-
-\end_inset 
-
-
 \layout Standard
 
 Avec le CD Live d'EMC2 dans le lecteur de CD/DVD redémarrez votre PC de
@@ -396,28 +383,38 @@ Pour savoir si votre ordinateur est utilisable par le générateur de trains
 \layout Section
 
 Installer EMC2
-\begin_inset LatexCommand \index{Installer EMC2}
-
-\end_inset 
-
-
 \layout Standard
 
-Si vous aimez ce que vous voyez, cliquez juste sur l'icône Install se trouvant
- sur le bureau, répondez à quelques questions (votre nom, votre fuseau horaire,
- le mot de passe) et faites une installation complète en quelques minutes.
+Si vous avez envie d'aller plus loin, cliquez juste sur l'icône Install
+ se trouvant sur le bureau, répondez à quelques questions (votre nom, votre
+ fuseau horaire, le mot de passe) et faites une installation complète en
+ quelques minutes.
  Notez bien le mot de passe indiqué et le nom d'utilisateur.
  Une fois l'installation compléte et que vous êtes connecté, le gestionnaire
  de mises à jour vous proposera d'effectuer une mise à jour vers la dernière
  version stable d'EMC2
 \layout Section
 
-Mises à jour d'EMC2
-\begin_inset LatexCommand \index{Mise a jour d'EMC2}
+L'interface utilisateur Axis
+\layout Standard
+
+L'interface AXIS est une des interfaces parmis lesquelles vous avez à choisir.
+ Elle peut être configurée pour lui ajouter un panneau de commandes virtuel
+ personnalisé en fonction des besoins.
+ AXIS est l'interface utilisateur par défaut et est activement développée.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis_fr.png
+	scale 50
 
 \end_inset 
 
 
+\layout Section
+
+Mises à jour d'EMC2
 \layout Standard
 
 Avec l'installation normale, si vous êtes en ligne, le gestionnaire de mises

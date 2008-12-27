@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-11 13:23+0100\n"
-"PO-Revision-Date: 2008-11-18 14:47+0100\n"
+"POT-Creation-Date: 2008-12-27 09:13+0100\n"
+"PO-Revision-Date: 2008-12-27 09:30+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -72,7 +72,7 @@ msgstr "Sélecteur de vitesse angulaire de jog"
 msgid "I, Shift-I"
 msgstr "I, Maj+I"
 
-#: emc/usr_intf/axis/scripts/axis.py:148 ../share/axis/tcl/axis.tcl:2233
+#: emc/usr_intf/axis/scripts/axis.py:148 ../share/axis/tcl/axis.tcl:2243
 msgid "Select jog increment"
 msgstr "Sélection d'incrément de jog"
 
@@ -329,34 +329,34 @@ msgstr "Rafraîchir le parcours d'outil"
 msgid "Cycle among preset views"
 msgstr "Défilement cyclique des vues prédéfinies"
 
-#: emc/usr_intf/axis/scripts/axis.py:1539
+#: emc/usr_intf/axis/scripts/axis.py:1542
 msgid "No tool"
 msgstr "Pas d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:1541
+#: emc/usr_intf/axis/scripts/axis.py:1544
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Outil %d inconnu"
 
-#: emc/usr_intf/axis/scripts/axis.py:1543
+#: emc/usr_intf/axis/scripts/axis.py:1546
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Outil %(tool)d, offset %(zo)g, diamètre %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1545
+#: emc/usr_intf/axis/scripts/axis.py:1548
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Outil %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1797
+#: emc/usr_intf/axis/scripts/axis.py:1800
 msgid "Filtering..."
 msgstr "Filtrage.."
 
-#: emc/usr_intf/axis/scripts/axis.py:1839
+#: emc/usr_intf/axis/scripts/axis.py:1842
 msgid "Filter failed"
 msgstr "Le filtrage a échoué"
 
-#: emc/usr_intf/axis/scripts/axis.py:1840
+#: emc/usr_intf/axis/scripts/axis.py:1843
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
@@ -365,23 +365,23 @@ msgstr ""
 "Le programme %(program)r s'est arrêté avec le code %(code)d.  Si des "
 "messages ont été produits, ils sont les suivants:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1843
-#: emc/usr_intf/axis/scripts/axis.py:1901
-#: emc/usr_intf/axis/scripts/axis.py:2150
-#: emc/usr_intf/axis/scripts/axis.py:3176
-#: emc/usr_intf/axis/scripts/axis.py:3892
+#: emc/usr_intf/axis/scripts/axis.py:1846
+#: emc/usr_intf/axis/scripts/axis.py:1904
+#: emc/usr_intf/axis/scripts/axis.py:2153
+#: emc/usr_intf/axis/scripts/axis.py:3181
+#: emc/usr_intf/axis/scripts/axis.py:3897
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:709
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1638
 #: ../share/axis/tcl/axis.tcl:1675
 msgid "OK"
 msgstr "OK"
 
-#: emc/usr_intf/axis/scripts/axis.py:1899
+#: emc/usr_intf/axis/scripts/axis.py:1902
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erreur de G-code en %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1900
+#: emc/usr_intf/axis/scripts/axis.py:1903
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -390,106 +390,106 @@ msgstr ""
 "Vers la ligne %(seq)d de %(f)s:\n"
 "%(error_str)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2051
-#: emc/usr_intf/axis/scripts/axis.py:3391 ../share/axis/tcl/axis.tcl:1025
-#: ../share/axis/tcl/axis.tcl:1027 ../share/axis/tcl/axis.tcl:2046
+#: emc/usr_intf/axis/scripts/axis.py:2054
+#: emc/usr_intf/axis/scripts/axis.py:3396 ../share/axis/tcl/axis.tcl:1025
+#: ../share/axis/tcl/axis.tcl:1027 ../share/axis/tcl/axis.tcl:2048
 msgid "Continuous"
 msgstr "En continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:2151
-#: emc/usr_intf/axis/scripts/axis.py:2325
+#: emc/usr_intf/axis/scripts/axis.py:2154
+#: emc/usr_intf/axis/scripts/axis.py:2328
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:711
 msgid "Cancel"
 msgstr "Annuler"
 
-#: emc/usr_intf/axis/scripts/axis.py:2247
+#: emc/usr_intf/axis/scripts/axis.py:2250
 msgid "T    Tool Table"
 msgstr "T    Table d'outils"
 
-#: emc/usr_intf/axis/scripts/axis.py:2266
+#: emc/usr_intf/axis/scripts/axis.py:2269
 msgid "Coordinate System:"
 msgstr "Décalage d'origine pièce:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2289
+#: emc/usr_intf/axis/scripts/axis.py:2292
 msgid "Name:"
 msgstr "Nom:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2289
+#: emc/usr_intf/axis/scripts/axis.py:2292
 msgid "Size:"
 msgstr "Taille:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2290
+#: emc/usr_intf/axis/scripts/axis.py:2293
 msgid "Tool order:"
 msgstr "Ordre des outils:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2290
+#: emc/usr_intf/axis/scripts/axis.py:2293
 msgid "Rapid distance:"
 msgstr "Distance en vitesse rapide:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2291
+#: emc/usr_intf/axis/scripts/axis.py:2294
 msgid "Feed distance:"
 msgstr "Distance en vitesse travail:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2291
+#: emc/usr_intf/axis/scripts/axis.py:2294
 msgid "Total distance:"
 msgstr "Distance totale:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2292
+#: emc/usr_intf/axis/scripts/axis.py:2295
 msgid "Run time:"
 msgstr "Run time:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2292
+#: emc/usr_intf/axis/scripts/axis.py:2295
 msgid "X bounds:"
 msgstr "Limites X:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2293
+#: emc/usr_intf/axis/scripts/axis.py:2296
 msgid "Y bounds:"
 msgstr "Limites Y:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2293
+#: emc/usr_intf/axis/scripts/axis.py:2296
 msgid "Z bounds:"
 msgstr "Limites Z:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2294
+#: emc/usr_intf/axis/scripts/axis.py:2297
 msgid "A bounds:"
 msgstr "Limites A:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2294
+#: emc/usr_intf/axis/scripts/axis.py:2297
 msgid "B bounds:"
 msgstr "Limites B:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2295
+#: emc/usr_intf/axis/scripts/axis.py:2298
 msgid "C bounds:"
 msgstr "Limites C:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2314
+#: emc/usr_intf/axis/scripts/axis.py:2317
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2317
+#: emc/usr_intf/axis/scripts/axis.py:2320
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Le programme dépasse la limite maxi sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2322
+#: emc/usr_intf/axis/scripts/axis.py:2325
 msgid "Program exceeds machine limits"
 msgstr "Le programme dépasse les limites machine"
 
-#: emc/usr_intf/axis/scripts/axis.py:2325
+#: emc/usr_intf/axis/scripts/axis.py:2328
 msgid "Run Anyway"
 msgstr "Exécuter tout de même"
 
-#: emc/usr_intf/axis/scripts/axis.py:2367
+#: emc/usr_intf/axis/scripts/axis.py:2370
 msgid "No file loaded"
 msgstr "Aucun fichier chargé"
 
-#: emc/usr_intf/axis/scripts/axis.py:2375
+#: emc/usr_intf/axis/scripts/axis.py:2378
 #, python-format
 msgid "generated from %s"
 msgstr "produit depuis %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2381
+#: emc/usr_intf/axis/scripts/axis.py:2384
 #, python-format
 msgid ""
 "%(size)s bytes\n"
@@ -498,96 +498,96 @@ msgstr ""
 "%(size)s octets\n"
 "%(lines)s lignes de gcode"
 
-#: emc/usr_intf/axis/scripts/axis.py:2385
+#: emc/usr_intf/axis/scripts/axis.py:2388
 #: emc/usr_intf/stepconf/stepconf.py:1231
 #: emc/usr_intf/stepconf/stepconf.py:1596
 #: emc/usr_intf/stepconf/stepconf.glade:5097
 msgid "mm"
 msgstr "mm"
 
-#: emc/usr_intf/axis/scripts/axis.py:2389
+#: emc/usr_intf/axis/scripts/axis.py:2392
 #: emc/usr_intf/stepconf/stepconf.py:1236
 #: emc/usr_intf/stepconf/stepconf.py:1610
 msgid "in"
 msgstr "in"
 
-#: emc/usr_intf/axis/scripts/axis.py:2407
+#: emc/usr_intf/axis/scripts/axis.py:2410
 #, python-format
 msgid "%.1f minutes"
 msgstr "% 1f minutes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2409
+#: emc/usr_intf/axis/scripts/axis.py:2412
 #, python-format
 msgid "%d seconds"
 msgstr "%d secondes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2417
+#: emc/usr_intf/axis/scripts/axis.py:2420
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f à %(b)f = %(diff)f %(units)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2418
+#: emc/usr_intf/axis/scripts/axis.py:2421
 msgid "G-Code Properties"
 msgstr "Propriétés du G-code"
 
-#: emc/usr_intf/axis/scripts/axis.py:2613
+#: emc/usr_intf/axis/scripts/axis.py:2619
 msgid "All machinable files"
 msgstr "Tous formats utilisables"
 
-#: emc/usr_intf/axis/scripts/axis.py:2614
-#: emc/usr_intf/axis/scripts/axis.py:3163
+#: emc/usr_intf/axis/scripts/axis.py:2620
+#: emc/usr_intf/axis/scripts/axis.py:3168
 msgid "rs274ngc files"
 msgstr "Fichiers rs274ngc"
 
-#: emc/usr_intf/axis/scripts/axis.py:2615
+#: emc/usr_intf/axis/scripts/axis.py:2621
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
 msgid "All files"
 msgstr "Tous fichiers"
 
-#: emc/usr_intf/axis/scripts/axis.py:2996 ../share/axis/tcl/axis.tcl:1041
+#: emc/usr_intf/axis/scripts/axis.py:3002 ../share/axis/tcl/axis.tcl:1041
 msgid "Touch Off"
 msgstr "Toucher"
 
-#: emc/usr_intf/axis/scripts/axis.py:2997
+#: emc/usr_intf/axis/scripts/axis.py:3003
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
 msgstr "Entrer la coordonnée %s relative à la pièce:"
 
-#: emc/usr_intf/axis/scripts/axis.py:3175
+#: emc/usr_intf/axis/scripts/axis.py:3180
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: emc/usr_intf/axis/scripts/axis.py:3523
+#: emc/usr_intf/axis/scripts/axis.py:3528
 msgid "Home All"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3525
+#: emc/usr_intf/axis/scripts/axis.py:3530
 msgid "Home all axes [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: emc/usr_intf/axis/scripts/axis.py:3528
+#: emc/usr_intf/axis/scripts/axis.py:3533
 msgid "Home All Axes"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3531
+#: emc/usr_intf/axis/scripts/axis.py:3536
 msgid "Unhome All Axes"
 msgstr "Annulation OM de tous les axes"
 
-#: emc/usr_intf/axis/scripts/axis.py:3551
+#: emc/usr_intf/axis/scripts/axis.py:3556
 #, python-format
 msgid "Home Axis _%s"
 msgstr "POM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3553
+#: emc/usr_intf/axis/scripts/axis.py:3558
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr "Annulation OM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3691
+#: emc/usr_intf/axis/scripts/axis.py:3696
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: emc/usr_intf/axis/scripts/axis.py:3891
+#: emc/usr_intf/axis/scripts/axis.py:3896
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -1217,8 +1217,8 @@ msgstr "Contrôle manuel [F3]"
 msgid "MDI [F5]"
 msgstr "Données manuelles [F5]"
 
-#: ../share/axis/tcl/axis.tcl:696 ../share/axis/tcl/axis.tcl:1947
-#: ../share/axis/tcl/axis.tcl:2105
+#: ../share/axis/tcl/axis.tcl:696 ../share/axis/tcl/axis.tcl:1948
+#: ../share/axis/tcl/axis.tcl:2107
 msgid "Axis:"
 msgstr "Axes:"
 
@@ -1318,111 +1318,119 @@ msgstr "À propos d'AXIS"
 msgid "AXIS Quick Reference"
 msgstr "Aide rapide d'AXIS"
 
-#: ../share/axis/tcl/axis.tcl:1832
+#: ../share/axis/tcl/axis.tcl:1820
+msgid "AXIS $::version on $::machine"
+msgstr "AXIS $::version sur $::machine"
+
+#: ../share/axis/tcl/axis.tcl:1822
+msgid "(no file)"
+msgstr "(pas de fichier)"
+
+#: ../share/axis/tcl/axis.tcl:1833
 msgid "ESTOP"
 msgstr "A/U ACTIVÉ"
 
-#: ../share/axis/tcl/axis.tcl:1833
+#: ../share/axis/tcl/axis.tcl:1834
 msgid "OFF"
 msgstr "A L'ARRÊT"
 
-#: ../share/axis/tcl/axis.tcl:1834
+#: ../share/axis/tcl/axis.tcl:1835
 msgid "ON"
 msgstr "EN MARCHE"
 
-#: ../share/axis/tcl/axis.tcl:1887 ../share/axis/tcl/axis.tcl:1892
+#: ../share/axis/tcl/axis.tcl:1888 ../share/axis/tcl/axis.tcl:1893
 msgid "Position:"
 msgstr "Position:"
 
-#: ../share/axis/tcl/axis.tcl:1889
+#: ../share/axis/tcl/axis.tcl:1890
 msgid "Machine"
 msgstr "Machine"
 
-#: ../share/axis/tcl/axis.tcl:1889
+#: ../share/axis/tcl/axis.tcl:1890
 msgid "Relative"
 msgstr "Relative"
 
-#: ../share/axis/tcl/axis.tcl:1890
+#: ../share/axis/tcl/axis.tcl:1891
 msgid "Actual"
 msgstr "Actuelle"
 
-#: ../share/axis/tcl/axis.tcl:1890
+#: ../share/axis/tcl/axis.tcl:1891
 msgid "Commanded"
 msgstr "Commandée"
 
-#: ../share/axis/tcl/axis.tcl:1943 ../share/axis/tcl/axis.tcl:2105
+#: ../share/axis/tcl/axis.tcl:1944 ../share/axis/tcl/axis.tcl:2107
 msgid "Joint:"
 msgstr "Articulations:"
 
-#: ../share/axis/tcl/axis.tcl:2215
+#: ../share/axis/tcl/axis.tcl:2225
 msgid "Turn spindle counterclockwise [F10]"
 msgstr "Broche en sens anti-horaire [F10]"
 
-#: ../share/axis/tcl/axis.tcl:2216
+#: ../share/axis/tcl/axis.tcl:2226
 msgid "Turn spindle clockwise [F9]"
 msgstr "Broche en sens horaire [F9]"
 
-#: ../share/axis/tcl/axis.tcl:2217
+#: ../share/axis/tcl/axis.tcl:2227
 msgid "Stop spindle [F9/F10]"
 msgstr "Arrêt broche [F9/F10]"
 
-#: ../share/axis/tcl/axis.tcl:2218
+#: ../share/axis/tcl/axis.tcl:2228
 msgid "Turn spindle Faster [F12]"
 msgstr "Broche plus vite [F12]"
 
-#: ../share/axis/tcl/axis.tcl:2219
+#: ../share/axis/tcl/axis.tcl:2229
 msgid "Turn spindle Slower [F11]"
 msgstr "Broche moins vite [F11]"
 
-#: ../share/axis/tcl/axis.tcl:2220
+#: ../share/axis/tcl/axis.tcl:2230
 msgid "Turn spindle brake on [Shift-B] or off [B]"
 msgstr "Activer [Maj+B] ou arrêter [B] le frein de broche"
 
-#: ../share/axis/tcl/axis.tcl:2221
+#: ../share/axis/tcl/axis.tcl:2231
 msgid "Turn flood on or off [F8]"
 msgstr "Avec ou sans arrosage [F8]"
 
-#: ../share/axis/tcl/axis.tcl:2222
+#: ../share/axis/tcl/axis.tcl:2232
 msgid "Turn mist on or off [F7]"
 msgstr "Avec ou sans brouillard [F7]"
 
-#: ../share/axis/tcl/axis.tcl:2223
+#: ../share/axis/tcl/axis.tcl:2233
 msgid "Send active axis home [Home]"
 msgstr "Prise d'origine machine de l'axe courant [origine]"
 
-#: ../share/axis/tcl/axis.tcl:2224
+#: ../share/axis/tcl/axis.tcl:2234
 msgid "Set G54 offset for active axis [End]"
 msgstr "Valide le décalage G54 de l'axe actif [Fin]"
 
-#: ../share/axis/tcl/axis.tcl:2225
+#: ../share/axis/tcl/axis.tcl:2235
 msgid "Activate axis [X]"
 msgstr "Activer l'axe [X]"
 
-#: ../share/axis/tcl/axis.tcl:2226
+#: ../share/axis/tcl/axis.tcl:2236
 msgid "Activate axis [Y]"
 msgstr "Activer l'axe [Y]"
 
-#: ../share/axis/tcl/axis.tcl:2227
+#: ../share/axis/tcl/axis.tcl:2237
 msgid "Activate axis [Z]"
 msgstr "Activer l'axe [Z]"
 
-#: ../share/axis/tcl/axis.tcl:2228
+#: ../share/axis/tcl/axis.tcl:2238
 msgid "Activate axis [A]"
 msgstr "Activer l'axe [A]"
 
-#: ../share/axis/tcl/axis.tcl:2229
+#: ../share/axis/tcl/axis.tcl:2239
 msgid "Activate axis [4]"
 msgstr "Activer l'axe [4]"
 
-#: ../share/axis/tcl/axis.tcl:2230
+#: ../share/axis/tcl/axis.tcl:2240
 msgid "Activate axis [5]"
 msgstr "Activer l'axe [5]"
 
-#: ../share/axis/tcl/axis.tcl:2231 ../share/axis/tcl/axis.tcl:2232
+#: ../share/axis/tcl/axis.tcl:2241 ../share/axis/tcl/axis.tcl:2242
 msgid "Jog selected axis"
 msgstr "Jog de l'axe sélectionné"
 
-#: ../share/axis/tcl/axis.tcl:2234
+#: ../share/axis/tcl/axis.tcl:2244
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Mouvement temporaire hors limites [L]"
 

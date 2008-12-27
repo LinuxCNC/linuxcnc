@@ -1220,8 +1220,8 @@ Pas pas tour: indique combien de pas moteur sont nécessaires pour que celui-ci
  fasse un tour.
 \layout Standard
 
-Micropas: indique combien d'impulsions de pas le pilote doit recevoir pour
- que le moteur fasse un pas.
+Micropas: indique combien d'impulsions le pilote doit recevoir pour que
+ le moteur tourne d'un angle équivalent à un pas.
 \layout Standard
 
 Dents moteur et Dents vis: à indiquer si vous avez une réduction poulies/courroi
