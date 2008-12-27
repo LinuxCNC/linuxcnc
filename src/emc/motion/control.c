@@ -1767,15 +1767,22 @@ static void output_to_hal(void)
 	double speed;
         if(denom > 0) speed = emcmotStatus->spindle.css_factor / denom;
 	else speed = emcmotStatus->spindle.speed;
+
 	speed = speed * emcmotStatus->net_spindle_scale;
-	if(fabs(speed) > fabs(emcmotStatus->spindle.speed)) speed = emcmotStatus->spindle.speed;
+
+        // cap speed to G96 D...
+        if(speed < -emcmotStatus->spindle.speed)
+            speed = -emcmotStatus->spindle.speed;
+        if(speed > emcmotStatus->spindle.speed)
+            speed = emcmotStatus->spindle.speed;
+
 	*(emcmot_hal_data->spindle_speed_out) = speed;
     } else {
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
     }
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
-    *(emcmot_hal_data->spindle_forward) = (emcmotStatus->spindle.speed > 0) ? 1 : 0;
-    *(emcmot_hal_data->spindle_reverse) = (emcmotStatus->spindle.speed < 0) ? 1 : 0;
+    *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
+    *(emcmot_hal_data->spindle_reverse) = (*emcmot_hal_data->spindle_speed_out < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
     
     emcmot_hal_data->program_line = emcmotStatus->id;
