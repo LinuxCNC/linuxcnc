@@ -1028,7 +1028,7 @@ HALCMD
  appear in the ini file.
  
 \series bold 
-HAL
+HALCMD
 \series default 
  lines are executed after all 
 \series bold 
