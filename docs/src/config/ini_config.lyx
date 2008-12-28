@@ -941,7 +941,7 @@ xxx_pinout.hal
 )
 \layout Description
 
-HAL\SpecialChar ~
+HALCMD\SpecialChar ~
 =\SpecialChar ~
 command
 \emph on 
@@ -950,13 +950,13 @@ command
 Execute 'command' as a single hal command.
  If 
 \series bold 
-HAL
+HALCMD
 \series default 
  is specified multiple times, the commands are executed in the order they
  appear in the ini file.
  
 \series bold 
-HAL
+HALCMD
 \series default 
  lines are executed after all 
 \series bold 
