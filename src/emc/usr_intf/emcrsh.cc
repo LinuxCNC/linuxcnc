@@ -2374,7 +2374,6 @@ int commandShutdown(connectionRecType *context)
   if (context->cliSock == enabledConn) {
     printf("Shutting down\n");
     thisQuit();
-    exit(0);
     return -1;
     }
   else
@@ -2598,6 +2597,7 @@ int parseCommand(connectionRecType *context)
   char *pch;
   char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
+  static char *shutdownNakStr = "SHUTDOWN NAK\r\n";
   static char *helloAckStr = "HELLO ACK %s 1.1\r\n";
   static char *setNakStr = "SET NAK\r\n";
     
@@ -2624,6 +2624,9 @@ int parseCommand(connectionRecType *context)
         break;
       case cmdShutdown:
         ret = commandShutdown(context);
+        if(ret ==0){
+          write(context->cliSock, shutdownNakStr, strlen(shutdownNakStr));
+        }
 	break;
       case cmdHelp:
         ret = commandHelp(context);
