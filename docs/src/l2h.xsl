@@ -326,7 +326,8 @@ table { border-collapse: collapse; margin-left: auto; margin-right: auto; }
     </xsl:choose>
 </xsl:template>
 <xsl:template match="label">
-    <A><xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute></A>
+    <!--<A><xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute></A>-->
+    <A NAME="{@ID}"/>
 </xsl:template>
 
 <xsl:template match="graphics">
