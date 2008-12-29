@@ -80,7 +80,6 @@ a = get_anchors()
 a.feed(open(main).read())
 a = a.anchors
 
-print a
 missing = r - a
 if missing:
     print "Anchors used in %s but not defined in %s:" % (
