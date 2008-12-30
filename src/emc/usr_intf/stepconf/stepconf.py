@@ -183,6 +183,7 @@ class Data:
 	self.manualtoolchange = 1
 	self.customhal = 1
 	self.pyvcp = 0
+        self.classicladder = 0
 
 	self.pin1inv = 0
 	self.pin2inv = 0
@@ -293,6 +294,13 @@ class Data:
 	self.spindlespeed2 = 800
 	self.spindlepwm1 = .2
 	self.spindlepwm2 = .8
+
+        self.digitsin = 15
+        self.digitsout = 15
+        self.analogsin = 10
+        self.analogsout = 10
+        self.modbus = 0
+        self.halui = 0
 
     def load(self, filename, app=None, force=False):
 	def str2bool(s):
@@ -421,6 +429,8 @@ class Data:
 
 	print >>file
 	print >>file, "[HAL]"
+        if self.halui:
+            print >>file,"HALUI = halui"
 	print >>file, "HALFILE = %s.hal" % self.machinename
 	if self.customhal:
 	    print >>file, "HALFILE = custom.hal"
@@ -704,6 +714,9 @@ class Data:
 	if pwm:
 	    print >>file, "loadrt pwmgen output_type=0"
 
+        if self.classicladder:
+            print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d" %(self.digitsin , self.digitsout , self.analogsin, self.analogsout)
+
 	print >>file
 	print >>file, "addf parport.0.read base-thread"
 	print >>file, "addf stepgen.make-pulses base-thread"
@@ -719,6 +732,8 @@ class Data:
 	if encoder: print >>file, "addf encoder.capture-position servo-thread"
 	print >>file, "addf motion-command-handler servo-thread"
 	print >>file, "addf motion-controller servo-thread"
+        if self.classicladder:
+            print >>file,"addf classicladder.0.refresh servo-thread"
 	print >>file, "addf stepgen.update-freq servo-thread"
 	if pwm: print >>file, "addf pwmgen.update servo-thread"
 
@@ -822,7 +837,11 @@ class Data:
 	else:
 	    print >>file, "net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed"
 	print >>file, "net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
-
+        if self.classicladder:
+            if self.modbus:
+                print >>file, "loadusr classicladder --modmaster custom.clp"
+            else:
+                print >>file, "loadusr classicladder --nogui custom.clp"
         if self.pyvcp:
 	    vcp = os.path.join(base, "panel.xml")
             if not os.path.exists(vcp):
@@ -844,7 +863,7 @@ class Data:
 # The commands in this file are run after the AXIS GUI (including PyVCP panel)
 # starts
 # This file will not be overwritten when you run stepconf again""")
-	if self.customhal:
+	if self.customhal or self.classicladder or self.halui:
 	    custom = os.path.join(base, "custom.hal")
 	    if not os.path.exists(custom):
 		f1 = open(custom, "w")
@@ -1147,9 +1166,6 @@ class App:
 	    model = self.widgets[p].get_model()
 	    model.clear()
 	    for name in human_output_names: model.append((name,))
-            print hal_output_names
-            print p, repr(self.data[p]), hal_output_names.index(self.data[p])
-            self.widgets[p].set_active(hal_output_names.index(self.data[p]))
             self.widgets[p].set_active(hal_output_names.index(self.data[p]))
 	    p = 'pin%dinv' % pin
 	    self.widgets[p].set_active(self.data[p])
@@ -1161,8 +1177,6 @@ class App:
             self.widgets[p].set_active(hal_input_names.index(self.data[p]))
 	    p = 'pin%dinv' % pin
 	    self.widgets[p].set_active(self.data[p])
-	self.widgets.customhal.set_active(self.data.customhal)
-	self.widgets.pyvcp.set_active(self.data.pyvcp)
 	self.widgets.pin1.grab_focus()
 	self.in_pport_prepare = False
  
@@ -1176,8 +1190,6 @@ class App:
 	for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
 	    p = 'pin%dinv' % pin
 	    self.data[p] = self.widgets[p].get_active()
-	self.data.customhal = self.widgets.customhal.get_active()
-	self.data.pyvcp = self.widgets.pyvcp.get_active()
     on_pport_back = on_pport_next
 
     def on_sherlinedefault_clicked(self, *args):
@@ -1305,6 +1317,7 @@ class App:
 	self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
 	self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
 	self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
+        
 
     def on_spindle_back(self, *args):
 	self.on_spindle_next()
@@ -1314,13 +1327,63 @@ class App:
 	    self.widgets.druid1.set_page(self.widgets.aaxis)
 	return True
 
-    def on_complete_back(self, *args):
-	if self.has_spindle_speed_control():
+    def on_advanced_prepare(self, *args):       
+	self.widgets.pyvcp.set_active(self.data.pyvcp)
+        self.widgets.classicladder.set_active(self.data.classicladder)
+        self.widgets.modbus.set_active(self.data.modbus)
+        self.widgets.digitsin.set_value(self.data.digitsin)
+        self.widgets.digitsout.set_value(self.data.digitsout)
+        self.widgets.analogsin.set_value(self.data.analogsin)
+        self.widgets.analogsout.set_value(self.data.analogsout)
+        self.widgets.halui.set_active(self.data.halui)
+        self.on_classicladder_toggled()
+        if  not self.widgets.createconfig.get_active():
+           self.widgets.radiobutton4.set_active(1)
+
+    def on_advanced_next(self, *args):
+	self.data.pyvcp = self.widgets.pyvcp.get_active()
+        self.data.classicladder = self.widgets.classicladder.get_active()
+        self.data.modbus = self.widgets.modbus.get_active()
+        self.data.digitsin = self.widgets.digitsin.get_value()
+        self.data.digitsout = self.widgets.digitsout.get_value()
+        self.data.analogsin = self.widgets.analogsin.get_value()
+        self.data.analogsout = self.widgets.analogsout.get_value()
+        self.data.halui = self.widgets.halui.get_active()
+
+    def on_advanced_back(self, *args):
+        if self.has_spindle_speed_control():
 	    self.widgets.druid1.set_page(self.widgets.spindle)
-	elif self.data.axes != 1:
+       	elif self.data.axes != 1:
 	    self.widgets.druid1.set_page(self.widgets.zaxis)
 	else:
 	    self.widgets.druid1.set_page(self.widgets.aaxis)
+        return True
+
+    def on_loadladder_clicked(self, *args):self.load_ladder(self)
+
+    def on_classicladder_toggled(self, *args):
+
+        i= self.widgets.classicladder.get_active()
+	self.widgets.digitsin.set_sensitive(i)
+        self.widgets.digitsout.set_sensitive(i)
+        self.widgets.analogsin.set_sensitive(i)
+        self.widgets.analogsout.set_sensitive(i)
+	self.widgets.modbus.set_sensitive(i)
+        self.widgets.radiobutton1.set_sensitive(i)
+        self.widgets.radiobutton2.set_sensitive(i)
+        self.widgets.radiobutton3.set_sensitive(i)
+        if  self.widgets.createconfig.get_active():
+          self.widgets.radiobutton4.set_sensitive(0)
+        else:
+          self.widgets.radiobutton4.set_sensitive(i)
+        self.widgets.loadladder.set_sensitive(i)
+        self.widgets.label_digin.set_sensitive(i)
+        self.widgets.label_digout.set_sensitive(i)
+        self.widgets.label_anlgin.set_sensitive(i)
+        self.widgets.label_anlgout.set_sensitive(i)
+
+    def on_complete_back(self, *args):
+	self.widgets.druid1.set_page(self.widgets.advanced)
 	return True
 
     def on_xaxis_next(self, *args):
@@ -1330,20 +1393,22 @@ class App:
 	    return True
 
     def on_yaxis_next(self, *args): self.axis_done('y')
+
     def on_zaxis_next(self, *args):
 	self.axis_done('z')
 	if self.data.axes != 1:
 	    if self.has_spindle_speed_control():
 		self.widgets.druid1.set_page(self.widgets.spindle)
 	    else:
-		self.widgets.druid1.set_page(self.widgets.complete)
+		self.widgets.druid1.set_page(self.widgets.advanced)
 	    return True
+
     def on_aaxis_next(self, *args):
 	self.axis_done('a')
 	if self.has_spindle_speed_control():
 	    self.widgets.druid1.set_page(self.widgets.spindle)
 	else:
-	    self.widgets.druid1.set_page(self.widgets.complete)
+	    self.widgets.druid1.set_page(self.widgets.advanced)
 	return True
 
     def has_spindle_speed_control(self):
@@ -1483,7 +1548,37 @@ class App:
 	self.jogplus = 0
 	self.update_axis_params()
 
-        
+    def load_ladder(self,w): 
+        base= os.path.expanduser("~/emc2/sample_configs/preset_conf_options/ladder")
+        if not self.widgets.createconfig.get_active():
+            newfilename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+        else:
+            newfilename = os.path.expanduser("~/emc2/sample_configs/preset_conf_options/ladder/TEMP.clp")
+        self.data.modbus = self.widgets.modbus.get_active()
+        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        halrun.write(""" 
+              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(ain)d numS32out=%(aout)d\n""" % {
+                      'din': self.widgets.digitsin.get_value(),
+                      'dout': self.widgets.digitsout.get_value(),
+                      'ain': self.widgets.analogsin.get_value(),
+                      'aout': self.widgets.analogsout.get_value(), 
+                 })
+        if self.widgets.radiobutton1.get_active() == 1:
+            filename = os.path.join(base, 'blank.clp')
+        if self.widgets.radiobutton2.get_active() == 1:
+            filename = os.path.join(base, 'estop.clp')
+        if self.widgets.radiobutton3.get_active() == 1:
+            filename = os.path.join(base, 'serialmodbus.clp')
+            self.data.modbus = 1
+            self.widgets.modbus.set_active(self.data.modbus)
+        if self.widgets.radiobutton4.get_active() == 1:
+            filename=newfilename
+        if self.data.modbus == 1: 
+            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
+        else:
+            halrun.write("loadusr -w classicladder --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
+        halrun.write("start\n"); halrun.flush()
+        halrun.close()
 
     def test_axis(self, axis):
 	data = self.data
