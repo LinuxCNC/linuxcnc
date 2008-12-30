@@ -1549,11 +1549,11 @@ class App:
 	self.update_axis_params()
 
     def load_ladder(self,w): 
-        base= os.path.expanduser("~/emc2/sample_configs/preset_conf_options/ladder")
+        base= os.path.expanduser("~/emc2/configs/common/configurable_options/ladder")
         if not self.widgets.createconfig.get_active():
             newfilename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
         else:
-            newfilename = os.path.expanduser("~/emc2/sample_configs/preset_conf_options/ladder/TEMP.clp")
+            newfilename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
