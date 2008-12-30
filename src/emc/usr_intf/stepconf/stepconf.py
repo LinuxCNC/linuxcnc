@@ -1236,16 +1236,19 @@ class App:
 	    w[axis + "velunits"].set_text(_("deg / s"))
 	    w[axis + "accunits"].set_text(_("deg / s²"))
 	    w[axis + "accdistunits"].set_text(_("deg"))
+	    w[axis + "scaleunits"].set_text(_("Steps / deg"))
 	elif d.units:
 	    w[axis + "screwunits"].set_text(_("mm / rev"))
 	    w[axis + "velunits"].set_text(_("mm / s"))
 	    w[axis + "accunits"].set_text(_("mm / s²"))
 	    w[axis + "accdistunits"].set_text(_("mm"))
+	    w[axis + "scaleunits"].set_text(_("Steps / mm"))
 	else:
 	    w[axis + "screwunits"].set_text(_("rev / in"))
 	    w[axis + "velunits"].set_text(_("in / s"))
 	    w[axis + "accunits"].set_text(_("in / s²"))
 	    w[axis + "accdistunits"].set_text(_("in"))
+	    w[axis + "scaleunits"].set_text(_("Steps / in"))
 
 	inputs = set((d.pin10, d.pin11, d.pin12, d.pin13, d.pin15))
 	thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
