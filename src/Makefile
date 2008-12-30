@@ -385,7 +385,6 @@ EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
 NOCVS=$(filter-out %CVS,$(1))
 GLOB=$(call NOCVS,$(wildcard $(1)))
-CONFIGS=5axis boss classicladder/cl-estop common dallur-thc demo_mazak demo_sim_cl demo_step_cl etch-servo halui_halvcp hexapod-sim hostmot2 lathe-pluto m5i20 max motenc nist-lathe plasma-thc plasma-thc-sim ppmc puma scara sim stepper stepper-gantry stepper-xyza stg tormach univpwm univstep vismach vti Sherline4Axis Sherline3Axis SherlineLathe
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
@@ -396,13 +395,6 @@ endef
 install:
 	$(error $(ERROR_MESSAGE))
 else
-
-define INSTALL_CONFIG
-$(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
-$(FILE) $(call GLOB,../configs/$(1)/*) $(DESTDIR)$(sysconfdir)/emc2/sample-configs/$(1)
-
-endef
-INSTALL_CONFIGS=$(foreach config,$(CONFIGS), $(call INSTALL_CONFIG,$(config)))
 
 DOCS=INSTALL NEWS README AUTHORS
 
@@ -456,7 +448,11 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
-	$(INSTALL_CONFIGS)
+
+        # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
+	$(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs
+	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(sysconfdir)/emc2/sample-configs && tar -xf -))
+
 	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
