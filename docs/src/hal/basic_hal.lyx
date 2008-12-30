@@ -91,7 +91,7 @@ The syntax and an example:
 loadusr <component> <options>
 \layout Quote
 
-loadusr or2 count=2
+loadusr halui
 \layout Subsection
 
 net
