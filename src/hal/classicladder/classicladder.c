@@ -75,19 +75,17 @@
 #endif
 
 int cl_remote;
-int nogui = 0,modmaster=0,modserver=0;
+int nogui = 0,modmaster=0,modslave=0,pathswitch=0;;
 int ModbusServerPort = 9502; // Standard "502" requires root privileges...
 int CyclicThreadRunning = 0;
-
+char  *NewPath;
 
 void ClassicLadderEndOfAppli( void )
 {
 	CyclicThreadRunning = 0;
-	if(modmaster)  
-		{
-	    		CloseSocketModbusMaster( );
-			CloseSocketServer( );
-		}
+	if(modmaster)  {   CloseSocketModbusMaster( );   }
+	if(modslave)   {   CloseSocketServer( );   }
+
 }
 
 void HandlerSignalInterrupt( int signal_id )
@@ -146,6 +144,7 @@ void process_options (int argc, char *argv[])
                         {"modslave",no_argument,0,'s'},
                         {"debug",no_argument,0,'d'},
 			{"modbus_port", required_argument, 0, 'p'},
+                        {"newpath", required_argument, 0, 'f'},
 			{0, 0, 0, 0},
 		};
 
@@ -168,13 +167,17 @@ void process_options (int argc, char *argv[])
                                 modmaster=1;
                                 break;
                         case 's':
-                                modserver=1;
+                                modslave=1;
                                 break; 
                         case 'd':
                                 rtapi_set_msg_level(RTAPI_MSG_ALL);
                                 break;
 			case 'p':
 				ModbusServerPort = atoi( optarg );
+				break;
+                        case 'f':
+				NewPath = ( optarg );
+                                pathswitch=1;
 				break;
 			case '?':
 				error = 1;
@@ -251,6 +254,7 @@ int main( int   argc, char *argv[] )
 		        rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName  );
+                        if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
 			hal_ready(compId);
@@ -265,6 +269,7 @@ int main( int   argc, char *argv[] )
 						ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
                                                 InitGtkWindows( argc, argv );
 				                UpdateAllGtkWindows();
+                                                if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
                                                 UpdateWindowTitleWithProjectName( );
                                                 MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
                                                 if (!ProjectLoadedOk) 
@@ -275,12 +280,13 @@ int main( int   argc, char *argv[] )
                                             }else{
                                                            InitGtkWindows( argc, argv );
                                                            UpdateAllGtkWindows();
+                                                           if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
                                                            UpdateWindowTitleWithProjectName( );
                                                            MessageInStatusBar("GUI reloaded with existing ladder program");
                                                            if (modmaster) {    PrepareModbusMaster( );    }
                                                   } 
 							
-                                if (modserver)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }
+                                if (modslave)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();

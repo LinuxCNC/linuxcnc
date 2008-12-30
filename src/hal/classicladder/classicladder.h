@@ -430,3 +430,4 @@ extern int compId;
 #endif
 extern int nogui;
 extern int modmaster;
+extern int modslave;
