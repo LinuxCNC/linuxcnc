@@ -1822,7 +1822,7 @@ static void print_thread_info(char **patterns)
 	if ( match(patterns, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
-	    halcmd_output(((scriptmode == 0) ? "%11ld  %s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
+	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
 		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
@@ -2566,7 +2566,7 @@ int do_setexact_cmd() {
         halcmd_warning(
             "HAL_LIB: HAL will pretend that the exact"
             " base period requested is possible.\n"
-            "This mode is not suitable for running real hardware.");
+            "This mode is not suitable for running real hardware.\n");
         hal_data->exact_base_period = 1;
     }
     rtapi_mutex_give(&(hal_data->mutex));
