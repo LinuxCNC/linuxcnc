@@ -355,7 +355,13 @@ class pyvcp_meter(Canvas):
             self.create_line([startx,starty,stopx,stopy])
             t=self.create_text([textx,texty])
             self.itemconfig(t,text=str(self.min_+d_value*n))
-
+            for m in range(1,5):
+                if n != 10:
+                    startx=self.mid+self.r*math.cos(self.min_alfa + (n+float(m)/5)*d_alfa)
+                    starty=self.mid+self.r*math.sin(self.min_alfa + (n+float(m)/5)*d_alfa)
+                    stopx=self.mid+0.90*self.r*math.cos(self.min_alfa + (n+float(m)/5)*d_alfa)
+                    stopy=self.mid+0.90*self.r*math.sin(self.min_alfa + (n+float(m)/5)*d_alfa)
+                    self.create_line([startx,starty,stopx,stopy])
 
 
 # -------------------------------------------
