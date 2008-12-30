@@ -1,6 +1,9 @@
 _FILES_CLASSICLADDER
 _FILE-symbols.csv
 #VER=1.0
+%E0,Mod_Error,modbus com error
+%I0,EXT_error,
+%E1,INT_error,User error flag
 _/FILE-symbols.csv
 _FILE-modbusioconf.csv
 #VER=1.0
@@ -16,6 +19,12 @@ MODBUS_MASTER_TIME_INTER_FRAME=200
 MODBUS_MASTER_TIME_OUT_RECEIPT=500
 MODBUS_MASTER_TIME_AFTER_TRANSMIT=0
 MODBUS_DEBUG_LEVEL=1
+MODBUS_MAP_COIL_READ=0
+MODBUS_MAP_COIL_WRITE=0
+MODBUS_MAP_INPUT=0
+MODBUS_MAP_HOLDING=0
+MODBUS_MAP_REGISTER_READ=0
+MODBUS_MAP_REGISTER_WRITE=0
 _/FILE-com_params.txt
 _FILE-timers_iec.csv
 1,0,0
@@ -68,8 +77,8 @@ _FILE-rung_0.csv
 #PREVRUNG=0
 #NEXTRUNG=1
 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
-1-0-50/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-60/0
-0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
+1-0-50/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 9-0-0/0 , 50-0-70/1
+1-0-70/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0 , 0-0-0/0
