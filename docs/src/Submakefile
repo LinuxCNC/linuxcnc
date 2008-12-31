@@ -54,6 +54,8 @@ DOC_SRCS := \
 	common/machining_center.lyx \
 	common/userforeword.lyx \
 	common/userforeword_fr.lyx \
+	common/User_Concepts.lyx \
+	common/User_Concepts_fr.lyx \
 	common/user_intro.lyx \
 	common/user_intro_fr.lyx \
 	config/ini_config.lyx \
@@ -110,6 +112,7 @@ DOC_SRCS := \
 	ladder/ladder_intro_fr.lyx \
 	ladder/classic_ladder.lyx \
 	ladder/ladder_examples.lyx \
+	lathe/lathe-user.lyx \
 	motion/kinematics.lyx \
 	motion/kinematics_fr.lyx \
 	motion/pid_theory.lyx \
@@ -260,6 +263,7 @@ SUBXML := \
     $(filter objects/gui_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/install_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/ladder_%.xml, $(DOC_TARGETS_XML)) \
+    $(filter objects/lathe_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/motion_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/examples_%.xml, $(DOC_TARGETS_XML)) \
     $(filter objects/quickstart_%.xml, $(DOC_TARGETS_XML))
@@ -285,6 +289,8 @@ $(filter objects/install_%.xml,$(DOC_TARGETS_XML)): objects/install_%.xml: $(DOC
 	$(call lyx2xml,install,$*,$<)
 $(filter objects/ladder_%.xml,$(DOC_TARGETS_XML)): objects/ladder_%.xml: $(DOC_SRCDIR)/ladder/%.lyx $(XMLDEP)
 	$(call lyx2xml,ladder,$*,$<)
+$(filter objects/lathe_%.xml,$(DOC_TARGETS_XML)): objects/lathe_%.xml: $(DOC_SRCDIR)/lathe/%.lyx $(XMLDEP)
+	$(call lyx2xml,lathe,$*,$<)
 $(filter objects/motion_%.xml,$(DOC_TARGETS_XML)): objects/motion_%.xml: $(DOC_SRCDIR)/motion/%.lyx $(XMLDEP)
 	$(call lyx2xml,motion,$*,$<)
 $(filter objects/examples_%.xml,$(DOC_TARGETS_XML)): objects/examples_%.xml: $(DOC_SRCDIR)/examples/%.lyx $(XMLDEP)
