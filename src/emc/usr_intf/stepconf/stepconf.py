@@ -822,7 +822,14 @@ class Data:
 
 	print >>file
 	print >>file, "net estop-out <= iocontrol.0.user-enable-out"
-	if ESTOP_IN in inputs:
+	if  self.classicladder and self.ladderprgm : # estop ladder program
+            print >>file, "# Setup for estop ladder program -start-"
+            print >>file, "net estop-out => classicladder.0.in-00"
+            print >>file, "net estop-ext => classiladder.0.in-01"
+            print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
+            print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
+            print >>file, "# Setup for estop ladder program -end-"
+	elif ESTOP_IN in inputs:
 	    print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
 	else:
 	    print >>file, "net estop-out => iocontrol.0.emc-enable-in"
@@ -1352,6 +1359,13 @@ class App:
         self.data.analogsin = self.widgets.analogsin.get_value()
         self.data.analogsout = self.widgets.analogsout.get_value()
         self.data.halui = self.widgets.halui.get_active()
+        # TODO call ladder program checks:
+        # to determin what ladder program is selected
+        # If pins that are needed are defined
+        # and if the ladder program was edited.
+        # if it was not custom but was edited it's called TEMP.clp in the
+        # configurable-options dir, otherwise will have to copy 
+        # from the stock programs
 
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -1487,6 +1501,10 @@ class App:
     def on_amaxacc_changed(self, *args): self.update_pps('a')
 
     def on_complete_finish(self, *args):
+        # TODO copy ladder file to usr config
+        # from TEMP file and rename it.
+        # possibly copy and rename existing 
+        # custom file found there
 	self.data.save()
 	gtk.main_quit()
 
