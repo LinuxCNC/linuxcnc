@@ -23,6 +23,7 @@
 #define _MODBUS_H_
 
 #include <termios.h>
+#include <limits.h>
 #include <arpa/inet.h>
 
 #define MODBUS_TCP_PORT      502
