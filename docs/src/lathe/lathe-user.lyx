@@ -905,8 +905,8 @@ COMMENT
 
 \layout Standard
 
-The following figure shows the possible lathe tool orientations with the
- center line angle of each orientation and info on FRONTANGLE and BACKANGLE.
+The following figure shows the lathe tool orientations with the center line
+ angle of each orientation and info on FRONTANGLE and BACKANGLE.
  
 \layout Standard
 
@@ -934,23 +934,45 @@ Lathe Tool Orientations
 
 \layout Standard
 
-In AXIS the following figure shows what Tool Position 1 with a 60 degree
- included angle tool and a nose diameter of 0.100 will look like.
+In AXIS the following figures show what Tool Positions look like from the
+ above tool table.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
 \layout Caption
 
-Tool Position 1
+Tool Positions 1, 2, 3 & 4
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename images/tool_pos_1.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_2.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_3.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_4.png
 	scale 70
 
 \end_inset 
@@ -974,7 +996,28 @@ Tool Position 2
 \align center 
 
 \begin_inset Graphics
-	filename images/tool_pos_2.png
+	filename images/tool_pos_5.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_6.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_7.png
+	scale 70
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/tool_pos_8.png
 	scale 70
 
 \end_inset 
