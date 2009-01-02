@@ -11,11 +11,7 @@
 
 #include <stdarg.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#ifdef RTAPI
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#else
-#include <stdio.h>              /* vsnprintf */
-#endif
 #include "rtapi_string.h"       /* memset */
 #include "hal.h"		/* decls for HAL implementation */
 #include "emcmotglb.h"
@@ -31,7 +27,6 @@
 
 static int key = 111;		/* the shared memory key, default value */
 
-#ifdef RTAPI
 /* module information */
 /* register symbols to be modified by insmod
    see "Linux Device Drivers", Alessandro Rubini, p. 385
@@ -47,17 +42,9 @@ RTAPI_MP_INT(DEBUG_MOTION, "debug motion");
 /* RTAPI shmem key - for comms with higher level user space stuff */
 RTAPI_MP_INT(key, "shared memory key");
 
-#if 0
-/*! \todo FIXME - currently HAL has a fixed stacksize of 16384...
-   the upcoming HAL rewrite may make it a paramater of the
-   create_thread call, in which case this will be restored */
-static int EMCMOT_TASK_STACKSIZE = 8192;	/* default stacksize */
-RTAPI_MP_INT(EMCMOT_TASK_STACKSIZE, "motion stack size");
-#endif
-
 static long base_period_nsec = 0;	/* fastest thread period */
 RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
-static long servo_period_nsec = 0;	/* servo thread period */
+static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
@@ -67,7 +54,6 @@ int num_dio = 4;			/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 int num_aio = 4;			/* default number of motion synched AIO */
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
-#endif
 
 /***********************************************************************
 *                  GLOBAL VARIABLE DEFINITIONS                         *
@@ -1084,7 +1070,6 @@ static int init_comm_buffers(void)
 */
 static int init_threads(void)
 {
-#ifdef RTAPI
     double base_period_sec, servo_period_sec;
     int servo_base_ratio;
     int retval;
@@ -1094,6 +1079,9 @@ static int init_threads(void)
     /* if base_period not specified, assume same as servo_period */
     if (base_period_nsec == 0) {
 	base_period_nsec = servo_period_nsec;
+    }
+    if (traj_period_nsec == 0) {
+	traj_period_nsec = servo_period_nsec;
     }
     /* servo period must be greater or equal to base period */
     if (servo_period_nsec < base_period_nsec) {
@@ -1170,7 +1158,6 @@ static int init_threads(void)
 	return -1;
     }
 
-#endif
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
     return 0;
 }
@@ -1241,31 +1228,3 @@ static int setServoCycleTime(double secs)
 
     return 0;
 }
-
-#ifndef RTAPI
-#include <signal.h>
-#include <unistd.h>
-int comp_id;
-static void handler(int ignore) {
-    hal_exit(mot_comp_id);
-}
-int main(void) {
-    long long t0 = rtapi_get_time(), t1, diff;
-    rtapi_app_main();
-    setTrajCycleTime(.01);
-    setServoCycleTime(.01);
-    signal(SIGTERM, handler);
-    while(1) {
-	t1 = rtapi_get_time();
-	diff = t1-t0;
-	emcmotCommandHandler(0, diff);
-	emcmotController(0, diff);
-	t0 = t1;
-	// t1 = rtapi_get_time();
-	// diff = t1-t0;
-        usleep(10000); //  - diff / 1000);
-    }
-    hal_exit(mot_comp_id);
-    return 0;
-}
-#endif
