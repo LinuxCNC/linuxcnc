@@ -80,14 +80,15 @@ Usage:
 	$P [-d] [-v]
 		Choose the configuration file graphically
 
-	$P [-d] [-v] path/to/your.ini
+	$P [-k] [-d] [-v] path/to/your.ini
 		Name the configuration file using its path
 
-	$P [-d] [-v] -l
+	$P [-k] [-d] [-v] -l
 		Use the previous configuration file
 
 	-d: Turn on "debug" mode
 	-v: Turn on "verbose" mode
+        -k: Continue in the presence of errors in .hal files
 EOF
 
 }
@@ -95,7 +96,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvlh" opt
+while getopts "dvlhk" opt
 do
 	case "$opt" in
 	d)
@@ -113,6 +114,7 @@ do
 		fi;;
 	l)
 		USE_LAST_INIFILE=1;;
+        k)      DASHK=-k;;
 	h)
 		usage
 		exit 0;;
@@ -208,7 +210,7 @@ EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 
 # common from here..
 INIVAR=inivar
-HALCMD=halcmd
+HALCMD="halcmd $DASHK"
 PICKCONFIG="@WISH@ $EMC2_TCL_DIR/bin/pickconfig.tcl"
 EMC2_EMCSH=emcsh
 EMC2_IOSH=iosh
@@ -434,6 +436,12 @@ function Cleanup() {
     echo "Unloading hal components" >> $DEBUG_FILE
     $HALCMD unload all
 
+    for i in `seq 10`; do
+        # (the one component is the halcmd itself)
+        if [ `$HALCMD list comp | wc -w` = 1 ]; then break; fi
+        sleep .2
+    done
+
     echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
     $REALTIME stop
 
@@ -575,7 +583,7 @@ fi
 NUM=1
 CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$CFGFILE" ] ; do
-    if ! $HALCMD -i "$INIFILE" -f $CFGFILE ; then
+    if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
 	Cleanup
 	exit -1
     fi
@@ -591,7 +599,7 @@ HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
-	if ! $HALCMD $HALCOMMAND ; then
+	if ! $HALCMD $HALCOMMAND && [ "$DASHK" = "" ]; then
 	    echo "ini file HAL command $HALCOMMAND failed."
 	    Cleanup
 	    exit -1
