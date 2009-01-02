@@ -469,9 +469,9 @@ int main(int argc, char **argv)
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_param_float_newf(HAL_RW, &(haldata->speed_tolerance), hal_comp_id, "%s.tolerance", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_hz), hal_comp_id, "%s.motor-HZ", modname);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_hz), hal_comp_id, "%s.nameplate-HZ", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
-    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_RPM), hal_comp_id, "%s.motor-RPM", modname);
+    retval = hal_param_float_newf(HAL_RW, &(haldata->motor_RPM), hal_comp_id, "%s.nameplate-RPM", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
 
     /* make default data match what we expect to use */
