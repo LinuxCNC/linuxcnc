@@ -475,17 +475,7 @@
                     <child>
                       <widget class="GtkComboBox" id="drivertype">
                         <property name="visible">True</property>
-                        <property name="items" translatable="yes">Gecko 201 
-Gecko 202
-Gecko 203v
-Gecko 210
-Gecko 212
-L297
-PMDX-150
-Sherline
-Xylotex
-Parker-oem750
-Other</property>
+                        <property name="items" translatable="no"/>
                         <signal name="changed" handler="on_drivertype_changed"/>
                       </widget>
                       <packing>

@@ -65,6 +65,19 @@ gettext.install("axis", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("axis", LOCALEDIR)
 gtk.glade.textdomain("axis")
 
+drivertypes = [
+    ["gecko201", _("Gecko 201"), 4000, 500, 20000, 1000],
+    ["gecko202", _("Gecko 202"), 4500, 500, 20000, 1000],
+    ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
+    ["gecko210", _("Gecko 210"), 4000, 500, 20000, 1000],
+    ["gecko212", _("Gecko 212"), 4000, 500, 20000, 1000],
+    ["l297", _("L297"), 500,  4000, 4000, 1000],
+    ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
+    ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
+    ["xylotext", _("Xylotex"), 1000, 2000, 200, 200],
+    ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
+]
+
 def iceil(x):
     if isinstance(x, (int, long)): return x
     if isinstance(x, basestring): x = float(x)
@@ -172,7 +185,7 @@ class Data:
 	self.machinename = _("my-mill")
 	self.axes = 0 # XYZ
 	self.units = 0 # inch
-	self.drivertype = 10 # Other
+	self.drivertype = "other"
 	self.steptime = 5000
         self.stepspace = 5000
 	self.dirhold = 20000 
@@ -379,6 +392,20 @@ class Data:
             if isinstance(p, int):
                 self[pin] = legacy_hal_output_names[p]
 
+        legacy_driver_type = [  # Must exactly match texts in drivertypes
+            _("Gecko 201"),
+            _("L297"),
+            _("PMDX-150"),
+            _("Sherline"),
+            _("Xylotex"),
+            _("Parker-Compumotor oem750")
+        ]
+        if isinstance(self.drivertype, int):
+            if self.drivertype < len(legacy_driver_type):
+                self.drivertype = legacy_driver_type[self.drivertype][0]
+            else:
+                self.drivertype = "other"
+
     def add_md5sum(self, filename, mode="r"):
 	self.md5sums.append((filename, md5sum(filename)))
 
@@ -502,15 +529,18 @@ class Data:
         pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
         return abs(pps)
 
-    def doublestep(self):
-        return self.steptime < 5000
+    def doublestep(self, steptime=None):
+        if steptime is None: steptime = self.steptime
+        return steptime <= 5000
 
-    def minperiod(self):
-        if self.doublestep():
-            return max(self.latency + self.steptime + self.stepspace + 5000,
-                        4*self.steptime)
+    def minperiod(self, steptime=None, stepspace=None, latency=None):
+        if steptime is None: steptime = self.steptime
+        if stepspace is None: stepspace = self.stepspace
+        if latency is None: latency = self.latency
+        if self.doublestep(steptime):
+            return max(latency + steptime + stepspace + 5000, 4*steptime)
         else:
-            return self.latency + max(self.steptime, self.stepspace)
+            return latency + max(steptime, stepspace)
 
     def maxhz(self):
         return 1e9 / self.minperiod()
@@ -1059,6 +1089,9 @@ class App:
 	self.axis_under_test = False
         self.jogminus = self.jogplus = 0
 
+        for i in drivertypes:
+            self.widgets.drivertype.append_text(i[1])
+        self.widgets.drivertype.append_text(_("Other"))
 	self.data = Data()
         tempfile = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
@@ -1119,6 +1152,29 @@ class App:
 		dialog.destroy()
 		return True
 
+    def drivertype_fromid(self):
+        for d in drivertypes:
+            if d[0] == self.data.drivertype: return d[1]
+
+    def drivertype_toid(self, what=None):
+        print "toid", what,
+        if not isinstance(what, int): what = self.drivertype_toindex(what)
+        print what,
+        print len(drivertypes)
+        if what < len(drivertypes): return drivertypes[what][0]
+        return "other"
+
+    def drivertype_toindex(self, what=None):
+        if what is None: what = self.data.drivertype
+        for i, d in enumerate(drivertypes):
+            if d[0] == what: return i
+        return len(drivertypes)
+
+    def drivertype_fromindex(self):
+        i = self.widgets.drivertype.get_active()
+        if i < len(drivertypes): return drivertypes[i][1]
+        return _("Other")
+
     def on_basicinfo_prepare(self, *args):
 	self.widgets.machinename.set_text(self.data.machinename)
 	self.widgets.axes.set_active(self.data.axes)
@@ -1128,7 +1184,7 @@ class App:
 	self.widgets.stepspace.set_value(self.data.stepspace)
 	self.widgets.dirsetup.set_value(self.data.dirsetup)
 	self.widgets.dirhold.set_value(self.data.dirhold)
-	self.widgets.drivertype.set_active(self.data.drivertype)
+	self.widgets.drivertype.set_active(self.drivertype_toindex())
 	self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
 	self.widgets.ioaddr.set_text(self.data.ioaddr)
 	self.widgets.machinename.grab_focus()
@@ -1148,10 +1204,11 @@ class App:
 	self.data.machinename = self.widgets.machinename.get_text()
 	self.data.axes = self.widgets.axes.get_active()
 	self.data.units = self.widgets.units.get_active()
-	self.data.drivertype = self.widgets.drivertype.get_active()
+        print "data.drivertype =", self.drivertype_toid(self.widgets.drivertype.get_active())
+	self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
 	self.data.steptime = self.widgets.steptime.get_value()
 	self.data.stepspace = self.widgets.stepspace.get_value()
-	self.data.dirsetup = self.widgets.dirsetup.get_value()
+        print self.data.steptime
 	self.data.dirhold = self.widgets.dirhold.get_value()
 	self.data.latency = self.widgets.latency.get_value()
 	self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
@@ -1168,26 +1225,13 @@ class App:
 	    "~/emc2/configs/%s" % self.widgets.machinename.get_text())
 
     def on_drivertype_changed(self, *args):
-        return
-	drive_characteristics = [
-	    [4000, 500, 20000, 1000],     # Gecko 201
-            [4500, 500, 20000, 1000],     # Gecko 202
-            [1000, 2000, 200 , 200],       # Gecko 203v
-            [4000, 500, 20000, 1000],     # Gecko 210
-            [4000, 500, 20000, 1000],     # Gecko 212
-	    [500,  4000, 4000, 1000],     # L297   XXX active low
-	    [1000, 2000, 1000, 1000],     # PMDX-150
-	    [22000, 22000, 100000, 100000], # Sherline  XXX find proper values
-	    [1000, 2000, 200, 200],       # Xylotex
-	    [1000, 1000, 1000, 200000],   # Parker-Compumotor oem750
-	]
 	v = self.widgets.drivertype.get_active()
-	if v < len(drive_characteristics):
-	    d = drive_characteristics[v]
-	    self.widgets.steptime.set_value(d[0])
-	    self.widgets.stepspace.set_value(d[1])
-	    self.widgets.dirhold.set_value(d[2])
-	    self.widgets.dirsetup.set_value(d[3])
+	if v < len(drivertypes):
+	    d = drivertypes[v]
+	    self.widgets.steptime.set_value(d[2])
+	    self.widgets.stepspace.set_value(d[3])
+	    self.widgets.dirhold.set_value(d[4])
+	    self.widgets.dirsetup.set_value(d[5])
 
 	    self.widgets.steptime.set_sensitive(0)
 	    self.widgets.stepspace.set_sensitive(0)
@@ -1198,6 +1242,7 @@ class App:
 	    self.widgets.stepspace.set_sensitive(1)
 	    self.widgets.dirhold.set_sensitive(1)
 	    self.widgets.dirsetup.set_sensitive(1)
+        self.on_calculate_ideal_period()
 
     def do_exclusive_inputs(self, pin):
 	if self.in_pport_prepare: return
@@ -1654,14 +1699,14 @@ class App:
 	gtk.main_quit()
 
     def on_calculate_ideal_period(self, *args):
-        self.data.steptime = self.widgets.steptime.get_value()
-        self.data.stepspace = self.widgets.stepspace.get_value()
-        self.data.latency = self.widgets.latency.get_value()
-        minperiod = self.data.minperiod()
+        steptime = self.widgets.steptime.get_value()
+        stepspace = self.widgets.stepspace.get_value()
+        latency = self.widgets.latency.get_value()
+        minperiod = self.data.minperiod(steptime, stepspace, latency)
         maxhz = int(1e9 / minperiod)
-        if not self.data.doublestep(): maxhz /= 2
-        self.widgets.baseperiod.set_text("%s ns" % minperiod)
-        self.widgets.maxsteprate.set_text("%s Hz" % maxhz)
+        if not self.data.doublestep(steptime): maxhz /= 2
+        self.widgets.baseperiod.set_text("%d ns" % minperiod)
+        self.widgets.maxsteprate.set_text("%d Hz" % maxhz)
 
     def on_latency_test_clicked(self, w):
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
