@@ -172,9 +172,11 @@ class Data:
 	self.machinename = _("my-mill")
 	self.axes = 0 # XYZ
 	self.units = 0 # inch
-	self.drivertype = 6 # Other
-	self.steptime = self.stepspace = 5000
-	self.dirhold = self.dirsetup = 20000
+	self.drivertype = 10 # Other
+	self.steptime = 5000
+        self.stepspace = 5000
+	self.dirhold = 20000 
+        self.dirsetup = 20000
         self.latency = 15000
         self.period = 25000
 
@@ -1066,19 +1068,33 @@ class App:
 	gtk.main_quit()
 
     def on_window1_delete_event(self, *args):
-        dialog = gtk.MessageDialog(self.widgets.window1,
-	    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-	    gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-		 _("Quit Stepconf and discard changes?"))
-	dialog.show_all()
-	result = dialog.run()
-	dialog.destroy()
-	if result == gtk.RESPONSE_YES:
+        if self.warning_dialog ("Quit Stepconf and discard changes?",False):
 	    gtk.main_quit()
 	    return False
 	else:
 	    return True
     on_druid1_cancel = on_window1_delete_event
+    
+    def warning_dialog(self,message,is_ok_type):
+        if is_ok_type:
+           dialog = gtk.MessageDialog(app.widgets.window1,
+                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+           dialog.show_all()
+	   result = dialog.run()
+	   dialog.destroy()
+           return True
+        else:   
+            dialog = gtk.MessageDialog(self.widgets.window1,
+	       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+	       gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+	    dialog.show_all()
+	    result = dialog.run()
+	    dialog.destroy()
+	    if result == gtk.RESPONSE_YES:
+	        return True
+	    else:
+	        return False
 
     def on_page_newormodify_next(self, *args):
 	if not self.widgets.createconfig.get_active():
@@ -1152,8 +1168,13 @@ class App:
 	    "~/emc2/configs/%s" % self.widgets.machinename.get_text())
 
     def on_drivertype_changed(self, *args):
+        return
 	drive_characteristics = [
-	    [4000, 500, 20000, 1000],     # Gecko
+	    [4000, 500, 20000, 1000],     # Gecko 201
+            [4500, 500, 20000, 1000],     # Gecko 202
+            [1000, 2000, 200 , 200],       # Gecko 203v
+            [4000, 500, 20000, 1000],     # Gecko 210
+            [4000, 500, 20000, 1000],     # Gecko 212
 	    [500,  4000, 4000, 1000],     # L297   XXX active low
 	    [1000, 2000, 1000, 1000],     # PMDX-150
 	    [22000, 22000, 100000, 100000], # Sherline  XXX find proper values
@@ -1469,16 +1490,22 @@ class App:
                self.data.laddername= 'blank.clp'
         if self.widgets.radiobutton2.get_active() == 1:
             self.data.laddername= 'estop.clp'
-            #TODO check for estop=in pins
-            #if ESTOP_in not in inputs:
-               # throw a window up to tell user
+            inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
+            if ESTOP_IN not in inputs:
+               self.warning_dialog("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.",True)
+               self.widgets.druid1.set_page(self.widgets.advanced)
+               return True
         if self.widgets.radiobutton3.get_active() == 1:
             self.data.laddername = 'serialmodbus.clp'
             self.data.modbus = 1
             self.widgets.modbus.set_active(self.data.modbus)
         if self.widgets.radiobutton4.get_active() == 1:
             self.data.laddername='custom.clp'
-       
+        if self.data.classicladder:
+            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                 if not self.warning_dialog("OK to overwrite existing Custom ladder program.",False):
+                   self.widgets.druid1.set_page(self.widgets.advanced)
+                   return True 
 
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -1621,7 +1648,6 @@ class App:
                if self.widgets.radiobutton4.get_active() == 0:
                   filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
                   if os.path.exists(original):
-                     #TODO tell user we are copying the orignal program for backup
                      shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
                   shutil.copy( filename,original)
 	self.data.save()
@@ -1713,8 +1739,7 @@ class App:
         if self.widgets.radiobutton4.get_active() == 1:
             self.data.laddername='custom.clp'
             originalfile = filename= os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
-	    # TODO should warn user if we are going to overwrite TEMP.clp file
-            #if not os.path.exists(newfilename):
+	    # TODO should We warn user if we are going to overwrite TEMP.clp file?
 	    shutil.copy(originalfile , newfilename)
         else:
             filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)

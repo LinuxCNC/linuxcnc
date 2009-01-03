@@ -475,7 +475,11 @@
                     <child>
                       <widget class="GtkComboBox" id="drivertype">
                         <property name="visible">True</property>
-                        <property name="items" translatable="yes">Gecko
+                        <property name="items" translatable="yes">Gecko 201 
+Gecko 202
+Gecko 203v
+Gecko 210
+Gecko 212
 L297
 PMDX-150
 Sherline
@@ -606,7 +610,7 @@ XZ (Lathe)</property>
                       <widget class="GtkSpinButton" id="stepspace">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">1000 0 500000 100 1000 1000</property>
+                        <property name="adjustment">0 0 500000 100 1000 1000</property>
                         <property name="climb_rate">100</property>
                         <property name="numeric">True</property>
                         <signal name="value_changed" handler="on_calculate_ideal_period"/>
@@ -624,7 +628,7 @@ XZ (Lathe)</property>
                       <widget class="GtkSpinButton" id="dirhold">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">1000 0 500000 100 1000 1000</property>
+                        <property name="adjustment">0 0 500000 100 1000 1000</property>
                         <property name="climb_rate">100</property>
                         <property name="numeric">True</property>
                       </widget>
@@ -682,7 +686,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
                       <widget class="GtkSpinButton" id="dirsetup">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="adjustment">200000 0 500000 100 1000 1000</property>
+                        <property name="adjustment">0 0 500000 100 1000 1000</property>
                         <property name="climb_rate">100</property>
                         <property name="numeric">True</property>
                       </widget>
@@ -804,8 +808,7 @@ can impose timing constraints of their own, in addition to those of the driver.<
                       <widget class="GtkComboBox" id="pp3_direction">
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
-                        <property name="items" translatable="yes">In
-Out</property>
+                        <property name="items" translatable="yes">In</property>
                       </widget>
                       <packing>
                         <property name="left_attach">2</property>
@@ -820,9 +823,7 @@ Out</property>
                       <widget class="GtkComboBox" id="pp2_direction">
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
-                        <property name="items" translatable="yes">In
-Out
-</property>
+                        <property name="items" translatable="yes">In</property>
                       </widget>
                       <packing>
                         <property name="left_attach">2</property>
