@@ -157,14 +157,14 @@ double tool_xoffset, tool_zoffset, tool_woffset;
 
 Interp interp_new;
 
-void maybe_new_line() {
+void maybe_new_line(int line_number) {
     if(interp_error) return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
     active_settings(new_line_code->settings);
     active_g_codes(new_line_code->gcodes);
     active_m_codes(new_line_code->mcodes);
-    int sequence_number = interp_new.sequence_number();
+    int sequence_number = line_number == -1? interp_new.sequence_number(): line_number;
     new_line_code->gcodes[0] = sequence_number;
     if(sequence_number == last_sequence_number) {
         Py_DECREF(new_line_code);
@@ -178,7 +178,13 @@ void maybe_new_line() {
     Py_XDECREF(result);
 }
 
-void ARC_FEED(double first_end, double second_end, double first_axis,
+void maybe_new_line(void) {
+    maybe_new_line(-1);
+}
+
+
+void ARC_FEED(int line_number,
+              double first_end, double second_end, double first_axis,
               double second_axis, int rotation, double axis_end_point,
               double a_position, double b_position, double c_position,
               double u_position, double v_position, double w_position) {
@@ -193,7 +199,7 @@ void ARC_FEED(double first_end, double second_end, double first_axis,
         v_position /= 25.4;
         w_position /= 25.4;
     }
-    maybe_new_line();
+    maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "arc_feed", "ffffifffffff",
@@ -205,14 +211,15 @@ void ARC_FEED(double first_end, double second_end, double first_axis,
     Py_XDECREF(result);
 }
 
-void STRAIGHT_FEED(double x, double y, double z,
+void STRAIGHT_FEED(int line_number,
+                   double x, double y, double z,
                    double a, double b, double c,
                    double u, double v, double w) {
     _pos_x=x; _pos_y=y; _pos_z=z; 
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
-    maybe_new_line();
+    maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "straight_feed", "fffffffff",
@@ -221,14 +228,15 @@ void STRAIGHT_FEED(double x, double y, double z,
     Py_XDECREF(result);
 }
 
-void STRAIGHT_TRAVERSE(double x, double y, double z,
+void STRAIGHT_TRAVERSE(int line_number,
+                       double x, double y, double z,
                        double a, double b, double c,
                        double u, double v, double w) {
     _pos_x=x; _pos_y=y; _pos_z=z; 
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
-    maybe_new_line();
+    maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "straight_traverse", "fffffffff",
@@ -416,14 +424,15 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
-void STRAIGHT_PROBE(double x, double y, double z, 
+void STRAIGHT_PROBE(int line_number, 
+                    double x, double y, double z, 
                     double a, double b, double c,
                     double u, double v, double w, unsigned char probe_type) {
     _pos_x=x; _pos_y=y; _pos_z=z; 
     _pos_a=a; _pos_b=b; _pos_c=c;
     _pos_u=u; _pos_v=v; _pos_w=w;
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
-    maybe_new_line();
+    maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "straight_probe", "fffffffff",
@@ -432,9 +441,10 @@ void STRAIGHT_PROBE(double x, double y, double z,
     Py_XDECREF(result);
 
 }
-void RIGID_TAP(double x, double y, double z) {
+void RIGID_TAP(int line_number,
+               double x, double y, double z) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
-    maybe_new_line();
+    maybe_new_line(line_number);
     if(interp_error) return;
     PyObject *result =
         PyObject_CallMethod(callback, "rigid_tap", "fff",

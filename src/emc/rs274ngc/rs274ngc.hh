@@ -219,33 +219,33 @@ private:
                                           setup_pointer settings);
  int convert_cycle(int motion, block_pointer block,
                          setup_pointer settings);
- int convert_cycle_g81(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g81(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z);
- int convert_cycle_g82(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g82(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell);
- int convert_cycle_g73(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g73(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);
- int convert_cycle_g83(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g83(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);
- int convert_cycle_g84(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g84(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z,
                              CANON_DIRECTION direction,
                              CANON_SPEED_FEED_MODE mode);
- int convert_cycle_g85(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z);
- int convert_cycle_g86(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell,
                              CANON_DIRECTION direction);
- int convert_cycle_g87(CANON_PLANE plane, double x, double offset_x,
+ int convert_cycle_g87(block_pointer block, CANON_PLANE plane, double x, double offset_x,
                              double y, double offset_y, double r,
                              double clear_z, double middle_z, double bottom_z,
                              CANON_DIRECTION direction);
- int convert_cycle_g88(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g88(block_pointer block, CANON_PLANE plane, double x, double y,
                              double bottom_z, double dwell,
                              CANON_DIRECTION direction);
- int convert_cycle_g89(CANON_PLANE plane, double x, double y,
+ int convert_cycle_g89(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell);
  int convert_cycle_xy(int motion, block_pointer block,
                             setup_pointer settings);
@@ -301,9 +301,9 @@ private:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
- int cycle_feed(CANON_PLANE plane, double end1,
-                      double end2, double end3);
- int cycle_traverse(CANON_PLANE plane, double end1, double end2,
+ int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
+                double end2, double end3);
+ int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
                           double end3);
  int enhance_block(block_pointer block, setup_pointer settings);
  int execute_binary(double *left, int operation, double *right);
@@ -392,7 +392,7 @@ private:
                   double *parameters);
  int read_l(char *line, int *counter, block_pointer block,
                   double *parameters);
- int read_line_number(char *line, int *counter, block_pointer block);
+ int read_n_number(char *line, int *counter, block_pointer block);
  int read_m(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_o(char *line, int *counter, block_pointer block,

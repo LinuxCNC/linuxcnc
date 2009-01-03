@@ -808,10 +808,8 @@ static void flush_segments(void) {
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     if ((vel && acc) || synched) {
-        int save = interp_list.get_next_line_number();
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
-        interp_list.set_line_number(save);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
@@ -866,7 +864,8 @@ linkable(double x, double y, double z,
 }
 
 static void
-see_segment(double x, double y, double z, 
+see_segment(int line_number,
+	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
     bool changed_abc = (a != canonEndPoint.a)
@@ -880,7 +879,7 @@ see_segment(double x, double y, double z,
     if(!chained_points().empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
-    pt pos = {x, y, z, a, b, c, u, v, w, interp_list.get_next_line_number()};
+    pt pos = {x, y, z, a, b, c, u, v, w, line_number};
     chained_points().push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
@@ -891,7 +890,8 @@ void FINISH() {
     flush_segments();
 }
 
-void STRAIGHT_TRAVERSE(double x, double y, double z,
+void STRAIGHT_TRAVERSE(int line_number,
+                       double x, double y, double z,
 		       double a, double b, double c,
                        double u, double v, double w)
 {
@@ -918,8 +918,10 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     if(feed_mode)
 	STOP_SPEED_FEED_SYNCH();
 
-    if(vel && acc) 
+    if(vel && acc)  {
+        interp_list.set_line_number(line_number);
         interp_list.append(linearMoveMsg);
+    }
 
     if(old_feed_mode)
 	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
@@ -927,7 +929,8 @@ void STRAIGHT_TRAVERSE(double x, double y, double z,
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
-void STRAIGHT_FEED(double x, double y, double z, 
+void STRAIGHT_FEED(int line_number,
+                   double x, double y, double z, 
                    double a, double b, double c,
                    double u, double v, double w)
 {
@@ -936,11 +939,11 @@ void STRAIGHT_FEED(double x, double y, double z,
 
     from_prog(x,y,z,a,b,c,u,v,w);
     offset_pos(x,y,z,a,b,c,u,v,w);
-    see_segment(x, y, z, a, b, c, u, v, w);
+    see_segment(line_number, x, y, z, a, b, c, u, v, w);
 }
 
 
-void RIGID_TAP(double x, double y, double z)
+void RIGID_TAP(int line_number, double x, double y, double z)
 {
     double ini_maxvel, vel, acc;
     EMC_TRAJ_RIGID_TAP rigidTapMsg;
@@ -968,8 +971,10 @@ void RIGID_TAP(double x, double y, double z)
 
     flush_segments();
 
-    if(vel && acc) 
+    if(vel && acc)  {
+        interp_list.set_line_number(line_number);
         interp_list.append(rigidTapMsg);
+    }
 
     // don't move the endpoint because after this move, we are back where we started
 }
@@ -980,7 +985,8 @@ void RIGID_TAP(double x, double y, double z)
   uses a probe message instead of a linear move message.
 */
 
-void STRAIGHT_PROBE(double x, double y, double z, 
+void STRAIGHT_PROBE(int line_number,
+                    double x, double y, double z, 
                     double a, double b, double c,
                     double u, double v, double w,
                     unsigned char probe_type)
@@ -1020,8 +1026,10 @@ void STRAIGHT_PROBE(double x, double y, double z,
 
     probeMsg.pos = to_ext_pose(x,y,z,a,b,c,u,v,w);
 
-    if(vel && acc) 
+    if(vel && acc)  {
+        interp_list.set_line_number(line_number);
         interp_list.append(probeMsg);
+    }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
 
@@ -1128,7 +1136,8 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     return dev;
 }
 
-void ARC_FEED(double first_end, double second_end,
+void ARC_FEED(int line_number,
+              double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
 	      double axis_end_point, 
               double a, double b, double c,
@@ -1156,7 +1165,7 @@ void ARC_FEED(double first_end, double second_end,
                 rotation, mx, my) < canonMotionTolerance) {
         double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
         offset_pos(x, y, z, a, b, c, u, v, w);
-        see_segment(mx, my,
+        see_segment(line_number, mx, my,
                 (lz + z)/2, 
                 (canonEndPoint.a + a)/2, 
                 (canonEndPoint.b + b)/2, 
@@ -1164,7 +1173,7 @@ void ARC_FEED(double first_end, double second_end,
                 (canonEndPoint.u + u)/2, 
                 (canonEndPoint.v + v)/2, 
                 (canonEndPoint.w + w)/2);
-        see_segment(x, y, z, a, b, c, u, v, w);
+        see_segment(line_number, x, y, z, a, b, c, u, v, w);
         return;
     }
     //ini_maxvel = max vel defined by various ini constraints
@@ -1403,8 +1412,10 @@ void ARC_FEED(double first_end, double second_end,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
-        if(vel && acc)
+        if(vel && acc){
+            interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
+	}
     } else {
 	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
 	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
@@ -1442,8 +1453,10 @@ void ARC_FEED(double first_end, double second_end,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
-        if(vel && acc)
+        if(vel && acc) {
+            interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
+	}
     }
     // update the end point
     canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c, u, v, w);

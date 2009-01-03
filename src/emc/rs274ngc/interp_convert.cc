@@ -73,11 +73,13 @@ typedef struct previous_move {
     double end1, end2, center1, center2, end3;
     // for both
     double a, b, c, u, v, w;
+    int line_number;
 };
 
 static previous_move pm;
 
-void save_feed(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+void save_feed(int l, double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    pm.line_number = l;
     pm.type = FEED;
     pm.valid = 1;
     pm.x = x;
@@ -92,7 +94,8 @@ void save_feed(double x, double y, double z, double a, double b, double c, doubl
     pm.len = len;
 }
 
-void save_traverse(double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+void save_traverse(int l, double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    pm.line_number = l;
     pm.type = TRAVERSE;
     pm.valid = 1;
     pm.x = x;
@@ -107,11 +110,13 @@ void save_traverse(double x, double y, double z, double a, double b, double c, d
     pm.len = len;
 }
 
-void save_arc(double end1, double end2, double center1, double center2,
+void save_arc(int l, 
+              double end1, double end2, double center1, double center2,
               int turn,
               double end3,
               double a, double b, double c,
               double u, double v, double w) {
+    pm.line_number = l;
     pm.type = ARC;
     pm.valid = 1;
     pm.end1 = end1;
@@ -132,12 +137,12 @@ void issue_savedmove(void) {
     if(!pm.valid) return;
     pm.valid = 0;
     if(pm.type == ARC) {
-        ARC_FEED(pm.end1, pm.end2, pm.center1, pm.center2, pm.turn, pm.end3,
+        ARC_FEED(pm.line_number, pm.end1, pm.end2, pm.center1, pm.center2, pm.turn, pm.end3,
                  pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
     } else if(pm.type == FEED) {
-        STRAIGHT_FEED(pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
+        STRAIGHT_FEED(pm.line_number, pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
     } else {
-        STRAIGHT_TRAVERSE(pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
+        STRAIGHT_TRAVERSE(pm.line_number, pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
     }
 }
 
@@ -433,7 +438,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   if (settings->feed_mode == INVERSE_TIME)
     inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                           turn, end1, end2, end3, block, settings);
-  ARC_FEED(end1, end2, center1, center2, turn, end3,
+  ARC_FEED(block->line_number, end1, end2, center1, center2, turn, end3,
            AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
   *current2 = end2;
@@ -584,14 +589,14 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_straight(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
                                    AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
-      STRAIGHT_FEED(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
+      STRAIGHT_FEED(block->line_number, xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), 
+      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), 
                ztrans(settings, center[1]), xtrans(settings, center[0]), 
                -turn, end[2], AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
@@ -608,10 +613,10 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+      save_arc(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #if !LOOKAHEAD
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
       settings->current_x = end[0];
@@ -811,7 +816,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 #if LOOKAHEAD
           update_endpoint(mid[0], mid[1]);
 #else
-          STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
+          STRAIGHT_FEED(block->line_number,  mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
 #endif
       } else {
           // arc->arc
@@ -851,14 +856,14 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 #if LOOKAHEAD
           update_endpoint(mid[0], mid[1]);
 #else
-          STRAIGHT_FEED( mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
+          STRAIGHT_FEED(block->line_number,  mid[0], mid[1], end[2], AA_end, BB_end, CC_end, u, v, w);
 #endif
       }
 
-      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+      save_arc(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #if !LOOKAHEAD
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #endif
 
@@ -870,22 +875,22 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                              mid[0], mid[1], center[0], center[1], turn,
                              end[0], end[1], end[2], block, settings);
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
+      ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                ((side == LEFT) ? 1 : -1),
                current[2], AA_end, BB_end, CC_end, u, v, w);
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
 #if LOOKAHEAD
       issue_savedmove();
 #endif
-      ARC_FEED(mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
+      ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
                AA_end, BB_end, CC_end, u, v, w);
-      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+      save_arc(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #if !LOOKAHEAD
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #endif
     }
@@ -895,16 +900,16 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                             current[2], center[0], center[1], turn,
                             end[0], end[1], end[2], block, settings);
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
 #if LOOKAHEAD
       issue_savedmove();
 #endif
-      save_arc(end[0], end[1], center[0], center[1], turn, end[2],
+      save_arc(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #if !LOOKAHEAD
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
 #endif
     }
@@ -2213,7 +2218,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
   // waypoint is in currently active coordinate system
 
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+  STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
 
@@ -2276,7 +2281,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
       w_end = w_end_home;  
   }
 
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+  STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
   settings->current_x = end_x;
@@ -2829,7 +2834,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
        NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
        
   TURN_PROBE_ON();
-  STRAIGHT_PROBE(end_x, end_y, end_z,
+  STRAIGHT_PROBE(block->line_number, end_x, end_y, end_z,
                  AA_end, BB_end, CC_end,
                  u_end, v_end, w_end, probe_type);
 
@@ -3477,7 +3482,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHP(status);
     }
   } else if (move == G_0) {
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+    STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                       AA_end, BB_end, CC_end,
                       u_end, v_end, w_end);
     settings->current_x = end_x;
@@ -3489,7 +3494,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  AA_end, BB_end, CC_end,
                                  u_end, v_end, w_end,
                                  block, settings);
-    STRAIGHT_FEED(end_x, end_y, end_z,
+    STRAIGHT_FEED(block->line_number, end_x, end_y, end_z,
                   AA_end, BB_end, CC_end,
                   u_end, v_end, w_end);
     settings->current_x = end_x;
@@ -3500,7 +3505,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           "Spindle not turning in G33");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+    STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
@@ -3510,7 +3515,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           "Spindle not turning in G33.1");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    RIGID_TAP(end_x, end_y, end_z);
+    RIGID_TAP(block->line_number, end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
@@ -3537,46 +3542,46 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 
 // make one threading pass.  only called from convert_threading_cycle.
 static void 
-threading_pass(setup_pointer settings,
+threading_pass(setup_pointer settings, block_pointer block,
 	       int boring, double safe_x, double depth, double end_depth, 
 	       double start_y, double start_z, double zoff, double taper_dist,
 	       int entry_taper, int exit_taper, double taper_pitch, 
 	       double pitch, double full_threadheight, double target_z) {
-    STRAIGHT_TRAVERSE(boring?
+    STRAIGHT_TRAVERSE(block->line_number, boring?
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(taper_pitch, 0);
-	STRAIGHT_FEED(boring? 
+	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, //angled in
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(pitch, 0);
     } else {
-	STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth, 
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(pitch, 0);
     }
         
     if(taper_dist && exit_taper) {
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth,  //over
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(taper_pitch, 0);
-	STRAIGHT_FEED(boring? 
+	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight, 
 		      start_y, target_z - zoff, AABBCC); //angled out
     } else {
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, 
 		      start_y, target_z - zoff, AABBCC); //over
     }
     STOP_SPEED_FEED_SYNCH();
-    STRAIGHT_TRAVERSE(boring? 
+    STRAIGHT_TRAVERSE(block->line_number, boring? 
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, target_z - zoff, AABBCC); //out
@@ -3634,7 +3639,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     while (depth < end_depth) {
-	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
@@ -3645,11 +3650,11 @@ int Interp::convert_threading_cycle(block_pointer block,
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
     } 
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
+    STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
@@ -3745,13 +3750,13 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
-         STRAIGHT_TRAVERSE(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+         STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
-         save_traverse(c[0], c[1], p[2],
+         save_traverse(block->line_number, c[0], c[1], p[2],
                        AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
 #if !LOOKAHEAD
-         STRAIGHT_TRAVERSE(c[0], c[1], p[2],
+         STRAIGHT_TRAVERSE(block->line_number, c[0], c[1], p[2],
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
      }
@@ -3763,7 +3768,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       STRAIGHT_FEED(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+       STRAIGHT_FEED(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
@@ -3771,10 +3776,10 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       save_feed(c[0], c[1], p[2],
+       save_feed(block->line_number, c[0], c[1], p[2],
                  AA_end, BB_end, CC_end, u_end, v_end, w_end, distance);
 #if !LOOKAHEAD
-       STRAIGHT_FEED(c[0], c[1], p[2],
+       STRAIGHT_FEED(block->line_number, c[0], c[1], p[2],
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
     }
@@ -3923,17 +3928,17 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   if ((p[1] == start[1]) && (p[0] == start[0])) {     /* no XY motion */
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           //          flush_STRAIGHT_FEED();
 #if LOOKAHEAD
           issue_savedmove();
 #endif
-          save_traverse(end[0], end[1], pz,
+          save_traverse(block->line_number, end[0], end[1], pz,
                     AA_end, BB_end, CC_end, u_end, v_end, w_end, hypot(end[1] - c[1], end[0] - c[0]));
 #if !LOOKAHEAD
-          STRAIGHT_TRAVERSE(end[0], end[1], pz,
+          STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
       }
@@ -3944,7 +3949,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
-          STRAIGHT_FEED(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           if (settings->feed_mode == INVERSE_TIME)
@@ -3955,10 +3960,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
           issue_savedmove();
 #endif
-          save_feed(end[0], end[1], pz,
+          save_feed(block->line_number, end[0], end[1], pz,
                     AA_end, BB_end, CC_end, u_end, v_end, w_end, hypot(end[1] - c[1], end[0] - c[0]));
 #if !LOOKAHEAD
-          STRAIGHT_FEED(end[0], end[1], pz,
+          STRAIGHT_FEED(block->line_number, end[0], end[1], pz,
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
       }
@@ -3999,14 +4004,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
       else if(settings->plane == CANON_PLANE_XY) {
 #if LOOKAHEAD
           issue_savedmove();
 #endif
-          STRAIGHT_TRAVERSE(end[0], end[1], pz,
+          STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     }
@@ -4020,10 +4025,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
+            ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), settings->current_y,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
@@ -4037,16 +4042,16 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
             issue_savedmove();
 #endif
-            ARC_FEED(mid[0], mid[1], start[0], start[1],
+            ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
-            save_feed(end[0], end[1], p[2], 
+            save_feed(block->line_number, end[0], end[1], p[2], 
                       AA_end, BB_end, CC_end, 
                       u_end, v_end, w_end, 
                       hypot(mid[1] - end[1], mid[0] - end[0]));
 #if !LOOKAHEAD
-            STRAIGHT_FEED(end[0], end[1], p[2],
+            STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
         }
@@ -4069,7 +4074,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
                  update_endpoint(mid[0], mid[1]);
 #else
-                 STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+                 STRAIGHT_FEED(block->line_number, mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
              } else {
                  // arc->line
@@ -4127,7 +4132,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
                  update_endpoint(mid[0], mid[1]);
 #else
-                 STRAIGHT_FEED(mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+                 STRAIGHT_FEED(block->line_number, mid[0], mid[1], settings->current_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
              }
          }
@@ -4137,7 +4142,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          } else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -4148,12 +4153,12 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 #if LOOKAHEAD
             issue_savedmove();
 #endif
-            save_feed(end[0], end[1], p[2],
+            save_feed(block->line_number, end[0], end[1], p[2],
                       AA_end, BB_end, CC_end, 
                       u_end, v_end, w_end, 
                       hypot(mid[1] - end[1], mid[0] - end[0]));
 #if !LOOKAHEAD
-            STRAIGHT_FEED(end[0], end[1], p[2],
+            STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
 #endif
          }
@@ -4242,9 +4247,11 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &discard, &discard, &discard, 
                     &discard, &discard, &discard,
                     settings);
-      STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, up_z,
+      COMMENT("AXIS,hide");
+      STRAIGHT_TRAVERSE(0, settings->current_x, settings->current_y, up_z,
                         settings->AA_current, settings->BB_current, settings->CC_current,
                         settings->u_current, settings->v_current, settings->w_current);
+      COMMENT("AXIS,show");
       settings->current_z = up_z;
   }
 
@@ -4272,7 +4279,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &AA_end, &BB_end, &CC_end, 
                     &u_end, &v_end, &w_end, settings);
       COMMENT("AXIS,hide");
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+      STRAIGHT_TRAVERSE(0, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
                         u_end, v_end, w_end);
       COMMENT("AXIS,show");
