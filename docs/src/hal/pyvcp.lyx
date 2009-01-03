@@ -600,18 +600,44 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
 \layout LyX-Code
 
 <meter>
-\newline 
-    <halpin>"my-meter"</halpin>
-\newline 
-    <text>"Voltage"</text>
-\newline 
+\layout LyX-Code
+
+    <halpin>"mymeter"</halpin>
+\layout LyX-Code
+
+    <text>"Battery"</text>
+\layout LyX-Code
+
+    <subtext>"Volts"</subtext>
+\layout LyX-Code
+
     <size>300</size>
-\newline 
-    <min_>-12</min_>
-\newline 
-    <max_>33</max_>
-\newline 
-</meter> 
+\layout LyX-Code
+
+    <min_>0</min_>
+\layout LyX-Code
+
+    <max_>10.5</max_>
+\layout LyX-Code
+
+    <majorscale>1</majorscale>
+\layout LyX-Code
+
+    <minorscale>0.2</minorscale>
+\layout LyX-Code
+
+    <region1>(9,10.5,"green")</region1>
+\layout LyX-Code
+
+    <region2>(7.5,9,"orange")</region2>
+\layout LyX-Code
+
+    <region3>(0,7.5,"red")</region3>
+\layout LyX-Code
+
+</meter>
+\layout LyX-Code
+
 \layout Standard
 \align center 
 
