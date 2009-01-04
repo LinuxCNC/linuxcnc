@@ -71,6 +71,8 @@ DOC_SRCS := \
 	config/stepconf.lyx \
 	config/stepconf_fr.lyx \
 	drivers/AX5214H.lyx \
+	drivers/GS2.lyx \
+	drivers/m5i20.lyx \
 	drivers/opto22.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \

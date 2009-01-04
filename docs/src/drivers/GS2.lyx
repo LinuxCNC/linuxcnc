@@ -39,7 +39,7 @@ This component is loaded using the halcmd "loadusr" command:
 
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 \newline 
-(loadusr, wait for named to load, componet gs2_vfd, named spindle-vfd)
+(loadusr, wait for named to load, component gs2_vfd, named spindle-vfd)
 \layout Standard
 
 The command-line options are: 
@@ -65,8 +65,8 @@ The command-line options are:
  
 \layout Itemize
 
--p or --parity {even,odd,none} (defalt odd) Set serial parity to even, odd,
- or none.
+-p or --parity {even,odd,none} (default odd) Set serial parity to even,
+ odd, or none.
  
 \layout Itemize
 
@@ -171,7 +171,7 @@ Parameters where <name> is the name given during loading with the -n option.
 <name>.tolerance (s32, RW) speed tolerance (default 0.01)
 \layout Standard
 
-Using the componet involves very little to set up.
+Using the component involves very little to set up.
  We start with a Stepconf Wizard generated config that does not have any
  spindle controls used in the parallel port setup screen.
  We add the following HAL commands to the custom.hal file.
