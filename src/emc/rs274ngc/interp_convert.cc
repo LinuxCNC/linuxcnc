@@ -3993,7 +3993,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     mid[0] = (start[0] + (radius * cos(alpha + gamma)));
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
     
-    if(1) printf("alpha %g beta %g gamma %g ", R2D(alpha), R2D(beta), R2D(gamma));
+    if(0) printf("alpha %g beta %g gamma %g ", R2D(alpha), R2D(beta), R2D(gamma));
 
     if ((beta < -small) || (beta > (M_PIl + small))) {
         if(0) printf("concave yes\n");
