@@ -30,6 +30,10 @@ Getting Started
 \layout Section
 
 Hal Commands
+\layout Standard
+
+More detailed information can be found in the man page for halcmd "man halcmd"
+ in a terminal window.
 \layout Subsection
 
 loadrt
@@ -85,13 +89,39 @@ The command "loadusr" loads a user space HAL component.
  You can not load real time components into user space.
 \layout Standard
 
-The syntax and an example:
+Flags may be one or more of the following:
+\layout Description
+
+-W to wait for the component to become ready.
+ The component is assumed to have the same name as the first argument of
+ the command.
+\layout Description
+
+-Wn\SpecialChar ~
+<name> to wait for the component, which will have the given <name>.
+\layout Description
+
+-w to wait for the program to exit
+\layout Description
+
+-i to ignore the program return value (with -w) 
+\layout Standard
+
+The syntax and examples:
 \layout Quote
 
 loadusr <component> <options>
 \layout Quote
 
 loadusr halui
+\layout Quote
+
+loadusr -Wn spindle gs2_vfd -n spindle
+\layout Quote
+
+in english is "loadusr wait for name spindle component gs2_vfd name spindle."
+\newline 
+the -n spindle is part of the gs2_vfd component not the loadusr command.
 \layout Subsection
 
 net
