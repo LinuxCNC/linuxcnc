@@ -34,14 +34,15 @@ This is a userspace HAL program for the GS2 series of VFD's at Automation
  
 \layout Standard
 
-This is loaded using the halcmd "loadusr" command: 
+This component is loaded using the halcmd "loadusr" command: 
 \layout Quote
 
-loadusr gs2_vfd 
+loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
+\newline 
+(loadusr, wait for named to load, componet gs2_vfd, named spindle-vfd)
 \layout Standard
 
-There are several command-line options.
- 
+The command-line options are: 
 \layout Itemize
 
 -b or --bits <n> (default 8) Set number of data bits to <n>, where n must
@@ -85,87 +86,93 @@ There are several command-line options.
  At the moment, it doesn't make much difference most of the time.
 \layout Standard
 
-Parameters and Pins
+Pins where <name> is the name given during loading with the -n option.
+\layout Itemize
+
+<name>.DC-bus-volts (float, out) The DC bus voltage of the VFD
+\layout Itemize
+
+<name>.at-speed (bit, out) when drive is at commanded speed
+\layout Itemize
+
+<name>.err-reset (bit, in) reset errors sent to VFD
+\layout Itemize
+
+<name>.firmware-revision (s32, out) from the VFD
+\layout Itemize
+
+<name>.frequency-command (float, out) from the VFD
+\layout Itemize
+
+<name>.frequency-out (float, out) from the VFD
+\layout Itemize
+
+<name>.load-percentage (float, out) from the VFD
+\layout Itemize
+
+<name>.motor-RPM (float, out) from the VFD
+\layout Itemize
+
+<name>.output-current (float, out) from the VFD
+\layout Itemize
+
+<name>.output-voltage (float, out) from the VFD
+\layout Itemize
+
+<name>.power-factor (float, out) from the VFD
+\layout Itemize
+
+<name>.scale-frequency (float, out) from the VFD
+\layout Itemize
+
+<name>.speed-command (float, in) speed sent to VFD in RPM
+\newline 
+It is an error to send a speed faster than the Motor Max RPM as set in the
+ VFD
+\layout Itemize
+
+<name>.spindle-fwd (bit, in) 1 for FWD and 0 for REV sent to VFD
+\layout Itemize
+
+<name>.spindle-on (bit, in) 1 for ON and 0 for OFF sent to VFD
+\layout Itemize
+
+<name>.status-1 (s32, out) Drive Status of the VFD (see the GS2 manual)
+\layout Itemize
+
+<name>.status-2 (s32, out) Drive Status of the VFD (see the GS2 manual)
+\newline 
+Note that the value is a sum of all the bits that are on.
+ So a 163 which means 
+\newline 
+the drive is in the run mode is the sum of 3 (run) + 32 (freq set by serial)
+\newline 
++ 128 (operation set by serial).
 \layout Standard
 
+Parameters where <name> is the name given during loading with the -n option.
+\layout Itemize
 
-\begin_inset Note
-collapsed false
+<name>.error-count (s32, RW) 
+\layout Itemize
 
+<name>.loop-time (float, RW) how often the modbus is polled (default 0.1)
+\layout Itemize
+
+<name>.nameplate-HZ (float, RW) Nameplate Hz of motor (default 60)
+\layout Itemize
+
+<name>.nameplate-RPM (float, RW) Nameplate RPM of motor (default 1730)
+\layout Itemize
+
+<name>.retval (s32, RW) the return value of an error in HAL
+\layout Itemize
+
+<name>.tolerance (s32, RW) speed tolerance (default 0.01)
 \layout Standard
 
-need to add direction and description
-\end_inset 
-
-
-\layout Itemize
-
-hal_s32_t *stat1; // status words from the VFD.
- Maybe split these out sometime 
-\layout Itemize
-
-hal_s32_t *stat2; 
-\layout Itemize
-
-hal_float_t *freq_cmd; // frequency command 
-\layout Itemize
-
-hal_float_t *freq_out; // actual output frequency 
-\layout Itemize
-
-hal_float_t *curr_out; // output current 
-\layout Itemize
-
-hal_float_t *DCBusV; // 
-\layout Itemize
-
-hal_float_t *outV; 
-\layout Itemize
-
-hal_float_t *RPM; 
-\layout Itemize
-
-hal_float_t *scale_freq; 
-\layout Itemize
-
-hal_float_t *power_factor; 
-\layout Itemize
-
-hal_float_t *load_pct; 
-\layout Itemize
-
-hal_s32_t *FW_Rev; 
-\layout Itemize
-
-hal_s32_t errorcount; 
-\layout Itemize
-
-hal_float_t looptime; 
-\layout Itemize
-
-hal_float_t speed_tolerance; 
-\layout Itemize
-
-hal_s32_t retval; 
-\layout Itemize
-
-hal_bit_t *at_speed; 
-\layout Itemize
-
-hal_float_t *speed_command; // speed command input 
-\layout Itemize
-
-hal_float_t motor_hz; // speeds are scaled in Hz, not RPM 
-\layout Itemize
-
-hal_float_t motor_RPM; // nameplate RPM at default Hz 
-\layout Itemize
-
-hal_bit_t *spindle_on; // 1=turn spindle on, 0=off 
-\layout Itemize
-
-hal_bit_t *spindle_fwd; // direction, 0=fwd, 1=rev 
-\layout Itemize
-
-hal_bit_t *err_reset; // reset errors when 1
+Using the componet involves very little to set up.
+ We start with a Stepconf Wizard generated config that does not have any
+ spindle controls used in the parallel port setup screen.
+ We add the following HAL commands to the custom.hal file.
 \the_end
