@@ -780,7 +780,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if (beta < -small || 
       beta > M_PIl + small ||
       // nasty detection for convex corner on tangent arcs       
-      (fabs(beta - M_PIl) < small && pm.type == ARC && turn == pm.turn && 
+      (fabs(beta - M_PIl) < small && pm.valid && pm.type == ARC && turn == pm.turn && 
        ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
       // concave
       if (pm.type != ARC) {
@@ -792,7 +792,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           
           if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
               // tool is inside the arc
-              dist_from_center = arc_radius - tool_radius; 
+              dist_from_center = arc_radius - tool_radius;
               toward_nominal = cy + tool_radius;
               if(move == G_3) {
                   angle_from_center = theta + asin(toward_nominal / dist_from_center);
@@ -3992,10 +3992,24 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     end[1] = (p[1] + (radius * sin(alpha + gamma)));
     mid[0] = (start[0] + (radius * cos(alpha + gamma)));
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
+    
+    if(1) printf("alpha %g beta %g gamma %g ", R2D(alpha), R2D(beta), R2D(gamma));
 
     if ((beta < -small) || (beta > (M_PIl + small))) {
+        if(0) printf("concave yes\n");
+        concave = 1;
+    } else if (beta > (M_PIl - small) && 
+               (pm.valid && pm.type == ARC && 
+                ((side == RIGHT && pm.turn == 1) || (side == LEFT && pm.turn == -1)))) {
+        // this is an "h" shape, tool on right, going right to left
+        // over the hemispherical round part, then up next to the
+        // vertical part (or, the mirror case).  there are two ways
+        // to stay to the "right", either loop down and around, or
+        // stay above and right.  we're forcing above and right.
+        if(0) printf("concave special case\n");
         concave = 1;
     } else {
+        if(0) printf("concave no\n");
         concave = 0;
         mid[0] = (start[0] + (radius * cos(alpha + gamma)));
         mid[1] = (start[1] + (radius * sin(alpha + gamma)));
