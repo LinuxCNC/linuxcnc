@@ -1656,8 +1656,9 @@ class App:
 
     def on_complete_finish(self, *args):
 	self.data.save()
+        # TODO if you select a preset ladder prg, edit it, then change the preset program radiobutton
+        # stepconf still copies the edited one. 
         filename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
-        #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
         original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
         if self.data.classicladder: 
            if not os.path.exists(filename):
@@ -1665,7 +1666,6 @@ class App:
                if self.widgets.radiobutton4.get_active() == 0:
                   print not "custom file"
                   filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)
-                  #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
                   if os.path.exists(original):
                      print "custom file already exists"
                      shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
@@ -1735,8 +1735,7 @@ class App:
 	self.update_axis_params()
 
     def load_ladder(self,w):         
-        newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
-        #newfilename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")    
+        newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
@@ -1763,9 +1762,7 @@ class App:
 	    # TODO should We warn user if we are going to overwrite TEMP.clp file?
 	    shutil.copy(originalfile , newfilename)
         else:
-            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)
-            #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
-        
+            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
         if self.data.modbus == 1: 
             halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\n" %          { 'newfilename':newfilename ,'filename':filename })
         else:
