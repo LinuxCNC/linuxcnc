@@ -124,7 +124,7 @@ typedef struct {
   hal_float_t	*speed_command;		// speed command input
   hal_float_t	motor_hz;		// speeds are scaled in Hz, not RPM
   hal_float_t	motor_RPM;		// nameplate RPM at default Hz
-  hal_bit_t	*spindle_on;		// 1=turn spindle on, 0=off
+  hal_bit_t	*spindle_on;		// spindle 1=on, 0=off
   hal_bit_t	*spindle_fwd;		// direction, 0=fwd, 1=rev
   hal_bit_t	*err_reset;		// reset errors when 1
 
@@ -489,7 +489,6 @@ int main(int argc, char **argv)
     *(haldata->FW_Rev) = 0;
     haldata->errorcount = 0;
     haldata->looptime = 0.1;
-    hal_ready(hal_comp_id);
     haldata->motor_RPM = 1730;
     haldata->motor_hz = 60;
     haldata->speed_tolerance = 0.01;
@@ -499,6 +498,7 @@ int main(int argc, char **argv)
     haldata->old_run = -1;		// make sure the initial value gets output
     haldata->old_dir = -1;
     haldata->old_err_reset = -1;
+    hal_ready(hal_comp_id);
     /* here's the meat of the program.  loop until done (which may be never) */
     while (done==0) {
         read_data(&mb_param, &slavedata, haldata);
