@@ -195,16 +195,16 @@ class Data:
 
         self.ioaddr = "0x378"
         self.ioaddr2 = "Enter Address"
-        self.pp2_direction = 0 # in
+        self.pp2_direction = 0 # input
         self.ioaddr3 = "Enter Address"
-        self.pp3_direction = 0 # in
+        self.pp3_direction = 0 # input
         self.number_pports = 1
 
 	self.manualtoolchange = 1
 	self.customhal = 1
-	self.pyvcp = 0
-        self.classicladder = 0
-        self.tempexists = 0
+	self.pyvcp = 0 # not included
+        self.classicladder = 0 # not included
+        self.tempexists = 0 # not present
         self.laddername = _("custom.clp")
 
 	self.pin1inv = 0
@@ -1060,7 +1060,7 @@ class App:
             self.widgets.drivertype.append_text(i[1])
         self.widgets.drivertype.append_text(_("Other"))
 	self.data = Data()
-        tempfile = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
+        tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
 
@@ -1068,7 +1068,7 @@ class App:
 	gtk.main_quit()
 
     def on_window1_delete_event(self, *args):
-        if self.warning_dialog ("Quit Stepconf and discard changes?",False):
+        if self.warning_dialog (_("Quit Stepconf and discard changes?"),False):
 	    gtk.main_quit()
 	    return False
 	else:
@@ -1506,7 +1506,7 @@ class App:
             self.data.laddername= 'estop.clp'
             inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
             if ESTOP_IN not in inputs:
-               self.warning_dialog("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.",True)
+               self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
                self.widgets.druid1.set_page(self.widgets.advanced)
                return True
         if self.widgets.radiobutton3.get_active() == 1:
@@ -1517,7 +1517,7 @@ class App:
             self.data.laddername='custom.clp'
         if self.data.classicladder:
             if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                 if not self.warning_dialog("OK to overwrite existing Custom ladder program.",False):
+                 if not self.warning_dialog(_("OK to overwrite existing Custom ladder program."),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
                    return True 
 
@@ -1655,16 +1655,22 @@ class App:
     def on_amaxacc_changed(self, *args): self.update_pps('a')
 
     def on_complete_finish(self, *args):
-        filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
+	self.data.save()
+        filename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
+        #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")
         original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
         if self.data.classicladder: 
            if not os.path.exists(filename):
+               print "no temp"
                if self.widgets.radiobutton4.get_active() == 0:
-                  filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
+                  print not "custom file"
+                  filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)
+                  #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
                   if os.path.exists(original):
+                     print "custom file already exists"
                      shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
-                  shutil.copy( filename,original)
-	self.data.save()
+           print "copied ladder program to usr directory"
+           shutil.copy( filename,original)
 	gtk.main_quit()
 
     def on_calculate_ideal_period(self, *args):
@@ -1728,8 +1734,9 @@ class App:
 	self.jogplus = 0
 	self.update_axis_params()
 
-    def load_ladder(self,w):           
-        newfilename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")    
+    def load_ladder(self,w):         
+        newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
+        #newfilename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
@@ -1752,11 +1759,12 @@ class App:
             self.widgets.modbus.set_active(self.data.modbus)
         if self.widgets.radiobutton4.get_active() == 1:
             self.data.laddername='custom.clp'
-            originalfile = filename= os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+            originalfile = filename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
 	    # TODO should We warn user if we are going to overwrite TEMP.clp file?
 	    shutil.copy(originalfile , newfilename)
         else:
-            filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
+            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)
+            #filename = os.path.expanduser("~/emc2/configs/common/configurable_options/ladder/"+ self.data.laddername)
         
         if self.data.modbus == 1: 
             halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\n" %          { 'newfilename':newfilename ,'filename':filename })
