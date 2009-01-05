@@ -1742,15 +1742,15 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	prev_period = tptr->period;
 	prev_priority = tptr->priority;
     }
-    /* make period an integer multiple of the timer period */
-    n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
-    if ( n == 0 ) {
+    if ( period_nsec < hal_data->base_period) { 
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
 	     period_nsec, hal_data->base_period);
 	return HAL_FAIL;
     }
+    /* make period an integer multiple of the timer period */
+    n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
     new->period = hal_data->base_period * n;
     if ( new->period < prev_period ) {
 	rtapi_mutex_give(&(hal_data->mutex));
