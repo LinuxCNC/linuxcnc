@@ -625,6 +625,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: data_ptr_addr not in shared memory\n");
 	return HAL_INVAL;
     }
+    if(comp->ready) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: pin_new called after hal_ready\n");
+	return HAL_INVAL;
+    }
     /* allocate a new variable structure */
     new = alloc_pin_struct();
     if (new == 0) {
@@ -1253,6 +1259,12 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    "HAL: ERROR: data_addr not in shared memory\n");
 	return HAL_INVAL;
     }
+    if(comp->ready) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: param_new called after hal_ready\n");
+	return HAL_INVAL;
+    }
     /* allocate a new parameter structure */
     new = alloc_param_struct();
     if (new == 0) {
@@ -1571,6 +1583,12 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d is not realtime\n", comp_id);
+	return HAL_INVAL;
+    }
+    if(comp->ready) {
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: export_funct called after hal_ready\n");
 	return HAL_INVAL;
     }
     /* allocate a new function structure */
