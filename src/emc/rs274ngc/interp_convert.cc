@@ -61,11 +61,11 @@ static double ztrans(setup_pointer settings, double z) {
     return z;
 }
 
-typedef enum previous_move_type {TRAVERSE, FEED, ARC};
-
-typedef struct previous_move {
-    previous_move_type type;
-    int valid;
+#include <vector>
+typedef enum queued_canon_type {TRAVERSE, FEED, ARC, FEEDRATE};
+typedef struct queued_canon {
+    queued_canon_type type;
+    double f;
     // only for lines
     double x, y, z, len;
     // only for arcs
@@ -76,12 +76,24 @@ typedef struct previous_move {
     int line_number;
 };
 
-static previous_move pm;
+static std::vector<queued_canon>& qc(void) {
+    static std::vector<queued_canon> c;
+    if(0) printf("len %d\n", c.size());
+    return c;
+}
+
+void save_feedrate(double feed) {
+    queued_canon f;
+    f.type = FEEDRATE;
+    f.f = feed;
+    qc().push_back(f);
+}
 
 void save_feed(int l, double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    queued_canon pm;
+
     pm.line_number = l;
     pm.type = FEED;
-    pm.valid = 1;
     pm.x = x;
     pm.y = y;
     pm.z = z;
@@ -92,12 +104,15 @@ void save_feed(int l, double x, double y, double z, double a, double b, double c
     pm.v = v;
     pm.w = w;
     pm.len = len;
+
+    qc().push_back(pm);
 }
 
 void save_traverse(int l, double x, double y, double z, double a, double b, double c, double u, double v, double w, double len) {
+    queued_canon pm;
+
     pm.line_number = l;
     pm.type = TRAVERSE;
-    pm.valid = 1;
     pm.x = x;
     pm.y = y;
     pm.z = z;
@@ -108,6 +123,8 @@ void save_traverse(int l, double x, double y, double z, double a, double b, doub
     pm.v = v;
     pm.w = w;
     pm.len = len;
+
+    qc().push_back(pm);
 }
 
 void save_arc(int l, 
@@ -116,9 +133,10 @@ void save_arc(int l,
               double end3,
               double a, double b, double c,
               double u, double v, double w) {
+    queued_canon pm;
+
     pm.line_number = l;
     pm.type = ARC;
-    pm.valid = 1;
     pm.end1 = end1;
     pm.end2 = end2;
     pm.center1 = center1;
@@ -131,28 +149,48 @@ void save_arc(int l,
     pm.u = u;
     pm.v = v;
     pm.w = w;
+
+    qc().push_back(pm);
 }
 
 void issue_savedmove(void) {
-    if(!pm.valid) return;
-    pm.valid = 0;
-    if(pm.type == ARC) {
-        ARC_FEED(pm.line_number, pm.end1, pm.end2, pm.center1, pm.center2, pm.turn, pm.end3,
-                 pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
-    } else if(pm.type == FEED) {
-        STRAIGHT_FEED(pm.line_number, pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
-    } else {
-        STRAIGHT_TRAVERSE(pm.line_number, pm.x, pm.y, pm.z, pm.a, pm.b, pm.c, pm.u, pm.v, pm.w);
+
+    if(qc().empty()) return;
+
+    for(unsigned int i = 0; i<qc().size(); i++) {
+        queued_canon &q = qc()[i];
+
+        switch(q.type) {
+        case ARC:
+            ARC_FEED(q.line_number, q.end1, q.end2, q.center1, q.center2, q.turn, q.end3,
+                     q.a, q.b, q.c, q.u, q.v, q.w);
+            break;
+        case FEED:
+            STRAIGHT_FEED(q.line_number, q.x, q.y, q.z, q.a, q.b, q.c, q.u, q.v, q.w);
+            break;
+        case TRAVERSE:
+            STRAIGHT_TRAVERSE(q.line_number, q.x, q.y, q.z, q.a, q.b, q.c, q.u, q.v, q.w);
+            break;
+        case FEEDRATE:
+            SET_FEED_RATE(q.f);
+            break;
+        default:
+            printf("unknown canon type in queue\n");
+        }
     }
+    qc().clear();
 }
 
 void update_endpoint(double x, double y) {
-    if(pm.type == ARC) {
-        pm.end1 = x;
-        pm.end2 = y;
+    if(qc().empty()) return;
+    queued_canon &q = qc().front();
+
+    if(q.type == ARC) {
+        q.end1 = x;
+        q.end2 = y;
     } else {
-        pm.x = x; 
-        pm.y = y;
+        q.x = x; 
+        q.y = y;
     }
     issue_savedmove();
 }
@@ -780,10 +818,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   if (beta < -small || 
       beta > M_PIl + small ||
       // nasty detection for convex corner on tangent arcs       
-      (fabs(beta - M_PIl) < small && pm.valid && pm.type == ARC && turn == pm.turn && 
+      (fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == ARC && turn == qc().front().turn && 
        ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
       // concave
-      if (pm.type != ARC) {
+      if (qc().front().type != ARC) {
           // line->arc
           double cy = arc_radius * sin(beta - M_PI_2l);
           double toward_nominal;
@@ -820,7 +858,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 #endif
       } else {
           // arc->arc
-
+          queued_canon &pm = qc().front();
           double oldrad = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
           double newrad;
           if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
@@ -2024,13 +2062,11 @@ This is called only if the feed mode is UNITS_PER_MINUTE or UNITS_PER_REVOLUTION
 int Interp::convert_feed_rate(block_pointer block,       //!< pointer to a block of RS274 instructions
                              setup_pointer settings)    //!< pointer to machine settings             
 {
-  static char name[] = "convert_feed_rate";
-  if(settings->feed_rate != block->f_number) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot change feed rate with cutter radius compensation on")));  // XXX
-  }
   settings->feed_rate = block->f_number;
-  SET_FEED_RATE(block->f_number);
+  if(qc().empty())
+      SET_FEED_RATE(block->f_number);
+  else
+      save_feedrate(block->f_number);
   return INTERP_OK;
 }
 
@@ -4082,8 +4118,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         if(0) printf("concave yes\n");
         concave = 1;
     } else if (beta > (M_PIl - small) && 
-               (pm.valid && pm.type == ARC && 
-                ((side == RIGHT && pm.turn == 1) || (side == LEFT && pm.turn == -1)))) {
+               (!qc().empty() && qc().front().type == ARC && 
+                ((side == RIGHT && qc().front().turn == 1) || (side == LEFT && qc().front().turn == -1)))) {
         // this is an "h" shape, tool on right, going right to left
         // over the hemispherical round part, then up next to the
         // vertical part (or, the mirror case).  there are two ways
@@ -4154,7 +4190,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         }
       } else {
          if (concave) {
-             if (pm.type != ARC) {
+             if (qc().front().type != ARC) {
                  // line->line
 
                  double retreat;
@@ -4176,7 +4212,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
              } else {
                  // arc->line
                  // beware: the arc we saved is the compensated one.
-
+                 queued_canon &pm = qc().front();
                  double oldrad = hypot(pm.center2 - pm.end2, pm.center1 - pm.end1);
                  double oldrad_uncomp;
 
