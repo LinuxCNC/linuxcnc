@@ -261,7 +261,7 @@ private:
                             setup_pointer settings);
  int convert_distance_mode(int g_code, setup_pointer settings);
  int convert_ijk_distance_mode(int g_code, setup_pointer settings);
- int convert_dwell(double time);
+ int convert_dwell(setup_pointer settings, double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
  int convert_feed_rate(block_pointer block, setup_pointer settings);
  int convert_g(block_pointer block, setup_pointer settings);
