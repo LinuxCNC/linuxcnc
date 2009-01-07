@@ -34,6 +34,34 @@ Hal Commands
 
 More detailed information can be found in the man page for halcmd "man halcmd"
  in a terminal window.
+ To see the HAL configuration and check the status of pins and parameters
+ use the HAL Configuration window on the Machine menu in AXIS.
+ To watch a pin status open the Watch tab and click on each pin you wish
+ to watch and it will be added to the watch window.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+HAL Configuration Window
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/HAL_Configuration.png
+	scale 60
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 loadrt
@@ -141,6 +169,33 @@ net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 \layout Quote
 
 net both-home-y <= paraport.0.pin-11-in
+\layout Standard
+
+Each signal can only have one source (a HAL "out
+\begin_inset Quotes erd
+\end_inset 
+
+ pin) and as many readers (a HAL "in" pin) as you like.
+ In the Dir column of the HAL Configuration window you can see which pins
+ are "in" and which are "out".
+\layout Standard
+
+To do this on one line:
+\layout Quote
+
+net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
+\layout Standard
+
+To do this on multiple lines just use the signal with the readers on subsequent
+ lines:
+\layout Quote
+
+net xStep stepgen.0.out => parport.0.pin-02-out
+\newline 
+net xStep => parport.0.pin-02-out
+\layout Standard
+
+The so called I/O pins like index-enable do not follow this rule.
 \layout Subsection
 
 setp
