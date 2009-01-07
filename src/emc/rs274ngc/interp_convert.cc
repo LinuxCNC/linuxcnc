@@ -59,7 +59,10 @@ static double ztrans(setup_pointer settings, double z) {
 }
 
 #include <vector>
-typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL};
+typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
+                                QMIST_ON, QMIST_OFF, QFLOOD_ON, QFLOOD_OFF,
+                                QSTART_SPINDLE_CLOCKWISE, QSTART_SPINDLE_COUNTERCLOCKWISE, QSTOP_SPINDLE_TURNING,
+                                QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED};
 
 struct straight_traverse {
     int line_number;
@@ -82,8 +85,20 @@ struct set_feed_rate {
     double feed;
 };
 
+struct set_feed_mode {
+    int mode;
+};
+
 struct dwell {
     double time;
+};
+
+struct set_spindle_mode {
+    double mode;
+};
+
+struct set_spindle_speed {
+    double speed;
 };
 
 typedef struct queued_canon {
@@ -94,6 +109,9 @@ typedef struct queued_canon {
         struct arc_feed arc_feed;
         struct set_feed_rate set_feed_rate;
         struct dwell dwell;
+        struct set_feed_mode set_feed_mode;
+        struct set_spindle_mode set_spindle_mode;
+        struct set_spindle_speed set_spindle_speed;
     } data;
 };
 
@@ -104,6 +122,10 @@ static std::vector<queued_canon>& qc(void) {
 }
 
 void enqueue_SET_FEED_RATE(double feed) {
+    if(qc().empty()) {
+        SET_FEED_RATE(feed);
+        return;
+    }
     queued_canon q;
     q.type = QSET_FEED_RATE;
     q.data.set_feed_rate.feed = feed;
@@ -111,9 +133,116 @@ void enqueue_SET_FEED_RATE(double feed) {
 }
 
 void enqueue_DWELL(double time) {
+    if(qc().empty()) {
+        DWELL(time);
+        return;
+    }
     queued_canon q;
     q.type = QDWELL;
     q.data.dwell.time = time;
+    qc().push_back(q);
+}
+
+void enqueue_SET_FEED_MODE(int mode) {
+    if(qc().empty()) {
+        SET_FEED_MODE(mode);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_FEED_MODE;
+    q.data.set_feed_mode.mode = mode;
+    qc().push_back(q);
+}
+
+void enqueue_MIST_ON(void) {
+    if(qc().empty()) {
+        MIST_ON();
+        return;
+    }
+    queued_canon q;
+    q.type = QMIST_ON;
+    qc().push_back(q);
+}
+
+void enqueue_MIST_OFF(void) {
+    if(qc().empty()) {
+        MIST_OFF();
+        return;
+    }
+    queued_canon q;
+    q.type = QMIST_OFF;
+    qc().push_back(q);
+}
+
+void enqueue_FLOOD_ON(void) {
+    if(qc().empty()) {
+        FLOOD_ON();
+        return;
+    }
+    queued_canon q;
+    q.type = QFLOOD_ON;
+    qc().push_back(q);
+}
+
+void enqueue_FLOOD_OFF(void) {
+    if(qc().empty()) {
+        FLOOD_OFF();
+        return;
+    }
+    queued_canon q;
+    q.type = QFLOOD_OFF;
+    qc().push_back(q);
+}
+
+void enqueue_START_SPINDLE_CLOCKWISE(void) {
+    if(qc().empty()) {
+        START_SPINDLE_CLOCKWISE();
+        return;
+    }
+    queued_canon q;
+    q.type = QSTART_SPINDLE_CLOCKWISE;
+    qc().push_back(q);
+}
+
+void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void) {
+    if(qc().empty()) {
+        START_SPINDLE_COUNTERCLOCKWISE();
+        return;
+    }
+    queued_canon q;
+    q.type = QSTART_SPINDLE_COUNTERCLOCKWISE;
+    qc().push_back(q);
+}
+
+void enqueue_STOP_SPINDLE_TURNING(void) {
+    if(qc().empty()) {
+        STOP_SPINDLE_TURNING();
+        return;
+    }
+    queued_canon q;
+    q.type = QSTOP_SPINDLE_TURNING;
+    qc().push_back(q);
+}
+
+void enqueue_SET_SPINDLE_MODE(double mode) {
+    if(qc().empty()) {
+        SET_SPINDLE_MODE(mode);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_SPINDLE_MODE;
+    q.data.set_spindle_mode.mode = mode;
+    qc().push_back(q);
+}
+
+void enqueue_SET_SPINDLE_SPEED(double speed) {
+    if(qc().empty()) {
+        SET_SPINDLE_SPEED(speed);
+        return;
+    }
+    queued_canon q;
+    q.type = QSET_SPINDLE_SPEED;
+    q.data.set_spindle_speed.speed = speed;
     qc().push_back(q);
 }
 
@@ -180,7 +309,7 @@ void enqueue_ARC_FEED(int l,
     qc().push_back(q);
 }
 
-void issue_savedmove(void) {
+void dequeue_canons(void) {
 
     if(qc().empty()) return;
 
@@ -214,8 +343,36 @@ void issue_savedmove(void) {
         case QDWELL:
             DWELL(q.data.dwell.time);
             break;
-        default:
-            printf("unknown canon type in queue\n");
+        case QSET_FEED_MODE:
+            SET_FEED_MODE(q.data.set_feed_mode.mode);
+            break;
+        case QMIST_ON:
+            MIST_ON();
+            break;
+        case QMIST_OFF:
+            MIST_OFF();
+            break;
+        case QFLOOD_ON:
+            FLOOD_ON();
+            break;
+        case QFLOOD_OFF:
+            FLOOD_OFF();
+            break;
+        case QSTART_SPINDLE_CLOCKWISE:
+            START_SPINDLE_CLOCKWISE();
+            break;
+        case QSTART_SPINDLE_COUNTERCLOCKWISE:
+            START_SPINDLE_COUNTERCLOCKWISE();
+            break;
+        case QSTOP_SPINDLE_TURNING:
+            STOP_SPINDLE_TURNING();
+            break;
+        case QSET_SPINDLE_MODE:
+            SET_SPINDLE_MODE(q.data.set_spindle_mode.mode);
+            break;
+        case QSET_SPINDLE_SPEED:
+            SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
+            break;
         }
     }
     qc().clear();
@@ -244,7 +401,7 @@ void update_endpoint(double x, double y) {
             ;
         }
     }
-    issue_savedmove();
+    dequeue_canons();
 }
 
     
@@ -956,7 +1113,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      issue_savedmove();
+      dequeue_canons();
       ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
                AA_end, BB_end, CC_end, u, v, w);
@@ -972,7 +1129,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
                -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      issue_savedmove();
+      dequeue_canons();
       enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
@@ -1770,7 +1927,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
   COMMENT("interpreter: cutter radius compensation off");
 #endif
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
-      issue_savedmove();
+      dequeue_canons();
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
       settings->current_z = settings->program_z;
@@ -2007,7 +2164,7 @@ Called by: convert_g.
 
 int Interp::convert_dwell(setup_pointer settings, double time)   //!< time in seconds to dwell  */
 {
-  (qc().empty()? DWELL: enqueue_DWELL)(time);
+  enqueue_DWELL(time);
   return INTERP_OK;
 }
 
@@ -2037,28 +2194,26 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
                              setup_pointer settings)    //!< pointer to machine settings                 
 {
   static char name[] = "convert_feed_mode";
-  CHKS((settings->cutter_comp_side != OFF),
-       (_("Cannot change feed mode with cutter radius compensation on")));  // XXX
   if (g_code == G_93) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to inverse time");
 #endif
     settings->feed_mode = INVERSE_TIME;
-    SET_FEED_MODE(0);
+    enqueue_SET_FEED_MODE(0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to units per minute");
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
-    SET_FEED_MODE(0);
-    SET_FEED_RATE(0);
+    enqueue_SET_FEED_MODE(0);
+    enqueue_SET_FEED_RATE(0);
   } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
     COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
-    SET_FEED_MODE(1);
-    SET_FEED_RATE(0);
+    enqueue_SET_FEED_MODE(1);
+    enqueue_SET_FEED_RATE(0);
   } else
     ERS("BUG: Code not G93, G94, or G95");
   return INTERP_OK;
@@ -2085,7 +2240,7 @@ int Interp::convert_feed_rate(block_pointer block,       //!< pointer to a block
                              setup_pointer settings)    //!< pointer to machine settings             
 {
   settings->feed_rate = block->f_number;
-  (qc().empty()? SET_FEED_RATE: enqueue_SET_FEED_RATE)(block->f_number);
+  enqueue_SET_FEED_RATE(block->f_number);
   return INTERP_OK;
 }
 
@@ -2633,38 +2788,26 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if (block->m_modes[7] == 3) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop spindle with cutter radius compensation on")));  // XXX
-      START_SPINDLE_CLOCKWISE();
+      enqueue_START_SPINDLE_CLOCKWISE();
       settings->spindle_turning = CANON_CLOCKWISE;
   } else if (block->m_modes[7] == 4) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop spindle with cutter radius compensation on")));  // XXX
-      START_SPINDLE_COUNTERCLOCKWISE();
+      enqueue_START_SPINDLE_COUNTERCLOCKWISE();
       settings->spindle_turning = CANON_COUNTERCLOCKWISE;
   } else if (block->m_modes[7] == 5) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop spindle with cutter radius compensation on")));  // XXX
-      STOP_SPINDLE_TURNING();
+      enqueue_STOP_SPINDLE_TURNING();
       settings->spindle_turning = CANON_STOPPED;
   }
 
   if (block->m_modes[8] == 7) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop mist or flood with cutter radius compensation on")));  // XXX
-      MIST_ON();
+      enqueue_MIST_ON();
       settings->mist = ON;
   } else if (block->m_modes[8] == 8) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop mist or flood with cutter radius compensation on")));  // XXX
-      FLOOD_ON();
+      enqueue_FLOOD_ON();
       settings->flood = ON;
   } else if (block->m_modes[8] == 9) {
-      CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot start or stop mist or flood with cutter radius compensation on")));  // XXX
-      MIST_OFF();
+      enqueue_MIST_OFF();
       settings->mist = OFF;
-      FLOOD_OFF();
+      enqueue_FLOOD_OFF();
       settings->flood = OFF;
   }
 
@@ -3286,26 +3429,20 @@ Called by: execute_block.
 int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS274 instructions
                          setup_pointer settings)        //!< pointer to machine settings             
 {
-  static char name[] = "convert_speed";
-  CHKS((settings->cutter_comp_side != OFF),
-       (_("Cannot change spindle speed with cutter radius compensation on"))); // XXX
-  SET_SPINDLE_SPEED(block->s_number);
+  enqueue_SET_SPINDLE_SPEED(block->s_number);
   settings->speed = block->s_number;
   return INTERP_OK;
 }
 
 int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 {
-    static char name[] = "convert_spindle_mode";
-    CHKS((settings->cutter_comp_side != OFF),
-         (_("Cannot change spindle mode with cutter radius compensation on"))); // XXX
     if(block->g_modes[14] == G_97) {
-	SET_SPINDLE_MODE(0);
+	enqueue_SET_SPINDLE_MODE(0);
     } else { /* G_96 */
 	if(block->d_flag)
-	    SET_SPINDLE_MODE(block->d_number_float);
+	    enqueue_SET_SPINDLE_MODE(block->d_number_float);
 	else
-	    SET_SPINDLE_MODE(1e30);
+	    enqueue_SET_SPINDLE_MODE(1e30);
     }
     return INTERP_OK;
 }
@@ -3380,7 +3517,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   char *line;
   int length;
 
-  issue_savedmove();
+  dequeue_canons();
 
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
@@ -4138,7 +4275,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
       else if(settings->plane == CANON_PLANE_XY) {  // XXX ?
-          issue_savedmove();
+          dequeue_canons();
           STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
@@ -4167,7 +4304,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            issue_savedmove();
+            dequeue_canons();
             ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -4263,7 +4400,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            issue_savedmove();
+            dequeue_canons();
             enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
                                   AA_end, BB_end, CC_end, 
                                   u_end, v_end, w_end);
