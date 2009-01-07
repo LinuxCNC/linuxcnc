@@ -30,9 +30,9 @@
 *  URE=user request enable
 *
 *  This will work like this: EMC will be enabled (by EEI, emc-enabled-in),
-*  only if UEO, EEST and EEI are closed. 
+*  only if UEO, EEST are closed when URE gets strobed.
 *  If any of UEO (user requested stop) or EEST (external estop) have been
-*  opened, then EEI will open aswell.
+*  opened, then EEI will open as well.
 *  After restoring normal condition (UEO and EEST closed), an aditional
 *  URE (user-request-enable) is needed, this is either sent by the GUI
 *  (using the EMC_AUX_ESTOP_RESET NML message), or by a hardware button
