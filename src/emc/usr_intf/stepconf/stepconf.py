@@ -203,9 +203,10 @@ class Data:
 	self.manualtoolchange = 1
 	self.customhal = 1
 	self.pyvcp = 0 # not included
+        self.pyvcpname= ("custom.xml")
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
-        self.laddername = _("custom.clp")
+        self.laddername = ("custom.clp")
 
 	self.pin1inv = 0
 	self.pin2inv = 0
@@ -1477,6 +1478,10 @@ class App:
 
     def on_advanced_prepare(self, *args):       
 	self.widgets.pyvcp.set_active(self.data.pyvcp)
+        self.on_pyvcp_toggled()
+        if  not self.widgets.createconfig.get_active():
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/panel.xml" % self.data.machinename)):
+                self.widgets.radiobutton8.set_active(True)
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
         self.widgets.digitsin.set_value(self.data.digitsin)
@@ -1519,6 +1524,9 @@ class App:
                  if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
                    return True 
+        if self.widgets.radiobutton7.get_active() == True:
+           self.data.halui = True 
+           self.widgets.halui.set_active(True)   
 
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -1551,6 +1559,20 @@ class App:
         self.widgets.label_digout.set_sensitive(i)
         self.widgets.label_anlgin.set_sensitive(i)
         self.widgets.label_anlgout.set_sensitive(i)
+
+    def on_pyvcp_toggled(self,*args):
+        i= self.widgets.pyvcp.get_active()
+        self.widgets.radiobutton5.set_sensitive(i)
+        self.widgets.radiobutton6.set_sensitive(i)
+        self.widgets.radiobutton7.set_sensitive(i)
+        if  self.widgets.createconfig.get_active():
+          self.widgets.radiobutton8.set_sensitive(False)
+        else:
+          self.widgets.radiobutton8.set_sensitive(i)
+
+    def on_displaypanel_clicked(self,*args):
+        print"clicked"
+        self.testpanel(self)
 
     def on_complete_back(self, *args):
 	self.widgets.druid1.set_page(self.widgets.advanced)
@@ -1740,6 +1762,18 @@ class App:
     def on_jogplus_released(self, w):
 	self.jogplus = 0
 	self.update_axis_params()
+    
+    def testpanel(self,w):
+        print "display panel"
+        if self.widgets.radiobutton6.get_active() == True:
+           panel = "spindle.xml"
+        if self.widgets.radiobutton7.get_active() == True:
+           panel = "thc_vcp.xml"
+        print "%s" % panel
+        panelname = os.path.join(distdir, "configurable_options/pyvcp")
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )
+        halrun.write("loadusr -Wn test pyvcp -c test %(panel)s\n" %{'panel':panel,})
+        halrun.write("waitusr test\n"); halrun.flush()
 
     def load_ladder(self,w):         
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
