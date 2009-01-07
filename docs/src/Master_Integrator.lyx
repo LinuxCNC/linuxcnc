@@ -284,15 +284,6 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{drivers/opto22.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
 \begin_inset Include \include{drivers/GS2.lyx}
 preview false
 
@@ -303,6 +294,24 @@ preview false
 
 
 \begin_inset Include \include{drivers/m5i20.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{drivers/opto22.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Include \include{drivers/servo_to_go.lyx}
 preview false
 
 \end_inset 

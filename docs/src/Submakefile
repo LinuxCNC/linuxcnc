@@ -74,6 +74,7 @@ DOC_SRCS := \
 	drivers/GS2.lyx \
 	drivers/m5i20.lyx \
 	drivers/opto22.lyx \
+	drivers/servo_to_go.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
 	gcode/main.lyx \
