@@ -1486,7 +1486,8 @@ class App:
         self.widgets.halui.set_active(self.data.halui)
         self.on_classicladder_toggled()
         if  not self.widgets.createconfig.get_active():
-           self.widgets.radiobutton4.set_active(1)
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                self.widgets.radiobutton4.set_active(True)
 
     def on_advanced_next(self, *args):
 	self.data.pyvcp = self.widgets.pyvcp.get_active()
@@ -1497,27 +1498,25 @@ class App:
         self.data.analogsin = self.widgets.analogsin.get_value()
         self.data.analogsout = self.widgets.analogsout.get_value()
         self.data.halui = self.widgets.halui.get_active()
-        if self.widgets.radiobutton1.get_active() == 1:
-            if self.data.tempexists:
-               self.data.laddername='TEMP.clp'
-            else:
-               self.data.laddername= 'blank.clp'
-        if self.widgets.radiobutton2.get_active() == 1:
-            self.data.laddername= 'estop.clp'
+        
+        if self.widgets.radiobutton2.get_active() == True:
             inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
             if ESTOP_IN not in inputs:
                self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
                self.widgets.druid1.set_page(self.widgets.advanced)
                return True
-        if self.widgets.radiobutton3.get_active() == 1:
-            self.data.laddername = 'serialmodbus.clp'
+        if self.widgets.radiobutton3.get_active() == True:
             self.data.modbus = 1
-            self.widgets.modbus.set_active(self.data.modbus)
-        if self.widgets.radiobutton4.get_active() == 1:
-            self.data.laddername='custom.clp'
+            self.widgets.modbus.set_active(self.data.modbus)      
         if self.data.classicladder:
-            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to overwrite existing Custom ladder program."),False):
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+              if self.widgets.radiobutton4.get_active() == False:
+                 if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
+                    self.widgets.druid1.set_page(self.widgets.advanced)
+                    return True 
+           if self.widgets.radiobutton1.get_active() == False:
+              if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
+                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
                    return True 
 
@@ -1544,7 +1543,7 @@ class App:
         self.widgets.radiobutton2.set_sensitive(i)
         self.widgets.radiobutton3.set_sensitive(i)
         if  self.widgets.createconfig.get_active():
-          self.widgets.radiobutton4.set_sensitive(0)
+          self.widgets.radiobutton4.set_sensitive(False)
         else:
           self.widgets.radiobutton4.set_sensitive(i)
         self.widgets.loadladder.set_sensitive(i)
@@ -1655,22 +1654,30 @@ class App:
     def on_amaxacc_changed(self, *args): self.update_pps('a')
 
     def on_complete_finish(self, *args):
-	self.data.save()
-        # TODO if you select a preset ladder prg, edit it, then change the preset program radiobutton
-        # stepconf still copies the edited one. 
-        filename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
-        original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+	self.data.save()        
         if self.data.classicladder: 
-           if not os.path.exists(filename):
-               print "no temp"
-               if self.widgets.radiobutton4.get_active() == 0:
-                  print not "custom file"
-                  filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)
+           if self.widgets.radiobutton4.get_active() == False:
+                if self.widgets.radiobutton1.get_active() == True:
+                    if self.data.tempexists:
+                        self.data.laddername='TEMP.clp'
+                    else:
+                        self.data.laddername= 'blank.clp'
+                if self.widgets.radiobutton2.get_active() == True:
+                        self.data.laddername= 'estop.clp'
+                if self.widgets.radiobutton3.get_active() == True:
+                        self.data.laddername = 'serialmodbus.clp'
+                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
+                original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
+                if os.path.exists(filename):     
                   if os.path.exists(original):
                      print "custom file already exists"
                      shutil.copy( original,os.path.expanduser("~/emc2/configs/%s/custom_backup.clp" % self.data.machinename) ) 
-           print "copied ladder program to usr directory"
-           shutil.copy( filename,original)
+                     print "made backup of existing custom"
+                  shutil.copy( filename,original)
+                  print "copied ladder program to usr directory"
+                  print"%s" % filename
+                else:
+                     print "Master or temp ladder files missing from configurable_options dir"
 	gtk.main_quit()
 
     def on_calculate_ideal_period(self, *args):
@@ -1745,33 +1752,32 @@ class App:
                       'ain': self.widgets.analogsin.get_value(),
                       'aout': self.widgets.analogsout.get_value(), 
                  })
-        if self.widgets.radiobutton1.get_active() == 1:
+        if self.widgets.radiobutton1.get_active() == True:
             if self.data.tempexists:
                self.data.laddername='TEMP.clp'
             else:
                self.data.laddername= 'blank.clp'
-        if self.widgets.radiobutton2.get_active() == 1:
+        if self.widgets.radiobutton2.get_active() == True:
             self.data.laddername= 'estop.clp'
-        if self.widgets.radiobutton3.get_active() == 1:
+        if self.widgets.radiobutton3.get_active() == True:
             self.data.laddername = 'serialmodbus.clp'
-            self.data.modbus = 1
+            self.data.modbus = True
             self.widgets.modbus.set_active(self.data.modbus)
-        if self.widgets.radiobutton4.get_active() == 1:
+        if self.widgets.radiobutton4.get_active() == True:
             self.data.laddername='custom.clp'
             originalfile = filename = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
-	    # TODO should We warn user if we are going to overwrite TEMP.clp file?
-	    shutil.copy(originalfile , newfilename)
         else:
             filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
-        if self.data.modbus == 1: 
+        if self.data.modbus == True: 
             halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\n" %          { 'newfilename':newfilename ,'filename':filename })
         else:
             halrun.write("loadusr -w classicladder --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
         halrun.write("start\n"); halrun.flush()
         halrun.close()
-        if os.path.exists(filename):
-            self.data.tempexists = 1
-            self.widgets.newladder.set_text('Re-edit new ladder program')
+        if os.path.exists(newfilename):
+            self.data.tempexists = True
+            self.widgets.newladder.set_text('Edited ladder program')
+            self.widgets.radiobutton1.set_active(True)
         else:
             self.data.tempexists = 0
         
