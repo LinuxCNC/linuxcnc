@@ -24,8 +24,17 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
+#include "interp_queue.hh"
 
 #include "units.h"
+#ifndef R2D
+#define R2D(r) ((r)*180.0/M_PI)
+#endif
+#ifndef SQ
+#define SQ(a) ((a)*(a))
+#endif
+
+#define DEBUG_EMC
 
 // lathe tools have strange origin points that are not at
 // the center of the radius.  This means that the point that
@@ -52,6 +61,7 @@ static double ztrans(setup_pointer settings, double z) {
     return z;
 }
 
+    
 /****************************************************************************/
 
 /*! convert_arc
@@ -331,7 +341,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   if (settings->feed_mode == INVERSE_TIME)
     inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                           turn, end1, end2, end3, block, settings);
-  ARC_FEED(end1, end2, center1, center2, turn, end3,
+  ARC_FEED(block->line_number, end1, end2, center1, center2, turn, end3,
            AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
   *current2 = end2;
@@ -482,14 +492,14 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_straight(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
                                    AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
-      STRAIGHT_FEED(xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
+      STRAIGHT_FEED(block->line_number, xtrans(settings, current[0]), current[2], ztrans(settings, current[1]),
                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
       if (settings->feed_mode == INVERSE_TIME)
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), 
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), 
                ztrans(settings, center[1]), xtrans(settings, center[0]), 
                -turn, end[2], AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
@@ -506,8 +516,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u_end, v_end, w_end);
+
       settings->current_x = end[0];
       settings->current_y = end[1];
       settings->current_z = end[2];
@@ -638,10 +649,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   delta = atan2(center[1] - start[1], center[0] - start[0]);
   alpha = (move == G_3) ? (delta - M_PI_2l) : (delta + M_PI_2l);
   beta = (side == LEFT) ? (theta - alpha) : (alpha - theta);
-  beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) :
-    (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
+
+  // normalize beta -90 to +270?
+  beta = (beta > (1.5 * M_PIl)) ? (beta - (2 * M_PIl)) : (beta < -M_PI_2l) ? (beta + (2 * M_PIl)) : beta;
 
   if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+      // we are cutting inside the arc
     gamma = atan2((center[1] - end[1]), (center[0] - end[0]));
     CHK((arc_radius <= tool_radius),
         NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
@@ -649,6 +662,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     gamma = atan2((end[1] - center[1]), (end[0] - center[0]));
     delta = (delta + M_PIl);
   }
+
 
   if(settings->plane == CANON_PLANE_XZ) {
     settings->program_x = end[0];
@@ -662,40 +676,117 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
 
-/* check if extra arc needed and insert if so */
 
-  CHK(((beta < -small) || (beta > (M_PIl + small))),
-      NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
-  if (beta > small) {           /* two arcs needed */
+  if (beta < -small || 
+      beta > M_PIl + small ||
+      // nasty detection for convex corner on tangent arcs       
+      (fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == QARC_FEED && 
+       turn == qc().front().data.arc_feed.turn && 
+       ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
+      // concave
+      if (qc().front().type != QARC_FEED) {
+          // line->arc
+          double cy = arc_radius * sin(beta - M_PI_2l);
+          double toward_nominal;
+          double dist_from_center;
+          double angle_from_center;
+          
+          if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+              // tool is inside the arc
+              dist_from_center = arc_radius - tool_radius;
+              toward_nominal = cy + tool_radius;
+              if(move == G_3) {
+                  angle_from_center = theta + asin(toward_nominal / dist_from_center);
+              } else {
+                  angle_from_center = theta - asin(toward_nominal / dist_from_center);
+              }
+          } else {
+              dist_from_center = arc_radius + tool_radius; 
+              toward_nominal = cy - tool_radius;
+              if(move == G_3) {
+                  angle_from_center = theta + M_PIl - asin(toward_nominal / dist_from_center);
+              } else {
+                  angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
+              }
+              
+          }          
+          
+          mid[0] = center[0] + dist_from_center * cos(angle_from_center);
+          mid[1] = center[1] + dist_from_center * sin(angle_from_center);
+          // XXX assuming XY
+          update_endpoint(mid[0], mid[1]);
+      } else {
+          // arc->arc
+          struct arc_feed &prev = qc().front().data.arc_feed;
+          double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+          double newrad;
+          if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
+              // inside the arc
+              newrad = arc_radius - tool_radius;
+          } else {
+              newrad = arc_radius + tool_radius;
+          }
+              
+          double arc_cc = hypot(prev.center2 - center[1], prev.center1 - center[0]);
+          double pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
+          double cc_dir = atan2(center[1] - prev.center2, center[0] - prev.center1);
+          double dir;
+          
+          if((side==LEFT && prev.turn==1) || (side==RIGHT && prev.turn==-1)) {
+              // inside the previous arc
+              if(turn == 1) 
+                  dir = cc_dir + pullback;
+              else
+                  dir = cc_dir - pullback;
+          } else {
+              if(turn == 1)
+                  dir = cc_dir - pullback;
+              else
+                  dir = cc_dir + pullback;
+          }
+
+          if(0) printf("seqno %d old %g,%g new %g,%g oldrad %g arc_cc %g newrad %g pullback %g cc_dir %g dir %g\n", settings->sequence_number, prev.center1, prev.center2, center[0], center[1], oldrad, arc_cc, newrad, R2D(pullback), R2D(cc_dir), R2D(dir));
+
+          mid[0] = prev.center1 + oldrad * cos(dir);
+          mid[1] = prev.center2 + oldrad * sin(dir);
+          
+          update_endpoint(mid[0], mid[1]);
+      }
+
+      enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
+                       AA_end, BB_end, CC_end, u, v, w);
+  } else if (beta > small) {           /* convex, two arcs needed */
     mid[0] = (start[0] + (tool_radius * cos(delta)));
     mid[1] = (start[1] + (tool_radius * sin(delta)));
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_arc2(start[0], start[1], (side == LEFT) ? -1 : 1,
                              mid[0], mid[1], center[0], center[1], turn,
                              end[0], end[1], end[2], block, settings);
+    dequeue_canons();
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
+      ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                ((side == LEFT) ? 1 : -1),
                current[2], AA_end, BB_end, CC_end, u, v, w);
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+                       -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      ARC_FEED(mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
+      ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
                AA_end, BB_end, CC_end, u, v, w);
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
-  } else {                      /* one arc needed */
+  } else {                      /* convex, one arc needed */
     if (settings->feed_mode == INVERSE_TIME)
       inverse_time_rate_arc(current[0], current[1],
                             current[2], center[0], center[1], turn,
                             end[0], end[1], end[2], block, settings);
+    dequeue_canons();
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+                       -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      ARC_FEED(end[0], end[1], center[0], center[1], turn, end[2],
+      enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
   }
@@ -1174,7 +1265,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
       return INTERP_OK;
   }
   // else it's a real comment
-  COMMENT(comment + start);
+  enqueue_COMMENT(comment + start);
   return INTERP_OK;
 }
 
@@ -1216,6 +1307,8 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
   static char name[] = "convert_control_mode";
+  CHKS((settings->cutter_comp_side != OFF),
+       (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
     settings->control_mode = CANON_EXACT_PATH;
@@ -1319,6 +1412,8 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   double u, v, w;
   double *parameters;
 
+  CHKS((settings->cutter_comp_side != OFF),
+       (_("Cannot change coordinate systems with cutter radius compensation on")));
   parameters = settings->parameters;
   switch (g_code) {
   case 540:
@@ -1354,7 +1449,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 
   if (origin == settings->origin_index) {       /* already using this origin */
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: continuing to use same coordinate system");
+    enqueue_COMMENT("interpreter: continuing to use same coordinate system");
 #endif
     return INTERP_OK;
   }
@@ -1485,9 +1580,10 @@ Called by: convert_cutter_compensation
 int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< pointer to machine settings
 {
 #ifdef DEBUG_EMC
-  COMMENT("interpreter: cutter radius compensation off");
+  enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
+      dequeue_canons();
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
       settings->current_z = settings->program_z;
@@ -1602,9 +1698,9 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
   }
 #ifdef DEBUG_EMC
   if (side == RIGHT)
-    COMMENT("interpreter: cutter radius compensation on right");
+    enqueue_COMMENT("interpreter: cutter radius compensation on right");
   else
-    COMMENT("interpreter: cutter radius compensation on left");
+    enqueue_COMMENT("interpreter: cutter radius compensation on left");
 #endif
 
   settings->cutter_comp_radius = radius;
@@ -1635,6 +1731,9 @@ Called by: convert_g.
 
 */
 
+// OK to call this in a concave corner with a deferred move, since it
+// doesn't issue any CANONs
+
 int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (must be G_90 or G_91)
                                  setup_pointer settings)        //!< pointer to machine settings                 
 {
@@ -1642,14 +1741,14 @@ int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (mus
   if (g_code == G_90) {
     if (settings->distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: distance mode changed to absolute");
+      enqueue_COMMENT("interpreter: distance mode changed to absolute");
 #endif
       settings->distance_mode = MODE_ABSOLUTE;
     }
   } else if (g_code == G_91) {
     if (settings->distance_mode != MODE_INCREMENTAL) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: distance mode changed to incremental");
+      enqueue_COMMENT("interpreter: distance mode changed to incremental");
 #endif
       settings->distance_mode = MODE_INCREMENTAL;
     }
@@ -1680,6 +1779,9 @@ Called by: convert_g.
 
 */
 
+// OK to call this in a concave corner with a deferred move, since it
+// doesn't issue any CANONs except comments (and who cares where the comments are)
+
 int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed (must be G_90_1 or G_91_1)
                                  setup_pointer settings)        //!< pointer to machine settings                 
 {
@@ -1687,14 +1789,14 @@ int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed 
   if (g_code == G_90_1) {
     if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: IJK distance mode changed to absolute");
+      enqueue_COMMENT("interpreter: IJK distance mode changed to absolute");
 #endif
       settings->ijk_distance_mode = MODE_ABSOLUTE;
     }
   } else if (g_code == G_91_1) {
     if (settings->ijk_distance_mode != MODE_INCREMENTAL) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: IJK distance mode changed to incremental");
+      enqueue_COMMENT("interpreter: IJK distance mode changed to incremental");
 #endif
       settings->ijk_distance_mode = MODE_INCREMENTAL;
     }
@@ -1716,9 +1818,9 @@ Called by: convert_g.
 
 */
 
-int Interp::convert_dwell(double time)   //!< time in seconds to dwell  */
+int Interp::convert_dwell(setup_pointer settings, double time)   //!< time in seconds to dwell  */
 {
-  DWELL(time);
+  enqueue_DWELL(time);
   return INTERP_OK;
 }
 
@@ -1750,24 +1852,24 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
   static char name[] = "convert_feed_mode";
   if (g_code == G_93) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to inverse time");
+    enqueue_COMMENT("interpreter: feed mode set to inverse time");
 #endif
     settings->feed_mode = INVERSE_TIME;
-    SET_FEED_MODE(0);
+    enqueue_SET_FEED_MODE(0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to units per minute");
+    enqueue_COMMENT("interpreter: feed mode set to units per minute");
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
-    SET_FEED_MODE(0);
-    SET_FEED_RATE(0);
+    enqueue_SET_FEED_MODE(0);
+    enqueue_SET_FEED_RATE(0);
   } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to units per revolution");
+    enqueue_COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
-    SET_FEED_MODE(1);
-    SET_FEED_RATE(0);
+    enqueue_SET_FEED_MODE(1);
+    enqueue_SET_FEED_RATE(0);
   } else
     ERS("BUG: Code not G93, G94, or G95");
   return INTERP_OK;
@@ -1793,8 +1895,8 @@ This is called only if the feed mode is UNITS_PER_MINUTE or UNITS_PER_REVOLUTION
 int Interp::convert_feed_rate(block_pointer block,       //!< pointer to a block of RS274 instructions
                              setup_pointer settings)    //!< pointer to machine settings             
 {
-  SET_FEED_RATE(block->f_number);
   settings->feed_rate = block->f_number;
+  enqueue_SET_FEED_RATE(block->f_number);
   return INTERP_OK;
 }
 
@@ -1862,7 +1964,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   int status;
 
   if (block->g_modes[0] == G_4) {
-    CHP(convert_dwell(block->p_number));
+    CHP(convert_dwell(settings, block->p_number));
   }
   if (block->g_modes[2] != -1) {
     CHP(convert_set_plane(block->g_modes[2], settings));
@@ -1899,7 +2001,6 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
   return INTERP_OK;
 }
-
 
 int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     static char name[] = "convert_savehome";
@@ -2002,7 +2103,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
   // waypoint is in currently active coordinate system
 
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+  STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
 
@@ -2065,7 +2166,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
       w_end = w_end_home;  
   }
 
-  STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+  STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
   settings->current_x = end_x;
@@ -2233,13 +2334,21 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M68 reads an analog input*/
 
   if (block->m_modes[5] == 62) {
-    SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+      SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
-    CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+      CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 64) {
-    SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+      SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 65) {
-    CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+      CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 66) {
     //P-word = digital channel
     //E-word = analog channel
@@ -2281,6 +2390,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    timeout = 0;
         }
 
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot wait for digital input with cutter radius compensation on")));  // XXX
+
 	ret = WAIT(round_to_int(block->p_number), DIGITAL_INPUT, type, timeout);
 	//WAIT returns 0 on success, -1 for out of bounds
 	CHK((ret == -1), NCE_DIGITAL_INPUT_INVALID_ON_M66);
@@ -2290,6 +2402,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_digital = ON;
 	}
     } else if (round_to_int(block->e_number) >= 0) { // got an analog input
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot wait for analog input with cutter radius compensation on")));  // XXX
+
 	ret = WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0); //WAIT returns 0 on success, -1 for out of bounds
 	CHK((ret == -1), NCE_ANALOG_INPUT_INVALID_ON_M66);
 	if (ret == 0) {
@@ -2329,27 +2444,27 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }
 
   if (block->m_modes[7] == 3) {
-    START_SPINDLE_CLOCKWISE();
-    settings->spindle_turning = CANON_CLOCKWISE;
+      enqueue_START_SPINDLE_CLOCKWISE();
+      settings->spindle_turning = CANON_CLOCKWISE;
   } else if (block->m_modes[7] == 4) {
-    START_SPINDLE_COUNTERCLOCKWISE();
-    settings->spindle_turning = CANON_COUNTERCLOCKWISE;
+      enqueue_START_SPINDLE_COUNTERCLOCKWISE();
+      settings->spindle_turning = CANON_COUNTERCLOCKWISE;
   } else if (block->m_modes[7] == 5) {
-    STOP_SPINDLE_TURNING();
-    settings->spindle_turning = CANON_STOPPED;
+      enqueue_STOP_SPINDLE_TURNING();
+      settings->spindle_turning = CANON_STOPPED;
   }
 
   if (block->m_modes[8] == 7) {
-    MIST_ON();
-    settings->mist = ON;
+      enqueue_MIST_ON();
+      settings->mist = ON;
   } else if (block->m_modes[8] == 8) {
-    FLOOD_ON();
-    settings->flood = ON;
+      enqueue_FLOOD_ON();
+      settings->flood = ON;
   } else if (block->m_modes[8] == 9) {
-    MIST_OFF();
-    settings->mist = OFF;
-    FLOOD_OFF();
-    settings->flood = OFF;
+      enqueue_MIST_OFF();
+      settings->mist = OFF;
+      enqueue_FLOOD_OFF();
+      settings->flood = OFF;
   }
 
 /* No axis clamps in this version
@@ -2370,11 +2485,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 */
 
   if (block->m_modes[9] == 48) {
+    CHKS((settings->cutter_comp_side != OFF),
+         (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
     ENABLE_FEED_OVERRIDE();
     ENABLE_SPEED_OVERRIDE();
     settings->feed_override = ON;
     settings->speed_override = ON;
   } else if (block->m_modes[9] == 49) {
+    CHKS((settings->cutter_comp_side != OFF),
+         (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
     DISABLE_FEED_OVERRIDE();
     DISABLE_SPEED_OVERRIDE();
     settings->feed_override = OFF;
@@ -2383,19 +2502,27 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (block->m_modes[9] == 50) {
     if (block->p_number != 0) {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_OVERRIDE();
 	settings->feed_override = ON;
     } else {
-	DISABLE_FEED_OVERRIDE();
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
+        DISABLE_FEED_OVERRIDE();
 	settings->feed_override = OFF;
     }
   }
 
   if (block->m_modes[9] == 51) {
     if (block->p_number != 0) {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_SPEED_OVERRIDE();
 	settings->speed_override = ON;
     } else {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_SPEED_OVERRIDE();
 	settings->speed_override = OFF;
     }
@@ -2403,9 +2530,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   
   if (block->m_modes[9] == 52) {
     if (block->p_number != 0) {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_ADAPTIVE_FEED();
 	settings->adaptive_feed = ON;
     } else {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_ADAPTIVE_FEED();
 	settings->adaptive_feed = OFF;
     }
@@ -2413,9 +2544,13 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   
   if (block->m_modes[9] == 53) {
     if (block->p_number != 0) {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_HOLD();
 	settings->feed_hold = ON;
     } else {
+        CHKS((settings->cutter_comp_side != OFF),
+             (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_FEED_HOLD();
 	settings->feed_hold = OFF;
     }
@@ -2424,6 +2559,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   /* user-defined M codes */
   if (block->m_modes[10] != -1) {
     int index = block->m_modes[10];
+    CHKS((settings->cutter_comp_side != OFF),
+         (_("Cannot call user-defined M code with cutter radius compensation on")));  // XXX
     if (USER_DEFINED_FUNCTION[index - 100] != 0) {
       (*(USER_DEFINED_FUNCTION[index - 100])) (index - 100,
                                                block->p_number,
@@ -2524,7 +2661,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_probe(block, motion, settings));
   } else if (motion == G_80) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: motion mode set to none");
+    enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
   } else if (motion == G_73 || ((motion > G_80) && (motion < G_90))) {
@@ -2618,7 +2755,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
        NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
        
   TURN_PROBE_ON();
-  STRAIGHT_PROBE(end_x, end_y, end_z,
+  STRAIGHT_PROBE(block->line_number, end_x, end_y, end_z,
                  AA_end, BB_end, CC_end,
                  u_end, v_end, w_end, probe_type);
 
@@ -2653,14 +2790,16 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
   static char name[] = "convert_retract_mode";
+  CHKS((settings->cutter_comp_side != OFF),
+       (_("Cannot change retract mode with cutter radius compensation on")));
   if (g_code == G_98) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: retract mode set to old_z");
+    enqueue_COMMENT("interpreter: retract mode set to old_z");
 #endif
     settings->retract_mode = OLD_Z;
   } else if (g_code == G_99) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: retract mode set to r_plane");
+    enqueue_COMMENT("interpreter: retract mode set to r_plane");
 #endif
     settings->retract_mode = R_PLANE;
   } else
@@ -2867,7 +3006,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   }
 #ifdef DEBUG_EMC
   else
-    COMMENT("interpreter: setting coordinate system origin");
+    enqueue_COMMENT("interpreter: setting coordinate system origin");
 #endif
   return INTERP_OK;
 }
@@ -2946,7 +3085,7 @@ Called by: execute_block.
 int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS274 instructions
                          setup_pointer settings)        //!< pointer to machine settings             
 {
-  SET_SPINDLE_SPEED(block->s_number);
+  enqueue_SET_SPINDLE_SPEED(block->s_number);
   settings->speed = block->s_number;
   return INTERP_OK;
 }
@@ -2954,12 +3093,12 @@ int Interp::convert_speed(block_pointer block,   //!< pointer to a block of RS27
 int Interp::convert_spindle_mode(block_pointer block, setup_pointer settings)
 {
     if(block->g_modes[14] == G_97) {
-	SET_SPINDLE_MODE(0);
+	enqueue_SET_SPINDLE_MODE(0);
     } else { /* G_96 */
 	if(block->d_flag)
-	    SET_SPINDLE_MODE(block->d_number_float);
+	    enqueue_SET_SPINDLE_MODE(block->d_number_float);
 	else
-	    SET_SPINDLE_MODE(1e30);
+	    enqueue_SET_SPINDLE_MODE(1e30);
     }
     return INTERP_OK;
 }
@@ -3033,6 +3172,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   int index;
   char *line;
   int length;
+
+  dequeue_canons();
 
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
@@ -3152,7 +3293,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       line = _setup.linetext;
       for (;;) {                /* check for ending percent sign and comment if missing */
         if (fgets(line, LINELEN, _setup.file_pointer) == NULL) {
-          COMMENT("interpreter: percent sign missing from end of file");
+          enqueue_COMMENT("interpreter: percent sign missing from end of file");
           break;
         }
         length = strlen(line);
@@ -3266,7 +3407,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHP(status);
     }
   } else if (move == G_0) {
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+    STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                       AA_end, BB_end, CC_end,
                       u_end, v_end, w_end);
     settings->current_x = end_x;
@@ -3278,7 +3419,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  AA_end, BB_end, CC_end,
                                  u_end, v_end, w_end,
                                  block, settings);
-    STRAIGHT_FEED(end_x, end_y, end_z,
+    STRAIGHT_FEED(block->line_number, end_x, end_y, end_z,
                   AA_end, BB_end, CC_end,
                   u_end, v_end, w_end);
     settings->current_x = end_x;
@@ -3289,7 +3430,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           "Spindle not turning in G33");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    STRAIGHT_FEED(end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+    STRAIGHT_FEED(block->line_number, end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end);
     STOP_SPEED_FEED_SYNCH();
     settings->current_x = end_x;
     settings->current_y = end_y;
@@ -3299,7 +3440,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
            (settings->spindle_turning != CANON_COUNTERCLOCKWISE)),
           "Spindle not turning in G33.1");
     START_SPEED_FEED_SYNCH(block->k_number, 0);
-    RIGID_TAP(end_x, end_y, end_z);
+    RIGID_TAP(block->line_number, end_x, end_y, end_z);
     STOP_SPEED_FEED_SYNCH();
     // after the RIGID_TAP cycle we'll be in the same spot
   } else if (move == G_76) {
@@ -3326,46 +3467,46 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
 
 // make one threading pass.  only called from convert_threading_cycle.
 static void 
-threading_pass(setup_pointer settings,
+threading_pass(setup_pointer settings, block_pointer block,
 	       int boring, double safe_x, double depth, double end_depth, 
 	       double start_y, double start_z, double zoff, double taper_dist,
 	       int entry_taper, int exit_taper, double taper_pitch, 
 	       double pitch, double full_threadheight, double target_z) {
-    STRAIGHT_TRAVERSE(boring?
+    STRAIGHT_TRAVERSE(block->line_number, boring?
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, start_z - zoff, AABBCC); //back
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(taper_pitch, 0);
-	STRAIGHT_FEED(boring? 
+	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, //angled in
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(pitch, 0);
     } else {
-	STRAIGHT_TRAVERSE(boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth, 
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(pitch, 0);
     }
         
     if(taper_dist && exit_taper) {
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth,  //over
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(taper_pitch, 0);
-	STRAIGHT_FEED(boring? 
+	STRAIGHT_FEED(block->line_number, boring? 
 		      safe_x + depth - full_threadheight: 
 		      safe_x - depth + full_threadheight, 
 		      start_y, target_z - zoff, AABBCC); //angled out
     } else {
-	STRAIGHT_FEED(boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, 
 		      start_y, target_z - zoff, AABBCC); //over
     }
     STOP_SPEED_FEED_SYNCH();
-    STRAIGHT_TRAVERSE(boring? 
+    STRAIGHT_TRAVERSE(block->line_number, boring? 
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, target_z - zoff, AABBCC); //out
@@ -3375,6 +3516,12 @@ threading_pass(setup_pointer settings,
 int Interp::convert_threading_cycle(block_pointer block, 
 				    setup_pointer settings,
 				    double end_x, double end_y, double end_z) {
+
+    static char name[] = "convert_threading_cycle";
+
+    CHKS((settings->cutter_comp_side != OFF),
+         (_("Cannot use G76 threading cycle with cutter radius compensation on")));
+
     double start_x = settings->current_x;
     double start_y = settings->current_y;
     double start_z = settings->current_z;
@@ -3423,7 +3570,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     while (depth < end_depth) {
-	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
@@ -3434,11 +3581,11 @@ int Interp::convert_threading_cycle(block_pointer block,
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-	threading_pass(settings, boring, safe_x, depth, end_depth, start_y, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
 		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
 		       taper_pitch, pitch, full_threadheight, target_z);
     } 
-    STRAIGHT_TRAVERSE(end_x, end_y, end_z, AABBCC);
+    STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;
     settings->current_z = end_z;
@@ -3534,11 +3681,11 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
-         STRAIGHT_TRAVERSE(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+         enqueue_STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
-         STRAIGHT_TRAVERSE(c[0], c[1], p[2],
-                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
+         enqueue_STRAIGHT_TRAVERSE(block->line_number, c[0], c[1], p[2],
+                       AA_end, BB_end, CC_end, u_end, v_end, w_end);
      }
   }
   else if (move == G_1) {
@@ -3548,16 +3695,16 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       STRAIGHT_FEED(xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
-                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
+       enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
          inverse_time_rate_straight(c[0], c[1], p[2],
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       STRAIGHT_FEED(c[0], c[1], p[2],
-                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
+       enqueue_STRAIGHT_FEED(block->line_number, c[0], c[1], p[2],
+                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
   } else
     ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3580,7 +3727,6 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   }
   return INTERP_OK;
 }
-
 /****************************************************************************/
 
 /*! convert_straight_comp2
@@ -3677,6 +3823,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   double theta;
   double p[3];  /* programmed endpoint */
   double c[2];  /* current */
+  int concave;
 
   if(settings->plane == CANON_PLANE_XZ) {
       p[0] = px;
@@ -3704,11 +3851,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   if ((p[1] == start[1]) && (p[0] == start[0])) {     /* no XY motion */
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          (qc().empty()? STRAIGHT_TRAVERSE: enqueue_STRAIGHT_TRAVERSE)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
-          STRAIGHT_TRAVERSE(end[0], end[1], pz,
-                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          (qc().empty()? STRAIGHT_TRAVERSE: enqueue_STRAIGHT_TRAVERSE)(block->line_number, end[0], end[1], pz,
+                    AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     } else if (move == G_1) {
       if(settings->plane == CANON_PLANE_XZ) {
@@ -3717,16 +3864,16 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
-          STRAIGHT_FEED(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
-          if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_straight(end[0], end[1], pz,
-                                       AA_end, BB_end, CC_end,
-                                       u_end, v_end, w_end,
-                                       block, settings);
-          STRAIGHT_FEED(end[0], end[1], pz,
-                        AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          if (settings->feed_mode == INVERSE_TIME)  // XXX
+              inverse_time_rate_straight(end[0], end[1], pz,
+                                         AA_end, BB_end, CC_end,
+                                         u_end, v_end, w_end,
+                                         block, settings);
+          (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, end[0], end[1], pz,
+                                                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3753,21 +3900,45 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     end[1] = (p[1] + (radius * sin(alpha + gamma)));
     mid[0] = (start[0] + (radius * cos(alpha + gamma)));
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
+    
+    if(0) printf("alpha %g beta %g gamma %g ", R2D(alpha), R2D(beta), R2D(gamma));
 
-    CHK(((beta < -small) || (beta > (M_PIl + small))),
-        NCE_CONCAVE_CORNER_WITH_CUTTER_RADIUS_COMP);
+    if ((beta < -small) || (beta > (M_PIl + small))) {
+        if(0) printf("concave yes\n");
+        concave = 1;
+    } else if (beta > (M_PIl - small) && 
+               (!qc().empty() && qc().front().type == QARC_FEED && 
+                ((side == RIGHT && qc().front().data.arc_feed.turn == 1) || 
+                 (side == LEFT && qc().front().data.arc_feed.turn == -1)))) {
+        // this is an "h" shape, tool on right, going right to left
+        // over the hemispherical round part, then up next to the
+        // vertical part (or, the mirror case).  there are two ways
+        // to stay to the "right", either loop down and around, or
+        // stay above and right.  we're forcing above and right.
+        if(0) printf("concave special case\n");
+        concave = 1;
+    } else {
+        if(0) printf("concave no\n");
+        concave = 0;
+        mid[0] = (start[0] + (radius * cos(alpha + gamma)));
+        mid[1] = (start[1] + (radius * sin(alpha + gamma)));
+    }
+        
+
     if (move == G_0) {
+      dequeue_canons();
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
-      else if(settings->plane == CANON_PLANE_XY) {
-          STRAIGHT_TRAVERSE(end[0], end[1], pz,
+      else if(settings->plane == CANON_PLANE_XY) {  // XXX ?
+          STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     }
     else if (move == G_1) {
-      if (beta > small) {       /* ARC NEEDED */
+      if (!concave && (beta > small)) {       /* ARC NEEDED */
+        dequeue_canons();
         if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_as(start[0], start[1],
@@ -3776,10 +3947,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            ARC_FEED(ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
+            ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), settings->current_y,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
@@ -3790,20 +3961,95 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            ARC_FEED(mid[0], mid[1], start[0], start[1],
+            ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            STRAIGHT_FEED(end[0], end[1], p[2],
-                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
+
+            enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2], 
+                                  AA_end, BB_end, CC_end, 
+                                  u_end, v_end, w_end);
         }
       } else {
+         if (concave) {
+             if (qc().front().type != QARC_FEED) {
+                 // line->line
+
+                 double retreat;
+                 // half the angle of the inside corner
+                 double halfcorner = (beta + M_PIl) / 2.0;
+                 CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
+                 retreat = radius / tan(halfcorner);
+                 // move back along the compensated path
+                 // this should replace the endpoint of the previous move
+                 mid[0] = c[0] + retreat * cos(theta + gamma);
+                 mid[1] = c[1] + retreat * sin(theta + gamma);
+                 // we actually want to move the previous line's endpoint here.  That's the same as 
+                 // discarding that line and doing this one instead.
+                 update_endpoint(mid[0], mid[1]);
+             } else {
+                 // arc->line
+                 // beware: the arc we saved is the compensated one.
+                 arc_feed prev = qc().front().data.arc_feed;
+                 double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+                 double oldrad_uncomp;
+
+                 // new line's direction
+                 double base_dir = atan2(p[1] - start[1], p[0] - start[0]);
+                 double theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+
+                 double phi = atan2(prev.center2 - start[1], prev.center1 - start[0]);
+                 double alpha = theta - phi;
+
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                     // tool is inside the arc
+                     oldrad_uncomp = oldrad + radius;
+                 } else {
+                     oldrad_uncomp = oldrad - radius;
+                 }
+
+
+                 // distance to old arc center perpendicular to the new line
+                 double d = oldrad_uncomp * cos(alpha);
+                 double d2;
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                     d2 = d - radius;
+                 } else {
+                     d2 = d + radius;
+                 }
+                 
+                 double angle_from_center;
+
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                     if(prev.turn == 1) 
+                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                     else
+                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                 } else {
+                     if(prev.turn == 1) 
+                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                     else
+                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                 }
+
+                 mid[0] = prev.center1 + oldrad * cos(angle_from_center);
+                 mid[1] = prev.center2 + oldrad * sin(angle_from_center);
+
+                 if(0) printf("c %g,%g d2 %g acos %g oldrad %g oldrad_uncomp %g base_dir %g theta %g phi %g alpha %g d %g d2 %g angle_from_center %g\n",
+                              prev.center1, prev.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
+                              oldrad_uncomp, R2D(base_dir), R2D(theta), R2D(phi), R2D(alpha),
+                              d, d2, R2D(angle_from_center));
+                 
+                 update_endpoint(mid[0], mid[1]);
+             }
+         }
+         dequeue_canons();
          if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            STRAIGHT_FEED(xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          } else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -3811,8 +4057,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            STRAIGHT_FEED(end[0], end[1], p[2],
-                          AA_end, BB_end, CC_end, u_end, v_end, w_end);
+            enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
+                                  AA_end, BB_end, CC_end, 
+                                  u_end, v_end, w_end);
          }
       }
     } else
@@ -3886,6 +4133,9 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
     ERM(NCE_TXX_MISSING_FOR_M6);
   }
 
+  CHKS((settings->cutter_comp_side != OFF),
+       (_("Cannot change tools with cutter radius compensation on")));
+
   if (!settings->tool_change_with_spindle_on) {
       STOP_SPINDLE_TURNING();
       settings->spindle_turning = CANON_STOPPED;
@@ -3899,9 +4149,11 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &discard, &discard, &discard, 
                     &discard, &discard, &discard,
                     settings);
-      STRAIGHT_TRAVERSE(settings->current_x, settings->current_y, up_z,
+      COMMENT("AXIS,hide");
+      STRAIGHT_TRAVERSE(0, settings->current_x, settings->current_y, up_z,
                         settings->AA_current, settings->BB_current, settings->CC_current,
                         settings->u_current, settings->v_current, settings->w_current);
+      COMMENT("AXIS,show");
       settings->current_z = up_z;
   }
 
@@ -3929,7 +4181,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &AA_end, &BB_end, &CC_end, 
                     &u_end, &v_end, &w_end, settings);
       COMMENT("AXIS,hide");
-      STRAIGHT_TRAVERSE(end_x, end_y, end_z,
+      STRAIGHT_TRAVERSE(0, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
                         u_end, v_end, w_end);
       COMMENT("AXIS,show");
@@ -3991,6 +4243,8 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   int index;
   double xoffset, zoffset, woffset;
 
+  CHKS((settings->cutter_comp_side != OFF),
+       (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
     xoffset = 0.;
     zoffset = 0.;
@@ -4071,6 +4325,8 @@ A check that the t_number is not negative has already been made in read_t.
 A zero t_number is allowed and means no tool should be selected.
 
 */
+
+// OK to select tool in a concave corner, I think?
 
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             

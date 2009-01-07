@@ -29,7 +29,6 @@
 * Copyright (c) 2007 All rights reserved.
 *
 * Last change:
-*
 ********************************************************************/
 
 #include "canon.hh"
@@ -314,7 +313,7 @@ void SET_TRAVERSE_RATE(double rate)
   _traverse_rate = rate;
 }
 
-void STRAIGHT_TRAVERSE(
+void STRAIGHT_TRAVERSE( int line_number,
  double x, double y, double z
 #ifdef AA
  , double a /*AA*/
@@ -433,7 +432,7 @@ void STOP_SPEED_FEED_SYNCH()
 
 /* Machining Functions */
 
-void ARC_FEED(
+void ARC_FEED(int line_number,
  double first_end, double second_end,
  double first_axis, double second_axis, int rotation, double axis_end_point
 #ifdef AA
@@ -501,7 +500,7 @@ void ARC_FEED(
 #endif
 }
 
-void STRAIGHT_FEED(
+void STRAIGHT_FEED(int line_number,
  double x, double y, double z
 #ifdef AA
  , double a /*AA*/
@@ -557,7 +556,7 @@ void STRAIGHT_FEED(
 point towards the previous location after the probing, if the probe
 point is not the same as the previous point -- which it should not be. */
 
-void STRAIGHT_PROBE(
+void STRAIGHT_PROBE(int line_number,
  double x, double y, double z
 #ifdef AA
  , double a /*AA*/
@@ -650,7 +649,7 @@ void PARAMETRIC_3D_CURVE_FEED(FunctionPtr xfcn, FunctionPtr yfcn,
 */
 
 
-void RIGID_TAP(double x, double y, double z)
+void RIGID_TAP(int line_number, double x, double y, double z)
 {
 
 

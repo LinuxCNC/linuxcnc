@@ -236,8 +236,3 @@ int NML_INTERP_LIST::get_line_number()
 {
     return line_number;
 }
-
-int NML_INTERP_LIST::get_next_line_number()
-{
-    return next_line_number;
-}

@@ -53,7 +53,7 @@ const char * _rs274ngc_errors[] = {
 /*  30 */ _("Bug code not in range g54 to g593"), // convert_coordinate_system
 /*  31 */ _("Bug code not m0 m1 m2 m30 m60"), // convert_stop
 /*  32 */ _("Bug distance mode not g90 or g91"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx
-/*  33 */ _("Bug function should not have been called"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx, read_a, read_b, read_c, read_comment, read_d, read_f, read_g, read_h, read_i, read_j, read_k, read_l, read_line_number, read_m, read_p, read_parameter, read_parameter_setting, read_q, read_r, read_real_expression, read_s, read_t, read_x, read_y, read_z
+/*  33 */ _("Bug function should not have been called"), // convert_cycle_xy, convert_cycle_yz, convert_cycle_zx, read_a, read_b, read_c, read_comment, read_d, read_f, read_g, read_h, read_i, read_j, read_k, read_l, read_n_number, read_m, read_p, read_parameter, read_parameter_setting, read_q, read_r, read_real_expression, read_s, read_t, read_x, read_y, read_z
 /*  34 */ _("Bug in tool radius comp"), // arc_data_comp_r
 /*  35 */ _("Bug plane not xy yz or xz"), // convert_arc, convert_cycle
 /*  36 */ _("Bug side not right or left"), // convert_straight_comp1, convert_straight_comp2
@@ -118,7 +118,7 @@ const char * _rs274ngc_errors[] = {
 /*  95 */ _("L word with no canned cycle, g10, or g76 to use it"), // check_other_codes
 /*  96 */ _("Left bracket missing after slash with atan"), // read_atan
 /*  97 */ _("Left bracket missing after unary operation name"), // read_unary
-/*  98 */ _("Line number greater than 99999"), // read_line_number
+/*  98 */ _("Line number greater than 99999"), // read_n_number
 /*  99 */ _("Line with g10 does not have l2"), // check_g_codes
 /* 100 */ _("M code greater than 199"), // read_m
 /* 101 */ _("Mixed radius ijk format for arc"), // convert_arc

@@ -252,6 +252,7 @@ typedef struct block_struct
   int l_number;
   ON_OFF l_flag;
   int line_number;
+  int n_number;
   int motion_to_be;
   int m_count;
   int m_modes[11];
@@ -563,9 +564,9 @@ macros totally crash-proof. If the function call stack is deeper than
      {                                                        \
        aa = (aa + aa_increment);                         \
        bb = (bb + bb_increment);                         \
-       cycle_traverse(plane, aa, bb, old_cc);                 \
+       cycle_traverse(block, plane, aa, bb, old_cc);        \
        if (old_cc != r)                                     \
-         cycle_traverse(plane, aa, bb, r);                    \
+         cycle_traverse(block, plane, aa, bb, r);                    \
        CHP(call);                                             \
        old_cc = clear_cc;                                \
      }

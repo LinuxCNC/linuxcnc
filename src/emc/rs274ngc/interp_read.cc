@@ -672,7 +672,7 @@ Returned Value: int
 Side effects:
    The number read from the line is put into what integer_ptr points at.
 
-Called by: read_line_number
+Called by: read_n_number
 
 This reads an explicit unsigned (positive) integer from a string,
 starting from the position given by *counter. It expects to find one
@@ -759,7 +759,7 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
 /*! read_items
 
 Returned Value: int
-   If read_line_number or read_one_item returns an error code,
+   If read_n_number or read_one_item returns an error code,
    this returns that code.
    Otherwise, it returns INTERP_OK.
 
@@ -804,7 +804,7 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
   else if (line[counter] == 'n')
   {
 
-    CHP(read_line_number(line, &counter, block));
+    CHP(read_n_number(line, &counter, block));
   }
   for (; counter < length;) {
     CHP(read_one_item(line, &counter, block, parameters));
@@ -966,7 +966,7 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
 
 /****************************************************************************/
 
-/*! read_line_number
+/*! read_n_number
 
 Returned Value: int
    If read_integer_unsigned returns an error code, this returns that code.
@@ -993,11 +993,11 @@ line number to be too large.
 
 */
 
-int Interp::read_line_number(char *line, //!< string: line of RS274    code being processed 
-                            int *counter,       //!< pointer to a counter for position on the line 
-                            block_pointer block)        //!< pointer to a block being filled from the line 
+int Interp::read_n_number(char *line, //!< string: line of RS274    code being processed 
+                          int *counter,       //!< pointer to a counter for position on the line 
+                          block_pointer block)        //!< pointer to a block being filled from the line 
 {
-  static char name[] = "read_line_number";
+  static char name[] = "read_n_number";
   int value;
   int status;
 
@@ -1007,7 +1007,7 @@ int Interp::read_line_number(char *line, //!< string: line of RS274    code bein
   CHP(read_integer_unsigned(line, counter, &value));
 /* This next test is problematic as many CAM systems will exceed this !
   CHK((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
-  block->line_number = value;
+  block->n_number = value;
   return INTERP_OK;
 }
 
@@ -1094,7 +1094,7 @@ When this function is called, the counter is set so that the position
 being considered is the first position of a word. The character at
 that position must be one known to the system.  In this version those
 characters are: a,b,c,d,f,g,h,i,j,k,l,m,n,p,q,r,s,t,x,y,z,(,#,;.
-However, read_items calls read_line_number directly if the first word
+However, read_items calls read_n_number directly if the first word
 begins with n, so no read function is included in the "_readers" array
 for the letter n. Thus, if an n word is encountered in the middle of
 a line, this function reports NCE_BAD_CHARACTER_USED.

@@ -22,6 +22,7 @@
 #include "rs274ngc.hh"
 #include "interp_return.hh"
 #include "interp_internal.hh"
+#include "interp_queue.hh"
 
 /****************************************************************************/
 
@@ -59,7 +60,7 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
 
   length = find_arc_length(x1, y1, z1, cx, cy, turn, x2, y2, z2);
   rate = MAX(0.1, (length * block->f_number));
-  SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
   return INTERP_OK;
@@ -114,7 +115,7 @@ int Interp::inverse_time_rate_arc2(double start_x,       //!< x coord of last pr
                                              cx, cy, turn2, end_x,
                                              end_y, end_z));
   rate = MAX(0.1, (length * block->f_number));
-  SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
   return INTERP_OK;
@@ -169,7 +170,7 @@ int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program po
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
   rate = MAX(0.1, (length * block->f_number));
-  SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
   return INTERP_OK;
@@ -214,7 +215,7 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
                                 settings->u_current, settings->v_current, settings->w_current);
 
   rate = MAX(0.1, (length * block->f_number));
-  SET_FEED_RATE(rate);
+  enqueue_SET_FEED_RATE(rate);
   settings->feed_rate = rate;
 
   return INTERP_OK;

@@ -474,7 +474,7 @@ int emcTaskPlanExecute(const char *command)
 {
     int retval;
     double d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11;
-    int i1;
+    int i1, ln=-1;
     char s1[256];
 
     if (command) {
@@ -488,7 +488,7 @@ int emcTaskPlanExecute(const char *command)
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_FEED(d1, d2, d3, d4, d5, d6, d7, d8, d9);
+	STRAIGHT_FEED(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
@@ -498,7 +498,7 @@ int emcTaskPlanExecute(const char *command)
 			&d1, &d2, &d3, &d4, &i1, &d5, &d6, &d7, &d8, &d9, &d10, &d11)) {
 	    return 1;
 	}
-	ARC_FEED(d1, d2, d3, d4, i1, d5, d6, d7, d8, d9, d10, d11);
+	ARC_FEED(ln, d1, d2, d3, d4, i1, d5, d6, d7, d8, d9, d10, d11);
 	return 0;
     }
 
@@ -507,7 +507,7 @@ int emcTaskPlanExecute(const char *command)
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_TRAVERSE(d1, d2, d3, d4, d5, d6, d7, d8, d9);
+	STRAIGHT_TRAVERSE(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9);
 	return 0;
     }
 
@@ -516,7 +516,7 @@ int emcTaskPlanExecute(const char *command)
 			&d1, &d2, &d3, &d4, &d5, &d6, &d7, &d8, &d9)) {
 	    return 1;
 	}
-	STRAIGHT_PROBE(d1, d2, d3, d4, d5, d6, d7, d8, d9, 0);
+	STRAIGHT_PROBE(ln, d1, d2, d3, d4, d5, d6, d7, d8, d9, 0);
 	return 0;
     }
 
