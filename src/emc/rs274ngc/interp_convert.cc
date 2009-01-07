@@ -499,7 +499,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         inverse_time_rate_arc(current[0], current[1],
                               current[2], center[0], center[1], turn,
                               end[0], end[1], end[2], block, settings);
-      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), 
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), 
                ztrans(settings, center[1]), xtrans(settings, center[0]), 
                -turn, end[2], AA_end, BB_end, CC_end, u_end, v_end, w_end);
       settings->current_x = end[0];
@@ -754,7 +754,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       }
 
       enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
-               AA_end, BB_end, CC_end, u, v, w);
+                       AA_end, BB_end, CC_end, u, v, w);
   } else if (beta > small) {           /* convex, two arcs needed */
     mid[0] = (start[0] + (tool_radius * cos(delta)));
     mid[1] = (start[1] + (tool_radius * sin(delta)));
@@ -762,14 +762,14 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       inverse_time_rate_arc2(start[0], start[1], (side == LEFT) ? -1 : 1,
                              mid[0], mid[1], center[0], center[1], turn,
                              end[0], end[1], end[2], block, settings);
+    dequeue_canons();
     if(settings->plane == CANON_PLANE_XZ) {
       ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                ((side == LEFT) ? 1 : -1),
                current[2], AA_end, BB_end, CC_end, u, v, w);
-      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+                       -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      dequeue_canons();
       ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1], ((side == LEFT) ? -1 : 1),
                current[2],
                AA_end, BB_end, CC_end, u, v, w);
@@ -781,11 +781,11 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
       inverse_time_rate_arc(current[0], current[1],
                             current[2], center[0], center[1], turn,
                             end[0], end[1], end[2], block, settings);
+    dequeue_canons();
     if(settings->plane == CANON_PLANE_XZ) {
-      ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
-               -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
+      enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]),
+                       -turn, end[2], AA_end, BB_end, CC_end, u, v, w);
     } else if (settings->plane == CANON_PLANE_XY) {
-      dequeue_canons();
       enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
                AA_end, BB_end, CC_end, u, v, w);
     }
@@ -3681,7 +3681,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
-         STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+         enqueue_STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
          enqueue_STRAIGHT_TRAVERSE(block->line_number, c[0], c[1], p[2],
@@ -3695,8 +3695,8 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       STRAIGHT_FEED(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
-                     AA_end, BB_end, CC_end, u_end, v_end, w_end);
+       enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
          inverse_time_rate_straight(c[0], c[1], p[2],
@@ -3851,7 +3851,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
   if ((p[1] == start[1]) && (p[0] == start[0])) {     /* no XY motion */
     if (move == G_0) {
       if(settings->plane == CANON_PLANE_XZ) {
-          STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          (qc().empty()? STRAIGHT_TRAVERSE: enqueue_STRAIGHT_TRAVERSE)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           (qc().empty()? STRAIGHT_TRAVERSE: enqueue_STRAIGHT_TRAVERSE)(block->line_number, end[0], end[1], pz,
@@ -3864,7 +3864,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
-          STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
+          (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           if (settings->feed_mode == INVERSE_TIME)  // XXX
@@ -3926,18 +3926,19 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         
 
     if (move == G_0) {
+      dequeue_canons();
       if(settings->plane == CANON_PLANE_XZ) {
           STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
       else if(settings->plane == CANON_PLANE_XY) {  // XXX ?
-          dequeue_canons();
           STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     }
     else if (move == G_1) {
       if (!concave && (beta > small)) {       /* ARC NEEDED */
+        dequeue_canons();
         if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_as(start[0], start[1],
@@ -3949,7 +3950,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), settings->current_y,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
@@ -3960,7 +3961,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    AA_end, BB_end, CC_end,
                                    u_end, v_end, w_end,
                                    block, settings);
-            dequeue_canons();
             ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -4042,13 +4042,14 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  update_endpoint(mid[0], mid[1]);
              }
          }
+         dequeue_canons();
          if(settings->plane == CANON_PLANE_XZ) {
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          } else if(settings->plane == CANON_PLANE_XY) {
             if (settings->feed_mode == INVERSE_TIME)
@@ -4056,7 +4057,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            dequeue_canons();
             enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
                                   AA_end, BB_end, CC_end, 
                                   u_end, v_end, w_end);
