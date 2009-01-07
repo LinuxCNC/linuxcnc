@@ -64,30 +64,39 @@ static double ztrans(setup_pointer settings, double z) {
 #include <vector>
 typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL};
 
+struct straight_traverse {
+    int line_number;
+    double x,y,z, a,b,c, u,v,w;
+};
+
+struct straight_feed {
+    int line_number;
+    double x,y,z, a,b,c, u,v,w;
+};
+
+struct arc_feed {
+    int line_number;
+    double end1, end2, center1, center2;
+    int turn;
+    double end3, a,b,c, u,v,w;
+};
+
+struct set_feed_rate {
+    double feed;
+};
+
+struct dwell {
+    double time;
+};
 
 typedef struct queued_canon {
     queued_canon_type type;
     union {
-        struct {
-            int line_number;
-            double x,y,z, a,b,c, u,v,w;
-        } straight_traverse;
-        struct {
-            int line_number;
-            double x,y,z, a,b,c, u,v,w;
-        } straight_feed;
-        struct {
-            int line_number;
-            double end1, end2, center1, center2;
-            int turn;
-            double end3, a,b,c, u,v,w;
-        } arc_feed;
-        struct {
-            double feed;
-        } set_feed_rate;
-        struct {
-            double time;
-        } dwell;
+        struct straight_traverse straight_traverse;
+        struct straight_feed straight_feed;
+        struct arc_feed arc_feed;
+        struct set_feed_rate set_feed_rate;
+        struct dwell dwell;
     } data;
 };
 
@@ -902,8 +911,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 #endif
       } else {
           // arc->arc
-          queued_canon &pm = qc().front();
-          double oldrad = hypot(pm.data.arc_feed.center2 - pm.data.arc_feed.end2, pm.data.arc_feed.center1 - pm.data.arc_feed.end1);
+          struct arc_feed &prev = qc().front().data.arc_feed;
+          double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
           double newrad;
           if (((side == LEFT) && (move == G_3)) || ((side == RIGHT) && (move == G_2))) {
               // inside the arc
@@ -912,12 +921,12 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
               newrad = arc_radius + tool_radius;
           }
               
-          double arc_cc = hypot(pm.data.arc_feed.center2 - center[1], pm.data.arc_feed.center1 - center[0]);
+          double arc_cc = hypot(prev.center2 - center[1], prev.center1 - center[0]);
           double pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
-          double cc_dir = atan2(center[1] - pm.data.arc_feed.center2, center[0] - pm.data.arc_feed.center1);
+          double cc_dir = atan2(center[1] - prev.center2, center[0] - prev.center1);
           double dir;
           
-          if((side==LEFT && pm.data.arc_feed.turn==1) || (side==RIGHT && pm.data.arc_feed.turn==-1)) {
+          if((side==LEFT && prev.turn==1) || (side==RIGHT && prev.turn==-1)) {
               // inside the previous arc
               if(turn == 1) 
                   dir = cc_dir + pullback;
@@ -930,10 +939,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                   dir = cc_dir + pullback;
           }
 
-          if(0) printf("seqno %d old %g,%g new %g,%g oldrad %g arc_cc %g newrad %g pullback %g cc_dir %g dir %g\n", settings->sequence_number, pm.data.arc_feed.center1, pm.data.arc_feed.center2, center[0], center[1], oldrad, arc_cc, newrad, R2D(pullback), R2D(cc_dir), R2D(dir));
+          if(0) printf("seqno %d old %g,%g new %g,%g oldrad %g arc_cc %g newrad %g pullback %g cc_dir %g dir %g\n", settings->sequence_number, prev.center1, prev.center2, center[0], center[1], oldrad, arc_cc, newrad, R2D(pullback), R2D(cc_dir), R2D(dir));
 
-          mid[0] = pm.data.arc_feed.center1 + oldrad * cos(dir);
-          mid[1] = pm.data.arc_feed.center2 + oldrad * sin(dir);
+          mid[0] = prev.center1 + oldrad * cos(dir);
+          mid[1] = prev.center2 + oldrad * sin(dir);
           
 #if LOOKAHEAD
           update_endpoint(mid[0], mid[1]);
@@ -4250,18 +4259,18 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
              } else {
                  // arc->line
                  // beware: the arc we saved is the compensated one.
-                 queued_canon &pm = qc().front();
-                 double oldrad = hypot(pm.data.arc_feed.center2 - pm.data.arc_feed.end2, pm.data.arc_feed.center1 - pm.data.arc_feed.end1);
+                 arc_feed prev = qc().front().data.arc_feed;
+                 double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
                  double oldrad_uncomp;
 
                  // new line's direction
                  double base_dir = atan2(p[1] - start[1], p[0] - start[0]);
-                 double theta = (pm.data.arc_feed.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                 double theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
 
-                 double phi = atan2(pm.data.arc_feed.center2 - start[1], pm.data.arc_feed.center1 - start[0]);
+                 double phi = atan2(prev.center2 - start[1], prev.center1 - start[0]);
                  double alpha = theta - phi;
 
-                 if((pm.data.arc_feed.turn == 1 && side == LEFT) || (pm.data.arc_feed.turn == -1 && side == RIGHT)) {
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
                      // tool is inside the arc
                      oldrad_uncomp = oldrad + radius;
                  } else {
@@ -4272,7 +4281,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  // distance to old arc center perpendicular to the new line
                  double d = oldrad_uncomp * cos(alpha);
                  double d2;
-                 if((pm.data.arc_feed.turn == 1 && side == LEFT) || (pm.data.arc_feed.turn == -1 && side == RIGHT)) {
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
                      d2 = d - radius;
                  } else {
                      d2 = d + radius;
@@ -4280,23 +4289,23 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  
                  double angle_from_center;
 
-                 if((pm.data.arc_feed.turn == 1 && side == LEFT) || (pm.data.arc_feed.turn == -1 && side == RIGHT)) {
-                     if(pm.data.arc_feed.turn == 1) 
+                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                     if(prev.turn == 1) 
                          angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
                      else
                          angle_from_center = acos(d2/oldrad) + theta + M_PIl;
                  } else {
-                     if(pm.data.arc_feed.turn == 1) 
+                     if(prev.turn == 1) 
                          angle_from_center = acos(d2/oldrad) + theta + M_PIl;
                      else
                          angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
                  }
 
-                 mid[0] = pm.data.arc_feed.center1 + oldrad * cos(angle_from_center);
-                 mid[1] = pm.data.arc_feed.center2 + oldrad * sin(angle_from_center);
+                 mid[0] = prev.center1 + oldrad * cos(angle_from_center);
+                 mid[1] = prev.center2 + oldrad * sin(angle_from_center);
 
                  if(0) printf("c %g,%g d2 %g acos %g oldrad %g oldrad_uncomp %g base_dir %g theta %g phi %g alpha %g d %g d2 %g angle_from_center %g\n",
-                              pm.data.arc_feed.center1, pm.data.arc_feed.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
+                              prev.center1, prev.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
                               oldrad_uncomp, R2D(base_dir), R2D(theta), R2D(phi), R2D(alpha),
                               d, d2, R2D(angle_from_center));
                  
