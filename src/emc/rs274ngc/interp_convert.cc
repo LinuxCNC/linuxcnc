@@ -33,6 +33,8 @@
 #define SQ(a) ((a)*(a))
 #endif
 
+#define DEBUG_EMC
+
 // lathe tools have strange origin points that are not at
 // the center of the radius.  This means that the point that
 // radius compensation controls (center of radius) is not at
@@ -62,7 +64,8 @@ static double ztrans(setup_pointer settings, double z) {
 typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
                                 QMIST_ON, QMIST_OFF, QFLOOD_ON, QFLOOD_OFF,
                                 QSTART_SPINDLE_CLOCKWISE, QSTART_SPINDLE_COUNTERCLOCKWISE, QSTOP_SPINDLE_TURNING,
-                                QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED};
+                                QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED,
+                                QCOMMENT};
 
 struct straight_traverse {
     int line_number;
@@ -101,6 +104,10 @@ struct set_spindle_speed {
     double speed;
 };
 
+struct comment {
+    char *comment;
+};
+
 typedef struct queued_canon {
     queued_canon_type type;
     union {
@@ -112,6 +119,7 @@ typedef struct queued_canon {
         struct set_feed_mode set_feed_mode;
         struct set_spindle_mode set_spindle_mode;
         struct set_spindle_speed set_spindle_speed;
+        struct comment comment;
     } data;
 };
 
@@ -246,6 +254,17 @@ void enqueue_SET_SPINDLE_SPEED(double speed) {
     qc().push_back(q);
 }
 
+void enqueue_COMMENT(char *c) {
+    if(qc().empty()) {
+        COMMENT(c);
+        return;
+    }
+    queued_canon q;
+    q.type = QCOMMENT;
+    q.data.comment.comment = strdup(c);
+    qc().push_back(q);
+}
+
 void enqueue_STRAIGHT_FEED(int l, 
                            double x, double y, double z, 
                            double a, double b, double c, 
@@ -372,6 +391,10 @@ void dequeue_canons(void) {
             break;
         case QSET_SPINDLE_SPEED:
             SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
+            break;
+        case QCOMMENT:
+            COMMENT(q.data.comment.comment);
+            free(q.data.comment.comment);
             break;
         }
     }
@@ -1609,7 +1632,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
       return INTERP_OK;
   }
   // else it's a real comment
-  COMMENT(comment + start);
+  enqueue_COMMENT(comment + start);
   return INTERP_OK;
 }
 
@@ -1793,7 +1816,7 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
 
   if (origin == settings->origin_index) {       /* already using this origin */
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: continuing to use same coordinate system");
+    enqueue_COMMENT("interpreter: continuing to use same coordinate system");
 #endif
     return INTERP_OK;
   }
@@ -1924,7 +1947,7 @@ Called by: convert_cutter_compensation
 int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< pointer to machine settings
 {
 #ifdef DEBUG_EMC
-  COMMENT("interpreter: cutter radius compensation off");
+  enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
       dequeue_canons();
@@ -2042,9 +2065,9 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
   }
 #ifdef DEBUG_EMC
   if (side == RIGHT)
-    COMMENT("interpreter: cutter radius compensation on right");
+    enqueue_COMMENT("interpreter: cutter radius compensation on right");
   else
-    COMMENT("interpreter: cutter radius compensation on left");
+    enqueue_COMMENT("interpreter: cutter radius compensation on left");
 #endif
 
   settings->cutter_comp_radius = radius;
@@ -2085,14 +2108,14 @@ int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (mus
   if (g_code == G_90) {
     if (settings->distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: distance mode changed to absolute");
+      enqueue_COMMENT("interpreter: distance mode changed to absolute");
 #endif
       settings->distance_mode = MODE_ABSOLUTE;
     }
   } else if (g_code == G_91) {
     if (settings->distance_mode != MODE_INCREMENTAL) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: distance mode changed to incremental");
+      enqueue_COMMENT("interpreter: distance mode changed to incremental");
 #endif
       settings->distance_mode = MODE_INCREMENTAL;
     }
@@ -2133,14 +2156,14 @@ int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed 
   if (g_code == G_90_1) {
     if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: IJK distance mode changed to absolute");
+      enqueue_COMMENT("interpreter: IJK distance mode changed to absolute");
 #endif
       settings->ijk_distance_mode = MODE_ABSOLUTE;
     }
   } else if (g_code == G_91_1) {
     if (settings->ijk_distance_mode != MODE_INCREMENTAL) {
 #ifdef DEBUG_EMC
-      COMMENT("interpreter: IJK distance mode changed to incremental");
+      enqueue_COMMENT("interpreter: IJK distance mode changed to incremental");
 #endif
       settings->ijk_distance_mode = MODE_INCREMENTAL;
     }
@@ -2196,20 +2219,20 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
   static char name[] = "convert_feed_mode";
   if (g_code == G_93) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to inverse time");
+    enqueue_COMMENT("interpreter: feed mode set to inverse time");
 #endif
     settings->feed_mode = INVERSE_TIME;
     enqueue_SET_FEED_MODE(0);
   } else if (g_code == G_94) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to units per minute");
+    enqueue_COMMENT("interpreter: feed mode set to units per minute");
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
     enqueue_SET_FEED_MODE(0);
     enqueue_SET_FEED_RATE(0);
   } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: feed mode set to units per revolution");
+    enqueue_COMMENT("interpreter: feed mode set to units per revolution");
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
     enqueue_SET_FEED_MODE(1);
@@ -3005,7 +3028,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_probe(block, motion, settings));
   } else if (motion == G_80) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: motion mode set to none");
+    enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
   } else if (motion == G_73 || ((motion > G_80) && (motion < G_90))) {
@@ -3138,12 +3161,12 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
        (_("Cannot change retract mode with cutter radius compensation on")));
   if (g_code == G_98) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: retract mode set to old_z");
+    enqueue_COMMENT("interpreter: retract mode set to old_z");
 #endif
     settings->retract_mode = OLD_Z;
   } else if (g_code == G_99) {
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: retract mode set to r_plane");
+    enqueue_COMMENT("interpreter: retract mode set to r_plane");
 #endif
     settings->retract_mode = R_PLANE;
   } else
@@ -3350,7 +3373,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   }
 #ifdef DEBUG_EMC
   else
-    COMMENT("interpreter: setting coordinate system origin");
+    enqueue_COMMENT("interpreter: setting coordinate system origin");
 #endif
   return INTERP_OK;
 }
@@ -3637,7 +3660,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
       line = _setup.linetext;
       for (;;) {                /* check for ending percent sign and comment if missing */
         if (fgets(line, LINELEN, _setup.file_pointer) == NULL) {
-          COMMENT("interpreter: percent sign missing from end of file");
+          enqueue_COMMENT("interpreter: percent sign missing from end of file");
           break;
         }
         length = strlen(line);
