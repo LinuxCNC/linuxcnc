@@ -62,7 +62,7 @@ static double ztrans(setup_pointer settings, double z) {
 }
 
 #include <vector>
-typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE};
+typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL};
 
 
 typedef struct queued_canon {
@@ -85,6 +85,9 @@ typedef struct queued_canon {
         struct {
             double feed;
         } set_feed_rate;
+        struct {
+            double time;
+        } dwell;
     } data;
 };
 
@@ -98,6 +101,13 @@ void enqueue_SET_FEED_RATE(double feed) {
     queued_canon q;
     q.type = QSET_FEED_RATE;
     q.data.set_feed_rate.feed = feed;
+    qc().push_back(q);
+}
+
+void enqueue_DWELL(double time) {
+    queued_canon q;
+    q.type = QDWELL;
+    q.data.dwell.time = time;
     qc().push_back(q);
 }
 
@@ -194,6 +204,9 @@ void issue_savedmove(void) {
             break;
         case QSET_FEED_RATE:
             SET_FEED_RATE(q.data.set_feed_rate.feed);
+            break;
+        case QDWELL:
+            DWELL(q.data.dwell.time);
             break;
         default:
             printf("unknown canon type in queue\n");
@@ -2013,10 +2026,7 @@ Called by: convert_g.
 
 int Interp::convert_dwell(setup_pointer settings, double time)   //!< time in seconds to dwell  */
 {
-  static char name[] = "convert_dwell";
-  CHKS((settings->cutter_comp_side != OFF),
-       (_("Cannot dwell with cutter radius compensation on")));  // XXX
-  DWELL(time);
+  (qc().empty()? DWELL: enqueue_DWELL)(time);
   return INTERP_OK;
 }
 
