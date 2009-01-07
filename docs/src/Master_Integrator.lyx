@@ -302,6 +302,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{drivers/motenc.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{drivers/opto22.lyx}
 preview false
 

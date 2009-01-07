@@ -73,6 +73,7 @@ DOC_SRCS := \
 	drivers/AX5214H.lyx \
 	drivers/GS2.lyx \
 	drivers/m5i20.lyx \
+	drivers/motenc.lyx \
 	drivers/opto22.lyx \
 	drivers/servo_to_go.lyx \
 	gcode/coordinates.lyx \

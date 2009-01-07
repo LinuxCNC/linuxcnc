@@ -71,6 +71,20 @@ Set up your IRC account with your unique name so people will know who you
  log in.
  This helps people remember who you are and if you have been on before many
  will remember the past discussions which saves time on both ends.
+\layout Subsection
+
+Sharing Files
+\layout Standard
+
+The most common way to share files on the IRC is to upload the file to one
+ of the following or a similar service and paste the link:
+\layout Quote
+
+http://pastebin.ca = for text 
+\newline 
+http://imagebin.ca = for pictures
+\newline 
+http://filebin.ca = for files and pdfs
 \layout Section
 
 Mailing List

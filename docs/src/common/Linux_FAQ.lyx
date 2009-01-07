@@ -358,6 +358,22 @@ To find all the files that contain the 'text to search for' in the current
  The -i is for ignore case and the -r is for recursive (include all subdirectori
 es in the search).
  The * is a wild card for search all files.
+\layout Subsection
+
+Bootup Messages
+\layout Standard
+
+To view the bootup messages use "dmesg" from the command window.
+ To save the bootup messages to a file use the redirection operator like
+ this:
+\layout Quote
+
+dmesg > bootmsg.txt
+\layout Standard
+
+The contents of this file can be copied and pasted on line to share with
+ people trying to help you diagnose your problem.
+ 
 \layout Section
 
 Hardware Problems
