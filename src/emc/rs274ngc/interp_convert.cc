@@ -713,8 +713,11 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           
           mid[0] = center[0] + dist_from_center * cos(angle_from_center);
           mid[1] = center[1] + dist_from_center * sin(angle_from_center);
-          // XXX assuming XY
-          update_endpoint(mid[0], mid[1]);
+
+          if(settings->plane == CANON_PLANE_XZ)
+              update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+          else
+              update_endpoint(mid[0], mid[1]);
       } else {
           // arc->arc
           struct arc_feed &prev = qc().front().data.arc_feed;
@@ -750,7 +753,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           mid[0] = prev.center1 + oldrad * cos(dir);
           mid[1] = prev.center2 + oldrad * sin(dir);
           
-          update_endpoint(mid[0], mid[1]);
+          if(settings->plane == CANON_PLANE_XZ)
+              update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+          else
+              update_endpoint(mid[0], mid[1]);
       }
 
       enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
@@ -3985,7 +3991,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  mid[1] = c[1] + retreat * sin(theta + gamma);
                  // we actually want to move the previous line's endpoint here.  That's the same as 
                  // discarding that line and doing this one instead.
-                 update_endpoint(mid[0], mid[1]);
+                 if(settings->plane == CANON_PLANE_XZ)
+                     update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+                 else
+                     update_endpoint(mid[0], mid[1]);
              } else {
                  // arc->line
                  // beware: the arc we saved is the compensated one.
@@ -4038,8 +4047,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                               prev.center1, prev.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
                               oldrad_uncomp, R2D(base_dir), R2D(theta), R2D(phi), R2D(alpha),
                               d, d2, R2D(angle_from_center));
-                 
-                 update_endpoint(mid[0], mid[1]);
+
+                 if(settings->plane == CANON_PLANE_XZ)
+                     update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+                 else
+                     update_endpoint(mid[0], mid[1]);
              }
          }
          dequeue_canons();

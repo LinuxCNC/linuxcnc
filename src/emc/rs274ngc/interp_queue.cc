@@ -304,3 +304,29 @@ void update_endpoint(double x, double y) {
     }
     dequeue_canons();
 }
+
+void update_endpoint_zx(double z, double x) {
+    if(qc().empty()) return;
+    
+    for(unsigned int i = 0; i<qc().size(); i++) {
+        queued_canon &q = qc()[i];
+
+        switch(q.type) {
+        case QARC_FEED:
+            q.data.arc_feed.end1 = z;
+            q.data.arc_feed.end2 = x;
+            break;
+        case QSTRAIGHT_TRAVERSE:
+            q.data.straight_traverse.z = z;
+            q.data.straight_traverse.x = x;
+            break;
+        case QSTRAIGHT_FEED:
+            q.data.straight_feed.z = z;
+            q.data.straight_feed.x = x;
+            break;
+        default:
+            ;
+        }
+    }
+    dequeue_canons();
+}

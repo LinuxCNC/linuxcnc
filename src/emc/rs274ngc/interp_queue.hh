@@ -93,3 +93,4 @@ void enqueue_ARC_FEED(int l,
                       double u, double v, double w);
 void dequeue_canons(void);
 void update_endpoint(double x, double y);
+void update_endpoint_zx(double z, double x);
