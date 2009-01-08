@@ -3873,7 +3873,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
           (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                         AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
-          if (settings->feed_mode == INVERSE_TIME)  // XXX
+          if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], end[1], pz,
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
@@ -3933,11 +3933,12 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
     if (move == G_0) {
       dequeue_canons();
+      // do not bother going around corners - just go to the endpoint
       if(settings->plane == CANON_PLANE_XZ) {
           STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
-      else if(settings->plane == CANON_PLANE_XY) {  // XXX ?
+      else if(settings->plane == CANON_PLANE_XY) {
           STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], pz,
                             AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
