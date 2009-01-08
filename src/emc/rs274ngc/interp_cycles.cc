@@ -626,6 +626,7 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
 
   CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
   CHKS((settings->feed_mode == INVERSE_TIME), "Cannot use inverse time feed with canned cycles");
+  CHKS((settings->cutter_comp_side != OFF), "Cannot use canned cycles with cutter compensation on");
 
   plane = settings->plane;
   if (block->r_flag == OFF) {
