@@ -203,7 +203,7 @@ class Data:
 	self.manualtoolchange = 1
 	self.customhal = 1
 	self.pyvcp = 0 # not included
-        self.pyvcpname= ("custom.xml")
+        self.pyvcpname = ("custom.xml")
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
         self.laddername = ("custom.clp")
@@ -1502,31 +1502,51 @@ class App:
         self.data.digitsout = self.widgets.digitsout.get_value()
         self.data.analogsin = self.widgets.analogsin.get_value()
         self.data.analogsout = self.widgets.analogsout.get_value()
-        self.data.halui = self.widgets.halui.get_active()
-        
-        if self.widgets.radiobutton2.get_active() == True:
-            inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
-            if ESTOP_IN not in inputs:
-               self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
-               self.widgets.druid1.set_page(self.widgets.advanced)
-               return True
-        if self.widgets.radiobutton3.get_active() == True:
-            self.data.modbus = 1
-            self.widgets.modbus.set_active(self.data.modbus)      
+        self.data.halui = self.widgets.halui.get_active()                
         if self.data.classicladder:
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-              if self.widgets.radiobutton4.get_active() == False:
-                 if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
-                    self.widgets.druid1.set_page(self.widgets.advanced)
-                    return True 
+           if self.widgets.radiobutton1.get_active() == True:
+              if self.data.tempexists:
+                   self.data.laddername='TEMP.clp'
+              else:
+                   self.data.laddername= 'blank.clp'
+           if self.widgets.radiobutton2.get_active() == True:
+              self.data.laddername= 'estop.clp'
+              inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
+              if ESTOP_IN not in inputs:
+                 self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
+                 self.widgets.druid1.set_page(self.widgets.advanced)
+                 return True
+           if self.widgets.radiobutton3.get_active() == True:
+                 self.data.laddername = 'serialmodbus.clp'
+                 self.data.modbus = 1
+                 self.widgets.modbus.set_active(self.data.modbus)           
+           if self.widgets.radiobutton4.get_active() == True:
+              self.data.laddername='custom.clp'
+           else:
+               if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
+                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
+                     self.widgets.druid1.set_page(self.widgets.advanced)
+                     return True 
            if self.widgets.radiobutton1.get_active() == False:
               if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
                  if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
-                   return True 
-        if self.widgets.radiobutton7.get_active() == True:
-           self.data.halui = True 
-           self.widgets.halui.set_active(True)   
+                   return True       
+        if self.data.pyvcp == True:
+           if self.widgets.radiobutton5.get_active() == True:
+              self.data.pyvcpname = "blank.xml"
+           if self.widgets.radiobutton6.get_active() == True:
+              self.data.pyvcpname = "spindle.xml"
+           if self.widgets.radiobutton7.get_active() == True:
+              self.data.pyvcpname = "thc_vcp.xml"
+              self.data.halui = True 
+              self.widgets.halui.set_active(True)   
+           if self.widgets.radiobutton8.get_active() == True:
+              self.data.pyvcpname = "custompanel.xml"
+           else:
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel program?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named -custompanel_backup.xml- will be lost. "),False):
+                   return True
 
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -1569,6 +1589,7 @@ class App:
           self.widgets.radiobutton8.set_sensitive(False)
         else:
           self.widgets.radiobutton8.set_sensitive(i)
+        self.widgets.displaypanel.set_sensitive(i)
 
     def on_displaypanel_clicked(self,*args):
         print"clicked"
@@ -1678,16 +1699,7 @@ class App:
     def on_complete_finish(self, *args):
 	self.data.save()        
         if self.data.classicladder: 
-           if self.widgets.radiobutton4.get_active() == False:
-                if self.widgets.radiobutton1.get_active() == True:
-                    if self.data.tempexists:
-                        self.data.laddername='TEMP.clp'
-                    else:
-                        self.data.laddername= 'blank.clp'
-                if self.widgets.radiobutton2.get_active() == True:
-                        self.data.laddername= 'estop.clp'
-                if self.widgets.radiobutton3.get_active() == True:
-                        self.data.laddername = 'serialmodbus.clp'
+           if not self.data.laddername == "custom.clp":
                 filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
                 original = os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)
                 if os.path.exists(filename):     
@@ -1700,6 +1712,20 @@ class App:
                   print"%s" % filename
                 else:
                      print "Master or temp ladder files missing from configurable_options dir"
+
+        if self.data.pyvcp and not self.widgets.radiobutton8.get_active() == True:                
+           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
+           originalname = os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     print "custom PYVCP file already exists"
+                     shutil.copy( originalname,os.path.expanduser("~/emc2/configs/%s/custompanel_backup.xml" % self.data.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  print "copied PYVCP program to usr directory"
+                  print"%s" % panelname
+           else:
+                  print "Master PYVCP files missing from configurable_options dir"
 	gtk.main_quit()
 
     def on_calculate_ideal_period(self, *args):
@@ -1765,15 +1791,24 @@ class App:
     
     def testpanel(self,w):
         print "display panel"
+        panelname = os.path.join(distdir, "configurable_options/pyvcp")
+        if self.widgets.radiobutton5.get_active() == True:
+           return True
         if self.widgets.radiobutton6.get_active() == True:
            panel = "spindle.xml"
         if self.widgets.radiobutton7.get_active() == True:
            panel = "thc_vcp.xml"
-        print "%s" % panel
-        panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )
-        halrun.write("loadusr -Wn test pyvcp -c test %(panel)s\n" %{'panel':panel,})
-        halrun.write("waitusr test\n"); halrun.flush()
+        if self.widgets.radiobutton8.get_active() == True:
+           panel = "custompanel.xml"
+           panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
+        print "panel-%s" % panel
+        print"dir-%s" % panelname
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
+        if self.widgets.radiobutton6.get_active() == True:
+                halrun.write("setp displaytest.spindle-speed 1000\n")
+                halrun.write("setp displaytest.toolnumber 4\n")
+        halrun.write("waitusr displaytest\n"); halrun.flush()
 
     def load_ladder(self,w):         
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
