@@ -95,3 +95,4 @@ void dequeue_canons(void);
 void update_endpoint(double x, double y);
 void update_endpoint_zx(double z, double x);
 void qc_reset(void);
+void qc_scale(double scale);

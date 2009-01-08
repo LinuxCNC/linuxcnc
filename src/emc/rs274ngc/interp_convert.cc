@@ -2228,8 +2228,6 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
   static char name[] = "convert_length_units";
-  CHK((settings->cutter_comp_side != OFF),
-      NCE_CANNOT_CHANGE_UNITS_WITH_CUTTER_RADIUS_COMP);
   if (g_code == G_20) {
     USE_LENGTH_UNITS(CANON_UNITS_INCHES);
     if (settings->length_units != CANON_UNITS_INCHES) {
@@ -2237,6 +2235,11 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->current_x = (settings->current_x * INCH_PER_MM);
       settings->current_y = (settings->current_y * INCH_PER_MM);
       settings->current_z = (settings->current_z * INCH_PER_MM);
+      settings->program_x = (settings->program_x * INCH_PER_MM);
+      settings->program_y = (settings->program_y * INCH_PER_MM);
+      settings->program_z = (settings->program_z * INCH_PER_MM);
+      qc_scale(INCH_PER_MM);
+      settings->cutter_comp_radius *= INCH_PER_MM;
       settings->axis_offset_x = (settings->axis_offset_x * INCH_PER_MM);
       settings->axis_offset_y = (settings->axis_offset_y * INCH_PER_MM);
       settings->axis_offset_z = (settings->axis_offset_z * INCH_PER_MM);
@@ -2265,6 +2268,11 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->current_x = (settings->current_x * MM_PER_INCH);
       settings->current_y = (settings->current_y * MM_PER_INCH);
       settings->current_z = (settings->current_z * MM_PER_INCH);
+      settings->program_x = (settings->program_x * MM_PER_INCH);
+      settings->program_y = (settings->program_y * MM_PER_INCH);
+      settings->program_z = (settings->program_z * MM_PER_INCH);
+      qc_scale(MM_PER_INCH);
+      settings->cutter_comp_radius *= MM_PER_INCH;
       settings->axis_offset_x = (settings->axis_offset_x * MM_PER_INCH);
       settings->axis_offset_y = (settings->axis_offset_y * MM_PER_INCH);
       settings->axis_offset_z = (settings->axis_offset_z * MM_PER_INCH);

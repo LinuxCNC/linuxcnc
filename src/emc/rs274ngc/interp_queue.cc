@@ -210,6 +210,46 @@ void enqueue_ARC_FEED(int l,
     qc().push_back(q);
 }
 
+void qc_scale(double scale) {
+    
+    if(qc().empty()) return;
+
+    for(unsigned int i = 0; i<qc().size(); i++) {
+        queued_canon &q = qc()[i];
+
+        switch(q.type) {
+        case QARC_FEED:
+            q.data.arc_feed.end1 *= scale;
+            q.data.arc_feed.end2 *= scale;
+            q.data.arc_feed.end3 *= scale;
+            q.data.arc_feed.center1 *= scale;
+            q.data.arc_feed.center2 *= scale;
+            q.data.arc_feed.u *= scale;
+            q.data.arc_feed.v *= scale;
+            q.data.arc_feed.w *= scale;
+            break;
+        case QSTRAIGHT_FEED:
+            q.data.straight_feed.x *= scale;
+            q.data.straight_feed.y *= scale;
+            q.data.straight_feed.z *= scale;
+            q.data.straight_feed.u *= scale;
+            q.data.straight_feed.v *= scale;
+            q.data.straight_feed.w *= scale;
+            break;
+        case QSTRAIGHT_TRAVERSE:
+            q.data.straight_traverse.x *= scale;
+            q.data.straight_traverse.y *= scale;
+            q.data.straight_traverse.z *= scale;
+            q.data.straight_traverse.u *= scale;
+            q.data.straight_traverse.v *= scale;
+            q.data.straight_traverse.w *= scale;
+            break;
+        default:
+            ;
+        }
+    }
+}
+
 void dequeue_canons(void) {
 
     if(qc().empty()) return;
