@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+ <vbox>
+     <labelframe text="Spindle Override"> 
+     <font>("Helvetica",20)</font>
+        <hbox>
+          <button>
+                <halpin>"so-increase"</halpin>
+                <text>"+"</text> 
+                <justify>RIGHT</justify>
+         </button>
+         <button>
+                <halpin>"so-decrease"</halpin>
+                <text>"-"</text> 
+                <justify>RIGHT</justify>
+         </button>
+       </hbox>
+    </labelframe>
+    <labelframe text="Optional Stop"> 
+    <font>("Helvetica",20)</font>
+		<hbox>
+		      <vbox>
+			<led> 
+	                    <halpin>"ostop-is-on"</halpin>  
+			    <size>20</size>  
+			    <on_color>"blue"</on_color> 
+			    <off_color>"grey"</off_color> 
+			</led>	
+		       </vbox>
+                       <button>
+                            <halpin>"ostop-on"</halpin>
+                            <text>"on"</text> 
+                       </button>
+                       <button>
+                             <halpin>"ostop-off"</halpin>
+                             <text>"off"</text> 
+                       </button>
+			<vbox>
+			</vbox>
+		</hbox>
+       </labelframe>
+       <labelframe text="MDI comands"> 
+       <font>("Helvetica",20)</font>
+		<hbox>
+                     <button>
+                          <halpin>"MDI-zzero"</halpin>
+                          <text>"Goto Z Zero"</text> 
+                     </button>
+                     <button>
+                           <halpin>"MDI-reference"</halpin>
+                           <text>"Goto Reference"</text> 
+                     </button>
+		</hbox>
+        </labelframe>
+ </vbox>
+ 
+</pyvcp>
