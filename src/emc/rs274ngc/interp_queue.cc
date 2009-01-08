@@ -7,6 +7,10 @@ std::vector<queued_canon>& qc(void) {
     return c;
 }
 
+void qc_reset(void) {
+    qc().clear();
+}
+
 void enqueue_SET_FEED_RATE(double feed) {
     if(qc().empty()) {
         SET_FEED_RATE(feed);

@@ -84,6 +84,7 @@ include an option for suppressing superfluous commands.
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
+#include "interp_queue.hh"
 //#include "rs274ngc_errors.cc"
 
 #include "units.h"
@@ -860,6 +861,8 @@ int Interp::reset()
   _setup.defining_sub = 0;
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
+
+  qc_reset();
 
   return INTERP_OK;
 }
