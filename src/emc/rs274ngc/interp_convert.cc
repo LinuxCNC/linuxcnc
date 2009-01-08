@@ -428,9 +428,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   } else ERM(NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
 
 
-  CHK((hypot((end[0] - current[0]),
+  CHKS((hypot((end[0] - current[0]),
              (end[1] - current[1])) <= tool_radius),
-      NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
+       "Radius of cutter compensation entry arc is not greater than the tool radius");
 
   if (block->r_flag) {
       CHP(arc_data_comp_r(move, plane, side, tool_radius, current[0],
@@ -475,7 +475,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   double AB_ang = atan2(center[1] - end[1], center[0] - end[0]);
   double A_ang = atan2(current[1] - end[1], current[0] - end[0]) - AB_ang;
 
-  CHK((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
+  CHK((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
   
   double c_len = b_len/cos(A_ang);
 
@@ -3685,7 +3685,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   distance = hypot((tp[0] - c[0]), (tp[1] - c[1]));
 
   CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
-  CHK((distance <= radius), NCE_CUTTER_GOUGING_WITH_CUTTER_RADIUS_COMP);
+  CHKS((distance <= radius), "Length of cutter compensation entry move is not greater than the tool radius");
 
   theta = acos(radius / distance);
   alpha = (side == LEFT) ? (atan2((c[1] - tp[1]), (c[0] - tp[0])) - theta) :
