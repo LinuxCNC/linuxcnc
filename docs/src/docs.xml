@@ -57,6 +57,7 @@
 <doc name="drivers_m5i20" title="m5i20 Driver"/>
 <doc name="drivers_motenc" title="Motenc Driver"/>
 <doc name="drivers_opto22" title="Opto22 Driver"/>
+<doc name="drivers_pluto_p" title="Pluto-P Driver"/>
 <doc name="drivers_servo_to_go" title="Servo To Go Driver"/>
 
 <doc name="common_machining_center" title="General Machining Center Info"/>

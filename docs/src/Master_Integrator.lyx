@@ -320,6 +320,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{drivers/pluto_p.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{drivers/servo_to_go.lyx}
 preview false
 

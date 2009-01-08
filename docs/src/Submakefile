@@ -75,6 +75,7 @@ DOC_SRCS := \
 	drivers/m5i20.lyx \
 	drivers/motenc.lyx \
 	drivers/opto22.lyx \
+	drivers/pluto_p.lyx \
 	drivers/servo_to_go.lyx \
 	gcode/coordinates.lyx \
 	gcode/coordinates_fr.lyx \
