@@ -715,9 +715,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           mid[1] = center[1] + dist_from_center * sin(angle_from_center);
 
           if(settings->plane == CANON_PLANE_XZ)
-              update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+              CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
           else
-              update_endpoint(mid[0], mid[1]);
+              CHKS((move_endpoint_and_flush(mid[0], mid[1]) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
       } else {
           // arc->arc
           struct arc_feed &prev = qc().front().data.arc_feed;
@@ -754,9 +754,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           mid[1] = prev.center2 + oldrad * sin(dir);
           
           if(settings->plane == CANON_PLANE_XZ)
-              update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+              CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
           else
-              update_endpoint(mid[0], mid[1]);
+              CHKS((move_endpoint_and_flush(mid[0], mid[1]) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
       }
 
       enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
@@ -3661,7 +3661,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   double radius;
   int side;
   double theta;
-  double p[3], c[2], tp[2];
+  double p[3], c[2], tp[2], end[2];
 
   if(settings->plane == CANON_PLANE_XZ) {
       p[0] = px;
@@ -3690,34 +3690,38 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
   theta = acos(radius / distance);
   alpha = (side == LEFT) ? (atan2((c[1] - tp[1]), (c[0] - tp[0])) - theta) :
                            (atan2((c[1] - tp[1]), (c[0] - tp[0])) + theta);
-  c[0] = (p[0] + (radius * cos(alpha)));    /* reset to end location */
-  c[1] = (p[1] + (radius * sin(alpha)));
+  end[0] = (p[0] + (radius * cos(alpha)));    /* reset to end location */
+  end[1] = (p[1] + (radius * sin(alpha)));
 
   if (move == G_0) {
      if(settings->plane == CANON_PLANE_XZ) {
-         enqueue_STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+         enqueue_STRAIGHT_TRAVERSE(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                            AA_end, BB_end, CC_end, u_end, v_end, w_end);
      } else if(settings->plane == CANON_PLANE_XY) {
-         enqueue_STRAIGHT_TRAVERSE(block->line_number, c[0], c[1], p[2],
+         enqueue_STRAIGHT_TRAVERSE(block->line_number, end[0], end[1], p[2],
                        AA_end, BB_end, CC_end, u_end, v_end, w_end);
      }
   }
   else if (move == G_1) {
     if(settings->plane == CANON_PLANE_XZ) {
        if (settings->feed_mode == INVERSE_TIME)
-         inverse_time_rate_straight(c[0], p[2], c[1],
+         inverse_time_rate_straight(end[0], p[2], end[1],
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, c[0]), p[2], ztrans(settings, c[1]),
+       enqueue_STRAIGHT_FEED(block->line_number, 
+                             px - settings->program_x, py - settings->program_y, pz - settings->program_z,
+                             xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                              AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else if(settings->plane == CANON_PLANE_XY) {
        if (settings->feed_mode == INVERSE_TIME)
-         inverse_time_rate_straight(c[0], c[1], p[2],
+         inverse_time_rate_straight(end[0], end[1], p[2],
                                     AA_end, BB_end, CC_end,
                                     u_end, v_end, w_end,
                                     block, settings);
-       enqueue_STRAIGHT_FEED(block->line_number, c[0], c[1], p[2],
+       enqueue_STRAIGHT_FEED(block->line_number, 
+                             px - settings->program_x, py - settings->program_y, pz - settings->program_z,
+                             end[0], end[1], p[2],
                              AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
   } else
@@ -3725,15 +3729,15 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
   settings->cutter_comp_firstmove = OFF;
   if(settings->plane == CANON_PLANE_XZ) {
-      settings->current_x = c[0];
+      settings->current_x = end[0];
       settings->current_y = p[2];
-      settings->current_z = c[1];
+      settings->current_z = end[1];
       settings->program_x = p[0];
       settings->program_z = p[1];
       settings->program_y = p[2];
   } else if(settings->plane == CANON_PLANE_XY) {
-      settings->current_x = c[0];
-      settings->current_y = c[1];
+      settings->current_x = end[0];
+      settings->current_y = end[1];
       settings->current_z = p[2];
       settings->program_x = p[0];
       settings->program_y = p[1];
@@ -3878,16 +3882,25 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                        AA_end, BB_end, CC_end,
                                        u_end, v_end, w_end,
                                        block, settings);
-          (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]),
-                        AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          if (qc().empty()) 
+              STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), py, ztrans(settings, end[1]), AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          else
+              enqueue_STRAIGHT_FEED(block->line_number, 
+                                    px - settings->program_x, py - settings->program_y, pz - settings->program_z, 
+                                    xtrans(settings, end[0]), py, ztrans(settings, end[1]), 
+                                    AA_end, BB_end, CC_end, u_end, v_end, w_end);
       } else if(settings->plane == CANON_PLANE_XY) {
           if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], end[1], pz,
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-          (qc().empty()? STRAIGHT_FEED: enqueue_STRAIGHT_FEED)(block->line_number, end[0], end[1], pz,
-                                                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          if (qc().empty()) 
+              STRAIGHT_FEED(block->line_number, end[0], end[1], pz, AA_end, BB_end, CC_end, u_end, v_end, w_end);
+          else
+              enqueue_STRAIGHT_FEED(block->line_number, 
+                                    px - settings->program_x, py - settings->program_y, pz - settings->program_z, 
+                                    end[0], end[1], pz, AA_end, BB_end, CC_end, u_end, v_end, w_end);
       }
     } else
       ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -3965,7 +3978,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             ARC_FEED(block->line_number, ztrans(settings, mid[1]), xtrans(settings, mid[0]), ztrans(settings, start[1]), xtrans(settings, start[0]),
                      ((side == LEFT) ? 1 : -1), settings->current_y,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            set_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+            enqueue_STRAIGHT_FEED(block->line_number, 
+                                  px - settings->program_x, py - settings->program_y, pz - settings->program_z,
+                                  xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
         }
         else if(settings->plane == CANON_PLANE_XY) {
@@ -3979,8 +3995,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             ARC_FEED(block->line_number, mid[0], mid[1], start[0], start[1],
                      ((side == LEFT) ? -1 : 1), settings->current_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
-
-            enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2], 
+            set_endpoint(mid[0], mid[1]);
+            enqueue_STRAIGHT_FEED(block->line_number, 
+                                  px - settings->program_x, py - settings->program_y, pz - settings->program_z, 
+                                  end[0], end[1], p[2], 
                                   AA_end, BB_end, CC_end, 
                                   u_end, v_end, w_end);
         }
@@ -4000,10 +4018,11 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                  mid[1] = c[1] + retreat * sin(theta + gamma);
                  // we actually want to move the previous line's endpoint here.  That's the same as 
                  // discarding that line and doing this one instead.
-                 if(settings->plane == CANON_PLANE_XZ)
-                     update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
-                 else
-                     update_endpoint(mid[0], mid[1]);
+                 if(settings->plane == CANON_PLANE_XZ) {
+                     CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+                 } else {
+                     CHKS((move_endpoint_and_flush(mid[0], mid[1]) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+                 }
              } else {
                  // arc->line
                  // beware: the arc we saved is the compensated one.
@@ -4058,27 +4077,32 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                               d, d2, R2D(angle_from_center));
 
                  if(settings->plane == CANON_PLANE_XZ)
-                     update_endpoint_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0]));
+                     CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
                  else
-                     update_endpoint(mid[0], mid[1]);
+                     CHKS((move_endpoint_and_flush(mid[0], mid[1]) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
              }
          }
-         dequeue_canons();
          if(settings->plane == CANON_PLANE_XZ) {
+             CHKS((move_endpoint_and_flush_zx(settings->current_z, settings->current_x) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            enqueue_STRAIGHT_FEED(block->line_number, xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
+            enqueue_STRAIGHT_FEED(block->line_number, 
+                                  px - settings->program_x, py - settings->program_y, pz - settings->current_z, 
+                                  xtrans(settings, end[0]), p[2], ztrans(settings, end[1]),
                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
          } else if(settings->plane == CANON_PLANE_XY) {
+             CHKS((move_endpoint_and_flush(settings->current_x, settings->current_y)), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], end[1], p[2],
                                          AA_end, BB_end, CC_end,
                                          u_end, v_end, w_end,
                                          block, settings);
-            enqueue_STRAIGHT_FEED(block->line_number, end[0], end[1], p[2],
+            enqueue_STRAIGHT_FEED(block->line_number, 
+                                  px - settings->program_x, py - settings->program_y, pz - settings->current_z, 
+                                  end[0], end[1], p[2],
                                   AA_end, BB_end, CC_end, 
                                   u_end, v_end, w_end);
          }

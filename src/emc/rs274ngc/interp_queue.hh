@@ -13,7 +13,8 @@ struct straight_traverse {
 
 struct straight_feed {
     int line_number;
-    double x,y,z, a,b,c, u,v,w;
+    double dx, dy, dz;          // direction of original motion
+    double x,y,z, a,b,c, u,v,w; // target
 };
 
 struct arc_feed {
@@ -78,6 +79,7 @@ void enqueue_SET_SPINDLE_MODE(double mode);
 void enqueue_SET_SPINDLE_SPEED(double speed);
 void enqueue_COMMENT(char *c);
 void enqueue_STRAIGHT_FEED(int l, 
+                           double dx, double dy, double dz,
                            double x, double y, double z, 
                            double a, double b, double c, 
                            double u, double v, double w);
@@ -92,7 +94,9 @@ void enqueue_ARC_FEED(int l,
                       double a, double b, double c,
                       double u, double v, double w);
 void dequeue_canons(void);
-void update_endpoint(double x, double y);
-void update_endpoint_zx(double z, double x);
+void set_endpoint(double x, double y);
+void set_endpoint_zx(double z, double x);
+int move_endpoint_and_flush(double x, double y);
+int move_endpoint_and_flush_zx(double z, double x);
 void qc_reset(void);
 void qc_scale(double scale);
