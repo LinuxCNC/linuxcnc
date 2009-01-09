@@ -43,6 +43,7 @@ int comedi_to_open_mask;
 int numRungs=NBR_RUNGS_DEF, numBits=NBR_BITS_DEF,numWords=NBR_WORDS_DEF, numTimers=NBR_TIMERS_DEF, numMonostables=NBR_MONOSTABLES_DEF;
 int numCounters=NBR_COUNTERS_DEF,numTimersIec=NBR_TIMERS_IEC_DEF,numPhysInputs=NBR_PHYS_INPUTS_DEF, numPhysOutputs=NBR_PHYS_OUTPUTS_DEF, numArithmExpr=NBR_ARITHM_EXPR_DEF, numSections=NBR_SECTIONS_DEF;
 int numSymbols=NBR_SYMBOLS_DEF,numS32in=NBR_PHYS_WORDS_INPUTS_DEF,numS32out=NBR_PHYS_WORDS_OUTPUTS_DEF;
+int numFloatIn=NBR_PHYS_FLOAT_INPUTS_DEF,numFloatOut=NBR_PHYS_FLOAT_OUTPUTS_DEF;
 RTAPI_MP_INT(numRungs, "i");
 RTAPI_MP_INT(numBits, "i");
 RTAPI_MP_INT(numWords, "i");
@@ -57,6 +58,8 @@ RTAPI_MP_INT(numSections, "i");
 RTAPI_MP_INT(numSymbols, "i");
 RTAPI_MP_INT(numS32in, "i");
 RTAPI_MP_INT(numS32out, "i");
+RTAPI_MP_INT(numFloatIn,"i");
+RTAPI_MP_INT(numFloatOut,"i");
 #else
 #define numPhysInputs InfosGene->SizesInfos.nbr_phys_inputs
 #define numPhysOutputs InfosGene->SizesInfos.nbr_phys_outputs
@@ -68,7 +71,8 @@ hal_bit_t **hal_outputs;
 hal_s32_t **hal_s32_inputs;
 hal_s32_t **hal_s32_outputs;
 hal_s32_t *hal_state;
-
+hal_float_t **hal_float_inputs;
+hal_float_t **hal_float_outputs;
 
 extern StrGeneralParams GeneralParamsMirror; 
 
@@ -98,6 +102,18 @@ void HalWrites32Outputs(void) {
 	int i;
 	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs; i++) {
 		*(hal_s32_outputs[i]) = ReadVar(VAR_PHYS_WORD_OUTPUT, i);
+	}
+}
+void HalReadFloatInputs(void) {
+	int i;
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs; i++) {
+		WriteVar(VAR_PHYS_FLOAT_INPUT, i, *hal_float_inputs[i]);
+	}
+}	
+void HalWriteFloatOutputs(void) {
+	int i;
+	for( i=0; i<InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs; i++) {
+		*(hal_float_outputs[i]) = ReadVar(VAR_PHYS_FLOAT_OUTPUT, i);
 	}
 }
 // This actually does the magic of periodic refresh of pins and
@@ -132,12 +148,16 @@ static void hal_task(void *arg, long period)
 				HalReadPhysicalInputs();
 
 				HalReads32Inputs();
+                                
+                                HalReadFloatInputs();
 		
 				ClassicLadder_RefreshAllSections();
 		
 				HalWritePhysicalOutputs();
 
 				HalWrites32Outputs();
+    
+                                HalWriteFloatOutputs();
 			}
      	 t1 = rtapi_get_time();
          InfosGene->DurationOfLastScan = t1 - t0;
@@ -173,10 +193,16 @@ error:
 	if(!hal_inputs) { result = -ENOMEM; goto error; }
 	hal_s32_inputs = hal_malloc(sizeof(hal_s32_t*) * numS32in);
 	if(!hal_s32_inputs) { result = -ENOMEM; goto error; }
+        hal_float_inputs = hal_malloc(sizeof(hal_float_t*) * numFloatIn);
+	if(!hal_float_inputs) { result = -ENOMEM; goto error; }
 	hal_outputs = hal_malloc(sizeof(hal_bit_t*) * numPhysOutputs);
 	if(!hal_outputs) { result = -ENOMEM; goto error; }
-	hal_s32_outputs = hal_malloc(sizeof(hal_bit_t*) * numS32out);
+	hal_s32_outputs = hal_malloc(sizeof(hal_s32_t*) * numS32out);
 	if(!hal_s32_outputs) { result = -ENOMEM; goto error; }
+        hal_float_outputs = hal_malloc(sizeof(hal_float_t*) * numFloatOut);
+	if(!hal_float_outputs) { result = -ENOMEM; goto error; }
+        
+
 
 	for(i=0; i<numPhysInputs; i++) {
 		result = hal_pin_bit_newf(HAL_IN, &hal_inputs[i], compId,
@@ -189,6 +215,11 @@ error:
 				"classicladder.0.s32in-%02d", i);
 		if(result < 0) goto error;
 	}
+        for(i=0; i<numFloatIn; i++) {
+		result = hal_pin_float_newf(HAL_IN, &hal_float_inputs[i], compId,
+				"classicladder.0.floatin-%02d", i);
+		if(result < 0) goto error;
+	}
 
 	for(i=0; i<numPhysOutputs; i++) {
 		result = hal_pin_bit_newf(HAL_OUT, &hal_outputs[i], compId,
@@ -198,6 +229,11 @@ error:
 	for(i=0; i<numS32out; i++) {
 		result = hal_pin_s32_newf(HAL_OUT, &hal_s32_outputs[i], compId,
 				"classicladder.0.s32out-%02d", i);
+		if(result < 0) goto error;
+	}
+        for(i=0; i<numFloatOut; i++) {
+		result = hal_pin_float_newf(HAL_OUT, &hal_float_outputs[i], compId,
+				"classicladder.0.floatout-%02d", i);
 		if(result < 0) goto error;
 	}
 	hal_ready(compId);
@@ -245,6 +281,10 @@ void CopySizesInfosFromModuleParams( void )
 		GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = numS32in;
 	if ( numS32out>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs = numS32out;
+        if ( numFloatIn>0 )
+		GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs = numFloatIn;
+	if ( numFloatOut>0 )
+		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;
 
 	
 	#endif
