@@ -362,13 +362,13 @@ int move_endpoint_and_flush(double x, double y) {
                     // path has crossed because we backed up further
                     // than the line is long.  this will gouge.
 
-                    if(1) printf("reversal start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
+                    if(0) printf("reversal start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
                                  endpoint[0], endpoint[1],
                                  q.data.straight_feed.x, q.data.straight_feed.y,
                                  x, y);
                     return -1;
                 } else {
-                    if(1) printf("........ start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
+                    if(0) printf("........ start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
                                  endpoint[0], endpoint[1],
                                  q.data.straight_feed.x, q.data.straight_feed.y,
                                  x, y);
@@ -411,13 +411,13 @@ int move_endpoint_and_flush_zx(double z, double x) {
 
                 double dot = z1 * z2 + x1 * x2;
                 if(endpoint_valid && dot<0) {
-                    if(1) printf("reversal start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
+                    if(0) printf("reversal start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
                                  endpoint[0], endpoint[1],
                                  q.data.straight_feed.z, q.data.straight_feed.x,
                                  z, x);
                     return -1;
                 } else {
-                    if(1) printf("........ start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
+                    if(0) printf("........ start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
                                  endpoint[0], endpoint[1],
                                  q.data.straight_feed.z, q.data.straight_feed.x,
                                  z, x);
