@@ -1201,6 +1201,15 @@ char LoadComParameters(char * FileName)
                                 pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
+                                pParameter = "MODBUS_MASTER_SERIAL_DATABITS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
+                                pParameter = "MODBUS_MASTER_SERIAL_STOPBITS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
+                                pParameter = "MODBUS_MASTER_SERIAL_PARITY=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_ELEMENT_OFFSET=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
@@ -1256,6 +1265,9 @@ char SaveComParameters(char * FileName)
 	{
 		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusSerialPortNameUsed  );
                 fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusSerialSpeed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n",ModbusSerialDataBits );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n",ModbusSerialStopBits  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n",ModbusSerialParity  );
                 fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusEleOffset );
 		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusSerialUseRtsToSend );
 		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusTimeInterFrame );
