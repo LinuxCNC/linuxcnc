@@ -39,6 +39,9 @@ StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
 // if '\0' => IP mode used for I/O modbus modules
 char ModbusSerialPortNameUsed[ 30 ];
 int ModbusSerialSpeed;
+int ModbusSerialDataBits;
+int ModbusSerialStopBits;
+int ModbusSerialParity;
 int ModbusSerialUseRtsToSend;
 int ModbusTimeInterFrame;
 int ModbusTimeOutReceipt;
@@ -63,18 +66,21 @@ void InitModbusMasterBeforeReadConf( void )
 { 
         ModbusSerialPortNameUsed[ 0 ] = '\0';
         ModbusSerialSpeed = 9600;
+        ModbusSerialDataBits = 8;
+        ModbusSerialStopBits = 1;
+        ModbusSerialParity = 0; // no parity
         ModbusEleOffset = 0;
         ModbusSerialUseRtsToSend = 0;
         ModbusTimeInterFrame = 100;
         ModbusTimeOutReceipt = 500;
         ModbusTimeAfterTransmit = 0;
         ModbusDebugLevel= 0;
-        MapCoilRead= 0;
-        MapCoilWrite= 0;
-        MapInputs= 0;
-        MapHolding= 0;
-        MapRegisterRead= 0;
-        MapRegisterWrite= 0;
+        MapCoilRead = 0;
+        MapCoilWrite = 0;
+        MapInputs = 0;
+        MapHolding = 0;
+        MapRegisterRead = 0;
+        MapRegisterWrite = 0;
 
         InitModbusMasterParams ( );
 }

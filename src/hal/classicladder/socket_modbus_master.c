@@ -114,6 +114,7 @@ void InitSocketModbusMaster( )
 		{
 			if ( !SerialOpen( ModbusSerialPortNameUsed, ModbusSerialSpeed ) )
 				Error = -1;
+                        printf("INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n",ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
 		}
 		if ( Error!=-1 )
 		printf("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");

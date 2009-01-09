@@ -33,7 +33,9 @@
 #include "serial_common.h"
 extern int ModbusSerialUseRtsToSend;
 extern int ModbusDebugLevel;
-
+extern int ModbusSerialDataBits;   // Number of data bits (7, 6, 7, 8)
+extern int ModbusSerialStopBits;   // Number of stop bits (1 or 2)
+extern int ModbusSerialParity;      // Parity (00 = NONE, 01 = Odd, 02 = Even, 03 = Mark, 04 = Space)
 
 int SerialSpeed[ ] = { 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 0 };
 int SerialCorres[ ] = { B300, B600, B1200, B2400, B4800, B9600, B19200, B38400, B57600, B115200, 0 };
@@ -44,9 +46,7 @@ long DATABITS;
 long STOPBITS;
 long PARITYON;
 long PARITY;
-int Data_Bits = 8;   // Number of data bits (7, 6, 7, 8)
-int Stop_Bits = 1;   // Number of stop bits (1 or 2)
-int Parity = 0;      // Parity (00 = NONE, 01 = Odd, 02 = Even, 03 = Mark, 04 = Space)
+
 struct termios oldtio;
 struct termios newtio;
 
@@ -71,7 +71,7 @@ char SerialOpen( char * SerialPortName, int Speed )
 				BaudRate = SerialCorres[ ScanBaudRate ];
 			}
 		}
-switch (Data_Bits)
+switch (ModbusSerialDataBits)
       {
          case 8:
          default:
@@ -87,7 +87,7 @@ switch (Data_Bits)
             DATABITS = CS5;
             break;
       }  //end of switch data_bits
-      switch (Stop_Bits)
+      switch (ModbusSerialStopBits)
       {
          case 1:
          default:
@@ -97,7 +97,7 @@ switch (Data_Bits)
             STOPBITS = CSTOPB;
             break;
       }  //end of switch stop bits
-      switch (Parity)
+      switch (ModbusSerialParity)
       {
          case 0:
          default:                       //none
