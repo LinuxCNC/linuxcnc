@@ -45,6 +45,8 @@
 #define NBR_SYMBOLS_DEF 100
 #define NBR_PHYS_WORDS_INPUTS_DEF 10
 #define NBR_PHYS_WORDS_OUTPUTS_DEF 10
+#define NBR_PHYS_FLOAT_INPUTS_DEF 10
+#define NBR_PHYS_FLOAT_OUTPUTS_DEF 10
 #define NBR_ERROR_BITS_DEF 10
 #define NBR_INPUTS_CONF 5
 #define NBR_OUTPUTS_CONF 5
@@ -66,6 +68,8 @@ typedef struct plc_sizeinfo_s {
 	int     nbr_symbols;
         int	nbr_phys_words_inputs;
 	int	nbr_phys_words_outputs;
+        int     nbr_phys_float_inputs;
+        int     nbr_phys_float_outputs;
         int     nbr_error_bits;
 }plc_sizeinfo_s;
 
@@ -83,6 +87,8 @@ typedef struct plc_sizeinfo_s {
 #define NBR_SYMBOLS	       InfosGene->GeneralParams.SizesInfos.nbr_symbols
 #define NBR_PHYS_WORDS_INPUTS  InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs
 #define NBR_PHYS_WORDS_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs
+#define NBR_PHYS_FLOAT_INPUTS  InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs
+#define NBR_PHYS_FLOAT_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs
 #define NBR_ERROR_BITS 	       InfosGene->GeneralParams.SizesInfos.nbr_error_bits
 
 #define ARITHM_EXPR_SIZE 50
@@ -179,6 +185,8 @@ typedef struct plc_sizeinfo_s {
 #define VAR_TIMER_IEC_VALUE 261
 #define VAR_PHYS_WORD_INPUT 270
 #define VAR_PHYS_WORD_OUTPUT 280
+#define VAR_PHYS_FLOAT_INPUT 300
+#define VAR_PHYS_FLOAT_OUTPUT 310
 
 #define TEST_VAR_IS_A_BOOL( type, offset ) (type<VAR_ARE_WORD)
 #define VAR_DEFAULT_TYPE VAR_MEM_BIT
@@ -395,9 +403,11 @@ typedef struct StrSymbol
 #include "sequential.h"
 #define SIZE_VAR_ARRAY (NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_STEPS+NBR_ERROR_BITS)
 #define SIZE_VAR_WORD_ARRAY (NBR_WORDS+NBR_STEPS)
+#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS+NBR_PHYS_FLOAT_OUTPUTS)
 #else
 #define SIZE_VAR_ARRAY (NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_ERROR_BITS)
 #define SIZE_VAR_WORD_ARRAY (NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS)
+#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS+NBR_PHYS_FLOAT_OUTPUTS)
 #endif
 
 void ClassicLadderEndOfAppli( void );

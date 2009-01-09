@@ -44,8 +44,8 @@ void InitVars(void)
         VarArray[NumVar] = FALSE;
     for (NumVar=0; NumVar<SIZE_VAR_WORD_ARRAY; NumVar++)
         VarWordArray[NumVar] = 0;
-    //for (NumVar=0; NumVar<NBR_ERROR_BITS_DEF;NumVar++)
-
+    for (NumVar=0; NumVar<SIZE_VAR_FLOAT_ARRAY; NumVar++)
+        VarFloatArray[NumVar] = 0;
     /* to tell the GTK application to refresh the bits */
     InfosGene->CmdRefreshVarsBits = TRUE;
 }
@@ -87,6 +87,10 @@ int ReadVar(int TypeVar,int Offset)
 			return VarArray[NBR_BITS+Offset];
 		case VAR_PHYS_OUTPUT:
 			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+Offset];
+                case VAR_PHYS_FLOAT_INPUT:
+			return VarFloatArray[Offset];
+		case VAR_PHYS_FLOAT_OUTPUT:
+			return VarFloatArray[NBR_PHYS_FLOAT_INPUTS+Offset];
 		case VAR_MEM_WORD:
 			return VarWordArray[Offset];
 #ifdef SEQUENTIAL_SUPPORT
@@ -159,6 +163,12 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 		case VAR_PHYS_WORD_OUTPUT:
 			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NumVar] = Value;
+			break;
+                case VAR_PHYS_FLOAT_INPUT:
+			VarFloatArray[NumVar] = Value;
+			break;
+		case VAR_PHYS_FLOAT_OUTPUT:
+			VarFloatArray[NBR_PHYS_FLOAT_INPUTS+NumVar] = Value;
 			break;
 #ifdef SEQUENTIAL_SUPPORT
 	        case VAR_STEP_TIME:

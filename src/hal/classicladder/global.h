@@ -10,6 +10,7 @@
 extern StrRung * RungArray;
 extern TYPE_FOR_BOOL_VAR * VarArray;
 extern int * VarWordArray;
+extern double * VarFloatArray;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 extern StrTimer * TimerArray;
 extern StrMonostable * MonostableArray;
@@ -46,6 +47,9 @@ extern StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
 // if '\0' => IP mode used for I/O modbus modules
 extern char ModbusSerialPortNameUsed[ 30 ];
 extern int ModbusSerialSpeed;
+extern int ModbusSerialDataBits;
+extern int ModbusSerialStopBits;
+extern int ModbusSerialParity;
 extern int ModbusSerialUseRtsToSend;
 extern int ModbusTimeInterFrame;
 extern int ModbusTimeOutReceipt;

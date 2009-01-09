@@ -70,6 +70,7 @@ static int ShmemId;
 StrRung * RungArray;
 TYPE_FOR_BOOL_VAR * VarArray;
 int * VarWordArray;
+double * VarFloatArray;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 StrTimer * TimerArray;
 StrMonostable * MonostableArray;
@@ -112,6 +113,8 @@ StrGeneralParams GeneralParamsMirror = {
 	.SizesInfos.nbr_symbols = NBR_SYMBOLS_DEF,
         .SizesInfos.nbr_phys_words_inputs = NBR_PHYS_WORDS_INPUTS_DEF,
 	.SizesInfos.nbr_phys_words_outputs = NBR_PHYS_WORDS_OUTPUTS_DEF,
+        .SizesInfos.nbr_phys_float_inputs = NBR_PHYS_FLOAT_INPUTS_DEF,
+	.SizesInfos.nbr_phys_float_outputs = NBR_PHYS_FLOAT_OUTPUTS_DEF,
         .SizesInfos.nbr_error_bits = NBR_ERROR_BITS_DEF,
 	.PeriodicRefreshMilliSecs = PERIODIC_REFRESH_MS_DEF
 };
@@ -171,11 +174,12 @@ int ClassicLadder_AllocAll()
  	 plc_sizeinfo_s *pSizesInfos;
 
 #ifdef RTAPI // for realtime
-    int numBits, numWords;
+    int numBits, numWords, numFloats;
     pSizesInfos = &GeneralParamsMirror.SizesInfos;
     // Calculate SHMEM size.
     numBits = pSizesInfos->nbr_bits + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs + pSizesInfos->nbr_error_bits;
     numWords = pSizesInfos->nbr_words+pSizesInfos->nbr_phys_words_inputs+pSizesInfos->nbr_phys_words_outputs;
+    numFloats = pSizesInfos->nbr_phys_float_inputs+pSizesInfos->nbr_phys_float_outputs;
 #ifdef SEQUENTIAL_SUPPORT
     numBits += NBR_STEPS;
     numWords += NBR_STEPS;
@@ -193,6 +197,7 @@ int ClassicLadder_AllocAll()
     bytes += sizeof(StrSequential);
 #endif
     bytes += numWords * sizeof(int);
+    bytes += numFloats * sizeof(double);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
     
     // Attach SHMEM with proper size.
@@ -305,6 +310,8 @@ int ClassicLadder_AllocAll()
 #endif
     VarWordArray = (int *) pByte;
  	   pByte += SIZE_VAR_WORD_ARRAY * sizeof(int);
+    VarFloatArray =(double *) pByte;
+           pByte += SIZE_VAR_FLOAT_ARRAY * sizeof(double);
     // Allocate last for alignment reasons.
     VarArray = (TYPE_FOR_BOOL_VAR *) pByte;
 
