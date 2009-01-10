@@ -52,6 +52,8 @@ DOC_SRCS := \
 	common/Linux_FAQ.lyx \
 	common/Linux_FAQ_fr.lyx \
 	common/machining_center.lyx \
+	common/Stepper_Diagnostics.lyx \
+	common/Stepper_Diagnostics_fr.lyx \
 	common/userforeword.lyx \
 	common/userforeword_fr.lyx \
 	common/User_Concepts.lyx \

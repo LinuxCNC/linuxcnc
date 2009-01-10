@@ -33,7 +33,8 @@
 <doc name="hal_general_ref" title="General Reference"/>
 <doc name="hal_tools" title="Tools"/>
 <doc name="hal_halshow" title="Halshow"/>
-<doc name="hal_vcp" title="Virtual Control Panels (pyvcp)"/>
+<doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
+<doc name="hal_vcp" title="Virtual Control Panels (VCP)"/>
 <doc name="hal_drivers" title="Hardware Drivers"/>
 <doc name="hal_rtcomps" title="Realtime Components"/>
 <doc name="hal_comp" title="Comp: a tool for creating HAL components"/>
