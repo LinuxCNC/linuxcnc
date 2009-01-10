@@ -47,12 +47,7 @@ Introduction
 
 The preferred way to set up a standard stepper machine is with the Step
  Configuration Wizard.
- (see section
-\begin_inset LatexCommand \ref{sec:Step-by-Step}
-
-\end_inset 
-
-)
+ See the Getting Started Guide.
 \layout Standard
 
 This chapter describes some of the more common settings for manually setting
@@ -288,20 +283,20 @@ If you want for example to change the pin for the X-axis Step & Directions
  name:
 \layout LyX-Code
 
-linksp Xstep parport.0.pin-03-out 
+net Xstep parport.0.pin-03-out 
 \newline 
-linksp Xdir  parport.0.pin-02-out
+net Xdir  parport.0.pin-02-out
 \layout Standard
 
 can be changed to:
 \layout LyX-Code
 
-linksp Xstep parport.0.pin-02-out 
+net Xstep parport.0.pin-02-out 
 \newline 
-linksp Xdir  parport.0.pin-03-out
+net Xdir  parport.0.pin-03-out
 \layout Standard
 
-or basicly any other numbers you like.
+or basically any other numbers you like.
  
 \layout Standard
 
@@ -412,7 +407,7 @@ Some amplifiers (drives) require an enable signal before they accept and
 To connect them use the following example:
 \layout LyX-Code
 
-linksp Xen parport.0.pin-08-out
+net Xen parport.0.pin-08-out
 \layout Standard
 
 You can either have one single pin that enables all drives, or several,
