@@ -77,7 +77,7 @@ drivertypes = [
     ["xylotext", _("Xylotex"), 1000, 2000, 200, 200],
     ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
     ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
-    ["hobbycnc", _("Hobbtcnc Pro Chopper"), 2000, 2000, 2000, 2000],
+    ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
