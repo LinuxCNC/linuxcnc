@@ -147,134 +147,9 @@ loadusr halui
 loadusr -Wn spindle gs2_vfd -n spindle
 \layout Quote
 
-in english is "loadusr wait for name spindle component gs2_vfd name spindle."
+in English is "loadusr wait for name spindle component gs2_vfd name spindle."
 \newline 
 the -n spindle is part of the gs2_vfd component not the loadusr command.
-\layout Subsection
-
-linksp
-\layout Standard
-
-The command 
-\begin_inset Quotes eld
-\end_inset 
-
-linksp
-\begin_inset Quotes erd
-\end_inset 
-
- creates a 
-\begin_inset Quotes eld
-\end_inset 
-
-connection
-\begin_inset Quotes erd
-\end_inset 
-
- between a signal and one pin.
-\layout Standard
-
-The syntax and an example:
-\layout Quote
-
-linksp <signal-name> <pin-name>
-\layout Quote
-
-linksp X-step parport.0.pin-02-out
-\layout Standard
-
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-linksp
-\begin_inset Quotes erd
-\end_inset 
-
- command has been superseeded by the 
-\begin_inset Quotes eld
-\end_inset 
-
-net
-\begin_inset Quotes erd
-\end_inset 
-
- command.
-\layout Subsection
-
-linkps
-\layout Standard
-
-The command 
-\begin_inset Quotes eld
-\end_inset 
-
-linkps
-\begin_inset Quotes erd
-\end_inset 
-
- creates a 
-\begin_inset Quotes eld
-\end_inset 
-
-connection
-\begin_inset Quotes erd
-\end_inset 
-
- between one pin and one signal.
-\layout Standard
-
-The syntax and an example:
-\layout Quote
-
-linkps <pin-name> <signal-name>
-\layout Quote
-
-linkps parport.0.pin-02-out X-Step
-\layout Standard
-
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-linkps
-\begin_inset Quotes erd
-\end_inset 
-
- command has been superseeded by the 
-\begin_inset Quotes eld
-\end_inset 
-
-net
-\begin_inset Quotes erd
-\end_inset 
-
- command.
-\layout Subsection
-
-unlinkp
-\layout Standard
-
-The command 
-\begin_inset Quotes eld
-\end_inset 
-
-unlinkp
-\begin_inset Quotes erd
-\end_inset 
-
- unlinks a pin from the connected signal.
- If no signal was connected to the pin prior running the command, nothing
- happens.
-\layout Standard
-
-The syntax and an example:
-\layout Quote
-
-unlinkp <pin-name>
-\layout Quote
-
-unlinkp parport.0.pin-02-out
 \layout Subsection
 
 net
@@ -367,6 +242,84 @@ setp <pin/parameter-name> <value>
 \layout Quote
 
 setp paraport.0.pin-08-out TRUE
+\layout Subsection
+
+Obsolete Commands
+\layout Subsubsection
+
+linksp
+\layout Standard
+
+The command "linksp" creates a "connection" between a signal and one pin.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+linksp <signal-name> <pin-name>
+\layout Quote
+
+linksp X-step parport.0.pin-02-out
+\layout Standard
+
+The "linksp" command has been superseeded by the "net" command.
+\layout Subsubsection
+
+linkps
+\layout Standard
+
+The command "linkps" creates a "connection" between one pin and one signal.
+ It is the same as linksp but the arguments are reversed.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+linkps <pin-name> <signal-name>
+\layout Quote
+
+linkps parport.0.pin-02-out X-Step
+\layout Standard
+
+The "linkps" command has been superseeded by the "net" command.
+\layout Subsubsection
+
+unlinkp
+\layout Standard
+
+The command "unlinkp" unlinks a pin from the connected signal.
+ If no signal was connected to the pin prior running the command, nothing
+ happens.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+unlinkp <pin-name>
+\layout Quote
+
+unlinkp parport.0.pin-02-out
+\layout Subsubsection
+
+newsig
+\layout Standard
+
+the command "newsig" creates a new HAL signal by the name <signame> and
+ the data type of <type>.
+ Type must be "bit", "s32", "u32" or "float".
+ Error if <signame> all ready exists.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+newsig <signame> <type>
+\layout Quote
+
+newsig Xstep bit
+\layout Standard
+
+More information can be found in the HAL manual or the man pages for halrun.
 \layout Section
 
 Hal Files
