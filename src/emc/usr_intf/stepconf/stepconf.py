@@ -76,6 +76,9 @@ drivertypes = [
     ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
     ["xylotext", _("Xylotex"), 1000, 2000, 200, 200],
     ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
+    ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
+    ["hobbycnc", _("Hobbtcnc Pro Chopper"), 2000, 2000, 2000, 2000],
+    ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
 def iceil(x):
@@ -205,14 +208,14 @@ class Data:
 	self.pyvcp = 0 # not included
         self.pyvcpname = ("custom.xml")
         self.pyvcphaltype = 0 # no HAL connections specified
-        self.pyvcptohal = 1 # HAL connections allowed
+        self.pyvcpconnect = 1 # HAL connections allowed
 
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
         self.laddername = ("custom.clp")
         self.modbus = 0
         self.ladderhaltype = 0 # no HAL connections specified
-        self.laddertohal = 1 # HAL connecions allowed
+        self.ladderconnect = 1 # HAL connections allowed
 
 	self.pin1inv = 0
 	self.pin2inv = 0
@@ -444,7 +447,7 @@ class Data:
 	else:
 	    print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
         if self.pyvcp:
-            print >>file, "PYVCP = panel.xml"
+            print >>file, "PYVCP = custompanel.xml"
 
         if self.axes == 2:
             print >>file, "LATHE = 1"
@@ -473,7 +476,7 @@ class Data:
 	print >>file, "[HAL]"
         if self.halui:
             print >>file,"HALUI = halui"
-            if self.pyvcphaltype == 2 and self.pyvcptohal:
+            if self.pyvcphaltype == 2 and self.pyvcpconnect:
                print >>file,"MDI_COMMAND = G0 G53 Z0"
                print >>file,"MDI_COMMAND = G28"
 	print >>file, "HALFILE = %s.hal" % self.machinename
@@ -739,16 +742,16 @@ class Data:
         if self.number_pports>2:
              port3name = self.ioaddr3
              if self.pp3_direction:
-                port3dir ="in"
+                port3dir =" in"
              else: 
-                port3dir ="out"
+                port3dir =" out"
         if self.number_pports>1:
              port2name = self.ioaddr2
              if self.pp2_direction:
-                port2dir ="in"
+                port2dir =" in"
              else: 
-                port2dir ="out"
-	print >>file, "loadrt hal_parport cfg=\"%s out %s %s %s %s\"" % (self.ioaddr, port2name, port2dir, port3name, port3dir)
+                port2dir =" out"
+	print >>file, "loadrt hal_parport cfg=\"%s out %s%s %s%s\"" % (self.ioaddr, port2name, port2dir, port3name, port3dir)
         if self.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.steptime
 	encoder = PHA in inputs
@@ -896,13 +899,14 @@ class Data:
 
 	print >>file
 	print >>file, "net estop-out <= iocontrol.0.user-enable-out"
-	if  self.classicladder and self.ladderhaltype == 1 and self.laddertohal: # external estop program
-            print >>file, "# Setup for external estop ladder program -start-"
+	if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
+            print >>file 
+            print >>file, "# **** Setup for external estop ladder program -START ****"
             print >>file, "net estop-out => classicladder.0.in-00"
             print >>file, "net estop-ext => classiladder.0.in-01"
             print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
-            print >>file, "# Setup for external estop ladder program -end-"
+            print >>file, "# **** Setup for external estop ladder program -END ****"
 	elif ESTOP_IN in inputs:
 	    print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
 	else:
@@ -920,19 +924,22 @@ class Data:
 	    print >>file, "net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed"
 	print >>file, "net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
         if self.classicladder:
+            print >>file
             if self.modbus:
+                print >>file, "# Load Classicladder with modbus master included (GUI must run for Modbus)"
                 print >>file, "loadusr classicladder --modmaster custom.clp"
             else:
+                print >>file, "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
                 print >>file, "loadusr classicladder --nogui custom.clp"
         if self.pyvcp:
-	    vcp = os.path.join(base, "panel.xml")
+	    vcp = os.path.join(base, "custompanel.xml")
             if not os.path.exists(vcp):
                 f1 = open(vcp, "w")
 
                 print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
 
                 print >>f1, "<!-- "
-                print >>f1, _("Include your PyVCP panel here.\nThe contents of this file will not be overwritten when you run stepconf again.")
+                print >>f1, _("Include your PyVCP panel here.\n")
                 print >>f1, "-->"
                 print >>f1, "<pyvcp>"
                 print >>f1, "</pyvcp>"
@@ -943,22 +950,31 @@ class Data:
             f1 = open(custom, "w")
             print >>f1, _("# Include your customized HAL commands here")
             print >>f1, _("""\
-# The commands in this file are run after the AXIS GUI (including PyVCP panel)
-# starts""") 
-            if self.pyvcphaltype == 1 and self.pyvcptohal: # spindle speed/tool # display
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
+            print >>f1
+            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
+                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
                   if encoder:
+                      print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, ("net spindle-velocity => pyvcp.spindle-speed")
                   else:
+                      print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, ("net spindle-cmd => pyvcp.spindle-speed")#FIXME rps not rpm
                   print >>f1, ("net tool-number => pyvcp.toolnumber")
-            if self.pyvcphaltype == 2 and self.pyvcptohal: # Hal_UI example
+                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
+            if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
+                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
                       print >>f1, ("net so-increase <= pyvcp.so.increase => halui.spindle-override.increase")
                       print >>f1, ("net so-decrease <= pyvcp.so.decrease => halui.spindle-override.decrease")
                       print >>f1, ("net os-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
                       print >>f1, ("net os-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
                       print >>f1, ("net os-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
+                      print >>f1
+                      print >>f1, ("# **** The following mdi-comands are specified in the machinenamed INI file")
+                      print >>f1, ("# **** under [HAL] heading")
                       print >>f1, ("net quill-up <= pyvcp.MDI-zzero => halui.mdi-command-00")
                       print >>f1, ("net reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
+                      print >>f1, ("# **** Setup of MDI buttons using HAL_UI and pyvcp - END ****")
 
 	if self.customhal or self.classicladder or self.halui:
 	    custom = os.path.join(base, "custom.hal")
@@ -1506,7 +1522,7 @@ class App:
 	self.widgets.pyvcp.set_active(self.data.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/panel.xml" % self.data.machinename)):
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
                 self.widgets.radiobutton8.set_active(True)
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
@@ -1515,8 +1531,8 @@ class App:
         self.widgets.analogsin.set_value(self.data.analogsin)
         self.widgets.analogsout.set_value(self.data.analogsout)
         self.widgets.halui.set_active(self.data.halui)
-        self.widgets.ladderconnect.set_active(self.data.laddertohal)
-        self.widgets.pyvcpconnect.set_active(self.data.pyvcptohal)
+        self.widgets.ladderconnect.set_active(self.data.ladderconnect)
+        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
         self.on_classicladder_toggled()
         if  not self.widgets.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
@@ -1531,8 +1547,8 @@ class App:
         self.data.analogsin = self.widgets.analogsin.get_value()
         self.data.analogsout = self.widgets.analogsout.get_value()
         self.data.halui = self.widgets.halui.get_active()    
-        self.data.pyvcptohal = self.widgets.pyvcpconnect.get_active()  
-        self.data.laddertohal = self.widgets.ladderconnect.get_active()          
+        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
+        self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
         if self.data.classicladder:
            if self.widgets.radiobutton1.get_active() == True:
               if self.data.tempexists:
