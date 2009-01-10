@@ -152,6 +152,131 @@ in english is "loadusr wait for name spindle component gs2_vfd name spindle."
 the -n spindle is part of the gs2_vfd component not the loadusr command.
 \layout Subsection
 
+linksp
+\layout Standard
+
+The command 
+\begin_inset Quotes eld
+\end_inset 
+
+linksp
+\begin_inset Quotes erd
+\end_inset 
+
+ creates a 
+\begin_inset Quotes eld
+\end_inset 
+
+connection
+\begin_inset Quotes erd
+\end_inset 
+
+ between a signal and one pin.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+linksp <signal-name> <pin-name>
+\layout Quote
+
+linksp X-step parport.0.pin-02-out
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+linksp
+\begin_inset Quotes erd
+\end_inset 
+
+ command has been superseeded by the 
+\begin_inset Quotes eld
+\end_inset 
+
+net
+\begin_inset Quotes erd
+\end_inset 
+
+ command.
+\layout Subsection
+
+linkps
+\layout Standard
+
+The command 
+\begin_inset Quotes eld
+\end_inset 
+
+linkps
+\begin_inset Quotes erd
+\end_inset 
+
+ creates a 
+\begin_inset Quotes eld
+\end_inset 
+
+connection
+\begin_inset Quotes erd
+\end_inset 
+
+ between one pin and one signal.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+linkps <pin-name> <signal-name>
+\layout Quote
+
+linkps parport.0.pin-02-out X-Step
+\layout Standard
+
+The 
+\begin_inset Quotes eld
+\end_inset 
+
+linkps
+\begin_inset Quotes erd
+\end_inset 
+
+ command has been superseeded by the 
+\begin_inset Quotes eld
+\end_inset 
+
+net
+\begin_inset Quotes erd
+\end_inset 
+
+ command.
+\layout Subsection
+
+unlinkp
+\layout Standard
+
+The command 
+\begin_inset Quotes eld
+\end_inset 
+
+unlinkp
+\begin_inset Quotes erd
+\end_inset 
+
+ unlinks a pin from the connected signal.
+ If no signal was connected to the pin prior running the command, nothing
+ happens.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+unlinkp <pin-name>
+\layout Quote
+
+unlinkp parport.0.pin-02-out
+\layout Subsection
+
 net
 \layout Standard
 
