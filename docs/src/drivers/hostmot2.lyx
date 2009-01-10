@@ -1,0 +1,116 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+HostMot2
+\layout Standard
+
+Introduction
+\layout Standard
+
+HostMot2 is an FPGA configuration developed by [Mesa Electronics] for their
+ line of "Anything I/O" motion control cards.
+ The firmware is open source, portable and flexible.
+ It can be configured (at compile-time) with zero or more instances of each
+ of several Modules: encoders (quadrature counters), PWM generators, and
+ step/dir generators.
+ The firmware can be configured (at run-time) to connect each of these instances
+ to pins on the boards' I/O headers.
+ I/O pins not driven by a Module instance revert to general-purpose bi-direction
+al digital I/O.
+\layout Standard
+
+Available firmware binaries
+\layout Standard
+
+Several pre-compiled HostMot2 firmware binaries are available for the different
+ Anything I/O boards.
+ (This list may be incomplete, check the EMC distribution and Mesa's web
+ site for more up-to-date firmware lists.)
+\layout Standard
+
+5i20, 5i23, 4i65, 4i68 (72 I/O pins): using hm2_pci module
+\layout Itemize
+
+12-channel servo
+\layout Itemize
+
+8-channel servo plus 4 step/dir generators
+\layout Itemize
+
+4-channel servo plus 8 step/dir generators 
+\layout Standard
+
+5i22 (96 I/O pins): using hm2_pci module
+\layout Itemize
+
+16-channel servo
+\layout Itemize
+
+8-channel servo plus 24 step/dir generators 
+\layout Standard
+
+7i43 (48 I/O pins): using hm2_7i43 module
+\layout Itemize
+
+8-channel servo (8 PWM generators & 8 encoders)
+\layout Itemize
+
+4-channel servo plus 4 step/dir generators 
+\layout Standard
+
+Using HostMot2 with EMC
+\layout Standard
+
+The EMC support for the HostMot2 firmware is split into a generic driver
+ called "hostmot2" and two low-level I/O drivers for the Anything I/O boards.
+ The low-level I/O drivers are "hm2_7i43" and "hm2_pci" (for all the PCI-
+ and PC-104/Plus-based AnyIO boards).
+ The hostmot2 driver must be loaded first, using a HAL command like this:
+\layout Quote
+
+loadrt hostmot2 
+\layout Standard
+
+See the hostmot2(9) man page for details.
+\layout Standard
+
+The hostmot2 driver by itself does nothing, it needs access to actual boards
+ running the HostMot2 firmware.
+ The low-level I/O drivers provide this access.
+ The low-level I/O drivers are loaded with commands like this:
+\layout Quote
+
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3
+ num_stepgens=1"
+\layout Standard
+
+The config modparam is described in the [hostmot2 man page].
+ 
+\layout Standard
+
+\the_end
