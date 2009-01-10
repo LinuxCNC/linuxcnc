@@ -137,15 +137,10 @@ Once you have created your panel, connecting HAL signals to and from the
  pyVCP pins is done with:
 \layout LyX-Code
 
-halcmd linksp 
+halcmd net
 \layout Standard
 
-If you are new to HAL, the HAL Tutorial
-\begin_inset LatexCommand \ref{cha:HAL-Tutorial}
-
-\end_inset 
-
- is recommended.
+If you are new to HAL, the HAL basics chapter is a good place to start.
 \layout Section
 
 Security of pyVCP
@@ -221,19 +216,11 @@ To make our widget actually display the spindle-speed it needs to be hooked
 POSTGUI_HALFILE = spindle_to_pyvcp.hal
 \layout Standard
 
-This change will run the HAL commands specified in 
-\begin_inset Quotes eld
-\end_inset 
-
-spindle_to_pyvcp.hal
-\begin_inset Quotes erd
-\end_inset 
-
-.
+This change will run the HAL commands specified in "spindle_to_pyvcp.hal".
  In our example the contents could look like this:
 \layout LyX-Code
 
-linksp spindle-rpm-filtered  pyvcp.spindle-speed
+net spindle-rpm-filtered  => pyvcp.spindle-speed
 \layout Standard
 
 assuming that a signal called 
@@ -246,15 +233,7 @@ spindle-rpm-filtered
 
  already exists.
  Note that when running together with AXIS, all pyVCP widget HAL pins have
- names that start with 
-\begin_inset Quotes eld
-\end_inset 
-
-pyvcp.
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ names that start with "pyvcp.".
 \layout Standard
 \align center 
 
@@ -600,41 +579,29 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
 \layout LyX-Code
 
 <meter>
-\layout LyX-Code
-
+\newline 
     <halpin>"mymeter"</halpin>
-\layout LyX-Code
-
+\newline 
     <text>"Battery"</text>
-\layout LyX-Code
-
+\newline 
     <subtext>"Volts"</subtext>
-\layout LyX-Code
-
+\newline 
     <size>300</size>
-\layout LyX-Code
-
+\newline 
     <min_>0</min_>
-\layout LyX-Code
-
+\newline 
     <max_>10.5</max_>
-\layout LyX-Code
-
+\newline 
     <majorscale>1</majorscale>
-\layout LyX-Code
-
+\newline 
     <minorscale>0.2</minorscale>
-\layout LyX-Code
-
+\newline 
     <region1>(9,10.5,"green")</region1>
-\layout LyX-Code
-
+\newline 
     <region2>(7.5,9,"orange")</region2>
-\layout LyX-Code
-
+\newline 
     <region3>(0,7.5,"red")</region3>
-\layout LyX-Code
-
+\newline 
 </meter>
 \layout LyX-Code
 
