@@ -75,8 +75,10 @@ The command-line options are:
  1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 
 \layout Itemize
 
--s or --stopbits {1,2} (default 1) Set serial stop bits to 1 or 2 -t or
- --target <n> (default 1) Set MODBUS target (slave) number.
+-s or --stopbits {1,2} (default 1) Set serial stop bits to 1 or 2
+\layout Itemize
+
+-t or --target <n> (default 1) Set MODBUS target (slave) number.
  This must match the device number you set on the GS2.
  
 \layout Itemize
@@ -105,6 +107,9 @@ Pins where <name> is the name given during loading with the -n option.
 \layout Itemize
 
 <name>.frequency-out (float, out) from the VFD
+\layout Itemize
+
+<name>.is-stopped (bit, out) when the VFD reports 0 Hz output
 \layout Itemize
 
 <name>.load-percentage (float, out) from the VFD
