@@ -94,6 +94,8 @@
 <doc name="gui_tkemc_fr" title="L'interface graphique TkEmc"/>
 <doc name="gui_image-to-gcode_fr" title="Les fonctionnalités d'Image-vers-gcode"/>
 
+<doc name="common_User_Concepts_fr" title="Importants concepts utilisateur"/>
+
 <doc name="hal_intro_fr" title="Introduction à HAL"/>
 <doc name="hal_tutorial_fr" title="Le tutoriel de HAL"/>
 <doc name="hal_general_ref_fr" title="Documentation générale de HAL"/>
@@ -108,6 +110,8 @@
 
 <doc name="motion_kinematics_fr" title="Cinématiques dans EMC2"/>
 <doc name="motion_pid_theory_fr" title="Théorie du PID"/>
+
+<doc name="motion_tweaking_steppers_fr" title="Réglage des pas à pas"/>
 
 <doc name="xref_fr" title="Index général"/>
 </docgroup>
