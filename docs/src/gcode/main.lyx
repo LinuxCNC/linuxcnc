@@ -2630,8 +2630,8 @@ Order of Execution
 
 \layout Standard
 
-The order of execution of items on a line is defined not by the position of
- each item on the line, but by the following list:
+The order of execution of items on a line is defined not by the position
+ of each item on the line, but by the following list:
 \layout Enumerate
 
 Comment (including message)
@@ -2697,8 +2697,8 @@ set distance mode (G90, G91).
 set retract mode (G98, G99).
 \layout Enumerate
 
-go to reference location (G28, G30) or change coordinate system data (G10) or set axis offsets
- (G92, G92.1, G92.2, G94).
+go to reference location (G28, G30) or change coordinate system data (G10)
+ or set axis offsets (G92, G92.1, G92.2, G94).
  
 \layout Enumerate
 
@@ -5080,6 +5080,7 @@ G2
  respectively) of the center of the circle.
  I and J are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
+ If you include the Z word it will spiral.
  It is an error if: 
 \layout Itemize
 
@@ -5176,6 +5177,16 @@ In the center format, the radius of the arc is not specified, but it may
  be found easily as the distance from the center of the circle to either
  the current point or the end point of the arc.
  
+\layout Subsection
+
+Full Circles
+\layout Standard
+
+To do a full 360 circle from the current location only program the I, J
+ or K offset from the current location for the G2/3.
+ It is an error to use the K offset in the XY plane, the J offset in the
+ XZ plane, and the I in the YZ plane.
+ To program a spiral in the XY plane just include the Z word.
 \layout Subsection
 
 Radius format arcs (discouraged format)
