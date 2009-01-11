@@ -46,6 +46,8 @@
     -v or --verbose
         Turn on debug messages.  Note that if there are serial errors, this may become annoying.
         At the moment, it doesn't make much difference most of the time.
+    
+    Add is-stopped pin John Thornton
 */
 
 #ifndef ULAPI
@@ -120,7 +122,8 @@ typedef struct {
   hal_float_t	looptime;
   hal_float_t	speed_tolerance;
   hal_s32_t	retval;
-  hal_bit_t	*at_speed;
+  hal_bit_t		*at_speed;		// when drive freq_cmd == freq_out and running
+  hal_bit_t		*is_stopped;	// when drive freq out is 0
   hal_float_t	*speed_command;		// speed command input
   hal_float_t	motor_hz;		// speeds are scaled in Hz, not RPM
   hal_float_t	motor_RPM;		// nameplate RPM at default Hz
@@ -267,6 +270,11 @@ int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data
         *(hal_data_block->stat2) = receive_data[1];
         *(hal_data_block->freq_cmd) = receive_data[2] * 0.1;
         *(hal_data_block->freq_out) = receive_data[3] * 0.1;
+        if (receive_data[3]==0){	// JET
+        *(hal_data_block->is_stopped) = 1;	// JET
+        } else {	// JET
+        *(hal_data_block->is_stopped) = 0; // JET
+        }	// JET
         *(hal_data_block->curr_out) = receive_data[4] * 0.1;
         *(hal_data_block->DCBusV) = receive_data[5] * 0.1;
         *(hal_data_block->outV) = receive_data[6] * 0.1;
@@ -459,6 +467,8 @@ int main(int argc, char **argv)
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->at_speed), hal_comp_id, "%s.at-speed", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_newf(HAL_OUT, &(haldata->is_stopped), hal_comp_id, "%s.is-stopped", modname); // JET
+    if (retval!=HAL_SUCCESS) goto out_closeHAL; // JET
     retval = hal_pin_float_newf(HAL_IN, &(haldata->speed_command), hal_comp_id, "%s.speed-command", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
