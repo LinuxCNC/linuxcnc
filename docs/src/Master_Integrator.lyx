@@ -58,7 +58,7 @@ addcontentsline{toc}{chapter}{Cover}
 
 \layout Title
 
-V2.3 Integrators Manual
+Integrators Manual V2.3 
 \layout Author
 
 The EMC Team
@@ -75,16 +75,16 @@ The EMC Team
 
 
 \layout Standard
-\added_space_top 0.75in 
+
 This handbook is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
 \layout Standard
-\added_space_top 0.5in \align center 
-Copyright (c) 2000-7 LinuxCNC.org
+\align center 
+Copyright (c) 2000-9 LinuxCNC.org
 \layout Standard
-\added_space_top 0.5in \line_top \line_bottom \noindent 
+\line_top \align center 
 Permission is granted to copy, distribute and/or modify this document under
  the terms of the GNU Free Documentation License, Version 1.1 or any later
  version published by the Free Software Foundation; with no Invariant Sections,
@@ -104,15 +104,25 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
-\layout Part
-
-Introduction
 \layout Standard
 
 
 \begin_inset Include \include{common/integrator_intro.lyx}
 preview false
 
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset ERT
+status Open
+
+\layout Standard
+
+\backslash 
+addcontentsline{toc}{chapter}{Intro}
 \end_inset 
 
 
