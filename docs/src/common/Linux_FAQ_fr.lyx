@@ -45,6 +45,62 @@ Voici quelques commandes et techniques de base pour l'utilisateur débutant
  ou dans les man pages.
 \layout Section
 
+Login automatique
+\layout Standard
+
+Quand vous installez EMC2 avec le CD-Live Ubuntu, par défaut vous devez
+ passer par la fenêtre de connexion à chaque démarrage du PC.
+ Pour activer le login automatique ouvrez le menu 
+\begin_inset Quotes fld
+\end_inset 
+
+Système
+\begin_inset Quotes frd
+\end_inset 
+
+ ->
+\begin_inset Quotes fld
+\end_inset 
+
+Administration
+\begin_inset Quotes frd
+\end_inset 
+
+->
+\begin_inset Quotes fld
+\end_inset 
+
+Fenêtre de connexion
+\begin_inset Quotes frd
+\end_inset 
+
+.
+ Si l'installation est récente la fenêtre de connexion peut prendre quelques
+ secondes pour s'ouvrir.
+ Vous devez entrer le mot de passe utilisé pour l'installation pour accéder
+ à la fenêtre des préférences.
+ Ouvrez alors l'onglet 
+\begin_inset Quotes fld
+\end_inset 
+
+Sécurité
+\begin_inset Quotes frd
+\end_inset 
+
+, cochez la case 
+\begin_inset Quotes fld
+\end_inset 
+
+Activer les connexions automatiques
+\begin_inset Quotes frd
+\end_inset 
+
+ et saisissez votre nom d'utilisateur ou choisissez en un dans la liste
+ déroulante.
+ Vous êtes maintenant dispensé de la fenêtre de connexion.
+ 
+\layout Section
+
 Les Man Pages
 \begin_inset LatexCommand \index{Man Pages}
 
@@ -269,7 +325,7 @@ Répertoire de travail
 Pour afficher le chemin du répertoire courant dans le terminal tapez:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 pwd
@@ -288,19 +344,28 @@ Changer de répertoire
 
 \layout Standard
 
-Pour reculer dans le répertoire précédent, tapez dans le terminal:
+Pour remonter dans le répertoire précédent, tapez dans le terminal:
 \layout Standard
 
-~$
+
 \family typewriter 
 \series bold 
  cd ..
 \layout Standard
 
+Pour remonter de deux niveaux de répertoire, tapez dans le terminal:
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+ cd ../..
+\layout Standard
+
 Pour aller directement dans le sous-répertoire emc2/configs tapez:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 cd emc2/configs
@@ -327,7 +392,7 @@ Lister les fichiers du répertoire courant
 Pour voir le contenu du répertoire courant tapez:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 dir
@@ -336,7 +401,7 @@ dir
 ou 
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 ls
@@ -367,7 +432,7 @@ find
  La syntaxe de base est:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 find répertoire_de_départ paramètres actions
@@ -386,7 +451,7 @@ pwd
  Ouvrez un nouveau terminal et tapez:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 pwd
@@ -395,22 +460,39 @@ pwd
 il vous est retourné par exemple le résultat suivant:
 \layout Standard
 
-~$ /home/robert
+ 
+\family typewriter 
+\series bold 
+/home/robert
 \layout Standard
 
 Avec cette information vous pouvez taper, par exemple, la commande:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 find /home/robert/emc2 -name *.ini -print
 \layout Standard
 
-Le -name est le nom de fichier que vous recherchez et le -print indique
- à find d'afficher le résultat dans le terminal.
- Le *.ini indique à find de retourner tous les fichiers contenant l'extension
- .ini 
+Le 
+\emph on 
+-name
+\emph default 
+ est le nom de fichier que vous recherchez et le 
+\emph on 
+-print
+\emph default 
+ indique à find d'afficher le résultat dans le terminal.
+ Le 
+\emph on 
+*.ini
+\emph default 
+ indique à find de retourner tous les fichiers contenant l'extension 
+\emph on 
+.ini
+\emph default 
+ 
 \layout Subsection
 
 Rechercher un texte
@@ -429,7 +511,7 @@ Rechercher un texte
 Tapez dans un terminal:
 \layout Standard
 
-~$ 
+ 
 \family typewriter 
 \series bold 
 grep -i -r 'texte à rechercher' *
@@ -438,8 +520,12 @@ grep -i -r 'texte à rechercher' *
  
 \layout Standard
 
-Pour trouver tous les fichiers contenant le texte 'texte à rechercher' dans
- le répertoire courant et tous ses sous-répertoires et en ignorant la casse.
+Pour trouver tous les fichiers contenant le texte 
+\emph on 
+'texte à rechercher'
+\emph default 
+ dans le répertoire courant et tous ses sous-répertoires et en ignorant
+ la casse.
  Le paramètre -i demande d'ignorer la casse et le -r demande une recherche
  récursive (qui inclus tous les sous-répertoires dans la recherche).
  Le caractère * est un jocker indiquant 
@@ -451,6 +537,32 @@ tous les fichiers
 \end_inset 
 
 .
+\layout Subsection
+
+Messages du boot
+\layout Standard
+
+Pour visualiser les messages du boot utilisez la commande 
+\begin_inset Quotes fld
+\end_inset 
+
+dmesg
+\begin_inset Quotes frd
+\end_inset 
+
+ depuis un terminal.
+ Pour enregistrer ces messages dans un fichier redirigez les avec:
+\layout Quote
+
+ 
+\family typewriter 
+\series bold 
+dmesg > dmesg.txt
+\layout Standard
+
+Le contenu de ce fichier pourra alors être copié et collé à destination
+ des personnes en ligne qui vous aideront à diagnostiquer votre problème.
+ 
 \layout Section
 
 Problémes matériels
@@ -463,6 +575,9 @@ Pour voir la liste du matériel utilisé par votre carte mère, tapez la commande
  suivante dans un terminal:
 \layout LyX-Code
 
+
+\family typewriter 
+\series bold 
 lspci -v
 \layout Subsection
 

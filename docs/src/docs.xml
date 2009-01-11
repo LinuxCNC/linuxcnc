@@ -97,6 +97,7 @@
 <doc name="common_User_Concepts_fr" title="Importants concepts utilisateur"/>
 
 <doc name="hal_intro_fr" title="Introduction à HAL"/>
+<doc name="hal_basic_hal_fr" title="Les bases de HAL"/>
 <doc name="hal_tutorial_fr" title="Le tutoriel de HAL"/>
 <doc name="hal_general_ref_fr" title="Documentation générale de HAL"/>
 <doc name="hal_tools_fr" title="Outils et utilitaires pour HAL"/>

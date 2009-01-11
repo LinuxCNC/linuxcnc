@@ -118,7 +118,7 @@ addcontentsline{toc}{chapter}{Table des matières}
 
 \layout Part
 
-Choix matériel
+Quel ordinateur ?
 \layout Standard
 
 
@@ -163,7 +163,7 @@ preview false
 
 \layout Part
 
-FAQ Linux
+Petite FAQ Linux
 \layout Standard
 
 
@@ -195,7 +195,5 @@ Index de l'ouvrage
 
 \end_inset 
 
-
-\layout Standard
 
 \the_end

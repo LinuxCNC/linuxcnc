@@ -90,6 +90,7 @@ DOC_SRCS := \
 	gcode/tool_compensation.lyx \
 	gcode/tool_compensation_fr.lyx \
 	hal/basic_hal.lyx \
+	hal/basic_hal_fr.lyx \
 	hal/comp.lyx \
 	hal/comp_fr.lyx \
 	hal/components.lyx \
