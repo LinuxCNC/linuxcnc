@@ -332,6 +332,7 @@ class Data:
         self.analogsin = 10
         self.analogsout = 10
         self.halui = 0
+        self.createsymlink = 1
 
     def load(self, filename, app=None, force=False):
 	def str2bool(s):
@@ -1007,6 +1008,7 @@ class Data:
                 examples = os.path.join(BASE, "nc_files")
             if os.path.exists(examples):
                 os.symlink(examples, os.path.join(ncfiles, "examples"))
+        
 	makedirs(base)
 
 	self.md5sums = []
@@ -1036,8 +1038,12 @@ class Data:
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-
+        
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        print("%s" % base)
+        if self.createsymlink:
+          if not os.path.exists(os.path.expanduser("~/Desktop/%s" % self.machinename)):
+             os.symlink(base,os.path.expanduser("~/Desktop/%s" % self.machinename))
 
     def __getitem__(self, item):
 	return getattr(self, item)
@@ -1103,6 +1109,7 @@ class App:
             self.widgets.drivertype.append_text(i[1])
         self.widgets.drivertype.append_text(_("Other"))
 	self.data = Data()
+   
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
@@ -1139,6 +1146,9 @@ class App:
 	    else:
 	        return False
 
+    def on_page_newormodify_prepare(self, *args):
+        self.widgets.createshortcut.set_active(self.data.createsymlink)
+
     def on_page_newormodify_next(self, *args):
 	if not self.widgets.createconfig.get_active():
 	    filter = gtk.FileFilter()
@@ -1161,6 +1171,7 @@ class App:
 	    else:
 		dialog.destroy()
 		return True
+        self.data.createsymlink = self.widgets.createshortcut.get_active()
 
     def drivertype_fromid(self):
         for d in drivertypes:
