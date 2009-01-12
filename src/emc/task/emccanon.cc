@@ -1343,8 +1343,12 @@ void ARC_FEED(int line_number,
     // find out how long the arc takes at ini_maxvel
     tcircle = fabs(angle * radius / circ_maxvel);
 
-    taxial = fabs(axis_len / axial_maxvel);
-    tmax = MAX(taxial, tcircle);
+    if(axial_maxvel) {
+        taxial = fabs(axis_len / axial_maxvel);
+        tmax = MAX(taxial, tcircle);
+    } else
+        tmax = tcircle;
+
     tmax = MAX4(tmax, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
 
