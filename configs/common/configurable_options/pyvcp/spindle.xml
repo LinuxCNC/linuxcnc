@@ -1,8 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pyvcp>
- <vbox>
-    <label><text>"Spindle speed:"</text></label>
-    <!--<number><width>10</width><format>" 5.0f"</format><halpin>"spindle-speed"</halpin></number>-->
-    <bar><halpin>"spindle-speed"</halpin><max_>5000</max_></bar>
- </vbox>
+         <vbox>
+         <relief>RIDGE</relief>         
+         <bd>6</bd>
+                <label>
+                        <text>"Spindle Speed:"</text>
+                        <font>("Helvetica",20)</font>
+                </label>
+                <bar>
+                        <halpin>"spindle-speed"</halpin>
+                        <max_>3000</max_>
+                </bar>
+        </vbox>
+        <vbox>
+        <relief>RIDGE</relief>         
+        <bd>6</bd>
+                <label>
+                        <text>"Current Tool #:"</text>
+                        <font>("Helvetica",20)</font>
+                </label>
+                <number>
+                        <halpin>"toolnumber"</halpin>
+                        <font>("Helvetica",30)</font>
+                        <format>"2.0f"</format>     
+                </number>
+        </vbox>
 </pyvcp>
