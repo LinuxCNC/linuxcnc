@@ -1059,6 +1059,7 @@ class MyOpengl(Opengl):
             posstrs = [format % j for i, j in zip(range(9), zip("XYZABCUVW", positions)) if s.axis_mask & (1<<i)]
 
             if lathe:
+                posstrs[0] = format % ("Rad", positions[0])
                 posstrs.insert(1, format % ("Dia", positions[0]*2.0))
 
             if vars.show_machine_speed.get():
@@ -1091,8 +1092,8 @@ class MyOpengl(Opengl):
         glBegin(GL_QUADS)
         glVertex3f(0, ypos, 1)
         glVertex3f(0, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+24, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+24, ypos, 1)
+        glVertex3f(pixel_width+42, ypos - 8 - coordinate_linespace*len(posstrs), 1)
+        glVertex3f(pixel_width+42, ypos, 1)
         glEnd()
         glDisable(GL_BLEND)
 
@@ -1102,14 +1103,14 @@ class MyOpengl(Opengl):
         glColor3f(*o.colors['overlay_foreground'])
         for string in posstrs:
             maxlen = max(maxlen, len(string))
-            if i < len(homed) and homed[i]:
-                glRasterPos2i(6, ypos)
-                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
             glRasterPos2i(5, ypos)
             for char in string:
                 glCallList(fontbase + ord(char))
+            if i < len(homed) and homed[i]:
+                glRasterPos2i(pixel_width + 8, ypos)
+                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
             if i < len(homed) and limit[i]:
-                glBitmap(13, 16, -5, 3, 17, 0, limiticon)
+                glBitmap(13, 16, 0, 1, 17, 0, limiticon)
             ypos -= coordinate_linespace
             i = i + 1
         glDepthFunc(GL_LESS)
