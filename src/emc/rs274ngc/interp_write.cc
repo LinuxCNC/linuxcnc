@@ -65,6 +65,7 @@ group 12 - gez[8]  g54, g55, g56, g57, g58, g59, g59.1, g59.2, g59.3
 group 13 - gez[11] g61, g61.1, g64 - control mode
 group 14 - gez[12] g50, g51 - adaptive feed mode
 group 15 - gez[13] g96, g97 - spindle speed mode
+group 16 - gez[15] g7,g8 - lathe diameter mode
 
 */
 
@@ -116,6 +117,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[13] =
     (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
+  gez[15] = (settings->lathe_diameter_mode == ON) ? G_7 : G_8;
   return INTERP_OK;
 }
 

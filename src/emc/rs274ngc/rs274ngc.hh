@@ -14,7 +14,7 @@
 #define RS274NGC_HH
 
 /* Size of certain arrays */
-#define ACTIVE_G_CODES 15
+#define ACTIVE_G_CODES 16
 #define ACTIVE_M_CODES 10
 #define ACTIVE_SETTINGS 3
 
@@ -109,10 +109,10 @@ public:
    arguments to the function. These functions do not change the state of
    the interpreter. */
 
-// copy active G codes into array [0]..[11]
+// copy active G codes into array [0]..[15]
  void active_g_codes(int *codes);
 
-// copy active M codes into array [0]..[6]
+// copy active M codes into array [0]..[9]
  void active_m_codes(int *codes);
 
 // copy active F, S settings into array [0]..[2]
@@ -261,6 +261,7 @@ private:
                             setup_pointer settings);
  int convert_distance_mode(int g_code, setup_pointer settings);
  int convert_ijk_distance_mode(int g_code, setup_pointer settings);
+ int convert_lathe_diameter_mode(int g_code, block_pointer block, setup_pointer settings);
  int convert_dwell(setup_pointer settings, double time);
  int convert_feed_mode(int g_code, setup_pointer settings);
  int convert_feed_rate(block_pointer block, setup_pointer settings);

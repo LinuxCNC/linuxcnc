@@ -129,6 +129,8 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_2     20
 #define G_3     30
 #define G_4     40
+#define G_7     70
+#define G_8     80
 #define G_10   100
 #define G_17   170
 #define G_17_1 171
@@ -240,7 +242,7 @@ typedef struct block_struct
   ON_OFF e_flag;
   double e_number;
   double f_number;
-  int g_modes[15];
+  int g_modes[16];
   ON_OFF h_flag;
   int h_number;
   ON_OFF i_flag;
@@ -450,6 +452,8 @@ typedef struct setup_struct
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
+
+  ON_OFF lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
 }
 setup;
 

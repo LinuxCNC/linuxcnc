@@ -3398,7 +3398,13 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
   CHK((block->x_flag != OFF), NCE_MULTIPLE_X_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->x_flag = ON;
+  if(_setup.lathe_diameter_mode)
+  {
+    block->x_number = value / 2;
+  }else
+  {
   block->x_number = value;
+  }
   return INTERP_OK;
 }
 

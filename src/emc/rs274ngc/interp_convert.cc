@@ -1813,6 +1813,61 @@ int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed 
 
 /****************************************************************************/
 
+/*! convert_lathe_diameter_mode
+
+Returned Value: int
+   If any of the following errors occur, this returns the error shown.
+   Otherwise, it returns INTERP_OK.
+   1. g_code isn't G_07 or G_08: NCE_BUG_CODE_NOT_G07_OR_G08
+
+Side effects:
+   The interpreter switches the machine settings to indicate the current
+   distance mode for arc centers (absolute or incremental).
+
+   The canonical machine to which commands are being sent does not have
+   an incremental mode, so no command setting the distance mode is
+   generated in this function. A comment function call explaining the
+   change of mode is made (conditionally), however, if there is a change.
+
+Called by: convert_g.
+
+*/
+
+int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being executed (must be G_90_1 or G_91_1)
+                  block_pointer block,           //!< pointer to current block
+                  setup_pointer settings)        //!< pointer to machine settings
+{
+  static char name[] = "convert_lathe_diameter_mode";
+  if (g_code == G_7) {
+    if (settings->lathe_diameter_mode != ON) {
+      if(block->x_flag)
+      {
+        block->x_number /= 2; //Apply scaling now
+      }
+#ifdef DEBUG_EMC
+      COMMENT("interpreter: Lathe diameter mode changed to diameter");
+#endif
+      settings->lathe_diameter_mode = ON;
+    }
+  } else if (g_code == G_8) {
+    if (settings->lathe_diameter_mode != OFF) {
+      if(block->x_flag)
+      {
+        block->x_number *= 2; //Remove any existing scaling
+      }
+#ifdef DEBUG_EMC
+      COMMENT("interpreter: Lathe diameter mode changed to radius");
+#endif
+      settings->lathe_diameter_mode = OFF;
+    }
+  } else
+    ERS("BUG: Code not G7 or G8");
+  return INTERP_OK;
+}
+
+
+/****************************************************************************/
+
 /*! convert_dwell
 
 Returned Value: int (INTERP_OK)
@@ -1918,6 +1973,7 @@ Returned Value: int
       convert_cutter_compensation
       convert_distance_mode
       convert_ijk_distance_mode
+      convert_lathe_diameter_mode
       convert_dwell
       convert_length_units
       convert_modal_0
@@ -1944,17 +2000,17 @@ G codes are are executed in the following order.
 1.  mode 0, G4 only - dwell. Left here from earlier versions.
 2.  mode 2, one of (G17, G18, G19) - plane selection.
 3.  mode 6, one of (G20, G21) - length units.
-4.  mode 7, one of (G40, G41, G42) - cutter radius compensation.
-5.  mode 8, one of (G43, G49) - tool length offset
-6.  mode 12, one of (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3)
+4.  mode 15 one of (G07,G08) - lathe diameter mode
+5.  mode 7, one of (G40, G41, G42) - cutter radius compensation.
+6.  mode 8, one of (G43, G49) - tool length offset
+7.  mode 12, one of (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3)
     - coordinate system selection.
-7.  mode 13, one of (G61, G61.1, G64, G50, G51) - control mode
-8.  mode 3, one of (G90, G91) - distance mode.
-9.  mode 10, one of (G98, G99) - retract mode.
-10. mode 0, one of (G10, G28, G30, G92, G92.1, G92.2, G92.3) -
-    setting coordinate system locations, return to reference point 1,
-    return to reference point 2, setting or cancelling axis offsets.
-11. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G33.1, G76) - motion or cancel.
+8.  mode 13, one of (G61, G61.1, G64, G50, G51) - control mode
+9.  mode 3, one of (G90, G91) - distance mode.
+10.  mode 4, one of (G90.1, G91.1) - arc i,j,k mode.
+11. mode 10, one of (G98, G99) - retract mode.
+12. mode 0, one of (G10, G28, G30, G92, G92.1, G92.2, G92.3) -
+13. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G33.1, G76) - motion or cancel.
     G53 from mode 0 is also handled here, if present.
 
 Some mode 0 and most mode 1 G codes must be executed after the length units
@@ -1977,6 +2033,9 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   }
   if (block->g_modes[6] != -1) {
     CHP(convert_length_units(block->g_modes[6], settings));
+  }
+  if (block->g_modes[15] != -1) {
+    CHP(convert_lathe_diameter_mode(block->g_modes[15], block, settings));
   }
   if (block->g_modes[7] != -1) {
     CHP(convert_cutter_compensation(block->g_modes[7], block, settings));
@@ -3540,17 +3599,28 @@ int Interp::convert_threading_cycle(block_pointer block,
     double start_y = settings->current_y;
     double start_z = settings->current_z;
 
+    double i_number = block->i_number;
+    double j_number = block->j_number;
+    double k_number = block->k_number;
+
+    if(_setup.lathe_diameter_mode){
+      i_number /= 2;
+      j_number /= 2;
+      k_number /= 2;
+    }
+
+
     int boring = 0;
 
-    if (block->i_number > 0.0)
+    if (i_number > 0.0)
 	boring = 1;
 
     double safe_x = start_x;
-    double full_dia_depth = fabs(block->i_number);
-    double start_depth = fabs(block->i_number) + fabs(block->j_number);
-    double cut_increment = fabs(block->j_number);
-    double full_threadheight = fabs(block->k_number);
-    double end_depth = fabs(block->k_number) + fabs(block->i_number);
+    double full_dia_depth = fabs(i_number);
+    double start_depth = fabs(i_number) + fabs(j_number);
+    double cut_increment = fabs(j_number);
+    double full_threadheight = fabs(k_number);
+    double end_depth = fabs(k_number) + fabs(i_number);
 
     double pitch = block->p_number;
     double compound_angle = block->q_number;
@@ -3579,7 +3649,7 @@ int Interp::convert_threading_cycle(block_pointer block,
     double depth, zoff;
     int pass = 1;
 
-    double target_z = end_z + fabs(block->k_number) * tan(compound_angle);
+    double target_z = end_z + fabs(k_number) * tan(compound_angle);
 
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);

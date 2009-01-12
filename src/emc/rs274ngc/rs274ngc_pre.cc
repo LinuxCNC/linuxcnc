@@ -537,6 +537,8 @@ int Interp::init()
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
 
+  _setup.lathe_diameter_mode = OFF;
+
   memcpy(_readers, default_readers, sizeof(default_readers));
 
   long axis_mask = GET_EXTERNAL_AXIS_MASK();
