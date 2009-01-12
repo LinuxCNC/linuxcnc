@@ -1844,6 +1844,11 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
       {
         block->x_number /= 2; //Apply scaling now
       }
+      if(block->motion_to_be == G_76) {
+          block->i_number /= 2;
+          block->j_number /= 2;
+          block->k_number /= 2;
+      }              
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to diameter");
 #endif
@@ -1855,6 +1860,11 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
       {
         block->x_number *= 2; //Remove any existing scaling
       }
+      if(block->motion_to_be == G_76) {
+          block->i_number *= 2;
+          block->j_number *= 2;
+          block->k_number *= 2;
+      }              
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to radius");
 #endif
