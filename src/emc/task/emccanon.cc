@@ -309,6 +309,9 @@ static EmcPose to_ext_pose(double x, double y, double z, double a, double b, dou
 }
 
 
+static int axis_valid(int n) {
+    return emcStatus->motion.traj.axis_mask & (1<<n);
+}
 
 /*
   canonEndPoint is the last programmed end point, stored in case it's
@@ -523,15 +526,15 @@ double getStraightAcceleration(double x, double y, double z,
     dv = fabs(v - canonEndPoint.v);
     dw = fabs(w - canonEndPoint.w);
 
-    if(dx < tiny) dx = 0.0;
-    if(dy < tiny) dy = 0.0;
-    if(dz < tiny) dz = 0.0;
-    if(da < tiny) da = 0.0;
-    if(db < tiny) db = 0.0;
-    if(dc < tiny) dc = 0.0;
-    if(du < tiny) du = 0.0;
-    if(dv < tiny) dv = 0.0;
-    if(dw < tiny) dw = 0.0;
+    if(!axis_valid(0) || dx < tiny) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny) dz = 0.0;
+    if(!axis_valid(3) || da < tiny) da = 0.0;
+    if(!axis_valid(4) || db < tiny) db = 0.0;
+    if(!axis_valid(5) || dc < tiny) dc = 0.0;
+    if(!axis_valid(6) || du < tiny) du = 0.0;
+    if(!axis_valid(7) || dv < tiny) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny) dw = 0.0;
 
     if(debug_velacc) 
         printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
@@ -642,15 +645,15 @@ double getStraightVelocity(double x, double y, double z,
     dv = fabs(v - canonEndPoint.v);
     dw = fabs(w - canonEndPoint.w);
 
-    if(dx < tiny) dx = 0.0;
-    if(dy < tiny) dy = 0.0;
-    if(dz < tiny) dz = 0.0;
-    if(da < tiny) da = 0.0;
-    if(db < tiny) db = 0.0;
-    if(dc < tiny) dc = 0.0;
-    if(du < tiny) du = 0.0;
-    if(dv < tiny) dv = 0.0;
-    if(dw < tiny) dw = 0.0;
+    if(!axis_valid(0) || dx < tiny) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny) dz = 0.0;
+    if(!axis_valid(3) || da < tiny) da = 0.0;
+    if(!axis_valid(4) || db < tiny) db = 0.0;
+    if(!axis_valid(5) || dc < tiny) dc = 0.0;
+    if(!axis_valid(6) || du < tiny) du = 0.0;
+    if(!axis_valid(7) || dv < tiny) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny) dw = 0.0;
 
     if(debug_velacc) 
         printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
@@ -1240,7 +1243,7 @@ void ARC_FEED(int line_number,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
+        if(axis_valid(2) && axis_len > 0.001) {
             axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[2]);
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -1273,7 +1276,7 @@ void ARC_FEED(int line_number,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
+        if(axis_valid(0) && axis_len > 0.001) {
             axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[0]);
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[0]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -1307,7 +1310,7 @@ void ARC_FEED(int line_number,
 	a2 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[2]);
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        if(axis_len > 0.001) {
+        if(axis_valid(1) && axis_len > 0.001) {
             axial_maxvel = v1 = FROM_EXT_LEN(AXIS_MAX_VELOCITY[1]);
             axial_acc = a1 = FROM_EXT_LEN(AXIS_MAX_ACCELERATION[1]);
             ini_maxvel = MIN(ini_maxvel, v1);
@@ -1325,13 +1328,13 @@ void ARC_FEED(int line_number,
     helical_length = hypot(angle * radius, axis_len);
 
 // COMPUTE VELOCITIES
-    ta = da? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
-    tb = db? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
-    tc = dc? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
-
-    tu = du? (du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
-    tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
-    tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
+    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(AXIS_MAX_VELOCITY[3])):0.0;
+    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(AXIS_MAX_VELOCITY[4])):0.0;
+    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(AXIS_MAX_VELOCITY[5])):0.0;
+                           
+    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AXIS_MAX_VELOCITY[6])): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AXIS_MAX_VELOCITY[7])): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AXIS_MAX_VELOCITY[8])): 0.0;
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     v1 = sqrt(circ_acc * radius);
@@ -1366,13 +1369,13 @@ void ARC_FEED(int line_number,
     // expression of the acceleration in the various directions.
 
     thelix = (helical_length / acc);
-    ta = da? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
-    tb = db? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
-    tc = dc? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
+    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[3])): 0.0;
+    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[4])): 0.0;
+    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(AXIS_MAX_ACCELERATION[5])): 0.0;
 
-    tu = du? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
-    tv = dv? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
-    tw = dw? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
+    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[6])): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[7])): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AXIS_MAX_ACCELERATION[8])): 0.0;
 
     tmax = MAX4(thelix, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
