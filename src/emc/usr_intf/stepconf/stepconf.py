@@ -915,7 +915,7 @@ class Data:
             print >>file 
             print >>file, "# **** Setup for external estop ladder program -START ****"
             print >>file, "net estop-out => classicladder.0.in-00"
-            print >>file, "net estop-ext => classiladder.0.in-01"
+            print >>file, "net estop-ext => classicladder.0.in-01"
             print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
             print >>file, "# **** Setup for external estop ladder program -END ****"
