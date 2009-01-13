@@ -770,6 +770,10 @@ class Data:
 
 	if encoder:
 	    print >>file, "loadrt encoder num_chan=1"
+        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
+            print >>file, "loadrt abs count=1"
+            if not encoder:
+               print >>file, "loadrt scale count=1"
 
 	if pump:
 	    print >>file, "loadrt charge_pump"
@@ -800,7 +804,6 @@ class Data:
             print >>file, "addf parport.1.write base-thread"
         if self.number_pports > 2:
             print >>file, "addf parport.2.write base-thread"
-
 	print >>file
 	print >>file, "addf stepgen.capture-position servo-thread"
 	if encoder: print >>file, "addf encoder.capture-position servo-thread"
@@ -810,6 +813,10 @@ class Data:
             print >>file,"addf classicladder.0.refresh servo-thread"
 	print >>file, "addf stepgen.update-freq servo-thread"
 	if pwm: print >>file, "addf pwmgen.update servo-thread"
+        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
+            print >>file, "addf abs.0 servo-thread"
+            if not encoder:
+               print >>file, "addf scale.0 servo-thread"
 
 	if pwm:
 	    x1 = self.spindlepwm1
@@ -957,10 +964,16 @@ class Data:
                   print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
                   if encoder:
                       print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, ("net spindle-velocity => pyvcp.spindle-speed")
+                      print >>f1, ("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, ("net spindle-velocity => abs.0.in")
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, ("net spindle-cmd => pyvcp.spindle-speed")#FIXME rps not rpm
+                      print >>f1, ("# **** COMANDED velocity is signed so we use absolute component to remove sign")
+                      print >>f1, ("# **** COMANDED velocity is in RPS not RPM so we scale it.")
+                      print >>f1, ("net spindle-cmd => abs.0.in")
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
+                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   print >>f1, ("net tool-number => pyvcp.toolnumber")
                   print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
@@ -1044,6 +1057,26 @@ class Data:
         if self.createsymlink:
           if not os.path.exists(os.path.expanduser("~/Desktop/%s" % self.machinename)):
              os.symlink(base,os.path.expanduser("~/Desktop/%s" % self.machinename))
+        if  os.path.exists(BASE + "/scripts/emc"):
+             scriptspath = (BASE + "/scripts/emc")
+        else:
+             scriptspath ="emc"
+        print"%s" % BASE
+        print"%s" % scriptspath
+        filename = os.path.expanduser("~/Desktop/%s.desktop" % self.machinename)
+	file = open(filename, "w")
+        print >>file,"[Desktop Entry]"
+        print >>file,"Version=1.0"
+        print >>file,"Terminal=false"
+        print >>file,"Name=launch %s" % self.machinename
+        print >>file,"Exec=%s %s/%s.ini" \
+                    % ( scriptspath, base, self.machinename )
+        print >>file,"Type=Application"
+        print >>file,"Comment=Desktop Launcher for EMC config made by Stepconf"
+        print >>file,"Icon=/etc/emc2/emc2icon.png"
+        print >>file,"GenericName[en_CA]="
+        print >>file,"Name[en_CA]=Launch %s" % self.machinename
+        file.close()
 
     def __getitem__(self, item):
 	return getattr(self, item)
