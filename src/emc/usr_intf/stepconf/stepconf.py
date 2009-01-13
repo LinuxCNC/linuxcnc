@@ -983,8 +983,8 @@ class Data:
                   print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
-                      print >>f1, ("net so-increase <= pyvcp.so.increase => halui.spindle-override.increase")
-                      print >>f1, ("net so-decrease <= pyvcp.so.decrease => halui.spindle-override.decrease")
+                      print >>f1, ("net so-increase <= pyvcp.so-increase => halui.spindle-override.increase")
+                      print >>f1, ("net so-decrease <= pyvcp.so-decrease => halui.spindle-override.decrease")
                       print >>f1, ("net os-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
                       print >>f1, ("net os-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
                       print >>f1, ("net os-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
