@@ -476,14 +476,18 @@ class Data:
 	print >>file
 	print >>file, "[HAL]"
         if self.halui:
-            print >>file,"HALUI = halui"
-            if self.pyvcphaltype == 2 and self.pyvcpconnect:
-               print >>file,"MDI_COMMAND = G0 G53 Z0"
-               print >>file,"MDI_COMMAND = G28"
+            print >>file,"HALUI = halui"          
 	print >>file, "HALFILE = %s.hal" % self.machinename
 	if self.customhal:
 	    print >>file, "HALFILE = custom.hal"
 	    print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
+
+        if self.halui:
+           print >>file
+           print >>file, "[HALUI]"
+           if self.pyvcphaltype == 2 and self.pyvcpconnect:
+               print >>file,"MDI_COMMAND = G0 G53 Z0"
+               print >>file,"MDI_COMMAND = G28"
 
 	print >>file
 	print >>file, "[TRAJ]"
@@ -772,7 +776,7 @@ class Data:
 	    print >>file, "loadrt encoder num_chan=1"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "loadrt abs count=1"
-            if not encoder:
+            if encoder:
                print >>file, "loadrt scale count=1"
 
 	if pump:
@@ -815,7 +819,7 @@ class Data:
 	if pwm: print >>file, "addf pwmgen.update servo-thread"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "addf abs.0 servo-thread"
-            if not encoder:
+            if encoder:
                print >>file, "addf scale.0 servo-thread"
 
 	if pwm:
@@ -965,15 +969,16 @@ class Data:
                   if encoder:
                       print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, ("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, ("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
+                      print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
+                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, ("# **** COMANDED velocity is signed so we use absolute component to remove sign")
-                      print >>f1, ("# **** COMANDED velocity is in RPS not RPM so we scale it.")
                       print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
                   print >>f1, ("net tool-number => pyvcp.toolnumber")
                   print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
