@@ -19,10 +19,10 @@
                         <text>"Current Tool #:"</text>
                         <font>("Helvetica",20)</font>
                 </label>
-                <number>
+                <s32>
                         <halpin>"toolnumber"</halpin>
                         <font>("Helvetica",30)</font>
                         <format>"2.0f"</format>     
-                </number>
+                </s32>
         </vbox>
 </pyvcp>
