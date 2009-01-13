@@ -51,6 +51,15 @@ setp lowpass.0.gain .07
 addf lowpass.0 servo-thread
 addf scale.0 servo-thread
 
+# for at-speed detection
+loadrt near
+addf near.0 servo-thread
+setp near.0.scale 1.1
+setp near.0.difference 10
+net spindle-speed-cmd => near.0.in1
+net spindle-rpm-filtered => near.0.in2
+net spindle-at-speed near.0.out motion.spindle-at-speed
+
 net  spindle-fwd <= motion.spindle-forward
 
 addf encoder.capture-position servo-thread
