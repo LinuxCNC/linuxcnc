@@ -997,6 +997,9 @@ class Data:
                       print >>f1, ("net optional-stp-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
                       print >>f1, ("net optional-stp-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
                       print >>f1, ("net optional-stp-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
+                      print >>f1, ("net program-pause <= pyvcp.pause => halui.program.pause")
+                      print >>f1, ("net program-resume <= pyvcp.resume => halui.program.resume")
+                      print >>f1, ("net program-single-step <= pyvcp.step => halui.program.step")
                       print >>f1
                       print >>f1, ("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
                       print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
