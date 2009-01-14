@@ -3302,6 +3302,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
     EMC2_LANG_DIR=$EMC2_HOME/src/po
+    EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/docs/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
     EMC2_CONFIG_PATH="~/emc2/configs:$EMC2_HOME/configs"
@@ -3311,6 +3312,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
 else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
+    EMC2_PO_DIR=${prefix}/share/locale
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_TCL_LIB_DIR=${prefix}/lib/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
@@ -3353,6 +3355,11 @@ _ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define EMC2_LANG_DIR "$EMC2_LANG_DIR"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define EMC2_PO_DIR "$EMC2_PO_DIR"
 _ACEOF
 
 

@@ -44,8 +44,11 @@
 /* Directory for images */
 #undef EMC2_IMAGE_DIR
 
-/* Directory for translation files */
+/* Directory for tcl translation files */
 #undef EMC2_LANG_DIR
+
+/* Directory for po/mo translation files */
+#undef EMC2_PO_DIR
 
 /* Directory for nc files */
 #undef EMC2_NCFILES_DIR

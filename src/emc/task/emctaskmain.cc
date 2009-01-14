@@ -58,6 +58,7 @@
 #include <sys/wait.h>		// waitpid(), WNOHANG, WIFEXITED
 #include <ctype.h>		// isspace()
 #include <libintl.h>
+#include <locale.h>
 
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
@@ -2786,6 +2787,11 @@ int main(int argc, char *argv[])
     double startTime;
 
     double minTime, maxTime;
+
+    bindtextdomain("rs274_err", EMC2_PO_DIR);
+    setlocale(LC_MESSAGES,"");
+    setlocale(LC_CTYPE,"");
+    textdomain("rs274_err");
 
     // copy command line args
     Argc = argc;
