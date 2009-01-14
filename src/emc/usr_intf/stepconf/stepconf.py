@@ -65,16 +65,18 @@ gettext.install("axis", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("axis", LOCALEDIR)
 gtk.glade.textdomain("axis")
 
+# internalname / displayed name / steptime/ step space / direction hold / direction setup
 drivertypes = [
-    ["gecko201", _("Gecko 201"), 4000, 500, 20000, 1000],
-    ["gecko202", _("Gecko 202"), 4500, 500, 20000, 1000],
+    ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
+    ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
     ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
-    ["gecko210", _("Gecko 210"), 4000, 500, 20000, 1000],
-    ["gecko212", _("Gecko 212"), 4000, 500, 20000, 1000],
+    ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
+    ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
+    ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
     ["l297", _("L297"), 500,  4000, 4000, 1000],
     ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
     ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
-    ["xylotext", _("Xylotex"), 1000, 2000, 200, 200],
+    ["xylotext", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
     ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
     ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
     ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
