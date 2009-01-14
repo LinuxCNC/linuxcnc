@@ -4163,7 +4163,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
              }
          }
          if(settings->plane == CANON_PLANE_XZ) {
-             CHKS((move_endpoint_and_flush_zx(settings->current_z, settings->current_x) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+             CHKS((move_endpoint_and_flush_zx(ztrans(settings, settings->current_z), xtrans(settings, settings->current_x)) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
             if (settings->feed_mode == INVERSE_TIME)
               inverse_time_rate_straight(end[0], p[2], end[1],
                                          AA_end, BB_end, CC_end,
