@@ -916,10 +916,12 @@ class Data:
 	if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
             print >>file, "# **** Setup for external estop ladder program -START ****"
+            print >>file
             print >>file, "net estop-out => classicladder.0.in-00"
             print >>file, "net estop-ext => classicladder.0.in-01"
             print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
+            print >>file
             print >>file, "# **** Setup for external estop ladder program -END ****"
 	elif ESTOP_IN in inputs:
 	    print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
@@ -972,30 +974,38 @@ class Data:
                       print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, ("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, ("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
+                      print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, ("# **** COMANDED velocity is signed so we use absolute component to remove sign")
+                      print >>f1, ("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
                   print >>f1, ("net tool-number => pyvcp.toolnumber")
+                  print >>f1
                   print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
-                      print >>f1, ("net so-increase <= pyvcp.so-increase => halui.spindle-override.increase")
-                      print >>f1, ("net so-decrease <= pyvcp.so-decrease => halui.spindle-override.decrease")
-                      print >>f1, ("net os-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
-                      print >>f1, ("net os-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
-                      print >>f1, ("net os-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
                       print >>f1
-                      print >>f1, ("# **** The following mdi-comands are specified in the machinenamed INI file")
-                      print >>f1, ("# **** under [HAL] heading")
-                      print >>f1, ("net quill-up <= pyvcp.MDI-zzero => halui.mdi-command-00")
-                      print >>f1, ("net reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
-                      print >>f1, ("# **** Setup of MDI buttons using HAL_UI and pyvcp - END ****")
+                      print >>f1, ("net X-rel-position <= pyvcp.xdisplay => halui.axis.0.pos-relative")
+                      print >>f1, ("net Y-rel-position <= pyvcp.ydisplay => halui.axis.1.pos-relative")
+                      print >>f1, ("net Z-rel-position <= pyvcp.zdisplay => halui.axis.2.pos-relative")
+                      print >>f1, ("net optional-stp-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
+                      print >>f1, ("net optional-stp-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
+                      print >>f1, ("net optional-stp-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
+                      print >>f1
+                      print >>f1, ("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
+                      print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
+                      print >>f1, ("# **** command 01 - rapid to reference point ( G 28 )")
+                      print >>f1
+                      print >>f1, ("net MDI-Z-up <= pyvcp.MDI-zzero => halui.mdi-command-00")
+                      print >>f1, ("net MDI-reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
+                      print >>f1
+                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
 	if self.customhal or self.classicladder or self.halui:
 	    custom = os.path.join(base, "custom.hal")
