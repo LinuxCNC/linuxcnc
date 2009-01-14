@@ -84,6 +84,7 @@ void enqueue_STRAIGHT_FEED(int l,
                            double a, double b, double c, 
                            double u, double v, double w);
 void enqueue_STRAIGHT_TRAVERSE(int l, 
+                               double dx, double dy, double dz,
                                double x, double y, double z, 
                                double a, double b, double c, 
                                double u, double v, double w);

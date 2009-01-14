@@ -175,6 +175,7 @@ void enqueue_STRAIGHT_FEED(int l,
 }
 
 void enqueue_STRAIGHT_TRAVERSE(int l, 
+                               double dx, double dy, double dz,
                                double x, double y, double z, 
                                double a, double b, double c, 
                                double u, double v, double w) {
@@ -342,6 +343,7 @@ int move_endpoint_and_flush(double x, double y) {
 
         switch(q.type) {
         case QARC_FEED:
+            // detect increase of arc length and error
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
             break;
