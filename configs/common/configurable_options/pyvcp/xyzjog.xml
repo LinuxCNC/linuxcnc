@@ -3,42 +3,60 @@
  <vbox>
  <relief>RIDGE</relief>         
  <bd>6</bd>
-     <labelframe text="Spindle Override"> 
+     <labelframe text="Actual Position"> 
      <font>("Helvetica",20)</font>
         <hbox>
-          <button>
-                <halpin>"so-increase"</halpin>
-                <text>"+"</text> 
-                <justify>RIGHT</justify>
-         </button>
-         <button>
-                <halpin>"so-decrease"</halpin>
-                <text>"-"</text> 
-                <justify>RIGHT</justify>
-         </button>
-       </hbox>
-    </labelframe>
-    <labelframe text="Optional Stop"> 
-    <font>("Helvetica",20)</font>
-		<hbox>
-		      <vbox>
-			<led> 
+                <label>
+                       <text>"X"</text>
+                       <font>("Helvetica",30)</font>
+                </label>  
+                <number>
+                       <halpin>"xdisplay"</halpin>
+                       <font>("Helvetica",30)</font>
+                       <format>"+3.4f"</format>     
+                </number>
+        </hbox>
+        <hbox>
+                <label>
+                       <text>"Y"</text>
+                       <font>("Helvetica",30)</font>
+                </label>  
+                <number>
+                       <halpin>"ydisplay"</halpin>
+                       <font>("Helvetica",30)</font>
+                       <format>"+3.4f"</format>     
+                </number>
+        </hbox>
+        <hbox>
+                <label>
+                       <text>"Z"</text>
+                       <font>("Helvetica",30)</font>
+                </label>  
+                <number>
+                       <halpin>"zdisplay"</halpin>
+                       <font>("Helvetica",30)</font>
+                       <format>"+3.4f"</format>     
+                </number>
+        </hbox>
+        </labelframe>
+        <labelframe text="Optional Stop"> 
+        <font>("Helvetica",20)</font>
+        <hbox>
+			
+                       <button>
+                            <halpin>"ostop-on"</halpin>
+                            <text>"  on  "</text> 
+                       </button>
+                       <led> 
 	                    <halpin>"ostop-is-on"</halpin>  
 			    <size>20</size>  
 			    <on_color>"blue"</on_color> 
 			    <off_color>"grey"</off_color> 
 			</led>	
-		       </vbox>
-                       <button>
-                            <halpin>"ostop-on"</halpin>
-                            <text>"on"</text> 
-                       </button>
                        <button>
                              <halpin>"ostop-off"</halpin>
-                             <text>"off"</text> 
+                             <text>"  off  "</text> 
                        </button>
-			<vbox>
-			</vbox>
 		</hbox>
        </labelframe>
        <labelframe text="MDI comands"> 
@@ -54,6 +72,27 @@
                      </button>
 		</hbox>
         </labelframe>
+    <labelframe text="Program Control"> 
+    <font>("Helvetica",20)</font>
+		<hbox>
+		      <vbox>
+			<button>
+                            <halpin>"pause"</halpin>
+                            <text>"Pause"</text> 
+                       </button>
+		       </vbox>
+                       <button>
+                            <halpin>"resume"</halpin>
+                            <text>"Resume"</text> 
+                       </button>
+                       <button>
+                             <halpin>"step"</halpin>
+                             <text>"Single block"</text> 
+                       </button>
+			<vbox>
+			</vbox>
+		</hbox>
+       </labelframe>
  </vbox>
  
 </pyvcp>
