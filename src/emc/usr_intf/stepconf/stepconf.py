@@ -965,11 +965,11 @@ class App:
 
     def on_drivertype_changed(self, *args):
 	drive_characteristics = [
-	    [4000, 500, 20000, 1000],     # Gecko
-	    [500,  4000, 4000, 1000],     # L297   XXX active low
+	    [500, 4000, 20000, 1000],     # Gecko
+	    [500, 4000, 4000, 1000],     # L297   XXX active low
 	    [1000, 2000, 1000, 1000],     # PMDX-150
 	    [1000, 6000, 24000, 20000],   # Sherline  XXX find proper values
-	    [1000, 2000, 200, 200],       # Xylotex
+	    [2000, 1000, 200, 200],       # Xylotex
 	    [1000, 1000, 1000, 200000],   # Parker-Compumotor oem750
 	]
 	v = self.widgets.drivertype.get_active()
