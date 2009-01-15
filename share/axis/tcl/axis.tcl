@@ -1354,7 +1354,9 @@ setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
 
 text $_tabs_mdi.gcodes \
 	-height 2 \
-	-width 20
+	-width 20 \
+	-wrap word
+
 $_tabs_mdi.gcodes insert end {}
 $_tabs_mdi.gcodes configure -state disabled
 

@@ -1564,9 +1564,7 @@ class LivePlotter:
         active_codes.append(feed_str)
         active_codes.append("S%.0f" % self.stat.settings[2])
 
-        mid = len(active_codes)/2
-        a, b = active_codes[:mid], active_codes[mid:]
-        codes = " ".join(a) + "\n" + " ".join(b)
+        codes = " ".join(active_codes)
         widgets.code_text.configure(state="normal")
         widgets.code_text.delete("0.0", "end")
         widgets.code_text.insert("end", codes)
