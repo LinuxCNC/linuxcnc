@@ -3773,15 +3773,19 @@ set_hal_jogincrement()
 
 code = []
 if args:
-    open_file_guts(args[0])
+    initialfile = args[0]
 elif os.environ.has_key("AXIS_OPEN_FILE"):
-    open_file_guts(os.environ["AXIS_OPEN_FILE"])
+    initialfile = os.environ["AXIS_OPEN_FILE"]
 elif inifile.find("DISPLAY", "OPEN_FILE"):
-    open_file_guts(inifile.find("DISPLAY", "OPEN_FILE"))
-elif not lathe:
-    demofile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
-    if os.path.exists(demofile):
-        open_file_guts(demofile)
+    initialfile = inifile.find("DISPLAY", "OPEN_FILE")
+elif lathe:
+    initialfile = os.path.join(BASE, "share", "axis", "images","axis-lathe.ngc")
+else:
+    initialfile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
+
+if os.path.exists(initialfile):
+    open_file_guts(initialfile)
+
 if lathe:
     commands.set_view_y()
 else:
