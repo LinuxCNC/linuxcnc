@@ -480,14 +480,7 @@ Button .toolbar.program_pause \
 	-relief link \
 	-takefocus 0
 setup_widget_accel .toolbar.program_pause {}
-
-Button .toolbar.program_optpause \
-        -command { set optional_stop [expr {!$optional_stop}]; toggle_optional_stop } \
-        -helptext [_ "Toggle optional pause \[Alt-M 1\]"] \
-	-image [load_image tool_optpause] \
-        -relief link \
-        -takefocus 0
-        
+       
 Button .toolbar.program_stop \
 	-command task_stop \
 	-helptext [_ "Stop program execution \[ESC\]"] \
@@ -498,6 +491,22 @@ setup_widget_accel .toolbar.program_stop {}
 
 vrule .toolbar.rule8
 
+Button .toolbar.program_blockdelete \
+        -command { set block_delete [expr {!$block_delete}]; toggle_block_delete } \
+        -helptext [_ "Toggle skip lines with '/' \[Alt-M /\]"] \
+	-image [load_image tool_blockdelete] \
+        -relief link \
+        -takefocus 0
+
+Button .toolbar.program_optpause \
+        -command { set optional_stop [expr {!$optional_stop}]; toggle_optional_stop } \
+        -helptext [_ "Toggle optional pause \[Alt-M 1\]"] \
+	-image [load_image tool_optpause] \
+        -relief link \
+        -takefocus 0
+
+vrule .toolbar.rule9
+ 
 Button .toolbar.view_zoomin \
 	-command zoomin \
 	-helptext [_ "Zoom in"] \
@@ -619,10 +628,6 @@ pack .toolbar.program_step \
 pack .toolbar.program_pause \
 	-side left
 
-# Pack widget .toolbar.program_optpause
-pack .toolbar.program_optpause \
-	-side left
-
 # Pack widget .toolbar.program_stop
 pack .toolbar.program_stop \
 	-side left
@@ -633,6 +638,22 @@ pack .toolbar.rule8 \
 	-padx 4 \
 	-pady 4 \
 	-side left
+
+# Pack widget .toolbar.program_blockdelete
+pack .toolbar.program_blockdelete \
+	-side left
+
+# Pack widget .toolbar.program_optpause
+pack .toolbar.program_optpause \
+	-side left
+
+# Pack widget .toolbar.rule9
+pack .toolbar.rule9 \
+	-fill y \
+	-padx 4 \
+	-pady 4 \
+	-side left
+
 
 # Pack widget .toolbar.view_zoomin
 pack .toolbar.view_zoomin \
@@ -1882,7 +1903,9 @@ proc update_state {args} {
                 .toolbar.program_pause
     relief {$task_paused != 0} \
                 .toolbar.program_pause
-    relief {$::optional_stop != 0} \
+    relief {$block_delete != 0} \
+                .toolbar.program_blockdelete
+    relief {$optional_stop != 0} \
                 .toolbar.program_optpause
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_stop {.menu.machine "Stop"}
@@ -1979,6 +2002,7 @@ set last_task_state 0
 set task_mode -1
 set task_paused 0
 set optional_stop 0
+set block_delete 0
 set interp_pause 0
 set last_interp_state 0
 set interp_state 0
@@ -1998,6 +2022,7 @@ trace variable task_state w queue_update_state
 trace variable task_mode w queue_update_state
 trace variable task_paused w queue_update_state
 trace variable optional_stop w queue_update_state
+trace variable block_delete w queue_update_state
 trace variable interp_pause w queue_update_state
 trace variable interp_state w queue_update_state
 trace variable running_line w queue_update_state
