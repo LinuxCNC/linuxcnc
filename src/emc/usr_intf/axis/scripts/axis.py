@@ -1419,7 +1419,7 @@ class LivePlotter:
         if not os.path.exists(emc.nmlfile):
             return False
         try:
-	    self.stat = emc.stat()
+            self.stat = emc.stat()
         except emc.error:
             return False
         def C(s):
@@ -1886,8 +1886,8 @@ def open_file_guts(f, filtered = False):
         canon.parameter_file = temp_parameter
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
-	if initcode == "":
-    	    initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+        if initcode == "":
+            initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         unitcode = "G%d" % (20 + (s.linear_units == 1))
         try:
             result, seq = gcode.parse(f, canon, unitcode, initcode)
@@ -2811,14 +2811,14 @@ class TclCommands(nf.TclCommands):
     def mdi_history_hist2clip(*event):
         cursel = widgets.mdi_history.curselection()
         root_window.clipboard_clear()
-	selection = ""
+        selection = ""
         count = 0
         if cursel != "":
             for data in cursel:
                 selection += "%s\n" % widgets.mdi_history.get(data)
                 count += 1
             if selection != "":
-	        root_window.clipboard_append(selection, type = "STRING")
+                root_window.clipboard_append(selection, type = "STRING")
 
     def mdi_history_clip2hist(*event):
         try:
@@ -3145,16 +3145,16 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z()
 
     def axis_activated(*args):
-	if not hal_present: return # this only makes sense if HAL is present on this machine
-    	comp['jog.x'] = vars.current_axis.get() == "x"
-    	comp['jog.y'] = vars.current_axis.get() == "y"
-    	comp['jog.z'] = vars.current_axis.get() == "z"
-    	comp['jog.a'] = vars.current_axis.get() == "a"
-    	comp['jog.b'] = vars.current_axis.get() == "b"
-    	comp['jog.c'] = vars.current_axis.get() == "c"
-    	comp['jog.u'] = vars.current_axis.get() == "u"
-    	comp['jog.v'] = vars.current_axis.get() == "v"
-    	comp['jog.w'] = vars.current_axis.get() == "w"
+        if not hal_present: return # this only makes sense if HAL is present on this machine
+        comp['jog.x'] = vars.current_axis.get() == "x"
+        comp['jog.y'] = vars.current_axis.get() == "y"
+        comp['jog.z'] = vars.current_axis.get() == "z"
+        comp['jog.a'] = vars.current_axis.get() == "a"
+        comp['jog.b'] = vars.current_axis.get() == "b"
+        comp['jog.c'] = vars.current_axis.get() == "c"
+        comp['jog.u'] = vars.current_axis.get() == "u"
+        comp['jog.v'] = vars.current_axis.get() == "v"
+        comp['jog.w'] = vars.current_axis.get() == "w"
 
     def set_joint_mode(*args):
         joint_mode = vars.joint_mode.get()
@@ -3684,15 +3684,15 @@ init()
 def rClicker(e):
     
     def select_run_from(e):
-	commands.task_run_line()
+        commands.task_run_line()
 
     #if no line is selected drop out
     if vars.highlight_line.get() == -1 :
-	return
+        return
     nclst=[
         ('        ',None),   #
         (' ------ ',None),   #
-	(_('Run from here'), lambda e=e: select_run_from(e)),
+        (_('Run from here'), lambda e=e: select_run_from(e)),
         ]
     rmenu = Tkinter.Menu(None, tearoff=0, takefocus=0)
     cas = {}
@@ -3736,12 +3736,12 @@ if hal_present == 1 :
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:
-	import vcpparse
-	comp.setprefix("pyvcp")
-	f = Tkinter.Frame(root_window)
-	f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
-	vcpparse.filename = vcp
-	vcpparse.create_vcp(f, comp)
+        import vcpparse
+        comp.setprefix("pyvcp")
+        f = Tkinter.Frame(root_window)
+        f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+        vcpparse.filename = vcp
+        vcpparse.create_vcp(f, comp)
     comp.ready()
 
 make_cone()
@@ -3849,8 +3849,8 @@ commands.set_spindlerate(100)
 def forget(widget, *pins):
     if os.environ.has_key("AXIS_NO_AUTOCONFIGURE"): return
     if hal_present == 1 :
-	for p in pins:
-    	    if hal.pin_has_writer(p): return
+        for p in pins:
+            if hal.pin_has_writer(p): return
     m = widget.winfo_manager()
     if m in ("grid", "pack"):
         widget.tk.call(m, "forget", widget._w)
