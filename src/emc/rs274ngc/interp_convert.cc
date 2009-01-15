@@ -758,9 +758,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           else
               CHKS((move_endpoint_and_flush(mid[0], mid[1]) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
       }
-
-      enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
-                       AA_end, BB_end, CC_end, u, v, w);
+      if (settings->plane == CANON_PLANE_XZ) {
+          enqueue_ARC_FEED(block->line_number, ztrans(settings, end[1]), xtrans(settings, end[0]), ztrans(settings, center[1]), xtrans(settings, center[0]), -turn, end[2],
+                           AA_end, BB_end, CC_end, u, v, w);
+      } else {
+          enqueue_ARC_FEED(block->line_number, end[0], end[1], center[0], center[1], turn, end[2],
+                           AA_end, BB_end, CC_end, u, v, w);
+      }
   } else if (beta > small) {           /* convex, two arcs needed */
     mid[0] = (start[0] + (tool_radius * cos(delta)));
     mid[1] = (start[1] + (tool_radius * sin(delta)));
