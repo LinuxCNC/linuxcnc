@@ -1880,7 +1880,6 @@ proc update_state {args} {
                 .toolbar.program_pause
     relief {$task_paused != 0} \
                 .toolbar.program_pause
-puts "optional_stop -> $::optional_stop"
     relief {$::optional_stop != 0} \
                 .toolbar.program_optpause
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
