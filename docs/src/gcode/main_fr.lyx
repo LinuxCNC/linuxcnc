@@ -7429,7 +7429,6 @@ Pour une tempo, programmer G4 P- .
 Le nombre P est négatif.
 \layout Section
 
-
 G7
 \begin_inset LatexCommand \index{G7 Mode diametre}
 
@@ -7443,7 +7442,6 @@ G7
 
 \layout Standard
 
-
 Sur un tour, programmer G7 pour passer l'axe X en mode diamètre.
  En mode diamètre, les mouvements de l'axe X font la moitié de la cote programmé
 e.
@@ -7451,7 +7449,6 @@ e.
  bien une pièce d'un diamètre de 10 unités.
  
 \layout Section
-
 
 G8
 \begin_inset LatexCommand \index{G8 Mode rayon}
@@ -7465,7 +7462,6 @@ G8
 
 
 \layout Standard
-
 
 Sur un tour, programmer G8 pour passer l'axe X en mode rayon.
  En mode rayon, les mouvements de l'axe X sont égaux à la cote programmée.
@@ -10983,18 +10979,88 @@ M100 à M199
 
 \layout Standard
 
-Pour invoquer une commande définie par l'utilisateur, programmer M- P- Q-
- où P et Q sont facultatifs.
- Le programme externe `` Mnnn'' dans le répertoire [DISPLAY] PROGRAM_PREFIX
- est exécuté avec les valeurs P et Q comme étant ses deux arguments.
- L'exécution du fichier RS274NGC passe en pause jusqu'à ce que le programme
- invoqué ne se termine.
+Pour invoquer une commande définie par l'utilisateur, programmer M1xx P-
+ Q- où P et Q sont facultatifs.
+ Le programme externe `` M1nn'', qui doit se trouver dans le répertoire
+ pointé par la variable [DISPLAY] PROGRAM_PREFIX du fichier ini, est exécuté
+ avec les valeurs P et Q comme étant ses deux arguments.
+ L'exécution du fichier G-code courant passe en pause jusqu'à ce que le
+ programme invoqué soit terminé.
 \layout Standard
 
-C'est une erreur si:
+Le message d'erreur 
+\begin_inset Quotes fld
+\end_inset 
+
+M code inconnu
+\begin_inset Quotes frd
+\end_inset 
+
+ signifie que:
 \layout Itemize
 
 La commande spécifiée n'existe pas.
+\layout Itemize
+
+Le fichier n'est pas exécutable.
+\layout Standard
+
+
+Exemple: dans un programme g-code, on doit ouvrir et fermer un mandrin automatiq
+ue via une broche du port parallèle, on appellera respectivement M101 pour
+ ouvrir le mandrin et M102 pour le fermer.
+ Les deux scripts bash correspondants, appelés M101 et M102 seront créés
+ avant le lancement d'EMC2 puis rendus exécutables, par exemple par un click
+ droit puis propriétés -> permissions -> Exécution.
+ 
+\layout Standard
+
+
+M101
+\layout Quote
+
+
+\series bold 
+#!/bin/bash
+\layout Quote
+
+
+\series bold 
+# ce fichier met la broche 14 du port // à 1 pour ouvrir le mandrin automatique
+\layout Quote
+
+
+\series bold 
+halcmd setp parport.0.pin-14-out True
+\layout Quote
+
+
+\series bold 
+exit 0
+\layout Standard
+
+
+M102
+\layout Quote
+
+
+\series bold 
+#!/bin/bash
+\layout Quote
+
+
+\series bold 
+# ce fichier met la broche 14 du port // à 0 pour fermer le mandrin automatique
+\layout Quote
+
+
+\series bold 
+halcmd setp parport.0.pin-14-out False
+\layout Quote
+
+
+\series bold 
+exit 0
 \layout Chapter
 
 O Codes
@@ -11521,7 +11587,6 @@ Dans les mots O-, les paramètres (section
 ), sont particulièrement intéressants.
 \layout Section
 
-
 Appel de fichiers
 \begin_inset LatexCommand \index{Appel de fichiers}
 
@@ -11529,7 +11594,6 @@ Appel de fichiers
 
 
 \layout Standard
-
 
 Pour appeler un fichier par son nom, celui-ci doit contenir un 
 \begin_inset Quotes fld
@@ -11559,7 +11623,6 @@ o<monfichier> call
  (fichier nommé)
 \layout Standard
 
-
 ou
 \layout LyX-Code
 
@@ -11569,7 +11632,6 @@ o123 call
 \series default 
  (fichier numéroté)
 \layout Standard
-
 
 Dans le fichier appelé doit se touver le 
 \begin_inset Quotes fld
@@ -11590,7 +11652,6 @@ endsub
  correspondant à l'appel.
  Le fichier doit être un fichier valide.
 \layout Standard
-
 
 Exemple:
 \layout LyX-Code
