@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-10 17:05+0100\n"
+"POT-Creation-Date: 2009-01-15 14:25+0100\n"
 "PO-Revision-Date: 2009-01-10 18:59+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -128,75 +128,95 @@ msgstr ""
 "Le rayon de fin d'arc différe de celui de début: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
-#: emc/rs274ngc/interp_convert.cc:1317
+#: emc/rs274ngc/interp_convert.cc:1321
 msgid "Cannot change control mode with cutter radius compensation on"
-msgstr "Changement de mode de contrôle impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Changement de mode de contrôle impossible avec la compensation de rayon "
+"d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:1422
+#: emc/rs274ngc/interp_convert.cc:1426
 msgid "Cannot change coordinate systems with cutter radius compensation on"
-msgstr "Changement de système de coordonnées impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Changement de système de coordonnées impossible avec la compensation de "
+"rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:1676
+#: emc/rs274ngc/interp_convert.cc:1680
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%d.1 sans mot D"
 
-#: emc/rs274ngc/interp_convert.cc:1689
+#: emc/rs274ngc/interp_convert.cc:1693
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "G%d exige que le mot D soit un nombre entier"
 
-#: emc/rs274ngc/interp_convert.cc:2352 emc/rs274ngc/interp_convert.cc:2356
+#: emc/rs274ngc/interp_convert.cc:2425 emc/rs274ngc/interp_convert.cc:2429
 msgid "Cannot set motion output with cutter radius compensation on"
-msgstr "Réglage de sortie mouvement impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Réglage de sortie mouvement impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2360 emc/rs274ngc/interp_convert.cc:2364
+#: emc/rs274ngc/interp_convert.cc:2433 emc/rs274ngc/interp_convert.cc:2437
 msgid "Cannot set auxiliary output with cutter radius compensation on"
-msgstr "Réglage de sortie auxiliaire impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Réglage de sortie auxiliaire impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2408
+#: emc/rs274ngc/interp_convert.cc:2481
 msgid "Cannot wait for digital input with cutter radius compensation on"
-msgstr "Attente d'une entrée numérique impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Attente d'une entrée numérique impossible avec la compensation de rayon "
+"d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2420
+#: emc/rs274ngc/interp_convert.cc:2493
 msgid "Cannot wait for analog input with cutter radius compensation on"
-msgstr "Attente d'une entrée analogique impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Attente d'une entrée analogique impossible avec la compensation de rayon "
+"d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2503 emc/rs274ngc/interp_convert.cc:2520
-#: emc/rs274ngc/interp_convert.cc:2534 emc/rs274ngc/interp_convert.cc:2548
-#: emc/rs274ngc/interp_convert.cc:2562
+#: emc/rs274ngc/interp_convert.cc:2576 emc/rs274ngc/interp_convert.cc:2593
+#: emc/rs274ngc/interp_convert.cc:2607 emc/rs274ngc/interp_convert.cc:2621
+#: emc/rs274ngc/interp_convert.cc:2635
 msgid "Cannot enable overrides with cutter radius compensation on"
-msgstr "Activation de correcteur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Activation de correcteur impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2510 emc/rs274ngc/interp_convert.cc:2525
-#: emc/rs274ngc/interp_convert.cc:2539 emc/rs274ngc/interp_convert.cc:2553
-#: emc/rs274ngc/interp_convert.cc:2567
+#: emc/rs274ngc/interp_convert.cc:2583 emc/rs274ngc/interp_convert.cc:2598
+#: emc/rs274ngc/interp_convert.cc:2612 emc/rs274ngc/interp_convert.cc:2626
+#: emc/rs274ngc/interp_convert.cc:2640
 msgid "Cannot disable overrides with cutter radius compensation on"
-msgstr "Désactivation de correcteur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Désactivation de correcteur impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2577
+#: emc/rs274ngc/interp_convert.cc:2650
 msgid "Cannot call user-defined M code with cutter radius compensation on"
-msgstr "Appel de M-code utilisateur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Appel de M-code utilisateur impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:2808
+#: emc/rs274ngc/interp_convert.cc:2881
 msgid "Cannot change retract mode with cutter radius compensation on"
-msgstr "Changement de mode de retrait impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Changement de mode de retrait impossible avec la compensation de rayon "
+"d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3537
+#: emc/rs274ngc/interp_convert.cc:3610
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4013
+#: emc/rs274ngc/interp_convert.cc:4096
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr "Un angle interne de zéro degré est invalide pour la compensation de rayon d'outil"
+msgstr ""
+"Un angle interne de zéro degré est invalide pour la compensation de rayon "
+"d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4182
+#: emc/rs274ngc/interp_convert.cc:4263
 msgid "Cannot change tools with cutter radius compensation on"
-msgstr "Changement d'outil impossible avec la compensation de rayon d'outil active"
+msgstr ""
+"Changement d'outil impossible avec la compensation de rayon d'outil active"
 
-#: emc/rs274ngc/interp_convert.cc:4292
+#: emc/rs274ngc/interp_convert.cc:4373
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil active"
+msgstr ""
+"Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
+"active"
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
@@ -1074,7 +1094,8 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:241
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr ""
+"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:243
 msgid "P word missing with G76"
@@ -1195,7 +1216,6 @@ msgstr "Erreur inconnue"
 msgid "The End"
 msgstr "Fin"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:754
+#: emc/rs274ngc/rs274ngc_pre.cc:756
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide après changement d'outil"
-

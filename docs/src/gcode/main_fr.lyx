@@ -4286,7 +4286,7 @@ Groupes modaux
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="22" columns="2">
+<lyxtabular version="3" rows="23" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -4366,6 +4366,24 @@ Choix du plan de travail
 \layout Standard
 
 G17 G18 G19
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mode diamètre/rayon sur les tours
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G7, G8
 \end_inset 
 </cell>
 </row>
@@ -5089,7 +5107,7 @@ Table résumée du G-code
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="47" columns="4">
+<lyxtabular version="3" rows="48" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -5239,6 +5257,45 @@ I J K or R
 
 
 \begin_inset LatexCommand \ref{sub:-G2,-G3:-Arc}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G7, G8
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Mode diamètre / rayon sur les tours
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G7-Mode-diametre}
 
 \end_inset 
 
@@ -7372,12 +7429,57 @@ Pour une tempo, programmer G4 P- .
 Le nombre P est négatif.
 \layout Section
 
-G10 L1 Entrée dans la table d'outils
-\begin_inset LatexCommand \index{G10 L1 Entree dans la table d'outils}
+
+G7
+\begin_inset LatexCommand \index{G7 Mode diametre}
+
+\end_inset 
+
+: Mode diamètre
+\begin_inset LatexCommand \label{sec:G7-Mode-diametre}
 
 \end_inset 
 
 
+\layout Standard
+
+
+Sur un tour, programmer G7 pour passer l'axe X en mode diamètre.
+ En mode diamètre, les mouvements de l'axe X font la moitié de la cote programmé
+e.
+ Par exemple, X10 placera l'outil à 5 unités du centre, ce qui produira
+ bien une pièce d'un diamètre de 10 unités.
+ 
+\layout Section
+
+
+G8
+\begin_inset LatexCommand \index{G8 Mode rayon}
+
+\end_inset 
+
+: Mode rayon
+\begin_inset LatexCommand \label{sec:G8-Mode-rayon}
+
+\end_inset 
+
+
+\layout Standard
+
+
+Sur un tour, programmer G8 pour passer l'axe X en mode rayon.
+ En mode rayon, les mouvements de l'axe X sont égaux à la cote programmée.
+ Ce qui signifie que X10 placera l'outil à 10 unités du centre et aura pour
+ résultat une pièce d'un diamètre de 20 unités.
+ G8 est le mode par défaut à la mise sous tension.
+\layout Section
+
+G10 L1
+\begin_inset LatexCommand \index{G10 L1 Entree dans la table d'outils}
+
+\end_inset 
+
+: Entrée dans la table d'outils
 \begin_inset LatexCommand \label{sec:G10-L1:-Entree-table}
 
 \end_inset 
@@ -7510,10 +7612,8 @@ G17
 
 \layout Standard
 
-
 Ces codes sélectionnent le plan courant comme ci-dessous:
 \layout Standard
-
 
 
 \begin_inset  Tabular
@@ -7527,7 +7627,6 @@ Ces codes sélectionnent le plan courant comme ci-dessous:
 
 \layout Standard
 
-
 G17
 \end_inset 
 </cell>
@@ -7535,7 +7634,6 @@ G17
 \begin_inset Text
 
 \layout Standard
-
 
 XY (par défault)
 \end_inset 
@@ -7547,7 +7645,6 @@ XY (par défault)
 
 \layout Standard
 
-
 G18
 \end_inset 
 </cell>
@@ -7555,7 +7652,6 @@ G18
 \begin_inset Text
 
 \layout Standard
-
 
 ZX
 \end_inset 
@@ -7567,7 +7663,6 @@ ZX
 
 \layout Standard
 
-
 G19
 \end_inset 
 </cell>
@@ -7575,7 +7670,6 @@ G19
 \begin_inset Text
 
 \layout Standard
-
 
 YZ
 \end_inset 
@@ -7587,7 +7681,6 @@ YZ
 
 \layout Standard
 
-
 G17.1
 \end_inset 
 </cell>
@@ -7595,7 +7688,6 @@ G17.1
 \begin_inset Text
 
 \layout Standard
-
 
 UV
 \end_inset 
@@ -7607,7 +7699,6 @@ UV
 
 \layout Standard
 
-
 G18.1
 \end_inset 
 </cell>
@@ -7615,7 +7706,6 @@ G18.1
 \begin_inset Text
 
 \layout Standard
-
 
 WU
 \end_inset 
@@ -7627,7 +7717,6 @@ WU
 
 \layout Standard
 
-
 G19.1
 \end_inset 
 </cell>
@@ -7635,7 +7724,6 @@ G19.1
 \begin_inset Text
 
 \layout Standard
-
 
 VW
 \end_inset 
@@ -9889,28 +9977,22 @@ G91
  la position courante.
 \layout Section
 
-
 G90.1, G91.1 Mode distance (I, J et K)
 \layout Standard
-
 
 Note: Cette fonctionnalité est en cours de développement, elle n'est peut
  être pas totalement implémentée.
 \layout Standard
 
-
 G90.1 Mode distance absolute pour les offsets I, J et K.
  
 \layout Itemize
 
-
 I et J doivent tous les deux être spécifiés ou une erreur se produira.
 \layout Standard
 
-
 G91.1 Mode distance incrémentale pour les offsets I, J et K.
 \layout Itemize
-
 
 Renvoie I, J et K à leur fonctionnement normal.
 \layout Section
@@ -11022,14 +11104,29 @@ O- call
 .
 \layout LyX-Code
 
-O100 sub (sous-programme pour aller à l'origine programme)
+
+\series bold 
+O100 sub
+\series default 
+ (sous-programme pour aller à l'origine programme)
 \newline 
+
+\series bold 
 G0 X0 Y0 Z0
 \newline 
 O100 endsub
+\series default 
+
 \newline 
-(plusieurs lignes)
+
+\series bold 
+...
+
+\series default 
+ (plusieurs lignes)
 \newline 
+
+\series bold 
 O100 call
 \layout Standard
 
@@ -11076,6 +11173,8 @@ Parce que `` 1 2 3'' est analysé comme le nombre 123, les paramètres doivent
  L'appel de sous-programme suivant, s'effectue avec 3 arguments:
 \layout LyX-Code
 
+
+\series bold 
 O200 call [1] [2] [3]
 \layout Standard
 
@@ -11189,6 +11288,8 @@ while
 
 (dessine la forme d'une dent de scie)
 \newline 
+
+\series bold 
 F100
 \newline 
 #1 = 0
@@ -11281,6 +11382,8 @@ if
 
 (Ajuste la vitesse travail en fonction d'une variable)
 \newline 
+
+\series bold 
 O102 if [#2 GT 5]
 \newline 
 F100
@@ -11342,23 +11445,43 @@ endrepeat
 (Usine 5 formes diagonales)
 \layout LyX-Code
 
-G91 (Mode incrémental)
+
+\series bold 
+G91
+\series default 
+ (Mode incrémental)
 \layout LyX-Code
 
+
+\series bold 
 O103 repeat [5]
 \layout LyX-Code
 
+
+\series bold 
 ...
+
+\series default 
  (inserer le code à usiner ici)
 \layout LyX-Code
 
-G0 X1 Y1 (mouvement en diagonale à la position suivante)
+
+\series bold 
+G0 X1 Y1
+\series default 
+ (mouvement en diagonale à la position suivante)
 \layout LyX-Code
 
+
+\series bold 
 O103 endrepeat
 \layout LyX-Code
 
-G90 (Mode absolu)
+
+\series bold 
+G90
+\series default 
+ (Mode absolu)
 \layout Section
 
 Indirection
@@ -11367,6 +11490,8 @@ Indirection
 L'adresse de O- peut être donnée par un paramètre ou un calcul.
 \layout LyX-Code
 
+
+\series bold 
 O[#101+2] call
 \layout Section
 
@@ -11394,6 +11519,105 @@ Dans les mots O-, les paramètres (section
 \end_inset 
 
 ), sont particulièrement intéressants.
+\layout Section
+
+
+Appel de fichiers
+\begin_inset LatexCommand \index{Appel de fichiers}
+
+\end_inset 
+
+
+\layout Standard
+
+
+Pour appeler un fichier par son nom, celui-ci doit contenir un 
+\begin_inset Quotes fld
+\end_inset 
+
+sub
+\begin_inset Quotes frd
+\end_inset 
+
+ et un 
+\begin_inset Quotes fld
+\end_inset 
+
+endsub
+\begin_inset Quotes frd
+\end_inset 
+
+.
+ Le fichier appelé doit se trouver dans le répertoire pointé par la variable
+ PROGRAM_PREFIX du fichier ini.
+\layout LyX-Code
+
+
+\series bold 
+o<monfichier> call
+\series default 
+ (fichier nommé)
+\layout Standard
+
+
+ou
+\layout LyX-Code
+
+
+\series bold 
+o123 call
+\series default 
+ (fichier numéroté)
+\layout Standard
+
+
+Dans le fichier appelé doit se touver le 
+\begin_inset Quotes fld
+\end_inset 
+
+sub
+\begin_inset Quotes frd
+\end_inset 
+
+ et le 
+\begin_inset Quotes fld
+\end_inset 
+
+endsub
+\begin_inset Quotes frd
+\end_inset 
+
+ correspondant à l'appel.
+ Le fichier doit être un fichier valide.
+\layout Standard
+
+
+Exemple:
+\layout LyX-Code
+
+
+\series bold 
+monfichier.ngc
+\layout LyX-Code
+
+
+\series bold 
+o<monfichier> sub
+\layout LyX-Code
+
+
+\series bold 
+...
+\layout LyX-Code
+
+
+\series bold 
+o<monfichier> endsub
+\layout LyX-Code
+
+
+\series bold 
+M2
 \layout Chapter
 
 Autres Codes
