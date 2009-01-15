@@ -335,7 +335,8 @@ MDI_COMMAND = G0 X0
 \layout Itemize
 
 When halui starts it will read the MDI_COMMAND fields in the ini, and export
- pins from 00 to the number of MDI_COMMAND's found in the ini
+ pins from 00 to the number of MDI_COMMAND's found in the ini up to a maximum
+ of 10 commands.
 \layout Itemize
 
 halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI command
@@ -343,6 +344,8 @@ halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI command
  This will not always succeed, depending on the operating mode emc2 is in
  (e.g.
  while in AUTO halui can't successfully send MDI commands).
+ If the command succeeds then it will place EMC in the MDI mode and then
+ back to Manual mode.
 \layout Subsection
 
 Mist 
