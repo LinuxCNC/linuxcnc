@@ -2166,7 +2166,7 @@ Modal Groups
 \align center 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="22" columns="2">
+<lyxtabular version="3" rows="23" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -2194,15 +2194,7 @@ Member Words
 
 \layout Standard
 
-Motion (
-\begin_inset Quotes eld
-\end_inset 
-
-Group 1
-\begin_inset Quotes erd
-\end_inset 
-
-)
+Motion ("Group 1")
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2246,6 +2238,24 @@ Plane selection
 \layout Standard
 
 G17, G18, G19
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Diameter / Radius for lathes
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G7, G8
 \end_inset 
 </cell>
 </row>
@@ -2992,7 +3002,7 @@ Quick Reference Table
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="47" columns="4">
+<lyxtabular version="3" rows="48" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -3142,6 +3152,45 @@ I J K or R
 
 
 \begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G7, G8
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Diameter or Radius Mode
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G7-Diameter-Mode}
 
 \end_inset 
 
@@ -5275,6 +5324,54 @@ For a dwell, program G4 P- .
 \layout Itemize
 
 the P number is negative.
+\layout Section
+
+G7 Diameter Mode
+\begin_inset LatexCommand \index{G7 Diameter Mode}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G7-Diameter-Mode}
+
+\end_inset 
+
+
+\layout Standard
+
+Program G7 to enter the diameter mode for axis X on a lathe.
+ When in the Diameter mode the X axis moves on a lathe will be 1/2 the distance
+ to the center of the lathe.
+ For example X1 would move the cutter to 0.500
+\begin_inset Quotes erd
+\end_inset 
+
+ from the center of the lathe thus giving a 1
+\begin_inset Quotes erd
+\end_inset 
+
+ diameter part.
+ 
+\layout Section
+
+G8 Radius Mode
+\begin_inset LatexCommand \index{G8 Radius Mode}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G8-Radius-Mode}
+
+\end_inset 
+
+
+\layout Standard
+
+Program G8 to enter the radius mode for axis X on a lathe.
+ When in Radius mode the X axis moves on a lathe will be the distance from
+ the center.
+ Thus a cut at X1 would result in a part that is 2" in diameter.
+ G8 is default at power up.
 \layout Section
 
 G10 L1 Set Tool Table
