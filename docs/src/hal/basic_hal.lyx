@@ -199,35 +199,21 @@ The so called I/O pins like index-enable do not follow this rule.
 \layout Subsection
 
 setp
-\layout Standard
-
-The command "setp" sets the value of a pin or parameter.
- The valid values will depend on the type of the pin or parameter.
- 
-\layout Itemize
-
-bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
-\layout Itemize
-
-float values = a 32 bit floating point value, with approximately 24 bits
- of resolution and over 200 bits of dynamic range.
-\layout Itemize
-
-s32 values = integer numbers -2147483648 to 2147483647
-\layout Itemize
-
-u32 values = integer numbers 0 to 4294967295
-\layout Standard
-
-For more information on floating point numbers see:
-\layout Standard
-
-
-\begin_inset LatexCommand \url{http://en.wikipedia.org/wiki/Floating_point}
+\begin_inset LatexCommand \index{setp}
 
 \end_inset 
 
 
+\begin_inset LatexCommand \label{sub:setp}
+
+\end_inset 
+
+
+\layout Standard
+
+The command "setp" sets the value of a pin or parameter.
+ The valid values will depend on the type of the pin or parameter.
+ It is an error if the data types do not match.
 \layout Standard
 
 Some components have parameters that need to be set before use.
@@ -320,6 +306,83 @@ newsig Xstep bit
 \layout Standard
 
 More information can be found in the HAL manual or the man pages for halrun.
+\layout Section
+
+Hal Data
+\begin_inset LatexCommand \label{sec:Hal-Data}
+
+\end_inset 
+
+
+\layout Subsection
+
+Bit
+\begin_inset LatexCommand \index{Bit}
+
+\end_inset 
+
+
+\layout Standard
+
+A bit value is an on or off.
+\layout Itemize
+
+bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
+\layout Subsection
+
+Float
+\begin_inset LatexCommand \index{Float}
+
+\end_inset 
+
+
+\layout Standard
+
+A "float" is a floating point number.
+ In other words the decimal point can move as needed.
+\layout Itemize
+
+float values = a 32 bit floating point value, with approximately 24 bits
+ of resolution and over 200 bits of dynamic range.
+\layout Standard
+
+For more information on floating point numbers see:
+\layout Standard
+
+
+\begin_inset LatexCommand \url{http://en.wikipedia.org/wiki/Floating_point}
+
+\end_inset 
+
+
+\layout Subsection
+
+s32
+\begin_inset LatexCommand \index{s32}
+
+\end_inset 
+
+
+\layout Standard
+
+An "s32" number is a whole number that can have a negative or positive value.
+\layout Itemize
+
+s32 values = integer numbers -2147483648 to 2147483647
+\layout Subsection
+
+u32
+\begin_inset LatexCommand \index{u32}
+
+\end_inset 
+
+
+\layout Standard
+
+A "u32" number is a whole number that is positive only.
+\layout Itemize
+
+u32 values = integer numbers 0 to 4294967295
 \layout Section
 
 Hal Files

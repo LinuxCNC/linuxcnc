@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 3
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -34,39 +34,44 @@
 
 \layout Chapter
 
-Virtual Control Panels
+Virtual Control Panel
 \layout Section
 
 Introduction
 \layout Standard
 
-Traditional machine control panels are large sheets of steel with push buttons,
- knobs, lights and sometimes meters mounted on them.
- They have many advantages - the buttons are far more rugged than a computer
- keyboard, and large enough that you can usually operate the correct one
- by feel while looking elsewhere, for example at the tool.
- However, they also have disadvantages.
- The occupy a lot of panel space, they are expensive, and wiring them into
- the PC can use up a lot of I/O pins.
- That is where Virtual Control Panels come in.
+The pyVCP (python Virtual Control Panel) is designed to give the integrator
+ the ability to customize the AXIS interface with buttons and indicators
+ to do special tasks.
+ 
 \layout Standard
 
-A Virtual Control Panel (VCP) is a window on the computer screen with buttons,
- meters, switches, etc.
- When you click on a VCP button, it changes the state of a HAL pin, exactly
- as if you had pressed a physical button wired to an input pin on an I/O
- card.
- Likewise, a VCP LED lights up when a HAL pin goes true, just like a physical
- indicator lamp wired to an output pin on an I/O card.
- Virtual control panels are not intended to replace physical panels - sometimes
- there is just no substitute for a big rugged oil-tight push button.
- But virtual panels can be used for testing or monitoring things that don't
- require physical buttons and lights, to temporarily replace real I/O devices
- while debugging ladder logic, or perhaps to simulate a physical panel before
- you build it and wire it to an I/O board.
+Hardware machine control panels can use up a lot of I/O pins and can be
+ expensive.
+ That is where Virtual Control Panels have the advantage as well as it cost
+ nothing to build a pyVCP.
+ 
+\layout Standard
+
+Virtual control panels can be used for testing or monitoring things to temporari
+ly replace real I/O devices while debugging ladder logic, or to simulate
+ a physical panel before you build it and wire it to an I/O board.
+\layout Standard
+
+The following graphic displays many of the pyVCP widgets.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_group.png
+	scale 70
+
+\end_inset 
+
+
 \layout Section
 
-pyVCP
+Panel Construction
 \layout Standard
 
 The layout of a pyVCP panel is specified with an XML file that contains
@@ -99,32 +104,10 @@ halrun -I loadusr pyvcp -c mypanel tiny.xml
 \layout Standard
 
 pyVCP will create the panel for you, which includes two widgets, a Label
- with the text 
-\begin_inset Quotes eld
-\end_inset 
-
-This is a LED indicator
-\begin_inset Quotes erd
-\end_inset 
-
-, and a LED, used for displaying the state of a HAL BIT signal.
- It will also create a HAL component named 
-\begin_inset Quotes eld
-\end_inset 
-
-mypanel
-\begin_inset Quotes erd
-\end_inset 
-
- (all widgets in this panel are connected to pins that start with 
-\begin_inset Quotes eld
-\end_inset 
-
-mypanel.
-\begin_inset Quotes erd
-\end_inset 
-
-).
+ with the text "This is a LED indicator", and a LED, used for displaying
+ the state of a HAL BIT signal.
+ It will also create a HAL component named "mypanel" (all widgets in this
+ panel are connected to pins that start with "mypanel.").
  Since no <halpin> tag was present inside the <led> tag, pyVCP will automaticall
 y name the HAL pin for the LED widget mypanel.led.0
 \layout Standard
@@ -151,7 +134,7 @@ Parts of pyVCP files are evaluated as Python code, and can take any action
  Only use pyVCP .xml files from a source that you trust.
 \layout Section
 
-Using pyVCP with AXIS
+pyVCP with AXIS
 \begin_inset LatexCommand \label{sec:pyvcp-with-axis}
 
 \end_inset 
@@ -258,37 +241,35 @@ sim/lathe
 pyVCP Widget reference
 \layout Standard
 
-HAL signals come in two variants, BIT and FLOAT.
- pyVCP can either display the value of the signal with an indicator widget,
- or modify the signal value with a control widget.
+HAL signals come in two variants, bits and numbers.
+ Bits are off/on signals.
+ Numbers can be "float", "s32" or "u32".
+ For more information on HAL data types see the 
+\begin_inset LatexCommand \ref{sec:Hal-Data}
+
+\end_inset 
+
+ section.
+ The pyVCP widget can either display the value of the signal with an indicator
+ widget, or modify the signal value with a control widget.
  Thus there are four classes of pyVCP widgets that you can connect to a
  HAL signal.
  A fifth class of helper widgets allow you to organize and label your panel.
-\layout List
-\labelwidthstring 00.00.0000
+\layout Enumerate
 
-1.
- Widgets for indicating BIT signals: LED
-\layout List
-\labelwidthstring 00.00.0000
+Widgets for indicating "bit" signals: led, rectled
+\layout Enumerate
 
-2.
- Widgets for controlling BIT signals: Button, Checkbutton, Radiobutton
-\layout List
-\labelwidthstring 00.00.0000
+Widgets for controlling "bit" signals: button, checkbutton, radiobutton
+\layout Enumerate
 
-3.
- Widgets for indicating FLOAT signals: Number, Bar, Meter
-\layout List
-\labelwidthstring 00.00.0000
+Widgets for indicating "number" signals: number, s32, u32, bar, meter
+\layout Enumerate
 
-4.
- Widgets for controlling FLOAT signals: Spinbox, Scale, Jogwheel
-\layout List
-\labelwidthstring 00.00.0000
+Widgets for controlling "number" signals: spinbox, scale, jogwheel
+\layout Enumerate
 
-5.
- Helper widgets: Hbox, Vbox, Tabel, Label, Labelframe
+Helper widgets: hbox, vbox, tabel, label, labelframe
 \layout Subsubsection
 
 Syntax
@@ -340,6 +321,14 @@ When the tag-based syntax is used, the text within the tag is always evaluated
 \layout Standard
 
 The examples below show a mix of formats.
+\layout Subsubsection
+
+Editing the XML file
+\layout Standard
+
+Edit the XML file with a text editor.
+ In most cases you can right click on the file and select "open with text
+ editor" or similar.
 \layout Subsection
 
 LED
@@ -348,17 +337,25 @@ LED
 A LED is used to indicate the status of a BIT signal.
  The LED color will be on_color when the BIT signal is true, and off_color
  otherwise.
-\layout LyX-Code
+\layout Quote
 
 <led>
 \newline 
-    <halpin>"my-led"</halpin> 
+\SpecialChar ~
+\SpecialChar ~
+<halpin>"my-led"</halpin> 
 \newline 
-    <size>50</size> 
+\SpecialChar ~
+\SpecialChar ~
+<size>50</size> 
 \newline 
-    <on_color>"blue"</on_color>
+\SpecialChar ~
+\SpecialChar ~
+<on_color>"blue"</on_color>
 \newline 
-    <off_color>"black"</off_color>
+\SpecialChar ~
+\SpecialChar ~
+<off_color>"black"</off_color>
 \newline 
 </led>
 \layout Standard
@@ -407,19 +404,51 @@ ref
 
 \layout Subsection
 
+Rectangle LED
+\layout Standard
+
+This is a variant of the "led" widget.
+ 
+\layout Quote
+
+<rectled>
+\newline 
+\SpecialChar ~
+\SpecialChar ~
+<halpin>"my-led"</halpin>
+\newline 
+\SpecialChar ~
+\SpecialChar ~
+<height>"50"</height>
+\newline 
+\SpecialChar ~
+\SpecialChar ~
+<width>"100"</width>
+\newline 
+\SpecialChar ~
+\SpecialChar ~
+<on_color>"green"</on_color>
+\newline 
+\SpecialChar ~
+\SpecialChar ~
+<off_color>"red"</off_color>
+\newline 
+</rectled>
+\layout Subsection
+
 Button
 \layout Standard
 
 A button is used to control a BIT pin.
  The pin will be set True when the button is pressed and held down, and
  will be set False when the button is released.
-\layout LyX-Code
+\layout Quote
 
 <button>
 \newline 
     <halpin>"my-button"</halpin>
 \newline 
-    <text>"ON"</text> 
+    <text>"OK"</text> 
 \newline 
 </button>
 \layout Standard
@@ -439,7 +468,7 @@ Checkbutton
 A checkbutton controls a BIT pin.
  The pin will be set True when the button is checked, and false when the
  button is unchecked.
-\layout LyX-Code
+\layout Quote
 
 <checkbutton>
 \newline 
@@ -468,7 +497,7 @@ Radiobutton
 
 A radiobutton will set one of a number of BIT pins true.
  The other pins are set false.
-\layout LyX-Code
+\layout Quote
 
 <radiobutton>
 \newline 
@@ -501,11 +530,11 @@ three
  is the selected value.
 \layout Subsection
 
-Number
+Float Number
 \layout Standard
 
-The number widget displays the value of a FLOAT signal.
-\layout LyX-Code
+The number widget displays the value of a float signal.
+\layout Quote
 
 <number>
 \newline 
@@ -532,7 +561,7 @@ The number widget displays the value of a FLOAT signal.
  40 or 50.
  One font that will show up to at least size 200 is "courier 10 pitch",
  so for a really big Number widget you could specify:
-\layout LyX-Code
+\layout Quote
 
 <font>("courier 10 pitch",100)</font>
 \layout Standard
@@ -541,12 +570,26 @@ The number widget displays the value of a FLOAT signal.
  is displayed.
 \layout Subsection
 
+s32 Number
+\layout Standard
+
+The s32 number widget displays the value of a s32 number.
+ The syntax is the same as "number" except the name which is <s32>.
+\layout Subsection
+
+u32 Number
+\layout Standard
+
+The u32 number widget displays the value of a u32 number.
+ The syntax is the same as "number" except the name which is <u32>.
+\layout Subsection
+
 Bar
 \layout Standard
 
 A bar widget displays the value of a FLOAT signal both graphically using
  a bar display and numerically.
-\layout LyX-Code
+\layout Quote
 
 <bar>
 \newline 
@@ -576,7 +619,7 @@ Meter
 \layout Standard
 
 Meter displays the value of a FLOAT signal using a traditional dial indicator.
-\layout LyX-Code
+\layout Quote
 
 <meter>
 \newline 
@@ -624,7 +667,7 @@ Spinbox
 Spinbox controls a FLOAT pin.
  You increase or decrease the value of the pin by either pressing on the
  arrows, or pointing at the spinbox and rolling your mouse-wheel.
-\layout LyX-Code
+\layout Quote
 
 <spinbox>
 \newline 
@@ -658,7 +701,7 @@ Scale
 Scale controls a FLOAT pin.
  You increase or decrease the value of the pin be either dragging the slider,
  or pointing at the scale and rolling your mouse-wheel.
-\layout LyX-Code
+\layout Quote
 
 <scale>
 \newline 
@@ -690,7 +733,7 @@ Jogwheel
 Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
  or down as the wheel is turned, either by dragging in a circular motion,
  or by rolling the mouse-wheel.
-\layout LyX-Code
+\layout Quote
 
 <jogwheel>
 \newline 
@@ -717,6 +760,18 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
 pyVCP Container reference
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+add info on borders
+\end_inset 
+
+
+\layout Standard
+
 Containers are widgets that contain other widgets.
 \layout Subsection
 
@@ -724,7 +779,7 @@ Hbox
 \layout Standard
 
 Use a Hbox when you want to stack widgets horizontally next to each other.
-\layout LyX-Code
+\layout Quote
 
 <hbox>
 \newline 
@@ -789,7 +844,7 @@ Vbox
 \layout Standard
 
 Use a Vbox when you want to stack widgets vertically on top of each other.
-\layout LyX-Code
+\layout Quote
 
 <vbox>
 \newline 
@@ -854,7 +909,7 @@ Label
 \layout Standard
 
 A label is a piece of text on your panel.
-\layout LyX-Code
+\layout Quote
 
 <label>
 \newline 
@@ -878,7 +933,7 @@ Labelframe
 \layout Standard
 
 A labelframe is a frame with a groove and a label at the upper-left corner.
-\layout LyX-Code
+\layout Quote
 
 <labelframe text="Group Title">
 \newline 
@@ -922,7 +977,7 @@ stick
 \layout Standard
 
 Example:
-\layout LyX-Code
+\layout Quote
 
 <table flexible_rows="[2]" flexible_columns="[1,4]">
 \newline 
@@ -934,7 +989,7 @@ Example:
 \newline 
     <label text="B (cell 1,2)"/>
 \newline 
-    <tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"> 
+    <tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"/> 
 \newline 
    <tablerow/>
 \newline 
@@ -956,7 +1011,98 @@ n2 rows'"/>
 \newline 
     <label text="K (cell 3,2)"/>
 \newline 
-    <label text="M (cell 3,4)"/>
+   <u32 halpin="test"/>
 \newline 
 </table> 
+\layout Quote
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_table.png
+	scale 70
+
+\end_inset 
+
+
+\layout Subsection
+
+Tabs
+\layout Standard
+
+A tabbed interface can save quite a bit of space.
+\layout Quote
+
+<tabs>
+\newline 
+<names> ["spindle","green eggs"]</names>
+\newline 
+</tabs>
+\newline 
+<tabs>
+\newline 
+<names>["Spindle", "Green Eggs", "Ham"]</names>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"Spindle speed:"</text>
+\newline 
+</label>
+\newline 
+<bar>
+\newline 
+<halpin>"spindle-speed"</halpin>
+\newline 
+<max_>5000</max_>
+\newline 
+</bar>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"(this is the green eggs tab)"</text>
+\newline 
+</label>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"(this tab has nothing on it)"</text>
+\newline 
+</label>
+\newline 
+</vbox>
+\newline 
+</tabs>
+\layout Standard
+
+The above code produces the following tabbed display.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs1.png
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs2.png
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs3.png
+
+\end_inset 
+
+
 \the_end
