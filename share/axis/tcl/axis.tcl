@@ -1660,7 +1660,7 @@ text .about.message \
 	.about.message configure -cursor hand2
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
-.about.message insert end [subst [_ "EMC2/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with EMC2.\n\nVisit the EMC web site: "]] {} {http://www.linuxcnc.org/} link
+.about.message insert end [subst [_ "EMC2/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  See the file COPYING, included with EMC2.\n\nVisit the EMC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
 button .about.ok \
@@ -1881,7 +1881,8 @@ proc update_state {args} {
         {.menu.file "_Edit..."}
     state  {$taskfile != ""} {.menu.file "_Properties..."}
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
-        {.menu.file "_Open..." "_Quit"}
+        {.menu.machine "Skip lines with '_/'" "Stop at M_1"} \
+        .toolbar.program_blockdelete .toolbar.program_optpause
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
         .toolbar.program_run {.menu.machine "_Run program"} \
         {.menu.file "Reload tool ta_ble"}
