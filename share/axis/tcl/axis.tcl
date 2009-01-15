@@ -1881,8 +1881,7 @@ proc update_state {args} {
         {.menu.file "_Edit..."}
     state  {$taskfile != ""} {.menu.file "_Properties..."}
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
-        {.menu.machine "Skip lines with '_/'" "Stop at M_1"} \
-        .toolbar.program_blockdelete .toolbar.program_optpause
+        {.menu.machine "Skip lines with '_/'"} .toolbar.program_blockdelete
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
         .toolbar.program_run {.menu.machine "_Run program"} \
         {.menu.file "Reload tool ta_ble"}
