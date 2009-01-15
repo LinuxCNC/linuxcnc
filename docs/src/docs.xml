@@ -95,6 +95,7 @@
 <doc name="gui_image-to-gcode_fr" title="Les fonctionnalités d'Image-vers-gcode"/>
 
 <doc name="common_User_Concepts_fr" title="Importants concepts utilisateur"/>
+<doc name="lathe_lathe-user_fr" title="Spécificités des tours"/>
 
 <doc name="hal_intro_fr" title="Introduction à HAL"/>
 <doc name="hal_basic_hal_fr" title="Les bases de HAL"/>
