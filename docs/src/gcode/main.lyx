@@ -640,7 +640,7 @@ Q
 
 \layout Standard
 
-Feed increment in G73, G83 canned cycles
+Feed increment in G83 canned cycles
 \end_inset 
 </cell>
 </row>
@@ -2163,7 +2163,7 @@ Group 1
 
 \layout Standard
 
-G0 G1 G2 G3 G33 G38.2 G73 G80 G81
+G0 G1 G2 G3 G33 G38.2 G80 G81
 \end_inset 
 </cell>
 </row>
@@ -6910,65 +6910,6 @@ Rapid back down to the current hole bottom, backed off a bit.
 \layout Enumerate
 
 Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
-\layout Enumerate
-
-Retract the Z-axis at traverse rate to clear Z.
- 
-\layout Standard
-
-It is an error if: 
-\layout Itemize
-
-the Q number is negative or zero.
-\layout Section
-
-G73 Drilling Cycle with Chip Breaking
-\begin_inset LatexCommand \index{G73 Drilling Cycle with Chip Breaking}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:G73:-Drilling-Cycle}
-
-\end_inset 
-
-
-\layout Standard
-
-The 
-\family typewriter 
-G73
-\family default 
- cycle is intended for deep drilling or milling with chip breaking.
- The retracts in this cycle cut off any long stringers (which are common
- when drilling in aluminum).
- This cycle takes a Q number which represents a 
-\begin_inset Quotes eld
-\end_inset 
-
-delta
-\begin_inset Quotes erd
-\end_inset 
-
- increment along the Z axis.
- Program 
-\family typewriter 
-G73 X- Y- Z- A- B- C- R- L- Q-
-\layout Enumerate
-
-Preliminary motion, as described above.
- 
-\layout Enumerate
-
-Move the Z-axis only at the current feed rate downward by delta or to the
- Z position, whichever is less deep.
- 
-\layout Enumerate
-
-Rapid up a bit.
-\layout Enumerate
-
-Repeat steps 2 and 3 until the Z position is reached at step 2.
 \layout Enumerate
 
 Retract the Z-axis at traverse rate to clear Z.
