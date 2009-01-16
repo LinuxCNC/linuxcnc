@@ -290,6 +290,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     CHKS((((motion < G_81) || (motion > G_89)) &&
          (block->g_modes[0] != G_10) &&
          (motion != G_76) &&
+         (motion != G_73) &&
          (block->g_modes[7] != G_41) &&
          (block->g_modes[7] != G_41_1) &&
          (block->g_modes[7] != G_42) &&
