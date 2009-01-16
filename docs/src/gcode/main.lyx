@@ -4888,7 +4888,7 @@ n/a
 \layout Section
 \pagebreak_top 
 G0 Rapid Linear Motion
-\begin_inset LatexCommand \index{G0 Rapid Linear Motion}
+\begin_inset LatexCommand \index{G0 Rapid}
 
 \end_inset 
 
@@ -5375,7 +5375,7 @@ Program G8 to enter the radius mode for axis X on a lathe.
 \layout Section
 
 G10 L1 Set Tool Table
-\begin_inset LatexCommand \index{G10 L1 Set Tool Table}
+\begin_inset LatexCommand \index{G10 L1 Tool Table}
 
 \end_inset 
 
@@ -5403,7 +5403,7 @@ For more information on tool orientation see figure (
 \layout Section
 
 G10 L2 Set Coordinate System
-\begin_inset LatexCommand \index{G10 L2 Set Coordinate System}
+\begin_inset LatexCommand \index{G10 L2 Coordinate System}
 
 \end_inset 
 
@@ -5672,7 +5672,7 @@ It is usually a good idea to program either G20 or G21 near the beginning
 \layout Section
 
 G28, G30 Return to Predefined Absolute Position
-\begin_inset LatexCommand \index{G28, G30 Return to Predefined Absolute Position}
+\begin_inset LatexCommand \index{G28, G30 Return to Predefined}
 
 \end_inset 
 
@@ -6179,7 +6179,7 @@ filename.txt
 \layout Section
 
 G40, G41, G41.1, G42, G42.1 Cutter Radius Compensation
-\begin_inset LatexCommand \index{G40, G41, G41.1, G42, G42.1 Cutter Radius Compensation}
+\begin_inset LatexCommand \index{G40, G41, G41.1, G42, G42.1 Cutter Compensation}
 
 \end_inset 
 
@@ -6377,7 +6377,7 @@ It is OK to program using the same offset already in use.
 \layout Section
 
 G53 Move in Absolute Coordinates
-\begin_inset LatexCommand \index{G53 Move in Absolute Coordinates}
+\begin_inset LatexCommand \index{G53 Absolute Coordinates}
 
 \end_inset 
 
@@ -6522,7 +6522,7 @@ See Section
 \layout Section
 
 G61, G61.1, G64 Set Path Control Mode
-\begin_inset LatexCommand \index{G61, G61.1, G64 Set Path Control Mode}
+\begin_inset LatexCommand \index{G61, G61.1, G64 Path Control}
 
 \end_inset 
 
@@ -6583,7 +6583,7 @@ naive cam detector
 \layout Section
 
 G73 Drilling Cycle with Chip Breaking
-\begin_inset LatexCommand \index{G73 Drilling Cycle with Chip Breaking}
+\begin_inset LatexCommand \index{G73 Drilling Cycle Chip Break}
 
 \end_inset 
 
@@ -6642,7 +6642,7 @@ the Q number is negative or zero.
 \layout Section
 
 G76 Threading Canned Cycle
-\begin_inset LatexCommand \index{G76 Threading Canned Cycle}
+\begin_inset LatexCommand \index{G76 Threading}
 
 \end_inset 
 
@@ -7428,7 +7428,7 @@ a traverse parallel to the Z-axis to (13,17,4.8)
 \layout Section
 
 G82 Drilling Cycle with Dwell
-\begin_inset LatexCommand \index{G82 Drilling Cycle with Dwell}
+\begin_inset LatexCommand \index{G82 Drilling Cycle Dwell}
 
 \end_inset 
 
@@ -7771,7 +7771,7 @@ Returns I, J & K to their normal behaviour.
 \layout Section
 
 G92, G92.1, G92.2, G92.3 Coordinate System Offsets
-\begin_inset LatexCommand \index{G92, G92.1, G92.2, G92.3 Coordinate System Offsets}
+\begin_inset LatexCommand \index{G92, G92.1, G92.2, G92.3 Offsets}
 
 \end_inset 
 
@@ -7914,7 +7914,7 @@ G92.3
 \layout Section
 
 G93, G94, G95: Set Feed Rate Mode
-\begin_inset LatexCommand \index{G93, G94, G95: Set Feed Rate Mode}
+\begin_inset LatexCommand \index{G93, G94, G95: Feed Rate Mode}
 
 \end_inset 
 
@@ -8000,7 +8000,7 @@ A feed move is specified in G96 mode while the spindle is not turning
 \layout Section
 
 G98, G99 Set Canned Cycle Return Level
-\begin_inset LatexCommand \index{G98, G99 Set Canned Cycle Return Level}
+\begin_inset LatexCommand \index{G98, G99 Canned Cycle Return}
 
 \end_inset 
 
@@ -8039,7 +8039,7 @@ M Codes
 \layout Section
 
 M0, M1, M2, M30, M60 Program Stopping and Ending
-\begin_inset LatexCommand \index{M0, M1, M2, M30, M60 Program Stopping and Ending}
+\begin_inset LatexCommand \index{M0, M1, M2, M30, M60 Program Pause/End}
 
 \end_inset 
 
@@ -8454,7 +8454,7 @@ M50 P0
 \layout Section
 
 M51 Spindle Speed Override Control
-\begin_inset LatexCommand \index{M51 Spindle Speed Override Control}
+\begin_inset LatexCommand \index{M51 Spindle Speed Override}
 
 \end_inset 
 
