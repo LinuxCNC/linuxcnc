@@ -57,7 +57,7 @@ int Interp::convert_cycle_g81(block_pointer block,
                               double bottom_z)   //!< value of z at bottom of cycle   
 {
     cycle_feed(block, plane, x, y, bottom_z);
-    cycle_feed(block, plane, x, y, clear_z);
+    cycle_traverse(block, plane, x, y, clear_z);
 
   return INTERP_OK;
 }
@@ -97,7 +97,7 @@ int Interp::convert_cycle_g82(block_pointer block,
 {
   cycle_feed(block, plane, x, y, bottom_z);
   DWELL(dwell);
-  cycle_feed(block, plane, x, y, clear_z);
+  cycle_traverse(block, plane, x, y, clear_z);
 
   return INTERP_OK;
 }
@@ -159,11 +159,11 @@ int Interp::convert_cycle_g83(block_pointer block,
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
-    cycle_feed(block, plane, x, y, clear_z);
-    cycle_feed(block, plane, x, y, current_depth + rapid_delta);
+    cycle_traverse(block, plane, x, y, clear_z);
+    cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
   cycle_feed(block, plane, x, y, bottom_z);
-  cycle_feed(block, plane, x, y, clear_z);
+  cycle_traverse(block, plane, x, y, clear_z);
 
   return INTERP_OK;
 }
@@ -224,10 +224,10 @@ int Interp::convert_cycle_g73(block_pointer block,
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
-    cycle_feed(block, plane, x, y, current_depth + rapid_delta);
+    cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
   cycle_feed(block, plane, x, y, bottom_z);
-  cycle_feed(block, plane, x, y, clear_z);
+  cycle_traverse(block, plane, x, y, clear_z);
 
   return INTERP_OK;
 }
@@ -381,7 +381,7 @@ int Interp::convert_cycle_g86(block_pointer block,
   cycle_feed(block, plane, x, y, bottom_z);
   DWELL(dwell);
   STOP_SPINDLE_TURNING();
-  cycle_feed(block, plane, x, y, clear_z);
+  cycle_traverse(block, plane, x, y, clear_z);
   if (direction == CANON_CLOCKWISE)
     START_SPINDLE_CLOCKWISE();
   else
@@ -467,11 +467,11 @@ int Interp::convert_cycle_g87(block_pointer block,
        (direction != CANON_COUNTERCLOCKWISE)),
       NCE_SPINDLE_NOT_TURNING_IN_G87);
 
-  cycle_feed(block, plane, offset_x, offset_y, r);
+  cycle_traverse(block, plane, offset_x, offset_y, r);
   STOP_SPINDLE_TURNING();
   ORIENT_SPINDLE(0.0, direction);
-  cycle_feed(block, plane, offset_x, offset_y, bottom_z);
-  cycle_feed(block, plane, x, y, bottom_z);
+  cycle_traverse(block, plane, offset_x, offset_y, bottom_z);
+  cycle_traverse(block, plane, x, y, bottom_z);
   if (direction == CANON_CLOCKWISE)
     START_SPINDLE_CLOCKWISE();
   else
@@ -480,9 +480,9 @@ int Interp::convert_cycle_g87(block_pointer block,
   cycle_feed(block, plane, x, y, bottom_z);
   STOP_SPINDLE_TURNING();
   ORIENT_SPINDLE(0.0, direction);
-  cycle_feed(block, plane, offset_x, offset_y, bottom_z);
-  cycle_feed(block, plane, offset_x, offset_y, clear_z);
-  cycle_feed(block, plane, x, y, clear_z);
+  cycle_traverse(block, plane, offset_x, offset_y, bottom_z);
+  cycle_traverse(block, plane, offset_x, offset_y, clear_z);
+  cycle_traverse(block, plane, x, y, clear_z);
   if (direction == CANON_CLOCKWISE)
     START_SPINDLE_CLOCKWISE();
   else
