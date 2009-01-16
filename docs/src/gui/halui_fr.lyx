@@ -85,7 +85,7 @@ dans votre fichier custom.hal.
 Nomenclature des pins d'Halui
 \layout Subsection
 
-Marche machine
+Abandon (abort)
 \layout Itemize
 
 (
@@ -94,25 +94,32 @@ Marche machine
 bit
 \family default 
 \noun default 
-) halui.machine.on - pin de requête de marche machine
+) halui.abort (in) - pin de requête d'abandon (efface les erreurs)
+\layout Subsection
+
+Axes (axis)
 \layout Itemize
 
 (
-\family typewriter 
 \noun on 
-bit
-\family default 
+float
 \noun default 
-) halui.machine.off - pin de requête d'arrêt machine
+) halui.axis.n.pos-commanded (out) - Position de l'axe commandée, en coordonnées
+ machine
 \layout Itemize
 
 (
-\family typewriter 
 \noun on 
-bit
-\family default 
+float
 \noun default 
-) halui.machine.is-on - indique que la machine est en marche
+) halui.axis.n.pos-feedback (out) - Position de l'axe lue, en coordonnées machine
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.axis.n.pos-relative (out) - Position de l'axe, en coordonnées relatives
 \layout Subsection
 
 Arrêt d'urgence (E-Stop)
@@ -146,359 +153,15 @@ bit
 ) halui.estop.is-activated - indique si l'arrêt d'urgence est actif
 \layout Subsection
 
-Mode de fonctionnement
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.manual - pin de requête du mode manuel
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.is_manual - indique si le mode manuel est actif
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.auto - pin de requête du mode auto
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.is_auto - indique si le mode auto est actif
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.mdi - pin de requête du mode données manuelles
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mode.is_mdi - indique si le mode données manuelles est actif
-\layout Subsection
-
-Brouillard, arrosage, lubrifiant (Mist, Flood, Lube) 
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mist.on - pin de requête du brouillard
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.mist.is-on - indique si le brouillard est actif
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.flood.on - pin de requête d'arrosage
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.flood.is-on - indique si l'arrosage est actif
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.lube.on - pin de requête de graissage
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.lube.is-on - indique si le graissage est actif
-\layout Subsection
-
-Broche (Spindle)
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.start - Marche de la broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.stop - Arrêt de la broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.forward - Marche broche en sens horaire
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.reverse - Marche broche en sens anti-horaire
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.increase - Augmente la vitesse de broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.decrease - Diminue la vitesse de broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.brake-on - pin d'activation du frein de broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.brake-off - pin de désactivation du frein de broche
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.spindle.brake-is-on - indique si le frein est actif
-\layout Subsection
-
-Joints 
-\layout Standard
-
-<channel> est un nombre compris entre 0 et 7, ou 'selected'.
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.home - pin pour la prise d'origine d'un joint spécifique
- 
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.on-min-limit-soft - pin de status indiquant que le
- joint est sur sa limite logicielle négative
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.on-max-limit-soft - pin de status indiquant que le
- joint est sur sa limite logicielle positive
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.on-min-limit-hard - pin de status indiquant que le
- joint est sur son fin de course de limite négative
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.on-max-limit-hard - pin de status indiquant que le
- joint est sur son fin de course de limite positive
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.fault - pin de status indiquant que le joint est en
- défaut
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.joint.<channel>.homed - pin de status indiquant que le joint est référencé
-\layout Subsection
-
-Jogging
-\layout Standard
-
-<channel> est un nombre compris entre 0 et 7, ou 'selected'.
-\layout Itemize
-
-(
-\noun on 
-float
-\noun default 
-) halui.jog.speed - positionne la vitesse de jog
-\layout Itemize
-
-(
-\noun on 
-float
-\noun default 
-) halui.jog-deadband - bande morte pour le jogging analogique (les petites
- vitesses de jog sont sans effet)
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.jog.<channel>.minus - jog dans en direction négative
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.jog.<channel>.plus - jog en direction positive
-\layout Itemize
-
-(
-\noun on 
-bit
-\noun default 
-) halui.jog.<channel>.analog - entrée analogique de vitesse de jog (utilisé
- avec les joysticks ou autres matériels analogiques)
-\layout Subsection
-
-Sélection d'un joint
-\layout Itemize
-
-(
-\noun on 
-u32
-\noun default 
-) halui.joint.select - sélectionne le joint (0..7) - internal halui
-\layout Itemize
-
-(
-\noun on 
-u32
-\noun default 
-) halui.joint.selected - joint (0..7) sélectionné - internal halui
-\layout Itemize
-
-(
-\noun on 
-bit
-\noun default 
-) halui.joint.x.select bit - pins pour sélectinner un joint - internal halui
-\layout Itemize
-
-(
-\noun on 
-bit
-\noun default 
-) halui.joint.x.is-selected bit - pin de status indiquant un joint sélectionné
- - internal halui
-\layout Subsection
-
 Correcteur de vitesse d'avance (Feed override)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.feed-override.count-enable (in) - doit être vraie pour activer le
+ comptage.
 \layout Itemize
 
 (
@@ -539,141 +202,480 @@ bit
 ) halui.feed-override.decrease - pin pour diminuer la correction (-=scale)
 \layout Subsection
 
-Correcteur de vitesse de broche (Spindle override)
+Brouillard (Mist) 
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mist.on - pin de requête du brouillard
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mist.is-on - indique si le brouillard est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mist.off - pin de requête d'arrêt du brouillard
+\layout Subsection
+
+Arrosage (Flood)
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.flood.on - pin de requête d'arrosage
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.flood.is-on - indique si l'arrosage est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.flood.off - pin de requête d'arrêt d'arrosage
+\layout Subsection
+
+Lubrifiant (Lube)
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.lube.on - pin de requête de graissage
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.lube.is-on - indique si le graissage est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.lube.off - pin de requête d'arrêt du graissage
+\layout Subsection
+
+Jog
+\layout Standard
+
+<n> est un nombre compris entre 0 et 7, ou <selected>.
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.spindle-override.value - Valeur courante de la correction de vitesse
- de broche
+) halui.jog.speed - positionne la vitesse de jog
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.spindle-override.scale - pin pour positionner l'échelle des corrections
- de vitesse de broche possibles
+) halui.jog-deadband - bande morte pour le jogging analogique (les petites
+ vitesses de jog sont sans effet)
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.jog.<n>.minus - jog en direction négative
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.jog.<n>.plus - jog en direction positive
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.jog.<n>.analog - entrée analogique de vitesse de jog (utilisé avec
+ les joysticks ou autres matériels analogiques)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.jog.<selected>.minus (in) - jog l'axe 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ en direction négative et à la vitesse de halui.jog.speed velocity
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.jog.<selected>.plus (in) - jog l'axe 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ en direction positive et à la vitesse de halui.jog.speed velocity
+\layout Subsection
+
+Joints 
+\layout Standard
+
+<n> est un nombre compris entre 0 et 7, ou 'selected'.
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.home (out) - pin pour la prise d'origine d'un joint spécifique
+ 
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.on-soft-min-limit - pin de status indiquant que le joint
+ est sur sa limite logicielle négative
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.on-soft-max-limit - pin de status indiquant que le joint
+ est sur sa limite logicielle positive
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.on-hard-min-limit - pin de status indiquant que le joint
+ est sur son fin de course de limite négative
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.on-hard-max-limit - pin de status indiquant que le joint
+ est sur son fin de course de limite positive
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.has-fault (out) - pin de status indiquant que le joint est
+ en défaut
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.is-homed (out) - pin de status indiquant que le joint est
+ référencé
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.is-selected bit (out) - pin indiquant que le joint est 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ - interne à halui
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.<n>.select (in) - select joint (0..7) - interne à halui
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+u32
+\family default 
+\noun default 
+) halui.joint.selected (out) - selected joint (0..7) - interne à halui
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.has-fault (out) - pin de status indiquant que le joint
+ <n> est en défaut
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.home (in) - pin pour la prise d'origine du joint 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ 
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.is-homed (out) - pin de status indiquant que le joint
+ 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ est référencé
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.on-hard-max-limit (out) - status pin telling that the
+ selected joint is on the positive hardware limit
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.on-hard-min-limit (out) - pin de status indiquant que
+ le joint 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ est sur son fin de course de limite négative
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.on-soft-max-limit (out) - pin de status indiquant que
+ le joint 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ est sur sa limite logicielle positive
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.joint.selected.on-soft-min-limit (out) - pin de status indiquant que
+ le joint 
+\begin_inset Quotes fld
+\end_inset 
+
+selected
+\begin_inset Quotes frd
+\end_inset 
+
+ est sur sa limite logicielle négative
+\layout Subsection
+
+Marche machine
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.on - pin de requête de marche machine
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.off - pin de requête d'arrêt machine
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.machine.is-on - indique que la machine est en marche
+\layout Subsection
+
+Vitesse maximum
+\layout Standard
+
+La vitesse linéaire maximum peut être ajustée entre 0 et la valeur de la
+ variable MAX_VELOCITY dans la section [TRAJ] du fichier ini.
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.max-velocity.count-enable (in) - Si TRUE, la vitesse max est modifiée
+ quand le comptage change
 \layout Itemize
 
 (
 \noun on 
 s32
 \noun default 
-) halui.spindle-override.counts - comptage depuis un codeur, par exemple pour
- modifier la correction de vitesse de broche
+) halui.max-velocity.counts (in) - vous permet, en agissant sur un codeur,
+ de modifier la vitesse max
 \layout Itemize
 
 (
+\family typewriter 
 \noun on 
 bit
+\family default 
 \noun default 
-) halui.spindle-override.increase - pin pour augmenter la correction de vitesse
- de broche (+=scale)
+) halui.max-velocity.decrease (in) - pin pour diminuer la vitesse max
 \layout Itemize
 
 (
+\family typewriter 
 \noun on 
 bit
+\family default 
 \noun default 
-) halui.spindle-override.decrease - pin pour diminuer la correction de vitesse
- de broche (-=scale)
-\layout Subsection
-
-Outil (Tool)
-\layout Itemize
-
-(
-\noun on 
-u32
-\noun default 
-) halui.tool.number - indique l'outil courant sélectionné
+) halui.max-velocity.increase (in) - pin pour augmenter la vitesse max
 \layout Itemize
 
 (
 \noun on 
 float
 \noun default 
-) halui.tool.length-offset - indique la correction de longueur d'outil appliquée
-\layout Subsection
-
-Programme
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.is-idle
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.is-running
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.is-paused
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.run
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.pause
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.resume
-\layout Itemize
-
-(
-\family typewriter 
-\noun on 
-bit
-\family default 
-\noun default 
-) halui.program.step
-\layout Subsection
-
-Général
+) halui.max-velocity.scale (in) - Valeur appliquée sur le nombre de fronts
+ montants des pins increase ou decrease en unités machine par seconde.
 \layout Itemize
 
 (
 \noun on 
-bit
+float
 \noun default 
-) halui.abort - pin pour envoyer un message d'abandon (efface les autres
- messages d'erreur)
+) halui.max-velocity.value (out) - Valeur de la vitesse linéaire maximum en
+ unités machine par seconde.
 \layout Subsection
 
 Données manuelles (MDI)
@@ -681,7 +683,7 @@ Données manuelles (MDI)
 
 Il arrive que l'utilisateur veuille ajouter des tâches plus complexes devant
  être effectuées par l'activation d'une pin de HAL.
- C'est possible en utilisant le schéma de commandes en données manuelles
+ C'est possible en utilisant le schéma de commande en données manuelles
  (MDI) suivant:
 \layout Itemize
 
@@ -696,19 +698,454 @@ Quand halui démarre il va lire/détecter le champ MDI_COMMAND dans le fichier
 bit
 \family default 
 \noun default 
-) halui.mdi-command-<nr> (<nr> est un nombre compris entre 00 et le nombre
- de MDI_COMMAND trouvées dans le fichier ini)
+) halui.mdi-command-<nr>, <nr> est un nombre compris entre 00 et le nombre
+ de MDI_COMMAND trouvées dans le fichier ini, avec un maximum de 10 commandes.
 \layout Itemize
 
 Quand la pin halui.mdi-command-<nr> est activée, halui va essayer d'envoyer
  au MDI la commande définie dans le fichier ini.
- Ca ne fonctionnera pas toujours avec succés, selon dans quel mode de fonctionne
-ment se trouve emc2, par exemple, tant qu'il est en AUTO halui ne peut pas
- envoyer de commande MDI.
-\layout Section
+ Ca ne fonctionnera pas dans tous les modes de fonctionnement où se trouve
+ emc2, par exemple, tant qu'il est en AUTO halui ne peut pas envoyer de
+ commande MDI.
+\layout Subsection
 
-Cas d'étude
-\layout Standard
+Mode de fonctionnement
+\layout Itemize
 
-User descriptions of working halui and hardware EMC control panels here.
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.manual (in) - pin de requête du mode manuel
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_manual (out) - indique si le mode manuel est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.auto (in) - pin de requête du mode auto
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_auto (out)- indique si le mode auto est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.mdi (in) - pin de requête du mode données manuelles
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is_mdi (out) - indique si le mode données manuelles est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.joint (in) - pin de requête du mode jog joint par joint
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is-joint (out) - pin indiquant si le mode joint par joint est
+ actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.mode.is-teleop (out) - pin indiquant que le mode jog coordonné est
+ actif
+\layout Subsection
+
+Broche (Spindle)
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.start (in) - Marche de la broche
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.is-on (out) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.stop (in) - Arrêt de la broche
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.forward (in) - Marche broche en sens horaire
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.runs-forward (out) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.reverse (in) - Marche broche en sens anti-horaire
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.runs-backward (out) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.increase (in) - Augmente la vitesse de broche
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.decrease (in) - Diminue la vitesse de broche
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-on (in) - pin d'activation du frein de broche
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-is-on (out) - indique si le frein est actif
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.spindle.brake-off (in) - pin de désactivation du frein de broche
+\layout Subsection
+
+Sélection d'un joint
+\layout Itemize
+
+(
+\noun on 
+u32
+\noun default 
+) halui.joint.select - sélectionne le joint (0..7) - internal halui
+\layout Itemize
+
+(
+\noun on 
+u32
+\noun default 
+) halui.joint.selected - joint (0..7) sélectionné - internal halui
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.joint.x.select bit - pins pour sélectinner un joint - internal halui
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.joint.x.is-selected bit - pin de status indiquant un joint sélectionné
+ - internal halui
+\layout Subsection
+
+Correcteur de vitesse de broche (Spindle override)
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.spindle-override.value (out) - Valeur courante de la correction de
+ vitesse de broche
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.spindle-override.scale (in) - pin pour positionner l'échelle des correctio
+ns de vitesse de broche possibles
+\layout Itemize
+
+(
+\noun on 
+s32
+\noun default 
+) halui.spindle-override.counts (in) - comptage depuis un codeur, par exemple
+ pour modifier la correction de vitesse de broche
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.spindle-override.increase (in) - pin pour augmenter la correction
+ de vitesse de broche (+=scale)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.spindle-override.decrease (in) - pin pour diminuer la correction de
+ vitesse de broche (-=scale)
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.spindle-override.count-enable (in) - Si TRUE, la correction de vitesse
+ broche varie quand le comptage change.
+\layout Subsection
+
+Outil (Tool)
+\layout Itemize
+
+(
+\noun on 
+u32
+\noun default 
+) halui.tool.number (out) - indique l'outil courant sélectionné
+\layout Itemize
+
+(
+\noun on 
+float
+\noun default 
+) halui.tool.length-offset (out) - indique la correction de longueur d'outil
+ appliquée
+\layout Subsection
+
+Programme
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-idle (out) - pin de status indiquant qu'aucun programme
+ n'est lancé
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-running (out) - pin de status indiquant qu'un programme
+ est lancé
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.is-paused (out) - pin de status indiquant qu'un programme
+ est en pause
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.run (in) - pin de lancement d'un programme
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.pause (in) - pin pour passer un programme en pause
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.resume (in) - pin pour lancer la reprise d'un programme
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.step (in) - pin pour avancer d'une ligne de programme
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.block-delete.is-on (out) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.block-delete.off (in) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.block-delete.on (in) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.optional-stop.is-on (out) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.optional-stop.off (in) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.optional-stop.on (in) -
+\layout Itemize
+
+(
+\family typewriter 
+\noun on 
+bit
+\family default 
+\noun default 
+) halui.program.stop (in) - pin pour stopper un programme
+\layout Subsection
+
+Général
+\layout Itemize
+
+(
+\noun on 
+bit
+\noun default 
+) halui.abort - pin pour envoyer un message d'abandon (efface les autres
+ messages d'erreur)
 \the_end
