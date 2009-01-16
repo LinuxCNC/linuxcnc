@@ -99,7 +99,7 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
     which limit would be exceeded
   * G10 L1 commands to set tool offsets, radius, orientation
   * AXIS: "touch off" can now also set offsets in the tool table
-  * converted many pins to parameters for added flexibility.  this does not
+  * converted many parameters to pins for added flexibility.  this does not
     require any configuration changes because setp works on both.
   * new motion.spindle-atspeed-in pin can be used to cause motion to
     wait for the spindle to reach a newly-programmed speed at the
