@@ -29,7 +29,6 @@
 Moteurs pas à pas
 \layout Standard
 
-
 Si ce que vous obtenez ne correspond pas à ce que vous espériez, la plupart
  du temps c'est juste un petit manque d'expérience.
  Accroître son expérience permet souvent une meilleure compréhension globale.
@@ -44,10 +43,8 @@ Si ce que vous obtenez ne correspond pas à ce que vous espériez, la plupart
 Problèmes communs
 \layout Subsection
 
-
 Le moteur n'avance que d'un pas
 \layout Standard
-
 
 La raison la plus fréquente dans une nouvelle installation pour que le moteur
  ne bouge pas est l'interversion entre le signal de pas et le signal de
@@ -57,30 +54,24 @@ La raison la plus fréquente dans une nouvelle installation pour que le moteur
  direction, vous êtes dans ce cas.
 \layout Subsection
 
-
 Le moteur ne bouge pas
 \layout Standard
-
 
 Certaine interfaces de pilotage de moteurs ont une broche d'activation (enable)
  ou demandent un signal de pompe de charge pour activer leurs sorties.
  
 \layout Subsection
 
-
 Distance incorrecte
 \layout Standard
-
 
 Si vous commandez une distance de déplacement précise sur un axe et que
  le déplacement réel ne correspond pas, alors l'échelle de l'axe n'est pas
  bonne.
 \layout Section
 
-
 Messages d'erreur
 \layout Subsection
-
 
 Erreur de suivi
 \layout Standard
@@ -108,27 +99,38 @@ MAX_ACCELERATION to fast - (MAX_ACCELERATION trop rapide)
 \layout Itemize
 
 BASE_PERIOD set to long - (BASE_PERIOD trop longue)
+\layout Itemize
+
+Backlash ajouté à un axe (ratrappage de jeu)
 \layout Standard
 
 Toutes ces erreurs se produisent lorsque l'horloge temps réel n'est pas
  capable de fournir le nombre de pas nécessaire pour maintenir la vitesse
  requise par le réglage de la variable BASE_PERIOD.
- Ce qui peut se produire après la modification d'une de ces variables dans
- le fichier ini, dans ce cas, revenez à une valeur plus proche de ce qu'elle
- était et réessayez.
+ Ce qui peut se produire, par exemple après un test de latence trop bref
+ pour obtenir un valeur fiable, dans ce cas, revenir à une valeur plus proche
+ de ce qu'elle était et réessayez.
+ C'est également le cas quand les valeurs de vitesse maximum et d'accélération
+ maximum sont trop élevées.
+\layout Standard
+
+Si un backlash a été ajouté, il est nécessaire d'augmenter STEPGEN_MAXACCEL
+ aux environs du double de MAX_ACCELERATION dans la section [AXIS] du fichier
+ INI et ce, pour chacun des axes sur lesquels un backlash a été ajouté.
+ EMC2 utilise une "extra accélération" au moment de l'inversion de sens
+ pour reprendre le jeu.
+ Sans correction du backlash, l'accélération pour le générateur de pas peut
+ être juste un peu plus basse que celle du planificateur de mouvements.
 \layout Subsection
 
 Erreur de RTAPI
 \layout Standard
 
-
 Quand vous rencontrez cette erreur:
 \layout Quote
 
-
 RTAPI: ERROR: Unexpected realtime delay on task n
 \layout Standard
-
 
 C'est généralement que la variable BASE_PERIOD dans la section [EMCMOT]
  du fichier ini a une valeur trop petite.
@@ -146,7 +148,6 @@ Latency Test
  
 \layout Standard
 
-
 EMC2 vérifie le nombre de cycles du CPU entre les invocations du thread
  temps réel.
  Si certains éléments de votre matériel provoquent un délai excessif ou
@@ -154,7 +155,6 @@ EMC2 vérifie le nombre de cycles du CPU entre les invocations du thread
  cette erreur.
  
 \layout Standard
-
 
 NOTE: Cette erreur n'est affichée qu'une seule fois par session.
  En effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
@@ -164,7 +164,7 @@ NOTE: Cette erreur n'est affichée qu'une seule fois par session.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 

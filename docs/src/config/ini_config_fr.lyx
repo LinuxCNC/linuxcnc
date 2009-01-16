@@ -1183,6 +1183,9 @@ BACKLASH\SpecialChar ~
 0.000 Valeur de compensation du jeu en unités machine.
  Peut être utilisée pour atténuer de petites déficiences du matériel utilisé
  pour piloter cet axe.
+ Si un backlash est ajouté à un axe et que des moteurs pas à pas sont utilisées,
+ la valeur de STEPGEN_MAXACCEL doit être 1.5 à 2 fois plus grande que celle
+ de MAX_ACCELERATION pour cet axe.
 \layout Description
 
 COMP_FILE\SpecialChar ~
@@ -2237,6 +2240,8 @@ boucle de position
 \end_inset 
 
  de stepgen.
+ Si une correction de backlash a été appliquée sur un axe, alors STEPGEN_MAXACCE
+L doit être 1,5 à 2 fois plus grande que MAX_ACCELERATION.
 \layout Description
 
 STEPGEN_MAXVEL\SpecialChar ~
@@ -2251,7 +2256,7 @@ STEPGEN_MAXVEL\SpecialChar ~
  du générateur de pas.
  Si spécifiée, elle doit auss être 1% à 10% supérieure à celle de l'axe
  MAX_VELOCITY.
- Des test ultérieurs ont montré que l'utilisation de STEPGEN_MAXVEL n'améliore
+ Des tests ultérieurs ont montré que l'utilisation de STEPGEN_MAXVEL n'améliore
  pas le réglage de la boucle de position de stepgen.
  
 \layout Subsection

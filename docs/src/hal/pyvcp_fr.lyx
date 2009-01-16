@@ -474,6 +474,24 @@ Bouton (button)
 Un bouton permet de contrôler une pin BIT.
  La pin sera mise vraie quand le bouton sera pressé et maintenu enfoncé,
  elle sera mise fausse quand le bouton sera relâché.
+\layout Standard
+
+Les boutons peuvent suivre le format suivant:
+\layout Itemize
+
+<padx>n</padx> où "n" est le nombre d'espaces horizontaux supplémentaires
+\layout Itemize
+
+<pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
+\layout Itemize
+
+<activebackground>"color"</activebackground> Couleur au survol du curseur
+\layout Itemize
+
+<bg>"color"</bg> Couleur du bouton
+\layout Subsubsection
+
+Bouton textuel (Text Button)
 \layout LyX-Code
 
 <button>
@@ -562,7 +580,29 @@ trois
  est sélectionnée.
 \layout Subsection
 
-Nombre (number)
+Affichage d'un nombre (number)
+\layout Standard
+
+L'affichage d'un nombre peux suivre le format suivant:
+\layout Itemize
+
+<font>("Font Name",n)</font> où "n" est la taille de la police
+\layout Itemize
+
+<width>n</width> où "n" est la largeur totale utilisée
+\layout Itemize
+
+<justify>pos</justify> où "pos" peut être LEFT, CENTER ou RIGHT (devrait
+ marcher)
+\layout Itemize
+
+<padx>n</padx> où "n" est le nombre d'espaces horizontaux supplémentaires
+\layout Itemize
+
+<pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
+\layout Subsubsection
+
+Flottant
 \layout Standard
 
 Le widget nombre affiche la valeur d'un signal FLOAT.
@@ -602,6 +642,20 @@ Le widget nombre affiche la valeur d'un signal FLOAT.
 
 <format> est un format 'style C', spécifié pour définir le format d'affichage
  du nombre.
+\layout Subsubsection
+
+Nombre s32
+\layout Standard
+
+Le widget s32 affiche la valeur d'un nombre s32.
+ La syntaxe est la même que celle de "number" excepté le nom qui est <s32>.
+\layout Subsubsection
+
+Nombre u32
+\layout Standard
+
+Le widget u32 affiche la valeur d'un nombre u32.
+ La syntaxe est la même que celle de "number" excepté le nom qui est <u32>.
 \layout Subsection
 
 Barre de progression (bar)
@@ -652,22 +706,34 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage à
 
 <meter>
 \newline 
-    <halpin>"mon-galva"</halpin>
+    <halpin>"mymeter"</halpin>
 \newline 
-    <text>"Tension"</text>
+    <text>"Battery"</text>
+\newline 
+    <subtext>"Volts"</subtext>
 \newline 
     <size>300</size>
 \newline 
-    <min_>-12</min_>
+    <min_>0</min_>
 \newline 
-    <max_>33</max_>
+    <max_>10.5</max_>
 \newline 
-</meter> 
+    <majorscale>1</majorscale>
+\newline 
+    <minorscale>0.2</minorscale>
+\newline 
+    <region1>(9,10.5,"green")</region1>
+\newline 
+    <region2>(7.5,9,"orange")</region2>
+\newline 
+    <region3>(0,7.5,"red")</region3>
+\newline 
+</meter>
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_meter_fr.png
+	filename pyvcp_meter.png
 	lyxscale 50
 	scale 50
 
@@ -1030,4 +1096,95 @@ n2 rows'"/>
     <label text="M (cell 3,4)"/>
 \newline 
 </table> 
+\layout Quote
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_table.png
+	scale 70
+
+\end_inset 
+
+
+\layout Subsection
+
+Onglets (Tabs)
+\layout Standard
+
+Une interface à onglets peut économiser énormément d'espace.
+\layout Quote
+
+<tabs>
+\newline 
+<names> ["spindle","green eggs"]</names>
+\newline 
+</tabs>
+\newline 
+<tabs>
+\newline 
+<names>["Spindle", "Green Eggs", "Ham"]</names>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"Spindle speed:"</text>
+\newline 
+</label>
+\newline 
+<bar>
+\newline 
+<halpin>"spindle-speed"</halpin>
+\newline 
+<max_>5000</max_>
+\newline 
+</bar>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"(this is the green eggs tab)"</text>
+\newline 
+</label>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<label>
+\newline 
+<text>"(this tab has nothing on it)"</text>
+\newline 
+</label>
+\newline 
+</vbox>
+\newline 
+</tabs>
+\layout Standard
+
+Le code ci-dessus produit les onglets ouverts ci-dessous.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs1.png
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs2.png
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_tabs3.png
+
+\end_inset 
+
+
 \the_end
