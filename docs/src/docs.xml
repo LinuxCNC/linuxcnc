@@ -1,6 +1,7 @@
 <docs>
 <docgroup lang="en" index="index.html">
 <doc name="common_user_intro" title="Introduction to EMC2"/>
+<doc name="common_System_Requirements" title="System Requirements"/>
 <doc name="common_Getting_EMC" title="Getting EMC2"/>
 <doc name="install_installing_emc2" title="Installing EMC2"/>
 <doc name="common_Stepper_Diagnostics" title="Stepper Diagnostics"/>
