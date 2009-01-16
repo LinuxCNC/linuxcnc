@@ -1,6 +1,6 @@
-
 #include <vector>
-typedef enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
+
+enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
                                 QMIST_ON, QMIST_OFF, QFLOOD_ON, QFLOOD_OFF,
                                 QSTART_SPINDLE_CLOCKWISE, QSTART_SPINDLE_COUNTERCLOCKWISE, QSTOP_SPINDLE_TURNING,
                                 QSET_SPINDLE_MODE, QSET_SPINDLE_SPEED,
@@ -48,7 +48,7 @@ struct comment {
     char *comment;
 };
 
-typedef struct queued_canon {
+struct queued_canon {
     queued_canon_type type;
     union {
         struct straight_traverse straight_traverse;

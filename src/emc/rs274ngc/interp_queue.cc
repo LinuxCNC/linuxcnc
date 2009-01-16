@@ -1,3 +1,6 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "rs274ngc.hh"
 #include "interp_queue.hh"
 
