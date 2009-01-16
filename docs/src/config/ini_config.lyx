@@ -1398,6 +1398,8 @@ BACKLASH\SpecialChar ~
  Backlash in machine units.
  Backlash compensation value can be used to make up for small deficiencies
  in the hardware used to drive an axis.
+ If backlash is added to an axis and you are using steppers the STEPGEN_MAXACCEL
+ must be increased to 1.5 to 2 times the MAX_ACCELERATION for the axis.
 \layout Description
 
 COMP_FILE\SpecialChar ~
@@ -2333,15 +2335,9 @@ STEPGEN_MAXACCEL\SpecialChar ~
 \noun default 
  Acceleration limit for the step generator.
  This should be 1% to 10% larger than the axis MAX_ACCELERATION.
- This value improves the tuning of stepgen's 
-\begin_inset Quotes eld
-\end_inset 
-
-position loop
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ This value improves the tuning of stepgen's "position loop".
+ If you have added backlash compensation to an axis then this should be
+ 1.5 to 2 times greater than MAX_ACCELERATION.
 \layout Description
 
 STEPGEN_MAXVEL\SpecialChar ~
