@@ -442,6 +442,22 @@ Button
 A button is used to control a BIT pin.
  The pin will be set True when the button is pressed and held down, and
  will be set False when the button is released.
+ Buttons can use the following formatting options
+\layout Itemize
+
+<padx>n</padx> where "n" is the amount of extra horzontal extra space
+\layout Itemize
+
+<pady>n</pady> where "n" is the amount of extra vertical extra space
+\layout Itemize
+
+<activebackground>"color"</activebackground> the cursor over color
+\layout Itemize
+
+<bg>"color"</bg> the color of the button
+\layout Subsubsection
+
+Text Button
 \layout Quote
 
 <button>
@@ -460,7 +476,7 @@ A button is used to control a BIT pin.
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Checkbutton
 \layout Standard
@@ -490,7 +506,7 @@ An unchecked checkbutton:
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Radiobutton
 \layout Standard
@@ -530,7 +546,28 @@ three
  is the selected value.
 \layout Subsection
 
-Float Number
+Number Displays
+\layout Standard
+
+Number displays can use the following formatting options
+\layout Itemize
+
+<font>("Font Name",n)</font> where "n" is the font size
+\layout Itemize
+
+<width>n</width> where "n" is the overall width of the space used
+\layout Itemize
+
+<justify>pos</justify> where "pos" is LEFT, CENTER, or RIGHT (doesn't work)
+\layout Itemize
+
+<padx>n</padx> where "n" is the amount of extra horzontal extra space
+\layout Itemize
+
+<pady>n</pady> where "n" is the amount of extra vertical extra space
+\layout Subsubsection
+
+Float
 \layout Standard
 
 The number widget displays the value of a float signal.
@@ -568,14 +605,14 @@ The number widget displays the value of a float signal.
 
 <format> is a "C-style" format specified that determines how the number
  is displayed.
-\layout Subsection
+\layout Subsubsection
 
 s32 Number
 \layout Standard
 
 The s32 number widget displays the value of a s32 number.
  The syntax is the same as "number" except the name which is <s32>.
-\layout Subsection
+\layout Subsubsection
 
 u32 Number
 \layout Standard
