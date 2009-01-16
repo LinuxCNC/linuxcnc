@@ -101,7 +101,7 @@ MAX_ACCELERATION to fast - (MAX_ACCELERATION trop rapide)
 BASE_PERIOD set to long - (BASE_PERIOD trop longue)
 \layout Itemize
 
-Backlash ajouté à un axe (ratrappage de jeu)
+Backlash ajouté à un axe (rattrapage de jeu)
 \layout Standard
 
 Toutes ces erreurs se produisent lorsque l'horloge temps réel n'est pas
