@@ -1363,7 +1363,9 @@ UNITS
 \SpecialChar ~
 =\SpecialChar ~
 inch If specified, this setting overrides the related [TRAJ] UNITS setting.
- (e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, [TRAJ]ANGULAR_UNITS
+ 
+\newline 
+(e.g., [TRAJ]LINEAR_UNITS if the TYPE of this axis is LINEAR, [TRAJ]ANGULAR_UNITS
  if the TYPE of this axis is ANGULAR)
 \layout Description
 

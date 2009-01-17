@@ -364,9 +364,9 @@ motion.servo.last-period-ns (float, RO)
 \layout Description
 
 motion.servo.overruns (u32, RW) By noting large differences between successive
- values of 
+ values of
 \emph on 
-motion.servo.last-period
+ motion.servo.last-period
 \emph default 
 , the motion controller can determine that there has probably been a failure
  to meet its timing constraints.
