@@ -486,9 +486,11 @@ For a fast AND reliable software based stepper system, you cannot just guess
  that your drives get the signals they need.
 \layout Standard
 
-To make the math easier, I've created an Open Office spreadsheet (http://wiki.lin
-uxcnc.org/uploads/StepTimingCalculator.ods).
- You enter your latency test result and your stepper drive timing requirements
+To make the math easier, I've created an Open Office spreadsheet 
+\newline 
+http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods
+\newline 
+You enter your latency test result and your stepper drive timing requirements
  and the spreadsheet calculates the optimum BASE_PERIOD.
  Next, you test the period to make sure it won't slow down or lock up your
  PC.
