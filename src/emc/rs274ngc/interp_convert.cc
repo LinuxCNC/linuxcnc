@@ -676,12 +676,16 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
   end[0] = (end[0] + (tool_radius * cos(gamma))); /* end_x reset actual */
   end[1] = (end[1] + (tool_radius * sin(gamma))); /* end_y reset actual */
 
-
   if (beta < -small || 
       beta > M_PIl + small ||
       // nasty detection for convex corner on tangent arcs       
-      (fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == QARC_FEED && 
+      (settings->plane == CANON_PLANE_XY && 
+       fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == QARC_FEED && 
        turn == qc().front().data.arc_feed.turn && 
+       ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1))) ||
+      (settings->plane == CANON_PLANE_XZ &&
+       fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == QARC_FEED &&
+       turn != qc().front().data.arc_feed.turn &&
        ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
       // concave
       if (qc().front().type != QARC_FEED) {
@@ -730,28 +734,53 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
               newrad = arc_radius + tool_radius;
           }
               
-          double arc_cc = hypot(prev.center2 - center[1], prev.center1 - center[0]);
-          double pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
-          double cc_dir = atan2(center[1] - prev.center2, center[0] - prev.center1);
-          double dir;
-          
-          if((side==LEFT && prev.turn==1) || (side==RIGHT && prev.turn==-1)) {
-              // inside the previous arc
-              if(turn == 1) 
-                  dir = cc_dir + pullback;
-              else
-                  dir = cc_dir - pullback;
+          double arc_cc, pullback, cc_dir;
+          if(settings->plane == CANON_PLANE_XZ) {
+              arc_cc = hypot(prev.center1 - center[1], prev.center2 - center[0]);
+              pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
+              cc_dir = atan2(center[1] - prev.center1, center[0] - prev.center2);
           } else {
-              if(turn == 1)
-                  dir = cc_dir - pullback;
-              else
-                  dir = cc_dir + pullback;
+              arc_cc = hypot(prev.center2 - center[1], prev.center1 - center[0]);
+              pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
+              cc_dir = atan2(center[1] - prev.center2, center[0] - prev.center1);
+          }
+          double dir;
+
+          if(settings->plane == CANON_PLANE_XZ) {
+              if((side==LEFT && prev.turn==1) || (side==RIGHT && prev.turn==-1)) {
+                  if(turn == 1)
+                      dir = cc_dir - pullback;
+                  else
+                      dir = cc_dir + pullback;
+              } else {
+                  // inside the previous arc
+                  if(turn == 1) 
+                      dir = cc_dir + pullback;
+                  else
+                      dir = cc_dir - pullback;
+              }
+          } else {
+              if((side==LEFT && prev.turn==1) || (side==RIGHT && prev.turn==-1)) {
+                  // inside the previous arc
+                  if(turn == 1) 
+                      dir = cc_dir + pullback;
+                  else
+                      dir = cc_dir - pullback;
+              } else {
+                  if(turn == 1)
+                      dir = cc_dir - pullback;
+                  else
+                      dir = cc_dir + pullback;
+              }
           }
 
-          if(0) printf("seqno %d old %g,%g new %g,%g oldrad %g arc_cc %g newrad %g pullback %g cc_dir %g dir %g\n", settings->sequence_number, prev.center1, prev.center2, center[0], center[1], oldrad, arc_cc, newrad, R2D(pullback), R2D(cc_dir), R2D(dir));
-
-          mid[0] = prev.center1 + oldrad * cos(dir);
-          mid[1] = prev.center2 + oldrad * sin(dir);
+          if(settings->plane == CANON_PLANE_XZ) {
+              mid[0] = prev.center2 + oldrad * cos(dir);
+              mid[1] = prev.center1 + oldrad * sin(dir);
+          } else {
+              mid[0] = prev.center1 + oldrad * cos(dir);
+              mid[1] = prev.center2 + oldrad * sin(dir);
+          }
           
           if(settings->plane == CANON_PLANE_XZ)
               CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
@@ -4020,24 +4049,24 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     mid[0] = (start[0] + (radius * cos(alpha + gamma)));
     mid[1] = (start[1] + (radius * sin(alpha + gamma)));
     
-    if(0) printf("alpha %g beta %g gamma %g ", R2D(alpha), R2D(beta), R2D(gamma));
-
     if ((beta < -small) || (beta > (M_PIl + small))) {
-        if(0) printf("concave yes\n");
         concave = 1;
-    } else if (beta > (M_PIl - small) && 
+    } else if (settings->plane == CANON_PLANE_XZ && beta > (M_PIl - small) && 
                (!qc().empty() && qc().front().type == QARC_FEED && 
-                ((side == RIGHT && qc().front().data.arc_feed.turn == 1) || 
-                 (side == LEFT && qc().front().data.arc_feed.turn == -1)))) {
+                ((side == RIGHT && qc().front().data.arc_feed.turn == -1) || 
+                 (side == LEFT && qc().front().data.arc_feed.turn == 1)))) {
         // this is an "h" shape, tool on right, going right to left
         // over the hemispherical round part, then up next to the
         // vertical part (or, the mirror case).  there are two ways
         // to stay to the "right", either loop down and around, or
         // stay above and right.  we're forcing above and right.
-        if(0) printf("concave special case\n");
+        concave = 1;
+    } else if (settings->plane == CANON_PLANE_XY && beta > (M_PIl - small) && 
+               (!qc().empty() && qc().front().type == QARC_FEED && 
+                ((side == RIGHT && qc().front().data.arc_feed.turn == 1) || 
+                 (side == LEFT && qc().front().data.arc_feed.turn == -1)))) {
         concave = 1;
     } else {
-        if(0) printf("concave no\n");
         concave = 0;
         mid[0] = (start[0] + (radius * cos(alpha + gamma)));
         mid[1] = (start[1] + (radius * sin(alpha + gamma)));
@@ -4089,7 +4118,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
          if (concave) {
              if (qc().front().type != QARC_FEED) {
                  // line->line
-
                  double retreat;
                  // half the angle of the inside corner
                  double halfcorner = (beta + M_PIl) / 2.0;
@@ -4115,49 +4143,80 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
                  // new line's direction
                  double base_dir = atan2(p[1] - start[1], p[0] - start[0]);
-                 double theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
-
-                 double phi = atan2(prev.center2 - start[1], prev.center1 - start[0]);
-                 double alpha = theta - phi;
-
-                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
-                     // tool is inside the arc
-                     oldrad_uncomp = oldrad + radius;
+                 double theta;
+                 double phi;
+                 if(settings->plane == CANON_PLANE_XZ) {
+                     theta = (prev.turn == -1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                     phi = atan2(prev.center1 - start[1], prev.center2 - start[0]);
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         // tool is inside the arc
+                         oldrad_uncomp = oldrad - radius;
+                     } else {
+                         oldrad_uncomp = oldrad + radius;
+                     }
                  } else {
-                     oldrad_uncomp = oldrad - radius;
+                     theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                     phi = atan2(prev.center2 - start[1], prev.center1 - start[0]);
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         // tool is inside the arc
+                         oldrad_uncomp = oldrad + radius;
+                     } else {
+                         oldrad_uncomp = oldrad - radius;
+                     }
                  }
-
+                 double alpha = theta - phi;
 
                  // distance to old arc center perpendicular to the new line
                  double d = oldrad_uncomp * cos(alpha);
                  double d2;
-                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
-                     d2 = d - radius;
+                 if(settings->plane == CANON_PLANE_XZ) {
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         d2 = d + radius;
+                     } else {
+                         // tool is inside the old arc
+                         d2 = d - radius;
+                     }
                  } else {
-                     d2 = d + radius;
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         // tool is inside the old arc
+                         d2 = d - radius;
+                     } else {
+                         d2 = d + radius;
+                     }
                  }
-                 
                  double angle_from_center;
 
-                 if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
-                     if(prev.turn == 1) 
-                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
-                     else
-                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                 if(settings->plane == CANON_PLANE_XZ) {
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         if(prev.turn == -1) 
+                             angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                         else
+                             angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                     } else {
+                         // tool is inside the old arc
+                         if(prev.turn == -1) 
+                             angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                         else
+                             angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                     }
+                     mid[0] = prev.center2 + oldrad * cos(angle_from_center);
+                     mid[1] = prev.center1 + oldrad * sin(angle_from_center);
                  } else {
-                     if(prev.turn == 1) 
-                         angle_from_center = acos(d2/oldrad) + theta + M_PIl;
-                     else
-                         angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                     if((prev.turn == 1 && side == LEFT) || (prev.turn == -1 && side == RIGHT)) {
+                         // tool is inside the old arc
+                         if(prev.turn == 1) 
+                             angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                         else
+                             angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                     } else {
+                         if(prev.turn == 1) 
+                             angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                         else
+                             angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                     }
+                     mid[0] = prev.center1 + oldrad * cos(angle_from_center);
+                     mid[1] = prev.center2 + oldrad * sin(angle_from_center);
                  }
-
-                 mid[0] = prev.center1 + oldrad * cos(angle_from_center);
-                 mid[1] = prev.center2 + oldrad * sin(angle_from_center);
-
-                 if(0) printf("c %g,%g d2 %g acos %g oldrad %g oldrad_uncomp %g base_dir %g theta %g phi %g alpha %g d %g d2 %g angle_from_center %g\n",
-                              prev.center1, prev.center2, d2, R2D(acos(d2/oldrad)), oldrad, 
-                              oldrad_uncomp, R2D(base_dir), R2D(theta), R2D(phi), R2D(alpha),
-                              d, d2, R2D(angle_from_center));
 
                  if(settings->plane == CANON_PLANE_XZ)
                      CHKS((move_endpoint_and_flush_zx(ztrans(settings, mid[1]), xtrans(settings, mid[0])) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");

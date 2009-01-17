@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "rs274ngc.hh"
 #include "interp_queue.hh"
@@ -346,9 +347,15 @@ int move_endpoint_and_flush(double x, double y) {
 
         switch(q.type) {
         case QARC_FEED:
+            double r1, r2;
             // detect increase of arc length and error
+            r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
+            r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
+            if(fabs(r1-r2) > .01) printf("deranged xy arc r1 %f r2 %f\n", r1, r2);
             break;
         case QSTRAIGHT_TRAVERSE:
             q.data.straight_traverse.x = x;
@@ -400,8 +407,14 @@ int move_endpoint_and_flush_zx(double z, double x) {
 
         switch(q.type) {
         case QARC_FEED:
+            double r1, r2;
+            r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
             q.data.arc_feed.end1 = z;
             q.data.arc_feed.end2 = x;
+            r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
+                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
+            if(fabs(r1-r2) > .01) printf("deranged zx arc r1 %f r2 %f\n", r1, r2);
             break;
         case QSTRAIGHT_TRAVERSE:
             q.data.straight_traverse.z = z;
