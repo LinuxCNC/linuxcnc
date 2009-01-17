@@ -34,9 +34,9 @@
 #include "config_gtk.h"
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-#define NBR_OBJECTS 16
+#define NBR_OBJECTS 19
 #else
-#define NBR_OBJECTS 14
+#define NBR_OBJECTS 17
 #endif
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 
@@ -85,22 +85,22 @@ GtkWidget * CreateGeneralParametersPage( void )
 	GtkWidget *vbox;
 	GtkWidget *hbox[ NBR_OBJECTS ];
 	int NumObj;
-
+         
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_widget_show (vbox);
-
+        
 	for (NumObj=0; NumObj<NBR_OBJECTS; NumObj++)
 	{
 		char BuffLabel[ 50 ];
-		char BuffValue[ 20 ];
+		char BuffValue[ 200 ];
                 
 		int InfoUsed = 0;
 		hbox[NumObj] = gtk_hbox_new (FALSE, 0);
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumObj]);
 		gtk_widget_show (hbox[NumObj]);
-
+             
 		switch( NumObj )
-		{
+		{ 
 			case 0:
 				sprintf( BuffLabel, "Rung Refresh Rate (milliseconds)" );
 				sprintf( BuffValue, "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
@@ -114,61 +114,73 @@ GtkWidget * CreateGeneralParametersPage( void )
 				sprintf( BuffLabel, "Number of Bits                  " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
-			case 3:
+                        case 3:
+				sprintf( BuffLabel, "Number of Error Bits                  " );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
+				break;
+			case 4:
 				sprintf( BuffLabel, "Number of Words                 " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
-			case 4:
+			case 5:
 				sprintf( BuffLabel, "Number of Counters              " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
-			case 5:
+			case 6:
 				sprintf( BuffLabel, "Number of Timers IEC            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
-			case 6:
-				sprintf( BuffLabel, "Number of BIT Inputs HAL pins           " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
-				break;
 			case 7:
-				sprintf( BuffLabel, "Number of BIT Outputs HAL pins          " );
-				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
-				break;
-			case 8:
 				sprintf( BuffLabel, "Number of Arithmetic Expresions " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
-			case 9:
+			case 8:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
 				sprintf( BuffLabel, "Number of Sections (%d%c used)   ", InfoUsed,'%' );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
-			case 10:
+			case 9:
 				sprintf( BuffLabel, "Number of Symbols                " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-			case 11:
+			case 10:
 				sprintf( BuffLabel, "Number of Timers                 " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
 				break;
-			case 12:
+			case 11:
 				sprintf( BuffLabel, "Number of Monostables            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
+                        case 12:
+				sprintf( BuffLabel, "Number of BIT Inputs HAL pins           " );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
+				break;
 			case 13:
+				sprintf( BuffLabel, "Number of BIT Outputs HAL pins          " );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
+				break;
+			case 14:
 				sprintf( BuffLabel, "Number of S32in HAL pins             " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
 				break;
-			case 14:
+			case 15:
 				sprintf( BuffLabel, "Number of S32out HAL pins            " );
 				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 				break;
-                        case 15:
+                        case 16:
+				sprintf( BuffLabel, "Number of floatin HAL pins             " );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
+				break;
+			case 17:
+				sprintf( BuffLabel, "Number of floatout HAL pins            " );
+				sprintf( BuffValue, "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
+				break;
+                        case 18:
 				sprintf( BuffLabel, "Current path/filename" );
-                                //sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
-                                sprintf( BuffValue, "Not available yet" );
+                                sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
+                                //sprintf( BuffValue, "Not available yet" );
 				break;                                
 			default:
 				sprintf( BuffLabel, "???" );
@@ -183,14 +195,12 @@ GtkWidget * CreateGeneralParametersPage( void )
 
 		/* For numbers */
 		ValueParam[NumObj] = gtk_entry_new();
-		if (NumObj==15) {   gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],150,0);
+		if (NumObj==18) {   gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],200,0);
                            }else{  
                                     gtk_widget_set_usize((GtkWidget *)ValueParam[NumObj],50,0);  
                                 }
 		gtk_box_pack_start (GTK_BOX (hbox[NumObj]), ValueParam[NumObj], FALSE, FALSE, 0);
 		gtk_widget_show (ValueParam[NumObj]);
-		/*if (NumObj==15) {gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]),InfosGene->FileName);
-                }else{*/
                 gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
                 // make all the entries non editable for EMC
 		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]),FALSE);
@@ -1003,30 +1013,22 @@ void destroyConfigWindow()
 }
 
 void IntConfigWindowGtk()
-{
-	
+{ 	
         GtkWidget *nbook;
-
-	ConfigWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title( GTK_WINDOW(ConfigWindow), "Config" );
-
+	ConfigWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);        
+	gtk_window_set_title( GTK_WINDOW(ConfigWindow), "Config" );       
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
 				 gtk_label_new ("Period/object info") );
-	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
-	//			 gtk_label_new ("Physical Inputs") );
-	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
-	//			 gtk_label_new ("Physical Outputs") );
 #ifdef MODBUS_IO_MASTER
         gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
 				 gtk_label_new ("Modbus communication setup") );
+       
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO(  ),
-				 gtk_label_new ("Modbus  I/O register setup ") );
+				 gtk_label_new ("Modbus  I/O register setup ") );       
 #endif
-
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
 	gtk_widget_show( nbook );
-
 	gtk_window_set_position( GTK_WINDOW(ConfigWindow), GTK_WIN_POS_CENTER );
 	gtk_signal_connect ( GTK_OBJECT(ConfigWindow), "delete_event",
                         GTK_SIGNAL_FUNC(ConfigWindowDeleteEvent), NULL );
