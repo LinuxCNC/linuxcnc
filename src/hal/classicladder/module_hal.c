@@ -151,7 +151,7 @@ error:
 	if(!hal_s32_inputs) { result = -ENOMEM; goto error; }
 	hal_outputs = hal_malloc(sizeof(hal_bit_t*) * numPhysOutputs);
 	if(!hal_outputs) { result = -ENOMEM; goto error; }
-	hal_s32_outputs = hal_malloc(sizeof(hal_bit_t*) * numS32out);
+	hal_s32_outputs = hal_malloc(sizeof(hal_s32_t*) * numS32out);
 	if(!hal_s32_outputs) { result = -ENOMEM; goto error; }
 
 	for(i=0; i<numPhysInputs; i++) {
