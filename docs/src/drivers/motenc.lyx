@@ -260,6 +260,8 @@ Watchdog is automatically reset by DAC writes (the HAL dac-write function)
 
 \end_inset 
 
+
+\newline 
 Typically, the useful values are 0 (watchdog disabled) or 20 (8ms watchdog
  enabled, cleared by dac-write).
 \layout Itemize
