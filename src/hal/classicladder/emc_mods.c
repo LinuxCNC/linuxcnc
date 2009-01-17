@@ -68,7 +68,13 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                           if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs) {return "out of bounds variable number";}
                           snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
                           arrowside = 1;
-                      break;      
+                      break;     
+                      case 'F':
+                          sscanf(VarNameParam+3, "%d", &idx);
+                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs) {return "out of bounds variable number";}
+                          snprintf(pin_name, 100, "classicladder.0.floatin-%02d", idx);
+                          arrowside = 1;
+                      break; 
                       default:
                           sscanf(VarNameParam+2, "%d", &idx);
                           snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
@@ -85,7 +91,13 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                           if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs) {return "out of bounds variable number";}
                           snprintf(pin_name, 100, "classicladder.0.s32out-%02d", idx);
                           arrowside = 0;
-                      break;      
+                      break;   
+                      case 'F':
+                          sscanf(VarNameParam+3, "%d", &idx);
+                          if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs) {return "out of bounds variable number";}
+                          snprintf(pin_name, 100, "classicladder.0.floatout-%02d", idx);
+                          arrowside = 0;
+                      break;   
                       default:
                           sscanf(VarNameParam+2, "%d", &idx);
                           snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
@@ -97,13 +109,24 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
             case 'W':                    
                 sscanf(VarNameParam+2, "%d", &idx);
 		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
-                return "None -internal memory";                
+                return "None -Internal Memory";                
                 break;
 	   case 'B':
                 sscanf(VarNameParam+2, "%d", &idx);
 		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return "out of bounds variable number";}
-		return "None -internal memory";
+		return "None -Internal Memory";
 		break;
+           case 'E':
+                sscanf(VarNameParam+2, "%d", &idx);
+		if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return "out of bounds variable number";}
+		return "None -Internal Error Status";
+		break;
+           case 'T':
+           case 'C':
+           case 'M':
+           case 'X':
+                return "None";
+                break;
 	   default:
                 return "error";
 		break;
