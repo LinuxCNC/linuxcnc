@@ -1094,6 +1094,8 @@ Config Window
 
 \begin_inset Graphics
 	filename images/Config.png
+	width 80page%
+	keepAspectRatio
 
 \end_inset 
 
@@ -1455,6 +1457,8 @@ Assign/Compare Example
 
 \end_inset 
 
+
+\newline 
 
 \begin_inset Graphics
 	filename images/Assignment_Expression.png
@@ -1818,6 +1822,8 @@ Config I/O
 
 \begin_inset Graphics
 	filename images/Config-io.png
+	width 80page%
+	keepAspectRatio
 
 \end_inset 
 
@@ -1841,6 +1847,8 @@ Config Coms
 
 \begin_inset Graphics
 	filename images/Config-com.png
+	width 80page%
+	keepAspectRatio
 
 \end_inset 
 
