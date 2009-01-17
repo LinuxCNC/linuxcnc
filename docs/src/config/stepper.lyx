@@ -446,13 +446,13 @@ An extensive explanation of hooking up ESTOP circuitry is explained in the
 To add a simple external button you need to replace the line:
 \layout LyX-Code
 
-linkpp iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 \layout Standard
 
 with
 \layout LyX-Code
 
-linkpp parport.0.pin-01-in iocontrol.0.emc-enable-in
+net estop-loop parport.0.pin-01-in iocontrol.0.emc-enable-in
 \layout Standard
 
 This assumes an ESTOP switch connected to pin 01 on the parport.
