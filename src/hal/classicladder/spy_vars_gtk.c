@@ -275,6 +275,10 @@ void DisplayFreeVarSpy()
                       {  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";}
                 if (VarSpy[NumVarSpy][0] == VAR_PHYS_WORD_INPUT )    
                       {  VarName= "<span foreground=\"red\" weight=\"bold\" >S32in pin</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_PHYS_FLOAT_OUTPUT )   
+                      {  VarName= "<span foreground=\"blue\" weight=\"bold\" >Floatout pin</span>";}
+                if (VarSpy[NumVarSpy][0] == VAR_PHYS_FLOAT_INPUT )    
+                      {  VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin pin</span>";}
                 if (VarSpy[NumVarSpy][0] == VAR_MEM_WORD )  
                       { VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";}
                 if (VarSpy[NumVarSpy][0] == VAR_COUNTER_VALUE )   
