@@ -916,6 +916,10 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   double *pars;                 // short name for _setup.parameters
   int k;
 
+  // it's OK if the parameter file doesn't exist yet
+  // it'll be created in due course with some default values
+  if(access(filename, F_OK) == -1)
+      return INTERP_OK;
   // open original for reading
   infile = fopen(filename, "r");
   sprintf(line,"Unable to open parameter file: '%s'", filename);
@@ -1006,15 +1010,21 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   int index;                    // index into _required_parameters
   int k;
 
-  // rename as .bak
-  strcpy(line, filename);
-  strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
-  CHK((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
+  if(access(filename, F_OK)==0) 
+  {
+    // rename as .bak
+    strcpy(line, filename);
+    strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
+    CHK((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
 
-  // open backup for reading
-  infile = fopen(line, "r");
-  CHK((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
-
+    // open backup for reading
+    infile = fopen(line, "r");
+    CHK((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
+  } else {
+    // it's OK if the parameter file doesn't exist yet
+    // it will now be created with a default list of parameters
+    infile = fopen("/dev/null", "r");
+  }
   // open original for writing
   outfile = fopen(filename, "w");
   CHK((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
