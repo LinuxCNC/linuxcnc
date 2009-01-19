@@ -155,6 +155,7 @@ AXIS an OpenGL-based GUI, with an interactive G-Code previewer.
 
 \begin_inset Graphics
 	filename axis.png
+	scale 70
 
 \end_inset 
 

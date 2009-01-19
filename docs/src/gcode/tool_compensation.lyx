@@ -141,7 +141,7 @@ wide false
 collapsed false
 
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename length1.png

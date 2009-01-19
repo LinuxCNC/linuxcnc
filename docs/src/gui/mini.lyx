@@ -51,6 +51,7 @@ Much of this chapter quotes from a chapater of the Sherline CNC operators
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -67,6 +68,7 @@ The Mini Graphical Interface
 
 \begin_inset Graphics
 	filename mini01.png
+	scale 70
 
 \end_inset 
 
@@ -107,6 +109,7 @@ Screen layout
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -123,6 +126,7 @@ Mini Display for a Running EMC
 
 \begin_inset Graphics
 	filename mini02.png
+	scale 70
 
 \end_inset 
 
@@ -354,6 +358,7 @@ This button or pressing <F3> sets the EMC to Manual mode and displays an
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -365,6 +370,7 @@ Manual Mode Buttons
 
 \begin_inset Graphics
 	filename miniman.png
+	scale 80
 
 \end_inset 
 
@@ -481,6 +487,7 @@ In the auto mode, many of the keyboard keys are bound to controls.
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -492,6 +499,7 @@ Auto Mode
 
 \begin_inset Graphics
 	filename miniauto.png
+	scale 80
 
 \end_inset 
 
@@ -813,6 +821,7 @@ Program Editor
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -824,6 +833,7 @@ Mini Text Editor
 
 \begin_inset Graphics
 	filename miniedit.png
+	scale 80
 
 \end_inset 
 
@@ -870,6 +880,7 @@ Backplot
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -881,6 +892,7 @@ Mini's Backplotter
 
 \begin_inset Graphics
 	filename minibkplot.png
+	scale 80
 
 \end_inset 
 
@@ -935,6 +947,7 @@ The tool page is pretty much like the others.
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -946,6 +959,7 @@ Mini Tool Display
 
 \begin_inset Graphics
 	filename minitool.png
+	scale 80
 
 \end_inset 
 
@@ -974,6 +988,7 @@ The offset page can be used to display and setup work offsets.
  an axis to a teach position.
  
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -985,6 +1000,7 @@ Mini Offset Display
 
 \begin_inset Graphics
 	filename minioffsets.png
+	scale 80
 
 \end_inset 
 
