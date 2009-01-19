@@ -1081,9 +1081,9 @@ class MyOpengl(Opengl):
                 zip(range(num_joints), s.joint_actual_position)]
 
         text = widgets.numbers_text
-        font = "Courier new"
-        font_width = text.tk.call("font", "measure", (font, -100, "bold"), "0") + 5
-        font_height = text.tk.call("font", "metrics", (font, -100, "bold"), "-linespace") + 5
+        font = "Courier 10 pitch"
+        font_width = text.tk.call("font", "measure", (font, -100), "0") + 5
+        font_height = text.tk.call("font", "metrics", (font, -100), "-linespace") + 5
 
         text.delete("0.0", "end")
         t = posstrs[:]
@@ -1101,7 +1101,7 @@ class MyOpengl(Opengl):
         width = text.winfo_width()
         char_height = height / (len(posstrs)+1)
         char_width = width / (max(len(p) for p in posstrs)+4) * font_height / font_width
-        text.configure(font=(font, -min(char_width, char_height), "bold"), wrap="none")
+        text.configure(font=(font, -min(char_width, char_height)), wrap="none")
 
         maxlen = max([len(p) for p in posstrs])
         pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
