@@ -4,5 +4,6 @@ core_sim9.hal
 axis_manualtoolchange.hal
 position.txt
 position9.txt
+position_mm.txt
 lathe-position.txt
 .scope.cfg
