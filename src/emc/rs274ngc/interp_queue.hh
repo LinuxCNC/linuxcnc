@@ -78,16 +78,16 @@ void enqueue_STOP_SPINDLE_TURNING(void);
 void enqueue_SET_SPINDLE_MODE(double mode);
 void enqueue_SET_SPINDLE_SPEED(double speed);
 void enqueue_COMMENT(char *c);
-void enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
-                           double dx, double dy, double dz,
-                           double x, double y, double z, 
-                           double a, double b, double c, 
-                           double u, double v, double w);
-void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
-                               double dx, double dy, double dz,
-                               double x, double y, double z, 
-                               double a, double b, double c, 
-                               double u, double v, double w);
+int enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
+                          double dx, double dy, double dz,
+                          double x, double y, double z, 
+                          double a, double b, double c, 
+                          double u, double v, double w);
+int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
+                              double dx, double dy, double dz,
+                              double x, double y, double z, 
+                              double a, double b, double c, 
+                              double u, double v, double w);
 void enqueue_ARC_FEED(setup_pointer settings, int l, 
                       double end1, double end2, double center1, double center2,
                       int turn,

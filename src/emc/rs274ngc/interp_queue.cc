@@ -16,6 +16,7 @@
 static double latheorigin_x(setup_pointer settings, double x) {
     int o = settings->cutter_comp_orientation;
     double r = settings->cutter_comp_radius;
+    if(settings->plane != CANON_PLANE_XZ) return x;
 
     if(o==2 || o==6 || o==1) x -= r;
     if(o==3 || o==8 || o==4) x += r;
@@ -25,6 +26,7 @@ static double latheorigin_x(setup_pointer settings, double x) {
 static double latheorigin_z(setup_pointer settings, double z) {
     int o = settings->cutter_comp_orientation;
     double r = settings->cutter_comp_radius;
+    if(settings->plane != CANON_PLANE_XZ) return z;
 
     if(o==2 || o==7 || o==3) z -= r;
     if(o==1 || o==5 || o==4) z += r;
@@ -181,7 +183,7 @@ void enqueue_COMMENT(char *c) {
     qc().push_back(q);
 }
 
-void enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
+int enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                            double dx, double dy, double dz,
                            double x, double y, double z, 
                            double a, double b, double c, 
@@ -206,6 +208,9 @@ void enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
         q.data.straight_feed.x = y;
         q.data.straight_feed.y = z;
         break;
+    default:
+        printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
+        return -1;
     }        
     q.data.straight_feed.a = a;
     q.data.straight_feed.b = b;
@@ -214,9 +219,10 @@ void enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
     q.data.straight_feed.v = v;
     q.data.straight_feed.w = w;
     qc().push_back(q);
+    return 0;
 }
 
-void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
+int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
                                double dx, double dy, double dz,
                                double x, double y, double z, 
                                double a, double b, double c, 
@@ -235,6 +241,9 @@ void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
         q.data.straight_traverse.x = y;
         q.data.straight_traverse.y = z;
         break;
+    default:
+        printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
+        return -1;
     }        
     q.data.straight_traverse.a = a;
     q.data.straight_traverse.b = b;
@@ -243,6 +252,7 @@ void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
     q.data.straight_traverse.v = v;
     q.data.straight_traverse.w = w;
     qc().push_back(q);
+    return 0;
 }
 
 void enqueue_ARC_FEED(setup_pointer settings, int l, 
@@ -423,6 +433,10 @@ int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
                 q.data.straight_traverse.z = x;
                 q.data.straight_traverse.x = y;
                 break;
+            default:
+                printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
+                return -1;
+                break;
             }
             break;
         case QSTRAIGHT_FEED: 
@@ -443,6 +457,10 @@ int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
                     y1 = q.data.straight_feed.dx;                
                     x2 = x - endpoint[0];         // new direction after clipping
                     y2 = y - endpoint[1];
+                    break;
+                default:
+                    printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
+                    return -1;
                     break;
                 }
 

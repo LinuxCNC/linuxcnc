@@ -58,6 +58,8 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
   double length;
   double rate;
 
+  if (settings->feed_mode != INVERSE_TIME) return -1;
+
   length = find_arc_length(x1, y1, z1, cx, cy, turn, x2, y2, z2);
   rate = MAX(0.1, (length * block->f_number));
   enqueue_SET_FEED_RATE(rate);
@@ -105,6 +107,8 @@ int Interp::inverse_time_rate_arc2(double start_x,       //!< x coord of last pr
 {
   double length;
   double rate;
+
+  if (settings->feed_mode != INVERSE_TIME) return -1;
 
   length =
     (find_arc_length
@@ -162,6 +166,8 @@ int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program po
   double length;
   double rate;
 
+  if (settings->feed_mode != INVERSE_TIME) return -1;
+
   length =
       find_arc_length(settings->current_x, settings->current_y, settings->current_z,
                       start_x, start_y, turn, mid_x, mid_y, settings->current_z) + 
@@ -206,6 +212,8 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
 {
   double length;
   double rate;
+
+  if (settings->feed_mode != INVERSE_TIME) return -1;
 
   length = find_straight_length(end_x, end_y, end_z,
                                 AA_end, BB_end, CC_end,

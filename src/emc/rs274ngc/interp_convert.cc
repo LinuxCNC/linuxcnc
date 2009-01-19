@@ -404,9 +404,8 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                        &center1, &center2, &turn, tolerance));
   }
 
-  if (settings->feed_mode == INVERSE_TIME)
-    inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
-                          turn, end1, end2, end3, block, settings);
+  inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
+                        turn, end1, end2, end3, block, settings);
   ARC_FEED(block->line_number, end1, end2, center1, center2, turn, end3,
            AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
@@ -536,9 +535,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
     if (settings->cutter_comp_orientation != 0 && settings->cutter_comp_orientation != 9) {
-        if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_straight(cx, cy, cz,
-                                       AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
+        inverse_time_rate_straight(cx, cy, cz,
+                                   AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
                               0, 0, 0,
                               cx, cy, cz,
@@ -546,10 +544,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         set_endpoint(cx, cy);
     }
     
-    if (settings->feed_mode == INVERSE_TIME)
-        inverse_time_rate_arc(cx, cy,
-                              cz, center_x, center_y, turn,
-                              end_x, end_y, end_z, block, settings);
+    inverse_time_rate_arc(cx, cy,
+                          cz, center_x, center_y, turn,
+                          end_x, end_y, end_z, block, settings);
     enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, center_x, center_y, turn, end_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
@@ -756,12 +753,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     } else if (beta > small) {           /* convex, two arcs needed */
         midx = opx + tool_radius * cos(delta);
         midy = opy + tool_radius * sin(delta);
-
-        if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_arc2(opx, opy, (side == LEFT) ? -1 : 1,
-                                   midx, midy, centerx, centery, turn,
-                                   end_x, end_y, end_z, block, settings);
         dequeue_canons(settings);
+        inverse_time_rate_arc2(opx, opy, (side == LEFT) ? -1 : 1,
+                               midx, midy, centerx, centery, turn,
+                               end_x, end_y, end_z, block, settings);
         enqueue_ARC_FEED(settings, block->line_number, midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
                          cz,
                          AA_end, BB_end, CC_end, u, v, w);
@@ -769,10 +764,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else {                      /* convex, one arc needed */
-        if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_arc(cx, cy,
-                                  cz, centerx, centery, turn,
-                                  end_x, end_y, end_z, block, settings);
+        inverse_time_rate_arc(cx, cy,
+                              cz, centerx, centery, turn,
+                              end_x, end_y, end_z, block, settings);
         dequeue_canons(settings);
         enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
@@ -1649,6 +1643,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
               (_("G%d.1 with no D word"), block->g_modes[7]/10 ));
       radius = block->d_number_float / 2;
       if(block->l_number != -1) {
+          CHKF((settings->plane != CANON_PLANE_XZ), (_("G%d.1 with L word, but plane is not G18"), block->g_modes[7]/10));
           orientation = block->l_number;
       } else {
           orientation = 0;
@@ -1667,6 +1662,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
       orientation = settings->tool_table[index].orientation;
+      CHKF((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), (_("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10));
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
@@ -3476,11 +3472,10 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_1) {
-    if (settings->feed_mode == INVERSE_TIME)
-      inverse_time_rate_straight(end_x, end_y, end_z,
-                                 AA_end, BB_end, CC_end,
-                                 u_end, v_end, w_end,
-                                 block, settings);
+    inverse_time_rate_straight(end_x, end_y, end_z,
+                               AA_end, BB_end, CC_end,
+                               u_end, v_end, w_end,
+                               block, settings);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z,
                   AA_end, BB_end, CC_end,
                   u_end, v_end, w_end);
@@ -3745,11 +3740,10 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
-        if (settings->feed_mode == INVERSE_TIME)
-            inverse_time_rate_straight(end_x, end_y, pz,  //XXX
-                                       AA_end, BB_end, CC_end,
-                                       u_end, v_end, w_end,
-                                       block, settings);
+        inverse_time_rate_straight(end_x, end_y, pz,  //XXX
+                                   AA_end, BB_end, CC_end,
+                                   u_end, v_end, w_end,
+                                   block, settings);
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
                               px - opx, py - opy, pz - opz,
                               end_x, end_y, pz,
@@ -3875,11 +3869,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 0, 0, 0, cx, cy, pz,
                                       AA_end, BB_end, CC_end, u_end, v_end, w_end);
         } else if (move == G_1) {
-            if (settings->feed_mode == INVERSE_TIME)
-                inverse_time_rate_straight(cx, cy, pz,  //XXX
-                                           AA_end, BB_end, CC_end,
-                                           u_end, v_end, w_end,
-                                           block, settings);
+            inverse_time_rate_straight(cx, cy, pz,  //XXX
+                                       AA_end, BB_end, CC_end,
+                                       u_end, v_end, w_end,
+                                       block, settings);
             enqueue_STRAIGHT_FEED(settings, block->line_number, 
                                   px - opx, py - opy, pz - opz, 
                                   cx, cy, pz, AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -3931,13 +3924,12 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         if (!concave && (beta > small)) {       /* ARC NEEDED */
             dequeue_canons(settings);
             if(move == G_1) {
-                if (settings->feed_mode == INVERSE_TIME)
-                    inverse_time_rate_as(opx, opy,
-                                         (side == LEFT) ? -1 : 1, mid_x,
-                                         mid_y, end_x, end_y, pz,
-                                         AA_end, BB_end, CC_end,
-                                         u_end, v_end, w_end,
-                                         block, settings);
+                inverse_time_rate_as(opx, opy,
+                                     (side == LEFT) ? -1 : 1, mid_x,
+                                     mid_y, end_x, end_y, pz,
+                                     AA_end, BB_end, CC_end,
+                                     u_end, v_end, w_end,
+                                     block, settings);
                 enqueue_ARC_FEED(settings, block->line_number, mid_x, mid_y, opx, opy,
                                  ((side == LEFT) ? -1 : 1), cz,
                                  AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -4012,11 +4004,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             }
             // no arc needed, also not concave (colinear lines or tangent arc->line)
             dequeue_canons(settings);
-            if (settings->feed_mode == INVERSE_TIME)
-                inverse_time_rate_straight(end_x, end_y, pz,
-                                           AA_end, BB_end, CC_end,
-                                           u_end, v_end, w_end,
-                                           block, settings);
+            inverse_time_rate_straight(end_x, end_y, pz,
+                                       AA_end, BB_end, CC_end,
+                                       u_end, v_end, w_end,
+                                       block, settings);
             (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
                 (settings, block->line_number, 
                  px - opx, py - opy, pz - opz, 
