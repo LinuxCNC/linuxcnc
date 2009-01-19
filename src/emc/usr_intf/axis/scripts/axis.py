@@ -2253,11 +2253,11 @@ class _prompt_touchoff(_prompt_float):
         systems = all_systems[:]
         if s.tlo_is_along_w:
             tool_offset_axes = "w"
-        elif lathe and current_tool and current_tool.orientation:
+        elif lathe:
             tool_offset_axes = "xz"
         else:
             tool_offset_axes = "z"
-        if current_tool is None or vars.current_axis.get() not in tool_offset_axes:
+        if s.tool_in_spindle == 0 or vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
         _prompt_float.__init__(self, title, text, default)
@@ -3028,7 +3028,7 @@ class TclCommands(nf.TclCommands):
             old_tool *= 25.4
 
         if system.split()[0] == "T":
-            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (current_tool[0], vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_in_spindle, vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
