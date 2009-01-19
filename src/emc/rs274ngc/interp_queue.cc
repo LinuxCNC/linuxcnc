@@ -4,6 +4,32 @@
 
 #include "rs274ngc.hh"
 #include "interp_queue.hh"
+#include "interp_internal.hh"
+
+// lathe tools have strange origin points that are not at
+// the center of the radius.  This means that the point that
+// radius compensation controls (center of radius) is not at
+// the tool's origin.  These functions do the necessary
+// translation.  Notice tool orientations 0 (mill) and 9, and 
+// those with radius 0 (a point) do not need any translation.
+
+static double latheorigin_x(setup_pointer settings, double x) {
+    int o = settings->cutter_comp_orientation;
+    double r = settings->cutter_comp_radius;
+
+    if(o==2 || o==6 || o==1) x -= r;
+    if(o==3 || o==8 || o==4) x += r;
+    return x;
+}
+
+static double latheorigin_z(setup_pointer settings, double z) {
+    int o = settings->cutter_comp_orientation;
+    double r = settings->cutter_comp_radius;
+
+    if(o==2 || o==7 || o==3) z -= r;
+    if(o==1 || o==5 || o==4) z += r;
+    return z;
+}
 
 static double endpoint[2];
 static int endpoint_valid = 0;
@@ -155,7 +181,7 @@ void enqueue_COMMENT(char *c) {
     qc().push_back(q);
 }
 
-void enqueue_STRAIGHT_FEED(int l, 
+void enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                            double dx, double dy, double dz,
                            double x, double y, double z, 
                            double a, double b, double c, 
@@ -163,12 +189,24 @@ void enqueue_STRAIGHT_FEED(int l,
     queued_canon q;
     q.type = QSTRAIGHT_FEED;
     q.data.straight_feed.line_number = l;
-    q.data.straight_feed.dx = dx;
-    q.data.straight_feed.dy = dy;
-    q.data.straight_feed.dz = dz;
-    q.data.straight_feed.x = x;
-    q.data.straight_feed.y = y;
-    q.data.straight_feed.z = z;
+    switch(settings->plane) {
+    case CANON_PLANE_XY:
+        q.data.straight_feed.dx = dx;
+        q.data.straight_feed.dy = dy;
+        q.data.straight_feed.dz = dz;
+        q.data.straight_feed.x = x;
+        q.data.straight_feed.y = y;
+        q.data.straight_feed.z = z;
+        break;
+    case CANON_PLANE_XZ:
+        q.data.straight_feed.dz = dx;
+        q.data.straight_feed.dx = dy;
+        q.data.straight_feed.dy = dz;
+        q.data.straight_feed.z = x;
+        q.data.straight_feed.x = y;
+        q.data.straight_feed.y = z;
+        break;
+    }        
     q.data.straight_feed.a = a;
     q.data.straight_feed.b = b;
     q.data.straight_feed.c = c;
@@ -178,7 +216,7 @@ void enqueue_STRAIGHT_FEED(int l,
     qc().push_back(q);
 }
 
-void enqueue_STRAIGHT_TRAVERSE(int l, 
+void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
                                double dx, double dy, double dz,
                                double x, double y, double z, 
                                double a, double b, double c, 
@@ -186,9 +224,18 @@ void enqueue_STRAIGHT_TRAVERSE(int l,
     queued_canon q;
     q.type = QSTRAIGHT_TRAVERSE;
     q.data.straight_traverse.line_number = l;
-    q.data.straight_traverse.x = x;
-    q.data.straight_traverse.y = y;
-    q.data.straight_traverse.z = z;
+    switch(settings->plane) {
+    case CANON_PLANE_XY:
+        q.data.straight_traverse.x = x;
+        q.data.straight_traverse.y = y;
+        q.data.straight_traverse.z = z;
+        break;
+    case CANON_PLANE_XZ:
+        q.data.straight_traverse.z = x;
+        q.data.straight_traverse.x = y;
+        q.data.straight_traverse.y = z;
+        break;
+    }        
     q.data.straight_traverse.a = a;
     q.data.straight_traverse.b = b;
     q.data.straight_traverse.c = c;
@@ -198,7 +245,7 @@ void enqueue_STRAIGHT_TRAVERSE(int l,
     qc().push_back(q);
 }
 
-void enqueue_ARC_FEED(int l, 
+void enqueue_ARC_FEED(setup_pointer settings, int l, 
                       double end1, double end2, double center1, double center2,
                       int turn,
                       double end3,
@@ -220,6 +267,7 @@ void enqueue_ARC_FEED(int l,
     q.data.arc_feed.u = u;
     q.data.arc_feed.v = v;
     q.data.arc_feed.w = w;
+
     qc().push_back(q);
 }
 
@@ -264,7 +312,7 @@ void qc_scale(double scale) {
     }
 }
 
-void dequeue_canons(void) {
+void dequeue_canons(setup_pointer settings) {
 
     endpoint_valid = 0;
 
@@ -275,8 +323,11 @@ void dequeue_canons(void) {
 
         switch(q.type) {
         case QARC_FEED:
-            ARC_FEED(q.data.arc_feed.line_number, q.data.arc_feed.end1, q.data.arc_feed.end2, 
-                     q.data.arc_feed.center1, q.data.arc_feed.center2, 
+            ARC_FEED(q.data.arc_feed.line_number, 
+                     latheorigin_z(settings, q.data.arc_feed.end1), 
+                     latheorigin_x(settings, q.data.arc_feed.end2), 
+                     latheorigin_z(settings, q.data.arc_feed.center1),
+                     latheorigin_x(settings, q.data.arc_feed.center2), 
                      q.data.arc_feed.turn, 
                      q.data.arc_feed.end3,
                      q.data.arc_feed.a, q.data.arc_feed.b, q.data.arc_feed.c, 
@@ -284,15 +335,19 @@ void dequeue_canons(void) {
             break;
         case QSTRAIGHT_FEED:
             STRAIGHT_FEED(q.data.straight_feed.line_number, 
-                          q.data.straight_feed.x, q.data.straight_feed.y, q.data.straight_feed.z, 
+                          latheorigin_x(settings, q.data.straight_feed.x), 
+                          q.data.straight_feed.y, 
+                          latheorigin_z(settings, q.data.straight_feed.z),
                           q.data.straight_feed.a, q.data.straight_feed.b, q.data.straight_feed.c, 
                           q.data.straight_feed.u, q.data.straight_feed.v, q.data.straight_feed.w);
             break;
         case QSTRAIGHT_TRAVERSE:
             STRAIGHT_TRAVERSE(q.data.straight_traverse.line_number, 
-                          q.data.straight_traverse.x, q.data.straight_traverse.y, q.data.straight_traverse.z, 
-                          q.data.straight_traverse.a, q.data.straight_traverse.b, q.data.straight_traverse.c, 
-                          q.data.straight_traverse.u, q.data.straight_traverse.v, q.data.straight_traverse.w);
+                              latheorigin_x(settings, q.data.straight_traverse.x),
+                              q.data.straight_traverse.y,
+                              latheorigin_z(settings, q.data.straight_traverse.z),
+                              q.data.straight_traverse.a, q.data.straight_traverse.b, q.data.straight_traverse.c, 
+                              q.data.straight_traverse.u, q.data.straight_traverse.v, q.data.straight_traverse.w);
             break;
         case QSET_FEED_RATE:
             SET_FEED_RATE(q.data.set_feed_rate.feed);
@@ -339,7 +394,7 @@ void dequeue_canons(void) {
     qc().clear();
 }
 
-int move_endpoint_and_flush(double x, double y) {
+int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
     if(qc().empty()) return 0;
     
     for(unsigned int i = 0; i<qc().size(); i++) {
@@ -355,20 +410,44 @@ int move_endpoint_and_flush(double x, double y) {
             q.data.arc_feed.end2 = y;
             r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
                        q.data.arc_feed.end2 - q.data.arc_feed.center2);
-            if(fabs(r1-r2) > .01) printf("deranged xy arc r1 %f r2 %f\n", r1, r2);
+            if(fabs(r1-r2) > .01) 
+                printf("BUG: cutter compensation has generated an invalid arc r1 %f r2 %f\n", r1, r2); // XXX ERF
             break;
         case QSTRAIGHT_TRAVERSE:
-            q.data.straight_traverse.x = x;
-            q.data.straight_traverse.y = y;
+            switch(settings->plane) {
+            case CANON_PLANE_XY:
+                q.data.straight_traverse.x = x;
+                q.data.straight_traverse.y = y;
+                break;
+            case CANON_PLANE_XZ:
+                q.data.straight_traverse.z = x;
+                q.data.straight_traverse.x = y;
+                break;
+            }
             break;
         case QSTRAIGHT_FEED: 
             {
-                double x1 = q.data.straight_feed.dx; // direction of original motion
-                double y1 = q.data.straight_feed.dy;
-                double x2 = x - endpoint[0];         // new direction after clipping
-                double y2 = y - endpoint[1];
+                double x1;
+                double y1;
+                double x2;
+                double y2;
+                switch(settings->plane) {
+                case CANON_PLANE_XY:
+                    x1 = q.data.straight_feed.dx; // direction of original motion
+                    y1 = q.data.straight_feed.dy;                
+                    x2 = x - endpoint[0];         // new direction after clipping
+                    y2 = y - endpoint[1];
+                    break;
+                case CANON_PLANE_XZ:
+                    x1 = q.data.straight_feed.dz; // direction of original motion
+                    y1 = q.data.straight_feed.dx;                
+                    x2 = x - endpoint[0];         // new direction after clipping
+                    y2 = y - endpoint[1];
+                    break;
+                }
 
                 double dot = x1 * x2 + y1 * y2; // not normalized
+
                 if(endpoint_valid && dot<0) {
                     // oops, the move is the wrong way.  this means the
                     // path has crossed because we backed up further
@@ -385,71 +464,24 @@ int move_endpoint_and_flush(double x, double y) {
                                  q.data.straight_feed.x, q.data.straight_feed.y,
                                  x, y);
                 }
-                q.data.straight_feed.x = x;
-                q.data.straight_feed.y = y;
-            }
-            break;
-        default:
-            ;
-        }
-    }
-    dequeue_canons();
-    endpoint[0] = x; endpoint[1] = y;
-    endpoint_valid = 1;
-    return 0;
-}
-
-int move_endpoint_and_flush_zx(double z, double x) {
-    if(qc().empty()) return 0;
-    
-    for(unsigned int i = 0; i<qc().size(); i++) {
-        queued_canon &q = qc()[i];
-
-        switch(q.type) {
-        case QARC_FEED:
-            double r1, r2;
-            r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
-                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
-            q.data.arc_feed.end1 = z;
-            q.data.arc_feed.end2 = x;
-            r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
-                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
-            if(fabs(r1-r2) > .01) printf("deranged zx arc r1 %f r2 %f\n", r1, r2);
-            break;
-        case QSTRAIGHT_TRAVERSE:
-            q.data.straight_traverse.z = z;
-            q.data.straight_traverse.x = x;
-            break;
-        case QSTRAIGHT_FEED:
-            {
-                double z1 = q.data.straight_feed.dz; // see above
-                double x1 = q.data.straight_feed.dx;
-                double z2 = z - endpoint[0];
-                double x2 = x - endpoint[1];
-
-                double dot = z1 * z2 + x1 * x2;
-                if(endpoint_valid && dot<0) {
-                    if(0) printf("reversal start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
-                                 endpoint[0], endpoint[1],
-                                 q.data.straight_feed.z, q.data.straight_feed.x,
-                                 z, x);
-                    return -1;
-                } else {
-                    if(0) printf("........ start G1F66Z%gX%g oldend G1F66Z%gX%g newend G1F66Z%gX%g\n", 
-                                 endpoint[0], endpoint[1],
-                                 q.data.straight_feed.z, q.data.straight_feed.x,
-                                 z, x);
+                switch(settings->plane) {
+                case CANON_PLANE_XY:
+                    q.data.straight_feed.x = x;
+                    q.data.straight_feed.y = y;
+                    break;
+                case CANON_PLANE_XZ:
+                    q.data.straight_feed.z = x;
+                    q.data.straight_feed.x = y;
+                    break;
                 }
             }
-            q.data.straight_feed.z = z;
-            q.data.straight_feed.x = x;
             break;
         default:
             ;
         }
     }
-    dequeue_canons();
-    endpoint[0] = z; endpoint[1] = x;
+    dequeue_canons(settings);
+    endpoint[0] = x; endpoint[1] = y;
     endpoint_valid = 1;
     return 0;
 }
@@ -458,9 +490,3 @@ void set_endpoint(double x, double y) {
     endpoint[0] = x; endpoint[1] = y; 
     endpoint_valid = 1;
 }
-
-void set_endpoint_zx(double z, double x) {
-    endpoint[0] = z; endpoint[1] = x;
-    endpoint_valid = 1;
-}
-

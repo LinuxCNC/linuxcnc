@@ -78,26 +78,25 @@ void enqueue_STOP_SPINDLE_TURNING(void);
 void enqueue_SET_SPINDLE_MODE(double mode);
 void enqueue_SET_SPINDLE_SPEED(double speed);
 void enqueue_COMMENT(char *c);
-void enqueue_STRAIGHT_FEED(int l, 
+void enqueue_STRAIGHT_FEED(setup_pointer settings, int l, 
                            double dx, double dy, double dz,
                            double x, double y, double z, 
                            double a, double b, double c, 
                            double u, double v, double w);
-void enqueue_STRAIGHT_TRAVERSE(int l, 
+void enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l, 
                                double dx, double dy, double dz,
                                double x, double y, double z, 
                                double a, double b, double c, 
                                double u, double v, double w);
-void enqueue_ARC_FEED(int l, 
+void enqueue_ARC_FEED(setup_pointer settings, int l, 
                       double end1, double end2, double center1, double center2,
                       int turn,
                       double end3,
                       double a, double b, double c,
                       double u, double v, double w);
-void dequeue_canons(void);
+void dequeue_canons(setup_pointer settings);
 void set_endpoint(double x, double y);
 void set_endpoint_zx(double z, double x);
-int move_endpoint_and_flush(double x, double y);
-int move_endpoint_and_flush_zx(double z, double x);
+int move_endpoint_and_flush(setup_pointer settings, double x, double y);
 void qc_reset(void);
 void qc_scale(double scale);

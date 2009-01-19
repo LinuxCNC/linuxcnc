@@ -182,6 +182,10 @@ private:
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
  int close_and_downcase(char *line);
+ int comp_get_current(setup_pointer settings, double *x, double *y, double *z);
+ int comp_set_current(setup_pointer settings, double x, double y, double z);
+ int comp_get_programmed(setup_pointer settings, double *x, double *y, double *z);
+ int comp_set_programmed(setup_pointer settings, double x, double y, double z);
  int convert_arc(int move, block_pointer block, setup_pointer settings);
  int convert_arc2(int move, block_pointer block,
                   setup_pointer settings, 
@@ -194,12 +198,14 @@ private:
  int convert_arc_comp1(int move, block_pointer block,
                        setup_pointer settings,
                        double end_x, double end_y, double end_z,
+                       double offset_x, double offset_y,
                        double AA_end, double BB_end, double CC_end, 
                        double u_end, double v_end, double w_end);
 
  int convert_arc_comp2(int move, block_pointer block,
                        setup_pointer settings,
                        double end_x, double end_y, double end_z,
+                       double offset_x, double offset_y,
                        double AA_end, double BB_end, double CC_end,
                        double u_end, double v_end, double w_end);
  char arc_axis1(int plane);
