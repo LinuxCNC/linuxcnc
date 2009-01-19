@@ -721,7 +721,9 @@ ${pane_top}.tabs itemconfigure mdi -raisecmd "[list focus ${_tabs_mdi}.command];
 #${pane_top}.tabs raise manual
 after idle {
     ${pane_top}.tabs raise manual
+    ${pane_top}.right raise preview 
     after idle ${pane_top}.tabs compute_size
+    after idle ${pane_top}.right compute_size
 }
 
 label $_tabs_manual.axis
@@ -1444,10 +1446,19 @@ grid $_tabs_mdi.vs3 \
 grid columnconfigure $_tabs_mdi 0 -weight 1
 grid rowconfigure $_tabs_mdi 1 -weight 1
 
-frame ${pane_top}.preview \
-	-background black \
-	-height 300 \
-	-width 400
+NoteBook ${pane_top}.right \
+        -borderwidth 2 \
+        -arcradius 3
+after 1 after idle show_all_tabs ${pane_top}.right
+
+set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"] -raisecmd {focus .}]
+set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"] -raisecmd {focus .}]
+$_tabs_preview configure -borderwidth 2
+$_tabs_numbers configure -borderwidth 2
+
+text ${_tabs_numbers}.text
+pack ${_tabs_numbers}.text -fill both -expand 1
+bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
 
 frame .info
 
@@ -1757,8 +1768,8 @@ grid .info \
 	-columnspan 2 \
 	-sticky ew
 
-# Grid widget ${pane_top}.preview
-grid ${pane_top}.preview \
+# Grid widget ${pane_top}.right
+grid ${pane_top}.right \
 	-column 1 \
 	-row 1 \
 	-columnspan 2 \

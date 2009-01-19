@@ -281,7 +281,7 @@ class Notification(Tkinter.Frame):
 
 
     def add(self, iconname, message):
-        self.place(relx=1, rely=1, anchor="se")
+        self.place(relx=1, rely=1, y=-20, anchor="se")
         iconname = self.tk.call("load_image", "std_" + iconname)
         close = self.tk.call("load_image", "close", "notification-close")
         if len(self.widgets) > 10:
@@ -1079,6 +1079,29 @@ class MyOpengl(Opengl):
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(num_joints), s.joint_actual_position)]
+
+        text = widgets.numbers_text
+        font = "Courier new"
+        font_width = text.tk.call("font", "measure", (font, -100, "bold"), "0") + 5
+        font_height = text.tk.call("font", "metrics", (font, -100, "bold"), "-linespace") + 5
+
+        text.delete("0.0", "end")
+        t = posstrs[:]
+        i = 0
+        for ts in t:
+            if i < len(homed) and homed[i]:
+                t[i] += "*"
+            if i < len(homed) and limit[i]:
+                t[i] += "!" # !!!1!
+            i+=1
+            
+        text.insert("end", "\n".join(t))
+
+        height = text.winfo_height()
+        width = text.winfo_width()
+        char_height = height / (len(posstrs)+1)
+        char_width = width / (max(len(p) for p in posstrs)+4) * font_height / font_width
+        text.configure(font=(font, -min(char_width, char_height), "bold"), wrap="none")
 
         maxlen = max([len(p) for p in posstrs])
         pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
@@ -1932,13 +1955,17 @@ def open_file_guts(f, filtered = False):
 
 tabs_mdi = str(root_window.tk.call("set", "_tabs_mdi"))
 tabs_manual = str(root_window.tk.call("set", "_tabs_manual"))
+tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
+tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
 widgets = nf.Widgets(root_window, 
     ("help_window", Toplevel, ".keys"),
     ("about_window", Toplevel, ".about"),
     ("text", Text, pane_bottom + ".t.text"),
-    ("preview_frame", Frame, pane_top + ".preview"),
+    ("preview_frame", Frame, tabs_preview),
+    ("numbers_text", Text, tabs_numbers + ".text"),
+
     ("mdi_history", Listbox, tabs_mdi + ".history"),
     ("mdi_command", Entry, tabs_mdi + ".command"),
     ("code_text", Text, tabs_mdi + ".gcodes"),
@@ -2345,6 +2372,9 @@ def reload_file(refilter=True):
         o.set_highlight_line(line)
  
 class TclCommands(nf.TclCommands):
+    def redraw_soon(event=None):
+        o.redraw_soon()
+
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
         return to_internal_linear_unit(float(a), b)
@@ -3642,8 +3672,6 @@ if s.axis_mask & 56 == 0:
 c = emc.command()
 e = emc.error_channel()
 
-widgets.preview_frame.pack_propagate(0)
-
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
 o.pack(fill="both", expand=1)
@@ -3669,7 +3697,7 @@ def get_coordinate_font(large):
     else:
         fontbase = font_cache[coordinate_font]
 
-notifications = Notification(o)
+notifications = Notification(root_window)
 
 root_window.bind("<Control-space>", lambda event: notifications.clear())
 widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
@@ -3902,6 +3930,7 @@ if os.path.exists(rcfile):
 root_window.tk.call("trace", "variable", "metric", "w", "update_units")
 install_help(root_window)
 
+widgets.numbers_text.bind("<Configure>", commands.redraw_soon)
 live_plotter.update()
 live_plotter.error_task()
 o.mainloop()
