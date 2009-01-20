@@ -1126,18 +1126,21 @@ The above code produces the following tabbed display.
 
 \begin_inset Graphics
 	filename images/pyvcp_tabs1.png
+	scale 70
 
 \end_inset 
 
 
 \begin_inset Graphics
 	filename images/pyvcp_tabs2.png
+	scale 70
 
 \end_inset 
 
 
 \begin_inset Graphics
 	filename images/pyvcp_tabs3.png
+	scale 70
 
 \end_inset 
 
