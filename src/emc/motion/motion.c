@@ -25,7 +25,7 @@
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
 
-static int key = 111;		/* the shared memory key, default value */
+static int key = DEFAULT_SHMEM_KEY;		/* the shared memory key, default value */
 
 /* module information */
 /* register symbols to be modified by insmod
@@ -1179,8 +1179,11 @@ static int setTrajCycleTime(double secs)
     emcmot_config_change();
 
     /* compute the interpolation rate as nearest integer to traj/servo */
-    emcmotConfig->interpolationRate =
-	(int) (secs / emcmotConfig->servoCycleTime + 0.5);
+    if(emcmotConfig->servoCycleTime)
+        emcmotConfig->interpolationRate =
+            (int) (secs / emcmotConfig->servoCycleTime + 0.5);
+    else
+        emcmotConfig->interpolationRate = 1;
 
     /* set traj planner */
     tpSetCycleTime(&emcmotDebug->queue, secs);
