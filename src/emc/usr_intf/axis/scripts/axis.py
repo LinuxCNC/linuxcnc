@@ -3615,7 +3615,6 @@ for a in range(9):
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)
-    print "using min speed", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))
 elif inifile.find("DISPLAY", "MIN_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_VELOCITY"))*60)
 elif step_size != 1:
