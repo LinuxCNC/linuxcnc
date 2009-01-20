@@ -3706,11 +3706,6 @@ def get_coordinate_font(large):
     else:
         fontbase = font_cache[coordinate_font]
 
-notifications = Notification(root_window)
-
-root_window.bind("<Control-space>", lambda event: notifications.clear())
-widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
-
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
 root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
@@ -3780,6 +3775,12 @@ if hal_present == 1 :
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
     comp.ready()
+
+notifications = Notification(root_window)
+
+root_window.bind("<Control-space>", lambda event: notifications.clear())
+widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
+
 
 make_cone()
 
