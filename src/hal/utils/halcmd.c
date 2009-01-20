@@ -678,11 +678,12 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
    -6	replacement would overflow output buffer
    -7	var name exceeds limit
 */
-static int replace_vars(char *source_str, char *dest_str, int max_chars)
+static int replace_vars(char *source_str, char *dest_str, int max_chars, char **detail)
 {
     int retval = 0, loopcount=0;
     int next_delim, remaining, buf_space;
     char *replacement, sec[128], var[128];
+    static char info[256];
     char *sp=source_str, *dp=dest_str, *secP, *varP;
     const char 
 	* words = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_";
@@ -714,8 +715,12 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		replacement = getenv(var);
-		if (replacement == NULL)
+		if (replacement == NULL) 
+                {
+                    snprintf(info, sizeof(info), "%s", var);
+                    *detail = info;
 		    return -4;
+                }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) <0)
 		    return -6;
 		sp += next_delim;
@@ -752,8 +757,11 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 		/* no section specified */
 		    replacement = (char *) iniFind(halcmd_inifile, var, NULL);
 		}
-		if (replacement==NULL)
+		if (replacement==NULL) {
+                    *detail = info;
+                    snprintf(info, sizeof(info), "[%s]%s", sec, var);
 		    return -5;
+                }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
 		    return -6;
 		sp += next_delim;
@@ -766,19 +774,20 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars)
 
 
 static const char *replace_errors[] = {
-	"Missing close parenthesis",
-	"Zero length variable name",
-	"Missing close square bracket",
-	"Environment variable not found",
-	"Ini variable not found",
-	"Replacement would overflow output buffer",
-	"Variable name too long",
+	"Missing close parenthesis.\n",
+	"Empty variable name.\n",
+	"Missing close square bracket.\n",
+	"Environment variable '%s' not found.\n",
+	"Ini variable '%s' not found.\n",
+	"Line too long.\n",
+	"Variable name too long.\n",
 };
 
 
 int halcmd_preprocess_line ( char *line, char **tokens )
 {
     int retval;
+    char *detail = NULL;
     static char cmd_buf[2*MAX_CMD_LEN];
 
     /* strip comments and trailing newline (if any) */
@@ -788,10 +797,14 @@ int halcmd_preprocess_line ( char *line, char **tokens )
 	return -1;
     }
     /* copy to cmd_buf while doing variable replacements */
-    retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2);
+    retval = replace_vars(line, cmd_buf, sizeof(cmd_buf)-2, &detail);
     if (retval != 0) {
 	if ((retval < 0) && (retval >= -7)) {  /* print better replacement errors */
-		halcmd_error("%s.\n", replace_errors[(-retval) -1]);
+            if(detail) {
+                halcmd_error(replace_errors[(-retval) -1], detail);
+            } else {
+		halcmd_error("%s", replace_errors[(-retval) -1]);
+            }
 	} else {
 		halcmd_error("unknown variable replacement error\n");
 	}
