@@ -248,7 +248,7 @@ int do_source_cmd(char *hal_filename) {
     int result = HAL_SUCCESS;
     int lineno_save = halcmd_get_linenumber();
     int linenumber = 1;
-    const char *filename_save = strdup(halcmd_get_filename());
+    char *filename_save = strdup(halcmd_get_filename());
 
     if(!f) {
         fprintf(stderr, "Could not open hal file '%s': %s\n",
