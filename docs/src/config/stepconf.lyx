@@ -545,7 +545,7 @@ Travel
 
 \end_inset 
 
- The range of travel that gcode programs must not exceed.
+ The range of travel that g code programs must not exceed.
  The home location must be inside the Table Travel.
  In particular, having Home Location exactly equal to one of the Table Travel
  values is incorrect configuration
@@ -1394,7 +1394,7 @@ soft limit
 \series default 
 .
  This is a limit enforced in software after homing.
- If a MDI command, or gcode program would pass the soft limit, it is not
+ If a MDI command, or g code program would pass the soft limit, it is not
  executed.
  If a jog would pass the soft limit, it is terminated at the soft limit.
 \layout Standard

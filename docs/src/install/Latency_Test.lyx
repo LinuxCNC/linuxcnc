@@ -199,7 +199,7 @@ You can then open an editor and put the addresses into the appropriate place
 loadrt hal_parport cfg="0x378 0xc000"
 \layout Standard
 
-You must also direct emc to run the "read" and "write" functions for the
+You must also direct EMC to run the "read" and "write" functions for the
  second card.
  For example,
 \layout Quotation

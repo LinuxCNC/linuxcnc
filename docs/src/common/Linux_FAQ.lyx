@@ -47,7 +47,7 @@ When you install EMC2 with the Ubuntu LiveCD the default is to have to log
  If it is a fresh install the Login Window might take a second or three
  to pop up.
  You will have to have your password that you used for the install to gain
- acess to the Login Window Preferences window.
+ access to the Login Window Preferences window.
  In the Security tab check off Enable Automatic Login and pick a user name
  from the list (that would be you).
  
