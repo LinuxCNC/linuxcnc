@@ -33,7 +33,7 @@ Cet exemple explique comment relier une manivelle facile à trouver aujourd'hui
  sur le marché.
  Cet exemple utilisera la manivelle MPG3 avec une carte d'interface C22
  de chez CNC4PC et un second port parallèle placé sur un slot PCI.
- Cet exemple donnera trois axes avec chacuns trois incréments de pas: 0.1,
+ Cet exemple fournira trois axes avec chacun trois incréments de pas: 0.1,
  0.01, 0.001.
 \layout Section
 
@@ -136,8 +136,8 @@ custom.hal
 \begin_inset Quotes frd
 \end_inset 
 
- ou autre fichier .hal ajoutez ce qui suit en vérifiant bien que les composants
- mux4 ou encoder ne soient pas déjà utilisés.
+ ou dans un autre fichier .hal, ajoutez ce qui suit en vérifiant bien que
+ les composants mux4 ou encoder ne soient pas déjà utilisés.
  Si c'était le cas vous auriez juste à augmenter les numéros de ces composants.
 \layout Standard
 
@@ -149,132 +149,61 @@ custom.hal
 
 
 \family typewriter 
-\series bold 
 loadrt encoder num_chan=1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 loadrt mux4 count=1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf encoder.capture-position servo-thread
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf encoder.update-counters base-thread
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf mux4.0 servo-thread
 \layout Standard
 
-
-\family typewriter 
-\series bold 
+# Utiliser une seule des deux lignes suivantes:
+\newline 
+# en mode absolu, chaque cran de manivelle provoque un déplacement, 
+\newline 
+# la durée de ce déplacement peut dépasser la durée de rotation de la manivelle
+\newline 
 setp encoder.0.x4-mode 0
+\newline 
+# en mode vitesse, l'axe s'arrête quand la manivelle s'arrête
+\newline 
+setp encoder.0.x4-mode 1
 \layout Standard
 
 
 \family typewriter 
-\series bold 
 setp mux4.0.in0 0.1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 setp mux4.0.in1 0.01
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 setp mux4.0.in2 0.001
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net scale1 mux4.0.sel0 <= parport.1.pin-09-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net scale2 mux4.0.sel1 <= parport.1.pin-10-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.0.jog-scale <= mux4.0.out
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.1.jog-scale
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.2.jog-scale
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-a encoder.0.phase-A <= parport.1.pin-02-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-x axis.0.jog-enable <= parport.1.pin-04-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-y axis.1.jog-enable <= parport.1.pin-05-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.0.jog-counts <= encoder.0.counts
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.1.jog-counts
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.2.jog-counts
 \the_end
