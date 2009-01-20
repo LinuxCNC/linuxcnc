@@ -141,142 +141,64 @@ In your custom.hal file or other .hal file add the following making sure you
 \end_inset 
 
 .
-\layout Standard
+\layout Quote
 
-
-\family typewriter 
-\series bold 
 # Jog Pendant
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 loadrt encoder num_chan=1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 loadrt mux4 count=1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf encoder.capture-position servo-thread
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf encoder.update-counters base-thread
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 addf mux4.0 servo-thread
-\layout Standard
+\layout Quote
 
-
-\family typewriter 
-\series bold 
+#pick one
+\newline 
+# for absolute mode 
+\newline 
+# for every click you get a move even if it has to catch up after you stop
+ spinning the dial
+\newline 
 setp encoder.0.x4-mode 0
-\layout Standard
+\newline 
+# or for velocity mode (axis stops when dial is stopped)
+\newline 
+setp encoder.0.x4-mode 1
+\layout Quote
 
-
-\family typewriter 
-\series bold 
 setp mux4.0.in0 0.1
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 setp mux4.0.in1 0.01
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 setp mux4.0.in2 0.001
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net scale1 mux4.0.sel0 <= parport.1.pin-09-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net scale2 mux4.0.sel1 <= parport.1.pin-10-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.0.jog-scale <= mux4.0.out
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.1.jog-scale
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-scale axis.2.jog-scale
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-a encoder.0.phase-A <= parport.1.pin-02-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-x axis.0.jog-enable <= parport.1.pin-04-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-y axis.1.jog-enable <= parport.1.pin-05-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.0.jog-counts <= encoder.0.counts
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.1.jog-counts
-\layout Standard
-
-
-\family typewriter 
-\series bold 
+\newline 
 net pend-counts axis.2.jog-counts
 \the_end
