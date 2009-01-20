@@ -18,7 +18,8 @@ s.poll()
 c = emc.command()
 
 t = Tkinter.Tk(className="EmcDebugLevel")
-t.wm_title("Debug Level")
+t.wm_title(_("EMC2 Debug Level"))
+t.wm_iconname(_("debuglevel"))
 t.wm_resizable(0, 0)
 
 import rs274.options
@@ -35,24 +36,29 @@ rs274.options.install(t)
 # any messages for EMC_DEBUG_TRAJ (all from tkemc/mini), but I'll leave them
 # enabled anyway
 bits = [
-    #(emc.DEBUG_INVALID, _('Configuration: Invalid items')),
-    #(emc.DEBUG_CONFIG, _('Configuration: Default values')),
-    #(emc.DEBUG_DEFAULTS, _('Configuration: Other')),
-    #(emc.DEBUG_VERSIONS, _('Version Numbers')),
+    (emc.DEBUG_INVALID, _('Configuration: Invalid items *')),
+    (emc.DEBUG_CONFIG, _('Configuration: Default values *')),
+    (emc.DEBUG_DEFAULTS, _('Configuration: Other *')),
+    (emc.DEBUG_VERSIONS, _('Version Numbers *')),
     (emc.DEBUG_TASK_ISSUE, _('Task Issue')),
     (emc.DEBUG_IO_POINTS, _('IO Points')),
-    #(emc.DEBUG_NML, _('NML')),
+    (emc.DEBUG_NML, _('NML *')),
     (emc.DEBUG_MOTION_TIME, _('Motion Time')),
     (emc.DEBUG_INTERP, _('Interpreter')),
-    #(emc.DEBUG_RCS, _('RCS')),
+    (emc.DEBUG_RCS, _('RCS *')),
     (emc.DEBUG_TRAJ, _('Trajectory')),
     (emc.DEBUG_INTERP_LIST, _('Interpreter List')),
 ]
 
+def showdebug(value):
+    d.set(_("Inifile setting for this debug level:\n[EMC]DEBUG=0x%08x") % value)
+
 vars = {}
 blackout = 0
 def update_buttons_from_emc():
-    if time.time() < blackout: return
+    if time.time() < blackout:
+        t.after(1000, update_buttons_from_emc)
+        return
     try:
         s.poll()
     except emc.error: # emc exited?
@@ -61,6 +67,7 @@ def update_buttons_from_emc():
     for k, v in vars.items():
         if debug & k: v.set(k)
         else: v.set(0)
+    showdebug(debug)
     # .. just in case someone else changes it ..
     t.after(1000, update_buttons_from_emc)
 
@@ -70,13 +77,22 @@ def setdebug():
     for k, v in vars.items():
         value = value | v.get()
     c.debug(value)
+    showdebug(value)
 
 for k, v in bits:
     vv = Tkinter.IntVar(t)
     vars[k] = vv
     b = Tkinter.Checkbutton(text = v, onvalue = k, offvalue = 0,
-                        command=setdebug, variable=vv)
-    b.pack(side="top", anchor="nw")
+                        command=setdebug, variable=vv, anchor="nw")
+    b.pack(side="top", anchor="nw", fill="x", expand=0)
+l = Tkinter.Label(text=_("  * This option can only be enabled in the inifile"))
+l.pack(side="top", anchor="nw")
+
+d = Tkinter.StringVar(t)
+l = Tkinter.Label(textvariable=d)
+l.pack(side="top", anchor="nw")
+
+showdebug(s.debug)
 
 update_buttons_from_emc()
 
