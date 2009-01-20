@@ -1453,10 +1453,13 @@ after 1 after idle show_all_tabs ${pane_top}.right
 
 set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"] -raisecmd {focus .}]
 set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"] -raisecmd {focus .}]
-$_tabs_preview configure -borderwidth 2
-$_tabs_numbers configure -borderwidth 2
+$_tabs_preview configure -borderwidth 1
+$_tabs_numbers configure -borderwidth 1
 
-text ${_tabs_numbers}.text -width 1 -height 1 -wrap none
+text ${_tabs_numbers}.text -width 1 -height 1 -wrap none \
+	-background [systembuttonface] \
+	-borderwidth 0 \
+	-relief flat
 pack ${_tabs_numbers}.text -fill both -expand 1
 bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
 
@@ -1773,6 +1776,8 @@ grid ${pane_top}.right \
 	-column 1 \
 	-row 1 \
 	-columnspan 2 \
+	-padx 2 \
+	-pady 2 \
 	-rowspan 99 \
 	-sticky nesw
 
