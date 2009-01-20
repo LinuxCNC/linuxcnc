@@ -1081,9 +1081,10 @@ class MyOpengl(Opengl):
                 zip(range(num_joints), s.joint_actual_position)]
 
         text = widgets.numbers_text
+
         font = "Courier 10 pitch"
-        font_width = text.tk.call("font", "measure", (font, -100), "0") + 5
-        font_height = text.tk.call("font", "metrics", (font, -100), "-linespace") + 5
+        font_width = text.tk.call("font", "measure", (font, -100, "bold"), "0")
+        font_vertspace = text.tk.call("font", "metrics", (font, -100, "bold"), "-linespace") - 100
 
         text.delete("0.0", "end")
         t = posstrs[:]
@@ -1097,11 +1098,19 @@ class MyOpengl(Opengl):
             
         text.insert("end", "\n".join(t))
 
-        height = text.winfo_height()
-        width = text.winfo_width()
-        char_height = height / (len(posstrs)+1)
-        char_width = width / (max(len(p) for p in posstrs)+4) * font_height / font_width
-        text.configure(font=(font, -min(char_width, char_height)), wrap="none")
+        window_height = text.winfo_height()
+        window_width = text.winfo_width()
+        dro_lines = len(posstrs)
+        dro_width = len(posstrs[0]) + 3 # 2 for the two possible symbols, plus a space
+        # pixels of height required, for "100 pixel" font
+        req_height = dro_lines * 100 + (dro_lines + 1) * font_vertspace
+        # pixels of width required, for "100 pixel" font
+        req_width = dro_width * font_width
+        height_ratio = float(window_height) / req_height
+        width_ratio = float(window_width) / req_width
+        ratio = min(height_ratio, width_ratio)
+        text.configure(font=(font, -int(100*ratio), "bold"), wrap="none")
+
 
         maxlen = max([len(p) for p in posstrs])
         pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
