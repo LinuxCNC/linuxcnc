@@ -832,7 +832,10 @@ int halcmd_parse_line(char *line) {
 static int linenumber=0;
 static const char *filename=NULL;
 
-void halcmd_set_filename(const char *new_filename) { filename = new_filename; }
+void halcmd_set_filename(const char *new_filename) {
+    if(filename) free(filename);
+    filename = strdup(new_filename);
+}
 const char *halcmd_get_filename(void) { return filename; }
 
 void halcmd_set_linenumber(int new_linenumber) { linenumber = new_linenumber; }
