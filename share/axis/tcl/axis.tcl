@@ -1456,7 +1456,7 @@ set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"] -raisecm
 $_tabs_preview configure -borderwidth 2
 $_tabs_numbers configure -borderwidth 2
 
-text ${_tabs_numbers}.text
+text ${_tabs_numbers}.text -width 1 -height 1 -wrap none
 pack ${_tabs_numbers}.text -fill both -expand 1
 bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
 
