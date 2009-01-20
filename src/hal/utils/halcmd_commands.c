@@ -1004,7 +1004,11 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 #endif
 
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d\n", retval );
+	halcmd_error("insmod failed, returned %d\n"
+#if !defined(RTAPI_SIM)
+	    "See the output of 'dmesg' for more information.\n"
+#endif
+	    , retval );
 	return -1;
     }
     /* make the args that were passed to the module into a single string */
