@@ -48,7 +48,7 @@ loadrt hm2_7i43 config="firmware=hm2/7i43/SVST4_4B.BIT num_encoders=3 num_pwmgen
 setp hm2_7i43.0.pwmgen.pwm_frequency 40000
 
 # 7i43 watchdog, enable only if loaded firmware supports it
-#setp hm2_7i43.0.watchdog.timeout_ns 10000000
+setp hm2_7i43.0.watchdog.timeout_ns 10000000
 
 
 # ################################################
@@ -67,7 +67,7 @@ addf pid.2.do-pid-calcs servo-thread
 
 addf hm2_7i43.0.write servo-thread
 
-#addf hm2_7i43.0.pet_watchdog  servo-thread #enable if fw supported
+addf hm2_7i43.0.pet_watchdog  servo-thread #enable if fw supported
        
 
 # ######################################################
