@@ -156,18 +156,29 @@ addf encoder.update-counters base-thread
 addf mux4.0 servo-thread
 \layout Quote
 
-#pick one
+# If your MPG outputs a quadture signal per click set x4 to 1 
 \newline 
-# for absolute mode 
-\newline 
-# for every click you get a move even if it has to catch up after you stop
- spinning the dial
+# If your MPG puts out 1 pulse per click set x4 to 0
 \newline 
 setp encoder.0.x4-mode 0
+\layout Quote
+
+# For velocity mode, set n to 1 
 \newline 
-# or for velocity mode (axis stops when dial is stopped)
+# In velocity mode the axis stops when dial is stopped even if that means
+ 
 \newline 
-setp encoder.0.x4-mode 1
+# the commanded motion is not completed, 
+\newline 
+# For position mode (the default), set n to 0 
+\newline 
+# In position mode the axis will move exactly jog-scale 
+\newline 
+# units for each count, regardless of how long that might take, 
+\newline 
+# This must be set for each axis you want to behave other than default
+\newline 
+setp axis.N.jog-vel-mode n
 \layout Quote
 
 setp mux4.0.in0 0.1
