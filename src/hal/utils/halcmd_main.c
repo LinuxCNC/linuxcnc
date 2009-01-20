@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     char *filename = NULL;
     FILE *srcfile = NULL;
     char raw_buf[MAX_CMD_LEN+1];
-    int linenumber = 0;
+    int linenumber = 1;
     char *cf=NULL, *cw=NULL, *cl=NULL;
 
     if (argc < 2) {
