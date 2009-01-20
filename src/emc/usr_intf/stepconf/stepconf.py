@@ -470,7 +470,6 @@ class Data:
         print >>file
         print >>file, "[EMCMOT]"
         print >>file, "EMCMOT = motmod"
-        print >>file, "SHMEM_KEY = 111"
         print >>file, "COMM_TIMEOUT = 1.0"
         print >>file, "COMM_WAIT = 0.010"
         print >>file, "BASE_PERIOD = %d" % base_period
@@ -744,7 +743,7 @@ class Data:
         print >>file, _("# overwritten when you run stepconf again")
 
         print >>file, "loadrt trivkins"
-        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY num_joints=[TRAJ]AXES"
+        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
         port3name=port2name=port2dir=port3dir=""
         if self.number_pports>2:
