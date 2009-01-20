@@ -116,11 +116,24 @@ operating system.
 .B input.\fIN\fB.rel-\fIname\fB-reset\fR bit in
 .TQ
 .B input.\fIN\fB.rel-\fIname\fB-scale\fR parameter float rw
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-absolute\fR parameter s32 rw
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-precision\fR parameter s32 rw
+.TQ
+.B input.\fIN\fB.rel-\fIname\fB-last\fR parameter s32 rw
 Created for each relative axis on the device.  As long as \fBreset\fR is true,
 \fBcounts\fR is reset to zero regardless of any past or current axis movement.
 Otherwise, \fBcounts\fR increases or decreases according to the motion of the
 axis.  \fBcounts\fR is divided by \fRposition-scale\fR to give \fBposition\fR.
-The default value of \fBposition\fR is 1.
+The default value of \fBposition\fR is 1.  There are some devices, notably
+scroll wheels, which return signed values with less resolution than 32 bits.
+The default value of \fBprecision\fR is 32.  \fBprecision\fR can be set to 8
+for a device that returns signed 8 bit values, or any other value from 1 to 32.
+\fBabsolute\fR, when set true, ignores duplicate events with the same value.
+This allows for devices that repeat events without any user action to work
+correctly.  \fBlast\fR shows the most recent count value returned by the
+device, and is used in the implementation of \fBabsolute\fR.
 .SS For LEDs
 .TP
 .B input.\fIN\fB.led-\fIname\fR bit out
