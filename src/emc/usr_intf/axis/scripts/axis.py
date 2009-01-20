@@ -1506,7 +1506,7 @@ class LivePlotter:
             return
         self.after = self.win.after(20, self.update)
 
-        self.win.set_current_line(self.stat.id)
+        self.win.set_current_line(self.stat.id or self.stat.motion_line or self.stat.current_line)
 
         speed = self.stat.current_vel
 
@@ -2738,7 +2738,7 @@ class TclCommands(nf.TclCommands):
 
     def task_resume(*event):
         s.poll()
-        if s.interp_state != emc.INTERP_PAUSED:
+        if not s.paused:
             return
         if s.task_mode not in (emc.MODE_AUTO, emc.MODE_MDI):
             return
