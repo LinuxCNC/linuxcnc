@@ -160,19 +160,35 @@ addf encoder.update-counters base-thread
 addf mux4.0 servo-thread
 \layout Standard
 
-# Utiliser une seule des deux lignes suivantes:
+# Mode position
 \newline 
-# en mode absolu, chaque cran de manivelle provoque un déplacement, 
+# Chaque cran de manivelle provoque un pas calibré, 
 \newline 
-# la durée de ce déplacement peut dépasser la durée de rotation de la manivelle
+# la durée du mouvement total peut dépasser la durée de rotation de la manivelle.
+ 
 \newline 
-setp encoder.0.x4-mode 0
+# C'est le mode par défaut.
 \newline 
-# en mode vitesse, l'axe s'arrête quand la manivelle s'arrête
-\newline 
-setp encoder.0.x4-mode 1
+setp axis.N.jog-vel-mode 0
 \layout Standard
 
+# Mode vitesse 
+\newline 
+# L'axe s'arrête quand la manivelle s'arrête, même si la pas de jog est
+ incomplet.
+\newline 
+# Décommenter la ligne suivante pour obtenir ce mode de fonctionnement,
+\newline 
+# et commenter le mode position.
+\newline 
+#setp axis.N.jog-vel-mode 1
+\layout Standard
+
+# Chaque axe est ajusté indépendemment des autres.
+\layout Standard
+
+# Tailles des pas de jog
+\newline 
 
 \family typewriter 
 setp mux4.0.in0 0.1
@@ -180,27 +196,48 @@ setp mux4.0.in0 0.1
 setp mux4.0.in1 0.01
 \newline 
 setp mux4.0.in2 0.001
+\layout Standard
+
+
+\family typewriter 
+# Sélecteur de taille des pas du jog
 \newline 
 net scale1 mux4.0.sel0 <= parport.1.pin-09-in
 \newline 
 net scale2 mux4.0.sel1 <= parport.1.pin-10-in
-\newline 
+\layout Standard
+
+
+\family typewriter 
 net pend-scale axis.0.jog-scale <= mux4.0.out
 \newline 
 net pend-scale axis.1.jog-scale
 \newline 
 net pend-scale axis.2.jog-scale
+\layout Standard
+
+
+\family typewriter 
+# Signaux du codeur
 \newline 
 net mpg-a encoder.0.phase-A <= parport.1.pin-02-in
 \newline 
 net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
+\layout Standard
+
+
+\family typewriter 
+# Sélecteur d'axe
 \newline 
 net mpg-x axis.0.jog-enable <= parport.1.pin-04-in
 \newline 
 net mpg-y axis.1.jog-enable <= parport.1.pin-05-in
 \newline 
 net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
-\newline 
+\layout Standard
+
+
+\family typewriter 
 net pend-counts axis.0.jog-counts <= encoder.0.counts
 \newline 
 net pend-counts axis.1.jog-counts
