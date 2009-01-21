@@ -2393,8 +2393,11 @@ class TclCommands(nf.TclCommands):
 
     def toggle_optional_stop(event=None):
         c.set_optional_stop(vars.optional_stop.get())
+        ap.putpref("optional_stop", vars.optional_stop.get())
+
     def toggle_block_delete(event=None):
         c.set_block_delete(vars.block_delete.get())
+        ap.putpref("block_delete", vars.block_delete.get())
         c.wait_complete()
         ensure_mode(emc.MODE_MANUAL)
         s.poll()
@@ -3286,6 +3289,9 @@ vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
 vars.dro_large_font.set(ap.getpref("dro_large_font", False))
+vars.block_delete.set(ap.getpref("block_delete", True))
+vars.optional_stop.set(ap.getpref("optional_stop", True))
+
 vars.touch_off_system.set("P1  G54")
 
 
@@ -3679,6 +3685,11 @@ if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
 c = emc.command()
 e = emc.error_channel()
+
+c.set_block_delete(vars.block_delete.get())
+c.wait_complete()
+c.set_optional_stop(vars.optional_stop.get())
+c.wait_complete()
 
 o = MyOpengl(widgets.preview_frame, width=400, height=300, double=1, depth=1)
 o.last_line = 1
