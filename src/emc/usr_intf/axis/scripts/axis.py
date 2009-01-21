@@ -76,22 +76,32 @@ if hal_present == 1 :
 import ConfigParser
 cp = ConfigParser.ConfigParser
 class AxisPreferences(cp):
+    types = {
+        bool: cp.getboolean,
+        float: cp.getfloat,
+        int: cp.getint,
+        str: cp.get,
+        repr: lambda self,section,option: eval(cp.get(self,section,option)),
+    }
+
     def __init__(self):
         cp.__init__(self)
         self.fn = os.path.expanduser("~/.axis_preferences")
         self.read(self.fn)
 
-    def getpref(self, option, default=False):
+    def getpref(self, option, default=False, type=bool):
+        m = self.types.get(type)
         try:
-            o = self.getboolean("DEFAULT", option)
-        except:
+            o = m(self, "DEFAULT", option)
+        except Exception, detail:
+            print detail
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
             o = default
         return o
 
-    def putpref(self, option, value):
-        self.set("DEFAULT", option, bool(value))
+    def putpref(self, option, value, type=bool):
+        self.set("DEFAULT", option, type(value))
         self.write(open(self.fn, "w"))
 
 ap = AxisPreferences()
@@ -1859,8 +1869,23 @@ def get_filter(filename):
     else:
         return None
 
+def update_recent_menu():
+    recent = ap.getpref('recentfiles', [], repr)
+    root_window.tk.call("update_recent", *recent)
+
+def add_recent_file(f):
+    recent = ap.getpref('recentfiles', [], repr)
+    if f in recent: recent.remove(f)
+    recent.insert(0, f)
+    recent = recent[:10]
+    ap.putpref('recentfiles', recent, repr)
+    update_recent_menu()
+    print "RFL", recent
+
 loaded_file = None
-def open_file_guts(f, filtered = False):
+def open_file_guts(f, filtered=False, addrecent=True):
+    if addrecent:
+        add_recent_file(f)
     if not filtered:
         global loaded_file
         loaded_file = f
@@ -1876,7 +1901,7 @@ def open_file_guts(f, filtered = False):
                             % {'program': program_filter, 'code': exitcode},
                         "error",0,_("OK"))
                 return
-            return open_file_guts(tempfile, True)
+            return open_file_guts(tempfile, True, False)
 
     set_first_line(0)
     t0 = time.time()
@@ -2373,10 +2398,10 @@ def reload_file(refilter=True):
     o.set_highlight_line(None)
 
     if refilter or not get_filter(loaded_file):
-        open_file_guts(loaded_file)
+        open_file_guts(loaded_file, False, False)
     else:
         tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
-        open_file_guts(tempfile, True)
+        open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
  
@@ -3294,6 +3319,7 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 
 vars.touch_off_system.set("P1  G54")
 
+update_recent_menu()
 
 def set_feedrate(n):
     widgets.feedoverride.set(n)
@@ -3820,6 +3846,7 @@ activate_axis(0, True)
 set_hal_jogincrement()
 
 code = []
+addrecent = True
 if args:
     initialfile = args[0]
 elif os.environ.has_key("AXIS_OPEN_FILE"):
@@ -3828,11 +3855,13 @@ elif inifile.find("DISPLAY", "OPEN_FILE"):
     initialfile = inifile.find("DISPLAY", "OPEN_FILE")
 elif lathe:
     initialfile = os.path.join(BASE, "share", "axis", "images","axis-lathe.ngc")
+    addrecent = False
 else:
     initialfile = os.path.join(BASE, "share", "axis", "images", "axis.ngc")
+    addrecent = False
 
 if os.path.exists(initialfile):
-    open_file_guts(initialfile)
+    open_file_guts(initialfile, False, addrecent)
 
 if lathe:
     commands.set_view_y()

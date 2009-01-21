@@ -24,6 +24,8 @@ menu .menu \
 
 menu .menu.file \
 	-tearoff 0
+menu .menu.file.recent \
+	-tearoff 0
 menu .menu.machine \
 	-tearoff 0
 menu .menu.machine.home \
@@ -43,6 +45,10 @@ menu .menu.machine.clearoffset \
 	-accelerator O \
 	-command open_file
 setup_menu_accel .menu.file end [_ "_Open..."]
+
+.menu.file add cascade \
+        -menu .menu.file.recent
+setup_menu_accel .menu.file end [_ "Recent _Files"]
 
 .menu.file add command \
     -command edit_program
@@ -2266,6 +2272,19 @@ proc update_ajog_slider_vel {newval} {
     set jog_aspeed [val2vel_show $newval $max_aspeed];
 }
 
+proc update_recent {args} {
+    .menu.file.recent delete 0 end
+    set i 1
+    foreach f $args {
+        if {$i < 10} { set und 0 } \
+        elseif {$i == 10} { set und 1 } \
+        else { set und -1 }
+        .menu.file.recent add command -underline $und \
+            -label "$i: [file tail $f]" \
+            -command [list open_file_name $f]
+        incr i
+    }
+}
 
 
 bind . <Configure> { if {"%W" == "."} {
