@@ -2961,10 +2961,6 @@ int main(int argc, char *argv[])
 	// synchronize subordinate states
 	if (emcStatus->io.aux.estop) {
 	    if (emcStatus->motion.traj.enabled) {
-		if (EMC_DEBUG & EMC_DEBUG_IO_POINTS) {
-		    rcs_print("emcStatus->io.aux.estop=%d\n",
-			      emcStatus->io.aux.estop);
-		}
 		emcTrajDisable();
 		emcTaskAbort();
                 emcIoAbort();
