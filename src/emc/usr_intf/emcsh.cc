@@ -3127,11 +3127,6 @@ int emc_teleop_enable(ClientData clientdata,
     Tcl_SetObjResult(interp,
 		     Tcl_NewIntObj(emcStatus->motion.traj.mode ==
 				   EMC_TRAJ_MODE_TELEOP));
-    /*! \todo FIXME */
-    if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
-	printf("emcStatus->motion.traj.mode = %d\n",
-	       emcStatus->motion.traj.mode);
-    }
     return TCL_OK;
 }
 
@@ -3147,11 +3142,6 @@ int emc_kinematics_type(ClientData clientdata,
     Tcl_SetObjResult(interp,
 		     Tcl_NewIntObj(emcStatus->motion.traj.
 				   kinematics_type));
-    /*! \todo FIXME */
-    if (EMC_DEBUG & EMC_DEBUG_TRAJ) {
-	printf("emcStatus->motion.traj.mode = %d\n",
-	       emcStatus->motion.traj.mode);
-    }
     return TCL_OK;
 }
 
