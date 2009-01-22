@@ -1905,6 +1905,7 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #endif
     settings->feed_mode = UNITS_PER_MINUTE;
     enqueue_SET_FEED_MODE(0);
+    settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
   } else if(g_code == G_95) {
 #ifdef DEBUG_EMC
@@ -1912,6 +1913,7 @@ int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (mus
 #endif
     settings->feed_mode = UNITS_PER_REVOLUTION;
     enqueue_SET_FEED_MODE(1);
+    settings->feed_rate = 0.0;
     enqueue_SET_FEED_RATE(0);
   } else
     ERS("BUG: Code not G93, G94, or G95");
@@ -3307,6 +3309,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*4*/ settings->feed_mode = UNITS_PER_MINUTE;
     SET_FEED_MODE(0);
+    settings->feed_rate = block->f_number;
     SET_FEED_RATE(0);
 
 /*5*/ if (settings->feed_override != ON) {
