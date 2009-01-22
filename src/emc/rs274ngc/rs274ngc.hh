@@ -345,18 +345,6 @@ private:
                                  double cx, double cy, int turn, double x2,
                                  double y2, double z2, block_pointer block,
                                  setup_pointer settings);
- int inverse_time_rate_arc2(double start_x, double start_y, int turn1,
-                                  double mid_x, double mid_y, double cx,
-                                  double cy, int turn2, double end_x,
-                                  double end_y, double end_z,
-                                  block_pointer block,
-                                  setup_pointer settings);
- int inverse_time_rate_as(double start_x, double start_y, int turn,
-                          double mid_x, double mid_y, 
-                          double end_x, double end_y, double end_z,
-                          double AA_end, double BB_end, double CC_end,
-                          double u_end, double v_end, double w_end,
-                          block_pointer block, setup_pointer settings);
  int inverse_time_rate_straight(double end_x, double end_y, double end_z, 
                                 double AA_end, double BB_end, double CC_end,
                                 double u_end, double v_end, double w_end,

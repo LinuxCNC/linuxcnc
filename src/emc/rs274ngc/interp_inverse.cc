@@ -70,120 +70,6 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
 
 /****************************************************************************/
 
-/*! inverse_time_rate_arc2
-
-Returned Value: int (INTERP_OK)
-
-Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
-
-Called by: convert_arc_comp2
-
-This finds the feed rate needed by an inverse time move in
-convert_arc_comp2. The move consists of an extra arc and a main
-arc. Most of the work here is in finding the lengths of the two arcs.
-
-All rotary motion is assumed to occur on the extra arc, as done by
-convert_arc_comp2.
-
-All z motion is assumed to occur on the main arc, as done by
-convert_arc_comp2.
-
-
-*/
-
-int Interp::inverse_time_rate_arc2(double start_x,       //!< x coord of last program point, extra arc center x
-                                  double start_y,       //!< y coord of last program point, extra arc center y
-                                  int turn1,    //!< turn of extra arc                                
-                                  double mid_x, //!< x coord of end point of extra arc                
-                                  double mid_y, //!< y coord of end point of extra arc                
-                                  double cx,    //!< x coord of center of main arc                    
-                                  double cy,    //!< y coord of center of main arc                    
-                                  int turn2,    //!< turn of main arc                                 
-                                  double end_x, //!< x coord of end point of main arc                 
-                                  double end_y, //!< y coord of end point of main arc                 
-                                  double end_z, //!< z coord of end point of main arc                 
-                                  block_pointer block,  //!< pointer to a block of RS274 instructions         
-                                  setup_pointer settings)       //!< pointer to machine settings                      
-{
-  double length;
-  double rate;
-
-  if (settings->feed_mode != INVERSE_TIME) return -1;
-
-  length =
-    (find_arc_length
-     (settings->current_x, settings->current_y, settings->current_z,
-      start_x, start_y, turn1, mid_x, mid_y,
-      settings->current_z) + find_arc_length(mid_x, mid_y,
-                                             settings->current_z,
-                                             cx, cy, turn2, end_x,
-                                             end_y, end_z));
-  rate = MAX(0.1, (length * block->f_number));
-  enqueue_SET_FEED_RATE(rate);
-  settings->feed_rate = rate;
-
-  return INTERP_OK;
-}
-
-/****************************************************************************/
-
-/*! inverse_time_rate_as
-
-Returned Value: int (INTERP_OK)
-
-Side effects: a call is made to SET_FEED_RATE and _setup.feed_rate is set.
-
-Called by: convert_straight_comp2
-
-This finds the feed rate needed by an inverse time move in
-convert_straight_comp2. The move consists of an extra arc and a straight
-line. Most of the work here is in finding the lengths of the arc and
-the line.
-
-All rotary motion is assumed to occur on the arc, as done by
-convert_straight_comp2.
-
-All z motion is assumed to occur on the line, as done by
-convert_straight_comp2.
-
-*/
-
-int Interp::inverse_time_rate_as(double start_x, //!< x coord of last program point, extra arc center x
-                                 double start_y, //!< y coord of last program point, extra arc center y
-                                 int turn,       //!< turn of extra arc                                
-                                 double mid_x,   //!< x coord of end point of extra arc                
-                                 double mid_y,   //!< y coord of end point of extra arc                
-                                 double end_x,   //!< x coord of end point of straight line            
-                                 double end_y,   //!< y coord of end point of straight line            
-                                 double end_z,   //!< z coord of end point of straight line            
-                                 double AA_end,  //!< A coord of end point of straight line      
-                                 double BB_end,  //!< B coord of end point of straight line      
-                                 double CC_end,  //!< C coord of end point of straight line      
-                                 double u_end, double v_end, double w_end,
-                                 block_pointer block,    //!< pointer to a block of RS274 instructions         
-                                 setup_pointer settings) //!< pointer to machine settings                      
-{
-  double length;
-  double rate;
-
-  if (settings->feed_mode != INVERSE_TIME) return -1;
-
-  length =
-      find_arc_length(settings->current_x, settings->current_y, settings->current_z,
-                      start_x, start_y, turn, mid_x, mid_y, settings->current_z) + 
-      find_straight_length(end_x, end_y, end_z, AA_end, BB_end, CC_end,
-                           u_end, v_end, w_end, mid_x, mid_y, settings->current_z,
-                           AA_end, BB_end, CC_end, u_end, v_end, w_end);
-
-  rate = MAX(0.1, (length * block->f_number));
-  enqueue_SET_FEED_RATE(rate);
-  settings->feed_rate = rate;
-
-  return INTERP_OK;
-}
-
-/****************************************************************************/
-
 /*! inverse_time_rate_straight
 
 Returned Value: int (INTERP_OK)
@@ -212,13 +98,25 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
 {
   double length;
   double rate;
+  double cx, cy, cz;
 
   if (settings->feed_mode != INVERSE_TIME) return -1;
+
+  if (settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0 &&
+      settings->cutter_comp_firstmove == OFF) {
+      cx = settings->program_x;
+      cy = settings->program_y;
+      cz = settings->program_z;
+  } else {
+      cx = settings->current_x;
+      cy = settings->current_y;
+      cz = settings->current_z;
+  }
 
   length = find_straight_length(end_x, end_y, end_z,
                                 AA_end, BB_end, CC_end,
                                 u_end, v_end, w_end,
-                                settings->current_x, settings->current_y, settings->current_z,
+                                cx, cy, cz,
                                 settings->AA_current, settings->BB_current, settings->CC_current,
                                 settings->u_current, settings->v_current, settings->w_current);
 

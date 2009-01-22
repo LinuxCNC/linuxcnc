@@ -176,6 +176,14 @@ If the ijk format is used, at least one of the offsets in the current
 plane must be given in the block; it is common but not required to
 give both offsets. The offsets are always incremental [NCMS, page 21].
 
+If cutter compensation is in use, the path's length may increase or
+decrease.  Also an arc may be added, to go around a corner, before the
+original arc move.  For the purpose of calculating the feed rate when in
+inverse time mode, this length increase or decrease is ignored.  The
+feed is still set to the original programmed arc length divided by the F
+number (with the above lower bound).  The new arc (if needed) and the
+new longer or shorter original arc are taken at this feed.
+
 */
 
 int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc)    
@@ -284,6 +292,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   settings->motion_mode = move;
 
+
   if (settings->plane == CANON_PLANE_XY) {
     if ((settings->cutter_comp_side == OFF) ||
         (settings->cutter_comp_radius == 0.0)) {
@@ -359,7 +368,6 @@ Returned Value: int
 Side effects:
    This executes an arc command at feed rate. It also updates the
    setting of the position of the tool point to the end point of the move.
-   If inverse time feed rate is in effect, it also resets the feed rate.
 
 Called by: convert_arc.
 
@@ -403,9 +411,9 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                        offset1, offset2,
                        &center1, &center2, &turn, tolerance));
   }
-
   inverse_time_rate_arc(*current1, *current2, *current3, center1, center2,
                         turn, end1, end2, end3, block, settings);
+
   ARC_FEED(block->line_number, end1, end2, center1, center2, turn, end3,
            AA_end, BB_end, CC_end, u, v, w);
   *current1 = end1;
@@ -491,6 +499,10 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               &center_x, &center_y, &turn, tolerance));
     }
 
+    inverse_time_rate_arc(cx, cy, cz, center_x, center_y,
+                          turn, end_x, end_y, end_z, block, settings);
+
+
     // the tool will end up in gamma direction from the programmed arc endpoint
     if TOOL_INSIDE_ARC(side, turn) {
         // tool inside the arc: ends up toward the center
@@ -535,8 +547,6 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
     if (settings->cutter_comp_orientation != 0 && settings->cutter_comp_orientation != 9) {
-        inverse_time_rate_straight(cx, cy, cz,
-                                   AA_end, BB_end, CC_end, u_end, v_end, w_end, block, settings);
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
                               0, 0, 0,
                               cx, cy, cz,
@@ -544,9 +554,6 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         set_endpoint(cx, cy);
     }
     
-    inverse_time_rate_arc(cx, cy,
-                          cz, center_x, center_y, turn,
-                          end_x, end_y, end_z, block, settings);
     enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, center_x, center_y, turn, end_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
@@ -577,9 +584,7 @@ Returned Value: int
 Side effects:
    This executes an arc command feed rate. If needed, at also generates
    an arc to go around a convex corner. It also updates the setting of
-   the position of the tool point to the end point of the move. If
-   inverse time feed rate mode is in effect, the feed rate is reset.
-
+   the position of the tool point to the end point of the move.
 Called by: convert_arc.
 
 This function converts a helical or circular arc. The axis must be
@@ -630,6 +635,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     int turn;                     /* number of full or partial circles CCW */
     int plane = settings->plane;
     double cx, cy, cz;
+    double new_end_x, new_end_y;
 
     /* find basic arc data: center_x, center_y, and turn */
 
@@ -649,6 +655,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                          offset_x, offset_y,
                          &centerx, &centery, &turn, tolerance));
     }
+
+    inverse_time_rate_arc(opx, opy, opz, centerx, centery,
+                          turn, end_x, end_y, end_z, block, settings);
 
     side = settings->cutter_comp_side;
     tool_radius = settings->cutter_comp_radius;   /* always is positive */
@@ -672,10 +681,9 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         delta = (delta + M_PIl);
     }
 
-    comp_set_programmed(settings, end_x, end_y, end_z);
     // move arc endpoint to the compensated position
-    end_x += tool_radius * cos(gamma);
-    end_y += tool_radius * sin(gamma);
+    new_end_x = end_x + tool_radius * cos(gamma);
+    new_end_y = end_y + tool_radius * sin(gamma);
 
     if (beta < -small || 
         beta > M_PIl + small ||
@@ -748,31 +756,26 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
           
             CHKS((move_endpoint_and_flush(settings, midx, midy) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
         }
-        enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, centerx, centery, turn, end_z,
+        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else if (beta > small) {           /* convex, two arcs needed */
         midx = opx + tool_radius * cos(delta);
         midy = opy + tool_radius * sin(delta);
         dequeue_canons(settings);
-        inverse_time_rate_arc2(opx, opy, (side == LEFT) ? -1 : 1,
-                               midx, midy, centerx, centery, turn,
-                               end_x, end_y, end_z, block, settings);
         enqueue_ARC_FEED(settings, block->line_number, midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
                          cz,
                          AA_end, BB_end, CC_end, u, v, w);
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, centerx, centery, turn, end_z,
+        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else {                      /* convex, one arc needed */
-        inverse_time_rate_arc(cx, cy,
-                              cz, centerx, centery, turn,
-                              end_x, end_y, end_z, block, settings);
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, centerx, centery, turn, end_z,
+        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     }
 
-    comp_set_current(settings, end_x, end_y, end_z);
+    comp_set_programmed(settings, end_x, end_y, end_z);
+    comp_set_current(settings, new_end_x, new_end_y, end_z);
     settings->AA_current = AA_end;
     settings->BB_current = BB_end;
     settings->CC_current = CC_end;
@@ -2734,7 +2737,6 @@ Returned Value: int
    Otherwise, it returns INTERP_OK.
    1. No value is given in the block for any of X, Y, or Z:
       NCE_X_Y_AND_Z_WORDS_ALL_MISSING_WITH_G38_2
-   2. feed mode is inverse time: NCE_CANNOT_PROBE_IN_INVERSE_TIME_FEED_MODE
    3. cutter radius comp is on: NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON
    4. Feed rate is zero: NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE
    5. The move is degenerate (already at the specified point)
@@ -3409,6 +3411,14 @@ rate so that the feed rate is never set to zero. If the destination
 point is the same as the current point, the feed rate would be
 calculated as zero otherwise.
 
+If cutter compensation is in use, the path's length may increase or
+decrease.  Also an arc may be added, to go around a corner, before the
+straight move.  For the purpose of calculating the feed rate when in
+inverse time mode, this length increase or decrease is ignored.  The
+feed is still set to the original programmed straight length divided by
+the F number (with the above lower bound).  The new arc (if needed) and
+the new longer or shorter straight move are taken at this feed.
+
 */
 
 
@@ -3442,6 +3452,13 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   find_ends(block, settings, &end_x, &end_y, &end_z,
             &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end);
 
+  if (move == G_1) {
+      inverse_time_rate_straight(end_x, end_y, end_z,
+                                 AA_end, BB_end, CC_end,
+                                 u_end, v_end, w_end,
+                                 block, settings);
+  }
+
   if ((settings->cutter_comp_side != OFF) &&    /* ! "== ON" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
@@ -3472,10 +3489,6 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     settings->current_y = end_y;
     settings->current_z = end_z;
   } else if (move == G_1) {
-    inverse_time_rate_straight(end_x, end_y, end_z,
-                               AA_end, BB_end, CC_end,
-                               u_end, v_end, w_end,
-                               block, settings);
     STRAIGHT_FEED(block->line_number, end_x, end_y, end_z,
                   AA_end, BB_end, CC_end,
                   u_end, v_end, w_end);
@@ -3681,7 +3694,6 @@ Side effects:
    or a STRAIGHT_TRAVERSE command.
    It also updates the setting of the position of the tool point
    to the end point of the move and updates the programmed point.
-   If INVERSE_TIME feed rate mode is in effect, it resets the feed rate.
 
 Called by: convert_straight.
 
@@ -3718,10 +3730,8 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
 
     int side = settings->cutter_comp_side;
     double cx, cy, cz;
-    double opx, opy, opz;
 
     comp_get_current(settings, &cx, &cy, &cz);
-    comp_get_programmed(settings, &opx, &opy, &opz);
     distance = hypot((px - cx), (py - cy));
 
     CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
@@ -3740,12 +3750,8 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
-        inverse_time_rate_straight(end_x, end_y, pz,  //XXX
-                                   AA_end, BB_end, CC_end,
-                                   u_end, v_end, w_end,
-                                   block, settings);
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                              px - opx, py - opy, pz - opz,
+                              px - cx, py - cy, pz - cz, // programmed is not set yet
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else
@@ -3781,8 +3787,6 @@ Side effects:
    It also generates an ARC_FEED to go around a corner, if necessary.
    It also updates the setting of the position of the tool point to
    the end point of the move and updates the programmed point.
-   If INVERSE_TIME feed mode is in effect, it also calls SET_FEED_RATE
-   and resets the feed rate in the machine model.
 
 Called by: convert_straight.
 
@@ -3822,9 +3826,6 @@ go around a sharp corner, all the Z-axis motion occurs on the straight
 line and none on the extra arc.  An alternative might be to distribute
 the Z-axis motion over the extra arc and the straight line in
 proportion to their lengths.
-
-This handles inverse time feed rates by computing the length of the
-compensated path.
 
 This handles the case of there being no XY motion.
 
@@ -3869,10 +3870,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 0, 0, 0, cx, cy, pz,
                                       AA_end, BB_end, CC_end, u_end, v_end, w_end);
         } else if (move == G_1) {
-            inverse_time_rate_straight(cx, cy, pz,  //XXX
-                                       AA_end, BB_end, CC_end,
-                                       u_end, v_end, w_end,
-                                       block, settings);
             enqueue_STRAIGHT_FEED(settings, block->line_number, 
                                   px - opx, py - opy, pz - opz, 
                                   cx, cy, pz, AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -3924,12 +3921,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         if (!concave && (beta > small)) {       /* ARC NEEDED */
             dequeue_canons(settings);
             if(move == G_1) {
-                inverse_time_rate_as(opx, opy,
-                                     (side == LEFT) ? -1 : 1, mid_x,
-                                     mid_y, end_x, end_y, pz,
-                                     AA_end, BB_end, CC_end,
-                                     u_end, v_end, w_end,
-                                     block, settings);
                 enqueue_ARC_FEED(settings, block->line_number, mid_x, mid_y, opx, opy,
                                  ((side == LEFT) ? -1 : 1), cz,
                                  AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -4004,10 +3995,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             }
             // no arc needed, also not concave (colinear lines or tangent arc->line)
             dequeue_canons(settings);
-            inverse_time_rate_straight(end_x, end_y, pz,
-                                       AA_end, BB_end, CC_end,
-                                       u_end, v_end, w_end,
-                                       block, settings);
             (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
                 (settings, block->line_number, 
                  px - opx, py - opy, pz - opz, 
