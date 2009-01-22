@@ -386,7 +386,7 @@ static void intScreenSet(char *screen, char *attr,  int value)
 
 static void strScreenSet(char *screen, char *attr, char *s)
 {
-  if (s != "") {
+  if ((s != NULL) && (*s != '\0')) {
     sockPrintf(sockfd, "screen_set %s %s %s\n", screen, attr, s);
     }
 }
