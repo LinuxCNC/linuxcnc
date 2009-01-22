@@ -41,17 +41,13 @@ extern "C" {
    the GUI scripts that use these. Unfortunately there's no easy way to
    get these into Tk automatically */
     extern int EMC_DEBUG;
-#define EMC_DEBUG_INVALID           0x00000001
 #define EMC_DEBUG_CONFIG            0x00000002
-#define EMC_DEBUG_DEFAULTS          0x00000004
 #define EMC_DEBUG_VERSIONS          0x00000008
 #define EMC_DEBUG_TASK_ISSUE        0x00000010
-#define EMC_DEBUG_IO_POINTS         0x00000020
 #define EMC_DEBUG_NML               0x00000040
 #define EMC_DEBUG_MOTION_TIME       0x00000080
 #define EMC_DEBUG_INTERP            0x00000100
 #define EMC_DEBUG_RCS               0x00000200
-#define EMC_DEBUG_TRAJ              0x00000400
 #define EMC_DEBUG_INTERP_LIST       0x00000800
 #define EMC_DEBUG_ALL               0x7FFFFFFF	/* it's an int for %i to work 
 						 */
