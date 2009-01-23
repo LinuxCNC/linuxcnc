@@ -646,6 +646,12 @@ gedit The editor to use when selecting File > Edit or File Edit Tool
  Another valid entry is gnome-terminal -e vim.
 \layout Description
 
+PYVCP\SpecialChar ~
+=\SpecialChar ~
+/filename.xml The pyVCP panel description file.
+ See the pyVCP section for more information.
+\layout Description
+
 
 \begin_inset Note
 collapsed false
