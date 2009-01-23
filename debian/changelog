@@ -110,10 +110,30 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * "maximum velocity" that can be changed during a run.  This will slow
     down rapids and cap feed rates (except spindle synchronized motion) for
     dry runs.  Currently only AXIS and halui allow you to set it.
+  * the Mesa firmware images are now in their own deb package, since they
+    are large and many users don't need them
+  * several fixes and updates to the STG1 and STG2 drivers, including
+    encoder index support for STG2
+  * G90.1/G91.1 let you select relative or absolute arc centers
+  * the save button in classicladder now works
+  * AXIS: recently-opened files are remembered and available through the
+    File menu
+  * AXIS: replace the preview window with a tab set that lets the user
+    select the original view or a huge DRO view
+  * "halcmd alias" lets you give pins alias names
+  * new cutter compensation algorithm handles inside sharp corners and
+    does not require complicated entry moves
+  * new count-enable pins in halui allow the use of a MPG for more than
+    one function
+  * new sample configurations for Sherline 3 and 4 axis mills and lathe
+  * lathe diameter mode (select with G7; radius mode G8)
+  * AXIS: block delete and optional stop buttons/indicators on the toolbar
+  * AXIS: save block delete and optional stop settings across runs
+  * fix g41/g42 in lathe mode.  previously, right/left were swapped.
 
   * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Chris Radek <chris@timeguy.com>  Fri, 21 Nov 2008 10:41:42 -0600
+ -- Chris Radek <chris@timeguy.com>  Fri, 23 Jan 2009 13:30:39 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
