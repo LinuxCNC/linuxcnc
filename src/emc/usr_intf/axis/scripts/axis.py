@@ -1480,6 +1480,9 @@ class LivePlotter:
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
+        global feedrate_blackout, spindlerate_blackout, maxvel_blackout
+        feedrate_blackout=spindlerate_blackout=maxvel_blackout=time.time()+1
+
         self.running.set(True)
 
     def stop(self):
