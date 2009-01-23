@@ -101,7 +101,7 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * AXIS: "touch off" can now also set offsets in the tool table
   * converted many parameters to pins for added flexibility.  this does not
     require any configuration changes because setp works on both.
-  * new motion.spindle-atspeed-in pin can be used to cause motion to
+  * new motion.spindle-at-speed pin can be used to cause motion to
     wait for the spindle to reach a newly-programmed speed at the
     beginning of feed moves.
   * new component "near" which tells whether two values are roughly equal
