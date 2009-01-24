@@ -861,6 +861,77 @@ Container borders are specified with two tags used together.
 \layout Description
 
 <bd>n</bd> Where "n" is the width of the border.
+\layout Quote
+
+<hbox>
+\newline 
+<button>
+\newline 
+<relief>FLAT</relief>
+\newline 
+<text>"FLAT"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>SUNKEN</relief>
+\newline 
+<text>"SUNKEN"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<text>"RAISED"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>GROOVE</relief>
+\newline 
+<text>"GROOVE"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>RIDGE</relief>
+\newline 
+<text>"RIDGE"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\newline 
+</hbox>
+\layout Standard
+\align center 
+The above code produced this example
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_borders.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Hbox
@@ -1025,13 +1096,31 @@ A labelframe is a frame with a groove and a label at the upper-left corner.
 
 <labelframe text="Group Title">
 \newline 
-  <hbox>
+\SpecialChar ~
+<font>("Helvetica",16)</font>
 \newline 
-    <led/> <led/>
+\SpecialChar ~
+<hbox>
 \newline 
-  </hbox>
+\SpecialChar ~
+<led/> <led/>
+\newline 
+\SpecialChar ~
+</hbox>
 \newline 
 </labelframe>
+\layout Standard
+\align center 
+The above code produced this example
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_labelframe.png
+
+\end_inset 
+
+
 \layout Subsection
 
 Table

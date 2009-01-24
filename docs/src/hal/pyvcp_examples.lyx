@@ -290,6 +290,8 @@ Jog Buttons
 
 \begin_inset Graphics
 	filename images/xyz_buttons.png
+	scale 80
+	keepAspectRatio
 
 \end_inset 
 
@@ -512,6 +514,7 @@ GS2 Panel
 
 \begin_inset Graphics
 	filename images/gs2_panel.png
+	scale 80
 
 \end_inset 
 
