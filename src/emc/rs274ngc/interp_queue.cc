@@ -406,10 +406,21 @@ void dequeue_canons(setup_pointer settings) {
 }
 
 int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) {
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+    double dot;
     static char name[] = "move_endpoint_and_flush";
+
     if(qc().empty()) return 0;
     
     for(unsigned int i = 0; i<qc().size(); i++) {
+        // there may be several moves in the queue, and we need to
+        // change all of them.  consider moving into a concave corner,
+        // then up and back down, then continuing on.  there will be
+        // three moves to change.
+
         queued_canon &q = qc()[i];
 
         switch(q.type) {
@@ -433,92 +444,81 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
             break;
         case QSTRAIGHT_TRAVERSE:
-            {
-                double x1;
-                double y1;
-                double x2;
-                double y2;
-                switch(settings->plane) {
-                case CANON_PLANE_XY:
-                    x1 = q.data.straight_traverse.dx; // direction of original motion
-                    y1 = q.data.straight_traverse.dy;                
-                    x2 = x - endpoint[0];         // new direction after clipping
-                    y2 = y - endpoint[1];
-                    break;
-                case CANON_PLANE_XZ:
-                    x1 = q.data.straight_traverse.dz; // direction of original motion
-                    y1 = q.data.straight_traverse.dx;                
-                    x2 = x - endpoint[0];         // new direction after clipping
-                    y2 = y - endpoint[1];
-                    break;
-                default:
-                    ;
-                }
+            switch(settings->plane) {
+            case CANON_PLANE_XY:
+                x1 = q.data.straight_traverse.dx; // direction of original motion
+                y1 = q.data.straight_traverse.dy;                
+                x2 = x - endpoint[0];         // new direction after clipping
+                y2 = y - endpoint[1];
+                break;
+            case CANON_PLANE_XZ:
+                x1 = q.data.straight_traverse.dz; // direction of original motion
+                y1 = q.data.straight_traverse.dx;                
+                x2 = x - endpoint[0];         // new direction after clipping
+                y2 = y - endpoint[1];
+                break;
+            default:
+                ERF((_("BUG: Unsupported plane in cutter compensation")));
+            }
 
-                double dot = x1 * x2 + y1 * y2; // not normalized
+            dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
 
-                if(endpoint_valid && dot<0) {
-                    // oops, the move is the wrong way.  this means the
-                    // path has crossed because we backed up further
-                    // than the line is long.  this will gouge.
-                    ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
-                }
-                switch(settings->plane) {
-                case CANON_PLANE_XY:
-                    q.data.straight_traverse.x = x;
-                    q.data.straight_traverse.y = y;
-                    break;
-                case CANON_PLANE_XZ:
-                    q.data.straight_traverse.z = x;
-                    q.data.straight_traverse.x = y;
-                    break;
-                }
+            if(endpoint_valid && dot<0) {
+                // oops, the move is the wrong way.  this means the
+                // path has crossed because we backed up further
+                // than the line is long.  this will gouge.
+                ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
+            }
+            switch(settings->plane) {
+            case CANON_PLANE_XY:
+                q.data.straight_traverse.x = x;
+                q.data.straight_traverse.y = y;
+                break;
+            case CANON_PLANE_XZ:
+                q.data.straight_traverse.z = x;
+                q.data.straight_traverse.x = y;
+                break;
             }
             break;
         case QSTRAIGHT_FEED: 
-            {
-                double x1;
-                double y1;
-                double x2;
-                double y2;
-                switch(settings->plane) {
-                case CANON_PLANE_XY:
-                    x1 = q.data.straight_feed.dx; // direction of original motion
-                    y1 = q.data.straight_feed.dy;                
-                    x2 = x - endpoint[0];         // new direction after clipping
-                    y2 = y - endpoint[1];
-                    break;
-                case CANON_PLANE_XZ:
-                    x1 = q.data.straight_feed.dz; // direction of original motion
-                    y1 = q.data.straight_feed.dx;                
-                    x2 = x - endpoint[0];         // new direction after clipping
-                    y2 = y - endpoint[1];
-                    break;
-                default:
-                    ;
-                }
+            switch(settings->plane) {
+            case CANON_PLANE_XY:
+                x1 = q.data.straight_feed.dx; // direction of original motion
+                y1 = q.data.straight_feed.dy;                
+                x2 = x - endpoint[0];         // new direction after clipping
+                y2 = y - endpoint[1];
+                break;
+            case CANON_PLANE_XZ:
+                x1 = q.data.straight_feed.dz; // direction of original motion
+                y1 = q.data.straight_feed.dx;                
+                x2 = x - endpoint[0];         // new direction after clipping
+                y2 = y - endpoint[1];
+                break;
+            default:
+                ERF((_("BUG: Unsupported plane in cutter compensation")));
+            }
 
-                double dot = x1 * x2 + y1 * y2; // not normalized
+            dot = x1 * x2 + y1 * y2;
 
-                if(endpoint_valid && dot<0) {
-                    // oops, the move is the wrong way.  this means the
-                    // path has crossed because we backed up further
-                    // than the line is long.  this will gouge.
-                    ERF((_("Linear move in concave corner is too short to be reachable by the tool without gouging")));
-                }
-                switch(settings->plane) {
-                case CANON_PLANE_XY:
-                    q.data.straight_feed.x = x;
-                    q.data.straight_feed.y = y;
-                    break;
-                case CANON_PLANE_XZ:
-                    q.data.straight_feed.z = x;
-                    q.data.straight_feed.x = y;
-                    break;
-                }
+            if(endpoint_valid && dot<0) {
+                // oops, the move is the wrong way.  this means the
+                // path has crossed because we backed up further
+                // than the line is long.  this will gouge.
+                ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
+            }
+            switch(settings->plane) {
+            case CANON_PLANE_XY:
+                q.data.straight_feed.x = x;
+                q.data.straight_feed.y = y;
+                break;
+            case CANON_PLANE_XZ:
+                q.data.straight_feed.z = x;
+                q.data.straight_feed.x = y;
+                break;
             }
             break;
         default:
+            // other things are not moves - we don't have to mess with them.
             ;
         }
     }
