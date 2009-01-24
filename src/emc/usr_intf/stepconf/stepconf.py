@@ -490,6 +490,10 @@ class Data:
            if self.pyvcphaltype == 2 and self.pyvcpconnect:
                print >>file,"MDI_COMMAND = G0 G53 Z0"
                print >>file,"MDI_COMMAND = G28"
+               print >>file,"MDI_COMMAND = G92 X0"
+               print >>file,"MDI_COMMAND = G92 Y0"
+               print >>file,"MDI_COMMAND = G92 Z0"
+               print >>file,"MDI_COMMAND = G92.1"
 
         print >>file
         print >>file, "[TRAJ]"
@@ -991,9 +995,13 @@ class Data:
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
                       print >>f1
-                      print >>f1, ("net X-rel-position <= pyvcp.xdisplay => halui.axis.0.pos-relative")
-                      print >>f1, ("net Y-rel-position <= pyvcp.ydisplay => halui.axis.1.pos-relative")
-                      print >>f1, ("net Z-rel-position <= pyvcp.zdisplay => halui.axis.2.pos-relative")
+                      print >>f1, ("net jog-X+ <= pyvcp.jog-x+ => halui.jog.0.plus")
+                      print >>f1, ("net jog-X- <= pyvcp.jog-x- => halui.jog.0.minus")
+                      print >>f1, ("net jog-Y+ <= pyvcp.jog-y+ => halui.jog.1.plus")
+                      print >>f1, ("net jog-Y- <= pyvcp.jog-y- => halui.jog.1.minus")
+                      print >>f1, ("net jog-Z+ <= pyvcp.jog-z+ => halui.jog.2.plus")
+                      print >>f1, ("net jog-Z- <= pyvcp.jog-z- => halui.jog.2.minus")
+                      print >>f1, ("net jog-speed <= pyvcp.jog-speed => halui.jog-speed")
                       print >>f1, ("net optional-stp-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
                       print >>f1, ("net optional-stp-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
                       print >>f1, ("net optional-stp-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
@@ -1004,9 +1012,16 @@ class Data:
                       print >>f1, ("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
                       print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
                       print >>f1, ("# **** command 01 - rapid to reference point ( G 28 )")
+                      print >>f1, ("# **** command 02 - zero X axis in G54 cordinate system")
+                      print >>f1, ("# **** command 03 - zero Y axis in G54 cordinate system")
+                      print >>f1, ("# **** command 04 - zero Z axis in G54 cordinate system")
                       print >>f1
-                      print >>f1, ("net MDI-Z-up <= pyvcp.MDI-zzero => halui.mdi-command-00")
+                      print >>f1, ("net MDI-Z-up <= pyvcp.MDI-z_up => halui.mdi-command-00")
                       print >>f1, ("net MDI-reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
+                      print >>f1, ("net MDI-zero_X <= pyvcp.MDI-zerox => halui.mdi-command-02")
+                      print >>f1, ("net MDI-zero_Y <= pyvcp.MDI-zeroy => halui.mdi-command-03")
+                      print >>f1, ("net MDI-zero_Z <= pyvcp.MDI-zeroz => halui.mdi-command-04")
+                      print >>f1, ("net MDI-clear-offset <= pyvcp.MDI-clear-offset => halui.mdi-command-05")
                       print >>f1
                       print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
