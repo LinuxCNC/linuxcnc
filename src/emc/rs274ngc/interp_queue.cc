@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "rs274ngc.hh"
+#include "rs274ngc_return.hh"
 #include "interp_queue.hh"
 #include "interp_internal.hh"
 
@@ -209,8 +210,7 @@ int enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
         q.data.straight_feed.y = z;
         break;
     default:
-        printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
-        return -1;
+        ;
     }        
     q.data.straight_feed.a = a;
     q.data.straight_feed.b = b;
@@ -242,8 +242,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
         q.data.straight_traverse.y = z;
         break;
     default:
-        printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
-        return -1;
+        ;
     }        
     q.data.straight_traverse.a = a;
     q.data.straight_traverse.b = b;
@@ -256,6 +255,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
 }
 
 void enqueue_ARC_FEED(setup_pointer settings, int l, 
+                      double original_turns,
                       double end1, double end2, double center1, double center2,
                       int turn,
                       double end3,
@@ -265,6 +265,7 @@ void enqueue_ARC_FEED(setup_pointer settings, int l,
 
     q.type = QARC_FEED;
     q.data.arc_feed.line_number = l;
+    q.data.arc_feed.original_turns = original_turns;
     q.data.arc_feed.end1 = end1;
     q.data.arc_feed.end2 = end2;
     q.data.arc_feed.center1 = center1;
@@ -404,7 +405,8 @@ void dequeue_canons(setup_pointer settings) {
     qc().clear();
 }
 
-int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
+int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) {
+    static char name[] = "move_endpoint_and_flush";
     if(qc().empty()) return 0;
     
     for(unsigned int i = 0; i<qc().size(); i++) {
@@ -412,31 +414,65 @@ int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
 
         switch(q.type) {
         case QARC_FEED:
-            double r1, r2;
-            // detect increase of arc length and error
+            double r1, r2, l1, l2;
             r1 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
                        q.data.arc_feed.end2 - q.data.arc_feed.center2);
+            l1 = q.data.arc_feed.original_turns;
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
             r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
                        q.data.arc_feed.end2 - q.data.arc_feed.center2);
+            l2 = find_turn(endpoint[0], endpoint[1],
+                           q.data.arc_feed.center1, q.data.arc_feed.center2,
+                           q.data.arc_feed.turn,
+                           q.data.arc_feed.end1, q.data.arc_feed.end2);
             if(fabs(r1-r2) > .01) 
-                printf("BUG: cutter compensation has generated an invalid arc r1 %f r2 %f\n", r1, r2); // XXX ERF
+                ERF((_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2));
+            if(l1 && fabs(l2) > fabs(l1)) {
+                ERF((_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
+            }
             break;
         case QSTRAIGHT_TRAVERSE:
-            switch(settings->plane) {
-            case CANON_PLANE_XY:
-                q.data.straight_traverse.x = x;
-                q.data.straight_traverse.y = y;
-                break;
-            case CANON_PLANE_XZ:
-                q.data.straight_traverse.z = x;
-                q.data.straight_traverse.x = y;
-                break;
-            default:
-                printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
-                return -1;
-                break;
+            {
+                double x1;
+                double y1;
+                double x2;
+                double y2;
+                switch(settings->plane) {
+                case CANON_PLANE_XY:
+                    x1 = q.data.straight_traverse.dx; // direction of original motion
+                    y1 = q.data.straight_traverse.dy;                
+                    x2 = x - endpoint[0];         // new direction after clipping
+                    y2 = y - endpoint[1];
+                    break;
+                case CANON_PLANE_XZ:
+                    x1 = q.data.straight_traverse.dz; // direction of original motion
+                    y1 = q.data.straight_traverse.dx;                
+                    x2 = x - endpoint[0];         // new direction after clipping
+                    y2 = y - endpoint[1];
+                    break;
+                default:
+                    ;
+                }
+
+                double dot = x1 * x2 + y1 * y2; // not normalized
+
+                if(endpoint_valid && dot<0) {
+                    // oops, the move is the wrong way.  this means the
+                    // path has crossed because we backed up further
+                    // than the line is long.  this will gouge.
+                    ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
+                }
+                switch(settings->plane) {
+                case CANON_PLANE_XY:
+                    q.data.straight_traverse.x = x;
+                    q.data.straight_traverse.y = y;
+                    break;
+                case CANON_PLANE_XZ:
+                    q.data.straight_traverse.z = x;
+                    q.data.straight_traverse.x = y;
+                    break;
+                }
             }
             break;
         case QSTRAIGHT_FEED: 
@@ -459,9 +495,7 @@ int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
                     y2 = y - endpoint[1];
                     break;
                 default:
-                    printf("BUG: invalid plane for cutter compensation\n"); // XXX ERS
-                    return -1;
-                    break;
+                    ;
                 }
 
                 double dot = x1 * x2 + y1 * y2; // not normalized
@@ -470,17 +504,7 @@ int move_endpoint_and_flush(setup_pointer settings, double x, double y) {
                     // oops, the move is the wrong way.  this means the
                     // path has crossed because we backed up further
                     // than the line is long.  this will gouge.
-
-                    if(0) printf("reversal start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
-                                 endpoint[0], endpoint[1],
-                                 q.data.straight_feed.x, q.data.straight_feed.y,
-                                 x, y);
-                    return -1;
-                } else {
-                    if(0) printf("........ start G1F66X%gY%g oldend G1F66X%gY%g newend G1F66X%gY%g\n", 
-                                 endpoint[0], endpoint[1],
-                                 q.data.straight_feed.x, q.data.straight_feed.y,
-                                 x, y);
+                    ERF((_("Linear move in concave corner is too short to be reachable by the tool without gouging")));
                 }
                 switch(settings->plane) {
                 case CANON_PLANE_XY:

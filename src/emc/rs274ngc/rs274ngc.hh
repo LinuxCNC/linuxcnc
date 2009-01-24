@@ -350,6 +350,7 @@ private:
                                 double u_end, double v_end, double w_end,
                                 block_pointer block,
                                 setup_pointer settings);
+ int move_endpoint_and_flush(setup_pointer, double, double);
  int parse_line(char *line, block_pointer block,
                       setup_pointer settings);
  int precedence(int an_operator);

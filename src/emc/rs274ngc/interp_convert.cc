@@ -554,7 +554,9 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         set_endpoint(cx, cy);
     }
     
-    enqueue_ARC_FEED(settings, block->line_number, end_x, end_y, center_x, center_y, turn, end_z,
+    enqueue_ARC_FEED(settings, block->line_number, 
+                     find_turn(cx, cy, center_x, center_y, turn, end_x, end_y),
+                     end_x, end_y, center_x, center_y, turn, end_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
 
     comp_set_current(settings, end_x, end_y, end_z);
@@ -703,25 +705,29 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 // tool is inside the arc
                 dist_from_center = arc_radius - tool_radius;
                 toward_nominal = cy + tool_radius;
+                double l = toward_nominal / dist_from_center;
+                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
                 if(turn == 1) {
-                    angle_from_center = theta + asin(toward_nominal / dist_from_center);
+                    angle_from_center = theta + asin(l);
                 } else {
-                    angle_from_center = theta - asin(toward_nominal / dist_from_center);
+                    angle_from_center = theta - asin(l);
                 }
             } else {
                 dist_from_center = arc_radius + tool_radius; 
                 toward_nominal = cy - tool_radius;
+                double l = toward_nominal / dist_from_center;
+                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
                 if(turn == 1) {
-                    angle_from_center = theta + M_PIl - asin(toward_nominal / dist_from_center);
+                    angle_from_center = theta + M_PIl - asin(l);
                 } else {
-                    angle_from_center = theta + M_PIl + asin(toward_nominal / dist_from_center);
+                    angle_from_center = theta + M_PIl + asin(l);
                 }
             }          
           
             midx = centerx + dist_from_center * cos(angle_from_center);
             midy = centery + dist_from_center * sin(angle_from_center);
 
-            CHKS((move_endpoint_and_flush(settings, midx, midy) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+            CHP(move_endpoint_and_flush(settings, midx, midy));
         } else {
             // arc->arc
             struct arc_feed &prev = qc().front().data.arc_feed;
@@ -754,23 +760,33 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
             midx = prev.center1 + oldrad * cos(dir);
             midy = prev.center2 + oldrad * sin(dir);
           
-            CHKS((move_endpoint_and_flush(settings, midx, midy) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+            CHP(move_endpoint_and_flush(settings, midx, midy));
         }
-        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
+        enqueue_ARC_FEED(settings, block->line_number, 
+                         find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
+                         new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else if (beta > small) {           /* convex, two arcs needed */
         midx = opx + tool_radius * cos(delta);
         midy = opy + tool_radius * sin(delta);
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
+        enqueue_ARC_FEED(settings, block->line_number, 
+                         0.0, // doesn't matter since we won't move this arc's endpoint
+                         midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
                          cz,
                          AA_end, BB_end, CC_end, u, v, w);
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
+        set_endpoint(midx, midy);
+        enqueue_ARC_FEED(settings, block->line_number, 
+                         find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
+                         new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else {                      /* convex, one arc needed */
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, new_end_x, new_end_y, centerx, centery, turn, end_z,
+        set_endpoint(cx, cy);
+        enqueue_ARC_FEED(settings, block->line_number, 
+                         find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
+                         new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     }
 
@@ -3748,13 +3764,19 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     end_x = (px + (radius * cos(alpha)));
     end_y = (py + (radius * sin(alpha)));
 
+    // with these moves we don't need to record the direction vector.
+    // they cannot get reversed because they are guaranteed to be long
+    // enough.
+
     if (move == G_0) {
-        enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 0, 0, 0, end_x, end_y, pz,
+        enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
+                                  0, 0, 0, 
+                                  end_x, end_y, pz,
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                              px - cx, py - cy, pz - cz, // programmed is not set yet
+                              0, 0, 0,
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else
@@ -3863,6 +3885,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     double theta;
     double cx, cy, cz;
     int concave;
+    int status;
 
     comp_get_current(settings, &cx, &cy, &cz);
     comp_get_current(settings, &end_x, &end_y, &end_z);
@@ -3870,7 +3893,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
     if ((py == opy) && (px == opx)) {     /* no XY motion */
         if (move == G_0) {
-            enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 0, 0, 0, cx, cy, pz,
+            enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
+                                      px - opx, py - opy, pz - opz, 
+                                      cx, cy, pz,
                                       AA_end, BB_end, CC_end, u_end, v_end, w_end);
         } else if (move == G_1) {
             enqueue_STRAIGHT_FEED(settings, block->line_number, 
@@ -3924,7 +3949,9 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         if (!concave && (beta > small)) {       /* ARC NEEDED */
             dequeue_canons(settings);
             if(move == G_1) {
-                enqueue_ARC_FEED(settings, block->line_number, mid_x, mid_y, opx, opy,
+                enqueue_ARC_FEED(settings, block->line_number,
+                                 0.0, // doesn't matter, since we will not move this arc's endpoint
+                                 mid_x, mid_y, opx, opy,
                                  ((side == LEFT) ? -1 : 1), cz,
                                  AA_end, BB_end, CC_end, u_end, v_end, w_end);
                 dequeue_canons(settings);
@@ -3951,7 +3978,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     mid_y = cy + retreat * sin(theta + gamma);
                     // we actually want to move the previous line's endpoint here.  That's the same as 
                     // discarding that line and doing this one instead.
-                    CHKS((move_endpoint_and_flush(settings, mid_x, mid_y) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+                    CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
                 } else {
                     // arc->line
                     // beware: the arc we saved is the compensated one.
@@ -3993,7 +4020,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                     }
                     mid_x = prev.center1 + oldrad * cos(angle_from_center);
                     mid_y = prev.center2 + oldrad * sin(angle_from_center);
-                    CHKS((move_endpoint_and_flush(settings, mid_x, mid_y) < 0), "Motion in concave corner less than tool radius during cutter compensation would cause gouging");
+                    CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
                 }
             }
             // no arc needed, also not concave (colinear lines or tangent arc->line)

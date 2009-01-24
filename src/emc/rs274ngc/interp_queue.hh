@@ -8,6 +8,7 @@ enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED
 
 struct straight_traverse {
     int line_number;
+    double dx, dy, dz;          // direction of original motion
     double x,y,z, a,b,c, u,v,w;
 };
 
@@ -19,6 +20,7 @@ struct straight_feed {
 
 struct arc_feed {
     int line_number;
+    double original_turns;
     double end1, end2, center1, center2;
     int turn;
     double end3, a,b,c, u,v,w;
@@ -89,6 +91,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
                               double a, double b, double c, 
                               double u, double v, double w);
 void enqueue_ARC_FEED(setup_pointer settings, int l, 
+                      double original_arclen,
                       double end1, double end2, double center1, double center2,
                       int turn,
                       double end3,
