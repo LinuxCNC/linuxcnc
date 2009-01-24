@@ -3256,24 +3256,16 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     OPTIONAL_PROGRAM_STOP();
   } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30)) {   /* reset stuff here */
 /*1*/
-    settings->current_x = settings->current_x
-      + settings->origin_offset_x + settings->axis_offset_x;
-    settings->current_y = settings->current_y
-      + settings->origin_offset_y + settings->axis_offset_y;
-    settings->current_z = settings->current_z
-      + settings->origin_offset_z + settings->axis_offset_z;
-    settings->AA_current = settings->AA_current
-      + settings->AA_origin_offset + settings->AA_axis_offset;
-    settings->BB_current = settings->BB_current
-      + settings->BB_origin_offset + settings->BB_axis_offset;
-    settings->CC_current = settings->CC_current
-      + settings->CC_origin_offset + settings->CC_axis_offset;
-    settings->u_current = settings->u_current
-      + settings->u_origin_offset + settings->u_axis_offset;
-    settings->v_current = settings->v_current
-      + settings->v_origin_offset + settings->v_axis_offset;
-    settings->w_current = settings->w_current
-      + settings->w_origin_offset + settings->w_axis_offset;
+    settings->current_x += settings->origin_offset_x;
+    settings->current_y += settings->origin_offset_y;
+    settings->current_z += settings->origin_offset_z;
+    settings->AA_current += settings->AA_origin_offset;
+    settings->BB_current += settings->BB_origin_offset;
+    settings->CC_current += settings->CC_origin_offset;
+    settings->u_current += settings->u_origin_offset;
+    settings->v_current += settings->v_origin_offset;
+    settings->w_current += settings->w_origin_offset;
+
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
     settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
@@ -3286,34 +3278,25 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
     settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
 
-    settings->axis_offset_x = 0;
-    settings->axis_offset_y = 0;
-    settings->axis_offset_z = 0;
-    settings->AA_axis_offset = 0;
-    settings->BB_axis_offset = 0;
-    settings->CC_axis_offset = 0;
-    settings->u_axis_offset = 0;
-    settings->v_axis_offset = 0;
-    settings->w_axis_offset = 0;
+    settings->current_x -= settings->origin_offset_x;
+    settings->current_y -= settings->origin_offset_y;
+    settings->current_z -= settings->origin_offset_z;
+    settings->AA_current -= settings->AA_origin_offset;
+    settings->BB_current -= settings->BB_origin_offset;
+    settings->CC_current -= settings->CC_origin_offset;
+    settings->u_current -= settings->u_origin_offset;
+    settings->v_current -= settings->v_origin_offset;
+    settings->w_current -= settings->w_origin_offset;
 
-    settings->current_x = settings->current_x - settings->origin_offset_x;
-    settings->current_y = settings->current_y - settings->origin_offset_y;
-    settings->current_z = settings->current_z - settings->origin_offset_z;
-    settings->AA_current = settings->AA_current - settings->AA_origin_offset;
-    settings->BB_current = settings->BB_current - settings->BB_origin_offset;
-    settings->CC_current = settings->CC_current - settings->CC_origin_offset;
-    settings->u_current = settings->u_current - settings->u_origin_offset;
-    settings->v_current = settings->v_current - settings->v_origin_offset;
-    settings->w_current = settings->w_current - settings->w_origin_offset;
-
-    SET_ORIGIN_OFFSETS(settings->origin_offset_x,
-                       settings->origin_offset_y, settings->origin_offset_z,
-                       settings->AA_origin_offset,
-                       settings->BB_origin_offset,
-                       settings->CC_origin_offset,
-                       settings->u_origin_offset,
-                       settings->v_origin_offset,
-                       settings->w_origin_offset);
+    SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
+                       settings->origin_offset_y + settings->axis_offset_y,
+                       settings->origin_offset_z + settings->axis_offset_z,
+                       settings->AA_origin_offset + settings->AA_axis_offset,
+                       settings->BB_origin_offset + settings->BB_axis_offset,
+                       settings->CC_origin_offset + settings->CC_axis_offset,
+                       settings->u_origin_offset + settings->u_axis_offset,
+                       settings->v_origin_offset + settings->v_axis_offset,
+                       settings->w_origin_offset + settings->w_axis_offset);
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
       SELECT_PLANE(CANON_PLANE_XY);
