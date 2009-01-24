@@ -4900,7 +4900,7 @@ G0 Rapid Linear Motion
 
 \layout Standard
 
-For rapid linear motion, program 
+For rapid linear (straight line) motion, program 
 \family typewriter 
 G0 
 \emph on 
@@ -4967,7 +4967,8 @@ G1 Linear Motion
 
 \layout Standard
 
-For linear motion at feed rate (for cutting or not), program 
+For linear (straight line) motion at feed rate (for cutting or not), program
+ 
 \family typewriter 
 G1 
 \emph on 
@@ -4993,6 +4994,9 @@ It is an error if:
 \layout Itemize
 
 all axis words are omitted.
+\layout Itemize
+
+no feed rate has been set.
 \layout Standard
 
 If cutter radius compensation is active, the motion will differ from the
@@ -5087,6 +5091,10 @@ If cutter radius compensation is active, the motion will differ from what
 
 Two formats are allowed for specifying an arc: Center Format and Radius
  Format.
+ It is an error if:
+\layout Itemize
+
+No feed rate has been set.
 \layout Subsection
 
 Center format arcs (preferred format)
@@ -5124,16 +5132,13 @@ G2
 \family default 
 ).
  The axis words are all optional except that at least one of X and Y must
- be used.
+ be used to program an arc of less than 360 degrees.
  I and J are the offsets from the current location (in the X and Y directions,
  respectively) of the center of the circle.
  I and J are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
  If you include the Z word it will spiral.
  It is an error if: 
-\layout Itemize
-
-X and Y are both omitted
 \layout Itemize
 
 or I and J are both omitted.
@@ -5157,7 +5162,7 @@ G2
 \family default 
 ).
  The axis words are all optional except that at least one of X and Z must
- be used.
+ be used to program an arc of less than 360 degrees.
  I and K are the offsets from the current location (in the X and Z directions,
  respectively) of the center of the circle.
  I and K are optional except that at least one of the two must be used.
@@ -5189,7 +5194,7 @@ G2
 \family default 
 ).
  The axis words are all optional except that at least one of Y and Z must
- be used.
+ be used to program an arc of less than 360 degrees.
  J and K are the offsets from the current location (in the Y and Z directions,
  respectively) of the center of the circle.
  J and K are optional except that at least one of the two must be used.
@@ -5235,7 +5240,7 @@ To do a full 360 circle from the current location only program the I, J
  or K offset from the current location for the G2/3.
  It is an error to use the K offset in the XY plane, the J offset in the
  XZ plane, and the I in the YZ plane.
- To program a spiral in the XY plane just include the Z word.
+ To program a 360 degree spiral in the XY plane just include the Z word.
 \layout Subsection
 
 Radius format arcs (discouraged format)
@@ -6389,8 +6394,8 @@ G53 Move in Absolute Coordinates
 
 \layout Standard
 
-For linear motion to a point expressed in absolute coordinates, program
- 
+For linear (straight line) motion to a point expressed in absolute coordinates,
+ program 
 \family typewriter 
 G1 G53 X- Y- Z- A- B- C-
 \family default 
