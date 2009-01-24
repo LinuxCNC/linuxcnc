@@ -184,77 +184,54 @@ The following program will test the Z axis configuration for proper setup.
  If you have a configuration issue, you will find that the final position
  will not end up 0.500" that the axis window is showing.
  To test another axis just replace the Z with your axis in the G0 lines.
-\layout LyX-Code
+\layout Quote
 
 ( test program to see if Z axis loses position )
-\layout LyX-Code
-
-( msg, test 1 of Z axis configuration ) 
-\layout LyX-Code
-
-G20 #1000=100 ( loop 100 times )  
-\layout LyX-Code
-
+\newline 
+( msg, test 1 of Z axis configuration )
+\newline 
+G20 #1000=100 ( loop 100 times )
+\newline 
 ( this loop has delays after moves )
-\layout LyX-Code
-
+\newline 
 ( tests acc and velocity settings )
-\layout LyX-Code
-
-o100 while [#1000] 
-\layout LyX-Code
-
-   G0 Z1.000
-\layout LyX-Code
-
-   G4 P0.250 
-\layout LyX-Code
-
-   G0 Z0.500 
-\layout LyX-Code
-
-   G4 P0.250 
-\layout LyX-Code
-
-   #1000 = [#1000 - 1] 
-\layout LyX-Code
-
-o100 endwhile 
-\layout LyX-Code
-
-( msg, test 2 of Z axis configuration S to continue) 
-\layout LyX-Code
-
+\newline 
+o100 while [#1000]
+\newline 
+G0 Z1.000
+\newline 
+G4 P0.250
+\newline 
+G0 Z0.500
+\newline 
+G4 P0.250
+\newline 
+#1000 = [#1000 - 1]
+\newline 
+o100 endwhile
+\newline 
+( msg, test 2 of Z axis configuration S to continue)
+\newline 
 M1 (stop here)
-\layout LyX-Code
-
-#1000=100 ( loop 100 times ) 
-\layout LyX-Code
-
+\newline 
+#1000=100 ( loop 100 times )
+\newline 
 ( the next loop has no delays after moves )
-\layout LyX-Code
-
+\newline 
 ( tests direction hold times on driver config and also max accel setting
- ) 
-\layout LyX-Code
-
+ )
+\newline 
 o101 while [#1000] 
-\layout LyX-Code
-
-   G0 Z1.000 .
-\layout LyX-Code
-
-   G0 Z0.500 
-\layout LyX-Code
-
-   #1000 = [#1000 - 1] 
-\layout LyX-Code
-
-o101 endwhile 
-\layout LyX-Code
-
-( msg, Done...Z should be exactly .5" above table ) 
-\layout LyX-Code
-
+\newline 
+G0 Z1.000
+\newline 
+G0 Z0.500
+\newline 
+#1000 = [#1000 - 1]
+\newline 
+o101 endwhile
+\newline 
+( msg, Done...Z should be exactly .5" above table )
+\newline 
 M2
 \the_end
