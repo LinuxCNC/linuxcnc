@@ -803,7 +803,7 @@ Le curseur contrôle une pin FLOAT.
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_scale.png
+	filename images/pyvcp_scale.png
 
 \end_inset 
 
