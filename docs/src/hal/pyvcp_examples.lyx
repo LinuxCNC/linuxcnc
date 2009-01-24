@@ -32,12 +32,491 @@ pyVCP Examples
 Basic Items
 \layout Standard
 
-To use a pyVCP panel with the AXIS interface you need the following basic
- things.
+To create a pyVCP panel to use with the AXIS interface you need to do the
+ following basic things.
 \layout Itemize
 
-An .xml file that contains your panel description.
+Create an .xml file that contains your panel description and put it in your
+ config directory.
 \layout Itemize
 
-Add the 
+Add the PYVCP entry to the [DISPLAY] section of the ini file with your .xml
+ file name.
+\layout Itemize
+
+Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file with
+ the name of your postgui hal file name.
+\layout Itemize
+
+Add the links to HAL pins for your panel in the postgui.hal file to "connect"
+ your pyVCP panel to EMC.
+\layout Section
+\pagebreak_top 
+Jog Buttons
+\layout Standard
+
+In this example we will create a pyVCP panel with jog buttons for X, Y,
+ and Z.
+ This configuration will be built upon a Stepconf Wizard generated configuration.
+ First we run the Stepconf Wizard and configure our machine, then on the
+ Advanced Configuration Options page we make a couple of selections to add
+ a blank pyVCP panel as shown in the following figure.
+ For this example we named the configuration "pyvcp_xyz" on the Basic Machine
+ Information page of the Stepconf Wizard.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+XYZ Wizard Configuration
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/xyz_ACO.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The Stepconf Wizard will create several files and place them in the /emc/configs
+/pyvcp_xyz directory.
+ If you left the create link checked you will have a link to those files
+ on your desktop.
+ 
+\layout Subsection
+
+Create the Widgets
+\layout Standard
+
+Open up the custompanel.xml file by right clicking on it and selecting "open
+ with text editor".
+ Between the <pyvcp></pyvcp> tags we will add the widgets for our panel.
+\layout Standard
+
+Look in the pyVCP Widgets Reference section of the manual for more detailed
+ information on each widget.
+\layout Standard
+
+In your custompanel.xml file we will add the description of the widgets.
+ 
+\layout Quote
+
+<pyvcp>
+\layout Quote
+
+<labelframe text="Jog Buttons">
+\newline 
+<font>("Helvetica",16)</font>
+\layout Quote
+
+<!-- the X jog buttons -->
+\newline 
+<hbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"x-plus"</halpin>
+\newline 
+<text>"X+"</text>
+\newline 
+</button>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"x-minus"</halpin>
+\newline 
+<text>"X-"</text>
+\newline 
+</button>
+\newline 
+</hbox>
+\layout Quote
+
+<!-- the Y jog buttons -->
+\newline 
+<hbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"y-plus"</halpin>
+\newline 
+<text>"Y+"</text>
+\newline 
+</button>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"y-minus"</halpin>
+\newline 
+<text>"Y-"</text>
+\newline 
+</button>
+\newline 
+</hbox>
+\layout Quote
+
+<!-- the Z jog buttons -->
+\newline 
+<hbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"z-plus"</halpin>
+\newline 
+<text>"Z+"</text>
+\newline 
+</button>
+\newline 
+<button>
+\newline 
+<font>("Helvetica",20)</font>
+\newline 
+<width>3</width>
+\newline 
+<halpin>"z-minus"</halpin>
+\newline 
+<text>"Z-"</text>
+\newline 
+</button>
+\newline 
+</hbox>
+\layout Quote
+
+<!-- the jog speed slider -->
+\newline 
+<vbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<label>
+\newline 
+<text>"Jog Speed"</text>
+\newline 
+<font>("Helvetica",16)</font>
+\newline 
+</label>
+\newline 
+<scale>
+\newline 
+<font>("Helvetica",14)</font>
+\newline 
+<halpin>"jog-speed"</halpin>
+\newline 
+<resolution>1</resolution>
+\newline 
+<orient>HORIZONTAL</orient>
+\newline 
+<min_>0</min_>
+\newline 
+<max_>80</max_>
+\newline 
+</scale>
+\newline 
+</vbox>
+\layout Quote
+
+</labelframe>
+\layout Quote
+
+</pyvcp>
+\layout Quote
+
+After adding the above you now will have a pyVCP panel that looks like the
+ following attached to the right side of AXIS.
+ It looks nice but it does not do anything until you "connect" the buttons
+ to halui.
+ If you get an error when you try and run scroll down to the bottom of the
+ popup window and usually the error is a spelling or syntax error and it
+ will be there.
+\layout Quote
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Jog Buttons
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/xyz_buttons.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Make Connections
+\layout Standard
+
+To make the connections needed open up your custom_postgui.hal file and add
+ the following.
+\layout Quote
+
+# connect the X pyVCP buttons
+\newline 
+net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus
+\newline 
+net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
+\layout Quote
+
+# connect the Y pyVCP buttons
+\newline 
+net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus
+\newline 
+net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
+\layout Quote
+
+# connect the Z pyVCP buttons
+\newline 
+net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus
+\newline 
+net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
+\layout Quote
+
+# connect the pyVCP jog speed slider 
+\newline 
+net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
+\layout Standard
+
+After reseting the E-Stop and putting it into jog mode and moving the jog
+ speed slider in the pyVCP panel to a value greater than zero the pyVCP
+ jog buttons should work.
+ You can not jog when running a g code file or while paused or while the
+ MDI tab is selected.
+\layout Section
+
+GS2 RPM Meter
+\layout Standard
+
+The following example uses the Automation Direct GS2 VDF driver and displays
+ the RPM and other info in a pyVCP panel.
+\layout Subsection
+
+The Panel
+\layout Standard
+
+To create the panel we add the following to the .xml file.
+\layout Quote
+
+<pyvcp>
+\newline 
+<hbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<meter>
+\newline 
+<halpin>"spindle_rpm"</halpin>
+\newline 
+<text>"Spindle"</text>
+\newline 
+<subtext>"RPM"</subtext>
+\newline 
+<size>200</size>
+\newline 
+<min_>0</min_>
+\newline 
+<max_>3000</max_>
+\newline 
+<majorscale>500</majorscale>
+\newline 
+<minorscale>100</minorscale>
+\newline 
+<region1>0,10,"yellow"</region1>
+\newline 
+</meter>
+\newline 
+</hbox>
+\newline 
+<hbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>3</bd>
+\newline 
+<vbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>2</bd>
+\newline 
+<label>
+\newline 
+<text>"On"</text>
+\newline 
+<font>("Helvetica",18)</font>
+\newline 
+<width>5</width>
+\newline 
+</label>
+\newline 
+<hbox>
+\newline 
+<rectled>
+\newline 
+<halpin>"on-led"</halpin>
+\newline 
+<height>"30"</height>
+\newline 
+<width>"30"</width>
+\newline 
+<on_color>"green"</on_color>
+\newline 
+<off_color>"red"</off_color>
+\newline 
+</rectled>
+\newline 
+</hbox>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>2</bd>
+\newline 
+<label>
+\newline 
+<text>"FWD"</text>
+\newline 
+<font>("Helvetica",18)</font>
+\newline 
+<width>5</width>
+\newline 
+</label>
+\newline 
+<rectled>
+\newline 
+<halpin>"fwd-led"</halpin>
+\newline 
+<height>"30"</height>
+\newline 
+<width>"30"</width>
+\newline 
+<on_color>"green"</on_color>
+\newline 
+<off_color>"red"</off_color>
+\newline 
+</rectled>
+\newline 
+</vbox>
+\newline 
+<vbox>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<bd>2</bd>
+\newline 
+<label>
+\newline 
+<text>"REV"</text>
+\newline 
+<font>("Helvetica",18)</font>
+\newline 
+<width>5</width>
+\newline 
+</label>
+\newline 
+<rectled>
+\newline 
+<halpin>"rev-led"</halpin>
+\newline 
+<height>"30"</height>
+\newline 
+<width>"30"</width>
+\newline 
+<on_color>"red"</on_color>
+\newline 
+<off_color>"green"</off_color>
+\newline 
+</rectled>
+\newline 
+</vbox>
+\newline 
+</hbox>
+\newline 
+</pyvcp>
+\layout Standard
+
+The above gives us a pyVCP panel that looks like the following.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+GS2 Panel
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/gs2_panel.png
+
+\end_inset 
+
+
+\end_inset 
+
+
 \the_end

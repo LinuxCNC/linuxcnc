@@ -34,7 +34,10 @@
 
 \layout Chapter
 
-Virtual Control Panel
+pyVCP
+\layout Standard
+
+Python Virtual Control Panel
 \layout Section
 
 Introduction
@@ -321,6 +324,16 @@ When the tag-based syntax is used, the text within the tag is always evaluated
 \layout Standard
 
 The examples below show a mix of formats.
+\layout Subsubsection
+
+Comments
+\layout Standard
+
+To add a comment use the xml syntax for a comment.
+ 
+\layout Quote
+
+<!--My Comment-->
 \layout Subsubsection
 
 Editing the XML file
@@ -735,33 +748,67 @@ Spinbox controls a FLOAT pin.
 Scale
 \layout Standard
 
-Scale controls a FLOAT pin.
+Scale controls a float or a s32 pin.
  You increase or decrease the value of the pin be either dragging the slider,
  or pointing at the scale and rolling your mouse-wheel.
+ The "halpin" will have both "-f" and "-i" added to it to form the float
+ and s32 pins.
+ Width is the width of the slider in vertical and the height of the slider
+ in horizontal orientation.
 \layout Quote
 
 <scale>
 \newline 
-    <halpin>"my-scale"</halpin>
+<font>("Helvetica",16)</font>
 \newline 
-    <resolution>0.1</resolution>
+<width>"25"</width>
 \newline 
-    <orient>HORIZONTAL</orient>
+<halpin>"my-hscale"</halpin>
 \newline 
-    <min_>-33</min_>
+<resolution>0.1</resolution>
 \newline 
-    <max_>26</max_>
+<orient>HORIZONTAL</orient>
+\newline 
+<min_>-33</min_>
+\newline 
+<max_>26</max_>
+\newline 
+</scale>
+\layout Quote
+
+<scale>
+\newline 
+<font>("Helvetica",16)</font>
+\newline 
+<width>"50"</width>
+\newline 
+<halpin>"my-vscale"</halpin>
+\newline 
+<resolution>1</resolution>
+\newline 
+<orient>VERTICAL</orient>
+\newline 
+<min_>100</min_>
+\newline 
+<max_>0</max_>
 \newline 
 </scale>
 \layout Standard
 \align center 
+The above code produced this example
+\layout Standard
+\align center 
 
 \begin_inset Graphics
-	filename pyvcp_scale.png
+	filename images/pyvcp_scale.png
 
 \end_inset 
 
 
+\layout Standard
+
+Notice that the default is the min even though it is set higher than max
+ unless there is a negative min.
 \layout Subsection
 
 Jogwheel
@@ -797,19 +844,23 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
 pyVCP Container reference
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-add info on borders
-\end_inset 
-
-
-\layout Standard
-
 Containers are widgets that contain other widgets.
+ 
+\layout Subsection
+
+Borders
+\layout Standard
+
+Container borders are specified with two tags used together.
+ The <relief> tag specifies the type of border and the <bd> specifies the
+ width of the border.
+ 
+\layout Description
+
+<relief>type</relief> Where "type" is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
+\layout Description
+
+<bd>n</bd> Where "n" is the width of the border.
 \layout Subsection
 
 Hbox
