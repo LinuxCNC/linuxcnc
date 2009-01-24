@@ -1883,7 +1883,6 @@ def add_recent_file(f):
     recent = recent[:10]
     ap.putpref('recentfiles', recent, repr)
     update_recent_menu()
-    print "RFL", recent
 
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
@@ -3229,6 +3228,7 @@ class TclCommands(nf.TclCommands):
     def set_joint_mode(*args):
         joint_mode = vars.joint_mode.get()
         c.teleop_enable(joint_mode)
+        c.wait_complete()
 
     def save_gcode(*args):
         if not loaded_file: return
@@ -3897,6 +3897,7 @@ def balance_ja():
     widgets.joints.configure(width=w, height=h)
 if s.kinematics_type != emc.KINEMATICS_IDENTITY:
     c.teleop_enable(0)
+    c.wait_complete()
     vars.joint_mode.set(0)
     widgets.joints.grid_propagate(0)
     widgets.axes.grid_propagate(0)
