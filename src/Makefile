@@ -434,7 +434,7 @@ install-dirs:
 
 	@for B in ${HM2_BOARDS}; do  \
 		echo making dirs for $$B firmware package;  \
-        	mkdir -p $(DESTDIR)/lib/firmware/hm2/$$B;  \
+		mkdir -p $(DESTDIR)/lib/firmware/hm2/$$B;  \
 		mkdir -p $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2;  \
 	done
 
