@@ -171,7 +171,7 @@ halui.jog-deadband (float, in) - deadband for analog jogging (smaller jogging
  speed requests are not performed)
 \layout Itemize
 
-halui.jog.speed (float, in) - pin for setting jog speed for minus/plus jogging
+halui.jog-speed (float, in) - pin for setting jog speed for minus/plus jogging
 \layout Itemize
 
 halui.jog.<n>.analog (float, in) - analog velocity input for jogging (usefull
