@@ -109,6 +109,7 @@ DOC_SRCS := \
 	hal/intro_fr.lyx \
 	hal/pyvcp.lyx \
 	hal/pyvcp_fr.lyx \
+	hal/pyvcp_examples.lyx \
 	hal/rtcomps.lyx \
 	hal/rtcomps_fr.lyx \
 	hal/tools.lyx \
