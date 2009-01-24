@@ -795,9 +795,8 @@ Scale controls a float or a s32 pin.
 </scale>
 \layout Standard
 \align center 
-The above code produced this example
-\layout Standard
-\align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_scale.png
@@ -922,9 +921,8 @@ Container borders are specified with two tags used together.
 </hbox>
 \layout Standard
 \align center 
-The above code produced this example
-\layout Standard
-\align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_borders.png
@@ -1111,9 +1109,8 @@ A labelframe is a frame with a groove and a label at the upper-left corner.
 </labelframe>
 \layout Standard
 \align center 
-The above code produced this example
-\layout Standard
-\align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_labelframe.png
@@ -1193,6 +1190,8 @@ n2 rows'"/>
 </table> 
 \layout Quote
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_table.png
@@ -1259,10 +1258,9 @@ A tabbed interface can save quite a bit of space.
 \newline 
 </tabs>
 \layout Standard
-
-The above code produces the following tabbed display.
-\layout Standard
 \align center 
+The above code produced this example showing each tab selected.
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_tabs1.png
