@@ -637,7 +637,7 @@ static void hm2_encoder_compute_relative_time_velocity(
     timestamp_diff_clocks = d0->raw_timestamp - d1->raw_timestamp;
     if (timestamp_diff_clocks <= 0) {
         // this should never happen
-        ERR("encoder.%02d dT <= 0, how can this be?\n", instance);
+        PRINT("encoder.%02d dT <= 0, how can this be?\n", instance);
         PRINT("hm2->encoder.tsc_rollover_flag=%d, e->tsc_num_rollovers=%d\n", hm2->encoder.tsc_rollover_flag, hm2->encoder.instance[instance].tsc_num_rollovers);
         PRINT("    cur = ( %d, %d )\n", d0->raw_count, d0->raw_timestamp);
         PRINT("   prev = ( %d, %d )\n", d1->raw_count, d1->raw_timestamp);
