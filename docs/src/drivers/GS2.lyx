@@ -139,6 +139,9 @@ It is an error to send a speed faster than the Motor Max RPM as set in the
 <name>.spindle-fwd (bit, in) 1 for FWD and 0 for REV sent to VFD
 \layout Itemize
 
+<name>.spindle-rev (bit, in) 1 for REV and 0 if off
+\layout Itemize
+
 <name>.spindle-on (bit, in) 1 for ON and 0 for OFF sent to VFD
 \layout Itemize
 
@@ -176,8 +179,11 @@ Parameters where <name> is the name given during loading with the -n option.
 <name>.tolerance (s32, RW) speed tolerance (default 0.01)
 \layout Standard
 
-Using the component involves very little to set up.
- We start with a Stepconf Wizard generated config that does not have any
- spindle controls used in the parallel port setup screen.
- We add the following HAL commands to the custom.hal file.
+An example of using this component to drive a spindle is in the Hardware
+ Examples section (
+\begin_inset LatexCommand \ref{cha:GS2-Spindle}
+
+\end_inset 
+
+) of this manual.
 \the_end
