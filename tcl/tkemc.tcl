@@ -2683,7 +2683,6 @@ proc tkemc_abort {} {
     emc_mode mdi
     emc_mdi "G55"
     emc_mdi "G54"
-    emc_mdi "G92.2"
     emc_mode $oldmode
 }
 
