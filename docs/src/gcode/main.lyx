@@ -7916,6 +7916,14 @@ G92.3
  near the beginning of the second program.
  That will restore the offsets saved in the first program.
  
+\layout Standard
+
+Any G92 offsets stored and not set to zero with G92.1 or turned off with
+ G92.2 will remain in effect after a M2 or M30 and will be in effect on bootup.
+ If you don't intend them to be there for the next run of the same program
+ make sure you program a G92.1 or G92.2 before the end of your program.
+ If you don't want them in effect on bootup make sure you program a G92.1
+ before the end of your file.
 \layout Section
 
 G93, G94, G95: Set Feed Rate Mode
