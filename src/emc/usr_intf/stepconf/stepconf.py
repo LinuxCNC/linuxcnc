@@ -331,8 +331,10 @@ class Data:
 
         self.digitsin = 15
         self.digitsout = 15
-        self.analogsin = 10
-        self.analogsout = 10
+        self.s32in = 10
+        self.s32out = 10
+        self.floatsin = 10
+        self.floatsout = 10
         self.halui = 0
         self.createsymlink = 1
         self.createshortcut = 1
@@ -794,7 +796,7 @@ class Data:
             print >>file, "loadrt pwmgen output_type=0"
 
         if self.classicladder:
-            print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d" %(self.digitsin , self.digitsout , self.analogsin, self.analogsout)
+            print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
 
         print >>file
         print >>file, "addf parport.0.read base-thread"
@@ -1610,8 +1612,10 @@ class App:
         self.widgets.modbus.set_active(self.data.modbus)
         self.widgets.digitsin.set_value(self.data.digitsin)
         self.widgets.digitsout.set_value(self.data.digitsout)
-        self.widgets.analogsin.set_value(self.data.analogsin)
-        self.widgets.analogsout.set_value(self.data.analogsout)
+        self.widgets.s32in.set_value(self.data.s32in)
+        self.widgets.s32out.set_value(self.data.s32out)
+        self.widgets.floatsin.set_value(self.data.floatsin)
+        self.widgets.floatsout.set_value(self.data.floatsout)
         self.widgets.halui.set_active(self.data.halui)
         self.widgets.ladderconnect.set_active(self.data.ladderconnect)
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
@@ -1626,8 +1630,10 @@ class App:
         self.data.modbus = self.widgets.modbus.get_active()
         self.data.digitsin = self.widgets.digitsin.get_value()
         self.data.digitsout = self.widgets.digitsout.get_value()
-        self.data.analogsin = self.widgets.analogsin.get_value()
-        self.data.analogsout = self.widgets.analogsout.get_value()
+        self.data.s32in = self.widgets.s32in.get_value()
+        self.data.s32out = self.widgets.s32out.get_value()
+        self.data.floatsin = self.widgets.floatsin.get_value()
+        self.data.floatsout = self.widgets.floatsout.get_value()
         self.data.halui = self.widgets.halui.get_active()    
         self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
         self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
@@ -1698,8 +1704,10 @@ class App:
         i= self.widgets.classicladder.get_active()
         self.widgets.digitsin.set_sensitive(i)
         self.widgets.digitsout.set_sensitive(i)
-        self.widgets.analogsin.set_sensitive(i)
-        self.widgets.analogsout.set_sensitive(i)
+        self.widgets.s32in.set_sensitive(i)
+        self.widgets.s32out.set_sensitive(i)
+        self.widgets.floatsin.set_sensitive(i)
+        self.widgets.floatsout.set_sensitive(i)
         self.widgets.modbus.set_sensitive(i)
         self.widgets.radiobutton1.set_sensitive(i)
         self.widgets.radiobutton2.set_sensitive(i)
@@ -1711,8 +1719,10 @@ class App:
         self.widgets.loadladder.set_sensitive(i)
         self.widgets.label_digin.set_sensitive(i)
         self.widgets.label_digout.set_sensitive(i)
-        self.widgets.label_anlgin.set_sensitive(i)
-        self.widgets.label_anlgout.set_sensitive(i)
+        self.widgets.label_s32in.set_sensitive(i)
+        self.widgets.label_s32out.set_sensitive(i)
+        self.widgets.label_floatin.set_sensitive(i)
+        self.widgets.label_floatout.set_sensitive(i)
         self.widgets.ladderconnect.set_sensitive(i)
         
 
@@ -1952,11 +1962,13 @@ class App:
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
-              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(ain)d numS32out=%(aout)d\n""" % {
+              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d\n""" % {
                       'din': self.widgets.digitsin.get_value(),
                       'dout': self.widgets.digitsout.get_value(),
-                      'ain': self.widgets.analogsin.get_value(),
-                      'aout': self.widgets.analogsout.get_value(), 
+                      'sin': self.widgets.s32in.get_value(),
+                      'sout': self.widgets.s32out.get_value(), 
+                      'fin':self.widgets.floatsin.get_value(),
+                      'fout':self.widgets.floatsout.get_value(),
                  })
         if self.widgets.radiobutton1.get_active() == True:
             if self.data.tempexists:
