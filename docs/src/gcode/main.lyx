@@ -7919,7 +7919,7 @@ G92.3
 \layout Standard
 
 EMC2 stores the G92 offsets and reuses them on the next run of a program.
- To prevent this, one can program a G92.2 (to erase them), or program a G92.1
+ To prevent this, one can program a G92.1 (to erase them), or program a G92.2
  (to unapply them - they are still stored).
 \layout Section
 
