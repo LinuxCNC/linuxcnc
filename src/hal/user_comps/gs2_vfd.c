@@ -129,6 +129,7 @@ typedef struct {
   hal_float_t	motor_RPM;		// nameplate RPM at default Hz
   hal_bit_t	*spindle_on;		// spindle 1=on, 0=off
   hal_bit_t	*spindle_fwd;		// direction, 0=fwd, 1=rev
+  hal_bit_t *spindle_rev;		// on when in rev and running
   hal_bit_t	*err_reset;		// reset errors when 1
   hal_s32_t ack_delay;		// number of read/writes before checking at-speed
 
@@ -211,6 +212,10 @@ int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata
             preset_single_register(param, slavedata->slave, slavedata->write_reg_start+2, 1);
         haldata->old_dir = *(haldata->spindle_fwd);
     }
+    if (*(haldata->spindle_fwd) || !(*(haldata->spindle_on)))  // JET turn on and off rev based on the status of fwd
+    	*(haldata->spindle_rev) = 0;
+    if (!(*haldata->spindle_fwd) && *(haldata->spindle_on))
+    	*(haldata->spindle_rev) = 1;	
     if (*(haldata->err_reset) != haldata->old_err_reset) {
         if (*(haldata->err_reset))
             preset_single_register(param, slavedata->slave, slavedata->write_reg_start+4, 1);
@@ -490,6 +495,8 @@ int main(int argc, char **argv)
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_fwd), hal_comp_id, "%s.spindle-fwd", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
+    retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_rev), hal_comp_id, "%s.spindle-rev", modname); //JET
+    if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->err_reset), hal_comp_id, "%s.err-reset", modname);
     if (retval!=HAL_SUCCESS) goto out_closeHAL;
     retval = hal_param_float_newf(HAL_RW, &(haldata->speed_tolerance), hal_comp_id, "%s.tolerance", modname);
@@ -523,6 +530,7 @@ int main(int argc, char **argv)
     *(haldata->err_reset) = 0;
     *(haldata->spindle_on) = 0;
     *(haldata->spindle_fwd) = 1;
+    *(haldata->spindle_rev) = 0;
     haldata->old_run = -1;		// make sure the initial value gets output
     haldata->old_dir = -1;
     haldata->old_err_reset = -1;
