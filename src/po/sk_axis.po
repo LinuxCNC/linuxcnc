@@ -1,0 +1,1936 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: sk\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-10-31 23:44+0100\n"
+"PO-Revision-Date: 2009-01-25 14:12+0100\n"
+"Last-Translator: Ševc Dominik <sevc2post.sk>\n"
+"Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"X-Poedit-Language: Slovak\n"
+"X-Poedit-Country: SLOVAKIA\n"
+
+#: ../tcl/bin/emccalib.tcl:84
+msgid "EMC2 Axis Calibration"
+msgstr "Kalibrácia osi EMC2"
+
+#: ../tcl/bin/emccalib.tcl:94
+msgid "Save To File"
+msgstr "Uložiť"
+
+#: ../tcl/bin/emccalib.tcl:95
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Quit"
+msgstr "Ukončiť"
+
+#: ../tcl/bin/emccalib.tcl:110
+#: ../tcl/bin/genedit.tcl:83
+#: ../tcl/bin/halconfig.tcl:147
+#: ../tcl/mini.tcl:2510
+#: ../tcl/tkemc.tcl:767
+msgid "File"
+msgstr "Súbor"
+
+#: ../tcl/bin/emccalib.tcl:112
+#: ../tcl/bin/emccalib.tcl:239
+#: ../tcl/bin/halconfig.tcl:149
+#: ../tcl/mini.tcl:3552
+msgid "Refresh"
+msgstr "Obnoviť"
+
+#: ../tcl/bin/emccalib.tcl:114
+#: ../tcl/bin/genedit.tcl:88
+#: ../tcl/bin/halconfig.tcl:151
+#: ../tcl/mini.tcl:2529
+msgid "Save"
+msgstr "Uložiť"
+
+#: ../tcl/bin/emccalib.tcl:168
+#: ../tcl/bin/halconfig.tcl:619
+#, tcl-format
+msgid "Tune %d"
+msgstr "Tunning %d"
+
+#: ../tcl/bin/emccalib.tcl:170
+#: ../tcl/bin/halconfig.tcl:624
+msgid "INI Name"
+msgstr "INI-Názov"
+
+#: ../tcl/bin/emccalib.tcl:171
+#: ../tcl/bin/halconfig.tcl:625
+msgid "HAL's Value"
+msgstr "Hodnota HAL"
+
+#: ../tcl/bin/emccalib.tcl:173
+#: ../tcl/bin/halconfig.tcl:627
+msgid "Next Value"
+msgstr "Ďalšia hodnota"
+
+#: ../tcl/bin/emccalib.tcl:233
+#: ../tcl/bin/halconfig.tcl:676
+#: ../tcl/bin/halconfig.tcl:727
+msgid "Test"
+msgstr "Testovať"
+
+#: ../tcl/bin/emccalib.tcl:235
+#: ../tcl/bin/genedit.tcl:186
+#: ../tcl/bin/genedit.tcl:456
+#: ../tcl/bin/halconfig.tcl:678
+#: ../tcl/bin/halconfig.tcl:729
+#: ../tcl/bin/pickconfig.tcl:255
+#: ../tcl/bin/pickconfig.tcl:402
+#: ../tcl/bin/pickconfig.tcl:427
+#: ../tcl/mini.tcl:1453
+#: ../tcl/mini.tcl:2931
+#: ../tcl/tkemc.tcl:219
+#: ../tcl/tkemc.tcl:322
+#: ../tcl/tkemc.tcl:468
+#: ../tcl/tkemc.tcl:1325
+#: ../tcl/tkemc.tcl:1373
+#: ../tcl/tkemc.tcl:1404
+#: ../tcl/tkemc.tcl:1435
+#: ../tcl/tkemc.tcl:1931
+#: ../tcl/tkemc.tcl:1950
+#: ../tcl/tkemc.tcl:1969
+#: ../tcl/tkemc.tcl:2016
+msgid "OK"
+msgstr "OK"
+
+#: ../tcl/bin/emccalib.tcl:237
+#: ../tcl/bin/genedit.tcl:300
+#: ../tcl/bin/halconfig.tcl:99
+#: ../tcl/bin/halconfig.tcl:680
+#: ../tcl/bin/halconfig.tcl:731
+#: ../tcl/bin/pickconfig.tcl:258
+#: ../tcl/bin/pickconfig.tcl:367
+#: ../tcl/mini.tcl:1454
+#: ../tcl/mini.tcl:2932
+#: ../tcl/mini.tcl:3104
+#: ../tcl/tkemc.tcl:221
+#: ../tcl/tkemc.tcl:264
+#: ../tcl/tkemc.tcl:290
+#: ../tcl/tkemc.tcl:469
+#: ../tcl/tkemc.tcl:1326
+#: ../tcl/tkemc.tcl:1374
+#: ../tcl/tkemc.tcl:1405
+#: ../tcl/tkemc.tcl:1436
+#: ../tcl/tkemc.tcl:2017
+msgid "Cancel"
+msgstr "ZrušiťAbbrechen"
+
+#: ../tcl/bin/emccalib.tcl:366
+#: ../tcl/bin/halconfig.tcl:879
+#, tcl-format
+msgid ""
+"The HAL parameter \n"
+"  %s \n"
+" has changed. \n"
+" Really quit?"
+msgstr ""
+"HAL Parameter \n"
+"%s \n"
+"sa zmenil. \n"
+"Naozaj ukončiť?"
+
+#: ../tcl/bin/emccalib.tcl:391
+#: ../tcl/bin/halconfig.tcl:1166
+msgid ""
+"Not permitted to save here.\n"
+"\n"
+"  You need to copy a configuration to your home directory and work there."
+msgstr ""
+"Tu nie je možné uložiť. \n"
+"\n"
+"Skopírujte nastavenia do vašej domácej zložky a pracujte tam."
+
+#: ../tcl/bin/emccalib.tcl:443
+#: ../tcl/bin/genedit.tcl:217
+#: ../tcl/bin/halconfig.tcl:1238
+#: ../tcl/bin/pickconfig.tcl:465
+#: ../tcl/bin/pickconfig.tcl:476
+#: ../tcl/scripts/Set_Coordinates.tcl:205
+#: ../tcl/scripts/Set_Coordinates.tcl:228
+#, tcl-format
+msgid "can't save %s"
+msgstr "Nie je možné uložiť %s ."
+
+#: ../tcl/bin/emcdebug.tcl:170
+#: ../tcl/bin/emcdebug.tcl:181
+msgid "EMC Debug"
+msgstr "EMC2 Debug"
+
+#: ../tcl/bin/emcdebug.tcl:189
+msgid "Invalid INI file entries"
+msgstr "Nesprávne vstupy súboru INI"
+
+#: ../tcl/bin/emcdebug.tcl:190
+msgid "Configuration information"
+msgstr "Informácie o nastavení"
+
+#: ../tcl/bin/emcdebug.tcl:191
+msgid "Use of defaults"
+msgstr "Použiť pôvodné"
+
+#: ../tcl/bin/emcdebug.tcl:192
+msgid "Version information"
+msgstr "Informácie o verzii"
+
+#: ../tcl/bin/emcdebug.tcl:193
+msgid "Command issuing"
+msgstr "Zadávam príkaz"
+
+#: ../tcl/bin/emcdebug.tcl:194
+msgid "IO points"
+msgstr "IO piny"
+
+#: ../tcl/bin/emcdebug.tcl:195
+msgid "NML"
+msgstr "NML"
+
+#: ../tcl/bin/emcdebug.tcl:196
+msgid "Motion time"
+msgstr "Čas pohybu"
+
+#: ../tcl/bin/emcdebug.tcl:197
+msgid "Interpreter"
+msgstr "Interpret"
+
+#: ../tcl/bin/emcdebug.tcl:198
+msgid "RCS"
+msgstr "RCS"
+
+#: ../tcl/bin/emcdebug.tcl:199
+msgid "Trajectory level"
+msgstr "Stav Trajektórie"
+
+#: ../tcl/bin/emcdebug.tcl:200
+msgid "Interpreter list"
+msgstr "Zoznam interpretov"
+
+#: ../tcl/bin/genedit.tcl:84
+#: ../tcl/mini.tcl:2527
+msgid "New"
+msgstr "Nový"
+
+#: ../tcl/bin/genedit.tcl:86
+#: ../tcl/mini.tcl:1661
+#: ../tcl/mini.tcl:2528
+#: ../tcl/tkemc.tcl:768
+#: ../tcl/tkemc.tcl:1578
+msgid "Open..."
+msgstr "Otvoriť..."
+
+#: ../tcl/bin/genedit.tcl:90
+#: ../tcl/mini.tcl:2530
+msgid "Save As..."
+msgstr "Uložiť ako..."
+
+#: ../tcl/bin/genedit.tcl:93
+#: ../tcl/bin/halconfig.tcl:161
+#: ../tcl/mini.tcl:957
+#: ../tcl/tkemc.tcl:773
+msgid "Exit"
+msgstr "Ukončiť"
+
+#: ../tcl/bin/genedit.tcl:97
+#: ../tcl/mini.tcl:2511
+msgid "Edit"
+msgstr "Upraviť"
+
+#: ../tcl/bin/genedit.tcl:98
+#: ../tcl/mini.tcl:2537
+msgid "Cut"
+msgstr "Vystrihnúť"
+
+#: ../tcl/bin/genedit.tcl:100
+#: ../tcl/mini.tcl:2538
+msgid "Copy"
+msgstr "Kopírovať"
+
+#: ../tcl/bin/genedit.tcl:102
+#: ../tcl/mini.tcl:2539
+msgid "Paste"
+msgstr "Vložiť"
+
+#: ../tcl/bin/genedit.tcl:105
+#: ../tcl/mini.tcl:2542
+#: ../tcl/show_errors.tcl:51
+msgid "Select All"
+msgstr "Vybrať všetky"
+
+#: ../tcl/bin/genedit.tcl:110
+#: ../tcl/bin/halconfig.tcl:188
+#: ../tcl/mini.tcl:922
+#: ../tcl/mini.tcl:2513
+#: ../tcl/tkemc.tcl:830
+msgid "Help"
+msgstr "Pomoc"
+
+#: ../tcl/bin/genedit.tcl:111
+#: ../tcl/mini.tcl:1014
+#: ../tcl/mini.tcl:2553
+#: ../tcl/tkemc.tcl:836
+msgid "About..."
+msgstr "O..."
+
+#: ../tcl/bin/genedit.tcl:136
+msgid "Save and Reload"
+msgstr "Uložiť a znovu načítať"
+
+#: ../tcl/bin/genedit.tcl:139
+#: ../tcl/mini.tcl:2544
+msgid "Find..."
+msgstr "Nájsť..."
+
+#: ../tcl/bin/genedit.tcl:141
+#: ../tcl/mini.tcl:2546
+msgid "Renumber File..."
+msgstr "Zmeniť číslo súboru..."
+
+#: ../tcl/bin/genedit.tcl:146
+#: ../tcl/mini.tcl:920
+#: ../tcl/mini.tcl:2512
+#: ../tcl/tkemc.tcl:786
+msgid "Settings"
+msgstr "Nastavenia"
+
+#: ../tcl/bin/genedit.tcl:147
+#: ../tcl/mini.tcl:2548
+msgid "No Numbering"
+msgstr "Žiadne číslovanie"
+
+#: ../tcl/bin/genedit.tcl:150
+#: ../tcl/mini.tcl:2550
+msgid "Line Numbering..."
+msgstr "Číslovanie riadkov..."
+
+#: ../tcl/bin/genedit.tcl:156
+#: ../tcl/tkemc.tcl:808
+msgid "Scripts"
+msgstr "Skripty"
+
+#: ../tcl/bin/genedit.tcl:183
+msgid "About TkEditor"
+msgstr "O TkEditore"
+
+#: ../tcl/bin/genedit.tcl:185
+msgid ""
+"TkEditor\n"
+"\n"
+"Simple Tcl/Tk Text Editor\n"
+"\n"
+"GPL Version 2"
+msgstr ""
+"TkEditor\n"
+"\n"
+"Jednoduchý Tcl/Tk Editor Textu\n"
+"\n"
+"GPL Version 2"
+
+#: ../tcl/bin/genedit.tcl:203
+#: ../tcl/mini.tcl:1370
+#: ../tcl/mini.tcl:1769
+#: ../tcl/tkemc.tcl:509
+#, tcl-format
+msgid "can't open %s"
+msgstr "Nie je možné otvoriť %s."
+
+#: ../tcl/bin/genedit.tcl:273
+#: ../tcl/mini.tcl:3084
+msgid "Find"
+msgstr "Nájsť"
+
+#: ../tcl/bin/genedit.tcl:276
+msgid "Find:"
+msgstr "Nájsť:"
+
+#: ../tcl/bin/genedit.tcl:282
+msgid "Replace:"
+msgstr "Nahradiť."
+
+#: ../tcl/bin/genedit.tcl:288
+msgid "Find All"
+msgstr "Nájsť všetky"
+
+#: ../tcl/bin/genedit.tcl:291
+#: ../tcl/mini.tcl:3107
+msgid "Replace All"
+msgstr "Nahradiť všetky"
+
+#: ../tcl/bin/genedit.tcl:294
+msgid "Skip This"
+msgstr "Preskočiť"
+
+#: ../tcl/bin/genedit.tcl:297
+msgid "Replace This"
+msgstr "Nahradiť"
+
+#: ../tcl/bin/genedit.tcl:303
+msgid "Clear"
+msgstr "Vymazať"
+
+#: ../tcl/bin/genedit.tcl:428
+#: ../tcl/mini.tcl:2634
+msgid "Set Line Numbering"
+msgstr "Nastaviť číslovanie riadkov"
+
+#: ../tcl/bin/genedit.tcl:430
+#: ../tcl/mini.tcl:2638
+msgid "Increment"
+msgstr "Pričítať"
+
+#: ../tcl/bin/genedit.tcl:432
+#: ../tcl/mini.tcl:2640
+msgid "One"
+msgstr "Jeden"
+
+#: ../tcl/bin/genedit.tcl:435
+#: ../tcl/mini.tcl:2642
+msgid "Two"
+msgstr "Dva"
+
+#: ../tcl/bin/genedit.tcl:438
+#: ../tcl/mini.tcl:2644
+msgid "Five"
+msgstr "Päť"
+
+#: ../tcl/bin/genedit.tcl:441
+#: ../tcl/mini.tcl:2646
+msgid "Ten"
+msgstr "Desať"
+
+#: ../tcl/bin/genedit.tcl:445
+#: ../tcl/mini.tcl:2648
+msgid "Space"
+msgstr "Medzera"
+
+#: ../tcl/bin/genedit.tcl:447
+#: ../tcl/mini.tcl:2650
+msgid "Single Space"
+msgstr "Jedna medzera"
+
+#: ../tcl/bin/genedit.tcl:450
+#: ../tcl/mini.tcl:2652
+msgid "Double Space"
+msgstr "Dve medzery"
+
+#: ../tcl/bin/genedit.tcl:453
+#: ../tcl/mini.tcl:2654
+msgid "Tab Space"
+msgstr "Medzera Tabulátorom"
+
+#: ../tcl/bin/genedit.tcl:459
+msgid "Next Number:"
+msgstr "Ďalšie číslo:"
+
+#: ../tcl/bin/genedit.tcl:480
+#: ../tcl/mini.tcl:2662
+msgid "Renumber"
+msgstr "Prečíslovať"
+
+#: ../tcl/bin/halconfig.tcl:84
+#: ../tcl/bin/halshow.tcl:38
+msgid "HAL Configuration"
+msgstr "Nastavenie HAL"
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Would you like to save your configuration before you exit?"
+msgstr "Chcete uložiť vaše nastavenia kým skončíte?"
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save All"
+msgstr "Uložiť všetky"
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save Tune"
+msgstr "Uložiť tunning"
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Save as Netlist"
+msgstr "Uložiť ako Netlist"
+
+#: ../tcl/bin/halconfig.tcl:99
+msgid "Don't Save"
+msgstr "Neuložiť"
+
+#: ../tcl/bin/halconfig.tcl:128
+msgid "Show"
+msgstr "Ukázať"
+
+#: ../tcl/bin/halconfig.tcl:129
+msgid "Watch"
+msgstr "Pozorovať"
+
+#: ../tcl/bin/halconfig.tcl:130
+msgid "Modify"
+msgstr "Zmeniť "
+
+#: ../tcl/bin/halconfig.tcl:153
+msgid "Save INI Tuning"
+msgstr "Uložiť INI tunning"
+
+#: ../tcl/bin/halconfig.tcl:155
+msgid "Save HAL Ini"
+msgstr "Uložiť HAL Ini"
+
+#: ../tcl/bin/halconfig.tcl:157
+msgid "Save HAL Net"
+msgstr "Uložiť Hal Net"
+
+#: ../tcl/bin/halconfig.tcl:159
+msgid "Save and Exit"
+msgstr "Uložiť a ukončiť"
+
+#: ../tcl/bin/halconfig.tcl:164
+#: ../tcl/mini.tcl:919
+#: ../tcl/tkemc.tcl:778
+msgid "View"
+msgstr "Náhľad"
+
+#: ../tcl/bin/halconfig.tcl:166
+#: ../tcl/bin/halshow.tcl:92
+msgid "Expand Tree"
+msgstr "Rozšíriť strom"
+
+#: ../tcl/bin/halconfig.tcl:168
+#: ../tcl/bin/halshow.tcl:94
+msgid "Collapse Tree"
+msgstr "Uzavrieť strom"
+
+#: ../tcl/bin/halconfig.tcl:171
+#: ../tcl/bin/halshow.tcl:97
+msgid "Expand Pins"
+msgstr "Rozšíriť piny"
+
+#: ../tcl/bin/halconfig.tcl:173
+#: ../tcl/bin/halshow.tcl:99
+msgid "Expand Parameters"
+msgstr "Rozšíriť parametre"
+
+#: ../tcl/bin/halconfig.tcl:175
+#: ../tcl/bin/halshow.tcl:101
+msgid "Expand Signals"
+msgstr "Rozšíriť signály"
+
+#: ../tcl/bin/halconfig.tcl:178
+#: ../tcl/bin/halshow.tcl:104
+msgid "Erase Watch"
+msgstr "Vymazať pohľad"
+
+#: ../tcl/bin/halconfig.tcl:190
+#: ../tcl/mini.tcl:843
+#: ../tcl/mini.tcl:2779
+msgid "About"
+msgstr "O"
+
+#: ../tcl/bin/halconfig.tcl:192
+msgid "Main"
+msgstr "Hlavné"
+
+#: ../tcl/bin/halconfig.tcl:472
+msgid "Enter HAL command :"
+msgstr "Zadať príkaz HAL:"
+
+#: ../tcl/bin/halconfig.tcl:475
+#: ../tcl/bin/halconfig.tcl:524
+#: ../tcl/bin/halshow.tcl:387
+msgid "Execute"
+msgstr "Vykonať"
+
+#: ../tcl/bin/halconfig.tcl:939
+#: ../tcl/bin/halshow.tcl:443
+msgid "Select a node to show."
+msgstr "Vyberte premennú pre zobrazenie."
+
+#: ../tcl/bin/halconfig.tcl:964
+#: ../tcl/bin/halshow.tcl:468
+msgid "<-- Select a Leaf.  Click on its name."
+msgstr "Vyberte si. Kliknite na názov."
+
+#: ../tcl/bin/halconfig.tcl:1081
+#: ../tcl/bin/halconfig.tcl:1091
+#: ../tcl/bin/halconfig.tcl:1098
+#: ../tcl/bin/halconfig.tcl:1105
+#: ../tcl/bin/halconfig.tcl:1112
+#, tcl-format
+msgid "Click a highlighted entry where %s should go."
+msgstr "Kliknite na vysvietený vstup kde by malo ísť %s."
+
+#: ../tcl/bin/halconfig.tcl:1088
+msgid "Nothing to be done for parameters here. Try the tuning page"
+msgstr "Tu nie je možné urobiť s parametrami nič. Skúste stránku optimalizovania"
+
+#: ../tcl/bin/halconfig.tcl:1120
+#, tcl-format
+msgid "%s is not a leaf, try again"
+msgstr "%s nie je list, skúste znova"
+
+#: ../tcl/bin/halconfig.tcl:1277
+msgid ""
+"Copyright Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.\n"
+"\n"
+"This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law."
+msgstr ""
+"Copyright Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 directory and will require that you have started an instance of emc2 or work up a new configuration starting with a demo rt script.\n"
+"\n"
+"This script is not for the faint hearted and carries no warranty or liability for its use to the extent allowed by law."
+
+#: ../tcl/bin/halshow.tcl:74
+msgid " SHOW "
+msgstr "UKÁZAŤ"
+
+#: ../tcl/bin/halshow.tcl:75
+msgid " WATCH "
+msgstr "POZOROVAŤ"
+
+#: ../tcl/bin/halshow.tcl:90
+msgid "Tree View"
+msgstr "Vetvený Pohľad"
+
+#: ../tcl/bin/halshow.tcl:384
+msgid "Test HAL command :"
+msgstr "Vyskúšať príkaz HAL :"
+
+#: ../tcl/bin/halshow.tcl:588
+msgid "Commands may be tested here but they will NOT be saved"
+msgstr "Tu môžete vyskúšať príkazy, ale NEBUDÚ uložené."
+
+#: ../tcl/bin/pickconfig.tcl:52
+msgid ""
+"Can't find the bwidget 1.7 package.  There is a debian bwidget package; install \n"
+"it with sudo apt-get install bwidget."
+msgstr ""
+"Balík bwidget 1.7 nebol nájdený. \n"
+"Je tu balík debian bwidget .\n"
+"Môžete ho nainštalovať použitím sudo apt-get bwidget."
+
+#: ../tcl/bin/pickconfig.tcl:148
+msgid "No details available."
+msgstr "Nie sú dostupné žiadne detaily."
+
+#: ../tcl/bin/pickconfig.tcl:180
+msgid "ERROR: must specify a path to search for configurations"
+msgstr "CHYBA: Musíte uviesť cestu ku konfigurácii."
+
+#: ../tcl/bin/pickconfig.tcl:192
+msgid "EMC2 Configuration Selector"
+msgstr "EMC2 Pomocník nastavenia"
+
+#: ../tcl/bin/pickconfig.tcl:213
+msgid ""
+"Welcome to EMC2.\n"
+"\n"
+"Select a machine configuration from the list on the left.\n"
+"Details about the selected configuration will appear in the display on the right.\n"
+"Click 'OK' to run the selected configuration"
+msgstr ""
+"Vitajte v EMC2.\n"
+"\n"
+"Vyberte konfiguráciu stroja zo zoznamu.\n"
+"Detaily o vybranej konfigurácii sa objavia na displeji vpravo.\n"
+"Stlačte 'OK' pre spustenie vybranej konfigurácie ."
+
+#: ../tcl/bin/pickconfig.tcl:270
+msgid "My Configurations"
+msgstr "Moje konfigurácie"
+
+#: ../tcl/bin/pickconfig.tcl:273
+msgid "Sample Configurations"
+msgstr "Príklady konfigurácií"
+
+#: ../tcl/bin/pickconfig.tcl:330
+#, tcl-format
+msgid "ERROR: no configurations found in path '%s'"
+msgstr "CHYBA: Neboli nájdené žiadne konfigurácie na ceste %s."
+
+#: ../tcl/bin/pickconfig.tcl:367
+msgid "Copy Configuration?"
+msgstr "Skopírovať konfiguráciu?"
+
+#: ../tcl/bin/pickconfig.tcl:367
+#, tcl-format
+msgid "Would you like to copy the %s configuration to your home directory so you can customize it?"
+msgstr "Chcete skopírovať %s konfiguráciu do vašej domovskej zložky aby ste ju potom mohli zmeniť?"
+
+#: ../tcl/bin/pickconfig.tcl:367
+msgid "Yes"
+msgstr "Áno"
+
+#: ../tcl/bin/pickconfig.tcl:367
+msgid "No"
+msgstr "Nie"
+
+#: ../tcl/bin/pickconfig.tcl:402
+msgid "Configuration Copied"
+msgstr "Konfigurácia skopírovaná"
+
+#: ../tcl/bin/pickconfig.tcl:402
+#, tcl-format
+msgid "The configuration file has been copied to %s. Next time, choose this location when starting EMC2."
+msgstr "Súbor konfigurácie bol skopírovaný do %s. Nabudúce vyberte túto pozíciu pri spúšťaní EMC2."
+
+#: ../tcl/bin/pickconfig.tcl:427
+msgid "Shortcut Created"
+msgstr "Odkaz vytvorený"
+
+#: ../tcl/bin/pickconfig.tcl:427
+msgid "A shortcut to this configuration file has been created on your desktop.  You can use it to automatically launch this configuration."
+msgstr "Na pracovnej ploche bol vytvorený odkaz pre túto konfiguráciu. Môžete ho použiť aby ste ju automaticky spustili."
+
+#: ../tcl/bin/pickconfig.tcl:432
+msgid "Create Desktop Shortcut"
+msgstr "Vytvoriť odkaz na ploche"
+
+#: ../tcl/bin/tkbackplot.tcl:113
+msgid "TkEmc BackPlot"
+msgstr "TkEMC Backplot"
+
+#: ../tcl/bin/tkbackplot.tcl:128
+msgid "SETUP"
+msgstr "NASTAVENIE"
+
+#: ../tcl/bin/tkbackplot.tcl:130
+msgid "RESET"
+msgstr "RESET"
+
+#: ../tcl/bin/tkbackplot.tcl:132
+msgid "CANCEL"
+msgstr "ZRUŠIŤ"
+
+#: ../tcl/bin/tkbackplot.tcl:253
+msgid "AXIS"
+msgstr "OS"
+
+#: ../tcl/bin/tkbackplot.tcl:254
+msgid "OFFSET"
+msgstr "OFFSET"
+
+#: ../tcl/bin/tkbackplot.tcl:255
+msgid "ANGLE"
+msgstr "UHOL"
+
+#: ../tcl/bin/tkbackplot.tcl:256
+msgid "DIRECTION"
+msgstr "SMER"
+
+#: ../tcl/bin/tkbackplot.tcl:273
+msgid "SIZE :"
+msgstr "VEĽKOSŤ"
+
+#: ../tcl/mini.tcl:493
+#, tcl-format
+msgid "JOG %s +"
+msgstr "JOG %s +"
+
+#: ../tcl/mini.tcl:494
+#, tcl-format
+msgid "JOG %s -"
+msgstr "JOG %s -"
+
+#: ../tcl/mini.tcl:495
+#, tcl-format
+msgid ""
+"%s\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+"%s\n"
+"\n"
+"N\n"
+"U\n"
+"L\n"
+"A"
+
+#: ../tcl/mini.tcl:843
+msgid ""
+"TkMini  \n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!   \n"
+"For details see the copyright.html file in this directory."
+msgstr ""
+"TkMini  \n"
+"\n"
+"Graphische Tcl/Tk Oberfläche für EMC2\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!\n"
+"For details see the copyright.html file in this directory."
+
+#: ../tcl/mini.tcl:918
+msgid "Program"
+msgstr "Program"
+
+#: ../tcl/mini.tcl:921
+msgid "Info"
+msgstr "Info"
+
+#: ../tcl/mini.tcl:926
+msgid "Backplot"
+msgstr "Backplot"
+
+#: ../tcl/mini.tcl:928
+msgid "Editor"
+msgstr "Editor"
+
+#: ../tcl/mini.tcl:930
+msgid "Offsets"
+msgstr "Doplnky"
+
+#: ../tcl/mini.tcl:932
+msgid "Tools"
+msgstr "Nástroje"
+
+#: ../tcl/mini.tcl:954
+#: ../tcl/mini.tcl:3559
+#: ../tcl/tkemc.tcl:771
+msgid "Reset"
+msgstr "Resetovať"
+
+#: ../tcl/mini.tcl:963
+msgid "Position Type"
+msgstr "Typ polohy"
+
+#: ../tcl/mini.tcl:965
+msgid "Tool Info"
+msgstr "Informácie o nástroji"
+
+#: ../tcl/mini.tcl:967
+msgid "Offset Info"
+msgstr "Informácie o doplnku"
+
+#: ../tcl/mini.tcl:970
+msgid "Show Restart"
+msgstr "Ukázať Reštart"
+
+#: ../tcl/mini.tcl:971
+msgid "Hide Restart"
+msgstr "Schovať Reštart"
+
+#: ../tcl/mini.tcl:973
+msgid "Show Split Right"
+msgstr "Ukázať delenie vpravo"
+
+#: ../tcl/mini.tcl:975
+msgid "Show Mode Full"
+msgstr "Ukázať plný spôsob"
+
+#: ../tcl/mini.tcl:977
+msgid "Show Popin Full"
+msgstr "Ukázať plný Popin"
+
+#: ../tcl/mini.tcl:981
+msgid "Actual Position"
+msgstr "Aktuálna pozícia"
+
+#: ../tcl/mini.tcl:983
+msgid "Commanded Position"
+msgstr "Zadaná pozícia"
+
+#: ../tcl/mini.tcl:986
+msgid "Machine Position"
+msgstr "Pozícia stroja"
+
+#: ../tcl/mini.tcl:988
+msgid "Relative Position"
+msgstr "Relatívna pozícia"
+
+#: ../tcl/mini.tcl:991
+#: ../tcl/tkemc.tcl:787
+msgid "Calibration..."
+msgstr "Kalibrácia..."
+
+#: ../tcl/mini.tcl:993
+msgid "HAL Show..."
+msgstr "Ukázať HAL..."
+
+#: ../tcl/mini.tcl:995
+msgid "HAL Config..."
+msgstr "Nastavenie HAL..."
+
+#: ../tcl/mini.tcl:1000
+msgid "Program File"
+msgstr "Súbor programu"
+
+#: ../tcl/mini.tcl:1001
+#, tcl-format
+msgid "Program file is %s"
+msgstr "Súbor programu je %s"
+
+#: ../tcl/mini.tcl:1002
+msgid "Editor File"
+msgstr "Upravovací Súbor"
+
+#: ../tcl/mini.tcl:1003
+#, tcl-format
+msgid "Editor file is %s"
+msgstr "Upravovací Súbor je %s"
+
+#: ../tcl/mini.tcl:1004
+msgid "Parameter File"
+msgstr "Súbor parametrov"
+
+#: ../tcl/mini.tcl:1005
+#, tcl-format
+msgid "Parameter file is %s"
+msgstr "Súbor parametrov je %s"
+
+#: ../tcl/mini.tcl:1006
+msgid "Tool File"
+msgstr "Súbor nástrojov"
+
+#: ../tcl/mini.tcl:1007
+#, tcl-format
+msgid "Tool file is %s"
+msgstr "Súbor nástrojov je %s"
+
+#: ../tcl/mini.tcl:1009
+msgid "Active G Codes"
+msgstr "Aktívne G Kódy"
+
+#: ../tcl/mini.tcl:1010
+#, tcl-format
+msgid ""
+"Active codes include; \n"
+"%s"
+msgstr ""
+"Aktívne kódy sú:\n"
+"%s"
+
+#: ../tcl/mini.tcl:1013
+#: ../tcl/mini.tcl:2552
+#: ../tcl/tkemc.tcl:831
+msgid "Help..."
+msgstr "Pomoc..."
+
+#: ../tcl/mini.tcl:1030
+#: ../tcl/tkemc.tcl:930
+msgid "ABORT"
+msgstr "PRERUŠIŤ"
+
+#: ../tcl/mini.tcl:1041
+#: ../tcl/mini.tcl:2042
+msgid "CONTINUE"
+msgstr "POKRAČOVAŤ"
+
+#: ../tcl/mini.tcl:1047
+#: ../tcl/tkemc.tcl:868
+#: ../tcl/tkemc.tcl:2161
+msgid "MDI"
+msgstr "MDI"
+
+#: ../tcl/mini.tcl:1051
+#: ../tcl/tkemc.tcl:2152
+msgid "AUTO"
+msgstr "AUTO"
+
+#: ../tcl/mini.tcl:1055
+#: ../tcl/mini.tcl:1806
+#: ../tcl/tkemc.tcl:2055
+#: ../tcl/tkemc.tcl:2174
+msgid "MANUAL"
+msgstr "MANUÁL"
+
+#: ../tcl/mini.tcl:1109
+msgid "Tool #:"
+msgstr "Nástroj :"
+
+#: ../tcl/mini.tcl:1111
+msgid "Length :"
+msgstr "Dĺžka:"
+
+#: ../tcl/mini.tcl:1122
+msgid "Work Offsets: "
+msgstr "Pracovný Offset:"
+
+#: ../tcl/mini.tcl:1124
+msgid "start offsets popup here"
+msgstr "Začať zobrazovanie offset tu"
+
+#: ../tcl/mini.tcl:1168
+msgid "start override popup here"
+msgstr "Začať prepisovanie prekrytia tu"
+
+#: ../tcl/mini.tcl:1171
+#: ../tcl/tkemc.tcl:1499
+msgid "Feed Override:"
+msgstr "Začať posun:"
+
+#: ../tcl/mini.tcl:1183
+msgid "-- MESSAGES --"
+msgstr "\"-- SPRÁVY--"
+
+#: ../tcl/mini.tcl:1233
+msgid "toggleView's not doin nothin yet"
+msgstr "toggleView ešte nič neurobilo"
+
+#: ../tcl/mini.tcl:1285
+msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
+msgstr "Nie je možné nastaviť nulu kým je nástroj aktívny, tak som nariadil G49 aby ho vypol."
+
+#: ../tcl/mini.tcl:1343
+#, tcl-format
+msgid "Can't update the var file while machine is in auto and %s."
+msgstr "Nie je možné aktualizovať var súbor kým je stroj v auto a %s. "
+
+#: ../tcl/mini.tcl:1397
+#: ../tcl/tkemc.tcl:1214
+msgid "override limits"
+msgstr "Zmeniť limity"
+
+#: ../tcl/mini.tcl:1402
+#: ../tcl/tkemc.tcl:1250
+msgid "home"
+msgstr "Domov"
+
+#: ../tcl/mini.tcl:1423
+msgid "DEFAULT"
+msgstr "PREDVOLENÉ"
+
+#: ../tcl/mini.tcl:1424
+msgid "Speed:"
+msgstr "Rýchlosť:"
+
+#: ../tcl/mini.tcl:1427
+msgid "RAPID"
+msgstr "RÝCHLY"
+
+#: ../tcl/mini.tcl:1444
+#: ../tcl/tkemc.tcl:1364
+msgid "Set Jog Speed"
+msgstr "Rýchlosť krokov"
+
+#: ../tcl/mini.tcl:1450
+#: ../tcl/tkemc.tcl:1370
+msgid "Set jog speed:"
+msgstr "Nastaviť rýchlosť krokov:"
+
+#: ../tcl/mini.tcl:1508
+msgid "JOG X +"
+msgstr "X +"
+
+#: ../tcl/mini.tcl:1509
+msgid "JOG X -"
+msgstr "X -"
+
+#: ../tcl/mini.tcl:1513
+msgid "increment"
+msgstr "Pričítať"
+
+#: ../tcl/mini.tcl:1515
+#: ../tcl/tkemc.tcl:660
+#: ../tcl/tkemc.tcl:1236
+#: ../tcl/tkemc.tcl:1240
+msgid "continuous"
+msgstr "Priebežný"
+
+#: ../tcl/mini.tcl:1517
+msgid ""
+"A\n"
+"L\n"
+"L\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+"V\n"
+"Š\n"
+"A\n"
+"D\n"
+"E\n"
+".\n"
+"\n"
+"N\n"
+"U\n"
+"L\n"
+"A"
+
+#: ../tcl/mini.tcl:1582
+msgid "Spindle Forward"
+msgstr "Vreteno Dopredu"
+
+#: ../tcl/mini.tcl:1583
+msgid "Spindle Reverse"
+msgstr "Vreteno Dozadu"
+
+#: ../tcl/mini.tcl:1584
+#: ../tcl/tkemc.tcl:911
+msgid "Spindle off"
+msgstr "Vreteno vypni"
+
+#: ../tcl/mini.tcl:1586
+msgid "Spindle Slower"
+msgstr "Vreteno Pomalšie"
+
+#: ../tcl/mini.tcl:1590
+msgid "Spindle Faster"
+msgstr "Vreteno rýchlejšie"
+
+#: ../tcl/mini.tcl:1626
+#: ../tcl/tkemc.tcl:1541
+msgid "MDI:"
+msgstr "MDI:"
+
+#: ../tcl/mini.tcl:1663
+#: ../tcl/tkemc.tcl:1579
+msgid "Run"
+msgstr "Ausführen"
+
+#: ../tcl/mini.tcl:1665
+#: ../tcl/tkemc.tcl:1580
+msgid "Pause"
+msgstr "Pauza"
+
+#: ../tcl/mini.tcl:1667
+#: ../tcl/tkemc.tcl:1581
+msgid "Resume"
+msgstr "Pokračovať"
+
+#: ../tcl/mini.tcl:1669
+#: ../tcl/tkemc.tcl:1582
+msgid "Step"
+msgstr "Krok"
+
+#: ../tcl/mini.tcl:1671
+#: ../tcl/tkemc.tcl:1583
+msgid "Verify"
+msgstr "Overiť"
+
+#: ../tcl/mini.tcl:1692
+msgid "RESTART LINE"
+msgstr "Reštartovať"
+
+#: ../tcl/mini.tcl:1693
+msgid "Back"
+msgstr "Späť"
+
+#: ../tcl/mini.tcl:1694
+msgid "Ahead"
+msgstr "Dopredu"
+
+#: ../tcl/mini.tcl:1695
+msgid "Restart"
+msgstr "Reštartovať"
+
+#: ../tcl/mini.tcl:1705
+#: ../tcl/mini.tcl:2817
+#: ../tcl/mini.tcl:2876
+#: ../tcl/tkemc.tcl:523
+msgid "All files"
+msgstr "Všetky súbory"
+
+#: ../tcl/mini.tcl:1706
+#: ../tcl/mini.tcl:2818
+#: ../tcl/mini.tcl:2877
+#: ../tcl/tkemc.tcl:524
+msgid "Text files"
+msgstr "Text files"
+
+#: ../tcl/mini.tcl:1707
+#: ../tcl/mini.tcl:2819
+#: ../tcl/mini.tcl:2878
+#: ../tcl/tkemc.tcl:525
+msgid "NC files"
+msgstr "Súbory"
+
+#: ../tcl/mini.tcl:1747
+msgid ""
+"The interpreter is running. \n"
+" Pressing OK will abort and load the new program"
+msgstr ""
+"Interpret je spustený.  \n"
+"Stlačenie OK ho preruší a načíta nový program."
+
+#: ../tcl/mini.tcl:1880
+msgid "ESTOPPED"
+msgstr "NÚDZOVO PRERUŠENÉ"
+
+#: ../tcl/mini.tcl:1883
+msgid "ESTOP PUSH"
+msgstr "NÚDZOVO PRERUŠIŤ"
+
+#: ../tcl/mini.tcl:1886
+#: ../tcl/tkemc.tcl:2146
+msgid "ESTOP RESET"
+msgstr "RESET NÚDZOVÉHO PRERUŠENIA"
+
+#: ../tcl/mini.tcl:1891
+#: ../tcl/tkemc.tcl:2211
+msgid "SPINDLE FORWARD"
+msgstr "VRETENO DOPREDU"
+
+#: ../tcl/mini.tcl:1893
+#: ../tcl/tkemc.tcl:2213
+msgid "SPINDLE REVERSE"
+msgstr "VRETENO REVERZNE"
+
+#: ../tcl/mini.tcl:1895
+#: ../tcl/tkemc.tcl:2215
+msgid "SPINDLE OFF"
+msgstr "VYPNÚŤ VRETENO"
+
+#: ../tcl/mini.tcl:1897
+#: ../tcl/tkemc.tcl:2217
+msgid "SPINDLE INCREASE"
+msgstr "ZVÝŠIŤ VRETENO"
+
+#: ../tcl/mini.tcl:1899
+#: ../tcl/tkemc.tcl:2219
+msgid "SPINDLE DECREASE"
+msgstr "ZNÍŽIŤ VRETENO"
+
+#: ../tcl/mini.tcl:1901
+#: ../tcl/tkemc.tcl:2221
+msgid "SPINDLE ?"
+msgstr "VRETENO ?"
+
+#: ../tcl/mini.tcl:1905
+#: ../tcl/tkemc.tcl:2225
+msgid "BRAKE ON"
+msgstr "BRZDY ZAPNUTÉ"
+
+#: ../tcl/mini.tcl:1907
+#: ../tcl/tkemc.tcl:2227
+msgid "BRAKE OFF"
+msgstr "BRZDY VYPNUTÉ"
+
+#: ../tcl/mini.tcl:1909
+#: ../tcl/tkemc.tcl:2229
+msgid "BRAKE ?"
+msgstr "BRZDY ?"
+
+#: ../tcl/mini.tcl:1913
+#: ../tcl/tkemc.tcl:2187
+msgid "MIST ON"
+msgstr "FÚKANIE ZAPNUTÉ"
+
+#: ../tcl/mini.tcl:1915
+#: ../tcl/tkemc.tcl:2189
+msgid "MIST OFF"
+msgstr "FÚKANIE VYPNUTÉ"
+
+#: ../tcl/mini.tcl:1917
+#: ../tcl/tkemc.tcl:2191
+msgid "MIST ?"
+msgstr "FÚKANIE ?"
+
+#: ../tcl/mini.tcl:1921
+#: ../tcl/tkemc.tcl:2195
+msgid "FLOOD ON"
+msgstr "CHLADENIE ZAPNUTÉ"
+
+#: ../tcl/mini.tcl:1923
+#: ../tcl/tkemc.tcl:2197
+msgid "FLOOD OFF"
+msgstr "CHLADENIE VYPNUTÉ"
+
+#: ../tcl/mini.tcl:1925
+#: ../tcl/tkemc.tcl:2199
+msgid "FLOOD ?"
+msgstr "CHLADENIE. ?"
+
+#: ../tcl/mini.tcl:2046
+msgid "FEEDHOLD"
+msgstr "ZASTAVIŤ"
+
+#: ../tcl/mini.tcl:2118
+msgid ""
+"TOOL SETUP \n"
+" Click or tab to edit.   Press enter to return to keyboard machine control."
+msgstr ""
+"NASTAVENIE NÁSTROJA  \n"
+"\n"
+"Kliknite tu alebo stlačte TAB pre úpravu. Stlačte ENTER  pre návrat do ovládania klávesnice stroja."
+
+#: ../tcl/mini.tcl:2124
+msgid "  TOOL NUMBER  "
+msgstr "ČÍSLO NÁSTROJA "
+
+#: ../tcl/mini.tcl:2125
+msgid "  LENGTH  "
+msgstr "DĹŽKA "
+
+#: ../tcl/mini.tcl:2126
+msgid "  DIAMETER  "
+msgstr "PRIEMER "
+
+#: ../tcl/mini.tcl:2127
+msgid "  COMMENT  "
+msgstr "POZNÁMKA"
+
+#: ../tcl/mini.tcl:2182
+msgid "Add Extra Tool"
+msgstr "Pridať nástroj"
+
+#: ../tcl/mini.tcl:2183
+msgid "Remove Last Tool"
+msgstr "Odstrániť posledný nástroj"
+
+#: ../tcl/mini.tcl:2211
+#: ../tcl/mini.tcl:2247
+#, tcl-format
+msgid "Can't update the tool file while machine is in auto and %s."
+msgstr "Nie je možné aktualizovať súbor nástroja pokým je stroj v automatickom móde a %s."
+
+#: ../tcl/mini.tcl:2223
+msgid "This is not a good number."
+msgstr "Toto nie je správne číslo."
+
+#: ../tcl/mini.tcl:2287
+msgid ""
+"COORDINATE SYSTEM SETUP \n"
+"\n"
+"  Click value to edit with keyboard.  Press enter to return to keyboard control of machine. \n"
+" "
+msgstr ""
+"NASTAVENIE SÚRADNÍC SYSTÉMU  \n"
+"\n"
+"Kliknite na hodnotu ktorú chcete upraviť. Stlačte ENTER \n"
+"pre návrat do ovládania stroja klávesnicou. "
+
+#: ../tcl/mini.tcl:2314
+#: ../tcl/scripts/Set_Coordinates.tcl:82
+msgid "Axis "
+msgstr "Os"
+
+#: ../tcl/mini.tcl:2315
+msgid "Value "
+msgstr "Hodnota"
+
+#: ../tcl/mini.tcl:2320
+#: ../tcl/scripts/Set_Coordinates.tcl:92
+msgid "Teach"
+msgstr "Naučiť"
+
+#: ../tcl/mini.tcl:2328
+msgid "Write And Load File "
+msgstr "Zapísať a načítať súbor"
+
+#: ../tcl/mini.tcl:2330
+msgid "Offset By Radius"
+msgstr "Offset uhlu"
+
+#: ../tcl/mini.tcl:2331
+msgid "Offset By Length"
+msgstr "Offset dĺžky"
+
+#: ../tcl/mini.tcl:2336
+msgid "Subtract"
+msgstr "Odčítať"
+
+#: ../tcl/mini.tcl:2338
+msgid "Add"
+msgstr "Pridať"
+
+#: ../tcl/mini.tcl:2360
+msgid "Zero All G54"
+msgstr "Nula pre všetky G54"
+
+#: ../tcl/mini.tcl:2361
+msgid "Zero All G55"
+msgstr "Nula pre všetky G55"
+
+#: ../tcl/mini.tcl:2362
+msgid "Zero All G56"
+msgstr "Nula pre všetky G56"
+
+#: ../tcl/mini.tcl:2363
+msgid "Zero All G57"
+msgstr "Nula pre všetky G57"
+
+#: ../tcl/mini.tcl:2364
+msgid "Zero All G58"
+msgstr "Nula pre všetky G58"
+
+#: ../tcl/mini.tcl:2365
+msgid "Zero All G59"
+msgstr "Nula pre všetky G59"
+
+#: ../tcl/mini.tcl:2366
+msgid "Zero All G59.1"
+msgstr "Nula pre všetky G59.1"
+
+#: ../tcl/mini.tcl:2367
+msgid "Zero All G59.2"
+msgstr "Nula pre všetky G59.2"
+
+#: ../tcl/mini.tcl:2368
+msgid "Zero All G59.3"
+msgstr "Nula pre všetky G59.3"
+
+#: ../tcl/mini.tcl:2369
+msgid "Zero All ????"
+msgstr "Nula pre všetky ????"
+
+#: ../tcl/mini.tcl:2487
+msgid "Modified..."
+msgstr "Zmenené..."
+
+#: ../tcl/mini.tcl:2532
+msgid "Save and Load"
+msgstr "Uložiť a načítať"
+
+#: ../tcl/mini.tcl:2534
+msgid "Undo"
+msgstr "Späť"
+
+#: ../tcl/mini.tcl:2535
+msgid "Redo"
+msgstr "Obnoviť"
+
+#: ../tcl/mini.tcl:2540
+msgid "Delete"
+msgstr "Vymazať"
+
+#: ../tcl/mini.tcl:2545
+msgid "Replace..."
+msgstr "Nahradiť..."
+
+#: ../tcl/mini.tcl:2658
+msgid "Next Number: "
+msgstr "Ďalšie číslo:"
+
+#: ../tcl/mini.tcl:2759
+msgid "Basic Help"
+msgstr "Pomoc"
+
+#: ../tcl/mini.tcl:2759
+msgid ""
+"This is a simple ASCII editor like many others.\n"
+"\n"
+"Ctrl+O  Open\n"
+"Ctrl+S  Save\n"
+"Ctrl+Z  Undo\n"
+"Ctrl+Y  Redo\n"
+"Ctrl+X  Cut\n"
+"Ctrl+C  Copy\n"
+"Ctrl+V  Paste\n"
+"Del     Delete\n"
+"Ctrl+A  Select All\n"
+"\n"
+"Ctrl+F  Find\n"
+"Ctrl+R  Replace "
+msgstr ""
+"Toto je jednoduchý textový editor.\n"
+"\n"
+"Ctrl+O Otvoriť\n"
+"Ctrl +S Uložiť\n"
+"Ctrl +Z Späť\n"
+"Ctrl +Y Obnoviť\n"
+"Ctrl +X Vystrihnúť\n"
+"Ctrl +C Kopírovať\n"
+"Ctrl +V Vložiť\n"
+"Del     Zmazať\n"
+"Ctrl +A Označiť všetko\n"
+"\n"
+"Ctrl +F Nájsť\n"
+"Ctrl +R Nahradiť "
+
+#: ../tcl/mini.tcl:2779
+msgid ""
+"tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
+"\n"
+" Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
+msgstr ""
+"tknotepad by Joseph Acosta <joeja@mindspring.com>\n"
+"\n"
+"Modifikoval pre EMC : Paul Corner <paul_c@users.sourceforge.net>"
+
+#: ../tcl/mini.tcl:2787
+msgid "The contents of this file may have changed, do you wish to to save your changes?"
+msgstr "Obsah tohto súboru sa mohol zmeniť. Prajete si uložiť tieto zmeny?"
+
+#: ../tcl/mini.tcl:2788
+msgid "New Confirm?"
+msgstr "Potvrdiť nové?"
+
+#: ../tcl/mini.tcl:2922
+msgid "Print Setup"
+msgstr "Vytlačiť nastavenia"
+
+#: ../tcl/mini.tcl:2926
+msgid "Print Command: "
+msgstr "Vytlačiť príkaz:"
+
+#: ../tcl/mini.tcl:3089
+msgid "Find what:"
+msgstr "Hľadať:"
+
+#: ../tcl/mini.tcl:3095
+msgid "Replace with:"
+msgstr "Nahradiť týmto:"
+
+#: ../tcl/mini.tcl:3103
+msgid "Find Next"
+msgstr "Hľadať dalšie"
+
+#: ../tcl/mini.tcl:3106
+msgid "Replace"
+msgstr "Nahradiť"
+
+#: ../tcl/mini.tcl:3114
+msgid "Up"
+msgstr "Hore"
+
+#: ../tcl/mini.tcl:3115
+msgid "Down"
+msgstr "Dole"
+
+#: ../tcl/mini.tcl:3118
+msgid "Match case"
+msgstr "Porovnať prípady"
+
+#: ../tcl/mini.tcl:3563
+msgid "rot-x"
+msgstr "Rot-X"
+
+#: ../tcl/mini.tcl:3573
+msgid "rot-y"
+msgstr "Rot-Y"
+
+#: ../tcl/mini.tcl:3583
+msgid "rot-z"
+msgstr "Rot-Z"
+
+#: ../tcl/mini.tcl:3593
+msgid "zoom"
+msgstr "Priblížiť"
+
+#: ../tcl/mini.tcl:3649
+msgid "TEST"
+msgstr "TEST"
+
+#: ../tcl/mini.tcl:3693
+msgid "Hide Setup"
+msgstr "Schovať nastavenia."
+
+#: ../tcl/mini.tcl:3697
+msgid "Show Setup"
+msgstr "Ukázať nastavenia."
+
+#: ../tcl/show_errors.tcl:24
+msgid "EMC2 Errors"
+msgstr "Chyby EMC2"
+
+#: ../tcl/show_errors.tcl:27
+msgid "EMC2 terminated with an error.  When reporting problems, please include all the information below in your message."
+msgstr "EMC2 ukončené kvôli chybe.  Pri nahlasovaní problému prosím zahrňte všetky informácie vo vašej správe."
+
+#: ../tcl/show_errors.tcl:52
+#: ../tcl/scripts/Set_Coordinates.tcl:103
+msgid "Close"
+msgstr "Ukončiť"
+
+#: ../tcl/tkemc.tcl:213
+#: ../tcl/tkemc.tcl:240
+msgid "Set Run Mark"
+msgstr "Nastavte značku spustenia"
+
+#: ../tcl/tkemc.tcl:215
+#, tcl-format
+msgid "Set run mark at line %s?"
+msgstr "Nastaviť značku spustenia v riadku %s?"
+
+#: ../tcl/tkemc.tcl:235
+#: ../tcl/tkemc.tcl:258
+#: ../tcl/tkemc.tcl:281
+msgid "untitled"
+msgstr "nepomenovaný"
+
+#: ../tcl/tkemc.tcl:263
+msgid "Load Tool Table"
+msgstr "Načítať tabuľku nástrojov"
+
+#: ../tcl/tkemc.tcl:289
+msgid "Load Parameter File"
+msgstr "Načítať súbor parametra"
+
+#: ../tcl/tkemc.tcl:338
+msgid "EMC Diagnostics"
+msgstr "EMC2 Diagnostika"
+
+#: ../tcl/tkemc.tcl:340
+msgid "Task"
+msgstr "Úloha"
+
+#: ../tcl/tkemc.tcl:342
+#: ../tcl/tkemc.tcl:365
+#: ../tcl/tkemc.tcl:388
+msgid "Heartbeat:"
+msgstr "Takt:"
+
+#: ../tcl/tkemc.tcl:345
+#: ../tcl/tkemc.tcl:368
+#: ../tcl/tkemc.tcl:391
+msgid "Command:"
+msgstr "Príkaz:"
+
+#: ../tcl/tkemc.tcl:348
+#: ../tcl/tkemc.tcl:371
+#: ../tcl/tkemc.tcl:394
+msgid "Command #:"
+msgstr "Rozkaz číslo:"
+
+#: ../tcl/tkemc.tcl:351
+#: ../tcl/tkemc.tcl:374
+#: ../tcl/tkemc.tcl:397
+msgid "Status:"
+msgstr "Stav:"
+
+#: ../tcl/tkemc.tcl:363
+msgid "Io"
+msgstr "Io port"
+
+#: ../tcl/tkemc.tcl:386
+msgid "Motion"
+msgstr "Pohyb"
+
+#: ../tcl/tkemc.tcl:427
+msgid "About TkEmc"
+msgstr "O TkEmc"
+
+#: ../tcl/tkemc.tcl:428
+msgid ""
+"TkEmc\n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n"
+"\n"
+"GPL Version 2 (2006)"
+msgstr ""
+"TkEmc\n"
+"\n"
+" Tcl/Tk GUI  pre \n"
+"Enhanced Machine Controller, Verzia 2 (EMC2)\n"
+"\n"
+"\n"
+"GPL Verzia 2 (2006)"
+
+#: ../tcl/tkemc.tcl:448
+msgid "Set Tool Offset"
+msgstr "Určiť doplnok nástroja"
+
+#: ../tcl/tkemc.tcl:456
+#: ../tcl/tkemc.tcl:945
+msgid "Tool:"
+msgstr "Nástroj:"
+
+#: ../tcl/tkemc.tcl:460
+msgid "Length:"
+msgstr "Dĺžka:"
+
+#: ../tcl/tkemc.tcl:464
+msgid "Diameter:"
+msgstr "Priemer:"
+
+#: ../tcl/tkemc.tcl:770
+msgid "Edit..."
+msgstr "Upraviť..."
+
+#: ../tcl/tkemc.tcl:779
+msgid "Tools..."
+msgstr "Nástroje..."
+
+#: ../tcl/tkemc.tcl:780
+msgid "Offsets and Variables..."
+msgstr "Doplnky a premenné..."
+
+#: ../tcl/tkemc.tcl:781
+msgid "Diagnostics..."
+msgstr "Diagnostika..."
+
+#: ../tcl/tkemc.tcl:782
+msgid "Backplot..."
+msgstr "Backplot..."
+
+#: ../tcl/tkemc.tcl:788
+msgid "Testing..."
+msgstr "Testujem..."
+
+#: ../tcl/tkemc.tcl:789
+msgid "Debug..."
+msgstr "Odstraňovanie chýb..."
+
+#: ../tcl/tkemc.tcl:790
+msgid "Font..."
+msgstr "Font..."
+
+#: ../tcl/tkemc.tcl:794
+msgid "Units"
+msgstr "Jednotky"
+
+#: ../tcl/tkemc.tcl:795
+msgid "auto"
+msgstr "auto"
+
+#: ../tcl/tkemc.tcl:796
+msgid "inches"
+msgstr "inch"
+
+#: ../tcl/tkemc.tcl:797
+msgid "mm"
+msgstr "mm"
+
+#: ../tcl/tkemc.tcl:798
+msgid "cm"
+msgstr "cm"
+
+#: ../tcl/tkemc.tcl:802
+msgid "Utilities"
+msgstr "Pomôcky"
+
+#: ../tcl/tkemc.tcl:803
+msgid "Hal Scope"
+msgstr "HAL-Dosah"
+
+#: ../tcl/tkemc.tcl:804
+msgid "Hal Meter"
+msgstr "HAL-Meter"
+
+#: ../tcl/tkemc.tcl:825
+msgid "HAL Show"
+msgstr "HAL Ukáž"
+
+#: ../tcl/tkemc.tcl:826
+msgid "HAL Config"
+msgstr "HAL nastavenie..."
+
+#: ../tcl/tkemc.tcl:832
+msgid "Balloon help"
+msgstr "Pomoc v bublinách"
+
+#: ../tcl/tkemc.tcl:855
+msgid "Estop on"
+msgstr "Núdzové prerušenie zapnuté"
+
+#: ../tcl/tkemc.tcl:856
+msgid "Estop off"
+msgstr "Núdzové prerušenie vypnuté "
+
+#: ../tcl/tkemc.tcl:858
+msgid "Machine on"
+msgstr "Stroj zapnutý"
+
+#: ../tcl/tkemc.tcl:859
+msgid "Machine off"
+msgstr "Machine off"
+
+#: ../tcl/tkemc.tcl:866
+msgid "Manual"
+msgstr "Manuál"
+
+#: ../tcl/tkemc.tcl:867
+msgid "Auto"
+msgstr "Automatika"
+
+#: ../tcl/tkemc.tcl:875
+msgid "Mist on"
+msgstr "Fúkanie zapnuté"
+
+#: ../tcl/tkemc.tcl:876
+msgid "Mist off"
+msgstr "Chladenie vypnuté"
+
+#: ../tcl/tkemc.tcl:883
+msgid "Flood on"
+msgstr "Chladenie zapnuté"
+
+#: ../tcl/tkemc.tcl:884
+msgid "Flood off"
+msgstr "Chladenie vypnuté"
+
+#: ../tcl/tkemc.tcl:891
+msgid "Lube on"
+msgstr "Olej zapnutý"
+
+#: ../tcl/tkemc.tcl:892
+msgid "Lube off"
+msgstr "Olej vypnutý"
+
+#: ../tcl/tkemc.tcl:909
+msgid "Spindle forward"
+msgstr "Vreteno dopredu"
+
+#: ../tcl/tkemc.tcl:910
+msgid "Spindle reverse"
+msgstr "Vreteno dozadu"
+
+#: ../tcl/tkemc.tcl:925
+msgid "Brake on"
+msgstr "Brzdy zapnuté"
+
+#: ../tcl/tkemc.tcl:926
+msgid "Brake off"
+msgstr "Brzdy vypnuté"
+
+#: ../tcl/tkemc.tcl:947
+msgid "Offset:"
+msgstr "Nástrojový doplnok:"
+
+#: ../tcl/tkemc.tcl:949
+msgid "Work Offsets:"
+msgstr "Pracovný doplnok:"
+
+#: ../tcl/tkemc.tcl:1220
+msgid "relative"
+msgstr "pomerný"
+
+#: ../tcl/tkemc.tcl:1221
+msgid "machine"
+msgstr "Stroj"
+
+#: ../tcl/tkemc.tcl:1223
+msgid "actual"
+msgstr "Aktuálna"
+
+#: ../tcl/tkemc.tcl:1224
+msgid "commanded"
+msgstr "Rozkaz zadaný"
+
+#: ../tcl/tkemc.tcl:1226
+msgid "joint"
+msgstr "spoj"
+
+#: ../tcl/tkemc.tcl:1227
+msgid "world"
+msgstr "Global"
+
+#: ../tcl/tkemc.tcl:1320
+msgid "Axis Offset"
+msgstr "Doplnok osi"
+
+#: ../tcl/tkemc.tcl:1322
+msgid "Set axis value:"
+msgstr "Hodnota osi:"
+
+#: ../tcl/tkemc.tcl:1395
+msgid "Set Feed Override"
+msgstr "Nastav prechod posunu"
+
+#: ../tcl/tkemc.tcl:1401
+msgid "Set feed override:"
+msgstr "Nastav prechod posunu:"
+
+#: ../tcl/tkemc.tcl:1426
+msgid "Set Spindle Override"
+msgstr "Nastaviť zmenu vretena"
+
+#: ../tcl/tkemc.tcl:1432
+msgid "Set spindle speed override:"
+msgstr "Nastaviť zmenu rýchlosti vretena:"
+
+#: ../tcl/tkemc.tcl:1480
+msgid "Axis Speed:"
+msgstr "Rýchlosť osi:"
+
+#: ../tcl/tkemc.tcl:1518
+msgid "Spindle speed Override:"
+msgstr "Zmena rýchlosti vretena:"
+
+#: ../tcl/tkemc.tcl:1563
+msgid "Program: "
+msgstr "Program: "
+
+#: ../tcl/tkemc.tcl:1568
+msgid "  -  Status: "
+msgstr " - Stav: "
+
+#: ../tcl/tkemc.tcl:1584
+msgid "Optional Stop"
+msgstr "Možnosť prerušenia"
+
+#: ../tcl/tkemc.tcl:1924
+msgid "Error"
+msgstr "Chyba"
+
+#: ../tcl/tkemc.tcl:1984
+msgid "Set Font"
+msgstr "Vybrať font"
+
+#: ../tcl/tkemc.tcl:1993
+msgid "Font"
+msgstr "Font"
+
+#: ../tcl/tkemc.tcl:2000
+msgid "Size"
+msgstr "Veľkosť"
+
+#: ../tcl/tkemc.tcl:2007
+msgid "Style"
+msgstr "Štýl"
+
+#: ../tcl/tkemc.tcl:2142
+msgid "ESTOP"
+msgstr "NÚDZOVÉ PRERUŠENIE"
+
+#: ../tcl/tkemc.tcl:2144
+msgid "ON"
+msgstr "ZAPNUTÉ"
+
+#: ../tcl/tkemc.tcl:2203
+msgid "LUBE ON"
+msgstr "OLEJ ZAPNUTÝ"
+
+#: ../tcl/tkemc.tcl:2205
+msgid "LUBE OFF"
+msgstr "OLEJ VYPNUTÝ"
+
+#: ../tcl/tkemc.tcl:2207
+msgid "LUBE ?"
+msgstr "OLEJ ?"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:27
+msgid "EMC Set Coordinate"
+msgstr "EMC2 Nastavenie Súradníc"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:30
+msgid "Coordinate System Control Window"
+msgstr "Okno Kontroly Systému Súradníc"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:83
+msgid "Var # "
+msgstr "Premenná"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:84
+msgid "Offset Value "
+msgstr "Offset hodnota"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:85
+msgid "What to Teach"
+msgstr "Naučiť"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:101
+msgid "Set Old"
+msgstr "Použiť starú"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:102
+msgid "Set Zero"
+msgstr "Použiť nulu"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:104
+msgid "Write"
+msgstr "Písať"
+
