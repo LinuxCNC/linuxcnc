@@ -7918,12 +7918,9 @@ G92.3
  
 \layout Standard
 
-Any G92 offsets stored and not set to zero with G92.1 or turned off with
- G92.2 will remain in effect after a M2 or M30 and will be in effect on bootup.
- If you don't intend them to be there for the next run of the same program
- make sure you program a G92.1 or G92.2 before the end of your program.
- If you don't want them in effect on bootup make sure you program a G92.1
- before the end of your file.
+EMC2 stores the G92 offsets and reuses them on the next run of a program.
+ To prevent this, one can program a G92.2 (to erase them), or program a G92.1
+ (to unapply them - they are still stored).
 \layout Section
 
 G93, G94, G95: Set Feed Rate Mode
