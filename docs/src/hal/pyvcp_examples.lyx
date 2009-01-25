@@ -272,7 +272,7 @@ After adding the above you now will have a pyVCP panel that looks like the
  It looks nice but it does not do anything until you "connect" the buttons
  to halui.
  If you get an error when you try and run scroll down to the bottom of the
- popup window and usually the error is a spelling or syntax error and it
+ pop up window and usually the error is a spelling or syntax error and it
  will be there.
 \layout Quote
 
@@ -334,18 +334,25 @@ net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
 net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
 \layout Standard
 
-After reseting the E-Stop and putting it into jog mode and moving the jog
+After resetting the E-Stop and putting it into jog mode and moving the jog
  speed slider in the pyVCP panel to a value greater than zero the pyVCP
  jog buttons should work.
  You can not jog when running a g code file or while paused or while the
  MDI tab is selected.
 \layout Section
-
+\pagebreak_top 
 GS2 RPM Meter
+\begin_inset LatexCommand \label{sec:GS2-RPM-Meter}
+
+\end_inset 
+
+
 \layout Standard
 
 The following example uses the Automation Direct GS2 VDF driver and displays
  the RPM and other info in a pyVCP panel.
+ This example is based on the GS2 example in the Hardware Examples section
+ this manual.
 \layout Subsection
 
 The Panel
@@ -355,6 +362,9 @@ To create the panel we add the following to the .xml file.
 \layout Quote
 
 <pyvcp>
+\layout Quote
+
+<!-- the RPM meter -->
 \newline 
 <hbox>
 \newline 
@@ -385,6 +395,9 @@ To create the panel we add the following to the .xml file.
 </meter>
 \newline 
 </hbox>
+\layout Quote
+
+<!-- the On Led -->
 \newline 
 <hbox>
 \newline 
@@ -404,11 +417,21 @@ To create the panel we add the following to the .xml file.
 \newline 
 <font>("Helvetica",18)</font>
 \newline 
-<width>5</width>
-\newline 
 </label>
 \newline 
-<hbox>
+<width>5</width>
+\newline 
+ <hbox>
+\newline 
+<label width=
+\begin_inset Quotes erd
+\end_inset 
+
+2
+\begin_inset Quotes erd
+\end_inset 
+
+/> <!-- used to center the led -->
 \newline 
 <rectled>
 \newline 
@@ -427,6 +450,9 @@ To create the panel we add the following to the .xml file.
 </hbox>
 \newline 
 </vbox>
+\layout Quote
+
+<!-- the FWD Led -->
 \newline 
 <vbox>
 \newline 
@@ -444,6 +470,16 @@ To create the panel we add the following to the .xml file.
 \newline 
 </label>
 \newline 
+<label width=
+\begin_inset Quotes erd
+\end_inset 
+
+2
+\begin_inset Quotes erd
+\end_inset 
+
+/>
+\newline 
 <rectled>
 \newline 
 <halpin>"fwd-led"</halpin>
@@ -459,6 +495,9 @@ To create the panel we add the following to the .xml file.
 </rectled>
 \newline 
 </vbox>
+\layout Quote
+
+<!-- the REV Led -->
 \newline 
 <vbox>
 \newline 
@@ -475,6 +514,16 @@ To create the panel we add the following to the .xml file.
 <width>5</width>
 \newline 
 </label>
+\newline 
+<label width=
+\begin_inset Quotes erd
+\end_inset 
+
+2
+\begin_inset Quotes erd
+\end_inset 
+
+/>
 \newline 
 <rectled>
 \newline 
@@ -514,7 +563,6 @@ GS2 Panel
 
 \begin_inset Graphics
 	filename images/gs2_panel.png
-	scale 80
 
 \end_inset 
 
@@ -522,4 +570,45 @@ GS2 Panel
 \end_inset 
 
 
+\layout Subsection
+
+The Connections
+\layout Standard
+
+To make it work we add the following code to the custom_postgui.hal file.
+\layout Quote
+
+# display the rpm based on freq * rpm per hz
+\newline 
+loadrt mult2
+\newline 
+addf mult2.0 servo-thread
+\newline 
+setp mult2.0.in1 28.75
+\newline 
+net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out
+\newline 
+net speed_out pyvcp.spindle_rpm <= mult2.0.out 
+\layout Quote
+
+# run led
+\newline 
+net gs2-run => pyvcp.on-led
+\layout Quote
+
+# fwd led
+\newline 
+net gs2-fwd => pyvcp.fwd-led
+\layout Quote
+
+# rev led
+\newline 
+net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
+\layout Standard
+
+Some of the lines might need some explanations.
+ The fwd led line uses the signal created in the custom.hal file where as
+ the rev led needs to use the spindle-rev bit.
+ You can't link the spindle-fwd bit twice so you use the signal that it
+ was linked to.
 \the_end
