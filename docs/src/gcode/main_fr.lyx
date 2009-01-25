@@ -10076,8 +10076,8 @@ Des décalages G92 peuvent déjà être actifs quand
 G92
 \family default 
  est appelé.
- Si c'est le cas, ils sont remplacés par le nouveau, de sorte que la point
- courant prends valeur spécifiée.
+ Si c'est le cas, ils sont remplacés par le nouveau décalage, de sorte que
+ le point courant prenne la valeur spécifiée.
  
 \layout Standard
 
@@ -10124,7 +10124,15 @@ G92
 G92.3
 \family default 
  vers le début du deuxième programme, ce qui restaurera les décalages d'axes
- enregistrés dans le premier.
+ enregistrés par le premier.
+ 
+\layout Standard
+
+EMC2 enregistre les décalages G92 et les réutilise au lancement du programme
+ suivant.
+ Il y a deux moyens de contourner celà, il est possible de programmer G92.1
+ pour effacer les décalages, ou de programmer G92.2 pour que les décalages
+ enregistrés ne soient pas appliqués.
  
 \layout Section
 
@@ -11005,7 +11013,6 @@ La commande spécifiée n'existe pas.
 Le fichier n'est pas exécutable.
 \layout Standard
 
-
 Exemple: dans un programme g-code, on doit ouvrir et fermer un mandrin automatiq
 ue via une broche du port parallèle, on appellera respectivement M101 pour
  ouvrir le mandrin et M102 pour le fermer.
@@ -11014,7 +11021,6 @@ ue via une broche du port parallèle, on appellera respectivement M101 pour
  droit puis propriétés -> permissions -> Exécution.
  
 \layout Standard
-
 
 M101
 \layout Quote
@@ -11038,7 +11044,6 @@ halcmd setp parport.0.pin-14-out True
 \series bold 
 exit 0
 \layout Standard
-
 
 M102
 \layout Quote
