@@ -456,6 +456,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{examples/gs2_example.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Diagnostics
