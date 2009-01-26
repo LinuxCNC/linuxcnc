@@ -958,6 +958,8 @@ interpret_again:
 				// end of file
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
+                                emcStatus->task.motionLine = 0;
+                                emcStatus->task.readLine = 0;
 			    } else {
 
 				// executed a good line
@@ -1886,6 +1888,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// clear out the pending command
 		emcTaskCommand = 0;
 		interp_list.clear();
+                emcStatus->task.currentLine = 0;
 
 		// clear out the interpreter state
 		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
@@ -2238,6 +2241,7 @@ static int emcTaskExecute(void)
 	// clear out pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
+        emcStatus->task.currentLine = 0;
 
 	// clear out the interpreter state
 	emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
@@ -3007,6 +3011,7 @@ int main(int argc, char *argv[])
             // clear out the pending command
             emcTaskCommand = 0;
             interp_list.clear();
+            emcStatus->task.currentLine = 0;
             
             // clear out the interpreter state
             emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
