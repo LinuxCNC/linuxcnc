@@ -421,6 +421,7 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 0);
 		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
+	    emcmotStatus->paused = 0;
 	    break;
 
 	case EMCMOT_AXIS_ABORT: //FIXME-AJ: rename
