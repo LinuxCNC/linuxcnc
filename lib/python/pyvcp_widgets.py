@@ -142,6 +142,12 @@ class pyvcp_dial(Canvas):
 
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill=dotcolor,activefill="black")
+        self.line = self.create_line( self.mid+(self.r*1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1)*math.sin(self.alfa), \
+                            self.mid+(self.r*1.1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1.1)*math.sin(self.alfa))
+        self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
+        self.itemconfig(self.line,width=10)
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
@@ -266,6 +272,9 @@ class pyvcp_dial(Canvas):
 
     def update_dot(self):
         self.coords(self.dot, self.dot_coords() )
+        self.coords(self.line, self.mid+(self.r*1)*math.cos(self.alfa),self.mid+(self.r*1)*math.sin(self.alfa), \
+                            self.mid+(self.r*1.1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1.1)*math.sin(self.alfa))  
 
     def update_dro(self):
         valtext = str(self.out)
@@ -449,8 +458,12 @@ class pyvcp_jogwheel(Canvas):
         
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill="black")
-        #self.itemconfig(self.line,arrow="last")
-        #self.itemconfig(self.line,width=3)
+        self.line = self.create_line( self.mid+(self.r*1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1)*math.sin(self.alfa), \
+                            self.mid+(self.r*1.1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1.1)*math.sin(self.alfa))
+        self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
+        self.itemconfig(self.line,width=8)
 
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
@@ -511,7 +524,10 @@ class pyvcp_jogwheel(Canvas):
         self.update_dot()  
 
     def update_dot(self):
-        self.coords(self.dot, self.dot_coords() )      
+        self.coords(self.dot, self.dot_coords() )  
+        self.coords(self.line, self.mid+(self.r*1)*math.cos(self.alfa),self.mid+(self.r*1)*math.sin(self.alfa), \
+                            self.mid+(self.r*1.1)*math.cos(self.alfa), \
+                            self.mid+(self.r*1.1)*math.sin(self.alfa))         
 
     def draw_ticks(self,cpr):
         for n in range(0,cpr):
