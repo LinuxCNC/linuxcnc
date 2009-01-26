@@ -679,32 +679,32 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
 \newline 
     <subtext>"Volts"</subtext>
 \newline 
-    <size>300</size>
+    <size>250</size>
 \newline 
     <min_>0</min_>
 \newline 
-    <max_>10.5</max_>
+    <max_>15.5</max_>
 \newline 
     <majorscale>1</majorscale>
 \newline 
     <minorscale>0.2</minorscale>
 \newline 
-    <region1>(9,10.5,"green")</region1>
+    <region1>(14.5,15.5,"yellow")</region1>
 \newline 
-    <region2>(7.5,9,"orange")</region2>
+    <region2>(12,14.5,"green")</region2>
 \newline 
-    <region3>(0,7.5,"red")</region3>
+    <region3>(0,12,"red")</region3>
 \newline 
 </meter>
 \layout LyX-Code
 
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_meter.png
-	lyxscale 50
-	scale 50
+	filename images/pyvcp_meter.png
 
 \end_inset 
 
@@ -843,8 +843,7 @@ The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
 \layout Standard
 \align center 
 The above code produced this example.
-\layout Standard
-\align center 
+\newline 
 
 \begin_inset Graphics
 	filename images/pyvcp_dial.png

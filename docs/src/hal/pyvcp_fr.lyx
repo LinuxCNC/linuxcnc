@@ -712,30 +712,28 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage à
 \newline 
     <subtext>"Volts"</subtext>
 \newline 
-    <size>300</size>
+    <size>250</size>
 \newline 
     <min_>0</min_>
 \newline 
-    <max_>10.5</max_>
+    <max_>15.5</max_>
 \newline 
     <majorscale>1</majorscale>
 \newline 
     <minorscale>0.2</minorscale>
 \newline 
-    <region1>(9,10.5,"green")</region1>
+    <region1>(14.5,15.5,"yellow")</region1>
 \newline 
-    <region2>(7.5,9,"orange")</region2>
+    <region2>(12,14.5,"green")</region2>
 \newline 
-    <region3>(0,7.5,"red")</region3>
+    <region3>(0,12,"red")</region3>
 \newline 
 </meter>
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_meter.png
-	lyxscale 50
-	scale 50
+	filename images/pyvcp_meter.png
 
 \end_inset 
 
