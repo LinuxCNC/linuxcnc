@@ -112,7 +112,7 @@ class pyvcp_dial(Canvas):
             text=None,init=0,resolution=0.1, \
             **kw):
         
-        pad=10
+        pad=12
 
         self.out=init                    #  float output   out   
         self.origValue=init       # in case user wants to reset the pot/valve/thingy
