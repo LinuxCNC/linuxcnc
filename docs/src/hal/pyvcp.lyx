@@ -810,6 +810,50 @@ Notice that the default is the min even though it is set higher than max
  unless there is a negative min.
 \layout Subsection
 
+Dial
+\layout Standard
+
+The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
+ Double left click to increase the resolution and double right click to
+ reduce the resolution by one digit.
+ The output is capped by the min and max values.
+ The cpr is how many tick marks are on the outside of the ring (beware of
+ high numbers).
+\layout Quote
+
+<dial>
+\newline 
+<size>200</size>
+\newline 
+<cpr>100</cpr>
+\newline 
+<min_>-15</min_>
+\newline 
+<max_>15</max_>
+\newline 
+<text>"Dial"</text>
+\newline 
+<init>0</init>
+\newline 
+<resolution>0.001</resolution>
+\newline 
+<halpin>"anaout"</halpin>
+\newline 
+</dial>
+\layout Standard
+\align center 
+The above code produced this example.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_dial.png
+
+\end_inset 
+
+
+\layout Subsection
+
 Jogwheel
 \layout Standard
 
