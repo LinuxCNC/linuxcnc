@@ -1,3 +1,14 @@
+/********************************************************************
+* Description: interp_queue.cc
+*
+* Author: Chris Radek
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2009 All rights reserved.
+*
+********************************************************************/
+
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>

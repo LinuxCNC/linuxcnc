@@ -1,3 +1,13 @@
+/********************************************************************
+* Description: interp_queue.hh
+*
+* Author: Chris Radek
+* License: GPL Version 2
+* System: Linux
+*    
+* Copyright (c) 2009 All rights reserved.
+*
+********************************************************************/
 #include <vector>
 
 enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
