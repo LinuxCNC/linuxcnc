@@ -59,7 +59,9 @@ class pyvcp_dial(Canvas):
         reacts to both mouse-wheel and mouse dragging
         <dial>
             [ <size>376</size> ]
-                
+            [ <dialcolor>"grey"</dialcolor> ]
+            [ <edgecolor>"pink"</edgecolor> ] 
+            [ <dotcolor>"white"</dotcolor> ]
             [ <cpr>100</cpr> ]    number of changes per rev, is # of dial tick marks, beware hi values)            
             [ <min_>-33.123456</min_> ]
             [ <max_>3.3</max_> ]
@@ -105,8 +107,8 @@ class pyvcp_dial(Canvas):
     #TJP cpr is overloaded, now it means "chgs per rev" not "counts per rev"
     #TJP the tik marks could get very fine, avoid high cpr to size ratios (easily seen)
     
-    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40, \
-            min_=None,max_=None, \
+    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,dialcolor="", \
+            edgecolor="",dotcolor="grey",min_=None,max_=None, \
             text=None,init=0,resolution=0.1, \
             **kw):
         
@@ -118,8 +120,13 @@ class pyvcp_dial(Canvas):
         #self.text3=resolution
 
         Canvas.__init__(self,root,width=size,height=size)
-        self.circle=self.create_oval(pad,pad,size-pad,size-pad)
+        pad2=pad-size/15
+        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
+        self.itemconfig(self.circle2,fill=edgecolor,activefill=edgecolor)
 
+        self.circle=self.create_oval(pad,pad,size-pad,size-pad)             # dial circle
+        self.itemconfig(self.circle,fill=dialcolor,activefill=dialcolor)
+        
         self.itemconfig(self.circle)
         self.mid=size/2
         self.r=(size-2*pad)/2
@@ -134,7 +141,7 @@ class pyvcp_dial(Canvas):
         self.mymax=max_
 
         self.dot = self.create_oval(self.dot_coords())
-        self.itemconfig(self.dot,fill="yellow",activefill="green")
+        self.itemconfig(self.dot,fill=dotcolor,activefill="black")
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
@@ -149,7 +156,7 @@ class pyvcp_dial(Canvas):
                         text=str(self.out),font=('Arial',-self.txtroom))
         # the scale
         self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
-                        text=str(self.funit),font=('Arial',-self.txtroom))
+                        text='x '+ str(self.funit),font=('Arial',-self.txtroom))
 
         
         self.bind('<Button-4>',self.wheel_up)            # untested no wheel mouse
@@ -171,6 +178,7 @@ class pyvcp_dial(Canvas):
         self.dragstarty=0
 
         self.dragstart=0
+        self.dotcolor=dotcolor
 
         # create the hal pin
         if halpin == None:
@@ -214,10 +222,10 @@ class pyvcp_dial(Canvas):
         self.dragstartx=event.x
         self.dragstarty=event.y
         self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
-        self.itemconfig(self.dot,fill="green",activefill="green")
+        self.itemconfig(self.dot,fill="black",activefill="black")
 
     def bup(self,event):
-        self.itemconfig(self.dot,fill="yellow")
+        self.itemconfig(self.dot,fill=self.dotcolor)
 
     def motion(self,event):
         dragstop = math.atan2((event.y-self.mid),(event.x-self.mid))
@@ -228,7 +236,7 @@ class pyvcp_dial(Canvas):
         elif delta<=-self.d_alfa:
             self.down()
             self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
-        self.itemconfig(self.dot,fill="green",activefill="green")
+        self.itemconfig(self.dot,fill="black",activefill="black")
 
     def wheel_up(self,event):
         self.up()
@@ -269,12 +277,19 @@ class pyvcp_dial(Canvas):
         self.itemconfig(self.delta,text=valtext)
 
     def draw_ticks(self,cpr):
-        for n in range(0,cpr):
-            startx=self.mid+self.r*math.cos(n*self.d_alfa)
-            starty=self.mid+self.r*math.sin(n*self.d_alfa)
-            stopx=self.mid+1.15*self.r*math.cos(n*self.d_alfa)
-            stopy=self.mid+1.15*self.r*math.sin(n*self.d_alfa)
-            self.create_line([startx,starty,stopx,stopy])
+        for n in range(0,cpr,2):
+           for i in range(0,2):
+            startx=self.mid+self.r*math.cos((n+i)*self.d_alfa)
+            starty=self.mid+self.r*math.sin((n+i)*self.d_alfa)
+            if i == 0:
+               length = 1.15
+               width = 2
+            else:
+               length = 1.1
+               width = 1
+            stopx=self.mid+length*self.r*math.cos((n+i)*self.d_alfa)
+            stopy=self.mid+length*self.r*math.sin((n+i)*self.d_alfa)
+            self.create_line(startx,starty,stopx,stopy,width=width)
 
     def update(self,pycomp):
         self.pycomp[self.halpin] = self.out
@@ -421,8 +436,10 @@ class pyvcp_jogwheel(Canvas):
         pad=10
         self.count=0
         Canvas.__init__(self,root,width=size,height=size)
+        pad2=pad-size/15
+        self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)
-        self.itemconfig(self.circle,fill="lightgrey",activefill="darkgrey")
+        self.itemconfig(self.circle,fill="lightgrey",activefill="lightgrey")
         self.mid=size/2
         self.r=(size-2*pad)/2
         self.alfa=0
