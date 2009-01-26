@@ -705,6 +705,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_meter.png
+	scale 70
 
 \end_inset 
 

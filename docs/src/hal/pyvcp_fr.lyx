@@ -734,6 +734,7 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage à
 
 \begin_inset Graphics
 	filename images/pyvcp_meter.png
+	scale 70
 
 \end_inset 
 

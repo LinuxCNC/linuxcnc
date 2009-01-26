@@ -180,10 +180,5 @@ Parameters where <name> is the name given during loading with the -n option.
 \layout Standard
 
 An example of using this component to drive a spindle is in the Hardware
- Examples section (
-\begin_inset LatexCommand \ref{cha:GS2-Spindle}
-
-\end_inset 
-
-) of this manual.
+ Examples section of this manual.
 \the_end

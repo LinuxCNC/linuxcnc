@@ -102,11 +102,7 @@ P9.02 (Communication Protocol) must be set to Modbus RTU mode 8 data bits,
  no parity, 2 stop bits 03
 \layout Standard
 
-A pyVCP panel based on this example is in the pyVCP Examples section (
-\begin_inset LatexCommand \ref{sec:GS2-RPM-Meter}
-
-\end_inset 
-
-) of this manual.
+A pyVCP panel based on this example is in the pyVCP Examples section of
+ this manual.
  
 \the_end
