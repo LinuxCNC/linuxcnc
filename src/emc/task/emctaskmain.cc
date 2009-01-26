@@ -777,6 +777,8 @@ static int emcTaskPlan(void)
 		    stepping = 1;	// set step flag
 		    steppingWait = 0;	// don't wait for first one
 		    emcStatus->task.task_paused = 1;
+		    interpResumeState = EMC_TASK_INTERP_WAITING; //AJ: for some odd reason we need to return to WAITING on a subsequent TASK_RESUME
+		    emcTrajPause(); // cause a motion pause (causes stat->motion.paused to become true)
 		    break;
 
 		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
