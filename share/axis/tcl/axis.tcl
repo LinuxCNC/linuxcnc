@@ -1924,7 +1924,7 @@ proc update_state {args} {
                 {.menu.machine "Re_sume"}
     state  {$task_state == $STATE_ON && $interp_state != $INTERP_IDLE} \
                 .toolbar.program_pause
-    relief {$task_paused != 0} \
+    relief {$interp_pause != 0} \
                 .toolbar.program_pause
     relief {$block_delete != 0} \
                 .toolbar.program_blockdelete
