@@ -12,12 +12,7 @@ exec $EMC2_IOSH "$0" "$@"
 #  Author: 
 #  License: GPL Version 2
 #
-#  Copyright (c) 2005 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2005-2009 All rights reserved.
 ###############################################################
 # Uses INB and OUTB to read and write pins 
 # Includes handy parallel port pin mapping functions

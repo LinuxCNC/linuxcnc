@@ -11,12 +11,7 @@ exec $EMC2_EMCSH "$0" "$@"
 #  Author: Ray Henry
 #  License: GPL Version 2
 #
-#  Copyright (c) 2003 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2003-2009 All rights reserved.
 ###############################################################
 # EMC parameter setting application
 # Needs emcsh to run

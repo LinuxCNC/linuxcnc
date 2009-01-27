@@ -7,15 +7,9 @@ exec wish "$0" "$@"
 #               This file dumps info to a logging file from tkmc.
 #
 #  Derived from a work by Fred Proctor & Will Shackleford
-#  Author: 
 #  License: GPL Version 2
 #
-#  Copyright (c) 2005 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2005-2009 All rights reserved.
 ###############################################################
 # genedit.tcl
 #

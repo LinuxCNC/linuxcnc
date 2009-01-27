@@ -10,12 +10,7 @@ exec $EMC2_EMCSH "$0" "$@"
 #  Author: 
 #  License: GPL Version 2
 #
-#  Copyright (c) 2005 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2005-2009 All rights reserved.
 ###############################################################
 #
 # Sets value of EMC_DEBUG, so you can turn on/off what you want dumped

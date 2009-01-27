@@ -11,12 +11,7 @@ exec wish "$0" "$@"
 #  Author: John Kasunich
 #  License: GPL Version 2
 #
-#  Copyright (c) 2005 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2005-2009 All rights reserved.
 ###############################################################
 #
 # usage:

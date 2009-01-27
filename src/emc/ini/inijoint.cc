@@ -8,12 +8,7 @@
 * License: GPL Version 2
 * System: Linux
 *    
-* Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-* $Revision$
-* $Author$
-* $Date$
+* Copyright (c) 2004-2009 All rights reserved.
 ********************************************************************/
 
 #include <unistd.h>

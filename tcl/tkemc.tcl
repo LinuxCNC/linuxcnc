@@ -11,12 +11,7 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 #  Author: 
 #  License: GPL Version 2
 #
-#  Copyright (c) 2006 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2006-2009 All rights reserved.
 ###############################################################
 # Uses the emcsh library of tcl/tk functions.
 # Provides default display or operators for each NML message

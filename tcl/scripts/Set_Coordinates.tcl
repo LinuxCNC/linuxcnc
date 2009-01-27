@@ -10,12 +10,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # AuthorS: Fred Proctor, Ray Henry
 # License: GPL Version 2
 #    
-# Copyright (c) 2005 All rights reserved.
-#
-# Last change: 
-# $Revision$
-# $Author$
-# $Date$
+# Copyright (c) 2005-2009 All rights reserved.
 ####################################################################
 # Graphical display of coordinate system offsets
 # Writes revised offsets to xxx.var and reloads global variables

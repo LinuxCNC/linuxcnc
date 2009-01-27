@@ -10,12 +10,7 @@ exec $EMC2_EMCSH "$0" "$@"
 #  Author: Raymond E Henry
 #  License: GPL Version 2
 #
-#  Copyright (c) 2006 All rights reserved.
-#
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2006-2009 All rights reserved.
 ###############################################################
 # Script accesses HAL through two modes halcmd show xxx for show
 # and open halcmd -skf for building tree, watch, edit, and such
