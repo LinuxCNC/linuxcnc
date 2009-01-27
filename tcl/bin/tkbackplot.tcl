@@ -7,12 +7,9 @@ exec $EMC2_EMCSH "$0" "$@"
 #               This file dumps info to a logging file from tkmc.
 #
 #  Authors: Ray Henry & Paul Corner
-#  This software is public domain. May 2000, Ray Henry
+#  License: GPL Version 2
 #
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
+#  Copyright (c) 2009 All rights reserved.
 ###############################################################
 # This is plot processes for tkemc popup under the view menu 
 # of tkemc.  The fixed size of the canvas viewing area is 500x250 
