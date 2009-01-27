@@ -627,7 +627,7 @@ Number displays can use the following formatting options
 <pady>n</pady> where "n" is the amount of extra vertical extra space
 \layout Subsubsection
 
-Float
+Number
 \layout Standard
 
 The number widget displays the value of a float signal.
@@ -637,16 +637,18 @@ The number widget displays the value of a float signal.
 \newline 
     <halpin>"my-number"</halpin>
 \newline 
-    <font>("Helvetica",50)</font>
+    <font>("Helvetica",24)</font>
 \newline 
-    <format>"+4.3f"</format>
+    <format>"+4.4f"</format>
 \newline 
 </number>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_number.png
+	filename images/pyvcp_number.png
 
 \end_inset 
 
@@ -672,6 +674,32 @@ s32 Number
 
 The s32 number widget displays the value of a s32 number.
  The syntax is the same as "number" except the name which is <s32>.
+ Make sure the width is wide enough to cover the largest number you expect
+ to use.
+\layout Quote
+
+<s32>
+\newline 
+<halpin>"my-number"</halpin>
+\newline 
+<font>("Helvetica",24)</font>
+\newline 
+<format>"6d"</format>
+\newline 
+<width>6</width>
+\newline 
+</s32>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_s32.png
+
+\end_inset 
+
+
 \layout Subsubsection
 
 u32 Number
@@ -928,11 +956,11 @@ Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
 </jogwheel>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_jogwheel.png
-	lyxscale 50
-	scale 50
+	filename images/pyvcp_jogwheel.png
 
 \end_inset 
 
