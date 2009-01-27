@@ -66,7 +66,7 @@ class pyvcp_dial(Canvas):
             [ <min_>-33.123456</min_> ]
             [ <max_>3.3</max_> ]
             [ <text>"Gallons per Hour"</text> ]            (knob label)
-            [ <init>123</init> ]           (initial value a whole number must end in '.')
+            [ <initval>123</initval> ]           (initial value a whole number must end in '.')
             [ <resolution>.001</resolution> ]          (scale value a whole number must end in '.')
             [ <halpin>"anaout"</halpin> ]
         </dial>
@@ -109,13 +109,13 @@ class pyvcp_dial(Canvas):
     
     def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,dialcolor="", \
             edgecolor="",dotcolor="grey",min_=None,max_=None, \
-            text=None,init=0,resolution=0.1, \
+            text=None,initval=0,resolution=0.1, \
             **kw):
         
-        pad=12
+        pad=size/10
 
-        self.out=init                    #  float output   out   
-        self.origValue=init       # in case user wants to reset the pot/valve/thingy
+        self.out=initval                    #  float output   out   
+        self.origValue=initval       # in case user wants to reset the pot/valve/thingy
 
         #self.text3=resolution
 
@@ -218,8 +218,8 @@ class pyvcp_dial(Canvas):
 
     def dot_coords(self):
         # calculate the coordinates for the dot
-        DOTR=0.08*self.size
-        DOTPOS=0.75
+        DOTR=0.04*self.size
+        DOTPOS=0.85
         midx = self.mid+DOTPOS*self.r*math.cos(self.alfa)
         midy = self.mid+DOTPOS*self.r*math.sin(self.alfa)
         return midx-DOTR, midy-DOTR,midx+DOTR,midy+DOTR
@@ -442,7 +442,7 @@ class pyvcp_jogwheel(Canvas):
     # -add a scaled output, scale changes when alt/ctrl/shift is held down
     n=0
     def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,**kw):
-        pad=10
+        pad=size/10
         self.count=0
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
@@ -484,8 +484,8 @@ class pyvcp_jogwheel(Canvas):
         self.pycomp=pycomp
 
     def dot_coords(self):
-        DOTR=0.08*self.size
-        DOTPOS=0.75
+        DOTR=0.06*self.size
+        DOTPOS=0.85
         midx = self.mid+DOTPOS*self.r*math.cos(self.alfa)
         midy = self.mid+DOTPOS*self.r*math.sin(self.alfa)
         return midx-DOTR, midy-DOTR,midx+DOTR,midy+DOTR
