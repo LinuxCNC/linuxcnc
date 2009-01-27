@@ -16,7 +16,7 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
+\paragraph_separation skip
 \defskip medskip
 \quotes_language english
 \quotes_times 2
@@ -32,99 +32,8 @@ MPG Pendant
 This example is to explain how to hook up the common MPG pendants found
  on the market place today.
  This example uses a MPG3 pendant and a C22 pendant interface card from
- CNC4PC and a second parallel port plugged into the PCI slot.
- This example gives you 3 axis with 3 step increments of 0.1, 0.01, 0.001.
-\layout Section
-
-Second Parallel Port
-\layout Standard
-
-In this example we are using a second parallel port connected to the MPG
- Pendant that is plugged into a PCI slot.
- To find the address of your parallel port card open a terminal window and
- type
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-lspci -v
-\layout Standard
-
-You will see something similar to this
-\layout List
-\labelwidthstring 00.00.0000
-
-0000:00:10.0 Communication controller: NetMos Technology PCI 1 port parallel
- adapter (rev 01) 
-\layout List
-\labelwidthstring 00.00.0000
-
-Subsystem: LSI Logic / Symbios Logic: Unknown device 0010 
-\layout List
-\labelwidthstring 00.00.0000
-
-Flags: medium devsel, IRQ 11 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at a800 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at ac00 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b000 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b400 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b800 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at bc00 [size=16]
-\layout Standard
-
-In my case the address was the first one so I changed my .hal file from
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-loadrt hal_parport cfg=0x378
-\layout Standard
-
-to
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-loadrt hal_parport cfg="0x378 0xa800 in"
-\layout Standard
-
-note the double quotes surrounding the addresses.
-\layout Standard
-
-and added
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-addf parport.1.read base-thread addf parport.1.write base-thread
-\layout Standard
-
-so the parport will get read and written to.
-\layout Section
-
-Hook it up in HAL
+ CNC4PC connected to a second parallel port plugged into the PCI slot.
+ This example gives you 3 axis with 3 step increments of 0.1, 0.01, 0.001
 \layout Standard
 
 In your custom.hal file or other .hal file add the following making sure you
