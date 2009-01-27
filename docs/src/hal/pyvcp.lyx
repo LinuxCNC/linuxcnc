@@ -342,6 +342,53 @@ Editing the XML file
 Edit the XML file with a text editor.
  In most cases you can right click on the file and select "open with text
  editor" or similar.
+\layout Subsubsection
+
+Colors
+\layout Standard
+
+Colors can be specified using the X11 rgb colors by name "gray75" or hex
+ "#0000ff
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ A complete list is located here 
+\begin_inset LatexCommand \url{http://sedition.com/perl/rgb.html}
+
+\end_inset 
+
+.
+\layout Standard
+
+Common Colors (colors with numbers indicate shades of that color)
+\layout Itemize
+
+white
+\layout Itemize
+
+black
+\layout Itemize
+
+blue and blue1 - 4
+\layout Itemize
+
+cyan and cyan1 - 4
+\layout Itemize
+
+green and green1 - 4
+\layout Itemize
+
+yellow and yellow1 - 4
+\layout Itemize
+
+red and red1 - 4
+\layout Itemize
+
+purple and purple1 - 4
+\layout Itemize
+
+gray and gray0 - 100
 \layout Subsection
 
 LED
@@ -656,9 +703,11 @@ A bar widget displays the value of a FLOAT signal both graphically using
 </bar>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_bar.png
+	filename images/pyvcp_bar.png
 
 \end_inset 
 
@@ -696,8 +745,6 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
     <region3>(0,12,"red")</region3>
 \newline 
 </meter>
-\layout LyX-Code
-
 \layout Standard
 \align center 
 The above code produced this example.
@@ -737,9 +784,11 @@ Spinbox controls a FLOAT pin.
 </spinbox>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_spinbox.png
+	filename images/pyvcp_spinbox.png
 
 \end_inset 
 
@@ -839,6 +888,12 @@ The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
 <resolution>0.001</resolution>
 \newline 
 <halpin>"anaout"</halpin>
+\newline 
+<dialcolor>"yellow"</dialcolor>
+\newline 
+<edgecolor>"green"</edgecolor>
+\newline 
+<dotcolor>"black"</dotcolor>
 \newline 
 </dial>
 \layout Standard
