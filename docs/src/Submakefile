@@ -141,6 +141,7 @@ DOC_SRCS := \
 	examples/mpg_fr.lyx \
 	examples/gcode.lyx \
 	examples/gcode_fr.lyx \
+	examples/gs2_example.lyx \
 	quickstart/stepper_quickstart.lyx \
 	quickstart/stepper_quickstart_fr.lyx \
 	Master_HAL.lyx \
