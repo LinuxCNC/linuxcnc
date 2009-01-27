@@ -39,7 +39,6 @@ TCLSRCS := \
 	../tcl/bin/halshow.tcl \
 	../tcl/bin/pickconfig.tcl \
 	../tcl/bin/tkbackplot.tcl \
-	../tcl/bin/tkio.tcl \
 	../tcl/mini.tcl \
 	../tcl/show_errors.tcl \
 	../tcl/tkemc.tcl \
