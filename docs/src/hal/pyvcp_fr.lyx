@@ -426,7 +426,7 @@ Une LED est utilisée pour indiquer l'état d'un signal BIT.
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_led.png
+	filename images/pyvcp_led.png
 
 \end_inset 
 
@@ -505,7 +505,7 @@ Bouton textuel (Text Button)
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_button.png
+	filename images/pyvcp_button.png
 
 \end_inset 
 
@@ -621,7 +621,7 @@ Le widget nombre affiche la valeur d'un signal FLOAT.
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_number.png
+	filename images/pyvcp_number.png
 
 \end_inset 
 
@@ -682,7 +682,7 @@ t dans une barre de progression et simultanément, en numérique.
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_bar.png
+	filename images/pyvcp_bar.png
 
 \end_inset 
 
@@ -769,7 +769,7 @@ La roue codeuse contrôle une pin FLOAT.
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_spinbox.png
+	filename images/pyvcp_spinbox.png
 
 \end_inset 
 
@@ -831,9 +831,9 @@ Le bouton tournant imite le fonctionnement d'un vrai bouton tournant, en
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_jogwheel.png
-	lyxscale 50
-	scale 50
+	filename images/pyvcp_jogwheel.png
+	lyxscale 80
+	scale 80
 
 \end_inset 
 
@@ -868,7 +868,7 @@ Utilisez une Hbox lorsque vous voulez aligner les widgets, horizontalement,
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_hbox.png
+	filename images/pyvcp_hbox.png
 
 \end_inset 
 
@@ -932,7 +932,7 @@ Utilisez une Vbox lorsque vous voulez aligner les widgets verticalement,
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_vbox.png
+	filename images/pyvcp_vbox.png
 
 \end_inset 
 

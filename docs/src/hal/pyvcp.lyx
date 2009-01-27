@@ -93,7 +93,7 @@ The layout of a pyVCP panel is specified with an XML file that contains
 \align center 
 
 \begin_inset Graphics
-	filename pyvcp_mypanel.png
+	filename images/pyvcp_mypanel.png
 
 \end_inset 
 
@@ -209,15 +209,7 @@ This change will run the HAL commands specified in "spindle_to_pyvcp.hal".
 net spindle-rpm-filtered  => pyvcp.spindle-speed
 \layout Standard
 
-assuming that a signal called 
-\begin_inset Quotes eld
-\end_inset 
-
-spindle-rpm-filtered
-\begin_inset Quotes erd
-\end_inset 
-
- already exists.
+assuming that a signal called "spindle-rpm-filtered" already exists.
  Note that when running together with AXIS, all pyVCP widget HAL pins have
  names that start with "pyvcp.".
 \layout Standard
@@ -289,13 +281,13 @@ General Notes
 At the present time, both a tag-based and an attribute-based syntax are
  supported.
  For instance, the following XML fragments are treated identically:
-\layout LyX-Code
+\layout Quote
 
 <led halpin="my-led"/>
 \layout Standard
 
 and
-\layout LyX-Code
+\layout Quote
 
 <led><halpin>"my-led"</halpin></led>
 \layout Standard
@@ -394,35 +386,29 @@ gray and gray0 - 100
 LED
 \layout Standard
 
-A LED is used to indicate the status of a BIT signal.
- The LED color will be on_color when the BIT signal is true, and off_color
- otherwise.
+A LED is used to indicate the status of a "bit" halpin.
+ The LED color will be on_color when the halpin is true, and off_color otherwise.
 \layout Quote
 
 <led>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <halpin>"my-led"</halpin> 
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <size>50</size> 
 \newline 
-\SpecialChar ~
-\SpecialChar ~
-<on_color>"blue"</on_color>
+<on_color>"green"</on_color>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
-<off_color>"black"</off_color>
+<off_color>"red"</off_color>
 \newline 
 </led>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_led.png
+	filename images/pyvcp_led.png
+	scale 80
 
 \end_inset 
 
@@ -471,29 +457,41 @@ This is a variant of the "led" widget.
  
 \layout Quote
 
+<vbox>
+\newline 
+<relief>RIDGE</relief>
+\newline 
+<bd>6</bd>
+\newline 
 <rectled>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <halpin>"my-led"</halpin>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <height>"50"</height>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <width>"100"</width>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <on_color>"green"</on_color>
 \newline 
-\SpecialChar ~
-\SpecialChar ~
 <off_color>"red"</off_color>
 \newline 
 </rectled>
+\newline 
+</vbox>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+Also showing a vertical box with relief.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_rectled.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsection
 
 Button
@@ -518,20 +516,37 @@ A button is used to control a BIT pin.
 \layout Subsubsection
 
 Text Button
+\layout Standard
+
+A text button controls a "bit" halpin.
+ The halpin is false until the button is pressed then it is true.
+ The button is a momentary button.
+ 
 \layout Quote
 
 <button>
 \newline 
-    <halpin>"my-button"</halpin>
+    <halpin>"ok-button"</halpin>
 \newline 
     <text>"OK"</text> 
 \newline 
 </button>
+\newline 
+<button>
+\newline 
+    <halpin>"abort-button"</halpin>
+\newline 
+    <text>"Abort"</text> 
+\newline 
+</button>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_button.png
+	filename images/pyvcp_button.png
+	scale 80
 
 \end_inset 
 
@@ -541,27 +556,60 @@ Text Button
 Checkbutton
 \layout Standard
 
-A checkbutton controls a BIT pin.
- The pin will be set True when the button is checked, and false when the
- button is unchecked.
+A checkbutton controls a "bit" halpin.
+ The halpin will be set True when the button is checked, and false when
+ the button is unchecked.
+ The checkbutton is a toggle type button.
 \layout Quote
 
 <checkbutton>
 \newline 
-    <halpin>"my-checkbutton"</halpin>
+<halpin>"coolant-chkbtn"</halpin>
+\newline 
+<text>
+\begin_inset Quotes erd
+\end_inset 
+
+Coolant
+\begin_inset Quotes erd
+\end_inset 
+
+</text>
+\newline 
+</checkbutton>
+\newline 
+<checkbutton>
+\newline 
+<halpin>"chip-chkbtn"</halpin>
+\newline 
+<text>
+\begin_inset Quotes erd
+\end_inset 
+
+Chips\SpecialChar ~
+\SpecialChar ~
+\SpecialChar ~
+
+\begin_inset Quotes erd
+\end_inset 
+
+</text>
 \newline 
 </checkbutton>
 \layout Standard
+\align center 
+The above code produced this example.
+\newline 
+The coolant checkbutton is checked.
+\newline 
+Notice the extra spaces in the Chips text
+\newline 
+to keep the checkbuttons aligned.
+\newline 
 
-An unchecked checkbutton: 
 \begin_inset Graphics
-	filename pyvcp_checkbutton1.png
-
-\end_inset 
-
- , and a checked one: 
-\begin_inset Graphics
-	filename pyvcp_checkbutton2.png
+	filename images/pyvcp_checkbutton.png
+	scale 80
 
 \end_inset 
 
@@ -571,7 +619,7 @@ An unchecked checkbutton:
 Radiobutton
 \layout Standard
 
-A radiobutton will set one of a number of BIT pins true.
+A radiobutton will set one of the halpins true.
  The other pins are set false.
 \layout Quote
 
@@ -584,9 +632,12 @@ A radiobutton will set one of a number of BIT pins true.
 </radiobutton>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_radiobutton.png
+	filename images/pyvcp_radiobutton.png
+	scale 80
 
 \end_inset 
 
@@ -595,15 +646,7 @@ A radiobutton will set one of a number of BIT pins true.
 
 Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
 wo, and my-radio.three.
- In the image above, 
-\begin_inset Quotes eld
-\end_inset 
-
-three
-\begin_inset Quotes erd
-\end_inset 
-
- is the selected value.
+ In the image above, "three" is the selected value.
 \layout Subsection
 
 Number Displays
@@ -649,6 +692,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_number.png
+	scale 80
 
 \end_inset 
 
@@ -696,6 +740,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_s32.png
+	scale 80
 
 \end_inset 
 
@@ -707,6 +752,116 @@ u32 Number
 
 The u32 number widget displays the value of a u32 number.
  The syntax is the same as "number" except the name which is <u32>.
+\layout Subsection
+
+Image Displays
+\layout Standard
+
+Image displays use only .gif image format.
+ All of the images must be the same size.
+ The images must be in the same directory as your ini file (or in the current
+ directory if running from the command line with halrun/halcmd).
+\layout Subsubsection
+
+Image Bit
+\layout Standard
+
+The "image_bit" toggles between two images by setting the halpin to true
+ or false.
+\layout Quote
+
+<pyvcp>
+\newline 
+<image name='fwd' file='fwd.gif'/>
+\newline 
+<image name='rev' file='rev.gif'/>
+\newline 
+<vbox>
+\newline 
+<image_bit halpin='selectimage' images='fwd rev'/>
+\newline 
+</vbox>
+\newline 
+</pyvcp>
+\layout Standard
+\align center 
+This example was produced from the above code.
+\newline 
+Using the two image files fwd.gif and rev.gif.
+\newline 
+FWD is displayed when "selectimage" is false
+\newline 
+and REV is displayed when "selectimage" is true.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_image01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image02.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Image u32
+\layout Standard
+
+The "image_u32" is the same as "image_bit" except you have essentially an
+ unlimited number of images and you "select" the image by setting the halpin
+ to a integer value with 0 for the first image in the images list and 1
+ for the second image etc.
+\layout Quote
+
+<pyvcp>
+\newline 
+<image name='stb' file='stb.gif'/>
+\newline 
+<image name='fwd' file='fwd.gif'/>
+\newline 
+<image name='rev' file='rev.gif'/>
+\newline 
+<vbox>
+\newline 
+<image_u32 halpin='selectimage' images='stb fwd rev'/>
+\newline 
+</vbox>
+\newline 
+</pyvcp>
+\layout Standard
+\align center 
+The above code produced the following example
+\newline 
+by adding the stb.gif image.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_image_u32_01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image02.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsection
 
 Bar
@@ -736,6 +891,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_bar.png
+	scale 80
 
 \end_inset 
 
@@ -817,6 +973,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_spinbox.png
+	scale 80
 
 \end_inset 
 
@@ -878,6 +1035,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_scale.png
+	scale 80
 
 \end_inset 
 
@@ -931,6 +1089,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_dial.png
+	scale 80
 
 \end_inset 
 
@@ -961,6 +1120,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_jogwheel.png
+	scale 80
 
 \end_inset 
 
@@ -1053,6 +1213,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_borders.png
+	scale 80
 
 \end_inset 
 
@@ -1067,20 +1228,27 @@ Use a Hbox when you want to stack widgets horizontally next to each other.
 
 <hbox>
 \newline 
-    <label><text>"a vbox:"</text></label>
+<relief>RIDGE</relief>
 \newline 
-    <led></led>
+<bd>6</bd>
 \newline 
-    <number></number>
+<label><text>"a hbox:"</text></label>
 \newline 
-    <bar></bar>
+<led></led>
+\newline 
+<number></number>
+\newline 
+<bar></bar>
 \newline 
 </hbox>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_hbox.png
+	filename images/pyvcp_hbox.png
+	scale 80
 
 \end_inset 
 
@@ -1132,20 +1300,27 @@ Use a Vbox when you want to stack widgets vertically on top of each other.
 
 <vbox>
 \newline 
-    <label><text>"a vbox:"</text></label>
+<relief>RIDGE</relief>
 \newline 
-    <led></led>
+<bd>6</bd>
 \newline 
-    <number></number>
+<label><text>"a vbox:"</text></label>
 \newline 
-    <bar></bar>
+<led></led>
+\newline 
+<number></number>
+\newline 
+<bar></bar>
 \newline 
 </vbox>
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_vbox.png
+	filename images/pyvcp_vbox.png
+	scale 80
 
 \end_inset 
 
@@ -1204,9 +1379,12 @@ A label is a piece of text on your panel.
 </label> 
 \layout Standard
 \align center 
+The above code produced this example.
+\newline 
 
 \begin_inset Graphics
-	filename pyvcp_label.png
+	filename images/pyvcp_label.png
+	scale 80
 
 \end_inset 
 
@@ -1241,6 +1419,7 @@ The above code produced this example.
 
 \begin_inset Graphics
 	filename images/pyvcp_labelframe.png
+	scale 80
 
 \end_inset 
 
@@ -1315,7 +1494,7 @@ n2 rows'"/>
    <u32 halpin="test"/>
 \newline 
 </table> 
-\layout Quote
+\layout Standard
 \align center 
 The above code produced this example.
 \newline 
