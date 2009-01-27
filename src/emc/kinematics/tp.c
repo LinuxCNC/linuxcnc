@@ -537,10 +537,14 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
             newvel = tc->reqvel * tc->feed_override;
         if(newvel > tc->maxvel) newvel = tc->maxvel;
 
-        // clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
-        // except when it's synced to spindle position.
-        if((!tc->synchronized || tc->velocity_mode) && newvel > tp->vLimit)
-            newvel = tp->vLimit;
+        // if the motion is not purely rotary axes (and therefore in angular units) ...
+        if(!(tc->motion_type == TC_LINEAR && tc->coords.line.xyz.tmag_zero && tc->coords.line.uvw.tmag_zero)) {
+            // ... clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip maxvel)
+            // except when it's synced to spindle position.
+            if((!tc->synchronized || tc->velocity_mode) && newvel > tp->vLimit) {
+                newvel = tp->vLimit;
+            }
+        }
 
         // get resulting acceleration
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
