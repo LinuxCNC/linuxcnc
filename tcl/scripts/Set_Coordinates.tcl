@@ -1,5 +1,5 @@
 #!/bin/sh
-# the next line restarts using iosh \
+# the next line restarts using emcsh \
 exec $EMC2_EMCSH "$0" "$@"
 
 ####################################################################
