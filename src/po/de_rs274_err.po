@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-08 23:08+0100\n"
+"POT-Creation-Date: 2009-01-27 21:53+0100\n"
 "PO-Revision-Date: 2008-11-23 16:45+0100\n"
 "Last-Translator: Florian Hahn <flo-h@users.sourceforge.net>\n"
 "Language-Team: German Translation <emc-developers@lists.sourceforge.net>\n"
@@ -58,73 +58,73 @@ msgstr ""
 msgid "can't do that (%s) in manual mode"
 msgstr "%s kann im manuellen Modus nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:799
+#: emc/task/emctaskmain.cc:801
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr ""
 "%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
 "stillsteht"
 
-#: emc/task/emctaskmain.cc:861
+#: emc/task/emctaskmain.cc:863
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
 "%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
 "liest"
 
-#: emc/task/emctaskmain.cc:1085
+#: emc/task/emctaskmain.cc:1089
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
 "%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
 "Pause macht"
 
-#: emc/task/emctaskmain.cc:1149
+#: emc/task/emctaskmain.cc:1153
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
 "%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
 "wartet"
 
-#: emc/task/emctaskmain.cc:1265
+#: emc/task/emctaskmain.cc:1269
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "%s kann im MDI-Modus nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1862
+#: emc/task/emctaskmain.cc:1866
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
 "Modus kann nicht gewechselt werden, solange er auf AUTO ist und der "
 "Interpreter stillsteht"
 
-#: emc/task/emctaskmain.cc:1922
+#: emc/task/emctaskmain.cc:1927
 #, c-format
 msgid "can't open %s"
 msgstr "%s kann nicht geöffnet werden"
 
-#: emc/task/emctaskmain.cc:1934
+#: emc/task/emctaskmain.cc:1939
 msgid "Can't issue MDI command when not homed"
 msgstr "MDI-Befehl kann ohne vorherige Refernzfahrt nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1939
+#: emc/task/emctaskmain.cc:1944
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "MDI-Befehl kann nur im MDI-Modus ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:1975
+#: emc/task/emctaskmain.cc:1980
 msgid "Can't run a program when not homed"
 msgstr "Programm kann ohne vorherige Referenzfahrt nicht ausgeführt werden"
 
-#: emc/task/emctaskmain.cc:3070
+#: emc/task/emctaskmain.cc:3073
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Unteres Software-Limit der Achse %d ist erreicht."
 
-#: emc/task/emctaskmain.cc:3079
+#: emc/task/emctaskmain.cc:3082
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Oberes Software-Limit der Achse %d ist erreicht."
 
-#: emc/rs274ngc/interp_arc.cc:101 emc/rs274ngc/interp_arc.cc:258
+#: emc/rs274ngc/interp_arc.cc:109 emc/rs274ngc/interp_arc.cc:273
 #, c-format
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
@@ -134,15 +134,123 @@ msgstr ""
 "%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1="
 "%.4f, Radius 2=%.4f"
 
-#: emc/rs274ngc/interp_convert.cc:1541
+#: emc/rs274ngc/interp_convert.cc:709 emc/rs274ngc/interp_convert.cc:719
+#: emc/rs274ngc/interp_queue.cc:454
+msgid ""
+"Arc move in concave corner is too short to be reachable by the tool without "
+"gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1303
+#, fuzzy
+msgid "Cannot change control mode with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:1408
+#, fuzzy
+msgid "Cannot change coordinate systems with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:1662
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr "G%S.1 ohne D-Wort"
 
-#: emc/rs274ngc/interp_convert.cc:1554
+#: emc/rs274ngc/interp_convert.cc:1665
+#, c-format
+msgid "G%d.1 with L word, but plane is not G18"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1676
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr "D-Wort bei G%d muss eine Ganzzahl sein"
+
+#: emc/rs274ngc/interp_convert.cc:1684
+#, c-format
+msgid "G%d with lathe tool, but plane is not G18"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2411 emc/rs274ngc/interp_convert.cc:2415
+#, fuzzy
+msgid "Cannot set motion output with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2419 emc/rs274ngc/interp_convert.cc:2423
+#, fuzzy
+msgid "Cannot set auxiliary output with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2467
+#, fuzzy
+msgid "Cannot wait for digital input with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2479
+#, fuzzy
+msgid "Cannot wait for analog input with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2562 emc/rs274ngc/interp_convert.cc:2579
+#: emc/rs274ngc/interp_convert.cc:2593 emc/rs274ngc/interp_convert.cc:2607
+#: emc/rs274ngc/interp_convert.cc:2621
+#, fuzzy
+msgid "Cannot enable overrides with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2569 emc/rs274ngc/interp_convert.cc:2584
+#: emc/rs274ngc/interp_convert.cc:2598 emc/rs274ngc/interp_convert.cc:2612
+#: emc/rs274ngc/interp_convert.cc:2626
+#, fuzzy
+msgid "Cannot disable overrides with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2636
+#, fuzzy
+msgid "Cannot call user-defined M code with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:2866
+#, fuzzy
+msgid "Cannot change retract mode with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:3595
+#, fuzzy
+msgid "Cannot use G76 threading cycle with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:3956
+msgid "Zero degree inside corner is invalid for cutter compensation"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:4081
+#, fuzzy
+msgid "Cannot change tools with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_convert.cc:4191
+#, fuzzy
+msgid "Cannot change tool offset with cutter radius compensation on"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_queue.cc:452
+#, c-format
+msgid ""
+"BUG: cutter compensation has generated an invalid arc with mismatched radii "
+"r1 %f r2 %f\n"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:472 emc/rs274ngc/interp_queue.cc:509
+#, fuzzy
+msgid "BUG: Unsupported plane in cutter compensation"
+msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+
+#: emc/rs274ngc/interp_queue.cc:481 emc/rs274ngc/interp_queue.cc:518
+msgid ""
+"Straight move in concave corner is too short to be reachable by the tool "
+"without gouging"
+msgstr ""
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
@@ -1194,6 +1302,6 @@ msgstr "Unbekannter Fehler"
 msgid "The End"
 msgstr "Ende"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:752
+#: emc/rs274ngc/rs274ngc_pre.cc:756
 msgid "Queue is not empty after tool change"
 msgstr "Warteschlange ist nach Werkzeugwechsel nicht leer"

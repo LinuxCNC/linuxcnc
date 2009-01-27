@@ -9,351 +9,351 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AXIS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-26 17:29+0100\n"
-"PO-Revision-Date: 2008-10-26 17:42+0100\n"
+"POT-Creation-Date: 2009-01-27 21:53+0100\n"
+"PO-Revision-Date: 2009-01-21 20:42+0100\n"
 "Last-Translator: Florian Hahn <flo-h@users.sourceforge.net>\n"
 "Language-Team: German Translation <emc-developers@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit"
+"Content-Transfer-Encoding: 8bit\n"
 
-#: emc/usr_intf/axis/scripts/axis.py:136
+#: emc/usr_intf/axis/scripts/axis.py:147
 msgid "Emergency stop"
 msgstr "Notaus"
 
-#: emc/usr_intf/axis/scripts/axis.py:137
+#: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Turn machine on"
 msgstr "Maschine an"
 
-#: emc/usr_intf/axis/scripts/axis.py:139
+#: emc/usr_intf/axis/scripts/axis.py:150
 msgid "Activate first axis"
 msgstr "Erste Achse aktivieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:140
+#: emc/usr_intf/axis/scripts/axis.py:151
 msgid "Activate second axis"
 msgstr "Zweite Achse aktivieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:141
+#: emc/usr_intf/axis/scripts/axis.py:152
 msgid "Activate third axis"
 msgstr "Dritte Achse aktivieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:142
+#: emc/usr_intf/axis/scripts/axis.py:153
 msgid "Activate fourth axis"
 msgstr "Vierte Achse aktivieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:143
+#: emc/usr_intf/axis/scripts/axis.py:154
 msgid "Activate fifth through ninth axis"
 msgstr "Fünfte bis neunte Achse aktivieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:144
+#: emc/usr_intf/axis/scripts/axis.py:155
 msgid "Set Feed Override from 0% to 100%"
 msgstr "Vorschubübersteuerung von 0% bis 100%"
 
-#: emc/usr_intf/axis/scripts/axis.py:145
+#: emc/usr_intf/axis/scripts/axis.py:156
 msgid ", and ."
 msgstr ", und ."
 
-#: emc/usr_intf/axis/scripts/axis.py:145
+#: emc/usr_intf/axis/scripts/axis.py:156
 msgid "Select jog speed"
 msgstr "Schrittgeschwindigkeit auswählen"
 
-#: emc/usr_intf/axis/scripts/axis.py:146
+#: emc/usr_intf/axis/scripts/axis.py:157
 msgid "< and >"
 msgstr "< und >"
 
-#: emc/usr_intf/axis/scripts/axis.py:146
+#: emc/usr_intf/axis/scripts/axis.py:157
 msgid "Select angular jog speed"
 msgstr "Winkelgeschwindigkeit auswählen"
 
-#: emc/usr_intf/axis/scripts/axis.py:147
+#: emc/usr_intf/axis/scripts/axis.py:158
 msgid "I, Shift-I"
 msgstr "I, Umsch.-I"
 
-#: emc/usr_intf/axis/scripts/axis.py:147 ../share/axis/tcl/axis.tcl:2203
+#: emc/usr_intf/axis/scripts/axis.py:158 ../share/axis/tcl/axis.tcl:2321
 msgid "Select jog increment"
 msgstr "Schrittweite auswählen"
 
-#: emc/usr_intf/axis/scripts/axis.py:148
+#: emc/usr_intf/axis/scripts/axis.py:159
 msgid "Continuous jog"
 msgstr "Durchgehende Bewegung"
 
-#: emc/usr_intf/axis/scripts/axis.py:149
+#: emc/usr_intf/axis/scripts/axis.py:160
 msgid "Home"
 msgstr "Pos1"
 
-#: emc/usr_intf/axis/scripts/axis.py:149
+#: emc/usr_intf/axis/scripts/axis.py:160
 msgid "Send active axis home"
 msgstr "Referenzfahrt mit der aktiven Achse"
 
-#: emc/usr_intf/axis/scripts/axis.py:150
+#: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Ctrl-Home"
 msgstr "Strg-Pos1"
 
-#: emc/usr_intf/axis/scripts/axis.py:150
+#: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Home all axes"
 msgstr "Referenzfahrt mit allen Achsen"
 
-#: emc/usr_intf/axis/scripts/axis.py:151
+#: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Shift-Home"
 msgstr "Umsch.-Pos1"
 
-#: emc/usr_intf/axis/scripts/axis.py:151
+#: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Zero G54 offset for active axis"
 msgstr "Nullpunktverschiebung für die aktive Achse löschen"
 
-#: emc/usr_intf/axis/scripts/axis.py:152
+#: emc/usr_intf/axis/scripts/axis.py:163
 msgid "End"
 msgstr "Ende"
 
-#: emc/usr_intf/axis/scripts/axis.py:152
+#: emc/usr_intf/axis/scripts/axis.py:163
 msgid "Set G54 offset for active axis"
 msgstr "Absolute Nullpunktverschiebung für die aktive Achse setzen"
 
-#: emc/usr_intf/axis/scripts/axis.py:153
+#: emc/usr_intf/axis/scripts/axis.py:164
 msgid "Jog active axis"
 msgstr "Aktive Achse verfahren"
 
-#: emc/usr_intf/axis/scripts/axis.py:154
+#: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Left, Right"
 msgstr "Links, Rechts"
 
-#: emc/usr_intf/axis/scripts/axis.py:154
+#: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Jog first axis"
 msgstr "Erste Achse verfahren"
 
-#: emc/usr_intf/axis/scripts/axis.py:155
+#: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Up, Down"
 msgstr "Hoch, Runter"
 
-#: emc/usr_intf/axis/scripts/axis.py:155
+#: emc/usr_intf/axis/scripts/axis.py:166
 msgid "Jog second axis"
 msgstr "Zweite Achse verfahren"
 
-#: emc/usr_intf/axis/scripts/axis.py:156
+#: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Pg Up, Pg Dn"
 msgstr "Bild auf, Bild ab"
 
-#: emc/usr_intf/axis/scripts/axis.py:156
+#: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Jog third axis"
 msgstr "Dritte Achse verfahren"
 
-#: emc/usr_intf/axis/scripts/axis.py:157
+#: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog fourth axis"
 msgstr "Vierte Achse verfahren"
 
-#: emc/usr_intf/axis/scripts/axis.py:159
+#: emc/usr_intf/axis/scripts/axis.py:170
 msgid "Toggle between Drag and Rotate mode"
 msgstr "Zwischen verschieben und drehen umschalten"
 
-#: emc/usr_intf/axis/scripts/axis.py:160
+#: emc/usr_intf/axis/scripts/axis.py:171
 msgid "Left Button"
 msgstr "Linke Maustaste"
 
-#: emc/usr_intf/axis/scripts/axis.py:160
+#: emc/usr_intf/axis/scripts/axis.py:171
 msgid "Pan, rotate or select line"
 msgstr "Verschieben, drehen oder Linie auswählen"
 
-#: emc/usr_intf/axis/scripts/axis.py:161
+#: emc/usr_intf/axis/scripts/axis.py:172
 msgid "Shift+Left Button"
 msgstr "Umsch.+Linke Maustaste"
 
-#: emc/usr_intf/axis/scripts/axis.py:161
+#: emc/usr_intf/axis/scripts/axis.py:172
 msgid "Rotate or pan"
 msgstr "Drehen oder verschieben"
 
-#: emc/usr_intf/axis/scripts/axis.py:162
+#: emc/usr_intf/axis/scripts/axis.py:173
 msgid "Right Button"
 msgstr "Rechte Mausaste"
 
-#: emc/usr_intf/axis/scripts/axis.py:162 emc/usr_intf/axis/scripts/axis.py:164
-#: emc/usr_intf/axis/scripts/axis.py:165
+#: emc/usr_intf/axis/scripts/axis.py:173 emc/usr_intf/axis/scripts/axis.py:175
+#: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Zoom view"
 msgstr "Maßstab der Vorschau ändern"
 
-#: emc/usr_intf/axis/scripts/axis.py:163
+#: emc/usr_intf/axis/scripts/axis.py:174
 msgid "Wheel Button"
 msgstr "Mausrad-Taste"
 
-#: emc/usr_intf/axis/scripts/axis.py:163
+#: emc/usr_intf/axis/scripts/axis.py:174
 msgid "Rotate view"
 msgstr "Vorschau drehen"
 
-#: emc/usr_intf/axis/scripts/axis.py:164
+#: emc/usr_intf/axis/scripts/axis.py:175
 msgid "Rotate Wheel"
 msgstr "Mausrad"
 
-#: emc/usr_intf/axis/scripts/axis.py:165
+#: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Control+Left Button"
 msgstr "Strg+Linke Maustaste"
 
-#: emc/usr_intf/axis/scripts/axis.py:167
-msgid "Space, Ctrl-Space"
-msgstr "Leertaste, Strg-Leertaste"
+#: emc/usr_intf/axis/scripts/axis.py:178
+msgid "Ctrl-Space"
+msgstr "Strg-Leertaste"
 
-#: emc/usr_intf/axis/scripts/axis.py:167
+#: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Clear notifications"
 msgstr "Mitteilungen löschen"
 
-#: emc/usr_intf/axis/scripts/axis.py:170
+#: emc/usr_intf/axis/scripts/axis.py:181
 msgid "Manual control"
 msgstr "Manuelle Kontrolle"
 
-#: emc/usr_intf/axis/scripts/axis.py:171
+#: emc/usr_intf/axis/scripts/axis.py:182
 msgid "Code entry (MDI)"
 msgstr "Befehlseingabe (MDI)"
 
-#: emc/usr_intf/axis/scripts/axis.py:172
+#: emc/usr_intf/axis/scripts/axis.py:183
 msgid "Control-M"
 msgstr "Strg-M"
 
-#: emc/usr_intf/axis/scripts/axis.py:172
+#: emc/usr_intf/axis/scripts/axis.py:183
 msgid "Clear MDI history"
 msgstr "MDI-Verlauf leeren"
 
-#: emc/usr_intf/axis/scripts/axis.py:173
+#: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Control-H"
 msgstr "Strg-H"
 
-#: emc/usr_intf/axis/scripts/axis.py:173
+#: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Copy selected MDI history elements"
 msgstr "Markierte Befehle aus MDI-Verlauf"
 
-#: emc/usr_intf/axis/scripts/axis.py:174
+#: emc/usr_intf/axis/scripts/axis.py:185
 msgid "to clipboard"
 msgstr "in die Zwischenablage kopieren"
 
-#: emc/usr_intf/axis/scripts/axis.py:175
+#: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Control-Shift-H"
 msgstr "Strg-Umsch.-H"
 
-#: emc/usr_intf/axis/scripts/axis.py:175
+#: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Paste clipboard to MDI history"
 msgstr "Zwischenablage in den MDI-Verlauf einfügen"
 
-#: emc/usr_intf/axis/scripts/axis.py:176 ../share/axis/tcl/axis.tcl:1046
+#: emc/usr_intf/axis/scripts/axis.py:187 ../share/axis/tcl/axis.tcl:1086
 msgid "Override Limits"
 msgstr "Grenzwerte aufheben"
 
-#: emc/usr_intf/axis/scripts/axis.py:178
+#: emc/usr_intf/axis/scripts/axis.py:189
 msgid "Open program"
 msgstr "Programm öffnen"
 
-#: emc/usr_intf/axis/scripts/axis.py:179
+#: emc/usr_intf/axis/scripts/axis.py:190
 msgid "Control-R"
 msgstr "Strg-R"
 
-#: emc/usr_intf/axis/scripts/axis.py:179
+#: emc/usr_intf/axis/scripts/axis.py:190
 msgid "Reload program"
 msgstr "Programm neu laden"
 
-#: emc/usr_intf/axis/scripts/axis.py:180
+#: emc/usr_intf/axis/scripts/axis.py:191
 msgid "Control-S"
 msgstr "Strg-S"
 
-#: emc/usr_intf/axis/scripts/axis.py:180
+#: emc/usr_intf/axis/scripts/axis.py:191
 msgid "Save g-code as"
 msgstr "G-Code in Datei speichern"
 
-#: emc/usr_intf/axis/scripts/axis.py:181
+#: emc/usr_intf/axis/scripts/axis.py:192
 msgid "Run program"
 msgstr "Programm ausführen"
 
-#: emc/usr_intf/axis/scripts/axis.py:182
+#: emc/usr_intf/axis/scripts/axis.py:193
 msgid "Step program"
 msgstr "Programm schrittweise ausführen"
 
-#: emc/usr_intf/axis/scripts/axis.py:183
+#: emc/usr_intf/axis/scripts/axis.py:194
 msgid "Pause program"
 msgstr "Programm unterbrechen"
 
-#: emc/usr_intf/axis/scripts/axis.py:184
+#: emc/usr_intf/axis/scripts/axis.py:195
 msgid "Resume program"
 msgstr "Programm fortsetzen"
 
-#: emc/usr_intf/axis/scripts/axis.py:185
+#: emc/usr_intf/axis/scripts/axis.py:196
 msgid "Stop running program, or"
 msgstr "Programmausführung oder Laden der"
 
-#: emc/usr_intf/axis/scripts/axis.py:186
+#: emc/usr_intf/axis/scripts/axis.py:197
 msgid "stop loading program preview"
 msgstr "Programm-Vorschau abbrechen"
 
-#: emc/usr_intf/axis/scripts/axis.py:188
+#: emc/usr_intf/axis/scripts/axis.py:199
 msgid "Toggle mist"
 msgstr "Kühlnebel an/aus"
 
-#: emc/usr_intf/axis/scripts/axis.py:189
+#: emc/usr_intf/axis/scripts/axis.py:200
 msgid "Toggle flood"
 msgstr "Kühlmittel an/aus"
 
-#: emc/usr_intf/axis/scripts/axis.py:191
+#: emc/usr_intf/axis/scripts/axis.py:202
 msgid "Spindle brake off"
 msgstr "Spindelbremse aus"
 
-#: emc/usr_intf/axis/scripts/axis.py:192
+#: emc/usr_intf/axis/scripts/axis.py:203
 msgid "Shift-B"
 msgstr "Umsch.-B"
 
-#: emc/usr_intf/axis/scripts/axis.py:192
+#: emc/usr_intf/axis/scripts/axis.py:203
 msgid "Spindle brake on"
 msgstr "Spindelbremse an"
 
-#: emc/usr_intf/axis/scripts/axis.py:193
+#: emc/usr_intf/axis/scripts/axis.py:204
 msgid "Turn spindle clockwise"
 msgstr "Spindel dreht im Uhrzeigersinn"
 
-#: emc/usr_intf/axis/scripts/axis.py:194
+#: emc/usr_intf/axis/scripts/axis.py:205
 msgid "Turn spindle counterclockwise"
 msgstr "Spindel dreht gegen Uhrzeigersinn"
 
-#: emc/usr_intf/axis/scripts/axis.py:195
+#: emc/usr_intf/axis/scripts/axis.py:206
 msgid "Turn spindle more slowly"
 msgstr "Spindel langsamer"
 
-#: emc/usr_intf/axis/scripts/axis.py:196
+#: emc/usr_intf/axis/scripts/axis.py:207
 msgid "Turn spindle more quickly"
 msgstr "Spindel schneller"
 
-#: emc/usr_intf/axis/scripts/axis.py:198
+#: emc/usr_intf/axis/scripts/axis.py:209
 msgid "Control-K"
 msgstr "Strg-K"
 
-#: emc/usr_intf/axis/scripts/axis.py:198
+#: emc/usr_intf/axis/scripts/axis.py:209
 msgid "Clear live plot"
 msgstr "Werkzeugpfad löschen"
 
-#: emc/usr_intf/axis/scripts/axis.py:199
+#: emc/usr_intf/axis/scripts/axis.py:210
 msgid "Cycle among preset views"
 msgstr "Perspektive wechseln"
 
-#: emc/usr_intf/axis/scripts/axis.py:1536
+#: emc/usr_intf/axis/scripts/axis.py:1588
 msgid "No tool"
 msgstr "Kein Werkzeug"
 
-#: emc/usr_intf/axis/scripts/axis.py:1538
+#: emc/usr_intf/axis/scripts/axis.py:1590
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Unbekanntes Werkzeug %d"
 
-#: emc/usr_intf/axis/scripts/axis.py:1540
+#: emc/usr_intf/axis/scripts/axis.py:1592
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Werkzeug %(tool)d, Werkzeugverschiebung %(zo)g, Durchmesser %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1542
+#: emc/usr_intf/axis/scripts/axis.py:1594
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Werkzeug %(tool)d, Zo %(zo)g, Xo %(xo)g, Durchmesser %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1794
+#: emc/usr_intf/axis/scripts/axis.py:1844
 msgid "Filtering..."
 msgstr "Arbeite..."
 
-#: emc/usr_intf/axis/scripts/axis.py:1836
+#: emc/usr_intf/axis/scripts/axis.py:1900
 msgid "Filter failed"
 msgstr "Konvertierung fehlgeschlagen"
 
-#: emc/usr_intf/axis/scripts/axis.py:1837
+#: emc/usr_intf/axis/scripts/axis.py:1901
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
@@ -362,23 +362,23 @@ msgstr ""
 "Der Konverter %(program)r hat den Vorgang mit Status %(code)d beendet. "
 "Folgende Fehlermeldungen sind vorhanden:"
 
-#: emc/usr_intf/axis/scripts/axis.py:1840
-#: emc/usr_intf/axis/scripts/axis.py:1898
-#: emc/usr_intf/axis/scripts/axis.py:2147
-#: emc/usr_intf/axis/scripts/axis.py:3169
-#: emc/usr_intf/axis/scripts/axis.py:3878
+#: emc/usr_intf/axis/scripts/axis.py:1904
+#: emc/usr_intf/axis/scripts/axis.py:1962
+#: emc/usr_intf/axis/scripts/axis.py:2215
+#: emc/usr_intf/axis/scripts/axis.py:3251
+#: emc/usr_intf/axis/scripts/axis.py:3982
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:709
-#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1626
-#: ../share/axis/tcl/axis.tcl:1663
+#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1692
+#: ../share/axis/tcl/axis.tcl:1729
 msgid "OK"
 msgstr "OK"
 
-#: emc/usr_intf/axis/scripts/axis.py:1896
+#: emc/usr_intf/axis/scripts/axis.py:1960
 #, python-format
 msgid "G-Code error in %s"
 msgstr "G-Code Fehler in %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:1897
+#: emc/usr_intf/axis/scripts/axis.py:1961
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -387,106 +387,106 @@ msgstr ""
 "Nahe Zeile %(seq)d in %(f)s:\n"
 "%(error_str)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2048
-#: emc/usr_intf/axis/scripts/axis.py:3382 ../share/axis/tcl/axis.tcl:1025
-#: ../share/axis/tcl/axis.tcl:1027 ../share/axis/tcl/axis.tcl:2029
+#: emc/usr_intf/axis/scripts/axis.py:2116
+#: emc/usr_intf/axis/scripts/axis.py:3470 ../share/axis/tcl/axis.tcl:1065
+#: ../share/axis/tcl/axis.tcl:1067 ../share/axis/tcl/axis.tcl:2113
 msgid "Continuous"
 msgstr "Durchgehend"
 
-#: emc/usr_intf/axis/scripts/axis.py:2148
-#: emc/usr_intf/axis/scripts/axis.py:2322
+#: emc/usr_intf/axis/scripts/axis.py:2216
+#: emc/usr_intf/axis/scripts/axis.py:2390
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:711
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: emc/usr_intf/axis/scripts/axis.py:2244
+#: emc/usr_intf/axis/scripts/axis.py:2312
 msgid "T    Tool Table"
 msgstr "T   Werkzeugtabelle"
 
-#: emc/usr_intf/axis/scripts/axis.py:2263
+#: emc/usr_intf/axis/scripts/axis.py:2331
 msgid "Coordinate System:"
 msgstr "Koordinatensystem:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2286
+#: emc/usr_intf/axis/scripts/axis.py:2354
 msgid "Name:"
 msgstr "Name:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2286
+#: emc/usr_intf/axis/scripts/axis.py:2354
 msgid "Size:"
 msgstr "Größe:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2287
+#: emc/usr_intf/axis/scripts/axis.py:2355
 msgid "Tool order:"
 msgstr "Werkzeugreichenfolge:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2287
+#: emc/usr_intf/axis/scripts/axis.py:2355
 msgid "Rapid distance:"
 msgstr "Eilgang-Weg:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2288
+#: emc/usr_intf/axis/scripts/axis.py:2356
 msgid "Feed distance:"
 msgstr "Vorschub-Weg:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2288
+#: emc/usr_intf/axis/scripts/axis.py:2356
 msgid "Total distance:"
 msgstr "Gesamter Weg:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2289
+#: emc/usr_intf/axis/scripts/axis.py:2357
 msgid "Run time:"
 msgstr "Laufzeit:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2289
+#: emc/usr_intf/axis/scripts/axis.py:2357
 msgid "X bounds:"
 msgstr "X-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2290
+#: emc/usr_intf/axis/scripts/axis.py:2358
 msgid "Y bounds:"
 msgstr "Y-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2290
+#: emc/usr_intf/axis/scripts/axis.py:2358
 msgid "Z bounds:"
 msgstr "Z-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2291
+#: emc/usr_intf/axis/scripts/axis.py:2359
 msgid "A bounds:"
 msgstr "A-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2291
+#: emc/usr_intf/axis/scripts/axis.py:2359
 msgid "B bounds:"
 msgstr "B-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2292
+#: emc/usr_intf/axis/scripts/axis.py:2360
 msgid "C bounds:"
 msgstr "C-Bereich:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2311
+#: emc/usr_intf/axis/scripts/axis.py:2379
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Programm überschreitet den unteren Grenzwert der Achse %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2314
+#: emc/usr_intf/axis/scripts/axis.py:2382
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Programm überschreitet den oberen Grenzwert der Achse %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2319
+#: emc/usr_intf/axis/scripts/axis.py:2387
 msgid "Program exceeds machine limits"
 msgstr "Programm überschreitet die Maschinengrenzwerte"
 
-#: emc/usr_intf/axis/scripts/axis.py:2322
+#: emc/usr_intf/axis/scripts/axis.py:2390
 msgid "Run Anyway"
 msgstr "Trotzdem ausführen"
 
-#: emc/usr_intf/axis/scripts/axis.py:2364
+#: emc/usr_intf/axis/scripts/axis.py:2438
 msgid "No file loaded"
 msgstr "Es ist keine Datei geladen"
 
-#: emc/usr_intf/axis/scripts/axis.py:2372
+#: emc/usr_intf/axis/scripts/axis.py:2446
 #, python-format
 msgid "generated from %s"
 msgstr "Erstellt von »%«"
 
-#: emc/usr_intf/axis/scripts/axis.py:2378
+#: emc/usr_intf/axis/scripts/axis.py:2452
 #, python-format
 msgid ""
 "%(size)s bytes\n"
@@ -495,96 +495,96 @@ msgstr ""
 "%(size)s Byte\n"
 "%(lines)s Zeilen"
 
-#: emc/usr_intf/axis/scripts/axis.py:2382
-#: emc/usr_intf/stepconf/stepconf.py:1231
-#: emc/usr_intf/stepconf/stepconf.py:1596
-#: emc/usr_intf/stepconf/stepconf.glade:5097
+#: emc/usr_intf/axis/scripts/axis.py:2456
+#: emc/usr_intf/stepconf/stepconf.py:1516
+#: emc/usr_intf/stepconf/stepconf.py:2111
+#: emc/usr_intf/stepconf/stepconf.glade:3997
 msgid "mm"
 msgstr "mm"
 
-#: emc/usr_intf/axis/scripts/axis.py:2386
-#: emc/usr_intf/stepconf/stepconf.py:1236
-#: emc/usr_intf/stepconf/stepconf.py:1610
+#: emc/usr_intf/axis/scripts/axis.py:2460
+#: emc/usr_intf/stepconf/stepconf.py:1522
+#: emc/usr_intf/stepconf/stepconf.py:2125
 msgid "in"
 msgstr "in"
 
-#: emc/usr_intf/axis/scripts/axis.py:2404
+#: emc/usr_intf/axis/scripts/axis.py:2478
 #, python-format
 msgid "%.1f minutes"
 msgstr "%.1f min"
 
-#: emc/usr_intf/axis/scripts/axis.py:2406
+#: emc/usr_intf/axis/scripts/axis.py:2480
 #, python-format
 msgid "%d seconds"
 msgstr "%d s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2414
+#: emc/usr_intf/axis/scripts/axis.py:2488
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f bis %(b)f = %(diff)f %(units)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2415
+#: emc/usr_intf/axis/scripts/axis.py:2489
 msgid "G-Code Properties"
 msgstr "G-Code Eigenschaften"
 
-#: emc/usr_intf/axis/scripts/axis.py:2606
+#: emc/usr_intf/axis/scripts/axis.py:2687
 msgid "All machinable files"
 msgstr "Alle einlesbaren Dateien"
 
-#: emc/usr_intf/axis/scripts/axis.py:2607
-#: emc/usr_intf/axis/scripts/axis.py:3156
+#: emc/usr_intf/axis/scripts/axis.py:2688
+#: emc/usr_intf/axis/scripts/axis.py:3238
 msgid "rs274ngc files"
 msgstr "NC Dateien"
 
-#: emc/usr_intf/axis/scripts/axis.py:2608
+#: emc/usr_intf/axis/scripts/axis.py:2689
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
 msgid "All files"
 msgstr "Alle Dateien"
 
-#: emc/usr_intf/axis/scripts/axis.py:2989 ../share/axis/tcl/axis.tcl:1041
+#: emc/usr_intf/axis/scripts/axis.py:3071
 msgid "Touch Off"
 msgstr "Antasten"
 
-#: emc/usr_intf/axis/scripts/axis.py:2990
+#: emc/usr_intf/axis/scripts/axis.py:3072
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
 msgstr "%s-Koordinate relativ zum Werkstück"
 
-#: emc/usr_intf/axis/scripts/axis.py:3168
+#: emc/usr_intf/axis/scripts/axis.py:3250
 msgid "Error saving file"
 msgstr "Fehler beim speichern der Datei"
 
-#: emc/usr_intf/axis/scripts/axis.py:3508
+#: emc/usr_intf/axis/scripts/axis.py:3602
 msgid "Home All"
 msgstr "Referenzfahrt"
 
-#: emc/usr_intf/axis/scripts/axis.py:3510
+#: emc/usr_intf/axis/scripts/axis.py:3604
 msgid "Home all axes [Ctrl-Home]"
 msgstr "Referenzfahrt mit allen Achsen [Strg-Pos1]"
 
-#: emc/usr_intf/axis/scripts/axis.py:3513
+#: emc/usr_intf/axis/scripts/axis.py:3607
 msgid "Home All Axes"
 msgstr "Referenzfahrt mit allen Achsen"
 
-#: emc/usr_intf/axis/scripts/axis.py:3516
+#: emc/usr_intf/axis/scripts/axis.py:3610
 msgid "Unhome All Axes"
 msgstr "Referenzfahrt aufheben bei allen Achsen"
 
-#: emc/usr_intf/axis/scripts/axis.py:3536
+#: emc/usr_intf/axis/scripts/axis.py:3630
 #, python-format
 msgid "Home Axis _%s"
 msgstr "Referenzfahrt mit _%s-Achse"
 
-#: emc/usr_intf/axis/scripts/axis.py:3538
+#: emc/usr_intf/axis/scripts/axis.py:3632
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr "Referenzfahrt aufheben bei _%s-Achse"
 
-#: emc/usr_intf/axis/scripts/axis.py:3677
+#: emc/usr_intf/axis/scripts/axis.py:3767
 msgid "Run from here"
 msgstr "Ab hier ausführen"
 
-#: emc/usr_intf/axis/scripts/axis.py:3877
+#: emc/usr_intf/axis/scripts/axis.py:3981
 msgid "Error in ~/.axisrc"
 msgstr "Fehler in »~/.axisrc«"
 
@@ -811,484 +811,537 @@ msgstr "Bild zu G-Code: Benutzer betätigte »Abbrechen«"
 msgid "Depth images"
 msgstr "Bilddateien"
 
-#: emc/usr_intf/axis/scripts/debuglevel.py:42
+#: emc/usr_intf/axis/scripts/debuglevel.py:21
+msgid "EMC2 Debug Level"
+msgstr "Debug-Stufe"
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:22
+msgid "debuglevel"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:35
+#, fuzzy
+msgid "Configuration *"
+msgstr "Konfiguration der X-Achse"
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:36
+msgid "Version Numbers *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:37
+msgid "NML *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:38
+msgid "RCS *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:39
 msgid "Task Issue"
 msgstr ""
 
-#: emc/usr_intf/axis/scripts/debuglevel.py:43
-msgid "IO Points"
-msgstr ""
-
-#: emc/usr_intf/axis/scripts/debuglevel.py:45
+#: emc/usr_intf/axis/scripts/debuglevel.py:40
 msgid "Motion Time"
 msgstr ""
 
-#: emc/usr_intf/axis/scripts/debuglevel.py:46
+#: emc/usr_intf/axis/scripts/debuglevel.py:41
 msgid "Interpreter"
 msgstr ""
 
-#: emc/usr_intf/axis/scripts/debuglevel.py:48
-msgid "Trajectory"
-msgstr ""
-
-#: emc/usr_intf/axis/scripts/debuglevel.py:49
+#: emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Interpreter List"
 msgstr ""
 
-#: ../share/axis/tcl/axis.tcl:45
+#: emc/usr_intf/axis/scripts/debuglevel.py:46
+#, python-format
+msgid ""
+"Inifile setting for this debug level:\n"
+"[EMC]DEBUG=0x%08x"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:80
+msgid "  * This option can only be enabled in the inifile"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:47
 msgid "_Open..."
 msgstr "Ö_ffnen..."
 
-#: ../share/axis/tcl/axis.tcl:49
+#: ../share/axis/tcl/axis.tcl:51
+msgid "Recent _Files"
+msgstr "Zuletzt geöffnete Dateien"
+
+#: ../share/axis/tcl/axis.tcl:55
 msgid "_Edit..."
 msgstr "Be_arbeiten"
 
-#: ../share/axis/tcl/axis.tcl:52
+#: ../share/axis/tcl/axis.tcl:58
 msgid "Ctrl-R"
 msgstr "Strg-R"
 
-#: ../share/axis/tcl/axis.tcl:54
+#: ../share/axis/tcl/axis.tcl:60
 msgid "_Reload"
 msgstr "_Neu laden"
 
-#: ../share/axis/tcl/axis.tcl:57
+#: ../share/axis/tcl/axis.tcl:63
 msgid "Ctrl-S"
 msgstr "Strg-S"
 
-#: ../share/axis/tcl/axis.tcl:59
+#: ../share/axis/tcl/axis.tcl:65
 msgid "_Save gcode as..."
 msgstr "_Speichern unter..."
 
-#: ../share/axis/tcl/axis.tcl:63
+#: ../share/axis/tcl/axis.tcl:69
 msgid "_Properties..."
 msgstr "_Eigenschaften..."
 
-#: ../share/axis/tcl/axis.tcl:69
+#: ../share/axis/tcl/axis.tcl:75
 msgid "Edit _tool table..."
 msgstr "_Werkzeugtabelle bearbeiten"
 
-#: ../share/axis/tcl/axis.tcl:73
+#: ../share/axis/tcl/axis.tcl:79
 msgid "Reload tool ta_ble"
 msgstr "We_rkzeugtabelle neu laden"
 
-#: ../share/axis/tcl/axis.tcl:79
+#: ../share/axis/tcl/axis.tcl:85
 msgid "_Ladder Editor..."
 msgstr "S_PS-Editor"
 
-#: ../share/axis/tcl/axis.tcl:85
+#: ../share/axis/tcl/axis.tcl:91
 msgid "_Quit"
 msgstr "_Beenden"
 
-#: ../share/axis/tcl/axis.tcl:91
+#: ../share/axis/tcl/axis.tcl:97
 msgid "Toggle _Emergency Stop"
 msgstr "_Notaus an/aus"
 
-#: ../share/axis/tcl/axis.tcl:96
+#: ../share/axis/tcl/axis.tcl:102
 msgid "Toggle _Machine Power"
 msgstr "_Maschine an/aus"
 
-#: ../share/axis/tcl/axis.tcl:103
+#: ../share/axis/tcl/axis.tcl:109
 msgid "_Run program"
 msgstr "P_rogramm ausführen"
 
-#: ../share/axis/tcl/axis.tcl:107
+#: ../share/axis/tcl/axis.tcl:113
 msgid "Ru_n from selected line"
 msgstr "Ab gewählter _Zeile ausführen"
 
-#: ../share/axis/tcl/axis.tcl:112
+#: ../share/axis/tcl/axis.tcl:118
 msgid "S_tep"
 msgstr "Einzelschri_tt"
 
-#: ../share/axis/tcl/axis.tcl:117
+#: ../share/axis/tcl/axis.tcl:123
 msgid "_Pause"
 msgstr "_Pause"
 
-#: ../share/axis/tcl/axis.tcl:122
+#: ../share/axis/tcl/axis.tcl:128
 msgid "Re_sume"
 msgstr "Fort_setzen"
 
-#: ../share/axis/tcl/axis.tcl:127 ../share/axis/tcl/axis.tcl:1132
+#: ../share/axis/tcl/axis.tcl:133 ../share/axis/tcl/axis.tcl:1172
 msgid "Stop"
 msgstr "_Stopp"
 
-#: ../share/axis/tcl/axis.tcl:132
+#: ../share/axis/tcl/axis.tcl:138
 msgid "Stop at M_1"
 msgstr "Bei »M_1« anhalten"
 
-#: ../share/axis/tcl/axis.tcl:137
+#: ../share/axis/tcl/axis.tcl:143
 msgid "Skip lines with '_/'"
 msgstr "Zeilen mit »_/« überspringen"
 
-#: ../share/axis/tcl/axis.tcl:142
+#: ../share/axis/tcl/axis.tcl:148
 msgid "Ctrl-M"
 msgstr "Strg-M"
 
-#: ../share/axis/tcl/axis.tcl:144
+#: ../share/axis/tcl/axis.tcl:150
 msgid "Clear MDI h_istory"
 msgstr "MD_I-Verlauf leeren"
 
-#: ../share/axis/tcl/axis.tcl:146
+#: ../share/axis/tcl/axis.tcl:152
 msgid "Ctrl-H"
 msgstr "Strg-H"
 
-#: ../share/axis/tcl/axis.tcl:148
+#: ../share/axis/tcl/axis.tcl:154
 msgid "Copy from MDI hist_ory"
 msgstr "Aus MDI-Verlauf k_opieren"
 
-#: ../share/axis/tcl/axis.tcl:150
+#: ../share/axis/tcl/axis.tcl:156
 msgid "Ctrl-Shift-H"
 msgstr "Strg-Umsch.-H"
 
-#: ../share/axis/tcl/axis.tcl:152
+#: ../share/axis/tcl/axis.tcl:158
 msgid "Paste to MDI histor_y"
 msgstr "In MDI-Verlauf _einfügen"
 
-#: ../share/axis/tcl/axis.tcl:158
+#: ../share/axis/tcl/axis.tcl:164
 msgid "_Calibration"
 msgstr "_Kalibrierung..."
 
-#: ../share/axis/tcl/axis.tcl:162
+#: ../share/axis/tcl/axis.tcl:168
 msgid "Show _Hal Configuration"
 msgstr "_HAL anzeigen..."
 
-#: ../share/axis/tcl/axis.tcl:166
+#: ../share/axis/tcl/axis.tcl:172
 msgid "H_al Meter"
 msgstr "H_AL-Meter..."
 
-#: ../share/axis/tcl/axis.tcl:170
+#: ../share/axis/tcl/axis.tcl:176
 msgid "Ha_l Scope"
 msgstr "HA_L-Scope..."
 
-#: ../share/axis/tcl/axis.tcl:174
+#: ../share/axis/tcl/axis.tcl:180
 msgid "Sho_w EMC Status"
 msgstr "EM_C-Status..."
 
-#: ../share/axis/tcl/axis.tcl:178
+#: ../share/axis/tcl/axis.tcl:184
 msgid "Set _Debug Level"
 msgstr "Deb_ug-Stufe festlegen..."
 
-#: ../share/axis/tcl/axis.tcl:184
+#: ../share/axis/tcl/axis.tcl:190
 msgid "Homin_g"
 msgstr "Re_ferenzfahrt"
 
-#: ../share/axis/tcl/axis.tcl:188
+#: ../share/axis/tcl/axis.tcl:194
 msgid "_Unhoming"
 msgstr "Referenzfahrt aufhe_ben"
 
-#: ../share/axis/tcl/axis.tcl:192
+#: ../share/axis/tcl/axis.tcl:198
 msgid "_Zero coordinate system"
 msgstr "Koordinatens_ystem"
 
-#: ../share/axis/tcl/axis.tcl:196
+#: ../share/axis/tcl/axis.tcl:202
 msgid "P1  G5_4"
-msgstr ""
+msgstr "P1  G5_4"
 
-#: ../share/axis/tcl/axis.tcl:200
+#: ../share/axis/tcl/axis.tcl:206
 msgid "P2  G5_5"
-msgstr ""
+msgstr "P2  G5_5"
 
-#: ../share/axis/tcl/axis.tcl:204
+#: ../share/axis/tcl/axis.tcl:210
 msgid "P3  G5_6"
-msgstr ""
+msgstr "P3  G5_6"
 
-#: ../share/axis/tcl/axis.tcl:208
+#: ../share/axis/tcl/axis.tcl:214
 msgid "P4  G5_7"
-msgstr ""
+msgstr "P4  G5_7"
 
-#: ../share/axis/tcl/axis.tcl:212
+#: ../share/axis/tcl/axis.tcl:218
 msgid "P5  G5_8"
-msgstr ""
+msgstr "P5  G5_8"
 
-#: ../share/axis/tcl/axis.tcl:216
+#: ../share/axis/tcl/axis.tcl:222
 msgid "P6  G5_9"
-msgstr ""
+msgstr "P6  G5_9"
 
-#: ../share/axis/tcl/axis.tcl:220
+#: ../share/axis/tcl/axis.tcl:226
 msgid "P7  G59._1"
-msgstr ""
+msgstr "P7  G59._1"
 
-#: ../share/axis/tcl/axis.tcl:224
+#: ../share/axis/tcl/axis.tcl:230
 msgid "P8  G59._2"
-msgstr ""
+msgstr "P8  G59._2"
 
-#: ../share/axis/tcl/axis.tcl:228
+#: ../share/axis/tcl/axis.tcl:234
 msgid "P9  G59._3"
-msgstr ""
+msgstr "P9  G59._3"
 
-#: ../share/axis/tcl/axis.tcl:232
+#: ../share/axis/tcl/axis.tcl:238
 msgid "_G92"
-msgstr ""
+msgstr "_G92"
 
-#: ../share/axis/tcl/axis.tcl:242
+#: ../share/axis/tcl/axis.tcl:248
 msgid "_Top view"
 msgstr "_Draufsicht"
 
-#: ../share/axis/tcl/axis.tcl:249
+#: ../share/axis/tcl/axis.tcl:255
 msgid "_Rotated Top view"
 msgstr "Draufsicht _gedreht"
 
-#: ../share/axis/tcl/axis.tcl:256
+#: ../share/axis/tcl/axis.tcl:262
 msgid "_Side view"
 msgstr "_Seitenansicht"
 
-#: ../share/axis/tcl/axis.tcl:263
+#: ../share/axis/tcl/axis.tcl:269
 msgid "_Front view"
 msgstr "_Vorderansicht"
 
-#: ../share/axis/tcl/axis.tcl:270
+#: ../share/axis/tcl/axis.tcl:276
 msgid "_Perspective view"
 msgstr "_Perspektivisch"
 
-#: ../share/axis/tcl/axis.tcl:278
+#: ../share/axis/tcl/axis.tcl:284
 msgid "Display _Inches"
 msgstr "_Inch"
 
-#: ../share/axis/tcl/axis.tcl:284
+#: ../share/axis/tcl/axis.tcl:290
 msgid "Display _MM"
 msgstr "_mm"
 
-#: ../share/axis/tcl/axis.tcl:291
+#: ../share/axis/tcl/axis.tcl:297
 msgid "S_how program"
 msgstr "V_orschau anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:296
+#: ../share/axis/tcl/axis.tcl:302
 msgid "Show program r_apids"
 msgstr "_Eilgangpfad anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:301
+#: ../share/axis/tcl/axis.tcl:307
 msgid "Sho_w live plot"
 msgstr "Werkzeugp_fad anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:306
+#: ../share/axis/tcl/axis.tcl:312
 msgid "Show too_l"
 msgstr "_Werkzeug anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:311
+#: ../share/axis/tcl/axis.tcl:317
 msgid "Show e_xtents"
 msgstr "_Bemaßung anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:316
+#: ../share/axis/tcl/axis.tcl:322
 msgid "Sh_ow machine limits"
 msgstr "Maschinengren_zen anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:321
+#: ../share/axis/tcl/axis.tcl:327
 msgid "Show v_elocity"
 msgstr "Geschwi_ndigkeit anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:326
+#: ../share/axis/tcl/axis.tcl:332
 msgid "Show _distance to go"
 msgstr "Verf_ahrweg anzeigen"
 
-#: ../share/axis/tcl/axis.tcl:331
+#: ../share/axis/tcl/axis.tcl:337
 msgid "La_rge coordinate font"
 msgstr "Große S_chrift für Koordinaten"
 
-#: ../share/axis/tcl/axis.tcl:334
+#: ../share/axis/tcl/axis.tcl:340
 msgid "Ctrl-K"
 msgstr "Strg-K"
 
-#: ../share/axis/tcl/axis.tcl:336
+#: ../share/axis/tcl/axis.tcl:342
 msgid "_Clear live plot"
 msgstr "Werkzeugpfad _löschen"
 
-#: ../share/axis/tcl/axis.tcl:345
+#: ../share/axis/tcl/axis.tcl:351
 msgid "Show commanded position"
 msgstr "E_rwartete Position"
 
-#: ../share/axis/tcl/axis.tcl:352
+#: ../share/axis/tcl/axis.tcl:358
 msgid "Show actual position"
 msgstr "A_ktuelle Position"
 
-#: ../share/axis/tcl/axis.tcl:361
+#: ../share/axis/tcl/axis.tcl:367
 msgid "Show machine position"
 msgstr "Absol_ute Position"
 
-#: ../share/axis/tcl/axis.tcl:368
+#: ../share/axis/tcl/axis.tcl:374
 msgid "Show relative position"
 msgstr "Rela_tive Position"
 
-#: ../share/axis/tcl/axis.tcl:377
+#: ../share/axis/tcl/axis.tcl:383
 msgid "Joint mode"
 msgstr "Joint-Modus"
 
-#: ../share/axis/tcl/axis.tcl:384
+#: ../share/axis/tcl/axis.tcl:390
 msgid "World mode"
 msgstr "World-Modus"
 
-#: ../share/axis/tcl/axis.tcl:393
+#: ../share/axis/tcl/axis.tcl:399
 msgid "_About AXIS"
 msgstr "_Info..."
 
-#: ../share/axis/tcl/axis.tcl:397
+#: ../share/axis/tcl/axis.tcl:403
 msgid "Quick _Reference"
 msgstr "_Tastaturbelegung..."
 
-#: ../share/axis/tcl/axis.tcl:403
+#: ../share/axis/tcl/axis.tcl:409
 msgid "_File"
 msgstr "_Datei"
 
-#: ../share/axis/tcl/axis.tcl:407
+#: ../share/axis/tcl/axis.tcl:413
 msgid "_Machine"
 msgstr "_Maschine"
 
-#: ../share/axis/tcl/axis.tcl:411
+#: ../share/axis/tcl/axis.tcl:417
 msgid "_View"
 msgstr "A_nsicht"
 
-#: ../share/axis/tcl/axis.tcl:415
+#: ../share/axis/tcl/axis.tcl:421
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: ../share/axis/tcl/axis.tcl:424
+#: ../share/axis/tcl/axis.tcl:430
 msgid "Toggle Emergency Stop [F1]"
 msgstr "Notaus an/aus [F1]"
 
-#: ../share/axis/tcl/axis.tcl:433
+#: ../share/axis/tcl/axis.tcl:439
 msgid "Toggle Machine power [F2]"
 msgstr "Maschine an/aus [F2]"
 
-#: ../share/axis/tcl/axis.tcl:444
+#: ../share/axis/tcl/axis.tcl:450
 msgid "Open G-Code file [O]"
 msgstr "Datei öffnen [O]"
 
-#: ../share/axis/tcl/axis.tcl:452
+#: ../share/axis/tcl/axis.tcl:458
 msgid "Reopen current file [Control-R]"
 msgstr "Aktuelle Datei neu laden [Strg-R]"
 
-#: ../share/axis/tcl/axis.tcl:462
+#: ../share/axis/tcl/axis.tcl:468
 msgid "Begin executing current file [R]"
 msgstr "Aktuelle Datei ausführen [R]"
 
-#: ../share/axis/tcl/axis.tcl:470
+#: ../share/axis/tcl/axis.tcl:476
 msgid "Execute next line [T]"
 msgstr "Nächste Zeile ausführen [T]"
 
-#: ../share/axis/tcl/axis.tcl:478
+#: ../share/axis/tcl/axis.tcl:484
 msgid "Pause [P] / resume [S] execution"
 msgstr "Pause [P] / Fortsetzen [S]"
 
-#: ../share/axis/tcl/axis.tcl:486
+#: ../share/axis/tcl/axis.tcl:492
 msgid "Stop program execution [ESC]"
 msgstr "Programmausführung abbrechen [ESC]"
 
-#: ../share/axis/tcl/axis.tcl:496
+#: ../share/axis/tcl/axis.tcl:502
+msgid "Toggle skip lines with '/' [Alt-M /]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:509
+msgid "Toggle optional pause [Alt-M 1]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:518
 msgid "Zoom in"
 msgstr "Vergrößern"
 
-#: ../share/axis/tcl/axis.tcl:504
+#: ../share/axis/tcl/axis.tcl:526
 msgid "Zoom out"
 msgstr "Verkleinern"
 
-#: ../share/axis/tcl/axis.tcl:512
+#: ../share/axis/tcl/axis.tcl:534
 msgid "Top view"
 msgstr "Draufsicht"
 
-#: ../share/axis/tcl/axis.tcl:520
+#: ../share/axis/tcl/axis.tcl:542
 msgid "Rotated top view"
 msgstr "Draufsicht gedreht"
 
-#: ../share/axis/tcl/axis.tcl:528
+#: ../share/axis/tcl/axis.tcl:550
 msgid "Side view"
 msgstr "Seitenansicht"
 
-#: ../share/axis/tcl/axis.tcl:536
+#: ../share/axis/tcl/axis.tcl:558
 msgid "Front view"
 msgstr "Vorderansicht"
 
-#: ../share/axis/tcl/axis.tcl:544
+#: ../share/axis/tcl/axis.tcl:566
 msgid "Perspective view"
 msgstr "Perspektivische Ansicht"
 
-#: ../share/axis/tcl/axis.tcl:552
+#: ../share/axis/tcl/axis.tcl:574
 msgid "Toggle between Drag and Rotate Mode [D]"
 msgstr "Zwischen verschieben und drehen umschalten [D]"
 
-#: ../share/axis/tcl/axis.tcl:567
+#: ../share/axis/tcl/axis.tcl:589
 msgid "Clear live plot [Ctrl-K]"
 msgstr "Werkzeugpfad löschen [Strg-K]"
 
-#: ../share/axis/tcl/axis.tcl:683
+#: ../share/axis/tcl/axis.tcl:721
 msgid "Manual Control [F3]"
 msgstr "Manuelle Kontrolle [F3]"
 
-#: ../share/axis/tcl/axis.tcl:684
+#: ../share/axis/tcl/axis.tcl:722
 msgid "MDI [F5]"
 msgstr "MDI [F5]"
 
-#: ../share/axis/tcl/axis.tcl:696 ../share/axis/tcl/axis.tcl:1930
-#: ../share/axis/tcl/axis.tcl:2088
+#: ../share/axis/tcl/axis.tcl:736 ../share/axis/tcl/axis.tcl:2009
+#: ../share/axis/tcl/axis.tcl:2172
 msgid "Axis:"
 msgstr "Achse:"
 
-#: ../share/axis/tcl/axis.tcl:1035
+#: ../share/axis/tcl/axis.tcl:1075
 msgid "Home Axis"
 msgstr "Referenzfahrt"
 
-#: ../share/axis/tcl/axis.tcl:1109
+#: ../share/axis/tcl/axis.tcl:1149
 msgid "Spindle:"
 msgstr "Spindel:"
 
-#: ../share/axis/tcl/axis.tcl:1156
+#: ../share/axis/tcl/axis.tcl:1196
 msgid "-"
 msgstr "-"
 
-#: ../share/axis/tcl/axis.tcl:1170
+#: ../share/axis/tcl/axis.tcl:1210
 msgid "+"
 msgstr "+"
 
-#: ../share/axis/tcl/axis.tcl:1175
+#: ../share/axis/tcl/axis.tcl:1215
 msgid "Brake"
 msgstr "Bremse"
 
-#: ../share/axis/tcl/axis.tcl:1222
+#: ../share/axis/tcl/axis.tcl:1262
 msgid "Coolant:"
 msgstr "Kühlung:"
 
-#: ../share/axis/tcl/axis.tcl:1227
+#: ../share/axis/tcl/axis.tcl:1267
 msgid "Mist"
 msgstr "Kühlnebel"
 
-#: ../share/axis/tcl/axis.tcl:1232
+#: ../share/axis/tcl/axis.tcl:1272
 msgid "Flood"
 msgstr "Kühlmittel"
 
-#: ../share/axis/tcl/axis.tcl:1304
+#: ../share/axis/tcl/axis.tcl:1344
 msgid "History:"
 msgstr "Verlauf:"
 
-#: ../share/axis/tcl/axis.tcl:1327
+#: ../share/axis/tcl/axis.tcl:1367
 msgid "MDI Command:"
 msgstr "Befehl:"
 
-#: ../share/axis/tcl/axis.tcl:1336
+#: ../share/axis/tcl/axis.tcl:1376
 msgid "Go"
 msgstr "Ausführen"
 
-#: ../share/axis/tcl/axis.tcl:1342
+#: ../share/axis/tcl/axis.tcl:1382
 msgid "Active G-Codes:"
 msgstr "Aktive G-Codes:"
 
-#: ../share/axis/tcl/axis.tcl:1493 ../share/axis/tcl/axis.tcl:1506
+#: ../share/axis/tcl/axis.tcl:1460
+msgid "Preview"
+msgstr "Vorschau"
+
+#: ../share/axis/tcl/axis.tcl:1461
+msgid "DRO"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1547 ../share/axis/tcl/axis.tcl:1560
 msgid "Jog Speed:"
 msgstr "Schrittgeschwindigkeit:"
 
-#: ../share/axis/tcl/axis.tcl:1535
+#: ../share/axis/tcl/axis.tcl:1572
+msgid "Max Velocity:"
+msgstr "Maximale _Geschwindigkeit:"
+
+#: ../share/axis/tcl/axis.tcl:1601
 msgid "Spindle Override:"
 msgstr "Spindelübersteuerung:"
 
-#: ../share/axis/tcl/axis.tcl:1537 ../share/axis/tcl/axis.tcl:1577
+#: ../share/axis/tcl/axis.tcl:1603 ../share/axis/tcl/axis.tcl:1643
 msgid "%"
 msgstr "%"
 
-#: ../share/axis/tcl/axis.tcl:1575
+#: ../share/axis/tcl/axis.tcl:1641
 msgid "Feed Override:"
 msgstr "Vorschubübersteuerung:"
 
-#: ../share/axis/tcl/axis.tcl:1617
+#: ../share/axis/tcl/axis.tcl:1683
 msgid ""
 "EMC2/AXIS version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008 Jeff Epler and Chris Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
 "conditions.  See the file COPYING, included with EMC2.\n"
@@ -1297,7 +1350,8 @@ msgid ""
 msgstr ""
 "EMC2/AXIS Version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008 Jeff Epler und Chris Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler und Chris "
+"Radek.\n"
 "\n"
 "Dieses Programm ist freie Software. Sie sind eingeladen, es unter bestimmten "
 "Bedingungen weiter zu verbreiten. Lesen Sie hierzu die Datei COPYING, die "
@@ -1307,119 +1361,123 @@ msgstr ""
 "\n"
 "Besuchen Sie die EMC-Webseite: "
 
-#: ../share/axis/tcl/axis.tcl:1645
+#: ../share/axis/tcl/axis.tcl:1711
 msgid "About AXIS"
 msgstr "Info über AXIS"
 
-#: ../share/axis/tcl/axis.tcl:1674
+#: ../share/axis/tcl/axis.tcl:1740
 msgid "AXIS Quick Reference"
 msgstr "AXIS Tastaturbelegung"
 
-#: ../share/axis/tcl/axis.tcl:1815
+#: ../share/axis/tcl/axis.tcl:1876
+msgid "AXIS $::version on $::machine"
+msgstr "AXIS $::version auf  $::machine"
+
+#: ../share/axis/tcl/axis.tcl:1878
+msgid "(no file)"
+msgstr "(keine Datei)"
+
+#: ../share/axis/tcl/axis.tcl:1889
 msgid "ESTOP"
 msgstr "NOTAUS"
 
-#: ../share/axis/tcl/axis.tcl:1816
+#: ../share/axis/tcl/axis.tcl:1890
 msgid "OFF"
 msgstr "AUS"
 
-#: ../share/axis/tcl/axis.tcl:1817
+#: ../share/axis/tcl/axis.tcl:1891
 msgid "ON"
 msgstr "AN"
 
-#: ../share/axis/tcl/axis.tcl:1870 ../share/axis/tcl/axis.tcl:1875
+#: ../share/axis/tcl/axis.tcl:1949 ../share/axis/tcl/axis.tcl:1954
 msgid "Position:"
 msgstr "Position:"
 
-#: ../share/axis/tcl/axis.tcl:1872
+#: ../share/axis/tcl/axis.tcl:1951
 msgid "Machine"
 msgstr "absolut"
 
-#: ../share/axis/tcl/axis.tcl:1872
+#: ../share/axis/tcl/axis.tcl:1951
 msgid "Relative"
 msgstr "relativ"
 
-#: ../share/axis/tcl/axis.tcl:1873
+#: ../share/axis/tcl/axis.tcl:1952
 msgid "Actual"
 msgstr "aktuell"
 
-#: ../share/axis/tcl/axis.tcl:1873
+#: ../share/axis/tcl/axis.tcl:1952
 msgid "Commanded"
 msgstr "erwartet"
 
-#: ../share/axis/tcl/axis.tcl:1926 ../share/axis/tcl/axis.tcl:2088
+#: ../share/axis/tcl/axis.tcl:2005 ../share/axis/tcl/axis.tcl:2172
 msgid "Joint:"
 msgstr "Achse:"
 
-#: ../share/axis/tcl/axis.tcl:2185
+#: ../share/axis/tcl/axis.tcl:2303
 msgid "Turn spindle counterclockwise [F10]"
 msgstr "Spindel dreht gegen Uhrzeigersinn [F10]"
 
-#: ../share/axis/tcl/axis.tcl:2186
+#: ../share/axis/tcl/axis.tcl:2304
 msgid "Turn spindle clockwise [F9]"
 msgstr "Spindel dreht im Uhrzeigersinn [F9]"
 
-#: ../share/axis/tcl/axis.tcl:2187
+#: ../share/axis/tcl/axis.tcl:2305
 msgid "Stop spindle [F9/F10]"
 msgstr "Spindel anhalten [F9/F10]"
 
-#: ../share/axis/tcl/axis.tcl:2188
+#: ../share/axis/tcl/axis.tcl:2306
 msgid "Turn spindle Faster [F12]"
 msgstr "Spindel schneller [F12]"
 
-#: ../share/axis/tcl/axis.tcl:2189
+#: ../share/axis/tcl/axis.tcl:2307
 msgid "Turn spindle Slower [F11]"
 msgstr "Spindel langsamer [F12]"
 
-#: ../share/axis/tcl/axis.tcl:2190
+#: ../share/axis/tcl/axis.tcl:2308
 msgid "Turn spindle brake on [Shift-B] or off [B]"
 msgstr "Spindelbremse an [Umsch.-B] oder aus [B]"
 
-#: ../share/axis/tcl/axis.tcl:2191
+#: ../share/axis/tcl/axis.tcl:2309
 msgid "Turn flood on or off [F8]"
 msgstr "Kühlmittel an/aus [F8]"
 
-#: ../share/axis/tcl/axis.tcl:2192
+#: ../share/axis/tcl/axis.tcl:2310
 msgid "Turn mist on or off [F7]"
 msgstr "Kühlnebel an/aus [F7]"
 
-#: ../share/axis/tcl/axis.tcl:2193
+#: ../share/axis/tcl/axis.tcl:2311
 msgid "Send active axis home [Home]"
 msgstr "Referenzfahrt mit der aktiven Achse [Pos1]"
 
-#: ../share/axis/tcl/axis.tcl:2194
-msgid "Set G54 offset for active axis [End]"
-msgstr "Nullpunktverschiebung für die aktive Achse setzen [Ende]"
-
-#: ../share/axis/tcl/axis.tcl:2195
+#: ../share/axis/tcl/axis.tcl:2313
 msgid "Activate axis [X]"
 msgstr "Aktiviere Achse [X]"
 
-#: ../share/axis/tcl/axis.tcl:2196
+#: ../share/axis/tcl/axis.tcl:2314
 msgid "Activate axis [Y]"
 msgstr "Aktiviere Achse [Y]"
 
-#: ../share/axis/tcl/axis.tcl:2197
+#: ../share/axis/tcl/axis.tcl:2315
 msgid "Activate axis [Z]"
 msgstr "Aktiviere Achse [Z]"
 
-#: ../share/axis/tcl/axis.tcl:2198
+#: ../share/axis/tcl/axis.tcl:2316
 msgid "Activate axis [A]"
 msgstr "Aktiviere Achse [A]"
 
-#: ../share/axis/tcl/axis.tcl:2199
+#: ../share/axis/tcl/axis.tcl:2317
 msgid "Activate axis [4]"
 msgstr "Aktiviere Achse [4]"
 
-#: ../share/axis/tcl/axis.tcl:2200
+#: ../share/axis/tcl/axis.tcl:2318
 msgid "Activate axis [5]"
 msgstr "Aktiviere Achse [5]"
 
-#: ../share/axis/tcl/axis.tcl:2201 ../share/axis/tcl/axis.tcl:2202
+#: ../share/axis/tcl/axis.tcl:2319 ../share/axis/tcl/axis.tcl:2320
 msgid "Jog selected axis"
 msgstr "Aktive Achse verfahren"
 
-#: ../share/axis/tcl/axis.tcl:2204
+#: ../share/axis/tcl/axis.tcl:2322
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Erlaubt über die Endschalter zu verfahren [L]"
 
@@ -1433,264 +1491,324 @@ msgstr ""
 "Informationen können bei der Behebung hilfreich sein:\n"
 "\n"
 
-#: emc/usr_intf/stepconf/stepconf.py:122
+#: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/stepconf/stepconf.py:411
+msgid "Gecko 201"
+msgstr "Gecko 201"
+
+#: emc/usr_intf/stepconf/stepconf.py:71
+msgid "Gecko 202"
+msgstr "Gecko 202"
+
+#: emc/usr_intf/stepconf/stepconf.py:72
+msgid "Gecko 203v"
+msgstr "Gecko 203v"
+
+#: emc/usr_intf/stepconf/stepconf.py:73
+msgid "Gecko 210"
+msgstr "Gecko 210"
+
+#: emc/usr_intf/stepconf/stepconf.py:74
+msgid "Gecko 212"
+msgstr "Gecko 212"
+
+#: emc/usr_intf/stepconf/stepconf.py:75
+msgid "Gecko 320"
+msgstr "Gecko 320"
+
+#: emc/usr_intf/stepconf/stepconf.py:76 emc/usr_intf/stepconf/stepconf.py:412
+msgid "L297"
+msgstr "L297"
+
+#: emc/usr_intf/stepconf/stepconf.py:77 emc/usr_intf/stepconf/stepconf.py:413
+msgid "PMDX-150"
+msgstr "PMDX-150"
+
+#: emc/usr_intf/stepconf/stepconf.py:78 emc/usr_intf/stepconf/stepconf.py:414
+msgid "Sherline"
+msgstr "Sherline"
+
+#: emc/usr_intf/stepconf/stepconf.py:79
+msgid "Xylotex 8S-3"
+msgstr "Xylotex 8S-3"
+
+#: emc/usr_intf/stepconf/stepconf.py:80 emc/usr_intf/stepconf/stepconf.py:416
+msgid "Parker-Compumotor oem750"
+msgstr "Parker-Compumotor oem750"
+
+#: emc/usr_intf/stepconf/stepconf.py:81
+msgid "JVL-SMD41 or 42"
+msgstr "JVL-SMD41 oder 42"
+
+#: emc/usr_intf/stepconf/stepconf.py:82
+msgid "Hobbycnc Pro Chopper"
+msgstr "Hobbycnc Pro Chopper"
+
+#: emc/usr_intf/stepconf/stepconf.py:83
+msgid "Keling 4030"
+msgstr "Keling 4030"
+
+#: emc/usr_intf/stepconf/stepconf.py:140
 msgid "X Step"
 msgstr "X Schritt"
 
-#: emc/usr_intf/stepconf/stepconf.py:122
+#: emc/usr_intf/stepconf/stepconf.py:140
 msgid "X Direction"
 msgstr "X Richtung"
 
-#: emc/usr_intf/stepconf/stepconf.py:122
+#: emc/usr_intf/stepconf/stepconf.py:140
 msgid "Y Step"
 msgstr "Y Schritt"
 
-#: emc/usr_intf/stepconf/stepconf.py:122
+#: emc/usr_intf/stepconf/stepconf.py:140
 msgid "Y Direction"
 msgstr "Y Richtung"
 
-#: emc/usr_intf/stepconf/stepconf.py:123
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "Z Step"
 msgstr "Z Schritt"
 
-#: emc/usr_intf/stepconf/stepconf.py:123
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "Z Direction"
 msgstr "Z Richtung"
 
-#: emc/usr_intf/stepconf/stepconf.py:123
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "A Step"
 msgstr "A Schritt"
 
-#: emc/usr_intf/stepconf/stepconf.py:123
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "A Direction"
 msgstr "A Richtung"
 
-#: emc/usr_intf/stepconf/stepconf.py:124
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Spindle ON"
 msgstr "Spindel ein"
 
-#: emc/usr_intf/stepconf/stepconf.py:124
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Spindle CW"
 msgstr "Spindel rechts"
 
-#: emc/usr_intf/stepconf/stepconf.py:124
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Spindle CCW"
 msgstr "Spindel links"
 
-#: emc/usr_intf/stepconf/stepconf.py:124
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Spindle PWM"
 msgstr "Spindel PWM"
 
-#: emc/usr_intf/stepconf/stepconf.py:124
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Spindle Brake"
 msgstr "Spindelbremse"
 
-#: emc/usr_intf/stepconf/stepconf.py:125
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Coolant Mist"
 msgstr "Kühlnebel"
 
-#: emc/usr_intf/stepconf/stepconf.py:125
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Coolant Flood"
 msgstr "Kühlmittel"
 
-#: emc/usr_intf/stepconf/stepconf.py:125
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "ESTOP Out"
 msgstr "NOTAUS Ausgang"
 
-#: emc/usr_intf/stepconf/stepconf.py:125
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Amplifier Enable"
 msgstr "Endstufe aktivieren"
 
-#: emc/usr_intf/stepconf/stepconf.py:126
+#: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Charge Pump"
 msgstr "Ladungspumpe"
 
-#: emc/usr_intf/stepconf/stepconf.py:127
+#: emc/usr_intf/stepconf/stepconf.py:145
 msgid "Digital out 0"
 msgstr "Digitaler Ausgang 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:127
+#: emc/usr_intf/stepconf/stepconf.py:145
 msgid "Digital out 1"
 msgstr "Digitaler Ausgang 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:127
+#: emc/usr_intf/stepconf/stepconf.py:145
 msgid "Digital out 2"
 msgstr "Digitaler Ausgang 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:127
+#: emc/usr_intf/stepconf/stepconf.py:145
 msgid "Digital out 3"
 msgstr "Digitaler Ausgang 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:128 emc/usr_intf/stepconf/stepconf.py:147
+#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/stepconf/stepconf.py:165
 msgid "Unused"
 msgstr "Unbenutzt"
 
-#: emc/usr_intf/stepconf/stepconf.py:130
+#: emc/usr_intf/stepconf/stepconf.py:148
 msgid "ESTOP In"
 msgstr "NOTAUS Eingang"
 
-#: emc/usr_intf/stepconf/stepconf.py:130
+#: emc/usr_intf/stepconf/stepconf.py:148
 msgid "Probe In"
 msgstr "Sensor"
 
-#: emc/usr_intf/stepconf/stepconf.py:131
+#: emc/usr_intf/stepconf/stepconf.py:149
 msgid "Spindle Index"
 msgstr "Spindelencoder Index"
 
-#: emc/usr_intf/stepconf/stepconf.py:131
+#: emc/usr_intf/stepconf/stepconf.py:149
 msgid "Spindle Phase A"
 msgstr "Spindelencoder Kanal A"
 
-#: emc/usr_intf/stepconf/stepconf.py:131
+#: emc/usr_intf/stepconf/stepconf.py:149
 msgid "Spindle Phase B"
 msgstr "Spindelencoder Kanal B"
 
-#: emc/usr_intf/stepconf/stepconf.py:132
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Home X"
 msgstr "Referenzschalter X"
 
-#: emc/usr_intf/stepconf/stepconf.py:132
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Home Y"
 msgstr "Referenzschalter Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:132
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Home Z"
 msgstr "Referenzschalter Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:132
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Home A"
 msgstr "Referenzschalter A"
 
-#: emc/usr_intf/stepconf/stepconf.py:133
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Minimum Limit + Home X"
 msgstr "Min. End. + Ref. X"
 
-#: emc/usr_intf/stepconf/stepconf.py:133
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Minimum Limit + Home Y"
 msgstr "Min. End. + Ref. Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:134
+#: emc/usr_intf/stepconf/stepconf.py:152
 msgid "Minimum Limit + Home Z"
 msgstr "Min. End. + Ref. Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:134
+#: emc/usr_intf/stepconf/stepconf.py:152
 msgid "Minimum Limit + Home A"
 msgstr "Min. End. + Ref. A"
 
-#: emc/usr_intf/stepconf/stepconf.py:135
+#: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Maximum Limit + Home X"
 msgstr "Max. End. + Ref. X"
 
-#: emc/usr_intf/stepconf/stepconf.py:135
+#: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Maximum Limit + Home Y"
 msgstr "Max. End. + Ref. Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:136
+#: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Maximum Limit + Home Z"
 msgstr "Max. End. + Ref. Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:136
+#: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Maximum Limit + Home A"
 msgstr "Max. End. + Ref. A"
 
-#: emc/usr_intf/stepconf/stepconf.py:137
+#: emc/usr_intf/stepconf/stepconf.py:155
 msgid "Both Limit + Home X"
 msgstr "Beide End. + Ref. X"
 
-#: emc/usr_intf/stepconf/stepconf.py:137
+#: emc/usr_intf/stepconf/stepconf.py:155
 msgid "Both Limit + Home Y"
 msgstr "Beide End. + Ref. Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:138
+#: emc/usr_intf/stepconf/stepconf.py:156
 msgid "Both Limit + Home Z"
 msgstr "Beide End. + Ref. Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:138
+#: emc/usr_intf/stepconf/stepconf.py:156
 msgid "Both Limit + Home A"
 msgstr "Beide End. + Ref. A"
 
-#: emc/usr_intf/stepconf/stepconf.py:139
+#: emc/usr_intf/stepconf/stepconf.py:157
 msgid "Minimum Limit X"
 msgstr "Endschalter Mimimum X"
 
-#: emc/usr_intf/stepconf/stepconf.py:139
+#: emc/usr_intf/stepconf/stepconf.py:157
 msgid "Minimum Limit Y"
 msgstr "Endschalter Mimimum Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:158
 msgid "Minimum Limit Z"
 msgstr "Endschalter Mimimum Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:158
 msgid "Minimum Limit A"
 msgstr "Endschalter Mimimum A"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:159
 msgid "Maximum Limit X"
 msgstr "Endschalter Maximum X"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:159
 msgid "Maximum Limit Y"
 msgstr "Endschalter Maximum Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:160
 msgid "Maximum Limit Z"
 msgstr "Endschalter Maximum Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:160
 msgid "Maximum Limit A"
 msgstr "Endschalter Maximum Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:161
 msgid "Both Limit X"
 msgstr "Beide Endschalter X"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:161
 msgid "Both Limit Y"
 msgstr "Beide Endschalter Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:144
+#: emc/usr_intf/stepconf/stepconf.py:162
 msgid "Both Limit Z"
 msgstr "Beide Endschalter Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:144
+#: emc/usr_intf/stepconf/stepconf.py:162
 msgid "Both Limit A"
 msgstr "Beide Endschalter A"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:163
 msgid "All limits"
 msgstr "Alle Endschalter"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:163
 msgid "All home"
 msgstr "Alle Referenzschalter"
 
-#: emc/usr_intf/stepconf/stepconf.py:146
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "Digital in 0"
 msgstr "Digitaler Eingang 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:146
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "Digital in 1"
 msgstr "Digitaler Eingang 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:146
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "Digital in 2"
 msgstr "Digitaler Eingang 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:146
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "Digital in 3"
 msgstr "Digitaler Eingang 3"
 
-#: emc/usr_intf/stepconf/stepconf.py:172
+#: emc/usr_intf/stepconf/stepconf.py:190
 msgid "my-mill"
 msgstr "Meine-Maschine"
 
-#: emc/usr_intf/stepconf/stepconf.py:314
+#: emc/usr_intf/stepconf/stepconf.py:202 emc/usr_intf/stepconf/stepconf.py:204
+msgid "Enter Address"
+msgstr "Adresse eingeben"
+
+#: emc/usr_intf/stepconf/stepconf.py:359
 #, python-format
 msgid "File %r was modified since it was written by stepconf"
 msgstr "Die Date %r wurde geändert, seitdem sie mit stepconf erstellt wurde."
 
-#: emc/usr_intf/stepconf/stepconf.py:318
+#: emc/usr_intf/stepconf/stepconf.py:363
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
@@ -1698,139 +1816,197 @@ msgstr ""
 "Beim speichern dieser Konfiguration werden Änderungen, die nicht mit "
 "stepconf durchgeführt wurden, überschrieben."
 
-#: emc/usr_intf/stepconf/stepconf.py:333
+#: emc/usr_intf/stepconf/stepconf.py:378
 msgid "Continue? "
 msgstr "Fortsetzen?"
 
-#: emc/usr_intf/stepconf/stepconf.py:334
+#: emc/usr_intf/stepconf/stepconf.py:379
 msgid "yY"
 msgstr "jJ"
 
-#: emc/usr_intf/stepconf/stepconf.py:371 emc/usr_intf/stepconf/stepconf.py:673
+#: emc/usr_intf/stepconf/stepconf.py:415
+msgid "Xylotex"
+msgstr "Xylotex"
+
+#: emc/usr_intf/stepconf/stepconf.py:430 emc/usr_intf/stepconf/stepconf.py:747
 #, python-format
 msgid "# Generated by stepconf at %s"
 msgstr "# Erstellt von stepconf am %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:372 emc/usr_intf/stepconf/stepconf.py:674
+#: emc/usr_intf/stepconf/stepconf.py:431 emc/usr_intf/stepconf/stepconf.py:748
 msgid "# If you make changes to this file, they will be"
 msgstr "# Änderungen an dieser Datei werden beim nächsten"
 
-#: emc/usr_intf/stepconf/stepconf.py:373 emc/usr_intf/stepconf/stepconf.py:675
+#: emc/usr_intf/stepconf/stepconf.py:432 emc/usr_intf/stepconf/stepconf.py:749
 msgid "# overwritten when you run stepconf again"
 msgstr "# Aufruf von stepconf überschrieben."
 
-#: emc/usr_intf/stepconf/stepconf.py:834
-msgid ""
-"Include your PyVCP panel here.\n"
-"The contents of this file will not be overwritten when you run stepconf "
-"again."
-msgstr ""
-"Hier kann ein benutzerdefiniertes PyVCP-Panel eingebunden werden.\n"
-"Diese Datei wird beim erneuten Aufruf von stepconf nicht überschrieben."
+#: emc/usr_intf/stepconf/stepconf.py:964
+msgid "Include your PyVCP panel here.\n"
+msgstr "Benutzerdefiniertes PyVCP-Panel hier einbinden.\n"
 
-#: emc/usr_intf/stepconf/stepconf.py:842 emc/usr_intf/stepconf/stepconf.py:851
+#: emc/usr_intf/stepconf/stepconf.py:973
+#: emc/usr_intf/stepconf/stepconf.py:1034
 msgid "# Include your customized HAL commands here"
 msgstr ""
 "# Benutzerdefinierte HAL-Anweisungen können nachfolgend angegeben werden"
 
-#: emc/usr_intf/stepconf/stepconf.py:843
+#: emc/usr_intf/stepconf/stepconf.py:974
 msgid ""
 "# The commands in this file are run after the AXIS GUI (including PyVCP "
-"panel)\n"
-"# starts\n"
-"# This file will not be overwritten when you run stepconf again"
+"panel) starts"
 msgstr ""
 "# Die Befehle in dieser Datei werden nach der AXIS GUI (und PyVCP-Panel) "
-"ausgeführt.\n"
-"# Diese Datei wird nicht überschrieben, wenn stepconf erneut ausgeführt wird."
+"ausgeführt."
 
-#: emc/usr_intf/stepconf/stepconf.py:852
+#: emc/usr_intf/stepconf/stepconf.py:1035
 msgid "# This file will not be overwritten when you run stepconf again"
 msgstr ""
 "# Diese Datei wird überschrieben, wenn stepconf erneut ausgeführt wird."
 
-#: emc/usr_intf/stepconf/stepconf.py:859
+#: emc/usr_intf/stepconf/stepconf.py:1042
 #, python-format
 msgid "Generated by stepconf at %s"
 msgstr "Erstell durch stepconf am %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:930
+#: emc/usr_intf/stepconf/stepconf.py:1111
+#, python-format
+msgid "launch %s"
+msgstr "%s starten"
+
+#: emc/usr_intf/stepconf/stepconf.py:1115
+msgid "Desktop Launcher for EMC config made by Stepconf"
+msgstr ""
+"Verknüpfung zum starten von EMC mit einer festgelegten Konfiguration, "
+"erstellt von Stepconf"
+
+#: emc/usr_intf/stepconf/stepconf.py:1139
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Konfiguration der %s-Achse"
 
-#: emc/usr_intf/stepconf/stepconf.py:979
+#: emc/usr_intf/stepconf/stepconf.py:1181
+#: emc/usr_intf/stepconf/stepconf.py:1270
+msgid "Other"
+msgstr "Benutzerdefiniert"
+
+#: emc/usr_intf/stepconf/stepconf.py:1192
 msgid "Quit Stepconf and discard changes?"
 msgstr "Maschinenkonfiguration beenden und Änderungen verwerfen?"
 
-#: emc/usr_intf/stepconf/stepconf.py:994
+#: emc/usr_intf/stepconf/stepconf.py:1228
 msgid "EMC2 'stepconf' configuration files"
 msgstr ".stepconf Dateien"
 
-#: emc/usr_intf/stepconf/stepconf.py:995
+#: emc/usr_intf/stepconf/stepconf.py:1229
 msgid "Modify Existing Configuration"
 msgstr "Bestehende Konfiguration bearbeiten"
 
-#: emc/usr_intf/stepconf/stepconf.py:1223
+#: emc/usr_intf/stepconf/stepconf.py:1507
 msgid "degree / rev"
 msgstr "Grad / Umdrehung"
 
-#: emc/usr_intf/stepconf/stepconf.py:1224
-#: emc/usr_intf/stepconf/stepconf.py:1580
+#: emc/usr_intf/stepconf/stepconf.py:1508
+#: emc/usr_intf/stepconf/stepconf.py:2095
 msgid "deg / s"
 msgstr "Grad / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1225
-#: emc/usr_intf/stepconf/stepconf.py:1581
+#: emc/usr_intf/stepconf/stepconf.py:1509
+#: emc/usr_intf/stepconf/stepconf.py:2096
 msgid "deg / s²"
 msgstr "Grad / s²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1226
-#: emc/usr_intf/stepconf/stepconf.py:1582
+#: emc/usr_intf/stepconf/stepconf.py:1510
+#: emc/usr_intf/stepconf/stepconf.py:2097
 msgid "deg"
 msgstr "Grad"
 
-#: emc/usr_intf/stepconf/stepconf.py:1228
-#: emc/usr_intf/stepconf/stepconf.glade:3902
+#: emc/usr_intf/stepconf/stepconf.py:1511
+msgid "Steps / deg"
+msgstr "Schritte / Grad"
+
+#: emc/usr_intf/stepconf/stepconf.py:1513
+#: emc/usr_intf/stepconf/stepconf.glade:2523
 msgid "mm / rev"
 msgstr "mm / Umdrehung"
 
-#: emc/usr_intf/stepconf/stepconf.py:1229
-#: emc/usr_intf/stepconf/stepconf.py:1594
-#: emc/usr_intf/stepconf/stepconf.glade:3930
+#: emc/usr_intf/stepconf/stepconf.py:1514
+#: emc/usr_intf/stepconf/stepconf.py:2109
+#: emc/usr_intf/stepconf/stepconf.glade:2508
 msgid "mm / s"
-msgstr ""
+msgstr "mm / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1230
-#: emc/usr_intf/stepconf/stepconf.py:1595
+#: emc/usr_intf/stepconf/stepconf.py:1515
+#: emc/usr_intf/stepconf/stepconf.py:2110
+#: emc/usr_intf/stepconf/stepconf.glade:2493
 msgid "mm / s²"
-msgstr ""
+msgstr "mm / s²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1233
+#: emc/usr_intf/stepconf/stepconf.py:1517
+#: emc/usr_intf/stepconf/stepconf.glade:3037
+msgid "Steps / mm"
+msgstr "Schritte / mm"
+
+#: emc/usr_intf/stepconf/stepconf.py:1519
 msgid "rev / in"
 msgstr "Umdrehungen / in"
 
-#: emc/usr_intf/stepconf/stepconf.py:1234
-#: emc/usr_intf/stepconf/stepconf.py:1608
+#: emc/usr_intf/stepconf/stepconf.py:1520
+#: emc/usr_intf/stepconf/stepconf.py:2123
 msgid "in / s"
-msgstr ""
+msgstr "in / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1235
-#: emc/usr_intf/stepconf/stepconf.py:1609
+#: emc/usr_intf/stepconf/stepconf.py:1521
+#: emc/usr_intf/stepconf/stepconf.py:2124
 msgid "in / s²"
+msgstr "in / s²"
+
+#: emc/usr_intf/stepconf/stepconf.py:1523
+msgid "Steps / in"
+msgstr "Schritte / in"
+
+#: emc/usr_intf/stepconf/stepconf.py:1651
+msgid ""
+"You need to designate an E-stop input pin in the Parallel Port Setup page "
+"for this program."
 msgstr ""
 
-#: emc/usr_intf/stepconf/stepconf.py:1577
+#: emc/usr_intf/stepconf/stepconf.py:1664
+msgid ""
+"OK to replace existing custom ladder program?\n"
+"Existing Custom.clp will be renamed custom_backup.clp.\n"
+"Any existing file named -custom_backup.clp- will be lost. "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1669
+msgid ""
+"You edited a ladder program and have selected a different program to copy to "
+"your configuration file.\n"
+"The edited program will be lost.\n"
+"\n"
+"Are you sure?  "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1688
+msgid ""
+"OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
+"Existing custompanel.xml and custom_postgui.hal will be renamed "
+"custompanel_backup.xml and postgui_backup.hal.\n"
+"Any existing file named custompanel_backup.xml and custom_postgui.hal will "
+"be lost. "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:2092
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test %s-Achse"
 
-#: emc/usr_intf/stepconf/stepconf.glade:9
-#: emc/usr_intf/stepconf/stepconf.glade:36
+#: emc/usr_intf/stepconf/stepconf.glade:8
+#: emc/usr_intf/stepconf/stepconf.glade:21
 msgid "EMC2 Stepper Mill Configuration"
 msgstr "EMC2 Maschinenkonfiguration"
 
-#: emc/usr_intf/stepconf/stepconf.glade:37
+#: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
@@ -1839,20 +2015,17 @@ msgstr ""
 "Drehmaschinen mit »Schritt- und Richtung«-Schnittstelle, die über den "
 "Druckeranschluss mit dem PC verbunden sind."
 
-#: emc/usr_intf/stepconf/stepconf.glade:68
-msgid "Create a _new configuration"
-msgstr "Eine _neune Konfiguration erstellen"
-
-#: emc/usr_intf/stepconf/stepconf.glade:90
-msgid "_Modify a configuration already created with this program"
+#: emc/usr_intf/stepconf/stepconf.glade:59
+msgid "Create a desktop _launcher to start EMC with this configuration."
 msgstr ""
-"Eine bestehende, mit diesem Programm erstellte, Konfiguration _bearbeiten"
+"Verknüpfung zum _Starten vom EMC mit dieser Konfiguration auf dem Destop "
+"erstellen"
 
-#: emc/usr_intf/stepconf/stepconf.glade:112
-msgid "Do you wish to:"
-msgstr "Folgende Optionen stehen zur Verfügung:"
+#: emc/usr_intf/stepconf/stepconf.glade:76
+msgid "Create a desktop _shortcut (symlink) to configuration files."
+msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Destop erstellen"
 
-#: emc/usr_intf/stepconf/stepconf.glade:168
+#: emc/usr_intf/stepconf/stepconf.glade:93
 msgid ""
 "If you have made modifications to this configuration outside this program, "
 "they will be lost when you select \"Modify a configuration\""
@@ -1860,109 +2033,72 @@ msgstr ""
 "Wenn die Konfiguration mit einem anderen Programm bearbeitet wurde, gehen "
 "diese Änderungen verloren."
 
-#: emc/usr_intf/stepconf/stepconf.glade:227
+#: emc/usr_intf/stepconf/stepconf.glade:110
+msgid "Do you wish to:"
+msgstr "Folgende Optionen stehen zur Verfügung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:122
+#, fuzzy
+msgid "Modify a configuration already created with this program"
+msgstr ""
+"Eine bestehende, mit diesem Programm erstellte, Konfiguration _bearbeiten"
+
+#: emc/usr_intf/stepconf/stepconf.glade:140
+msgid "Create a _new configuration"
+msgstr "Eine _neune Konfiguration erstellen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:163
 msgid "Basic machine information"
 msgstr "Grundlegende Informationen"
 
-#: emc/usr_intf/stepconf/stepconf.glade:250
-msgid "Machine _Name:"
-msgstr "Maschinen_name:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:279
-msgid "_Axis configuration:"
-msgstr "A_chsen:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:307
-msgid "Machine _units:"
-msgstr "_Einheiten:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:335
-msgid "Step _Time:"
-msgstr "_Länge eines Schritts:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:364
-msgid "Step _Space:"
-msgstr "Zeit zwischen zwei _Schritten:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:393
-msgid "Direction _Hold:"
-msgstr "Zeit zwischen Schritt und _Richtungswechsel:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:422
-msgid "_Direction Setup:"
-msgstr "Zeit zwischen Richtungs_wechsel und Schritt:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:451
-#: emc/usr_intf/stepconf/stepconf.glade:479
-#: emc/usr_intf/stepconf/stepconf.glade:507
-#: emc/usr_intf/stepconf/stepconf.glade:535
-#: emc/usr_intf/stepconf/stepconf.glade:648
-msgid "ns"
-msgstr "ns"
-
-#: emc/usr_intf/stepconf/stepconf.glade:563
-msgid "Configuration directory:"
-msgstr "Verzeichnis:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:591
-msgid "D_river type"
-msgstr "En_dstufe:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:619
-msgid "_Latency test result:"
-msgstr "Latenzzeit-_Testergebnis:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:677
-msgid "Onscreen _prompt for tool change"
-msgstr "_Bildschirmmitteilung für Werkzeugwechsel"
-
-#: emc/usr_intf/stepconf/stepconf.glade:698
+#: emc/usr_intf/stepconf/stepconf.glade:304
 msgid ""
-"Gecko\n"
-"L297\n"
-"PMDX-150\n"
-"Sherline\n"
-"Xylotex\n"
-"Parker-oem750\n"
-"Other"
-msgstr ""
-"Gecko\n"
-"L297\n"
-"PMDX-150\n"
-"Sherline\n"
-"Xylotex\n"
-"Parker-oem750\n"
-"Andere"
+"_Onscreen prompt for\n"
+"tool change"
+msgstr "_Bildschirmmitteilung bei Werkzeugwechsel"
 
-#: emc/usr_intf/stepconf/stepconf.glade:723
-msgid ""
-"Inch\n"
-"Millimeter"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:742
-msgid ""
-"XYZ\n"
-"XYZA\n"
-"XZ (Lathe)"
-msgstr ""
-"XYZ\n"
-"XYZA\n"
-"XZ (Drehmaschine)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:814
-msgid "Parport Base Address:"
-msgstr "Adresse der Druckerschnittstelle:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:955
+#: emc/usr_intf/stepconf/stepconf.glade:321
 msgid "Min Base Period:"
 msgstr "Min. Systemtakt:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:983
+#: emc/usr_intf/stepconf/stepconf.glade:337
 msgid "Max step rate:"
 msgstr "Max. Schrittfrequenz:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1011
+#: emc/usr_intf/stepconf/stepconf.glade:364
+msgid "Out"
+msgstr "Ausgang"
+
+#: emc/usr_intf/stepconf/stepconf.glade:377
+#: emc/usr_intf/stepconf/stepconf.glade:393
+msgid ""
+"In\n"
+"Out"
+msgstr ""
+"Eingang\n"
+"Ausgang"
+
+#: emc/usr_intf/stepconf/stepconf.glade:435
+msgid "T_hird Parport Address:"
+msgstr "Adresse der dr_itten parallellen Schnittstelle:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:451
+msgid "S_econd Parport Address:"
+msgstr "Adresse der z_weiten parallellen Schnittstelle:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:468
+#: emc/usr_intf/stepconf/stepconf.glade:761
+#: emc/usr_intf/stepconf/stepconf.glade:776
+#: emc/usr_intf/stepconf/stepconf.glade:791
+#: emc/usr_intf/stepconf/stepconf.glade:806
+msgid "ns"
+msgstr "ns"
+
+#: emc/usr_intf/stepconf/stepconf.glade:501
+msgid "Base Period Maximum _Jitter:"
+msgstr "Maximale Systemtakt-Abweichung (_Jitter):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:558
 msgid ""
 "Driver characteristics: (Multiply by 1000 for times specified in µs or "
 "microseconds)\n"
@@ -1973,180 +2109,202 @@ msgid ""
 "driver."
 msgstr ""
 "Einstellungen für Endstufe (alle Zeiten in Nanosekunden = 10^-9 s):\n"
-"\n"
 "Zusätzliche Signalverarbeitungsbausteine oder Maßnahmen zur galvanischen \n"
 "Trennung, wie Optokoppler oder RC-Filter, können zusätzliche Zeit benötigen."
 
-#: emc/usr_intf/stepconf/stepconf.glade:1157
-msgid "Test Now"
-msgstr "Testen"
+#: emc/usr_intf/stepconf/stepconf.glade:642
+msgid "First Parport _Base Address:"
+msgstr "Adresse der ersten _parallelen Schnittstelle:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1210
+#: emc/usr_intf/stepconf/stepconf.glade:687
+msgid ""
+"XYZ\n"
+"XYZA\n"
+"XZ (Lathe)"
+msgstr ""
+"XYZ\n"
+"XYZA\n"
+"XZ (Drehmaschine)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:703
+msgid ""
+"Inch\n"
+"Millimeter"
+msgstr ""
+"Inch\n"
+"Millimeter"
+
+#: emc/usr_intf/stepconf/stepconf.glade:734
+msgid "D_river type:"
+msgstr "En_dstufe:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:748
+msgid "Configuration directory:"
+msgstr "Verzeichnis:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:821
+msgid "_Direction Setup:"
+msgstr "Zeit zwischen Richtungs_wechsel und Schritt:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:836
+msgid "Direction _Hold:"
+msgstr "Zeit zwischen Schritt und _Richtungswechsel:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:851
+msgid "Step _Space:"
+msgstr "Zeit zwischen zwei _Schritten:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:866
+msgid "Step _Time:"
+msgstr "_Länge eines Schritts:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:881
+msgid "Machine _units:"
+msgstr "_Einheiten:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:895
+msgid "_Axis configuration:"
+msgstr "A_chsen:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:909
+msgid "Machine _Name:"
+msgstr "Maschinen_name:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:922
+msgid ""
+"_Test Base\n"
+"Period Jitter "
+msgstr ""
+"Systemtakt-Abweichung\n"
+"(Jitter) er_mitteln"
+
+#: emc/usr_intf/stepconf/stepconf.glade:949
 msgid "Parallel Port Setup"
 msgstr "Konfiguration der Druckerschnittstelle"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1234
-msgid "Pin _1:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1262
-msgid "Pin _2:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1290
-msgid "Pin _3:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1318
-msgid "Pin _4:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1346
-msgid "Pin _5:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1374
-msgid "Pin _6:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1402
-msgid "Pin _7:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1430
-msgid "Pin _8:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1458
-msgid "Pin _9:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1486
-msgid "_Pin 14:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1514
-msgid "P_in 16:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1542
-msgid "Pi_n 17:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:1944
-msgid "Outputs (PC to Mill):"
-msgstr "Ausgänge (vom PC zur Maschine)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1972
-msgid "Pin 1_0:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:2000
-msgid "Pin 1_1:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:2028
-msgid "Pin 1_2:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:2056
-msgid "Pin 1_3:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:2084
-msgid "Pin 1_5:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:2165
-msgid "Inputs (Mill to PC):"
-msgstr "Eingänge (von der Maschine zum PC)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2221
-#: emc/usr_intf/stepconf/stepconf.glade:2249
-msgid "Invert"
-msgstr "Invertieren"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2811
-msgid "_Sherline Outputs"
-msgstr "_Sherline"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2831
-msgid "_Xylotex Outputs"
-msgstr "_Xylotex"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2850
+#: emc/usr_intf/stepconf/stepconf.glade:1133
 msgid "Output pinout presets:"
 msgstr "Vordefinierte Ausgangskonfigurationen:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2966
-msgid "Include custom _HAL configuration"
-msgstr "Benutzerdefinierte _HAL-Konfiguration einbinden"
+#: emc/usr_intf/stepconf/stepconf.glade:1148
+msgid "_Xylotex Outputs"
+msgstr "_Xylotex"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2988
-msgid "Include custom Py_VCP Panel"
-msgstr "Benutzerdefiniertes P_yVCP-Panel einbinden"
+#: emc/usr_intf/stepconf/stepconf.glade:1166
+msgid "_Sherline Outputs"
+msgstr "_Sherline"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3020
+#: emc/usr_intf/stepconf/stepconf.glade:1620
+#: emc/usr_intf/stepconf/stepconf.glade:1633
+msgid "Invert"
+msgstr "Invertieren"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1659
+msgid "Inputs (Mill to PC):"
+msgstr "Eingänge (von der Maschine zum PC)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1721
+msgid "Pin 1_5:"
+msgstr "Pin 1_5:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1737
+msgid "Pin 1_3:"
+msgstr "Pin 1_3:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1753
+msgid "Pin 1_2:"
+msgstr "Pin 1_2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1769
+msgid "Pin 1_1:"
+msgstr "Pin 1_1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1785
+msgid "Pin 1_0:"
+msgstr "Pin 1_0:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1801
+msgid "Outputs (PC to Mill):"
+msgstr "Ausgänge (vom PC zur Maschine)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2143
+msgid "Pi_n 17:"
+msgstr "Pi_n 17:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2157
+msgid "P_in 16:"
+msgstr "P_in 16:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2171
+msgid "_Pin 14:"
+msgstr "_Pin 14:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2185
+msgid "Pin _9:"
+msgstr "Pin _9:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2199
+msgid "Pin _8:"
+msgstr "Pin _8:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2213
+msgid "Pin _7:"
+msgstr "Pin _7:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2227
+msgid "Pin _6:"
+msgstr "Pin _6:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2241
+msgid "Pin _5:"
+msgstr "Pin _5:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2255
+msgid "Pin _4:"
+msgstr "Pin _4:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2269
+msgid "Pin _3:"
+msgstr "Pin _3:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2283
+msgid "Pin _2:"
+msgstr "Pin _2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2297
+msgid "Pin _1:"
+msgstr "Pin _1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2316
 msgid "X Axis Configuration"
 msgstr "Konfiguration der X-Achse"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3044
-msgid "_Motor steps per revolution:"
-msgstr "_Motorschritte pro Umdrehung:"
+#: emc/usr_intf/stepconf/stepconf.glade:2385
+msgid "Axis SCALE:"
+msgstr "Maßstab der Achse:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3073
-msgid "_Driver Microstepping"
-msgstr "M_ikroschritte (Vollschritt:1, Halbschritt:2, usw.):"
+#: emc/usr_intf/stepconf/stepconf.glade:2422
+msgid "T_est this axis"
+msgstr "Achse _testen"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3102
-msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr "_Untersetzung (Zähnezahl am Motor:Spindel):"
+#: emc/usr_intf/stepconf/stepconf.glade:2448
+#: emc/usr_intf/stepconf/stepconf.glade:3129
+msgid "Hz"
+msgstr "Hz"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3131
-msgid "_Leadscrew Pitch:"
-msgstr "_Spindelsteigung:"
+#: emc/usr_intf/stepconf/stepconf.glade:2463
+msgid "s"
+msgstr "s"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3160
-msgid "Maximum _Velocity:"
-msgstr "Maximale _Geschwindigkeit"
+#: emc/usr_intf/stepconf/stepconf.glade:2589
+msgid "t_o"
+msgstr "_bis"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3189
-msgid "Maximum _Acceleration:"
-msgstr "Maximale Bes_chleunigung"
+#: emc/usr_intf/stepconf/stepconf.glade:2620
+msgid "Tab_le travel:"
+msgstr "V_erfahrweg:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3218
-msgid "Time to accelerate to max speed:"
-msgstr "Zeit bis zum erreichend der maximalen Geschwindigkeit:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3247
-msgid "Distance to accelerate to max speed:"
-msgstr "Weg bis zum erreichend der maximalen Geschwindigkeit:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3408
-msgid "Pulse rate at max speed:"
-msgstr "Schrittfrequenz bei maximaler Geschwindigkeit:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3523
-msgid "_Home location:"
-msgstr "_Referenzpunkt:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3552
-msgid "Home _Switch location:"
-msgstr "Re_ferenzschalter:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3581
-msgid "Home Sear_ch velocity:"
-msgstr "Ges_chwindigkeit Referenzfahrt:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3610
-msgid "Home La_tch direction:"
-msgstr "Ric_htung für Referenzpunkt übernehmen:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3638
-msgid "_:"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:3667
+#: emc/usr_intf/stepconf/stepconf.glade:2673
 msgid ""
 "Same\n"
 "Opposite"
@@ -2154,76 +2312,221 @@ msgstr ""
 "Gleiche Richtung\n"
 "Entgegengesetzte Richtung"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3749
-msgid "Tab_le travel:"
-msgstr "V_erfahrweg:"
+#: emc/usr_intf/stepconf/stepconf.glade:2688
+msgid "_:"
+msgstr "_:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3799
-msgid "t_o"
-msgstr "_bis"
+#: emc/usr_intf/stepconf/stepconf.glade:2706
+msgid "Home La_tch direction:"
+msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3958
-msgid "mm / s^2\t"
-msgstr "mm / s²\t"
+#: emc/usr_intf/stepconf/stepconf.glade:2720
+msgid "Home Sear_ch velocity:"
+msgstr "Gesch_windigkeit Referenzfahrt:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4014
-msgid "s"
-msgstr ""
+#: emc/usr_intf/stepconf/stepconf.glade:2735
+msgid "Home _Switch location:"
+msgstr "Re_ferenzschalter:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4042
-#: emc/usr_intf/stepconf/stepconf.glade:4545
-msgid "Hz"
-msgstr ""
+#: emc/usr_intf/stepconf/stepconf.glade:2750
+msgid "_Home location:"
+msgstr "_Referenzpunkt:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4113
-msgid "Test this axis"
-msgstr "Achse testen"
+#: emc/usr_intf/stepconf/stepconf.glade:2822
+msgid "Pulse rate at max speed:"
+msgstr "Schrittfrequenz bei maximaler Geschwindigkeit:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4152
-msgid "Axis SCALE"
-msgstr "Maßstab für Achse"
+#: emc/usr_intf/stepconf/stepconf.glade:2919
+msgid "Distance to accelerate to max speed:"
+msgstr "Weg bis zum erreichend der maximalen Geschwindigkeit:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4220
+#: emc/usr_intf/stepconf/stepconf.glade:2934
+msgid "Time to accelerate to max speed:"
+msgstr "Zeit bis zum erreichend der maximalen Geschwindigkeit:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2949
+msgid "Maximum _Acceleration:"
+msgstr "Maximale Bes_chleunigung"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2964
+msgid "Maximum _Velocity:"
+msgstr "Maximale _Geschwindigkeit"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2979
+msgid "_Leadscrew Pitch:"
+msgstr "_Spindelsteigung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2994
+msgid "_Pulley teeth (Motor:Leadscrew):"
+msgstr "_Untersetzung (Zähnezahl am Motor:Spindel):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3009
+msgid "_Driver Microstepping:"
+msgstr "M_ikroschritte (Vollschritt:1, Halbschritt:2, usw.):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3024
+msgid "_Motor steps per revolution:"
+msgstr "_Motorschritte pro Umdrehung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3057
 msgid "Spindle Configuration"
 msgstr "Konfiguration der Spindel"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4244
+#: emc/usr_intf/stepconf/stepconf.glade:3090
+msgid "Enter 0 Hz for \"PDM\" mode"
+msgstr "Für PDM 0Hz eingeben"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3142
+msgid "_Cycles per revolution:"
+msgstr "Encoder-_Takte pro Spindel-Umdrehung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3220
+msgid "PWM _Rate:"
+msgstr "PWM-_Frequenz:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3233
+msgid "P_WM 2:"
+msgstr "entspricht P_WM 2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3251
+msgid "S_peed 2:"
+msgstr "D_rehzahl 2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3266
+msgid "_PWM 1:"
+msgstr "entspricht _PWM 1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3284
+msgid "_Speed 1:"
+msgstr "_Drehzahl 1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3299
 msgid "Calibration:"
 msgstr "Kalibrierung:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4272
-msgid "Speed 1:"
-msgstr "Geschwindigkeit 1"
+#: emc/usr_intf/stepconf/stepconf.glade:3317
+msgid "Advanced Configuration Options"
+msgstr "Erweiterte Konfiguration"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4300
-msgid "PWM 1:"
-msgstr ""
+#: emc/usr_intf/stepconf/stepconf.glade:3333
+#, fuzzy
+msgid "Include Halui user interface component"
+msgstr "_HalUI-Fenster einbinden"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4328
-msgid "Speed 2:"
-msgstr "Geschwindigkeit 2:"
+#: emc/usr_intf/stepconf/stepconf.glade:3348
+#, fuzzy
+msgid "Include custom PyVCP GUI panel"
+msgstr "Benutzerdefiniertes _PyVCP-Panel einbinden"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4356
-msgid "PWM 2:"
-msgstr ""
+#: emc/usr_intf/stepconf/stepconf.glade:3390
+#, fuzzy
+msgid "Blank program"
+msgstr "Leeres Programm"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4384
-msgid "PWM Rate:"
-msgstr "PWM-Rate:"
+#: emc/usr_intf/stepconf/stepconf.glade:3405
+#, fuzzy
+msgid "Spindle speed/tool position display  "
+msgstr "Spindel-Drehzahl- / Werkzeug-Positions-Anzeige"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4517
-msgid "Cycles per revolution:"
-msgstr "Zyklen pro Umdrehung:"
+#: emc/usr_intf/stepconf/stepconf.glade:3421
+#, fuzzy
+msgid "XYZ buttons (uses Halui)"
+msgstr "_XYZ-Buttons (benutzt HalUI)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4609
-msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "Für den PDM-Modus 0Hz eingeben"
+#: emc/usr_intf/stepconf/stepconf.glade:3437
+#: emc/usr_intf/stepconf/stepconf.glade:3825
+#, fuzzy
+msgid "Existing custom program"
+msgstr "Bestehendes benutzerdefiniertes Programm"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4649
+#: emc/usr_intf/stepconf/stepconf.glade:3452
+#: emc/usr_intf/stepconf/stepconf.glade:3841
+#, fuzzy
+msgid "Include connections to HAL"
+msgstr "Verbindungen zum HAL zulassen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3486
+msgid ""
+"_Display\n"
+"sample\n"
+"panel"
+msgstr "Beispiel-Panel anzeigen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3519
+#, fuzzy
+msgid "Pyvcp Example Options"
+msgstr "PyVCP-Optionen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3538
+msgid "Include _Classicladder PLC"
+msgstr "_SPS (Classicladder) einbinden"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3588
+#, fuzzy
+msgid "Number of digital in pins:"
+msgstr "Digitale _Eingänge:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3599
+#, fuzzy
+msgid "Number of digital  out pins:"
+msgstr "Digitale _Ausgänge:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3614
+#, fuzzy
+msgid " Number of analog (s32) in pins:"
+msgstr "Analoge Eingänge (s32):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3630
+#, fuzzy
+msgid " Number of analog (s32) out pins:"
+msgstr "Analoge Ausgänge (s32):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3645
+#, fuzzy
+msgid " Number of analog (float) in pins:"
+msgstr "Analoge Eingänge (s32):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3660
+#, fuzzy
+msgid " Number of analog (float) out pins:"
+msgstr "Analoge Ausgänge (s32):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3674
+#, fuzzy
+msgid "Include modbus master support"
+msgstr "_Modbus-Master-Unterstützung einbinden"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3782
+#, fuzzy
+msgid "Blank ladder program"
+msgstr "Leeres Programm"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3795
+#, fuzzy
+msgid "Estop ladder program"
+msgstr "Notaus-Programm"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3809
+#, fuzzy
+msgid "Serial modbus program"
+msgstr "Se_rielles Modbus-Programm"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3874
+#, fuzzy
+msgid ""
+"Edit ladder\n"
+"program"
+msgstr "SPS-Programm _bearbeiten"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3909
+msgid "PLC Options"
+msgstr "SPS-Optionen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3932
 msgid "Machine configuration complete"
 msgstr "Maschinenkonfiguration komplett"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4650
+#: emc/usr_intf/stepconf/stepconf.glade:3933
 msgid ""
 "All the necessary information has now been gathered.  Click \"Apply\" to "
 "write your configuration files to disk.\n"
@@ -2256,37 +2559,86 @@ msgstr ""
 "bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
-#: emc/usr_intf/stepconf/stepconf.glade:4740
-msgid "Velocity:"
-msgstr "Geschwindigkeit:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4769
-msgid "Acceleration:"
-msgstr "Beschleunigung:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4798
-msgid "Jog:"
-msgstr "Verfahren:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4827
-msgid "Test Area:"
-msgstr "Testbereich:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4882
-msgid "mm/s^2"
-msgstr "mm/s²"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4944
-msgid "mm/s"
-msgstr ""
-
-#: emc/usr_intf/stepconf/stepconf.glade:5059
+#: emc/usr_intf/stepconf/stepconf.glade:3969
 msgid ""
 "±\n"
 "+\n"
 "-\n"
 msgstr ""
+"±\n"
+"+\n"
+"-\n"
 
-#: emc/usr_intf/stepconf/stepconf.glade:5192
+#: emc/usr_intf/stepconf/stepconf.glade:4043
 msgid "Run"
 msgstr "Ausführen"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4148
+msgid "mm/s"
+msgstr "mm / s"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4182
+msgid "mm/s^2"
+msgstr "mm/s²"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4203
+msgid "Test Area:"
+msgstr "Testbereich:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4217
+msgid "Jog:"
+msgstr "Verfahren:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4231
+msgid "Acceleration:"
+msgstr "Beschleunigung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4245
+msgid "Velocity:"
+msgstr "Geschwindigkeit:"
+
+#~ msgid "Set G54 offset for active axis [End]"
+#~ msgstr "Nullpunktverschiebung für die aktive Achse setzen [Ende]"
+
+#~ msgid "Exis_ting custom program"
+#~ msgstr "Bestehendes benutzerdefiniertes Programm"
+
+#~ msgid "mm / s^2"
+#~ msgstr "mm / s²"
+
+#~ msgid ""
+#~ "Include your PyVCP panel here.\n"
+#~ "The contents of this file will not be overwritten when you run stepconf "
+#~ "again."
+#~ msgstr ""
+#~ "Hier kann ein benutzerdefiniertes PyVCP-Panel eingebunden werden.\n"
+#~ "Diese Datei wird beim erneuten Aufruf von stepconf nicht überschrieben."
+
+#~ msgid "_Latency test result:"
+#~ msgstr "Latenzzeit-_Testergebnis:"
+
+#~ msgid ""
+#~ "Gecko\n"
+#~ "L297\n"
+#~ "PMDX-150\n"
+#~ "Sherline\n"
+#~ "Xylotex\n"
+#~ "Parker-oem750\n"
+#~ "Other"
+#~ msgstr ""
+#~ "Gecko\n"
+#~ "L297\n"
+#~ "PMDX-150\n"
+#~ "Sherline\n"
+#~ "Xylotex\n"
+#~ "Parker-oem750\n"
+#~ "Andere"
+
+#~ msgid "Test Now"
+#~ msgstr "Testen"
+
+#~ msgid "Space, Ctrl-Space"
+#~ msgstr "Leertaste, Strg-Leertaste"
+
+#~ msgid "Include custom _HAL configuration"
+#~ msgstr "Benutzerdefinierte _HAL-Konfiguration einbinden"
