@@ -65,6 +65,7 @@
 <doc name="drivers_pluto_p" title="Pluto-P Driver"/>
 <doc name="drivers_servo_to_go" title="Servo To Go Driver"/>
 
+<doc name="examples_pci_parallel_port" title="PCI Parallel Port"/>
 <doc name="examples_gs2_example" title="GS2 Example"/>
 <doc name="examples_mpg" title="MPG Example"/>
 <doc name="examples_spindle" title="Spindle Example"/>
