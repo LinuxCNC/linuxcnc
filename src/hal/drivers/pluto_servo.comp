@@ -73,22 +73,16 @@ pin in bit dout.##[20]
 """dout.\\fI0M\\fR corresponds to the pin labeled
 OUT\\fIM\\fR on the pinout diagram.  Other pins are shared with the PWM
 function, as follows:
-.RS 12
-.ta T 12 6 12 4
 .PP
-.PD 0
-\\fBPin\tShared\tPin\tShared
-\twith\t\twith\\fR
-.PP
-dout.10\tUP0\tdout.11\tDOWN0
-.PP
-dout.12\tUP1\tdout.13\tDOWN1
-.PP
-dout.14\tUP2\tdout.15\tDOWN2
-.PP
-dout.18\tUP3\tdout.19\tDOWN3
-.RE
-.PD
+.RS 6
+.ta T 10 6 10 4
+ \\fB\tShared\t\tShared
+ Pin\twith\tPin\twith\\fR
+ dout.10\tUP0\tdout.11\tDOWN0
+ dout.12\tUP1\tdout.13\tDOWN1
+ dout.14\tUP2\tdout.15\tDOWN2
+ dout.18\tUP3\tdout.19\tDOWN3
+.RE 
 .DT""";
 param rw bit dout.##-invert[20]
 "If TRUE, the output on the corresponding \\fBdout.\\fIMM\\fR is inverted.";
@@ -98,26 +92,18 @@ pin out bit din.##_not[20]
 """For M=0 through 7, din.\\fI0M\\fR corresponds to the pin labeled
 IN\\fIM\\fR on the pinout diagram.  Other pins are shared with the encoder
 function, as follows:
-.RS 12
-.ta T 12 6 12 4
 .PP
-.PD 0
-\\fBPin\tShared\tPin\tShared
-\twith\t\twith\\fR
-.PP
-din.8\tQZ0\tdin.9\tQZ1
-.PP
-din.10\tQZ2\tdin.11\tQZ3
-.PP
-din.12\tQB0\tdin.13\tQB1
-.PP
-din.14\tQB2\tdin.15\tQB3
-.PP
-din.16\tQA0\tdin.17\tQA1
-.PP
-din.18\tQA2\tdin.19\tQA3
-.RE
-.PD
+.RS 6
+.ta T 10 6 10 4
+ \\fB\tShared\t\tShared
+ Pin\twith\tPin\twith\\fR
+ din.8\tQZ0\tdin.9\tQZ1
+ din.10\tQZ2\tdin.11\tQZ3
+ din.12\tQB0\tdin.13\tQB1
+ din.14\tQB2\tdin.15\tQB3
+ din.16\tQA0\tdin.17\tQA1
+ din.18\tQA2\tdin.19\tQA3
+.RE  
 .DT""";
 
 param rw u32 communication_error """Incremented each time 
