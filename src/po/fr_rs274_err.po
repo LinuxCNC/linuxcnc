@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-25 16:16+0100\n"
+"POT-Creation-Date: 2009-01-27 19:56+0100\n"
 "PO-Revision-Date: 2009-01-25 16:46+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -63,58 +63,58 @@ msgstr ""
 msgid "can't do that (%s) in manual mode"
 msgstr "Commande (%s) impossible en mode manuel"
 
-#: emc/task/emctaskmain.cc:799
+#: emc/task/emctaskmain.cc:801
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en charge"
 
-#: emc/task/emctaskmain.cc:861
+#: emc/task/emctaskmain.cc:863
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en lecture"
 
-#: emc/task/emctaskmain.cc:1085
+#: emc/task/emctaskmain.cc:1089
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en pause"
 
-#: emc/task/emctaskmain.cc:1149
+#: emc/task/emctaskmain.cc:1153
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en attente"
 
-#: emc/task/emctaskmain.cc:1265
+#: emc/task/emctaskmain.cc:1269
 #, c-format
 msgid "can't do that (%s) in MDI mode"
 msgstr "Commande (%s) impossible en mode MDI"
 
-#: emc/task/emctaskmain.cc:1862
+#: emc/task/emctaskmain.cc:1866
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
-#: emc/task/emctaskmain.cc:1922
+#: emc/task/emctaskmain.cc:1927
 #, c-format
 msgid "can't open %s"
 msgstr "Impossible d'ouvrir %s "
 
-#: emc/task/emctaskmain.cc:1934
+#: emc/task/emctaskmain.cc:1939
 msgid "Can't issue MDI command when not homed"
 msgstr "Pas de commande MDI avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:1939
+#: emc/task/emctaskmain.cc:1944
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "Pas de commande MDI hors du mode MDI"
 
-#: emc/task/emctaskmain.cc:1975
+#: emc/task/emctaskmain.cc:1980
 msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
-#: emc/task/emctaskmain.cc:3066
+#: emc/task/emctaskmain.cc:3073
 #, c-format
 msgid "Minimum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle minimale de l'axe %d dépassée"
 
-#: emc/task/emctaskmain.cc:3075
+#: emc/task/emctaskmain.cc:3082
 #, c-format
 msgid "Maximum Software Limit on axis %d exceeded."
 msgstr "Limite logicielle maximale sur l'axe %d dépassée"
@@ -129,11 +129,13 @@ msgstr ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: emc/rs274ngc/interp_convert.cc:709 emc/rs274ngc/interp_convert.cc:719
-#: emc/rs274ngc/interp_queue.cc:443
+#: emc/rs274ngc/interp_queue.cc:454
 msgid ""
 "Arc move in concave corner is too short to be reachable by the tool without "
 "gouging"
-msgstr "Le mouvement en arc dans l'angle intérieur est trop petit pour être atteint sans interférer avec la pièce"
+msgstr ""
+"Le mouvement en arc dans l'angle intérieur est trop petit pour être atteint "
+"sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:1303
 msgid "Cannot change control mode with cutter radius compensation on"
@@ -169,11 +171,13 @@ msgstr "G%d avec outil de tour, mais le plan n'est pas G18"
 
 #: emc/rs274ngc/interp_convert.cc:2411 emc/rs274ngc/interp_convert.cc:2415
 msgid "Cannot set motion output with cutter radius compensation on"
-msgstr "Réglage de sortie mouvement impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Réglage de sortie mouvement impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2419 emc/rs274ngc/interp_convert.cc:2423
 msgid "Cannot set auxiliary output with cutter radius compensation on"
-msgstr "Réglage de sortie auxiliaire impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Réglage de sortie auxiliaire impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2467
 msgid "Cannot wait for digital input with cutter radius compensation on"
@@ -191,17 +195,20 @@ msgstr ""
 #: emc/rs274ngc/interp_convert.cc:2593 emc/rs274ngc/interp_convert.cc:2607
 #: emc/rs274ngc/interp_convert.cc:2621
 msgid "Cannot enable overrides with cutter radius compensation on"
-msgstr "Activation de correcteur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Activation de correcteur impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2569 emc/rs274ngc/interp_convert.cc:2584
 #: emc/rs274ngc/interp_convert.cc:2598 emc/rs274ngc/interp_convert.cc:2612
 #: emc/rs274ngc/interp_convert.cc:2626
 msgid "Cannot disable overrides with cutter radius compensation on"
-msgstr "Désactivation de correcteur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Désactivation de correcteur impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2636
 msgid "Cannot call user-defined M code with cutter radius compensation on"
-msgstr "Appel de M-code utilisateur impossible avec la compensation de rayon d'outil"
+msgstr ""
+"Appel de M-code utilisateur impossible avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/interp_convert.cc:2866
 msgid "Cannot change retract mode with cutter radius compensation on"
@@ -221,7 +228,8 @@ msgstr ""
 
 #: emc/rs274ngc/interp_convert.cc:4081
 msgid "Cannot change tools with cutter radius compensation on"
-msgstr "Changement d'outil impossible avec la compensation de rayon d'outil active"
+msgstr ""
+"Changement d'outil impossible avec la compensation de rayon d'outil active"
 
 #: emc/rs274ngc/interp_convert.cc:4191
 msgid "Cannot change tool offset with cutter radius compensation on"
@@ -229,24 +237,26 @@ msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
 "active"
 
-#: emc/rs274ngc/interp_queue.cc:441
+#: emc/rs274ngc/interp_queue.cc:452
 #, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
-"BOGUE: la compensation d'outil a généré un arc invalide avec des rayons incorrects "
-"r1 %f r2 %f\n"
+"BOGUE: la compensation d'outil a généré un arc invalide avec des rayons "
+"incorrects r1 %f r2 %f\n"
 
-#: emc/rs274ngc/interp_queue.cc:461 emc/rs274ngc/interp_queue.cc:498
+#: emc/rs274ngc/interp_queue.cc:472 emc/rs274ngc/interp_queue.cc:509
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr "BOGUE: Plan incorrect avec la compensation d'outil"
 
-#: emc/rs274ngc/interp_queue.cc:470 emc/rs274ngc/interp_queue.cc:507
+#: emc/rs274ngc/interp_queue.cc:481 emc/rs274ngc/interp_queue.cc:518
 msgid ""
 "Straight move in concave corner is too short to be reachable by the tool "
 "without gouging"
-msgstr "Le mouvement rectiligne dans l'angle intérieur est trop court pour être atteint par l'outil sans interférer avec la pièce"
+msgstr ""
+"Le mouvement rectiligne dans l'angle intérieur est trop court pour être "
+"atteint par l'outil sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
@@ -1124,7 +1134,8 @@ msgstr "Impossible de changer de plan avec la compensation de rayon d'outil"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:241
 msgid "Cutter radius compensation allowed only in XY, XZ planes"
-msgstr "Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
+msgstr ""
+"Compensation de rayon d'outil permise seulement dans les plans XY et XZ"
 
 #: emc/rs274ngc/rs274ngc_errors.cc:243
 msgid "P word missing with G76"
@@ -1248,4 +1259,3 @@ msgstr "Fin"
 #: emc/rs274ngc/rs274ngc_pre.cc:756
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide après changement d'outil"
-
