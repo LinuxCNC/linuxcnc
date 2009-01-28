@@ -693,6 +693,7 @@ proc jogNeg {axis} {
     switch $::jogAxisType($axisToJog) {
       linear  {set speed $::linearJogSpeed}
       angular {set speed $::angularJogSpeed}
+      undefined {return}
     }
     if {$jogType == "continuous"} {
         emc_jog $axisToJog -$speed
@@ -715,6 +716,7 @@ proc jogPos {axis} {
     switch $::jogAxisType($axisToJog) {
       linear  {set speed $::linearJogSpeed}
       angular {set speed $::angularJogSpeed}
+      undefined {return}
     }
 
     if {$jogType == "continuous"} {
@@ -1038,7 +1040,14 @@ foreach axis {0 1 2 3 4 5 6 7 8} {
   set temp [emc_ini "TYPE" "AXIS_$axis"]
   switch $temp {
     LINEAR  {set ::jogAxisType($axis) linear}
-    ANGULAR {set ::jogAxisType($axis) angular}
+    ANGULAR {
+      if [info exists ::angularJogSpeed] {
+        set ::jogAxisType($axis) angular
+      } else {
+        # insufficient information to jog:
+        set ::jogAxisType($axis) undefined
+      }
+    }
   }
 }
 unset vitems tempini ;# remove clutter
