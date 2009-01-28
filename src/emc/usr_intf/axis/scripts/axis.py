@@ -3970,7 +3970,11 @@ forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")
 forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
-rcfile = os.path.expanduser("~/.axisrc")
+rcfile = "~/.axisrc"
+user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
+if user_command_file:
+    rcfile = user_command_file
+rcfile = os.path.expanduser(rcfile)
 if os.path.exists(rcfile):
     import traceback
     try:
