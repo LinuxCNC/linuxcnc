@@ -1,9 +1,8 @@
 # #######################################
 #
-# Combination Hal file for m7i43 - TESTING
-# Rev 1.0
-# 20 Oct 2008
-# T.Hyde - CasaFrog
+# HAL file for HostMot2 with 3 servos
+#
+# Derived from Ted Hyde's original hm2-servo config
 #
 # Based up work and discussion with Seb & Peter & Jeff
 # GNU license references - insert here. www.linuxcnc.org
@@ -41,33 +40,29 @@ loadrt probe_parport
 # hostmot2 driver
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
-# 7i43 driver and firmware load from sandbox
-loadrt hm2_7i43 config="firmware=hm2/7i43/SVST4_4B.BIT num_encoders=3 num_pwmgens=3 num_stepgens=1"
+# load low-level driver
+loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
 
-# 7i43 PWMGen base frequency
-setp hm2_7i43.0.pwmgen.pwm_frequency 40000
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency 40000
 
-# 7i43 watchdog, enable only if loaded firmware supports it
-setp hm2_7i43.0.watchdog.timeout_ns 10000000
+setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns 10000000
 
 
 # ################################################
 # THREADS
 # ################################################
 
-# hook functions to servo thread
-addf hm2_7i43.0.read servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.read          servo-thread
 
-addf motion-command-handler servo-thread
-addf motion-controller servo-thread
+addf motion-command-handler                servo-thread
+addf motion-controller                     servo-thread
 
-addf pid.0.do-pid-calcs servo-thread
-addf pid.1.do-pid-calcs servo-thread
-addf pid.2.do-pid-calcs servo-thread
+addf pid.0.do-pid-calcs                    servo-thread
+addf pid.1.do-pid-calcs                    servo-thread
+addf pid.2.do-pid-calcs                    servo-thread
 
-addf hm2_7i43.0.write servo-thread
-
-addf hm2_7i43.0.pet_watchdog  servo-thread #enable if fw supported
+addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread
+addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread
        
 
 # ######################################################
@@ -83,18 +78,18 @@ addf hm2_7i43.0.pet_watchdog  servo-thread #enable if fw supported
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 net emcmot.00.enable => pid.0.enable
-net emcmot.00.enable => hm2_7i43.0.pwmgen.00.enable
+net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
 net emcmot.00.enable <= axis.0.amp-enable-out 
 
 # encoder feedback
-setp hm2_7i43.0.encoder.00.counter-mode 0
-setp hm2_7i43.0.encoder.00.filter 1
-setp hm2_7i43.0.encoder.00.index-invert 0
-setp hm2_7i43.0.encoder.00.index-mask 0
-setp hm2_7i43.0.encoder.00.index-mask-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.counter-mode 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.filter 1
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask-invert 0
 
-setp  hm2_7i43.0.encoder.00.scale  2000
-net motor.00.pos-fb hm2_7i43.0.encoder.00.position => pid.0.feedback
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  2000
+net motor.00.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.00.position => pid.0.feedback
 net motor.00.pos-fb => axis.0.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
@@ -109,11 +104,11 @@ setp pid.0.deadband [AXIS_0]DEADBAND
 setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
 
 # position command signals
-setp hm2_7i43.0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_7i43.0.pwmgen.00.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  1.0
 
 net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
-net motor.00.command  pid.0.output  =>  hm2_7i43.0.pwmgen.00.value
+net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
 
 # ################
 # Y [1] Axis
@@ -123,18 +118,18 @@ net motor.00.command  pid.0.output  =>  hm2_7i43.0.pwmgen.00.value
 newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 net emcmot.01.enable => pid.1.enable
-net emcmot.01.enable => hm2_7i43.0.pwmgen.01.enable
+net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.01.enable
 net emcmot.01.enable <= axis.1.amp-enable-out 
 
 # encoder feedback
-setp hm2_7i43.0.encoder.01.counter-mode 0
-setp hm2_7i43.0.encoder.01.filter 1
-setp hm2_7i43.0.encoder.01.index-invert 0
-setp hm2_7i43.0.encoder.01.index-mask 0
-setp hm2_7i43.0.encoder.01.index-mask-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.01.counter-mode 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.01.filter 1
+setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask-invert 0
 
-setp  hm2_7i43.0.encoder.01.scale  2000
-net motor.01.pos-fb hm2_7i43.0.encoder.01.position => pid.1.feedback
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  2000
+net motor.01.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.01.position => pid.1.feedback
 net motor.01.pos-fb => axis.1.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
@@ -149,11 +144,11 @@ setp pid.1.deadband [AXIS_1]DEADBAND
 setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
 
 # position command signals
-setp hm2_7i43.0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_7i43.0.pwmgen.01.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale  1.0
 
 net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
-net motor.01.command  pid.1.output  =>  hm2_7i43.0.pwmgen.01.value
+net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
 
 # ################
 # Z [2] Axis
@@ -163,18 +158,18 @@ net motor.01.command  pid.1.output  =>  hm2_7i43.0.pwmgen.01.value
 newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 net emcmot.02.enable => pid.2.enable
-net emcmot.02.enable => hm2_7i43.0.pwmgen.02.enable
+net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.02.enable
 net emcmot.02.enable <= axis.2.amp-enable-out 
 
 # encoder feedback
-setp hm2_7i43.0.encoder.02.counter-mode 0
-setp hm2_7i43.0.encoder.02.filter 1
-setp hm2_7i43.0.encoder.02.index-invert 0
-setp hm2_7i43.0.encoder.02.index-mask 0
-setp hm2_7i43.0.encoder.02.index-mask-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.02.counter-mode 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.02.filter 1
+setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-invert 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask 0
+setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask-invert 0
 
-setp  hm2_7i43.0.encoder.02.scale  2000
-net motor.02.pos-fb hm2_7i43.0.encoder.02.position => pid.2.feedback
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  2000
+net motor.02.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.02.position => pid.2.feedback
 net motor.02.pos-fb => axis.2.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
@@ -189,11 +184,11 @@ setp pid.2.deadband [AXIS_2]DEADBAND
 setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
 
 # position command signals
-setp hm2_7i43.0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_7i43.0.pwmgen.02.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale  1.0
 
 net emcmot.02.pos-cmd axis.2.motor-pos-cmd => pid.2.command
-net motor.02.command  pid.2.output  =>  hm2_7i43.0.pwmgen.02.value
+net motor.02.command  pid.2.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.02.value
 
 
 # ##################################################
