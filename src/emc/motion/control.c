@@ -395,6 +395,7 @@ static void process_inputs(void)
         // not probing, but we have a rising edge on the probe.
         // this could be expensive if we don't stop.
         int i;
+        int aborted = 0;
 
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
            tpGetExecId(&emcmotDebug->queue) <= 0) {
@@ -405,7 +406,6 @@ static void process_inputs(void)
 
         for(i=0; i<num_joints; i++) {
             emcmot_joint_t *joint = &joints[i];
-            int aborted = 0;
 
             if (!GET_JOINT_ACTIVE_FLAG(joint)) {
                 /* if joint is not active, skip it */
@@ -414,22 +414,25 @@ static void process_inputs(void)
 
             // abort any homing
             if(GET_JOINT_HOMING_FLAG(joint)) {
-                aborted++;
                 joint->home_state = HOME_ABORT;
+                aborted=1;
             }
-            if(aborted) {
-                reportError("Probe tripped during homing motion.");
-            }
-            aborted=0;
 
             // abort any jogs
             if(joint->free_tp_enable == 1) {
                 joint->free_tp_enable = 0;
-                aborted++;
+                // since homing uses free_tp, this protection of aborted
+                // is needed so the user gets the correct error.
+                if(!aborted) aborted=2;
             }
-            if(aborted) {
-                reportError("Probe tripped during a jog.");
-            }
+        }
+
+        if(aborted == 1) {
+            reportError("Probe tripped during homing motion.");
+        }
+
+        if(aborted == 2) {
+            reportError("Probe tripped during a jog.");
         }
     }
     old_probeVal = emcmotStatus->probeVal;
