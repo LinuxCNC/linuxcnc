@@ -717,9 +717,11 @@ static void Command_dealloc(PyObject *self) {
 
 
 static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
+    int t;
     EMC_TASK_PLAN_SET_BLOCK_DELETE m;
 
-    if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
+    if(!PyArg_ParseTuple(o, "i", &t)) return NULL;
+    m.state = t;
             
     m.serial_number = next_serial(s);
     s->c->write(m);
@@ -731,10 +733,12 @@ static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
 
 
 static PyObject *optional_stop(pyCommandChannel *s, PyObject *o) {
+    int t;
     EMC_TASK_PLAN_SET_OPTIONAL_STOP m;
 
-    if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
-            
+    if(!PyArg_ParseTuple(o, "i", &t)) return NULL;
+    m.state = t;
+
     m.serial_number = next_serial(s);
     s->c->write(m);
     emcWaitCommandReceived(s->serial, s->s);
