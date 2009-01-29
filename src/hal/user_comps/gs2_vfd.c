@@ -322,7 +322,8 @@ int main(int argc, char **argv)
     int hal_comp_id;
     struct timespec loop_timespec, remaining;
     int baud, bits, stopbits, debug, verbose;
-    char *device, *parity, *endarg, opt;
+    char *device, *parity, *endarg;
+    int opt;
     int argindex, argvalue;
     done = 0;
 
