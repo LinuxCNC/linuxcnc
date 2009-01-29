@@ -119,9 +119,9 @@ PID stand for Proportional, Integral, and Derivative.
  and the Derivative value determines the reaction based on the rate at which
  the error has been changing.
  They are three common mathematical techniques that are applied to the task
- of getting a working process to follow a setpoint.
+ of getting a working process to follow a set point.
  In the case of EMC the process we want to control is actual axis position
- and the setpoint is the commanded axis position.
+ and the set point is the commanded axis position.
 \layout Standard
 
 
@@ -151,7 +151,7 @@ By "tuning" the three constants in the PID controller algorithm, the controller
  can provide control action designed for specific process requirements.
  The response of the controller can be described in terms of the responsiveness
  of the controller to an error, the degree to which the controller overshoots
- the setpoint and the degree of system oscillation.
+ the set point and the degree of system oscillation.
 \layout Subsection
 
 Proportional term
@@ -188,11 +188,11 @@ The contribution from the integral term (sometimes called reset) is proportional
 \layout Standard
 
 The integral term (when added to the proportional term) accelerates the
- movement of the process towards setpoint and eliminates the residual steady-sta
-te error that occurs with a proportional only controller.
+ movement of the process towards set point and eliminates the residual steady-st
+ate error that occurs with a proportional only controller.
  However, since the integral term is responding to accumulated errors from
- the past, it can cause the present value to overshoot the setpoint value
- (cross over the setpoint and then create a deviation in the other direction).
+ the past, it can cause the present value to overshoot the set point value
+ (cross over the set point and then create a deviation in the other direction).
 \layout Subsection
 
 Derivative term
@@ -205,7 +205,7 @@ The rate of change of the process error is calculated by determining the
 \layout Standard
 
 The derivative term slows the rate of change of the controller output and
- this effect is most noticeable close to the controller setpoint.
+ this effect is most noticeable close to the controller set point.
  Hence, derivative control is used to reduce the magnitude of the overshoot
  produced by the integral component and improve the combined controller-process
  stability.
@@ -237,7 +237,7 @@ A simple tuning method is to first set the I and D values to zero.
  Finally, increase D, if required, until the loop is acceptably quick to
  reach its reference after a load disturbance.
  However, too much D will cause excessive response and overshoot.
- A fast PID loop tuning usually overshoots slightly to reach the setpoint
+ A fast PID loop tuning usually overshoots slightly to reach the set point
  more quickly; however, some systems cannot accept overshoot, in which case
  an "over-damped" closed-loop system is required, which will require a P
  setting significantly less than half that of the P setting causing oscillation.
