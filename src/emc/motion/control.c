@@ -32,6 +32,9 @@
 /*! \todo FIXME - this is a leftover global, it will eventually go away */
 int rehomeAll;
 
+/* the (nominal) period the last time the motion handler was invoked */
+unsigned long last_period = 0;
+
 /* these variables have the servo cycle time and 1/cycle time */
 double servo_period;
 double servo_freq;
@@ -302,6 +305,12 @@ void emcmotController(void *arg, long period)
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
+
+    if(period != last_period) {
+        emcmotSetCycleTime(period);
+        last_period = period;
+    }
+
     /* calculate servo frequency for calcs like vel = Dpos / period */
     /* it's faster to do vel = Dpos * freq */
     servo_freq = 1.0 / servo_period;

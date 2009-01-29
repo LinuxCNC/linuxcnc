@@ -1143,25 +1143,22 @@ static int init_threads(void)
     }
 #endif
 
-    /* init the time and rate using functions to affect traj, and the cubics
-       properly, since they're coupled */
-
-    retval = setTrajCycleTime(traj_period_nsec * 0.000000001);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setTrajCycleTime() failed\n");
-	return -1;
-    }
-
-    retval = setServoCycleTime(servo_period_nsec * 0.000000001);
-    if (retval != HAL_SUCCESS) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: setServoCycleTime() failed\n");
-	return -1;
-    }
+    // if we don't set cycle times based on these guesses, emc doesn't
+    // start up right
+    setServoCycleTime(servo_period_nsec * 1e-9);
+    setTrajCycleTime(traj_period_nsec * 1e-9);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_threads() complete\n");
     return 0;
 }
 
+void emcmotSetCycleTime(unsigned long nsec ) {
+    int servo_mult;
+    servo_mult = ceil(traj_period_nsec / nsec);
+    if(servo_mult < 0) servo_mult = 1;
+    setTrajCycleTime(nsec * 1e-9);
+    setServoCycleTime(nsec * servo_mult * 1e-9);
+}
 /* call this when setting the trajectory cycle time */
 static int setTrajCycleTime(double secs)
 {

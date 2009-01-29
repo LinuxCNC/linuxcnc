@@ -217,6 +217,7 @@ extern struct emcmot_error_t *emcmotError;
 /* function definitions */
 extern void emcmotCommandHandler(void *arg, long period);
 extern void emcmotController(void *arg, long period);
+extern void emcmotSetCycleTime(unsigned long nsec);
 
 /* these are related to synchronized I/O */
 extern void emcmotDioWrite(int index, char value);

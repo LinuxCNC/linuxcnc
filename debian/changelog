@@ -130,10 +130,11 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * AXIS: block delete and optional stop buttons/indicators on the toolbar
   * AXIS: save block delete and optional stop settings across runs
   * fix g41/g42 in lathe mode.  previously, right/left were swapped.
-
+  * fix deviation from commanded velocity due to differences
+    between requested and actual servo-thread period (SF#2478266)
   * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Chris Radek <chris@timeguy.com>  Fri, 23 Jan 2009 13:30:39 -0600
+ -- Jeff Epler <jepler@platte>  Thu, 29 Jan 2009 07:11:49 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
