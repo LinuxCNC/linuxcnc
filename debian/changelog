@@ -1,5 +1,6 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
+  * add M61 Qxx - allows to change the number of the currently loaded tool
   * add driver to control Automation Direct GS2 VFDs via serial MODBUS
   * fix G33 moves without feedrate (SF#2011311)
   * minor improvements for teach-in.py
