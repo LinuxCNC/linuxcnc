@@ -78,4 +78,5 @@ In the source directory, build EMC2:
 
 to run the software go back to the top level directory, and issue:
 
-  scripts/emc
+  . scripts/emc-environment
+  emc
