@@ -186,6 +186,7 @@ class PM_CARTESIAN;
 #define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
+#define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
 
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
@@ -513,6 +514,7 @@ extern int emcToolLoadToolTable(const char *file);
 extern int emcToolSetOffset(int id, double zoffset, double xoffset,
                             double diameter, double frontangle,
                             double backangle, int orientation);
+extern int emcToolSetNumber(int number);
 
 extern int emcToolSetToolTableFile(const char *file);
 

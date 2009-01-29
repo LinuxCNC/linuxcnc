@@ -322,7 +322,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->q_number != -1.0) {
       CHKS((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
-          (block->m_modes[5] != 66) && (block->g_modes[0] != G_10), 
+          (block->m_modes[5] != 66) && (block->g_modes[0] != G_10) && (block->m_modes[6] != 61), 
           "Q word with no g code that uses it");
   }
 

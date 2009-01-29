@@ -975,6 +975,17 @@ int main(int argc, char *argv[])
 		emcioStatus.status = RCS_ERROR;
 	    break;
 
+	case EMC_TOOL_SET_NUMBER_TYPE:
+	    {
+		int number;
+		
+		number = ((EMC_TOOL_SET_NUMBER *) emcioCommand)->tool;
+		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_SET_NUMBER old_loaded=%d new_number=%d\n", emcioStatus.tool.toolInSpindle, number);
+		emcioStatus.tool.toolInSpindle = number;
+	    }
+	    break;
+
+
 	case EMC_COOLANT_MIST_ON_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
 	    emcioStatus.coolant.mist = 1;

@@ -133,7 +133,7 @@ The groups are:
 group 4 = {m0,m1,m2,m30,m60} - stopping
 group 5 = {m62,m63,m64,m65,  - turn I/O point on/off
            m66}              - wait for Input
-group 6 = {m6}               - tool change
+group 6 = {m6,m61}           - tool change
 group 7 = {m3,m4,m5}         - spindle turning
 group 8 = {m7,m8,m9}         - coolant
 group 9 = {m48,m49,          - feed and speed override switch bypass
@@ -151,7 +151,7 @@ const int Interp::_ems[] = {
    4, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 39
   -1, -1, -1, -1, -1, -1, -1, -1,  9,  9,  // 49
    9,  9,  9,  9, -1, -1, -1, -1, -1, -1,  // 59
-   4, -1,  5,  5,  5,  5,  5, -1, -1, -1,  // 69
+   4,  6,  5,  5,  5,  5,  5, -1, -1, -1,  // 69
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 79
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 89
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 99

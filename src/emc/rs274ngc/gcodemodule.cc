@@ -299,6 +299,11 @@ void CHANGE_TOOL(int tool) {
     Py_XDECREF(result);
 }
 
+void CHANGE_TOOL_NUMBER(int tool) {
+    maybe_new_line();
+    if(interp_error) return;
+}
+
 /* XXX: This needs to be re-thought.  Sometimes feed rate is not in linear
  * units--e.g., it could be inverse time feed mode.  in that case, it's wrong
  * to convert from mm to inch here.  but the gcode time estimate gets inverse

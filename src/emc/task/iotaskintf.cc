@@ -418,6 +418,17 @@ int emcToolSetOffset(int id, double zoffset, double xoffset,
     return 0;
 }
 
+int emcToolSetNumber(int number)
+{
+    EMC_TOOL_SET_NUMBER toolSetNumberMsg;
+
+    toolSetNumberMsg.tool = number;
+
+    sendCommand(&toolSetNumberMsg);
+
+    return 0;
+}
+
 // Status functions
 
 int emcIoUpdate(EMC_IO_STAT * stat)

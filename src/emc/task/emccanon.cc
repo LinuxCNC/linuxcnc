@@ -1728,6 +1728,17 @@ void SELECT_TOOL(int slot)
     interp_list.append(prep_for_tool_msg);
 }
 
+/* CHANGE_TOOL_NUMBER results from M61, for example */
+void CHANGE_TOOL_NUMBER(int number)
+{
+    EMC_TOOL_SET_NUMBER emc_tool_set_number_msg;
+    
+    emc_tool_set_number_msg.tool = number;
+
+    interp_list.append(emc_tool_set_number_msg);
+}
+
+
 /* Misc Functions */
 
 void CLAMP_AXIS(CANON_AXIS axis)

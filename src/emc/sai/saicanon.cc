@@ -734,6 +734,12 @@ void CHANGE_TOOL(int slot)
 void SELECT_TOOL(int slot)
 {PRINT1("SELECT_TOOL(%d)\n", slot);}
 
+void CHANGE_TOOL_NUMBER(int slot)
+{
+  PRINT1("CHANGE_TOOL_NUMBER(%d)\n", slot);
+  _active_slot = slot;
+}
+
 
 /* Misc Functions */
 

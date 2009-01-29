@@ -2380,6 +2380,7 @@ This handles four separate types of activity in order:
 3. Turning coolant on and off (m7, m8, and m9)
 4. turning a-axis clamping on and off (m26, m27) - commented out.
 5. enabling or disabling feed and speed overrides (m49, m49).
+6. changing the loaded toolnumber (m61).
 Within each group, only the first code encountered will be executed.
 
 This does nothing with m0, m1, m2, m30, or m60 (which are handled in
@@ -2489,7 +2490,16 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   }    
 
   if (block->m_modes[6] != -1) {
-    CHP(convert_tool_change(settings));
+    // when we have M6 do the actual toolchange
+    if (block->m_modes[6] == 6)
+	CHP(convert_tool_change(settings));
+	
+    // when we have M61 we only change the number of the loaded tool (for example on startup)
+    if (block->m_modes[6] == 61) {
+	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));
+	settings->current_slot = round_to_int(block->q_number);
+	CHANGE_TOOL_NUMBER(round_to_int(block->q_number));
+    }    
 #ifdef DEBATABLE
     // I would like this, but it's a big change.  It changes the
     // operation of legal ngc programs, but it could be argued that
@@ -4041,6 +4051,7 @@ Side effects:
 Called by: convert_m
 
 This function carries out an M6 command, which changes the tool.
+If M61 is called, the toolnumber gets changed (without causing an actual toolchange).
 
 When the CHANGE_TOOL call completes, the specified tool should be
 loaded.  What this means varies by machine.  According to configuration,

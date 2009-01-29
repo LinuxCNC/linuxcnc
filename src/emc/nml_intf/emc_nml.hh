@@ -1498,6 +1498,18 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     int    orientation;
 };
 
+class EMC_TOOL_SET_NUMBER:public EMC_TOOL_CMD_MSG {
+  public:
+    EMC_TOOL_SET_NUMBER():EMC_TOOL_CMD_MSG(EMC_TOOL_SET_NUMBER_TYPE,
+					   sizeof(EMC_TOOL_SET_NUMBER)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    int tool; //number to use for currently loaded tool
+};
+
 // EMC_TOOL status base class
 class EMC_TOOL_STAT_MSG:public RCS_STAT_MSG {
   public:

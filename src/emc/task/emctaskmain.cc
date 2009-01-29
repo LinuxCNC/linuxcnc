@@ -351,6 +351,7 @@ static EMC_SPINDLE_ON *spindle_on_msg;
 static EMC_TOOL_PREPARE *tool_prepare_msg;
 static EMC_TOOL_LOAD_TOOL_TABLE *load_tool_table_msg;
 static EMC_TOOL_SET_OFFSET *emc_tool_set_offset_msg;
+static EMC_TOOL_SET_NUMBER *emc_tool_set_number_msg;
 static EMC_TASK_SET_MODE *mode_msg;
 static EMC_TASK_SET_STATE *state_msg;
 static EMC_TASK_PLAN_RUN *run_msg;
@@ -581,6 +582,13 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
+	    case EMC_TOOL_SET_NUMBER_TYPE:
+		// send to IO
+		emcTaskQueueCommand(emcCommand);
+		// then resynch interpreter
+		emcTaskQueueCommand(&taskPlanSynchCmd);
+		break;
+
 	    default:
 		emcOperatorError(0,
 				 _
@@ -694,7 +702,15 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
+	    case EMC_TOOL_SET_NUMBER_TYPE:
+		// send to IO
+		emcTaskQueueCommand(emcCommand);
+		// then resynch interpreter
+		emcTaskQueueCommand(&taskPlanSynchCmd);
+		break;
+
 		// otherwise we can't handle it
+
 	    default:
 		sprintf(errstring, _("can't do that (%s) in manual mode"),
 			emc_symbol_lookup(type));
@@ -1362,6 +1378,10 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO;
 	break;
 
+    case EMC_TOOL_SET_NUMBER_TYPE:
+	return EMC_TASK_EXEC_WAITING_FOR_IO;
+	break;
+
     case EMC_TASK_PLAN_PAUSE_TYPE:
     case EMC_TASK_PLAN_OPTIONAL_STOP_TYPE:
 	/* pause on the interp list is queued, so wait until all are done */
@@ -1842,6 +1862,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                                   emc_tool_set_offset_msg->orientation);
 	break;
 
+    case EMC_TOOL_SET_NUMBER_TYPE:
+	emc_tool_set_number_msg = (EMC_TOOL_SET_NUMBER *) cmd;
+	retval = emcToolSetNumber(emc_tool_set_number_msg->tool);
+	break;
+
 	// task commands
 
     case EMC_TASK_INIT_TYPE:
@@ -2134,6 +2159,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TOOL_UNLOAD_TYPE:
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
     case EMC_TOOL_SET_OFFSET_TYPE:
+    case EMC_TOOL_SET_NUMBER_TYPE:
     case EMC_SPINDLE_SPEED_TYPE:
     case EMC_SPINDLE_ON_TYPE:
     case EMC_SPINDLE_OFF_TYPE:
