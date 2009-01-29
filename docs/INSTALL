@@ -13,6 +13,7 @@ In the source directory, build EMC2:
 make clean
 make
 sudo make install
+(or use sudo checkinstall, that builds a package which can be easily removed lateron)
 
 Afterwards you need to issue 'emc' and you'll get emc2 running.
 
@@ -129,6 +130,8 @@ If you don't want to generate the documentation from source:
 configure also accepts other arguments. Use --help to view the list.
  
   --with-realtime=<path to RT system>     path where RTAI or RTLINUX is installed
+  --enable-build-documentation=format     Build documentation.
+                Format may be "pdf" or "html" if only one format is desired.
   --enable-simulator                      don't use a RT system
   --with-module-dir=<module-dir>          Installation directory for kernel modules
   --with-gtk_ver=<GTK-version>            GTK version
