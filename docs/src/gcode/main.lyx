@@ -3002,7 +3002,7 @@ Quick Reference Table
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="48" columns="4">
+<lyxtabular version="3" rows="51" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -4795,6 +4795,123 @@ P
 
 
 \begin_inset LatexCommand \ref{sec:M53:-Feed-Stop-Control}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M61
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Set Current Tool Number
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M61-Set-Current-Tool-Number}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M62-65
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Output Control
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M62-to-M65:}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M66
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Input Control
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P, E, L, Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M66:}
 
 \end_inset 
 
@@ -8581,6 +8698,31 @@ motion.feed-hold
 M53
 \family default 
  is active).
+\layout Section
+
+M61 Set Current Tool Number
+\begin_inset LatexCommand \index{M61 Set Current Tool Number}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:M61-Set-Current-Tool-Number}
+
+\end_inset 
+
+
+\layout Standard
+
+To change the current tool number while in MDI or Manual mode program a
+ M61 Qxx in the MDI window.
+ One use is when you power up EMC with a tool currently in the spindle you
+ can set that tool number without doing a tool change.
+\layout Quote
+
+It is an error if:
+\layout Itemize
+
+Qxx is not 0 or greater
 \layout Section
 
 M62 to M65 Output Control
