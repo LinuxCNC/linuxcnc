@@ -1059,18 +1059,25 @@ class MyOpengl(Opengl):
                 positions = [(i-j) for i, j in zip(positions, s.origin)]
 
             positions = to_internal_units(positions)
+            axisdtg = to_internal_units(s.dtg)
 
             if vars.metric.get():
                 positions = from_internal_units(positions, 1)
+                axisdtg = from_internal_units(axisdtg, 1)
                 format = "%3s:% 9.3f"
+                droformat = format + "  DTG%1s:% 9.3f"
             else:
                 format = "%3s:% 9.4f"
+                droformat = format + "  DTG%1s:% 9.4f"
 
             posstrs = [format % j for i, j in zip(range(9), zip("XYZABCUVW", positions)) if s.axis_mask & (1<<i)]
+            droposstrs = [droformat % (j + k) for i, j, k in zip(range(9), zip("XYZABCUVW", positions), zip("XYZABCUVW", axisdtg)) if s.axis_mask & (1<<i)]
 
             if lathe:
                 posstrs[0] = format % ("Rad", positions[0])
                 posstrs.insert(1, format % ("Dia", positions[0]*2.0))
+                droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
+                droposstrs.insert(1, format % ("Dia", positions[0]*2.0))
 
             if vars.show_machine_speed.get():
                 spd = to_internal_linear_unit(s.current_vel)
@@ -1097,21 +1104,25 @@ class MyOpengl(Opengl):
         font_vertspace = text.tk.call("font", "metrics", (font, -100, "bold"), "-linespace") - 100
 
         text.delete("0.0", "end")
-        t = posstrs[:]
+        t = droposstrs[:]
         i = 0
         for ts in t:
             if i < len(homed) and homed[i]:
                 t[i] += "*"
+            else:
+                t[i] += " "
             if i < len(homed) and limit[i]:
                 t[i] += "!" # !!!1!
+            else:
+                t[i] += " "
             i+=1
             
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
         window_width = text.winfo_width()
-        dro_lines = len(posstrs)
-        dro_width = len(posstrs[0]) + 3 # 2 for the two possible symbols, plus a space
+        dro_lines = len(droposstrs)
+        dro_width = len(droposstrs[0]) + 3
         # pixels of height required, for "100 pixel" font
         req_height = dro_lines * 100 + (dro_lines + 1) * font_vertspace
         # pixels of width required, for "100 pixel" font
