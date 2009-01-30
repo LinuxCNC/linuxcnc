@@ -48,9 +48,9 @@ Trajectory planning, in general, is the means by which EMC follows the path
 A G Code program can never be fully obeyed.
  For example imagine you specify as a single-line program the following
  move:
-\layout LyX-Code
+\layout Quote
 
-G1X1F10 (G1 is linear move, X1 is the destination, F10 is the speed)
+G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
 \layout Standard
 
 In reality, the whole move can't be made at F10, since the machine must
@@ -182,4 +182,20 @@ For example, for a feed rate of 1 inch per second and an acceleration of
  For a feed rate of .5 inch per second, the critical distance is .5^2 / 10
  = .025 inch.
  
+\layout Section
+
+G Code
+\layout Subsection
+
+Feed Rate
+\layout Standard
+
+How the feed rate is applied depends on if an axis involved with the move
+ is a rotory axis.
+ Read and understand the Feed Rate section (
+\begin_inset LatexCommand \ref{sub:Feed-Rate}
+
+\end_inset 
+
+) if you have a rotary axis or a lathe.
 \the_end
