@@ -2435,7 +2435,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED);
 
     // L-word not 0, and timeout <= 0 
-    CHK(((round_to_int(block->q_number) <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) >= 0)),
+    CHK(((round_to_int(block->q_number) <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) > 0)),
 	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
 	
     // E-word specified (analog input) and wait type not immediate
