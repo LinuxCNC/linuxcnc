@@ -27,30 +27,25 @@
 
 \layout Chapter
 
-Compiling EMC2 from source
+Compiling from source
 \layout Section
 
 Introduction
 \layout Standard
 
-The third hurdle that you face when you begin to set up the EMC2 is getting
- and installing the EMC2 software itself.
+The Live CD is the preferred way to install EMC.
+ Compliling from source is not normally needed.
+ See the Getting Started Manual for infomation on getting and installing
+ EMC.
+\layout Standard
+
+The third hurdle that you face when you begin to set up EMC from scratch
+ is getting and installing the EMC2 software itself.
  All of EMC2 has been placed on cvs.linuxcnc.org in a concurrent versioning
  (CVS) repository.
  EMC2 is also available as a precompiled package (for various platforms)
  for download from that site.
  
-\layout Standard
-
-Installation can be a daunting task to people new to Linux.
- The hardest part is getting the Real Time Linux patch up and running.
- After that, installing EMC is pretty easy.
- With that said, we recently provided a completely new experience for users,
- they only need to install Ubuntu (a very friendly linux distribution),
- then run a single install script, and they already should have the Real
- Time part and EMC2 working.
- Information how to access this can be found on the www.linuxcnc.org page
- under Download.
 \layout Section
 
 EMC Download Page
