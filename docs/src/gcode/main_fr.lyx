@@ -5107,7 +5107,7 @@ Table résumée du G-code
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="48" columns="4">
+<lyxtabular version="3" rows="51" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -6761,7 +6761,7 @@ n/a
 
 \layout Standard
 
-M50, M51
+M50
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -6904,6 +6904,123 @@ P
 
 
 \begin_inset LatexCommand \ref{sub:G53:-Move-in}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M61
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Numéro de l'outil courant
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M61:-Ajuste-numero-outil}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M62 à M65
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Output control
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M62-a-M65:-Controle-sorties-num}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+M66
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Input control
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P, E, L, Q
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:M66:-Controle-entrees-num}
 
 \end_inset 
 
@@ -9973,7 +10090,7 @@ G91
  la position courante.
 \layout Section
 
-G90.1, G91.1 Mode distance (I, J et K)
+G90.1, G91.1: Mode distance (I, J et K)
 \layout Standard
 
 Note: Cette fonctionnalité est en cours de développement, elle n'est peut
@@ -10842,13 +10959,38 @@ M53
  est actif).
 \layout Section
 
-M62 à M65: Contrôle de sortie digitale
-\begin_inset LatexCommand \label{sec:M62-a-M65:}
+M61
+\begin_inset LatexCommand \index{M61 Ajuste numero outil}
+
+\end_inset 
+
+: Ajuste le numéro de l'outil courant
+\begin_inset LatexCommand \label{sec:M61:-Ajuste-numero-outil}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \index{M62 Controles sortie digitale}
+\layout Standard
+
+Pour corriger le numéro de l'outil courant, en mode MDI ou après un changement
+ manuel d'outil programmer M61 Qxx dans la fenêtre de données manuelles.
+ Au démarrage d'EMC2 avec un outil dans la broche, il est possible ainsi
+ d'ajuster le numéro de l'outil courant sans faire de changement d'outil.
+\layout Quote
+
+C'est une erreur si:
+\layout Itemize
+
+Qxx n'est pas égal où supérieur à 0
+\layout Section
+
+M62 à M65
+\begin_inset LatexCommand \index{M62 Controle sorties num}
+
+\end_inset 
+
+: Contrôle de sorties numériques
+\begin_inset LatexCommand \label{sec:M62-a-M65:-Controle-sorties-num}
 
 \end_inset 
 
@@ -10895,13 +11037,13 @@ M65
  Désactiver immédiatement la sortie digitale.
 \layout Section
 
-M66: Contrôle d'entrée digitale
-\begin_inset LatexCommand \label{sec:M66:}
+M66
+\begin_inset LatexCommand \index{M66 Controle entrees num}
 
 \end_inset 
 
-
-\begin_inset LatexCommand \index{M66 Controle entree digitale}
+: Contrôle d'entrée digitale
+\begin_inset LatexCommand \label{sec:M66:-Controle-entrees-num}
 
 \end_inset 
 

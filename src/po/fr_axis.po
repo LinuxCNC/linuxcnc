@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-27 19:56+0100\n"
+"POT-Creation-Date: 2009-01-29 22:14+0100\n"
 "PO-Revision-Date: 2009-01-27 20:33+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -369,7 +369,7 @@ msgstr ""
 #: emc/usr_intf/axis/scripts/axis.py:1962
 #: emc/usr_intf/axis/scripts/axis.py:2215
 #: emc/usr_intf/axis/scripts/axis.py:3251
-#: emc/usr_intf/axis/scripts/axis.py:3982
+#: emc/usr_intf/axis/scripts/axis.py:3986
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:709
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1692
 #: ../share/axis/tcl/axis.tcl:1729
@@ -587,7 +587,7 @@ msgstr "Annulation OM de l'axe _%s"
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: emc/usr_intf/axis/scripts/axis.py:3981
+#: emc/usr_intf/axis/scripts/axis.py:3985
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -2599,4 +2599,3 @@ msgstr "Accélération:"
 #: emc/usr_intf/stepconf/stepconf.glade:4245
 msgid "Velocity:"
 msgstr "Vitesse:"
-

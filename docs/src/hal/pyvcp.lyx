@@ -264,7 +264,7 @@ Widgets for indicating "number" signals: number, s32, u32, bar, meter
 Widgets for controlling "number" signals: spinbox, scale, jogwheel
 \layout Enumerate
 
-Helper widgets: hbox, vbox, tabel, label, labelframe
+Helper widgets: hbox, vbox, table, label, labelframe
 \layout Subsubsection
 
 Syntax

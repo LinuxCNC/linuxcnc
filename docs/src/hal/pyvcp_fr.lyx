@@ -34,43 +34,63 @@
 
 \layout Chapter
 
-Panneau de contrôle virtuel - Virtual Control Panels
+pyVCP
+\layout Standard
+
+Panneau virtuel de contrôle en python (
+\series bold 
+Py
+\series default 
+thon 
+\series bold 
+V
+\series default 
+irtual 
+\series bold 
+C
+\series default 
+ontrol 
+\series bold 
+P
+\series default 
+anel)
 \layout Section
 
 Introduction
 \layout Standard
 
-Les panneaux de contrôle des machines traditionnelles sont de grandes plaques
- d'acier avec des boutons poussoirs, des potentiomètres, des voyants et
- parfois quelques galvanomètres montés parmis tout cela.
- Ils présentent beaucoup d'avantages, les boutons sont beaucoup plus robustes
- qu'un clavier d'ordinateur, ils sont aussi suffisamment gros pour être
- manipulés tout en regardant autre chose, par exemple l'outil.
- Cependant, ils ont aussi des inconvénients.
- Ils occupent beaucoup de place sur le panneau, qui doit être de grande
- taille, ils sont chers et leur câblage vers le PC peut utiliser beaucoup
- de broches d'entrée/sortie.
- C'est là que le panneau virtuel entre en scène.
+Le panneau de contrôle virtuel pyVCP (python Virtual Control Panel) a été
+ créé pour donner à l'intégrateur la possibilité de personnaliser l'interface
+ graphique AXIS avec des boutons et des indicateurs destinés aux tâches
+ spéciales.
+ 
 \layout Standard
 
-Un panneau virtuel de contrôle (VCP) est une fenêtre, sur l'écran de l'ordinateu
-r, avec des boutons, des galvanomètres, des potentiomètres, des interrupteurs,
- etc.
- Quand vous cliquez sur un bouton du VCP, il change d'état une pin de HAL,
- exactement comme si vous aviez pressé sur un bouton physique raccordé à
- une broche d'entrée d'un périphérique d'entrée.
- De même, une led VCP s'allume lorsque la pin de HAL devient VRAIE, tout
- comme un voyant physique à lampe, raccordé à une broche de sortie d'un
- périphérique de sortie.
- Les panneaux virtuels de contrôle ne sont pas destinés à remplacer les
- panneaux physiques, parfois il n'y a pas de substitut à un bon gros bouton
- poussoir étanche aux huiles.
- Mais les panneaux virtuels peuvent être utilisés pour tester ou contrôler
- des fonctionnalités qui ne requiert ainsi, ni bouton ni voyant physique
- et qui remplacent temporairement des organes physiques réels d'entrée/sortie,
- par exemple, pendant la phase de déboguage du programme.
- Ou pour simuler un panneau de contrôle physique avant qu'il ne soit fabriqué,
- câblé et raccordé à une carte d'entrée/sortie.
+Le coût d'un panneau de contrôle physique est très élevé et il peut utiliser
+ un grand nombre de broches d'entrées/sorties.
+ C'est là que le panneau virtuel prends l'avantage car il ne coûte rien
+ d'utiliser pyVCP.
+ 
+\layout Standard
+
+Les panneaux virtuels de contrôle peuvent être utilisés pour tester ou monitorer
+ le matériel, les entrées/sorties et remplacer temporairement d'autres matériels
+ d'entrées/sorties pendant le déboguage d'une logique ladder, ou pour simuler
+ un panneau physique avant de le construire et de le câbler vers les cartes
+ électroniques.
+\layout Standard
+
+L'image suivante montre plusieurs widgets pyVCP.
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_group.png
+	scale 70
+
+\end_inset 
+
+
 \layout Section
 
 pyVCP
@@ -162,8 +182,7 @@ Sécurité avec pyVCP
 \layout Standard
 
 Certaines parties de pyVCP sont évaluées comme du code Python, elles peuvent
- donc produirent n'importe quelle action disponible dans les programmes
- Python.
+ donc exécuter n'importe quelle action disponible dans les programmes Python.
  N'utilisez que des fichiers pyVCP en .xml à partir d'une source de confiance.
 \layout Section
 
@@ -262,7 +281,7 @@ broche_vers_pyvcp.hal
  Dans notre exemple, ce fichier contiendra juste la commande suivante:
 \layout LyX-Code
 
-linksp spindle-rpm-filtered  pyvcp.spindle-speed
+net spindle-rpm-filtered  => pyvcp.spindle-speed
 \layout Standard
 
 ce qui suppose que le signal appelé 
@@ -325,27 +344,27 @@ Les signaux de HAL existent en deux variantes, BIT et FLOAT.
 \labelwidthstring 00.00.0000
 
 1.
- Widgets de signalisation, signaux BIT: LED
+ Widgets de signalisation, signaux BIT: led, rectled
 \layout List
 \labelwidthstring 00.00.0000
 
 2.
- Widgets de contrôle, signaux BIT: Button, Checkbutton, Radiobutton
+ Widgets de contrôle, signaux BIT: button, checkbutton, radiobutton
 \layout List
 \labelwidthstring 00.00.0000
 
 3.
- Widgets de signalisation, signaux FLOAT: Number, Bar, Meter
+ Widgets de signalisation, signaux FLOAT: number, s32, u32, bar, meter
 \layout List
 \labelwidthstring 00.00.0000
 
 4.
- Widgets de contrôle, signaux FLOAT: Spinbox, Scale, Jogwheel
+ Widgets de contrôle, signaux FLOAT: spinbox, scale, jogwheel
 \layout List
 \labelwidthstring 00.00.0000
 
 5.
- Widgets d'aide: Hbox, Vbox, Table, Label, Labelframe
+ Widgets d'aide: hbox, vbox, table, label, labelframe
 \layout Subsubsection
 
 Syntaxe
@@ -401,6 +420,73 @@ Quand la syntaxe basée sur les balises est utilisée, le texte entre les
 \layout Standard
 
 Les exemples ci-dessous montrent un mélange des deux formats.
+\layout Subsubsection
+
+Commentaires
+\layout Standard
+
+Pour ajouter un commentaire utiliser la syntaxe de xml.
+ 
+\layout Quote
+
+<!--Mon commentaire-->
+\layout Subsubsection
+
+Editer un fichier XML
+\layout Standard
+
+Editer le fichier XML avec un éditeur de texte.
+ La plupart du temps un double click sur le nom de fichier permet de choisir
+ "ouvrir avec l'editeur de texte" ou similaire.
+\layout Subsubsection
+
+Couleurs
+\layout Standard
+
+Les couleurs peuvent être spécifiées en utilisant les couleurs RGB de X11
+ soit par le nom, par exemple: "gray75" ou soit en hexa décimal, par exemple:
+ "#0000ff
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Une liste complète est consultable ici: 
+\begin_inset LatexCommand \url{http://sedition.com/perl/rgb.html}
+
+\end_inset 
+
+.
+\layout Standard
+
+Couleurs les plus courantes (les numéros suivant la couleur indiquent la
+ nuance de la couleur)
+\layout Itemize
+
+white
+\layout Itemize
+
+black
+\layout Itemize
+
+blue and blue1 - 4
+\layout Itemize
+
+cyan and cyan1 - 4
+\layout Itemize
+
+green and green1 - 4
+\layout Itemize
+
+yellow and yellow1 - 4
+\layout Itemize
+
+red and red1 - 4
+\layout Itemize
+
+purple and purple1 - 4
+\layout Itemize
+
+gray and gray0 - 100
 \layout Subsection
 
 LED
@@ -468,6 +554,50 @@ ref
 
 \layout Subsection
 
+LED rectangulaire (rectled)
+\layout Standard
+
+C'est une variante du widget "led".
+ 
+\layout Quote
+
+<vbox>
+\newline 
+<relief>RIDGE</relief>
+\newline 
+<bd>6</bd>
+\newline 
+<rectled>
+\newline 
+<halpin>"ma-led-rect"</halpin>
+\newline 
+<height>"50"</height>
+\newline 
+<width>"100"</width>
+\newline 
+<on_color>"green"</on_color>
+\newline 
+<off_color>"red"</off_color>
+\newline 
+</rectled>
+\newline 
+</vbox>
+\layout Standard
+\align center 
+Le code ci-dessus produit cet exemple.
+\newline 
+Il affiche également un relief autour de la boîte.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_rectled.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsection
+
 Bouton (button)
 \layout Standard
 
@@ -491,7 +621,7 @@ Les boutons peuvent suivre le format suivant:
 <bg>"color"</bg> Couleur du bouton
 \layout Subsubsection
 
-Bouton textuel (Text Button)
+Bouton avec texte (Text Button)
 \layout LyX-Code
 
 <button>
@@ -499,6 +629,15 @@ Bouton textuel (Text Button)
     <halpin>"mon-button"</halpin>
 \newline 
     <text>"OK"</text> 
+\newline 
+</button>
+\layout LyX-Code
+
+<button>
+\newline 
+    <halpin>"abort-button"</halpin>
+\newline 
+    <text>"Abort"</text> 
 \newline 
 </button>
 \layout Standard
@@ -510,7 +649,7 @@ Bouton textuel (Text Button)
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Case à cocher (checkbutton)
 \layout Standard
@@ -540,7 +679,7 @@ Une case non cochée:
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Bouton radio (radiobutton)
 \layout Standard
@@ -602,6 +741,33 @@ L'affichage d'un nombre peux suivre le format suivant:
 <pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
 \layout Subsubsection
 
+Number
+\layout Standard
+
+Le widget number affiche la valeur d'un signal de type float.
+\layout Quote
+
+<number>
+\newline 
+    <halpin>"number"</halpin>
+\newline 
+    <font>("Helvetica",24)</font>
+\newline 
+    <format>"+4.4f"</format>
+\newline 
+</number>
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_number.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
 Flottant
 \layout Standard
 
@@ -649,6 +815,31 @@ Nombre s32
 
 Le widget s32 affiche la valeur d'un nombre s32.
  La syntaxe est la même que celle de "number" excepté le nom qui est <s32>.
+ Il faut prévoir une largeur suffisante pour afficher le nombre dans sa
+ totalité.
+\layout Quote
+
+<s32>
+\newline 
+<halpin>"simple-number"</halpin>
+\newline 
+<font>("Helvetica",24)</font>
+\newline 
+<format>"6d"</format>
+\newline 
+<width>6</width>
+\newline 
+</s32>
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_s32.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsubsection
 
 Nombre u32
@@ -656,6 +847,113 @@ Nombre u32
 
 Le widget u32 affiche la valeur d'un nombre u32.
  La syntaxe est la même que celle de "number" excepté le nom qui est <u32>.
+\layout Subsection
+
+Affichage d'images
+\layout Standard
+
+Seul l'affichage d'images au format gif est possible.
+ Toutes les images doivent avoir la même taille.
+ Les images doivent être toutes dans le même répertoire que le fichier ini
+ (ou dans le répertoire courant pour un fonctionnement en ligne de commande
+ avec halrun/halcmd).
+\layout Subsubsection
+
+Image Bit
+\layout Standard
+
+La bascule "image_bit" bascule entre deux images selon la position vraie
+ ou fausse de halpin.
+\layout Quote
+
+<pyvcp>
+\newline 
+<image name='fwd' file='fwd.gif'/>
+\newline 
+<image name='rev' file='rev.gif'/>
+\newline 
+<vbox>
+\newline 
+<image_bit halpin='selectimage' images='fwd rev'/>
+\newline 
+</vbox>
+\newline 
+</pyvcp>
+\layout Standard
+\align center 
+En utilisant les deux images fwd.gif et rev.gif.
+\newline 
+FWD est affiché quand "selectimage" est fausse
+\newline 
+et REV est affiché quand "selectimage" est vraie.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_image01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image02.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Image u32
+\layout Standard
+
+La bascule "image_u32" est la même que "image_bit" excepté que le nombre
+ d'images n'est pratiquement plus limité, il suffit de "selectionner" l'image
+ en ajustant halpin à une valeur entière commençant à 0 pour la première
+ image de la liste, à 1 pour la seconde image etc.
+\layout Quote
+
+<pyvcp>
+\newline 
+<image name='stb' file='stb.gif'/>
+\newline 
+<image name='fwd' file='fwd.gif'/>
+\newline 
+<image name='rev' file='rev.gif'/>
+\newline 
+<vbox>
+\newline 
+<image_u32 halpin='selectimage' images='stb fwd rev'/>
+\newline 
+</vbox>
+\newline 
+</pyvcp>
+\layout Standard
+\align center 
+Même résultat mais en ajoutant l'image stb.gif.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_image_u32_01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image01.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/pyvcp_image02.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsection
 
 Barre de progression (bar)
@@ -807,13 +1105,68 @@ Le curseur contrôle une pin FLOAT.
 \end_inset 
 
 
+\layout Standard
+
+Noter que par défaut c'est min qui est affiché même si il est supérieur
+ à max, à moins que min ne soit négatif.
+\layout Subsection
+
+Bouton tournant (dial)
+\layout Standard
+
+Le bouton tournant imite le fonctionnement d'un vrai bouton tournant, en
+ sortant sur un FLOAT HAL la valeur sur laquelle est positionné le curseur,
+ que ce soit en le faisant tourner avec un mouvement circulaire, ou en tournant
+ la molette de la souris.
+ Un double click gauche augmente la résolution et un double click droit
+ la diminue d'un digit.
+ La sortie est limitée par les valeurs min et max.
+ La variable cpr fixe le nombre de graduations sur le pourtour du cadran
+ (prudence avec les grands nombres).
+\layout Quote
+
+<dial>
+\newline 
+<size>200</size>
+\newline 
+<cpr>100</cpr>
+\newline 
+<min_>-15</min_>
+\newline 
+<max_>15</max_>
+\newline 
+<text>"Dial"</text>
+\newline 
+<init>0</init>
+\newline 
+<resolution>0.001</resolution>
+\newline 
+<halpin>"anaout"</halpin>
+\newline 
+<dialcolor>"yellow"</dialcolor>
+\newline 
+<edgecolor>"green"</edgecolor>
+\newline 
+<dotcolor>"black"</dotcolor>
+\newline 
+</dial>
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_dial.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsection
 
 Bouton tournant (jogwheel)
 \layout Standard
 
 Le bouton tournant imite le fonctionnement d'un vrai bouton tournant, en
- sortant sur une pin FLOAT la valeur sur laquelle est positionné le bouton,
+ sortant sur une pin FLOAT la valeur sur laquelle est positionné le curseur,
  que ce soit en le faisant tourner avec un mouvement circulaire, ou en tournant
  la molette de la souris.
 \layout LyX-Code
@@ -844,6 +1197,91 @@ Documentation des containers de pyVCP
 \layout Standard
 
 Les containers sont des widgets qui contiennent d'autres widgets.
+\layout Subsection
+
+Bordures 
+\layout Standard
+
+Le container bordure est spécifié avec deux tags utilisés ensembles.
+ Le tag <relief> spécifie le type de bordure et le tag <bd> spécifie la
+ largeur de la bordure.
+ 
+\layout Description
+
+<relief>type</relief> La valeur de "type" peut être: FLAT, SUNKEN, RAISED,
+ GROOVE, ou RIDGE
+\layout Description
+
+<bd>n</bd> La valeur de "n" fixe la largeur de la bordure.
+\layout Quote
+
+<hbox>
+\newline 
+<button>
+\newline 
+<relief>FLAT</relief>
+\newline 
+<text>"FLAT"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>SUNKEN</relief>
+\newline 
+<text>"SUNKEN"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>RAISED</relief>
+\newline 
+<text>"RAISED"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>GROOVE</relief>
+\newline 
+<text>"GROOVE"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\layout Quote
+
+<button>
+\newline 
+<relief>RIDGE</relief>
+\newline 
+<text>"RIDGE"</text>
+\newline 
+<bd>3</bd>
+\newline 
+</button>
+\newline 
+</hbox>
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/pyvcp_borders.png
+	scale 80
+
+\end_inset 
+
+
 \layout Subsection
 
 Hbox
@@ -1162,9 +1600,6 @@ Une interface à onglets peut économiser énormément d'espace.
 </vbox>
 \newline 
 </tabs>
-\layout Standard
-
-Le code ci-dessus produit les onglets ouverts ci-dessous.
 \layout Standard
 \align center 
 
