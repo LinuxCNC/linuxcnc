@@ -46,96 +46,35 @@ Language Overview
 \layout Standard
 
 The RS274/NGC language is based on lines of code.
- Each line (also called a 
-\begin_inset Quotes eld
-\end_inset 
-
-block
-\begin_inset Quotes erd
-\end_inset 
-
-) may include commands to a machining center to do several different things.
+ Each line (also called a "block") may include commands to a machining center
+ to do several different things.
  Lines of code may be collected in a file to make a program.
 \layout Standard
 
 A typical line of code consists of an optional line number at the beginning
- followed by one or more 
-\begin_inset Quotes eld
-\end_inset 
-
-words.
-\begin_inset Quotes erd
-\end_inset 
-
+ followed by one or more "words".
  A word consists of a letter followed by a number (or something that evaluates
  to a number).
  A word may either give a command or provide an argument to a command.
- For example, 
-\begin_inset Quotes eld
-\end_inset 
-
-
+ For example, "
 \family typewriter 
 G1 X3
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- is a valid line of code with two words.
- 
-\begin_inset Quotes eld
-\end_inset 
-
-
+" is a valid line of code with two words.
+ "
 \family typewriter 
 G1
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- is a command meaning 
-\begin_inset Quotes eld
-\end_inset 
-
-move in a straight line at the programmed feed rate
-\begin_inset Quotes erd
-\end_inset 
-
-, and 
-\begin_inset Quotes eld
-\end_inset 
-
-
+" is a command meaning "move in a straight line at the programmed feed rate
+ to the programmed end point", and "
 \family typewriter 
 X3
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- provides an argument value (the value of X should be 3 at the end of the
+" provides an argument value (the value of X should be 3 at the end of the
  move).
  Most RS274/NGC commands start with either G or M (for General and Miscellaneous
 ).
- The words for these commands are called 
-\begin_inset Quotes eld
-\end_inset 
-
-G codes
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-M codes.
-\begin_inset Quotes erd
-\end_inset 
-
-
+ The words for these commands are called "G codes" and "M codes."
 \layout Standard
 
 The RS274/NGC
@@ -149,16 +88,8 @@ The RS274/NGC
  several files.
  A file may demarcated with percents in the following way.
  The first non-blank line of a file may contain nothing but a percent sign,
- 
-\begin_inset Quotes eld
-\end_inset 
-
-%
-\begin_inset Quotes erd
-\end_inset 
-
-, possibly surrounded by white space, and later in the file (normally at
- the end of the file) there may be a similar line.
+ "%", possibly surrounded by white space, and later in the file (normally
+ at the end of the file) there may be a similar line.
  Demarcating a file with percents is optional if the file has an 
 \family typewriter 
 M2
@@ -2647,77 +2578,77 @@ The order of execution of items on a line is defined not by the position
 Comment (including message)
 \layout Enumerate
 
-set feed rate mode (G93, G94).
+Set feed rate mode (G93, G94).
  
 \layout Enumerate
 
-set feed rate (F).
+Set feed rate (F).
  
 \layout Enumerate
 
-set spindle speed (S).
+Set spindle speed (S).
  
 \layout Enumerate
 
-select tool (T).
+Select tool (T).
  
 \layout Enumerate
 
-change tool (M6).
+Cchange tool (M6).
 \layout Enumerate
 
-spindle on or off (M3, M4, M5).
+Spindle on or off (M3, M4, M5).
 \layout Enumerate
 
-coolant on or off (M7, M8, M9).
+Coolant on or off (M7, M8, M9).
 \layout Enumerate
 
-enable or disable overrides (M48, M49).
+Enable or disable overrides (M48, M49).
  
 \layout Enumerate
 
-dwell (G4).
+Dwell (G4).
  
 \layout Enumerate
 
-set active plane (G17, G18, G19).
+Set active plane (G17, G18, G19).
  
 \layout Enumerate
 
-set length units (G20, G21).
+Set length units (G20, G21).
 \layout Enumerate
 
-cutter radius compensation on or off (G40, G41, G42) 
+Cutter radius compensation on or off (G40, G41, G42) 
 \layout Enumerate
 
-cutter length compensation on or off (G43, G49) 
+Cutter length compensation on or off (G43, G49) 
 \layout Enumerate
 
-coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
+Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
  
 \layout Enumerate
 
-set path control mode (G61, G61.1, G64)
+Sset path control mode (G61, G61.1, G64)
 \layout Enumerate
 
-set distance mode (G90, G91).
+Set distance mode (G90, G91).
  
 \layout Enumerate
 
-set retract mode (G98, G99).
+Set retract mode (G98, G99).
 \layout Enumerate
 
-go to reference location (G28, G30) or change coordinate system data (G10)
+Go to reference location (G28, G30) or change coordinate system data (G10)
  or set axis offsets (G92, G92.1, G92.2, G94).
  
 \layout Enumerate
 
-perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly)
+Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly)
  by G53.
  
 \layout Enumerate
 
-stop (M0, M1, M2, M30, M60).
+Stop (M0, M1, M2, M30, M60).
 \layout Chapter
 
 G Code Best Practices
@@ -2745,15 +2676,7 @@ G-code is most legible when at least one space appears before words.
  is no reason to do so.
 \layout Section
 
-Prefer 
-\begin_inset Quotes eld
-\end_inset 
-
-Center-format
-\begin_inset Quotes erd
-\end_inset 
-
- arcs
+Prefer "Center-format" arcs
 \layout Standard
 
 Center-format arcs (which use 
@@ -9286,9 +9209,9 @@ F: Set Feed Rate
 
 To set the feed rate, program 
 \family typewriter 
-F-
+F<n>
 \family default 
- .
+ where "n" is a number.
  The application of the feed rate is as described in Section 
 \begin_inset LatexCommand \ref{sub:Feed-Rate}
 
