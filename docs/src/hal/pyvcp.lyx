@@ -388,6 +388,17 @@ LED
 
 A LED is used to indicate the status of a "bit" halpin.
  The LED color will be on_color when the halpin is true, and off_color otherwise.
+\layout Standard
+
+<halpin> sets the name of the pin, default is "led.n", where n is an integer
+\newline 
+<size> sets the size of the led, default is 20
+\newline 
+<on_color> sets the color of the LED when the pin is true.
+ default is "green"
+\newline 
+<off_color> sets the color of the LED when the pin is false.
+ default is "red"
 \layout Quote
 
 <led>
@@ -410,41 +421,6 @@ The above code produced this example.
 	filename images/pyvcp_led.png
 	scale 80
 
-\end_inset 
-
-
-\layout Standard
-
-<halpin> sets the name of the pin, default is 
-\begin_inset Quotes eld
-\end_inset 
-
-led.n
-\begin_inset Quotes erd
-\end_inset 
-
-, where n is an integer
-\newline 
-<size> sets the size of the led, default is 20
-\newline 
-<on_color> sets the color of the LED when the pin is true.
- default is 
-\begin_inset Quotes eld
-\end_inset 
-
-green
-\begin_inset Quotes erd
-\end_inset 
-
-
-\newline 
-<off_color> sets the color of the LED when the pin is false.
- default is 
-\begin_inset Quotes eld
-\end_inset 
-
-ref
-\begin_inset Quotes erd
 \end_inset 
 
 
@@ -503,7 +479,7 @@ A button is used to control a BIT pin.
  Buttons can use the following formatting options
 \layout Itemize
 
-<padx>n</padx> where "n" is the amount of extra horzontal extra space
+<padx>n</padx> where "n" is the amount of extra horizontal extra space
 \layout Itemize
 
 <pady>n</pady> where "n" is the amount of extra vertical extra space
@@ -664,7 +640,7 @@ Number displays can use the following formatting options
 <justify>pos</justify> where "pos" is LEFT, CENTER, or RIGHT (doesn't work)
 \layout Itemize
 
-<padx>n</padx> where "n" is the amount of extra horzontal extra space
+<padx>n</padx> where "n" is the amount of extra horizontal extra space
 \layout Itemize
 
 <pady>n</pady> where "n" is the amount of extra vertical extra space
@@ -1053,8 +1029,8 @@ The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
  Double left click to increase the resolution and double right click to
  reduce the resolution by one digit.
  The output is capped by the min and max values.
- The cpr is how many tick marks are on the outside of the ring (beware of
- high numbers).
+ The <cpr> is how many tick marks are on the outside of the ring (beware
+ of high numbers).
 \layout Quote
 
 <dial>
@@ -1069,7 +1045,7 @@ The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
 \newline 
 <text>"Dial"</text>
 \newline 
-<init>0</init>
+<initval>0</initval>
 \newline 
 <resolution>0.001</resolution>
 \newline 
