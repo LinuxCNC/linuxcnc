@@ -752,7 +752,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	@ld -r -o objects/$*.tmp $^
 	@if test `uname -m` != ppc; then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if test `uname -m` != ppc; then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	@ld -shared -o $@ objects/$*.tmp -lm
+	@ld -shared -Bsymbolic -o $@ objects/$*.tmp -lm
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
