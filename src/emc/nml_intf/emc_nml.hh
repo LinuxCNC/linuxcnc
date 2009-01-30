@@ -980,6 +980,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int kinematics_type;	// identity=1,serial=2,parallel=3,custom=4
     int motion_type;
     double distance_to_go;         // in current move
+    EmcPose dtg;
     double current_vel;         // in current move
     int feed_override_enabled;
     int spindle_override_enabled;

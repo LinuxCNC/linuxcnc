@@ -449,6 +449,10 @@ static PyObject *Stat_position(pyStatChannel *s) {
     return pose(s->status.motion.traj.position);
 }
 
+static PyObject *Stat_dtg(pyStatChannel *s) {
+    return pose(s->status.motion.traj.dtg);
+}
+
 static PyObject *Stat_actual(pyStatChannel *s) {
     return pose(s->status.motion.traj.actualPosition);
 }
@@ -634,6 +638,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {"mcodes", (getter)Stat_activemcodes},
     {"origin", (getter)Stat_origin},
     {"position", (getter)Stat_position},
+    {"dtg", (getter)Stat_dtg},
     {"joint_position", (getter)Stat_joint_position},
     {"joint_actual_position", (getter)Stat_joint_actual},
     {"probed_position", (getter)Stat_probed},

@@ -95,7 +95,9 @@ typedef struct {
 
 /* TC_STRUCT functions */
 
+extern EmcPose tcGetEndpoint(TC_STRUCT * tc);
 extern EmcPose tcGetPos(TC_STRUCT * tc);
+EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint);
 PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc);
 PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc);
 

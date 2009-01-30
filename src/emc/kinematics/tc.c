@@ -77,18 +77,29 @@ PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
  *
  * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
  */   
-EmcPose tcGetPos(TC_STRUCT * tc)
+
+EmcPose tcGetPos(TC_STRUCT * tc) {
+    return tcGetPosReal(tc, 0);
+}
+
+EmcPose tcGetEndpoint(TC_STRUCT * tc) {
+    return tcGetPosReal(tc, 1);
+}
+
+EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint)
 {
     EmcPose pos;
     PmPose xyz;
     PmPose abc;
     PmPose uvw;
+    
+    double progress = of_endpoint? tc->target: tc->progress;
 
     if (tc->motion_type == TC_RIGIDTAP) {
         if(tc->coords.rigidtap.state > REVERSING) {
-            pmLinePoint(&tc->coords.rigidtap.aux_xyz, tc->progress, &xyz);
+            pmLinePoint(&tc->coords.rigidtap.aux_xyz, progress, &xyz);
         } else {
-            pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &xyz);
+            pmLinePoint(&tc->coords.rigidtap.xyz, progress, &xyz);
         }
         // no rotary move allowed while tapping
         abc.tran = tc->coords.rigidtap.abc;
@@ -97,41 +108,41 @@ EmcPose tcGetPos(TC_STRUCT * tc)
         if (tc->coords.line.xyz.tmag > 0.) {
             // progress is along xyz, so uvw and abc move proportionally in order
             // to end at the same time.
-            pmLinePoint(&tc->coords.line.xyz, tc->progress, &xyz);
+            pmLinePoint(&tc->coords.line.xyz, progress, &xyz);
             pmLinePoint(&tc->coords.line.uvw,
-                        tc->progress * tc->coords.line.uvw.tmag / tc->target,
+                        progress * tc->coords.line.uvw.tmag / tc->target,
                         &uvw);
             pmLinePoint(&tc->coords.line.abc,
-                        tc->progress * tc->coords.line.abc.tmag / tc->target,
+                        progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
         } else if (tc->coords.line.uvw.tmag > 0.) {
             // xyz is not moving
             pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-            pmLinePoint(&tc->coords.line.uvw, tc->progress, &uvw);
+            pmLinePoint(&tc->coords.line.uvw, progress, &uvw);
             // abc moves proportionally in order to end at the same time
             pmLinePoint(&tc->coords.line.abc,
-                        tc->progress * tc->coords.line.abc.tmag / tc->target,
+                        progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
         } else {
             // if all else fails, it's along abc only
             pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
             pmLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
-            pmLinePoint(&tc->coords.line.abc, tc->progress, &abc);
+            pmLinePoint(&tc->coords.line.abc, progress, &abc);
         }
     } else { //we have TC_CIRCULAR
         // progress is always along the xyz circle.  This simplification 
         // is possible since zero-radius arcs are not allowed by the interp.
         pmCirclePoint(&tc->coords.circle.xyz,
-		      tc->progress * tc->coords.circle.xyz.angle / tc->target, 
+		      progress * tc->coords.circle.xyz.angle / tc->target, 
                       &xyz);
         // abc moves proportionally in order to end at the same time as the 
         // circular xyz move.
         pmLinePoint(&tc->coords.circle.abc,
-                    tc->progress * tc->coords.circle.abc.tmag / tc->target, 
+                    progress * tc->coords.circle.abc.tmag / tc->target, 
                     &abc);
         // same for uvw
         pmLinePoint(&tc->coords.circle.uvw,
-                    tc->progress * tc->coords.circle.uvw.tmag / tc->target, 
+                    progress * tc->coords.circle.uvw.tmag / tc->target, 
                     &uvw);
     }
 
@@ -145,6 +156,7 @@ EmcPose tcGetPos(TC_STRUCT * tc)
 
     return pos;
 }
+
 
 /*!
  * \subsection TC queue functions

@@ -593,6 +593,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     static int waiting_for_atspeed = 0;
     double save_vel;
     static double revs;
+    EmcPose target;
 
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
     tc = tcqItem(&tp->queue, 0, period);
@@ -953,12 +954,14 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         // tp->motionType = 0;
 
         if(tc->currentvel > nexttc->currentvel) {
+            target = tcGetEndpoint(tc);
             tp->motionType = tc->canon_motion_type;
 	    emcmotStatus->distance_to_go = tc->target - tc->progress;
 	    emcmotStatus->enables_queued = tc->enables;
 	    // report our line number to the guis
 	    tp->execId = tc->id;
         } else {
+            target = tcGetEndpoint(nexttc);
             tp->motionType = nexttc->canon_motion_type;
 	    emcmotStatus->distance_to_go = nexttc->target - nexttc->progress;
 	    emcmotStatus->enables_queued = nexttc->enables;
@@ -999,6 +1002,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->currentPos.v += primary_displacement.v + secondary_displacement.v;
         tp->currentPos.w += primary_displacement.w + secondary_displacement.w;
     } else {
+        target = tcGetEndpoint(tc);
         tp->motionType = tc->canon_motion_type;
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
@@ -1007,6 +1011,17 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	// report our line number to the guis
 	tp->execId = tc->id;
     }
+
+    emcmotStatus->dtg.tran.x = target.tran.x - tp->currentPos.tran.x;
+    emcmotStatus->dtg.tran.y = target.tran.y - tp->currentPos.tran.y;
+    emcmotStatus->dtg.tran.z = target.tran.z - tp->currentPos.tran.z;
+    emcmotStatus->dtg.a = target.a - tp->currentPos.a;
+    emcmotStatus->dtg.b = target.b - tp->currentPos.b;
+    emcmotStatus->dtg.c = target.c - tp->currentPos.c;
+    emcmotStatus->dtg.u = target.u - tp->currentPos.u;
+    emcmotStatus->dtg.v = target.v - tp->currentPos.v;
+    emcmotStatus->dtg.w = target.w - tp->currentPos.w;
+
     return 0;
 }
 

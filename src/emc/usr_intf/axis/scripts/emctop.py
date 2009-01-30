@@ -64,6 +64,7 @@ maps = {
 'dout': None,
 'actual_position': show_position, 
 'position': show_position, 
+'dtg': show_position, 
 'joint_position': show_position,
 'joint_actual_position': show_position,
 'origin': show_position,
