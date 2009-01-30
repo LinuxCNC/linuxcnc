@@ -85,6 +85,7 @@ There are four main components to the EMC2 software: a motion controller,
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -183,15 +184,8 @@ Thinking Like a Machine Operator
 This book will not even pretend that it can teach you to run a mill or a
  lathe.
  Becoming a machinist takes time and hard work.
- An author once said, 
-\begin_inset Quotes eld
-\end_inset 
-
-We learn from experience, if at all.
-\begin_inset Quotes erd
-\end_inset 
-
- Broken tools, gouged vices, and scars are the evidence of lessons taught.
+ An author once said, "We learn from experience, if at all." Broken tools,
+ gouged vices, and scars are the evidence of lessons taught.
  Good part finish, close tolerances, and careful work are the evidence of
  lessons learned.
  No machine, no computer program, can take the place of human experience.
@@ -246,22 +240,8 @@ When an EMC2 is running, there are three different major modes used for
 \layout Standard
 
 In manual mode, each command is entered separately.
- In human terms a manual command might be 
-\begin_inset Quotes eld
-\end_inset 
-
-turn on coolant
-\begin_inset Quotes erd
-\end_inset 
-
- or 
-\begin_inset Quotes eld
-\end_inset 
-
-jog X at 25 inches per minute.
-\begin_inset Quotes erd
-\end_inset 
-
+ In human terms a manual command might be "turn on coolant" or "jog X at
+ 25 inches per minute".
  These are roughly equivalent to flipping a switch or turning the hand wheel
  for an axis.
  These commands are normally handled on one of the graphical interfaces
@@ -275,9 +255,11 @@ jog X at 25 inches per minute.
 Some motion control commands are available and will cause the same changes
  in motion in all modes.
  These include 
+\series bold 
 \shape smallcaps 
 \noun on 
 abort
+\series default 
 \shape default 
 \noun default 
 
@@ -286,9 +268,11 @@ abort
 \end_inset 
 
 , 
+\series bold 
 \shape smallcaps 
 \noun on 
 estop
+\series default 
 \shape default 
 \noun default 
 
@@ -297,9 +281,11 @@ estop
 \end_inset 
 
 , and 
+\series bold 
 \shape smallcaps 
 \noun on 
 feed rate override
+\series default 
 \shape default 
 \noun default 
 
