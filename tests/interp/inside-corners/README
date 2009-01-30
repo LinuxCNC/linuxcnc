@@ -1,0 +1,6 @@
+This is a test program that shows all (?) the cases of lines and
+arcs coming together to form concave corners, convex corners,
+and tangencies.
+
+This test does the same complicated path in XY and ZX planes.
+
