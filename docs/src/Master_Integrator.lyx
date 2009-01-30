@@ -268,13 +268,6 @@ preview false
 
 \layout Standard
 
-
-\begin_inset Include \include{hal/vcp.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Part
 
 Special Drivers
