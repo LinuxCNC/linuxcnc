@@ -1457,8 +1457,8 @@ NoteBook ${pane_top}.right \
         -arcradius 3
 after 1 after idle show_all_tabs ${pane_top}.right
 
-set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"] -raisecmd {focus .}]
-set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"] -raisecmd {focus .}]
+set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"]]
+set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"]]
 $_tabs_preview configure -borderwidth 1
 $_tabs_numbers configure -borderwidth 1
 
