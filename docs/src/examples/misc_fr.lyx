@@ -41,7 +41,7 @@ motion.probe-input
 .
  Dans cet exemple, la broche 15 du port parallèle est utilisée.
  Dans votre fichier .hal ajoutez la ligne suivante.
- Elle doit bien sur être adapté à l'entrée sur laquelle votre palpeur est
+ Elle doit bien sur être adaptée à l'entrée sur laquelle votre palpeur est
  raccordé.
 \layout Standard
 

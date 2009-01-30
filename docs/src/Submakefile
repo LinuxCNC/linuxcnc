@@ -143,6 +143,7 @@ DOC_SRCS := \
 	examples/gcode_fr.lyx \
 	examples/gs2_example.lyx \
 	examples/pci_parallel_port.lyx \
+	examples/pci_parallel_port_fr.lyx \
 	quickstart/stepper_quickstart.lyx \
 	quickstart/stepper_quickstart_fr.lyx \
 	Master_HAL.lyx \

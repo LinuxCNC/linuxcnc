@@ -122,6 +122,11 @@
 
 <doc name="motion_tweaking_steppers_fr" title="Réglage des pas à pas"/>
 
+<doc name="examples_pci_parallel_port_fr" title="Ajouter un port parallèle PCI"/>
+<doc name="examples_misc_fr" title="Utiliser un palpeur de mesure"/>
+<doc name="examples_mpg_fr" title="Utiliser une manivelle électronique"/>
+<doc name="examples_spindle_fr" title="Contrôler la vitesse de la broche"/>
+
 <doc name="xref_fr" title="Index général"/>
 </docgroup>
 

@@ -35,97 +35,6 @@ Cet exemple explique comment relier une manivelle facile à trouver aujourd'hui
  de chez CNC4PC et un second port parallèle placé sur un slot PCI.
  Cet exemple fournira trois axes avec chacun trois incréments de pas: 0.1,
  0.01, 0.001.
-\layout Section
-
-Deuxième port parallèle
-\layout Standard
-
-Dans cet exemple nous utiliserons un deuxième port parallèle placé dans
- un slot PCI et raccordé à la manivelle (MPG).
- Pour trouver l'adresse de ce port parallèle, ouvrez un terminal et tapez:
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-lspci -v
-\layout Standard
-
-Vous devriez voir quelques choses comme çà:
-\layout List
-\labelwidthstring 00.00.0000
-
-0000:00:10.0 Communication controller: NetMos Technology PCI 1 port parallel
- adapter (rev 01) 
-\layout List
-\labelwidthstring 00.00.0000
-
-Subsystem: LSI Logic / Symbios Logic: Unknown device 0010 
-\layout List
-\labelwidthstring 00.00.0000
-
-Flags: medium devsel, IRQ 11 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at a800 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at ac00 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b000 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b400 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at b800 [size=8] 
-\layout List
-\labelwidthstring 00.00.0000
-
-I/O ports at bc00 [size=16]
-\layout Standard
-
-Dans notre cas l'adresse était la première, nous avons donc modifié le fichier
- .hal pour passer de
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-loadrt hal_parport cfg=0x378
-\layout Standard
-
-à
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-loadrt hal_parport cfg="0x378 0xa800 in"
-\layout Standard
-
-Notez les guillemets obligatoires encadrant les adresses.
-\layout Standard
-
-Nous avons également ajouté:
-\layout Standard
-
-
-\family typewriter 
-\series bold 
-addf parport.1.read base-thread addf parport.1.write base-thread
-\layout Standard
-
-de sorte que le second port parallèle soit lu et écrit.
-\layout Section
-
-Les connections dans HAL
 \layout Standard
 
 Dans votre fichier 
@@ -138,7 +47,7 @@ custom.hal
 
  ou dans un autre fichier .hal, ajoutez ce qui suit en vérifiant bien que
  les composants mux4 ou encoder ne soient pas déjà utilisés.
- Si c'était le cas vous auriez juste à augmenter les numéros de ces composants.
+ Si c'était le cas vous auriez juste à augmenter le nombre de ces composants.
 \layout Standard
 
 
