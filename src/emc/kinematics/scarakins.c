@@ -206,13 +206,6 @@ int rtapi_app_main(void) {
     
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
-    D1 = DEFAULT_D1;
-    D2 = DEFAULT_D2;
-    D3 = DEFAULT_D3;
-    D4 = DEFAULT_D4;
-    D5 = DEFAULT_D5;
-    D6 = DEFAULT_D6;
-
     if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) != HAL_SUCCESS) goto error;
     if((res = hal_pin_float_new("scarakins.D2", HAL_IO, &(haldata->d2), comp_id)) != HAL_SUCCESS) goto error;
     if((res = hal_pin_float_new("scarakins.D3", HAL_IO, &(haldata->d3), comp_id)) != HAL_SUCCESS) goto error;
@@ -220,6 +213,13 @@ int rtapi_app_main(void) {
     if((res = hal_pin_float_new("scarakins.D5", HAL_IO, &(haldata->d5), comp_id)) != HAL_SUCCESS) goto error;
     if((res = hal_pin_float_new("scarakins.D6", HAL_IO, &(haldata->d6), comp_id)) != HAL_SUCCESS) goto error;
     
+    D1 = DEFAULT_D1;
+    D2 = DEFAULT_D2;
+    D3 = DEFAULT_D3;
+    D4 = DEFAULT_D4;
+    D5 = DEFAULT_D5;
+    D6 = DEFAULT_D6;
+
     hal_ready(comp_id);
     return 0;
     
