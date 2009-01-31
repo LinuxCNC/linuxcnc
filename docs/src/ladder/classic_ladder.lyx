@@ -288,7 +288,7 @@ Number of bits
 
 \layout Standard
 
-500
+20
 \end_inset 
 </cell>
 </row>
@@ -314,7 +314,7 @@ Number of word variables
 
 \layout Standard
 
-100
+20
 \end_inset 
 </cell>
 </row>
@@ -548,7 +548,7 @@ Number of Symbols
 
 \layout Standard
 
-100
+200
 \end_inset 
 </cell>
 </row>
