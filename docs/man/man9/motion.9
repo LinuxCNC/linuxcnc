@@ -159,9 +159,9 @@ Motion will pause until this pin is TRUE, under the following conditions: before
 first feed move after each spindle start or speed change; before the start of every
 chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
 
-.SH PARAMETERS
+.SH DEBUGGING PINS
 
-Many of these parameters serve as debugging aids, and are subject to change or removal at any time.
+Many of the pins below serve as debugging aids, and are subject to change or removal at any time.
 
 .TP
 \fBaxis.\fIN\fB.active\fR 
@@ -240,36 +240,11 @@ The joint's commanded velocity
 The negative hard limit for the joint
 
 .TP
-(removed) axis.N.neg-soft-limit\fR 
-The negative soft limit for the joint
-
-.TP
 \fBaxis.\fIN\fB.pos-hard-limit\fR 
 The positive hard limit for the joint
 
 .TP
-(removed) axis.N.pos-soft-limit\fR 
-The positive soft limit for the joint
-
-.TP
 \fBaxis.\fIN\fB.wheel-jog-active\fR
-
-
-.TP
-\fBmotion-command-handler.time\fR
-
-
-.TP
-\fBmotion-command-handler.tmax\fR
-
-
-.TP
-\fBmotion-controller.time\fR
-
-
-.TP
-\fBmotion-controller.tmax\fR
-
 
 .TP
 \fBmotion.coord-error\fR 
@@ -278,10 +253,6 @@ TRUE when motion has encountered an error, such as exceeding a soft limit
 .TP
 \fBmotion.coord-mode\fR 
 TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
-
-.TP
-\fBmotion.debug-\fI*\fR 
-These values are used for debugging purposes. 
 
 .TP
 \fBmotion.in-position\fR 
@@ -300,16 +271,42 @@ TRUE when motion is enabled
 
 
 .TP
+\fBmotion.teleop-mode\fR
+TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
+
+
+.SH PARAMETERS
+
+Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
+
+
+.TP
+\fBmotion-command-handler.time\fR
+
+
+.TQ
+\fBmotion-command-handler.tmax\fR
+
+
+.TQ
+\fBmotion-controller.time\fR
+
+
+.TQ
+\fBmotion-controller.tmax\fR
+Show information about the execution time of these HAL functions in CPU cycles
+
+
+.TP
+\fBmotion.debug-\fI*\fR 
+These values are used for debugging purposes. 
+.TP
 \fBmotion.servo.last-period\fR 
 The number of CPU cycles between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
 
 .TP
 \fBmotion.servo.overruns\fR 
 By noting large differences between successive values of motion.servo.last-period, the motion controller can determine that there has probably been a failure to meet its timing constraints. Each time such a failure is detected, this value is incremented.
-
-.TP
-\fBmotion.teleop-mode\fR
-TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
 
 
 .SH FUNCTIONS

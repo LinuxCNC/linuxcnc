@@ -1768,12 +1768,11 @@ static void output_to_hal(void)
 
     /* output machine info to HAL for scoping, etc */
     *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
-    emcmot_hal_data->in_position = GET_MOTION_INPOS_FLAG();
-    *(emcmot_hal_data->inpos_output) = emcmot_hal_data->in_position;
-    emcmot_hal_data->coord_mode = GET_MOTION_COORD_FLAG();
-    emcmot_hal_data->teleop_mode = GET_MOTION_TELEOP_FLAG();
-    emcmot_hal_data->coord_error = GET_MOTION_ERROR_FLAG();
-    emcmot_hal_data->on_soft_limit = emcmotStatus->on_soft_limit;
+    *(emcmot_hal_data->in_position) = GET_MOTION_INPOS_FLAG();
+    *(emcmot_hal_data->coord_mode) = GET_MOTION_COORD_FLAG();
+    *(emcmot_hal_data->teleop_mode) = GET_MOTION_TELEOP_FLAG();
+    *(emcmot_hal_data->coord_error) = GET_MOTION_ERROR_FLAG();
+    *(emcmot_hal_data->on_soft_limit) = emcmotStatus->on_soft_limit;
     if(emcmotStatus->spindle.css_factor) {
 	double denom = fabs(emcmotStatus->spindle.xoffset - emcmotStatus->carte_pos_cmd.tran.x);
 	double speed;
@@ -1797,7 +1796,7 @@ static void output_to_hal(void)
     *(emcmot_hal_data->spindle_reverse) = (*emcmot_hal_data->spindle_speed_out < 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_brake) = (emcmotStatus->spindle.brake != 0) ? 1 : 0;
     
-    emcmot_hal_data->program_line = emcmotStatus->id;
+    *(emcmot_hal_data->program_line) = emcmotStatus->id;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
     if(GET_MOTION_COORD_FLAG()) {
         *(emcmot_hal_data->current_vel) = emcmotStatus->current_vel;
@@ -1862,29 +1861,29 @@ static void output_to_hal(void)
 	*(joint_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
 	*(joint_data->index_enable) = joint->index_enable;
 	*(joint_data->homing) = GET_JOINT_HOMING_FLAG(joint);
-	/* output to parameters (for scoping, etc.) */
-	joint_data->coarse_pos_cmd = joint->coarse_pos;
-	joint_data->joint_vel_cmd = joint->vel_cmd;
-	joint_data->backlash_corr = joint->backlash_corr;
-	joint_data->backlash_filt = joint->backlash_filt;
-	joint_data->backlash_vel = joint->backlash_vel;
-	joint_data->f_error = joint->ferror;
-	joint_data->f_error_lim = joint->ferror_limit;
 
-	joint_data->free_pos_cmd = joint->free_pos_cmd;
-	joint_data->free_vel_lim = joint->free_vel_lim;
-	joint_data->free_tp_enable = joint->free_tp_enable;
-	joint_data->kb_jog_active = joint->kb_jog_active;
-	joint_data->wheel_jog_active = joint->wheel_jog_active;
+	*(joint_data->coarse_pos_cmd) = joint->coarse_pos;
+	*(joint_data->joint_vel_cmd) = joint->vel_cmd;
+	*(joint_data->backlash_corr) = joint->backlash_corr;
+	*(joint_data->backlash_filt) = joint->backlash_filt;
+	*(joint_data->backlash_vel) = joint->backlash_vel;
+	*(joint_data->f_error) = joint->ferror;
+	*(joint_data->f_error_lim) = joint->ferror_limit;
 
-	joint_data->active = GET_JOINT_ACTIVE_FLAG(joint);
-	joint_data->in_position = GET_JOINT_INPOS_FLAG(joint);
-	joint_data->error = GET_JOINT_ERROR_FLAG(joint);
-	joint_data->phl = GET_JOINT_PHL_FLAG(joint);
-	joint_data->nhl = GET_JOINT_NHL_FLAG(joint);
-	joint_data->homed = GET_JOINT_HOMED_FLAG(joint);
-	joint_data->f_errored = GET_JOINT_FERROR_FLAG(joint);
-	joint_data->faulted = GET_JOINT_FAULT_FLAG(joint);
+	*(joint_data->free_pos_cmd) = joint->free_pos_cmd;
+	*(joint_data->free_vel_lim) = joint->free_vel_lim;
+	*(joint_data->free_tp_enable) = joint->free_tp_enable;
+	*(joint_data->kb_jog_active) = joint->kb_jog_active;
+	*(joint_data->wheel_jog_active) = joint->wheel_jog_active;
+
+	*(joint_data->active) = GET_JOINT_ACTIVE_FLAG(joint);
+	*(joint_data->in_position) = GET_JOINT_INPOS_FLAG(joint);
+	*(joint_data->error) = GET_JOINT_ERROR_FLAG(joint);
+	*(joint_data->phl) = GET_JOINT_PHL_FLAG(joint);
+	*(joint_data->nhl) = GET_JOINT_NHL_FLAG(joint);
+	*(joint_data->homed) = GET_JOINT_HOMED_FLAG(joint);
+	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
+	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
 	joint_data->home_state = joint->home_state;
     }
 }

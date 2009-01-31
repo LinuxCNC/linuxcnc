@@ -32,34 +32,33 @@
 /* joint data */
 
 typedef struct {
-    hal_float_t coarse_pos_cmd;	/* RPA: commanded position, w/o comp */
-    hal_float_t joint_vel_cmd;	/* RPA: commanded velocity, w/o comp */
-    hal_float_t backlash_corr;	/* RPA: correction for backlash */
-    hal_float_t backlash_filt;	/* RPA: filtered backlash correction */
-    hal_float_t backlash_vel;	/* RPA: backlash speed variable */
+    hal_float_t *coarse_pos_cmd;/* RPI: commanded position, w/o comp */
+    hal_float_t *joint_vel_cmd;	/* RPI: commanded velocity, w/o comp */
+    hal_float_t *backlash_corr;	/* RPI: correction for backlash */
+    hal_float_t *backlash_filt;	/* RPI: filtered backlash correction */
+    hal_float_t *backlash_vel;	/* RPI: backlash speed variable */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
     hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, mot ofs */
-    hal_float_t *joint_pos_fb;	/* RPA: position feedback, w/o comp */
-    hal_float_t f_error;	/* RPA: following error */
-    hal_float_t f_error_lim;	/* RPA: following error limit */
+    hal_float_t *joint_pos_fb;	/* RPI: position feedback, w/o comp */
+    hal_float_t *f_error;	/* RPI: following error */
+    hal_float_t *f_error_lim;	/* RPI: following error limit */
 
-/*! \todo FIXME - these might not be HAL params forever, but they are usefull now */
-    hal_float_t free_pos_cmd;	/* RPA: free traj planner pos cmd */
-    hal_float_t free_vel_lim;	/* RPA: free traj planner vel limit */
-    hal_bit_t free_tp_enable;	/* RPA: free traj planner is running */
-    hal_bit_t kb_jog_active;    /* RPA: executing keyboard jog */
-    hal_bit_t wheel_jog_active; /* RPA: executing handwheel jog */
+    hal_float_t *free_pos_cmd;	/* RPI: free traj planner pos cmd */
+    hal_float_t *free_vel_lim;	/* RPI: free traj planner vel limit */
+    hal_bit_t *free_tp_enable;	/* RPI: free traj planner is running */
+    hal_bit_t *kb_jog_active;   /* RPI: executing keyboard jog */
+    hal_bit_t *wheel_jog_active;/* RPI: executing handwheel jog */
 
-    hal_bit_t active;		/* RPA: joint is active, whatever that means */
-    hal_bit_t in_position;	/* RPA: joint is in position */
-    hal_bit_t error;		/* RPA: joint has an error */
-    hal_bit_t phl;		/* RPA: joint is at positive hard limit */
-    hal_bit_t nhl;		/* RPA: joint is at negative hard limit */
+    hal_bit_t *active;		/* RPI: joint is active, whatever that means */
+    hal_bit_t *in_position;	/* RPI: joint is in position */
+    hal_bit_t *error;		/* RPI: joint has an error */
+    hal_bit_t *phl;		/* RPI: joint is at positive hard limit */
+    hal_bit_t *nhl;		/* RPI: joint is at negative hard limit */
     hal_bit_t *homing;		/* RPI: joint is homing */
-    hal_bit_t homed;		/* RPA: joint was homed */
-    hal_bit_t f_errored;	/* RPA: joint had too much following error */
-    hal_bit_t faulted;		/* RPA: joint amp faulted */
+    hal_bit_t *homed;		/* RPI: joint was homed */
+    hal_bit_t *f_errored;	/* RPI: joint had too much following error */
+    hal_bit_t *faulted;		/* RPI: joint amp faulted */
     hal_bit_t *pos_lim_sw;	/* RPI: positive limit switch input */
     hal_bit_t *neg_lim_sw;	/* RPI: negative limit switch input */
     hal_bit_t *home_sw;		/* RPI: home switch input */
@@ -69,7 +68,7 @@ typedef struct {
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
     hal_s32_t home_state;	/* RPA: homing state machine state */
 
-    hal_s32_t *jog_counts;	/* RPI: jogwheel position input */
+    hal_s32_t *jog_counts;	/* WPI: jogwheel position input */
     hal_bit_t *jog_enable;	/* RPI: enable jogwheel */
     hal_float_t *jog_scale;	/* RPI: distance to jog on each count */
     hal_bit_t *jog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
@@ -87,14 +86,14 @@ typedef struct {
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion */
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
-    hal_bit_t in_position;	/* RPA: all joints are in position */
-    hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
-    hal_bit_t coord_mode;	/* RPA: TRUE if coord, FALSE if free */
-    hal_bit_t teleop_mode;	/* RPA: TRUE if teleop mode */
-    hal_bit_t coord_error;	/* RPA: TRUE if coord mode error */
-    hal_bit_t on_soft_limit;	/* RPA: TRUE if outside a limit */
+    hal_bit_t *in_position;	/* RPI: all joints are in position */
+//    hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
+    hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */
+    hal_bit_t *teleop_mode;	/* RPA: TRUE if teleop mode */
+    hal_bit_t *coord_error;	/* RPA: TRUE if coord mode error */
+    hal_bit_t *on_soft_limit;	/* RPA: TRUE if outside a limit */
 
-    hal_s32_t program_line;     /* RPA: program line causing current motion */
+    hal_s32_t *program_line;    /* RPA: program line causing current motion */
     hal_float_t *current_vel;   /* RPI: velocity magnitude in machine units */
     hal_float_t *distance_to_go;/* RPI: distance to go in current move*/
 
