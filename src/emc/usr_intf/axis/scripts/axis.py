@@ -3578,7 +3578,7 @@ mav = (
     or mlv)
 vars.max_aspeed.set(float(mav))
 mv = inifile.find("TRAJ","MAX_VELOCITY") or inifile.find("AXIS_0","MAX_VELOCITY") or 1.0
-vars.maxvel_speed.set(float(mv))
+vars.maxvel_speed.set(float(mv)*60)
 vars.max_maxvel.set(float(mv))
 root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
