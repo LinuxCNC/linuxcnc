@@ -401,9 +401,7 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     }
     else
     {
-// The next line was changed for EMC from:
-// Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
-        Timer->InputControl = 1;
+        Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
     }
     if (!Timer->InputEnable)
     {
