@@ -2172,7 +2172,7 @@ size_combobox_to_entries $_tabs_manual.jogf.jog.jogincr
 size_label_to_strings $_tabs_manual.axis [_ Joint:] [_ Axis:]
 
 proc setval {vel max_speed} {
-    if {$vel >= $max_speed} { return 1 }
+    if {$vel == $max_speed} { return 1 }
     if {$vel == 0} { return 0 }
     set x [expr {-1/(log($vel/60./$max_speed)-1)}]
     expr {round($x * 200.) / 200.}
