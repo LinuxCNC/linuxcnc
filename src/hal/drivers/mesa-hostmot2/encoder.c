@@ -24,26 +24,6 @@
 //  It supports Index and Index Mask, and high-fidelity velocity 
 //  estimation.
 //
-//
-//  Velocity estimation is made possible by a cool feature of the HostMot2
-//  firmware:
-//
-//      The FPGA synthesizes a configurable-frequency "timestamp clock" by
-//      dividing ClockLow by the value in the Quadrature Counter Timestamp
-//      Divider Register.  (ClockLow is 33 MHz on the PCI cards and 50 MHz
-//      on the 7i43.)
-//
-//      When a quadrature counter instance in the hostmot2 FPGA detects a
-//      transition in its input Gray code, it increments the count and
-//      latches both the (16-bit) count and the bottom 16 bits of the
-//      timestamp clock into the Counter Register.
-//
-//  The velocity estimator used by the driver is similar to one described
-//  by David Auslander in a paper titled "Vehicle-based Control Computer
-//  Systems" (UCB ITS PRR 95 3), available at:
-//
-//      <http://repositories.cdlib.org/its/path/reports/UCB-ITS-PRR-95-3/>
-//
 
 
 #include <linux/slab.h>
@@ -242,15 +222,17 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->encoder.timestamp_count_addr = md->base_address + (3 * md->register_stride);
     hm2->encoder.filter_rate_addr = md->base_address + (4 * md->register_stride);
 
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.counter_reg);
-    if (r < 0) {
-        ERR("error registering tram read region for Encoder Counter register (%d)\n", r);
-        goto fail0;
-    }
-
+    // it's important that the TSC gets read *before* the C&T registers below
     r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(u32), &hm2->encoder.timestamp_count_reg);
     if (r < 0) {
         ERR("error registering tram read region for Encoder Timestamp Count Register (%d)\n", r);
+        goto fail0;
+    }
+
+    // it's important that the C&T registers get read *after* the TSC register above
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.counter_reg);
+    if (r < 0) {
+        ERR("error registering tram read region for Encoder Counter register (%d)\n", r);
         goto fail0;
     }
 
@@ -381,13 +363,10 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->encoder.instance[i].hal.param.filter = 1;
             hm2->encoder.instance[i].hal.param.vel_timeout = 0.5;
 
-            hm2->encoder.instance[i].tsc_num_rollovers = 0;
+            hm2->encoder.instance[i].state = HM2_ENCODER_STOPPED;
 
         }
     }
-
-
-    hm2->encoder.tsc_rollover_flag = 0;
 
 
     // 
@@ -455,10 +434,9 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
     // all the encoders start "stopped where they are"
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        u16 count, timestamp;
+        u16 count;
 
-        count = hm2->encoder.counter_reg[i] & 0x0000ffff;
-        timestamp = (hm2->encoder.counter_reg[i] >> 16) & 0x0000ffff;
+        count = hm2_encoder_get_reg_count(hm2, i);
 
         *hm2->encoder.instance[i].hal.pin.rawcounts = count;
 
@@ -469,16 +447,11 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         hm2->encoder.instance[i].zero_offset = count;
 
         hm2->encoder.instance[i].prev_reg_count = count;
-        hm2->encoder.instance[i].prev_reg_timestamp = timestamp;
 
         hm2->encoder.instance[i].state = HM2_ENCODER_STOPPED;
 
-        // Note: we dont initialize the other datapoints , because in the
-        // "stopped" state they're not used
-        hm2->encoder.instance[i].prev.raw_count = count;
-        hm2->encoder.instance[i].prev.raw_timestamp = timestamp;
-        hm2->encoder.instance[i].prev.dt_s = 0.0;
-        hm2->encoder.instance[i].prev.velocity = 0.0;
+        // Note: we dont initialize the other internal state variables,
+        // because in the "Stopped" state they're not used
 
     }
 }
@@ -491,14 +464,11 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
  *
  * Sets these variables:
  *
+ *     hal.pin.rawcounts
  *     hal.pin.count
  *     hal.pin.position
- *     hal.pin.rawcounts
- *     cur.raw_count
+ *     prev_reg_count
  *     (maybe) .index_enabled and .zero_offset
- *
- * Does not update .prev_reg_count or the other datapoints or any
- * timestamps or anything else.
  *
  * This function expects the TRAM read to have just finished, so that
  * counter_reg[i] is up-to-date.
@@ -513,26 +483,25 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) {
     u16 reg_count;
     s32 reg_count_diff;
+    s32 prev_rawcounts;
 
     hm2_encoder_instance_t *e;
 
     e = &hm2->encoder.instance[instance];
-
-
-    // get current count from the FPGA (already read)
-    reg_count = hm2->encoder.counter_reg[instance] & 0x0000ffff;
+    prev_rawcounts = *e->hal.pin.rawcounts;
 
 
     // 
     // figure out current rawcounts accumulated by the driver
     // 
 
+    reg_count = hm2_encoder_get_reg_count(hm2, instance);
+
     reg_count_diff = (s32)reg_count - (s32)e->prev_reg_count;
     if (reg_count_diff > 32768) reg_count_diff -= 65536;
     if (reg_count_diff < -32768) reg_count_diff += 65536;
 
-    e->cur.raw_count = e->prev.raw_count + reg_count_diff;
-    *e->hal.pin.rawcounts = e->cur.raw_count;
+    *e->hal.pin.rawcounts += reg_count_diff;
 
 
     //
@@ -562,7 +531,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
-            e->zero_offset = e->prev.raw_count + reg_count_diff;
+            e->zero_offset = prev_rawcounts + reg_count_diff;
 
             *e->hal.pin.index_enable = 0;
         }
@@ -603,196 +572,6 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
 
 
 /**
- * @brief Computes an estimate of the velocity between two encoder
- *     datapoints.
- *
- * This is the Relative Time (dS/dT) velocity estimator.
- *
- * @param hm2 The hostmot2 instance to work with.
- *
- * @param instance The encoder instance index to work with.
- *
- * @param d0 The most recent datapoint.  Only .raw_count and .raw_timestamp
- *     need to be initialized.  .ds_t will be set to the time difference
- *     (in seconds) between this and the previous datapoint.
- *     .velocity will be set to the estimated velocity.
- *
- * @param d1 The previous datapoint.  Only .raw_count and .raw_timestamp
- *     need to be initialized.
- */
-static void hm2_encoder_compute_relative_time_velocity(
-    hostmot2_t *hm2,
-    int instance,
-    hm2_encoder_datapoint_t *d0,
-    hm2_encoder_datapoint_t *d1
-) {
-    s32 raw_counts_diff;
-    s32 timestamp_diff_clocks;
-
-
-    // 
-    // first get the time since the previous encoder change
-    // 
-
-    timestamp_diff_clocks = d0->raw_timestamp - d1->raw_timestamp;
-    if (timestamp_diff_clocks <= 0) {
-        // this should never happen
-        PRINT("encoder.%02d dT <= 0, how can this be?\n", instance);
-        PRINT("hm2->encoder.tsc_rollover_flag=%d, e->tsc_num_rollovers=%d\n", hm2->encoder.tsc_rollover_flag, hm2->encoder.instance[instance].tsc_num_rollovers);
-        PRINT("    cur = ( %d, %d )\n", d0->raw_count, d0->raw_timestamp);
-        PRINT("   prev = ( %d, %d )\n", d1->raw_count, d1->raw_timestamp);
-        timestamp_diff_clocks = 1;
-    }
-
-    d0->dt_s = (hal_float_t)timestamp_diff_clocks * hm2->encoder.seconds_per_tsdiv_clock;
-
-    raw_counts_diff = d0->raw_count - d1->raw_count;
-
-    d0->velocity = (raw_counts_diff / d0->dt_s) / hm2->encoder.instance[instance].hal.param.scale;
-}
-
-
-
-
-/**
- * @brief Estimates .velocity.
- *
- * This expects the TRAM read to have just finished, and the position
- * information to have been updated.
- *
- * @param hm2 The hostmot2 structure being worked on.
- *
- * @param instance The index of the encoder instance.
- */
-
-static void hm2_encoder_instance_estimate_velocity(hostmot2_t *hm2, int instance) {
-    hm2_encoder_instance_t *e;
-
-    e = &hm2->encoder.instance[instance];
-
-
-    //
-    // get the timestamp of the most recent encoder count change (recently read from the FPGA)
-    //
-
-    e->cur.raw_timestamp = (hm2->encoder.counter_reg[instance] >> 16) & 0x0000ffff;
-
-
-    // 
-    // here comes the little state machine for figuring out velocity
-    //
-
-    switch (e->state) {
-
-        case HM2_ENCODER_STOPPED: {
-            if (e->cur.raw_count == e->prev.raw_count) {
-                // still stopped, dont need to update datapoints or hal.pin.velocity
-                break;
-            }
-
-            //
-            // If we get here, we *were* stopped but we've started
-            // moving since last time through the loop.  We do not have
-            // enough information to estimate velocity yet.
-            //
-
-            e->prev = e->cur;
-            e->state = HM2_ENCODER_MOVING;
-
-            break;
-        }
-
-        case HM2_ENCODER_MOVING: {
-
-            // increment rollover counter first time rollover is detected
-            if (hm2->encoder.tsc_rollover_flag == 2) {
-                e->tsc_num_rollovers ++;
-            }
-
-
-            if (e->cur.raw_count != e->prev.raw_count) {
-                // it moved!
-
-                int deferred_rollover = 0;
-
-                // might be the encoder event happened before the tsc rolled over 
-                if ((hm2->encoder.tsc_rollover_flag > 0) && (e->cur.raw_timestamp > (1<<15))) {
-                    e->tsc_num_rollovers --;
-                    deferred_rollover = 1;
-                }
-
-                e->prev.raw_timestamp -= (e->tsc_num_rollovers << 16);
-                e->tsc_num_rollovers = deferred_rollover;
-
-                hm2_encoder_compute_relative_time_velocity(hm2, instance, &e->cur, &e->prev);
-
-                *e->hal.pin.velocity = e->cur.velocity;
-
-                e->prev = e->cur;
-
-                break;
-
-            } else {
-                //
-                // We were moving, but we havent taken a step since last
-                // time through the loop.
-                //
-
-                // this will hold the fake datapoint
-                hm2_encoder_datapoint_t made_up;
-
-
-                made_up.raw_timestamp = (*hm2->encoder.timestamp_count_reg) & 0xFFFF;
-                made_up.raw_timestamp += (e->tsc_num_rollovers << 16);
-
-                if (e->prev.velocity >= 0.0) {
-                    made_up.raw_count = e->prev.raw_count + 1;
-                } else {
-                    made_up.raw_count = e->prev.raw_count - 1;
-                }
-
-                // now we have a made-up datapoint, run the RT (dS/dT) velocity estimator
-                hm2_encoder_compute_relative_time_velocity(hm2, instance, &made_up, &e->prev);
-
-                if (made_up.dt_s >= e->hal.param.vel_timeout) {
-                    e->cur.velocity = 0.0;
-                    *e->hal.pin.velocity = e->cur.velocity;
-                    e->tsc_num_rollovers = 0;
-                    e->state = HM2_ENCODER_STOPPED;
-                    break;
-                }
-
-                if (fabs(made_up.velocity) > fabs(e->prev.velocity)) {
-                    *e->hal.pin.velocity = e->prev.velocity;
-                } else {
-                    *e->hal.pin.velocity = made_up.velocity;
-                }
-
-                break;
-            }
-
-        }
-
-
-        default: {
-            ERR("encoder.%02d is in unknown state %d, switching to stopped\n", instance, e->state);
-
-            e->prev = e->cur;
-
-            *e->hal.pin.velocity = 0.0;
-
-            e->state = HM2_ENCODER_STOPPED;
-
-            break;
-        }
-
-    }
-}
-
-
-
-
-/**
  * @brief Processes the information received from the QuadratureCounter
  *     (encoder) instance to produce an estimate of position & velocity.
  */
@@ -809,13 +588,124 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
     }
 
 
-    // 
-    // these two functions do all the work
-    //
+    switch (e->state) {
 
-    hm2_encoder_instance_update_position(hm2, instance);
+        case HM2_ENCODER_STOPPED: {
+            u16 reg_count;  // the count currently in the register
 
-    hm2_encoder_instance_estimate_velocity(hm2, instance);
+            // get current count from the FPGA (already read)
+            reg_count = hm2_encoder_get_reg_count(hm2, instance);
+            if (reg_count == e->prev_reg_count) return;  // still not moving
+
+            // if we get here, we *were* stopped but now we're moving
+
+            hm2_encoder_instance_update_position(hm2, instance);
+
+            e->prev_event_rawcounts = *e->hal.pin.rawcounts;
+            e->prev_event_reg_timestamp = hm2_encoder_get_reg_timestamp(hm2, instance);
+
+            e->tsc_num_rollovers = 0;
+
+            e->prev_time_of_interest = e->prev_event_reg_timestamp;
+
+            e->state = HM2_ENCODER_MOVING;
+
+            break;
+        }
+
+
+        case HM2_ENCODER_MOVING: {
+            u16 reg_count;  // the count currently in the register
+            u16 time_of_interest;  // terrible variable name, sorry
+
+            s32 dT_clocks;
+            hal_float_t dT_s;
+
+            s32 dS_counts;
+            hal_float_t dS_pos_units;
+
+            // get current count from the FPGA (already read)
+            reg_count = hm2_encoder_get_reg_count(hm2, instance);
+            if (reg_count == e->prev_reg_count) {
+                hal_float_t vel;
+
+                //
+                // we're moving, but so slow that we didnt get an event
+                // since last time we checked
+                // 
+
+                time_of_interest = hm2_encoder_get_reg_tsc(hm2);
+                if (time_of_interest < e->prev_time_of_interest) {
+                    // tsc rollover!
+                    e->tsc_num_rollovers ++;
+                }
+
+                dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
+                dT_s = (hal_float_t)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+
+                if (dT_s >= e->hal.param.vel_timeout) {
+                    *e->hal.pin.velocity = 0.0;
+                    e->state = HM2_ENCODER_STOPPED;
+                    break;
+                }
+
+                if ((*e->hal.pin.velocity * e->hal.param.scale) > 0.0) {
+                    dS_counts = 1;
+                } else {
+                    dS_counts = -1;
+                }
+
+                dS_pos_units = dS_counts / e->hal.param.scale;
+
+                // we know the encoder velocity is not faster than this
+                vel = dS_pos_units / dT_s;
+                if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
+                    *e->hal.pin.velocity = vel;
+                }
+
+                e->prev_time_of_interest = time_of_interest;
+
+            } else {
+
+                //
+                //  we got a new event!
+                //
+
+                hm2_encoder_instance_update_position(hm2, instance);
+
+                time_of_interest = hm2_encoder_get_reg_timestamp(hm2, instance);
+                if (time_of_interest < e->prev_time_of_interest) {
+                    // tsc rollover!
+                    e->tsc_num_rollovers ++;
+                }
+
+                dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
+                dT_s = (hal_float_t)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+
+                e->tsc_num_rollovers = 0;  // we're "using up" the rollovers now
+
+                dS_counts = *e->hal.pin.rawcounts - e->prev_event_rawcounts;
+                dS_pos_units = dS_counts / e->hal.param.scale;
+
+                // finally time to do Relative-Time Velocity Estimation
+                *e->hal.pin.velocity = dS_pos_units / dT_s;
+
+                e->prev_event_rawcounts = *e->hal.pin.rawcounts;
+                e->prev_event_reg_timestamp = hm2_encoder_get_reg_timestamp(hm2, instance);
+
+                e->prev_time_of_interest = time_of_interest;
+            }
+
+            break;
+        }
+
+
+        default: {
+            ERR("encoder %d has invalid state %d, resetting to Stopped!\n", instance, e->state);
+            e->state = HM2_ENCODER_STOPPED;
+            break;
+        }
+    }
 }
 
 
@@ -826,18 +716,10 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
     if (hm2->encoder.num_instances <= 0) return;
 
-    if (hm2->encoder.prev_timestamp_count_reg > (*hm2->encoder.timestamp_count_reg)) {
-        hm2->encoder.tsc_rollover_flag = 2;
-    } else {
-        if (hm2->encoder.tsc_rollover_flag > 0) hm2->encoder.tsc_rollover_flag --;
-    }
-
-    // read counters & timestamps
+    // process each encoder instance independently
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_process_tram_read(hm2, i);
     }
-
-    hm2->encoder.prev_timestamp_count_reg = *hm2->encoder.timestamp_count_reg;
 }
 
 

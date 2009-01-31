@@ -212,13 +212,9 @@ typedef struct {
 #define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
 
-typedef struct {
-    s32 raw_count;
-    s32 raw_timestamp;
-
-    hal_float_t dt_s;      // time between this datapoint and previous datapoint, in seconds
-    hal_float_t velocity;  // velocity computed for this datapoint
-} hm2_encoder_datapoint_t;
+#define hm2_encoder_get_reg_count(hm2, instance)     (hm2->encoder.counter_reg[instance] & 0x0000ffff)
+#define hm2_encoder_get_reg_timestamp(hm2, instance) ((hm2->encoder.counter_reg[instance] >> 16) & 0x0000ffff)
+#define hm2_encoder_get_reg_tsc(hm2)                 ((*hm2->encoder.timestamp_count_reg) & 0xFFFF)
 
 
 typedef struct {
@@ -248,15 +244,18 @@ typedef struct {
 
     s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
 
-    u16 prev_reg_count;
-    u16 prev_reg_timestamp;
+    u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
     u32 prev_control;
 
+    // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
+    s32 prev_event_rawcounts;
+    u16 prev_event_reg_timestamp;
+
     s32 tsc_num_rollovers;
+    u16 prev_time_of_interest;
 
     enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
-    hm2_encoder_datapoint_t cur, prev;
 
 } hm2_encoder_instance_t;
 
@@ -284,11 +283,6 @@ typedef struct {
     u32 timestamp_count_addr;
     u32 *timestamp_count_reg;
     u32 prev_timestamp_count_reg;
-
-    // gets set to 2 when TSC Register rollover is detected
-    // gets decremented whenever rollover is *not* detected, but not smaller than 0
-    // this catches a rare corner case where the encoder updates between reading the encoder count/ts register and reading the tsc register
-    int tsc_rollover_flag;
 
     u32 filter_rate_addr;
 } hm2_encoder_t;
