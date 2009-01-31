@@ -30,7 +30,7 @@ Important Concepts
 \layout Standard
 
 This chapter covers important concepts that should be understood before
- attempting to run a g code file.
+ attempting to run a CNC machine with g code.
 \layout Section
 
 Trajectory Control
@@ -88,15 +88,15 @@ Programming the Planner
 The trajectory control commands are as follows:
 \layout Description
 
-G61 (exact stop mode) G61 tells the planner to come to an exact stop at
+G61 (Exact Stop Mode) G61 tells the planner to come to an exact stop at
  every segment's end.
  This ensures exact path following but the full stops can be harmful to
  the workpiece or the tooling, depending on the particular cut.
  
 \layout Description
 
-G64 (blend without tolerance mode) G64 is just blending and the naive cam
- detector is not enabled.
+G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
+ naive cam detector is not enabled.
  G64 and G64P0 tell the planner to sacrifice path following accuracy in
  order to keep the feed rate up.
  This is necessary for some types of material or tooling where exact stops
@@ -146,7 +146,15 @@ Detector Successive G1 moves that involve only the XYZ axes that
  The controlled point will touch at least one point on each movement.
  The machine will never move at such a speed that it cannot come to an exact
  stop at the end of the current movement (or next movement, if you pause
- when blending has already started) 
+ when blending has already started) On G2/3 moves in the G17 (XY) plane
+ when the maximum deviation of an arc from a straight line is less than
+ the G64 P- tolerance the arc is broken into two lines (from start of arc
+ to midpoint, and from midpoint to end).
+ those lines are then subject to the naive cam algorithm for lines.
+ Thus, line-arc, arc-arc, and arc-line cases as well as line-line benefit
+ from the "naive cam detector".
+ This improves contouring performance by simplifying the path.
+ 
 \layout Subsection
 
 Planning Moves

@@ -16,7 +16,7 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
+\paragraph_separation skip
 \defskip medskip
 \quotes_language english
 \quotes_times 2
@@ -26,43 +26,19 @@
 
 \layout Chapter
 
-Machining Center Overview
+CNC Machine Overview
 \layout Standard
 
-This section gives a brief description of how a machining center is viewed
- from the input and output ends of the Interpreter.
- It is assumed the reader is already familiar with machining centers.
-\layout Standard
-
-Both the RS274/NGC
-\begin_inset LatexCommand \index{RS274NGC}
-
-\end_inset 
-
- input language and the output canonical machining functions have a view
- of (1) mechanical components of a machining center being controlled and
- (2) what activities of the machining center may be controlled, and what
- data is used in control.
- 
-\layout Standard
-
-The view here includes some items that a given machining center may not
- have, such as a pallet shuttle.
- The RS274/NGC language and canonical machining functions may be used with
- such a machine provided that no NC program used with the controller includes
- commands intended to activate physical capabilities the machine does not
- have.
- For such a machine, it would be useful to modify the Interpreter so it
- will reject input commands and will not produce output canonical function
- calls addressed to non-existent equipment.
+This section gives a brief description of how a CNC machine is viewed from
+ the input and output ends of the Interpreter.
  
 \layout Section
 
 Mechanical Components
 \layout Standard
 
-A machining center has many mechanical components that may be controlled
- or may affect the way in which control is exercised.
+A CNC machine has many mechanical components that may be controlled or may
+ affect the way in which control is exercised.
  This section describes the subset of those components that interact with
  the Interpreter.
  Mechanical components that do not interact directly with the Interpreter,
@@ -78,19 +54,13 @@ Axes
 
 \layout Standard
 
-Any machining center has one or more Axes.
- Different types of machining centers have different combinations.
- For instance, a 
-\begin_inset Quotes eld
-\end_inset 
-
-4-axis milling machine
-\begin_inset Quotes erd
-\end_inset 
-
- may have XYZA or XYZB axes.
+Any CNC machine has one or more Axes.
+ Different types of CNC machines have different combinations.
+ For instance, a "4-axis milling machine" may have XYZA or XYZB axes.
  A lathe typically has XZ axes.
  A foam-cutting machine may have XYUZ axes.
+ In EMC, the case of a XYYZ "gantry" machine with two motors for one axis
+ is better handled by kinematics rather than by a second linear axis.
 \layout Standard
 
 
@@ -109,24 +79,6 @@ If the motion of mechanical components is not independent, as with hexapod
 kinematics
 \emph default 
 .
-\end_inset 
-
-
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-In EMC, the case of a XYYZ 
-\begin_inset Quotes eld
-\end_inset 
-
-gantry
-\begin_inset Quotes erd
-\end_inset 
-
- machine with two motors for one axis is better handled by kinematics rather
- than by a second linear axis.
 \end_inset 
 
 
@@ -179,16 +131,9 @@ Spindle
 
 \layout Standard
 
-A machining center has a spindle which holds one cutting tool, probe, or
- other item.
- The spindle can rotate in either direction, and it can be made to rotate
- at a constant rate, which may be changed.
- Except on machines where the spindle may be moved by moving a rotational
- axis, the axis of the spindle is kept parallel to the Z-axis and is coincident
- with the Z-axis when X and Y are zero.
- The spindle can be stopped in a fixed orientation or stopped without specifying
- orientation.
- 
+A CNC machine typically has a spindle which holds one cutting tool, probe,
+ or the material in the case of a lathe.
+ The spindle may or may not be controlled by the CNC software.
 \layout Subsection
 
 Coolant
@@ -199,54 +144,8 @@ Coolant
 
 \layout Standard
 
-A machining center has components to provide mist coolant and/or flood coolant.
-\layout Subsection
-
-Pallet Shuttle
-\begin_inset LatexCommand \index{pallet shuttle}
-
-\end_inset 
-
-
-\layout Standard
-
-A machining center has a pallet shuttle system.
- The system has two movable pallets on which workpieces can be fixtured.
- Only one pallet at a time is in position for machining.
- 
-\layout Subsection
-
-Tool Carousel
-\begin_inset LatexCommand \index{tool carousel}
-
-\end_inset 
-
-
-\layout Standard
-
-A machining center has a tool carousel with slots for tools fixed in tool
- holders.
- 
-\layout Subsection
-
-Tool Changer
-\begin_inset LatexCommand \index{tool changer}
-
-\end_inset 
-
-
-\layout Standard
-
-A machining center has a mechanism for changing tools (fixed in tool holders)
- between the spindle and the tool carousel.
- 
-\layout Subsection
-
-Message Display
-\layout Standard
-
-A machining center has a device that can display messages.
- 
+If a CNC machine has components to provide mist coolant and/or flood coolant
+ they can be controlled by G-Codes.
 \layout Subsection
 
 Feed
@@ -259,7 +158,7 @@ Feed
 
 \end_inset 
 
- Override Switches
+ Override
 \begin_inset LatexCommand \label{sub:Feed-and-Speed}
 
 \end_inset 
@@ -267,9 +166,9 @@ Feed
 
 \layout Standard
 
-A machining center has separate feed and speed override switches, which
+A CNC machine can have separate feed and speed override controls, which
  let the operator specify that the actual feed rate or spindle speed used
- in machining should be some percentage of the programmed rate.
+ in machining at some percentage of the programmed rate.
  See Section 
 \begin_inset LatexCommand \ref{sub:Feed-Interaction}
 
@@ -292,7 +191,7 @@ Block Delete Switch
 
 \layout Standard
 
-A machining center has a block delete switch.
+A CNC machine can have a block delete switch.
  See Section 
 \begin_inset LatexCommand \ref{sub:Block-Delete-Switch-Interaction}
 
@@ -314,7 +213,7 @@ Optional Program Stop
 
 \layout Standard
 
-A machining center has an optional program stop switch.
+A CNC machine can have an optional program stop switch.
  See Section 
 \begin_inset LatexCommand \ref{sub:Optional-Program-Stop-Interaction}
 
