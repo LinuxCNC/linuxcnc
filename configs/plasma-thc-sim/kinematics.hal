@@ -9,4 +9,4 @@ setp gantrykins.joint-2 2
 setp gantrykins.joint-3 1
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD key=[EMCMOT]SHMEM_KEY
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD
