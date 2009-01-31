@@ -23,11 +23,14 @@
 #include "hal/hal_priv.h"
 
 #include <stdio.h>
+#include <string.h>
 #include "classicladder.h"
 #include "global.h"
 #include "symbols.h"
 #include "vars_names.h"
 #include "emc_mods.h"
+
+
 
 // This function is a development of Jeff's orginal work for ver 7.100
 // it converts variables or symbols to HAL signal names (if present)
@@ -205,4 +208,133 @@ char * FirstVariableInArithm(char * Expr)
 		}
 	}
 	return "first var. expression error";
+}
+
+//auto assignment of names for symbols of s32in,s32out, bitin 
+//and bitout if not already assigned a name
+// you must assign s32in before s32out unless there are no s32in
+void SymbolsAutoAssign (void)
+{
+       
+	enum pinnames
+		{BITINS=0,BITOUTS,BITS,WORDS,S32INS,S32OUTS,FLOATINS,FLOATOUTS,TIMERS,IEC_TIMERS,MONOS,COUNTERS,ERRORS};
+#define NUMVARTYPES 13
+	int scansymb,found = FALSE,i,v,numofvariable;
+	char Buffer[30],SymbolBuf[5],CommentBuf[40]="";
+	
+        for (v=0;v<NUMVARTYPES;v++)
+        {
+	        switch(v)
+	        {
+			case BITINS:
+                                    numofvariable= NBR_PHYS_INPUTS ;
+                                    strcpy(SymbolBuf,"I");
+                                    break;
+			case BITOUTS:
+                                    numofvariable= NBR_PHYS_OUTPUTS;
+                                    strcpy(SymbolBuf,"Q");
+                                    break;
+                        case BITS:
+                                    numofvariable= NBR_BITS;
+                                    strcpy(SymbolBuf,"B");
+                                    break;
+                        case WORDS:
+                                    numofvariable= NBR_WORDS;
+                                    strcpy(SymbolBuf,"W");
+                                    break;
+			case S32INS:
+                                    numofvariable= NBR_PHYS_WORDS_INPUTS ;
+                                    strcpy(SymbolBuf,"IW");
+                                    break;
+			case S32OUTS:
+                                    numofvariable= NBR_PHYS_WORDS_OUTPUTS;
+                                    strcpy(SymbolBuf,"QW");
+                                    break;
+                        case FLOATINS:
+                                    numofvariable= NBR_PHYS_FLOAT_INPUTS ;
+                                    strcpy(SymbolBuf,"IF");
+                                    break;
+			case FLOATOUTS:
+                                    numofvariable= NBR_PHYS_FLOAT_OUTPUTS;
+                                    strcpy(SymbolBuf,"QF");
+                                    break;
+		        case TIMERS:
+                                    numofvariable= NBR_TIMERS;
+                                    strcpy(SymbolBuf,"T");
+                                    strcpy(CommentBuf,"Old Timer");
+                                    break;
+                        case IEC_TIMERS:
+                                    numofvariable= NBR_TIMERS_IEC ;
+                                    strcpy(SymbolBuf,"TM");
+                                    strcpy(CommentBuf,"New Timer");
+                                    break;
+                        case MONOS:
+                                    numofvariable= NBR_MONOSTABLES;
+                                    strcpy(SymbolBuf,"M");
+                                    strcpy(CommentBuf,"One-shot");
+                                    break;
+			case COUNTERS:
+                                    numofvariable= NBR_COUNTERS;
+                                    strcpy(SymbolBuf,"C");
+                                    strcpy(CommentBuf,"Counter");
+                                    break;
+		        case ERRORS:
+                                    numofvariable= NBR_ERROR_BITS;
+                                    strcpy(SymbolBuf,"E");
+                                    strcpy(CommentBuf,"Error Flag Bit");
+                                    break;
+			default : 
+                                 rtapi_print_msg(RTAPI_MSG_ERR, "Cannot auto assign symbol names-wrong variable name");
+                                 return;
+	        }
+         //printf("symbol-%s number-%i\n",SymbolBuf,v);
+	        for (i=0;i<numofvariable;i++)
+	
+                 {
+   	                  found = FALSE;
+	                //set buffer to variable to check variable name
+    	                strcpy(Buffer,"");
+   	                 sprintf(Buffer,"%%%s%d",SymbolBuf,i);  
+
+	               // printf("%s\n",Buffer);
+		        scansymb=0;	
+	                // scan all symbol variables
+		        while ( scansymb<NBR_SYMBOLS  ) 
+		                { 
+	                        // check for exsisting variable/symbol name
+		                if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
+			                {
+				                found = TRUE ; // already a symbol for this variable
+				                break;// stop looking then
+			                }
+	                        scansymb ++;// check the rest
+	                        }
+	
+	                  scansymb=0;
+                         // this assigns a symbol to an unassigned variable
+                         // while there is no symbol already assigned and we are not at the
+                         // end of the symbol data..
+	                 while ( found == FALSE && scansymb<NBR_SYMBOLS)
+	                      {
+	                            // look for an empty spot...
+		                    if (SymbolArray[ scansymb ].VarName[ 0 ] == '\0')
+		                       { 
+                                           //copy variable name already in Buffer to VarName array
+			                  strcpy( SymbolArray[scansymb].VarName, Buffer ); 
+	
+		                           //put a symbol name (and it's number) in buffer
+		        	          strcpy( SymbolArray[scansymb].Symbol, Buffer );
+	    	        	        //printf("%s\n",Buffer);
+                                        // copy a comment if there is one...
+		        	        strcpy(Buffer,"");
+		        	        sprintf(Buffer,"%s",CommentBuf);
+		        	        strcpy( SymbolArray[scansymb].Comment, Buffer );
+	
+		       	                 break;// we are done looking
+		                         }	
+		                scansymb ++;// keep looking for empty spot if not done
+	                         }	
+                }
+          }
+         return;
 }

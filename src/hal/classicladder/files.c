@@ -42,6 +42,7 @@
 #include "files.h"
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
+#include "emc_mods.h"
 
 #ifdef debug
 #define dbg_printf printf
@@ -1056,7 +1057,8 @@ char LoadSymbols(char * FileName)
 		while(LineOk);
 		fclose(File);
 		Okay = TRUE;
-	}	
+	}
+SymbolsAutoAssign();	
 return (Okay);
 }
 
