@@ -34,21 +34,6 @@
 \papersides 2
 \paperpagestyle default
 
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-2.3.x To Do List
-\layout Standard
-
-finish menu descriptions
-\end_inset 
-
-
 \layout Chapter
 
 AXIS
@@ -83,6 +68,7 @@ AXIS
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -98,9 +84,8 @@ AXIS Window
 \align center 
 
 \begin_inset Graphics
-	filename ../common/axis.png
-	lyxscale 80
-	width 80page%
+	filename images/axis_2.3.png
+	width 70page%
 	keepAspectRatio
 
 \end_inset 
@@ -151,63 +136,36 @@ A typical session
 Start EMC and select a configuration file.
 \layout Enumerate
 
-Clear the 
-\begin_inset Quotes eld
-\end_inset 
-
-ESTOP
+Clear the "ESTOP
 \begin_inset LatexCommand \index{ESTOP}
 
 \end_inset 
 
-
-\begin_inset Quotes erd
-\end_inset 
-
- condition and turn the machine on.
+" condition and turn the machine on.
 \layout Enumerate
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Home
-\begin_inset Quotes erd
-\end_inset 
-
- all axes.
+"Home" all axes.
 \layout Enumerate
 
-Load the file to be milled.
+Load the g-code file.
 \layout Enumerate
 
 Use the preview plot to verify that the program is correct.
 \layout Enumerate
 
-Put the stock to be milled on the table.
-\layout Enumerate
-
-Set the proper offsets for each axis by jogging and using the 
-\begin_inset Quotes eld
-\end_inset 
-
-Touch Off
+Set the proper offsets for each axis by jogging and using the "Touch Off
 \begin_inset LatexCommand \index{Touch Off}
 
 \end_inset 
 
-
-\begin_inset Quotes erd
-\end_inset 
-
- button.
+" button.
 \layout Enumerate
 
 Run the program.
 \layout Enumerate
 
-To mill the same file again, return to step 6.
- To mill a different file, return to step 4.
+To run the same file again, return to step 6.
+ To run a different file, return to step 4.
  When you're done, exit AXIS.
 \layout Section
 
@@ -217,38 +175,15 @@ AXIS Display
 The AXIS window contains the following elements:
 \layout Itemize
 
-A display area that shows a preview of the loaded file (in this case, 
-\begin_inset Quotes eld
-\end_inset 
-
-axis.ngc
-\begin_inset Quotes erd
-\end_inset 
-
-), as well as the current location of the CNC
+A display area that shows a preview of the loaded file (in this case, "axis.ngc")
+, as well as the current location of the CNC
 \begin_inset LatexCommand \index{CNC}
 
 \end_inset 
 
- machine's 
-\begin_inset Quotes eld
-\end_inset 
-
-controlled point
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ machine's "controlled point".
  Later, this area will display the path the CNC machine has moved through,
- called the 
-\begin_inset Quotes eld
-\end_inset 
-
-backplot
-\begin_inset Quotes erd
-\end_inset 
-
-
+ called the "backplot"
 \layout Itemize
 
 A menu bar and toolbar that allow you to perform various actions
@@ -318,11 +253,7 @@ A text display area that shows the G-code source of the loaded file.
 
 A status bar which shows the state of the machine.
  In this screen shot, the machine is turned on, does not have a tool inserted,
- and the displayed position is 
-\begin_inset Quotes eld
-\end_inset 
-
-Relative
+ and the displayed position is "Relative
 \begin_inset LatexCommand \index{position: relative}
 
 \end_inset 
@@ -381,284 +312,279 @@ Some menu items might be greyed out depending on how you have your .ini file
  For more information on configuration see the Integrators Manual.
 \layout Subsubsection
 
-File
-\layout Subsubsection
+File Menu
+\layout Description
 
 Open...
- 
-\layout Standard
-
-Opens a standard dialog box to open a g code file to load in AXIS.
+ Opens a standard dialog box to open a g code file to load in AXIS.
  If you have configured EMC to use a filter program you can also open it
  up.
  See the Integrators manual for more information on filter programs.
-\layout Subsubsection
+\layout Description
+
+Recent\SpecialChar ~
+Files Displays a list of recently opened files.
+\layout Description
 
 Edit...
-\layout Standard
-
-Edit will open the current g code file for editing if you have an editor
- configured in your ini file.
+ Open the current g code file for editing if you have an editor configured
+ in your ini file.
  See the Integrators Manual for more information on specifying an editor
  to use.
-\layout Subsubsection
+\layout Description
 
-Reload
-\layout Standard
-
-Reload will reload the current g code file.
+Reload reload the current g code file.
  If you edited it you must reload it for the changes to take affect.
  If you stop a file and want to start from the beginning then reload the
  file.
  The toolbar reload is the same as the menu.
-\layout Subsubsection
+\layout Description
 
-Save gcode as...
-\layout Standard
+Save\SpecialChar ~
+gcode\SpecialChar ~
+as...
+ Save the current file with a new name.
+\layout Description
 
-Save the current file with a new name.
-\layout Subsubsection
+Properties Properties of the current loaded g code file.
+\layout Description
 
-Properties
-\layout Standard
+Edit\SpecialChar ~
+tool\SpecialChar ~
+table...
+ Same as Edit if you have defined an editor you can open the tool table
+ and edit it.
+\layout Description
 
-Properties of the current loaded g code file.
-\layout Subsubsection
+Reload\SpecialChar ~
+tool\SpecialChar ~
+table After editing the tool table you must reload it.
+\layout Description
 
-Edit tool table...
-\layout Standard
-
-Same as Edit if you have defined an editor you can open the tool table and
- edit it.
-\layout Subsubsection
-
-Reload tool table
-\layout Standard
-
-After editing the tool table you must reload it.
-\layout Subsubsection
-
-Ladder editor
-\layout Standard
-
-If you have loaded Classic Ladder you can edit it from here.
+Ladder\SpecialChar ~
+editor If you have loaded Classic Ladder you can edit it from here.
  See the Integrators Manual on setting up Classic Ladder
-\layout Subsubsection
+\layout Description
 
-Quit
-\layout Standard
-
-Pretty much what it does.
+Quit Terminates the current EMC session.
 \layout Subsubsection
 
 Machine
-\layout Subsubsection
+\layout Description
 
-Toggle Emergency Stop F1
-\layout Subsubsection
+Toggle\SpecialChar ~
+Emergency\SpecialChar ~
+Stop\SpecialChar ~
+F1
+\layout Description
 
-Toggle Machine Power F2
-\layout Subsubsection
+Toggle\SpecialChar ~
+Machine\SpecialChar ~
+Power\SpecialChar ~
+F2
+\layout Description
 
-Set next line
-\layout Standard
+Run\SpecialChar ~
+Program
+\layout Description
 
-This is used to start a program from a line.
- Select the line you want to start from then select Set next line from the
- menu and then Run from the tool bar.
+Run\SpecialChar ~
+From\SpecialChar ~
+Selected\SpecialChar ~
+Line Select the line you want to start from first.
  Use with caution as this will move the tool to the expected position before
  the line first then it will execute the rest of the code.
-\layout Subsubsection
+\layout Description
 
-Run Program
-\layout Standard
+Step Single step through a program.
+\layout Description
 
-Run a program.
-\layout Subsubsection
+Pause Pause a program.
+\layout Description
 
-Step
-\layout Standard
+Resume Resume running from a pause.
+\layout Description
 
-Single step through a program.
-\layout Subsubsection
+Stop Stop a running program.
+\layout Description
 
-Pause
-\layout Standard
-
-Pause a program.
-\layout Subsubsection
-
-Resume
-\layout Standard
-
-Resume running from a pause.
-\layout Subsubsection
-
-Stop
-\layout Standard
-
-Stop a running program.
-\layout Subsubsection
-
-Stop at M1
-\layout Standard
-
-If you have a M1 in your g code and this is checked program execution will
- stop on the M1 line.
+Stop\SpecialChar ~
+at\SpecialChar ~
+M1 If you have a M1 in your g code and this is checked program execution
+ will stop on the M1 line.
  Press Resume to continue.
-\layout Subsubsection
+\layout Description
 
-Skip lines with 
-\begin_inset Quotes eld
-\end_inset 
+Skip\SpecialChar ~
+lines\SpecialChar ~
+with\SpecialChar ~
+"/" If a line begins with / and this is checked it will skip
+ that line.
+\layout Description
 
-/
-\begin_inset Quotes erd
-\end_inset 
+Clear\SpecialChar ~
+MDI\SpecialChar ~
+history Clears the MDI history window.
+\layout Description
 
+Copy\SpecialChar ~
+from\SpecialChar ~
+MDI\SpecialChar ~
+history Copies the MDI history to the clipboard
+\layout Description
 
-\layout Standard
+Paste\SpecialChar ~
+to\SpecialChar ~
+MDI\SpecialChar ~
+history Paste from the clipboard to the MDI history window
+\layout Description
 
-If a line begins with / and this is checked it will skip that line.
-\layout Subsubsection
-
-Clear MDI history
-\layout Standard
-
-Clears the MDI history window.
-\layout Subsubsection
-
-Copy from MDI history
-\layout Standard
-
-Copies the MDI history to the clipboard
-\layout Subsubsection
-
-Paste to MDI history
-\layout Standard
-
-Paste from the clipboard to the MDI history window
-\layout Subsubsection
-
-Calibration
-\layout Standard
-
-This is a servo testing pop up widow for each axis.
+Calibration This is a servo testing pop up widow for each axis.
  After making changes and testing them it can save them to your .ini file.
-\layout Subsubsection
+\layout Description
 
-Show HAL Configuration
-\layout Subsubsection
+Show\SpecialChar ~
+HAL\SpecialChar ~
+Configuration Opens up the HAL Configuration widow where you can
+ monitor HAL Components, Pins, Parameters, Signals, Functions, and Threads.
+\layout Description
 
-HAL Meter
-\layout Subsubsection
+HAL\SpecialChar ~
+Meter Opens up a window where you can monitor a single HAL Pin, Signal,
+ or Parameter.
+\layout Description
 
-HAL Scope
-\layout Subsubsection
+HAL\SpecialChar ~
+Scope Opens up a Scope window where you can set up and monitor Pins and
+ Signals.
+\layout Description
 
-Show EMC Status
-\layout Subsubsection
+Show\SpecialChar ~
+EMC\SpecialChar ~
+Status Opens up a window showing EMC's status.
+\layout Description
 
-Set Debug Level
-\layout Subsubsection
+Set\SpecialChar ~
+Debug\SpecialChar ~
+Level Opens a window where debug levels can be viewed and some can
+ be set.
+\layout Description
 
-Homing
-\layout Standard
+Homing Home any or all axis.
+\layout Description
 
-Home any or all axis.
-\layout Subsubsection
+Unhoming Unhome any or all axis.
+\layout Description
 
-Unhoming
-\layout Standard
-
-Unhome any or all axis.
-\layout Subsubsection
-
-Zero Coordinate System
-\layout Standard
-
-Zero work offsets.
+Zero\SpecialChar ~
+Coordinate\SpecialChar ~
+System Zero work offsets.
 \layout Subsubsection
 
 View
-\layout Subsubsection
+\layout Description
 
-Top View
-\layout Subsubsection
+Top\SpecialChar ~
+View
+\layout Description
 
-Rotated Top View
-\layout Subsubsection
+Rotated\SpecialChar ~
+Top\SpecialChar ~
+View
+\layout Description
 
-Side View
-\layout Subsubsection
+Side\SpecialChar ~
+View
+\layout Description
 
-Front View
-\layout Subsubsection
+Front\SpecialChar ~
+View
+\layout Description
 
-Perspective View
-\layout Subsubsection
+Perspective\SpecialChar ~
+View
+\layout Description
 
-Display Inches
-\layout Subsubsection
+Display\SpecialChar ~
+Inches
+\layout Description
 
-Display MM
-\layout Subsubsection
+Display\SpecialChar ~
+MM
+\layout Description
 
-Show Program
-\layout Subsubsection
+Show\SpecialChar ~
+Program
+\layout Description
 
-Show Program Rapids
-\layout Subsubsection
+Show\SpecialChar ~
+Live\SpecialChar ~
+Plot
+\layout Description
 
-Show Live Plot
-\layout Subsubsection
+Show\SpecialChar ~
+Tool
+\layout Description
 
-Show Tool
-\layout Subsubsection
+Show\SpecialChar ~
+Extents
+\layout Description
 
-Show Extents
-\layout Subsubsection
+Show\SpecialChar ~
+Machine\SpecialChar ~
+Limits
+\layout Description
 
-Show Machine Limits
-\layout Subsubsection
+Show\SpecialChar ~
+Velocity
+\layout Description
 
-Show Velocity
-\layout Subsubsection
+Show\SpecialChar ~
+Distance\SpecialChar ~
+to\SpecialChar ~
+Go
+\layout Description
 
-Show Distance to Go
-\layout Subsubsection
+Clear\SpecialChar ~
+Live\SpecialChar ~
+Plot
+\layout Description
 
-Clear Live Plot
-\layout Subsubsection
+Show\SpecialChar ~
+Commanded\SpecialChar ~
+Position
+\layout Description
 
-Show Commanded Position
-\layout Subsubsection
+Show\SpecialChar ~
+Actual\SpecialChar ~
+Position
+\layout Description
 
-Show Actual Position
-\layout Subsubsection
+Show\SpecialChar ~
+Machine\SpecialChar ~
+Position
+\layout Description
 
-Show Machine Position
-\layout Subsubsection
-
-Show Relative Position
+Show\SpecialChar ~
+Relative\SpecialChar ~
+Position
 \layout Subsubsection
 
 Help
-\layout Subsubsection
+\layout Description
 
-About
-\layout Subsubsection
+About\SpecialChar ~
+Axis
+\layout Description
 
-Quick Reference
-\layout Standard
-
-Keyboard shortcut keys.
+Quick\SpecialChar ~
+Reference Shows the keyboard shortcut keys.
 \layout Subsection
 
 Toolbar buttons
 \layout Standard
 
-From left to right, the toolbar buttons are:
+From left to right, the toolbar buttons (keyboard shortcuts in []).
 \layout Enumerate
 
 
@@ -667,15 +593,7 @@ From left to right, the toolbar buttons are:
 
 \end_inset 
 
- Toggle 
-\begin_inset Quotes eld
-\end_inset 
-
-Emergency Stop
-\begin_inset Quotes erd
-\end_inset 
-
- (also called E-Stop
+ Toggle Emergency Stop [F1] (also called E-Stop
 \begin_inset LatexCommand \index{ESTOP}
 
 \end_inset 
@@ -689,7 +607,7 @@ Emergency Stop
 
 \end_inset 
 
- Toggle machine power
+ Toggle Machine Power [F2]
 \begin_inset LatexCommand \index{machine on}
 
 \end_inset 
@@ -703,7 +621,7 @@ Emergency Stop
 
 \end_inset 
 
- Open a file
+ Open G Code file [O]
 \layout Enumerate
 
 
@@ -712,7 +630,7 @@ Emergency Stop
 
 \end_inset 
 
- Reload the opened file
+ Reload current file [Ctrl-R]
 \layout Enumerate
 
 
@@ -721,7 +639,7 @@ Emergency Stop
 
 \end_inset 
 
- Run the program
+ Begin executing the current file [R]
 \layout Enumerate
 
 
@@ -730,7 +648,7 @@ Emergency Stop
 
 \end_inset 
 
- Run the next line of the program
+ Execute next line [T]
 \layout Enumerate
 
 
@@ -739,7 +657,7 @@ Emergency Stop
 
 \end_inset 
 
- Pause the program
+ Pause Execution [P] Resume Execution[S]
 \layout Enumerate
 
 
@@ -748,7 +666,25 @@ Emergency Stop
 
 \end_inset 
 
- Stop the program
+ Stop Program Execution [ESC]
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_blockdelete.gif
+
+\end_inset 
+
+ Toggle Skip lines with "/" [Alt-M-/]
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_optpause.gif
+
+\end_inset 
+
+ Toggle Optional Pause [Alt-M-1]
 \layout Enumerate
 
 
@@ -776,14 +712,6 @@ Emergency Stop
 \end_inset 
 
  Top view 
-\begin_inset Quotes eld
-\end_inset 
-
-Z
-\begin_inset Quotes erd
-\end_inset 
-
- 
 \layout Enumerate
 
 
@@ -792,15 +720,7 @@ Z
 
 \end_inset 
 
- Top view 
-\begin_inset Quotes eld
-\end_inset 
-
-Rotated Z
-\begin_inset Quotes erd
-\end_inset 
-
- 
+ Rotated Top view 
 \layout Enumerate
 
 
@@ -810,14 +730,6 @@ Rotated Z
 \end_inset 
 
  Front view 
-\begin_inset Quotes eld
-\end_inset 
-
-X
-\begin_inset Quotes erd
-\end_inset 
-
-
 \layout Enumerate
 
 
@@ -827,14 +739,6 @@ X
 \end_inset 
 
  Side view 
-\begin_inset Quotes eld
-\end_inset 
-
-Y
-\begin_inset Quotes erd
-\end_inset 
-
- 
 \layout Enumerate
 
 
@@ -844,14 +748,6 @@ Y
 \end_inset 
 
  Perspective view 
-\begin_inset Quotes eld
-\end_inset 
-
-P
-\begin_inset Quotes erd
-\end_inset 
-
- 
 \layout Enumerate
 
 
@@ -860,7 +756,7 @@ P
 
 \end_inset 
 
- Rotate view, use left mouse button to rotate
+ Toggle between Drag and Rotate Mode [D]
 \layout Enumerate
 
 
@@ -869,7 +765,7 @@ P
 
 \end_inset 
 
- Clear live backplot
+ Clear live backplot [Ctrl-K]
 \layout Subsection
 
 Graphical Display Area
@@ -925,8 +821,8 @@ Relative
 \end_inset 
 
 , then the displayed number is in the offset coordinate system.
- When the coordinates displayed are relative, the display will include a
- cyan 
+ When the coordinates displayed are relative and an offset has been set,
+ the display will include a cyan 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -1000,7 +896,7 @@ When a file is loaded, a preview of it is shown in the display area.
 \family typewriter 
 G0
 \family default 
- command) are shown as dotted green lines.
+ command) are shown as green lines.
  Moves at a feed rate (such as those produced by the 
 \family typewriter 
 G1
@@ -1010,15 +906,7 @@ G1
 \family typewriter 
 G4
 \family default 
- command) are shown as small 
-\begin_inset Quotes eld
-\end_inset 
-
-X
-\begin_inset Quotes erd
-\end_inset 
-
- marks.
+ command) are shown as small "X" marks.
 \layout Subsubsection
 
 Program Extents
@@ -1069,6 +957,7 @@ soft limits
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -1168,30 +1057,6 @@ V
 \end_inset 
 
 , several preset views may be selected.
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Caption
-
-Current and Selected Lines
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename axis-currentandselected.png
-	lyxscale 50
-	width 80page%
-
-\end_inset 
-
-
-\end_inset 
-
-
 \layout Subsection
 
 Text Display Area
@@ -1205,6 +1070,30 @@ When the program is running, the line currently being executed is highlighted
  in red.
  If no line has been selected by the user, the text display will automatically
  scroll to show the current line.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Current and Selected Lines
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename axis-currentandselected.png
+	width 80page%
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 Manual Control
@@ -1444,6 +1333,7 @@ Touch Off
 
 \begin_inset Graphics
 	filename touchoff.png
+	scale 80
 
 \end_inset 
 
@@ -1527,21 +1417,17 @@ Flood
  may appear.
 \layout Subsection
 
-Code Entry
+MDI
 \layout Standard
 
-Code Entry
-\begin_inset Quotes erd
-\end_inset 
-
- (also called MDI
+MDI
 \begin_inset LatexCommand \index{MDI}
 
 \end_inset 
 
-), allows G-code programs can be entered manually, one line at a time.
- When the machine is not turned on, or when a program is running, the code
- entry controls are unavailable.
+, allows G-code programs can be entered manually, one line at a time.
+ When the machine is not turned on, or when a program is running, the MDI
+ controls are unavailable.
 \layout Standard
 
 
@@ -1551,12 +1437,13 @@ collapsed false
 
 \layout Caption
 
-The Code Entry tab
+The MDI tab
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename axis-codeentry.png
+	filename images/axis_mdi.png
+	scale 80
 
 \end_inset 
 
@@ -1564,58 +1451,20 @@ The Code Entry tab
 \end_inset 
 
 
-\layout Subsubsection
+\layout Description
 
-History
-\layout Standard
+History: This shows MDI commands that have been typed earlier in this session.
+\layout Description
 
-This shows MDI commands that have been typed earlier in this session.
-\layout Subsubsection
+MDI\SpecialChar ~
+Command: This allows you to enter a g-code command to be executed.
+ Execute the command by pressing Enter or by clicking "Go".
+\layout Description
 
-MDI Command
-\layout Standard
-
-This allows you to enter a g-code command to be executed.
- Execute the command by pressing Enter or by clicking 
-\begin_inset Quotes eld
-\end_inset 
-
-Go
-\begin_inset Quotes erd
-\end_inset 
-
-.
-\layout Subsubsection
-
-Active G-Codes
-\layout Standard
-
-This shows the 
-\begin_inset Quotes eld
-\end_inset 
-
-modal codes
-\begin_inset Quotes erd
-\end_inset 
-
- that are active in the interpreter.
- For instance, 
-\begin_inset Quotes eld
-\end_inset 
-
-G54
-\begin_inset Quotes erd
-\end_inset 
-
- indicates that the 
-\begin_inset Quotes eld
-\end_inset 
-
-G54 offset
-\begin_inset Quotes erd
-\end_inset 
-
- is applied to all coordinates that are entered.
+Active\SpecialChar ~
+G-Codes: This shows the "modal codes" that are active in the interpreter.
+ For instance, "G54" indicates that the "G54 offset" is applied to all coordinat
+es that are entered.
 \layout Subsection
 
 Feed Override
@@ -1670,6 +1519,19 @@ By moving this slider, the speed of jogs can be modified.
 
 On machines with a rotary axis, a second jog speed slider is shown.
  This slider sets the jog rate for the rotary axes (A, B and C).
+\layout Subsection
+
+Max Velocity
+\begin_inset LatexCommand \index{Max Velocity}
+
+\end_inset 
+
+
+\layout Standard
+
+By moving this slider, the maximum velocity can be set.
+ This caps the maximun velocity of axis no matter what is programed in the
+ g code file.
 \layout Section
 
 Keyboard Controls
@@ -2365,6 +2227,7 @@ The Manual Toolchange Window
 
 \begin_inset Graphics
 	filename manualtoolchange.png
+	scale 80
 
 \end_inset 
 
@@ -2515,6 +2378,7 @@ Lathe Mode showing the lathe tool shape
 
 \begin_inset Graphics
 	filename axis-lathe-tool.png
+	scale 80
 
 \end_inset 
 
@@ -2623,6 +2487,7 @@ Circular Holes
 
 \begin_inset Graphics
 	filename holes.png
+	scale 80
 
 \end_inset 
 
