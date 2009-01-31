@@ -74,7 +74,7 @@
 
 #ifdef RTAPI
 #include "hal.h"
-struct {
+struct haldata {
     hal_float_t *bx, *cx, *cy;
 } *haldata = 0;
 
@@ -368,13 +368,14 @@ int rtapi_app_main(void) {
     comp_id = hal_init("tripodkins");
     if(comp_id < 0) return comp_id;
 
-    haldata = hal_malloc(sizeof(*haldata));
+    haldata = hal_malloc(sizeof(struct haldata));
     if(!haldata) goto error;
-    Bx = Cx = Cy = 1.0;
 
     if((res = hal_pin_float_new("tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) != HAL_SUCCESS) goto error;
     if((res = hal_pin_float_new("tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) != HAL_SUCCESS) goto error;
     if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) != HAL_SUCCESS) goto error;
+
+    Bx = Cx = Cy = 1.0;
     hal_ready(comp_id);
     return 0;
 
