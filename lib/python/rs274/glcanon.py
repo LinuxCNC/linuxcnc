@@ -124,7 +124,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.offset_w = offset_w
 
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
-        if self.suppress: return
+        if self.suppress > 0: return
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              a + self.offset_a, b + self.offset_b, c + self.offset_c,
              u + self.offset_u, v + self.offset_v, w + self.offset_w,
@@ -134,7 +134,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lo = l
 
     def rigid_tap(self, x, y, z):
-        if self.suppress: return
+        if self.suppress > 0: return
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              self.lo[3], self.lo[4], self.lo[5],
@@ -145,7 +145,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
 
     def arc_feed(self, *args):
-        if self.suppress: return
+        if self.suppress > 0: return
         self.first_move = False
         self.in_arc = True
         try:
@@ -160,7 +160,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lo = l
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
-        if self.suppress: return
+        if self.suppress > 0: return
         self.first_move = False
         l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
              a + self.offset_a, b + self.offset_b, c + self.offset_c,
@@ -171,12 +171,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     straight_probe = straight_feed
 
     def user_defined_function(self, i, p, q):
-        if self.suppress: return
+        if self.suppress > 0: return
         color = self.colors['m1xx']
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
         
     def dwell(self, arg):
-        if self.suppress: return
+        if self.suppress > 0: return
         self.dwell_time += arg
         color = self.colors['dwell']
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
