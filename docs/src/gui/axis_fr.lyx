@@ -878,7 +878,7 @@ Ligne courante et ligne en surbrillance
 \align center 
 
 \begin_inset Graphics
-	filename axis-currentandselected_fr.png
+	filename images/axis-currentandselected_fr.png
 	lyxscale 50
 	width 80page%
 
