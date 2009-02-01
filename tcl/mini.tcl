@@ -1279,9 +1279,13 @@ proc setAllZero { } {
     findVarNumbers
     if {$tooloffsetsetting > 0.0001 } {
         mText [msgcat::mc "Can't set zero with a tool offset active so I issued G49 to cancel it."]
+        emc_mode mdi
+        emc_wait received
         emc_mdi g49
     }
     # zero out g92 here
+    emc_mode mdi
+    emc_wait received
     emc_mdi "g92.1"
     # Now zero out all coordinate offfsets
     foreach firstcoord {5211 5221 5241 5261 5281 5301 5321 5341 5361 5381} {
@@ -1299,6 +1303,8 @@ proc setAllZero { } {
     # Now write to file and load to emc
     loadVarFile
     # Now set g54 as current offset
+    emc_mode mdi
+    emc_wait received
     emc_mdi "g54"
     # Now home all axes.
     emc_mode "manual"
