@@ -248,10 +248,13 @@ void rtapi_app_exit(void) {
 }
 
 // this function copies any requested (from the cmd line) changes to ladder element amounts to GeneralParamsMirror
-// so memory allotment and pin numbers can be varied. Note no error checking is done such as
-// seeing if the number of S32 in and out pins are greater then the number of words available.
+// so memory allotment and pin numbers can be varied. Note no error checking is done.
+// Symbols allotment is calculated to be large enough to have symbols for all the elements unless specified smaller
+// on the command line
 void CopySizesInfosFromModuleParams( void )
 {
+        plc_sizeinfo_s *pSizesInfos;
+        pSizesInfos = &GeneralParamsMirror.SizesInfos;
 #ifdef DYNAMIC_PLCSIZE
 	if ( numRungs>0 )
 		GeneralParamsMirror.SizesInfos.nbr_rungs = numRungs;
@@ -275,8 +278,6 @@ void CopySizesInfosFromModuleParams( void )
 		GeneralParamsMirror.SizesInfos.nbr_arithm_expr = numArithmExpr;
 	if ( numSections>0 )
 		GeneralParamsMirror.SizesInfos.nbr_sections = numSections;
-	if ( numSymbols>0 )
-		GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;
     	if ( numS32in>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = numS32in;
 	if ( numS32out>0 )
@@ -285,7 +286,13 @@ void CopySizesInfosFromModuleParams( void )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs = numFloatIn;
 	if ( numFloatOut>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;
-
-	
+        
+                GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words + pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
+                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
+                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs + pSizesInfos->nbr_phys_float_inputs ;
+                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
+	 if (numSymbols < GeneralParamsMirror.SizesInfos.nbr_symbols )
+                 GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;
+    
 	#endif
 }
