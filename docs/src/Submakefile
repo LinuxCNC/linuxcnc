@@ -385,3 +385,11 @@ ifeq ($(TRIVIAL_BUILD),no)
 -include $(MAN_DEPS)
 Makefile: $(MAN_DEPS)
 endif
+
+%.png:; $(error Required image file $@ does not exist)
+%.gif:; $(error Required image file $@ does not exist)
+%.jpg:; $(error Required image file $@ does not exist)
+%.svg:; $(error Required image file $@ does not exist)
+%.dxf:; $(error Required image file $@ does not exist)
+%.ps:; $(error Required image file $@ does not exist)
+%.eps:; $(error Required image file $@ does not exist)
