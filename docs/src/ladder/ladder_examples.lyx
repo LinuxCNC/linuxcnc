@@ -53,20 +53,18 @@ To interface an external E-Stop to EMC and have the external E-Stop work
 
 First we have to open the E-Stop loop in the main hal file by commenting
  out by adding the pound sign as shown or removing the following lines.
-\layout LyX-Code
+\layout Quote
 
 # net estop-out <= iocontrol.0.user-enable-out
-\layout LyX-Code
-
+\newline 
 # net estop-out => iocontrol.0.emc-enable-in
 \layout Standard
 
 Next we add ClassicLadder to our custom.hal file by adding these two lines:
-\layout LyX-Code
+\layout Quote
 
 loadrt classicladder_rt
-\layout LyX-Code
-
+\newline 
 addf classicladder.0.refresh servo-thread
 \layout Standard
 
@@ -101,11 +99,10 @@ After building the ladder select Save As and save the ladder as estop.clp
 \layout Standard
 
 Now add the following line to your custom.hal file.
-\layout LyX-Code
+\layout Quote
 
 # Load the ladder
-\layout LyX-Code
-
+\newline 
 loadusr classicladder --nogui estop.clp
 \layout Standard
 
@@ -132,117 +129,81 @@ I/O assignments
 \layout Standard
 
 Next we add the following lines to the custom_postgui.hal file
-\layout LyX-Code
+\layout Quote
 
 # E-Stop example using pyVCP buttons to simulate external components
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # The pyVCP checkbutton simulates a normally closed external E-Stop
-\layout LyX-Code
-
+\newline 
 net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # Request E-Stop Enable from EMC
-\layout LyX-Code
-
+\newline 
 net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # Request E-Stop Enable from pyVCP or external source
-\layout LyX-Code
-
+\newline 
 net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # This line resets the E-Stop from EMC
-\layout LyX-Code
-
+\newline 
 net emc-reset-estop iocontrol.0.user-request-enable => classicladder.0.in-02
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # This line enables EMC to unlatch the E-Stop in classicladder
-\layout LyX-Code
-
+\newline 
 net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 # This line turns on the green indicator when out of E-Stop
-\layout LyX-Code
-
+\newline 
 net estop-all-ok => pyvcp.py-es-status
 \layout Standard
 
 Next we add the following lines to the panel.xml file.
  Note you have to open it with the text editor not the default html viewer.
-\layout LyX-Code
+\layout Quote
 
 <pyvcp>
-\layout LyX-Code
-
+\newline 
 <vbox>
-\layout LyX-Code
-
+\newline 
 <label><text>"E-Stop Demo"</text></label>
-\layout LyX-Code
-
+\newline 
 <led>
-\layout LyX-Code
-
+\newline 
 <halpin>"py-es-status"</halpin>
-\layout LyX-Code
-
+\newline 
 <size>50</size>
-\layout LyX-Code
-
+\newline 
 <on_color>"green"</on_color>
-\layout LyX-Code
-
+\newline 
 <off_color>"red"</off_color>
-\layout LyX-Code
-
+\newline 
 </led>
-\layout LyX-Code
-
+\newline 
 <checkbutton>
-\layout LyX-Code
-
+\newline 
 <halpin>"py-estop"</halpin>
-\layout LyX-Code
-
+\newline 
 <text>"E-Stop"</text>
-\layout LyX-Code
-
+\newline 
 </checkbutton>
-\layout LyX-Code
-
+\newline 
 </vbox>
-\layout LyX-Code
-
+\newline 
 <button>
-\layout LyX-Code
-
+\newline 
 <halpin>"py-reset"</halpin>
-\layout LyX-Code
-
+\newline 
 <text>"Reset"</text>
-\layout LyX-Code
-
+\newline 
 </button>
-\layout LyX-Code
-
+\newline 
 </pyvcp>
 \layout Standard
 
@@ -324,8 +285,8 @@ This Example is not complete yet.
 \layout Standard
 
 This is a program for one type of tool turret.
- The turret has a home switch at tool position 1 and another another switch
- to tell you when the turret is in a lockable position.
+ The turret has a home switch at tool position 1 and another  switch to
+ tell you when the turret is in a lockable position.
  To keep track of the actual tool number one must count how many positions
  past home you are.
  We will use ClassicLadder's counter block '$CO'.The counter is preset to
