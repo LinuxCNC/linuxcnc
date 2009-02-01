@@ -1063,7 +1063,7 @@ Text Display Area
 \layout Standard
 
 By left-clicking a line of the program, the line will be highlighted in
- both the graphical and text displays.
+ both the graphical and text displays in blue.
 \layout Standard
 
 When the program is running, the line currently being executed is highlighted
@@ -1085,7 +1085,7 @@ Current and Selected Lines
 \align center 
 
 \begin_inset Graphics
-	filename axis-currentandselected.png
+	filename images/axis-currentandselected.png
 	width 80page%
 
 \end_inset 
@@ -2716,12 +2716,13 @@ Special comments can be inserted into the G Code file to control how the
  special comments.
  Anything between the (AXIS,hide) and (AXIS,show) will not be drawn during
  the preview.
+ The (AXIS,hide) and (AXIS,show) must be used in pairs with the (AXIS,hide)
+ being first.
  Anything after a (AXIS,stop) will not be drawn during the preview.
 \layout Itemize
 
 (AXIS,hide) Stops the preview
-\layout Itemize
-
+\newline 
 (AXIS,show) Resumes the preview
 \layout Itemize
 
