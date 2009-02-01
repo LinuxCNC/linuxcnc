@@ -2721,9 +2721,9 @@ Special comments can be inserted into the G Code file to control how the
  Anything after a (AXIS,stop) will not be drawn during the preview.
 \layout Itemize
 
-(AXIS,hide) Stops the preview
+(AXIS,hide) Stops the preview (must be first)
 \newline 
-(AXIS,show) Resumes the preview
+(AXIS,show) Resumes the preview (must follow a hide)
 \layout Itemize
 
 (AXIS, stop) Stops the preview to the end of the file.
