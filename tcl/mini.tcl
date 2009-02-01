@@ -209,7 +209,7 @@ set units "0"
             set jogIncrement 0.0001
         }
         set units [emc_program_linear_units]
-        puts "program_units $units"
+        # puts "program_units $units"
         set jogType $jogIncrement
     }
 }
@@ -226,7 +226,7 @@ set units "0"
     }
 
         catch { set units [emc_program_linear_units] }
-        puts "program_units $units $axisToJog"
+        # puts "program_units $units $axisToJog"
 
     if {$jogType == "continuous"} {
         emc_jog $axisToJog -$jogSpeed
@@ -247,7 +247,7 @@ set units "0"
     }
 
         catch { set units [emc_program_linear_units] }
-        puts "program_units $units $axisToJog"
+        # puts "program_units $units $axisToJog"
 
     if {$jogType == "continuous"} {
         emc_jog $axisToJog $jogSpeed
