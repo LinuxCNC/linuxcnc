@@ -13,10 +13,6 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 #
 #  Copyright (c) 2003 All rights reserved.
 #
-#  Last change:
-# $Revision$
-# $Author$
-# $Date$
 ###############################################################
 #  INI variables include
 #  [DISPLAY]
