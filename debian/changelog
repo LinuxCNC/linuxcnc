@@ -134,6 +134,10 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * fix g41/g42 in lathe mode.  previously, right/left were swapped.
   * fix deviation from commanded velocity due to differences
     between requested and actual servo-thread period (SF#2478266)
+  * maintain G92 setting, if any, across gcode runs and EMC restarts
+  * AXIS: allow the filename ~/.axisrc to be overridden by inifile 
+    [DISPLAY]USER_COMMAND_FILE
+  * AXIS: per-axis DTG readout
   * [add bugfixes from the 2.2.x branch here, before release]
 
  -- Jeff Epler <jepler@platte>  Thu, 29 Jan 2009 07:11:49 -0600
