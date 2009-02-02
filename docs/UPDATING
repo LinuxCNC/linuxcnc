@@ -4,6 +4,7 @@ This file describes needed steps to update configurations from 2.2.x to 2.3
 Default input and output pins change from 50 to 15 each.
 s32 now uses %IW0 for in and %QW0 for out.
 
+2. RS274NGC_STARTUP_CODE should be in the [RS274NGC] section.
 
 
 This file describes needed steps to update configurations to 2.2.x
