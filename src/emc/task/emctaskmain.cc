@@ -1974,7 +1974,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(--pseudoMdiLineNumber);
 	    }
-	    execRetval = emcTaskPlanExecute(execute_msg->command);
+	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
 	    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
 		rcs_print("emcTaskPlanExecute(%s) returned %d\n",
 			  execute_msg->command, execRetval);

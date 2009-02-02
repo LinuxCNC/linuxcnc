@@ -284,6 +284,14 @@ int Interp::execute(const char *command)
   return status;
 }
 
+
+int Interp::execute(const char *command, int line_number)
+{
+
+  _setup.sequence_number = line_number;
+  Interp::execute(command);
+}
+
 /***********************************************************************/
 
 /*! Interp::exit

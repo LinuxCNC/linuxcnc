@@ -472,6 +472,11 @@ int emcTaskPlanRead(void)
     return canterp_parse(buffer);
 }
 
+int emcTaskPlanExecute(const char *command, int line_number)
+{
+    return emcTaskPlanExecute(command);
+}
+
 int emcTaskPlanExecute(const char *command)
 {
     int retval;

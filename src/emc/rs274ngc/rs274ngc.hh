@@ -75,6 +75,8 @@ public:
  int execute();
 #endif
 
+ int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
+
 // stop running
  int exit();
 
