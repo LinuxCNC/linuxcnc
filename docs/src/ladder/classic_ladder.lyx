@@ -816,8 +816,8 @@ The Variable Windows
 \layout Standard
 
 This are two variable windows: bool and signed integer.
- the vars button is in the section display window, toggle it to display
- one, the other, both, then none of the windows.
+ the vars button is in the section display window, toggle the Vars button
+ to display one, the other, both, then none of the windows.
 \layout Standard
 
 
@@ -883,7 +883,7 @@ Signed Integers Variable window
 \layout Standard
 
 This displays word variables.
- Word Variables can be from memory, HAL s32in pins or HAL s32out pins.
+ Word Variables can be from memory, HAL s32 pins or HAL float pins.
  They hold positive and negative (signed) numbers and are used with compare
  and operate.
  The edit box beside it is the number stored in the variable and the drop-down
@@ -1227,11 +1227,11 @@ Timers have 4 contacts.
 E = enable (input) - starts timer when true, resets when goes false
 \layout Itemize
 
-D = done (output) - true when timer times out and as long as E remains true
+C = control (input) - must be on for the timer to run (usually connect to
+ E)
 \layout Itemize
 
-C = continue (input) - is not used in EMC for legacy reasons so is always
- forced true
+D = done (output) - true when timer times out and as long as E remains true
 \layout Itemize
 
 R = running (output) - true when timer is running
@@ -1594,10 +1594,16 @@ List of variables :
 %Wxxx : Word memory xxx (32 bits signed integer) 
 \layout Itemize
 
-%IWxxx : Word memory xxx (S32in pin)
+%IWxxx : Word memory xxx (S32 in pin)
 \layout Itemize
 
-%QWxxx : Word memory xxx (S32out pin)
+%QWxxx : Word memory xxx (S32 out pin)
+\layout Itemize
+
+%IFxx : Word memory xx (Float in pin) (converted to S32 in ClassicLadder)
+\layout Itemize
+
+%QFxx : Word memory xx (Float out pin) (converted to S32 in ClassicLadder)
 \layout Itemize
 
 %Txx.R : Timer xx running (Boolean, user read only) 
@@ -1658,12 +1664,9 @@ List of variables :
 \layout Itemize
 
 %Exx : Errors (Boolean, read write(will be overwritten))
-\layout Standard
+\layout Itemize
 
-* Indexed or vectored variables 
-\layout Standard
-
-These are variables indexed by another variable.
+Indexed or vectored variables These are variables indexed by another variable.
  Some might call this vectored variables.
  Example: %W0[%W4] => if %W4 equals 23 it corresponds to %W23 
 \layout Section
@@ -2044,61 +2047,53 @@ MODBUS_TIME_AFTER_TRANSMIT is the length of pause after sending a request
 \layout Subsection
 
 MODBUS Info
-\layout Standard
+\layout Itemize
 
 ClassicLadder can use distributed inputs/outputs on modules using the modbus
-\layout Standard
-
-protocol ("master": pooling slaves).
-\layout Standard
+ protocol ("master": pooling slaves).
+\layout Itemize
 
 The slaves and theirs I/O can be configured in the config window.
-\layout Standard
+\layout Itemize
 
 2 exclusive modes are available : ethernet using Modbus/TCP and serial using
  Modbus/RTU.
-\layout Standard
+\layout Itemize
 
 No parity is used.
-\layout Standard
+\layout Itemize
 
 If no port name for serial is set, IP mode will be used...
-\layout Standard
+\layout Itemize
 
 The slave address is the slave address (Modbus/RTU) or the IP address.
-\layout Standard
+\layout Itemize
 
 The IP address can be followed per the port number to use (xx.xx.xx.xx:pppp)
- else
-\layout Standard
-
-the port 9502 will be used per default.
-\layout Standard
+ else the port 9502 will be used per default.
+\layout Itemize
 
 2 products have been used for tests: a Modbus/TCP one (Adam-6051, http://www.adva
-ntech.com)
-\layout Standard
-
-and a serial Modbus/RTU one (http://www.ipac.ws)
-\layout Standard
+ntech.com) and a serial Modbus/RTU one (http://www.ipac.ws)
+\layout Itemize
 
 See examples: adam-6051 and modbus_rtu_serial.
-\layout Standard
+\layout Itemize
 
 Web links: http://www.modbus.org and this interesting one: http://www.iatips.com/mod
 bus.html
-\layout Standard
+\layout Itemize
 
 MODBUS TCP SERVER INCLUDED
-\layout Standard
+\layout Itemize
 
 ClassicLadder has a Modbus/TCP server integrated.
  Default port is 9502, standard 502 requires that the application has been
  launched with root privileges.
-\layout Standard
+\layout Itemize
 
 List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
-\layout Standard
+\layout Itemize
 
 Modbus bits and words correspondence table is actually not parametric and
  correspond directly to the %B and %W variables.
@@ -2131,6 +2126,16 @@ Infos on modbus protocol are available here:
 
 \layout Subsection
 
+Commnuication Errors
+\layout Standard
+
+If there is a communication error, a warning window will pop up (if the
+ GUI is running) and %E0 will be true.
+ Modbus will continue to try and communicate.
+ The %E0 could be used to make a decision based on the error.
+ A timer could be used to stop the machine if timed out etc.
+\layout Subsection
+
 MODBUS Bugs
 \layout Itemize
 
@@ -2139,9 +2144,9 @@ In compare blocks the function %W=ABS(%W1-%W2) is accepted but does not
  only %W0=ABS(%W1) is currently legal
 \layout Itemize
 
-When loading a ladder program it will load modbus info but will not tell
- classicladder to initialize modbus.
- You must initialize modbus when you first load the GUI by adding --modmaster
+When loading a ladder program it will load Modbus info but will not tell
+ ClassicLadder to initialize Modbus.
+ You must initialize Modbus when you first load the GUI by adding --modmaster
 \layout Itemize
 
 If the section manager is placed on top of the section display, across the
@@ -2152,7 +2157,7 @@ When using --modmaster you must load the ladder program at the same time
  or else only TCP will work.
 \layout Itemize
 
-reading/writing multiply registers in modbus has checksum errors
+reading/writing multiply registers in Modbus has checksum errors
 \layout Section
 
 Setting up ClassicLadder
@@ -2161,7 +2166,7 @@ Setting up ClassicLadder
 In this section we will cover the steps needed to add ClassicLadder to a
  Stepconf Wizard generated config.
  On the advanced Configuration Options page of Stepconf Wizard check off
- "Include Classicladder PLC" 
+ "Include ClassicLadder PLC" 
 \layout Standard
 \align center 
 
