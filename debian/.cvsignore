@@ -1,4 +1,6 @@
 emc2-common
+emc2-firmware
+emc2-firmware-*
 emc2-sim
 files
 rules
