@@ -663,42 +663,48 @@ Pins
 
 \layout Description
 
-iocontrol.0.coolant-flood TRUE when flood coolant is requested
+iocontrol.0.coolant-flood (Bit, Out) TRUE when flood coolant is requested
 \layout Description
 
-iocontrol.0.coolant-mist TRUE when mist coolant is requested
+iocontrol.0.coolant-mist (Bit, Out) TRUE when mist coolant is requested
 \layout Description
 
-iocontrol.0.emc-enable-in Should be driven FALSE when an external estop condition
+iocontrol.0.emc-enable-in (Bit, In) Should be driven FALSE when an external
+ estop condition exists
+\layout Description
+
+iocontrol.0.lube (Bit, Out) TRUE when lube is commanded
+\layout Description
+
+iocontrol.0.lube_level (Bit, In) Should be driven TRUE when lube level is
+ high enough
+\layout Description
+
+iocontrol.0.tool-change (Bit, Out) TRUE when a tool change is requested
+\layout Description
+
+iocontrol.0.tool-changed (Bit, In) Should be driven TRUE when a tool change
+ is completed
+\layout Description
+
+iocontrol.0.tool-number (s32, Out) The current tool number
+\layout Description
+
+iocontrol.0.tool-prep-number (s32, Out) The number of the next tool, from
+ the RS274NGC T-word
+\layout Description
+
+iocontrol.0.tool-prepare (Bit, Out) TRUE when a tool prepare is requested
+\layout Description
+
+iocontrol.0.tool-prepared (Bit, In) Should be driven TRUE when a tool prepare
+ is completed 
+\layout Description
+
+iocontrol.0.user-enable-out (Bit, Out) FALSE when an internal estop condition
  exists
 \layout Description
 
-iocontrol.0.lube TRUE when lube is commanded
-\layout Description
-
-iocontrol.0.lube_level Should be driven TRUE when lube level is high enough
-\layout Description
-
-iocontrol.0.tool-change TRUE when a tool change is requested
-\layout Description
-
-iocontrol.0.tool-changed Should be driven TRUE when a tool change is completed
-\layout Description
-
-iocontrol.0.tool-prep-number The number of the next tool, from the RS274NGC
- T-word
-\layout Description
-
-iocontrol.0.tool-prepare TRUE when a tool prepare is requested
-\layout Description
-
-iocontrol.0.tool-prepared Should be driven TRUE when a tool prepare is completed
- 
-\layout Description
-
-iocontrol.0.user-enable-out FALSE when an internal estop condition exists
-\layout Description
-
-iocontrol.0.user-request-enable TRUE when the user has requested that estop
- be cleared
+iocontrol.0.user-request-enable (Bit, Out) TRUE when the user has requested
+ that estop be cleared
 \the_end
