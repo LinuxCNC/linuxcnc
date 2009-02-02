@@ -3415,22 +3415,6 @@ Opposite</property>
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <widget class="GtkRadioButton" id="radiobutton7">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">True</property>
-                                                    <property name="label" translatable="yes">XYZ buttons (uses Halui)</property>
-                                                    <property name="use_underline">True</property>
-                                                    <property name="response_id">0</property>
-                                                    <property name="draw_indicator">True</property>
-                                                    <property name="group">radiobutton5</property>
-                                                  </widget>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
                                                   <widget class="GtkRadioButton" id="radiobutton8">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">True</property>

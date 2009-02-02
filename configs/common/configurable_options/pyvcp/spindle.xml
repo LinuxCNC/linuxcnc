@@ -12,17 +12,4 @@
                         <max_>3000</max_>
                 </bar>
         </vbox>
-        <vbox>
-        <relief>RIDGE</relief>         
-        <bd>6</bd>
-                <label>
-                        <text>"Current Tool #:"</text>
-                        <font>("Helvetica",20)</font>
-                </label>
-                <s32>
-                        <halpin>"toolnumber"</halpin>
-                        <font>("Helvetica",30)</font>
-                        <format>"2.0f"</format>     
-                </s32>
-        </vbox>
 </pyvcp>

@@ -991,41 +991,6 @@ class Data:
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
-                  print >>f1, ("net tool-number => pyvcp.toolnumber")
-                  print >>f1
-                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
-            if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
-                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
-                      print >>f1
-                      print >>f1, ("net jog-X+ <= pyvcp.jog-x+ => halui.jog.0.plus")
-                      print >>f1, ("net jog-X- <= pyvcp.jog-x- => halui.jog.0.minus")
-                      print >>f1, ("net jog-Y+ <= pyvcp.jog-y+ => halui.jog.1.plus")
-                      print >>f1, ("net jog-Y- <= pyvcp.jog-y- => halui.jog.1.minus")
-                      print >>f1, ("net jog-Z+ <= pyvcp.jog-z+ => halui.jog.2.plus")
-                      print >>f1, ("net jog-Z- <= pyvcp.jog-z- => halui.jog.2.minus")
-                      print >>f1, ("net jog-speed <= pyvcp.jog-speed => halui.jog-speed")
-                      print >>f1, ("net optional-stp-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
-                      print >>f1, ("net optional-stp-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
-                      print >>f1, ("net optional-stp-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
-                      print >>f1, ("net program-pause <= pyvcp.pause => halui.program.pause")
-                      print >>f1, ("net program-resume <= pyvcp.resume => halui.program.resume")
-                      print >>f1, ("net program-single-step <= pyvcp.step => halui.program.step")
-                      print >>f1
-                      print >>f1, ("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
-                      print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
-                      print >>f1, ("# **** command 01 - rapid to reference point ( G 28 )")
-                      print >>f1, ("# **** command 02 - zero X axis in G54 cordinate system")
-                      print >>f1, ("# **** command 03 - zero Y axis in G54 cordinate system")
-                      print >>f1, ("# **** command 04 - zero Z axis in G54 cordinate system")
-                      print >>f1
-                      print >>f1, ("net MDI-Z-up <= pyvcp.MDI-z_up => halui.mdi-command-00")
-                      print >>f1, ("net MDI-reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
-                      print >>f1, ("net MDI-zero_X <= pyvcp.MDI-zerox => halui.mdi-command-02")
-                      print >>f1, ("net MDI-zero_Y <= pyvcp.MDI-zeroy => halui.mdi-command-03")
-                      print >>f1, ("net MDI-zero_Z <= pyvcp.MDI-zeroz => halui.mdi-command-04")
-                      print >>f1, ("net MDI-clear-offset <= pyvcp.MDI-clear-offset => halui.mdi-command-05")
-                      print >>f1
-                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
@@ -1676,11 +1641,6 @@ class App:
            if self.widgets.radiobutton6.get_active() == True:
               self.data.pyvcpname = "spindle.xml"
               self.data.pyvcphaltype = 1
-           if self.widgets.radiobutton7.get_active() == True:
-              self.data.pyvcpname = "xyzjog.xml"
-              self.data.pyvcphaltype = 2
-              self.data.halui = True 
-              self.widgets.halui.set_active(True)   
            if self.widgets.radiobutton8.get_active() == True:
               self.data.pyvcpname = "custompanel.xml"
            else:
@@ -1730,7 +1690,6 @@ class App:
         i= self.widgets.pyvcp.get_active()
         self.widgets.radiobutton5.set_sensitive(i)
         self.widgets.radiobutton6.set_sensitive(i)
-        self.widgets.radiobutton7.set_sensitive(i)
         if  self.widgets.createconfig.get_active():
             self.widgets.radiobutton8.set_sensitive(False)
         else:
@@ -1943,8 +1902,6 @@ class App:
            return True
         if self.widgets.radiobutton6.get_active() == True:
            panel = "spindle.xml"
-        if self.widgets.radiobutton7.get_active() == True:
-           panel = "xyzjog.xml"
         if self.widgets.radiobutton8.get_active() == True:
            panel = "custompanel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
@@ -1954,7 +1911,6 @@ class App:
         halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
         if self.widgets.radiobutton6.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
-                halrun.write("setp displaytest.toolnumber 4\n")
         halrun.write("waitusr displaytest\n"); halrun.flush()
 
     def load_ladder(self,w):         
