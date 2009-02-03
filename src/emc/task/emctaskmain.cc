@@ -60,6 +60,12 @@
 #include <libintl.h>
 #include <locale.h>
 
+#if 0
+// Enable this to niftily trap floating point exceptions for debugging
+#include <fpu_control.h>
+fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
+#endif
+
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
