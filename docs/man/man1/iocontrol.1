@@ -26,51 +26,55 @@ The inifile is searched for in the directory from which halcmd was run, unless a
 
 .TP
 \fBiocontrol.0.coolant-flood
-TRUE when flood coolant is requested
+(Bit, Out) TRUE when flood coolant is requested
 
 .TP
 \fBiocontrol.0.coolant-mist 
-TRUE when mist coolant is requested
+(Bit, Out) TRUE when mist coolant is requested
 
 .TP
 \fBiocontrol.0.emc-enable-in 
-Should be driven FALSE when an external estop condition exists.
+(Bit, In) Should be driven FALSE when an external estop condition exists.
 
 .TP
 \fBiocontrol.0.lube 
-TRUE when lube is requested
+(Bit, Out) TRUE when lube is requested
 
 .TP
 \fBiocontrol.0.lube_level 
-Should be driven FALSE when lubrication tank is empty.
+(Bit, In) Should be driven FALSE when lubrication tank is empty.
 
 .TP
 \fBiocontrol.0.tool-change 
-TRUE when a tool change is requested
+(Bit, Out) TRUE when a tool change is requested
 
 .TP
 \fBiocontrol.0.tool-changed 
-Should be driven TRUE when a tool change is completed.
+(Bit, In) Should be driven TRUE when a tool change is completed.
+
+.TP
+\fBiocontrol.0.tool-number
+(s32, Out) Current tool number
 
 .TP
 \fBiocontrol.0.tool-prep-number 
-The number of the next tool, from the RS274NGC T-word
+(s32, Out) The number of the next tool, from the RS274NGC T-word
 
 .TP
 \fBiocontrol.0.tool-prepare 
-TRUE when a T\fIn\fR tool prepare is requested
+(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
 
 .TP
 \fBiocontrol.0.tool-prepared 
-Should be driven TRUE when a tool prepare is completed.
+(Bit, In) Should be driven TRUE when a tool prepare is completed.
 
 .TP
 \fBiocontrol.0.user-enable-out 
-FALSE when an internal estop condition exists
+(Bit, Out) FALSE when an internal estop condition exists
 
 .TP
 \fBiocontrol.0.user-request-enable 
-TRUE when the user has requested that estop be cleared
+(Bit, Out) TRUE when the user has requested that estop be cleared
 
 .SH SEE ALSO
 \fBmotion\fR(9)
