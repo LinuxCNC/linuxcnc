@@ -588,7 +588,7 @@ L'affichage des coordonnées est situé en haut à gauche de l'écran graphique.
  Il montre les positions de la machine.
  A gauche du nom de l'axe, un symbole d'origine (
 \begin_inset Graphics
-	filename axis-homed.png
+	filename images/axis-homed.png
 	width 1.5ex
 
 \end_inset 
@@ -596,7 +596,7 @@ L'affichage des coordonnées est situé en haut à gauche de l'écran graphique.
 ) est visible si la prise d'origine de l'axe a été faite.
  A droite du nom de l'axe, un symbole de limite (
 \begin_inset Graphics
-	filename axis-limit.png
+	filename images/axis-limit.png
 	width 2ex
 
 \end_inset 
@@ -643,7 +643,7 @@ l'origine machine
 
  (
 \begin_inset Graphics
-	filename axis-machineorigin.png
+	filename images/axis-machineorigin.png
 	width 2ex
 
 \end_inset 
@@ -773,7 +773,7 @@ soft limits
 \align center 
 
 \begin_inset Graphics
-	filename axis-outofrange.png
+	filename images/axis-outofrange.png
 
 \end_inset 
 
@@ -878,7 +878,7 @@ Ligne courante et ligne en surbrillance
 \align center 
 
 \begin_inset Graphics
-	filename axis-currentandselected_fr.png
+	filename images/axis-currentandselected_fr.png
 	lyxscale 50
 	width 80page%
 
