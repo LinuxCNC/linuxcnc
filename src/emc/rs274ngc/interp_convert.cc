@@ -739,9 +739,14 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 newrad = arc_radius + tool_radius;
             }
               
-            double arc_cc, pullback, cc_dir;
+            double arc_cc, pullback, cc_dir, a;
             arc_cc = hypot(prev.center2 - centery, prev.center1 - centerx);
-            pullback = acos((SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc));
+
+            CHKF((oldrad == 0 || arc_cc == 0), (_("Arc to arc motion is invalid because the arcs have the same center")));
+            a = (SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc);
+            
+            CHKF((a > 1.0 || a < -1.0), (_("Arc to arc motion makes a corner the compensated tool can't fit in without gouging")));
+            pullback = acos(a);
             cc_dir = atan2(centery - prev.center2, centerx - prev.center1);
 
             double dir;
@@ -4000,16 +4005,20 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
                     if TOOL_INSIDE_ARC(side, prev.turn) {
                         d2 = d - radius;
+                        double l = d2/oldrad;
+                        CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
                         if(prev.turn == 1) 
-                            angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                            angle_from_center = - acos(l) + theta + M_PIl;
                         else
-                            angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                            angle_from_center = acos(l) + theta + M_PIl;
                     } else {
                         d2 = d + radius;
+                        double l = d2/oldrad;
+                        CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
                         if(prev.turn == 1) 
-                            angle_from_center = acos(d2/oldrad) + theta + M_PIl;
+                            angle_from_center = acos(l) + theta + M_PIl;
                         else
-                            angle_from_center = - acos(d2/oldrad) + theta + M_PIl;
+                            angle_from_center = - acos(l) + theta + M_PIl;
                     }
                     mid_x = prev.center1 + oldrad * cos(angle_from_center);
                     mid_y = prev.center2 + oldrad * sin(angle_from_center);
