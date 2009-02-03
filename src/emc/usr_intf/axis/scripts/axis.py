@@ -1096,6 +1096,7 @@ class MyOpengl(Opengl):
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(num_joints), s.joint_actual_position)]
+            droposstrs = posstrs
 
         text = widgets.numbers_text
 
