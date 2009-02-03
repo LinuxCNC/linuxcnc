@@ -352,6 +352,7 @@ typedef struct setup_struct
   int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
   int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+  ON_OFF arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
   double axis_offset_z;         // Z-axis g92 offset

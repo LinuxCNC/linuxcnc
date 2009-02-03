@@ -202,6 +202,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   double CC_end;
   double u_end, v_end, w_end;
 
+  CHKS((settings->arc_not_allowed), (_("The move just after exiting cutter compensation mode must be straight, not an arc")));
+
   ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? ON : OFF;
   first = settings->cutter_comp_firstmove == ON;
 
@@ -1584,6 +1586,7 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
       settings->current_z = settings->program_z;
+      settings->arc_not_allowed = ON;
   }
   settings->cutter_comp_side = OFF;
   settings->cutter_comp_firstmove = ON;
@@ -3452,6 +3455,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   double CC_end;
   double u_end, v_end, w_end;
   int status;
+
+  settings->arc_not_allowed = OFF;
 
   if (move == G_1) {
     if (settings->feed_mode == UNITS_PER_MINUTE) {

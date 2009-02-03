@@ -487,6 +487,7 @@ int Interp::init()
 //_setup.current_y set in Interp::synch
 //_setup.current_z set in Interp::synch
   _setup.cutter_comp_side = OFF;
+  _setup.arc_not_allowed = OFF;
 //_setup.cycle values do not need initialization
   _setup.distance_mode = MODE_ABSOLUTE;
   _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatability
