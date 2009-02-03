@@ -289,7 +289,7 @@ int Interp::execute(const char *command, int line_number)
 {
 
   _setup.sequence_number = line_number;
-  Interp::execute(command);
+  return Interp::execute(command);
 }
 
 /***********************************************************************/
