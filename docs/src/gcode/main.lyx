@@ -2925,7 +2925,7 @@ Quick Reference Table
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="51" columns="4">
+<lyxtabular version="3" rows="52" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -3075,6 +3075,45 @@ I J K or R
 
 
 \begin_inset LatexCommand \ref{sub:G2,-G3:-Arc}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G4
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Dwell
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+P
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G4:-Dwell}
 
 \end_inset 
 
