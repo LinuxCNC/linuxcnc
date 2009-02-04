@@ -3960,85 +3960,79 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 dequeue_canons(settings);
                 set_endpoint(mid_x, mid_y);
             }
-            (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
-                (settings, block->line_number, 
-                 px - opx, py - opy, pz - opz, 
-                 end_x, end_y, pz, 
-                 AA_end, BB_end, CC_end, 
-                 u_end, v_end, w_end);
-        } else {
-            if (concave) {
-                if (qc().front().type != QARC_FEED) {
-                    // line->line
-                    double retreat;
-                    // half the angle of the inside corner
-                    double halfcorner = (beta + M_PIl) / 2.0;
-                    CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
-                    retreat = radius / tan(halfcorner);
-                    // move back along the compensated path
-                    // this should replace the endpoint of the previous move
-                    mid_x = cx + retreat * cos(theta + gamma);
-                    mid_y = cy + retreat * sin(theta + gamma);
-                    // we actually want to move the previous line's endpoint here.  That's the same as 
-                    // discarding that line and doing this one instead.
-                    CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
+        } else if (concave) {
+            if (qc().front().type != QARC_FEED) {
+                // line->line
+                double retreat;
+                // half the angle of the inside corner
+                double halfcorner = (beta + M_PIl) / 2.0;
+                CHKF((halfcorner == 0.0), (_("Zero degree inside corner is invalid for cutter compensation")));
+                retreat = radius / tan(halfcorner);
+                // move back along the compensated path
+                // this should replace the endpoint of the previous move
+                mid_x = cx + retreat * cos(theta + gamma);
+                mid_y = cy + retreat * sin(theta + gamma);
+                // we actually want to move the previous line's endpoint here.  That's the same as 
+                // discarding that line and doing this one instead.
+                CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
+            } else {
+                // arc->line
+                // beware: the arc we saved is the compensated one.
+                arc_feed prev = qc().front().data.arc_feed;
+                double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
+                double oldrad_uncomp;
+
+                // new line's direction
+                double base_dir = atan2(py - opy, px - opx);
+                double theta;
+                double phi;
+
+                theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
+                phi = atan2(prev.center2 - opy, prev.center1 - opx);
+                if TOOL_INSIDE_ARC(side, prev.turn) {
+                    oldrad_uncomp = oldrad + radius;
                 } else {
-                    // arc->line
-                    // beware: the arc we saved is the compensated one.
-                    arc_feed prev = qc().front().data.arc_feed;
-                    double oldrad = hypot(prev.center2 - prev.end2, prev.center1 - prev.end1);
-                    double oldrad_uncomp;
-
-                    // new line's direction
-                    double base_dir = atan2(py - opy, px - opx);
-                    double theta;
-                    double phi;
-
-                    theta = (prev.turn == 1) ? base_dir + M_PI_2l : base_dir - M_PI_2l;
-                    phi = atan2(prev.center2 - opy, prev.center1 - opx);
-                    if TOOL_INSIDE_ARC(side, prev.turn) {
-                        oldrad_uncomp = oldrad + radius;
-                    } else {
-                        oldrad_uncomp = oldrad - radius;
-                    }
-
-                    double alpha = theta - phi;
-                    // distance to old arc center perpendicular to the new line
-                    double d = oldrad_uncomp * cos(alpha);
-                    double d2;
-                    double angle_from_center;
-
-                    if TOOL_INSIDE_ARC(side, prev.turn) {
-                        d2 = d - radius;
-                        double l = d2/oldrad;
-                        CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
-                        if(prev.turn == 1) 
-                            angle_from_center = - acos(l) + theta + M_PIl;
-                        else
-                            angle_from_center = acos(l) + theta + M_PIl;
-                    } else {
-                        d2 = d + radius;
-                        double l = d2/oldrad;
-                        CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
-                        if(prev.turn == 1) 
-                            angle_from_center = acos(l) + theta + M_PIl;
-                        else
-                            angle_from_center = - acos(l) + theta + M_PIl;
-                    }
-                    mid_x = prev.center1 + oldrad * cos(angle_from_center);
-                    mid_y = prev.center2 + oldrad * sin(angle_from_center);
-                    CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
+                    oldrad_uncomp = oldrad - radius;
                 }
+
+                double alpha = theta - phi;
+                // distance to old arc center perpendicular to the new line
+                double d = oldrad_uncomp * cos(alpha);
+                double d2;
+                double angle_from_center;
+
+                if TOOL_INSIDE_ARC(side, prev.turn) {
+                    d2 = d - radius;
+                    double l = d2/oldrad;
+                    CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
+                    if(prev.turn == 1) 
+                        angle_from_center = - acos(l) + theta + M_PIl;
+                    else
+                        angle_from_center = acos(l) + theta + M_PIl;
+                } else {
+                    d2 = d + radius;
+                    double l = d2/oldrad;
+                    CHKF((l > 1.0 || l < -1.0), (_("Arc to straight motion makes a corner the compensated tool can't fit in without gouging")));
+                    if(prev.turn == 1) 
+                        angle_from_center = acos(l) + theta + M_PIl;
+                    else
+                        angle_from_center = - acos(l) + theta + M_PIl;
+                }
+                mid_x = prev.center1 + oldrad * cos(angle_from_center);
+                mid_y = prev.center2 + oldrad * sin(angle_from_center);
+                CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
             }
+        } else {
             // no arc needed, also not concave (colinear lines or tangent arc->line)
             dequeue_canons(settings);
-            (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
-                (settings, block->line_number, 
-                 px - opx, py - opy, pz - opz, 
-                 end_x, end_y, pz,
-                 AA_end, BB_end, CC_end, 
-                 u_end, v_end, w_end);
+            set_endpoint(cx, cy);
         }
+        (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
+            (settings, block->line_number, 
+             px - opx, py - opy, pz - opz, 
+             end_x, end_y, pz,
+             AA_end, BB_end, CC_end, 
+             u_end, v_end, w_end);
     }
 
     comp_set_current(settings, end_x, end_y, pz);
