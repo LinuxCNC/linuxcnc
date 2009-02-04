@@ -86,13 +86,13 @@ run_tests () {
 		exitcode=$?
 		reason="result differed from expected"
 		if [ $exitcode -ne 0 ]; then
-		    diff -y $testdir/expected $testdir/result > $TMPDIR/diff
+		    diff -u $testdir/expected $testdir/result > $TMPDIR/diff
 		    SIZE=$(wc -l < $TMPDIR/diff)
-		    if [ $SIZE -lt 15 ]; then
+		    if [ $SIZE -lt 40 ]; then
 			cat $TMPDIR/diff
 		    else
-			OMIT=$((SIZE-25))
-			head -25 $TMPDIR/diff
+			OMIT=$((SIZE-40))
+			head -40 $TMPDIR/diff
 			echo "($OMIT more lines omitted)"
 		    fi
 		fi
