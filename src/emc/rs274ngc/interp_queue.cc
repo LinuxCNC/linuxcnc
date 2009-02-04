@@ -442,17 +442,19 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             l1 = q.data.arc_feed.original_turns;
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
-            r2 = hypot(q.data.arc_feed.end1 - q.data.arc_feed.center1,
-                       q.data.arc_feed.end2 - q.data.arc_feed.center2);
+            r2 = hypot(x - q.data.arc_feed.center1,
+                       y - q.data.arc_feed.center2);
             l2 = find_turn(endpoint[0], endpoint[1],
                            q.data.arc_feed.center1, q.data.arc_feed.center2,
                            q.data.arc_feed.turn,
-                           q.data.arc_feed.end1, q.data.arc_feed.end2);
+                           x, y);
             if(fabs(r1-r2) > .01) 
                 ERF((_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2));
-            if(l1 && fabs(l2) > fabs(l1)) {
-                ERF((_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
+            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + 0.001) {
+                ERF((_("Arc move in concave corner cannot be reached by the tool without gouging")));
             }
+            q.data.arc_feed.end1 = x;
+            q.data.arc_feed.end2 = y;
             break;
         case QSTRAIGHT_TRAVERSE:
             switch(settings->plane) {
@@ -478,7 +480,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
+                ERF((_("Straight move in concave corner cannot be reached by the tool without gouging")));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:
@@ -515,7 +517,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight move in concave corner is too short to be reachable by the tool without gouging")));
+                ERF((_("Straight move in concave corner cannot be reached by the tool without gouging")));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:

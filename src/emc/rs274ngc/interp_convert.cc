@@ -708,7 +708,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 dist_from_center = arc_radius - tool_radius;
                 toward_nominal = cy + tool_radius;
                 double l = toward_nominal / dist_from_center;
-                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
+                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner cannot be reached by the tool without gouging")));
                 if(turn == 1) {
                     angle_from_center = theta + asin(l);
                 } else {
@@ -718,7 +718,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 dist_from_center = arc_radius + tool_radius; 
                 toward_nominal = cy - tool_radius;
                 double l = toward_nominal / dist_from_center;
-                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner is too short to be reachable by the tool without gouging")));
+                CHKF((l > 1.0 || l < -1.0), (_("Arc move in concave corner cannot be reached by the tool without gouging")));
                 if(turn == 1) {
                     angle_from_center = theta + M_PIl - asin(l);
                 } else {
@@ -3950,7 +3950,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         }
 
         if (!concave && (beta > small)) {       /* ARC NEEDED */
-            dequeue_canons(settings);
+            CHP(move_endpoint_and_flush(settings, cx, cy));
             if(move == G_1) {
                 enqueue_ARC_FEED(settings, block->line_number,
                                  0.0, // doesn't matter, since we will not move this arc's endpoint
