@@ -30,15 +30,13 @@
 EMC2 et HAL
 \layout Standard
 
-Voir également les pages 
+Voir également les man pages 
 \series bold 
 motion(9)
 \series default 
  et 
 \series bold 
 iocontrol(1)
-\series default 
- du manuel.
 \layout Section
 
 motion (realtime)
@@ -67,9 +65,7 @@ Pins
 
 \layout Description
 
-motion.adaptive-feed\SpecialChar ~
-IN\SpecialChar ~
-float Quand la vitesse est placée en mode adaptatif
+motion.adaptive-feed (Float, In) Quand la vitesse est placée en mode adaptatif
  avec 
 \family typewriter 
 M52\SpecialChar ~
@@ -83,23 +79,35 @@ motion.feed-hold
  et la valeur du correcteur de vitesse du niveau NML.
 \layout Description
 
-motion.digital-out-NN\SpecialChar ~
-OUT\SpecialChar ~
-bit Ces pins sont controlées par les mots 
+motion.analog-in-nn (Float, In) Ces pins sont contrôlées par M66.
+ Les valeurs pour nn valides sont: 00, 01, 02, 03.
+ 
+\layout Description
+
+motion.current-vel (Float, out) The current tool velocity
+\layout Description
+
+motion.digital-in-nn (bit, In) Ces pins sont contrôlées par M62 à M65.
+ Les valeurs valides pour nn sont: 00, 01, 02, 03.
+\layout Description
+
+motion.digital-out-nn (bit, out) Ces pins sont controlées par les mots 
 \family typewriter 
 M62
 \family default 
- jusqu'à 
+ à 
 \family typewriter 
 M65
 \family default 
 .
 \layout Description
 
-motion.enable\SpecialChar ~
-IN\SpecialChar ~
-bit Si ce bit devient FALSE, les mouvements s'arrêtent, la
- machine est placée dans l'état 
+motion.distance-to-go (Float, out) Distance restante pour terminer le mouvement
+ courant.
+\layout Description
+
+motion.enable (bit, In) Si ce bit devient FALSE, les mouvements s'arrêtent,
+ la machine est placée dans l'état 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -108,12 +116,10 @@ machine arrêtée
 \end_inset 
 
  et un message est affiché pour l'opérateur.
- Pour un fonctionnement normal, ce bit sera TRUE.
+ En fonctionnement normal, ce bit devra être mis TRUE.
 \layout Description
 
-motion.feed-hold\SpecialChar ~
-IN\SpecialChar ~
-bit Quand la vitesse est placée en mode arrêt contrôlé
+motion.feed-hold (bit, In) Quand la vitesse est placée en mode arrêt contrôlé
  avec 
 \family typewriter 
 M53\SpecialChar ~
@@ -122,16 +128,23 @@ P1
  et que ce bit est TRUE, la vitesse est fixée à 0.
 \layout Description
 
-motion.motion-inpos\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE si la machine est en position.
+motion.motion-enabled (bit, out) TRUE quand l'état de la machine est 
+\begin_inset Quotes eld
+\end_inset 
+
+machine on
+\begin_inset Quotes erd
+\end_inset 
+
+.
 \layout Description
 
-motion.probe-input\SpecialChar ~
-IN\SpecialChar ~
-bit 
+motion.motion-inpos (bit, In) TRUE si la machine est en position.
+\layout Description
+
+motion.probe-input (bit, In)
 \family typewriter 
-G38.x
+ G38.x
 \family default 
  utilise la valeur de cette pin pour déterminer quand la sonde de mesure
  entre en contact.
@@ -139,37 +152,15 @@ G38.x
  sonde est ouvert.
 \layout Description
 
-motion.spindle-brake\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE quand le frein de broche doit être activé.
+motion.spindle-brake (bit, out) TRUE quand le frein de broche doit être activé.
 \layout Description
 
-motion.spindle-forward\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE quand la broche doit tourner en sens horaire.
+motion.spindle-forward (bit, In) TRUE quand la broche doit tourner en sens
+ horaire.
 \layout Description
 
-motion.spindle-reverse\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE quand la broche doit tourner en sens anti-horai
-re.
-\layout Description
-
-motion.spindle-on\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE quand la broche doit tourner.
-\layout Description
-
-motion.spindle-speed-out\SpecialChar ~
-OUT\SpecialChar ~
-float Consigne de vitesse de rotation de la broche,
- exprimée en tours par minute.
-\layout Description
-
-motion.spindle-index-enable\SpecialChar ~
-I/O\SpecialChar ~
-bit Pour les mouvements avec broche synchronisée,
- ce signal doit être raccordé à la broche 
+motion.spindle-index-enable (bit, I/O) Pour les mouvements avec broche synchronis
+ée, ce signal doit être raccordé à la broche 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -180,10 +171,15 @@ index-enable
  du codeur de broche.
 \layout Description
 
-motion.spindle-revs\SpecialChar ~
-IN\SpecialChar ~
-float Pour les mouvements avec broche synchronisée,
- ce signal doit être raccordé à la broche 
+motion.spindle-on (bit, out) TRUE quand la broche doit tourner.
+\layout Description
+
+motion.spindle-reverse (bit, out) TRUE quand la broche doit tourner en sens
+ anti-horaire.
+\layout Description
+
+motion.spindle-revs (Float, In) Pour le bon fonctionnement des mouvements
+ avec broche synchronisée, ce signal doit être raccordé à la broche 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -192,6 +188,81 @@ position
 \end_inset 
 
  du codeur de broche.
+ La position donnée par le codeur de broche doit être étalonnée pour que
+ 
+\begin_inset Quotes fld
+\end_inset 
+
+spindle-revs
+\begin_inset Quotes frd
+\end_inset 
+
+ augmente de 1.0 pour chaque tour de broche dans le sens horaire (M3).
+\layout Description
+
+motion.spindle-speed-in (Float, In) Donne la vitesse actuelle de rotation
+ de la broche exprimée en tours par seconde.
+ Elle est utilisée pour les mouvements en unités par tour (G95).
+ Si le pilote du codeur de broche ne dispose pas d'une sortie 
+\begin_inset Quotes fld
+\end_inset 
+
+vitesse
+\begin_inset Quotes frd
+\end_inset 
+
+, il est possible d'en générer une en passant la position de la broche au
+ travers d'un composant ddt.
+\layout Description
+
+motion.spindle-speed-out (Float, out) Consigne de vitesse de rotation de
+ la broche, exprimée en tours par minute.
+ Positive pour le sens horaire (M3), négative pour le sens anti-horaire
+ (M4).
+\layout Description
+
+motion.spindle-at-speed (bit, In) Les mouvements passent en pause tant que
+ cette pin est TRUE, sous les conditions suivantes: avant le premier mouvement
+ d'avance suivant chaque démarrage de broche ou changement de vitesse; après
+ le démarrage de tout enchainement de mouvements avec broche synchronisée;
+ et si en mode CSS, à chaque transition avance rapide -> avance travail.
+ Cette entrée peut être utilisée pour s'assurer que la broche a atteint
+ sa vitesse, avant de lancer un mouvement d'usinage.
+ Elle peut également être utilisée sur un tour travaillant en mode CSS,
+ au passage d'un grand diamètre à un petit, pour s'assurer que la vitesse
+ a été suffisamment réduite avant la prise de passe sur le petit diamètre
+ et inversement, lors du passage d'un petit diamètre vers un grand, pour
+ s'assurer que la vitesse a été suffisamment augmentée.
+ Beaucoup de variateurs de fréquence disposent d'une sortie 
+\begin_inset Quotes fld
+\end_inset 
+
+vitesse atteinte
+\begin_inset Quotes frd
+\end_inset 
+
+.
+ Sinon, il est facile de générer ce signal avec le composant 
+\begin_inset Quotes fld
+\end_inset 
+
+near
+\begin_inset Quotes frd
+\end_inset 
+
+, par comparaison entre la vitesse de broche demandée et la vitesse actuelle.
+\layout Description
+
+motion.tooloffset.w (Float, out) montre l'effet de l'offset w.
+ Il peut provenir de la table d'outils (G43 actif), ou du g-code (G43.1 actif)
+\layout Description
+
+motion.tooloffset.x (float, out) montre l'effet de l'offset x.
+ Il peut provenir de la table d'outils (G43 actif), ou du g-code (G43.1 actif)
+\layout Description
+
+motion.tooloffset.z (float, out) montre l'effet de l'offset z.
+ Il peut provenir de la table d'outils (G43 actif), ou du g-code (G43.1 actif)
 \layout Subsection
 
 Paramètres
@@ -199,13 +270,41 @@ Paramètres
 
 Beaucoup de ces paramètres servent d'aide au déboguage et sont sujets aux
  changements ou au retrait à tout moment.
+\layout Standard
+
+
+\series bold 
+motion-command-handler.time
+\series default 
+ (s32, RO)
+\layout Standard
+
+
+\series bold 
+motion-command-handler.tmax
+\series default 
+ (s32, RW)
+\layout Standard
+
+
+\series bold 
+motion-controller.time
+\series default 
+ (s32, RO)
+\layout Standard
+
+
+\series bold 
+motion-controller.tmax
+\series default 
+ (s32, RW)
 \layout Description
 
-motion.coord-error TRUE quand le mouvement est en erreur, ex: dépasser une
- limite soft.
+motion.coord-error (bit, RO) TRUE quand le mouvement est en erreur, ex: dépasser
+ une limite soft.
 \layout Description
 
-motion.coord-mode TRUE quand le mouvement est en 
+motion.coord-mode (bit, RO) TRUE quand le mouvement est en 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -224,12 +323,40 @@ mode téléopération
 .
 \layout Description
 
-motion.in-position Identique à la pin: 
-\series bold 
-motion.motion-inpos.
+motion.debug-bit-0 (bit, RO) Utilisé pour le déboguage.
+ 
 \layout Description
 
-motion.motion-enabled TRUE quand le mouvement est activé.
+motion.debug-bit-1 (bit, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-float-0 (Float, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-float-1 (Float, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-float-2 (Float, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-float-3 (Float, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-s32-0 (s32, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.debug-s32-1 (s32, RO) Utilisé pour le déboguage.
+\layout Description
+
+motion.in-position (bit, RO) Identique à la pin 
+\series bold 
+motion.motion-inpos
+\layout Description
+
+motion.on-soft-limit (bit, RO)
+\layout Description
+
+motion.program-line (s32, RO)
 \layout Description
 
 motion.servo.last-period Le nombre de cycle du processeur entre les invoquations
@@ -238,6 +365,9 @@ motion.servo.last-period Le nombre de cycle du processeur entre les invoquations
  en secondes.
  Il peut être utilisé pour determiner si le contrôleur de mouvement en temps
  réel respecte ses contraintes de timing.
+\layout Description
+
+motion.servo.last-period-ns (float, RO)
 \layout Description
 
 motion.servo.overruns En voyant de grandes différences entre les valeurs successiv
@@ -260,18 +390,6 @@ period
 , le contrôleur de mouvement peut déterminer qu'il a eu un échec pour respecter
  ses contraintes de timing.
  Chaque fois qu'une erreur est détectée, cette valeur est incrémentée.
-\layout Description
-
-motion.debug-bit-0
-\layout Description
-
-motion.debug-bit-1
-\layout Description
-
-motion.debug-float-0
-\layout Description
-
-motion.debug-float-1 Ces valeurs sont utilisées pour le déboguage.
 \layout Subsection
 
 Fonctions
@@ -370,43 +488,29 @@ Pins
 
 \layout Description
 
-axis.N.amp-enable-out\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE si l'ampli de cet axe doit être activé.
+axis.N.amp-enable-out (bit, out) TRUE si l'ampli de cet axe doit être activé.
 \layout Description
 
-axis.N.amp-fault-in\SpecialChar ~
-IN\SpecialChar ~
-bit Doit être mis TRUE si une erreur externe est détectée
- sur l'ampli de cet axe.
+axis.N.amp-fault-in (bit, In) Doit être mis TRUE si une erreur externe est
+ détectée sur l'ampli de cet axe.
 \layout Description
 
-axis.N.home-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Doit être mis TRUE si le contact d'origine de cet axe
- est pressé.
+axis.N.home-sw-in (bit, In) Doit être mis TRUE si le contact d'origine de
+ cet axe est pressé.
 \layout Description
 
-axis.N.homing\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE si la prise d'origine de cette axe a été faite.
+axis.N.homing (bit, out) TRUE si la prise d'origine de cette axe a été faite.
 \layout Description
 
-axis.N.pos-lim-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Doit être mis TRUE si le fin de course de limite
+axis.N.pos-lim-sw-in (bit, In) Doit être mis TRUE si le fin de course de limite
  positive de cet axe est activé.
 \layout Description
 
-axis.N.neg-lim-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Doit être mis TRUE si le fin de course de limite
+axis.N.neg-lim-sw-in (bit, In) Doit être mis TRUE si le fin de course de limite
  négative de cet axe est activé.
 \layout Description
 
-axis.N.index-enable\SpecialChar ~
-IO\SpecialChar ~
-BIT Doit être reliée à la broche 
+axis.N.index-enable (bit, I/O) Doit être reliée à la broche 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -417,9 +521,7 @@ index-enable
  du codeur de cet axe pour activer la prise d'origine sur l'impulsion d'index.
 \layout Description
 
-axis.N.jog-counts\SpecialChar ~
-IN\SpecialChar ~
-s32 Connection à la broche 
+axis.N.jog-counts (s32, In) Connection à la broche 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -430,10 +532,8 @@ counts
  d'un codeur externe utilisé comme manivelle.
 \layout Description
 
-axis.N.jog-enable\SpecialChar ~
-IN\SpecialChar ~
-bit Quand elle est TRUE (et en mode manuel), tout changement
- dans 
+axis.N.jog-enable (bit, In) Quand elle est TRUE (et en mode manuel), tout
+ changement dans 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -453,9 +553,7 @@ jog-counts
  sera ignoré.
 \layout Description
 
-axis.N.jog-scale\SpecialChar ~
-IN\SpecialChar ~
-float Fixe la distance, en unités machine, du déplacement
+axis.N.jog-scale (Float, In) Fixe la distance, en unités machine, du déplacement
  pour chaque évolution de 
 \begin_inset Quotes eld
 \end_inset 
@@ -467,10 +565,8 @@ jog-counts
 .
 \layout Description
 
-axis.N.jog-vel-mode\SpecialChar ~
-IN\SpecialChar ~
-bit Quand elle est FALSE (par défaut), la manivelle fonctionn
-e en mode position.
+axis.N.jog-vel-mode (bit, In) Quand elle est FALSE (par défaut), la manivelle
+ fonctionne en mode position.
  L'axe se déplace exactement selon l'incrément de jog sélectionné pour chaque
  impulsion, sans s'occuper du temps que prendra le mouvement.
  Quand elle est TRUE, la manivelle fonctionne en mode vitesse.
@@ -478,14 +574,10 @@ e en mode position.
  commandé n'est pas achevé.
 \layout Description
 
-axis.N.motor-pos-cmd\SpecialChar ~
-OUT\SpecialChar ~
-float La position commandée pour cet axe.
+axis.N.motor-pos-cmd (Float, out) La position commandée pour cet axe.
 \layout Description
 
-axis.N.motor-pos-fb\SpecialChar ~
-IN\SpecialChar ~
-float La position actuelle de cet axe.
+axis.N.motor-pos-fb (Float, In) La position actuelle de cet axe.
 \layout Description
 
 axis.N.joint-pos-cmd Position commandée de l'axe (par opposition à celle du
@@ -625,44 +717,50 @@ Pins
 
 \layout Description
 
-iocontrol.0.coolant-flood TRUE quand l'arrosage est demandé.
+iocontrol.0.coolant-flood (bit, out) TRUE quand l'arrosage est demandé.
 \layout Description
 
-iocontrol.0.coolant-mist TRUE quand le brouillard est demandé.
+iocontrol.0.coolant-mist (bit, out) TRUE quand le brouillard est demandé.
 \layout Description
 
-iocontrol.0.emc-enable-in Doit être mise FALSE quand un arrêt d'urgence externe
- est enfoncé.
+iocontrol.0.emc-enable-in (bit, In) Doit être mise FALSE quand un arrêt d'urgence
+ externe est enfoncé.
 \layout Description
 
-iocontrol.0.lube TRUE quand le graissage centralisé est commandé.
+iocontrol.0.lube (bit, out) TRUE quand le graissage centralisé est commandé.
 \layout Description
 
-iocontrol.0.lube_level Doit être mise TRUE quand le niveau d'huile est assez
- haut.
+iocontrol.0.lube_level (bit, In) Doit être mise TRUE quand le niveau d'huile
+ est assez haut.
 \layout Description
 
-iocontrol.0.tool-change TRUE quand un changement d'outil est demandé.
+iocontrol.0.tool-change (bit, out) TRUE quand un changement d'outil est demandé.
 \layout Description
 
-iocontrol.0.tool-changed Doit être mise TRUE quand le changement d'outil est
- terminé.
+iocontrol.0.tool-changed (bit, In) Doit être mise TRUE quand le changement
+ d'outil est terminé.
 \layout Description
 
-iocontrol.0.tool-prep-number Numéro du prochain outil, donné dans le mot T
- selon RS274NGC.
+iocontrol.0.tool-number (s32, out) Numéro de l'outil courant.
 \layout Description
 
-iocontrol.0.tool-prepare TRUE quand une préparation d'outil est demandée.
+iocontrol.0.tool-prep-number (s32, out) Numéro du prochain outil, donné dans
+ le mot T selon RS274NGC.
 \layout Description
 
-iocontrol.0.tool-prepared Doit être mise TRUE quand une préparation d'outil
- est terminée.
+iocontrol.0.tool-prepare (bit, out) TRUE quand une préparation d'outil est
+ demandée.
+\layout Description
+
+iocontrol.0.tool-prepared (bit, In) Doit être mise TRUE quand une préparation
+ d'outil est terminée.
  
 \layout Description
 
-iocontrol.0.user-enable-out FALSE quand un arrêt d'urgence interne est enfoncé.
+iocontrol.0.user-enable-out (bit, out) FALSE quand un arrêt d'urgence interne
+ est enfoncé.
 \layout Description
 
-iocontrol.0.user-request-enable TRUE quand l'utilisateur relâche l'arrêt d'urgence.
+iocontrol.0.user-request-enable (bit, out) TRUE quand l'utilisateur relâche
+ l'arrêt d'urgence.
 \the_end

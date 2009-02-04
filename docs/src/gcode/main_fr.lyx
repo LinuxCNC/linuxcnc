@@ -8475,6 +8475,7 @@ Pour désactiver la compensation de rayon d'outil, programmer
 G40
 \family default 
 .
+ Le mouvement suivant doit être une droite.
  Ce n'est pas une erreur de désactiver la compensation quand elle est déjà
  inactive.
 \layout Standard
@@ -8490,6 +8491,11 @@ Le comportement du centre d'usinage quand la compensation de rayon d'outil
 \end_inset 
 
 
+\layout Standard
+
+C'est une erreur de programmer un mouvement en arc avec G2 ou G3 derrière
+ un G40.
+ 
 \layout Subsection
 
 Compensation de rayon d'outil depuis une table d'outils

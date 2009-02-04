@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-01-29 22:14+0100\n"
+"POT-Creation-Date: 2009-02-04 13:40+0100\n"
 "PO-Revision-Date: 2008-11-20 21:00+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -32,17 +32,17 @@ msgid "Quit"
 msgstr "Quitter"
 
 #: ../tcl/bin/emccalib.tcl:105 ../tcl/bin/genedit.tcl:77
-#: ../tcl/bin/halconfig.tcl:142 ../tcl/mini.tcl:2510 ../tcl/tkemc.tcl:771
+#: ../tcl/bin/halconfig.tcl:142 ../tcl/mini.tcl:2512 ../tcl/tkemc.tcl:771
 msgid "File"
 msgstr "Fichier"
 
 #: ../tcl/bin/emccalib.tcl:107 ../tcl/bin/emccalib.tcl:234
-#: ../tcl/bin/halconfig.tcl:144 ../tcl/mini.tcl:3552
+#: ../tcl/bin/halconfig.tcl:144 ../tcl/mini.tcl:3554
 msgid "Refresh"
 msgstr "Rafraîchir"
 
 #: ../tcl/bin/emccalib.tcl:109 ../tcl/bin/genedit.tcl:82
-#: ../tcl/bin/halconfig.tcl:146 ../tcl/mini.tcl:2529
+#: ../tcl/bin/halconfig.tcl:146 ../tcl/mini.tcl:2531
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -72,7 +72,7 @@ msgstr "Tester"
 #: ../tcl/bin/genedit.tcl:450 ../tcl/bin/halconfig.tcl:673
 #: ../tcl/bin/halconfig.tcl:724 ../tcl/bin/pickconfig.tcl:251
 #: ../tcl/bin/pickconfig.tcl:398 ../tcl/bin/pickconfig.tcl:423
-#: ../tcl/mini.tcl:1453 ../tcl/mini.tcl:2931 ../tcl/tkemc.tcl:214
+#: ../tcl/mini.tcl:1455 ../tcl/mini.tcl:2933 ../tcl/tkemc.tcl:214
 #: ../tcl/tkemc.tcl:317 ../tcl/tkemc.tcl:463 ../tcl/tkemc.tcl:1371
 #: ../tcl/tkemc.tcl:1440 ../tcl/tkemc.tcl:1471 ../tcl/tkemc.tcl:1502
 #: ../tcl/tkemc.tcl:2050 ../tcl/tkemc.tcl:2069 ../tcl/tkemc.tcl:2088
@@ -83,8 +83,8 @@ msgstr "OK"
 #: ../tcl/bin/emccalib.tcl:232 ../tcl/bin/genedit.tcl:294
 #: ../tcl/bin/halconfig.tcl:94 ../tcl/bin/halconfig.tcl:675
 #: ../tcl/bin/halconfig.tcl:726 ../tcl/bin/pickconfig.tcl:254
-#: ../tcl/bin/pickconfig.tcl:363 ../tcl/mini.tcl:1454 ../tcl/mini.tcl:2932
-#: ../tcl/mini.tcl:3104 ../tcl/tkemc.tcl:216 ../tcl/tkemc.tcl:259
+#: ../tcl/bin/pickconfig.tcl:363 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2934
+#: ../tcl/mini.tcl:3106 ../tcl/tkemc.tcl:216 ../tcl/tkemc.tcl:259
 #: ../tcl/tkemc.tcl:285 ../tcl/tkemc.tcl:464 ../tcl/tkemc.tcl:1372
 #: ../tcl/tkemc.tcl:1441 ../tcl/tkemc.tcl:1472 ../tcl/tkemc.tcl:1503
 #: ../tcl/tkemc.tcl:2136
@@ -175,50 +175,50 @@ msgstr "Niveau de trajectoire"
 msgid "Interpreter list"
 msgstr "Liste de l'interpréteur"
 
-#: ../tcl/bin/genedit.tcl:78 ../tcl/mini.tcl:2527
+#: ../tcl/bin/genedit.tcl:78 ../tcl/mini.tcl:2529
 msgid "New"
 msgstr "Nouveau"
 
-#: ../tcl/bin/genedit.tcl:80 ../tcl/mini.tcl:1661 ../tcl/mini.tcl:2528
+#: ../tcl/bin/genedit.tcl:80 ../tcl/mini.tcl:1663 ../tcl/mini.tcl:2530
 #: ../tcl/tkemc.tcl:772 ../tcl/tkemc.tcl:1690
 msgid "Open..."
 msgstr "Ouvrir..."
 
-#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2530
+#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2532
 msgid "Save As..."
 msgstr "Enregistrer sous..."
 
-#: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:156 ../tcl/mini.tcl:957
+#: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:156 ../tcl/mini.tcl:953
 #: ../tcl/tkemc.tcl:777
 msgid "Exit"
 msgstr "Quitter"
 
-#: ../tcl/bin/genedit.tcl:91 ../tcl/mini.tcl:2511
+#: ../tcl/bin/genedit.tcl:91 ../tcl/mini.tcl:2513
 msgid "Edit"
 msgstr "Éditer"
 
-#: ../tcl/bin/genedit.tcl:92 ../tcl/mini.tcl:2537
+#: ../tcl/bin/genedit.tcl:92 ../tcl/mini.tcl:2539
 msgid "Cut"
 msgstr "Couper"
 
-#: ../tcl/bin/genedit.tcl:94 ../tcl/mini.tcl:2538
+#: ../tcl/bin/genedit.tcl:94 ../tcl/mini.tcl:2540
 msgid "Copy"
 msgstr "Copier"
 
-#: ../tcl/bin/genedit.tcl:96 ../tcl/mini.tcl:2539
+#: ../tcl/bin/genedit.tcl:96 ../tcl/mini.tcl:2541
 msgid "Paste"
 msgstr "Coller"
 
-#: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2542 ../tcl/show_errors.tcl:51
+#: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2544 ../tcl/show_errors.tcl:51
 msgid "Select All"
 msgstr "Tout sélectionner"
 
-#: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:183 ../tcl/mini.tcl:922
-#: ../tcl/mini.tcl:2513 ../tcl/tkemc.tcl:834
+#: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:183 ../tcl/mini.tcl:918
+#: ../tcl/mini.tcl:2515 ../tcl/tkemc.tcl:834
 msgid "Help"
 msgstr "Aide"
 
-#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:1014 ../tcl/mini.tcl:2553
+#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:1010 ../tcl/mini.tcl:2555
 #: ../tcl/tkemc.tcl:840
 msgid "About..."
 msgstr "À propos..."
@@ -227,24 +227,24 @@ msgstr "À propos..."
 msgid "Save and Reload"
 msgstr "Enregistrer et recharger"
 
-#: ../tcl/bin/genedit.tcl:133 ../tcl/mini.tcl:2544
+#: ../tcl/bin/genedit.tcl:133 ../tcl/mini.tcl:2546
 msgid "Find..."
 msgstr "Chercher..."
 
-#: ../tcl/bin/genedit.tcl:135 ../tcl/mini.tcl:2546
+#: ../tcl/bin/genedit.tcl:135 ../tcl/mini.tcl:2548
 msgid "Renumber File..."
 msgstr "Re-numéroter le fichier..."
 
-#: ../tcl/bin/genedit.tcl:140 ../tcl/mini.tcl:920 ../tcl/mini.tcl:2512
+#: ../tcl/bin/genedit.tcl:140 ../tcl/mini.tcl:916 ../tcl/mini.tcl:2514
 #: ../tcl/tkemc.tcl:790
 msgid "Settings"
 msgstr "Réglages"
 
-#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2548
+#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2550
 msgid "No Numbering"
 msgstr "Sans numérotation"
 
-#: ../tcl/bin/genedit.tcl:144 ../tcl/mini.tcl:2550
+#: ../tcl/bin/genedit.tcl:144 ../tcl/mini.tcl:2552
 msgid "Line Numbering..."
 msgstr "Numérotation de ligne..."
 
@@ -270,13 +270,13 @@ msgstr ""
 "\n"
 "GPL Version 2"
 
-#: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1370 ../tcl/mini.tcl:1769
+#: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1372 ../tcl/mini.tcl:1771
 #: ../tcl/tkemc.tcl:504
 #, tcl-format
 msgid "can't open %s"
 msgstr "impossible d'ouvrir %s"
 
-#: ../tcl/bin/genedit.tcl:267 ../tcl/mini.tcl:3084
+#: ../tcl/bin/genedit.tcl:267 ../tcl/mini.tcl:3086
 msgid "Find"
 msgstr "Chercher"
 
@@ -292,7 +292,7 @@ msgstr "Remplacer:"
 msgid "Find All"
 msgstr "Chercher tous"
 
-#: ../tcl/bin/genedit.tcl:285 ../tcl/mini.tcl:3107
+#: ../tcl/bin/genedit.tcl:285 ../tcl/mini.tcl:3109
 msgid "Replace All"
 msgstr "Remplacer tous"
 
@@ -308,43 +308,43 @@ msgstr "Remplacer ça"
 msgid "Clear"
 msgstr "Nettoyer"
 
-#: ../tcl/bin/genedit.tcl:422 ../tcl/mini.tcl:2634
+#: ../tcl/bin/genedit.tcl:422 ../tcl/mini.tcl:2636
 msgid "Set Line Numbering"
 msgstr "Ajuster la numérotation de ligne"
 
-#: ../tcl/bin/genedit.tcl:424 ../tcl/mini.tcl:2638
+#: ../tcl/bin/genedit.tcl:424 ../tcl/mini.tcl:2640
 msgid "Increment"
 msgstr "Incrément"
 
-#: ../tcl/bin/genedit.tcl:426 ../tcl/mini.tcl:2640
+#: ../tcl/bin/genedit.tcl:426 ../tcl/mini.tcl:2642
 msgid "One"
 msgstr "Un"
 
-#: ../tcl/bin/genedit.tcl:429 ../tcl/mini.tcl:2642
+#: ../tcl/bin/genedit.tcl:429 ../tcl/mini.tcl:2644
 msgid "Two"
 msgstr "Deux"
 
-#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2644
+#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2646
 msgid "Five"
 msgstr "Cinq"
 
-#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2646
+#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2648
 msgid "Ten"
 msgstr "Dix"
 
-#: ../tcl/bin/genedit.tcl:439 ../tcl/mini.tcl:2648
+#: ../tcl/bin/genedit.tcl:439 ../tcl/mini.tcl:2650
 msgid "Space"
 msgstr "Espace"
 
-#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2650
+#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2652
 msgid "Single Space"
 msgstr "Simple espace"
 
-#: ../tcl/bin/genedit.tcl:444 ../tcl/mini.tcl:2652
+#: ../tcl/bin/genedit.tcl:444 ../tcl/mini.tcl:2654
 msgid "Double Space"
 msgstr "Double espace"
 
-#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2654
+#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2656
 msgid "Tab Space"
 msgstr "Espace arrière"
 
@@ -352,7 +352,7 @@ msgstr "Espace arrière"
 msgid "Next Number:"
 msgstr "Numéro suivant"
 
-#: ../tcl/bin/genedit.tcl:474 ../tcl/mini.tcl:2662
+#: ../tcl/bin/genedit.tcl:474 ../tcl/mini.tcl:2664
 msgid "Renumber"
 msgstr "Re-numéroter"
 
@@ -408,7 +408,7 @@ msgstr "Enregistrer les liaisons HAL"
 msgid "Save and Exit"
 msgstr "Enregistrer et quitter"
 
-#: ../tcl/bin/halconfig.tcl:159 ../tcl/mini.tcl:919 ../tcl/tkemc.tcl:782
+#: ../tcl/bin/halconfig.tcl:159 ../tcl/mini.tcl:915 ../tcl/tkemc.tcl:782
 msgid "View"
 msgstr "Vues"
 
@@ -436,7 +436,7 @@ msgstr "Déployer les signaux"
 msgid "Erase Watch"
 msgstr "Effacer l'écran de watch "
 
-#: ../tcl/bin/halconfig.tcl:185 ../tcl/mini.tcl:843 ../tcl/mini.tcl:2779
+#: ../tcl/bin/halconfig.tcl:185 ../tcl/mini.tcl:839 ../tcl/mini.tcl:2781
 msgid "About"
 msgstr "À propos"
 
@@ -655,17 +655,17 @@ msgstr "DIRECTION"
 msgid "SIZE :"
 msgstr "TAILLE:"
 
-#: ../tcl/mini.tcl:493
+#: ../tcl/mini.tcl:489
 #, tcl-format
 msgid "JOG %s +"
 msgstr "JOG %s +"
 
-#: ../tcl/mini.tcl:494
+#: ../tcl/mini.tcl:490
 #, tcl-format
 msgid "JOG %s -"
 msgstr "JOG %s -"
 
-#: ../tcl/mini.tcl:495
+#: ../tcl/mini.tcl:491
 #, tcl-format
 msgid ""
 "%s\n"
@@ -682,7 +682,7 @@ msgstr ""
 "R\n"
 "O"
 
-#: ../tcl/mini.tcl:843
+#: ../tcl/mini.tcl:839
 msgid ""
 "TkMini  \n"
 "\n"
@@ -708,135 +708,135 @@ msgstr ""
 "This software comes with ABSOLUTELY NO GUARANTEE!   \n"
 "For details see the copyright.html file in this directory."
 
-#: ../tcl/mini.tcl:918
+#: ../tcl/mini.tcl:914
 msgid "Program"
 msgstr "Programme"
 
-#: ../tcl/mini.tcl:921
+#: ../tcl/mini.tcl:917
 msgid "Info"
 msgstr "Informations"
 
-#: ../tcl/mini.tcl:926
+#: ../tcl/mini.tcl:922
 msgid "Backplot"
 msgstr "Parcours d'outil"
 
-#: ../tcl/mini.tcl:928
+#: ../tcl/mini.tcl:924
 msgid "Editor"
 msgstr "Éditeur"
 
-#: ../tcl/mini.tcl:930
+#: ../tcl/mini.tcl:926
 msgid "Offsets"
 msgstr "Offsets"
 
-#: ../tcl/mini.tcl:932
+#: ../tcl/mini.tcl:928
 msgid "Tools"
 msgstr "Outils"
 
-#: ../tcl/mini.tcl:954 ../tcl/mini.tcl:3559 ../tcl/tkemc.tcl:775
+#: ../tcl/mini.tcl:950 ../tcl/mini.tcl:3561 ../tcl/tkemc.tcl:775
 msgid "Reset"
 msgstr "Reset"
 
-#: ../tcl/mini.tcl:963
+#: ../tcl/mini.tcl:959
 msgid "Position Type"
 msgstr "Type de position"
 
-#: ../tcl/mini.tcl:965
+#: ../tcl/mini.tcl:961
 msgid "Tool Info"
 msgstr "Informations outil"
 
-#: ../tcl/mini.tcl:967
+#: ../tcl/mini.tcl:963
 msgid "Offset Info"
 msgstr "Informations offset"
 
-#: ../tcl/mini.tcl:970
+#: ../tcl/mini.tcl:966
 msgid "Show Restart"
 msgstr "Afficher « Reprise »"
 
-#: ../tcl/mini.tcl:971
+#: ../tcl/mini.tcl:967
 msgid "Hide Restart"
 msgstr "Masquer « Reprise »"
 
-#: ../tcl/mini.tcl:973
+#: ../tcl/mini.tcl:969
 msgid "Show Split Right"
 msgstr "Diviser la vue droite"
 
-#: ../tcl/mini.tcl:975
+#: ../tcl/mini.tcl:971
 msgid "Show Mode Full"
 msgstr "Afficher en mode complet"
 
-#: ../tcl/mini.tcl:977
+#: ../tcl/mini.tcl:973
 msgid "Show Popin Full"
 msgstr "Afficher dans toute la fenêtre"
 
-#: ../tcl/mini.tcl:981
+#: ../tcl/mini.tcl:977
 msgid "Actual Position"
 msgstr "Position actuelle"
 
-#: ../tcl/mini.tcl:983
+#: ../tcl/mini.tcl:979
 msgid "Commanded Position"
 msgstr "Position commandée"
 
-#: ../tcl/mini.tcl:986
+#: ../tcl/mini.tcl:982
 msgid "Machine Position"
 msgstr "Position machine"
 
-#: ../tcl/mini.tcl:988
+#: ../tcl/mini.tcl:984
 msgid "Relative Position"
 msgstr "Position relative"
 
-#: ../tcl/mini.tcl:991 ../tcl/tkemc.tcl:791
+#: ../tcl/mini.tcl:987 ../tcl/tkemc.tcl:791
 msgid "Calibration..."
 msgstr "Calibration..."
 
-#: ../tcl/mini.tcl:993
+#: ../tcl/mini.tcl:989
 msgid "HAL Show..."
 msgstr "Montrer config. HAL..."
 
-#: ../tcl/mini.tcl:995
+#: ../tcl/mini.tcl:991
 msgid "HAL Config..."
 msgstr "Configurer HAL"
 
-#: ../tcl/mini.tcl:1000
+#: ../tcl/mini.tcl:996
 msgid "Program File"
 msgstr "Fichier programme"
 
-#: ../tcl/mini.tcl:1001
+#: ../tcl/mini.tcl:997
 #, tcl-format
 msgid "Program file is %s"
 msgstr "Le fichier programme est %s"
 
-#: ../tcl/mini.tcl:1002
+#: ../tcl/mini.tcl:998
 msgid "Editor File"
 msgstr "Éditeur de fichier"
 
-#: ../tcl/mini.tcl:1003
+#: ../tcl/mini.tcl:999
 #, tcl-format
 msgid "Editor file is %s"
 msgstr "L'éditeur de fichier est %s"
 
-#: ../tcl/mini.tcl:1004
+#: ../tcl/mini.tcl:1000
 msgid "Parameter File"
 msgstr "Fichier de paramètres"
 
-#: ../tcl/mini.tcl:1005
+#: ../tcl/mini.tcl:1001
 #, tcl-format
 msgid "Parameter file is %s"
 msgstr "Le fichier de paramètres est %s"
 
-#: ../tcl/mini.tcl:1006
+#: ../tcl/mini.tcl:1002
 msgid "Tool File"
 msgstr "Fichier d'outils"
 
-#: ../tcl/mini.tcl:1007
+#: ../tcl/mini.tcl:1003
 #, tcl-format
 msgid "Tool file is %s"
 msgstr "Le fichier d'outils %s"
 
-#: ../tcl/mini.tcl:1009
+#: ../tcl/mini.tcl:1005
 msgid "Active G Codes"
 msgstr "G-codes actifs"
 
-#: ../tcl/mini.tcl:1010
+#: ../tcl/mini.tcl:1006
 #, tcl-format
 msgid ""
 "Active codes include; \n"
@@ -845,122 +845,122 @@ msgstr ""
 "Les codes actifs incluent ; \n"
 "%s"
 
-#: ../tcl/mini.tcl:1013 ../tcl/mini.tcl:2552 ../tcl/tkemc.tcl:835
+#: ../tcl/mini.tcl:1009 ../tcl/mini.tcl:2554 ../tcl/tkemc.tcl:835
 msgid "Help..."
 msgstr "Aide..."
 
-#: ../tcl/mini.tcl:1030 ../tcl/tkemc.tcl:934
+#: ../tcl/mini.tcl:1026 ../tcl/tkemc.tcl:934
 msgid "ABORT"
 msgstr "ABANDON"
 
-#: ../tcl/mini.tcl:1041 ../tcl/mini.tcl:2042
+#: ../tcl/mini.tcl:1037 ../tcl/mini.tcl:2044
 msgid "CONTINUE"
 msgstr "CONTINUER"
 
-#: ../tcl/mini.tcl:1047 ../tcl/tkemc.tcl:872 ../tcl/tkemc.tcl:2281
+#: ../tcl/mini.tcl:1043 ../tcl/tkemc.tcl:872 ../tcl/tkemc.tcl:2281
 msgid "MDI"
 msgstr "MDI"
 
-#: ../tcl/mini.tcl:1051 ../tcl/tkemc.tcl:2272
+#: ../tcl/mini.tcl:1047 ../tcl/tkemc.tcl:2272
 msgid "AUTO"
 msgstr "AUTO"
 
-#: ../tcl/mini.tcl:1055 ../tcl/mini.tcl:1806 ../tcl/tkemc.tcl:2174
+#: ../tcl/mini.tcl:1051 ../tcl/mini.tcl:1808 ../tcl/tkemc.tcl:2174
 #: ../tcl/tkemc.tcl:2294
 msgid "MANUAL"
 msgstr "MANUEL"
 
-#: ../tcl/mini.tcl:1109
+#: ../tcl/mini.tcl:1105
 msgid "Tool #:"
 msgstr "Outil N°:"
 
-#: ../tcl/mini.tcl:1111
+#: ../tcl/mini.tcl:1107
 msgid "Length :"
 msgstr "Longueur :"
 
-#: ../tcl/mini.tcl:1122
+#: ../tcl/mini.tcl:1118
 msgid "Work Offsets: "
 msgstr "Offsets de travail:"
 
-#: ../tcl/mini.tcl:1124
+#: ../tcl/mini.tcl:1120
 msgid "start offsets popup here"
 msgstr "Ouvrir la fenêtre des offsets ici"
 
-#: ../tcl/mini.tcl:1168
+#: ../tcl/mini.tcl:1164
 msgid "start override popup here"
 msgstr "Ouvrir la fenêtre des correcteurs ici"
 
-#: ../tcl/mini.tcl:1171 ../tcl/tkemc.tcl:1609
+#: ../tcl/mini.tcl:1167 ../tcl/tkemc.tcl:1609
 msgid "Feed Override:"
 msgstr "Correcteur de vitesse:"
 
-#: ../tcl/mini.tcl:1183
+#: ../tcl/mini.tcl:1179
 msgid "-- MESSAGES --"
 msgstr "-- MESSAGES --"
 
-#: ../tcl/mini.tcl:1233
+#: ../tcl/mini.tcl:1229
 msgid "toggleView's not doin nothin yet"
 msgstr "Le basculement des vues ne donnera rien ici"
 
-#: ../tcl/mini.tcl:1285
+#: ../tcl/mini.tcl:1281
 msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
 msgstr ""
 "Impossible de régler le zéro avec l'offset d'outil activé, un G49 a donc été "
 "appliqué pour le désactiver"
 
-#: ../tcl/mini.tcl:1343
+#: ../tcl/mini.tcl:1345
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
 msgstr ""
 "Impossible de mettre le fichier de variables à jour tant que la machine est "
 "en auto et %s"
 
-#: ../tcl/mini.tcl:1397 ../tcl/tkemc.tcl:1260
+#: ../tcl/mini.tcl:1399 ../tcl/tkemc.tcl:1260
 msgid "override limits"
 msgstr "Dépassement de limite"
 
-#: ../tcl/mini.tcl:1402 ../tcl/tkemc.tcl:1296
+#: ../tcl/mini.tcl:1404 ../tcl/tkemc.tcl:1296
 msgid "home"
 msgstr "origine"
 
-#: ../tcl/mini.tcl:1423
+#: ../tcl/mini.tcl:1425
 msgid "DEFAULT"
 msgstr "DÉFAUT"
 
-#: ../tcl/mini.tcl:1424
+#: ../tcl/mini.tcl:1426
 msgid "Speed:"
 msgstr "Vitesse:"
 
-#: ../tcl/mini.tcl:1427
+#: ../tcl/mini.tcl:1429
 msgid "RAPID"
 msgstr "RAPIDE"
 
-#: ../tcl/mini.tcl:1444 ../tcl/tkemc.tcl:1424
+#: ../tcl/mini.tcl:1446 ../tcl/tkemc.tcl:1424
 msgid "Set Jog Speed"
 msgstr "Ajuster vitesse de jog"
 
-#: ../tcl/mini.tcl:1450 ../tcl/tkemc.tcl:1437
+#: ../tcl/mini.tcl:1452 ../tcl/tkemc.tcl:1437
 msgid "Set jog speed:"
 msgstr "Ajuster vitesse de jog:"
 
-#: ../tcl/mini.tcl:1508
+#: ../tcl/mini.tcl:1510
 msgid "JOG X +"
 msgstr "JOG X +"
 
-#: ../tcl/mini.tcl:1509
+#: ../tcl/mini.tcl:1511
 msgid "JOG X -"
 msgstr "JOG X -"
 
-#: ../tcl/mini.tcl:1513
+#: ../tcl/mini.tcl:1515
 msgid "increment"
 msgstr "incréments"
 
-#: ../tcl/mini.tcl:1515 ../tcl/tkemc.tcl:655 ../tcl/tkemc.tcl:1282
+#: ../tcl/mini.tcl:1517 ../tcl/tkemc.tcl:655 ../tcl/tkemc.tcl:1282
 #: ../tcl/tkemc.tcl:1286
 msgid "continuous"
 msgstr "continu"
 
-#: ../tcl/mini.tcl:1517
+#: ../tcl/mini.tcl:1519
 msgid ""
 "A\n"
 "L\n"
@@ -980,82 +980,82 @@ msgstr ""
 "R\n"
 "O"
 
-#: ../tcl/mini.tcl:1582
+#: ../tcl/mini.tcl:1584
 msgid "Spindle Forward"
 msgstr "Sens horaire"
 
-#: ../tcl/mini.tcl:1583
+#: ../tcl/mini.tcl:1585
 msgid "Spindle Reverse"
 msgstr "Sens anti-horaire"
 
-#: ../tcl/mini.tcl:1584 ../tcl/tkemc.tcl:915
+#: ../tcl/mini.tcl:1586 ../tcl/tkemc.tcl:915
 msgid "Spindle off"
 msgstr "Arrêt broche"
 
-#: ../tcl/mini.tcl:1586
+#: ../tcl/mini.tcl:1588
 msgid "Spindle Slower"
 msgstr "Broche moins vite"
 
-#: ../tcl/mini.tcl:1590
+#: ../tcl/mini.tcl:1592
 msgid "Spindle Faster"
 msgstr "Broche plus vite"
 
-#: ../tcl/mini.tcl:1626 ../tcl/tkemc.tcl:1653
+#: ../tcl/mini.tcl:1628 ../tcl/tkemc.tcl:1653
 msgid "MDI:"
 msgstr "MDI:"
 
-#: ../tcl/mini.tcl:1663 ../tcl/tkemc.tcl:1691
+#: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1691
 msgid "Run"
 msgstr "Lancer"
 
-#: ../tcl/mini.tcl:1665 ../tcl/tkemc.tcl:1692
+#: ../tcl/mini.tcl:1667 ../tcl/tkemc.tcl:1692
 msgid "Pause"
 msgstr "Pause"
 
-#: ../tcl/mini.tcl:1667 ../tcl/tkemc.tcl:1693
+#: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1693
 msgid "Resume"
 msgstr "Reprise"
 
-#: ../tcl/mini.tcl:1669 ../tcl/tkemc.tcl:1694
+#: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1694
 msgid "Step"
 msgstr "Pas à pas"
 
-#: ../tcl/mini.tcl:1671 ../tcl/tkemc.tcl:1695
+#: ../tcl/mini.tcl:1673 ../tcl/tkemc.tcl:1695
 msgid "Verify"
 msgstr "Vérifier"
 
-#: ../tcl/mini.tcl:1692
+#: ../tcl/mini.tcl:1694
 msgid "RESTART LINE"
 msgstr "LIGNE DE REPRISE"
 
-#: ../tcl/mini.tcl:1693
+#: ../tcl/mini.tcl:1695
 msgid "Back"
 msgstr "Arrière"
 
-#: ../tcl/mini.tcl:1694
+#: ../tcl/mini.tcl:1696
 msgid "Ahead"
 msgstr "Avant"
 
-#: ../tcl/mini.tcl:1695
+#: ../tcl/mini.tcl:1697
 msgid "Restart"
 msgstr "Reprise"
 
-#: ../tcl/mini.tcl:1705 ../tcl/mini.tcl:2817 ../tcl/mini.tcl:2876
+#: ../tcl/mini.tcl:1707 ../tcl/mini.tcl:2819 ../tcl/mini.tcl:2878
 #: ../tcl/tkemc.tcl:518
 msgid "All files"
 msgstr "Tous les fichiers"
 
-#: ../tcl/mini.tcl:1706 ../tcl/mini.tcl:2818 ../tcl/mini.tcl:2877
+#: ../tcl/mini.tcl:1708 ../tcl/mini.tcl:2820 ../tcl/mini.tcl:2879
 #: ../tcl/tkemc.tcl:519
 msgid "Text files"
 msgstr "Fichiers texte"
 
-#: ../tcl/mini.tcl:1707 ../tcl/mini.tcl:2819 ../tcl/mini.tcl:2878
+#: ../tcl/mini.tcl:1709 ../tcl/mini.tcl:2821 ../tcl/mini.tcl:2880
 #: ../tcl/tkemc.tcl:520
 msgid "NC files"
 msgstr "Fichiers NC"
 
-#: ../tcl/mini.tcl:1747
+#: ../tcl/mini.tcl:1749
 msgid ""
 "The interpreter is running. \n"
 " Pressing OK will abort and load the new program"
@@ -1063,83 +1063,83 @@ msgstr ""
 "L'interpréteur est en marche. \n"
 " Presser OK va annuler et charger le nouveau programme"
 
-#: ../tcl/mini.tcl:1880
+#: ../tcl/mini.tcl:1882
 msgid "ESTOPPED"
 msgstr "A/U ENGAGÉ"
 
-#: ../tcl/mini.tcl:1883
+#: ../tcl/mini.tcl:1885
 msgid "ESTOP PUSH"
 msgstr "A/U"
 
-#: ../tcl/mini.tcl:1886 ../tcl/tkemc.tcl:2266
+#: ../tcl/mini.tcl:1888 ../tcl/tkemc.tcl:2266
 msgid "ESTOP RESET"
 msgstr "A/U LIBÉRÉ"
 
-#: ../tcl/mini.tcl:1891 ../tcl/tkemc.tcl:2331
+#: ../tcl/mini.tcl:1893 ../tcl/tkemc.tcl:2331
 msgid "SPINDLE FORWARD"
 msgstr "BROCHE SENS HORAIRE"
 
-#: ../tcl/mini.tcl:1893 ../tcl/tkemc.tcl:2333
+#: ../tcl/mini.tcl:1895 ../tcl/tkemc.tcl:2333
 msgid "SPINDLE REVERSE"
 msgstr "BROCHE SENS ANTI-HORAIRE"
 
-#: ../tcl/mini.tcl:1895 ../tcl/tkemc.tcl:2335
+#: ../tcl/mini.tcl:1897 ../tcl/tkemc.tcl:2335
 msgid "SPINDLE OFF"
 msgstr "ARRÊT BROCHE"
 
-#: ../tcl/mini.tcl:1897 ../tcl/tkemc.tcl:2337
+#: ../tcl/mini.tcl:1899 ../tcl/tkemc.tcl:2337
 msgid "SPINDLE INCREASE"
 msgstr "BROCHE ACCÉLÈRE"
 
-#: ../tcl/mini.tcl:1899 ../tcl/tkemc.tcl:2339
+#: ../tcl/mini.tcl:1901 ../tcl/tkemc.tcl:2339
 msgid "SPINDLE DECREASE"
 msgstr "BROCHE DÉCÉLÈRE"
 
-#: ../tcl/mini.tcl:1901 ../tcl/tkemc.tcl:2341
+#: ../tcl/mini.tcl:1903 ../tcl/tkemc.tcl:2341
 msgid "SPINDLE ?"
 msgstr "BROCHE ?"
 
-#: ../tcl/mini.tcl:1905 ../tcl/tkemc.tcl:2345
+#: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2345
 msgid "BRAKE ON"
 msgstr "FREIN ENGAGÉ"
 
-#: ../tcl/mini.tcl:1907 ../tcl/tkemc.tcl:2347
+#: ../tcl/mini.tcl:1909 ../tcl/tkemc.tcl:2347
 msgid "BRAKE OFF"
 msgstr "FREIN LIBÉRÉ"
 
-#: ../tcl/mini.tcl:1909 ../tcl/tkemc.tcl:2349
+#: ../tcl/mini.tcl:1911 ../tcl/tkemc.tcl:2349
 msgid "BRAKE ?"
 msgstr "FREIN ?"
 
-#: ../tcl/mini.tcl:1913 ../tcl/tkemc.tcl:2307
+#: ../tcl/mini.tcl:1915 ../tcl/tkemc.tcl:2307
 msgid "MIST ON"
 msgstr "AVEC BROUILLARD"
 
-#: ../tcl/mini.tcl:1915 ../tcl/tkemc.tcl:2309
+#: ../tcl/mini.tcl:1917 ../tcl/tkemc.tcl:2309
 msgid "MIST OFF"
 msgstr "SANS BROUILLARD"
 
-#: ../tcl/mini.tcl:1917 ../tcl/tkemc.tcl:2311
+#: ../tcl/mini.tcl:1919 ../tcl/tkemc.tcl:2311
 msgid "MIST ?"
 msgstr "BROUILLARD ?"
 
-#: ../tcl/mini.tcl:1921 ../tcl/tkemc.tcl:2315
+#: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2315
 msgid "FLOOD ON"
 msgstr "AVEC ARROSAGE"
 
-#: ../tcl/mini.tcl:1923 ../tcl/tkemc.tcl:2317
+#: ../tcl/mini.tcl:1925 ../tcl/tkemc.tcl:2317
 msgid "FLOOD OFF"
 msgstr "SANS ARROSAGE"
 
-#: ../tcl/mini.tcl:1925 ../tcl/tkemc.tcl:2319
+#: ../tcl/mini.tcl:1927 ../tcl/tkemc.tcl:2319
 msgid "FLOOD ?"
 msgstr "ARROSAGE ?"
 
-#: ../tcl/mini.tcl:2046
+#: ../tcl/mini.tcl:2048
 msgid "FEEDHOLD"
 msgstr "VITESSE-0"
 
-#: ../tcl/mini.tcl:2118
+#: ../tcl/mini.tcl:2120
 msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
@@ -1148,42 +1148,42 @@ msgstr ""
 " Cliquer ou « tab » pour éditer.   Presser « Entrée » pour retourner au "
 "contrôle de la machine depuis le clavier."
 
-#: ../tcl/mini.tcl:2124
+#: ../tcl/mini.tcl:2126
 msgid "  TOOL NUMBER  "
 msgstr "NUMÉRO D'OUTIL"
 
-#: ../tcl/mini.tcl:2125
+#: ../tcl/mini.tcl:2127
 msgid "  LENGTH  "
 msgstr "  LONGUEUR  "
 
-#: ../tcl/mini.tcl:2126
+#: ../tcl/mini.tcl:2128
 msgid "  DIAMETER  "
 msgstr "  DIAMÈTRE  "
 
-#: ../tcl/mini.tcl:2127
+#: ../tcl/mini.tcl:2129
 msgid "  COMMENT  "
 msgstr "  COMMENTAIRE  "
 
-#: ../tcl/mini.tcl:2182
+#: ../tcl/mini.tcl:2184
 msgid "Add Extra Tool"
 msgstr "Ajouter un outil"
 
-#: ../tcl/mini.tcl:2183
+#: ../tcl/mini.tcl:2185
 msgid "Remove Last Tool"
 msgstr "Enlever le dernier outil"
 
-#: ../tcl/mini.tcl:2211 ../tcl/mini.tcl:2247
+#: ../tcl/mini.tcl:2213 ../tcl/mini.tcl:2249
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
 msgstr ""
 "Impossible de mettre à jour le fichier d'outils tant que la machine est en "
 "auto et %s"
 
-#: ../tcl/mini.tcl:2223
+#: ../tcl/mini.tcl:2225
 msgid "This is not a good number."
 msgstr "Ce n'est pas un numéro correct."
 
-#: ../tcl/mini.tcl:2287
+#: ../tcl/mini.tcl:2289
 msgid ""
 "COORDINATE SYSTEM SETUP \n"
 "\n"
@@ -1197,111 +1197,111 @@ msgstr ""
 "contrôle de la machine depuis le clavier. \n"
 " "
 
-#: ../tcl/mini.tcl:2314 ../tcl/scripts/Set_Coordinates.tcl:77
+#: ../tcl/mini.tcl:2316 ../tcl/scripts/Set_Coordinates.tcl:77
 msgid "Axis "
 msgstr "Axe"
 
-#: ../tcl/mini.tcl:2315
+#: ../tcl/mini.tcl:2317
 msgid "Value "
 msgstr "Valeur"
 
-#: ../tcl/mini.tcl:2320 ../tcl/scripts/Set_Coordinates.tcl:87
+#: ../tcl/mini.tcl:2322 ../tcl/scripts/Set_Coordinates.tcl:87
 msgid "Teach"
 msgstr "Apprentissage"
 
-#: ../tcl/mini.tcl:2328
+#: ../tcl/mini.tcl:2330
 msgid "Write And Load File "
 msgstr "Écrire et recharger"
 
-#: ../tcl/mini.tcl:2330
+#: ../tcl/mini.tcl:2332
 msgid "Offset By Radius"
 msgstr "Offset par rayon"
 
-#: ../tcl/mini.tcl:2331
+#: ../tcl/mini.tcl:2333
 msgid "Offset By Length"
 msgstr "Offset par longueur"
 
-#: ../tcl/mini.tcl:2336
+#: ../tcl/mini.tcl:2338
 msgid "Subtract"
 msgstr "Soustraire"
 
-#: ../tcl/mini.tcl:2338
+#: ../tcl/mini.tcl:2340
 msgid "Add"
 msgstr "Ajouter"
 
-#: ../tcl/mini.tcl:2360
+#: ../tcl/mini.tcl:2362
 msgid "Zero All G54"
 msgstr "Tous les G54 à zéro"
 
-#: ../tcl/mini.tcl:2361
+#: ../tcl/mini.tcl:2363
 msgid "Zero All G55"
 msgstr "Tous les G55 à zéro"
 
-#: ../tcl/mini.tcl:2362
+#: ../tcl/mini.tcl:2364
 msgid "Zero All G56"
 msgstr "Tous les G56 à zéro"
 
-#: ../tcl/mini.tcl:2363
+#: ../tcl/mini.tcl:2365
 msgid "Zero All G57"
 msgstr "Tous les G57 à zéro"
 
-#: ../tcl/mini.tcl:2364
+#: ../tcl/mini.tcl:2366
 msgid "Zero All G58"
 msgstr "Tous les G58 à zéro"
 
-#: ../tcl/mini.tcl:2365
+#: ../tcl/mini.tcl:2367
 msgid "Zero All G59"
 msgstr "Tous les G59 à zéro"
 
-#: ../tcl/mini.tcl:2366
+#: ../tcl/mini.tcl:2368
 msgid "Zero All G59.1"
 msgstr "Tous les G59.1 à zéro"
 
-#: ../tcl/mini.tcl:2367
+#: ../tcl/mini.tcl:2369
 msgid "Zero All G59.2"
 msgstr "Tous les G59.2 à zéro"
 
-#: ../tcl/mini.tcl:2368
+#: ../tcl/mini.tcl:2370
 msgid "Zero All G59.3"
 msgstr "Tous les G59.3 à zéro"
 
-#: ../tcl/mini.tcl:2369
+#: ../tcl/mini.tcl:2371
 msgid "Zero All ????"
 msgstr "Tous les ???? à zéro"
 
-#: ../tcl/mini.tcl:2487
+#: ../tcl/mini.tcl:2489
 msgid "Modified..."
 msgstr "Modifié..."
 
-#: ../tcl/mini.tcl:2532
+#: ../tcl/mini.tcl:2534
 msgid "Save and Load"
 msgstr "Enregistrer et charger"
 
-#: ../tcl/mini.tcl:2534
+#: ../tcl/mini.tcl:2536
 msgid "Undo"
 msgstr "Annuler"
 
-#: ../tcl/mini.tcl:2535
+#: ../tcl/mini.tcl:2537
 msgid "Redo"
 msgstr "Rétablir"
 
-#: ../tcl/mini.tcl:2540
+#: ../tcl/mini.tcl:2542
 msgid "Delete"
 msgstr "Effacer"
 
-#: ../tcl/mini.tcl:2545
+#: ../tcl/mini.tcl:2547
 msgid "Replace..."
 msgstr "Remplacer"
 
-#: ../tcl/mini.tcl:2658
+#: ../tcl/mini.tcl:2660
 msgid "Next Number: "
 msgstr "Numéro suivant: "
 
-#: ../tcl/mini.tcl:2759
+#: ../tcl/mini.tcl:2761
 msgid "Basic Help"
 msgstr "Aide simplifiée"
 
-#: ../tcl/mini.tcl:2759
+#: ../tcl/mini.tcl:2761
 msgid ""
 "This is a simple ASCII editor like many others.\n"
 "\n"
@@ -1333,7 +1333,7 @@ msgstr ""
 "Ctrl+F  Chercher\n"
 "Ctrl+R  Remplacer "
 
-#: ../tcl/mini.tcl:2779
+#: ../tcl/mini.tcl:2781
 msgid ""
 "tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
 "\n"
@@ -1343,7 +1343,7 @@ msgstr ""
 "\n"
 " Modifié pour EMC par: Paul Corner <paul_c@users.sourceforge.net>"
 
-#: ../tcl/mini.tcl:2787
+#: ../tcl/mini.tcl:2789
 msgid ""
 "The contents of this file may have changed, do you wish to to save your "
 "changes?"
@@ -1351,71 +1351,71 @@ msgstr ""
 "Le contenu de ce fichier peut avoir changé, voulez-vous enregistrer vos "
 "changements ?"
 
-#: ../tcl/mini.tcl:2788
+#: ../tcl/mini.tcl:2790
 msgid "New Confirm?"
 msgstr "Nouvelle confirmation ?"
 
-#: ../tcl/mini.tcl:2922
+#: ../tcl/mini.tcl:2924
 msgid "Print Setup"
 msgstr "Réglages imprimante"
 
-#: ../tcl/mini.tcl:2926
+#: ../tcl/mini.tcl:2928
 msgid "Print Command: "
 msgstr "Commande d'impression:"
 
-#: ../tcl/mini.tcl:3089
+#: ../tcl/mini.tcl:3091
 msgid "Find what:"
 msgstr "Chercher quoi:"
 
-#: ../tcl/mini.tcl:3095
+#: ../tcl/mini.tcl:3097
 msgid "Replace with:"
 msgstr "Remplacer par:"
 
-#: ../tcl/mini.tcl:3103
+#: ../tcl/mini.tcl:3105
 msgid "Find Next"
 msgstr "Trouver le suivant"
 
-#: ../tcl/mini.tcl:3106
+#: ../tcl/mini.tcl:3108
 msgid "Replace"
 msgstr "Remplacer"
 
-#: ../tcl/mini.tcl:3114
+#: ../tcl/mini.tcl:3116
 msgid "Up"
 msgstr "Haut"
 
-#: ../tcl/mini.tcl:3115
+#: ../tcl/mini.tcl:3117
 msgid "Down"
 msgstr "Bas"
 
-#: ../tcl/mini.tcl:3118
+#: ../tcl/mini.tcl:3120
 msgid "Match case"
 msgstr "Majuscule"
 
-#: ../tcl/mini.tcl:3563
+#: ../tcl/mini.tcl:3565
 msgid "rot-x"
 msgstr "Tourner x"
 
-#: ../tcl/mini.tcl:3573
+#: ../tcl/mini.tcl:3575
 msgid "rot-y"
 msgstr "Tourner y"
 
-#: ../tcl/mini.tcl:3583
+#: ../tcl/mini.tcl:3585
 msgid "rot-z"
 msgstr "Tourner z"
 
-#: ../tcl/mini.tcl:3593
+#: ../tcl/mini.tcl:3595
 msgid "zoom"
 msgstr "zoomer"
 
-#: ../tcl/mini.tcl:3649
+#: ../tcl/mini.tcl:3651
 msgid "TEST"
 msgstr "TESTER"
 
-#: ../tcl/mini.tcl:3693
+#: ../tcl/mini.tcl:3695
 msgid "Hide Setup"
 msgstr "Masquer les réglages"
 
-#: ../tcl/mini.tcl:3697
+#: ../tcl/mini.tcl:3699
 msgid "Show Setup"
 msgstr "Afficher les réglages"
 
