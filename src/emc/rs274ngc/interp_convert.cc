@@ -691,10 +691,10 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
 
     if (beta < -small || 
         beta > M_PIl + small ||
-        // special detection for convex corner on tangent arcs (like atop the middle of "m" shape)
-        (fabs(beta - M_PIl) < small && !qc().empty() && qc().front().type == QARC_FEED &&
-         turn == qc().front().data.arc_feed.turn &&
-         ((side == RIGHT && turn == 1) || (side == LEFT && turn == -1)))) {
+        // special detection for convex corner on tangent arc->arc (like atop the middle of "m" shape)
+        // or tangent line->arc (atop "h" shape)
+        (fabs(beta - M_PIl) < small && !TOOL_INSIDE_ARC(side, turn))
+        ) {
         // concave
         if (qc().front().type != QARC_FEED) {
             // line->arc
