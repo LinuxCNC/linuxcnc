@@ -1529,7 +1529,7 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
-        self.after = self.win.after(20, self.update)
+        self.after = self.win.after(update_ms, self.update)
 
         self.win.set_current_line(self.stat.id or self.stat.motion_line)
 
@@ -1626,6 +1626,8 @@ class LivePlotter:
         widgets.code_text.delete("0.0", "end")
         widgets.code_text.insert("end", codes)
         widgets.code_text.configure(state="disabled")
+
+        user_live_update()
 
     def clear(self):
         self.logger.clear()
@@ -3261,6 +3263,8 @@ class TclCommands(nf.TclCommands):
             tb = traceback.format_exc()
             root_window.tk.call("nf_dialog", ".error", _("Error saving file"),
                 str(detail), "error", 0, _("OK"))
+        else:
+            add_recent_file(f)
 
 commands = TclCommands(root_window)
 
@@ -3332,6 +3336,10 @@ vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
 vars.dro_large_font.set(ap.getpref("dro_large_font", False))
 vars.block_delete.set(ap.getpref("block_delete", True))
 vars.optional_stop.set(ap.getpref("optional_stop", True))
+
+# placeholder function for LivePlotter.update():
+def user_live_update():
+    pass
 
 vars.touch_off_system.set("P1  G54")
 
@@ -3617,6 +3625,8 @@ if homing_order_defined:
     widgets.homemenu.add_command(command=commands.home_all_axes)
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
             _("Home All Axes"))
+
+update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 
 widgets.unhomemenu.add_command(command=commands.unhome_all_axes)
 root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All Axes"))
