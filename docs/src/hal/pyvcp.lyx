@@ -622,7 +622,7 @@ The above code produced this example.
 
 Note that the HAL pins in the example above will me named my-radio.one, my-radio.t
 wo, and my-radio.three.
- In the image above, "three" is the selected value.
+ In the image above, "one" is the selected value.
 \layout Subsection
 
 Number Displays
