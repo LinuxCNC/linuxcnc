@@ -174,7 +174,7 @@ static void pyhal_delete(PyObject *_self) {
 
 static int pyhal_write_common(halitem *pin, PyObject *value) {
     int is_int = PyInt_Check(value);
-    int intval = is_int ? PyInt_AsLong(value) : -1;
+    long intval = is_int ? PyInt_AsLong(value) : -1;
     unsigned int uintval;
     if(!pin) return -1;
 
@@ -188,7 +188,11 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                     *pin->u->pin.f = PyFloat_AsDouble(value);
                 else if(is_int)
                     *pin->u->pin.f = intval;
-                else {
+                else if(PyLong_Check(value)) {
+                    double fval = PyLong_AsDouble(value);
+                    if(PyErr_Occurred()) return -1;
+                    *pin->u->pin.f = fval;
+                } else {
                     PyErr_Format(PyExc_TypeError,
                             "Integer or float expected, not %s",
                             value->ob_type->tp_name);
@@ -212,8 +216,13 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 *pin->u->pin.u32 = uintval;
                 break;
             case HAL_S32:
-                if(!is_int) goto typeerr;
-                *pin->u->pin.s32 = intval;
+                if(is_int) {
+                    *pin->u->pin.s32 = intval;
+                } else if(PyLong_Check(value)) {
+                    intval = PyLong_AsLong(value);
+                    if(PyErr_Occurred()) return -1;
+                    *pin->u->pin.u32 = intval;
+                }
                 break;
             default:
                 PyErr_Format(pyhal_error_type, "Invalid pin type %d", pin->type);
@@ -265,7 +274,7 @@ typeerr:
             value->ob_type->tp_name);
     return -1;
 rangeerr:
-    PyErr_Format(PyExc_OverflowError, "Value %d out of range for pin", intval);
+    PyErr_Format(PyExc_OverflowError, "Value %ld out of range for pin", intval);
     return -1;
 }
 
@@ -458,6 +467,7 @@ static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
 
     if(!self->prefix) {
         PyErr_SetString(PyExc_MemoryError, "strdup(prefix) failed");
+        return NULL;
     }
 
     Py_RETURN_NONE;
