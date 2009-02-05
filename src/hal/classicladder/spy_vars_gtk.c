@@ -119,13 +119,13 @@ void UpdateAllLabelsBoolsVars( )
 			{
 				case 0: sprintf(BufNumVar, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', 
                                         OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                break;
+                                      break;
 				case 1: sprintf(BufNumVar, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%',  
                                         OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                break;
+                                      break;
 				case 2: sprintf(BufNumVar, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', 
                                         OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                break;
+                                      break;
 			}
 			gtk_label_set_markup (GTK_LABEL (GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
 		}
@@ -269,25 +269,63 @@ void DisplayFreeVarSpy()
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
-
-                      {  VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";}
-		if (VarSpy[NumVarSpy][0] == VAR_PHYS_WORD_OUTPUT )   
-                      {  VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out pin</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_PHYS_WORD_INPUT )    
-                      {  VarName= "<span foreground=\"red\" weight=\"bold\" >S32in pin</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_PHYS_FLOAT_OUTPUT )   
-                      {  VarName= "<span foreground=\"blue\" weight=\"bold\" >Floatout pin</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_PHYS_FLOAT_INPUT )    
-                      {  VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin pin</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_MEM_WORD )  
-                      { VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_COUNTER_VALUE )   
-                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_TIMER_VALUE )     
-                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer</span>";}
-                if (VarSpy[NumVarSpy][0] == VAR_TIMER_IEC_VALUE ) 
-                      { VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer</span>";}
-			gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
+                {  VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";}
+                printf("number=%i\n",VarSpy[NumVarSpy][0]);
+                switch (VarSpy[NumVarSpy][0])
+                     
+                      {
+                       case VAR_TIMER_VALUE :
+                       case VAR_TIMER_PRESET :
+                       case VAR_TIMER_RUNNING :
+                       case VAR_TIMER_DONE :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer</span>";
+                            break;
+                       case VAR_TIMER_IEC_VALUE :
+                       case VAR_TIMER_IEC_PRESET :
+                       case VAR_TIMER_IEC_DONE :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer</span>";
+                            break;
+                       case VAR_COUNTER_VALUE :
+                       case VAR_COUNTER_PRESET :
+                       case VAR_COUNTER_FULL :
+                       case VAR_COUNTER_EMPTY :
+                       case VAR_COUNTER_DONE :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter</span>";
+                            break;
+                       case VAR_MONOSTABLE_RUNNING :
+                       case VAR_MONOSTABLE_PRESET :
+                       case VAR_MONOSTABLE_VALUE :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Monostable</span>";
+                            break;
+                       case VAR_MEM_WORD :
+                            VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
+                            break;
+                       case VAR_PHYS_FLOAT_INPUT :
+                            VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin Pin</span>";
+                            break;
+                       case VAR_PHYS_FLOAT_OUTPUT :
+                            VarName= "<span foreground=\"blue\" weight=\"bold\" >Floatout Pin</span>";
+                            break;
+                       case VAR_PHYS_WORD_INPUT :
+                            VarName= "<span foreground=\"red\" weight=\"bold\" >S32in Pin</span>";
+                            break;
+                       case VAR_PHYS_WORD_OUTPUT :
+                            VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out Pin</span>";
+                            break;
+                       case VAR_MEM_BIT :
+                            VarName= "<span foreground=\"black\" weight=\"bold\" >Bit Memory</span>";
+                            break;
+                       case VAR_ERROR_BIT :
+                            VarName= "<span foreground=\"Yellow\" weight=\"bold\" >Error Bit</span>";
+                            break;
+                       case VAR_STEP_ACTIVITY :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Active</span>";
+                            break;
+                       case VAR_STEP_TIME :
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Run Time</span>";
+                            break;
+                      }
+		gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
 
 		if (InfosGene->DisplaySymbols!=LastTime) 
 		{		 	
@@ -356,7 +394,7 @@ void FreeVarsWindowInitGtk( )
 	GList *DisplayFormatItems = NULL;
 
 	SpyFreeVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Signed integer variables");
+	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Analog Variables");
 	vboxMain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyFreeVarsWindow), vboxMain);
 	gtk_widget_show (vboxMain);
