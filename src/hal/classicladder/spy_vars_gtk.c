@@ -269,8 +269,8 @@ void DisplayFreeVarSpy()
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
-                {  VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";}
-                printf("number=%i\n",VarSpy[NumVarSpy][0]);
+                VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";
+               
                 switch (VarSpy[NumVarSpy][0])
                      
                       {
