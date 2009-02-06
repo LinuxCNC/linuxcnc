@@ -466,8 +466,10 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
+   int ret;
    strcat(context->outBuf, "\r\n");
-   write(context->cliSock, context->outBuf, strlen(context->outBuf));
+   ret = write(context->cliSock, context->outBuf, strlen(context->outBuf));
+   //FIXME return error based on ret, probably return (ret >= 0);
    return 0;
 }
 
@@ -2651,11 +2653,12 @@ int commandGet(connectionRecType *context)
   static char *setCmdNakStr = "GET %s NAK\r\n";
   halCommandType cmd;
   char *pch;
+  int retval;
   cmdResponseType ret = rtNoError;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
+    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
     return 0;
     }
   strupr(pch);
@@ -3016,18 +3019,19 @@ int commandSet(connectionRecType *context)
   int i;
   char *pch;
   char *pcmd;
+  int retval;
   cmdResponseType ret = rtNoError;
   
   pcmd = strtok(NULL, delims);
   if (pcmd == NULL) {
-    write(context->cliSock, setNakStr, strlen(setNakStr));
+    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
     return 0;
     }
   strupr(pcmd);
   cmd = lookupHalCommand(pcmd);
   if ((cmd >= hcCommProt) && (context->cliSock != enabledConn)) {
     sprintf(context->outBuf, setCmdNakStr, pcmd);
-    write(context->cliSock, context->outBuf, strlen(context->outBuf));
+    retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
     return 0;
     }
   pch = strtok(NULL, delims);
@@ -3087,17 +3091,17 @@ int commandSet(connectionRecType *context)
     case rtNoError:  
       if (context->verbose) {
         sprintf(context->outBuf, ackStr, pcmd);
-        write(context->cliSock, context->outBuf, strlen(context->outBuf));
+        retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
       sprintf(context->outBuf, setCmdNakStr, pcmd);
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomError: // Custom error response entered in buffer
-      write(context->cliSock, context->outBuf, strlen(context->outBuf));
+      retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomHandledError: ;// Custom error respose handled, take no action
     }
@@ -3287,7 +3291,7 @@ commandTokenType lookupToken(char *s)
  
 int parseCommand(connectionRecType *context)
 {
-  int ret = 0;
+  int ret = 0, retval;
   char *pch;
   char s[64];
   static char *helloNakStr = "HELLO NAK\r\n";
@@ -3301,15 +3305,16 @@ int parseCommand(connectionRecType *context)
     switch (lookupToken(pch)) {
       case cmdHello: 
         if (commandHello(context) == -1)
-          write(context->cliSock, helloNakStr, strlen(helloNakStr));
-        else write(context->cliSock, s, strlen(s));
+          retval = write(context->cliSock, helloNakStr, strlen(helloNakStr));
+        else 
+          retval = write(context->cliSock, s, strlen(s));
         break;
       case cmdGet: 
         ret = commandGet(context);
         break;
       case cmdSet:
         if (context->linked == 0)
-	  write(context->cliSock, setNakStr, strlen(setNakStr)); 
+	  retval = write(context->cliSock, setNakStr, strlen(setNakStr)); 
         else ret = commandSet(context);
         break;
       case cmdQuit: 
@@ -3333,6 +3338,7 @@ void *readClient(void *arg)
   char buf[1600];
   unsigned int i, j;
   int len;
+  int ret;
   connectionRecType *context;
   
   
@@ -3357,7 +3363,7 @@ void *readClient(void *arg)
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if ((context->echo == 1) && (context->linked) == 1)
-      write(context->cliSock, &buf, strlen(buf));
+      ret = write(context->cliSock, &buf, strlen(buf));
     i = 0;
     j = 0;
     while (i <= strlen(buf)) {
