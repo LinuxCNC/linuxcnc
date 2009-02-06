@@ -560,8 +560,8 @@ static void printStatus()
               // fast forward over past lines
               while (programFpLine < programActiveLine)
                 {
-                  fgets(programLineText, LINELEN, programFp);
-                  programFpLine++;
+                  if (fgets(programLineText, LINELEN, programFp) != NULL)
+		    programFpLine++;
                 }
 
               // now we have the current line
@@ -906,8 +906,8 @@ static void printStatus()
               // fast forward over past lines
               while (programFpLine < programActiveLine)
                 {
-                  fgets(programLineText, LINELEN, programFp);
-                  programFpLine++;
+                  if (fgets(programLineText, LINELEN, programFp) != NULL)
+            	    programFpLine++;
                 }
 
               // now we have the current line
