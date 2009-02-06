@@ -396,7 +396,9 @@ function Cleanup() {
     done
 
     if program_available axis-remote ; then
-	axis-remote --ping && axis-remote --quit
+	if [ ! -z "$DISPLAY" ]; then
+	    axis-remote --ping && axis-remote --quit
+	fi
     fi
 
     if [ "$1" = "other" ]; then
