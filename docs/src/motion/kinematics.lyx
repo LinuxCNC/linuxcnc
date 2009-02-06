@@ -422,12 +422,7 @@ ARD_FLAGS *fflags, KINEMATICS_INVERSE_FLAGS *iflags)
 \begin_deeper 
 \layout Standard
 
-Implements the forward kinematics function as described in section 
-\begin_inset LatexCommand \ref{sub:Forward-transformation}
-
-\end_inset 
-
-.
+Implements the forward kinematics function as described in HAL manual.
 \end_deeper 
 \layout Itemize
 
@@ -438,12 +433,7 @@ VERSE_FLAGS *iflags, KINEMATICS_FORWARD_FLAGS *fflags)
 \begin_deeper 
 \layout Standard
 
-Implements the inverse kinematics function as described in section 
-\begin_inset LatexCommand \ref{sub:Inverse-transformation}
-
-\end_inset 
-
-.
+Implements the inverse kinematics function as described in the HAL manual.
 \end_deeper 
 \layout Itemize
 
@@ -503,10 +493,5 @@ comp
 \family typewriter 
 comp(1)
 \family default 
- manpage or section 
-\begin_inset LatexCommand \ref{sec:Compiling-realtime-components}
-
-\end_inset 
-
- for more information.
+ manpage or the HAL manual for more information.
 \the_end
