@@ -399,7 +399,10 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
 	    // found it
-            realpath(inistring, &_setup.log_file[0]);
+            if (realpath(inistring, &_setup.log_file[0]) == NULL) {
+        	//realpath didn't find the file
+        	//nothing to do, checking for log_file[0] will report it later
+    	    }
           }
 
           if(NULL != (inistring = inifile.Find("LAZY_CLOSE", "RS274NGC")))
@@ -411,7 +414,10 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
 	    printf("inistring:%s:\n", inistring);
-              realpath(inistring, _setup.wizard_root);
+            if (realpath(inistring, _setup.wizard_root) == NULL) {
+        	//realpath didn't find the file
+        	logDebug("realpath failed to find wizard_root:%s:\n", inistring);
+            }
           }
           logDebug("_setup.wizard_root:%s:\n", _setup.wizard_root);
 
@@ -419,7 +425,10 @@ int Interp::init()
           if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
-            realpath(inistring, _setup.program_prefix);
+            if (realpath(inistring, _setup.program_prefix) == NULL){
+        	//realpath didn't find the file
+        	logDebug("realpath failed to find program_prefix:%s:\n", inistring);    
+            }
             logDebug("program prefix:%s: prefix:%s:",
 		     inistring, _setup.program_prefix);
           }
