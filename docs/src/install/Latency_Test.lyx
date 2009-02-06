@@ -1,6 +1,9 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
+\begin_preamble
+
+\end_preamble
 \language english
 \inputencoding auto
 \fontscheme default
@@ -21,7 +24,7 @@
 \quotes_language english
 \quotes_times 2
 \papercolumns 1
-\papersides 1
+\papersides 2
 \paperpagestyle default
 
 \layout Chapter
