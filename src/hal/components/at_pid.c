@@ -276,14 +276,14 @@ rtapi_app_main(void)
 
     pComp = component.pidTable;
     for(i = 0; i < num_chan; i++, pComp++){
-        // Initialize pid.
-        if(Pid_Init(pComp)){
-            hal_exit(component.id);
-            return(-1);
-        }
 
         // Export pins, parameters, and functions.
         if(Pid_Export(pComp, component.id, i)){
+            hal_exit(component.id);
+            return(-1);
+        }
+        // Initialize pid.
+        if(Pid_Init(pComp)){
             hal_exit(component.id);
             return(-1);
         }
@@ -514,6 +514,13 @@ Pid_Export(Pid *this, int compId, int id)
             rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.ultimate-period", id);
             error = hal_pin_float_new(buf, HAL_OUT, &(this->ultimatePeriod), compId);
         }
+    } else {
+  	this->errorI = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+  	this->errorD = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+  	this->cmdD   = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+  	this->cmdDd  = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+  	this->ultimateGain = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
+  	this->ultimatePeriod = (hal_float_t *) hal_malloc(sizeof(hal_float_t));
     }
 
     // Export functions.
@@ -705,7 +712,7 @@ Pid_Refresh(void *arg, long periodNs)
         *(this->cmdDd) = 0;
 
         // Force output to zero.
-        *this->pOutput = 0;
+        *(this->pOutput) = 0;
 
         // Switch to tuning mode.
         this->state = STATE_TUNE_IDLE;
