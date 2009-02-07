@@ -3092,10 +3092,15 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
+        to = list(s.tool_offset)
+        if vars.current_axis.get() == "x" and 70 in s.gcodes: # diameter mode
+            # so scale tool offset to diameters
+            to[0] *= 2
+
         if system.split()[0] == "T":
-            pos = [(a-b-origin) for a, b, origin in zip(s.position, s.tool_offset, s.origin)]
+            pos = [(a-b-origin) for a, b, origin in zip(s.position, to, s.origin)]
         else:
-            pos = [(a-b) for a, b in zip(s.position, s.tool_offset)]
+            pos = [(a-b) for a, b in zip(s.position, to)]
 
         pos = to_internal_units(pos)
         p0 = pos[offset_axis]
@@ -3104,12 +3109,16 @@ class TclCommands(nf.TclCommands):
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
-        old_tool = to_internal_linear_unit(s.tool_offset[offset_axis])
+        old_tool = to_internal_linear_unit(to[offset_axis])
 
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
             p0 *= 25.4
             old_tool *= 25.4
+
+        if vars.current_axis.get() == "x" and 70 in s.gcodes:
+            old_tool *= 2
+            p0 *= 2
 
         if system.split()[0] == "T":
             offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_in_spindle, vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
