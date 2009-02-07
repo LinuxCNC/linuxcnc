@@ -171,7 +171,7 @@ void BoolVarsWindowInitGtk()
 	GtkTooltips * WidgetTooltips[ NBR_TYPE_BOOLS_SPY ];
 	
 	SpyBoolVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Bool (on/off) vars");
+	gtk_window_set_title ((GtkWindow *)SpyBoolVarsWindow, "Bit Status Window");
 	vboxmain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyBoolVarsWindow), vboxmain);
 	gtk_widget_show (vboxmain);
@@ -269,7 +269,7 @@ void DisplayFreeVarSpy()
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			strcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
-                VarName= "<span foreground=\"gray\" weight=\"bold\" >Other</span>";
+                VarName= "<span foreground=\"gray\" weight=\"bold\" >Other       </span>";
                
                 switch (VarSpy[NumVarSpy][0])
                      
@@ -278,48 +278,54 @@ void DisplayFreeVarSpy()
                        case VAR_TIMER_PRESET :
                        case VAR_TIMER_RUNNING :
                        case VAR_TIMER_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer</span>";
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer       </span>";
                             break;
                        case VAR_TIMER_IEC_VALUE :
                        case VAR_TIMER_IEC_PRESET :
                        case VAR_TIMER_IEC_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer</span>";
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer   </span>";
                             break;
                        case VAR_COUNTER_VALUE :
                        case VAR_COUNTER_PRESET :
                        case VAR_COUNTER_FULL :
                        case VAR_COUNTER_EMPTY :
                        case VAR_COUNTER_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter</span>";
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter     </span>";
                             break;
                        case VAR_MONOSTABLE_RUNNING :
                        case VAR_MONOSTABLE_PRESET :
                        case VAR_MONOSTABLE_VALUE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Monostable</span>";
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Monostable  </span>";
                             break;
                        case VAR_MEM_WORD :
-                            VarName= "<span foreground=\"black\" weight=\"bold\" >Memory</span>";
+                            VarName= "<span foreground=\"black\" weight=\"bold\" >Memory      </span>";
+                            break;
+                       case VAR_PHYS_INPUT :
+                            VarName= "<span foreground=\"red\" weight=\"bold\" >Bit In Pin  </span>";
+                            break;
+                       case VAR_PHYS_OUTPUT :
+                            VarName= "<span foreground=\"blue\" weight=\"bold\" >Bit Out Pin </span>";
                             break;
                        case VAR_PHYS_FLOAT_INPUT :
-                            VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin Pin</span>";
+                            VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin Pin </span>";
                             break;
                        case VAR_PHYS_FLOAT_OUTPUT :
                             VarName= "<span foreground=\"blue\" weight=\"bold\" >Floatout Pin</span>";
                             break;
                        case VAR_PHYS_WORD_INPUT :
-                            VarName= "<span foreground=\"red\" weight=\"bold\" >S32in Pin</span>";
+                            VarName= "<span foreground=\"red\" weight=\"bold\" >S32in Pin   </span>";
                             break;
                        case VAR_PHYS_WORD_OUTPUT :
-                            VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out Pin</span>";
+                            VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out Pin  </span>";
                             break;
                        case VAR_MEM_BIT :
-                            VarName= "<span foreground=\"black\" weight=\"bold\" >Bit Memory</span>";
+                            VarName= "<span foreground=\"black\" weight=\"bold\" >Bit Memory  </span>";
                             break;
                        case VAR_ERROR_BIT :
-                            VarName= "<span foreground=\"Yellow\" weight=\"bold\" >Error Bit</span>";
+                            VarName= "<span foreground=\"gold\" weight=\"bold\" >Error Bit   </span>";
                             break;
                        case VAR_STEP_ACTIVITY :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Active</span>";
+                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Active  </span>";
                             break;
                        case VAR_STEP_TIME :
                             VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Run Time</span>";
@@ -394,7 +400,7 @@ void FreeVarsWindowInitGtk( )
 	GList *DisplayFormatItems = NULL;
 
 	SpyFreeVarsWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Analog Variables");
+	gtk_window_set_title ((GtkWindow *)SpyFreeVarsWindow, "Watch Window");
 	vboxMain = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (SpyFreeVarsWindow), vboxMain);
 	gtk_widget_show (vboxMain);
