@@ -354,7 +354,7 @@ stick out
 
  into the real world.
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -811,7 +811,7 @@ I got my first erector set for my fourth birthday.
  I had a hard time with the little screws and nuts.
  I really needed four arms, one each for the screwdriver, screw, parts to
  be bolted together, and nut.
- Perseverence, along with father's eventual boredom, got me to where I had
+ Perseverance, along with father's eventual boredom, got me to where I had
  built every project in the booklet.
  Soon I was lusting after the bigger sets that were also printed on that
  paper.
@@ -864,9 +864,9 @@ My favorite project was a rotating space station.
  I'd spend hours dreaming of living in such a device, walking from hub to
  hub around the outside as it slowly rotated producing near gravity in weightles
 s space.
- Supplies traveled through the spokes in elevators that transfered them
- to an from rockets docked at the center hub while they transfered their
- precious cargos.
+ Supplies traveled through the spokes in elevators that transferred them
+ to an from rockets docked at the center hub while they transferred their
+ precious cargoes.
 \layout Standard
 
 The idea of one pin or component being the hub for many connections is also
@@ -902,7 +902,7 @@ Threads are all about timing and doing a set of tasks from end to end.
  The total length of the backbone can be changed by the length of rods used
  to connect the hubs.
  The order of operations is the same but the time to get from beginning
- to end is very diferent.
+ to end is very different.
  
 \layout Subsection
 
@@ -913,7 +913,7 @@ Threads are all about timing and doing a set of tasks from end to end.
 
 A Lego Example
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -1013,12 +1013,12 @@ In EMC you might have a 50
 \end_inset 
 
 s thread and a 1ms thread.
- These would be created baseds on BASE_PERIOD and SERVO_PERIOD--the actual
+ These would be created based on BASE_PERIOD and SERVO_PERIOD--the actual
  times depend on the ini.
 \layout Standard
 
 The next step is to decide what each thread needs to do.
- Some of those decisions are the same in (nearly) any emc system--For instance,
+ Some of those decisions are the same in (nearly) any EMC system--For instance,
  motion-command-handler is always added to servo-thread.
 \layout Standard
 

@@ -3,6 +3,19 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+\pagenumbering{Roman}
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{\myTOC \clearpage \pagenumbering{arabic}}
+
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
+
+\lhead{\fancyplain{}{EMC V2.3 Integrator Manual}}
+ 
+\fancyfoot{}
+\fancyfoot[CE,CO]{\thepage}
 \end_preamble
 \language english
 \inputencoding default
@@ -96,9 +109,6 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_inset 
 
 
-\layout Part
-
-Introduction & Tutorial
 \layout Standard
 
 
@@ -117,9 +127,6 @@ preview false
 \end_inset 
 
 
-\layout Part
-
-HAL Reference
 \layout Standard
 
 
@@ -141,27 +148,6 @@ preview false
 \end_inset 
 
 
-\begin_inset Include \include{hal/drivers.lyx}
-preview false
-
-\end_inset 
-
-
-\begin_inset Include \include{hal/rtcomps.lyx}
-preview false
-
-\end_inset 
-
-
-\begin_inset Include \include{hal/vcp.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Part
-
-HAL Programming
 \layout Standard
 
 
@@ -186,7 +172,7 @@ Legal Section
 \layout Standard
 
 
-\begin_inset Include \input{common/GPLD_Copyright.lyx}
+\begin_inset Include \include{common/GPLD_Copyright.lyx}
 preview false
 
 \end_inset 
