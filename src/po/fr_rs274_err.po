@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-04 13:40+0100\n"
-"PO-Revision-Date: 2009-02-04 14:04+0100\n"
+"POT-Creation-Date: 2009-02-08 14:53+0100\n"
+"PO-Revision-Date: 2009-02-08 15:01+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -132,15 +132,15 @@ msgstr ""
 msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
-msgstr "Le premier mouvement après l'arrêt de la compensation de rayon d'outil doit être une droite, pas un arc"
+msgstr ""
+"Le premier mouvement après l'arrêt de la compensation de rayon d'outil doit "
+"être une droite, pas un arc"
 
 #: emc/rs274ngc/interp_convert.cc:711 emc/rs274ngc/interp_convert.cc:721
 #: emc/rs274ngc/interp_queue.cc:454
-msgid ""
-"Arc move in concave corner is too short to be reachable by the tool without "
-"gouging"
+msgid "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
-"Le mouvement en arc dans l'angle intérieur est trop petit pour être atteint "
+"Le mouvement en arc dans l'angle intérieur ne peut pas être atteint par l'outil "
 "sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:747
@@ -151,7 +151,9 @@ msgstr "Mouvement d'arc en arc impossible, les deux arcs ayant le même centre"
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
-msgstr "Mouvement d'arc en arc, pour initier la compensation d'outil, ne pouvant pas être suivi sans interférer avec la pièce"
+msgstr ""
+"Mouvement d'arc en arc, pour initier la compensation d'outil, ne pouvant pas "
+"être suivi sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:1310
 msgid "Cannot change control mode with cutter radius compensation on"
@@ -245,7 +247,9 @@ msgstr ""
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
-msgstr "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne pouvant pas être suivi sans interférer avec la pièce"
+msgstr ""
+"Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
+"pouvant pas être suivi sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:4100
 msgid "Cannot change tools with cutter radius compensation on"
@@ -266,17 +270,13 @@ msgstr ""
 "BOGUE: la compensation d'outil a généré un arc invalide avec des rayons "
 "incorrects r1 %f r2 %f\n"
 
-#: emc/rs274ngc/interp_queue.cc:472 emc/rs274ngc/interp_queue.cc:509
+#: emc/rs274ngc/interp_queue.cc:474 emc/rs274ngc/interp_queue.cc:511
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr "BOGUE: Plan incorrect avec la compensation d'outil"
 
-#: emc/rs274ngc/interp_queue.cc:481 emc/rs274ngc/interp_queue.cc:518
-msgid ""
-"Straight move in concave corner is too short to be reachable by the tool "
-"without gouging"
-msgstr ""
-"Le mouvement rectiligne dans l'angle intérieur est trop court pour être "
-"atteint par l'outil sans interférer avec la pièce"
+#: emc/rs274ngc/interp_queue.cc:483 emc/rs274ngc/interp_queue.cc:520
+msgid "Straight move in concave corner cannot be reached by the tool without gouging"
+msgstr "Le mouvement rectiligne dans l'angle intérieur ne peut pas être atteint par l'outil sans interférer avec la pièce"
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
@@ -1275,7 +1275,7 @@ msgstr "Erreur inconnue"
 msgid "The End"
 msgstr "Fin"
 
-#: emc/rs274ngc/rs274ngc_pre.cc:765
+#: emc/rs274ngc/rs274ngc_pre.cc:774
 msgid "Queue is not empty after tool change"
 msgstr "La queue n'est pas vide après changement d'outil"
 
