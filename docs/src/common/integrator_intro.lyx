@@ -547,7 +547,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename /home/jet/emc2-trunk/docs/src/gui/images/axis_2.3.png
+	filename images/axis_2.3.png
 	lyxscale 75
 	width 80page%
 	keepAspectRatio

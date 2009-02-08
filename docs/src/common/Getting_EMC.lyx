@@ -444,7 +444,7 @@ The AXIS interface is one of the interfaces to choose from.
 \align center 
 
 \begin_inset Graphics
-	filename /home/jet/emc2-trunk/docs/src/gui/images/axis_2.3.png
+	filename images/axis_2.3.png
 	scale 50
 
 \end_inset 

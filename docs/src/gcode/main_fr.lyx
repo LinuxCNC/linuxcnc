@@ -8478,6 +8478,21 @@ G40
  Le mouvement suivant doit être une droite.
  Ce n'est pas une erreur de désactiver la compensation quand elle est déjà
  inactive.
+ C'est une erreur de programmer un mouvement en arc avec G2 ou G3 derrière
+ un G40.
+\layout Standard
+
+Pour activer la compensation de rayon d'outil à gauche du profil, programmer
+ G41.
+ 
+\layout Standard
+
+Pour activer la compensation de rayon d'outil à droite du profil, programmer
+ G42.
+\layout Standard
+
+Le mouvement d'entrée doit être au moins aussi long que le rayon de l'outil.
+ Le mouvement d'entrée peut être effectué en vitesse rapide.
 \layout Standard
 
 La compensation de rayon d'outil ne peut être activée que si le plan de
@@ -8491,11 +8506,6 @@ Le comportement du centre d'usinage quand la compensation de rayon d'outil
 \end_inset 
 
 
-\layout Standard
-
-C'est une erreur de programmer un mouvement en arc avec G2 ou G3 derrière
- un G40.
- 
 \layout Subsection
 
 Compensation de rayon d'outil depuis une table d'outils
