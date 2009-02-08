@@ -1,6 +1,9 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
+\begin_preamble
+
+\end_preamble
 \language english
 \inputencoding auto
 \fontscheme default
@@ -374,6 +377,19 @@ dmesg > bootmsg.txt
 The contents of this file can be copied and pasted on line to share with
  people trying to help you diagnose your problem.
  
+\layout Section
+
+Convenience Items
+\layout Subsection
+
+Terminal Launcher
+\layout Standard
+
+If you want to add a terminal launcher to the panel bar on top of the screen
+ you typically can right click on the panel at the top of the screen and
+ select "Add to Panel".
+ Select Custom Application Launcher and Add.
+ Give it a name and put gnome-terminal in the command box.
 \layout Section
 
 Hardware Problems
