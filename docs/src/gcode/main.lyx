@@ -1,10 +1,6 @@
 #LyX 1.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 221
 \textclass book
-\begin_preamble
-\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-\title{The EMC2 RS274NGC Interpreter}
-\end_preamble
 \language english
 \inputencoding default
 \fontscheme bookman
