@@ -185,6 +185,38 @@ Any move that is long enough to perform the compensation will work as the
  This can be a rapid move above the work piece.
  If several rapid moves are issued after a G41/42 only the last one will
  move the tool to the compensated position.
+\layout Standard
+
+In the following figure you can see that the entry move is compensated to
+ the right of the line.
+ This puts the center of the tool to the right of X0 in this case.
+ If you were to program a profile and the end is at X0 the resulting profile
+ would leave a bump.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Entry Move
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/comp02.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsubsection*
 
 Z Motion
@@ -203,14 +235,6 @@ Rapid Moves
 Rapid moves may be programed while compensation is turned on.
  If more than one rapid move in sucession is programmed only the last move
  will place the cutter in the compensated position.
-\layout Subsubsection*
-
-Start and End Points
-\layout Standard
-
-Start and end points of a move are from the outside edge of the tool.
- This might be the most confusing part to understand when programming with
- compensation.
 \layout Subsubsection*
 
 Good Practices
