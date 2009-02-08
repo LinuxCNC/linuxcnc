@@ -21,6 +21,7 @@
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 #ifdef MODULE
+#include <linux/module.h>
 #include <linux/string.h>
 #else
 #include <stdio.h>
