@@ -10,14 +10,14 @@
 \clearpage
 \pagenumbering{arabic}
 }
+
 \usepackage{fancyhdr}
 \setlength{\headheight}{15pt}
- 
 \pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
+
+\lhead{\fancyplain{}{EMC V2.3 Getting Started}}
  
-\fancyhead{}
-\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
-\fancyhead[CE]{\textit{\nouppercase{\rightmark}}}
 \fancyfoot{}
 \fancyfoot[CE,CO]{\thepage}
  
