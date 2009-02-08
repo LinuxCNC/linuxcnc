@@ -2594,7 +2594,7 @@ Select tool (T).
  
 \layout Enumerate
 
-Cchange tool (M6).
+Change tool (M6).
 \layout Enumerate
 
 Spindle on or off (M3, M4, M5).
@@ -2628,7 +2628,7 @@ Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
  
 \layout Enumerate
 
-Sset path control mode (G61, G61.1, G64)
+Set path control mode (G61, G61.1, G64)
 \layout Enumerate
 
 Set distance mode (G90, G91).
@@ -6282,6 +6282,20 @@ G40
 .
  The next move must be a straight move.
  It is OK to turn compensation off when it is already off.
+ It is an error to program a G2/3 arc move after G40.
+\layout Standard
+
+To turn on cutter radius compensation to the left of the programmed line
+ use G41.
+ 
+\layout Standard
+
+To turn on cutter radius compensation to the right of the programmed line
+ use G42.
+\layout Standard
+
+The lead in move must be at least as long as the tool radius and can be
+ a rapid move.
 \layout Standard
 
 Cutter radius compensation may be performed only if the XY-plane is active.
@@ -6294,9 +6308,6 @@ The behavior of the machining center when cutter radius compensation is
 \end_inset 
 
 
-\layout Standard
-
-It is an error to program a G2/3 arc move after G40.
 \layout Subsection
 
 Cutter Radius Compensation from Tool Table
