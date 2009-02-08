@@ -191,7 +191,7 @@ In the following figure you can see that the entry move is compensated to
  the right of the line.
  This puts the center of the tool to the right of X0 in this case.
  If you were to program a profile and the end is at X0 the resulting profile
- would leave a bump.
+ would leave a bump due to the offset of the entry move.
  
 \layout Standard
 
@@ -233,8 +233,19 @@ Rapid Moves
 \layout Standard
 
 Rapid moves may be programed while compensation is turned on.
- If more than one rapid move in sucession is programmed only the last move
- will place the cutter in the compensated position.
+ 
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+The exact behavior is confusing at the moment...
+\end_inset 
+
+
 \layout Subsubsection*
 
 Good Practices
