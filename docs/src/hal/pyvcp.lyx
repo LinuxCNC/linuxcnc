@@ -35,6 +35,16 @@
 \layout Chapter
 
 pyVCP
+\begin_inset LatexCommand \label{cha:pyVCP}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \index{pyVCP}
+
+\end_inset 
+
+
 \layout Standard
 
 Python Virtual Control Panel

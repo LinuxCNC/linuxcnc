@@ -1328,12 +1328,7 @@ Pins
 \noun default 
 encoder.<chan>.reset
 \family default 
- -- See canonical encoder interface, section 
-\begin_inset LatexCommand \ref{sec:CanonEncoder}
-
-\end_inset 
-
-.
+ -- See the canonical encoder interface section of the HAL manual.
 \layout Itemize
 
 
@@ -1444,12 +1439,7 @@ bit
 \noun default 
  encoder.<chan>.position-scale
 \family default 
- -- See canonical encoder interface, section 
-\begin_inset LatexCommand \ref{sec:CanonEncoder}
-
-\end_inset 
-
-.
+ -- See the canonical encoder interface section of the HAL manual.
  
 \layout Subsection
 
@@ -1891,6 +1881,18 @@ FIXME
  pid.<loopnum>.maxoutput
 \family default 
  -- Limit on output value
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+check this out
+\end_inset 
+
+
 \layout Standard
 
 All of the 
