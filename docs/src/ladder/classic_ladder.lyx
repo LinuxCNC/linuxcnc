@@ -918,12 +918,12 @@ collapsed false
 
 \layout Caption
 
-Signed Integers Variable window
+Watch Window
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename images/Default_Signed_Integer_Variables.png
+	filename images/watch_window.png
 	scale 70
 
 \end_inset 
@@ -934,10 +934,7 @@ Signed Integers Variable window
 
 \layout Standard
 
-This displays word variables.
- Word Variables can be from memory, HAL s32 pins or HAL float pins.
- They hold positive and negative (signed) numbers and are used with compare
- and operate.
+The Watch Window displays variable status.
  The edit box beside it is the number stored in the variable and the drop-down
  box beside that allow you to choose whether the number to be displayed
  in hex, decimal or binary.
@@ -946,7 +943,8 @@ This displays word variables.
  window, symbol names will be displayed.
  To change the variable displayed type the variable number eg.
  %W2 (if display symbols check box is not checked) or symbol name (if the
- display symbols checkbox is checked) over an existing variable number/name.
+ display symbols checkbox is checked) over an existing variable number/name
+ and press the Enter Key.
 \layout Subsection
 
 Symbol Window
