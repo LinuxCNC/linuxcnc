@@ -105,12 +105,7 @@ TBL
 \end_inset 
 
  The tbl file saves tool information.
- See section 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset 
-
-.
+ See the User Manual Tool File section for more info.
 \layout Description
 
 NML
@@ -385,7 +380,7 @@ Units The units (of length or angle) specified in the ini file for
 
 \end_inset 
 
-Section Variables
+Sections
 \layout Subsection
 
 [EMC] Section
@@ -713,23 +708,20 @@ AXIS has the ability to send loaded files through a filter program.
  display area, and executed by emc when Run.
  The following lines add support for the image-to-gcode converter included
  with emc2:
-\layout LyX-Code
+\layout Quote
 
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
-\layout LyX-Code
-
+\newline 
 png = image-to-gcode
-\layout LyX-Code
-
+\newline 
 gif = image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
-\layout LyX-Code
+\layout Quote
 
 PROGRAM_EXTENSION = .py Python Script
-\layout LyX-Code
-
+\newline 
 py = python
 \layout Standard
 
@@ -748,7 +740,7 @@ ce of a circle.
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines written
  to stderr of the form
-\layout LyX-Code
+\layout Quote
 
 FILTER_PROGRESS=%d
 \layout Standard
@@ -864,12 +856,8 @@ BASE_PERIOD
 \series default 
  shown above gives an absolute maximum step rate of 20000 steps per second.
  50000ns is a fairly conservative value.
- The smallest usable value is related to the Latency Test result (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
-
-\end_inset 
-
-), the necessary step length, and the processor speed.
+ The smallest usable value is related to the Latency Test result, the necessary
+ step length, and the processor speed.
 \newline 
 Choosing a BASE_PERIOD that is too low can lead to the 
 \begin_inset Quotes eld
@@ -1061,7 +1049,7 @@ example2.hal
 \emph default 
  Execute 'example2.hal' after the GUI has created its HAL pins.
  See section 
-\begin_inset LatexCommand \ref{sub:Physical-jog-wheels}
+\begin_inset LatexCommand \ref{sec:pyvcp-with-axis}
 
 \end_inset 
 
@@ -1671,10 +1659,11 @@ The proportional gain for the axis servo.
  machine units, resulting in a contribution to the computed voltage for
  the motor amplifier.
  The units on the P gain are volts per machine unit, e.g., 
-\begin_inset Formula $\frac{volt}{mm}$
+\begin_inset Formula $\frac{volt}{mu}$
 \end_inset 
 
- if machine units are millimeters.
+.
+ 
 \layout Description
 
 
@@ -1698,11 +1687,11 @@ The integral gain for the axis servo.
  The value multiplies the cumulative error between commanded and actual
  position in machine units, resulting in a contribution to the computed
  voltage for the motor amplifier.
- The units on the I gain are volts per machine unit per second, e.g., 
-\begin_inset Formula $\frac{volt}{mm\, s}$
+ The units on the I gain are volts per machine unit second, e.g., 
+\begin_inset Formula $\frac{volt}{mu\, s}$
 \end_inset 
 
- if machine units are millimeters.
+.
 \layout Description
 
 
@@ -1726,10 +1715,10 @@ The derivative gain for the axis servo.
  The value multiplies the difference between the current and previous errors,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the D gain are volts per machine unit per second, e.g., 
-\begin_inset Formula $\frac{volt}{mm/s}$
+\begin_inset Formula $\frac{volt}{mu/s}$
 \end_inset 
 
- if machine units are millimeters.
+.
 \layout Description
 
 
@@ -1753,10 +1742,10 @@ The 0th order feed forward gain.
  This number is multiplied by the commanded position, resulting in a contributio
 n to the computed voltage for the motor amplifier.
  The units on the FF0 gain are volts per machine unit, e.g., 
-\begin_inset Formula $\frac{volt}{mm}$
+\begin_inset Formula $\frac{volt}{mu}$
 \end_inset 
 
- if machine units are millimeters.
+.
 \layout Description
 
 
@@ -1780,10 +1769,10 @@ The 1st order feed forward gain.
  This number is multiplied by the change in commanded position per second,
  resulting in a contribution to the computed voltage for the motor amplifier.
  The units on the FF1 gain are volts per machine unit per second, e.g., 
-\begin_inset Formula $\frac{volt}{mm\, s}$
+\begin_inset Formula $\frac{volt}{mu\, s}$
 \end_inset 
 
- if machine units are millimeters.
+.
 \layout Description
 
 
@@ -1809,10 +1798,10 @@ The 2nd order feed forward gain.
  motor amplifier.
  The units on the FF2 gain are volts per machine unit per second per second,
  e.g., 
-\begin_inset Formula $\frac{volt}{mm\, s^{2}}$
+\begin_inset Formula $\frac{volt}{mu\, s^{2}}$
 \end_inset 
 
- if machine units are millimeters.
+.
 \layout Description
 
 OUTPUT_SCALE\SpecialChar ~
@@ -2274,7 +2263,7 @@ For example, on a 2000 counts per rev encoder
 
 \end_inset 
 
-, and 10 revs/inch gearing, and desired units of mm, we have
+, and 10 revs/inch gearing, and desired units of inch, we have
 \begin_inset Formula \begin{eqnarray*}
 input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}\\
  & = & 20000\frac{counts}{inch}\end{eqnarray*}
@@ -2319,7 +2308,7 @@ SCALE
 
 \newline 
 For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
- gearing, and desired units of mm, we have
+ gearing, and desired units of inch, we have
 \begin_inset Formula \begin{eqnarray*}
 input\_ scale & = & \frac{{2\, steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}\\
  & = & 4000\frac{steps}{inch}\end{eqnarray*}
@@ -2414,12 +2403,7 @@ TOOL_TABLE\SpecialChar ~
 \series bold 
 tool.tbl
 \series default 
- The file which contains tool information, described in 
-\begin_inset LatexCommand \ref{sub:Tool-File}
-
-\end_inset 
-
-
+ The file which contains tool information, described in the User Manual.
 \layout Description
 
 TOOL_CHANGE_POSITION\SpecialChar ~

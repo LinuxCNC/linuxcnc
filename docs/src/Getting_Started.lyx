@@ -3,15 +3,24 @@
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
-\pagenumbering{roman}
+\pagenumbering{Roman}
 \let\myTOC\tableofcontents
 \renewcommand\tableofcontents{%
 \myTOC
 \clearpage
 \pagenumbering{arabic}
 }
-\renewcommand{\l@section}{\@dottedtocline{1}{1.5em}{3.2em}}
-\renewcommand{\l@subsection}{\@dottedtocline{2}{3.2em}{4.9em}}
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+ 
+\pagestyle{fancy}
+ 
+\fancyhead{}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancyhead[CE]{\textit{\nouppercase{\rightmark}}}
+\fancyfoot{}
+\fancyfoot[CE,CO]{\thepage}
+ 
 \end_preamble
 \language english
 \inputencoding default
@@ -41,7 +50,7 @@
 \quotes_times 2
 \papercolumns 1
 \papersides 1
-\paperpagestyle headings
+\paperpagestyle empty
 
 \layout Standard
 
@@ -95,8 +104,6 @@ Permission is granted to copy, distribute and/or modify this document under
  If you do not find the license you may order a copy from Free Software
  Foundation, Inc.
  59 Temple Place, Suite 330 Boston, MA 02111-1307 
-\layout Standard
-
 \layout Standard
 
 
