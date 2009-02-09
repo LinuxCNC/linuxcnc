@@ -30,6 +30,12 @@ In sub documents the Preamble should be empty.
 
 Creating new sub documents use the template.lyx file as the base.
 
+Images
+-------------------
+
+Images must be in the same directory or a subdirectory below the .lyx file
+or it adds a local path and that really fouls it up...
+
 A Note on using Lyx
 -------------------
 
