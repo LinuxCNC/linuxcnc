@@ -6,31 +6,8 @@ make a diagram of homing for stepconf
 
 *** User Manual
 
-add new items
-
-G17.1
-G18.1
-G19.1
-G28.1
-G30.1
-
-Right click menu run from line
-
-add a section on trajectory control
 
 
 *** Integrator Manual
 
-add error messages for config errors and what they mean
 
-classicladder examples
-
-new component ilowpass.comp, gearchange.comp, invert.comp
-
-pyvcp timer widget
-
-halui examples
-
-add setting up servo system
-
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Tuning_EMC2/HAL_PID_Loops

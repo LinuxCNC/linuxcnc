@@ -5,9 +5,30 @@ Creating new master lyx documents.
 In Layout/Document...
   Layout tab, Document_class: book
   
-  Preamble tab, add \usepackage{tocbibind} after first line
+In the Master Document...  
+  Preamble tab:
+	\usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
+	\pagenumbering{Roman}
+	\let\myTOC\tableofcontents
+	\renewcommand\tableofcontents{%
+	\myTOC
+	\clearpage
+	\pagenumbering{arabic}
+	}
 
+	\usepackage{fancyhdr}
+	\setlength{\headheight}{15pt}
+	\pagestyle{fancy}
+	\renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
 
+	\lhead{\fancyplain{}{EMC V2.3 Manual Name Here}}
+	 
+	\fancyfoot{}
+	\fancyfoot[CE,CO]{\thepage}
+
+In sub documents the Preamble should be empty.
+
+Creating new sub documents use the template.lyx file as the base.
 
 A Note on using Lyx
 -------------------
