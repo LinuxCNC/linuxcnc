@@ -18,6 +18,8 @@
 #include "interp_queue.hh"
 #include "interp_internal.hh"
 
+static int debug_qc = 0;
+
 // lathe tools have strange origin points that are not at
 // the center of the radius.  This means that the point that
 // radius compensation controls (center of radius) is not at
@@ -55,143 +57,170 @@ std::vector<queued_canon>& qc(void) {
 }
 
 void qc_reset(void) {
+    if(debug_qc) printf("qc cleared\n");
     qc().clear();
     endpoint_valid = 0;
 }
 
 void enqueue_SET_FEED_RATE(double feed) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate set feed rate %f\n", feed);
         SET_FEED_RATE(feed);
         return;
     }
     queued_canon q;
     q.type = QSET_FEED_RATE;
     q.data.set_feed_rate.feed = feed;
+    if(debug_qc) printf("enqueue set feed rate %f\n", feed);
     qc().push_back(q);
 }
 
 void enqueue_DWELL(double time) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate dwell %f\n", time);
         DWELL(time);
         return;
     }
     queued_canon q;
     q.type = QDWELL;
     q.data.dwell.time = time;
+    if(debug_qc) printf("enqueue dwell %f\n", time);
     qc().push_back(q);
 }
 
 void enqueue_SET_FEED_MODE(int mode) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate set feed mode %d\n", mode);
         SET_FEED_MODE(mode);
         return;
     }
     queued_canon q;
     q.type = QSET_FEED_MODE;
     q.data.set_feed_mode.mode = mode;
+    if(debug_qc) printf("enqueue set feed mode %d\n", mode);
     qc().push_back(q);
 }
 
 void enqueue_MIST_ON(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate mist on\n");
         MIST_ON();
         return;
     }
     queued_canon q;
     q.type = QMIST_ON;
+    if(debug_qc) printf("enqueue mist on\n");
     qc().push_back(q);
 }
 
 void enqueue_MIST_OFF(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate mist off\n");
         MIST_OFF();
         return;
     }
     queued_canon q;
     q.type = QMIST_OFF;
+    if(debug_qc) printf("enqueue mist off\n");
     qc().push_back(q);
 }
 
 void enqueue_FLOOD_ON(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate flood on\n");
         FLOOD_ON();
         return;
     }
     queued_canon q;
     q.type = QFLOOD_ON;
+    if(debug_qc) printf("enqueue flood on\n");
     qc().push_back(q);
 }
 
 void enqueue_FLOOD_OFF(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate flood on\n");
         FLOOD_OFF();
         return;
     }
     queued_canon q;
     q.type = QFLOOD_OFF;
+    if(debug_qc) printf("enqueue flood off\n");
     qc().push_back(q);
 }
 
 void enqueue_START_SPINDLE_CLOCKWISE(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle clockwise\n");
         START_SPINDLE_CLOCKWISE();
         return;
     }
     queued_canon q;
     q.type = QSTART_SPINDLE_CLOCKWISE;
+    if(debug_qc) printf("enqueue spindle clockwise\n");
     qc().push_back(q);
 }
 
 void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle counterclockwise\n");
         START_SPINDLE_COUNTERCLOCKWISE();
         return;
     }
     queued_canon q;
     q.type = QSTART_SPINDLE_COUNTERCLOCKWISE;
+    if(debug_qc) printf("enqueue spindle counterclockwise\n");
     qc().push_back(q);
 }
 
 void enqueue_STOP_SPINDLE_TURNING(void) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle stop\n");
         STOP_SPINDLE_TURNING();
         return;
     }
     queued_canon q;
     q.type = QSTOP_SPINDLE_TURNING;
+    if(debug_qc) printf("enqueue spindle stop\n");
     qc().push_back(q);
 }
 
 void enqueue_SET_SPINDLE_MODE(double mode) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate spindle mode %f\n", mode);
         SET_SPINDLE_MODE(mode);
         return;
     }
     queued_canon q;
     q.type = QSET_SPINDLE_MODE;
     q.data.set_spindle_mode.mode = mode;
+    if(debug_qc) printf("enqueue spindle mode %f\n", mode);
     qc().push_back(q);
 }
 
 void enqueue_SET_SPINDLE_SPEED(double speed) {
     if(qc().empty()) {
+    if(debug_qc) printf("immediate set spindle speed %f\n", speed);
         SET_SPINDLE_SPEED(speed);
         return;
     }
     queued_canon q;
     q.type = QSET_SPINDLE_SPEED;
     q.data.set_spindle_speed.speed = speed;
+    if(debug_qc) printf("enqueue set spindle speed %f\n", speed);
     qc().push_back(q);
 }
 
 void enqueue_COMMENT(char *c) {
     if(qc().empty()) {
+        if(debug_qc) printf("immediate comment \"%s\"\n", c);
         COMMENT(c);
         return;
     }
     queued_canon q;
     q.type = QCOMMENT;
     q.data.comment.comment = strdup(c);
+    if(debug_qc) printf("enqueue comment \"%s\"\n", c);
     qc().push_back(q);
 }
 
@@ -230,6 +259,7 @@ int enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
     q.data.straight_feed.v = v;
     q.data.straight_feed.w = w;
     qc().push_back(q);
+    if(debug_qc) printf("enqueue straight feed lineno %d to %f %f %f direction %f %f %f\n", l, x,y,z, dx, dy, dz);
     return 0;
 }
 
@@ -243,11 +273,17 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
     q.data.straight_traverse.line_number = l;
     switch(settings->plane) {
     case CANON_PLANE_XY:
+        q.data.straight_traverse.dx = dx;
+        q.data.straight_traverse.dy = dy;
+        q.data.straight_traverse.dz = dz;
         q.data.straight_traverse.x = x;
         q.data.straight_traverse.y = y;
         q.data.straight_traverse.z = z;
         break;
     case CANON_PLANE_XZ:
+        q.data.straight_traverse.dz = dx;
+        q.data.straight_traverse.dx = dy;
+        q.data.straight_traverse.dy = dz;
         q.data.straight_traverse.z = x;
         q.data.straight_traverse.x = y;
         q.data.straight_traverse.y = z;
@@ -261,6 +297,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
     q.data.straight_traverse.u = u;
     q.data.straight_traverse.v = v;
     q.data.straight_traverse.w = w;
+    if(debug_qc) printf("enqueue straight traverse lineno %d to %f %f %f direction %f %f %f\n", l, x,y,z, dx, dy, dz);
     qc().push_back(q);
     return 0;
 }
@@ -290,12 +327,18 @@ void enqueue_ARC_FEED(setup_pointer settings, int l,
     q.data.arc_feed.v = v;
     q.data.arc_feed.w = w;
 
+    if(debug_qc) printf("enqueue arc lineno %d to %f %f center %f %f turn %d sweeping %f\n", l, end1, end2, center1, center2, turn, original_turns);
     qc().push_back(q);
 }
 
 void qc_scale(double scale) {
     
-    if(qc().empty()) return;
+    if(qc().empty()) {
+        if(debug_qc) printf("not scaling because qc is empty\n");
+        return;
+    }
+
+    if(debug_qc) printf("scaling qc by %f\n", scale);
 
     for(unsigned int i = 0; i<qc().size(); i++) {
         queued_canon &q = qc()[i];
@@ -345,6 +388,7 @@ void dequeue_canons(setup_pointer settings) {
 
         switch(q.type) {
         case QARC_FEED:
+            if(debug_qc) printf("issuing arc feed lineno %d\n", q.data.arc_feed.line_number);
             ARC_FEED(q.data.arc_feed.line_number, 
                      latheorigin_z(settings, q.data.arc_feed.end1), 
                      latheorigin_x(settings, q.data.arc_feed.end2), 
@@ -356,6 +400,7 @@ void dequeue_canons(setup_pointer settings) {
                      q.data.arc_feed.u, q.data.arc_feed.v, q.data.arc_feed.w);
             break;
         case QSTRAIGHT_FEED:
+            if(debug_qc) printf("issuing straight feed lineno %d\n", q.data.straight_feed.line_number);
             STRAIGHT_FEED(q.data.straight_feed.line_number, 
                           latheorigin_x(settings, q.data.straight_feed.x), 
                           q.data.straight_feed.y, 
@@ -364,6 +409,7 @@ void dequeue_canons(setup_pointer settings) {
                           q.data.straight_feed.u, q.data.straight_feed.v, q.data.straight_feed.w);
             break;
         case QSTRAIGHT_TRAVERSE:
+            if(debug_qc) printf("issuing straight traverse lineno %d\n", q.data.straight_traverse.line_number);
             STRAIGHT_TRAVERSE(q.data.straight_traverse.line_number, 
                               latheorigin_x(settings, q.data.straight_traverse.x),
                               q.data.straight_traverse.y,
@@ -372,42 +418,55 @@ void dequeue_canons(setup_pointer settings) {
                               q.data.straight_traverse.u, q.data.straight_traverse.v, q.data.straight_traverse.w);
             break;
         case QSET_FEED_RATE:
+            if(debug_qc) printf("issuing set feed rate\n");
             SET_FEED_RATE(q.data.set_feed_rate.feed);
             break;
         case QDWELL:
+            if(debug_qc) printf("issuing dwell\n");
             DWELL(q.data.dwell.time);
             break;
         case QSET_FEED_MODE:
+            if(debug_qc) printf("issuing set feed mode\n");
             SET_FEED_MODE(q.data.set_feed_mode.mode);
             break;
         case QMIST_ON:
+            if(debug_qc) printf("issuing mist on\n");
             MIST_ON();
             break;
         case QMIST_OFF:
+            if(debug_qc) printf("issuing mist off\n");
             MIST_OFF();
             break;
         case QFLOOD_ON:
+            if(debug_qc) printf("issuing flood on\n");
             FLOOD_ON();
             break;
         case QFLOOD_OFF:
+            if(debug_qc) printf("issuing flood off\n");
             FLOOD_OFF();
             break;
         case QSTART_SPINDLE_CLOCKWISE:
+            if(debug_qc) printf("issuing spindle clockwise\n");
             START_SPINDLE_CLOCKWISE();
             break;
         case QSTART_SPINDLE_COUNTERCLOCKWISE:
+            if(debug_qc) printf("issuing spindle counterclockwise\n");
             START_SPINDLE_COUNTERCLOCKWISE();
             break;
         case QSTOP_SPINDLE_TURNING:
+            if(debug_qc) printf("issuing stop spindle\n");
             STOP_SPINDLE_TURNING();
             break;
         case QSET_SPINDLE_MODE:
+            if(debug_qc) printf("issuing set spindle mode\n");
             SET_SPINDLE_MODE(q.data.set_spindle_mode.mode);
             break;
         case QSET_SPINDLE_SPEED:
+            if(debug_qc) printf("issuing set spindle speed\n");
             SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
             break;
         case QCOMMENT:
+            if(debug_qc) printf("issuing comment\n");
             COMMENT(q.data.comment.comment);
             free(q.data.comment.comment);
             break;
@@ -448,6 +507,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                            q.data.arc_feed.center1, q.data.arc_feed.center2,
                            q.data.arc_feed.turn,
                            x, y);
+            if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new speed %f\n", q.data.arc_feed.line_number, l1, l2);
+
             if(fabs(r1-r2) > .01) 
                 ERF((_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2));
             if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + 0.001) {
@@ -473,8 +534,10 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             default:
                 ERF((_("BUG: Unsupported plane in cutter compensation")));
             }
-
+            
+            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f\n", atan2(y1,x1), atan2(y2,x2));
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
+            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the
@@ -511,6 +574,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 ERF((_("BUG: Unsupported plane in cutter compensation")));
             }
 
+            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
             dot = x1 * x2 + y1 * y2;
 
             if(endpoint_valid && dot<0) {
@@ -536,12 +600,12 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
         }
     }
     dequeue_canons(settings);
-    endpoint[0] = x; endpoint[1] = y;
-    endpoint_valid = 1;
+    set_endpoint(x, y);
     return 0;
 }
 
 void set_endpoint(double x, double y) {
+    if(debug_qc) printf("setting endpoint %f %f\n", x, y);
     endpoint[0] = x; endpoint[1] = y; 
     endpoint_valid = 1;
 }
