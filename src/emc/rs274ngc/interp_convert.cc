@@ -3959,7 +3959,20 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                  AA_end, BB_end, CC_end, u_end, v_end, w_end);
                 dequeue_canons(settings);
                 set_endpoint(mid_x, mid_y);
-            }
+            } else if(move == G_0) {
+                // we can't go around the corner because there is no
+                // arc traverse.  but, if we do this anyway, at least
+                // most of our rapid will be parallel to the original
+                // programmed one.  if nothing else, this will look a
+                // little less confusing in the preview.
+                enqueue_STRAIGHT_TRAVERSE(settings, block->line_number,
+                                          0.0, 0.0, 0.0, 
+                                          mid_x, mid_y, cz, 
+                                          AA_end, BB_end, CC_end,
+                                          u_end, v_end, w_end);
+                dequeue_canons(settings);
+                set_endpoint(mid_x, mid_y);
+            } else ERM(NCE_BUG_CODE_NOT_G0_OR_G1);
         } else if (concave) {
             if (qc().front().type != QARC_FEED) {
                 // line->line
