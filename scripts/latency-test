@@ -58,6 +58,7 @@ loadusr -Wn lat pyvcp lat.xml
 net sl timedelta.0.max => lat.sl
 net sj timedelta.0.jitter => lat.sj
 net st timedelta.0.out => lat.st
+net reset lat.reset => timedelta.0.reset
 waitusr lat
 loadusr -w bash latexit.sh
 EOF
@@ -76,6 +77,7 @@ While the test is running, you should "abuse" the computer. Move windows around 
 </label>
 <tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12 italic"/><label text="Max Jitter (ns)" font="Helvetica 12 italic"/><label text="Last interval (ns)" font="Helvetica 12 italic"/>
 <tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
+<tablerow/><button text="Reset Statistics" halpin="reset"/>
 </table>
 </pyvcp>
 EOF
@@ -101,6 +103,7 @@ net st timedelta.1.out => lat.st
 net bl timedelta.0.max => lat.bl
 net bj timedelta.0.jitter => lat.bj
 net bt timedelta.0.out => lat.bt
+net reset lat.reset => timedelta.0.reset timedelta.1.reset
 waitusr lat
 loadusr -w bash latexit.sh
 EOF
@@ -120,6 +123,7 @@ While the test is running, you should "abuse" the computer. Move windows around 
 <tablerow/><label/><label text="Max Interval (ns)" font="Helvetica 12 italic"/><label text="Max Jitter (ns)" font="Helvetica 12 italic"/><label text="Last interval (ns)" font="Helvetica 12 italic"/>
 <tablerow/><label text="Servo thread ($SERVO_HUMAN):"/><s32 halpin="sl"/><s32 halpin="sj" font="Helvetica 12 bold"/><s32 halpin="st"/>
 <tablerow/><label text="Base thread ($BASE_HUMAN):"/><s32 halpin="bl"/><s32 halpin="bj" font="Helvetica 12 bold"/><s32 halpin="bt"/>
+<tablerow/><button text="Reset Statistics" halpin="reset"/>
 </table>
 </pyvcp>
 EOF
