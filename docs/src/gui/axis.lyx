@@ -2206,6 +2206,13 @@ hal_manualtoolchange can be used even when AXIS is not used as the GUI.
  the tool table.
 \layout Standard
 
+Important Note: Rapids will not show on the preview after a T<n> is issued
+ until the next feed move after the M6.
+ This can be very confusing to most users.
+ To turn this feature off for the current tool change program a G1 with
+ no move after the T<n>.
+\layout Standard
+
 
 \begin_inset Float figure
 wide false

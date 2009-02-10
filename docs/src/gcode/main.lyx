@@ -9340,9 +9340,9 @@ T: Select Tool
 
 To select a tool, program 
 \family typewriter 
-T-
+T<n>
 \family default 
-, where the T number is the carousel slot for the tool.
+, where the <n> number is the carousel slot for the tool.
  The tool is not changed until an 
 \family typewriter 
 M6
@@ -9385,6 +9385,15 @@ On some machines, the carousel will move when a T word is programmed, at
  the next tool to be used on the line after a tool change.
  This maximizes the time available for the carousel to move.
  
+\layout Standard
+
+Rapid moves after a T<n> will not show on the AXIS preview until after a
+ feed move.
+ This is for machines that travel long distances to change the tool like
+ a lathe.
+ This can be very confusing at first.
+ To turn this feature off for the current tool change program a G1 without
+ any move after the T<n>.
 \layout Chapter
 
 Differences between EMC2 gcode and RS274NGC
