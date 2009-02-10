@@ -34,5 +34,5 @@ if(last != 0) {
 	avg_err = err / (double)count;
 }
 
-if(reset) { first = 1; last = 0; }
+if(reset) { first = 1; last = 0; out = 0; jitter = 0; max_ = 0; }
 else last = now;
