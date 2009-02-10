@@ -67,7 +67,7 @@ Architecture:
 
 
     load the low-level driver(s) for the board-type(s) you want to use
-    (hm2_7i43 and/or hm2_5i20), giving each a config string modparam
+    (hm2_7i43 and/or hm2_pci), giving each a config string array modparam
 
 
     the board-driver setup does this:

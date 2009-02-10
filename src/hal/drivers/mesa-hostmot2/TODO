@@ -5,9 +5,6 @@ next steps:
     stepgen timing fixes
 
 
-    remove hm2_5i20
-
-
     the config modparam is confusing and poorly documented
 
         > Note: Double quotes in hm2_7i43 command took me some time to figure out,
@@ -336,7 +333,7 @@ wishlist:
 
         1. load anyio_manager
 
-        2. load low-level board drivers: anyio_{7i43,5i20|pci,etc}
+        2. load low-level board drivers: anyio_{7i43,pci,etc}
 
         3. llios find their boards & registers with the anyio layer
 
