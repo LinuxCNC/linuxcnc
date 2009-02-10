@@ -543,7 +543,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight move in concave corner cannot be reached by the tool without gouging")));
+                ERF((_("Straight traverse in concave corner cannot be reached by the tool without gouging")));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:
@@ -581,7 +581,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight move in concave corner cannot be reached by the tool without gouging")));
+                ERF((_("Straight feed in concave corner cannot be reached by the tool without gouging")));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:
