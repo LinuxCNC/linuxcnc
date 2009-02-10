@@ -13,6 +13,7 @@
 <doc name="config_emc2hal" title="EMC2's interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 
+<doc name="common_User_Concepts" title="Important User Concepts"/>
 <doc name="gcode_main" title="The RS274NGC G Code Language"/>
 <doc name="gcode_coordinates" title="Coordinate Systems"/>
 <doc name="gcode_mill_canned" title="Canned Cycles"/>
