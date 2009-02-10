@@ -68,10 +68,37 @@ limited interface in the HAL .  This is described in the General Purpose
 I/O section below.
 .SH config modparam
 
-The board-driver modules accept a config string modparam at load time.
-This config string is passed to and parsed by the hostmot2 driver when
-the board-driver registers a HostMot2 instance.  The format of the config
-string is:
+All the board-driver modules (hm2_pci and hm2_7i43) accept a load-time
+modparam of type string array, named "config".  This array has one config
+string for each board the driver should use.  Each board's config string
+is passed to and parsed by the hostmot2 driver when the board-driver
+registers the board.
+
+The config string can contain spaces, so it is usually a good idea to
+wrap the whole thing in double-quotes (the " character).
+
+The comma character (,) separates members of the config array from
+each other.
+
+For example, if your control computer has one 5i20 and one 5i23 you
+might load the hm2_pci driver with a HAL command (in halcmd) something
+like this:
+
+.B
+.nf
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=0,firmware=hm2/5i23/SVST8_4.BIT num_encoders=0 num_pwmgens=0 num_stepgens=2"
+.fi
+
+Note: this assumes that the hm2_pci driver detects the 5i20 first and
+the 5i23 second.  If the detection order does not match the order
+of the config strings, the hostmot2 driver will refuse to load the
+firmware and the board-driver (hm2_pci or hm2_7i43) will fail to load.
+To the best of my knowledge, there is no way to predict the order in
+which PCI boards will be detected by the driver, but the detection
+order will be consistent as long as PCI boards are not moved around.
+Best to try loading it and see what the detection order is.
+
+The format of each board's config string is:
 
 .B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
 .RS
