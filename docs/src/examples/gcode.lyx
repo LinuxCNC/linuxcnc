@@ -116,15 +116,7 @@ The program demonstrates how to find the center of a hole, measure the hole
 Cutter Compensation
 \layout Standard
 
-File Name: comp-g1.ngc
-\layout Standard
-
-Description: Cutter compensation with straight (G1) lead in and out.
-\layout Standard
-
-This file shows and example of how to do a cutter compensation move using
- a G1 straight line lead in and lead out move.
- It is an error to have a G1 lead in move form a concave angle.
+To be added
 \layout Section
 
 Lathe Examples
