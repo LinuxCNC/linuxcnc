@@ -40,24 +40,28 @@ MODULE_INFO(emc2, "license:GPL");
 
 MODULE_LICENSE("GPL");
 
-// FIXME: support multiple boards
-int ioaddr = 0x378;
-RTAPI_MP_INT(ioaddr, "The base address of the parallel port.");
+static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
+static int num_ioaddrs = HM2_7I43_MAX_BOARDS;
+module_param_array(ioaddr, int, &num_ioaddrs, S_IRUGO);
+MODULE_PARM_DESC(ioaddr, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
 
-int ioaddr_hi = 0;
-RTAPI_MP_INT(ioaddr_hi, "The secondary address of the parallel port, used to set EPP mode.\n0 means to use ioaddr + 0x400.");
+static int ioaddr_hi[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
+static int num_ioaddr_his = HM2_7I43_MAX_BOARDS;
+module_param_array(ioaddr_hi, int, &num_ioaddr_his, S_IRUGO);
+MODULE_PARM_DESC(ioaddr_hi, "secondary address of the parallel port(s) (see hm2_7i43(9) manpage)");
 
-int epp_wide = 1;
-RTAPI_MP_INT(epp_wide, "Set to zero to disable the \"wide EPP mode\".  \"Wide\" mode allows a 16-\nand 32-bit EPP transfers, which can reduce the time spent in the read\nand write functions.  However, this may not work on all EPP parallel\nports.");
+static int epp_wide[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 1 };
+static int num_epp_wides = HM2_7I43_MAX_BOARDS;
+module_param_array(epp_wide, int, &num_epp_wides, S_IRUGO);
+MODULE_PARM_DESC(epp_wide, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
 
 int debug_epp = 0;
 RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
 
-
 static char *config[HM2_7I43_MAX_BOARDS];
 static int num_config_strings = HM2_7I43_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
-MODULE_PARM_DESC(config, "config string for 7i43 boards (see hostmot2(9) manpage)");
+MODULE_PARM_DESC(config, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
 
 
 
@@ -102,7 +106,7 @@ static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
 static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
     uint32_t data;
 
-    if (epp_wide) {
+    if (board->epp_wide) {
 	data = inl(board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
     } else {
@@ -118,7 +122,7 @@ static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
 }
 
 static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
-    if (epp_wide) {
+    if (board->epp_wide) {
 	outl(w, board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
     } else {
@@ -306,11 +310,13 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 
         duration_ns = (uint32_t)(end_time - start_time);
 
-        THIS_INFO(
-            "%d bytes of firmware sent (%u KB/s)\n",
-            bitfile->e.size,
-            (uint32_t)(((double)bitfile->e.size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
-        );
+        if (duration_ns != 0) {
+            THIS_INFO(
+                "%d bytes of firmware sent (%u KB/s)\n",
+                bitfile->e.size,
+                (uint32_t)(((double)bitfile->e.size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
+            );
+        }
     }
 
 
@@ -374,13 +380,16 @@ static void hm2_7i43_cleanup(void) {
 
     // NOTE: hal_malloc() doesnt have a matching free
 
-    for (i = 0; i < HM2_7I43_MAX_BOARDS; i ++) {
+    for (i = 0; i < num_boards; i ++) {
         hm2_lowlevel_io_t *this = &board[i].llio;
-        // if we've initialized the board, reset it now
+        THIS_PRINT("releasing board\n");
+        hm2_unregister(this);
+
         if (board[i].io_region1) {
-            THIS_PRINT("releasing board\n");
-            hm2_unregister(this);
             rtapi_release_region(board[i].ioaddr, 8);
+        }
+
+        if (board[i].io_region2) {
             rtapi_release_region(board[i].ioaddr_hi, 4);
         }
     }
@@ -396,17 +405,16 @@ static int hm2_7i43_setup(void) {
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
     num_boards = 0;
 
-    for (i = 0; i < 1; i ++) {
+    for (i = 0; i < num_config_strings; i ++) {
         hm2_lowlevel_io_t *this;
         int r;
 
-        // FIXME: support multiple boards
-        board[i].ioaddr = ioaddr;
-        board[i].ioaddr_hi = ioaddr_hi;
+        board[i].ioaddr = ioaddr[i];
+        board[i].ioaddr_hi = ioaddr_hi[i];
         if (board[i].ioaddr_hi == 0) {
             board[i].ioaddr_hi = board[i].ioaddr + 0x400;
         }
-        board[i].epp_wide = epp_wide;
+        board[i].epp_wide = epp_wide[i];
 
 
         //
@@ -415,28 +423,36 @@ static int hm2_7i43_setup(void) {
 
         board[i].io_region1 = rtapi_request_region(board[i].ioaddr, 8, "hm2_7i43");
         if (!board[i].io_region1) {
-            LL_ERR("request_region(%x) failed\n", board[i].ioaddr);
+            LL_ERR("request_region(%x) (for ioaddr) failed\n", board[i].ioaddr);
             LL_ERR("make sure the kernel module 'parport' is unloaded)\n");
             return -EBUSY;
         }
 
-        board[i].io_region2 = rtapi_request_region(board[i].ioaddr_hi, 4, "hm2_7i43");
-        if (!board[i].io_region2) {
-            rtapi_release_region(board[i].ioaddr, 8);
-            board[i].io_region1 = NULL;
-            LL_ERR("request_region(%x) failed\n", board[i].ioaddr);
-            LL_ERR("make sure the kernel module 'parport' is unloaded)\n");
-            return -EBUSY;
+        if (board[i].ioaddr_hi < 0) {
+            board[i].io_region2 = NULL;  // The LAVA PCI EPP board does this, it's stuck in EPP mode
+        } else {
+            board[i].io_region2 = rtapi_request_region(board[i].ioaddr_hi, 4, "hm2_7i43");
+            if (!board[i].io_region2) {
+                rtapi_release_region(board[i].ioaddr, 8);
+                board[i].io_region1 = NULL;
+                LL_ERR("request_region(%x) (for ioaddr_hi) failed\n", board[i].ioaddr);
+                LL_ERR("make sure the kernel module 'parport' is unloaded)\n");
+                return -EBUSY;
+            }
+
+            // set up the parport for EPP
+            outb(0x94, board[i].ioaddr_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
+        //
+        // when we get here, the parallel port is in epp mode and ready to go
+        //
 
-        // set up the parport for EPP
-        outb(0x94, board[i].ioaddr_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+        // select the device and tell it to make itself ready for io
         hm2_7i43_epp_write_control(0x04, &board[i]);  // set control lines and input mode
         hm2_7i43_epp_clear_timeout(&board[i]);
 
-
-        snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, num_boards);
+        snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, i);
         board[i].llio.comp_id = comp_id;
 
         board[i].llio.read = hm2_7i43_read;
@@ -481,19 +497,26 @@ static int hm2_7i43_setup(void) {
                 board[i].ioaddr_hi,
                 (board[i].epp_wide ? "ON" : "OFF")
             );
-            rtapi_release_region(board[i].ioaddr, 8);
-            rtapi_release_region(board[i].ioaddr_hi, 4);
-            board[i].io_region1 = NULL;
-            return r;
-        } else {
-            THIS_PRINT(
-                "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
-                board[i].ioaddr,
-                board[i].ioaddr_hi,
-                (board[i].epp_wide ? "ON" : "OFF")
-            );
 
+            rtapi_release_region(board[i].ioaddr, 8);
+            board[i].io_region1 = NULL;
+
+            if (board[i].io_region2) {
+                rtapi_release_region(board[i].ioaddr_hi, 4);
+            }
+            board[i].io_region2 = NULL;
+
+            return r;
         }
+
+        THIS_PRINT(
+            "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
+            board[i].ioaddr,
+            board[i].ioaddr_hi,
+            (board[i].epp_wide ? "ON" : "OFF")
+        );
+
+        num_boards ++;
     }
 
     return 0;

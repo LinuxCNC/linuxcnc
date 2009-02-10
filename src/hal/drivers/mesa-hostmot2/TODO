@@ -5,6 +5,16 @@ next steps:
     stepgen timing fixes
 
 
+    remove hm2_5i20
+
+
+    the config modparam is confusing and poorly documented
+
+        > Note: Double quotes in hm2_7i43 command took me some time to figure out,
+        > as the config modparam single quotes were getting stripped by Bash. This
+        > might be something to add to "man hostmot2".
+
+
     pins & params use "-" vs "_" inconsistently
 
     "io-error" should probably be only for 7i43
@@ -23,11 +33,6 @@ next steps:
 
     when reading IO Cookie & Config Name, if it fails read it many times
     to get some more data
-
-
-    > Note: Double quotes in hm2_7i43 command took me some time to figure out,
-    > as the config modparam single quotes were getting stripped by Bash. This
-    > might be something to add to "man hostmot2".
 
 
     JMK suggested auto-generating man pages from the PIN files...
@@ -65,65 +70,6 @@ next steps:
             process_tram_read(): handle new values in TRAM registers
 
             debug_print(): show internal state
-
-
-
-
-clean the tree:
-
-    Is the driver stable enough for this now?  The one remaining invasive
-    change I might want to do is the anyio layer between the firmware
-    drivers like hostmot2 and the llio drivers (see Wishlist at bottom).
-
-    Here's what's in our trees currently:
-
-        2.2:
-
-            driver: hal_m5i20
-            boards supported: 5i20
-            firmware source: eeprom or userspace utility run before driver load
-            firmware notes: old hostmot, various flavors
-            other notes: widely used
-
-            driver: hal_5i2x
-            boards supported: 5i20; 5i22 support planned?
-            firmware source: eeprom or userspace
-            firmware notes: not sure, a fork off the old hostmot code?
-            other notes: development stalled?  deprecate in favor of hostmot2?
-
-            driver: hostmot2
-            boards supported: all
-            firmware source: request_firmware()/udev
-            firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively maintained
-
-            driver: m7i43_hm2 DEPRECATED!
-            boards supported: 7i43
-            firmware source: compiled into driver, sent to board at insmod time
-            firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: in maintenance mode, new development continued in hostmot2 in TRUNK (see below)
-
-
-        TRUNK:
-
-            driver: hal_m5i20
-            boards supported: 5i20
-            firmware source: eeprom or userspace utility run before driver load
-            firmware notes: old hostmot, various flavors
-            other notes: widely used
-
-            driver: hal_5i2x
-            boards supported: 5i20; 5i22 support planned?
-            firmware source: eeprom or userspace
-            firmware notes: not sure, a fork off the old hostmot code?
-            other notes: development stalled?  deprecate in favor of hostmot2?
-            jmk intends to remove this <http://www.linuxcnc.org/irc/irc.freenode.net:6667/emcdevel/2008-12-25.txt>
-
-            driver: hostmot2
-            boards supported: all
-            firmware source: request_firmware()/udev
-            firmware notes: hostmot2, various flavors, supported by Mesa
-            other notes: actively maintained
 
 
 
@@ -273,17 +219,66 @@ watchdog:
 
 7i43:
 
-    can't get it to work with the pci card parport...  NetMos 9805
-    problem, try a card with another chipset
+    pci card parport status:
 
-    test with the 400K board again
+        NetMos 9805
 
-    needs to support multiple boards (i think this works)
+            doesnt work at all (for me or Peter)
+
+            seems like NM98xx doesnt do EPP right
+
+
+        NetMos 9835
+
+
+        SUNIX 1888
+
+            often i can send the 7i43 the firmware (and it takes it),
+            but then there are random system lockups...  PCW says this
+            one is sensitive to bad EPP cables
+
+
+        LAVA MOKO S1
+        
+            totally failed to read even the CPLD
+
+
+        OXSEMI PCI952
+
+            works if i turn off EPP Wide mode!
+
+            01:05.1 Parallel controller: Oxford Semiconductor Ltd OX16PCI952 Integrated Parallel Port (prog-if 01 [BiDir])
+                    Subsystem: Oxford Semiconductor Ltd Unknown device 0001
+                    Flags: medium devsel, IRQ 3
+                    I/O ports at dcb8 [size=8]
+                    I/O ports at dca4 [size=4]
+                    I/O ports at dce0 [size=32]
+                    Memory at fe9dd000 (32-bit, non-prefetchable) [size=4K]
+                    Capabilities: <access denied>
+
+            linux parport_pc: parport1: PC-style at 0xdcb8 (0xdca4) [PCSPP,TRISTATE,EPP]
+
+            loadrt hm2_7i43 ioaddr=0xdcb8 ioaddr_hi=0xdca4 epp_wide=0 config="firmware=hm2/7i43/SVST4_4B.BIT"
+
+
+        ITE 8875
+
+
 
 
 5i20, 5i22, 5i23, 4i65, 4i68:
 
-    no known issues
+    no known bugs
+
+    pci device hotplugging is awkward for emc2
+
+        it'd be nice to know if the pci card(s) failed to initialize by
+        having hm2_pci fail to load.  Does pci_register_device() get the
+        hotplug events for all the existing boards before it returns?
+        Does it help if it does?
+
+        Maybe drop hotplug and use pci_get_device() in rtapi_app_main()
+        to enumerate all the plugged-in devices?
 
 
 

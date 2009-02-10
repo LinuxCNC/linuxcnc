@@ -22,7 +22,7 @@
 #endif
 
 
-#define HM2_7I43_VERSION "0.2"
+#define HM2_7I43_VERSION "0.3"
 
 #define HM2_LLIO_NAME "hm2_7i43"
 
@@ -55,10 +55,10 @@
 //
 
 typedef struct {
-    unsigned int ioaddr;
+    int ioaddr;
     void *io_region1;
 
-    unsigned int ioaddr_hi;
+    int ioaddr_hi;
     void *io_region2;
 
     int epp_wide;
