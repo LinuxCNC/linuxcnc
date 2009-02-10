@@ -11,11 +11,11 @@ hm2_pci \- EMC2 HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 
 .SH SYNOPSIS
 
 .HP
-.B loadrt hm2_pci [config=\fI"str"\fB]
+.B loadrt hm2_pci [config=\fI"str[,str...]"\fB]
 .RS 4
 .TP
 \fBconfig\fR [default: ""]
-HostMot2 config string, described in the hostmot2(9) manpage.
+HostMot2 config strings, described in the hostmot2(9) manpage.
 .RE
 .SH DESCRIPTION
 
@@ -24,8 +24,6 @@ based Anything I/O boards (with the HostMot2 firmware) to the EMC2 HAL.
 
 The supported boards are: the 5i20, 5i22, and 5i23 (all on PCI); and
 the 4i65 and 4i68 (on PC-104/Plus).
-
-This driver replaces the hm2_5i20 driver.
 
 The driver programs the board's FPGA with firmware when it registers
 the board with the hostmot2 driver.  The firmware to load is specified
