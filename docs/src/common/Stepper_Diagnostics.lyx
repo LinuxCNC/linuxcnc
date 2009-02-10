@@ -98,11 +98,12 @@ MAX_ACCELERATION to fast
 BASE_PERIOD set to long
 \layout Standard
 
-Any of the above can cause the RT pulsing to not be able to keep up with
- the speed needed or the requested step rate is not possible at the BASE_PERIOD
- setting.
- This happens when you change one of the above in your ini file, so go back
- and change it back to what it was and try again.
+Any of the above can cause the RT pulsing to not be able to keep up the
+ requested step rate.
+ This can happen if you didn't run the latency test long enough to get a
+ good number to plug into the Stepconf Wizard or if you set the Maximum
+ Velocity or Maximum Acceleration too high.
+ 
 \layout Subsection
 
 RTAPI Error
