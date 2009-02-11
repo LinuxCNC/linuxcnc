@@ -1912,6 +1912,7 @@ class App:
         if self.widgets.radiobutton6.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
         halrun.write("waitusr displaytest\n"); halrun.flush()
+        halrun.close()   
 
     def load_ladder(self,w):         
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
