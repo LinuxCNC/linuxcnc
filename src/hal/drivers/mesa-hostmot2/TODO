@@ -35,11 +35,6 @@ next steps:
     JMK suggested auto-generating man pages from the PIN files...
 
 
-    on driver unload, it should stop all the motors and "safe" the
-    gpios....  The watchdog already sort of does this.  document this
-    behavior
-
-
     It's starting to feel like it's ready for some kind of module
     abstraction...  To standardize the semantics and make it easier to
     think about.  Pull out the common code.  pins are special
@@ -162,7 +157,7 @@ stepgen:
 
     if a stepgen is stepping, and you set its .enable to 0 it stops
     instantly (which is good).  But if you then set its .enable to 1,
-    it resumes at its previous velocity (which is bad).
+    it resumes at its previous velocity.  Is that bad?
 
     test different steps-pre-rev on different stepgen instances
 
@@ -222,7 +217,7 @@ watchdog:
 
             doesnt work at all (for me or Peter)
 
-            seems like NM98xx doesnt do EPP right
+            the manufacturer claims the NM98xx chips don't do EPP right
 
 
         NetMos 9835

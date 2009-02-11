@@ -62,9 +62,9 @@ Module instances that have been disabled automatically become GPIOs.
 All IO pins have some HAL presence, whether they belong to an active
 module instance or are full GPIOs.  GPIOs can be changed (at run-time)
 between inputs, normal outputs, and open drains, and have a flexible
-HAL interface.  IO pins that belongs to active module instances are
-constrained by the requirements of the owning module, and have a more
-limited interface in the HAL .  This is described in the General Purpose
+HAL interface.  IO pins that belong to active Module instances are
+constrained by the requirements of the owning Module, and have a more
+limited interface in HAL.  This is described in the General Purpose
 I/O section below.
 .SH config modparam
 
@@ -116,7 +116,7 @@ for F might be "hm2/5i20/SVST8_4.BIT".  If EMC2 is installed by the
 Debian package (.deb), then the firmware files are already installed
 in /lib/firmware.  If EMC2 is compiled from CVS and configured for
 run-in-place, then the user must symlink the hostmot2 firmware into
-/lib/firmware manually, by a command like this:
+/lib/firmware manually, using a command like this:
 .P
 .RS
 \fBsudo ln -s $HOME/emc2-sandbox/src/hal/drivers/mesa-hostmot2/firmware
@@ -153,35 +153,36 @@ Each encoder uses three or four input IO pins, depending on how the
 firmware was compiled.  Three-pin encoders use A, B, and Index (sometimes
 also known as Z).  Four-pin encoders use A, B, Index, and Index-mask.
 
-Each encoder instance has the following pins and parameters:
+The hm2 encoder representation is similar to the one described by the
+Canonical Device Interface (in the HAL General Reference document),
+and to the software encoder component.  Each encoder instance has the
+following pins and parameters:
 
 Pins:
 
 (s32 out) count: Number of encoder counts since the previous reset.
-(Like CDI.)
 
 (float out) position: Encoder position in position units (count / scale).
-(Like CDI.)
 
 (float out) velocity: Estimated encoder velocity in position units
-per second.  (Like CDI.)
+per second.
 
 (bit in) reset: When this pin is TRUE, the count and position pins are
-set to 0.  The driver does not reset this pin to FALSE after resetting
-the count to 0, that is the user's job.  (Like CDI.)
+set to 0.  (The value of the velocity pin is not affected by this.)
+The driver does not reset this pin to FALSE after resetting the count
+to 0, that is the user's job.
 
 (bit in/out) index-enable: When this pin is set to True, the count
 (and therefore also position) are reset to zero on the next Index
 (Phase-Z) pulse.  At the same time, index-enable is reset to zero to
-indicate that the pulse has occurred.  (Like CDI.)
+indicate that the pulse has occurred.
 
 (s32 out) rawcount: Total number of encoder counts since the start,
-not adjusted for index or reset.  (Like the software encoder component.)
+not adjusted for index or reset.
 
 Parameters:
 
 (float r/w) scale: Converts from 'count' units to 'position' units.
-(Like CDI.)
 
 (bit r/w) index-invert: If set to True, the rising edge of the Index
 input pin triggers the Index event (if index-enable is True).  If set
@@ -223,15 +224,14 @@ Out1.
 The function of the Out0 and Out1 IO pins varies with output-type
 parameter (see below).
 
-The pwmgen representation is modeled on the pwmgen software component
-as far as possible.  Each pwmgen instance has the following pins and
-parameters:
+The hm2 pwmgen representation is similar to the software pwmgen component.
+Each pwmgen instance has the following pins and parameters:
 
 Pins:
 
 (bit input) enable: If true, the pwmgen will set its Not-Enable pin
-false and output its PWM and Direction signals.  If 'enable' is false,
-pwmgen will set its Not-Enable pin true and not output any signals.
+false and output its pulses.  If 'enable' is false, pwmgen will set its
+Not-Enable pin true and not output any signals.
 
 (float input) value: The current pwmgen command value, in arbitrary units.
 
@@ -239,7 +239,7 @@ Parameters:
 
 (float rw) scale: Scaling factor to convert 'value' from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
-of -1.0 to +1.0 inclusive.
+of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
 
 (s32 rw) output-type: This emulates the output_type load-time argument to
 the software pwmgen component.  This parameter may be changed at runtime,
@@ -334,33 +334,34 @@ cycle (00 -> 01 -> 11 -> 10 -> 00) for each "step" it takes.
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported
-to HAL as full GPIO pins.  Full GPIO pins can be configured at run-time
+to HAL as "full" GPIO pins.  Full GPIO pins can be configured at run-time
 to be inputs, outputs, or open drains, and have a HAL interface that
 exposes this flexibility.  IO pins that are owned by an active module
 instance are constrained by the requirements of the owning module,
 and have a restricted HAL interface.
 
 GPIOs have names like "hm2_<BoardType>.<BoardNum>.gpio.<IONum>".
-IONum is a three-digit number.  The mapping from IONum to connector
-and pin-on-that-connector is printed when the driver loads, and it's
-documented in Mesa's manual for the Anything I/O boards.
+IONum is a three-digit number.  The mapping from IONum to connector and
+pin-on-that-connector is written to the syslog when the driver loads,
+and it's documented in Mesa's manual for the Anything I/O boards.
 
-Each GPIO can have the following HAL Pins:
+The hm2 GPIO representation is modeled after the Digital Inputs and
+Digital Outputs described in the Canonical Device Interface (part of
+the HAL General Reference document).  Each GPIO can have the following
+HAL Pins:
 
 (bit out) in & in_not: State (normal and inverted) of the hardware
-input pin.  This follows the Canonical Device Interface for Digital Input.
-Only full GPIO pins and IO pins used as inputs by active module instances
-have these pins.
+input pin.  Both full GPIO pins and IO pins used as inputs by active
+module instances have these pins.
 
 (bit in) out: Value to be written (possibly inverted) to the hardware
-output pin.  This follows the Canonical Device Interface for Digital
-Output.  Only full GPIO pins have this pin.
+output pin.  Only full GPIO pins have this pin.
 
 Each GPIO can have the following Parameters:
 
-(bit r/w) is_output: If set to 0, the GPIO is an input.  The IO pin is
-put in a high-impedance state (pulled up to 5V), to be driven by other
-devices.  The logic value on the IO pin is available in the "in" and
+(bit r/w) is_output: If set to 0, the GPIO is an input.  The IO pin
+is put in a high-impedance state (weakly pulled high), to be driven by
+other devices.  The logic value on the IO pin is available in the "in" and
 "in_not" HAL pins.  Writes to the "out" HAL pin have no effect.  If this
 parameter is set to 1, the GPIO is an output; its behavior then depends
 on the "is_opendrain" parameter.  Only full GPIO pins have this parameter.
@@ -373,17 +374,16 @@ value of the "in" and "in_not" HAL pins is undefined.  If this parameter
 is true, the GPIO behaves as an open-drain pin.  Writing 0 to the "out"
 HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the
 IO pin in a high-impedance state.  In this high-impedance state the IO
-pin floats (pulled up to 5V), and other devices can drive the value; the
-resulting value on the IO pin is available on the "in" and "in_not" pins.
-Only full GPIO pins and IO pins used as outputs by active module instances
-have this parameter.
+pin floats (weakly pulled high), and other devices can drive the value;
+the resulting value on the IO pin is available on the "in" and "in_not"
+pins.  Only full GPIO pins and IO pins used as outputs by active module
+instances have this parameter.
 
 (bit r/w) invert_output: This parameter only has an effect if the
 "is_output" parameter is true.  If this parameter is true, the output
 value of the GPIO will be the inverse of the value on the "out" HAL pin.
-This corresponds to the 'invert' parameter in the Canonical Device
-Interface for Digital Output.  Only full GPIO pins and IO pins used as
-outputs by active module instances have this parameter.
+Only full GPIO pins and IO pins used as outputs by active module instances
+have this parameter.
 .SH Watchdog
 
 The HostMot2 firmware may include a watchdog Module; if it does, the
