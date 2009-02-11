@@ -60,6 +60,7 @@ import rs274.options
 import nf
 import gcode
 import locale
+import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
@@ -208,6 +209,7 @@ help2 = [
     ("", ""),
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
+    ("F4", _("Switch between preview and DRO")),
 ]
 
 
@@ -2015,7 +2017,8 @@ widgets = nf.Widgets(root_window,
     ("text", Text, pane_bottom + ".t.text"),
     ("preview_frame", Frame, tabs_preview),
     ("numbers_text", Text, tabs_numbers + ".text"),
-
+    ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
+    ("right", bwidget.NoteBook, pane_top + ".right"),
     ("mdi_history", Listbox, tabs_mdi + ".history"),
     ("mdi_command", Entry, tabs_mdi + ".command"),
     ("code_text", Text, tabs_mdi + ".gcodes"),
@@ -2422,6 +2425,10 @@ def reload_file(refilter=True):
         o.set_highlight_line(line)
  
 class TclCommands(nf.TclCommands):
+    def toggle_preview(event=None):
+        current = widgets.right.raise_page()
+        if current == "preview": widgets.right.raise_page("numbers")
+        else: widgets.right.raise_page("preview")
     def redraw_soon(event=None):
         o.redraw_soon()
 
@@ -3780,6 +3787,7 @@ def get_coordinate_font(large):
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
 root_window.bind("<Key-F5>", "+" + tabs_mdi + ".command selection range 0 end")
+root_window.bind("<Key-F4>", commands.toggle_preview)
 
 init()
 
