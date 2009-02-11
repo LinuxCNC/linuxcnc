@@ -169,10 +169,6 @@ int main(int argc, gchar * argv[])
     printf ( "main window inited\n" );
 #endif
 
-    /* register signal handlers for ctrl-C and SIGTERM */
-    signal(SIGINT, quit);
-    signal(SIGTERM, quit);
-
     /* The interface is now completely set up */
     /* show the window */
     gtk_widget_show(main_win->gtk_widget);
