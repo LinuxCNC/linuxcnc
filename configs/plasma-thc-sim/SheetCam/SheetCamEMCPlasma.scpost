@@ -1,0 +1,140 @@
+function OnAbout(event)
+   ctrl = event:GetTextCtrl()
+   ctrl:AppendText("EMC plasma post processor\n")
+   ctrl:AppendText("\n")
+   ctrl:AppendText("Modal G-codes and coordinates\n")
+   ctrl:AppendText("Comments enclosed with ( and )\n")
+   ctrl:AppendText("Incremental IJ\n")
+   ctrl:AppendText("uses G43 tool length offsets\n")
+end
+
+
+--  revision 3/2/07
+--  Removed final safety move. This is now done in SheetCam
+
+--   revision 7/10/04
+--   Added new arc handling
+
+--   Created 30/3/2005
+--   based on Mach2.post
+
+
+
+function OnInit()
+   post.SetCommentChars ("()", "[]")  --make sure ( and ) characters do not appear in system text
+   post.Text (" (Filename: ", fileName, ")\n")
+   post.Text (" (Post processor: ", postName, ")\n")
+   post.Text (" (Date: ", date, ")\n")
+   if(scale == metric) then
+      post.Text (" G21 (Units: Metric)\n") --metric mode
+   else
+      post.Text (" G20 (Units: Inches)\n") --inch mode
+   end
+   post.Text (" G40 G90\n F1\n")
+   bigArcs = 1 --stitch arc segments together
+   minArcSize = 0.05 --arcs smaller than this are converted to moves
+end
+
+function OnNewLine()
+   post.Text ("N")
+   post.Number (lineNumber, "0000")
+   lineNumber = lineNumber + 10
+end
+
+
+function OnFinish()
+   post.Text (" M05 M30\n")
+end
+
+function OnRapid()
+   post.ModalText (" G00")
+   post.ModalNumber (" X", endX * scale, "0.0000")
+   post.ModalNumber (" Y", endY * scale, "0.0000")
+--   post.ModalNumber (" Z", (endZ + toolOffset) * scale, "0.0000")
+   post.Eol()
+end
+
+function OnMove()
+   post.ModalText (" G01")
+   post.ModalNumber (" X", endX * scale, "0.0000")
+   post.ModalNumber (" Y", endY * scale, "0.0000")
+-- post.ModalNumber (" Z", (endZ + toolOffset) * scale, "0.0000")
+   post.ModalNumber (" F", feedRate * scale, "0.###")
+   post.Eol()
+end
+
+function OnArc()
+   if(arcAngle <0) then
+      post.ModalText (" G03")
+   else
+      post.ModalText (" G02")
+   end
+   post.NonModalNumber (" X", endX * scale, "0.0000")
+   post.NonModalNumber (" Y", endY * scale, "0.0000")
+--   post.ModalNumber (" Z", (endZ + toolOffset) * scale, "0.0000")
+   post.Text (" I")
+   post.Number ((arcCentreX - currentX) * scale, "0.0000")
+   post.Text (" J")
+   post.Number ((arcCentreY - currentY) * scale, "0.0000")
+   post.ModalNumber (" F", feedRate * scale, "0.0###")
+   post.Eol()
+end
+
+
+function OnPenDown()
+   if (preheat > 0.001) then
+--    post.ModalText (" G00")
+--    post.ModalNumber (" Z", cutHeight * scale, "0.0000")
+      post.Text ("\n G04 P")
+      post.Number (preheat,"0.###")
+      post.Eol()
+   end
+-- post.ModalText (" G00")
+-- post.ModalNumber (" Z", pierceHeight * scale, "0.0000")
+   post.Text ("\n M03\n")
+   if (pierceDelay > 0.001) then
+      post.Text (" G04 P")
+      post.Number (pierceDelay,"0.###")
+      post.Eol()
+   end
+end
+
+
+function OnPenUp()
+   post.Text (" M05\n")
+   if (endDelay > 0) then
+      post.Text (" G04 P")
+      post.Number (endDelay,"0.###")
+      post.Eol()
+   end
+end
+
+function OnNewOperation()
+   post.Text (" (Process: ", operationName, ")\n")
+   if (plungeRate <= 0) then
+      post.Warning("WARNING: Plunge rate is zero")
+   end
+   if (feedRate <= 0) then
+      post.Warning("WARNING: Feed rate is zero")
+   end
+end
+
+function OnComment()
+  post.Text(" (",commentText,")\n")
+end
+
+
+function OnNewPart()
+   post.Text(" (Part: ",partName,")\n");
+end
+
+
+function OnDrill()
+   OnRapid()
+   OnPenDown()
+   endZ = drillZ
+   OnMove()
+   OnPenUp()
+   endZ = safeZ
+   OnRapid()
+end

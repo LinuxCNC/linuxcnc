@@ -1,6 +1,7 @@
 component updown "Counts up or down, with optional limits and wraparound behavior";
 pin in bit countup "Increment count when this pin goes from 0 to 1";
 pin in bit countdown "Decrement count when this pin goes from 0 to 1";
+pin in bit reset "Reset count when this pin goes from 0 to 1";
 pin out s32 count "The current count";
 param rw bit clamp "If TRUE, then clamp the output to the min and max parameters.";
 param rw bit wrap "If TRUE, then wrap around when the count goes above or below the min and max parameters.  Note that wrap implies (and overrides) clamp.";
@@ -26,6 +27,9 @@ FUNCTION(_) {
 	}
 	if ((!olddown) && (countdown)) { // positive edge, count down
 		temp_count--;
+	}
+	if (reset) {
+		temp_count=0;
 	}
 	if (wrap) {
 		if (temp_count > max)

@@ -1,7 +1,7 @@
 ############################# Parallel Ports ##############################################
 
 # Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
-loadrt hal_parport cfg="0xa400 0xac00"
+loadrt hal_parport cfg="0xa400 0xac00 in"
 
 # Connect both Paralell Ports to Threads for Read / Write
 addf parport.0.read base-thread 1
@@ -10,7 +10,6 @@ addf parport.1.read base-thread 1
 addf parport.1.write base-thread -1
 
 # Invert pins to make motors move in right direction
-#setp parport.0.pin-05-out-invert 1
 setp parport.0.pin-06-out-invert 1
 setp parport.0.pin-07-out-invert 1
 

@@ -1,0 +1,139 @@
+--Emc2 plasma post processor
+--
+--Post processor for automatic Z movement
+--
+--Modal G-codes and coordinates
+--Comments enclosed with ( and )
+--M03/M05 turn the torch on/off
+--Incremental IJ
+
+
+--   created 30/6/08
+--   Based on Mach2 plasma.post
+
+
+
+function init()
+
+   setcommentchars ("()", "[]")  --make sure ( and ) characters do not appear in system text
+   text (" (Filename: ", filename, ")\n")
+   text (" (Post processor: ", postname, ")\n")
+   text (" (Date: ", date, ")\n")
+   if(scale == metric) then
+      text (" G21 (Units: Metric)\n") --metric mode
+   else
+      text (" G20 (Units: Inches)\n") --inch mode
+   end
+   text (" G90 G40\n F1\n S500\n")
+   bigarcs = 1 --stitch arc segments together
+   minarcsize = 0.05 --arcs smaller than this are converted to moves
+end
+
+function newline()
+   text ("N")
+   number (line, "0000")
+   line = line + 10
+end
+
+
+function finish()
+   text (" M05 M30\n")
+end
+
+function rapid()
+   if (math.hypot(endx - currentx, endy - currenty) < 0.001) then return end
+   modaltext (" G00")
+   modalnumber (" X", endx * scale, "0.0000")
+   modalnumber (" Y", endy * scale, "0.0000")
+--   modalnumber (" Z", endz * scale, "0.0000")
+   eol()
+end
+
+function move()
+   if (math.hypot(endx - currentx, endy - currenty) < 0.001) then return end
+   modaltext (" G01")
+   modalnumber (" X", endx * scale, "0.0000")
+   modalnumber (" Y", endy * scale, "0.0000")
+--   modalnumber (" Z", endz * scale, "0.0000")
+   modalnumber (" F", feedrate * scale, "0.###")
+   eol()
+end
+
+function arc()
+   if(arcangle <0) then
+      modaltext (" G03")
+   else
+      modaltext (" G02")
+   end
+   nonmodalnumber (" X", endx * scale, "0.0000")
+   nonmodalnumber (" Y", endy * scale, "0.0000")
+--   modalnumber (" Z", endz * scale, "0.0000")
+   text (" I")
+   number ((arccentrex - currentx) * scale, "0.0000")
+   text (" J")
+   number ((arccentrey - currenty) * scale, "0.0000")
+   modalnumber (" F", feedrate * scale, "0.0###")
+   eol()
+end
+
+
+function pendown()
+   if (preheat > 0.001) then
+--      modaltext (" G00")
+--      modalnumber (" Z", cutheight * scale, "0.0000")
+      text (" G04 P")
+      number (preheat,"0.###")
+      eol()
+   end
+--   modaltext (" G00")
+--   modalnumber (" Z", pierceheight * scale, "0.0000")
+   text (" M03\n")
+   if (piercedelay > 0.001) then
+      text (" G04 P")
+      number (piercedelay,"0.###")
+      eol()
+   end
+end
+
+
+function penup()
+   text (" M05\n")
+   if (enddelay > 0) then
+      text (" G04 P")
+      number (enddelay,"0.###")
+      eol()
+   end
+end
+
+
+function newprocess()
+   text (" (Process: ", processname, ")\n")
+   if (feedrate <= 0) then
+      warning("WARNING: Feed rate is zero")
+   end
+end
+
+function comment()
+  text(" (",commenttext,")\n")
+end
+
+function toolchange()
+   text (" M06 T")
+   number (tool, "0")
+   modalnumber(" F",feedrate * scale,"0.#")
+   text ("  (", toolname, ")\n")
+end
+
+function newpart()
+   text(" (Part: ",partname,")\n");
+end
+
+function drill()
+   rapid()
+   pendown()
+   endz = drillz
+   move()
+   penup()
+   endz = safez
+   rapid()
+end
