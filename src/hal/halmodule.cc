@@ -175,7 +175,6 @@ static void pyhal_delete(PyObject *_self) {
 static int pyhal_write_common(halitem *pin, PyObject *value) {
     int is_int = PyInt_Check(value);
     long intval = is_int ? PyInt_AsLong(value) : -1;
-    unsigned int uintval;
     if(!pin) return -1;
 
     if(pin->is_pin) {
@@ -199,9 +198,10 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                     return -1;
                 }
                 break;
-            case HAL_U32:
+            case HAL_U32: {
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
+                    if(intval != (int32_t)intval) goto rangeerr;
                     *pin->u->pin.u32 = intval;
                     break;
                 }
@@ -210,17 +210,21 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                             "Integer or long expected, not %s",
                             value->ob_type->tp_name);
                     return -1;
-                }
-                uintval = PyLong_AsUnsignedLong(value);
+                } 
+                unsigned long uintval = PyLong_AsUnsignedLong(value);
+                if(uintval != (uint32_t)uintval) goto rangeerr;
                 if(PyErr_Occurred()) return -1;
                 *pin->u->pin.u32 = uintval;
                 break;
+            }
             case HAL_S32:
                 if(is_int) {
+                    if(intval != (int32_t)intval) goto rangeerr;
                     *pin->u->pin.s32 = intval;
                 } else if(PyLong_Check(value)) {
                     intval = PyLong_AsLong(value);
                     if(PyErr_Occurred()) return -1;
+                    if(intval != (int32_t)intval) goto rangeerr;
                     *pin->u->pin.u32 = intval;
                 }
                 break;
@@ -244,9 +248,11 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                     return -1;
                 }
                 break;
-            case HAL_U32:
+            case HAL_U32: {
+                unsigned long uintval;
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
+                    if(intval != (int32_t)intval) goto rangeerr;
                     pin->u->param.u32 = intval;
                     break;
                 }
@@ -258,10 +264,13 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 }
                 uintval = PyLong_AsUnsignedLong(value);
                 if(PyErr_Occurred()) return -1;
+                if(uintval != (uint32_t)uintval) goto rangeerr;
                 pin->u->param.u32 = uintval;
                 break;
+            }
             case HAL_S32:
                 if(!is_int) goto typeerr;
+                if(intval != (int32_t)intval) goto rangeerr;
                 pin->u->param.s32 = intval;
                 break;
             default:
