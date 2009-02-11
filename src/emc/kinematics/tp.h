@@ -62,6 +62,7 @@ typedef struct {
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
 extern int tpClear(TP_STRUCT * tp);
 extern int tpInit(TP_STRUCT * tp);
+extern int tpClearDIOs(void);
 extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
 extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
 extern int tpSetVlimit(TP_STRUCT * tp, double limit);
@@ -88,8 +89,9 @@ extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern int tpGetMotionType(TP_STRUCT * tp);
 extern int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait);
+extern void tpToggleDIOs(TC_STRUCT * tc); //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
 
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end);
+extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
 
 #endif				/* TP_H */

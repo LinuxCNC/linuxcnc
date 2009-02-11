@@ -17,6 +17,7 @@
 
 #include "posemath.h"
 #include "emcpos.h"
+#include "emcmotcfg.h"
 
 /* values for endFlag */
 #define TC_TERM_COND_STOP 1
@@ -43,6 +44,11 @@ typedef struct {
 typedef enum {
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
 } RIGIDTAP_STATE;
+
+typedef struct {
+    char anychanged;
+    signed char dios[EMCMOT_MAX_DIO];
+} syncdio_t;
 
 typedef struct {
     PmLine xyz;             // original, but elongated, move down
@@ -91,6 +97,7 @@ typedef struct {
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     char atspeed;           // wait for the spindle to be at-speed before starting this move
+    syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

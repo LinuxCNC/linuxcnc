@@ -23,12 +23,15 @@
 #include "tp.h"
 #include "rtapi_math.h"
 #include "../motion/motion.h"
+#include "hal.h"
+#include "../motion/mot_priv.h"
 #include "motion_debug.h"
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
 int output_chan = 0;
+syncdio_t syncdio; //record tpSetDout's here
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 {
@@ -50,6 +53,20 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
     /* init the rest of our data */
     return tpInit(tp);
 }
+
+
+// this clears any potential DIO toggles
+// anychanged signals if any DIOs need to be changed
+// dios[i] = 1, DIO needs to get turned on, -1 = off
+int tpClearDIOs() {
+    int i;
+    syncdio.anychanged = 0;
+    for (i = 0; i < num_dio; i++)
+	syncdio.dios[i] = 0;
+
+    return 0;
+}
+
 
 /*
   tpClear() is a "soft init" in the sense that the TP_STRUCT configuration
@@ -83,8 +100,9 @@ int tpClear(TP_STRUCT * tp)
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
 
-    return 0;
+    return tpClearDIOs();
 }
+
 
 int tpInit(TP_STRUCT * tp)
 {
@@ -306,6 +324,11 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.velocity_mode = tp->velocity_mode;
     tc.enables = enables;
 
+    if (syncdio.anychanged != 0) {
+	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
+	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    }
+
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
 	return -1;
@@ -404,6 +427,11 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
 
+    if (syncdio.anychanged != 0) {
+	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
+	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    }
+
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
 	return -1;
@@ -500,6 +528,11 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.enables = enables;
+    
+    if (syncdio.anychanged != 0) {
+	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
+	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    }
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
@@ -564,6 +597,18 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
     tc->currentvel = newvel;
     if(v) *v = newvel;
     if(on_final_decel) *on_final_decel = fabs(maxnewvel - newvel) < 0.001;
+}
+
+
+void tpToggleDIOs(TC_STRUCT * tc) {
+    int i=0;
+    if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
+	for (i=0; i < num_dio; i++) {
+	    if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
+	    if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
+	}
+	tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
+    }
 }
 
 // This is the brains of the operation.  It's called every TRAJ period
@@ -961,6 +1006,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    // report our line number to the guis
 	    tp->execId = tc->id;
         } else {
+	    tpToggleDIOs(nexttc); //check and do DIO changes
             target = tcGetEndpoint(nexttc);
             tp->motionType = nexttc->canon_motion_type;
 	    emcmotStatus->distance_to_go = nexttc->target - nexttc->progress;
@@ -1002,6 +1048,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tp->currentPos.v += primary_displacement.v + secondary_displacement.v;
         tp->currentPos.w += primary_displacement.w + secondary_displacement.w;
     } else {
+	tpToggleDIOs(tc); //check and do DIO changes
         target = tcGetEndpoint(tc);
         tp->motionType = tc->canon_motion_type;
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
@@ -1065,7 +1112,7 @@ int tpAbort(TP_STRUCT * tp)
 	tpPause(tp);
 	tp->aborting = 1;
     }
-    return 0;
+    return tpClearDIOs(); //clears out any already cached DIOs
 }
 
 int tpGetMotionType(TP_STRUCT * tp)
@@ -1119,7 +1166,15 @@ int tpSetAout(TP_STRUCT *tp, unsigned char index, double start, double end) {
 }
 
 int tpSetDout(TP_STRUCT *tp, int index, unsigned char start, unsigned char end) {
-    return 0;
+    if (0 == tp) {
+	return -1;
+    }
+    syncdio.anychanged = 1; //something has changed
+    if (start > 0)
+	syncdio.dios[index] = 1; // the end value can't be set from canon currently, and has the same value as start
+    else 
+	syncdio.dios[index] = -1;
+    return 0;    
 }
 
 // vim:sw=4:sts=4:et:
