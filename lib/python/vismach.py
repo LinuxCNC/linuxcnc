@@ -137,37 +137,11 @@ class Track(Collection):
     def angle_to(self,x,y,z):
 	'''returns polar coordinates in degrees to a point from the origin
 	a rotates around the x-axis; b rotates around the y axis; r is the distance'''
-	a=90; b=90; r=0; 
-	#i hope you arent using this function for anything serious...
-	#this function exhibits gimbal lock below z=0.2 anyway
-	if (abs(z) < 0.01):
-		z = 0.01
-	sign_z = 1;
-	#if (z<0):
-	#	a=-a
-	#	b=-b
-		
-	if(x!=0):
-		b = atan(z/x)*(360/(2*pi))
-	
-	if(x<0):
-		b+= 180
-
-	if(y!=0):
-		a = atan(z/y)*(360/(2*pi))
-	
-	if(y<0):
-		a+=180
-		
-	#if (z<0):
-	#	b=-b
-	#	a=-a
-	r = sqrt(x**2+y**2+z**2)
-	
-	return([a,b,r])
-	
-	#bugger all this
-	#getting world coords should go in its own function.
+	azimuth = atan2(y, x)*180/pi #longitude
+	elevation = atan2(z, sqrt(x**2 + y**2))*180/pi
+	radius = sqrt(x**2+y**2+z**2)
+	return((azimuth, elevation, radius))
+        
     def map_coords(self,tx,ty,tz,transform):
 	# now we have to transform them to the world frame
 	wx = tx*transform[0]+ty*transform[4]+tz*transform[8]+transform[12]
@@ -177,9 +151,6 @@ class Track(Collection):
 	
 	
     def apply(self):
-	#matrix = glGetDoublev(GL_MODELVIEW_MATRIX)
-	#print help(self.position)
-	
 	#make sure we have something to work with first
 	if (self.world2view.t == []):
 		#something's borkled - give up
@@ -194,22 +165,20 @@ class Track(Collection):
 	tx, ty, tz = self.target.t[12:15]
 	tx, ty, tz = self.map_coords(tx,ty,tz,view2world)
 	dx = tx - px; dy = ty - py; dz = tz - pz;
-	[a,b,r] = self.angle_to(dx,dy,dz)
+	(az,el,r) = self.angle_to(dx,dy,dz)
 	if(hasattr(HUD, "debug_track") and HUD.debug_track == 1):
 		HUD.strs = []
 		HUD.strs += ["current coords: %3.4f %3.4f %3.4f " % (px, py, pz)]
 		HUD.strs += ["target coords: %3.4f %3.4f %3.4f" %  (tx, ty, tz)]
-		HUD.strs += ["a,b,r: %3.4f %3.4f %3.4f" %  (a,b,r)]
-	b += 90
-	a += 90
+		HUD.strs += ["az,el,r: %3.4f %3.4f %3.4f" %  (az,el,r)]
 	glPushMatrix()
 	glTranslatef(px,py,pz)
-	glRotatef(a,1,0,0)
-	glRotatef(b,0,1,0)
+	glRotatef(az-90,0,0,1)
+	glRotatef(el-90,1,0,0)
 
 
     def unapply(self):
-	glPopMatrix()
+		glPopMatrix()
 
 class CoordsBase(object):
     def __init__(self, *args):
