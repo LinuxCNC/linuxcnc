@@ -535,7 +535,6 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 ERF((_("BUG: Unsupported plane in cutter compensation")));
             }
             
-            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f\n", atan2(y1,x1), atan2(y2,x2));
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
             if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
 
@@ -574,8 +573,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 ERF((_("BUG: Unsupported plane in cutter compensation")));
             }
 
-            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
             dot = x1 * x2 + y1 * y2;
+            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the
