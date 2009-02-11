@@ -8,7 +8,7 @@ net PierceDelay pyvcp.Spin-PierceDelay => oneshot.0.width
 net THCStepSize pyvcp.Spin-THCStepSize => mult2.0.in0
 net PierceGap pyvcp.Spin-PierceGap => sum2.0.in1
 net SwitchTravel pyvcp.Spin-SwitchTravel => sum2.0.in0
-net Autostart pyvcp.Check-AutoStart and2.9.in1
+net Autostart pyvcp.Check-AutoStart and2.8.in1
 
 # Hook up pins connecting to PyVCP objects
 linksp MoveDown => pyvcp.Led-MoveDown

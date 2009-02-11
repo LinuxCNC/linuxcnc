@@ -8,11 +8,13 @@ net PierceDelay pyvcp.Spin-PierceDelay => oneshot.0.width
 net THCStepSize pyvcp.Spin-THCStepSize => mult2.0.in0
 net PierceGap pyvcp.Spin-PierceGap => sum2.0.in1
 net SwitchTravel pyvcp.Spin-SwitchTravel => sum2.0.in0
-net Autostart pyvcp.Check-AutoStart and2.9.in1
+net Autostart pyvcp.Check-AutoStart => and2.8.in1
+net THCTVoltage pyvcp.Spin-THCTargetVoltage => serial_interface.vcpt_voltage
+net THCCVoltage serial_interface.vcpc_voltage => pyvcp.Num-THCCurrentVoltage 
 
 # Hook up pins connecting to PyVCP objects
-linksp MoveDown => pyvcp.Led-MoveDown
 linksp MoveUp => pyvcp.Led-MoveUp
+linksp MoveDown => pyvcp.Led-MoveDown
 linksp FloatSwitch => pyvcp.Led-FloatSwitch
 linksp ArcOK => pyvcp.Led-ArcOK
 linksp LockHeight => pyvcp.Led-HeightLocked

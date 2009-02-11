@@ -65,11 +65,12 @@
 				<label text="Step Size"/> 
 				<spinbox>
 					<halpin>"Spin-THCStepSize"</halpin>
-					<min_>0.01</min_>
+					<min_>0.0001</min_>
 					<max_>1</max_>
+					<initval>0.0005</initval>
 					<width>"6"</width>
-					<resolution>.01</resolution>
-					<format>"5.2f"</format>
+					<resolution>.0001</resolution>
+					<format>"5.4f"</format>
 					<justify>RIGHT</justify>
 				</spinbox>
 			</hbox>
@@ -96,7 +97,7 @@
 					<halpin>"Spin-SwitchTravel"</halpin>
 					<min_>-50</min_>
 					<max_>50</max_>
-					<initval>2</initval>
+					<initval>7</initval>
 					<width>"5"</width>
 					<resolution>.01</resolution>
 					<format>"5.2f"</format>
@@ -129,7 +130,7 @@
 							<halpin>"Spin-PierceDelay"</halpin>
 							<min_>0.00</min_>
 							<max_>10</max_>
-							<initval>0.01</initval>
+							<initval>0.50</initval>
 							<width>"6"</width>
 							<resolution>.01</resolution>
 							<format>"5.2f"</format>
@@ -139,7 +140,7 @@
 							<halpin>"Spin-PierceGap"</halpin>
 							<min_>0.01</min_>
 							<max_>10</max_>
-							<initval>0.5</initval>
+							<initval>5</initval>
 							<width>"6"</width>
 							<resolution>.01</resolution>
 							<format>"5.2f"</format>
@@ -190,4 +191,32 @@
 			</vbox>
 		</vbox>
 	</labelframe>
+	<labelframe text="THC Voltage"> 
+		<vbox>
+			<hbox>
+				<vbox>
+					<label text="Current Voltage"/> 
+					<label text="Target Voltage"/> 
+				</vbox>
+				<vbox>
+					<number> 
+						<halpin>"Num-THCCurrentVoltage"</halpin> 
+						<format>"3.0f"</format> 
+					</number>
+					<spinbox>
+						<halpin>"Spin-THCTargetVoltage"</halpin>
+						<min_>1</min_>
+						<max_>255</max_>
+						<initval>100</initval>
+						<width>"3"</width>
+						<resolution>1</resolution>
+						<format>"3.0f"</format>
+						<justify>RIGHT</justify>
+					</spinbox>
+				</vbox>
+
+			</hbox>
+		</vbox>
+	</labelframe>
+
 </pyvcp>
