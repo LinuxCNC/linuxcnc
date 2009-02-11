@@ -114,18 +114,21 @@ void UpdateAllLabelsBoolsVars( )
 	{
 		for(OffVar=0; OffVar<NBR_BOOLS_VAR_SPY; OffVar++)
 		{
-			char BufNumVar[40];
+			char BufNumVar[256];
 			switch( ColumnVar )
 			{
-				case 0: sprintf(BufNumVar, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', 
-                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                      break;
-				case 1: sprintf(BufNumVar, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%',  
-                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                      break;
-				case 2: sprintf(BufNumVar, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', 
-                                        OffVar+ValOffsetBoolVar[ ColumnVar ]); 
-                                      break;
+                        case 0:
+                            snprintf(BufNumVar, 256, "<span foreground=\"black\" weight=\"bold\">%cB%d</span>",'%', 
+                                    OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                            break;
+                        case 1:
+                            snprintf(BufNumVar, 256, "<span foreground=\"red\" weight=\"bold\">%cI%d</span>",'%',  
+                                    OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                            break;
+                        case 2:
+                            snprintf(BufNumVar, 256, "<span foreground=\"blue\" weight=\"bold\">%cQ%d</span>",'%', 
+                                    OffVar+ValOffsetBoolVar[ ColumnVar ]); 
+                            break;
 			}
 			gtk_label_set_markup (GTK_LABEL (GTK_BIN( chkvar[ ColumnVar ][ OffVar ] )->child),BufNumVar);
 		}
