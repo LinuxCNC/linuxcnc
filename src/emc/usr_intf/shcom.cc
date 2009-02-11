@@ -1160,7 +1160,7 @@ int sendProgramStep()
     return 0;
 }
 
-int sendMdiCmd(char *mdi)
+int sendMdiCmd(const char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 

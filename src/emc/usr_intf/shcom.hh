@@ -128,7 +128,7 @@ extern int sendProgramPause();
 extern int sendProgramResume();
 extern int sendSetOptionalStop(bool state);
 extern int sendProgramStep();
-extern int sendMdiCmd(char *mdi);
+extern int sendMdiCmd(const char *mdi);
 extern int sendLoadToolTable(const char *file);
 extern int sendToolSetOffset(int tool, double length, double diameter);
 extern int sendAxisSetBacklash(int axis, double backlash);
