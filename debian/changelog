@@ -1,6 +1,7 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
   * change motion.* and axis.* HAL parameters to pins
+  * M62/M63 P<xx> now work as intended
   * add M61 Qxx - allows to change the number of the currently loaded tool
   * add driver to control Automation Direct GS2 VFDs via serial MODBUS
   * fix G33 moves without feedrate (SF#2011311)
