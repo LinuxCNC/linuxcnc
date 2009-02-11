@@ -26,10 +26,10 @@
 
 \layout Chapter
 
-Important Concepts
+User Concepts
 \layout Standard
 
-This chapter covers important concepts that should be understood before
+This chapter covers important user concepts that should be understood before
  attempting to run a CNC machine with g code.
 \layout Section
 
@@ -180,8 +180,12 @@ To keep up feed rate, the move must be longer than the distance it takes
  to accelerate from 0 to the desired feed rate and then stop again.
  Using A as 1/2 the inifile MAX_ACCELERATION and F as the feed rate *in
  units per second*, the acceleration time is ta = F/A and the acceleration
- distance is da = (1/2) * F * ta the deceleration time and distance are
- the same, making the critical distance d = da + dd = 2*da = F^2 / A.
+ distance is 
+\begin_inset Formula $da=(1/2)*F*ta$
+\end_inset 
+
+ the deceleration time and distance are the same, making the critical distance
+ d = da + dd = 2*da = F^2 / A.
  
 \layout Standard
 
@@ -206,4 +210,12 @@ How the feed rate is applied depends on if an axis involved with the move
 \end_inset 
 
 ) if you have a rotary axis or a lathe.
+\layout Subsection
+
+Tool Radius Offset
+\layout Standard
+
+Tool Radius Offset (G41/42) only looks one move ahead.
+ This means you can program a cutter to pass down a path that is narrower
+ than the cutter without any errors.
 \the_end
