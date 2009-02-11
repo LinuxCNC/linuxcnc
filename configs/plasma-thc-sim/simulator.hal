@@ -17,11 +17,11 @@ addf wcomp.4 servo-thread
 addf wcomp.5 servo-thread
 
 # Use machine position feedback for simulated limit calculations
-linksp PosX-fb => wcomp.0.in
-linksp PosY-fb => wcomp.1.in
-linksp PosZ-fb => wcomp.2.in
-linksp PosA-fb => wcomp.3.in
-linksp PosZ-fb => wcomp.4.in
+net PosX-fb => wcomp.0.in
+net PosY-fb => wcomp.1.in
+net PosZ-fb => wcomp.2.in
+net PosA-fb => wcomp.3.in
+net PosZ-fb => wcomp.4.in
 
 # Use the time left from oneshot1 to determine when to simulate ArcOK along with TorchOn
 net TimeLeft oneshot.1.time-left => wcomp.5.in
@@ -45,7 +45,7 @@ net OriginalFloatSignal wcomp.4.out => and2.9.in1
 
 # Set defaults to pass signals through as normal so that ArcOK lights
 net HomeAndLimitZ wcomp.2.out => or2.9.in0
-linksp TorchOn => and2.11.in0
+net TorchOn => and2.11.in0
 
 # To test what happens when ArcOK never arrives we can set and2.11.in1 to 0
 setp and2.11.in1 1
