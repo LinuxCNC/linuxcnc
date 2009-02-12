@@ -13,7 +13,7 @@
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
 
 \lhead{\fancyplain{}{EMC V2.3 Integrator Manual}}
-	 
+ 
 \fancyfoot{}
 \fancyfoot[CE,CO]{\thepage}
 \end_preamble
@@ -304,13 +304,6 @@ preview false
 
 \layout Standard
 
-
-\begin_inset Include \include{drivers/m5i20.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Standard
 
 
@@ -485,15 +478,6 @@ preview false
 \layout Part
 
 Appendices 
-\layout Standard
-\start_of_appendix 
-
-\begin_inset Include \include{common/Linux_FAQ.lyx}
-preview false
-
-\end_inset 
-
-
 \layout Standard
 
 
