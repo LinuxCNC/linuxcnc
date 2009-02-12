@@ -1,7 +1,0 @@
-loadrt threads name1=thread period1=100000
-loadrt classicladder_rt
-addf classicladder.0.refresh thread
-start
-loadusr -w classicladder --nogui example.clp
-source vcp.hal
-loadusr classicladder
