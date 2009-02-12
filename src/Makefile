@@ -78,7 +78,7 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/user_comps/vcp hal/user_comps/devices \
+    hal/components hal/drivers hal/user_comps/devices \
     hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
     \
     emc/usr_intf/axis emc/usr_intf/stepconf \
