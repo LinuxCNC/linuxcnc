@@ -28,7 +28,7 @@ build: build-stamp
 build-stamp:
 	dh_testdir
 
-	# Add here commands to compile the package.
+# Add here commands to compile the package.
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
 else
@@ -57,7 +57,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	#start the install
+# start the install
 	mkdir -p debian/tmp
 	-(cd debian/extras && find . | grep -v CVS |cpio -pdmuv ../tmp)
 	-(cd debian/extras-@DISTRIB_NAME@ && find . | grep -v CVS | cpio -pdmuv ../tmp)
@@ -73,7 +73,7 @@ install: build
 	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/emc2/html
 	-rm debian/tmp/emc2*.files
-	-rm debian/tmp/etc/emc2/sample-configs/*/*position*.txt
+	-rm -f debian/tmp/etc/emc2/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \
