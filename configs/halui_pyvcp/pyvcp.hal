@@ -1,5 +1,6 @@
-#uncomment this line for GUIs other than AXIS
-#loadusr -Wn vcp pyvcp pyvcp.xml
+loadusr -W pyvcp -c pyvcp vcp.xml
+
+show all
 
 net estop-activate       pyvcp.estop.activate       halui.estop.activate
 net estop-reset          pyvcp.estop.reset          halui.estop.reset
