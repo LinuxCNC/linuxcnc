@@ -211,7 +211,7 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: a $(INFILES)
+default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
