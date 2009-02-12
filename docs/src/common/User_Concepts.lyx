@@ -215,7 +215,17 @@ How the feed rate is applied depends on if an axis involved with the move
 Tool Radius Offset
 \layout Standard
 
-Tool Radius Offset (G41/42) only looks one move ahead.
+Tool Radius Offset (G41/42) requires that the tool be able to touch somewhere
+ along each programmed move without gouging the two adjacent moves.
+ If that is not possible with the current tool diameter you will get an
+ error.
+ A smaller diameter tool may run without an error on the same path.
  This means you can program a cutter to pass down a path that is narrower
  than the cutter without any errors.
+ See the Tool Compensation Section (
+\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
+
+\end_inset 
+
+) for more information.
 \the_end

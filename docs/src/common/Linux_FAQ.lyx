@@ -189,6 +189,14 @@ gnome-open %u
 \layout Enumerate
 
 Drag a file onto your launcher to open and edit
+\layout Subsection
+
+Root Access
+\layout Standard
+
+In Ubuntu you can become root by typing in "sudo -i" in a terminal window
+ then typing in your password.
+ You can really foul up things if you don't know what your doing as root.
 \layout Section
 
 Terminal Commands
