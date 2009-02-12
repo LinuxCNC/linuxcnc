@@ -571,7 +571,7 @@ if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
     HAVE_GNOMEPRINT= 
   fi
 else
-  AC_MSG_WARN([GTK2 not found, some utilities (halscope, halvcp, classicladder) will not be built])
+  AC_MSG_WARN([GTK2 not found, some utilities (halscope, classicladder) will not be built])
 fi
 AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
