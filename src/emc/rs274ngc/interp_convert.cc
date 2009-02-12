@@ -3747,7 +3747,6 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     double alpha;
     double distance;
     double radius = settings->cutter_comp_radius; /* always will be positive */
-    double theta;
     double end_x, end_y;
 
     int side = settings->cutter_comp_side;
@@ -3759,10 +3758,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     CHK(((side != LEFT) && (side != RIGHT)), NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
     CHKS((distance <= radius), "Length of cutter compensation entry move is not greater than the tool radius");
 
-    theta = acos(radius / distance);
-    alpha = (side == LEFT) ? 
-        (atan2((cy - py), (cx - px)) - theta):
-        (atan2((cy - py), (cx - px)) + theta);
+    alpha = atan2(py - cy, px - cx) + (side == LEFT ? M_PIl/2. : -M_PIl/2.);
 
     end_x = (px + (radius * cos(alpha)));
     end_y = (py + (radius * sin(alpha)));
@@ -3771,15 +3767,17 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     // they cannot get reversed because they are guaranteed to be long
     // enough.
 
+    set_endpoint(cx, cy);
+
     if (move == G_0) {
         enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
-                                  0, 0, 0, 
+                                  cos(alpha), sin(alpha), 0, 
                                   end_x, end_y, pz,
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
         enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                              0, 0, 0,
+                              cos(alpha), sin(alpha), 0,
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
     } else
