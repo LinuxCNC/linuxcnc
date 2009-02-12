@@ -58,7 +58,6 @@
 <doc name="drivers_AX5214H" title="AX5214H Driver"/>
 <doc name="drivers_GS2" title="GS2 VFD Driver"/>
 <doc name="drivers_hostmot2" title="HostMot2 Driver"/>
-<doc name="drivers_m5i20" title="m5i20 Driver"/>
 <doc name="drivers_motenc" title="Motenc Driver"/>
 <doc name="drivers_opto22" title="Opto22 Driver"/>
 <doc name="drivers_pico_ppmc" title="Pico PPMC Driver"/>
