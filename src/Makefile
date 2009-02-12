@@ -512,14 +512,14 @@ COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 .PHONY: configs
 COPY_CONFIGS := \
-	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_halvcp hexapod-sim max \
+	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_pyvcp hexapod-sim max \
 		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
 		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
 		puma scara boss 5axis Sherline3Axis Sherline4Axis SherlineLathe \
 		plasma-thc plasma-thc-sim) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
-	$(patsubst %,../configs/%/core_sim.hal, halui_halvcp sim) \
+	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
 	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
 
