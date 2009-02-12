@@ -29,7 +29,6 @@ usr/bin/halsampler
 usr/bin/halscope
 usr/bin/halstreamer
 usr/bin/halui
-usr/bin/halvcp
 usr/bin/hbmgui
 usr/bin/hexagui
 usr/bin/image-to-gcode
