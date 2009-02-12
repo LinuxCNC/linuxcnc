@@ -87,6 +87,7 @@ You should see something like this:
 
 \begin_inset Graphics
 	filename images/latency.png
+	scale 80
 
 \end_inset 
 
