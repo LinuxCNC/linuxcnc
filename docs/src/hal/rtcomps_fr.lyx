@@ -606,11 +606,7 @@ make_pulses()
 \family typewriter 
 make_pulses()
 \family default 
- est appelée toutes les 16
-\begin_inset Formula $µ$
-\end_inset 
-
-s et que 
+ est appelée toutes les 16µs et que 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -618,11 +614,7 @@ steplen
 \begin_inset Quotes erd
 \end_inset 
 
- est à 20000, alors l'impulsion de pas aura une durée de 2 x 16 = 32
-\begin_inset Formula $µ$
-\end_inset 
-
-s.
+ est à 20000, alors l'impulsion de pas aura une durée de 2 x 16 = 32µs.
  La valeur par défaut de ces quatre paramètres est de 1ns, mais l'arrondi
  automatique prendra effet au premier lancement du code.
  Puisqu'un pas exige d'être haut pendant 
@@ -1324,11 +1316,7 @@ pwmgen.make-pulses
 
 
 \family default 
- devrait être lancée dans un thread très rapide, entre 10 et 50
-\begin_inset Formula $µ$
-\end_inset 
-
-s selon les capacités de l'ordinateur.
+ devrait être lancée dans un thread très rapide, entre 10 et 50µs selon les capacités de l'ordinateur.
  C'est la période de ce thread qui détermine la fréquence maximale de la
  porteuse PWM, ainsi que la résolution des signaux PWM ou PDM.
  L'autre fonction peut être appelée beaucoup plus lentement.

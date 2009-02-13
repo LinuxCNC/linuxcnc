@@ -689,11 +689,7 @@ BASE_PERIOD
 
 \end_inset 
 
-), à la longueur des impulsions de pas nécessaire et à la vitesse du 
-\begin_inset Formula $µ$
-\end_inset 
-
-P.
+), à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
 \newline 
 Choisir une BASE_PERIOD trop basse peut amener à des messages 
 \begin_inset Quotes eld
