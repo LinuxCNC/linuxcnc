@@ -201,7 +201,7 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
             case HAL_U32: {
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
-                    if(intval != (int32_t)intval) goto rangeerr;
+                    if(intval != (__s32)intval) goto rangeerr;
                     *pin->u->pin.u32 = intval;
                     break;
                 }
@@ -212,19 +212,19 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                     return -1;
                 } 
                 unsigned long uintval = PyLong_AsUnsignedLong(value);
-                if(uintval != (uint32_t)uintval) goto rangeerr;
+                if(uintval != (__u32)uintval) goto rangeerr;
                 if(PyErr_Occurred()) return -1;
                 *pin->u->pin.u32 = uintval;
                 break;
             }
             case HAL_S32:
                 if(is_int) {
-                    if(intval != (int32_t)intval) goto rangeerr;
+                    if(intval != (__s32)intval) goto rangeerr;
                     *pin->u->pin.s32 = intval;
                 } else if(PyLong_Check(value)) {
                     intval = PyLong_AsLong(value);
                     if(PyErr_Occurred()) return -1;
-                    if(intval != (int32_t)intval) goto rangeerr;
+                    if(intval != (__s32)intval) goto rangeerr;
                     *pin->u->pin.u32 = intval;
                 }
                 break;
@@ -252,7 +252,7 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 unsigned long uintval;
                 if(is_int) {
                     if(intval < 0) goto rangeerr;
-                    if(intval != (int32_t)intval) goto rangeerr;
+                    if(intval != (__s32)intval) goto rangeerr;
                     pin->u->param.u32 = intval;
                     break;
                 }
@@ -264,13 +264,13 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 }
                 uintval = PyLong_AsUnsignedLong(value);
                 if(PyErr_Occurred()) return -1;
-                if(uintval != (uint32_t)uintval) goto rangeerr;
+                if(uintval != (__u32)uintval) goto rangeerr;
                 pin->u->param.u32 = uintval;
                 break;
             }
             case HAL_S32:
                 if(!is_int) goto typeerr;
-                if(intval != (int32_t)intval) goto rangeerr;
+                if(intval != (__s32)intval) goto rangeerr;
                 pin->u->param.s32 = intval;
                 break;
             default:
