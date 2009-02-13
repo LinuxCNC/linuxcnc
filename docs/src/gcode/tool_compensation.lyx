@@ -159,7 +159,7 @@ Cutter Radius Compensation allows the programmer to program the tool path
 
 There are two possible paths the cutter can take while cutter radius compensatio
 n is on to the left or right side of a line when facing the direction of
- cutter motion.
+ cutter motion from behind the cutter.
  To visualize this imagine you were standing on the part walking behind
  the tool as it progresses across the part.
  G41 is your left side of the line and G42 is the right side of the line.
