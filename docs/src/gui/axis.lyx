@@ -82,7 +82,7 @@ AXIS Window
 
 \begin_inset Graphics
 	filename images/axis_2.3.png
-	width 70page%
+	width 60page%
 	keepAspectRatio
 
 \end_inset 
@@ -1083,7 +1083,7 @@ Current and Selected Lines
 
 \begin_inset Graphics
 	filename images/axis-currentandselected.png
-	width 80page%
+	width 70page%
 
 \end_inset 
 
@@ -1224,7 +1224,7 @@ The .ini file setting
  'in', or 'mil').
  If a unit is not specified the machine's native unit is assumed.
  For users who prefer metric units, a good setting might be
-\layout LyX-Code
+\layout Quote
 
 INCREMENTS = 10 um, 50 um, 0.1mm, 0.5mm, 1mm, 5mm, 10 mm
 \layout Standard
@@ -1238,19 +1238,19 @@ imperial
 \end_inset 
 
  units, a good setting might be
-\layout LyX-Code
+\layout Quote
 
 INCREMENTS = 1/4 in, 1/16 in, 1/32 in, 1/64 in, 1 mil, .1 mil
 \layout Standard
 
 or
-\layout LyX-Code
+\layout Quote
 
 INCREMENTS = .5 in, .1 in, 50 mil, 10 mil, 5 mil, 1 mil, .1 mil
 \layout Standard
 
 Metric and imperial distances may be mixed:
-\layout LyX-Code
+\layout Quote
 
 INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
 \layout Standard
