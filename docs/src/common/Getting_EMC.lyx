@@ -461,15 +461,16 @@ Updates to EMC2
 \layout Standard
 
 With the normal install the Update Manager will notify you of updates to
- EMC2 and Ubuntu when you go on line and allow you to easily upgrade with
- no Linux knowledge needed.
+ EMC2 when you go on line and allow you to easily upgrade with no Linux
+ knowledge needed.
  If you want to upgrade to 8.04 from 6.06 a clean install from the Live-CD
  is needed.
  It is OK to upgrade EMC when asked to.
+ 
 \layout Standard
 
-Warning: Do not upgrade Ubuntu to a new version as it will prevent EMC from
- running.
+Warning: Do not upgrade Ubuntu to a new version (like 8.04 to 8.10) as it
+ will prevent EMC from running.
 \layout Section
 
 Install Problems
