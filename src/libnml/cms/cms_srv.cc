@@ -258,9 +258,9 @@ int CMS_SERVER_REMOTE_PORT::accept_local_port_cms(CMS * _cms)
 		_cms->min_compatible_version > 1e-6)) {
 	    min_compatible_version = _cms->min_compatible_version;
 	}
-    }
-    if (_cms->total_subdivisions > max_total_subdivisions) {
-	max_total_subdivisions = _cms->total_subdivisions;
+        if (_cms->total_subdivisions > max_total_subdivisions) {
+            max_total_subdivisions = _cms->total_subdivisions;
+        }
     }
     return 1;
 }
