@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-08 14:53+0100\n"
-"PO-Revision-Date: 2009-02-08 15:01+0100\n"
+"POT-Creation-Date: 2009-02-13 17:38+0100\n"
+"PO-Revision-Date: 2009-02-13 17:56+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -137,11 +137,9 @@ msgstr ""
 "être une droite, pas un arc"
 
 #: emc/rs274ngc/interp_convert.cc:711 emc/rs274ngc/interp_convert.cc:721
-#: emc/rs274ngc/interp_queue.cc:454
+#: emc/rs274ngc/interp_queue.cc:515
 msgid "Arc move in concave corner cannot be reached by the tool without gouging"
-msgstr ""
-"Le mouvement en arc dans l'angle intérieur ne peut pas être atteint par l'outil "
-"sans interférer avec la pièce"
+msgstr "Le mouvement en arc dans l'angle intérieur ne peut pas s'achever sans que l'outil n'interfére avec la pièce"
 
 #: emc/rs274ngc/interp_convert.cc:747
 msgid "Arc to arc motion is invalid because the arcs have the same center"
@@ -237,13 +235,13 @@ msgstr ""
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3969
+#: emc/rs274ngc/interp_convert.cc:3980
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "Un angle interne de zéro degré est invalide pour la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4007 emc/rs274ngc/interp_convert.cc:4015
+#: emc/rs274ngc/interp_convert.cc:4018 emc/rs274ngc/interp_convert.cc:4026
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -251,17 +249,17 @@ msgstr ""
 "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
 "pouvant pas être suivi sans interférer avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:4100
+#: emc/rs274ngc/interp_convert.cc:4111
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "Changement d'outil impossible avec la compensation de rayon d'outil active"
 
-#: emc/rs274ngc/interp_convert.cc:4210
+#: emc/rs274ngc/interp_convert.cc:4221
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
 "active"
 
-#: emc/rs274ngc/interp_queue.cc:452
+#: emc/rs274ngc/interp_queue.cc:513
 #, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
@@ -270,13 +268,19 @@ msgstr ""
 "BOGUE: la compensation d'outil a généré un arc invalide avec des rayons "
 "incorrects r1 %f r2 %f\n"
 
-#: emc/rs274ngc/interp_queue.cc:474 emc/rs274ngc/interp_queue.cc:511
+#: emc/rs274ngc/interp_queue.cc:535 emc/rs274ngc/interp_queue.cc:573
 msgid "BUG: Unsupported plane in cutter compensation"
 msgstr "BOGUE: Plan incorrect avec la compensation d'outil"
 
-#: emc/rs274ngc/interp_queue.cc:483 emc/rs274ngc/interp_queue.cc:520
-msgid "Straight move in concave corner cannot be reached by the tool without gouging"
-msgstr "Le mouvement rectiligne dans l'angle intérieur ne peut pas être atteint par l'outil sans interférer avec la pièce"
+#: emc/rs274ngc/interp_queue.cc:545
+msgid ""
+"Straight traverse in concave corner cannot be reached by the tool without "
+"gouging"
+msgstr "Le mouvement rectiligne en vitesse rapide dans l'angle intérieur ne peut pas s'achever sans que l'outil n'interfére avec la pièce"
+
+#: emc/rs274ngc/interp_queue.cc:583
+msgid "Straight feed in concave corner cannot be reached by the tool without gouging"
+msgstr "Le mouvement rectiligne en vitesse travail dans l'angle intérieur ne peut pas s'achever sans que l'outil n'interfére avec la pièce"
 
 #: emc/rs274ngc/interp_read.cc:3310
 msgid "Multiple U words on one line"
