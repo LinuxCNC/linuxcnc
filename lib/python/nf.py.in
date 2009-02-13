@@ -26,6 +26,12 @@ def newinstance(klass):
     value.__class__ = klass
     return value
 
+# Tkinter.py rev 65400 introduces a change which makes Menu.delete blow
+# chunks.  Until this is resolved, monkeypatch it
+def delete(self, index1, index2=None):
+    self.tk.call(self._w, 'delete', index1, index2)
+Tkinter.Menu.delete = delete
+
 class TclCommands:
     def __init__(self, master):
         for k, v in self.__class__.__dict__.items():
@@ -75,6 +81,8 @@ def makestring(master, name, *default):
 def makewidget(master, klass, path):
     path = str(path)
     self = newinstance(klass)
+    if self._tclCommands is None:
+        self._tclCommands = []
     if path[0] == '.':
         if master._w == '.': self._name = path[1:]
         else: self._name = path[len(master._w)+1:]
