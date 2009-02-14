@@ -5,27 +5,10 @@ TODO     sort out axis/joints issues:
 	    * ini changes 
 	    * clean out code (on all different levels, when joints are involved, call them joints..)
 
-DONE	 make gcode/main.lyx docs match implementation for IOs
-
 TODO     Convert all hardware drivers to use canonical homing, 
 
 Fixes in HAL modules:
 TODO     canonical interfaces and naming conventions
-
-WONTFIX     hal_m5i20 driver update
-	hal_m5i20 has been deprecated in favour of hm2_pci and hostmot2
-         -conform to canonical interfaces
-         -enable loading of different configs
-              - should be possible to load a different config on separate 
-                cards if many cards are present
-              - make the PWM rate a HAL parameter 
-                 (currently it's specified when loading the driver)
-         -enable autodetection of configs
-              - 33 or 100 MHz PWM clock (affects timing calculations)
-              - 4 or 8-axis config (how many ENCs and DACs, how much I/O)
-         -make a version that works with pico-systems amps
-           (50kHz PWM and 'handshake' at amp bootup)
-         -enable writing the CCR register (is this needed?)
 
 TODO	jmkasunich:
 	Remove the abandoned mesa-5i2x driver and firmware trees.
