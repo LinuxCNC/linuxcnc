@@ -31,7 +31,7 @@
 
 \layout Chapter
 
-Hardware Drivers
+Parallel Port
 \layout Section
 
 
@@ -257,7 +257,7 @@ well known
 
  address, like 0278 or 0378 which is typically configured in the system
  BIOS.
- The address for a PCI card is usally shown in 
+ The address for a PCI card is usually shown in 
 \begin_inset Quotes eld
 \end_inset 
 
