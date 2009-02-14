@@ -4,6 +4,15 @@ exec $EMC2_EMCSH "$0" "$@"
 
 source [file join [file dirname [info script]] .. emc.tcl]
 
+###############################################################
+# Description:  emctesting.tcl
+#               EMC performance testing program
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005-2009 All rights reserved.
+###############################################################
 # emctesting.tcl
 # EMC performance testing program
 # Needs emcsh to run-- this is sourced by tkemc, but it can be run

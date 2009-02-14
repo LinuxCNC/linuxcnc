@@ -6,6 +6,15 @@ exec $EMC2_EMCSH "$0" "$@"
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
 
+###############################################################
+# Description:  emctuning.tcl
+#               EMC system identification and autotuning program
+#
+#  Derived from a work by Fred Proctor & Will Shackleford
+#  License: GPL Version 2
+#
+#  Copyright (c) 2005-2009 All rights reserved.
+###############################################################
 # emctuning.tcl
 # EMC system identification and autotuning program
 # Needs emcsh to run-- this is sourced by tkemc, but it can be run
