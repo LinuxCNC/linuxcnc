@@ -29,6 +29,10 @@
 m5i20
 \layout Standard
 
+Notice: The hal_m5i20 driver is deprecated and you should use the hostmot2
+ driver for new installations.
+\layout Standard
+
 Mesa Electronics m5i20 "Anything I/O Card"
 \layout Standard
 
@@ -243,6 +247,8 @@ Watchdog is automatically reset by DAC writes (the HAL dac-write function)
 
 \end_inset 
 
+
+\newline 
 Typically, the useful values are 0 (watchdog disabled) or 3 (watchdog enabled,
  cleared by dac-write).
 \layout Itemize
