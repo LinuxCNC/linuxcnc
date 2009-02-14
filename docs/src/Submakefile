@@ -77,6 +77,7 @@ DOC_SRCS := \
 	drivers/AX5214H.lyx \
 	drivers/GS2.lyx \
 	drivers/hostmot2.lyx \
+	drivers/m5i20.lyx \
 	drivers/motenc.lyx \
 	drivers/opto22.lyx \
 	drivers/pico_ppmc.lyx \
