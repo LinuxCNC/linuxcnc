@@ -39,7 +39,7 @@ check the man page for more info
 \end_inset 
 
 
-\layout Standard
+\layout Section
 
 Introduction
 \layout Standard
@@ -54,9 +54,9 @@ HostMot2 is an FPGA configuration developed by [Mesa Electronics] for their
  to pins on the boards' I/O headers.
  I/O pins not driven by a Module instance revert to general-purpose bi-direction
 al digital I/O.
-\layout Standard
+\layout Section
 
-Available firmware binaries
+Firmware Binaries
 \layout Standard
 
 Several pre-compiled HostMot2 firmware binaries are available for the different
@@ -93,9 +93,9 @@ Several pre-compiled HostMot2 firmware binaries are available for the different
 \layout Itemize
 
 4-channel servo plus 4 step/dir generators 
-\layout Standard
+\layout Section
 
-Using HostMot2 with EMC
+Using HostMot2
 \layout Standard
 
 The EMC support for the HostMot2 firmware is split into a generic driver
@@ -121,8 +121,34 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=
  num_stepgens=1"
 \layout Standard
 
-The config modparam is described in the [hostmot2 man page].
+The config parameters are described in the hostmot2 man page.
+ 
+\layout Section
+
+Pinouts
+\layout Standard
+
+The hostmot2 driver does not have a particular pinout.
+ The pinout comes from the firmware that the hostmot2 driver sends to the
+ AnyIO board.
+ Each firmware has different pinout, and there are many firmwares available.
  
 \layout Standard
 
+Each firmware has its pinout described in a .PIN file, which is located in
+ /usr/share/doc/emc2-firmware-mesa-$BOARD-hostmot2 (if you installed the
+ firmware debian package), and it's in src/hal/drivers/mesa-hostmot2/firmware/$B
+OARD if you're compiling from the CVS source.
+\layout Section
+
+Examples
+\layout Standard
+
+Several example configurations are included with EMC for both stepper and
+ servo applications.
+ The configurations are located in the hm2-servo and hm2-stepper sections
+ of the EMC2 Configuration Selector window.
+ You will need the board(s) installed for the configuration you pick to
+ load.
+ 
 \the_end
