@@ -706,6 +706,4 @@ when the parport_pc module is loaded (
 sudo modprobe -a parport_pc; sudo rmmod parport_pc) 
 \family default 
 then use of this module is probably required.
-\layout Section
-
 \the_end
