@@ -4,7 +4,7 @@ exec wish "$0" "$@"
 
 ###############################################################
 # Description:  genedit.tcl
-#               This file dumps info to a logging file from tkmc.
+#               This is a simple TK text editor.
 #
 #  Derived from a work by Fred Proctor & Will Shackleford
 #  License: GPL Version 2
