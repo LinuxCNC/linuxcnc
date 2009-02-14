@@ -181,7 +181,7 @@ IOPort
 
 \layout Standard
 
-QCount
+Encoder
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -451,7 +451,7 @@ IOPort
 
 \layout Standard
 
-QCount
+Encoder
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -821,7 +821,7 @@ IOPort
 
 \layout Standard
 
-QCount
+Encoder
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -863,7 +863,7 @@ SV16
 
 \layout Standard
 
-3
+4
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -913,7 +913,7 @@ SV16ST8_8
 
 \layout Standard
 
-3
+4
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1006,9 +1006,10 @@ SVST8_24
 
 \layout Standard
 
-To gain more GPIO (General Purpose Input Output) reduce the counts for QCount
- (Quadrature Counter), PWM (Pulse Width Modulation), or StepGen (Step Pulse
- Generator) as needed.
+When you load the board-driver (hm2_pci or hm2_7i43), you can tell it to
+ disable instances of the three primary modules (pwmgen, stepgen, and encoder)
+ by setting the count lower.
+ Any I/O pins belonging to disabled module instances become gpios.
 \layout Section
 
 GPIO
