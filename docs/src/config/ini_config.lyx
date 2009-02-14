@@ -800,6 +800,9 @@ G90 A string of NC codes that the interpreter is initialized with.
 \end_inset 
 
 
+\layout Standard
+
+You may find other entries in this section and they should not be changed.
 \layout Description
 
 BASE_PERIOD
