@@ -3,7 +3,7 @@
 exec $EMC2_EMCSH "$0" "$@"
 
 ###############################################################
-# Description:  halconfig.tcl
+# Description:  halshow.tcl
 #               This file, shows a running hal configuration
 #               and has menu for modifying and tuning
 #
