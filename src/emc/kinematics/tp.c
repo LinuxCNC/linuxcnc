@@ -327,6 +327,8 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
 	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    } else {
+	tc.syncdio.anychanged = 0;
     }
 
     if (tcqPut(&tp->queue, tc) == -1) {
@@ -430,7 +432,10 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
 	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    } else {
+	tc.syncdio.anychanged = 0;
     }
+
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -532,7 +537,10 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     if (syncdio.anychanged != 0) {
 	tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
 	tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    } else {
+	tc.syncdio.anychanged = 0;
     }
+
 
     if (tcqPut(&tp->queue, tc) == -1) {
 	return -1;
