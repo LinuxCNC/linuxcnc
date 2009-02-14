@@ -8716,9 +8716,9 @@ To control a digital output bit, program
 M- P-
 \family default 
 , where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
- an implementation-defined maximum- currently this is 3 in EMC2.
-  These outputs are not changed in realtime and thus should not be used
-  for timing-critical applications.
+ a default value of 3 in EMC2.
+ If needed the value can be increased by using the num_dio parameter when
+ loading the motion controller.
 \layout Description
 
 M62 Turn on digital output synched with motion
@@ -8731,6 +8731,25 @@ M64 Turn on digital output immediately
 \layout Description
 
 M65 Turn off digital output immediately
+\layout Standard
+
+The M62 & M63 commands will be queued.
+ Subsequent commands referring to the same output number will overwrite
+ the older settings.
+ More than one output change can be specified by issuing more than one M62/M63
+ command.
+\layout Standard
+
+The actual change of the specified outputs will happen at the beginning
+ of the next motion command.
+ If there is no subsequent motion command, the queued output changes won't
+ happen.
+ It's best to always program a motion g-code (G0, G1, etc) right after the
+ M62/63.
+\layout Standard
+
+M64 & M65 happen immediately as they are received by the motion controller.
+ They are not synched with movement, and they will break blending.
 \layout Section
 
 M66 Input Control
