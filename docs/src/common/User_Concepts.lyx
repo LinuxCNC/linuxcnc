@@ -228,4 +228,16 @@ Tool Radius Offset (G41/42) requires that the tool be able to touch somewhere
 \end_inset 
 
 ) for more information.
+\layout Section
+
+Homing
+\layout Standard
+
+After starting EMC each axis must be homed prior to running a program or
+ running a MDI command.
+ 
+\layout Standard
+
+If you use the Mini interface you will need to set the NO_FORCE_HOMING =
+ 1 in the [TRAJ] section of your ini file.
 \the_end
