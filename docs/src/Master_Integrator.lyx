@@ -274,7 +274,7 @@ preview false
 
 \layout Part
 
-Special Drivers
+Hardware Drivers
 \layout Standard
 
 
@@ -301,6 +301,8 @@ preview false
 
 \end_inset 
 
+
+\layout Standard
 
 
 \begin_inset Include \include{drivers/m5i20.lyx}
