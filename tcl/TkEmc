@@ -1,5 +1,3 @@
-! $Id$
-
 ! Set the colors for the main screen
 *top*background: blue
 *top*foreground: white
