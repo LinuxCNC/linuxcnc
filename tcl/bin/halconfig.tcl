@@ -17,6 +17,14 @@ exec $EMC2_EMCSH "$0" "$@"
 # FIXME -- empty mod entry widgets after execute
 # FIXME -- please hal param naming conventions aren't
 ###############################################################
+# Description:  halconfig.tcl
+#               Part of the HAL online configuration system
+#
+#  Author: Raymond E Henry
+#  License: GPL Version 2
+#
+#  Copyright (c) 2006-2009 All rights reserved.
+###############################################################
 
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
