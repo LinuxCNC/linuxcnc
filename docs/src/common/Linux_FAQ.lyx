@@ -77,7 +77,7 @@ To view a man page open up a terminal window by going to Applications, Accessori
 es, Terminal.
  For example if you wanted to find out something about the find command
  in the terminal window type:
-\layout LyX-Code
+\layout Quote
 
 man find
 \layout Standard
@@ -92,14 +92,14 @@ List Modules
 Sometimes when troubleshooting you need to get a list of modules that are
  loaded.
  In a terminal window type:
-\layout LyX-Code
+\layout Quote
 
 lsmod
 \layout Standard
 
 If you want to send the output from lsmod to a text file in a terminal window
  type:
-\layout LyX-Code
+\layout Quote
 
 lsmod > mymod.txt
 \layout Standard
@@ -149,7 +149,7 @@ Open up Applications, Accessories, Terminal.
 \layout Standard
 
 In the terminal window type
-\layout LyX-Code
+\layout Quote
 
 sudo gedit
 \layout Standard
@@ -227,7 +227,7 @@ Working Directory
 
 To find out the path to the present working directory in the terminal window
  type:
-\layout LyX-Code
+\layout Quote
 
 pwd
 \layout Subsection
@@ -246,19 +246,19 @@ Changing Directories
 \layout Standard
 
 To move up one level in the terminal window type:
-\layout LyX-Code
+\layout Quote
 
 cd ..
 \layout Standard
 
 To move up two levels in the terminal window type:
-\layout LyX-Code
+\layout Quote
 
 cd ../..
 \layout Standard
 
 To move down to the emc2/configs subdirectory in the terminal window type:
-\layout LyX-Code
+\layout Quote
 
 cd emc2/configs
 \layout Subsection
@@ -283,13 +283,13 @@ Listing files in a directory
 
 To view a list of all the files and subdirectories in the terminal window
  type:
-\layout LyX-Code
+\layout Quote
 
 dir
 \layout Standard
 
 or 
-\layout LyX-Code
+\layout Quote
 
 ls
 \layout Subsection
@@ -309,7 +309,7 @@ Finding a File
 
 The find command can be a bit confusing to a new Linux user.
  The basic syntax is:
-\layout LyX-Code
+\layout Quote
 
 find starting-directory parameters actions
 \layout Standard
@@ -317,19 +317,19 @@ find starting-directory parameters actions
 For example to find all the .ini files in your emc2 directory you first need
  to use the pwd command to find out the directory.
  Open a new terminal window and type:
-\layout LyX-Code
+\layout Quote
 
 pwd
 \layout Standard
 
 might return the following result
-\layout LyX-Code
+\layout Quote
 
 /home/joe
 \layout Standard
 
 With this information put the command together like this:
-\layout LyX-Code
+\layout Quote
 
 find /home/joe/emc2 -name *.ini -print
 \layout Standard
@@ -342,7 +342,7 @@ The -name is the name of the file your looking for and the -print tells
 
 To find all the files in the directory named and all the subdirectories
  under that add the -L option to the find command like this:
-\layout LyX-Code
+\layout Quote
 
 find -L /home/joe/emc2 -name *.ini -print
 \layout Subsection
@@ -358,7 +358,7 @@ Searching for Text
 \end_inset 
 
 
-\layout LyX-Code
+\layout Quote
 
 grep -i -r 'text to search for' * 
 \layout Standard
@@ -384,6 +384,17 @@ dmesg > bootmsg.txt
 
 The contents of this file can be copied and pasted on line to share with
  people trying to help you diagnose your problem.
+ 
+\layout Standard
+
+To clear the message buffer type this:
+\layout Quote
+
+sudo dmesg -c
+\layout Standard
+
+This can be useful to do just before you launch EMC to only show the infomation
+ related to the start up of EMC.
  
 \layout Section
 
