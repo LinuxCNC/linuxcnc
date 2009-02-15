@@ -95,7 +95,7 @@ Basic Information Page
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-basic.png
+	filename images/stepconf-basic.png
 	scale 70
 
 \end_inset 
@@ -113,23 +113,7 @@ Name
 \end_inset 
 
  Choose a name for your machine.
- Use only uppercase letters, lowercase letters, digits, 
-\begin_inset Quotes eld
-\end_inset 
-
--
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-_
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ Use only uppercase letters, lowercase letters, digits, "-" and "_".
 \layout Description
 
 Axis\SpecialChar ~
@@ -164,36 +148,31 @@ Type
  it.
  Otherwise, find the 4 timing values in your driver's data sheet and enter
  them.
- If the data sheet gives a value in microseconds, multiply by 1000.
+ 
+\newline 
+If the data sheet gives a value in microseconds, multiply by 1000.
  For example, enter 4.5us as 4500.
- Note the Gecko is for the G201.
  A list is on the wiki site of most popular drives with the timing values
  is in the Stepper Drive Timing Page.
-\begin_deeper 
-\layout Standard
-
+\newline 
 Additional signal conditioning or isolation such as optocouplers and RC
  filters on break out boards can impose timing constraints of their own,
  in addition to those of the driver.
  You may find it necessary to add some time to the drive requirements to
  allow for this.
-\end_deeper 
 \layout Description
 
-Latency\SpecialChar ~
-Test\SpecialChar ~
-Result
-\begin_inset LatexCommand \index{Latency Test Result}
+Base\SpecialChar ~
+Period\SpecialChar ~
+Maximum\SpecialChar ~
+Jitter
+\begin_inset LatexCommand \index{Base Period Maximum Jitter}
 
 \end_inset 
 
  Enter the result of the Latency Test here.
- To run a latency test see section (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
-
-\end_inset 
-
-)
+ To run a latency test press the "Test Base Period Jitter" button.
+ 
 \layout Description
 
 Max\SpecialChar ~
@@ -268,7 +247,7 @@ Parallel Port Setup Page
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-pinout.png
+	filename images/stepconf-pinout.png
 	scale 70
 
 \end_inset 
@@ -280,15 +259,8 @@ Parallel Port Setup Page
 \layout Standard
 
 For each pin, choose the signal which matches your parallel port pin out.
- Turn on the 
-\begin_inset Quotes eld
-\end_inset 
-
-invert
-\begin_inset Quotes erd
-\end_inset 
-
- check box if the signal is inverted (0V for true/active, 5V for false/inactive).
+ Turn on the "invert" check box if the signal is inverted (0V for true/active,
+ 5V for false/inactive).
 \layout Description
 
 Output\SpecialChar ~
@@ -406,7 +378,8 @@ Axis Configuration Page
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-axis.png
+	filename images/stepconf-axis.png
+	scale 70
 
 \end_inset 
 
@@ -436,15 +409,7 @@ Microstepping
 \end_inset 
 
  The amount of microstepping performed by the driver.
- Enter 
-\begin_inset Quotes eld
-\end_inset 
-
-2
-\begin_inset Quotes erd
-\end_inset 
-
- for half-stepping.
+ Enter "2" for half-stepping.
 \layout Description
 
 Pulley\SpecialChar ~
@@ -455,15 +420,7 @@ Ratio
 
  If your machine has pulleys between the motor and leadscrew, enter the
  ratio here.
- If not, enter 
-\begin_inset Quotes eld
-\end_inset 
-
-1:1
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ If not, enter "1:1".
 \layout Description
 
 Leadscrew\SpecialChar ~
@@ -513,15 +470,7 @@ Acceleration
 
  The correct values for these items can only be determined through experimentati
 on.
- See 
-\begin_inset Quotes eld
-\end_inset 
-
-Finding Velocity and Acceleration
-\begin_inset Quotes erd
-\end_inset 
-
- below.
+ See "Finding Velocity and Acceleration" below.
 \layout Description
 
 Home\SpecialChar ~
@@ -710,7 +659,8 @@ Spindle Configuration Page
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-spindle.png
+	filename images/stepconf-spindle.png
+	scale 70
 
 \end_inset 
 
@@ -720,35 +670,11 @@ Spindle Configuration Page
 
 \layout Standard
 
-These options only appear when 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle PWM
-\begin_inset Quotes erd
-\end_inset 
-
-, 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle A
-\begin_inset Quotes erd
-\end_inset 
-
- or 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle PPR
-\begin_inset Quotes erd
-\end_inset 
-
- are chosen in the 
+This page only appear when "Spindle PWM" is chosen in the 
 \series bold 
-Parallel port pinout
+Parallel Port Pinout
 \series default 
-.
+ page for one of the outputs.
 \layout Subsubsection
 
 Spindle Speed Control
@@ -764,15 +690,8 @@ Spindle Speed Control
 
 \layout Standard
 
-If 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle PWM
-\begin_inset Quotes erd
-\end_inset 
-
- appears on the pinout, the following information should be entered:
+If "Spindle PWM" appears on the pinout, the following information should
+ be entered:
 \layout Description
 
 PWM\SpecialChar ~
@@ -781,24 +700,9 @@ Rate
 
 \end_inset 
 
- The 
-\begin_inset Quotes eld
-\end_inset 
-
-carrier frequency
-\begin_inset Quotes erd
-\end_inset 
-
- of the PWM signal to the spindle.
- Enter 
-\begin_inset Quotes eld
-\end_inset 
-
-0
-\begin_inset Quotes erd
-\end_inset 
-
- for PDM mode, which is useful for generating an analog control voltage.
+ The "carrier frequency" of the PWM signal to the spindle.
+ Enter "0" for PDM mode, which is useful for generating an analog control
+ voltage.
  Refer to the documentation for your spindle controller for the appropriate
  value.
 \layout Description
@@ -855,23 +759,16 @@ When the appropriate signals from a spindle encoder are connected to the
 \layout Description
 
 Spindle\SpecialChar ~
-PPR
+Index
 \begin_inset LatexCommand \index{Spindle PPR}
 
 \end_inset 
 
- Also called 
-\begin_inset Quotes eld
-\end_inset 
-
-Index pulse
-\begin_inset Quotes erd
-\end_inset 
-
-, this is a pulse that occurs once per revolution of the spindle.
+ Is a pulse that occurs once per revolution of the spindle.
 \layout Description
 
 Spindle\SpecialChar ~
+Phase\SpecialChar ~
 A
 \begin_inset LatexCommand \index{Spindle A}
 
@@ -882,45 +779,20 @@ A
 \layout Description
 
 Spindle\SpecialChar ~
+Phase\SpecialChar ~
 B
 \begin_inset LatexCommand \index{Spindle B}
 
 \end_inset 
 
  (optional) This is a second pulse that occurs, but with an offset from
- 
-\series bold 
-Spindle A
-\series default 
-.
- The advantages to using both 
-\series bold 
-A
-\series default 
- and 
-\series bold 
-B
-\series default 
- are increased noise immunity and increased resolution.
+ Spindle Phase A.
+ The advantages to using both A and B are increased noise immunity and increased
+ resolution.
 \layout Standard
 
-If 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle A
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-Spindle PPR
-\begin_inset Quotes erd
-\end_inset 
-
- appear on the pinout, the following information should be entered:
+If "Spindle Phase A" and "Spindle Index" appear on the pinout, the following
+ information should be entered:
 \layout Description
 
 Cycles\SpecialChar ~
@@ -934,7 +806,9 @@ revolution
 \series bold 
 Spindle A
 \series default 
- signal during one revolution of the spindle
+ signal during one revolution of the spindle.
+ This option is only enabled when an input has be set to "Spindle Phase
+ A"
 \layout Description
 
 
@@ -1082,14 +956,7 @@ After gauging the amount of travel available, enter a safe distance in Test
  Then click Run.
  The machine will begin to move back and forth along this axis.
  In this test, it is important that the combination of Acceleration and
- Test Area allow the machine to reach the selected Velocity and 
-\begin_inset Quotes eld
-\end_inset 
-
-cruise
-\begin_inset Quotes erd
-\end_inset 
-
+ Test Area allow the machine to reach the selected Velocity and "cruise"
  for at least a short distance--the more distance, the better this test
  is.
  The formula d=.5*v*v/a gives the minimum distance required reach the specified
@@ -1099,15 +966,7 @@ cruise
  If the machine stalls, reduce the speed and start the test again.
 \layout Standard
 
-If the machine did not obviously stall, click the 
-\begin_inset Quotes eld
-\end_inset 
-
-Run
-\begin_inset Quotes erd
-\end_inset 
-
- button off.
+If the machine did not obviously stall, click the "Run" button off.
  The axis now returns to the position where it started.
  If the position is incorrect, then the axis stalled or lost steps during
  the test.
@@ -1121,15 +980,7 @@ If the machine doesn't move, stalls, or loses steps no matter how low you
 Correct step waveform timings
 \layout Itemize
 
-Correct pinout, including 
-\begin_inset Quotes eld
-\end_inset 
-
-Invert
-\begin_inset Quotes erd
-\end_inset 
-
- on step pins
+Correct pinout, including "Invert" on step pins
 \layout Itemize
 
 Correct, well-shielded cabling
@@ -1181,7 +1032,7 @@ Determining Spindle Calibration
 
 Enter the following values in the Spindle Configuration page:
 \layout Standard
-
+\align center 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="2" columns="4">
@@ -1292,23 +1143,8 @@ S800
 For two different S-numbers, measure the actual spindle speed in RPM.
  Record the S-numbers and actual spindle speeds.
  Run Stepconf again.
- For 
-\begin_inset Quotes eld
-\end_inset 
-
-Speed
-\begin_inset Quotes erd
-\end_inset 
-
- enter the measured speed, and for 
-\begin_inset Quotes eld
-\end_inset 
-
-PWM
-\begin_inset Quotes erd
-\end_inset 
-
- enter the S-number divided by 1000.
+ For "Speed" enter the measured speed, and for "PWM" enter the S-number
+ divided by 1000.
 \layout Standard
 
 Because most spindle drivers are somewhat nonlinear in their response curves,
@@ -1476,38 +1312,11 @@ Operating without Limit Switches
 \layout Standard
 
 A machine can be operated without limit switches.
- In this case, only the 
-\series bold 
-soft limits
-\series default 
- stop the machine from reaching the 
-\series bold 
-hard stop
-\series default 
-.
- 
-\series bold 
-Soft limits
-\series default 
- only operate after the machine has been homed.
+ In this case, only the soft limits stop the machine from reaching the hard
+ stop.
+ Soft limits only operate after the machine has been homed.
  Since there is no switch, the machine must be moved by eye to the home
- position before pressing the 
-\begin_inset Quotes eld
-\end_inset 
-
-Home
-\begin_inset Quotes erd
-\end_inset 
-
- or 
-\begin_inset Quotes eld
-\end_inset 
-
-Home All
-\begin_inset Quotes erd
-\end_inset 
-
- button.
+ position before pressing the "Home" or "Home All" button.
 \layout Subsection
 
 Operating without Home Switches
@@ -1531,21 +1340,10 @@ Minimum Limit + Home X
 \series default 
  in the pinout).
  If the machine has no limit switches, or the limit switches cannot be used
- as home switches for another reason, then the machine must be homed 
-\begin_inset Quotes eld
-\end_inset 
-
-by eye
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ as home switches for another reason, then the machine must be homed "by
+ eye" or by using match marks.
  Homing by eye is not as repeatable as homing to switches, but it still
- allows the 
-\series bold 
-soft limits
-\series default 
- to be useful.
+ allows the soft limits to be useful.
 \layout Section
 
 Latency Test
@@ -1559,21 +1357,6 @@ Latency Test
 \end_inset 
 
 
-\layout Standard
-
-Generating step pulses in software has one very big advantage - it's free.
- Just about every PC has a parallel port that is capable of outputting step
- pulses that are generated by the software.
- However, software step pulses also have some disadvantages:
-\layout Itemize
-
-limited maximum step rate 
-\layout Itemize
-
-jitter in the generated pulses
-\layout Itemize
-
-loads the CPU
 \layout Standard
 
 Latency is how long it takes the PC to stop what it is doing and respond
@@ -1597,19 +1380,13 @@ The CPU isn't the only factor in determining latency.
  test.
 \layout Standard
 
-To run the test, from Applications/Accessories/Terminal (Ubuntu) open a
- shell and run the following command: 
-\layout LyX-Code
-
-latency-test 
-\layout Standard
-
-You should see something like this:
+The Latency Test (Test Base Period Jitter) is on the Basic Machine Information
+ page.
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename latency.png
+	filename images/stepconf-latency.png
 
 \end_inset 
 
@@ -1626,20 +1403,12 @@ While the test is running, you should "abuse" the computer.
  to see what the worst case numbers are.
  
 \series bold 
-Do not run EMC2 or Stepconf while the latency test is running.
+Do not run EMC2 while the latency test is running.
 \layout Standard
 
-The important numbers are the 
-\begin_inset Quotes eld
-\end_inset 
-
-max jitter
-\begin_inset Quotes erd
-\end_inset 
-
-.
- In the example above, that is 17894 nanoseconds, or 17.9 microseconds.
- Record this number, and enter it in Stepconf when it is requested.
+The important numbers are the "max jitter".
+ In the example above 7085 nanoseconds is the highest jitter.
+ Record this number, and enter it in the Base Period Maximum Jitter box.
 \layout Standard
 
 In the example above, latency-test only ran for a few seconds.
@@ -1701,15 +1470,7 @@ The figures below show the general idea of wiring multiple switches to a
  In each case, when one switch is actuated, the value seen on INPUT goes
  from logic HIGH to LOW.
  However, EMC expects a TRUE value when a switch is closed, so the corresponding
- 
-\begin_inset Quotes eld
-\end_inset 
-
-Invert
-\begin_inset Quotes erd
-\end_inset 
-
- box must be checked on the pinout configuration page.
+ "Invert" box must be checked on the pinout configuration page.
 \layout Standard
 
 
@@ -1790,13 +1551,6 @@ Combine both limit switches and the home switch for one axis
 Combine one limit switch and the home switch for one axis
 \layout Standard
 
-The last two combinations are also appropriate when a 
-\begin_inset Quotes eld
-\end_inset 
-
-home to limit
-\begin_inset Quotes erd
-\end_inset 
-
- is used.
+The last two combinations are also appropriate when a "home to limit" is
+ used.
 \the_end
