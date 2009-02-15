@@ -275,10 +275,10 @@ Dapper Drake
 \layout Standard
 
 First add the repository to /etc/apt/sources.list:
-\layout LyX-Code
+\layout Quote
 
 
-\size scriptsize 
+\size small 
 $ sudo sh -c 'echo "deb http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/apt/sou
 rces.list;'
 \newline 
@@ -287,10 +287,8 @@ $ sudo sh -c 'echo "deb-src http://www.linuxcnc.org/emc2/ dapper emc2.2" >>/etc/
 \layout Standard
 
 Then update & get EMC2.
-\layout LyX-Code
+\layout Quote
 
-
-\size scriptsize 
 $ sudo apt-get update
 \newline 
 $ sudo apt-get install emc2
@@ -314,10 +312,8 @@ The dependencies are one of the nicest thing in Debian based distributions.
 You might get warnings that the packages are from an untrusted source (this
  means your computer doesn't recognize the GPG signature on the packages).
  To correct that issue the following commands:
-\layout LyX-Code
+\layout Quote
 
-
-\size scriptsize 
 $ gpg --keyserver pgpkeys.mit.edu --recv-key BC92B87F
 \newline 
 $ gpg -a --export BC92B87F | sudo apt-key add -
