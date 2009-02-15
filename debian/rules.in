@@ -73,7 +73,7 @@ install: build
 	rm debian/tmp/usr/share/doc/emc2/EMC2_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/emc2/html
 	-rm debian/tmp/emc2*.files
-	-rm -f debian/tmp/etc/emc2/sample-configs/*/*position*.txt
+	-rm -f debian/tmp/usr/share/doc/emc2/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \
@@ -95,7 +95,7 @@ binary-arch: build install
 	dh_installman
 	dh_link
 	dh_strip
-	dh_compress -X.pdf -X.txt
+	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml
 ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper -X/bfload
 endif

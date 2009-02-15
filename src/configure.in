@@ -512,7 +512,7 @@ else
         */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
 	*) EMC2_RTLIB_DIR=$MODULE_DIR/emc2
     esac
-    EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $sysconfdir)"/emc2/sample-configs"
+    EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
     EMC2_IMAGE_DIR=$(eval echo $sysconfdir)/emc2/

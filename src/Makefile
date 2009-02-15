@@ -450,8 +450,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
 
         # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
-	$(DIR) $(DESTDIR)$(sysconfdir)/emc2/sample-configs
-	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(sysconfdir)/emc2/sample-configs && tar -xf -))
+	$(DIR) $(DESTDIR)$(docsdir)/sample-configs
+	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(docsdir)/sample-configs && tar -xf -))
 
 	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
