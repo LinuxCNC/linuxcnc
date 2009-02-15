@@ -1483,7 +1483,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename switch-nc-series.eps
+	filename images/switch-nc-series.eps
 	width 50page%
 	keepAspectRatio
 
@@ -1513,7 +1513,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename switch-no-parallel.eps
+	filename images/switch-no-parallel.eps
 	width 50page%
 	keepAspectRatio
 
