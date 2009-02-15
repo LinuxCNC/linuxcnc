@@ -106,7 +106,7 @@ To select AXIS as the front-end for EMC2, edit the .ini file.
 DISPLAY
 \family default 
  line to read
-\layout LyX-Code
+\layout Quote
 
 DISPLAY = axis
 \layout Standard
@@ -2074,7 +2074,7 @@ mdi
 
  which allows text-mode entry of MDI commands to a running EMC session.
  You can run this program by opening a terminal and typing
-\layout LyX-Code
+\layout Quote
 
 mdi /path/to/emc.nml
 \layout Standard
@@ -2086,28 +2086,11 @@ MDI>
 .
  When a blank line is entered, the machine's current position is shown.
  When a command is entered, it is sent to EMC to be executed.
- A sample session of mdi is shown in Figure 
-\begin_inset LatexCommand \ref{cap:MDI-Session}
+ 
+\layout Standard
 
-\end_inset 
-
-.
-\layout LyX-Code
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Caption
-
-MDI Session
-\begin_inset LatexCommand \label{cap:MDI-Session}
-
-\end_inset 
-
-
-\layout LyX-Code
+This is a sample session of mdi.
+\layout Quote
 
 $ mdi ~/emc2/configs/sim/emc.nml 
 \newline 
@@ -2124,9 +2107,6 @@ MDI>
 MDI> 
 \newline 
 (1.0000000000000639, 0.0, 0.0, 0.0, 0.0, 0.0)
-\end_inset 
-
-
 \layout Section
 
 axis-remote
@@ -2448,7 +2428,7 @@ image-to-gcode
 \end_inset 
 
  converter included with EMC2:
-\layout LyX-Code
+\layout Quote
 
 [FILTER]
 \newline 
@@ -2460,7 +2440,7 @@ gif = image-to-gcode
 \layout Standard
 
 It is also possible to specify an interpreter:
-\layout LyX-Code
+\layout Quote
 
 PROGRAM_EXTENSION = .py Python Script
 \newline 
@@ -2503,7 +2483,7 @@ Circular Holes
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines written
  to stderr of the form
-\layout LyX-Code
+\layout Quote
 
 FILTER_PROGRESS=%d
 \layout Standard
@@ -2537,10 +2517,10 @@ axis_big_dro
 \family default 
  changes the position readout to a larger size font.
  To use these files:
-\layout LyX-Code
+\layout Quote
 
 xrdb -merge /usr/share/doc/emc2/axis_light_background
-\layout LyX-Code
+\layout Quote
 
 xrdb -merge /usr/share/doc/emc2/axis_big_dro
 \layout Standard
@@ -2554,7 +2534,7 @@ Because modern desktop environments automatically make some settings in
  are ignored.
  To make the X Resource Database items override AXIS defaults, include the
  following line in your X Resources:
-\layout LyX-Code
+\layout Quote
 
 *Axis*optionLevel: widgetDefault
 \layout Standard
@@ -2634,45 +2614,15 @@ If it exists, the contents of
  during the development cycle.
 \layout Standard
 
-The lines shown in Figure 
-\begin_inset LatexCommand \ref{cap:Sample-.axisrc-file}
-
-\end_inset 
-
- add Control-Q as a keyboard shortcut for Quit and turns on 
-\begin_inset Quotes eld
-\end_inset 
-
-Distance to go
-\begin_inset Quotes erd
-\end_inset 
-
- by default.
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Caption
-
-Sample .axisrc file
-\begin_inset LatexCommand \label{cap:Sample-.axisrc-file}
-
-\end_inset 
-
-
-\layout LyX-Code
+The following adds Control-Q as a keyboard shortcut for Quit and turns on
+ "Distance to go" by default.
+\layout Quote
 
 root_window.bind("<Control-q>", "destroy .")
 \newline 
 help2.append(("Control-Q", "Quit"))
 \newline 
 vars.show_distance_to_go.set(1)
-\end_inset 
-
-
 \layout Subsection
 
 External Editor
@@ -2689,8 +2639,10 @@ The menu options File > Edit...
  Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
 
 \family typewriter 
- For more information, see the DISPLAY section of the INI Configuration
- Chapter in the Integrators Manual.
+ 
+\family default 
+For more information, see the DISPLAY section of the INI Configuration Chapter
+ in the Integrators Manual.
 \layout Subsection
 
 Virtual Control Panel
