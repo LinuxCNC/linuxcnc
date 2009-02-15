@@ -126,16 +126,39 @@ The hostmot2 driver does not have a particular pinout.
  AnyIO board.
  Each firmware has different pinout, and there are many firmwares available.
  
+\layout Subsection
+
+PIN Files
 \layout Standard
 
-Each firmware has its pinout described in a .PIN file, which is located in
- /usr/share/doc/emc2-firmware-mesa-$BOARD-hostmot2 if you installed the
- firmware debian package.
+The default pinout is described in a .PIN file.
  
 \layout Standard
 
-It's in src/hal/drivers/mesa-hostmot2/firmware/$BOARD if you're compiling
- from the CVS source.
+If if you installed EMC2 the file is located in:
+\layout Quote
+
+/usr/share/doc/emc2-firmware-mesa-<board>-hostmot2 
+\layout Standard
+
+If your running a CVS checkout the files are located:
+\layout Quote
+
+src/hal/drivers/mesa-hostmot2/firmware/<board>
+\layout Standard
+
+If your using a CVS Run In Place you will have to create a symbolic link
+ to the pin files.
+\layout Quote
+
+sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/
+hm2-trunk
+\layout Standard
+
+And change the "firmware=hm2..." to "firmware=hm2-trunk..." in your ini file.
+\layout Subsection
+
+Configurations
 \layout Standard
 \align center 
 5i20 & 5i23 Default Configurations
@@ -1520,8 +1543,8 @@ When you load the board-driver (hm2_pci or hm2_7i43), you can tell it to
  Any I/O pins belonging to disabled module instances become gpios.
 \layout Standard
 
-To get a list of all the pins for your configuration in the terminal window
- type:
+To get a list of all the pins for your configuration after loading EMC2
+ in the terminal window type:
 \layout Quote
 
 dmesg > mylist.txt
@@ -1556,6 +1579,7 @@ General Purpose Input Output pins can be input, output or open collector.
  or whatever.
  Because the encoder module set that pin as an input you can not use it
  as an output.
+ See the man page for more specific information on GPIO pins.
 \layout Subsection*
 
 Pins
@@ -1573,13 +1597,15 @@ Pins
 Parameters
 \layout Description
 
-<card>.<n>.gpio.<nnn>.invert_output (Bit, RW)
+<card>.<n>.gpio.<nnn>.invert_output (Bit, RW) Set to 1 to change an output pin
+ to the inverse of the value of the hal pin.
 \layout Description
 
-<card>.<n>.gpio.<nnn>.is_opendrain (Bit, RW)
+<card>.<n>.gpio.<nnn>.is_opendrain (Bit, RW) Set to 1 to enable an output as
+ open-drain.
 \layout Description
 
-<card>.<n>.gpio.<nnn>.is_output (Bit, RW)
+<card>.<n>.gpio.<nnn>.is_output (Bit, RW) Set to 1 to enable pin as an output.
 \layout Section
 
 StepGen
@@ -1588,46 +1614,66 @@ StepGen
 Pins
 \layout Description
 
-<card>.<n>.stepgen.<nn>.counts (s32, Out)
+<card>.<n>.stepgen.<nn>.counts (s32, Out) Feedback position in counts (number
+ of steps).
 \layout Description
 
-<card>.<n>.stepgen.<nn>.enable (Bit, In)
+<card>.<n>.stepgen.<nn>.enable (Bit, In) Enables output steps.
+ When false, no steps are generated.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.position-cmd (Float, In)
+<card>.<n>.stepgen.<nn>.position-cmd (Float, In) Target of stepper motion, in
+ arbitrary position units.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.position-fb (Float, Out)
+<card>.<n>.stepgen.<nn>.position-fb (Float, Out) Feedback position in arbitrary
+ position units (counts / position_scale).
 \layout Description
 
-<card>.<n>.stepgen.<nn>.velocity-fb (Float, Out)
+<card>.<n>.stepgen.<nn>.velocity-fb (Float, Out) Feedback velocity in arbitrary
+ position units per second.
 \layout Subsection*
 
 Parameters
 \layout Description
 
-<card>.<n>.stepgen.<nn>.dirhold (u32, RW)
+<card>.<n>.stepgen.<nn>.dirhold (u32, RW) Minimum duration of stable Direction
+ signal after a step ends, in nanoseconds.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.dirsetup (u32, RW)
+<card>.<n>.stepgen.<nn>.dirsetup (u32, RW) Minimum duration of stable Direction
+ signal before a step begins, in nanoseconds.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.maxaccel (Float, RW)
+<card>.<n>.stepgen.<nn>.maxaccel (Float, RW) Maximum acceleration, in position
+ units per second per second.
+ If set to 0, the driver will not limit its acceleration.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.maxvel (Float, RW)
+<card>.<n>.stepgen.<nn>.maxvel (Float, RW) Maximum speed, in position units
+ per second.
+ If set to 0, the driver will choose the maximum velocity based on the values
+ of steplen and stepspace (at the time that maxvel was set to 0).
 \layout Description
 
-<card>.<n>.stepgen.<nn>.position-scale (Float, RW)
+<card>.<n>.stepgen.<nn>.position-scale (Float, RW) Converts from counts to position
+ units.
+ position = counts / position_scale
 \layout Description
 
-<card>.<n>.stepgen.<nn>.step_type (u32, RW)
+<card>.<n>.stepgen.<nn>.step_type (u32, RW) Output format, like the step_type
+ modparam to the software stegen(9) component.
+ 0 = Step/Dir, 1 = Up/Down, 2 = Quadrature.
+ In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
+ cycle (00 -> 01 -> 11 -> 10 -> 00) for each "step" it takes.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.steplen (u32, RW)
+<card>.<n>.stepgen.<nn>.steplen (u32, RW) Duration of the step signal, in nanosecond
+s.
 \layout Description
 
-<card>.<n>.stepgen.<nn>.stepspace (u32, RW)
+<card>.<n>.stepgen.<nn>.stepspace (u32, RW) Minimum interval between step signals,
+ in nanoseconds.
 \layout Section
 
 PWMGen
@@ -1636,25 +1682,68 @@ PWMGen
 Pins
 \layout Description
 
-<card>.<n>.pwmgen.<nn>.enable (Bit, In)
+<card>.<n>.pwmgen.<nn>.enable (Bit, In) If true, the pwmgen will set its Not-Enable
+ pin false and output its pulses.
+ If "enable" is false, pwmgen will set its Not-Enable pin true and not output
+ any signals.
 \layout Description
 
-<card>.<n>.pwmgen.<nn>.value (Float, In)
+<card>.<n>.pwmgen.<nn>.value (Float, In) The current pwmgen command value, in
+ arbitrary units.
 \layout Subsection*
 
 Parameters
 \layout Description
 
-<card>.<n>.pwmgen.<nn>.output-type (s32, RW)
+<card>.<n>.pwmgen.<nn>.output-type (s32, RW) This emulates the output_type load-time
+ argument to the software pwmgen component.
+ This parameter may be changed at runtime, but most of the time you probably
+ want to set it at startup and then leave it alone.
+ Accepted values are 1 (PWM on Out0 and Direction on Out1), 2 (Up on Out0
+ and Down on Out1), 3 (PDM mode, PDM on Out0 and Dir on Out1), and 4 (Direction
+ on Out0 and PWM on Out1, "for locked antiphase").
 \layout Description
 
-<card>.<n>.pwmgen.<nn>.scale (Float, RW)
+<card>.<n>.pwmgen.<nn>.scale (Float, RW) Scaling factor to convert "value" from
+ arbitrary units to duty cycle: dc = value / scale.
+ Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything outside
+ that range gets clipped.
 \layout Description
 
-<card>.<n>.pwmgen.pdm_frequency (u32, RW)
+<card>.<n>.pwmgen.pdm_frequency (u32, RW) This specifies the PDM frequency,
+ in Hz, of all the pwmgen instances running in PDM mode (mode 3).
+ This is the "pulse slot frequency"; the frequency at which the pdm generator
+ in the AnyIO board chooses whether to emit a pulse or a space.
+ Each pulse (and space) in the PDM pulse train has a duration of 1/pdm_frequency
+ seconds.
+ For example, setting the pdm_frequency to 2e6 (2 MHz) and the duty cycle
+ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
+ with 50% duty cycle.
+ The effective range of this parameter is from about 1525 Hz up to just
+ under 100 MHz.
+ Note that the max frequency is determined by the ClockHigh frequency of
+ the Anything IO board; the 5i20 and 7i43 both have a 100 MHz clock, resulting
+ in a 100 Mhz max PDM frequency.
+ Other boards may have different clocks, resulting in different max PDM
+ frequencies.
+ If the user attempts to set the frequency too high, it will be clipped
+ to the max supported frequency of the board.
 \layout Description
 
-<card>.<n>.pwmgen.pwm_frequency (u32, RW)
+<card>.<n>.pwmgen.pwm_frequency (u32, RW) This specifies the PWM frequency,
+ in Hz, of all the pwmgen instances running in the PWM modes (modes 1 and
+ 2).
+ This is the frequency of the variable-duty-cycle wave.
+ Its effective range is from 1 Hz up to 193 KHz.
+ Note that the max frequency is determined by the ClockHigh frequency of
+ the Anything IO board; the 5i20 and 7i43 both have a 100 MHz clock, resulting
+ in a 193 KHz max PWM frequency.
+ Other boards may have different clocks, resulting in different max PWM
+ frequencies.
+ If the user attempts to set the frequency too high, it will be clipped
+ to the max supported frequency of the board.
+ Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz
+ they're pretty close.
 \layout Section
 
 Encoder
@@ -1663,46 +1752,81 @@ Encoder
 Pins
 \layout Description
 
-<card>.<n>.encoder.<nn>.count (s32, Out)
+<card>.<n>.encoder.<nn>.count (s32, Out) Number of encoder counts since the
+ previous reset.
 \layout Description
 
-<card>.<n>.encoder.<nn>.index-enable (Bit, I/O)
+<card>.<n>.encoder.<nn>.index-enable (Bit, I/O) When this pin is set to True,
+ the count (and therefore also position) are reset to zero on the next Index
+ (Phase-Z) pulse.
+ At the same time, index-enable is reset to zero to indicate that the pulse
+ has occurred.
 \layout Description
 
-<card>.<n>.encoder.<nn>.position (Float, Out)
+<card>.<n>.encoder.<nn>.position (Float, Out) Encoder position in position units
+ (count / scale).
 \layout Description
 
-<card>.<n>.encoder.<nn>.rawcounts (s32, Out)
+<card>.<n>.encoder.<nn>.rawcounts (s32, Out) Total number of encoder counts
+ since the start, not adjusted for index or reset.
 \layout Description
 
-<card>.<n>.encoder.<nn>.reset (Bit, In)
+<card>.<n>.encoder.<nn>.reset (Bit, In) When this pin is TRUE, the count and
+ position pins are set to 0.
+ (The value of the velocity pin is not affected by this.) The driver does
+ not reset this pin to FALSE after resetting the count to 0, that is the
+ user's job.
 \layout Description
 
-<card>.<n>.encoder.<nn>.velocity (Float, Out)
+<card>.<n>.encoder.<nn>.velocity (Float, Out) Estimated encoder velocity in
+ position units per second.
 \layout Subsection*
 
 Parameters
 \layout Description
 
-<card>.<n>.encoder.<nn>.couner-mode (Bit, RW)
+<card>.<n>.encoder.<nn>.couner-mode (Bit, RW) Set to False (the default) for
+ Quadrature.
+ Set to True for Up/Down.
 \layout Description
 
-<card>.<n>.encoder.<nn>.filter (Bit, RW)
+<card>.<n>.encoder.<nn>.filter (Bit, RW) If set to True (the default), the quadratur
+e counter needs 15 clocks to register a change on any of the three input
+ lines (any pulse shorter than this is rejected as noise).
+ If set to False, the quadrature counter needs only 3 clocks to register
+ a change.
+ The encoder sample clock runs at 33 MHz on the PCI AnyIO cards and 50 MHz
+ on the 7i43.
 \layout Description
 
-<card>.<n>.encoder.<nn>.index-invert (Bit, RW)
+<card>.<n>.encoder.<nn>.index-invert (Bit, RW) If set to True, the rising edge
+ of the Index input pin triggers the Index event (if index-enable is True).
+ If set to False, the falling edge triggers.
 \layout Description
 
-<card>.<n>.encoder.<nn>.index-mask (Bit, RW)
+<card>.<n>.encoder.<nn>.index-mask (Bit, RW) If set to True, the Index input
+ pin only has an effect if the Index-Mask input pin is True (or False, depending
+ on the index-mask-invert pin below).
 \layout Description
 
-<card>.<n>.encoder.<nn>.index-mask-invert (Bit, RW)
+<card>.<n>.encoder.<nn>.index-mask-invert (Bit, RW) If set to True, Index-Mask
+ must be False for Index to have an effect.
+ If set to False, the Index-Mask pin must be True.
 \layout Description
 
-<card>.<n>.encoder.<nn>.scale (Float, RW)
+<card>.<n>.encoder.<nn>.scale (Float, RW) Converts from "count" units to "position"
+ units.
 \layout Description
 
-<card>.<n>.encoder.<nn>.vel-timeout (Float, RW)
+<card>.<n>.encoder.<nn>.vel-timeout (Float, RW) When the encoder is moving slower
+ than one pulse for each time that the driver reads the count from the FPGA
+ (in the hm2_read() function), the velocity is harder to estimate.
+ The driver can wait several iterations for the next pulse to arrive, all
+ the while reporting the upper bound of the encoder velocity, which can
+ be accurately guessed.
+ This parameter specifies how long to wait for the next pulse, before reporting
+ the encoder stopped.
+ This parameter is in seconds.
 \layout Section
 
 Examples
