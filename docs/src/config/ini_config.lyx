@@ -181,7 +181,7 @@ A comment line is started with a ; or a # mark.
  rest of the line is ignored by the software.
  Comments can be used to describe what some INI element will do.
  
-\layout LyX-Code
+\layout Quote
 
 ; This is my little mill configuration file.
 \newline 
@@ -190,7 +190,7 @@ A comment line is started with a ; or a # mark.
 
 Comments can also be used to select between several values of a single variable.
  
-\layout LyX-Code
+\layout Quote
 
 # DISPLAY = tkemc
 \begin_inset LatexCommand \index{tkemc}
@@ -248,7 +248,7 @@ Note that inside a variable, the
 \end_inset 
 
  characters do not denote comments:
-\layout LyX-Code
+\layout Quote
 
 INCORRECT = value     # and a comment
 \layout Subsection
@@ -1304,8 +1304,12 @@ NO_FORCE_HOMING\SpecialChar ~
  Normally jogging only is allowed before homing.
  Setting NO_FORCE_HOMING = 1 allows the user to make MDI moves and run programs
  without homing the machine first.
+ Interfaces without homing ability will need to have this option set to
+ 1.
  
 \series bold 
+
+\newline 
 Warning
 \series default 
 : Using this will allow the machine to run past soft limits while in operation
