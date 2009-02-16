@@ -131,8 +131,7 @@ void HalWriteFloatOutputs(void) {
 // t0 and t1 are for keeping track of how long the refresh of sections, 
 // and HAL pins take (it is displayed in the 'section display' GUI (in microseconds). 
 
-static void hal_task(void *arg, long period) 
-{
+static void hal_task(void *arg, long period) {
 	unsigned long t0, t1,milliseconds;
  	static unsigned long leftover=0;
          leftover += period;
@@ -250,9 +249,8 @@ void rtapi_app_exit(void) {
 // this function copies any requested (from the cmd line) changes to ladder element amounts to GeneralParamsMirror
 // so memory allotment and pin numbers can be varied. Note no error checking is done.
 // Symbols allotment is calculated to be large enough to have symbols for all the elements unless specified smaller
-// on the command line
-void CopySizesInfosFromModuleParams( void )
-{
+// on the command line (the symbols window will only assign -GeneralParamsMirror.SizesInfos.nbr_symbols- number of symbols )
+void CopySizesInfosFromModuleParams( void ) {
         plc_sizeinfo_s *pSizesInfos;
         pSizesInfos = &GeneralParamsMirror.SizesInfos;
 #ifdef DYNAMIC_PLCSIZE
@@ -285,14 +283,14 @@ void CopySizesInfosFromModuleParams( void )
         if ( numFloatIn>0 )
 		GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs = numFloatIn;
 	if ( numFloatOut>0 )
-		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;
-        
-                GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words + pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
-                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec + pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
-                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs + pSizesInfos->nbr_phys_float_inputs ;
-                GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
-	 if (numSymbols < GeneralParamsMirror.SizesInfos.nbr_symbols )
-                 GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;
+		GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs = numFloatOut;        
+    GeneralParamsMirror.SizesInfos.nbr_symbols = pSizesInfos->nbr_bits + pSizesInfos->nbr_words ;
+    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_timers + pSizesInfos->nbr_monostables ;
+    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_counters + pSizesInfos->nbr_timers_iec ;
+    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_inputs + pSizesInfos->nbr_phys_outputs ;
+    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_words_inputs + pSizesInfos->nbr_phys_words_outputs;
+    GeneralParamsMirror.SizesInfos.nbr_symbols += pSizesInfos->nbr_phys_float_inputs + pSizesInfos->nbr_phys_float_outputs + NBR_ERROR_BITS_DEF ;
+	if (numSymbols < GeneralParamsMirror.SizesInfos.nbr_symbols ) {  GeneralParamsMirror.SizesInfos.nbr_symbols = numSymbols;  }
     
 	#endif
 }
