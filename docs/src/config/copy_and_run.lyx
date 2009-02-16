@@ -37,13 +37,13 @@
 Running EMC
 \layout Section
 
-Invoking emc
+Invoking EMC
 \layout Standard
 
-After installation, emc2 starts just like any other piece of Linux software:
+After installation, EMC2 starts just like any other piece of Linux software:
  run it from the terminal by issuing the command 
 \family typewriter 
-emc
+EMC
 \family default 
 , or select it in the Applications > CNC menu.
 \layout Section
@@ -52,37 +52,18 @@ Configuration Selector
 \layout Standard
 
 By default, the Configuration Selector dialog is shown when you first run
- emc.
+ EMC.
  Your own personalized configurations are shown at the top of the list,
  followed by sample configurations.
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Since each sample configuration is for a different type of hardware interface,
- most will not run on your system.
- The configurations listed under the category 
-\begin_inset Quotes eld
-\end_inset 
-
-sim
-\begin_inset Quotes erd
-\end_inset 
-
- run entirely without attached hardware.
-\end_inset 
-
-Figure 
-\begin_inset LatexCommand \ref{cap:EMC2-Configuration-Selector}
-
-\end_inset 
-
- shows the appearance of the configuration selector screen.
+ Since each sample configuration is for a different type of hardware interface,
+ some will not run without the hardware installed.
+ The configurations listed under the category "sim" run entirely without
+ attached hardware.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -98,8 +79,7 @@ EMC2 Configuration Selector
 \align center 
 
 \begin_inset Graphics
-	filename configuration-selector1.png
-	lyxscale 50
+	filename images/configuration-selector.png
 	width 80text%
 	keepAspectRatio
 
@@ -114,43 +94,23 @@ EMC2 Configuration Selector
 Click any of the listed configurations to display specific information about
  it.
  Double-click a configuration or click OK to start the configuration.
- Select 
-\begin_inset Quotes eld
-\end_inset 
-
-Create Desktop Shortcut
-\begin_inset Quotes erd
-\end_inset 
-
- and then click OK to add an icon on the Ubuntu desktop to directly launch
- this configuration without showing the Configuration Selector screen.
+ Select "Create Desktop Shortcut" and then click OK to add an icon on the
+ Ubuntu desktop to directly launch this configuration without showing the
+ Configuration Selector screen.
 \layout Standard
 
 If you select a configuration from the Sample Configurations section, you
  will be asked to copy the configuration to a location in your home directory.
- It is safe to say 
-\begin_inset Quotes eld
-\end_inset 
-
-yes
-\begin_inset Quotes erd
-\end_inset 
-
- to this prompt.
- If you say 
-\begin_inset Quotes eld
-\end_inset 
-
-no
-\begin_inset Quotes erd
-\end_inset 
-
-, emc may start but will behave strangely--for instance, offsets entered
- with Touch Off will be cleared unexpectedly.
+ It is safe to say "yes" to this prompt.
+ If you say "no", EMC may start but will behave strangely--for instance,
+ offsets entered with Touch Off will be cleared unexpectedly.
+ This is because the files are read only if you don't save a copy to your
+ home directory.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -161,7 +121,7 @@ Copy Configuration Dialog
 \align center 
 
 \begin_inset Graphics
-	filename copy-configuration.png
+	filename images/copy-configuration.png
 
 \end_inset 
 
@@ -174,26 +134,8 @@ Copy Configuration Dialog
 Next steps in configuration
 \layout Standard
 
-If your machine is controlled with step and direction signals on the PC
- parallel port, read the next chapter, 
-\begin_inset Quotes eld
-\end_inset 
-
-Stepconf
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Otherwise, find the sample configuration that uses the same interface hardware
- as your machine, and customizing it according to the details of your machine.
- Make a copy of that configuration in your home directory and continue reading
- the chapter 
-\begin_inset Quotes eld
-\end_inset 
-
-INI Configuration
-\begin_inset Quotes erd
-\end_inset 
-
-.
+After finding the sample configuration that uses the same interface hardware
+ as your machine, and saving a copy to your home directory you can customize
+ it according to the details of your machine.
+ 
 \the_end

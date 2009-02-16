@@ -886,7 +886,8 @@ Axis Test Window
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-test.png
+	filename images/stepconf-test.png
+	scale 70
 
 \end_inset 
 
@@ -1387,6 +1388,7 @@ The Latency Test (Test Base Period Jitter) is on the Basic Machine Information
 
 \begin_inset Graphics
 	filename images/stepconf-latency.png
+	scale 70
 
 \end_inset 
 
