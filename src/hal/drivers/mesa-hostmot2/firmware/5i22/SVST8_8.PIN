@@ -20,7 +20,7 @@ Modules in configuration:
   ClockFrequency: 48.000 MHz
 
   Module: IOPort
-  There are 3 of IOPort in configuration
+  There are 4 of IOPort in configuration
   Version: 0
   Registers: 5
   BaseAddress: 1000
@@ -42,7 +42,7 @@ Modules in configuration:
 
   Module: StepGen
   There are 8 of StepGen in configuration
-  Version: 0
+  Version: 1
   Registers: 10
   BaseAddress: 2000
   ClockFrequency: 48.000 MHz
