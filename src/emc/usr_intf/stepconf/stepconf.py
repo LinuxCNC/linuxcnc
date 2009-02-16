@@ -73,6 +73,7 @@ drivertypes = [
     ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
     ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
     ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
+    ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
     ["l297", _("L297"), 500,  4000, 4000, 1000],
     ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
     ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
@@ -489,13 +490,7 @@ class Data:
         if self.halui:
            print >>file
            print >>file, "[HALUI]"
-           if self.pyvcphaltype == 2 and self.pyvcpconnect:
-               print >>file,"MDI_COMMAND = G0 G53 Z0"
-               print >>file,"MDI_COMMAND = G28"
-               print >>file,"MDI_COMMAND = G92 X0"
-               print >>file,"MDI_COMMAND = G92 Y0"
-               print >>file,"MDI_COMMAND = G92 Z0"
-               print >>file,"MDI_COMMAND = G92.1"
+           print >>file, _("# add halui MDI commands here (max 10) ")
 
         print >>file
         print >>file, "[TRAJ]"
@@ -1263,11 +1258,9 @@ class App:
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
-        print "data.drivertype =", self.drivertype_toid(self.widgets.drivertype.get_active())
         self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
         self.data.steptime = self.widgets.steptime.get_value()
         self.data.stepspace = self.widgets.stepspace.get_value()
-        print self.data.steptime
         self.data.dirhold = self.widgets.dirhold.get_value()
         self.data.latency = self.widgets.latency.get_value()
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
@@ -2024,7 +2017,7 @@ class App:
 
         if data.doublestep():
             halrun.write("""
-                setp parport.0.reset-time %d
+                setp parport.0.reset-time %(resettime)d
                 setp stepgen.0.stepspace 0
                 addf parport.0.reset fast
             """ % {
