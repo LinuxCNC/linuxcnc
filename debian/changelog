@@ -1,5 +1,6 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
+  * fix halui - MDI number limited to 10 (SF#2607450)
   * halvcp has been removed, use pyvcp instead
   * change motion.* and axis.* HAL parameters to pins
   * M62/M63 P<xx> now work as intended
