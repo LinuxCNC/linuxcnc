@@ -61,6 +61,7 @@ LANGUAGES = @LANGUAGES@
 # do we really need these?
 initd_dir = /etc/init.d
 docsdir = ${prefix}/share/doc/emc2
+sampleconfsdir = ${prefix}/share/doc/emc2/examples/sample-configs
 ncfilesdir = ${prefix}/share/emc/ncfiles
 tcldir = ${prefix}/share/emc/tcl
 

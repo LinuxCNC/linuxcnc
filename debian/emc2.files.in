@@ -56,7 +56,7 @@ usr/lib/python@PYTHON_VERSION@/site-packages/*.so
 usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/doc/emc2/*
-usr/share/doc/emc2/sample-configs/*/*
+usr/share/doc/emc2/examples/sample-configs/*/*
 usr/share/emc/ncfiles/*
 usr/share/emc/stepconf.glade
 usr/share/emc/tcl/*
