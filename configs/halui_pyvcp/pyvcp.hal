@@ -1,7 +1,5 @@
 loadusr -W pyvcp -c pyvcp vcp.xml
 
-show all
-
 net estop-activate       pyvcp.estop.activate       halui.estop.activate
 net estop-reset          pyvcp.estop.reset          halui.estop.reset
 net estop-is-activated   pyvcp.estop.is-activated   halui.estop.is-activated
@@ -77,11 +75,13 @@ net j2-has-fault         pyvcp.z.has-fault          halui.joint.2.has-fault
 net j2-minus             pyvcp.jog-z-               halui.jog.2.minus
 net j2-plus              pyvcp.jog-z+               halui.jog.2.plus
 
-#net fo-increase          pyvcp.fo.increase          halui.feed-override.increase
-#net fo-decrease          pyvcp.fo.decrease          halui.feed-override.decrease
+net fo-increase          pyvcp.feed-override+       halui.feed-override.increase
+net fo-decrease          pyvcp.feed-override-       halui.feed-override.decrease
+net fo-value             pyvcp.feed-override.value  halui.feed-override.value
 
-#net so-increase          pyvcp.so.increase          halui.spindle-override.increase
-#net so-decrease          pyvcp.so.decrease          halui.spindle-override.decrease
+net so-increase          pyvcp.spindle-override+    halui.spindle-override.increase
+net so-decrease          pyvcp.spindle-override-    halui.spindle-override.decrease
+net so-value             pyvcp.spindle-override.value  halui.spindle-override.value
 
 #net os-on                pyvcp.os.on                halui.program.optional-stop.on
 #net os-off               pyvcp.os.off               halui.program.optional-stop.off

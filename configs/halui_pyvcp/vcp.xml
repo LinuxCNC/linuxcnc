@@ -468,29 +468,37 @@
     </hbox>
 
     <hbox>
+    <button>
+	<halpin>"feed-override+"</halpin>
+        <text>"+"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"feed-override-"</halpin>
+        <text>"-"</text> 
+        <justify>"center"</justify>
+    </button>
     <label><text>"feed override: "</text></label>
-    <spinbox>
-       <halpin>"feed-override"</halpin>
-       <min_>0</min_>
-       <resolution>.5</resolution>
-       <format>"2.1f"</format>
-       <width>5</width>
-       <justify>RIGHT</justify>
-       <initval>100</initval>
-    </spinbox>
+    <number>
+	<halpin>"feed-override.value"</halpin>
+    </number>
     </hbox>
+    
     <hbox>
+    <button>
+	<halpin>"spindle-override+"</halpin>
+        <text>"+"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"spindle-override-"</halpin>
+        <text>"-"</text> 
+        <justify>"center"</justify>
+    </button>
     <label><text>"spindle override: "</text></label>
-    <spinbox>
-       <halpin>"spindle-override"</halpin>
-       <min_>0</min_>
-       <max_>200</max_>
-       <resolution>.5</resolution>
-       <format>"2.1f"</format>
-       <width>5</width>
-       <justify>RIGHT</justify>
-       <initval>100</initval>
-    </spinbox>
+    <number>
+	<halpin>"spindle-override.value"</halpin>
+    </number>
     </hbox>
 </vbox>
 </labelframe>
