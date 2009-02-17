@@ -207,7 +207,7 @@ DONE: - spindle-override
 
 */
 
-#define MDI_MAX 10
+#define MDI_MAX 64
 
 struct halui_str {
     hal_bit_t *machine_on;         //pin for setting machine On
