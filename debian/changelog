@@ -1,5 +1,6 @@
 emc2 (1:2.3.0~alpha1) unstable; urgency=low
 
+  * install sample configurations to /usr/share/doc/emc2/examples/sample-configs/
   * fix halui - MDI number limited to 10 (SF#2607450)
   * halvcp has been removed, use pyvcp instead
   * change motion.* and axis.* HAL parameters to pins
