@@ -83,9 +83,13 @@ net so-increase          pyvcp.spindle-override+    halui.spindle-override.incre
 net so-decrease          pyvcp.spindle-override-    halui.spindle-override.decrease
 net so-value             pyvcp.spindle-override.value  halui.spindle-override.value
 
-#net os-on                pyvcp.os.on                halui.program.optional-stop.on
-#net os-off               pyvcp.os.off               halui.program.optional-stop.off
-#net os-is-on             pyvcp.os.is-on             halui.program.optional-stop.is-on
+net os-on                pyvcp.optional-stop.on     halui.program.optional-stop.on
+net os-off               pyvcp.optional-stop.off    halui.program.optional-stop.off
+net os-is-on             pyvcp.optional-stop.is-on  halui.program.optional-stop.is-on
+
+net bd-on                pyvcp.block-delete.on      halui.program.block-delete.on
+net bd-off               pyvcp.block-delete.off     halui.program.block-delete.off
+net bd-is-on             pyvcp.block-delete.is-on   halui.program.block-delete.is-on
 
 #net probe-button         pyvcp.probe                motion.probe-input
 

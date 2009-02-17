@@ -453,7 +453,9 @@
 </tabs>
 
 <labelframe text="settings">
-<vbox>
+<tabs>
+    <names>["Jogging", "Program control", "Overrides"]</names>
+<vbox> <!-- jogging -->
     <hbox>
     <label><text>"jog speed: "</text></label>
     <spinbox>
@@ -466,7 +468,42 @@
        <initval>20</initval>
     </spinbox>
     </hbox>
+</vbox>
 
+<vbox> <!-- program control -->
+    <hbox>
+    <hbox><led><halpin>"optional-stop.is-on"</halpin><size>10</size><on_color>"green"</on_color><off_color>"black"</off_color></led></hbox>
+    <label><text>" - optional stop - "</text></label>
+    <button>
+	<halpin>"optional-stop.on"</halpin>
+        <text>"On"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"optional-stop.off"</halpin>
+        <text>"Off"</text> 
+        <justify>"center"</justify>
+    </button>
+    </hbox>
+
+    <hbox>
+    <hbox><led><halpin>"block-delete.is-on"</halpin><size>10</size><on_color>"green"</on_color><off_color>"black"</off_color></led></hbox>
+    <label><text>" - block delete - "</text></label>
+    <button>
+	<halpin>"block-delete.on"</halpin>
+        <text>"On"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"block-delete.off"</halpin>
+        <text>"Off"</text> 
+        <justify>"center"</justify>
+    </button>
+    </hbox>
+
+</vbox>
+
+<vbox> <!-- Overrides -->
     <hbox>
     <button>
 	<halpin>"feed-override+"</halpin>
@@ -501,6 +538,7 @@
     </number>
     </hbox>
 </vbox>
+</tabs>
 </labelframe>
 
 <labelframe text="MDI commands">
