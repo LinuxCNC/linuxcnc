@@ -1647,7 +1647,7 @@ Parameters
  If this parameter is set to 1, the GPIO is an output; its behavior then
  depends on the "is_opendrain" parameter.
  Only full GPIO pins have this parameter.
-\layout Subsection
+\layout Section
 
 StepGen
 \layout Standard
@@ -1724,7 +1724,7 @@ Parameters
 \layout Description
 
 .stepspace (u32, RW) Minimum interval between step signals, in nanoseconds.
-\layout Subsection
+\layout Section
 
 PWMGen
 \layout Standard
@@ -1809,7 +1809,7 @@ Parameters
  to the max supported frequency of the board.
  Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz
  they're pretty close.
-\layout Subsection
+\layout Section
 
 Encoder
 \layout Standard
