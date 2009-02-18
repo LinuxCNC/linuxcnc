@@ -1563,7 +1563,6 @@ static int iniLoad(const char *filename)
     const char *mc;
     while(num_mdi_commands < MDI_MAX && (mc = inifile.Find("MDI_COMMAND", "HALUI", num_mdi_commands+1))) {
         mdi_commands[num_mdi_commands++] = strdup(mc);
-        printf("halui found mdi command: %s\n", mc);
     }
 
     // close it
