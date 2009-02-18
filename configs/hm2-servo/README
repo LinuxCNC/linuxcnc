@@ -3,15 +3,15 @@ This configuration drives a 3-axis servo machine using a Mesa AnythingIO
 board with the HostMot2 firmware.  No limit switches are used, so this
 should work with very basic hardware.
 
-Card       Encoders  PWMs  StepGens   Notes 
-4i65          3       3       0
-4i68          3       3       0
-5i20          3       3       0
-5i22-big      3       3       0       For the 1.5M gate version
-5i22-small    3       3       0       For the 1.0M gate version
-5i23          3       3       0
-7i43-big      3       3       0       For the 400k gate version
-7i43-small    3       3       0       For the 200k gate version
+These configs have 3 Encoders, 3 PWMs, and 0 StepGens 
+
+5i22-big   For the 1.5M gate version
+
+5i22-small For the 1.0M gate version
+
+7i43-big   For the 400k gate version
+
+7i43-small For the 200k gate version
 
 The config will only run if you have the card installed.
 
