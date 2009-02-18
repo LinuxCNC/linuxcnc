@@ -3,3 +3,14 @@ This configuration drives a 3-axis stepper machine using a Mesa Anything
 IO board with the HostMot2 firmware.  No limit switches are used, so
 this should work with very basic hardware.
 
+Card       Encoders  PWMs  StepGens   Notes 
+4i65          0       0       3
+4i68          0       0       3
+5i20          0       0       3
+5i22-big      0       0       3       For the 1.5M gate version
+5i22-small    0       0       3       For the 1.0M gate version
+5i23          0       0       3
+7i43-big      0       0       3       For the 400k gate version
+7i43-small    0       0       3       For the 200k gate version
+
+The config will only run if you have the card installed.
