@@ -1476,14 +1476,6 @@ static int iniLoad(const char *filename)
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    maxFeedOverride =  d;
 	}
-	else {
-    	    // error-- no value provided, use 100% as max
-	    maxFeedOverride =  1.0;
-	}
-    }
-    else {
-	// no line at all
-        maxFeedOverride =  1.0;
     }
 
     if(inifile.Find(&maxMaxVelocity, "MAX_VELOCITY", "TRAJ") &&
@@ -1494,42 +1486,18 @@ static int iniLoad(const char *filename)
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    minSpindleOverride =  d;
 	}
-	else {
-    	    // error-- no value provided, use 100% as max
-	    minSpindleOverride =  1.0;
-	}
     }
-    else {
-	// no line at all
-        minSpindleOverride =  1.0;
-    }
-    
+
     if (NULL != (inistring = inifile.Find("MAX_SPINDLE_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    maxSpindleOverride =  d;
 	}
-	else {
-    	    // error-- no value provided, use 100% as max
-	    maxSpindleOverride =  1.0;
-	}
-    }
-    else {
-	// no line at all
-        maxSpindleOverride =  1.0;
     }
     
     if (NULL != (inistring = inifile.Find("AXES", "TRAJ"))) {
 	if (1 == sscanf(inistring, "%d", &i) && i > 0) {
 	    num_axes =  i;
 	}
-	else {
-    	    // error-- no value provided, use 100% as max
-	    num_axes =  0;
-	}
-    }
-    else {
-	// no line at all
-        num_axes =  0;
     }
 
     if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
@@ -1542,8 +1510,6 @@ static int iniLoad(const char *filename)
 	} else if (!strcmp(inistring, "CM")) {
 	    linearUnitConversion = LINEAR_UNITS_CM;
 	}
-    } else {
-	// not found, leave default alone
     }
 
     if (NULL != (inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
@@ -1556,8 +1522,6 @@ static int iniLoad(const char *filename)
 	} else if (!strcmp(inistring, "GRAD")) {
 	    angularUnitConversion = ANGULAR_UNITS_GRAD;
 	}
-    } else {
-	// not found, leave default alone
     }
 
     const char *mc;
