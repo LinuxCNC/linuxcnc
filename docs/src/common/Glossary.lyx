@@ -499,6 +499,22 @@ file
  a particular machine
 \layout Description
 
+Instance
+\begin_inset LatexCommand \index{Instance}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{Instance}
+
+\end_inset 
+
+ One can have an instance of a class or a particular object.
+ The instance is the actual object created at runtime.
+ In programmer jargon, the Lassie object is an instance of the Dog class.
+ 
+\layout Description
+
 Joint\SpecialChar ~
 Coordinates
 \begin_inset LatexCommand \index{joint coordinates}
