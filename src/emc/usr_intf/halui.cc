@@ -396,8 +396,8 @@ static int num_axes = 3; //number of axes, taken from the ini [TRAJ] section
 
 static double maxFeedOverride=1;
 static double maxMaxVelocity=1;
-static double minSpindleOverride=1.0;// no variation allowed by default (old behaviour)
-static double maxSpindleOverride=1.0;// the real values come from the ini
+static double minSpindleOverride=0.0;
+static double maxSpindleOverride=1.0;
 static EMC_TASK_MODE_ENUM halui_old_mode = EMC_TASK_MODE_MANUAL;
 static int halui_sent_mdi = 0;
 
