@@ -40,11 +40,11 @@ Introduction
 HostMot2 is an FPGA configuration developed by Mesa Electronics for their
  line of "Anything I/O" motion control cards.
  The firmware is open source, portable and flexible.
- It can be configured (at compile-time) with zero or more instances of each
- of several Modules: encoders (quadrature counters), PWM generators, and
- step/dir generators.
+ It can be configured (at compile-time) with zero or more instances (an
+ object created at runtime) of each of several Modules: encoders (quadrature
+ counters), PWM generators, and step/dir generators.
  The firmware can be configured (at run-time) to connect each of these instances
- to pins on the boards' I/O headers.
+ to pins on the I/O headers.
  I/O pins not driven by a Module instance revert to general-purpose bi-direction
 al digital I/O.
 \layout Section
