@@ -49,7 +49,7 @@ EMC_STAT *emcStatus;
 
 // the NML channel for errors
 NML *emcErrorBuffer;
-char error_string[LINELEN];
+char error_string[NML_ERROR_LEN];
 char operator_text_string[LINELEN];
 char operator_display_string[LINELEN];
 
