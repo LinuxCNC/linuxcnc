@@ -61,15 +61,10 @@ Tool length offsets are given as positive numbers in the tool table.
  the effect of tool length compensation is immediate when you view the z
  position as a relative coordinate but it does affect actual machine position
  until you program a z move.
-\layout Standard
+\layout Quote
 
-
-\begin_inset Float figure
-placement H
-wide false
-collapsed false
-
-\layout Standard
+Test Tool Length Program
+\layout Quote
 
 
 \family typewriter 
@@ -78,7 +73,7 @@ collapsed false
 Tool #1 is 1 inch long.
 \family typewriter 
 )
-\layout Standard
+\layout Quote
 
 
 \family typewriter 
@@ -95,13 +90,6 @@ N05 G1 G43 H1 G4 P10 Z0 X3
 N06 G49 X2 Z0
 \newline 
 N07 G0 X0
-\layout Caption
-
-Test tool length program.
- 
-\end_inset 
-
-
 \layout Standard
 
 
@@ -138,16 +126,6 @@ Cutter Radius Compensation
 \end_inset 
 
 
-\layout Standard
-
-***************************
-\layout Standard
-
-NOTE: This section is currently under construction/destruction depends on
- how you look at it...
-\layout Standard
-
-***************************
 \layout Standard
 
 Cutter Radius Compensation allows the programmer to program the tool path
@@ -257,6 +235,18 @@ Examples
 \layout Subsubsection*
 
 Outside Square
+\layout Standard
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+The g code is missing the last move to y1
+\end_inset 
+
+
 \layout Standard
 
 
