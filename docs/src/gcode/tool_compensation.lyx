@@ -111,6 +111,11 @@ collapsed false
 \layout Caption
 
 Result of tool length test program
+\begin_inset LatexCommand \label{cap:Result-of-tool}
+
+\end_inset 
+
+
 \end_inset 
 
 
@@ -181,6 +186,11 @@ collapsed false
 \layout Caption
 
 Entry Move
+\begin_inset LatexCommand \label{cap:Entry-Move}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -258,6 +268,11 @@ collapsed false
 \layout Caption
 
 Comp Example 1
+\begin_inset LatexCommand \label{cap:Comp-Example-1}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
