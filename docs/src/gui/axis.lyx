@@ -1078,6 +1078,11 @@ collapsed false
 \layout Caption
 
 Current and Selected Lines
+\begin_inset LatexCommand \label{cap:Current-and-Selected}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1435,6 +1440,11 @@ collapsed false
 \layout Caption
 
 The MDI tab
+\begin_inset LatexCommand \label{cap:The-MDI-tab}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2041,6 +2051,11 @@ collapsed false
 \layout Caption
 
 EMC Status Window
+\begin_inset LatexCommand \label{cap:EMC-Status-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2356,7 +2371,12 @@ collapsed false
 
 \layout Caption
 
-Lathe Mode showing the lathe tool shape
+Lathe Tool Shape
+\begin_inset LatexCommand \label{cap:Lathe-Tool-Shape}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2466,6 +2486,11 @@ collapsed false
 \layout Caption
 
 Circular Holes
+\begin_inset LatexCommand \label{cap:Circular-Holes}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
