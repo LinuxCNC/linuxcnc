@@ -18,6 +18,7 @@
 #define SHCOM_HH
 
 #include "emc_nml.hh"
+#include "nml_oi.hh"            // NML_ERROR_LEN
 
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
@@ -56,7 +57,7 @@ extern RCS_STAT_CHANNEL *emcStatusBuffer;
 
 // the NML channel for errors
 extern NML *emcErrorBuffer;
-extern char error_string[LINELEN];
+extern char error_string[NML_ERROR_LEN];
 extern char operator_text_string[LINELEN];
 extern char operator_display_string[LINELEN];
 
