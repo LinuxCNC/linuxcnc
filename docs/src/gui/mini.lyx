@@ -365,6 +365,11 @@ collapsed false
 \layout Caption
 
 Manual Mode Buttons
+\begin_inset LatexCommand \label{cap:Manual-Mode-Buttons}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -494,6 +499,11 @@ collapsed false
 \layout Caption
 
 Auto Mode
+\begin_inset LatexCommand \label{cap:Auto-Mode}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -828,6 +838,11 @@ collapsed false
 \layout Caption
 
 Mini Text Editor
+\begin_inset LatexCommand \label{cap:Mini-Text-Editor}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -887,6 +902,11 @@ collapsed false
 \layout Caption
 
 Mini's Backplotter
+\begin_inset LatexCommand \label{cap:Mini's-Backplotter}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -954,6 +974,11 @@ collapsed false
 \layout Caption
 
 Mini Tool Display
+\begin_inset LatexCommand \label{cap:Mini-Tool-Display}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -995,6 +1020,11 @@ collapsed false
 \layout Caption
 
 Mini Offset Display
+\begin_inset LatexCommand \label{cap:Mini-Offset-Display}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
