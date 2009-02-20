@@ -2810,8 +2810,13 @@ int WAIT(int index, /* index of the motion exported input */
 	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
 	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
- if ((index < 0) || (index >= EMC_MAX_DIO))
+  if (input_type == DIGITAL_INPUT) {
+    if ((index < 0) || (index >= EMC_MAX_DIO))
 	return -1;
+  } else if (input_type == ANALOG_INPUT) {
+    if ((index < 0) || (index >= EMC_MAX_AIO))
+	return -1;
+  }
 
  EMC_AUX_INPUT_WAIT wait_msg;
  
