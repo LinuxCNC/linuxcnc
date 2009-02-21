@@ -892,8 +892,8 @@ collapsed false
 
 \layout Caption
 
-Bool Variables Default Window
-\begin_inset LatexCommand \label{cap:Bool-Variables-Default}
+Bit Status Window
+\begin_inset LatexCommand \label{cap:Bit-Status-Window}
 
 \end_inset 
 
@@ -902,7 +902,7 @@ Bool Variables Default Window
 \align center 
 
 \begin_inset Graphics
-	filename images/Default_Variables_Window.png
+	filename images/Bit_Status.png
 	scale 70
 
 \end_inset 
@@ -920,11 +920,14 @@ The Bool window displays some of all the bool (on/off) variable data .
  The %B represents an internal relay coil or internal contact The three
  edit areas at the top allow you to select what 15 variable will be displayed
  in each column.
- For instance if there were 30 %I variable and you entered 10 at the top
- of the column, variable %I10 to %I25 would be displayed.
- The check boxes allow you to set and unset %B variables manually ( as long
- as the ladder program isn't setting them) and to see the status of %B,
- %I, and %Q variables when ClassicLadder is running.
+ For instance if there were 30 %B variable and you entered 5 at the top
+ of the column, variable %B5 to %B19 would be displayed.
+ The check boxes allow you to set and unset %B variables manually as long
+ as the ladder program isn't setting them as outputs.
+ Any Bits that are set as outputs by the program when ClassicLadder is running
+ can not be changed and will be displayed as checked if on and unchecked
+ if off.
+ 
 \layout Standard
 
 
@@ -1554,6 +1557,13 @@ Assign/Compare Example
 
 \begin_inset Graphics
 	filename images/Assignment_Expression.png
+	scale 80
+
+\end_inset 
+
+
+\begin_inset Graphics
+	filename images/Comparision_Expression.png
 	scale 80
 
 \end_inset 
@@ -2270,10 +2280,30 @@ In this section we will cover the steps needed to add ClassicLadder to a
  On the advanced Configuration Options page of Stepconf Wizard check off
  "Include ClassicLadder PLC" 
 \layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Stepconf Classicladder
+\begin_inset LatexCommand \label{cap:Stepconf-Classicladder}
+
+\end_inset 
+
+
+\layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename images/stepconf_ladder.png
+	scale 80
+
+\end_inset 
+
 
 \end_inset 
 
