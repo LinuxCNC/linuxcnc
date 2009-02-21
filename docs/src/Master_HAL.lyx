@@ -136,13 +136,10 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
 \begin_inset Include \include{hal/tools.lyx}
-preview false
-
-\end_inset 
-
-
-\begin_inset Include \include{hal/halshow.lyx}
 preview false
 
 \end_inset 
