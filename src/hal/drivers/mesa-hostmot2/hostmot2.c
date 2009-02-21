@@ -190,7 +190,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     if (config_string == NULL) return 0;
 
-    DBG("parsing config string \"%s\"\n", config_string);
+    HM2_DBG("parsing config string \"%s\"\n", config_string);
 
     do {
         char *token;
@@ -223,17 +223,17 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.firmware = token + 9;
 
         } else {
-            ERR("invalid token in config string: \"%s\"\n", token);
+            HM2_ERR("invalid token in config string: \"%s\"\n", token);
             return -EINVAL;
         }
     } while (1);
 
-    DBG("final config:\n");
-    DBG("    num_encoders=%d\n", hm2->config.num_encoders);
-    DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
-    DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
-    DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
-    DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
+    HM2_DBG("final config:\n");
+    HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
+    HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
+    HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
+    HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
+    HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
     return 0;
 }
@@ -246,27 +246,27 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 // 
 
 static void hm2_print_idrom(hostmot2_t *hm2) {
-    PRINT("IDRom:\n"); 
+    HM2_PRINT("IDRom:\n"); 
 
     if (hm2->idrom.idrom_type == 2) {
-        PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type); 
+        HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type); 
     } else {
-        PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type); 
+        HM2_PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type); 
     }
 
     if (hm2->idrom.offset_to_modules == 0x40) {
-        PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
+        HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
     } else {
-        PRINT("    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", hm2->idrom.offset_to_modules); 
+        HM2_PRINT("    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", hm2->idrom.offset_to_modules); 
     }
 
     if (hm2->idrom.offset_to_pin_desc == 0x200) {
-        PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
+        HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
     } else {
-        PRINT("    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", hm2->idrom.offset_to_pin_desc); 
+        HM2_PRINT("    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", hm2->idrom.offset_to_pin_desc); 
     }
 
-    PRINT(
+    HM2_PRINT(
         "    Board Name: %c%c%c%c%c%c%c%c\n",
         hm2->idrom.board_name[0],
         hm2->idrom.board_name[1],
@@ -278,36 +278,36 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
         hm2->idrom.board_name[7]
     ); 
 
-    PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size); 
-    PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins); 
+    HM2_PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size); 
+    HM2_PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins); 
 
-    PRINT("    IO Ports: %u\n", hm2->idrom.io_ports); 
-    PRINT("    IO Width: %u\n", hm2->idrom.io_width); 
+    HM2_PRINT("    IO Ports: %u\n", hm2->idrom.io_ports); 
+    HM2_PRINT("    IO Width: %u\n", hm2->idrom.io_width); 
     if (hm2->idrom.port_width == 24) {
-        PRINT("    Port Width: %u\n", hm2->idrom.port_width); 
+        HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width); 
     } else {
-        PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width); 
+        HM2_PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width); 
     }
 
-    PRINT(
+    HM2_PRINT(
         "    Clock Low: %d Hz (%d KHz, %d MHz)\n",
         hm2->idrom.clock_low,
         (hm2->idrom.clock_low / 1000),
         (hm2->idrom.clock_low / (1000 * 1000))
     ); 
 
-    PRINT(
+    HM2_PRINT(
         "    Clock High: %d Hz (%d KHz, %d MHz)\n",
         hm2->idrom.clock_high,
         (hm2->idrom.clock_high / 1000),
         (hm2->idrom.clock_high / (1000 * 1000))
     ); 
 
-    PRINT("    Instance Stride 0: 0x%08X\n", hm2->idrom.instance_stride_0); 
-    PRINT("    Instance Stride 1: 0x%08X\n", hm2->idrom.instance_stride_1); 
+    HM2_PRINT("    Instance Stride 0: 0x%08X\n", hm2->idrom.instance_stride_0); 
+    HM2_PRINT("    Instance Stride 1: 0x%08X\n", hm2->idrom.instance_stride_1); 
 
-    PRINT("    Register Stride 0: 0x%08X\n", hm2->idrom.register_stride_0); 
-    PRINT("    Register Stride 1: 0x%08X\n", hm2->idrom.register_stride_1); 
+    HM2_PRINT("    Register Stride 0: 0x%08X\n", hm2->idrom.register_stride_0); 
+    HM2_PRINT("    Register Stride 1: 0x%08X\n", hm2->idrom.register_stride_1); 
 }
 
 
@@ -318,7 +318,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     // 
 
     if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &hm2->idrom_offset, 2)) {
-        ERR("error reading IDROM Offset\n");
+        HM2_ERR("error reading IDROM Offset\n");
         return -EIO;
     }
 
@@ -329,11 +329,11 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
 
     
     if (!hm2->llio->read(hm2->llio, hm2->idrom_offset, &hm2->idrom.idrom_type, sizeof(hm2->idrom.idrom_type))) {
-        ERR("error reading IDROM type\n"); 
+        HM2_ERR("error reading IDROM type\n"); 
         return -EIO;
     }
     if (hm2->idrom.idrom_type != 2) {
-        ERR("invalid IDROM type %d, expected 2, aborting load\n", hm2->idrom.idrom_type); 
+        HM2_ERR("invalid IDROM type %d, expected 2, aborting load\n", hm2->idrom.idrom_type); 
         return -EINVAL;
     }
 
@@ -344,7 +344,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
 
     
     if (!hm2->llio->read(hm2->llio, hm2->idrom_offset, &hm2->idrom, sizeof(hm2->idrom))) {
-        ERR("error reading IDROM\n"); 
+        HM2_ERR("error reading IDROM\n"); 
         return -EIO;
     }
 
@@ -354,13 +354,13 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     //
 
     if (hm2->idrom.port_width != 24) {
-        ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width); 
+        HM2_ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width); 
         hm2_print_idrom(hm2);
         return -EINVAL;
     }
 
     if (hm2->idrom.io_width != (hm2->idrom.io_ports * hm2->idrom.port_width)) {
-        ERR(
+        HM2_ERR(
             "IDROM IOWidth is %d, but IDROM IOPorts is %d and IDROM PortWidth is %d (inconsistent firmware), aborting driver load\n",
             hm2->idrom.io_width,
             hm2->idrom.io_ports,
@@ -370,7 +370,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     }
 
     if (hm2->idrom.io_ports != hm2->llio->num_ioport_connectors) {
-        ERR(
+        HM2_ERR(
             "IDROM IOPorts is %d but llio num_ioport_connectors is %d, driver and firmware are inconsistent, aborting driver load\n",
             hm2->idrom.io_ports,
             hm2->llio->num_ioport_connectors
@@ -379,7 +379,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     }
 
     if (hm2->idrom.clock_low < 1e6) {
-        ERR(
+        HM2_ERR(
             "IDROM ClockLow is %d, that's too low, aborting driver load\n",
             hm2->idrom.clock_low
         );
@@ -387,7 +387,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     }
 
     if (hm2->idrom.clock_high < 1e6) {
-        ERR(
+        HM2_ERR(
             "IDROM ClockHigh is %d, that's too low, aborting driver load\n",
             hm2->idrom.clock_high
         );
@@ -418,7 +418,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         hm2_module_descriptor_t *md = &hm2->md[hm2->num_mds];
 
         if (!hm2->llio->read(hm2->llio, addr, d, 12)) {
-            ERR("error reading Module Descriptor %d (at 0x%04x)\n", hm2->num_mds, addr); 
+            HM2_ERR("error reading Module Descriptor %d (at 0x%04x)\n", hm2->num_mds, addr); 
             return -EIO;
         }
 
@@ -437,7 +437,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->clock_tag == 2) {
             md->clock_freq = hm2->idrom.clock_high;
         } else {
-            ERR("Module Descriptor %d (at 0x%04x) has invalid ClockTag %d\n", hm2->num_mds, addr, md->clock_tag); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid ClockTag %d\n", hm2->num_mds, addr, md->clock_tag); 
             return -EINVAL;
         }
 
@@ -450,7 +450,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->register_stride == 1) {
             md->register_stride = hm2->idrom.register_stride_1;
         } else {
-            ERR("Module Descriptor %d (at 0x%04x) has invalid RegisterStride %d\n", hm2->num_mds, addr, md->register_stride); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid RegisterStride %d\n", hm2->num_mds, addr, md->register_stride); 
             return -EINVAL;
         }
 
@@ -460,23 +460,23 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->instance_stride == 1) {
             md->instance_stride = hm2->idrom.instance_stride_1;
         } else {
-            ERR("Module Descriptor %d (at 0x%04x) has invalid InstanceStride %d\n", hm2->num_mds, addr, md->instance_stride); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid InstanceStride %d\n", hm2->num_mds, addr, md->instance_stride); 
             return -EINVAL;
         }
 
         md->multiple_registers = d[2];
 
         if (debug_module_descriptors) {
-            PRINT("Module Descriptor %d at 0x%04X:\n", hm2->num_mds, addr);
-            PRINT("    General Function Tag: %d (%s)\n", md->gtag, hm2_get_general_function_name(md->gtag));
-            PRINT("    Version: %d\n", md->version);
-            PRINT("    Clock Tag: %d (%s MHz)\n", md->clock_tag, hm2_hz_to_mhz(md->clock_freq));
-            PRINT("    Instances: %d\n", md->instances);
-            PRINT("    Base Address: 0x%04X\n", md->base_address);
-            PRINT("    -- Num Registers: %d\n", md->num_registers);
-            PRINT("    Register Stride: 0x%08X\n", md->register_stride);
-            PRINT("    -- Instance Stride: 0x%08X\n", md->instance_stride);
-            PRINT("    -- Multiple Registers: 0x%08X\n", md->multiple_registers);
+            HM2_PRINT("Module Descriptor %d at 0x%04X:\n", hm2->num_mds, addr);
+            HM2_PRINT("    General Function Tag: %d (%s)\n", md->gtag, hm2_get_general_function_name(md->gtag));
+            HM2_PRINT("    Version: %d\n", md->version);
+            HM2_PRINT("    Clock Tag: %d (%s MHz)\n", md->clock_tag, hm2_hz_to_mhz(md->clock_freq));
+            HM2_PRINT("    Instances: %d\n", md->instances);
+            HM2_PRINT("    Base Address: 0x%04X\n", md->base_address);
+            HM2_PRINT("    -- Num Registers: %d\n", md->num_registers);
+            HM2_PRINT("    Register Stride: 0x%08X\n", md->register_stride);
+            HM2_PRINT("    -- Instance Stride: 0x%08X\n", md->instance_stride);
+            HM2_PRINT("    -- Multiple Registers: 0x%08X\n", md->multiple_registers);
         }
     }
     
@@ -514,30 +514,30 @@ int hm2_md_is_consistent_or_complain(
 
     if (hm2_md_is_consistent(hm2, md_index, version, num_registers, instance_stride, multiple_registers)) return 1;
 
-    ERR(
+    HM2_ERR(
         "inconsistent Module Descriptor for %s, not loading driver\n",
         hm2_get_general_function_name(md->gtag)
     );
 
-    ERR(
+    HM2_ERR(
         "    Version = %d, expected %d\n",
         md->version,
         version
     );
 
-    ERR(
+    HM2_ERR(
         "    NumRegisters = %d, expected %d\n",
         md->num_registers,
         num_registers
     );
 
-    ERR(
+    HM2_ERR(
         "    InstanceStride = 0x%08X, expected 0x%08X\n",
         md->instance_stride,
         instance_stride
     );
 
-    ERR(
+    HM2_ERR(
         "    MultipleRegisters = 0x%08X, expected 0x%08X\n",
         md->multiple_registers,
         multiple_registers
@@ -609,7 +609,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
 
             default:
-                WARN(
+                HM2_WARN(
                     "MD %d: %dx %s v%d: ignored\n",
                     md_index,
                     md->instances,
@@ -621,12 +621,12 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
         }
 
         if ((*hm2->llio->io_error) != 0) {
-            ERR("IO error while parsing Module Descriptor %d\n", md_index);
+            HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
             return -EIO;
         }
 
         if (md_accepted >= 0)  {
-            INFO(
+            HM2_INFO(
                 "MD %d: %dx %s v%d: accepted, using %d\n",
                 md_index,
                 md->instances,
@@ -635,7 +635,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted
             );
         } else {
-            ERR("failed to parse Module Descriptor %d\n", md_index);
+            HM2_ERR("failed to parse Module Descriptor %d\n", md_index);
             return md_accepted;
         }
 
@@ -698,7 +698,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (llio == NULL) {
-        ERR_NO_LL("NULL llio passed in\n");
+        HM2_ERR_NO_LL("NULL llio passed in\n");
         return -EINVAL;
     }
 
@@ -713,16 +713,16 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         for (i = 0; i < HAL_NAME_LEN; i ++) {
             if (llio->name[i] == '\0') break;
             if (!isprint(llio->name[i])) {
-                ERR_NO_LL("invalid llio name passed in (contains non-printable character)\n");
+                HM2_ERR_NO_LL("invalid llio name passed in (contains non-printable character)\n");
                 return -EINVAL;
             }
         }
         if (i == HAL_NAME_LEN) {
-            ERR_NO_LL("invalid llio name passed in (not NULL terminated)\n");
+            HM2_ERR_NO_LL("invalid llio name passed in (not NULL terminated)\n");
             return -EINVAL;
         }
         if (i == 0) {
-            ERR_NO_LL("invalid llio name passed in (zero length)\n");
+            HM2_ERR_NO_LL("invalid llio name passed in (zero length)\n");
             return -EINVAL;
         }
     }
@@ -733,7 +733,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // 
 
     if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
-        ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
+        HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
         return -EINVAL;
     }
 
@@ -744,23 +744,23 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             int i;
 
             if (llio->ioport_connector_name[port] == NULL) {
-                ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
+                HM2_ERR_NO_LL("llio ioport connector name %d is NULL\n", port);
                 return -EINVAL;
             }
 
             for (i = 0; i < HAL_NAME_LEN; i ++) {
                 if (llio->ioport_connector_name[port][i] == '\0') break;
                 if (!isprint(llio->ioport_connector_name[port][i])) {
-                    ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
+                    HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
                     return -EINVAL;
                 }
             }
             if (i == HAL_NAME_LEN) {
-                ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
                 return -EINVAL;
             }
             if (i == 0) {
-                ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
+                HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (zero length)\n", port);
                 return -EINVAL;
             }
         }
@@ -772,12 +772,12 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // 
 
     if (llio->read == NULL) {
-        ERR_NO_LL("NULL llio->read passed in\n");
+        HM2_ERR_NO_LL("NULL llio->read passed in\n");
         return -EINVAL;
     }
 
     if (llio->write == NULL) {
-        ERR_NO_LL("NULL llio->write passed in\n");
+        HM2_ERR_NO_LL("NULL llio->write passed in\n");
         return -EINVAL;
     }
 
@@ -785,7 +785,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
 
     if (config_string == NULL) {
-        PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
+        HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
     }
 
 
@@ -795,7 +795,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     hm2 = kmalloc(sizeof(hostmot2_t), GFP_KERNEL);
     if (hm2 == NULL) {
-        PRINT_NO_LL("out of memory!\n");
+        HM2_PRINT_NO_LL("out of memory!\n");
         return -ENOMEM;
     }
 
@@ -833,7 +833,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
         // check firmware name length
         if (strlen(hm2->config.firmware) > FIRMWARE_NAME_MAX) {
-            ERR("requested firmware name '%s' is too long (max length is %d)\n", hm2->config.firmware, FIRMWARE_NAME_MAX);
+            HM2_ERR("requested firmware name '%s' is too long (max length is %d)\n", hm2->config.firmware, FIRMWARE_NAME_MAX);
             r = -ENAMETOOLONG;
             goto fail0;
         }
@@ -844,39 +844,39 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         dev.release = hm2_release_device;
         r = device_register(&dev);
         if (r != 0) {
-            ERR("error with device_register\n");
+            HM2_ERR("error with device_register\n");
             goto fail0;
         }
 
         r = request_firmware(&fw, hm2->config.firmware, &dev);
         device_unregister(&dev);
         if (r == -ENOENT) {
-            ERR("firmware %s not found\n", hm2->config.firmware);
-            ERR("install the package containing the firmware, or link your RIP sandbox into /lib/firmware manually\n");
+            HM2_ERR("firmware %s not found\n", hm2->config.firmware);
+            HM2_ERR("install the package containing the firmware, or link your RIP sandbox into /lib/firmware manually\n");
             goto fail0;
         }
         if (r != 0) {
-            ERR("request for firmware %s failed, aborting hm2_register (r=%d)\n", hm2->config.firmware, r);
+            HM2_ERR("request for firmware %s failed, aborting hm2_register (r=%d)\n", hm2->config.firmware, r);
             goto fail0;
         }
 
         r = bitfile_parse_and_verify(fw, &bitfile);
         if (r != 0) {
-            ERR("firmware %s fails verification, aborting hm2_register\n", hm2->config.firmware);
+            HM2_ERR("firmware %s fails verification, aborting hm2_register\n", hm2->config.firmware);
             release_firmware(fw);
             goto fail0;
         }
 
-        INFO("firmware %s:\n", hm2->config.firmware);
-        INFO("    %s %s %s\n", bitfile.a.data, bitfile.c.data, bitfile.d.data);
-        INFO("    Part Name: %s\n", bitfile.b.data);
-        INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
+        HM2_INFO("firmware %s:\n", hm2->config.firmware);
+        HM2_INFO("    %s %s %s\n", bitfile.a.data, bitfile.c.data, bitfile.d.data);
+        HM2_INFO("    Part Name: %s\n", bitfile.b.data);
+        HM2_INFO("    FPGA Config: %d bytes\n", bitfile.e.size);
 
         if (llio->fpga_part_number == NULL) {
-            ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
+            HM2_ERR("llio did not provide an FPGA part number, cannot verify firmware part number\n");
         } else {
             if (strcmp(llio->fpga_part_number, bitfile.b.data) != 0) {
-                ERR(
+                HM2_ERR(
                     "board has FPGA '%s', but the firmware in %s is for FPGA '%s'\n",
                     llio->fpga_part_number,
                     hm2->config.firmware,
@@ -894,7 +894,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             r = llio->reset(llio);
             if (r != 0) {
                 release_firmware(fw);
-                ERR("failed to reset fpga, aborting hm2_register\n");
+                HM2_ERR("failed to reset fpga, aborting hm2_register\n");
                 goto fail0;
             }
         }
@@ -902,7 +902,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         r = llio->program_fpga(llio, &bitfile);
         release_firmware(fw);
         if (r != 0) {
-            ERR("failed to program fpga, aborting hm2_register\n");
+            HM2_ERR("failed to program fpga, aborting hm2_register\n");
             goto fail0;
         }
     }
@@ -919,7 +919,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
         llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
         if (llio->io_error == NULL) {
-            ERR("out of memory!\n");
+            HM2_ERR("out of memory!\n");
             r = -ENOMEM;
             goto fail0;
         }
@@ -929,7 +929,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
         r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
         if (r != HAL_SUCCESS) {
-            ERR("error adding param '%s', aborting\n", name);
+            HM2_ERR("error adding param '%s', aborting\n", name);
             r = -EINVAL;
             goto fail0;
         }
@@ -944,14 +944,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         uint32_t cookie;
 
         if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
-            ERR("error reading hm2 cookie\n"); 
+            HM2_ERR("error reading hm2 cookie\n"); 
             r = -EIO;
             goto fail0;
         }
 
         if (cookie != HM2_IOCOOKIE) {
-            ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, HM2_IOCOOKIE); 
-            ERR("FPGA failed to initialize, or unexpected firmware?\n"); 
+            HM2_ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, HM2_IOCOOKIE); 
+            HM2_ERR("FPGA failed to initialize, or unexpected firmware?\n"); 
             r = -EINVAL;
             goto fail0;
         }
@@ -966,14 +966,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         char name[9];  // read 8, plus 1 for the NULL
 
         if (!llio->read(llio, HM2_ADDR_CONFIGNAME, name, 8)) {
-            ERR("error reading HM2 Config Name\n");
+            HM2_ERR("error reading HM2 Config Name\n");
             r = -EIO;
             goto fail0;
         }
         name[8] = '\0';
 
         if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
-            ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME); 
+            HM2_ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME); 
             r = -EINVAL;
             goto fail0;
         }
@@ -1021,7 +1021,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     r = hm2_allocate_tram_regions(hm2);
     if (r < 0) {
-        ERR("error allocating memory for HostMot2 registers\n");
+        HM2_ERR("error allocating memory for HostMot2 registers\n");
         goto fail1;
     }
 
@@ -1120,7 +1120,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if ((*hm2->llio->io_error) != 0) {
-        ERR("comm errors while initializing firmware!\n");
+        HM2_ERR("comm errors while initializing firmware!\n");
         goto fail1;
     }
 
@@ -1132,7 +1132,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hm2_print_pin_usage(hm2);
 
     if (debug_modules) {
-        PRINT("HM2 Modules used:\n");
+        HM2_PRINT("HM2 Modules used:\n");
         hm2_print_modules(hm2);
     }
 
@@ -1147,7 +1147,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.read", hm2->llio->name);
         r = hal_export_funct(name, hm2_read, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
-            ERR("error %d exporting read function %s\n", r, name);
+            HM2_ERR("error %d exporting read function %s\n", r, name);
             r = -EINVAL;
             goto fail1;
         }
@@ -1155,7 +1155,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.write", hm2->llio->name);
         r = hal_export_funct(name, hm2_write, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
-            ERR("error %d exporting write function %s\n", r, name);
+            HM2_ERR("error %d exporting write function %s\n", r, name);
             r = -EINVAL;
             goto fail1;
         }
@@ -1172,7 +1172,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.read_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
-            ERR("error %d exporting gpio_read function %s\n", r, name);
+            HM2_ERR("error %d exporting gpio_read function %s\n", r, name);
             r = -EINVAL;
             goto fail1;
         }
@@ -1180,7 +1180,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.write_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
-            ERR("error %d exporting gpio_write function %s\n", r, name);
+            HM2_ERR("error %d exporting gpio_write function %s\n", r, name);
             r = -EINVAL;
             goto fail1;
         }
@@ -1191,7 +1191,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // found one!
     //
 
-    PRINT("registered\n");
+    HM2_PRINT("registered\n");
 
     return 0;
 
@@ -1220,7 +1220,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         hostmot2_t *hm2 = list_entry(ptr, hostmot2_t, list);
         if (hm2->llio != llio) continue;
 
-        PRINT("unregistered\n");
+        HM2_PRINT("unregistered\n");
 
         hm2_cleanup(hm2);
 
@@ -1230,7 +1230,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         return;
     }
 
-    PRINT_NO_LL("ignoring request to unregister %s: not found\n", llio->name);
+    HM2_PRINT_NO_LL("ignoring request to unregister %s: not found\n", llio->name);
     return;
 }
 
@@ -1242,7 +1242,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
 //
 
 int rtapi_app_main(void) {
-    PRINT_NO_LL("loading Mesa HostMot2 driver version %s\n", HM2_VERSION);
+    HM2_PRINT_NO_LL("loading Mesa HostMot2 driver version %s\n", HM2_VERSION);
 
     comp_id = hal_init("hostmot2");
     if(comp_id < 0) return comp_id;
@@ -1255,7 +1255,7 @@ int rtapi_app_main(void) {
 
 
 void rtapi_app_exit(void) {
-    PRINT_NO_LL("unloading\n");
+    HM2_PRINT_NO_LL("unloading\n");
     hal_exit(comp_id);
 }
 

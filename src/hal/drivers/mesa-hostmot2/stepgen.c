@@ -48,10 +48,10 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
             if (hm2->stepgen.instance[i].hal.param.position_scale >= 0.0) {
                 hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
-                ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
+                HM2_ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
             } else {
                 hm2->stepgen.instance[i].hal.param.position_scale = -1.0;
-                ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
+                HM2_ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
             }
         }
 
@@ -95,7 +95,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         if (s->hal.param.maxvel > max_pos_per_s) {
             s->hal.param.maxvel = max_pos_per_s;
         } else if (s->hal.param.maxvel < 0.0) {
-            ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
+            HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
             s->hal.param.maxvel = fabs(s->hal.param.maxvel);
         } else if (s->hal.param.maxvel == 0.0) {
             s->hal.param.maxvel = max_pos_per_s;
@@ -104,7 +104,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     // maxaccel may not be negative
     if (s->hal.param.maxaccel < 0.0) {
-        ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
+        HM2_ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
         s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
     }
 
@@ -203,7 +203,7 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long l_period_ns) {
 static void hm2_stepgen_update_dir_setup_time(hostmot2_t *hm2, int i) {
     hm2->stepgen.dir_setup_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirsetup * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_setup_time_reg[i] > 0x3FFF) {
-        ERR("stepgen %d has invalid dirsetup, resetting to max\n", i);
+        HM2_ERR("stepgen %d has invalid dirsetup, resetting to max\n", i);
         hm2->stepgen.dir_setup_time_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.dirsetup = (double)hm2->stepgen.dir_setup_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -214,7 +214,7 @@ static void hm2_stepgen_update_dir_setup_time(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_dir_hold_time(hostmot2_t *hm2, int i) {
     hm2->stepgen.dir_hold_time_reg[i] = (double)hm2->stepgen.instance[i].hal.param.dirhold * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.dir_hold_time_reg[i] > 0x3FFF) {
-        ERR("stepgen %d has invalid dirhold, resetting to max\n", i);
+        HM2_ERR("stepgen %d has invalid dirhold, resetting to max\n", i);
         hm2->stepgen.dir_hold_time_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.dirhold = (double)hm2->stepgen.dir_hold_time_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -225,7 +225,7 @@ static void hm2_stepgen_update_dir_hold_time(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_pulse_idle_width(hostmot2_t *hm2, int i) {
     hm2->stepgen.pulse_idle_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.stepspace * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_idle_width_reg[i] > 0x3FFF) {
-        ERR("stepgen %d has invalid stepspace, resetting to max\n", i);
+        HM2_ERR("stepgen %d has invalid stepspace, resetting to max\n", i);
         hm2->stepgen.pulse_idle_width_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.stepspace = (double)hm2->stepgen.pulse_idle_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -236,7 +236,7 @@ static void hm2_stepgen_update_pulse_idle_width(hostmot2_t *hm2, int i) {
 static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
     hm2->stepgen.pulse_width_reg[i] = (double)hm2->stepgen.instance[i].hal.param.steplen * ((double)hm2->stepgen.clock_frequency / (double)1e9);
     if (hm2->stepgen.pulse_width_reg[i] > 0x3FFF) {
-        ERR("stepgen %d has invalid steplen, resetting to max\n", i);
+        HM2_ERR("stepgen %d has invalid steplen, resetting to max\n", i);
         hm2->stepgen.pulse_width_reg[i] = 0x3FFF;
         hm2->stepgen.instance[i].hal.param.steplen = (double)hm2->stepgen.pulse_width_reg[i] * ((double)1e9 / (double)hm2->stepgen.clock_frequency);
     }
@@ -246,7 +246,7 @@ static void hm2_stepgen_update_pulse_width(hostmot2_t *hm2, int i) {
 
 static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
     if (hm2->stepgen.instance[i].hal.param.step_type > 2) {
-        ERR(
+        HM2_ERR(
             "stepgen %d has invalid step_type %d, resetting to 0 (Step/Dir)\n",
             i,
             hm2->stepgen.instance[i].hal.param.step_type
@@ -405,18 +405,18 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     if (!hm2_md_is_consistent(hm2, md_index, 1, 10, 4, 0x01FF)) {
         if (!hm2_md_is_consistent(hm2, md_index, 0, 10, 4, 0x01FF)) {
-            ERR("unknown stepgen MD:\n");
-            ERR("    Version = %d, expected 0 or 1\n", md->version);
-            ERR("    NumRegisters = %d, expected 10\n", md->num_registers);
-            ERR("    InstanceStride = 0x%08X, expected 4\n", md->instance_stride);
-            ERR("    MultipleRegisters = 0x%08X, expected 0x000001FF\n", md->multiple_registers);
+            HM2_ERR("unknown stepgen MD:\n");
+            HM2_ERR("    Version = %d, expected 0 or 1\n", md->version);
+            HM2_ERR("    NumRegisters = %d, expected 10\n", md->num_registers);
+            HM2_ERR("    InstanceStride = 0x%08X, expected 4\n", md->instance_stride);
+            HM2_ERR("    MultipleRegisters = 0x%08X, expected 0x000001FF\n", md->multiple_registers);
             return -EINVAL;
         }
-        PRINT("WARNING: This firmware has stepgen v0, high step rates require zero stepspace!  upgrade your firmware!\n");
+        HM2_PRINT("WARNING: This firmware has stepgen v0, high step rates require zero stepspace!  upgrade your firmware!\n");
     }
 
     if (hm2->stepgen.num_instances != 0) {
-        ERR(
+        HM2_ERR(
             "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
@@ -424,7 +424,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     if (hm2->config.num_stepgens > md->instances) {
-        ERR(
+        HM2_ERR(
             "config.num_stepgens=%d, but only %d are available, not loading driver\n",
             hm2->config.num_stepgens,
             md->instances
@@ -451,7 +451,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     hm2->stepgen.instance = (hm2_stepgen_instance_t *)hal_malloc(hm2->stepgen.num_instances * sizeof(hm2_stepgen_instance_t));
     if (hm2->stepgen.instance == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
@@ -472,47 +472,47 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
     r = hm2_register_tram_write_region(hm2, hm2->stepgen.step_rate_addr, (hm2->stepgen.num_instances * sizeof(u32)), &hm2->stepgen.step_rate_reg);
     if (r < 0) {
-        ERR("error registering tram write region for StepGen Step Rate register (%d)\n", r);
+        HM2_ERR("error registering tram write region for StepGen Step Rate register (%d)\n", r);
         goto fail0;
     }
 
     r = hm2_register_tram_read_region(hm2, hm2->stepgen.accumulator_addr, (hm2->stepgen.num_instances * sizeof(u32)), &hm2->stepgen.accumulator_reg);
     if (r < 0) {
-        ERR("error registering tram read region for StepGen Accumulator register (%d)\n", r);
+        HM2_ERR("error registering tram read region for StepGen Accumulator register (%d)\n", r);
         goto fail0;
     }
 
     hm2->stepgen.mode_reg = (u32 *)kmalloc(hm2->stepgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->stepgen.mode_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
     hm2->stepgen.dir_setup_time_reg = (u32 *)kmalloc(hm2->stepgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->stepgen.dir_setup_time_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail1;
     }
 
     hm2->stepgen.dir_hold_time_reg = (u32 *)kmalloc(hm2->stepgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->stepgen.dir_hold_time_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail2;
     }
 
     hm2->stepgen.pulse_width_reg = (u32 *)kmalloc(hm2->stepgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->stepgen.pulse_width_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail3;
     }
 
     hm2->stepgen.pulse_idle_width_reg = (u32 *)kmalloc(hm2->stepgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->stepgen.pulse_idle_width_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail4;
     }
@@ -528,7 +528,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-cmd", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.position_cmd), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -536,7 +536,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-fb", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.velocity_fb), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -544,7 +544,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-fb", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.position_fb), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -552,7 +552,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.counts", hm2->llio->name, i);
             r = hal_pin_s32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.counts), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -560,7 +560,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding pin '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -570,7 +570,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-scale", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.position_scale), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -578,7 +578,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.maxvel", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.maxvel), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -586,7 +586,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.maxaccel", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.maxaccel), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -594,7 +594,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.steplen", hm2->llio->name, i);
             r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.steplen), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -602,7 +602,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.stepspace", hm2->llio->name, i);
             r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.stepspace), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -610,7 +610,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dirsetup", hm2->llio->name, i);
             r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.dirsetup), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -618,7 +618,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dirhold", hm2->llio->name, i);
             r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.dirhold), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -626,7 +626,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.step_type", hm2->llio->name, i);
             r = hal_param_u32_new(name, HAL_RW, &(hm2->stepgen.instance[i].hal.param.step_type), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
-                ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding param '%s', aborting\n", name);
                 r = -ENOMEM;
                 goto fail5;
             }
@@ -690,31 +690,31 @@ fail0:
 
 void hm2_stepgen_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
+    HM2_PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     if (hm2->stepgen.num_instances <= 0) return;
-    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
-    PRINT("    version: %d\n", hm2->stepgen.version);
-    PRINT("    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);
-    PRINT("    accumulator_addr: 0x%04X\n", hm2->stepgen.accumulator_addr);
-    PRINT("    mode_addr: 0x%04X\n", hm2->stepgen.mode_addr);
-    PRINT("    dir_setup_time_addr: 0x%04X\n", hm2->stepgen.dir_setup_time_addr);
-    PRINT("    dir_hold_time_addr: 0x%04X\n", hm2->stepgen.dir_hold_time_addr);
-    PRINT("    pulse_width_addr: 0x%04X\n", hm2->stepgen.pulse_width_addr);
-    PRINT("    pulse_idle_width_addr: 0x%04X\n", hm2->stepgen.pulse_idle_width_addr);
-    PRINT("    table_sequence_data_setup_addr: 0x%04X\n", hm2->stepgen.table_sequence_data_setup_addr);
-    PRINT("    table_sequence_length_addr: 0x%04X\n", hm2->stepgen.table_sequence_length_addr);
-    PRINT("    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
+    HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
+    HM2_PRINT("    version: %d\n", hm2->stepgen.version);
+    HM2_PRINT("    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);
+    HM2_PRINT("    accumulator_addr: 0x%04X\n", hm2->stepgen.accumulator_addr);
+    HM2_PRINT("    mode_addr: 0x%04X\n", hm2->stepgen.mode_addr);
+    HM2_PRINT("    dir_setup_time_addr: 0x%04X\n", hm2->stepgen.dir_setup_time_addr);
+    HM2_PRINT("    dir_hold_time_addr: 0x%04X\n", hm2->stepgen.dir_hold_time_addr);
+    HM2_PRINT("    pulse_width_addr: 0x%04X\n", hm2->stepgen.pulse_width_addr);
+    HM2_PRINT("    pulse_idle_width_addr: 0x%04X\n", hm2->stepgen.pulse_idle_width_addr);
+    HM2_PRINT("    table_sequence_data_setup_addr: 0x%04X\n", hm2->stepgen.table_sequence_data_setup_addr);
+    HM2_PRINT("    table_sequence_length_addr: 0x%04X\n", hm2->stepgen.table_sequence_length_addr);
+    HM2_PRINT("    master_dds_addr: 0x%04X\n", hm2->stepgen.master_dds_addr);
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
-        PRINT("    instance %d:\n", i);
-        PRINT("        enable = %d\n", *hm2->stepgen.instance[i].hal.pin.enable);
-        PRINT("        hw:\n");
-        PRINT("            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
-        PRINT("            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
-        PRINT("            mode = 0x%08X\n", hm2->stepgen.mode_reg[i]);
-        PRINT("            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], hm2->stepgen.instance[i].hal.param.dirsetup);
-        PRINT("            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], hm2->stepgen.instance[i].hal.param.dirhold);
-        PRINT("            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], hm2->stepgen.instance[i].hal.param.steplen);
-        PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], hm2->stepgen.instance[i].hal.param.stepspace);
+        HM2_PRINT("    instance %d:\n", i);
+        HM2_PRINT("        enable = %d\n", *hm2->stepgen.instance[i].hal.pin.enable);
+        HM2_PRINT("        hw:\n");
+        HM2_PRINT("            step_rate = 0x%08X\n", hm2->stepgen.step_rate_reg[i]);
+        HM2_PRINT("            accumulator = 0x%08X\n", hm2->stepgen.accumulator_reg[i]);
+        HM2_PRINT("            mode = 0x%08X\n", hm2->stepgen.mode_reg[i]);
+        HM2_PRINT("            dir_setup_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_setup_time_reg[i], hm2->stepgen.instance[i].hal.param.dirsetup);
+        HM2_PRINT("            dir_hold_time = 0x%08X (%u ns)\n", hm2->stepgen.dir_hold_time_reg[i], hm2->stepgen.instance[i].hal.param.dirhold);
+        HM2_PRINT("            pulse_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_width_reg[i], hm2->stepgen.instance[i].hal.param.steplen);
+        HM2_PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], hm2->stepgen.instance[i].hal.param.stepspace);
     }
 }
 

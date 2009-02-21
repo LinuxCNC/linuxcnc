@@ -38,7 +38,7 @@
 
 static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *chunk, int *i) {
     if (*i + 2 > fw->size) {
-        PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
+        HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -ENODATA;
     }
 
@@ -46,14 +46,14 @@ static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *ch
     (*i) += 2;
 
     if (*i + chunk->size > fw->size) {
-        PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
+        HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -ENODATA;
     }
 
     chunk->data = &fw->data[*i];
 
     if (chunk->data[chunk->size - 1] != '\0') {
-        PRINT_NO_LL("bitfile small chunk is not NULL terminated\n");
+        HM2_PRINT_NO_LL("bitfile small chunk is not NULL terminated\n");
         return -EINVAL;
     }
 
@@ -67,7 +67,7 @@ static int bitfile_do_small_chunk(const struct firmware *fw, bitfile_chunk_t *ch
 
 static int bitfile_do_big_chunk(const struct firmware *fw, bitfile_chunk_t *chunk, int *i) {
     if (*i + 4 > fw->size) {
-        PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
+        HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -ENODATA;
     }
 
@@ -75,7 +75,7 @@ static int bitfile_do_big_chunk(const struct firmware *fw, bitfile_chunk_t *chun
     (*i) += 4;
 
     if (*i + chunk->size > fw->size) {
-        PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
+        HM2_PRINT_NO_LL("bitfile chunk extends past end of firmware\n");
         return -ENODATA;
     }
 
@@ -115,7 +115,7 @@ static int bitfile_parse_and_verify_chunk(const struct firmware *fw, bitfile_t *
             return bitfile_do_big_chunk(fw, &bitfile->e, i);
 
         default: {
-            PRINT_NO_LL("bitfile has unknown chunk '%c'\n", tag);
+            HM2_PRINT_NO_LL("bitfile has unknown chunk '%c'\n", tag);
             break;
         }
     }
@@ -166,13 +166,13 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
     //
 
     if (fw->size < BITFILE_HEADERLEN) {
-        PRINT_NO_LL("bitfile is too short\n");
+        HM2_PRINT_NO_LL("bitfile is too short\n");
         return -ENODATA;
     }
 
     for (i = 0; i < BITFILE_HEADERLEN; i ++) {
         if (fw->data[i] != bitfile_header[i]) {
-            PRINT_NO_LL("bitfile has invalid header\n");
+            HM2_PRINT_NO_LL("bitfile has invalid header\n");
             return -EINVAL;
         }
     }
@@ -193,12 +193,12 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
     //
 
     if (bitfile->b.data == NULL) {
-        PRINT_NO_LL("bitfile lacks Part Name (chunk 'b')!\n");
+        HM2_PRINT_NO_LL("bitfile lacks Part Name (chunk 'b')!\n");
         return -EINVAL;
     }
 
     if (bitfile->e.data == NULL) {
-        PRINT_NO_LL("bitfile lacks FPGA Config (part 'e')!\n");
+        HM2_PRINT_NO_LL("bitfile lacks FPGA Config (part 'e')!\n");
         return -EINVAL;
     }
 

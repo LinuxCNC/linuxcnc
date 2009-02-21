@@ -86,23 +86,23 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 static void hm2_print_pin_descriptors(hostmot2_t *hm2) {
     int i;
 
-    PRINT("%d HM2 Pin Descriptors:\n", hm2->num_pins);
+    HM2_PRINT("%d HM2 Pin Descriptors:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        PRINT("    pin %d:\n", i);
-        PRINT(
+        HM2_PRINT("    pin %d:\n", i);
+        HM2_PRINT(
             "        Primary Tag: 0x%02X (%s)\n",
             hm2->pin[i].primary_tag,
             hm2_get_general_function_name(hm2->pin[i].primary_tag)
         );
         if (hm2->pin[i].sec_tag != 0) {
-            PRINT(
+            HM2_PRINT(
                 "        Secondary Tag: 0x%02X (%s)\n",
                 hm2->pin[i].sec_tag,
                 hm2_get_general_function_name(hm2->pin[i].sec_tag)
             );
-            PRINT("        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
-            PRINT(
+            HM2_PRINT("        Secondary Unit: 0x%02X\n", hm2->pin[i].sec_unit);
+            HM2_PRINT(
                 "        Secondary Pin: 0x%02X (%s, %s)\n",
                 hm2->pin[i].sec_pin,
                 hm2_get_pin_secondary_name(&hm2->pin[i]),
@@ -125,7 +125,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         u32 d;
 
         if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
-            ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr); 
+            HM2_ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr); 
             return -EIO;
         }
 
@@ -140,7 +140,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         }
 
         if (hm2->pin[i].primary_tag != HM2_GTAG_IOPORT) {
-            ERR(
+            HM2_ERR(
                 "pin %d primary tag is %d (%s), not IOPort!\n",
                 i,
                 hm2->pin[i].primary_tag,
@@ -157,7 +157,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
 
     if (hm2->num_pins != hm2->idrom.io_width) {
-        ERR("there are %d Pin Descriptors but IDROM IO_Width is %d!\n", hm2->num_pins, hm2->idrom.io_width);
+        HM2_ERR("there are %d Pin Descriptors but IDROM IO_Width is %d!\n", hm2->num_pins, hm2->idrom.io_width);
         return -EINVAL;
     }
 
@@ -179,7 +179,7 @@ static void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
     bit_number = pin_number % 24;
 
     if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
-        ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
+        HM2_ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
         return;
     }
 
@@ -190,7 +190,7 @@ static void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
         hm2->ioport.alt_source_reg[ioport_number] |= (1 << bit_number);
         hm2->pin[pin_number].gtag = hm2->pin[pin_number].sec_tag;
     } else {
-        ERR("hm2_set_pin_source: invalid pin source 0x%08X\n", source);
+        HM2_ERR("hm2_set_pin_source: invalid pin source 0x%08X\n", source);
         return;
     }
 }
@@ -206,12 +206,12 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
     bit_number = pin_number % 24;
 
     if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
-        ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
+        HM2_ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
         return;
     }
 
     if ((direction != HM2_PIN_DIR_IS_INPUT) && (direction != HM2_PIN_DIR_IS_OUTPUT)) {
-        ERR("hm2_set_pin_direction: invalid pin direction 0x%08X\n", direction);
+        HM2_ERR("hm2_set_pin_direction: invalid pin direction 0x%08X\n", direction);
         return;
     }
 
@@ -224,14 +224,14 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
 void hm2_print_pin_usage(hostmot2_t *hm2) {
     int i;
 
-    PRINT("%d I/O Pins used:\n", hm2->num_pins);
+    HM2_PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
         int port = i / hm2->idrom.port_width;
         int port_pin = ((i % 24) * 2) + 1;
 
         if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
-            PRINT(
+            HM2_PRINT(
                 "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
                 i,
                 hm2->llio->ioport_connector_name[port],
@@ -242,7 +242,7 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
                 ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
             );
         } else {
-            PRINT(
+            HM2_PRINT(
                 "    IO Pin %03d (%s-%02d): %s\n",
                 i,
                 hm2->llio->ioport_connector_name[port],

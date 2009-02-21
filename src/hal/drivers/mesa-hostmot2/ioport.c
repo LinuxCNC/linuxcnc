@@ -41,12 +41,12 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 5, 4, 0x001F)) {
-        ERR("inconsistent Module Descriptor!\n");
+        HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
 
     if (hm2->ioport.num_instances != 0) {
-        ERR(
+        HM2_ERR(
             "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
             hm2_get_general_function_name(md->gtag)
         );
@@ -59,7 +59,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     // 
 
     if (hm2->idrom.io_ports != md->instances) {
-        ERR(
+        HM2_ERR(
             "IDROM IOPorts is %d but MD IOPort NumInstances is %d, inconsistent firmware, aborting driver load\n",
             hm2->idrom.io_ports,
             md->instances
@@ -81,19 +81,19 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
 
     r = hm2_register_tram_read_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(u32)), &hm2->ioport.data_read_reg);
     if (r < 0) {
-        ERR("error registering tram read region for IOPort Data register (%d)\n", r);
+        HM2_ERR("error registering tram read region for IOPort Data register (%d)\n", r);
         goto fail0;
     }
 
     r = hm2_register_tram_write_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(u32)), &hm2->ioport.data_write_reg);
     if (r < 0) {
-        ERR("error registering tram write region for IOPort Data register (%d)\n", r);
+        HM2_ERR("error registering tram write region for IOPort Data register (%d)\n", r);
         goto fail0;
     }
 
     hm2->ioport.ddr_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.ddr_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
@@ -101,21 +101,21 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     // this one's not a real register
     hm2->ioport.written_ddr = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.written_ddr == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail1;
     }
 
     hm2->ioport.alt_source_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.alt_source_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail2;
     }
 
     hm2->ioport.open_drain_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.open_drain_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail3;
     }
@@ -123,14 +123,14 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     // this one's not a real register
     hm2->ioport.written_open_drain = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.written_open_drain == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail4;
     }
 
     hm2->ioport.output_invert_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.output_invert_reg == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail5;
     }
@@ -138,7 +138,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     // this one's not a real register
     hm2->ioport.written_output_invert = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->ioport.written_output_invert == NULL) {
-        ERR("out of memory!\n");
+        HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail6;
     }
@@ -211,7 +211,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
         // all pins get *some* gpio HAL presence
         hm2->pin[i].instance = (hm2_gpio_instance_t *)hal_malloc(sizeof(hm2_gpio_instance_t));
         if (hm2->pin[i].instance == NULL) {
-            ERR("out of memory!\n");
+            HM2_ERR("out of memory!\n");
             return -ENOMEM;
         }
 
@@ -235,7 +235,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio pin, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
 
@@ -248,7 +248,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio pin, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
         }
@@ -272,7 +272,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }
 
@@ -285,7 +285,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }
 
@@ -309,7 +309,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio pin, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
 
@@ -325,7 +325,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 i
             );
             if (r != HAL_SUCCESS) {
-                ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }
 
@@ -341,23 +341,23 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
 void hm2_ioport_print_module(hostmot2_t *hm2) {
     int i;
-    PRINT("IO Ports: %d\n", hm2->ioport.num_instances);
+    HM2_PRINT("IO Ports: %d\n", hm2->ioport.num_instances);
     if (hm2->ioport.num_instances <= 0) return;
-    PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->ioport.clock_frequency, hm2_hz_to_mhz(hm2->ioport.clock_frequency));
-    PRINT("    version: %d\n", hm2->ioport.version);
-    PRINT("    data_addr: 0x%04X\n", hm2->ioport.data_addr);
-    PRINT("    ddr_addr: 0x%04X\n", hm2->ioport.ddr_addr);
-    PRINT("    alt_source_addr: 0x%04X\n", hm2->ioport.alt_source_addr);
-    PRINT("    open_drain_addr: 0x%04X\n", hm2->ioport.open_drain_addr);
-    PRINT("    output_invert_addr: 0x%04X\n", hm2->ioport.output_invert_addr);
+    HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->ioport.clock_frequency, hm2_hz_to_mhz(hm2->ioport.clock_frequency));
+    HM2_PRINT("    version: %d\n", hm2->ioport.version);
+    HM2_PRINT("    data_addr: 0x%04X\n", hm2->ioport.data_addr);
+    HM2_PRINT("    ddr_addr: 0x%04X\n", hm2->ioport.ddr_addr);
+    HM2_PRINT("    alt_source_addr: 0x%04X\n", hm2->ioport.alt_source_addr);
+    HM2_PRINT("    open_drain_addr: 0x%04X\n", hm2->ioport.open_drain_addr);
+    HM2_PRINT("    output_invert_addr: 0x%04X\n", hm2->ioport.output_invert_addr);
     for (i = 0; i < hm2->ioport.num_instances; i ++) {
-        PRINT("    instance %d:\n", i);
-        PRINT("        data_read = 0x%06X\n", hm2->ioport.data_read_reg[i]);
-        PRINT("        data_write = 0x%06X\n", hm2->ioport.data_write_reg[i]);
-        PRINT("        ddr = 0x%06X\n", hm2->ioport.ddr_reg[i]);
-        PRINT("        alt_source = 0x%06X\n", hm2->ioport.alt_source_reg[i]);
-        PRINT("        open_drain = 0x%06X\n", hm2->ioport.open_drain_reg[i]);
-        PRINT("        output_invert = 0x%06X\n", hm2->ioport.output_invert_reg[i]);
+        HM2_PRINT("    instance %d:\n", i);
+        HM2_PRINT("        data_read = 0x%06X\n", hm2->ioport.data_read_reg[i]);
+        HM2_PRINT("        data_write = 0x%06X\n", hm2->ioport.data_write_reg[i]);
+        HM2_PRINT("        ddr = 0x%06X\n", hm2->ioport.ddr_reg[i]);
+        HM2_PRINT("        alt_source = 0x%06X\n", hm2->ioport.alt_source_reg[i]);
+        HM2_PRINT("        open_drain = 0x%06X\n", hm2->ioport.open_drain_reg[i]);
+        HM2_PRINT("        output_invert = 0x%06X\n", hm2->ioport.output_invert_reg[i]);
     }
 }
 
