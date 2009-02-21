@@ -1,3 +1,18 @@
+//    Copyright (C) 2008 Jeff Epler
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program; if not, write to the Free Software
+//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
@@ -5,6 +20,7 @@
 
 #define MAX 16
 
+MODULE_LICENSE("GPL");
 int io[MAX] = {0,};
 int dir[MAX] = {0,};
 RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of 8255s");
