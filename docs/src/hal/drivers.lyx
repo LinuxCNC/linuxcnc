@@ -185,7 +185,7 @@ t.c).
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 loadrt hal_parport cfg="<config-string>"
 \layout Standard
@@ -220,7 +220,7 @@ x
  to create input HAL pins for the physical control pins.
  If the direction is not specified, the data group defaults to output.
  For example:
-\layout LyX-Code
+\layout Quote
 
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 \layout Standard
@@ -627,7 +627,7 @@ Common problems
 \layout Standard
 
 If loading the module reports
-\layout LyX-Code
+\layout Quote
 
 insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
 \newline 
@@ -687,16 +687,16 @@ hal_parport
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 loadrt probe_parport
-\layout LyX-Code
+\layout Quote
 
 loadrt hal_parport ...
 \layout Standard
 
 If the Linux kernel prints a message similar to
-\layout LyX-Code
+\layout Quote
 
 parport: PnPBIOS parport detected.
 \layout Standard

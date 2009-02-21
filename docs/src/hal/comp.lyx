@@ -86,7 +86,7 @@ blocks
 comp
 \emph default 
  preprocessor:
-\layout LyX-Code
+\layout Quote
 
 component ddt "Compute the derivative of the input function";
 \newline 
@@ -736,7 +736,7 @@ triple quoted
  string, which may include embedded newlines and quote characters, such
  as:
 \begin_deeper 
-\layout LyX-Code
+\layout Quote
 
 param rw bit zot=TRUE
 \newline 
@@ -1667,7 +1667,7 @@ comp
 rtexample.ko
 \family default 
  in the emc2 realtime module directory:
-\layout LyX-Code
+\layout Quote
 
 comp --install rtexample.comp
 \layout Standard
@@ -1681,7 +1681,7 @@ example.ko
 example.so
 \family default 
  for the simulator) in the current directory:
-\layout LyX-Code
+\layout Quote
 
 comp --compile rtexample.comp
 \layout Standard
@@ -1691,7 +1691,7 @@ Or it can simply process, leaving
 example.c
 \family default 
  in the current directory:
-\layout LyX-Code
+\layout Quote
 
 comp rtexample.comp
 \layout Standard
@@ -1709,14 +1709,14 @@ comp
 --compile
 \family default 
  options shown above:
-\layout LyX-Code
+\layout Quote
 
 comp --install rtexample2.c
 \layout Standard
 
 man-format documentation can also be created from the information in the
  declaration section:
-\layout LyX-Code
+\layout Quote
 
 comp --document rtexample.comp
 \layout Standard
@@ -1726,7 +1726,7 @@ The resulting manpage,
 example.9
 \family default 
  can be viewed with
-\layout LyX-Code
+\layout Quote
 
 man ./example.9
 \layout Standard
@@ -1742,7 +1742,7 @@ Compiling userspace components outside the source tree
 comp
 \family default 
  can process, compile, install, and document userspace components:
-\layout LyX-Code
+\layout Quote
 
 comp usrexample.comp
 \newline 
@@ -1781,7 +1781,7 @@ function _
 \end_inset 
 
  creates functions named 'constant.0', etc.
-\layout LyX-Code
+\layout Quote
 
 component constant;
 \newline 
@@ -1827,7 +1827,7 @@ cos()
 sincos.<num>.sin
 \family default 
 .
-\layout LyX-Code
+\layout Quote
 
 component sincos;
 \newline 
@@ -1900,7 +1900,7 @@ preview false
 \layout Subsection
 
 hal_loop
-\layout LyX-Code
+\layout Quote
 
 component hal_loop;
 \newline 
@@ -1955,7 +1955,7 @@ arraydemo
 \layout Standard
 
 This realtime component illustrates use of fixed-size arrays:
-\layout LyX-Code
+\layout Quote
 
 component arraydemo "4-bit Shift register";
 \newline 
@@ -2018,7 +2018,7 @@ preview false
 \layout Standard
 
 A typical load line for this component might be
-\layout LyX-Code
+\layout Quote
 
 loadrt logic count=3 personality=0x102,0x305,0x503
 \layout Standard

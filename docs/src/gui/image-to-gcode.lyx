@@ -71,7 +71,7 @@ Add the following lines to the
 \family default 
 section of your .ini file to make AXIS automatically invoke image-to-gcode
  when you open a .png, .gif, or .jpg image:
-\layout LyX-Code
+\layout Quote
 
 PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
 \newline 
@@ -94,7 +94,7 @@ Using image-to-gcode
 
 Start image-to-gcode either by opening an image file in AXIS, or by invoking
  image-to-gcode from the terminal, as follows:
-\layout LyX-Code
+\layout Quote
 
 image-to-gcode torus.png > torus.ngc
 \layout Standard

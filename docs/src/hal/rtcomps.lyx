@@ -158,7 +158,7 @@ Step Pulse Generator Block Diagram (velocity mode)
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -213,7 +213,7 @@ ctrl_type
 \series default 
  is optional, if ommitted, all of the step generators will be position mode.
  For example:
-\layout LyX-Code
+\layout Quote
 
 emc2# 
 \series bold 
@@ -253,7 +253,7 @@ will install three step generators.
 \layout Subsection
 
 Removing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2020,7 +2020,7 @@ The simulated encoder is exactly that.
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2038,7 +2038,7 @@ halcmd loadrt sim-encoder num_chan=<number>
 \layout Subsection
 
 Removing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2223,7 +2223,7 @@ Debounce is a realtime component that can filter the glitches created by
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2246,7 +2246,7 @@ halcmd loadrt debounce cfg=
  Each number installs a group of identical debounce filters, the number
  determines how many filters are in the group.
  For example:
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2300,7 +2300,7 @@ will install three groups of filters.
 \layout Subsection
 
 Removing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2449,7 +2449,7 @@ Siggen is a realtime component that generates square, triangle, and sine
 \layout Subsection
 
 Installing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 
@@ -2478,7 +2478,7 @@ numchan
 \layout Subsection
 
 Removing
-\layout LyX-Code
+\layout Quote
 
 emc2$ 
 \series bold 

@@ -201,6 +201,11 @@ collapsed false
 \layout Caption
 
 Default Variable Count
+\begin_inset LatexCommand \label{cap:Default-Variable-Count}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -763,6 +768,11 @@ collapsed false
 \layout Caption
 
 Sections Manager Default Window
+\begin_inset LatexCommand \label{cap:Sections-Manager-Default}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -798,6 +808,11 @@ collapsed false
 \layout Caption
 
 Section Display Default Window
+\begin_inset LatexCommand \label{cap:Section-Display-Default}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -878,6 +893,11 @@ collapsed false
 \layout Caption
 
 Bool Variables Default Window
+\begin_inset LatexCommand \label{cap:Bool-Variables-Default}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -916,6 +936,11 @@ collapsed false
 \layout Caption
 
 Watch Window
+\begin_inset LatexCommand \label{cap:Watch-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -956,6 +981,11 @@ collapsed false
 \layout Caption
 
 Symbol Names window
+\begin_inset LatexCommand \label{cap:Symbol-Names-window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -998,6 +1028,11 @@ collapsed false
 \layout Caption
 
 Editor Window
+\begin_inset LatexCommand \label{cap:Editor-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1135,6 +1170,11 @@ collapsed false
 \layout Caption
 
 Config Window
+\begin_inset LatexCommand \label{cap:Config-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1495,6 +1535,11 @@ collapsed false
 \layout Caption
 
 Assign/Compare Example
+\begin_inset LatexCommand \label{cap:Assign/Compare-Example}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1868,6 +1913,11 @@ collapsed false
 \layout Caption
 
 Config I/O
+\begin_inset LatexCommand \label{cap:Config-I/O}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1893,6 +1943,11 @@ collapsed false
 \layout Caption
 
 Config Coms
+\begin_inset LatexCommand \label{cap:Config-Coms}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2273,6 +2328,11 @@ collapsed false
 \layout Caption
 
 Section Display with Grid
+\begin_inset LatexCommand \label{cap:Section-Display-with}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2301,6 +2361,11 @@ collapsed false
 \layout Caption
 
 Editor Window
+\begin_inset LatexCommand \label{cap:Editor-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2329,6 +2394,11 @@ collapsed false
 \layout Caption
 
 Section Display with Input
+\begin_inset LatexCommand \label{cap:Section-Display-with}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2360,6 +2430,11 @@ collapsed false
 \layout Caption
 
 Section Display with Rung
+\begin_inset LatexCommand \label{cap:Section-Display-with}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2388,6 +2463,11 @@ collapsed false
 \layout Caption
 
 Section Display Finished
+\begin_inset LatexCommand \label{cap:Section-Display-Finished}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2418,6 +2498,11 @@ collapsed false
 \layout Caption
 
 Save As Dialog
+\begin_inset LatexCommand \label{cap:Save-As-Dialog}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 

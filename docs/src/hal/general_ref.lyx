@@ -273,7 +273,7 @@ Pin/Parameter names
 
 Hardware drivers should use five fields (on three levels) to make up a pin
  or parameter name, as follows:
-\layout LyX-Code
+\layout Quote
 
 
 \series bold 
@@ -467,7 +467,7 @@ Hardware drivers usually only have two kinds of HAL functions, ones that
  read the hardware and update HAL pins, and ones that write to the hardware
  using data from HAL pins.
  They should be named as follows:
-\layout LyX-Code
+\layout Quote
 
 
 \series bold 

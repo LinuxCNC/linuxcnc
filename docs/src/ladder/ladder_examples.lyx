@@ -77,6 +77,11 @@ collapsed false
 \layout Caption
 
 E-Stop Section Display
+\begin_inset LatexCommand \label{cap:E-Stop-Section-Display}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -216,6 +221,11 @@ collapsed false
 \layout Caption
 
 AXIS E-Stop
+\begin_inset LatexCommand \label{cap:AXIS-E-Stop}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -255,6 +265,11 @@ collapsed false
 \layout Caption
 
 Timer/Operate Example
+\begin_inset LatexCommand \label{cap:Timer/Operate-Example}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 

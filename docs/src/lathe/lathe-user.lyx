@@ -58,6 +58,11 @@ collapsed false
 \layout Caption
 
 Lathe Tool File
+\begin_inset LatexCommand \label{cap:Lathe-Tool-File}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -919,6 +924,11 @@ collapsed false
 \layout Caption
 
 Lathe Tool Orientations
+\begin_inset LatexCommand \label{cap:Lathe-Tool-Orientations}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -947,6 +957,11 @@ collapsed false
 \layout Caption
 
 Tool Positions 1, 2, 3 & 4
+\begin_inset LatexCommand \label{cap:Tool-Positions-1,}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -992,6 +1007,11 @@ collapsed false
 \layout Caption
 
 Tool Position 2
+\begin_inset LatexCommand \label{cap:Tool-Position-2}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1029,9 +1049,15 @@ Tool Position 2
 \layout Section
 
 Lathe Tools
+\layout Standard
+
+Under Construction
 \layout Section
 
 Threading
+\layout Standard
+
+Under Construction
 \layout Standard
 
 \the_end

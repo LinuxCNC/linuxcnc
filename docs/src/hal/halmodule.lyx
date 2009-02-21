@@ -51,7 +51,7 @@ passthrough.in
 passthrough.out
 \family default 
 ) approximately once per second.
-\layout LyX-Code
+\layout Quote
 
 #!/usr/bin/python
 \newline 
@@ -96,7 +96,7 @@ $PATH
 \family default 
 .
  Then try it out:
-\layout LyX-Code
+\layout Quote
 
 $ halrun
 \newline 
@@ -170,7 +170,7 @@ hal.component
  The arguments are the HAL component name and (optionally) the prefix used
  for pin and parameter names.
  If the prefix is not specified, the component name is used.
-\layout LyX-Code
+\layout Quote
 
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
 \layout Standard
@@ -189,6 +189,11 @@ collapsed false
 \layout Caption
 
 HAL Option Names
+\begin_inset LatexCommand \label{cap:HAL-Option-Names}
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -353,7 +358,7 @@ The full pin or parameter name is formed by joining the prefix and the suffix
 passthrough.in
 \family default 
 .
-\layout LyX-Code
+\layout Quote
 
 h.ready()
 \layout Standard
@@ -385,14 +390,14 @@ Reading and writing pins and parameters
 
 For pins and parameters which are also proper Python identifiers, the value
  may be accessed or set using the attribute syntax:
-\layout LyX-Code
+\layout Quote
 
 h.out = h.in
 \layout Standard
 
 For all pins, whether or not they are also proper Python identifiers, the
  value may be accessed or set using the subscript syntax:
-\layout LyX-Code
+\layout Quote
 
 h['out'] = h['in']
 \layout Subsection

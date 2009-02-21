@@ -58,7 +58,7 @@ run-in-place
 
 , the man page is not installed, but it is accessible.
  From the main EMC2 directory, do:
-\layout LyX-Code
+\layout Quote
 
 $ 
 \series bold 

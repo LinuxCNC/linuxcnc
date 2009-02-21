@@ -87,7 +87,7 @@ Panel Construction
 The layout of a pyVCP panel is specified with an XML file that contains
  widget tags between <pyvcp> and </pyvcp>.
  For example:
-\layout LyX-Code
+\layout Quote
 
 <pyvcp>
 \newline 
@@ -108,7 +108,7 @@ The layout of a pyVCP panel is specified with an XML file that contains
 \layout Standard
 
 If you place this text in a file called tiny.xml, and run 
-\layout LyX-Code
+\layout Quote
 
 halrun -I loadusr pyvcp -c mypanel tiny.xml
 \layout Standard
@@ -128,7 +128,7 @@ For a list of widgets and their tags and options, see the widget reference
 
 Once you have created your panel, connecting HAL signals to and from the
  pyVCP pins is done with:
-\layout LyX-Code
+\layout Quote
 
 halcmd net
 \layout Standard
@@ -161,7 +161,7 @@ Place your pyVCP XML file describing the panel in the same directory where
  your .ini file is.
  Say we we want to display the current spindle speed using a Bar widget.
  Place the following in a file called spindle.xml:
-\layout LyX-Code
+\layout Quote
 
 <pyvcp>
 \newline 
@@ -195,7 +195,7 @@ spindle-speed
  for all options).
  To make AXIS aware of this file, and call it at start up, we need to specify
  the following in the [DISPLAY] section of the .ini file:
-\layout LyX-Code
+\layout Quote
 
 PYVCP = spindle.xml
 \layout Standard
@@ -204,14 +204,14 @@ To make our widget actually display the spindle-speed it needs to be hooked
  up to the appropriate HAL signal.
  A .hal file that will be run once AXIS and pyVCP have started can be specified
  in the [HAL] section of the .ini file:
-\layout LyX-Code
+\layout Quote
 
 POSTGUI_HALFILE = spindle_to_pyvcp.hal
 \layout Standard
 
 This change will run the HAL commands specified in "spindle_to_pyvcp.hal".
  In our example the contents could look like this:
-\layout LyX-Code
+\layout Quote
 
 net spindle-rpm-filtered  => pyvcp.spindle-speed
 \layout Standard

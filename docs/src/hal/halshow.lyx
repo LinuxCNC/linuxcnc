@@ -177,7 +177,7 @@ If we take a closer look at the tree display we can see that the six major
  than one reply.
  This is do to the nature of the search routines in halcmd itself.
  If you search one pin you may get two like this.
-\layout LyX-Code
+\layout Quote
 
 Component Pins:
 \newline 
@@ -238,14 +238,14 @@ Let's use this editor to add a differential module to a hal and connect
  Once that is done we can find the output of the differentiator in halscope.
  So let's go.
  (yes I looked this one up.)
-\layout LyX-Code
+\layout Quote
 
 loadrt blocks ddt=1
 \layout Standard
 
 Now look at the components node and you should see blocks in there someplace.
  
-\layout LyX-Code
+\layout Quote
 
 Loaded HAL Components:
 \newline 
@@ -272,7 +272,7 @@ Sure enough there it is.
  Notice that its id is 08.
  Next we need to find out what functions are available with it so we look
  at functions.
-\layout LyX-Code
+\layout Quote
 
 Exported Functions:
 \newline 
@@ -308,7 +308,7 @@ Here we look for owner #08 and see that blocks has exported a function named
  Once again I look up the addf command and find that it uses three arguments
  like this.
  
-\layout LyX-Code
+\layout Quote
 
 addf <functname> <threadname> [<position>]
 \layout Standard
@@ -318,7 +318,7 @@ We already know the functname=ddt.0 so let's get the thread name right by
  Here we see two threads servo-thread and base-thread.
  The position of ddt.0 in the thread is not critical.
  
-\layout LyX-Code
+\layout Quote
 
 addf ddt.0 servo-thread 
 \layout Standard
@@ -368,7 +368,7 @@ Next we need to connect this block to something.
  But how do we know what pins are available.
  The answer is look under pins.
  There we find ddt and see this.
-\layout LyX-Code
+\layout Quote
 
 Component Pins:
 \newline 
@@ -383,7 +383,7 @@ That looks easy enough to understand but what signal or pin do we want to
  connect to it.
  It could be an axis pin, a stepgen pin, or a signal.
  I see this when I look at axis.0.
-\layout LyX-Code
+\layout Quote
 
 Component Pins:
 \newline 
@@ -394,14 +394,14 @@ Owner Type Dir Value Name
 
 So it looks like Xpos-cmd should be a good signal to use.
  Back to the editor where I enter the following command.
-\layout LyX-Code
+\layout Quote
 
 linksp Xpos-cmd ddt.0.in
 \layout Standard
 
 Now if I look at the Xpos-cmd signal using the tree node I'll see what I've
  done.
-\layout LyX-Code
+\layout Quote
 
 Signals:
 \newline 

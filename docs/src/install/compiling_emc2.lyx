@@ -182,7 +182,7 @@ To download, simply go to www.linuxcnc.org to the Download page, and get the
 \layout Standard
 
 Once you have it, extract it to your home folder:
-\layout LyX-Code
+\layout Quote
 
 $ cd ~/
 \newline 
@@ -240,13 +240,13 @@ Installed
 
 EMC2 followes the standard way of compiling linux software.
  To compile it simply go to the sources folder:
-\layout LyX-Code
+\layout Quote
 
 $ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
-\layout LyX-Code
+\layout Quote
 
 $ ./configure
 \newline 
@@ -268,13 +268,13 @@ If you want only to test the software before installing it, or if you're
 ~/emc2
 \family default 
  in this example.
-\layout LyX-Code
+\layout Quote
 
 $ cd ~/emc2/src
 \layout Standard
 
 and issue these commands:
-\layout LyX-Code
+\layout Quote
 
 $ ./configure --enable-run-in-place
 \newline 
@@ -295,7 +295,7 @@ By putting this command in a shell start-up script, such as
 \end_inset 
 
 , execute
-\layout LyX-Code
+\layout Quote
 
 $ .
  ~/emc2/scripts/emc-environment
@@ -305,7 +305,7 @@ Until you close that terminal, it will be set up so that the programs and
  manual pages from the Run-In-Place directory are available without referring
  to the path each time.
  After that you can run EMC2 by issuing:
-\layout LyX-Code
+\layout Quote
 
 $ emc
 \layout Section
@@ -344,7 +344,7 @@ You may need to recompile the EMC2 code for a number of reasons.
  You may have modified the source code, or you may have downloaded just
  a few new files.
  To recompile, do the following:
-\layout LyX-Code
+\layout Quote
 
 $ cd ~/emc2/src
 \newline 

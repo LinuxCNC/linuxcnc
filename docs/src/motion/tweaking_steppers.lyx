@@ -83,86 +83,62 @@ DO NOT TRY TO RUN EMC2 WHILE THE TEST IS RUNNING
 \layout Standard
 
 On Ubuntu Dapper, you can run the test by opening a shell and doing:
-\layout LyX-Code
+\layout Quote
 
 sudo mkdir /dev/rtf; 
-\layout LyX-Code
-
+\newline 
 sudo mknod /dev/rtf/3 c 150 3; 
-\layout LyX-Code
-
+\newline 
 sudo mknod /dev/rtf3 c 150 3; 
-\layout LyX-Code
-
+\newline 
 cd /usr/realtime*/testsuite/kern/latency; ./run
 \layout Standard
 
 and then you should see something like this:
-\layout LyX-Code
+\layout Quote
 
 ubuntu:/usr/realtime-2.6.12-magma/testsuite/kern/latency$ ./run 
-\layout LyX-Code
-
+\newline 
 * 
-\layout LyX-Code
-
+\newline 
 * 
-\layout LyX-Code
-
+\newline 
 * Type ^C to stop this application.
  
-\layout LyX-Code
-
+\newline 
 * 
-\layout LyX-Code
-
+\newline 
 *
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 ## RTAI latency calibration tool ## 
-\layout LyX-Code
-
+\newline 
 # period = 100000 (ns) 
-\layout LyX-Code
-
+\newline 
 # avrgtime = 1 (s) 
-\layout LyX-Code
-
+\newline 
 # do not use the FPU 
-\layout LyX-Code
-
+\newline 
 # start the timer 
-\layout LyX-Code
-
+\newline 
 # timer_mode is oneshot
-\layout LyX-Code
-
-\layout LyX-Code
+\layout Quote
 
 RTAI Testsuite - KERNEL latency (all data in nanoseconds) 
-\layout LyX-Code
-
+\newline 
 RTH| lat min| ovl min| lat avg| lat max| ovl max| overruns 
-\layout LyX-Code
-
+\newline 
 RTD|   -1571|   -1571|    1622|    8446|    8446|      0 
-\layout LyX-Code
-
+\newline 
 RTD|   -1558|   -1571|    1607|    7704|    8446|      0 
-\layout LyX-Code
-
+\newline 
 RTD|   -1568|   -1571|    1640|    7359|    8446|      0 
-\layout LyX-Code
-
+\newline 
 RTD|   -1568|   -1571|    1653|    7594|    8446|      0 
-\layout LyX-Code
-
+\newline 
 RTD|   -1568|   -1571|    1640|   10636|   10636|      0 
-\layout LyX-Code
-
-RTD|   -1568|   -1571|    1640|   10636|   10636|      0
+\newline 
+RTD|   -1568|  -1571|    1640|   10636|   10636|      0
 \layout Standard
 
 While the test is running, you should "abuse" the computer.

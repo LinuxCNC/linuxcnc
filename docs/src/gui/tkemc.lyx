@@ -107,7 +107,7 @@ To select TkEMC as the front-end for EMC2, edit the .ini file.
 DISPLAY
 \family default 
  line to read
-\layout LyX-Code
+\layout Quote
 
 DISPLAY = tkemc
 \layout Standard
@@ -866,6 +866,11 @@ collapsed false
 \layout Caption
 
 The Code Entry tab
+\begin_inset LatexCommand \label{cap:The-Code-Entry}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 

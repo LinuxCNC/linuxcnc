@@ -75,6 +75,11 @@ collapsed false
 \layout Caption
 
 XYZ Wizard Configuration
+\begin_inset LatexCommand \label{cap:XYZ-Wizard-Configuration}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -285,6 +290,11 @@ collapsed false
 \layout Caption
 
 Jog Buttons
+\begin_inset LatexCommand \label{cap:Jog-Buttons}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -558,6 +568,11 @@ collapsed false
 \layout Caption
 
 GS2 Panel
+\begin_inset LatexCommand \label{cap:GS2-Panel}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 

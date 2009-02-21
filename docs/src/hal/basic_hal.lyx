@@ -49,6 +49,11 @@ collapsed false
 \layout Caption
 
 HAL Configuration Window
+\begin_inset LatexCommand \label{cap:HAL-Configuration-Window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -457,7 +462,7 @@ Truth Table
 <features>
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
 <column alignment="center" valignment="top" rightline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<column alignment="center" valignment="top" rightline="true" width="0">
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -632,7 +637,7 @@ Truth Table
 <lyxtabular version="3" rows="3" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<column alignment="center" valignment="top" rightline="true" width="0">
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text

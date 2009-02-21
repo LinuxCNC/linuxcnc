@@ -128,7 +128,7 @@ As we said there is a group of machines in which each joint is placed along
  On these machines the mapping from Cartesian space (the G-code program)
  to the joint space (the actual actuators of the machine) is trivial.
  It is a simple 1:1 mapping:
-\layout LyX-Code
+\layout Quote
 
 pos->tran.x = joints[0];
 \newline 
@@ -141,8 +141,6 @@ pos->a = joints[3];
 pos->b = joints[4];
 \newline 
 pos->c = joints[5];
-\layout LyX-Code
-
 \layout Standard
 
 In the above code snippet one can see how the mapping is done: the X position
@@ -150,7 +148,7 @@ In the above code snippet one can see how the mapping is done: the X position
  The above refers to the direct kinematics (one way of the transformation)
  whereas the next code part refers to the inverse kinematics (or the inverse
  way of the transformation):
-\layout LyX-Code
+\layout Quote
 
 joints[0] = pos->tran.x;
 \newline 
@@ -226,7 +224,7 @@ Bipod setup
 
 
 \layout Standard
-
+\align center 
 
 \begin_inset Graphics
 	filename bipod.png
@@ -333,7 +331,7 @@ Note that the calculation for y involves the square root of a difference,
 \layout Standard
 
 Translated to actual code:
-\layout LyX-Code
+\layout Quote
 
 double AD2 = joints[0] * joints[0];
 \newline 
@@ -348,8 +346,7 @@ if(y2 < 0) return -1;
 pos->tran.x = x;
 \newline 
 pos->tran.y = sqrt(y2);
-\layout LyX-Code
-
+\newline 
 return 0;
 \layout LyX-Code
 
@@ -386,7 +383,7 @@ BD=\sqrt{(Bx-x)^{2}+y^{2}}\]
 \layout Standard
 
 or translated to actual code:
-\layout LyX-Code
+\layout Quote
 
 double x2 = pos->tran.x * pos->tran.x;
 \newline 
