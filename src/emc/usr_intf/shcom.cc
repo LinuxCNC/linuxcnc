@@ -50,8 +50,8 @@ EMC_STAT *emcStatus;
 // the NML channel for errors
 NML *emcErrorBuffer;
 char error_string[NML_ERROR_LEN];
-char operator_text_string[LINELEN];
-char operator_display_string[LINELEN];
+char operator_text_string[NML_TEXT_LEN];
+char operator_display_string[NML_DISPLAY_LEN];
 
 // default value for timeout, 0 means wait forever
 double emcTimeout;
@@ -231,14 +231,14 @@ int updateError()
 	strncpy(error_string,
 		((EMC_OPERATOR_ERROR *) (emcErrorBuffer->get_address()))->
 		error, LINELEN - 1);
-	error_string[LINELEN - 1] = 0;
+	error_string[NML_ERROR_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_TEXT_TYPE:
 	strncpy(operator_text_string,
 		((EMC_OPERATOR_TEXT *) (emcErrorBuffer->get_address()))->
 		text, LINELEN - 1);
-	operator_text_string[LINELEN - 1] = 0;
+	operator_text_string[NML_TEXT_LEN - 1] = 0;
 	break;
 
     case EMC_OPERATOR_DISPLAY_TYPE:
@@ -246,7 +246,7 @@ int updateError()
 		((EMC_OPERATOR_DISPLAY *) (emcErrorBuffer->
 					   get_address()))->display,
 		LINELEN - 1);
-	operator_display_string[LINELEN - 1] = 0;
+	operator_display_string[NML_DISPLAY_LEN - 1] = 0;
 	break;
 
     case NML_ERROR_TYPE:
