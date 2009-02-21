@@ -66,6 +66,23 @@ next steps:
 
 
 
+SPI:
+
+    HM2 support SPI UARTs, which can talk to things like ADC/DAC/GPIO boards.
+
+    Some reprap people have asked for this, for doing temperature sensing
+    of the extruder barrel.
+
+    <pcw> Seb: here are two chips we use in the 7I65 for example:
+    <pcw> AD5754
+    <pcw> AD7329
+    <pcw>  (plus a SPI EEPROM and SPI CPLD for GPIO)
+    <pcw> ( AD5754 quad 16 bit +-10V out DAC)
+    <pcw> ( AD7329 8 channel 1 M/S 12 bit + sign A-D)
+
+
+
+
 translation ram (tram):
 
     just do it
@@ -163,11 +180,13 @@ stepgen:
 
     support table output mode
 
-    support velocity control?
+    support velocity-mode control
 
     support smaller stepgens - most dont need 6 pins...
 
         config="stepgen="off,on:width=2"
+
+        for now just use the first two io pins of each stepgen, leave the rest as gpio
 
 
 
@@ -310,6 +329,18 @@ how to configure the firmware?
             bool enable_raw;
 
         } hm2_config_t;
+
+
+    <seb_kuzminsky> cradek: what is this "hidden" you speak of?
+    <cradek> seems like a simple hack
+    <alex_joni> hal_show_pin() ?
+    <cradek> add a mask bit to each pin and make the things that traverse the list of pins skip them if they're masked
+    <alex_joni> hal_hide_pin() ?
+    <seb_kuzminsky> i asked jmk about it a while ago and he said he thought it would be hard
+    <alex_joni> I bet he doesn't think about hacks :P
+    <cradek> well he's smarter than me, so I'm sure I'm missing something
+    <seb_kuzminsky> he said the problem was modifying the list of hal objects from the realtime context
+    <seb_kuzminsky> i didnt really understand his whole explanation
 
 
 
