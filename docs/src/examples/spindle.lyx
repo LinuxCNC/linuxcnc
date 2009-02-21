@@ -16,7 +16,7 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
+\paragraph_separation skip
 \defskip medskip
 \quotes_language english
 \quotes_times 2
@@ -48,20 +48,16 @@ First you need to figure the scale of spindle speed to control signal.
 
 We have to add a scale componet to the hal file to scale the motion.spindle-speed
 -out to the 0 to 10 needed by the VFD if your DAC card does not do scaling.
-\layout Standard
+\layout Quote
 
 loadrt scale count=1
-\layout Standard
-
+\newline 
 addf scale.0 servo-thread
-\layout Standard
-
+\newline 
 setp scale.0.gain 0.002
-\layout Standard
-
+\newline 
 net spindle-speed-scale motion.spindle-speed-out => scale.0.in
-\layout Standard
-
+\newline 
 net spindle-speed-DAC scale.0.out => <your DAC pin name>
 \layout Section
 
@@ -70,26 +66,20 @@ PWM Spindle Speed
 
 If your spindle can be controlled by a PWM signal, use the pwmgen component
  to create the signal:
-\layout Standard
+\layout Quote
 
 loadrt pwmgen output_type=0 
-\layout Standard
-
+\newline 
 addf pwmgen.update servo-thread
-\layout Standard
-
+\newline 
 addf pwmgen.make-pulses base-thread
-\layout Standard
-
+\newline 
 net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-\layout Standard
-
+\newline 
 net spindle-on motion.spindle-on => pwmgen.0.enable
-\layout Standard
-
+\newline 
 net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-\layout Standard
-
+\newline 
 setp pwmgen.0.scale 1800 # Change to your spindle's top speed in RPM 
 \layout Standard
 
@@ -113,7 +103,7 @@ If you need a spindle enable signal link your output pin to motion.spindle-on.
  To link these pins to a parallel port pin put something like the following
  in your .hal file making sure you pick the pin that is connected to your
  control device.
-\layout Standard
+\layout Quote
 
 net spindle-enable motion.spindle-on => parport.0.pin-14-out
 \layout Section
@@ -131,10 +121,9 @@ If you have direction control of your spindle the hal pins motion.spindle-forwar
 To link these pins to a parallel port pin put something like the following
  in your .hal file making sure you pick the pin that is connected to your
  control device.
-\layout Standard
+\layout Quote
 
 net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
-\layout Standard
-
+\newline 
 net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
 \the_end

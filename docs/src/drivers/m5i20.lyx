@@ -29,6 +29,18 @@
 m5i20
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+Remove in 2.4
+\end_inset 
+
+
+\layout Standard
+
 Notice: The hal_m5i20 driver is deprecated and you should use the hostmot2
  driver for new installations.
 \layout Standard

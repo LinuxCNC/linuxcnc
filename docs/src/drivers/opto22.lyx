@@ -72,7 +72,7 @@ This driver is for the PCI ac5 card and will not work with the ISA ac5 card.
  It will support 4 cards as is (more cards are possible with a change in
  the source code).
  Load the basic driver like so:
-\layout LyX-Code
+\layout Quote
 
 loadrt opto_ac5
 \layout Standard

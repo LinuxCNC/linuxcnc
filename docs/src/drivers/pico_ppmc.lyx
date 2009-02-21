@@ -40,7 +40,7 @@ Pico Systems has a family of boards for doing servo, stepper, and pwm control.
 \layout Standard
 
 Installing:
-\layout LyX-Code
+\layout Quote
 
 loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
 \layout Standard
