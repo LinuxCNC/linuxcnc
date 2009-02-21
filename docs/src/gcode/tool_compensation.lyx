@@ -31,6 +31,78 @@ Tool Compensation
 \layout Section
 
 Tool Length Offsets
+\layout Subsection
+
+Touch Off
+\begin_inset LatexCommand \index{Touch Off}
+
+\end_inset 
+
+
+\layout Standard
+
+Using the Touch Off Screen you can update the tool table automatically.
+ 
+\layout Standard
+
+Typical steps for updating the tool table:
+\layout Enumerate
+
+After homing load a tool with "TnM6" where "n" is the tool number.
+ 
+\layout Enumerate
+
+Move tool to an extablished point using a gauge or take a test cut and measure.
+\layout Enumerate
+
+Select "Tool Table" in the Coordinate System drop down box.
+\layout Enumerate
+
+Enter the gauge or measured dimension and select OK.
+\layout Standard
+
+The Tool Table will be changed with the correct Z length to make the DRO
+ display the correct Z position and a G43 command will be issued so the
+ new tool Z length will be in effect.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Touch Off Tool Table
+\begin_inset LatexCommand \label{cap:Touch-Off-Tool}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/ToolTable-TouchOff.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsection
+
+Using G10 L1
+\layout Standard
+
+By using "G10 L1 Pn Zn" from the MDI window or in your program you can set
+ the tool table.
+\layout Subsection
+
+Editing the Tool Table
 \layout Standard
 
 Tool length offsets are given as positive numbers in the tool table.
