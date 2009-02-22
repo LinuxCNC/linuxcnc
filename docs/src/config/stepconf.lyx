@@ -1417,7 +1417,7 @@ The Latency Test (Test Base Period Jitter) is on the Basic Machine Information
 \align center 
 
 \begin_inset Graphics
-	filename images/stepconf-latency.png
+	filename images/latency.png
 	scale 70
 
 \end_inset 
