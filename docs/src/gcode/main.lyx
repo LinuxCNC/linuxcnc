@@ -5467,7 +5467,8 @@ G10 L1 Set Tool Table
 
 \layout Standard
 
-Set a tool table entry.
+Program a G10 L1 to set a tool table entry from a program or the MDI window.
+  G10 reloads the tool table.
  
 \layout Quote
 

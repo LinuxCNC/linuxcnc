@@ -41,7 +41,8 @@ Touch Off
 
 \layout Standard
 
-Using the Touch Off Screen you can update the tool table automatically.
+Using the Touch Off Screen in the AXIS interface you can update the tool
+ table automatically.
  
 \layout Standard
 
@@ -64,6 +65,7 @@ Enter the gauge or measured dimension and select OK.
 The Tool Table will be changed with the correct Z length to make the DRO
  display the correct Z position and a G43 command will be issued so the
  new tool Z length will be in effect.
+ Tool table touch off is only available when a tool is loaded with "TnM6".
 \layout Standard
 
 
@@ -98,8 +100,9 @@ Touch Off Tool Table
 Using G10 L1
 \layout Standard
 
-By using "G10 L1 Pn Zn" from the MDI window or in your program you can set
- the tool table.
+By using "G10 L1 Pn Zx" where "n" is the tool number and "x" is the offset
+ from the MDI window or in your program you can also set the tool table.
+ 
 \layout Subsection
 
 Editing the Tool Table
