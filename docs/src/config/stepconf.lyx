@@ -861,7 +861,7 @@ and\SpecialChar ~
  the PWM value for a given RPM value.
  If the values are not known, they can be determined.
  For more information see section (
-\begin_inset LatexCommand \ref{sec:Determining-Spindle-Calibration}
+\begin_inset LatexCommand \ref{sub:Determining-Spindle-Calibration}
 
 \end_inset 
 

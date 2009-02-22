@@ -1226,20 +1226,11 @@ Configuration Wizard
 \layout Standard
 
 Run the Stepconf Wizard in chapter (
-\begin_inset LatexCommand \ref{sec:Step-by-Step}
+\begin_inset LatexCommand \ref{cha:Stepconf-Wizard}
 
 \end_inset 
 
 )
-\layout Section
-
-Desktop Shortcut
-\layout Standard
-
-To create a desktop shortcut after running the Stepconf Wizard.
- From the CNC menu start EMC2 and pick your new configuration from the list.
- Check off Create Desktop Shortcut then OK.
- Now you can run your configuration from the desktop shortcut.
 \layout Section
 
 Modifying

@@ -97,6 +97,15 @@ For more information on stepgen see Section (
 \end_inset 
 
 ).
+\layout Subsection
+
+Step Timing
+\layout Standard
+
+Step Timing and Step Space on some drives are different.
+ In this case the Step point becomes important.
+ If the drive steps on the falling edge then the output pin should be inverted.
+ 
 \layout Section
 
 Servos
