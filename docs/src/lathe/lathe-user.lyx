@@ -1048,10 +1048,33 @@ Tool Position 2
 
 \layout Section
 
-Lathe Tools
+Tool Touch Off
 \layout Standard
 
-Under Construction
+When running in lathe mode in AXIS you can set the X and Z in the tool table
+ using the Touch Off window.
+ 
+\layout Standard
+
+A typical session might be:
+\layout Enumerate
+
+Home each axis.
+\layout Enumerate
+
+Set the current tool with "TnM6" where "n" is the tool number.
+\layout Enumerate
+
+Select the X axis in the Manual Control window.
+\layout Enumerate
+
+Move the X to a known position or take a test cut and measure the diameter.
+\layout Enumerate
+
+Select Touch Off and pick Tool Table then enter the position or the diameter.
+\layout Enumerate
+
+Repeat for Z.
 \layout Section
 
 Threading
