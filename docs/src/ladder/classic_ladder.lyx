@@ -101,25 +101,15 @@ It seems natural that each line would be evaluated left to right then the
  are set.
  This can presents a problem in certain circumstance if the output of one
  line feeds the input of another.
- Another gotcha with ladder programming is the 
-\begin_inset Quotes eld
-\end_inset 
-
-Last One Wins
-\begin_inset Quotes erd
-\end_inset 
-
- rule.
+ Another gotcha with ladder programming is the "Last One Wins" rule.
  If you have the same output in different locations of your ladder the state
  of the last one will be what the output is set to.
  
 \layout Standard
 
-ClassicLadder version 7.124 has been adapted for EMC 2.3x.
- These documents are for that version.
- Earlier EMC releases adapted ClassicLadder version 7.100 - most but not
- all things described will work with version 7.100.
- See on line docs for the difference [here].
+ClassicLadder version 7.124 has been adapted for EMC 2.3 This document describes
+ that version.
+ 
 \layout Section
 
 Languages
@@ -2538,7 +2528,7 @@ Save As Dialog
 
 \begin_inset Graphics
 	filename images/SaveAs.png
-	scale 75
+	scale 70
 
 \end_inset 
 

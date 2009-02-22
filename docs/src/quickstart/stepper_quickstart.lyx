@@ -67,7 +67,15 @@ The Latency Test determines how late your computer processor is in responding
 ) to run the latency test.
 \layout Section
 
-Sherline and Xylotex
+Sherline
+\layout Standard
+
+If you have a Sherline several predefined configurations are provided.
+ This is on the main menu CNC/EMC then pick the Sherline configuration that
+ matches yours and save a copy.
+\layout Section
+
+Xylotex
 \begin_inset LatexCommand \label{sec:Sherline-and-Xylotex}
 
 \end_inset 
@@ -75,14 +83,14 @@ Sherline and Xylotex
 
 \layout Standard
 
-If you have a Sherline or Xylotex you can skip the following sections and
- go straight to the Stepper Config Wizard in Section (
+If you have a Xylotex you can skip the following sections and go straight
+ to the Stepper Config Wizard in Section (
 \begin_inset LatexCommand \ref{cha:Stepconf-Wizard}
 
 \end_inset 
 
 ).
- EMC has provided quick setup for the Sherline and Xylotex machines.
+ EMC has provided quick setup for the Xylotex machines.
 \layout Section
 \pagebreak_top 
 Machine Information
