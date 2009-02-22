@@ -1488,7 +1488,7 @@ latency-test
 \align center 
 
 \begin_inset Graphics
-	filename images/stepconf-latency.png
+	filename images/latency.png
 
 \end_inset 
 
