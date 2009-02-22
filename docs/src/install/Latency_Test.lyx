@@ -120,7 +120,7 @@ In the example above, latency-test only ran for a few seconds.
  For instance, one Intel motherboard worked pretty well most of the time,
  but every 64 seconds it had a very bad 300uS latency.
  Fortunately that was fixable see 
-\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues}
+\begin_inset LatexCommand \htmlurl{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues}
 
 \end_inset 
 
