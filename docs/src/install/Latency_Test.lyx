@@ -109,7 +109,7 @@ NOTE: Do not run EMC2 or Stepconf while the latency test is running.
 \layout Standard
 
 The important numbers are the "max jitter".
- In the example above, that is 17894 nanoseconds, or 17.9 microseconds.
+ In the example above, that is 7555 nanoseconds, or 7.5 microseconds.
  Record this number, and enter it in Stepconf when it is requested.
 \layout Standard
 
@@ -119,8 +119,12 @@ In the example above, latency-test only ran for a few seconds.
  particular action.
  For instance, one Intel motherboard worked pretty well most of the time,
  but every 64 seconds it had a very bad 300uS latency.
- Fortunately that was fixable see ([http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Fix
-ingSMIIssues||"Fixing SMI Issues"])
+ Fortunately that was fixable see 
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues}
+
+\end_inset 
+
+
 \layout Standard
 
 So, what do the results mean? If your Max Jitter number is less than about
