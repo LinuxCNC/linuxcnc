@@ -910,6 +910,10 @@ COMMENT
 
 \layout Standard
 
+The Tool Table can be set using G10 L1 with the exception of FRONTANGLE
+ ,BACKANGLE and COMMENT which must be set manually at this time.
+\layout Standard
+
 The following figure shows the lathe tool orientations with the center line
  angle of each orientation and info on FRONTANGLE and BACKANGLE.
  
