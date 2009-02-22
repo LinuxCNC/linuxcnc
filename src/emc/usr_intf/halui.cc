@@ -124,8 +124,8 @@ DONE: - joint:
    halui.joint.0.home                  bit  // pin for homing the specific joint
    halui.joint.0.is-homed              bit  // status pin telling that the joint is homed
    ..
-   halui.joint.7.home                  bit 
-   halui.joint.7.is-homed              bit 
+   halui.joint.8.home                  bit 
+   halui.joint.8.is-homed              bit 
 
    halui.joint.selected.home           bit  // pin for homing the selected joint
    halui.joint.selected.is-homed       bit  // status pin telling that the selected joint is homed
@@ -134,10 +134,10 @@ DONE: - joint:
    halui.joint.x.on-soft-max-limit     bit
    halui.joint.x.on-hard-min-limit     bit
    halui.joint.x.on-hard-max-limit     bit
-     (x = 0..7, selected)
+     (x = 0..8, selected)
    
    halui.joint.x.has-fault             bit   
-     (x = 0..7, selected)
+     (x = 0..8, selected)
 
    halui.joint.select                  u8   // select joint (0..7)           - internal halui
    halui.joint.selected                u8   // selected joint (0..7)         - internal halui
