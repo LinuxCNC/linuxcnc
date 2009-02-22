@@ -39,18 +39,6 @@ Stepconf Wizard
 
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-add new pages
-\end_inset 
-
-
-\layout Standard
-
 EMC2 is capable of controlling a wide range of machinery using many different
  hardware interfaces.
  Stepconf is a program which generates EMC configuration files for a specific
@@ -71,15 +59,71 @@ Stepconf places a file in the emc2/config directory to store the choices
  When you change something you need to pick the file that matches your configura
 tion name.
  The file extension is .stepconf.
-\layout Section
+\layout Section*
 
 Step by Step Instructions
-\begin_inset LatexCommand \label{sec:Step-by-Step}
+\layout Section
+
+Entry Page
+\begin_inset LatexCommand \label{sec:Entry-Page}
 
 \end_inset 
 
 
-\layout Subsection
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Entry Page
+\begin_inset LatexCommand \label{cap:Entry-Page}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/stepconf-entry.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Description
+
+Create\SpecialChar ~
+New Creates a fresh configuration.
+\layout Description
+
+Modify Modify and existing configuration.
+ After selecting this a file picker pops up so you can select the .stepconf
+ file for modification.
+ If you made any modifications to the main .hal or the .ini file these will
+ be lost.
+ Modifications to custom.hal and custom_postgui.hal will not be changed by
+ the Stepconf Wizard.
+\layout Description
+
+Create\SpecialChar ~
+Desktop\SpecialChar ~
+Shortcut This will place a link on your desktop to the files.
+\layout Description
+
+Create\SpecialChar ~
+Desktop\SpecialChar ~
+Launcher This will place a launcher on your desktop to start
+ your application.
+\layout Section
 
 Basic Information
 \begin_inset LatexCommand \label{sub:Basic-Information}
@@ -135,7 +179,6 @@ Configuration
 \end_inset 
 
  Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
- If you choose lathe then you need to change the tool table to lathe style.
  
 \layout Description
 
@@ -172,6 +215,36 @@ Additional signal conditioning or isolation such as optocouplers and RC
  in addition to those of the driver.
  You may find it necessary to add some time to the drive requirements to
  allow for this.
+ The EMC Configuration Selector has configs for Sherline all ready configured.
+\layout Description
+
+Step\SpecialChar ~
+Time How long the step pulse is "on" in nano seconds.
+\layout Description
+
+Step\SpecialChar ~
+Space Minimum time between step pulses in nano seconds.
+\layout Description
+
+Direction\SpecialChar ~
+Hold How long the direction pin is held after a change of direction
+ in nano seconds.
+\layout Description
+
+Direction\SpecialChar ~
+Setup How long before a direction change after the last step pulse
+ in nano seconds
+\layout Description
+
+First\SpecialChar ~
+Parport Usually the default of Ox378 is correct.
+\layout Description
+
+Second\SpecialChar ~
+Parport If you need to specify addional parallel ports enter the address
+ and the type.
+ For information on finding the address of PCI parallel ports see the Port
+ Address in the Integrators Manual.
 \layout Description
 
 Base\SpecialChar ~
@@ -226,7 +299,7 @@ M6
  is encountered.
  Leave this box checked unless you plan to add support for an automatic
  tool changer in a custom hal file
-\layout Subsection
+\layout Section
 
 Parallel Port Setup
 \begin_inset LatexCommand \index{Parallel Port Setup}
@@ -285,6 +358,7 @@ presets
  Automatically set pins 2 through 9 according to the Sherline standard (Directio
 n on pins 2, 4, 6, 8) or the Xylotex standard (Direction on pins 3, 5, 7,
  9).
+ 
 \layout Description
 
 Inputs\SpecialChar ~
@@ -294,15 +368,7 @@ Outputs
 
 \end_inset 
 
- If the input or output is not used set the option to 
-\begin_inset Quotes eld
-\end_inset 
-
-Unused
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ If the input or output is not used set the option to "Unused".
 \layout Standard
 
 
@@ -320,7 +386,7 @@ Charge Pump
  The charge pump output is connected to the base thread by Stepconf.
  The charge pump output will be about 1/2 of the maximum step rate shown
  on the Basic Machine Configuration page.
-\layout Subsection
+\layout Section
 
 Axis Configuration
 \begin_inset LatexCommand \index{Axis Configuration}
@@ -405,27 +471,12 @@ Pitch
 \end_inset 
 
  Enter the pitch of the leadscrew here.
- If you chose 
-\begin_inset Quotes eld
-\end_inset 
-
-Inch
-\begin_inset Quotes erd
-\end_inset 
-
- units, enter the number of threads per inch here (e.g., enter 8 for 8TPI).
- If you chose 
-\begin_inset Quotes eld
-\end_inset 
-
-mm
-\begin_inset Quotes erd
-\end_inset 
-
- units, enter the number of millimeters per thread here (e.g., enter 2 for
- 2mm/rev).
+ If you chose "Inch" units, enter the number of threads per inch here (e.g.,
+ enter 8 for 8TPI).
+ If you chose "mm" units, enter the number of millimeters per thread here
+ (e.g., enter 2 for 2mm/rev).
  If the machine travels in the wrong direction, enter a negative number
- here instead of a positive number.
+ here instead of a positive number or invert the direction pin for the axis.
 \layout Description
 
 Maximum\SpecialChar ~
@@ -515,27 +566,11 @@ Direction
 
 \end_inset 
 
- Choose 
-\begin_inset Quotes eld
-\end_inset 
-
-Same
-\begin_inset Quotes erd
-\end_inset 
-
- to have homing back off the switch, then approach it again at a very low
- speed.
+ Choose "Same" to have homing back off the switch, then approach it again
+ at a very low speed.
  The second time the switch closes, the home position is set.
 \newline 
-Choose 
-\begin_inset Quotes eld
-\end_inset 
-
-Opposite
-\begin_inset Quotes erd
-\end_inset 
-
- to have homing slowly back off the switch.
+Choose "Opposite" to have homing slowly back off the switch.
  When the switch opens, the home position is set.
 \layout Description
 
@@ -587,6 +622,11 @@ BASE_PERIOD
  (the fastest usable pulse rate varies from computer to computer)
 \layout Description
 
+Axis\SpecialChar ~
+SCALE: The number that will be used in the ini file [SCALE] setting.
+ This is how many steps per user unit.
+\layout Description
+
 Test\SpecialChar ~
 this\SpecialChar ~
 axis
@@ -595,13 +635,131 @@ axis
 \end_inset 
 
  This will open a window to allow testing for each axis.
- See section (
-\begin_inset LatexCommand \ref{sec:Testing-Each-Axis}
+ This can be used after filling out all the information for this axis.
+ 
+\layout Subsection
+
+Test This Axis
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Test This Axis
+\begin_inset LatexCommand \label{cap:Test-This-Axis}
 
 \end_inset 
 
-)
-\layout Subsection
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/stepconf-test.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+With Stepconf it is easy to try different values for acceleration and velocity.
+ 
+\layout Subsubsection
+
+Finding Maximum Velocity
+\begin_inset LatexCommand \index{Finding Maximum Velocity}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Finding-Maximum-Velocity}
+
+\end_inset 
+
+
+\layout Standard
+
+Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and the velocity
+ you hope to attain.
+ Using the buttons provided, jog the axis to near the center of travel.
+ Take care because with a low acceleration value, it can take a surprising
+ distance for the axis to decelerate to a stop.
+\layout Standard
+
+After gauging the amount of travel available, enter a safe distance in Test
+ Area, keeping in mind that after a stall the motor may next start to move
+ in an unexpected direction.
+ Then click Run.
+ The machine will begin to move back and forth along this axis.
+ In this test, it is important that the combination of Acceleration and
+ Test Area allow the machine to reach the selected Velocity and "cruise"
+ for at least a short distance--the more distance, the better this test
+ is.
+ The formula d=.5*v*v/a gives the minimum distance required reach the specified
+ velocity with the given acceleration.
+ If it is convenient and safe to do so, push the table against the direction
+ of motion to simulate cutting forces.
+ If the machine stalls, reduce the speed and start the test again.
+\layout Standard
+
+If the machine did not obviously stall, click the "Run" button off.
+ The axis now returns to the position where it started.
+ If the position is incorrect, then the axis stalled or lost steps during
+ the test.
+ Reduce Velocity and start the test again.
+\layout Standard
+
+If the machine doesn't move, stalls, or loses steps no matter how low you
+ turn Velocity, verify the following:
+\layout Itemize
+
+Correct step waveform timings
+\layout Itemize
+
+Correct pinout, including "Invert" on step pins
+\layout Itemize
+
+Correct, well-shielded cabling
+\layout Itemize
+
+Physical problems with the motor, motor coupling, leadscrew, etc.
+\layout Standard
+
+Once you have found a speed at which the axis does not stall or lose steps
+ during this testing procedure, reduce it by 10% and use that as the axis
+ Maximum Velocity.
+\layout Subsubsection
+
+Finding Maximum Acceleration
+\begin_inset LatexCommand \index{Finding Maximum Acceleration}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Finding-Maximum-Acceleration}
+
+\end_inset 
+
+
+\layout Standard
+
+With the Maximum Velocity you found in the previous step, enter the acceleration
+ value to test.
+ procedure as above, adjusting the Acceleration value up or down as necessary.
+ In this test, it is important that the combination of Acceleration and
+ Test Area allow the machine to reach the selected Velocity.
+ Once you have found a value at which the axis does not stall or lose steps
+ during this testing procedure, reduce it by 10% and use that as the axis
+ Maximum Acceleration.
+\layout Section
 
 Spindle Configuration
 \begin_inset LatexCommand \index{Spindle Configuration}
@@ -810,196 +968,13 @@ BASE_PERIOD
 
 \layout Subsection
 
-Machine Configuration Complete
-\begin_inset LatexCommand \label{sub:Machine-Configuration-Complete}
-
-\end_inset 
-
-
-\layout Standard
-
-Click 
-\begin_inset Quotes eld
-\end_inset 
-
-Apply
-\begin_inset Quotes erd
-\end_inset 
-
- to write the configuration files.
- Later, you can re-run this program and tweak the settings you entered before.
-\layout Section
-
-Testing Each Axis
-\begin_inset LatexCommand \index{Testing Each Axis}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Testing-Each-Axis}
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Float figure
-placement H
-wide false
-collapsed false
-
-\layout Caption
-
-Axis Test Window
-\begin_inset LatexCommand \label{cap:Axis-Test-Window}
-
-\end_inset 
-
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename images/stepconf-test.png
-	scale 70
-
-\end_inset 
-
-
-\end_inset 
-
-
-\layout Standard
-
-With Stepconf it is easy to try different values for acceleration and velocity.
- First, enter the correct figures for 
-\series bold 
-Steps per Revolution
-\series default 
-, 
-\series bold 
-Microstepping
-\series default 
-, 
-\series bold 
-Pulley
-\series default 
-, and 
-\series bold 
-Leadscrew
-\series default 
-.
- Then enter a provisional value for 
-\series bold 
-Velocity
-\series default 
-.
-
-\series bold 
- Next
-\series default 
-, click 
-\series bold 
-Test this axis
-\series default 
-.
-\layout Subsection
-
-Finding Maximum Velocity
-\begin_inset LatexCommand \index{Finding Maximum Velocity}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Finding-Maximum-Velocity}
-
-\end_inset 
-
-
-\layout Standard
-
-Begin with a low Acceleration (e.g., 2 in/s^2 or 50mm/s^2) and the velocity
- you hope to attain.
- Using the buttons provided, jog the axis to near the center of travel.
- Take care because with a low acceleration value, it can take a surprising
- distance for the axis to decelerate to a stop.
-\layout Standard
-
-After gauging the amount of travel available, enter a safe distance in Test
- Area, keeping in mind that after a stall the motor may next start to move
- in an unexpected direction.
- Then click Run.
- The machine will begin to move back and forth along this axis.
- In this test, it is important that the combination of Acceleration and
- Test Area allow the machine to reach the selected Velocity and "cruise"
- for at least a short distance--the more distance, the better this test
- is.
- The formula d=.5*v*v/a gives the minimum distance required reach the specified
- velocity with the given acceleration.
- If it is convenient and safe to do so, push the table against the direction
- of motion to simulate cutting forces.
- If the machine stalls, reduce the speed and start the test again.
-\layout Standard
-
-If the machine did not obviously stall, click the "Run" button off.
- The axis now returns to the position where it started.
- If the position is incorrect, then the axis stalled or lost steps during
- the test.
- Reduce Velocity and start the test again.
-\layout Standard
-
-If the machine doesn't move, stalls, or loses steps no matter how low you
- turn Velocity, verify the following:
-\layout Itemize
-
-Correct step waveform timings
-\layout Itemize
-
-Correct pinout, including "Invert" on step pins
-\layout Itemize
-
-Correct, well-shielded cabling
-\layout Itemize
-
-Physical problems with the motor, motor coupling, leadscrew, etc.
-\layout Standard
-
-Once you have found a speed at which the axis does not stall or lose steps
- during this testing procedure, reduce it by 10% and use that as the axis
- Maximum Velocity.
-\layout Subsection
-
-Finding Maximum Acceleration
-\begin_inset LatexCommand \index{Finding Maximum Acceleration}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Finding-Maximum-Acceleration}
-
-\end_inset 
-
-
-\layout Standard
-
-With the Maximum Velocity you found in the previous step, enter the acceleration
- value to test.
- procedure as above, adjusting the Acceleration value up or down as necessary.
- In this test, it is important that the combination of Acceleration and
- Test Area allow the machine to reach the selected Velocity.
- Once you have found a value at which the axis does not stall or lose steps
- during this testing procedure, reduce it by 10% and use that as the axis
- Maximum Acceleration.
-\layout Section
-
 Determining Spindle Calibration
 \begin_inset LatexCommand \index{Determining Spindle Calibration}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sec:Determining-Spindle-Calibration}
+\begin_inset LatexCommand \label{sub:Determining-Spindle-Calibration}
 
 \end_inset 
 
@@ -1137,6 +1112,86 @@ Make sure the two calibration speeds are in the range of speeds you will
 For instance, if your spindle will go from 0RPM to 8000RPM, but you generally
  use speeds from 400RPM to 4000RPM, then find the PWM values that give 1600RPM
  and 2800RPM.
+\layout Section
+
+Advanced Configuration Options
+\begin_inset LatexCommand \index{Advanced Configuration Options}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Advanced-Configuration-Options}
+
+\end_inset 
+
+
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Advanced Configuration
+\begin_inset LatexCommand \label{cap:Advanced-Configuration}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/stepconf-advanced.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Description
+
+Include\SpecialChar ~
+Halui This will add the Halui user interface component.
+ See the Integrators Manual for more information on Halui.
+\layout Description
+
+Include\SpecialChar ~
+pyVCP This option adds the pyVCP panel base file or a sample file
+ to work on.
+ See the Integrators Manual for more information on pyVCP.
+\layout Description
+
+Include\SpecialChar ~
+ClassicLadder\SpecialChar ~
+PLC This option will add the ClassicLadder PLC (Programmable
+ Logic Controller).
+ See the Integrators Manual for more information on ClassicLadder.
+\layout Section
+
+Machine Configuration Complete
+\begin_inset LatexCommand \label{sub:Machine-Configuration-Complete}
+
+\end_inset 
+
+
+\layout Standard
+
+Click 
+\begin_inset Quotes eld
+\end_inset 
+
+Apply
+\begin_inset Quotes erd
+\end_inset 
+
+ to write the configuration files.
+ Later, you can re-run this program and tweak the settings you entered before.
 \layout Section
 
 Axis Travel, Home Location, and Home Switch Location
