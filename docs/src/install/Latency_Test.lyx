@@ -145,6 +145,14 @@ Note that if you get high numbers, there may be ways to improve them.
  video.
  But a $5 used video card solved the problem - EMC does not require bleeding
  edge hardware.
+\layout Standard
+
+For more information on stepper tuning see the Stepper Tuning chapter (
+\begin_inset LatexCommand \ref{cha:Stepper-Tuning}
+
+\end_inset 
+
+).
 \layout Section
 
 Port Address

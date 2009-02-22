@@ -27,6 +27,11 @@
 \layout Chapter
 
 Stepper Tuning
+\begin_inset LatexCommand \label{cha:Stepper-Tuning}
+
+\end_inset 
+
+
 \layout Section
 
 Getting the most out of Software Stepping
