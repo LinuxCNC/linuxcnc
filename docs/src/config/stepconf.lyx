@@ -39,6 +39,18 @@ Stepconf Wizard
 
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+add new pages
+\end_inset 
+
+
+\layout Standard
+
 EMC2 is capable of controlling a wide range of machinery using many different
  hardware interfaces.
  Stepconf is a program which generates EMC configuration files for a specific
@@ -291,43 +303,6 @@ Unused
 \end_inset 
 
 .
-\layout Description
-
-Include\SpecialChar ~
-custom\SpecialChar ~
-HAL\SpecialChar ~
-configuration
-\begin_inset LatexCommand \index{Include custom HAL configuration}
-
-\end_inset 
-
- Allows you to add additional hal customizations in the file 
-\family typewriter 
-custom.hal
-\family default 
- after running Stepconf.
-\layout Standard
-
-
-\series bold 
-Include\SpecialChar ~
-custom\SpecialChar ~
-PyVCP\SpecialChar ~
-Panel
-\begin_inset LatexCommand \index{Include custom PyVCP Panel}
-
-\end_inset 
-
-
-\series default 
- If selected, the PyVCP control panel 
-\family typewriter 
-panel.xml
-\family default 
- will be displayed on the right-hand side of the main AXIS window.
- This will not create a PyVCP panel but will create the blank file in the
- config folder.
- To create a PyVCP panel see the PyVCP section of the Integrators Manual.
 \layout Standard
 
 
