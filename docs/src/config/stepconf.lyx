@@ -333,7 +333,7 @@ Parallel Port Setup Page
 
 \begin_inset Graphics
 	filename images/stepconf-pinout.png
-	scale 70
+	scale 80
 
 \end_inset 
 
@@ -660,7 +660,7 @@ Test This Axis
 
 \begin_inset Graphics
 	filename images/stepconf-test.png
-	scale 80
+	scale 70
 
 \end_inset 
 
@@ -1511,25 +1511,27 @@ placement H
 wide false
 collapsed false
 
+\layout Caption
+
+Normally Closed Switches
+\begin_inset LatexCommand \label{cap:Normally-Closed-Switches}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename images/switch-nc-series.eps
-	width 50page%
-	keepAspectRatio
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{cap:Wiring-Normally-Closed}
-
-\end_inset 
-
-Wiring Normally Closed switches in series (simplified diagram)
+\layout Standard
+\align center 
+Wiring N/C switches in series (simplified diagram)
 \end_inset 
 
 
@@ -1541,25 +1543,27 @@ placement H
 wide false
 collapsed false
 
+\layout Caption
+
+Normally Open Switches
+\begin_inset LatexCommand \label{cap:Normally-Open-Switches}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
 \begin_inset Graphics
 	filename images/switch-no-parallel.eps
-	width 50page%
-	keepAspectRatio
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{cap:Wiring-Normally-Open}
-
-\end_inset 
-
-Wiring Normally Open switches in parallel (simplified diagram)
+\layout Standard
+\align center 
+Wiring N/O switches in parallel (simplified diagram)
 \end_inset 
 
 
