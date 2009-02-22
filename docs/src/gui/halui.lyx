@@ -149,19 +149,7 @@ halui.flood.on (bit, in) - pin for requesting flood on
 Jog
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-don't think this is completly correct...
-\end_inset 
-
-
-\layout Standard
-
-<n> is a number between 0 and 7 and 'selected'.
+<n> is a number between 0 and 8 and 'selected'.
 \layout Itemize
 
 halui.jog-deadband (float, in) - deadband for analog jogging (smaller jogging
@@ -194,7 +182,7 @@ halui.jog.selected.plus (bit, in) - pin for jogging the selected axis in positiv
 Joint
 \layout Standard
 
-<n> is a number between 0 and 7 and 'selected'.
+<n> is a number between 0 and 8 and 'selected'.
 \layout Itemize
 
 halui.joint.<n>.has-fault (bit, out) - status pin telling the joint has a fault
