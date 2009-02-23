@@ -1528,7 +1528,7 @@ ies.
  
 \layout Subsubsection
 
-Homing-related items 
+Homing 
 \begin_inset LatexCommand \label{sub:Homing-related-items}
 
 \end_inset 
@@ -1536,13 +1536,19 @@ Homing-related items
 
 \layout Standard
 
-The next few parameters are Homing related, for a better explanation read
- Section 
+These parameters are Homing related, for a better explanation read the Homing
+ Section (
 \begin_inset LatexCommand \ref{sec:Homing}
 
 \end_inset 
 
+).
+\layout Description
 
+HOME\SpecialChar ~
+=\SpecialChar ~
+0.0 The position that the joint will go to upon completion of the homing
+ sequence.
 \layout Description
 
 HOME_OFFSET\SpecialChar ~
@@ -1622,9 +1628,26 @@ NO
 \series default 
  Some machines use a single switch as a home switch and limit switch.
  This variable should be set to yes if the machine configured this way.
+\layout Description
+
+HOME_IS_SHARED\SpecialChar ~
+=\SpecialChar ~
+<n> If the home input is shared by more than one axis set
+ <n> to 1 to prevent homing from starting if the one of the shared switches
+ is already closed.
+ Set <n> to 0 to permit homing if a switch is closed.
+\layout Description
+
+HOME_SEQUENCE\SpecialChar ~
+=\SpecialChar ~
+<n> Used to define the "Home All" sequence.
+ <n> starts at 0 and no numbers may be skipped.
+ If left out or set to -1 the joint will not be homed by the "Home All"
+ function.
+ More than one axis can be homed at the same time.
 \layout Subsubsection
 
-Servo-related items
+Servo
 \begin_inset LatexCommand \label{sub:Servo-related-items}
 
 \end_inset 
@@ -2277,12 +2300,15 @@ input\_ scale & = & 2000\frac{counts}{rev}*10\frac{rev}{inch}\\
 
 \layout Subsubsection
 
-Stepper-related items
+Stepper
 \begin_inset LatexCommand \label{sub:Stepper-related-items}
 
 \end_inset 
 
 
+\layout Standard
+
+The following items are Stepper related items.
 \layout Description
 
 
