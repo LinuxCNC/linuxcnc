@@ -76,19 +76,19 @@ EMC2 and Ubuntu should run reasonably well on a computer with the following
 700 MHz x86 processor (1.2 GHz x86 processor recommended)
 \layout Itemize
 
-384 MB of RAM system memory (512 MB up to 1 GB recommended)
+384 MB of RAM (512 MB up to 1 GB recommended)
 \layout Itemize
 
-8 GB of disk space
+4 GB hard disk
 \layout Itemize
 
-Graphics card capable of 1024x768 resolution
+Graphics card capable of at least 800x600 resolution, which is not using
+ the NVidia or ATI fglrx proprietary drivers, and which is not an onboard
+ video chipset that shares main memory with the CPU
 \layout Itemize
 
-A network or Internet connection (optional but great for updates)
-\layout Itemize
-
-A sound card (optional)
+A network or Internet connection (not strictly needed, but very useful for
+ updates and for communicating with the EMC community)
 \layout Section
 
 Problematic Hardware
@@ -106,7 +106,7 @@ Video Cards
 \layout Standard
 
 If your installation pops up with 800 x 600 screen resolution then most
- likely Ubuntu does not recognize your video card.
- On board video many times cause bad real time performance.
+ likely Ubuntu does not recognize your video card or monitor.
+ Onboard video many times causes bad real time performance.
  
 \the_end
