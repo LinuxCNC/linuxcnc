@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-13 17:38+0100\n"
-"PO-Revision-Date: 2009-02-13 17:47+0100\n"
+"POT-Creation-Date: 2009-02-24 15:40+0100\n"
+"PO-Revision-Date: 2009-02-24 15:51+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -503,15 +503,15 @@ msgstr ""
 "%(lines)s lignes de gcode"
 
 #: emc/usr_intf/axis/scripts/axis.py:2477
-#: emc/usr_intf/stepconf/stepconf.py:1481
-#: emc/usr_intf/stepconf/stepconf.py:2068
+#: emc/usr_intf/stepconf/stepconf.py:1474
+#: emc/usr_intf/stepconf/stepconf.py:2061
 #: emc/usr_intf/stepconf/stepconf.glade:3981
 msgid "mm"
 msgstr "mm"
 
 #: emc/usr_intf/axis/scripts/axis.py:2481
-#: emc/usr_intf/stepconf/stepconf.py:1487
-#: emc/usr_intf/stepconf/stepconf.py:2082
+#: emc/usr_intf/stepconf/stepconf.py:1480
+#: emc/usr_intf/stepconf/stepconf.py:2075
 msgid "in"
 msgstr "in"
 
@@ -1498,7 +1498,7 @@ msgstr ""
 "dans le cas d'un dysfonctionnement:\n"
 "\n"
 
-#: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/stepconf/stepconf.py:411
+#: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/stepconf/stepconf.py:412
 msgid "Gecko 201"
 msgstr "Gecko 201"
 
@@ -1522,300 +1522,304 @@ msgstr "Gecko 212"
 msgid "Gecko 320"
 msgstr "Gecko 320"
 
-#: emc/usr_intf/stepconf/stepconf.py:76 emc/usr_intf/stepconf/stepconf.py:412
+#: emc/usr_intf/stepconf/stepconf.py:76
+msgid "Gecko 540"
+msgstr "Gecko 540"
+
+#: emc/usr_intf/stepconf/stepconf.py:77 emc/usr_intf/stepconf/stepconf.py:413
 msgid "L297"
 msgstr "L297"
 
-#: emc/usr_intf/stepconf/stepconf.py:77 emc/usr_intf/stepconf/stepconf.py:413
+#: emc/usr_intf/stepconf/stepconf.py:78 emc/usr_intf/stepconf/stepconf.py:414
 msgid "PMDX-150"
 msgstr "PMDX-150"
 
-#: emc/usr_intf/stepconf/stepconf.py:78 emc/usr_intf/stepconf/stepconf.py:414
+#: emc/usr_intf/stepconf/stepconf.py:79 emc/usr_intf/stepconf/stepconf.py:415
 msgid "Sherline"
 msgstr "Sherline"
 
-#: emc/usr_intf/stepconf/stepconf.py:79
+#: emc/usr_intf/stepconf/stepconf.py:80
 msgid "Xylotex 8S-3"
 msgstr "Xylotex 8S-3"
 
-#: emc/usr_intf/stepconf/stepconf.py:80 emc/usr_intf/stepconf/stepconf.py:416
+#: emc/usr_intf/stepconf/stepconf.py:81 emc/usr_intf/stepconf/stepconf.py:417
 msgid "Parker-Compumotor oem750"
 msgstr "Parker-Compumotor oem750"
 
-#: emc/usr_intf/stepconf/stepconf.py:81
+#: emc/usr_intf/stepconf/stepconf.py:82
 msgid "JVL-SMD41 or 42"
 msgstr "JVL-SMD41 ou 42"
 
-#: emc/usr_intf/stepconf/stepconf.py:82
+#: emc/usr_intf/stepconf/stepconf.py:83
 msgid "Hobbycnc Pro Chopper"
 msgstr "Hobbycnc Pro Chopper"
 
-#: emc/usr_intf/stepconf/stepconf.py:83
+#: emc/usr_intf/stepconf/stepconf.py:84
 msgid "Keling 4030"
 msgstr "Keling 4030"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "X Step"
 msgstr "X pas"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "X Direction"
 msgstr "X direction"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "Y Step"
 msgstr "Y pas"
 
-#: emc/usr_intf/stepconf/stepconf.py:140
+#: emc/usr_intf/stepconf/stepconf.py:141
 msgid "Y Direction"
 msgstr "Y direction"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Z Step"
 msgstr "Z pas"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "Z Direction"
 msgstr "Z direction"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "A Step"
 msgstr "A pas"
 
-#: emc/usr_intf/stepconf/stepconf.py:141
+#: emc/usr_intf/stepconf/stepconf.py:142
 msgid "A Direction"
 msgstr "A direction"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Spindle ON"
 msgstr "Marche broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Spindle CW"
 msgstr "Broche sens horaire"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Spindle CCW"
 msgstr "Broche sens anti-horaire"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Spindle PWM"
 msgstr "PWM broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:142
+#: emc/usr_intf/stepconf/stepconf.py:143
 msgid "Spindle Brake"
 msgstr "Freinage broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Coolant Mist"
 msgstr "Brouillard"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Coolant Flood"
 msgstr "Arrosage"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:144
 msgid "ESTOP Out"
 msgstr "Sortie arrêt d'urgence"
 
-#: emc/usr_intf/stepconf/stepconf.py:143
+#: emc/usr_intf/stepconf/stepconf.py:144
 msgid "Amplifier Enable"
 msgstr "Activation ampli (enable)"
 
-#: emc/usr_intf/stepconf/stepconf.py:144
+#: emc/usr_intf/stepconf/stepconf.py:145
 msgid "Charge Pump"
 msgstr "Pompe de charge"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:146
 msgid "Digital out 0"
 msgstr "Sortie numérique 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:146
 msgid "Digital out 1"
 msgstr "Sortie numérique 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:146
 msgid "Digital out 2"
 msgstr "Sortie numérique 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:145
+#: emc/usr_intf/stepconf/stepconf.py:146
 msgid "Digital out 3"
 msgstr "Sortie numérique 3"
 
-#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/stepconf/stepconf.py:165
+#: emc/usr_intf/stepconf/stepconf.py:147 emc/usr_intf/stepconf/stepconf.py:166
 msgid "Unused"
 msgstr "Inutilisé"
 
-#: emc/usr_intf/stepconf/stepconf.py:148
+#: emc/usr_intf/stepconf/stepconf.py:149
 msgid "ESTOP In"
 msgstr "Entrée A/U"
 
-#: emc/usr_intf/stepconf/stepconf.py:148
+#: emc/usr_intf/stepconf/stepconf.py:149
 msgid "Probe In"
 msgstr "Entrée palpeur"
 
-#: emc/usr_intf/stepconf/stepconf.py:149
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Spindle Index"
 msgstr "Index broche:"
 
-#: emc/usr_intf/stepconf/stepconf.py:149
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Spindle Phase A"
 msgstr "Phase A codeur broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:149
+#: emc/usr_intf/stepconf/stepconf.py:150
 msgid "Spindle Phase B"
 msgstr "Phase B codeur broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:150
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Home X"
 msgstr "Origine machine X"
 
-#: emc/usr_intf/stepconf/stepconf.py:150
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Home Y"
 msgstr "Origine machine Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:150
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Home Z"
 msgstr "Origine machine Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:150
+#: emc/usr_intf/stepconf/stepconf.py:151
 msgid "Home A"
 msgstr "Origine machine A"
 
-#: emc/usr_intf/stepconf/stepconf.py:151
+#: emc/usr_intf/stepconf/stepconf.py:152
 msgid "Minimum Limit + Home X"
 msgstr "Limite mini + origine machine X"
 
-#: emc/usr_intf/stepconf/stepconf.py:151
+#: emc/usr_intf/stepconf/stepconf.py:152
 msgid "Minimum Limit + Home Y"
 msgstr "Limite mini + origine machine Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:152
+#: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Minimum Limit + Home Z"
 msgstr "Limite mini + origine machine Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:152
+#: emc/usr_intf/stepconf/stepconf.py:153
 msgid "Minimum Limit + Home A"
 msgstr "Limite mini + origine machine A"
 
-#: emc/usr_intf/stepconf/stepconf.py:153
+#: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Maximum Limit + Home X"
 msgstr "Limite maxi + origine machine X"
 
-#: emc/usr_intf/stepconf/stepconf.py:153
+#: emc/usr_intf/stepconf/stepconf.py:154
 msgid "Maximum Limit + Home Y"
 msgstr "Limite maxi + origine machine Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:154
+#: emc/usr_intf/stepconf/stepconf.py:155
 msgid "Maximum Limit + Home Z"
 msgstr "Limite maxi + origine machine Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:154
+#: emc/usr_intf/stepconf/stepconf.py:155
 msgid "Maximum Limit + Home A"
 msgstr "Limite maxi + origine machine A"
 
-#: emc/usr_intf/stepconf/stepconf.py:155
+#: emc/usr_intf/stepconf/stepconf.py:156
 msgid "Both Limit + Home X"
 msgstr "Les deux limites + origine machine X"
 
-#: emc/usr_intf/stepconf/stepconf.py:155
+#: emc/usr_intf/stepconf/stepconf.py:156
 msgid "Both Limit + Home Y"
 msgstr "Les deux limites + origine machine Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:156
+#: emc/usr_intf/stepconf/stepconf.py:157
 msgid "Both Limit + Home Z"
 msgstr "Les deux limites + origine machine Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:156
+#: emc/usr_intf/stepconf/stepconf.py:157
 msgid "Both Limit + Home A"
 msgstr "Les deux limites + origine machine A"
 
-#: emc/usr_intf/stepconf/stepconf.py:157
+#: emc/usr_intf/stepconf/stepconf.py:158
 msgid "Minimum Limit X"
 msgstr "Limite mini X"
 
-#: emc/usr_intf/stepconf/stepconf.py:157
+#: emc/usr_intf/stepconf/stepconf.py:158
 msgid "Minimum Limit Y"
 msgstr "Limite mini Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:158
+#: emc/usr_intf/stepconf/stepconf.py:159
 msgid "Minimum Limit Z"
 msgstr "Limite mini Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:158
+#: emc/usr_intf/stepconf/stepconf.py:159
 msgid "Minimum Limit A"
 msgstr "Limite mini A"
 
-#: emc/usr_intf/stepconf/stepconf.py:159
+#: emc/usr_intf/stepconf/stepconf.py:160
 msgid "Maximum Limit X"
 msgstr "Limite maxi X"
 
-#: emc/usr_intf/stepconf/stepconf.py:159
+#: emc/usr_intf/stepconf/stepconf.py:160
 msgid "Maximum Limit Y"
 msgstr "Limite maxi Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:160
+#: emc/usr_intf/stepconf/stepconf.py:161
 msgid "Maximum Limit Z"
 msgstr "Limite maxi Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:160
+#: emc/usr_intf/stepconf/stepconf.py:161
 msgid "Maximum Limit A"
 msgstr "Limite maxi A"
 
-#: emc/usr_intf/stepconf/stepconf.py:161
+#: emc/usr_intf/stepconf/stepconf.py:162
 msgid "Both Limit X"
 msgstr "Toutes les limites X"
 
-#: emc/usr_intf/stepconf/stepconf.py:161
+#: emc/usr_intf/stepconf/stepconf.py:162
 msgid "Both Limit Y"
 msgstr "Toutes les limites Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:162
+#: emc/usr_intf/stepconf/stepconf.py:163
 msgid "Both Limit Z"
 msgstr "Toutes les limites Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:162
+#: emc/usr_intf/stepconf/stepconf.py:163
 msgid "Both Limit A"
 msgstr "Toutes les limites A"
 
-#: emc/usr_intf/stepconf/stepconf.py:163
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "All limits"
 msgstr "Toutes les limites"
 
-#: emc/usr_intf/stepconf/stepconf.py:163
+#: emc/usr_intf/stepconf/stepconf.py:164
 msgid "All home"
 msgstr "Toutes les origines"
 
-#: emc/usr_intf/stepconf/stepconf.py:164
+#: emc/usr_intf/stepconf/stepconf.py:165
 msgid "Digital in 0"
 msgstr "Entrée numérique 0"
 
-#: emc/usr_intf/stepconf/stepconf.py:164
+#: emc/usr_intf/stepconf/stepconf.py:165
 msgid "Digital in 1"
 msgstr "Entrée numérique 1"
 
-#: emc/usr_intf/stepconf/stepconf.py:164
+#: emc/usr_intf/stepconf/stepconf.py:165
 msgid "Digital in 2"
 msgstr "Entrée numérique 2"
 
-#: emc/usr_intf/stepconf/stepconf.py:164
+#: emc/usr_intf/stepconf/stepconf.py:165
 msgid "Digital in 3"
 msgstr "Entrée numérique 3"
 
-#: emc/usr_intf/stepconf/stepconf.py:190
+#: emc/usr_intf/stepconf/stepconf.py:191
 msgid "my-mill"
 msgstr "ma-machine"
 
-#: emc/usr_intf/stepconf/stepconf.py:202 emc/usr_intf/stepconf/stepconf.py:204
+#: emc/usr_intf/stepconf/stepconf.py:203 emc/usr_intf/stepconf/stepconf.py:205
 msgid "Enter Address"
 msgstr "Entrer l'adresse"
 
-#: emc/usr_intf/stepconf/stepconf.py:359
+#: emc/usr_intf/stepconf/stepconf.py:360
 #, python-format
 msgid "File %r was modified since it was written by stepconf"
 msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:363
+#: emc/usr_intf/stepconf/stepconf.py:364
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
@@ -1823,40 +1827,44 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:378
+#: emc/usr_intf/stepconf/stepconf.py:379
 msgid "Continue? "
 msgstr "Continuer ?"
 
-#: emc/usr_intf/stepconf/stepconf.py:379
+#: emc/usr_intf/stepconf/stepconf.py:380
 msgid "yY"
 msgstr "yY"
 
-#: emc/usr_intf/stepconf/stepconf.py:415
+#: emc/usr_intf/stepconf/stepconf.py:416
 msgid "Xylotex"
 msgstr "Xylotex"
 
-#: emc/usr_intf/stepconf/stepconf.py:430 emc/usr_intf/stepconf/stepconf.py:747
+#: emc/usr_intf/stepconf/stepconf.py:431 emc/usr_intf/stepconf/stepconf.py:742
 #, python-format
 msgid "# Generated by stepconf at %s"
 msgstr "# Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:431 emc/usr_intf/stepconf/stepconf.py:748
+#: emc/usr_intf/stepconf/stepconf.py:432 emc/usr_intf/stepconf/stepconf.py:743
 msgid "# If you make changes to this file, they will be"
 msgstr "# Si vous modifiez ce fichier, il sera"
 
-#: emc/usr_intf/stepconf/stepconf.py:432 emc/usr_intf/stepconf/stepconf.py:749
+#: emc/usr_intf/stepconf/stepconf.py:433 emc/usr_intf/stepconf/stepconf.py:744
 msgid "# overwritten when you run stepconf again"
 msgstr "# écrasé quand vous relancerez Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:964
+#: emc/usr_intf/stepconf/stepconf.py:493
+msgid "# add halui MDI commands here (max 10) "
+msgstr "# ajouter ici les commandes halui MDI (maximum 10) "
+
+#: emc/usr_intf/stepconf/stepconf.py:959
 msgid "Include your PyVCP panel here.\n"
 msgstr "Inclure son propre panneau PyVCP ici \n"
 
-#: emc/usr_intf/stepconf/stepconf.py:973 emc/usr_intf/stepconf/stepconf.py:999
+#: emc/usr_intf/stepconf/stepconf.py:968 emc/usr_intf/stepconf/stepconf.py:994
 msgid "# Include your customized HAL commands here"
 msgstr "# Inclure vos commandes HAL personnalisées ici"
 
-#: emc/usr_intf/stepconf/stepconf.py:974
+#: emc/usr_intf/stepconf/stepconf.py:969
 msgid ""
 "# The commands in this file are run after the AXIS GUI (including PyVCP "
 "panel) starts"
@@ -1864,109 +1872,109 @@ msgstr ""
 "# Les commandes contenues dans ce fichier seront lancées après "
 "quel'interface graphique AXIS (PyVCP inclus) aura démarré."
 
-#: emc/usr_intf/stepconf/stepconf.py:1000
+#: emc/usr_intf/stepconf/stepconf.py:995
 msgid "# This file will not be overwritten when you run stepconf again"
 msgstr "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:1007
+#: emc/usr_intf/stepconf/stepconf.py:1002
 #, python-format
 msgid "Generated by stepconf at %s"
 msgstr "Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1076
+#: emc/usr_intf/stepconf/stepconf.py:1071
 #, python-format
 msgid "launch %s"
 msgstr "lancer %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1080
+#: emc/usr_intf/stepconf/stepconf.py:1075
 msgid "Desktop Launcher for EMC config made by Stepconf"
 msgstr "Lanceur de bureau pour la configuration faite avec Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:1104
+#: emc/usr_intf/stepconf/stepconf.py:1099
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Configuration de l'axe %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1146
-#: emc/usr_intf/stepconf/stepconf.py:1235
+#: emc/usr_intf/stepconf/stepconf.py:1141
+#: emc/usr_intf/stepconf/stepconf.py:1230
 msgid "Other"
 msgstr "Autre"
 
-#: emc/usr_intf/stepconf/stepconf.py:1157
+#: emc/usr_intf/stepconf/stepconf.py:1152
 msgid "Quit Stepconf and discard changes?"
 msgstr "Quitter Stepconf et perdre les modifications ?"
 
-#: emc/usr_intf/stepconf/stepconf.py:1193
+#: emc/usr_intf/stepconf/stepconf.py:1188
 msgid "EMC2 'stepconf' configuration files"
 msgstr "Fichiers de configuration EMC, 'stepconf'"
 
-#: emc/usr_intf/stepconf/stepconf.py:1194
+#: emc/usr_intf/stepconf/stepconf.py:1189
 msgid "Modify Existing Configuration"
 msgstr "Modifier la configuration existante"
 
-#: emc/usr_intf/stepconf/stepconf.py:1472
+#: emc/usr_intf/stepconf/stepconf.py:1465
 msgid "degree / rev"
 msgstr "degrés / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1473
-#: emc/usr_intf/stepconf/stepconf.py:2052
+#: emc/usr_intf/stepconf/stepconf.py:1466
+#: emc/usr_intf/stepconf/stepconf.py:2045
 msgid "deg / s"
 msgstr "deg / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1474
-#: emc/usr_intf/stepconf/stepconf.py:2053
+#: emc/usr_intf/stepconf/stepconf.py:1467
+#: emc/usr_intf/stepconf/stepconf.py:2046
 msgid "deg / sÂ²"
 msgstr "deg / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1475
-#: emc/usr_intf/stepconf/stepconf.py:2054
+#: emc/usr_intf/stepconf/stepconf.py:1468
+#: emc/usr_intf/stepconf/stepconf.py:2047
 msgid "deg"
 msgstr "deg"
 
-#: emc/usr_intf/stepconf/stepconf.py:1476
+#: emc/usr_intf/stepconf/stepconf.py:1469
 msgid "Steps / deg"
 msgstr "Pas / degré"
 
-#: emc/usr_intf/stepconf/stepconf.py:1478
+#: emc/usr_intf/stepconf/stepconf.py:1471
 #: emc/usr_intf/stepconf/stepconf.glade:2523
 msgid "mm / rev"
 msgstr "mm / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1479
-#: emc/usr_intf/stepconf/stepconf.py:2066
+#: emc/usr_intf/stepconf/stepconf.py:1472
+#: emc/usr_intf/stepconf/stepconf.py:2059
 #: emc/usr_intf/stepconf/stepconf.glade:2508
 msgid "mm / s"
 msgstr "mm / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1480
-#: emc/usr_intf/stepconf/stepconf.py:2067
+#: emc/usr_intf/stepconf/stepconf.py:1473
+#: emc/usr_intf/stepconf/stepconf.py:2060
 msgid "mm / sÂ²"
 msgstr "mm / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1482
+#: emc/usr_intf/stepconf/stepconf.py:1475
 #: emc/usr_intf/stepconf/stepconf.glade:3037
 msgid "Steps / mm"
 msgstr "Pas / mm"
 
-#: emc/usr_intf/stepconf/stepconf.py:1484
+#: emc/usr_intf/stepconf/stepconf.py:1477
 msgid "rev / in"
 msgstr "tour / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:1485
-#: emc/usr_intf/stepconf/stepconf.py:2080
+#: emc/usr_intf/stepconf/stepconf.py:1478
+#: emc/usr_intf/stepconf/stepconf.py:2073
 msgid "in / s"
 msgstr "pouces / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1486
-#: emc/usr_intf/stepconf/stepconf.py:2081
+#: emc/usr_intf/stepconf/stepconf.py:1479
+#: emc/usr_intf/stepconf/stepconf.py:2074
 msgid "in / sÂ²"
 msgstr "pouces / sÂ²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1488
+#: emc/usr_intf/stepconf/stepconf.py:1481
 msgid "Steps / in"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:1616
+#: emc/usr_intf/stepconf/stepconf.py:1609
 msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
@@ -1974,7 +1982,7 @@ msgstr ""
 "Pour ce programme, vous devez indiquer une broche d'entrée pour l'arrêt "
 "d'urgence dans la page de réglage du port parallèle."
 
-#: emc/usr_intf/stepconf/stepconf.py:1629
+#: emc/usr_intf/stepconf/stepconf.py:1622
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -1984,7 +1992,7 @@ msgstr ""
 "Le fichier custom.clp existant sera renommé custom_backup.clp \n"
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:1634
+#: emc/usr_intf/stepconf/stepconf.py:1627
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -1998,7 +2006,7 @@ msgstr ""
 "\n"
 "Etes-vous sûr de ce choix ? "
 
-#: emc/usr_intf/stepconf/stepconf.py:1648
+#: emc/usr_intf/stepconf/stepconf.py:1641
 msgid ""
 "OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
 "Existing custompanel.xml and custom_postgui.hal will be renamed "
@@ -2013,7 +2021,7 @@ msgstr ""
 "custompanel_backup.xml et postgui_backup.hal \n"
 "Tout fichier existant portant déjà un de ces noms sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:2049
+#: emc/usr_intf/stepconf/stepconf.py:2042
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test de l'axe %s"

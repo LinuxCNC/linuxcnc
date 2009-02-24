@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-04 13:40+0100\n"
+"POT-Creation-Date: 2009-02-24 15:40+0100\n"
 "PO-Revision-Date: 2008-11-20 21:00+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
@@ -27,50 +27,50 @@ msgstr "EMC2 Calibration des axes"
 msgid "Save To File"
 msgstr "Enregistrer dans un fichier"
 
-#: ../tcl/bin/emccalib.tcl:90 ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/emccalib.tcl:90 ../tcl/bin/halconfig.tcl:102
 msgid "Quit"
 msgstr "Quitter"
 
 #: ../tcl/bin/emccalib.tcl:105 ../tcl/bin/genedit.tcl:77
-#: ../tcl/bin/halconfig.tcl:142 ../tcl/mini.tcl:2512 ../tcl/tkemc.tcl:771
+#: ../tcl/bin/halconfig.tcl:150 ../tcl/mini.tcl:2512 ../tcl/tkemc.tcl:771
 msgid "File"
 msgstr "Fichier"
 
 #: ../tcl/bin/emccalib.tcl:107 ../tcl/bin/emccalib.tcl:234
-#: ../tcl/bin/halconfig.tcl:144 ../tcl/mini.tcl:3554
+#: ../tcl/bin/halconfig.tcl:152 ../tcl/mini.tcl:3554
 msgid "Refresh"
 msgstr "Rafraîchir"
 
 #: ../tcl/bin/emccalib.tcl:109 ../tcl/bin/genedit.tcl:82
-#: ../tcl/bin/halconfig.tcl:146 ../tcl/mini.tcl:2531
+#: ../tcl/bin/halconfig.tcl:154 ../tcl/mini.tcl:2531
 msgid "Save"
 msgstr "Enregistrer"
 
-#: ../tcl/bin/emccalib.tcl:163 ../tcl/bin/halconfig.tcl:614
+#: ../tcl/bin/emccalib.tcl:163 ../tcl/bin/halconfig.tcl:622
 #, tcl-format
 msgid "Tune %d"
 msgstr "Calibrer %d"
 
-#: ../tcl/bin/emccalib.tcl:165 ../tcl/bin/halconfig.tcl:619
+#: ../tcl/bin/emccalib.tcl:165 ../tcl/bin/halconfig.tcl:627
 msgid "INI Name"
 msgstr "Nom d' ini"
 
-#: ../tcl/bin/emccalib.tcl:166 ../tcl/bin/halconfig.tcl:620
+#: ../tcl/bin/emccalib.tcl:166 ../tcl/bin/halconfig.tcl:628
 msgid "HAL's Value"
 msgstr "Valeurs de HAL"
 
-#: ../tcl/bin/emccalib.tcl:168 ../tcl/bin/halconfig.tcl:622
+#: ../tcl/bin/emccalib.tcl:168 ../tcl/bin/halconfig.tcl:630
 msgid "Next Value"
 msgstr "Valeur suivante"
 
-#: ../tcl/bin/emccalib.tcl:228 ../tcl/bin/halconfig.tcl:671
-#: ../tcl/bin/halconfig.tcl:722
+#: ../tcl/bin/emccalib.tcl:228 ../tcl/bin/halconfig.tcl:679
+#: ../tcl/bin/halconfig.tcl:730
 msgid "Test"
 msgstr "Tester"
 
 #: ../tcl/bin/emccalib.tcl:230 ../tcl/bin/genedit.tcl:180
-#: ../tcl/bin/genedit.tcl:450 ../tcl/bin/halconfig.tcl:673
-#: ../tcl/bin/halconfig.tcl:724 ../tcl/bin/pickconfig.tcl:251
+#: ../tcl/bin/genedit.tcl:450 ../tcl/bin/halconfig.tcl:681
+#: ../tcl/bin/halconfig.tcl:732 ../tcl/bin/pickconfig.tcl:251
 #: ../tcl/bin/pickconfig.tcl:398 ../tcl/bin/pickconfig.tcl:423
 #: ../tcl/mini.tcl:1455 ../tcl/mini.tcl:2933 ../tcl/tkemc.tcl:214
 #: ../tcl/tkemc.tcl:317 ../tcl/tkemc.tcl:463 ../tcl/tkemc.tcl:1371
@@ -81,8 +81,8 @@ msgid "OK"
 msgstr "OK"
 
 #: ../tcl/bin/emccalib.tcl:232 ../tcl/bin/genedit.tcl:294
-#: ../tcl/bin/halconfig.tcl:94 ../tcl/bin/halconfig.tcl:675
-#: ../tcl/bin/halconfig.tcl:726 ../tcl/bin/pickconfig.tcl:254
+#: ../tcl/bin/halconfig.tcl:102 ../tcl/bin/halconfig.tcl:683
+#: ../tcl/bin/halconfig.tcl:734 ../tcl/bin/pickconfig.tcl:254
 #: ../tcl/bin/pickconfig.tcl:363 ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2934
 #: ../tcl/mini.tcl:3106 ../tcl/tkemc.tcl:216 ../tcl/tkemc.tcl:259
 #: ../tcl/tkemc.tcl:285 ../tcl/tkemc.tcl:464 ../tcl/tkemc.tcl:1372
@@ -91,7 +91,7 @@ msgstr "OK"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: ../tcl/bin/emccalib.tcl:361 ../tcl/bin/halconfig.tcl:874
+#: ../tcl/bin/emccalib.tcl:361 ../tcl/bin/halconfig.tcl:882
 #, tcl-format
 msgid ""
 "The HAL parameter \n"
@@ -104,7 +104,7 @@ msgstr ""
 " a changé. \n"
 " Quitter vraiment ?"
 
-#: ../tcl/bin/emccalib.tcl:386 ../tcl/bin/halconfig.tcl:1161
+#: ../tcl/bin/emccalib.tcl:386 ../tcl/bin/halconfig.tcl:1169
 msgid ""
 "Not permitted to save here.\n"
 "\n"
@@ -116,7 +116,7 @@ msgstr ""
 "travailler sur cette copie."
 
 #: ../tcl/bin/emccalib.tcl:438 ../tcl/bin/genedit.tcl:211
-#: ../tcl/bin/halconfig.tcl:1233 ../tcl/bin/pickconfig.tcl:461
+#: ../tcl/bin/halconfig.tcl:1241 ../tcl/bin/pickconfig.tcl:461
 #: ../tcl/bin/pickconfig.tcl:472 ../tcl/scripts/Set_Coordinates.tcl:200
 #: ../tcl/scripts/Set_Coordinates.tcl:223
 #, tcl-format
@@ -188,7 +188,7 @@ msgstr "Ouvrir..."
 msgid "Save As..."
 msgstr "Enregistrer sous..."
 
-#: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:156 ../tcl/mini.tcl:953
+#: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:164 ../tcl/mini.tcl:953
 #: ../tcl/tkemc.tcl:777
 msgid "Exit"
 msgstr "Quitter"
@@ -209,11 +209,11 @@ msgstr "Copier"
 msgid "Paste"
 msgstr "Coller"
 
-#: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2544 ../tcl/show_errors.tcl:51
+#: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2544 ../tcl/show_errors.tcl:68
 msgid "Select All"
 msgstr "Tout sélectionner"
 
-#: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:183 ../tcl/mini.tcl:918
+#: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:191 ../tcl/mini.tcl:918
 #: ../tcl/mini.tcl:2515 ../tcl/tkemc.tcl:834
 msgid "Help"
 msgstr "Aide"
@@ -356,128 +356,128 @@ msgstr "Numéro suivant"
 msgid "Renumber"
 msgstr "Re-numéroter"
 
-#: ../tcl/bin/halconfig.tcl:79 ../tcl/bin/halshow.tcl:33
+#: ../tcl/bin/halconfig.tcl:87 ../tcl/bin/halshow.tcl:33
 msgid "HAL Configuration"
 msgstr "Configuration HAL"
 
-#: ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/halconfig.tcl:102
 msgid "Would you like to save your configuration before you exit?"
 msgstr "Voulez vous enregistrer votre configuration avant de quitter ?"
 
-#: ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/halconfig.tcl:102
 msgid "Save All"
 msgstr "Tout enregistrer"
 
-#: ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/halconfig.tcl:102
 msgid "Save Tune"
 msgstr "Enregistrer le réglage"
 
-#: ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/halconfig.tcl:102
 msgid "Save as Netlist"
 msgstr "Enregistrer comme liste de liaisons"
 
-#: ../tcl/bin/halconfig.tcl:94
+#: ../tcl/bin/halconfig.tcl:102
 msgid "Don't Save"
 msgstr "Ne pas enregistrer"
 
-#: ../tcl/bin/halconfig.tcl:123
+#: ../tcl/bin/halconfig.tcl:131
 msgid "Show"
 msgstr "Afficher"
 
-#: ../tcl/bin/halconfig.tcl:124
+#: ../tcl/bin/halconfig.tcl:132
 msgid "Watch"
 msgstr "Watch"
 
-#: ../tcl/bin/halconfig.tcl:125
+#: ../tcl/bin/halconfig.tcl:133
 msgid "Modify"
 msgstr "Modifier"
 
-#: ../tcl/bin/halconfig.tcl:148
+#: ../tcl/bin/halconfig.tcl:156
 msgid "Save INI Tuning"
 msgstr "Enregistrer les réglages d'initialisation"
 
-#: ../tcl/bin/halconfig.tcl:150
+#: ../tcl/bin/halconfig.tcl:158
 msgid "Save HAL Ini"
 msgstr "Enregistrer l'initialisation de HAL"
 
-#: ../tcl/bin/halconfig.tcl:152
+#: ../tcl/bin/halconfig.tcl:160
 msgid "Save HAL Net"
 msgstr "Enregistrer les liaisons HAL"
 
-#: ../tcl/bin/halconfig.tcl:154
+#: ../tcl/bin/halconfig.tcl:162
 msgid "Save and Exit"
 msgstr "Enregistrer et quitter"
 
-#: ../tcl/bin/halconfig.tcl:159 ../tcl/mini.tcl:915 ../tcl/tkemc.tcl:782
+#: ../tcl/bin/halconfig.tcl:167 ../tcl/mini.tcl:915 ../tcl/tkemc.tcl:782
 msgid "View"
 msgstr "Vues"
 
-#: ../tcl/bin/halconfig.tcl:161 ../tcl/bin/halshow.tcl:87
+#: ../tcl/bin/halconfig.tcl:169 ../tcl/bin/halshow.tcl:87
 msgid "Expand Tree"
 msgstr "Déployer l'arborescence"
 
-#: ../tcl/bin/halconfig.tcl:163 ../tcl/bin/halshow.tcl:89
+#: ../tcl/bin/halconfig.tcl:171 ../tcl/bin/halshow.tcl:89
 msgid "Collapse Tree"
 msgstr "Replier l'arborescence"
 
-#: ../tcl/bin/halconfig.tcl:166 ../tcl/bin/halshow.tcl:92
+#: ../tcl/bin/halconfig.tcl:174 ../tcl/bin/halshow.tcl:92
 msgid "Expand Pins"
 msgstr "Déployer les « pins »"
 
-#: ../tcl/bin/halconfig.tcl:168 ../tcl/bin/halshow.tcl:94
+#: ../tcl/bin/halconfig.tcl:176 ../tcl/bin/halshow.tcl:94
 msgid "Expand Parameters"
 msgstr "Déployer les paramètres"
 
-#: ../tcl/bin/halconfig.tcl:170 ../tcl/bin/halshow.tcl:96
+#: ../tcl/bin/halconfig.tcl:178 ../tcl/bin/halshow.tcl:96
 msgid "Expand Signals"
 msgstr "Déployer les signaux"
 
-#: ../tcl/bin/halconfig.tcl:173 ../tcl/bin/halshow.tcl:99
+#: ../tcl/bin/halconfig.tcl:181 ../tcl/bin/halshow.tcl:99
 msgid "Erase Watch"
 msgstr "Effacer l'écran de watch "
 
-#: ../tcl/bin/halconfig.tcl:185 ../tcl/mini.tcl:839 ../tcl/mini.tcl:2781
+#: ../tcl/bin/halconfig.tcl:193 ../tcl/mini.tcl:839 ../tcl/mini.tcl:2781
 msgid "About"
 msgstr "À propos"
 
-#: ../tcl/bin/halconfig.tcl:187
+#: ../tcl/bin/halconfig.tcl:195
 msgid "Main"
 msgstr "Manuel"
 
-#: ../tcl/bin/halconfig.tcl:467
+#: ../tcl/bin/halconfig.tcl:475
 msgid "Enter HAL command :"
 msgstr "Entrer une commande HAL:"
 
-#: ../tcl/bin/halconfig.tcl:470 ../tcl/bin/halconfig.tcl:519
+#: ../tcl/bin/halconfig.tcl:478 ../tcl/bin/halconfig.tcl:527
 #: ../tcl/bin/halshow.tcl:382
 msgid "Execute"
 msgstr "Exécuter"
 
-#: ../tcl/bin/halconfig.tcl:934 ../tcl/bin/halshow.tcl:438
+#: ../tcl/bin/halconfig.tcl:942 ../tcl/bin/halshow.tcl:438
 msgid "Select a node to show."
 msgstr "Sélectionner un « node » à afficher"
 
-#: ../tcl/bin/halconfig.tcl:959 ../tcl/bin/halshow.tcl:463
+#: ../tcl/bin/halconfig.tcl:967 ../tcl/bin/halshow.tcl:463
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- Sélectionner un « leaf » par un clic sur son nom."
 
-#: ../tcl/bin/halconfig.tcl:1076 ../tcl/bin/halconfig.tcl:1086
-#: ../tcl/bin/halconfig.tcl:1093 ../tcl/bin/halconfig.tcl:1100
-#: ../tcl/bin/halconfig.tcl:1107
+#: ../tcl/bin/halconfig.tcl:1084 ../tcl/bin/halconfig.tcl:1094
+#: ../tcl/bin/halconfig.tcl:1101 ../tcl/bin/halconfig.tcl:1108
+#: ../tcl/bin/halconfig.tcl:1115
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
 msgstr "Cliquer une ligne en surbrillance ou %s doit aller."
 
-#: ../tcl/bin/halconfig.tcl:1083
+#: ../tcl/bin/halconfig.tcl:1091
 msgid "Nothing to be done for parameters here. Try the tuning page"
 msgstr "Rien n'est paramétrable ici. Essayez la page de réglage"
 
-#: ../tcl/bin/halconfig.tcl:1115
+#: ../tcl/bin/halconfig.tcl:1123
 #, tcl-format
 msgid "%s is not a leaf, try again"
 msgstr "%s n'est pas une feuille, essayez encore"
 
-#: ../tcl/bin/halconfig.tcl:1272
+#: ../tcl/bin/halconfig.tcl:1280
 msgid ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
@@ -1419,11 +1419,11 @@ msgstr "Masquer les réglages"
 msgid "Show Setup"
 msgstr "Afficher les réglages"
 
-#: ../tcl/show_errors.tcl:24
+#: ../tcl/show_errors.tcl:41
 msgid "EMC2 Errors"
 msgstr "Erreur d'EMC2"
 
-#: ../tcl/show_errors.tcl:27
+#: ../tcl/show_errors.tcl:44
 msgid ""
 "EMC2 terminated with an error.  When reporting problems, please include all "
 "the information below in your message."
@@ -1431,7 +1431,7 @@ msgstr ""
 "EMC2 s'est terminé avec une erreur.  Si vous rapportez le problème, merci "
 "d'inclure toutes les informations suivantes dans votre message."
 
-#: ../tcl/show_errors.tcl:52 ../tcl/scripts/Set_Coordinates.tcl:98
+#: ../tcl/show_errors.tcl:69 ../tcl/scripts/Set_Coordinates.tcl:98
 msgid "Close"
 msgstr "Fermer"
 
