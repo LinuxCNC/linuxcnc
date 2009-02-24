@@ -34,30 +34,6 @@ A listing of terms and what they mean.
  Some terms have a general meaning and several additional meanings for users,
  installers, and developers.
  
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-This pattern uses the Description paragraph style
-\layout Standard
-
-rather than the standard style.
-\layout Standard
-
-It also uses each term as a Label so that one term can
-\layout Standard
-
-easily refer to another using a cross reference.
-\layout Standard
-
-Cross references need a space ahead and after
-\layout Standard
-
-so that they look good in the published documents.
-\end_inset 
-
-
 \layout Description
 
 Acme\SpecialChar ~

@@ -644,18 +644,6 @@ PYVCP\SpecialChar ~
  See the pyVCP section for more information.
 \layout Description
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-expand this a little
-\end_inset 
-
-
-\layout Description
-
 GEOMETRY\SpecialChar ~
 =\SpecialChar ~
 XYZABCUVW Controls the preview and backplot of rotary motion.

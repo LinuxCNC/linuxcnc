@@ -148,16 +148,6 @@ NOTE: This error is only displayed once per session.
  of error messages per second if more than one was displayed.
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-add link to latency test when that page is done.
-\end_inset 
-
-
 \layout Section
 
 Testing

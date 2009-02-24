@@ -153,27 +153,21 @@ G80 turns off all motion.
  In the EMC interpreter, G80 is one of the modal codes so any other code
  will replace it.
  The result of the following lines of code is the same.
-\layout Standard
+\layout Quote
 
-
-\family typewriter 
-\size scriptsize 
-N1000 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
 \newline 
-N1001 G80 (turn off canned cycle motion)
+G80 (turn off canned cycle motion)
 \newline 
-N1002 G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 \layout Standard
 
 produces the same final position and machine state as 
-\layout Standard
+\layout Quote
 
-
-\family typewriter 
-\size scriptsize 
-N1000 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
+G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle) 
 \newline 
-N1001 G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
 \layout Standard
 
 The advantage of the first set is that, the G80 line clearly turns off the
@@ -191,65 +185,57 @@ If a canned cycle is not turned off with G80 or another motion word, the
  that contains an X, Y, or Z word.
  The following file drills (G81) a set of eight holes as shown.
  (note the z position change after the first four holes.) 
-\layout Standard
+\layout Quote
+
+G90 G0 X0 Y0 Z0 (coordinate home) 
+\newline 
+G1 X0 G4 P0.1 
+\newline 
+G81 X1 Y0 Z0 R1 (canned drill cycle) 
+\newline 
+X2 
+\newline 
+X3 
+\newline 
+X4 
+\newline 
+Y1 Z0.5 
+\newline 
+X3 
+\newline 
+X2 
+\newline 
+X1 
+\newline 
+G80 (turn off canned cycle) 
+\newline 
+G0 X0 (rapid home moves) 
+\newline 
+Y0 
+\newline 
+Z0 
+\newline 
+M2 (program end)
+\layout Quote
 
 
-\begin_inset Minipage
-position 0
-inner_position 0
-height "0pt"
-width "60col%"
+\begin_inset Float figure
+wide false
 collapsed false
 
-\layout Standard
-\align left 
-N100 G90 G0 X0 Y0 Z0 (coordinate home) 
-\newline 
-N110 G1 X0 G4 P0.1 
-\newline 
-N120 G81 X1 Y0 Z0 R1 (canned drill cycle) 
-\newline 
-N130 X2 
-\newline 
-N140 X3 
-\newline 
-N150 X4 
-\newline 
-N160 Y1 Z0.5 
-\newline 
-N170 X3 
-\newline 
-N180 X2 
-\newline 
-N190 X1 
-\newline 
-N200 G80 (turn off canned cycle) 
-\newline 
-N210 G0 X0 (rapid home moves) 
-\newline 
-N220 Y0 
-\newline 
-N220 Z0 
-\newline 
-N220 M2 (program end)
+\layout Caption
+
+G81 Cycle
+\begin_inset LatexCommand \label{cap:G81-Cycle}
+
 \end_inset 
 
 
-\hfill 
-
-\begin_inset Minipage
-position 0
-inner_position 0
-height "0pt"
-width "50col%"
-collapsed false
-
 \layout Standard
-\added_space_top 0.3cm \added_space_bottom 0.3cm 
+\align center 
 
 \begin_inset Graphics
-	filename G81mult.png
-	width 2.5in
+	filename images/G81mult.png
 
 \end_inset 
 
@@ -1136,52 +1122,28 @@ collapsed false
 Example 7 - Eight Holes Revisited 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n100 g90 g0 x0 y0 z0 (move coordinate home) 
+G90 G0 X0 Y0 Z0 (move coordinate home) 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n110 g1 f10 x0 g4 p0.1 
+G1 f10 X0 G4 P0.1 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n120 g91 g81 x1 y0 z-1 r1 l4(canned drill cycle) 
+G91 G81 X1 Y0 Z-1 R1 l4(canned drill cycle) 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n130 g90 g0 x0 y1 
+G90 G0 X0 Y1 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n140 z0 
+Z0 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n150 g91 g81 x1 y0 z-.5 r1 l4(canned drill cycle) 
+G91 G81 X1 Y0 Z-.5 R1 l4(canned drill cycle) 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n160 g80 (turn off canned cycle) 
+G80 (turn off canned cycle) 
 \layout Standard
 \align left 
-
-\family typewriter 
-\size footnotesize 
-n170 m2 (program end)
+M2 (program end)
 \end_inset 
 
 
@@ -1229,30 +1191,27 @@ collapsed false
 
 \layout Standard
 
-
-\family typewriter 
-\size small 
-N1000 G90 G0 X0 Y0 Z0 (move coordinate home)
+G90 G0 X0 Y0 Z0 (move coordinate home)
 \newline 
-N1010 G1 F50 X0 G4 P0.1
+G1 F50 X0 G4 P0.1
 \newline 
-N1020 G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
+G91 G81 X1 Y0 Z-0.5 R1 L4 (canned drill cycle)
 \newline 
-N1030 X0 Y1 R0 L3 (repeat)
+X0 Y1 R0 L3 (repeat)
 \newline 
-N1040 X-1 Y0 L3 (repeat)
+X-1 Y0 L3 (repeat)
 \newline 
-N1050 X0 Y-1 L2 (repeat)
+X0 Y-1 L2 (repeat)
 \newline 
-N1060 G80 (turn off canned cycle)
+G80 (turn off canned cycle)
 \newline 
-N1070 G90 G0 X0 (rapid home)
+G90 G0 X0 (rapid home)
 \newline 
-N1080 Y0
+Y0
 \newline 
-N1090 Z0
+Z0
 \newline 
-N1100 M2 (program end)
+M2 (program end)
 \end_inset 
 
 
@@ -1283,17 +1242,4 @@ collapsed false
 The second reason to use a canned cycle is that they all produce preliminary
  moves and returns that you can anticipate and control regardless of the
  start point of the canned cycle.
-\layout Comment
-
-Credits 
-\layout Comment
-
-This page is a rather direct rip off of the relevant portion of the RS274NGC/RS2
-74VGER documents from NIST.
- Thanks also to Dan Falck, Ron Wickersham, and Jon Elson for their comments
- on portions of this page.
- 
-\layout Comment
-
-This page is maintained by Ray Henry Your comments and criticisms are welcome.
 \the_end
