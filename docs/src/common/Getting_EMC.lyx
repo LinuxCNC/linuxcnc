@@ -35,7 +35,7 @@ Getting Help
 IRC
 \layout Standard
 
-IRC stand for Internet Relay Chat.
+IRC stands for Internet Relay Chat.
  It is a live connection to other EMC users.
  The EMC IRC channel is #emc on freenode.
  
@@ -55,13 +55,12 @@ Some IRC etiquette:
 \layout Itemize
 
 Ask specific questions...
- Avoid "Can someone help me?", "It won't run" type of questions...
- 
+ Avoid "Can someone help me?", "It won't run" type of questions.
 \layout Itemize
 
-If your really new to all this think a bit about your question before typing
- it.
- Make sure you give enough information so someone could solve your question.
+If you're really new to all this, think a bit about your question before
+ typing it.
+ Make sure you give enough information so someone can solve your question.
  
 \layout Itemize
 
@@ -70,8 +69,8 @@ Have some patience when waiting for an answer, sometimes it takes a while
 \layout Itemize
 
 Set up your IRC account with your unique name so people will know who you
- are or if you log on via the java client use the same name every time you
- log in.
+ are.
+ If you use the java client, use the same name every time you log in.
  This helps people remember who you are and if you have been on before many
  will remember the past discussions which saves time on both ends.
 \layout Subsection
@@ -115,9 +114,7 @@ Information about the EMC Users Mailing List at:
 EMC Wiki
 \layout Standard
 
-A Wiki site is a user maintained web site that anyone can edit or add content
- to.
- 
+A Wiki site is a user maintained web site that anyone can add to or edit.
 \layout Standard
 
 The user maintained EMC Wiki site contains a wealth of information and tips
@@ -296,7 +293,7 @@ Burning the CD
 EMC2 is distributed as CD image files, called ISOs.
  To install EMC2, you first need to burn the ISO file onto a CD.
  You need a working CD/DVD burner and an 80 minute (700 Mb) CD for this.
- If the CD writing fails, try writing at a slower burn speed
+ If the CD writing fails, try writing at a slower burn speed.
 \layout Subsection
 
 Burn with Linux

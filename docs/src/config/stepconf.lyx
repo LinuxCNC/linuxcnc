@@ -1346,8 +1346,7 @@ A machine can be operated without limit switches.
  In this case, only the soft limits stop the machine from reaching the hard
  stop.
  Soft limits only operate after the machine has been homed.
- Since there is no switch, the machine must be moved by eye to the home
- position before pressing the "Home" or "Home All" button.
+ 
 \layout Subsection
 
 Operating without Home Switches
@@ -1370,9 +1369,9 @@ A machine can be operated without home switches.
 Minimum Limit + Home X
 \series default 
  in the pinout).
- If the machine has no limit switches, or the limit switches cannot be used
- as home switches for another reason, then the machine must be homed "by
- eye" or by using match marks.
+ If the machine has no switches at all, or the limit switches cannot be
+ used as home switches for another reason, then the machine must be homed
+ "by eye" or by using match marks.
  Homing by eye is not as repeatable as homing to switches, but it still
  allows the soft limits to be useful.
 \layout Section
