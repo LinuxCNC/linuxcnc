@@ -906,6 +906,11 @@ COMMENT
 
 \layout Standard
 
+Les valeurs du fichier d'outils peuvent être ajustées en utilisant G10 L1,
+ à l'exception de FRONTANGLE, BACKANGLE et COMMENT qui doivent être, actuellemen
+t, renseignés manuellement.
+\layout Standard
+
 La figure suivante indique les différentes positions conventionnelles ainsi
  que l'angle de l'axe de l'outil et les informations concernant le FRONTANGLE
  et le BACKANGLE.
@@ -920,7 +925,7 @@ collapsed false
 
 \layout Caption
 
-Lathe Tool Orientations
+Orientations des outils de tour
 \layout Standard
 \align center 
 
@@ -1030,10 +1035,76 @@ Tool Position 2
 
 \layout Section
 
-Outils de tour
+Tangenter et corriger l'outil
+\layout Standard
+
+Quand AXIS est utilisé sur un tour, il est possible de corriger l'outil
+ sur les deux axes X et Z.
+ Les corrections sont alors introduites dans la table d'outils en utilisant
+ le bouton 
+\begin_inset Quotes fld
+\end_inset 
+
+Toucher
+\begin_inset Quotes frd
+\end_inset 
+
+ et sa fenêtre de dialogue.
+ 
+\layout Standard
+
+Voici une séquence typique:
+\layout Enumerate
+
+Prise d'origine de chacun des axes.
+\layout Enumerate
+
+Déclarer l'outil avec 
+\begin_inset Quotes fld
+\end_inset 
+
+Tn M6
+\begin_inset Quotes frd
+\end_inset 
+
+ dans lequel "n" est le numéro de l'outil courant.
+\layout Enumerate
+
+Sélectionner l'axe X dans la fenêtre de l'onglet 
+\begin_inset Quotes fld
+\end_inset 
+
+Contrôle manuel
+\begin_inset Quotes frd
+\end_inset 
+
+ (F3).
+\layout Enumerate
+
+Déplacer l'axe X sur une position connue ou prendre une passe de test et
+ mesurer le diamètre obtenu.
+\layout Enumerate
+
+Cliquer le bouton 
+\begin_inset Quotes fld
+\end_inset 
+
+Toucher
+\begin_inset Quotes frd
+\end_inset 
+
+ et valider.
+ Depuis le menu fichiers, ouvrir le fichier d'outils et entrer la position
+ et le diamètre.
+\layout Enumerate
+
+Recommencer la même séquence pour corriger l'axe Z.
+\layout Standard
+
+Note: Si l'opérateur travaille en mode rayon (G8), c'est le rayon qu'il
+ doit entrer dans le fichier d'outils, il ne doit entrer le diamètre que
+ si il travaille en mode diamètre (G7).
 \layout Section
 
 Filetage
-\layout Standard
-
 \the_end

@@ -161,6 +161,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{config/copy_and_run_fr.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Petite FAQ Linux
