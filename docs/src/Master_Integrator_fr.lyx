@@ -201,34 +201,7 @@ Spécificités de HAL
 \layout Standard
 
 
-\begin_inset Include \include{hal/intro_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/tutorial_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/general_ref_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/tools_fr.lyx}
+\begin_inset Include \include{hal/basic_hal_fr.lyx}
 preview false
 
 \end_inset 
@@ -243,27 +216,6 @@ preview false
 \end_inset 
 
 
-\layout Standard
-
-
-\begin_inset Include \include{hal/comp_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Standard
-
-
-\begin_inset Include \include{hal/halmodule_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Part
-
-Relations entre EMC2 et HAL
 \layout Standard
 
 
@@ -318,6 +270,15 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{hal/pyvcp_examples.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
 Notions de cinématique
@@ -353,7 +314,7 @@ preview false
 
 \layout Part
 
-La logique en Ladder
+La logique Ladder
 \layout Standard
 
 
@@ -372,9 +333,27 @@ preview false
 \end_inset 
 
 
+\layout Standard
+
+
+\begin_inset Include \include{ladder/ladder_examples.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Part
 
-Exemples d'utilisation de matériel
+Exemples d'utilisation
+\layout Standard
+
+
+\begin_inset Include \include{examples/pci_parallel_port_fr.lyx}
+preview false
+
+\end_inset 
+
+
 \layout Standard
 
 
@@ -388,6 +367,30 @@ preview false
 
 
 \begin_inset Include \include{examples/mpg_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Diagnostic
+\layout Standard
+
+
+\begin_inset Include \include{common/Stepper_Diagnostics_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Part
+
+Petite FAQ Linux
+\layout Standard
+
+
+\begin_inset Include \include{common/Linux_FAQ_fr.lyx}
 preview false
 
 \end_inset 

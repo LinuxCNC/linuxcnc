@@ -111,7 +111,6 @@ addcontentsline{toc}{chapter}{Table des matières}
 
 \layout Part
 
-
 Introduction et tutoriels
 \layout Standard
 
@@ -132,7 +131,6 @@ preview false
 
 
 \layout Part
-
 
 Les références de HAL
 \layout Standard
@@ -156,28 +154,6 @@ preview false
 \end_inset 
 
 
-\begin_inset Include \include{hal/drivers_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\begin_inset Include \include{hal/rtcomps_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\begin_inset Include \include{hal/pyvcp_fr.lyx}
-preview false
-
-\end_inset 
-
-
-\layout Part
-
-
-La programmation de HAL
 \layout Standard
 
 
