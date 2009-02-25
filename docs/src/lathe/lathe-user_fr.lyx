@@ -931,7 +931,6 @@ Orientations des outils de tour
 
 \begin_inset Graphics
 	filename images/tool_positions.png
-	scale 70
 
 \end_inset 
 
@@ -1093,17 +1092,23 @@ Toucher
 \begin_inset Quotes frd
 \end_inset 
 
- et valider.
- Depuis le menu fichiers, ouvrir le fichier d'outils et entrer la position
- et le diamètre.
+ et choisir l'option 
+\begin_inset Quotes fld
+\end_inset 
+
+T Table d'outils
+\begin_inset Quotes frd
+\end_inset 
+
+, ce qui entrera la correction dans la table.
 \layout Enumerate
 
 Recommencer la même séquence pour corriger l'axe Z.
 \layout Standard
 
-Note: Si l'opérateur travaille en mode rayon (G8), c'est le rayon qu'il
- doit entrer dans le fichier d'outils, il ne doit entrer le diamètre que
- si il travaille en mode diamètre (G7).
+Note: Si l'opérateur travaille en mode rayon (G8), la correction introduite
+ dans le fichier d'outils portera sur le rayon, par contre, elle sera relative
+ au diamètre si le mode diamètre (G7) et utilisé.
 \layout Section
 
 Filetage

@@ -84,9 +84,8 @@ Fenêtre d'AXIS
 \align center 
 
 \begin_inset Graphics
-	filename ../common/axis_fr.png
-	lyxscale 50
-	width 80page%
+	filename images/axis_2.3_fr.png
+	width 60page%
 
 \end_inset 
 
@@ -382,7 +381,7 @@ Arrêt d'urgence
 \end_inset 
 
  (A/U) en Anglais (E-Stop)
-\begin_inset LatexCommand \index{Arrêt d'urgence}
+\begin_inset LatexCommand \index{Arret d'urgence}
 
 \end_inset 
 
@@ -396,7 +395,7 @@ Arrêt d'urgence
 \end_inset 
 
  Marche/Arrêt puissance machine 
-\begin_inset LatexCommand \index{Marche/Arrêt}
+\begin_inset LatexCommand \index{Marche/Arret}
 
 \end_inset 
 
@@ -409,7 +408,7 @@ Arrêt d'urgence
 
 \end_inset 
 
- Ouvrir un fichier 
+ Ouvrir un fichier
 \layout Enumerate
 
 
@@ -455,6 +454,24 @@ Arrêt d'urgence
 \end_inset 
 
  Stopper l'exécution du programme
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_blockdelete.gif
+
+\end_inset 
+
+ Sauter ou non les lignes commençant par "/"
+\layout Enumerate
+
+
+\begin_inset Graphics
+	filename images/tool_optpause.gif
+
+\end_inset 
+
+ Avec ou sans pause optionelle 
 \layout Enumerate
 
 
@@ -1162,7 +1179,7 @@ Toucher
 \align center 
 
 \begin_inset Graphics
-	filename touchoff_fr.png
+	filename images/touchoff_fr.png
 
 \end_inset 
 
@@ -1277,7 +1294,7 @@ L'onglet Données manuelles
 \align center 
 
 \begin_inset Graphics
-	filename axis-codeentry_fr.png
+	filename images/axis-codeentry_fr.png
 
 \end_inset 
 
@@ -2097,7 +2114,7 @@ La fenêtre de changement manuel d'outil
 \align center 
 
 \begin_inset Graphics
-	filename manualtoolchange_fr.png
+	filename images/manualtoolchange_fr.png
 
 \end_inset 
 

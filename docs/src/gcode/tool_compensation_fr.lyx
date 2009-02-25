@@ -1203,29 +1203,4 @@ Certaines autres choses sont à noter, le programme commence avec G40, pour
  Le mot R supprime tous ce désordre et il est beaucoup plus facile de travailler
  avec lui, de toute façon.
  Si l'arc est de plus de 180 degrés, R doit être négatif.
-\layout Section
-
-Source d'informations à propos de la compensation d'outil
-\layout Standard
-
-This unit borrows heavily from the published works of Tom Kramer and Fred
- Proctor at NIST and the cutter compensation web page of Jon Elson.
-\layout Standard
-
-Papers by Tom Kramer and Fred Proctor
-\newline 
-http://www.isd.mel.nist.gov/personnel/kramer/publications.html
-\newline 
-http://www.isd.mel.nist.gov/personnel/kramer/pubs/RS274NGC_22.pdf
-\newline 
-http://www.isd.mel.nist.gov/personnel/kramer/pubs/RS274VGER_11.pdf
-\layout Standard
-
-Pages by Jon Elson 
-\newline 
-http://artsci.wustl.edu/~jmelson/ 
-\newline 
-http://206.19.206.56/diacomp.htm 
-\newline 
-http://206.19.206.56/lencomp.htm 
 \the_end

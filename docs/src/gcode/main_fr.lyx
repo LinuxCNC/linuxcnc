@@ -1558,8 +1558,7 @@ Orientations des outils de tour
 
 
 \begin_inset Graphics
-	filename cutting_orientation2.png
-	scale 60
+	filename images/tool_positions.png
 	BoundingBox 20bp 20bp 738bp 594bp
 
 \end_inset 
@@ -5278,7 +5277,7 @@ G7, G8
 
 \layout Standard
 
-Mode diamètre / rayon sur les tours
+Mode diamètre, rayon sur les tours
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -7600,8 +7599,16 @@ G10 L1
 
 \layout Standard
 
-Ajuste une entrée dans la table d'outils.
+Programmer un G10 L1 pour ajuste une entrée dans la table d'outils depuis
+ un programme ou depuis la fenêtre d'entrées manuelles.
  
+\layout Standard
+
+G10 recharge la table d'outils.
+ 
+\layout Standard
+
+Format de la commande G10 L1:
 \layout Standard
 
 G10 L1 P[Numéro d'outil] R[rayon] X[correcteur en X] Z[correcteur en Z]

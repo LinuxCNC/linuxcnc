@@ -213,6 +213,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{gcode/tool_compensation_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{gcode/coordinates_fr.lyx}
 preview false
 
@@ -222,7 +231,7 @@ preview false
 \layout Standard
 
 
-\begin_inset Include \include{gcode/mill_canned_fr.lyx}
+\begin_inset Include \include{lathe/lathe-user_fr.lyx}
 preview false
 
 \end_inset 

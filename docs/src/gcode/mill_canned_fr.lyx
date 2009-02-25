@@ -200,13 +200,12 @@ Dans l'interpréteur d'EMC, G80 est un code modal révoqué par tout autre
 
 \family typewriter 
 \size scriptsize 
-N1000 G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
- absolus)
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements absolus)
 \newline 
-N1001 G80 (révoque G81)
+G80 (révoque G81)
 \newline 
-N1002 G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
- mobile en X0, Y0 et Z0)
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le mobile
+ en X0, Y0 et Z0)
 \layout Standard
 
 produit le même déplacement et le même état final de la machine que: 
@@ -215,11 +214,11 @@ produit le même déplacement et le même état final de la machine que:
 
 \family typewriter 
 \size scriptsize 
-N1000 G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements
- absolus) 
+G90 G81 X1 Y1 Z1.5 R2.8 (cycle préprogrammé en mode de déplacements absolus)
+ 
 \newline 
-N1001 G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le
- mobile en X0, Y0 et Z0)
+G0 X0 Y0 Z0 (active les mouvements en vitesse rapide et déplace le mobile
+ en X0, Y0 et Z0)
 \layout Standard
 
 L'avantage du premier, la ligne du G80 révoque clairement le cycle G81.
@@ -254,39 +253,39 @@ collapsed false
 
 \family typewriter 
 \size scriptsize 
-N100 G90 G0 X0 Y0 Z0 (coordonnées d'origine) 
+G90 G0 X0 Y0 Z0 (coordonnées d'origine) 
 \newline 
-N110 G1 X0 G4 P0.1 
+G1 X0 G4 P0.1 
 \newline 
-N120 G81 X1 Y0 Z0 R1 (cycle de perçage) 
+G81 X1 Y0 Z0 R1 (cycle de perçage) 
 \newline 
-N130 X2 
+X2 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size scriptsize 
-N140 X3 
+X3 
 \newline 
-N150 X4 
+X4 
 \newline 
-N160 Y1 Z0.5 
+Y1 Z0.5 
 \newline 
-N170 X3 
+X3 
 \newline 
-N180 X2 
+X2 
 \newline 
-N190 X1 
+X1 
 \newline 
-N200 G80 (révocation du cycle G81) 
+G80 (révocation du cycle G81) 
 \newline 
-N210 G0 X0 (mouvement en vitesse rapide) 
+G0 X0 (mouvement en vitesse rapide) 
 \newline 
-N220 Y0 
+Y0 
 \newline 
-N220 Z0 
+Z0 
 \newline 
-N220 M2 (fin du programme)
+M2 (fin du programme)
 \end_inset 
 
 
@@ -1271,49 +1270,49 @@ Exemple 7 - perçage de huit trous, réécrit.
 
 \family typewriter 
 \size footnotesize 
-n100 g90 g0 x0 y0 z0 (coordonnées d'origine) 
+g90 g0 x0 y0 z0 (coordonnées d'origine) 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n110 g1 f10 x0 g4 p0.1 
+g1 f10 x0 g4 p0.1 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n120 g91 g81 x1 y0 z-1 r1 l4(cycle de perçage) 
+g91 g81 x1 y0 z-1 r1 l4(cycle de perçage) 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n130 g90 g0 x0 y1 
+g90 g0 x0 y1 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n140 z0 
+z0 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n150 g91 g81 x1 y0 z-.5 r1 l4(cycle de perçage) 
+g91 g81 x1 y0 z-.5 r1 l4(cycle de perçage) 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n160 g80 (révocation du cycle G81) 
+g80 (révocation du cycle G81) 
 \layout Standard
 \align left 
 
 \family typewriter 
 \size footnotesize 
-n170 m2 (fin du programme)
+m2 (fin du programme)
 \end_inset 
 
 
@@ -1365,27 +1364,27 @@ collapsed false
 
 \family typewriter 
 \size small 
-N1000 G90 G0 X0 Y0 Z0 (coordinées d'origine)
+G90 G0 X0 Y0 Z0 (coordinées d'origine)
 \newline 
-N1010 G1 F50 X0 G4 P0.1
+G1 F50 X0 G4 P0.1
 \newline 
-N1020 G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage)
+G91 G81 X1 Y0 Z-0.5 R1 L4 (cycle de perçage)
 \newline 
-N1030 X0 Y1 R0 L3 (répétition)
+X0 Y1 R0 L3 (répétition)
 \newline 
-N1040 X-1 Y0 L3 (répétition)
+X-1 Y0 L3 (répétition)
 \newline 
-N1050 X0 Y-1 L2 (répétition)
+X0 Y-1 L2 (répétition)
 \newline 
-N1060 G80 (révocation du cycle G81)
+G80 (révocation du cycle G81)
 \newline 
-N1070 G90 G0 X0 (retour vers l'origine en vitesse rapide)
+G90 G0 X0 (retour vers l'origine en vitesse rapide)
 \newline 
-N1080 Y0
+Y0
 \newline 
-N1090 Z0
+Z0
 \newline 
-N1100 M2 (fin du programme)
+M2 (fin du programme)
 \end_inset 
 
 
@@ -1417,26 +1416,4 @@ collapsed false
 La deuxième raison d'utiliser les cycles préprogrammés, c'est qu'il produisent
  un mouvement préliminaire et retournent à une position prévisible et contrôlabl
 e, quel que soit le point de départ du cycle.
-\layout Standard
-\added_space_bottom 0.3cm \noindent \align left 
-
-\begin_inset Note
-collapsed true
-
-\layout Standard
-
-Credits 
-\layout Standard
-
-This page is a rather direct rip off of the relevant portion of the RS274NGC/RS2
-74VGER documents from NIST.
- Thanks also to Dan Falck, Ron Wickersham, and Jon Elson for their comments
- on portions of this page.
- 
-\layout Standard
-
-This page is maintained by Ray Henry Your comments and criticisms are welcome.
-\end_inset 
-
-
 \the_end
