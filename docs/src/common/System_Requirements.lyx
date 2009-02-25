@@ -48,7 +48,7 @@ The minimum system to run EMC2 and Ubuntu may vary depending on the exact
  Keep in mind that the Latency Test numbers are more important than the
  processor speed for software step generation.
  More information on the Latency Test is in Section (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
+\begin_inset LatexCommand \ref{sub:Latency-Test}
 
 \end_inset 
 

@@ -412,7 +412,7 @@ To try out EMC2 from the Applications/CNC menu pick EMC2.
 
 To see if your computer is suitable for software step pulse generation run
  the Latency Test as outlined in Section (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
+\begin_inset LatexCommand \ref{sub:Latency-Test}
 
 \end_inset 
 

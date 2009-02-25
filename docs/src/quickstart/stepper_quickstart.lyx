@@ -42,25 +42,13 @@ This section assumes you have done a standard install from the Live CD.
 Latency Test
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-expand this just a bit JT
-\end_inset 
-
-
-\layout Standard
-
 The Latency Test determines how late your computer processor is in responding
  to a request.
  Some hardware can interrupt the processing which could cause missed steps
  when running a CNC machine.
  This is the first thing you need to do.
  Follow the instructions in section (
-\begin_inset LatexCommand \ref{sec:Latency-Test}
+\begin_inset LatexCommand \ref{sub:Latency-Test}
 
 \end_inset 
 
