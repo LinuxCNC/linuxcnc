@@ -962,11 +962,9 @@ class MyOpengl(Opengl):
             glDepthFunc(GL_LESS);
             
         if live_plotter.running.get() and vars.show_tool.get():
-            pos = None
-            if vars.show_live_plot.get():
-                pos = live_plotter.logger.last()
-            if pos is None:
-                pos = live_plotter.stat.actual_position
+            pos = live_plotter.logger.last(vars.show_live_plot.get())
+            if pos is None: pos = [0] * 6
+            print repr(pos)
             if program is not None:
                 g = self.g
                 x,y,z = 0,1,2
@@ -980,8 +978,6 @@ class MyOpengl(Opengl):
             pos = to_internal_units(pos[:3])
             glPushMatrix()
             glTranslatef(*pos)
-#            if s.axis_mask & (1<<3):
-#                glRotatef(s.position[3], 1, 0, 0)
             sign = 1
             for ch in geometry:
                 if ch == '-':

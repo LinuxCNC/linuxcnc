@@ -1855,14 +1855,17 @@ static PyObject* Logger_call(pyPositionLogger *s, PyObject *o) {
 }
 
 static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
+    int flag=1;
+    if(!PyArg_ParseTuple(o, "|i:emc.positionlogger.last", &flag)) return NULL;
     PyObject *result = NULL;
     LOCK();
-    if(!s->lpts) {
+    int idx = flag ? s->lpts : s->npts;
+    if(!idx) {
         Py_INCREF(Py_None);
         result = Py_None;
     } else {
         result = PyTuple_New(6);
-        struct logger_point &p = s->p[s->lpts-1];
+        struct logger_point &p = s->p[idx-1];
         PyTuple_SET_ITEM(result, 0, PyFloat_FromDouble(p.x));
         PyTuple_SET_ITEM(result, 1, PyFloat_FromDouble(p.y));
         PyTuple_SET_ITEM(result, 2, PyFloat_FromDouble(p.z));
@@ -1888,7 +1891,7 @@ static PyMethodDef Logger_methods[] = {
         "Stop the position logger"},
     {"call", (PyCFunction)Logger_call, METH_NOARGS,
         "Plot the backplot now"},
-    {"last", (PyCFunction)Logger_last, METH_NOARGS,
+    {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},
 };
