@@ -280,13 +280,15 @@ setup_menu_accel .menu.view end [_ "_Perspective view"]
 .menu.view add radiobutton \
 	-value 0 \
 	-variable metric \
-	-command redraw
+	-command redraw \
+        -accelerator !
 setup_menu_accel .menu.view end [_ "Display _Inches"]
 
 .menu.view add radiobutton \
 	-value 1 \
 	-variable metric \
-	-command redraw
+	-command redraw \
+        -accelerator !
 setup_menu_accel .menu.view end [_ "Display _MM"]
 
 .menu.view add separator
