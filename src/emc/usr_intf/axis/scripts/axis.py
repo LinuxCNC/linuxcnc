@@ -964,7 +964,6 @@ class MyOpengl(Opengl):
         if live_plotter.running.get() and vars.show_tool.get():
             pos = live_plotter.logger.last(vars.show_live_plot.get())
             if pos is None: pos = [0] * 6
-            print repr(pos)
             if program is not None:
                 g = self.g
                 x,y,z = 0,1,2
