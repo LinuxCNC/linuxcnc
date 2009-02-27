@@ -1209,26 +1209,16 @@ static int emcCommandWait(int serial_number)
 */
 void startTimer(int us)
 {
-  struct itimerval value;
-
-  value.it_interval.tv_sec = 0;
-  value.it_interval.tv_usec = us;
-  value.it_value.tv_sec = 0;
-  value.it_value.tv_usec = us;
-
-  setitimer(ITIMER_REAL, &value, 0);
+    timeout(us < 1000 ? 1 : us/1000);
 }
 
 /*
-  alarmHandler is attached to SIGALRM, and handles the reading of NML
-  status, the update of the status window, and key-up simulation and
-  handling
+  idleHandler is called when no key is received after timeout and handles the
+  reading of NML status, the update of the status window, and key-up simulation
+  and handling
 */
-static void alarmHandler(int sig)
+static void idleHandler()
 {
-  // mask out this signal for now
-  signal(SIGALRM, SIG_IGN);
-
   // read NML status
   updateStatus();
 
@@ -1288,19 +1278,12 @@ static void alarmHandler(int sig)
       emcCommandWait(emcCommandSerialNumber);
       spindleChanging = 0;
     }
-
-  // reenable this signal
-  signal(SIGALRM, alarmHandler);
-
   return;
 }
 
 static int done = 0;
 static void quit(int sig)
 {
-  // disable timer
-  startTimer(0);
-
   // clean up curses windows
   delwin(progwin);
   progwin = 0;
@@ -1350,7 +1333,6 @@ static void quit(int sig)
     }
 
   // reset signal handlers to default
-  signal(SIGALRM, SIG_DFL);
   signal(SIGINT, SIG_DFL);
 
   exit(0);
@@ -1657,7 +1639,6 @@ int main(int argc, char *argv[])
       if (!strcmp(argv[t], "-dump"))
         {
           dump = 1;
-          t++;          // step over nmlfile
           continue;
         }
 
@@ -1760,9 +1741,6 @@ int main(int argc, char *argv[])
   // trap SIGINT
   signal(SIGINT, quit);
 
-  // set up handler for SIGALRM to handle periodic timer events
-  signal(SIGALRM, alarmHandler);
-
 #ifdef LOG
   errorFp = fopen(ERROR_FILE, "w");
   // failure here just disables logging
@@ -1840,7 +1818,14 @@ int main(int argc, char *argv[])
   while (! done)
     {
       oldch = ch;
-      ch = (chtype) getch();
+      int keypress = getch();
+      if(keypress == ERR) 
+      {
+        idleHandler(); 
+        continue;
+      }
+      ch = (chtype) keypress;
+
       // check for ^C that may happen during blocking read
       if (done)
         {
