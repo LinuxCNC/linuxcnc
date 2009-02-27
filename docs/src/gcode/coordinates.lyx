@@ -27,7 +27,17 @@
 
 \layout Chapter
 
-Coordinate System and G92 Offsets
+Coordinate System
+\begin_inset LatexCommand \index{Coordinate System}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{cha:Coordinate-System}
+
+\end_inset 
+
+
 \layout Section
 
 Introduction

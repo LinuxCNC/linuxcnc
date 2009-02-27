@@ -1657,225 +1657,6 @@ Tangent
 
 \layout Section
 
-Comments
-\begin_inset LatexCommand \index{G Code Comments}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Comments}
-
-\end_inset 
-
-
-\layout Standard
-
-Printable characters and white space inside parentheses is a comment.
- A left parenthesis always starts a comment.
- The comment ends at the first right parenthesis found thereafter.
- Once a left parenthesis is placed on a line, a matching right parenthesis
- must appear before the end of the line.
- Comments may not be nested; it is an error if a left parenthesis is found
- after the start of a comment and before the end of the comment.
- Here is an example of a line containing a comment: 
-\family typewriter 
-
-\begin_inset Quotes eld
-\end_inset 
-
-G80 M5 (stop motion)
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Comments do not cause a machining center to do anything.
-\layout Section
-
-Messages
-\begin_inset LatexCommand \index{G Code Messages}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Messages}
-
-\end_inset 
-
-
-\layout Standard
-
-A comment contains a message if 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
-MSG,
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- appears after the left parenthesis and before any other printing characters.
- Variants of 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
-MSG,
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- which include white space and lower case characters are allowed.
- The rest of the characters before the right parenthesis are considered
- to be a message.
- Messages should be displayed on the message display device.
- Comments not containing messages need not be displayed there.
- 
-\layout Section
-
-Probe Logging
-\begin_inset LatexCommand \index{Probe Logging}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Probe-Logging}
-
-\end_inset 
-
-
-\layout Standard
-
-A comment can also be used to specify a file for the results of G38.x probing.
- See section 
-\begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
-
-\end_inset 
-
-.
-\layout Standard
-
-Often, general logging is more useful than probe logging.
- Using general logging, the format of the output data can be controlled.
-\layout Section
-
-General Logging
-\begin_inset LatexCommand \index{General Logging}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:General-logging}
-
-\end_inset 
-
-
-\layout Subsection
-
-(LOGOPEN,filename)
-\layout Standard
-
-Opens the named log file.
- If the file already exists, it is truncated.
-\layout Subsection
-
-(LOGCLOSE)
-\layout Standard
-
-If the log file is open, it is closed.
-\layout Subsection
-
-(LOG,\SpecialChar \ldots{}
-)
-\layout Standard
-
-The message 
-\begin_inset Quotes eld
-\end_inset 
-
-\SpecialChar \ldots{}
-
-\begin_inset Quotes erd
-\end_inset 
-
- is expanded as described below and then written to the log file if it is
- open.
-\layout Section
-
-Debugging Messages
-\begin_inset LatexCommand \index{G Code Debugging Messages}
-
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Debugging-messages}
-
-\end_inset 
-
-
-\layout Standard
-
-Comments that look like: 
-\family typewriter 
-(debug, rest of comment)
-\family default 
- are the same as comments like 
-\family typewriter 
-(msg, rest of comment)
-\family default 
- with the addition of special handling for parameters.
-\layout Standard
-
-Comments that look like: 
-\family typewriter 
-(print, rest of comment)
-\family default 
- are output to stderr with special handling for parameters.
-\layout Section
-
-Parameters in special comments
-\layout Standard
-
-In the DEBUG, PRINT and LOG comments, the values of parameters in the message
- are expanded.
-\layout Standard
-
-For example: to print a named global variable to stderr (the default console
- window) add a line to your gcode like...
-\layout Quote
-
-(print,endmill dia = #<_endmill_dia>)
-\layout Standard
-
-Inside the above types of comments, sequences like 
-\family typewriter 
-#123
-\family default 
- are replaced by the value of the parameter 123.
- Sequences like 
-\family typewriter 
-#<named parameter>
-\family default 
- are replaced by the value of the named parameter.
- Remember that named parameters will have white space removed from them.
- So, 
-\family typewriter 
-#<named parameter>
-\family default 
- is the same as 
-\family typewriter 
-#<namedparameter>
-\family default 
-.
- 
-\layout Section
-
 Repeated Items
 \layout Standard
 
@@ -5497,7 +5278,7 @@ G10 L2 Set Coordinate System
 \layout Standard
 
 The RS274/NGC language view of coordinate systems is described in Section
-\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+\begin_inset LatexCommand \ref{cha:Coordinate-System}
 
 \end_inset 
 
@@ -6540,7 +6321,7 @@ or G53 is used while cutter radius compensation is on.
 \layout Standard
 
 See Section 
-\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+\begin_inset LatexCommand \ref{cha:Coordinate-System}
 
 \end_inset 
 
@@ -6609,7 +6390,7 @@ one of these G-codes is used while cutter radius compensation is on.
 \layout Standard
 
 See Section 
-\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+\begin_inset LatexCommand \ref{cha:Coordinate-System}
 
 \end_inset 
 
@@ -7880,7 +7661,7 @@ G92, G92.1, G92.2, G92.3 Coordinate System Offsets
 \layout Standard
 
 See Section 
-\begin_inset LatexCommand \ref{sub:Coordinate-Systems}
+\begin_inset LatexCommand \ref{cha:Coordinate-System}
 
 \end_inset 
 
@@ -9404,6 +9185,225 @@ Rapid moves after a T<n> will not show on the AXIS preview until after a
  This can be very confusing at first.
  To turn this feature off for the current tool change program a G1 without
  any move after the T<n>.
+\layout Section
+
+Comments
+\begin_inset LatexCommand \index{G Code Comments}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:Comments}
+
+\end_inset 
+
+
+\layout Standard
+
+Printable characters and white space inside parentheses is a comment.
+ A left parenthesis always starts a comment.
+ The comment ends at the first right parenthesis found thereafter.
+ Once a left parenthesis is placed on a line, a matching right parenthesis
+ must appear before the end of the line.
+ Comments may not be nested; it is an error if a left parenthesis is found
+ after the start of a comment and before the end of the comment.
+ Here is an example of a line containing a comment: 
+\family typewriter 
+
+\begin_inset Quotes eld
+\end_inset 
+
+G80 M5 (stop motion)
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ Comments do not cause a machining center to do anything.
+\layout Section
+
+Messages
+\begin_inset LatexCommand \index{G Code Messages}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Messages}
+
+\end_inset 
+
+
+\layout Standard
+
+A comment contains a message if 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+MSG,
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ appears after the left parenthesis and before any other printing characters.
+ Variants of 
+\begin_inset Quotes eld
+\end_inset 
+
+
+\family typewriter 
+MSG,
+\family default 
+
+\begin_inset Quotes erd
+\end_inset 
+
+ which include white space and lower case characters are allowed.
+ The rest of the characters before the right parenthesis are considered
+ to be a message.
+ Messages should be displayed on the message display device.
+ Comments not containing messages need not be displayed there.
+ 
+\layout Section
+
+Probe Logging
+\begin_inset LatexCommand \index{Probe Logging}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Probe-Logging}
+
+\end_inset 
+
+
+\layout Standard
+
+A comment can also be used to specify a file for the results of G38.x probing.
+ See section 
+\begin_inset LatexCommand \ref{sub:G38.2:-Straight-Probe}
+
+\end_inset 
+
+.
+\layout Standard
+
+Often, general logging is more useful than probe logging.
+ Using general logging, the format of the output data can be controlled.
+\layout Standard
+
+General Logging
+\begin_inset LatexCommand \index{General Logging}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:General-logging}
+
+\end_inset 
+
+
+\layout Subsection
+
+(LOGOPEN,filename)
+\layout Standard
+
+Opens the named log file.
+ If the file already exists, it is truncated.
+\layout Subsection
+
+(LOGCLOSE)
+\layout Standard
+
+If the log file is open, it is closed.
+\layout Subsection
+
+(LOG,\SpecialChar \ldots{}
+)
+\layout Standard
+
+The message 
+\begin_inset Quotes eld
+\end_inset 
+
+\SpecialChar \ldots{}
+
+\begin_inset Quotes erd
+\end_inset 
+
+ is expanded as described below and then written to the log file if it is
+ open.
+\layout Section
+
+Debugging Messages
+\begin_inset LatexCommand \index{G Code Debugging Messages}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sub:Debugging-messages}
+
+\end_inset 
+
+
+\layout Standard
+
+Comments that look like: 
+\family typewriter 
+(debug, rest of comment)
+\family default 
+ are the same as comments like 
+\family typewriter 
+(msg, rest of comment)
+\family default 
+ with the addition of special handling for parameters.
+\layout Standard
+
+Comments that look like: 
+\family typewriter 
+(print, rest of comment)
+\family default 
+ are output to stderr with special handling for parameters.
+\layout Section
+
+Parameters in special comments
+\layout Standard
+
+In the DEBUG, PRINT and LOG comments, the values of parameters in the message
+ are expanded.
+\layout Standard
+
+For example: to print a named global variable to stderr (the default console
+ window) add a line to your gcode like...
+\layout Quote
+
+(print,endmill dia = #<_endmill_dia>)
+\layout Standard
+
+Inside the above types of comments, sequences like 
+\family typewriter 
+#123
+\family default 
+ are replaced by the value of the parameter 123.
+ Sequences like 
+\family typewriter 
+#<named parameter>
+\family default 
+ are replaced by the value of the named parameter.
+ Remember that named parameters will have white space removed from them.
+ So, 
+\family typewriter 
+#<named parameter>
+\family default 
+ is the same as 
+\family typewriter 
+#<namedparameter>
+\family default 
+.
+ 
 \layout Chapter
 
 Differences between EMC2 gcode and RS274NGC
