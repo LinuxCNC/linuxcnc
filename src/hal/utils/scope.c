@@ -343,6 +343,7 @@ void capture_copy_data(void) {
     samp_len = ctrl_shm->sample_len;
     samp_size = samp_len * sizeof(scope_data_t);
     dst = ctrl_usr->disp_buf;
+    memset(dst, 0, sizeof(scope_data_t) * ctrl_shm->buf_len);
     src = ctrl_usr->buffer + ctrl_shm->start;
     src_end = ctrl_usr->buffer + (ctrl_shm->rec_len * samp_len);
     n = 0;
