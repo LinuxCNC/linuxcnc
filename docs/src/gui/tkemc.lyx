@@ -174,6 +174,17 @@ Put the stock to be milled on the table.
 
 Set the proper offsets for each axis by jogging and either homing again
  or right-clicking an axis name and entering an offset value.
+ 
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+for some of these actions it might be needed to change the mode emc2 currently
+ is in.
+\end_inset 
+
+
 \layout Enumerate
 
 Run the program.
@@ -803,13 +814,14 @@ Spindle
  group
 \layout Standard
 
-The buttons on the first row select the direction for the spindle to rotate:
+The button on the first row select the direction for the spindle to rotate:
  Counterclockwise, Stopped, Clockwise.
- The buttons on the next row increase or decrease the rotation speed.
- The checkbox on the third row allows the spindle brake to be engaged or
+ The buttons next to it allow the user to increase or decrease the rotation
+ speed.
+ The button on the second row allows the spindle brake to be engaged or
  released.
  Depending on your machine configuration, not all the items in this group
- may appear.
+ may have an effect.
 \layout Subsubsection
 
 The 
