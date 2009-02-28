@@ -64,7 +64,7 @@ machine coordinates (G53
 ) 
 \layout Itemize
 
-nine offsets (G54-G59.3
+nine fixture offsets (G54-G59.3
 \begin_inset LatexCommand \index{G54}
 
 \end_inset 
@@ -131,7 +131,7 @@ Regardless of any offsets that may be in effect, putting a G53
  in a block of code tells the interpreter to go to the real or absolute
  axis positions commanded in the block.
  For example
-\layout Standard
+\layout Quote
 
 g53 g0 x0 y0 z0 
 \layout Standard
@@ -530,8 +530,9 @@ One other variable in the VAR file becomes important when we think about
  system as its default.
  If you set this to 9.00000 it would use the nineth offset system as its
  default for startup and reset.
- Any value other than an interger (decimal really) between 1 and 9 will
- cause the EMC to fault on startup.
+ Any value other than an interger (decimal really) between 1 and 9, or a
+ missing 5220 variable will cause the EMC to revert to the default value
+ of 1.00000 on startup.
  
 \layout Subsection
 
