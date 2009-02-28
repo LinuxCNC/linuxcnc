@@ -746,7 +746,8 @@ Motor
 
 \end_inset 
 
- 
+ A special kind of motor that uses error-sensing feedback to correct the
+ position of an actuator.
 \layout Description
 
 Servo\SpecialChar ~
@@ -760,7 +761,8 @@ Loop
 
 \end_inset 
 
-
+ A control loop used to control position or velocity of an motor equipped
+ with a feedback device.
 \layout Description
 
 Spindle
