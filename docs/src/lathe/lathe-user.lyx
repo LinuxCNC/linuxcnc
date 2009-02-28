@@ -1087,7 +1087,17 @@ Note: if your in Radius Mode you will enter the radius not the diameter.
 Threading
 \layout Standard
 
-Under Construction
+Threading with a lathe requires feedback from the spindle to EMC.
+ Typically an encoder is used to provide the feedback.
+ See the Integrators Manual for more information on spindle feedback.
+ 
 \layout Standard
 
+The G76 threading cycle is used for both internal and external threads for
+ more information see G76
+\begin_inset LatexCommand \ref{fig:G76-canned-cycle}
+
+\end_inset 
+
+ in the G Code section.
 \the_end

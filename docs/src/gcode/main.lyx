@@ -629,7 +629,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \ref{sec:G40}
 
 \end_inset 
 
@@ -668,7 +668,7 @@ D
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \ref{sec:G41,-G42}
 
 \end_inset 
 
@@ -707,7 +707,7 @@ D L
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \ref{sec:G41.1,-G42.1}
 
 \end_inset 
 
@@ -2224,6 +2224,12 @@ G0 Rapid Linear Motion
 \end_inset 
 
 
+\layout Description
+
+G0\SpecialChar ~
+
+\shape slanted 
+axes
 \layout Standard
 
 For rapid linear (straight line) motion, program 
@@ -2233,8 +2239,7 @@ G0
 axes
 \family default 
 \emph default 
-, where all the axis words are optional, except that at least one must be
- used.
+, where all the axis words are optional.
  The 
 \family typewriter 
 G0
@@ -2253,12 +2258,6 @@ G0
  command is executing.
 \layout Standard
 
-It is an error if: 
-\layout Itemize
-
-all axis words are omitted.
-\layout Standard
-
 If cutter radius compensation is active, the motion will differ from the
  above; see Section 
 \begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
@@ -2266,7 +2265,10 @@ If cutter radius compensation is active, the motion will differ from the
 \end_inset 
 
 .
- If 
+ 
+\layout Standard
+
+If 
 \family typewriter 
 G53
 \family default 
@@ -2278,6 +2280,12 @@ G53
 
 .
  
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+An axis letter is without a real value.
 \layout Section
 
 G1 Linear Motion
@@ -2291,18 +2299,23 @@ G1 Linear Motion
 \end_inset 
 
 
+\layout Description
+
+G1\SpecialChar ~
+
+\shape slanted 
+axes
 \layout Standard
 
-For linear (straight line) motion at feed rate (for cutting or not), program
- 
+For linear (straight line) motion at programed feed rate (for cutting or
+ not), program 
 \family typewriter 
 G1 
 \emph on 
 axes
 \family default 
 \emph default 
-, where all the axis words are optional, except that at least one must be
- used.
+, where all the axis words are optional.
  The 
 \family typewriter 
 G1
@@ -2316,15 +2329,6 @@ G1
  the current feed rate (or slower if the machine will not go that fast).
 \layout Standard
 
-It is an error if: 
-\layout Itemize
-
-all axis words are omitted.
-\layout Itemize
-
-no feed rate has been set.
-\layout Standard
-
 If cutter radius compensation is active, the motion will differ from the
  above; see Section 
 \begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
@@ -2332,7 +2336,10 @@ If cutter radius compensation is active, the motion will differ from the
 \end_inset 
 
 .
- If 
+ 
+\layout Standard
+
+If 
 \family typewriter 
 G53
 \family default 
@@ -2343,6 +2350,12 @@ G53
 \end_inset 
 
 .
+\layout Standard
+
+It is an error if: 
+\layout Itemize
+
+No feed rate has been set.
 \layout Section
 
 G2, G3 Arc
@@ -2399,9 +2412,9 @@ G19
  If the arc is circular, it lies in a plane parallel to the selected plane.
 \layout Standard
 
-If a line of RS274/NGC code makes an arc and includes rotational axis motion,
- the rotational axes turn at a constant rate so that the rotational motion
- starts and finishes when the XYZ motion starts and finishes.
+If a line of code makes an arc and includes rotational axis motion, the
+ rotational axes turn at a constant rate so that the rotational motion starts
+ and finishes when the XYZ motion starts and finishes.
  Lines of this sort are hardly ever programmed.
 \layout Standard
 
@@ -2417,7 +2430,10 @@ If cutter radius compensation is active, the motion will differ from what
 
 Two formats are allowed for specifying an arc: Center Format and Radius
  Format.
- It is an error if:
+ 
+\layout Standard
+
+It is an error if:
 \layout Itemize
 
 No feed rate has been set.
@@ -2431,7 +2447,10 @@ In the center format, the coordinates of the end point of the arc in the
  arc from the current location.
  In this format, it is OK if the end point of the arc is the same as the
  current point.
- It is an error if:
+ 
+\layout Standard
+
+It is an error if:
 \layout Itemize
 
 When the arc is projected on the selected plane, the distance from the current
@@ -2440,98 +2459,103 @@ When the arc is projected on the selected plane, the distance from the current
  (if millimeters are being used).
 \layout Standard
 
-When the XY-plane is selected, program 
+When the XY-plane is selected program:
+\layout Description
+
+
 \family typewriter 
-G2 
+G2\SpecialChar ~
+or\SpecialChar ~
+G3\SpecialChar ~
+
 \emph on 
-axes
+axes\SpecialChar ~
+
 \emph default 
- I- J-
-\family default 
- (or use 
-\family typewriter 
-G3
-\family default 
- instead of 
-\family typewriter 
-G2
-\family default 
-).
- The axis words are all optional except that at least one of X and Y must
+I-\SpecialChar ~
+J-
+\layout Standard
+
+The axis words are all optional except that at least one of X and Y must
  be used to program an arc of less than 360 degrees.
  I and J are the offsets from the current location (in the X and Y directions,
  respectively) of the center of the circle.
  I and J are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
  If you include the Z word it will spiral.
- It is an error if: 
-\layout Itemize
-
-or I and J are both omitted.
+ 
 \layout Standard
 
-When the XZ-plane is selected, program 
+It is an error if: 
+\layout Itemize
+
+I and J are both omitted.
+\layout Standard
+
+When the XZ-plane is selected program:
+\layout Description
+
+
 \family typewriter 
-G2 
+G2\SpecialChar ~
+or\SpecialChar ~
+G3\SpecialChar ~
+
 \emph on 
-axes
+axes\SpecialChar ~
+
 \emph default 
- I- K-
-\family default 
- (or use 
-\family typewriter 
-G3
-\family default 
- instead of 
-\family typewriter 
-G2
-\family default 
-).
- The axis words are all optional except that at least one of X and Z must
+I-\SpecialChar ~
+K-
+\layout Standard
+
+The axis words are all optional except that at least one of X and Z must
  be used to program an arc of less than 360 degrees.
  I and K are the offsets from the current location (in the X and Z directions,
  respectively) of the center of the circle.
  I and K are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
- It is an error if: 
-\layout Itemize
-
-X and Z are both omitted, 
-\layout Itemize
-
-or I and K are both omitted.
+ 
 \layout Standard
 
-When the YZ-plane is selected, program 
+It is an error if: 
+\layout Itemize
+
+I and K are both omitted.
+\layout Standard
+
+When the YZ-plane is selected program:
+\layout Description
+
+
 \family typewriter 
-G2 
+G2\SpecialChar ~
+or\SpecialChar ~
+G3\SpecialChar ~
+
 \emph on 
-axes
+axes\SpecialChar ~
+
 \emph default 
- J- K-
+J-\SpecialChar ~
+K-
 \family default 
- (or use 
-\family typewriter 
-G3
-\family default 
- instead of 
-\family typewriter 
-G2
-\family default 
-).
- The axis words are all optional except that at least one of Y and Z must
+ 
+\layout Standard
+
+The axis words are all optional except that at least one of Y and Z must
  be used to program an arc of less than 360 degrees.
  J and K are the offsets from the current location (in the Y and Z directions,
  respectively) of the center of the circle.
  J and K are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
- It is an error if: 
+ 
+\layout Standard
+
+It is an error if: 
 \layout Itemize
 
-Y and Z are both omitted
-\layout Itemize
-
-or J and K are both omitted.
+J and K are both omitted.
 \layout Standard
 
 Here is an example of a center format command to mill an arc: 
@@ -2564,9 +2588,19 @@ Full Circles
 
 To do a full 360 circle from the current location only program the I, J
  or K offset from the current location for the G2/3.
- It is an error to use the K offset in the XY plane, the J offset in the
- XZ plane, and the I in the YZ plane.
  To program a 360 degree spiral in the XY plane just include the Z word.
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+The K offset is used in the XY plane
+\layout Itemize
+
+The J offset is used in the XZ plane
+\layout Itemize
+
+the I offset is used in the YZ plane
 \layout Subsection
 
 Radius format arcs (discouraged format)
@@ -2646,6 +2680,9 @@ G4 Dwell
 \end_inset 
 
 
+\layout Quote
+
+G4 P[seconds]
 \layout Standard
 
 For a dwell, program G4 P- .
@@ -2719,14 +2756,20 @@ G10 L1 Set Tool Table
 \end_inset 
 
 
-\layout Standard
-
-Program a G10 L1 to set a tool table entry from a program or the MDI window.
-  G10 reloads the tool table.
- 
 \layout Quote
 
 G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+\layout Standard
+
+Program a G10 L1 to set a tool table entry from a program or the MDI window.
+  G10 L1 reloads the tool table.
+ 
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+Cutter Compensation is on
 \layout Standard
 
 For more information on tool orientation see figure (
@@ -2748,9 +2791,15 @@ G10 L2 Set Coordinate System
 \end_inset 
 
 
+\layout Quote
+
+G10 L2 P[coordinate system] 
+\family typewriter 
+\emph on 
+axes
 \layout Standard
 
-The RS274/NGC language view of coordinate systems is described in Section
+The coordinate system is described in Section
 \begin_inset LatexCommand \ref{cha:Coordinate-System}
 
 \end_inset 
@@ -2792,7 +2841,7 @@ G10 L2
 It is an error if: 
 \layout Itemize
 
-the P number does not evaluate to an integer in the range 1 to 9.
+The P number does not evaluate to an integer in the range 1 to 9.
 \layout Standard
 
 If a 
@@ -3490,27 +3539,45 @@ filename.txt
 .
 \layout Section
 
-G40, G41, G41.1, G42, G42.1 Cutter Radius Compensation
-\begin_inset LatexCommand \index{G40, G41, G41.1, G42, G42.1 Cutter Compensation}
+G40 Compensation Off
+\begin_inset LatexCommand \index{Compensation Off}
 
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sub:G40,-G41,-G42:}
+\begin_inset LatexCommand \label{sec:G40}
 
 \end_inset 
 
 
 \layout Standard
 
-To turn cutter radius compensation off, program 
-\family typewriter 
-G40
-\family default 
-.
+Program G40 to turn cutter radius compensation off.
  The next move must be a straight move.
  It is OK to turn compensation off when it is already off.
- It is an error to program a G2/3 arc move after G40.
+ 
+\layout Standard
+
+It is an error if:
+\layout Itemize
+
+A G2/3 arc move is programmed after G40
+\layout Section
+
+G41, G42 Cutter Radius Compensation
+\begin_inset LatexCommand \index{G40, G41, G41.1, G42, G42.1 Cutter Compensation}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G41,-G42}
+
+\end_inset 
+
+
+\layout Quote
+
+G41 or G42 D[tool]
 \layout Standard
 
 To turn on cutter radius compensation to the left of the programmed line
@@ -3536,7 +3603,7 @@ The behavior of the machining center when cutter radius compensation is
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Cutter Radius Compensation from Tool Table
 \layout Standard
@@ -3574,9 +3641,22 @@ the YZ plane is active,
 
 or cutter radius compensation is commanded to turn on when it is already
  on.
-\layout Subsection
+\layout Section
 
-Dynamic Cutter Radius Compensation 
+G41.1, G42.1 Dynamic Cutter Radius Compensation
+\begin_inset LatexCommand \index{Dynamic Cutter Radius Compensation}
+
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G41.1,-G42.1}
+
+\end_inset 
+
+
+\layout Quote
+
+G41.1 or G42.1 D[diameter] <L[orientation]>
 \layout Standard
 
 To turn cutter radius compensation on left, program 
@@ -3584,12 +3664,18 @@ To turn cutter radius compensation on left, program
 G41.1 D- L-
 \family default 
 .
- To turn cutter compensation on right, program 
+ 
+\layout Standard
+
+To turn cutter compensation on right, program 
 \family typewriter 
 G42.1 D- L-
 \family default 
 .
- The D word specifies the cutter diameter.
+ 
+\layout Standard
+
+The D word specifies the cutter diameter.
  The L word specifies the cutter orientation, and defaults to 0 if unspecified.
  For more information on cutter orientation see Section (
 \begin_inset LatexCommand \ref{cap:Tool-Orientations}
