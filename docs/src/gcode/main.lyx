@@ -39,6 +39,127 @@ G Code Reference
 \end_inset 
 
 
+\layout Standard
+
+Conventions used in this section
+\layout Standard
+
+In the G Code prototypes the hyphen (
+\family typewriter 
+-
+\family default 
+) stands for a real value.
+ 
+\layout Standard
+
+A real value may be :
+\layout Itemize
+
+An explicit number, 
+\family typewriter 
+4
+\layout Itemize
+
+An expression, 
+\family typewriter 
+[2+2]
+\family default 
+ 
+\layout Itemize
+
+A parameter value, 
+\family typewriter 
+#88
+\family default 
+ 
+\layout Itemize
+
+A unary function value, 
+\family typewriter 
+acos[0]
+\layout Standard
+
+In most cases, if axis words (any or all of 
+\family typewriter 
+X-
+\family default 
+, 
+\family typewriter 
+Y-
+\family default 
+, 
+\family typewriter 
+Z-
+\family default 
+, 
+\family typewriter 
+A-
+\family default 
+, 
+\family typewriter 
+B-
+\family default 
+, 
+\family typewriter 
+C-
+\family default 
+, 
+\family typewriter 
+U-
+\family default 
+, 
+\family typewriter 
+V-
+\family default 
+, 
+\family typewriter 
+W-
+\family default 
+) are given, they specify a destination point.
+ 
+\layout Standard
+
+Axis numbers are in the currently active coordinate system, unless explicitly
+ described as being in the absolute coordinate system.
+ Where axis words are optional, any omitted axes will have their current
+ value.
+ 
+\layout Standard
+
+Any items in the G Code prototypes not explicitly described as optional
+ are required.
+ 
+\layout Standard
+
+The values following letters are often given as explicit numbers.
+ Unless stated otherwise, the explicit numbers can be real values.
+ For example, 
+\family typewriter 
+G10 L2
+\family default 
+ could equally well be written 
+\family typewriter 
+G[2*5] L[1+1]
+\family default 
+.
+ If the value of parameter 100 were 2, 
+\family typewriter 
+G10 L#100
+\family default 
+ would also mean the same.
+ 
+\layout Standard
+
+If 
+\family typewriter 
+L-
+\family default 
+ is written in a prototype the 
+\family typewriter 
+"-
+\family default 
+" will often be referred to as the "L number", and so on for any other letter.
+ 
 \layout Section
 
 Quick Reference Table
@@ -2090,127 +2211,6 @@ n/a
 \end_inset 
 
 
-\layout Subsection*
-
-Conventions used in this section
-\layout Standard
-
-In the G Code prototypes the hyphen (
-\family typewriter 
--
-\family default 
-) stands for a real value.
- 
-\layout Standard
-
-A real value may be :
-\layout Itemize
-
-An explicit number, 
-\family typewriter 
-4
-\layout Itemize
-
-An expression, 
-\family typewriter 
-[2+2]
-\family default 
- 
-\layout Itemize
-
-A parameter value, 
-\family typewriter 
-#88
-\family default 
- 
-\layout Itemize
-
-A unary function value, 
-\family typewriter 
-acos[0]
-\layout Standard
-
-In most cases, if axis words (any or all of 
-\family typewriter 
-X-
-\family default 
-, 
-\family typewriter 
-Y-
-\family default 
-, 
-\family typewriter 
-Z-
-\family default 
-, 
-\family typewriter 
-A-
-\family default 
-, 
-\family typewriter 
-B-
-\family default 
-, 
-\family typewriter 
-C-
-\family default 
-, 
-\family typewriter 
-U-
-\family default 
-, 
-\family typewriter 
-V-
-\family default 
-, 
-\family typewriter 
-W-
-\family default 
-) are given, they specify a destination point.
- 
-\layout Standard
-
-Axis numbers are in the currently active coordinate system, unless explicitly
- described as being in the absolute coordinate system.
- Where axis words are optional, any omitted axes will have their current
- value.
- 
-\layout Standard
-
-Any items in the G Code prototypes not explicitly described as optional
- are required.
- 
-\layout Standard
-
-The values following letters are often given as explicit numbers.
- Unless stated otherwise, the explicit numbers can be real values.
- For example, 
-\family typewriter 
-G10 L2
-\family default 
- could equally well be written 
-\family typewriter 
-G[2*5] L[1+1]
-\family default 
-.
- If the value of parameter 100 were 2, 
-\family typewriter 
-G10 L#100
-\family default 
- would also mean the same.
- 
-\layout Standard
-
-If 
-\family typewriter 
-L-
-\family default 
- is written in a prototype the 
-\family typewriter 
-"-
-\family default 
-" will often be referred to as the "L number", and so on for any other letter.
- 
 \layout Section
 
 G0 Rapid Linear Motion
@@ -4060,7 +4060,7 @@ It is an error if:
 the Q number is negative or zero.
 \layout Section
 
-G76 Threading Canned Cycle
+G76 Threading Cycle
 \begin_inset LatexCommand \index{G76 Threading}
 
 \end_inset 
