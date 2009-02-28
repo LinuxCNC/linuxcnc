@@ -39,160 +39,6 @@ G Code Reference
 \end_inset 
 
 
-\layout Standard
-
-G codes of the RS274/NGC language are shown in Table 5 and described following
- that.
-\layout Standard
-
-In the command prototypes, the hyphen (
-\family typewriter 
--
-\family default 
-) stands for a real value.
- As described earlier, a real value may be (1) an explicit number, 
-\family typewriter 
-4
-\family default 
-, for example, (2) an expression, 
-\family typewriter 
-[2+2]
-\family default 
-, for example, (3) a parameter value, 
-\family typewriter 
-#88
-\family default 
-, for example, or (4) a unary function value, 
-\family typewriter 
-acos[0]
-\family default 
-, for example.
-\layout Standard
-
-In most cases, if axis words (any or all of 
-\family typewriter 
-X-
-\family default 
-, 
-\family typewriter 
-Y-
-\family default 
-, 
-\family typewriter 
-Z-
-\family default 
-, 
-\family typewriter 
-A-
-\family default 
-, 
-\family typewriter 
-B-
-\family default 
-, 
-\family typewriter 
-C-
-\family default 
-, 
-\family typewriter 
-U-
-\family default 
-, 
-\family typewriter 
-V-
-\family default 
-, 
-\family typewriter 
-W-
-\family default 
-) are given, they specify a destination point.
- Axis numbers are in the currently active coordinate system, unless explicitly
- described as being in the absolute coordinate system.
- Where axis words are optional, any omitted axes will have their current
- value.
- Any items in the command prototypes not explicitly described as optional
- are required.
- It is an error if a required item is omitted.
- In prototypes, this will be written as 
-\family typewriter 
-\emph on 
-axes
-\family default 
-.
-\layout Standard
-
-In the prototypes, the values following letters are often given as explicit
- numbers.
- Unless stated otherwise, the explicit numbers can be real values.
- For example, 
-\family typewriter 
-G10 L2
-\family default 
- could equally well be written 
-\family typewriter 
-G[2*5] L[1+1]
-\family default 
-.
- If the value of parameter 100 were 2, 
-\family typewriter 
-G10 L#100
-\family default 
- would also mean the same.
- Using real values which are not explicit numbers as just shown in the examples
- is rarely useful.
-\layout Standard
-
-If 
-\family typewriter 
-L-
-\family default 
- is written in a prototype the 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
--
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- will often be referred to as the 
-\begin_inset Quotes eld
-\end_inset 
-
-L number
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Similarly the 
-\begin_inset Quotes eld
-\end_inset 
-
-
-\family typewriter 
--
-\family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- in 
-\family typewriter 
-H-
-\family default 
- may be called the 
-\begin_inset Quotes eld
-\end_inset 
-
-H number
-\begin_inset Quotes erd
-\end_inset 
-
-, and so on for any other letter.
- 
 \layout Section
 
 Quick Reference Table
@@ -202,7 +48,7 @@ Quick Reference Table
 
 
 \layout Standard
-
+\pagebreak_bottom 
 
 \begin_inset  Tabular
 <lyxtabular version="3" rows="52" columns="4">
@@ -2244,8 +2090,129 @@ n/a
 \end_inset 
 
 
+\layout Subsection*
+
+Conventions used in this section
+\layout Standard
+
+In the G Code prototypes the hyphen (
+\family typewriter 
+-
+\family default 
+) stands for a real value.
+ 
+\layout Standard
+
+A real value may be :
+\layout Itemize
+
+An explicit number, 
+\family typewriter 
+4
+\layout Itemize
+
+An expression, 
+\family typewriter 
+[2+2]
+\family default 
+ 
+\layout Itemize
+
+A parameter value, 
+\family typewriter 
+#88
+\family default 
+ 
+\layout Itemize
+
+A unary function value, 
+\family typewriter 
+acos[0]
+\layout Standard
+
+In most cases, if axis words (any or all of 
+\family typewriter 
+X-
+\family default 
+, 
+\family typewriter 
+Y-
+\family default 
+, 
+\family typewriter 
+Z-
+\family default 
+, 
+\family typewriter 
+A-
+\family default 
+, 
+\family typewriter 
+B-
+\family default 
+, 
+\family typewriter 
+C-
+\family default 
+, 
+\family typewriter 
+U-
+\family default 
+, 
+\family typewriter 
+V-
+\family default 
+, 
+\family typewriter 
+W-
+\family default 
+) are given, they specify a destination point.
+ 
+\layout Standard
+
+Axis numbers are in the currently active coordinate system, unless explicitly
+ described as being in the absolute coordinate system.
+ Where axis words are optional, any omitted axes will have their current
+ value.
+ 
+\layout Standard
+
+Any items in the G Code prototypes not explicitly described as optional
+ are required.
+ 
+\layout Standard
+
+The values following letters are often given as explicit numbers.
+ Unless stated otherwise, the explicit numbers can be real values.
+ For example, 
+\family typewriter 
+G10 L2
+\family default 
+ could equally well be written 
+\family typewriter 
+G[2*5] L[1+1]
+\family default 
+.
+ If the value of parameter 100 were 2, 
+\family typewriter 
+G10 L#100
+\family default 
+ would also mean the same.
+ 
+\layout Standard
+
+If 
+\family typewriter 
+L-
+\family default 
+ is written in a prototype the 
+\family typewriter 
+"-
+\family default 
+" will often be referred to as the "L number", and so on for any other letter.
+ 
 \layout Section
-\pagebreak_top 
+
 G0 Rapid Linear Motion
 \begin_inset LatexCommand \index{G0 Rapid}
 
@@ -2569,7 +2536,7 @@ or J and K are both omitted.
 
 Here is an example of a center format command to mill an arc: 
 \family typewriter 
-G17 G2 x10 y16 i3 j4 z9
+G17 G2 X10 Y16 I3 J4 Z9
 \family default 
 .
 \layout Standard
@@ -2684,7 +2651,10 @@ G4 Dwell
 For a dwell, program G4 P- .
  This will keep the axes unmoving for the period of time in seconds specified
  by the P number.
- It is an error if: 
+ 
+\layout Standard
+
+It is an error if: 
 \layout Itemize
 
 the P number is negative.
@@ -3031,8 +3001,6 @@ Program G20 to use inches for length units.
 It is usually a good idea to program either G20 or G21 near the beginning
  of a program before any motion occurs, and not to use either one anywhere
  else in the program.
- It is the responsibility of the user to be sure all numbers are appropriate
- for use with the current length units.
  
 \layout Section
 
@@ -3202,13 +3170,13 @@ All the axis words are optional, except that at least one must be used.
 It is an error if: 
 \layout Itemize
 
-all axis words are omitted.
+All axis words are omitted.
 \layout Itemize
 
-the spindle is not turning when this command is executed
+The spindle is not turning when this command is executed
 \layout Itemize
 
-the requested linear motion exceeds machine velocity limits due to the spindle
+The requested linear motion exceeds machine velocity limits due to the spindle
  speed
 \layout Section
 
@@ -3283,31 +3251,10 @@ In response to this command, the machine moves the controlled point (which
  In inverse time feed mode, the feed rate is such that the whole motion
  from the current point to the programmed point would take the specified
  time.
- The move stops when the programmed point is reached, or when the requested
- change in the probe input takes place
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Actually, the movement continues beyond the 
-\begin_inset Quotes eld
-\end_inset 
-
-probe state changed
-\begin_inset Quotes erd
-\end_inset 
-
- point due to machine acceleration constraints.
-\end_inset 
-
-.
- Table 
-\begin_inset LatexCommand \ref{cap:Probing-codes}
-
-\end_inset 
-
- shows the meaning of the various probing codes.
+ The move stops (within machine acceleration limits) when the programmed
+ point is reached, or when the requested change in the probe input takes
+ place.
+ 
 \layout Standard
 
 
@@ -3912,26 +3859,32 @@ G61, G61.1, G64 Set Path Control Mode
 \end_inset 
 
 
+\layout Description
+
+G61 Exact Path Mode
+\layout Description
+
+G61.1 Exact Stop Mode
+\layout Description
+
+G64 Best Possible Speed
+\layout Description
+
+G64\SpecialChar ~
+P- Best Possible Speed within "P" tolerance.
 \layout Standard
 
-Program 
-\family typewriter 
-G61
-\family default 
- to put the machining center into exact path mode, 
-\family typewriter 
-G61.1
-\family default 
- for exact stop mode, or 
-\family typewriter 
-G64 P-
-\family default 
- for continuous mode with optional tolerance.
- G61 visits the programmed point exactly, even though that means  temporarily
+G61 visits the programmed point exactly, even though that means  temporarily
  coming to a complete stop.
-  G64 without P means to keep the  best speed possible, no matter how far
+  
+\layout Standard
+
+G64 without P means to keep the  best speed possible, no matter how far
  away from the programmed point  you end up.
-  G64 P- means that it should slow down as required to keep  no more than
+  
+\layout Standard
+
+G64 P- means that it should slow down as required to keep  no more than
  P- away from the programmed endpoint.
   In addition, when  you activate G64 P- it turns on the "naive cam detector";
  when there are a series of linear XYZ feed moves at the same feed rate
@@ -4547,14 +4500,10 @@ do the same cycle in the same place several times,
 Repeat Cycle
 \layout Standard
 
-When 
-\begin_inset Formula $L>1$
-\end_inset 
-
- in incremental mode with the XY-plane selected, the X and Y positions are
- determined by adding the given X and Y numbers either to the current X
- and Y positions (on the first go-around) or to the X and Y positions at
- the end of the previous go-around (on the repetitions).
+When L- is greater than 1 in incremental mode with the XY-plane selected,
+ the X and Y positions are determined by adding the given X and Y numbers
+ either to the current X and Y positions (on the first go-around) or to
+ the X and Y positions at the end of the previous go-around (on the repetitions).
  Thus, if you program 
 \family typewriter 
 L10
@@ -5980,7 +5929,7 @@ To change the current tool number while in MDI or Manual mode program a
 It is an error if:
 \layout Itemize
 
-Qxx is not 0 or greater
+Q- is not 0 or greater
 \layout Section
 
 M62 to M65 Output Control
@@ -6063,15 +6012,15 @@ M66 P- E- L- Q-
 M66 Wait on an input
 \layout Itemize
 
-The P-word specifies the digital input number.
+The P- word specifies the digital input number.
  
 \layout Itemize
 
-The E-word specifies the analog input number.
+The E- word specifies the analog input number.
  
 \layout Itemize
 
-The L-word specifies the wait type:
+The L- word specifies the wait type:
 \begin_deeper 
 \layout Description
 
@@ -6198,7 +6147,7 @@ O-codes provide for flow control in NC programs.
  Care must be taken to properly match the O-numbers.
 \layout Standard
 
-The behavior is undefined if
+The behavior is undefined if:
 \layout Itemize
 
 Other words are used on a line with an O- word
@@ -6329,24 +6278,9 @@ Looping: do, while, endwhile, break, continue
 
 \layout Standard
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-while loop
-\begin_inset Quotes erd
-\end_inset 
-
- has two structures: while/endwhile, and do/while.
- In each case, the loop is exited when the 
-\begin_inset Quotes eld
-\end_inset 
-
-while
-\begin_inset Quotes erd
-\end_inset 
-
- condition evaluates to false.
+The "while loop" has two structures: while/endwhile, and do/while.
+ In each case, the loop is exited when the "while" condition evaluates to
+ false.
 \layout Quote
 
 (draw a sawtooth shape)
@@ -6391,16 +6325,8 @@ Conditional: if, else, endif
 
 \layout Standard
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-if
-\begin_inset Quotes erd
-\end_inset 
-
- conditional executes one group of statements if a condition is true and
- another if it is false.
+The "if" conditional executes one group of statements if a condition is
+ true and another if it is false.
 \layout Quote
 
 (Set feed rate depending on a variable)
@@ -6424,16 +6350,8 @@ Repeat
 
 \layout Standard
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-repeat
-\begin_inset Quotes erd
-\end_inset 
-
- will execute the statements inside of the repeat/endrepeat the specified
- number of times.
+The "repeat" will execute the statements inside of the repeat/endrepeat
+ the specified number of times.
  The example shows how you might mill a diagonal series of shapes starting
  at the present position.
 \layout Quote
@@ -6596,7 +6514,10 @@ S-
  If the speed override switch is enabled and not set at 100%, the speed
  will be different from what is programmed.
  It is OK to program S0; the spindle will not turn if that is done.
- It is an error if: 
+ 
+\layout Standard
+
+It is an error if: 
 \layout Itemize
 
 the S number is negative.
@@ -6662,7 +6583,10 @@ T0
 \family default 
 ; no tool will be selected.
  This is useful if you want the spindle to be empty after a tool change.
- It is an error if:
+ 
+\layout Standard
+
+It is an error if:
 \layout Itemize
 
 a negative T number is used, 
@@ -6740,31 +6664,15 @@ Messages
 \layout Standard
 
 A comment contains a message if 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
-MSG,
+"MSG,
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- appears after the left parenthesis and before any other printing characters.
+" appears after the left parenthesis and before any other printing characters.
  Variants of 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
-MSG,
+"MSG,
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- which include white space and lower case characters are allowed.
+" which include white space and lower case characters are allowed.
  The rest of the characters before the right parenthesis are considered
  to be a message.
  Messages should be displayed on the message display device.
@@ -6909,10 +6817,10 @@ Inside the above types of comments, sequences like
  
 \layout Chapter
 
-Differences between EMC2 gcode and RS274NGC
+EMC2 and RS274NGC
 \layout Section
 
-Differences that change the meaning of well-formed RS274NGC programs
+Differences that change the meaning of RS274NGC programs
 \layout Subsection
 
 Location after a tool change
@@ -6995,7 +6903,7 @@ M62 and M63 are not currently implemented, but may be added to a future
  release of EMC2.
 \layout Section
 
-Differences that do not change the meaning of well-formed RS274NGC programs
+Differences that do not change the meaning of RS274NGC programs
 \layout Subsection
 
 G33, G76 threading codes
