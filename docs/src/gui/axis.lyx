@@ -2700,12 +2700,18 @@ Special comments can be inserted into the G Code file to control how the
  The (AXIS,hide) and (AXIS,show) must be used in pairs with the (AXIS,hide)
  being first.
  Anything after a (AXIS,stop) will not be drawn during the preview.
+\layout Standard
+
+These comments are useful to unclutter the preview display (for instance
+ while debugging a larger g-code file, one can disable the preview on certain
+ parts that are already working ok).
 \layout Itemize
 
 (AXIS,hide) Stops the preview (must be first)
-\newline 
+\layout Itemize
+
 (AXIS,show) Resumes the preview (must follow a hide)
 \layout Itemize
 
-(AXIS, stop) Stops the preview to the end of the file.
+(AXIS, stop) Stops the preview from here to the end of the file.
 \the_end
