@@ -202,6 +202,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{gcode/overview.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{gcode/main.lyx}
 preview false
 

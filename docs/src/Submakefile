@@ -89,6 +89,7 @@ DOC_SRCS := \
 	gcode/main_fr.lyx \
 	gcode/mill_canned.lyx \
 	gcode/mill_canned_fr.lyx \
+	gcode/overview.lyx \
 	gcode/tool_compensation.lyx \
 	gcode/tool_compensation_fr.lyx \
 	hal/basic_hal.lyx \
