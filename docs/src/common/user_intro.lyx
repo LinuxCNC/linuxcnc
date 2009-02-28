@@ -304,8 +304,10 @@ feed rate override
  Commands like these should be self explanatory.
 \layout Standard
 
-The AXIS user interface removes some of the distinctions between Auto and
+The AXIS user interface hides some of the distinctions between Auto and
  the other modes by making Auto-commands available at most times.
  It also blurs the distinction between Manual and MDI because some Manual
  commands like Touch Off are actually implemented by sending MDI commands.
+ It does this by automatically changing to the mode that is needed for the
+ action the user has requested.
 \the_end
