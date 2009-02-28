@@ -155,11 +155,11 @@ Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008
 
 \layout Itemize
 
-"UNIX was not designed to stop its users from doing stupid things, as that
- would also stop them from doing clever things." Doug Gwyn
+Praphrasing the words of Doug Gwyn on UNIX: "emc2 was not designed to stop
+ its users from doing stupid things, as that would also stop them from doing
+ clever things."
 \layout Itemize
 
-"Unix is user-friendly.
- It just isn't promiscuous about which users it's friendly with." Steven
- King 
+Likewise the words of Steven King: "emc2 is user-friendly.
+ It just isn't promiscuous about which users it's friendly with."
 \the_end
