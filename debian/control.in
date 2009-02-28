@@ -18,7 +18,7 @@ Description: PC based motion controller for real-time Linux.
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
 
-Package: emc2-dev
+Package: @EMC2_PACKAGE_NAME@-dev
 Architecture: any
 Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@, python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@), @EMC2_PACKAGE_NAME@ (= ${Source-Version}), yapps2-runtime
@@ -30,52 +30,4 @@ Description: PC based motion controller for real-time Linux.
  .
  This package includes files needed to build new realtime components and
  alternate front-ends for emc2
-
-Package: emc2-firmware
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Recommends: emc2-firmware-mesa-4i65-hostmot2, emc2-firmware-mesa-4i68-hostmot2, emc2-firmware-mesa-5i20-hostmot2, emc2-firmware-mesa-5i22-hostmot2, emc2-firmware-mesa-5i23-hostmot2, emc2-firmware-mesa-7i43-hostmot2
-Description: All separately-packaged firmware used by EMC2
- This is an empty package that depends on all the separately packaged
- firmware images used by EMC2.  If your configuration does not need
- any firmware, you can safely remove this package.  If you know which
- specific emc2-firmware-* package you need, you can remove this package
- and install just the one you need.
-
-Package: emc2-firmware-mesa-4i65-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 4i65
-
-Package: emc2-firmware-mesa-4i68-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 4i68
-
-Package: emc2-firmware-mesa-5i20-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 5i20
-
-Package: emc2-firmware-mesa-5i22-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 5i22
-
-Package: emc2-firmware-mesa-5i23-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 5i23
-
-Package: emc2-firmware-mesa-7i43-hostmot2
-Architecture: any
-Depends: @EMC2_PACKAGE_NAME@
-Enhances: @EMC2_PACKAGE_NAME@
-Description: HostMot2 firmware images for the Mesa 7i43
 

@@ -113,6 +113,8 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 }
 
 subst control.in > control
+if [ "$TARGET" != "sim" ]; then subst control.firmware >> control; fi
+
 subst rules.in > rules; chmod +x rules
 if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
     subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > $EMC2_PACKAGE_NAME.files

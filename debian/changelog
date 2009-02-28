@@ -1,3 +1,10 @@
+emc2 (1:2.3.0~beta2~pre) hardy; urgency=low
+
+  * tweak firmware package building: not on sim, arch "all".
+  * rename sim's emc2-dev to emc2-sim-dev
+
+ -- Jeff Epler <jepler@platte>  Sat, 28 Feb 2009 12:48:47 -0600
+
 emc2 (1:2.3.0~beta1) unstable; urgency=low
 
   * install sample configurations to /usr/share/doc/emc2/examples/sample-configs/
