@@ -132,7 +132,7 @@ Figure
  remind the reader of this typical machine.
 \layout Section
 
-Graphical User Interfaces
+User Interfaces
 \begin_inset LatexCommand \label{sub:Graphical-User-Interfaces}
 
 \end_inset 
@@ -140,13 +140,15 @@ Graphical User Interfaces
 
 \layout Standard
 
-A graphical interface is the part of the EMC2 that the machine tool operator
+A user interface is the part of the EMC2 that the machine tool operator
  interacts with.
  The EMC2 comes with several types of user interfaces: 
 \layout Itemize
 
-AXIS an OpenGL-based GUI, with an interactive G-Code previewer.
- This is the only interface that is still being developed and improved on.
+AXIS an OpenGL-based GUI (Graphical User Interface), with an interactive
+ G-Code previewer.
+ This interface is one of the few that are still under active development
+ and improvement.
  
 \layout Standard
 \align center 
@@ -161,13 +163,21 @@ AXIS an OpenGL-based GUI, with an interactive G-Code previewer.
 \layout Itemize
 
 Keystick a character-based screen graphics program suitable for minimal
- installations.
+ installations (without the X server running).
 \layout Itemize
 
 Xemc an X Windows program
 \layout Itemize
 
-two Tcl/Tk-based GUIs named tkemc and mini 
+two Tcl/Tk-based GUIs named TkEMC and Mini 
+\layout Itemize
+
+a HAL based user interface called halui, which allows to control emc2 using
+ knobs and switches
+\layout Itemize
+
+a telnet based user interface called emcrsh, which allows commands to be
+ sent to emc2 from remote computers
 \layout Section
 
 Thinking Like a Machine Operator
