@@ -116,12 +116,12 @@ One machine tool manufacturer, Hurco, claims to have a right to the use
  or features of that geometry.
 \layout Standard
 
-The use of Computer Aided Drafting has also had an effect on the CNC programming
+The use of Computer Aided Design has also had an effect on the CNC programming
  languages.
  Because CAD drawings are saved as a list or database of geometries and
  variables associated with each, they are available to be interpreted into
  G-Code.
- These interpreters are called CAM (Computer Aided Machining) programs.
+ These interpreters are called CAM (Computer Aided Manufacturing) programs.
 \layout Standard
 
 Like the CAD converters, the rise of drawing programs, like Corel
