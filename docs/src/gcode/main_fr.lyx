@@ -7600,7 +7600,7 @@ G10 L1
 
 \layout Standard
 
-Programmer un G10 L1 pour ajuste une entrée dans la table d'outils depuis
+Programmer un G10 L1 pour ajuster une entrée dans la table d'outils depuis
  un programme ou depuis la fenêtre d'entrées manuelles.
  
 \layout Standard
@@ -12108,6 +12108,13 @@ Ces codes ne sont pas définis dans RS274NGC
 
 M50\SpecialChar \ldots{}
 M53 survitesses
+\layout Standard
+
+Ces codes ne sont pas définis dans RS274NGC
+\layout Subsection
+
+M61\SpecialChar \ldots{}
+M66 
 \layout Standard
 
 Ces codes ne sont pas définis dans RS274NGC
