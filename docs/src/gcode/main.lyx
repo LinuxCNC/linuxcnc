@@ -6939,6 +6939,12 @@ M53 overrides
 These codes are not defined in RS274NGC
 \layout Subsection
 
+M61..M66
+\layout Standard
+
+These codes are not defined in RS274NGC
+\layout Subsection
+
 G43, G43.1
 \layout Subsubsection
 
