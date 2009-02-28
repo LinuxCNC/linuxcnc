@@ -67,6 +67,10 @@ $LUPREC
  70
 4
   9
+$DIMSTYLE
+  2
+Standard
+  9
 $PLIMMAX
  10
 8.5
@@ -1989,7 +1993,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Compensated\~tool\~path
   7
@@ -2029,7 +2033,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Part\~Outline
   7
@@ -2069,7 +2073,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Lead\~In\~Move
   7
@@ -2109,7 +2113,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Tool
   7
@@ -2121,73 +2125,9 @@ romans2
  44
 1.0
   0
-MTEXT
-  5
-5E
-100
-AcDbEntity
-100
-AcDbMText
-  8
-text
- 62
-256
-370
--1
-  6
-ByLayer
- 10
--3.0
- 20
-4.75
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-1
- 72
-0
-  3
-G-Code\PG40\~(\~Cancel\~Comp\~)\PG10\~L1\~P1\~R0.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~Tool\~)\PG42\~(\~Start\~Comp\~Left\~)\PG1\~X1\~Y1\~(Lead\~In\~Move)\PX5\~(\~Cut\~Path\~)\PY5\PX1\PG40\~(\~Cancel\~Comp\~)\PG0\~X0\~Y0\~(\~Exit\~Move\~)\
-  1
-PM2\~(\~End\~Program\~)
-  7
-romans2
- 50
-0.0
- 73
-1
- 44
-1.0
-  0
-POINT
-  5
-5F
-100
-AcDbEntity
-100
-AcDbPoint
-  8
-text
- 62
-256
-370
--1
-  6
-ByLayer
- 10
--3.5
- 20
-5.75
- 30
-0.0
-  0
 LEADER
   5
-60
+5E
   8
 text
  62
@@ -2233,7 +2173,7 @@ Standard
   0
 MTEXT
   5
-61
+5F
 100
 AcDbEntity
 100
@@ -2259,7 +2199,7 @@ ByLayer
  71
 6
  72
-0
+2
   1
 Exit\~Move\~.
   7
@@ -2271,13 +2211,13 @@ romans2
  44
 1.0
   0
-POINT
+MTEXT
   5
-62
+60
 100
 AcDbEntity
 100
-AcDbPoint
+AcDbMText
   8
 text
  62
@@ -2287,11 +2227,31 @@ text
   6
 ByLayer
  10
--3.5
+-3.0
  20
-5.5
+4.75
  30
 0.0
+ 40
+0.125
+ 41
+100.0
+ 71
+1
+ 72
+2
+  3
+G-Code\PG40\~(\~Cancel\~Comp\~)\PG10\~L1\~P1\~R0.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~Tool\~)\PG42\~(\~Start\~Comp\~Left\~)\PG1\~X1\~Y1\~(Lead\~In\~Move)\PX5\~(\~Cut\~Path\~)\PY5\PX1\PY1\PG40\~(\~Cancel\~Comp\~)\PG0\~X0\~Y0\~(\~Exit\~Move
+  1
+\~)\PM2\~(\~End\~Program\~)
+  7
+romans2
+ 50
+0.0
+ 73
+1
+ 44
+1.0
   0
 ENDSEC
   0
@@ -2331,7 +2291,7 @@ E
   3
 AcDbVariableDictionary
 350
-63
+61
   0
 DICTIONARY
   5
@@ -2795,7 +2755,7 @@ Layout2
   0
 DICTIONARY
   5
-63
+61
 100
 AcDbDictionary
 281
@@ -2803,15 +2763,15 @@ AcDbDictionary
   3
 DIMASSOC
 350
-65
+63
   3
 HIDETEXT
 350
-64
+62
   0
 DICTIONARYVAR
   5
-64
+62
 100
 DictionaryVariables
 280
@@ -2821,7 +2781,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-65
+63
 100
 DictionaryVariables
 280
