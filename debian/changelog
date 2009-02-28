@@ -1,4 +1,4 @@
-emc2 (1:2.3.0~alpha1) unstable; urgency=low
+emc2 (1:2.3.0~beta1) unstable; urgency=low
 
   * install sample configurations to /usr/share/doc/emc2/examples/sample-configs/
   * fix halui - MDI number limited to 10 (SF#2607450)
@@ -139,12 +139,222 @@ emc2 (1:2.3.0~alpha1) unstable; urgency=low
   * fix deviation from commanded velocity due to differences
     between requested and actual servo-thread period (SF#2478266)
   * maintain G92 setting, if any, across gcode runs and EMC restarts
-  * AXIS: allow the filename ~/.axisrc to be overridden by inifile 
+  * AXIS: allow the filename ~/.axisrc to be overridden by inifile
     [DISPLAY]USER_COMMAND_FILE
   * AXIS: per-axis DTG readout
-  * [add bugfixes from the 2.2.x branch here, before release]
 
- -- Jeff Epler <jepler@platte>  Thu, 29 Jan 2009 07:11:49 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 28 Feb 2009 11:16:38 -0600
+
+emc2 (1:2.2.9~cvs) hardy; urgency=low
+
+  * Add Sherline lathe, 3- and 4-axis mill configurations from Heinz Reimer
+  * Fix several problems with CSS mode with reversed (M4) spindle,
+    including bug #2467781
+  * More error messages are translatable
+
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 13 Jan 2009 19:13:30 -0600
+
+emc2 (1:2.2.8) hardy; urgency=low
+
+  * Documentation improvements
+  * Fix rare incorrect movement for G2 and G3 arc moves
+  * partial swedish translation now under correct 'sv' language.
+  * hostmot2 improvements: encoder velocity and index mask.  stepgen step
+    types and bugfixes.  better logging.  improved device firmwares.
+
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 20:48:20 -0600
+
+emc2 (1:2.2.7) hardy; urgency=low
+
+  * pop up a message when the right kernel isn't running
+  * halcmd will now show an error message instead of segfaulting when
+    inadequate locked memory is available
+  * allow emc2-sim to be built on 8.04
+  * stepconf: fix "negative SCALE" problem reported by Christopher Purcell
+  * comp: fix bad C code generated from variable array declarations such as
+    'variable double output[8];'
+  * documentation improvments
+  * axis: "touch off" of rotary axis on metric machine
+  * hostmot2: Support all the PCI, PC/104-Plus, and EPP "Anything I/O"
+    boards: 5i20, 5i22, 5i23, 4i65, 4i68, and 7i43.  PCI users should
+    switch from hm2_5i20 to hm2_pci driver.
+  * hostmot2 changes: Config changes required!  pwmgen.scale now works as
+    advertised; stepgen timing params are "u32 ns" instead of "float
+    seconds"; and stepgens now have a .enable pin which needs setting.
+  * hostmot2 feature additions: Added PDM mode for pwmgen; PWM and PDM
+    frequency are now settable by the user; implemented stepgen maxaccel
+    and maxvel; support open-drain GPIOs; all GPIOs now have some
+    representation in HAL (though the ones used by module instances are
+    restricted); encoder improvements.
+  * Lots of hostmot2 bug fixes, mostly with pwmgen and stepgen.  Thanks to
+    all the brave testers!
+
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 11 Nov 2008 20:48:18 -0600
+
+emc2 (1:2.2.6) hardy; urgency=low
+
+  * fix hal_input manpage
+  * Fix FTBFS on hardy (texlive-extra-utils)
+  * (incompatible change) make debounce cfg= match the documentation
+    If you use a debounce component with multiple groups (e.g., cfg="3 3")
+    this must be changed to use commas instead of spaces: (e.g., cfg=3,3)
+  * hal_ax5214h: driver fixes from Dave Brink
+  * stepconf: fix spurious "application closed unexpectedly" messages
+    (for this and other stepconf bugfixes, re-run stepconf and re-save your
+    configuration file)
+  * stepconf: fix "following error" messages when the requested step rate
+    cannot be attained
+  * stepconf: fix "following error" messages due to insufficient "stepgen
+    headroom"
+  * stepconf: if an exception is encountered, show it to the user in a message
+    box.
+  * stepconf: fix non-working configuration if "Onscreen prompt for tool
+    change" was disabled
+  * stepconf: allow entry of step and direction timings up to 500000ns
+  * hal_ppmc: handle faster clock frequency for UPC 3.1 boards
+  * hal_ppmc: correctly return IO regions at exit
+  * software encoder counter: fix problem with negative velocity outputs
+  * Fix handling of G61/G64 after Machine Off (SF#2006736)
+  * new realtime component: gearchange.  selects between two scale factors,
+    two min and max speed limits, and optionally reverses direction of spindle
+  * new realtime component: invert - outputs the inverse of a float (1/x)
+  * new realtime component: ilowpass - scale and low-pass on integer values to
+    smooth jog wheel action
+  * added hostmot2 driver for 5i20 and 7i43
+  * added sample configuration for the Tormach PCNC 1100 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 10 Aug 2008 09:30:15 -0500
+
+emc2 (1:2.2.5) unstable; urgency=low
+
+  * Include license statement for the 'Togl' software, which is incorporated
+    in emc2
+  * added m7i43_hm2, a driver for the Mesa 7i43 board with HostMot2
+    firmware
+  * axis: numeric keypad fix in prior version was incomplete
+  * various documentation improvements
+  * stepconf: do not allow axis acceleration to be set to zero during an axis
+    test (SF#1938763)
+  * last move no longer discarded if it's a G1 and the file ends with % (SF#1937281)
+  * add a workaround which fixes pyvcp for hardy
+  * backport fix for  #1929461 - halui stops reading inputs during a MDI
+  * Fix a bug that caused backplot to freeze during linear moves
+  * add serbian translation for AXIS/stepconf
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 27 Apr 2008 14:39:40 -0500
+
+emc2 (1:2.2.4) unstable; urgency=low
+
+  * make xxxmach exit reliably with 'halcmd unload' (SF#1816781)
+  * hook up encoder index for homing in the motenc sample configuration
+  * axis: don't reset the interpreter during touch-off and reload.  This
+    fixes the loss of modal settings from MDI, including tool length offset,
+    fixing SF#1825638
+  * stepconf: clarify that it is the ratio of teeth on each pulley that must
+    be entered
+  * hal_input: fix 'ZeroDivisionError' for absolute axes that report the same
+    value for min and max
+  * fix various inaccuracies in the documentation
+  * halscope: fix the time displayed when mousing over a trace
+  * axis: fix ctrl and - or = starting an unstoppable jog
+  * axis: fix the numeric keypad with numlock on
+  * task: fix the initial coordinate system offset (SF#1895693)
+  * stepconf: fix "Both Limit"-type inputs (SF#1906640)
+  * stepconf: fix "HOME_SEQUENCE" problem without full set of home inputs
+    (SF#1906641)
+  * stepconf: fix Z home and limit switches on lathes (SF#1910452)
+  * stepconf: fix 'offset' value calculated for spindle speed control
+  * stepconf: enable 'dither-pwm' for spindle speed control
+  * traj planner: fix velocity 'bobble' between 1st and 2nd consecutive synced moves
+  * halscope: fix 'sample every Nth time' function
+  * configs/univstep: fix external estop in this configuration
+  * pluto_step: fix for negative scale values (SF#1915407)
+  * pluto_servo: fix for pwm+direction mode
+  * stepconf: improve calculation of HOME_LATCH_VEL
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 16 Mar 2008 12:15:28 -0500
+
+emc2 (1:2.2.3) unstable; urgency=low
+
+  * gcode quick reference had G98, G99 transposed
+  * gcode quick reference had wrong links to G18, G19 documentation
+  * initialize all axes, including unused ones, to 0.00000.  this fixes
+    several problems:
+    * g38.2 probe logs 0.000000 for axes that do not exist
+    * several types of 'following error' messages.  In particular, 4-axis code
+      seemed to be affected by this.
+  * axis: make 'touch off' work when the loaded file uses percent signs
+  * stepconf: fix several problems with Test Axis button
+  * hal_input: make sure absolute axes are driven with the correct value at
+    startup
+  * axis: show emc2 version number in title bar
+  * axis: show lathe tools with very small diameters better
+  * test suite: update expected results for several gcode tests
+  * fix sample configuration 'lathe-pluto'
+  * axis: fix incorrect line in the preview where tool length offset is changed
+  * fixed ferror problem when using start-from-line
+  * fix #1853953 M66 doesn't work with parport inputs
+  * temp fix preventing segfaults on bad M66 indexes
+  * pluto-step: fix a problem when the motor position went beyond +-2^20 counts
+  * fix NAN that appears when you move below the lower extent of a screw comp
+    file
+  * pluto-servo: fix a problem with pwm+direction mode
+  * updates to romanian translation
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 27 Jan 2008 20:26:21 -0600
+
+emc2 (1:2.2.2) unstable; urgency=low
+
+  * move hal_unlink manpage to development package
+  * make gcode quick reference link into our own full gcode reference
+    instead of the outdated nist document
+  * fix stepconf 'pulley' numbers: the 'motor' and 'leadscrew' fields
+    were transposed
+  * fix stepconf 'charge pump' pin
+  * fix stepconf 'external estop' pin
+  * fix homing in stepconf-created configurations
+  * fix halshow 'watch pin'
+  * restore cone rotation when the A-axis moves
+  * fix 'scara' sample configuration
+  * fix display of home and limit switches on XYZBC machines
+  * improve legibility of running line in text area
+  * additional french documentation translation, including gcode quickref
+  * improve time estimate in gcode File > Properties: it paid no attention to
+    requested feed rates
+  * fix ZX-plane (G18) arcs in the AXIS preview window
+  * fix tripod kinematics example configuration
+  * fix "arc in mdi takes forever" bug (SF#1834576)
+  * fix gcode documentation of toolchange
+  * fix comp311 examples to program Z position
+  * fix stepconf for negative and fractional axis SCALEs
+  * implement M66 E- (read analog value from gcode)
+  * add missing dependency on python2.4-glade
+  * fix problem where metric image-to-gcode would go to the safety height
+    before setting metric units
+  * fix stepconf so that axis doesn't display an 'unknown letter' error
+    when starting a lathe configuration
+  * fix stepconf 'pin 'motion.spindle-speed-in' was already linked' for
+    machines with spindle speed control and spindle feedback
+  * fix stepconf: don't allow arbitrary text to be entered in comboboxes
+  * fix stepconf: coolant pins
+  * stepconf: add parker oem750 timings
+  * fix stepconf: spindle feedback
+  * 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun,  2 Dec 2007 16:12:46 -0600
+
+emc2 (1:2.2.1) unstable; urgency=low
+
+  * fix packaging of stepconf.glade
+  * german translation improvements
+  * package additional new-in-2.2.x programs (pumagui, scaragui, hexagui
+    tracking-test, teach-in)
+  * fix problems using v2.1 var file -- it's silently upgraded with the new
+    entries used by v2.2 instead of issing weird errors at startup
+  * fix problem with probe_parport on certain machines
+  * fix problem with non-integer INTRO_TIME 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Wed,  7 Nov 2007 20:18:34 -0600
 
 emc2 (1:2.2.0) unstable; urgency=low
 
