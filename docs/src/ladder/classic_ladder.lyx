@@ -2131,8 +2131,7 @@ Serial:
 Classicladder uses RTU protocol (not ASCII)
 \layout Itemize
 
-8 data bits ,No parity is used.
- and 1 stop bit also know as 8-N-1
+8 data bits, No parity is used, and 1 stop bit also know as 8-N-1
 \layout Itemize
 
 Baud rate must be the same for slave and master.
@@ -2152,7 +2151,7 @@ MODBUS Info
 \layout Itemize
 
 ClassicLadder can use distributed inputs/outputs on modules using the modbus
- protocol ("master": pooling slaves).
+ protocol ("master": polling slaves).
 \layout Itemize
 
 The slaves and theirs I/O can be configured in the config window.
@@ -2165,7 +2164,7 @@ The slaves and theirs I/O can be configured in the config window.
 No parity is used.
 \layout Itemize
 
-If no port name for serial is set, IP mode will be used...
+If no port name for serial is set, TCP/IP mode will be used...
 \layout Itemize
 
 The slave address is the slave address (Modbus/RTU) or the IP address.
@@ -2190,8 +2189,9 @@ MODBUS TCP SERVER INCLUDED
 \layout Itemize
 
 ClassicLadder has a Modbus/TCP server integrated.
- Default port is 9502, standard 502 requires that the application has been
- launched with root privileges.
+ Default port is 9502.
+ (the previous standard 502 requires that the application must be launched
+ with root privileges).
 \layout Itemize
 
 List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
@@ -2228,7 +2228,7 @@ Infos on modbus protocol are available here:
 
 \layout Subsection
 
-Commnuication Errors
+Communication Errors
 \layout Standard
 
 If there is a communication error, a warning window will pop up (if the
@@ -2552,6 +2552,6 @@ loadusr -w classicladder --nogui MyLadder.clp
 
 Now if you start up your EMC2 config your ladder program will be running
  as well.
- Now if you select File/Ladder Editor...
- your program you created will show up in the Section Display window.
+ If you select File/Ladder Editor...
+ the program you created will show up in the Section Display window.
 \the_end
