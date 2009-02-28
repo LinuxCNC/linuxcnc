@@ -43,7 +43,7 @@ Invoking EMC
 After installation, EMC2 starts just like any other piece of Linux software:
  run it from the terminal by issuing the command 
 \family typewriter 
-EMC
+emc
 \family default 
 , or select it in the Applications > CNC menu.
 \layout Section
