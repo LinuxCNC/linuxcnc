@@ -265,7 +265,7 @@ proc describe {dir} {
     if {[string compare $dir [file normalize ~/emc2/configs]] == 0} {
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir "/etc/emc2/sample-configs"] == 0} {
+    if {[string compare $dir "/usr/share/doc/emc2/examples/sample-configs"] == 0} {
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
@@ -317,7 +317,7 @@ foreach dir $configs_dir_list {
 }
 
 if {$nonsample_count} {
-    catch { $tree closetree /etc/emc2/sample-configs }
+    catch { $tree closetree /usr/share/doc/emc2/examples/sample-configs }
 }
 
 unset seen
