@@ -103,8 +103,6 @@ if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
-if not os.path.isdir(distdir):
-    distdir = "/etc/emc2/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
 ZSTEP, ZDIR, ASTEP, ADIR,
