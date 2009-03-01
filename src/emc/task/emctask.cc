@@ -454,19 +454,11 @@ int emcTaskPlanExecute(const char *command)
 
 int emcTaskPlanExecute(const char *command, int line_number)
 {
-    int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.
-
-    if (command != 0) {		// Command is 0 if in AUTO mode, non-null if in MDI mode.
-	// Don't sync if not in position.
-	if ((*command != 0) && (inpos)) {
-	    interp.synch();
-	}
-    }
     int retval = interp.execute(command, line_number);
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
-    if(command != 0) {
+    if(command != 0) { // this means MDI
 	FINISH();
     }
     return retval;
