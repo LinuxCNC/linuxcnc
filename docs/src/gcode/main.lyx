@@ -2224,10 +2224,9 @@ G0 Rapid Linear Motion
 \end_inset 
 
 
-\layout Description
+\layout Quote
 
-G0\SpecialChar ~
-
+G0 
 \shape slanted 
 axes
 \layout Standard
@@ -2299,10 +2298,9 @@ G1 Linear Motion
 \end_inset 
 
 
-\layout Description
+\layout Quote
 
-G1\SpecialChar ~
-
+G1 
 \shape slanted 
 axes
 \layout Standard
@@ -2460,20 +2458,15 @@ When the arc is projected on the selected plane, the distance from the current
 \layout Standard
 
 When the XY-plane is selected program:
-\layout Description
+\layout Quote
 
 
 \family typewriter 
-G2\SpecialChar ~
-or\SpecialChar ~
-G3\SpecialChar ~
-
+G2 or G3 
 \emph on 
-axes\SpecialChar ~
-
+axes 
 \emph default 
-I-\SpecialChar ~
-J-
+I- J-
 \layout Standard
 
 The axis words are all optional except that at least one of X and Y must
@@ -2493,20 +2486,15 @@ I and J are both omitted.
 \layout Standard
 
 When the XZ-plane is selected program:
-\layout Description
+\layout Quote
 
 
 \family typewriter 
-G2\SpecialChar ~
-or\SpecialChar ~
-G3\SpecialChar ~
-
+G2 or G3 
 \emph on 
-axes\SpecialChar ~
-
+axes 
 \emph default 
-I-\SpecialChar ~
-K-
+I- K-
 \layout Standard
 
 The axis words are all optional except that at least one of X and Z must
@@ -2525,20 +2513,15 @@ I and K are both omitted.
 \layout Standard
 
 When the YZ-plane is selected program:
-\layout Description
+\layout Quote
 
 
 \family typewriter 
-G2\SpecialChar ~
-or\SpecialChar ~
-G3\SpecialChar ~
-
+G2 or G3 
 \emph on 
-axes\SpecialChar ~
-
+axes 
 \emph default 
-J-\SpecialChar ~
-K-
+J- K-
 \family default 
  
 \layout Standard
@@ -2584,6 +2567,9 @@ In the center format, the radius of the arc is not specified, but it may
 \layout Subsection
 
 Full Circles
+\layout Quote
+
+G2 or G3 I- J- K-
 \layout Standard
 
 To do a full 360 circle from the current location only program the I, J
@@ -3044,7 +3030,10 @@ G20, G21 Length Units
 \layout Standard
 
 Program G20 to use inches for length units.
- Program G21 to use millimeters.
+ 
+\layout Standard
+
+Program G21 to use millimeters for lenght units.
 \layout Standard
 
 It is usually a good idea to program either G20 or G21 near the beginning
@@ -3131,6 +3120,9 @@ G33, G33.1 Spindle-Synchronized Motion
 \end_inset 
 
 
+\layout Quote
+
+G33 X- Y- Z- K-
 \layout Standard
 
 For spindle-synchronized motion in one direction, code 
@@ -3945,19 +3937,18 @@ G61, G61.1, G64 Set Path Control Mode
 \end_inset 
 
 
-\layout Description
+\layout Quote
 
 G61 Exact Path Mode
-\layout Description
+\layout Quote
 
 G61.1 Exact Stop Mode
-\layout Description
+\layout Quote
 
 G64 Best Possible Speed
-\layout Description
+\layout Quote
 
-G64\SpecialChar ~
-P- Best Possible Speed within "P" tolerance.
+G64 P- Best Possible Speed within "P" tolerance.
 \layout Standard
 
 G61 visits the programmed point exactly, even though that means  temporarily
@@ -3981,15 +3972,7 @@ G64 P- means that it should slow down as required to keep  no more than
  into two lines (from start of arc to midpoint, and from midpoint to end).
  those lines are then subject to the naive cam algorithm for lines.
  Thus, line-arc, arc-arc, and arc-line cases as well as line-line benefit
- from the 
-\begin_inset Quotes eld
-\end_inset 
-
-naive cam detector
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ from the "naive cam detector".
  This improves contouring performance by simplifying the path.
  It is OK to program for the mode that is already active.
  See also Section 
@@ -4012,6 +3995,11 @@ G73 Drilling Cycle with Chip Breaking
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G73 X- Y- Z- A- B- C- R- L- Q-
 \layout Standard
 
 The 
@@ -4021,18 +4009,9 @@ G73
  cycle is intended for deep drilling or milling with chip breaking.
  The retracts in this cycle cut off any long stringers (which are common
  when drilling in aluminum).
- This cycle takes a Q number which represents a 
-\begin_inset Quotes eld
-\end_inset 
-
-delta
-\begin_inset Quotes erd
-\end_inset 
-
- increment along the Z axis.
- Program 
-\family typewriter 
-G73 X- Y- Z- A- B- C- R- L- Q-
+ This cycle takes a Q number which represents a "delta" increment along
+ the Z axis.
+ 
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -4071,14 +4050,14 @@ G76 Threading Cycle
 \end_inset 
 
 
-\layout Standard
+\layout Quote
 
-Program 
+
 \family typewriter 
 G76 P- Z- I- J- R- K- Q- H- E- L- 
-\family default 
-to perform a threading canned cycle.
- It is an error if:
+\layout Standard
+
+It is an error if:
 \layout Itemize
 
 The active plane is not the ZX plane
@@ -4700,6 +4679,11 @@ G81 Drilling Cycle
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G81 X- Y- Z- A- B- C- R- L-
 \layout Standard
 
 The 
@@ -4707,9 +4691,6 @@ The
 G81
 \family default 
  cycle is intended for drilling.
- Program 
-\family typewriter 
-G81 X- Y- Z- A- B- C- R- L-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -4853,6 +4834,11 @@ G82 Drilling Cycle with Dwell
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G82 X- Y- Z- A- B- C- R- L- P-
 \layout Standard
 
 The 
@@ -4860,9 +4846,6 @@ The
 G82
 \family default 
  cycle is intended for drilling.
- Program 
-\family typewriter 
-G82 X- Y- Z- A- B- C- R- L- P-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -4889,6 +4872,11 @@ G83 Peck Drilling
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G83 X- Y- Z- A- B- C- R- L- Q-
 \layout Standard
 
 The 
@@ -4908,9 +4896,6 @@ delta
 \end_inset 
 
  increment along the Z-axis.
- Program 
-\family typewriter 
-G83 X- Y- Z- A- B- C- R- L- Q-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -4976,6 +4961,11 @@ G85 Boring, No Dwell, Feed Out
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G85 X- Y- Z- A- B- C- R- L-
 \layout Standard
 
 The 
@@ -4984,9 +4974,6 @@ G85
 \family default 
  cycle is intended for boring or reaming, but could be used for drilling
  or milling.
- Program 
-\family typewriter 
-G85 X- Y- Z- A- B- C- R- L-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -5011,6 +4998,11 @@ G86 Boring, Spindle Stop, Rapid Out
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G86 X- Y- Z- A- B- C- R- L- P-
 \layout Standard
 
 The 
@@ -5019,9 +5011,7 @@ G86
 \family default 
  cycle is intended for boring.
  This cycle uses a P number for the number of seconds to dwell.
- Program 
-\family typewriter 
-G86 X- Y- Z- A- B- C- R- L- P-
+ 
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -5096,6 +5086,11 @@ G89 Boring, Dwell, Feed Out
 \end_inset 
 
 
+\layout Quote
+
+
+\family typewriter 
+G89 X- Y- Z- A- B- C- R- L- P-
 \layout Standard
 
 The 
@@ -5105,9 +5100,6 @@ G89
  cycle is intended for boring.
  This cycle uses a P number, where P specifies the number of seconds to
  dwell.
- program 
-\family typewriter 
-G89 X- Y- Z- A- B- C- R- L- P-
 \layout Enumerate
 
 Preliminary motion, as described above.
@@ -5136,10 +5128,16 @@ G90, G91 Set Distance Mode
 \end_inset 
 
 
+\layout Quote
+
+G90 is Absolute Distance Mode
+\layout Quote
+
+G91 is Incremental Distance Mode
 \layout Standard
 
-Interpretation of RS274/NGC code can be in one of two distance modes: absolute
- or incremental.
+Interpretation of G Code can be in one of two distance modes: absolute or
+ incremental.
 \layout Standard
 
 To go into absolute distance mode, program 
@@ -5344,6 +5342,15 @@ G93, G94, G95: Set Feed Rate Mode
 \end_inset 
 
 
+\layout Quote
+
+G93 is Inverse Time Mode
+\layout Quote
+
+G94 is Units per Minute Mode
+\layout Quote
+
+G95 is Units per Reveloution Mode.
 \layout Standard
 
 Three feed rate modes are recognized: units per minute, inverse time, and
@@ -5377,7 +5384,10 @@ When the inverse time feed rate mode is active, an F word must appear on
  does not have G1, G2, or G3 is ignored.
  Being in inverse time feed rate mode does not affect G0 (rapid traverse)
  motions.
- It is an error if: 
+ 
+\layout Standard
+
+It is an error if: 
 \layout Itemize
 
 inverse time feed rate mode is active and a line with G1, G2, or G3 (explicitly
@@ -5398,6 +5408,12 @@ G96, G97 Spindle Control Mode
 \end_inset 
 
 
+\layout Quote
+
+G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode
+\layout Quote
+
+G97 is RPM Mode
 \layout Standard
 
 Two spindle control modes are recognized: revolutions per minute, and constant
