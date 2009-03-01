@@ -1113,4 +1113,21 @@ Note: Si l'opérateur travaille en mode rayon (G8), la correction introduite
 \layout Section
 
 Filetage
+\layout Standard
+
+Sur un tour, le filetage nécessite un signal de retour entre la broche et
+ EMC2.
+ Généralement, c'est un codeur de position qui fourni ce retour.
+ Le manuel de l'intégrateur donne d'avantage d'informations sur le codeur
+ de broche.
+ 
+\layout Standard
+
+Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur
+ qu'en filetage extérieur, voir G76
+\begin_inset LatexCommand \ref{sec:G76:-Filetage-preprogramme}
+
+\end_inset 
+
+ dans la section G-code.
 \the_end

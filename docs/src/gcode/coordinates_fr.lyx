@@ -58,7 +58,7 @@ Les coordonnées machine (G53
 ) 
 \layout Itemize
 
-Les neuf décalages (G54 à G59.3
+Les neuf décalages d'origine pièce (G54 à G59.3
 \begin_inset LatexCommand \index{G54}
 
 \end_inset 
@@ -123,15 +123,15 @@ Indépendamment de tout décalage pouvant être actif, un G53
 \end_inset 
 
  dans une ligne de code indique à l'interpréteur de se déplacer aux positions
- réelles des axes (absolues), commandées dans la ligne.
+ réelles des axes (positions absolues), commandées dans la ligne.
  Par exemple:
 \layout Standard
 
-g53 g0 x0 y0 z0 
+G53 G0 X0 Y0 Z0 
 \layout Standard
 
 déplacera le mobile depuis la position actuelle vers la position où les
- coordonnées des trois axes seront à zéro.
+ coordonnées machine des trois axes seront à zéro.
  Vous pouvez utiliser cette commande si vous avez une position fixe pour
  le changement d'outil ou si votre machine dispose d'un changeur automatique.
  Vous pouvez aussi utiliser cette commande pour dégager la zone de travail
@@ -544,8 +544,9 @@ Une autre variable dans le fichier VAR joue un rôle important dans les décalages
  de coordonnées comme système par défaut.
  Si vous définissez celui-ci à 9,00000 le neuvième système décalé sera utilisé
  par défaut au démarrage du système et aux réinitialisations.
- Toute valeur autre qu'un entier compris entre 1 et 9 provoquera une erreur
- au démarrage d'EMC.
+ Toute valeur autre qu'un entier compris entre 1 et 9, ou l'absence de la
+ variable 5220, provoquera au démarrage le retour d'EMC à la valeur par
+ défaut de 1.00000.
 \layout Subsection
 
 Réglage des décalages avec G10
