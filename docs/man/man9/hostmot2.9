@@ -452,21 +452,31 @@ internal state to the syslog, and set the pin back to False.
 .SH FUNCTIONS
 .TP
 \fBhm2_<BoardType>.<BoardNum>.read\fR
-Read all inputs, update input HAL pins.
+This reads the encoder counters, stepgen feedbacks, and GPIO input pins
+from the FPGA.
 .TP
 \fBhm2_<BoardType>.<BoardNum>.write\fR
-Write all outputs.
+This updates the PWM duty cycles, stepgen rates, and GPIO outputs on
+the FPGA.  Any changes to configuration pins such as stepgen timing,
+GPIO inversions, etc, are also effected by this function.
 .TP
 \fBhm2_<BoardType>.<BoardNum>.pet-watchdog\fR
 Pet the watchdog to keep it from biting us for a while.
 .TP
 \fBhm2_<BoardType>.<BoardNum>.read_gpio\fR
-Read the GPIO input pins. (This function is not available on the 7i43
-due to limitations of the EPP bus.)
+Read the GPIO input pins.  Note that the effect of this function is a
+subset of the effect of the .read() function described above.  Normally
+only .read() is used.  The only reason to call this function is if you
+want to do GPIO things in a faster-than-servo thread.  (This function
+is not available on the 7i43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_<BoardType>.<BoardNum>.write_gpio\fR
-Write the GPIO control registers and output pins.  (This function is
-not available on the 7i43 due to limitations of the EPP bus.)
+Write the GPIO control registers and output pins.  Note that the effect of
+this function is a subset of the effect of the .write() function described
+above.  Normally only .write() is used.  The only reason to call this
+function is if you want to do GPIO things in a faster-than-servo thread.
+(This function is not available on the 7i43 due to limitations of the
+EPP bus.)
 .SH SEE ALSO
 
 hm2_7i43(9)
