@@ -46,8 +46,8 @@ First you need to figure the scale of spindle speed to control signal.
  so our scale factor is 0.002
 \layout Standard
 
-We have to add a scale componet to the hal file to scale the motion.spindle-speed
--out to the 0 to 10 needed by the VFD if your DAC card does not do scaling.
+We have to add a scale component to the hal file to scale the motion.spindle-spee
+d-out to the 0 to 10 needed by the VFD if your DAC card does not do scaling.
 \layout Quote
 
 loadrt scale count=1
@@ -90,12 +90,6 @@ This assumes that the spindle controller's response to PWM is simple: 0%
  
 \layout Section
 
-Spindle Feedback
-\layout Standard
-
-Add this section
-\layout Section
-
 Spindle Enable
 \layout Standard
 
@@ -126,4 +120,56 @@ To link these pins to a parallel port pin put something like the following
 net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
 \newline 
 net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+\layout Chapter
+
+Spindle Feedback
+\layout Standard
+
+Spindle feedback is needed by EMC to perform any spindle coordinated motions
+ like threading and constant surface speed.
+ The StepConf Wizard can perform the connections for you if you select Encoder
+ Phase A and Encoder Index as inputs.
+\layout Standard
+
+Hardware assumptions:
+\layout Itemize
+
+An encoder is connected to the spindle and puts out 100 pulses per revolution
+ on phase A
+\layout Itemize
+
+The encoder A phase is connected to the parallel port pin 10
+\layout Itemize
+
+The encoder index pulse is connected to the parallel port pin 11
+\layout Standard
+
+Basic Steps to add the components and configure them:
+\layout Quote
+
+loadrt encoder num_chan=1
+\newline 
+addf encoder.update-counters base-thread
+\newline 
+addf encoder.capture-position servo-thread
+\newline 
+setp encoder.0.position-scale 100
+\newline 
+setp encoder.0.counter-mode 1
+\newline 
+net spindle-position encoder.0.position => motion.spindle-revs
+\newline 
+net spindle-velocity encoder.0.velocity => motion.spindle-speed-in
+\newline 
+net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable
+\newline 
+net spindle-phase-a encoder.0.phase-A
+\newline 
+net spindle-phase-b encoder.0.phase-B
+\newline 
+net spindle-index encoder.0.phase-Z
+\newline 
+net spindle-phase-a <= parport.0.pin-10-in
+\newline 
+net spindle-index <= parport.0.pin-11-in
 \the_end
