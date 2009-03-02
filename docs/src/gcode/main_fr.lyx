@@ -8920,7 +8920,7 @@ G64 P-
 \end_inset 
 
  pour une discussion de ces modes.
-\layout Subsection
+\layout Section
 
 G73
 \begin_inset LatexCommand \index{G73 Cycle percage brise copeaux}
@@ -10066,7 +10066,7 @@ Temporisation de P secondes.
 \layout Enumerate
 
 Retrait de l'axe Z en vitesse travail vers le plan de retrait.
-\layout Subsection
+\layout Section
 
 G90
 \begin_inset LatexCommand \index{G90 Mode deplacements absolus}
