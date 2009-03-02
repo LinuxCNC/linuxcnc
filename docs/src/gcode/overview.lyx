@@ -33,7 +33,7 @@
 
 \layout Chapter
 
-Language Overview
+G Code Overview
 \begin_inset LatexCommand \label{cha:Language-Overview}
 
 \end_inset 
@@ -41,9 +41,10 @@ Language Overview
 
 \layout Standard
 
-The RS274/NGC language is based on lines of code.
- Each line (also called a "block") may include commands to a machining center
- to do several different things.
+The EMC2 G Code language is based on the RS274/NGC language.
+ The G Code language is based on lines of code.
+ Each line (also called a "block") may include commands to do several different
+ things.
  Lines of code may be collected in a file to make a program.
 \layout Standard
 
@@ -68,17 +69,12 @@ X3
 \family default 
 " provides an argument value (the value of X should be 3 at the end of the
  move).
- Most RS274/NGC commands start with either G or M (for General and Miscellaneous
-).
+ Most EMC2 G Code commands start with either G or M (for General and Miscellaneo
+us).
  The words for these commands are called "G codes" and "M codes."
 \layout Standard
 
-The RS274/NGC
-\begin_inset LatexCommand \index{RS274NGC}
-
-\end_inset 
-
- language has no indicator for the start of a program.
+The EMC2 language has no indicator for the start of a program.
  The Interpreter, however, deals with files.
  A single program may be in a single file, or a program may be spread across
  several files.
@@ -102,7 +98,7 @@ M30
  Anything after that is ignored.
 \layout Standard
 
-The RS274/NGC language has two commands (
+The EMC2 G Code language has two commands (
 \family typewriter 
 M2
 \family default 
@@ -119,20 +115,12 @@ M30
 Format of a line
 \layout Standard
 
-A permissible line of input RS274/NGC code consists of the following, in
- order, with the restriction that there is a maximum (currently 256) to
- the number of characters allowed on a line.
+A permissible line of input code consists of the following, in order, with
+ the restriction that there is a maximum (currently 256) to the number of
+ characters allowed on a line.
 \layout Enumerate
 
-an optional block delete character, which is a slash 
-\begin_inset Quotes eld
-\end_inset 
-
-/
-\begin_inset Quotes erd
-\end_inset 
-
- .
+an optional block delete character, which is a slash "/" .
  
 \layout Enumerate
 
@@ -153,32 +141,16 @@ Any input not explicitly allowed is illegal and will cause the Interpreter
 Spaces and tabs are allowed anywhere on a line of code and do not change
  the meaning of the line, except inside comments.
  This makes some strange-looking input legal.
- The line 
-\begin_inset Quotes eld
-\end_inset 
-
-
+ The line "
 \family typewriter 
-g0x +0.
- 12 34y 7
+G0X +0.
+ 12 34Y 7
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- is equivalent to 
-\begin_inset Quotes eld
-\end_inset 
-
-
+" is equivalent to "
 \family typewriter 
-g0 x+0.1234 y7
+G0 x+0.1234 Y7
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, for example.
+", for example.
 \layout Standard
 
 Blank lines are allowed in the input.
@@ -816,19 +788,11 @@ A value is stored in a parameter with the = operator; for example "
 " means "set parameter 3 to 15." A parameter setting does not take effect
  until after all parameter values on the same line have been found.
  For example, if parameter 3 has been previously set to 15 and the line
- 
-\begin_inset Quotes eld
-\end_inset 
-
-
+ "
 \family typewriter 
 #3=6 G1 x#3
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- is interpreted, a straight move to a point where x equals 15 will occur
+" is interpreted, a straight move to a point where x equals 15 will occur
  and the value of parameter 3 will be 6.
  
 \layout Standard
@@ -838,19 +802,11 @@ The
 #
 \family default 
  character takes precedence over other operations, so that, for example,
- 
-\begin_inset Quotes eld
-\end_inset 
-
-
+ "
 \family typewriter 
 #1+2
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- means the number found by adding 2 to the value of parameter 1, not the
+" means the number found by adding 2 to the value of parameter 1, not the
  value found in parameter 3.
  Of course, 
 \family typewriter 
@@ -1028,15 +984,7 @@ AND
 MOD
 \family default 
 ).
- The ninth operation is the 
-\begin_inset Quotes eld
-\end_inset 
-
-power
-\begin_inset Quotes erd
-\end_inset 
-
- operation (
+ The ninth operation is the "power" operation (
 \family typewriter 
 **
 \family default 
@@ -1269,43 +1217,20 @@ Functions
 
 \layout Standard
 
-A function is either 
-\begin_inset Quotes eld
-\end_inset 
-
-
+A function is either "
 \family typewriter 
 ATAN
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
- followed by one expression divided by another expression (for example 
-\begin_inset Quotes eld
-\end_inset 
-
-
+" followed by one expression divided by another expression (for example
+ "
 \family typewriter 
 ATAN[2]/[1+3]
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-) or any other function name followed by an expression (for example 
-\begin_inset Quotes eld
-\end_inset 
-
-
+") or any other function name followed by an expression (for example "
 \family typewriter 
 SIN[90]
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-).
+").
  The available functions are shown in table 
 \begin_inset LatexCommand \ref{cap:Functions}
 
@@ -1677,19 +1602,11 @@ For all other legal letters, a line may have only one word beginning with
  that letter.
 \layout Standard
 
-If a parameter setting of the same parameter is repeated on a line, 
-\begin_inset Quotes eld
-\end_inset 
-
-
+If a parameter setting of the same parameter is repeated on a line, "
 \family typewriter 
 #3=15 #3=6
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
-, for example, only the last setting will take effect.
+", for example, only the last setting will take effect.
  It is silly, but not illegal, to set the same parameter twice on the same
  line.
 \layout Standard
@@ -1786,18 +1703,10 @@ g40 g1 #3=15 (foo) #4=-7.0
 Commands and Machine Modes
 \layout Standard
 
-In RS274/NGC, many commands cause a machining center to change from one
- mode to another, and the mode stays active until some other command changes
- it implicitly or explicitly.
- Such commands are called 
-\begin_inset Quotes eld
-\end_inset 
-
-modal
-\begin_inset Quotes erd
-\end_inset 
-
-.
+Many commands cause the controller to change from one mode to another, and
+ the mode stays active until some other command changes it implicitly or
+ explicitly.
+ Such commands are called "modal".
  For example, if coolant is turned on, it stays on until it is explicitly
  turned off.
  The G codes for motion are also modal.
@@ -1807,15 +1716,7 @@ modal
  the axis words or cancelling motion.
 \layout Standard
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Non-modal
-\begin_inset Quotes erd
-\end_inset 
-
- codes have effect only on the lines on which they occur.
+"Non-modal" codes have effect only on the lines on which they occur.
  For example, G4 (dwell) is non-modal.
  
 \layout Section
@@ -1833,15 +1734,8 @@ Modal Groups
 
 \layout Standard
 
-Modal commands are arranged in sets called 
-\begin_inset Quotes eld
-\end_inset 
-
-modal groups
-\begin_inset Quotes erd
-\end_inset 
-
-, and only one member of a modal group may be in force at any given time.
+Modal commands are arranged in sets called "modal groups", and only one
+ member of a modal group may be in force at any given time.
  In general, a modal group contains commands for which it is logically impossibl
 e for two members to be in effect at the same time - like measure in inches
  vs.
