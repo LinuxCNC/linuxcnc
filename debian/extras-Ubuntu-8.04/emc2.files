@@ -1,10 +1,5 @@
+usr/share/applications/*.desktop
 usr/share/desktop-directories/cnc.directory
-usr/share/applications/emc2.desktop
-usr/share/applications/emc2-stepconf.desktop
-usr/share/applications/emc2-usermanual.desktop
-usr/share/applications/emc2-integratormanual.desktop
-usr/share/applications/emc2-gcoderef.desktop
-usr/share/applications/emc2-halmanual.desktop
 usr/share/pixmaps/emc2icon.png
 etc/modprobe.d/emc2
 etc/xdg/menus/applications-merged/cnc.menu
