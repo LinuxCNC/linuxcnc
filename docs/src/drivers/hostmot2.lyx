@@ -124,9 +124,117 @@ Pinouts
 The hostmot2 driver does not have a particular pinout.
  The pinout comes from the firmware that the hostmot2 driver sends to the
  AnyIO board.
- Each firmware has different pinout, and there are many firmwares available.
+ Each firmware has different pinout, and the pinout depends on how many
+ of the available encoders, pwmgens, and stepgens are used.
+ To get a pinout list for your configuration after loading EMC2 in the terminal
+ window type:
+\layout Quote
+
+dmesg > hm2.txt
+\layout Standard
+
+The resulting text file will contain lots of information as well as the
+ pinout for the HostMot2 and any error and warning messages.
  
-\layout Subsection
+\layout Standard
+
+To reduce the clutter clear the message buffer before loading EMC by typing
+ in the terminal window:
+\layout Quote
+
+sudo dmesg -c
+\layout Standard
+
+Now when you run EMC and then do a "dmesg > hm2.txt" in the terminal only
+ the info from the time you loaded EMC will be in your file along with your
+ pinout.
+ The file will be in the current directory of the terminal window.
+ Each line will contain the card name, the card number, the I/O Pin number,
+ the connector and pin, and the usage.
+ From this printout you will know the physical connections to your card
+ based on your configuration.
+\layout Standard
+
+An example of a 5i20 configuration:
+\layout Quote
+
+[HOSTMOT2]
+\newline 
+DRIVER=hm2_pci
+\newline 
+BOARD=5i20
+\newline 
+CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1 num_stepgens=3
+"
+\layout Quote
+
+The above configuration produced this printout .
+\layout Quote
+
+[ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used:
+\newline 
+[ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort
+\newline 
+[ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort
+\newline 
+[ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B (Input)
+\newline 
+[ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A (Input)
+\newline 
+[ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort
+\newline 
+[ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin Index (Input)
+\newline 
+[ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort
+\newline 
+[ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0 (PWM
+ or Up) (Output)
+\newline 
+[ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort
+\newline 
+[ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1 (Dir
+ or Down) (Output)
+\newline 
+[ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort
+\newline 
+[ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin Not-Enable
+ (Output)
+\newline 
+<snip>...
+\newline 
+[ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output)
+\newline 
+[ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction
+ (Output)
+\newline 
+[ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin (unused)
+ (Output)
+\newline 
+[ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin (unused)
+ (Output)
+\newline 
+[ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin (unused)
+ (Output)
+\newline 
+[ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin (unused)
+ (Output)
+\newline 
+[ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort
+\newline 
+[ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort
+\newline 
+[ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort
+\newline 
+[ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort
+\newline 
+[ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort
+\newline 
+[ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort
+\newline 
+[ 1141.053811] hm2/hm2_5i20.0: registered
+\newline 
+[ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
+\layout Section
 
 PIN Files
 \layout Standard
@@ -156,7 +264,45 @@ hm2-trunk
 \layout Standard
 
 And change the "firmware=hm2..." to "firmware=hm2-trunk..." in your ini file.
-\layout Subsection
+\layout Section
+
+HAL Pins
+\layout Standard
+
+The HAL pins for each configuration can be seen by opening up "Show HAL
+ Configuration" from the Machine menu.
+ All the HAL pins and parameters can be found there.
+ The following figure is of the 5i20 configuration used above.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+5i20 HAL Pins
+\begin_inset LatexCommand \label{cap:5i20-HAL-Pins}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/5i20-halpins.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Section
 
 Configurations
 \layout Standard
@@ -1445,29 +1591,6 @@ When you load the board-driver (hm2_pci or hm2_7i43), you can tell it to
  disable instances of the three primary modules (pwmgen, stepgen, and encoder)
  by setting the count lower.
  Any I/O pins belonging to disabled module instances become gpios.
-\layout Standard
-
-To get a list of all the pins for your configuration after loading EMC2
- in the terminal window type:
-\layout Quote
-
-dmesg > mylist.txt
-\layout Standard
-
-The resulting text file will contain lots of information as well as the
- pinout for the HostMot2 and any error and warning messages.
- 
-\layout Standard
-
-To clear the message buffer before loading EMC in your terminal window type:
-\layout Quote
-
-sudo dmesg -c
-\layout Standard
-
-Now when you run EMC and then do a "dmesg > mylist.txt" in the terminal only
- the info from the time you loaded EMC will be in your file along with your
- pinout.
 \layout Section
 
 GPIO
