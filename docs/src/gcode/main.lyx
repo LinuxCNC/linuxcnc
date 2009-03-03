@@ -3503,7 +3503,8 @@ No
 \layout Standard
 
 After successful probing, parameters 5061 to 5069 will be set to the coordinates
- of the location of the controlled point at the time the probe changed state.
+ of X, Y, Z, A, B, C, U, V, W of the location of the controlled point at
+ the time the probe changed state.
  After unsuccessful probing, they are set to the coordinates of the programmed
  point.
  Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
@@ -3522,8 +3523,8 @@ filename.txt
 \emph on 
 filename.txt
 \emph default 
- and store the 9-number coordinate of each successful straight probe in
- it.
+ and store the 9-number coordinate consisting of X, Y, Z, A, B, C, U, V,
+ W of each successful straight probe in it.
  The file must be closed with 
 \family typewriter 
 (PROBECLOSE)
