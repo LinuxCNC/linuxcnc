@@ -30,9 +30,8 @@ emc2 (1:2.3.0~beta1) unstable; urgency=low
     full retraction
   * new O words: repeat/endrepeat for repeating some lines a specified
     number of times
-  * added drivers for Mesa Electronics' HostMot2 firmware on the
-    5i20 and 7i43 boards
-  * added a driver for Mesa Electronics' 7i43 FPGA I/O board
+  * added drivers for Mesa Electronics' HostMot2 firmware on all "Anything
+    I/O" boards: 7i43, 5i20, 5i22, 5i23, 4i65, 4i68
   * AXIS: ability to zero G92 offset from the menu
   * G28.1, G30.1 set the corresponding reference point to the current position
   * increase the maximum number of axes (8) and buttons (32) in hal_joystick
