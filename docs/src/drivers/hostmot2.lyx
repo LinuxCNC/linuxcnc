@@ -171,6 +171,8 @@ CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1 num_stepgens=
 The above configuration produced this printout .
 \layout Quote
 
+
+\size small 
 [ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used:
 \newline 
 [ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort
@@ -201,7 +203,11 @@ The above configuration produced this printout .
  (Output)
 \newline 
 <snip>...
+\size default 
+
 \newline 
+
+\size small 
 [ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output)
 \newline 
 [ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction
@@ -232,7 +238,11 @@ The above configuration produced this printout .
 [ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort
 \newline 
 [ 1141.053811] hm2/hm2_5i20.0: registered
+\size default 
+
 \newline 
+
+\size small 
 [ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
 \layout Section
 
@@ -294,7 +304,7 @@ collapsed false
 
 \begin_inset Graphics
 	filename images/5i20-halpins.png
-	scale 80
+	scale 70
 
 \end_inset 
 
