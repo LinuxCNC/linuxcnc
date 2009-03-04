@@ -1,0 +1,100 @@
+loadrt trivkins
+
+# core HAL config file for steppers
+
+# first load the stepper module
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD
+
+loadrt stepgen step_type=0,0,0,0
+
+# hook its functions to realtime threads
+addf stepgen.capture-position servo-thread
+addf stepgen.update-freq servo-thread
+addf stepgen.make-pulses base-thread 
+
+#add motion controller to the threads
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+
+# connect position commands from motion module to step generator
+newsig Xpos-cmd float
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Xpos-cmd => stepgen.0.position-cmd
+newsig Ypos-cmd float
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Ypos-cmd => stepgen.1.position-cmd
+newsig Zpos-cmd float
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+linksp Zpos-cmd => stepgen.2.position-cmd
+newsig Apos-cmd float
+linksp Apos-cmd <= axis.3.motor-pos-cmd
+linksp Apos-cmd => stepgen.3.position-cmd
+
+# connect position feedback from step generators
+# to motion module
+newsig Xpos-fb float
+linksp Xpos-fb <= stepgen.0.position-fb
+linksp Xpos-fb => axis.0.motor-pos-fb
+newsig Ypos-fb float
+linksp Ypos-fb <= stepgen.1.position-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+newsig Zpos-fb float
+linksp Zpos-fb <= stepgen.2.position-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+newsig Apos-fb float
+linksp Apos-fb <= stepgen.3.position-fb
+linksp Apos-fb => axis.3.motor-pos-fb
+
+# connect enable signals for step generators
+newsig Xen bit
+linksp Xen <= axis.0.amp-enable-out
+linksp Xen => stepgen.0.enable
+newsig Yen bit
+linksp Yen <= axis.1.amp-enable-out
+linksp Yen => stepgen.1.enable
+newsig Zen bit
+linksp Zen <= axis.2.amp-enable-out
+linksp Zen => stepgen.2.enable
+newsig Aen bit
+linksp Aen <= axis.3.amp-enable-out
+linksp Aen => stepgen.3.enable
+
+# connect signals to step pulse generator outputs
+newsig Xstep bit
+newsig Xdir  bit
+newsig Ystep bit
+newsig Ydir  bit
+newsig Zstep bit
+newsig Zdir  bit
+newsig Astep bit
+newsig Adir  bit
+linkps stepgen.0.step Xstep
+linkps stepgen.0.dir  Xdir
+linkps stepgen.1.step Ystep
+linkps stepgen.1.dir  Ydir
+linkps stepgen.2.step Zstep
+linkps stepgen.2.dir  Zdir
+linkps stepgen.3.step Astep
+linkps stepgen.3.dir  Adir
+
+# set stepgen module scaling - get values from ini file
+setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.2.position-scale [AXIS_2]SCALE
+setp stepgen.3.position-scale [AXIS_3]SCALE
+
+# set stepgen module velocity limits - get values from ini file
+setp stepgen.0.maxvel [AXIS_0]STEPGEN_MAXVEL
+setp stepgen.1.maxvel [AXIS_1]STEPGEN_MAXVEL
+setp stepgen.2.maxvel [AXIS_2]STEPGEN_MAXVEL
+setp stepgen.3.maxvel [AXIS_3]STEPGEN_MAXVEL
+
+# set stepgen module accel limits - get values from ini file
+setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+
+# load realtime portion of scope, just to have it handy
+loadrt scope_rt
