@@ -517,8 +517,8 @@ COPY_CONFIGS := \
 		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
 		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
 		puma scara boss 5axis Sherline3Axis Sherline4Axis SherlineLathe \
-		plasma-thc plasma-thc-sim) \
-	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe) \
+		plasma-thc plasma-thc-sim cooltool) \
+	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe cooltool) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
