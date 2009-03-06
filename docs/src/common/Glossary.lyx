@@ -842,6 +842,11 @@ Tcl/Tk
  the EMC's GUI's and selection wizards were written.
 \layout Description
 
+Traverse\SpecialChar ~
+Move A move in a straight line from the current point to the programmed
+ point.
+\layout Description
+
 Units
 \begin_inset LatexCommand \index{units}
 
