@@ -4678,7 +4678,7 @@ Groupe 0
 
 \layout Standard
 
-G4, G10, G28, G30, G53
+G4, G10, G28, G28.1, G30, G30.1, G53
 \end_inset 
 </cell>
 </row>
@@ -5107,7 +5107,7 @@ Table résumée du G-code
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="51" columns="4">
+<lyxtabular version="3" rows="52" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -5178,7 +5178,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G0:-Interpolation-lineaire}
+\begin_inset LatexCommand \ref{sub:G0:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -5217,7 +5217,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G1:-Interpolation-lineaire}
+\begin_inset LatexCommand \ref{sub:G1:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -5295,7 +5295,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G7-Mode-diametre}
+\begin_inset LatexCommand \ref{sub:G7-Mode-diametre}
 
 \end_inset 
 
@@ -5334,7 +5334,7 @@ P R X Z
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G10-L1:-Entree-table}
+\begin_inset LatexCommand \ref{sub:G10-L1:-Entree-table}
 
 \end_inset 
 
@@ -5452,7 +5452,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G20,-G21:-Unites}
+\begin_inset LatexCommand \ref{sub:G20,-G21:-Unites}
 
 \end_inset 
 
@@ -5466,7 +5466,7 @@ n/a
 
 \layout Standard
 
-G28, G30
+G28, G28.1
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5474,7 +5474,7 @@ G28, G30
 
 \layout Standard
 
-Retour à l'origine machine, pièce 
+Aller à une position prédéfinie
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -5491,7 +5491,46 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sub:G28,-G30:-Retour}
+\begin_inset LatexCommand \ref{sub:G28,-G28.1:-Aller}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G30, G30.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Aller à une position prédéfinie
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+n/a
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sub:G30,-G30.1:-Aller}
 
 \end_inset 
 
@@ -5530,7 +5569,7 @@ K
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G33,-G33.1:-Broche-synchronisee}
+\begin_inset LatexCommand \ref{sub:G33,-G33.1:-Broche-synchronisee}
 
 \end_inset 
 
@@ -5569,7 +5608,7 @@ K
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G33,-G33.1:-Broche-synchronisee}
+\begin_inset LatexCommand \ref{sub:G33,-G33.1:-Broche-synchronisee}
 
 \end_inset 
 
@@ -6430,7 +6469,7 @@ D S
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G96,-G97:-Broche}
+\begin_inset LatexCommand \ref{sub:G96,-G97:-Broche}
 
 \end_inset 
 
@@ -6469,7 +6508,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G96,-G97:-Broche}
+\begin_inset LatexCommand \ref{sub:G96,-G97:-Broche}
 
 \end_inset 
 
@@ -6786,7 +6825,7 @@ P
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M50:-Correcteur-vitesse-travail}
+\begin_inset LatexCommand \ref{sub:M50:-Correcteur-vitesse-travail}
 
 \end_inset 
 
@@ -6825,7 +6864,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M51:-Correcteur-vitesse-broche}
+\begin_inset LatexCommand \ref{sub:M51:-Correcteur-vitesse-broche}
 
 \end_inset 
 
@@ -6864,7 +6903,7 @@ P
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M52:-Controle-vitesse-adaptative}
+\begin_inset LatexCommand \ref{sub:M52:-Controle-vitesse-adaptative}
 
 \end_inset 
 
@@ -6942,7 +6981,7 @@ Q
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M61:-Ajuste-numero-outil}
+\begin_inset LatexCommand \ref{sub:M61:-Ajuste-numero-outil}
 
 \end_inset 
 
@@ -6981,7 +7020,7 @@ P
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M62-a-M65:-Controle-sorties-num}
+\begin_inset LatexCommand \ref{sub:M62-a-M65:-Controle-sorties-num}
 
 \end_inset 
 
@@ -7020,7 +7059,7 @@ P, E, L, Q
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M66:-Controle-entrees-num}
+\begin_inset LatexCommand \ref{sub:M66:-Controle-entrees-num}
 
 \end_inset 
 
@@ -7059,7 +7098,7 @@ P Q
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:M100-a-M199:}
+\begin_inset LatexCommand \ref{sub:M100-a-M199:}
 
 \end_inset 
 
@@ -7119,7 +7158,7 @@ G0
 \end_inset 
 
 : Interpolation linéaire en vitesse rapide
-\begin_inset LatexCommand \label{sec:G0:-Interpolation-lineaire}
+\begin_inset LatexCommand \label{sub:G0:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -7212,7 +7251,7 @@ G1
 \end_inset 
 
 : Interpolation linéaire en vitesse travail
-\begin_inset LatexCommand \label{sec:G1:-Interpolation-lineaire}
+\begin_inset LatexCommand \label{sub:G1:-Interpolation-lineaire}
 
 \end_inset 
 
@@ -7531,7 +7570,7 @@ G4
 \end_inset 
 
 : Tempo
-\begin_inset LatexCommand \label{sec:G4:-Tempo}
+\begin_inset LatexCommand \label{sub:G4:-Tempo}
 
 \end_inset 
 
@@ -7552,7 +7591,7 @@ G7
 \end_inset 
 
 : Mode diamètre
-\begin_inset LatexCommand \label{sec:G7-Mode-diametre}
+\begin_inset LatexCommand \label{sub:G7-Mode-diametre}
 
 \end_inset 
 
@@ -7573,7 +7612,7 @@ G8
 \end_inset 
 
 : Mode rayon
-\begin_inset LatexCommand \label{sec:G8-Mode-rayon}
+\begin_inset LatexCommand \label{sub:G8-Mode-rayon}
 
 \end_inset 
 
@@ -7593,7 +7632,7 @@ G10 L1
 \end_inset 
 
 : Entrée dans la table d'outils
-\begin_inset LatexCommand \label{sec:G10-L1:-Entree-table}
+\begin_inset LatexCommand \label{sub:G10-L1:-Entree-table}
 
 \end_inset 
 
@@ -7882,7 +7921,7 @@ G20
 \end_inset 
 
 : Choix des unités machine
-\begin_inset LatexCommand \label{sec:G20,-G21:-Unites}
+\begin_inset LatexCommand \label{sub:G20,-G21:-Unites}
 
 \end_inset 
 
@@ -7902,44 +7941,31 @@ C'est toujours une bonne pratique de programmer soit G20, soit G21, au début
 \layout Section
 
 G28
-\begin_inset LatexCommand \index{G28 Retour origine machine}
+\begin_inset LatexCommand \index{G28}
 
 \end_inset 
 
-, G30
-\begin_inset LatexCommand \index{G30 Retour origine piece}
+, G28.1
+\begin_inset LatexCommand \index{G28.1}
 
 \end_inset 
 
-: Retour à une position absolue prédéfinie
-\begin_inset LatexCommand \label{sub:G28,-G30:-Retour}
+: Aller à une position prédéfinie
+\begin_inset LatexCommand \label{sub:G28,-G28.1:-Aller}
 
 \end_inset 
 
 
 \layout Standard
 
-Deux positions sont définies, une par les paramètres 5161-5166 pour 
-\family typewriter 
-G28
-\family default 
- et une par les paramètres 5181-5186 pour 
-\family typewriter 
-G30
-\family default 
-.
- Les valeurs de ces paramètres sont en coordonnées absolues et en coordonnées
- machine.
+La commande G28 utilise les valeurs stockées dans les paramètres 5161 à
+ 5166 comme valeurs absolues pour effectuer un mouvement en vitesse rapide
+ de la position courante à la position définie dans les paramètres.
+ Les valeurs stockées dans les paramètres font référence au système de coordonné
+es absolues qui est le système de coordonnées machine.
 \layout Standard
 
-Les commandes G28 et G30 n'utilisent pas de contact d'origine machine pour
- trouver la position prédéfinie, elles se bornent à effectuer un mouvement
- en vitesse rapide à la position définie dans les paramètres, ce qui suppose
- que la prise d'origine machine a déjà été réalisée.
-\layout Standard
-
-Pour le retour d'un ou plusieurs axes sur une position prédéfinie par le
- biais de la position programmée, programmer 
+La commande 
 \family typewriter 
 G28
 \family default 
@@ -7949,26 +7975,76 @@ G28
 axes
 \family default 
 \emph default 
- (ou utiliser 
+ effectue un déplacement en vitesse rapide depuis la position courante jusqu'à
+ la position spécifiée par 
 \family typewriter 
-G30
+\emph on 
+axes
 \family default 
-).
- La trajectoire est faite par un mouvement rapide depuis la position courante
- jusqu'à la position programmée, suivi d'un mouvement rapide des axes nommés
- à la position prédéfinie.
+\emph default 
+, suivi d'un mouvement rapide à la position prédéfinie dans les paramètres
+ 5161 à 5166.
 \layout Standard
 
-Pour le retour de tous les axes à la position prédéfinie sans la position
- intermédiaire, programmer 
-\family typewriter 
-G28
-\family default 
- ou 
-\family typewriter 
+G28.1 enregistre la position absolue courante dans les paramètres 5161 à
+ 5166.
+\layout Standard
+
+C'est une erreur si:
+\layout Itemize
+
+La compensation de rayon d'outil est active.
+\layout Section
+
 G30
+\begin_inset LatexCommand \index{G30}
+
+\end_inset 
+
+, G30.1
+\begin_inset LatexCommand \index{G30.1}
+
+\end_inset 
+
+: Aller à une position prédéfinie
+\begin_inset LatexCommand \label{sub:G30,-G30.1:-Aller}
+
+\end_inset 
+
+
+\layout Standard
+
+La commande G30 utilise les valeurs stockées dans les paramètres 5181 à
+ 5186 comme valeurs absolues pour effectuer un mouvement en vitesse rapide
+ de la position courante à la position définie dans les paramètres.
+ Les valeurs stockées dans les paramètres font référence au système de coordonné
+es absolues qui est le système de coordonnées machine.
+\layout Standard
+
+La commande G30 
+\family typewriter 
+\emph on 
+axes
 \family default 
- sans mot d'axe.
+\emph default 
+ effectue un déplacement en vitesse rapide depuis la position courante jusqu'à
+ la position spécifiée par 
+\family typewriter 
+\emph on 
+axes
+\family default 
+\emph default 
+, suivi d'un mouvement rapide à la position prédéfinie dans les paramètres
+ 5181-5186.
+ 
+\layout Standard
+
+G30.1 enregistre la position absolue courante dans les paramètres 5181-5186.
+\layout Standard
+
+Les paramètres de G30 peuvent être utilisés pour déplacer l'outil quand
+ un M6 est programmé et que la variable [TOOL_CHANGE_AT_G30]=1 dans la section
+ [EMCIO] du fichier ini.
 \layout Standard
 
 C'est une erreur si:
@@ -7988,7 +8064,7 @@ G33
 \end_inset 
 
 : Mouvement avec broche synchronisée
-\begin_inset LatexCommand \label{sec:G33,-G33.1:-Broche-synchronisee}
+\begin_inset LatexCommand \label{sub:G33,-G33.1:-Broche-synchronisee}
 
 \end_inset 
 
@@ -10358,7 +10434,7 @@ G96
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sec:G96,-G97:-Broche}
+\begin_inset LatexCommand \label{sub:G96,-G97:-Broche}
 
 \end_inset 
 
@@ -10815,12 +10891,12 @@ M49
  déjà autorisés ou inhibés.
  Ces potentiomètres peuvent aussi être activés individuellement en utilisant
  les commandes M50 et M51 comme décrit dans les sections 
-\begin_inset LatexCommand \ref{sec:M50:-Correcteur-vitesse-travail}
+\begin_inset LatexCommand \ref{sub:M50:-Correcteur-vitesse-travail}
 
 \end_inset 
 
  et 
-\begin_inset LatexCommand \ref{sec:M51:-Correcteur-vitesse-broche}
+\begin_inset LatexCommand \ref{sub:M51:-Correcteur-vitesse-broche}
 
 \end_inset 
 
@@ -10833,7 +10909,7 @@ M50
 \end_inset 
 
 : Contrôle du correcteur de vitesse travail
-\begin_inset LatexCommand \label{sec:M50:-Correcteur-vitesse-travail}
+\begin_inset LatexCommand \label{sub:M50:-Correcteur-vitesse-travail}
 
 \end_inset 
 
@@ -10867,7 +10943,7 @@ M51
 \end_inset 
 
 : Contrôle du correcteur de vitesse broche
-\begin_inset LatexCommand \label{sec:M51:-Correcteur-vitesse-broche}
+\begin_inset LatexCommand \label{sub:M51:-Correcteur-vitesse-broche}
 
 \end_inset 
 
@@ -10905,7 +10981,7 @@ M52
 \end_inset 
 
 : Contrôle de vitesse adaptative
-\begin_inset LatexCommand \label{sec:M52:-Controle-vitesse-adaptative}
+\begin_inset LatexCommand \label{sub:M52:-Controle-vitesse-adaptative}
 
 \end_inset 
 
@@ -10948,7 +11024,7 @@ M53
 \end_inset 
 
 : Contrôle de coupure de vitesse
-\begin_inset LatexCommand \label{sec:M53:-Controle-coupure-vitesse}
+\begin_inset LatexCommand \label{sub:M53:-Controle-coupure-vitesse}
 
 \end_inset 
 
@@ -10989,7 +11065,7 @@ M61
 \end_inset 
 
 : Ajuste le numéro de l'outil courant
-\begin_inset LatexCommand \label{sec:M61:-Ajuste-numero-outil}
+\begin_inset LatexCommand \label{sub:M61:-Ajuste-numero-outil}
 
 \end_inset 
 
@@ -11014,7 +11090,7 @@ M62 à M65
 \end_inset 
 
 : Contrôle de sorties numériques
-\begin_inset LatexCommand \label{sec:M62-a-M65:-Controle-sorties-num}
+\begin_inset LatexCommand \label{sub:M62-a-M65:-Controle-sorties-num}
 
 \end_inset 
 
@@ -11067,7 +11143,7 @@ M66
 \end_inset 
 
 : Contrôle d'entrée digitale
-\begin_inset LatexCommand \label{sec:M66:-Controle-entrees-num}
+\begin_inset LatexCommand \label{sub:M66:-Controle-entrees-num}
 
 \end_inset 
 
@@ -11146,7 +11222,7 @@ M100 à M199
 \end_inset 
 
 : Commandes définies par l'utilisateur
-\begin_inset LatexCommand \label{sec:M100-a-M199:}
+\begin_inset LatexCommand \label{sub:M100-a-M199:}
 
 \end_inset 
 
