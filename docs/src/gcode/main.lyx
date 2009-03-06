@@ -3081,10 +3081,6 @@ axes
 G28.1 stores the current absolute position into parameters 5161-5166.
 \layout Standard
 
-G28 will move the Z axis to the home position first if [TOOL_CHANGE_QUILL_UP]=1
- is in the [EMCIO] section of the ini file.
-\layout Standard
-
 It is an error if :
 \layout Itemize
 
