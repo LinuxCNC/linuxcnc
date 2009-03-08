@@ -1858,7 +1858,7 @@ msgid ""
 "panel) starts"
 msgstr ""
 "# Comenzile din acest fisier sunt executate dupa ce AXIS (inclusiv PyVCP)\n"
-"# a pornit\n"
+"# a pornit"
 
 #: emc/usr_intf/stepconf/stepconf.py:995
 msgid "# This file will not be overwritten when you run stepconf again"
