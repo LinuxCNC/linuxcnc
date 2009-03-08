@@ -490,7 +490,7 @@ class Data:
         if self.halui:
            print >>file
            print >>file, "[HALUI]"
-           print >>file, _("# add halui MDI commands here (max 10) ")
+           print >>file, _("# add halui MDI commands here (max 64) ")
 
         print >>file
         print >>file, "[TRAJ]"
