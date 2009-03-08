@@ -303,6 +303,11 @@ halui.max-velocity.value (float, out) - is the maximum linear velocity in
 \layout Subsection
 
 MDI
+\begin_inset LatexCommand \label{sub:MDI}
+
+\end_inset 
+
+
 \layout Standard
 
 Sometimes the user wants to add more complicated tasks to be performed by
@@ -321,7 +326,7 @@ MDI_COMMAND = G0 X0
 
 When halui starts it will read the MDI_COMMAND fields in the ini, and export
  pins from 00 to the number of MDI_COMMAND's found in the ini up to a maximum
- of 10 commands.
+ of 64 commands.
 \layout Itemize
 
 halui.mdi-command-<nn> (bit, in) - halui will try to send the MDI command
