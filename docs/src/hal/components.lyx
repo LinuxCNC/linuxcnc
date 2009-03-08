@@ -122,23 +122,11 @@ pyvcp.1 = Virtual Control Panel for EMC2
 Realtime components and kernel modules
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-finish index entries JT
-\end_inset 
-
-
-\layout Standard
-
 Some of these will have expanded descriptions from the man pages.
  Some will have limited descriptions.
  All of the components have man pages.
  From this list you know what components exist and can use man n name to
- get additional information.
+ get additional information in a terminal window.
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -163,10 +151,6 @@ biquad.9 = Biquad IIR filter
 \labelwidthstring 00.00.0000
 
 blend.9 = Perform linear interpolation between two values
-\layout List
-\labelwidthstring 00.00.0000
-
-blocks.9 = Old style HAL blocks (deprecated)
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -290,11 +274,33 @@ freqgen.9 = software step pulse generation
 \layout List
 \labelwidthstring 00.00.0000
 
+gearchange.9 = Select from one two speed ranges
+\layout List
+\labelwidthstring 00.00.0000
+
 genhexkins.9 = kinematics definitions for emc2
 \layout List
 \labelwidthstring 00.00.0000
 
+hm2_7i43.9 = HAL driver for the Mesa Electronics 7i43 EPP Anything IO board
+ with HostMot2
+\layout List
+\labelwidthstring 00.00.0000
+
+hm2_pci.9 = HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and
+ 4i68 Anything IO boards, with HostMot2 firmware
+\layout List
+\labelwidthstring 00.00.0000
+
+hostmot2 = HAL driver for the Mesa Electronics HostMot2 firmware
+\layout List
+\labelwidthstring 00.00.0000
+
 hypot.9 = Three-input hypotenuse (Euclidean distance) calculator
+\layout List
+\labelwidthstring 00.00.0000
+
+ilowpass.9 = Low-pass filter with integer inputs and outputs
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -322,7 +328,7 @@ limit3.9 = Limit the output signal to fall between min and max
 \layout List
 \labelwidthstring 00.00.0000
 
-logic.9 = 
+logic.9 = Experimental general `logic function' component
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -331,11 +337,6 @@ lowpass.9 = Low-pass filter
 \labelwidthstring 00.00.0000
 
 lut5.9 = Arbitrary 5-input logic function based on a look-up table
-\layout List
-\labelwidthstring 00.00.0000
-
-m7i43_hm2.9 = RTAI driver for the Mesa 7i43 EPP Anything IO board with HostMot2
- firmware
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -374,6 +375,14 @@ mux4.9
 \end_inset 
 
  = Select from one of four input values
+\layout List
+\labelwidthstring 00.00.0000
+
+mux8.9 = Select from one of eight input values
+\layout List
+\labelwidthstring 00.00.0000
+
+near.9 = Determine whether two values are roughly equal
 \layout List
 \labelwidthstring 00.00.0000
 
@@ -524,11 +533,19 @@ threadtest.9 =
 \layout List
 \labelwidthstring 00.00.0000
 
+timedelay.9 = The equivalent of a time-delay relay
+\layout List
+\labelwidthstring 00.00.0000
+
 timedelta.9 = 
 \layout List
 \labelwidthstring 00.00.0000
 
 toggle.9 = push-on, push-off from momentary pushbuttons
+\layout List
+\labelwidthstring 00.00.0000
+
+toggle2nist.9 = toggle button to nist logic
 \layout List
 \labelwidthstring 00.00.0000
 
