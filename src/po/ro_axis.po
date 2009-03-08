@@ -1841,12 +1841,11 @@ msgstr "# suprascrise cand rulati stepconf din nou"
 
 #: emc/usr_intf/stepconf/stepconf.py:493
 msgid "# add halui MDI commands here (max 10) "
-msgstr ""
+msgstr "# adauga comenzi MDI aici (max 10)"
 
 #: emc/usr_intf/stepconf/stepconf.py:959
-#, fuzzy
 msgid "Include your PyVCP panel here.\n"
-msgstr "Include panou Py_VCP customizat"
+msgstr "Include panou PyVCP aici.\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:968 emc/usr_intf/stepconf/stepconf.py:994
 msgid "# Include your customized HAL commands here"
