@@ -337,6 +337,15 @@ Related parts of an ini file are separated into sections.
 \end_inset 
 
 )
+\layout Itemize
+
+[HALUI] MDI commands used by HALUI.
+ See the HALUI chapter for more information (
+\begin_inset LatexCommand \ref{sub:MDI}
+
+\end_inset 
+
+)
 \layout Subsection
 
 Variables
