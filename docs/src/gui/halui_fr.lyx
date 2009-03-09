@@ -679,6 +679,11 @@ float
 \layout Subsection
 
 Données manuelles (MDI)
+\begin_inset LatexCommand \label{sub:MDI}
+
+\end_inset 
+
+
 \layout Standard
 
 Il arrive que l'utilisateur veuille ajouter des tâches plus complexes devant
@@ -699,7 +704,7 @@ bit
 \family default 
 \noun default 
 ) halui.mdi-command-<nr>, <nr> est un nombre compris entre 00 et le nombre
- de MDI_COMMAND trouvées dans le fichier ini, avec un maximum de 10 commandes.
+ de MDI_COMMAND trouvées dans le fichier ini, avec un maximum de 64 commandes.
 \layout Itemize
 
 Quand la pin halui.mdi-command-<nr> est activée, halui va essayer d'envoyer

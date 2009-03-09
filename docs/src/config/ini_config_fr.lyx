@@ -340,6 +340,15 @@ Les différentes parties d'un fichier .ini sont regroupées dans des sections.
 \end_inset 
 
 )
+\layout Itemize
+
+[HALUI] Commandes MDI utilisées par HALUI.
+ Voir le chapitre sur HALUI pour plus d'informations (
+\begin_inset LatexCommand \ref{sub:MDI}
+
+\end_inset 
+
+)
 \layout Subsection
 
 Variables
@@ -1355,7 +1364,7 @@ Calibration
 .
 \layout Subsubsection
 
-Variables relatives aux origines machine
+Variables relatives aux prises d'origines
 \begin_inset LatexCommand \label{sub:Variables relatives aux origines}
 
 \end_inset 
@@ -1363,7 +1372,13 @@ Variables relatives aux origines machine
 
 \layout Standard
 
-Les cinq prochains paramètres sont relatifs aux prises d'origine.
+Les paramètres suivants sont relatifs aux prises d'origine, pour plus d'informat
+ions, lire le chapitre sur la POM.
+\begin_inset LatexCommand \ref{sec:Prises-d'origine}
+
+\end_inset 
+
+
 \layout Description
 
 HOME_OFFSET\SpecialChar ~
@@ -1386,8 +1401,17 @@ Vitesse du mouvement inital de prise d'origine, en unités machine par seconde.
 
 HOME_LATCH_VEL\SpecialChar ~
 =\SpecialChar ~
-0.0 Vitesse du mouvement final de prise d'origine pour le
- dégagement du contact d'origine, en unités machine par seconde.
+0.0 Vitesse du mouvement de dégagement du contact d'origine,
+ en unités machine par seconde.
+\layout Description
+
+HOME_FINAL_VEL\SpecialChar ~
+=\SpecialChar ~
+0.0 Vitesse du mouvement final entre le contact d'origine
+ et la position d'origine, en unités machine par seconde.
+ Si cette variable est laissée à 0 ou absente, la vitesse de déplacement
+ rapide est utilisée.
+ Doit avoir une valeur positive.
 \layout Description
 
 HOME_USE_INDEX\SpecialChar ~
@@ -1405,6 +1429,24 @@ NO Certaines machines utilisent un seul et même contact
  comme limite d'axe et origine machine de l'axe.
  Cette variable devra être positionnée sur yes si c'est le cas de votre
  machine.
+\layout Description
+
+HOME_IS_SHARED\SpecialChar ~
+=\SpecialChar ~
+<n> Si l'entrée du contact d'origine est partagée par plusieurs
+ axes, mettre <n> à 0 pour permettre la POM même si un des contacts partagés
+ est déjà attaqué.
+ Le mettre à 1 pour interdire la prise d'origine dans ce cas.
+\layout Description
+
+HOME_SEQUENCE\SpecialChar ~
+=\SpecialChar ~
+<n> Utilisé pour définir l'ordre dans lequel les axes se succédero
+nt lors d'une séquence de "POM générale".
+ <n> commence à 0, aucun numéro ne peut être sauté.
+ Si cette variable est absente ou à -1, la POM de l'axe ne pourra pas être
+ exécutée par la commande "POM générale".
+ La POM de plusieurs axes peut se dérouler simultanément.
 \layout Subsubsection
 
 Variables relatives aux servomoteurs
@@ -2314,5 +2356,6 @@ TOOL_CHANGE_AT_G30\SpecialChar ~
 =\SpecialChar ~
 1 Avec cette valeur à 1, le mobile sera envoyé sur un
  point de référence prédéfini par G30 dans les paramètres 5181-5186.
- Pour plus de détails sur les paramètres de G30 voir le Manuel du G-code.
+ Pour plus de détails sur les paramètres de G30, voir le chapitre relatif
+ au G-code dans le Manuel de l'utilisateur.
 \the_end

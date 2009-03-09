@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr_axis\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-02-28 20:10+0100\n"
-"PO-Revision-Date: 2009-02-24 15:51+0100\n"
+"POT-Creation-Date: 2009-03-09 19:27+0100\n"
+"PO-Revision-Date: 2009-03-09 20:39+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: french <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -1853,8 +1853,8 @@ msgid "# overwritten when you run stepconf again"
 msgstr "# écrasé quand vous relancerez Stepconf"
 
 #: emc/usr_intf/stepconf/stepconf.py:493
-msgid "# add halui MDI commands here (max 10) "
-msgstr "# ajouter ici les commandes halui MDI (maximum 10) "
+msgid "# add halui MDI commands here (max 64) "
+msgstr "# ajouter ici les commandes MDI halui (maximum 64) "
 
 #: emc/usr_intf/stepconf/stepconf.py:959
 msgid "Include your PyVCP panel here.\n"
@@ -2606,3 +2606,4 @@ msgstr "Accélération:"
 #: emc/usr_intf/stepconf/stepconf.glade:4229
 msgid "Velocity:"
 msgstr "Vitesse:"
+
