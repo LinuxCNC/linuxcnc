@@ -1310,7 +1310,7 @@ Historique
 Affiche les commandes précédemment tapées au cours de cette session.
 \layout Subsubsection
 
-Commandes MDI
+Commande MDI
 \layout Standard
 
 Ce champ permet la saisie d'une ligne de commande à exécuter.
@@ -2083,7 +2083,7 @@ hal_manualtoolchange
 M6
 \family default 
  est invoquée.
- Dés que le bouton Continuer a été pressé, l'exécution du programme reprend.
+ Dés que le bouton Continuer est pressé, l'exécution du programme reprend.
 \layout Standard
 
 Le fichier de configuration .hal: 

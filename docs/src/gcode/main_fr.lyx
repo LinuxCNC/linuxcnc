@@ -742,14 +742,9 @@ t est utilisé sur deux ou plusieurs lignes, ce qui ne devrait normalement
  
 \layout Standard
 
-Dans emc2, l'emplacement du fichier d'outil est spécifié dans le fichier
+Dans emc2, l'emplacement du fichier d'outils est spécifié dans le fichier
  ini.
- Voir la section 
-\begin_inset LatexCommand \ref{sub:Section-[EMCIO]}
-
-\end_inset 
-
- pour d'autres détails.
+ Voir la section [EMCIO] du Manuel de l'intégrateur pour plus de détails.
 \layout Standard
 
 Un fichier d'outils peut être un mélange de lignes au 
@@ -1177,7 +1172,7 @@ format tour
 \begin_inset Quotes erd
 \end_inset 
 
- d'un fichier d'outil est visible dans le tableau
+ d'un fichier d'outils est visible dans le tableau
 \begin_inset LatexCommand \ref{cap:Fichier-d'outils-tour}
 
 \end_inset 
@@ -1510,7 +1505,7 @@ Commentaire
 
 Les champs Slot, FMS, DIA et Commentaire sont les mêmes que dans un fichier
  d'outils de fraiseuse.
- La colonne ZOFFSET est la même que la colonne TLO d'un fichier d'outil
+ La colonne ZOFFSET est la même que la colonne TLO d'un fichier d'outils
  de fraiseuse; offset de longueur d'outil.
  
 \layout Standard
@@ -1931,7 +1926,7 @@ Système de coordonnées 9
 
 \layout Standard
 
-Résultat de M66 - Surveillance d'entrée
+Résultat de M66 - Surveillance entrée
 \end_inset 
 </cell>
 </row>
@@ -3886,7 +3881,7 @@ Commentaires
 \end_inset 
 
 
-\begin_inset LatexCommand \label{sec:-Commentaires}
+\begin_inset LatexCommand \label{sub:-Commentaires}
 
 \end_inset 
 
@@ -4330,7 +4325,7 @@ Groupe 1
 
 \layout Standard
 
-G0 G1 G2 G3 G33 G38.x G73 G80 G81 G82
+G0 G1 G2 G3 G33 G38.x G73 G80 G81
 \end_inset 
 </cell>
 </row>
@@ -4347,7 +4342,7 @@ G0 G1 G2 G3 G33 G38.x G73 G80 G81 G82
 
 \layout Standard
 
-G83 G84 G85 G86 G87 G88 G89
+G82 G83 G84 G85 G86 G87 G88 G89
 \end_inset 
 </cell>
 </row>
@@ -4599,7 +4594,7 @@ Arrosages
 \layout Standard
 
 M7, M8, M9.
- Cas spéciaux:
+ Cas spéciaux: M7, M8
 \end_inset 
 </cell>
 </row>
@@ -4616,7 +4611,7 @@ M7, M8, M9.
 
 \layout Standard
 
-M7 et M8 peuvent être actifs simultanément
+peuvent être actifs simultanément
 \end_inset 
 </cell>
 </row>
@@ -6156,7 +6151,7 @@ n/a
 \layout Standard
 
 
-\begin_inset LatexCommand \ref{sec:G80:-Revocation-modaux}
+\begin_inset LatexCommand \ref{sub:G80:-Revocation-modaux}
 
 \end_inset 
 
@@ -9073,7 +9068,7 @@ G76
 \end_inset 
 
 : Cycle de filetage préprogrammé
-\begin_inset LatexCommand \label{sec:G76:-Filetage-preprogramme}
+\begin_inset LatexCommand \label{sub:G76:-Filetage-preprogramme}
 
 \end_inset 
 
@@ -9371,7 +9366,7 @@ G80
 \end_inset 
 
 : Révocation des codes modaux
-\begin_inset LatexCommand \label{sec:G80:-Revocation-modaux}
+\begin_inset LatexCommand \label{sub:G80:-Revocation-modaux}
 
 \end_inset 
 
@@ -11274,7 +11269,9 @@ M101
 
 
 \series bold 
-# ce fichier met la broche 14 du port // à 1 pour ouvrir le mandrin automatique
+# ce fichier met la broche 14 du port 
+\series default 
+// à 1 pour ouvrir le mandrin automatique
 \layout Quote
 
 
@@ -11297,7 +11294,9 @@ M102
 
 
 \series bold 
-# ce fichier met la broche 14 du port // à 0 pour fermer le mandrin automatique
+# ce fichier met la broche 14 du port 
+\series default 
+// à 0 pour fermer le mandrin automatique
 \layout Quote
 
 
