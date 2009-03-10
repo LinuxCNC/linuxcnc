@@ -20,7 +20,7 @@ F20    (probe speed)
 #8=-.1 (Z probe)
 (End configuration section)
 
-(LOGOPEN,probe-results.txt)
+(LOGOPEN,probe-results.ngc)
 #9=0 #10=0
 G0Z#7
 O1 while [#9 lt #6]
