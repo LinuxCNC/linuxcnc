@@ -1,7 +1,7 @@
 ( Rectangular Probing                                                   )
 (                                                                       )
 ( This program repeatedly probes in a regular XY grid and writes the    )
-( probed location to the file 'probe-results.txt' in the same directory )
+( probed location to the file 'probe-results.ngc' in the same directory )
 ( as the .ini file                                                      )
 
 (Configuration section)
