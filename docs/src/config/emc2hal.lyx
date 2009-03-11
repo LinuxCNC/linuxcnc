@@ -72,19 +72,29 @@ motion.feed-hold
 .
 \layout Description
 
-motion.analog-in-00 (float, in) These pins (00, 01, 02, 03 are valid) are
- controlled by M66.
+motion.analog-in-00 (float, in) These pins (00, 01, 02, 03) are controlled
+ by M66.
  
 \layout Description
 
-motion.current-vel (float, out) The current tool velocity
+motion.coord-error (bit, out) TRUE when motion has encountered an error,
+ such as exceeding a soft limit
 \layout Description
 
-motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03 are valid) are
- controlled by M62-65.
+motion.coord-mode (bit, out) TRUE when motion is in "coordinated mode", as
+ opposed to "teleop mode"
 \layout Description
 
-motion.digital-out-00 (bit, out) These pins are controlled by the 
+motion.current-vel (float, out) The current tool velocity in user units per
+ second.
+\layout Description
+
+motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03) are controlled
+ by M62-65.
+\layout Description
+
+motion.digital-out-00 (bit, out) These pins (00, 01, 02, 03) are controlled
+ by the 
 \family typewriter 
 M62-65
 \family default 
@@ -95,15 +105,8 @@ motion.distance-to-go (float,out) The distance remaining in the current move.
 \layout Description
 
 motion.enable (bit, in) If this bit is driven FALSE, motion stops, the machine
- is placed in the 
-\begin_inset Quotes eld
-\end_inset 
-
-machine off
-\begin_inset Quotes erd
-\end_inset 
-
- state, and a message is displayed for the operator.
+ is placed in the "machine off" state, and a message is displayed for the
+ operator.
  For normal motion, drive this bit TRUE.
 \layout Description
 
@@ -115,19 +118,13 @@ P1
 , and this bit is TRUE, the feed rate is set to 0.
 \layout Description
 
-motion.motion-enabled (bit, out) TRUE when in 
-\begin_inset Quotes eld
-\end_inset 
-
-machine on
-\begin_inset Quotes erd
-\end_inset 
-
- state.
+motion.in-position (bit, out) TRUE if the machine is in position.
 \layout Description
 
-motion.motion-inpos (bit, in) TRUE when the machine is not homing, jogging,
- or teleoperating.
+motion.motion-enabled (bit, out) TRUE when in "machine on" state.
+\layout Description
+
+motion.on-soft-limit (bit, out) TRUE when the machine is on a soft limit.
 \layout Description
 
 motion.probe-input (bit, in) 
@@ -136,6 +133,26 @@ G38.x
 \family default 
  uses the value on this pin to determine when the probe has made contact.
  TRUE for probe contact closed (touching), FALSE for probe contact open.
+\layout Description
+
+motion.program-line (s32, out) The current program line while executing.
+ Zero if not running or between lines while single stepping.
+\layout Description
+
+motion.spindle-at-speed (bit, in) Motion will pause until this pin is TRUE,
+ under the following conditions: before the first feed move after each spindle
+ start or speed change; before the start of every chain of spindle-synchronized
+ moves; and if in CSS mode, at every rapid to feed transition.
+ This input can be used to ensure that the spindle is up to speed before
+ starting a cut, or that a lathe spindle in CSS mode has slowed down after
+ a large to small facing pass before starting the next pass at the large
+ diameter.
+ Many VFDs have an "at speed" output.
+ Otherwise, it is easy to generate this signal with the 
+\family typewriter 
+HAL near
+\family default 
+ component, by comparing requested and actual spindle speeds.
 \layout Description
 
 motion.spindle-brake (bit, out) TRUE when the spindle brake should be applied.
@@ -147,11 +164,7 @@ motion.spindle-forward (bit, out) TRUE when the spindle should rotate forward.
 motion.spindle-index-enable (bit, I/O) For correct operation of spindle synchroni
 zed moves, this pin must be hooked to the index-enable pin of the spindle
  encoder.
- See also: 
-\emph on 
-motion.spindle-revs
-\emph default 
-.
+ 
 \layout Description
 
 motion.spindle-on (bit, out) TRUE when spindle should rotate.
@@ -198,28 +211,8 @@ M4
 ).
 \layout Description
 
-motion.spindle-at-speed (bit, in) Motion will pause until this pin is TRUE,
- under the following conditions: before the first feed move after each spindle
- start or speed change; before the start of every chain of spindle-synchronized
- moves; and if in CSS mode, at every rapid->feed transition.
- This input can be used to ensure that the spindle is up-to-speed before
- starting a cut, or that a lathe spindle in CSS mode has slowed down after
- a large-to-small facing pass before starting the next pass at the large
- diameter.
- Many VFDs have an 
-\begin_inset Quotes eld
-\end_inset 
-
-at speed
-\begin_inset Quotes erd
-\end_inset 
-
- output.
- Otherwise, it is easy to generate this signal with the 
-\family typewriter 
-near
-\family default 
- component, by comparing requested and actual spindle speeds.
+motion.teleop-mode (bit, out) TRUE when motion is in "teleop mode", as opposed
+ to "coordinated mode"
 \layout Description
 
 motion.tooloffset.w (float, out) shows the w offset in effect; it could come
@@ -277,29 +270,6 @@ motion-controller.time (s32, RO)
 motion-controller.tmax (s32, RW)
 \layout Description
 
-motion.coord-error (bit, RO) TRUE when motion has encountered an error, such
- as exceeding a soft limit
-\layout Description
-
-motion.coord-mode (bit, RO) TRUE when motion is in 
-\begin_inset Quotes eld
-\end_inset 
-
-coordinated mode
-\begin_inset Quotes erd
-\end_inset 
-
-, as opposed to 
-\begin_inset Quotes eld
-\end_inset 
-
-teleop mode
-\begin_inset Quotes erd
-\end_inset 
-
-
-\layout Description
-
 motion.debug-bit-0 (bit, RO) This is used for debugging purposes.
  
 \layout Description
@@ -330,17 +300,6 @@ motion.debug-s32-0 (s32, RO) This is used for debugging purposes.
 
 motion.debug-s32-1 (s32, RO) This is used for debugging purposes.
  
-\layout Description
-
-motion.in-position (bit, RO) Same as the pin 
-\emph on 
-motion.motion-inpos
-\layout Description
-
-motion.on-soft-limit (bit, RO)
-\layout Description
-
-motion.program-line (s32, RO)
 \layout Description
 
 motion.servo.last-period (u32, RO) The number of CPU cycles between invocations
@@ -385,29 +344,14 @@ motmod
 \family default 
  module.
  These are actually joint values, but the pins and parameters are still
- called 
-\begin_inset Quotes eld
-\end_inset 
-
-axis.N
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ called "axis.N".
 \begin_inset Foot
 collapsed false
 
 \layout Standard
 
-In 
-\begin_inset Quotes eld
-\end_inset 
-
-trivial kinematics
-\begin_inset Quotes erd
-\end_inset 
-
- machines, there is a one-to-one correspondence between joints and axes.
+In "trivial kinematics" machines, there is a one-to-one correspondence between
+ joints and axes.
 \end_inset 
 
  They are read and updated by the 
@@ -425,214 +369,145 @@ Pins
 
 \layout Description
 
-axis.N.amp-enable-out\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE if the amplifier for this joint should be
- enabled
+axis.N.active (bit, out)
 \layout Description
 
-axis.N.amp-fault-in\SpecialChar ~
-IN\SpecialChar ~
-bit Should be driven TRUE if an external fault is detected
- with the amplifier for this joint
+axis.N.amp-enable-out (bit, out) TRUE if the amplifier for this joint should
+ be enabled
 \layout Description
 
-axis.N.home-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Should be driven TRUE if the home switch for this joint
- is closed
+axis.N.amp-fault-in (bit, in) Should be driven TRUE if an external fault is
+ detected with the amplifier for this joint
 \layout Description
 
-axis.N.homing\SpecialChar ~
-OUT\SpecialChar ~
-bit TRUE if the joint is currently homing
+axis.N.backlash-corr (float, out)
 \layout Description
 
-axis.N.pos-lim-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Should be driven TRUE if the positive limit switch
- for this joint is closed
+axis.N.backlash-filt (float, out)
 \layout Description
 
-axis.N.neg-lim-sw-in\SpecialChar ~
-IN\SpecialChar ~
-bit Should be driven TRUE if the negative limit switch
- for this joint is closed
+axis.N.backlash-vel (float, out)
 \layout Description
 
-axis.N.index-enable\SpecialChar ~
-IO\SpecialChar ~
-BIT Should be attached to the index-enable pin of the
- joint's encoder to enable homing to index pulse
+axis.N.coarse-pos-cmd (float, out)
 \layout Description
 
-axis.N.jog-counts\SpecialChar ~
-IN\SpecialChar ~
-s32 Connect to the 
-\begin_inset Quotes eld
-\end_inset 
-
-counts
-\begin_inset Quotes erd
-\end_inset 
-
- pin of an external encoder to use a physical jog wheel.
+axis.N.error (bit, out)
 \layout Description
 
-axis.N.jog-enable\SpecialChar ~
-IN\SpecialChar ~
-bit When TRUE (and in manual mode), any change in 
-\begin_inset Quotes eld
-\end_inset 
-
-jog-counts
-\begin_inset Quotes erd
-\end_inset 
-
- will result in motion.
- When false, 
-\begin_inset Quotes eld
-\end_inset 
-
-jog-counts
-\begin_inset Quotes erd
-\end_inset 
-
- is ignored.
+axis.N.f-error (float, out)
 \layout Description
 
-axis.N.jog-scale\SpecialChar ~
-IN\SpecialChar ~
-float Sets the distance moved for each count on 
-\begin_inset Quotes eld
-\end_inset 
-
-jog-counts
-\begin_inset Quotes erd
-\end_inset 
-
-, in machine units.
+axis.N.f-error-lim (float, out)
 \layout Description
 
-axis.N.jog-vel-mode\SpecialChar ~
-IN\SpecialChar ~
-bit When FALSE (the default), the jogwheel operates in
- position mode.
+axis.N.f-errored (bit, out)
+\layout Description
+
+axis.N.faulted (bit, out)
+\layout Description
+
+axis.N.free-pos-cmd (float, out)
+\layout Description
+
+axis.N.free-tp-enable (bit, out)
+\layout Description
+
+axis.N.free-vel-lim (float, out)
+\layout Description
+
+axis.N.home-sw-in (bit, in) Should be driven TRUE if the home switch for this
+ joint is closed.
+\layout Description
+
+axis.N.homed (bit, out) 
+\layout Description
+
+axis.N.homing (bit, out) TRUE if the joint is currently homing
+\layout Description
+
+axis.N.in-position (bit, out)
+\layout Description
+
+axis.N.index-enable (bit, I/O)
+\layout Description
+
+axis.N.jog-counts (s32, in) Connect to the "counts" pin of an external encoder
+ to use a physical jog wheel.
+\layout Description
+
+axis.N.jog-enable (bit, in) When TRUE (and in manual mode), any change in
+ "jog-counts" will result in motion.
+ When false, "jog-counts" is ignored.
+\layout Description
+
+axis.N.jog-scale (float, in) Sets the distance moved for each count on "jog-counts
+", in machine units.
+\layout Description
+
+axis.N.jog-vel-mode (bit, in) When FALSE (the default), the jogwheel operates
+ in position mode.
  The axis will move exactly jog-scale units for each count, regardless of
  how long that might take.
  When TRUE, the wheel operates in velocity mode - motion stops when the
  wheel stops, even if that means the commanded motion is not completed.
 \layout Description
 
-axis.N.motor-pos-cmd\SpecialChar ~
-OUT\SpecialChar ~
-float The commanded position for this joint.
-\layout Description
-
-axis.N.motor-pos-fb\SpecialChar ~
-IN\SpecialChar ~
-float The actual position for this joint.
-\layout Description
-
-axis.N.joint-pos-cmd The joint (as opposed to motor) commanded position.
+axis.N.joint-pos-cmd (float, out) The joint (as opposed to motor) commanded
+ position.
  There may be an offset between the joint and motor positions--for example,
  the homing process sets this offset.
 \layout Description
 
-axis.N.joint-pos-fb The joint (as opposed to motor) feedback position.
+axis.N.joint-pos-fb (float, out) The joint (as opposed to motor) feedback
+ position.
+\layout Description
+
+axis.N.joint-vel-cmd (float, out)
+\layout Description
+
+axis.N.kb-jog-active (bit, out)
+\layout Description
+
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+should this be motor not joint?
+\end_inset 
+
+
+\layout Description
+
+axis.N.motor-pos-cmd (float, out) The commanded position for this joint.
+\layout Description
+
+axis.N.motor-pos-fb (float, in) The actual position for this joint.
+\layout Description
+
+axis.N.neg-hard-limit (bit, out)
+\layout Description
+
+axis.N.pos-lim-sw-in (bit, in) Should be driven TRUE if the positive limit
+ switch for this joint is closed
+\layout Description
+
+axis.N.pos-hard-limit (bit, out)
+\layout Description
+
+axis.N.neg-lim-sw-in (bit, in) Should be driven TRUE if the negative limit
+ switch for this joint is closed
+\layout Description
+
+axis.N.wheel-jog-active (bit, out) 
 \layout Subsection
 
 Parameters
-\layout Standard
-
-Many of these parameters serve as debugging aids, and are subject to change
- or removal at any time.
-\layout Description
-
-axis.N.active TRUE when this joint is active
-\layout Description
-
-axis.N.backlash-corr Backlash or screw compensation raw value
-\layout Description
-
-axis.N.backlash-filt Backlash or screw compensation filtered value (respecting
- motion limits)
-\layout Description
-
-axis.N.backlash-vel Backlash or screw compensation velocity 
-\layout Description
-
-axis.N.coarse-pos-cmd
-\layout Description
-
-axis.N.error TRUE when this joint has encountered an error, such as a limit
- switch closing
-\layout Description
-
-axis.N.f-error The actual following error
-\layout Description
-
-axis.N.f-error-lim The following error limit
-\layout Description
-
-axis.N.f-errored TRUE when this joint has exceeded the following error limit
-\layout Description
-
-axis.N.free-pos-cmd The 
-\begin_inset Quotes eld
-\end_inset 
-
-free planner
-\begin_inset Quotes erd
-\end_inset 
-
- commanded position for this joint.
-\layout Description
-
-axis.N.free-tp-enable TRUE when the 
-\begin_inset Quotes eld
-\end_inset 
-
-free planner
-\begin_inset Quotes erd
-\end_inset 
-
- is enabled for this joint
-\layout Description
-
-axis.N.free-vel-lim The velocity limit for the free planner
 \layout Description
 
 axis.N.home-state Reflects the step of homing currently taking place
-\layout Description
-
-axis.N.homed TRUE if the joint has been homed
-\layout Description
-
-axis.N.in-position TRUE if the joint is using the 
-\begin_inset Quotes eld
-\end_inset 
-
-free planner
-\begin_inset Quotes erd
-\end_inset 
-
- and has come to a stop
-\layout Description
-
-axis.N.joint-vel-cmd The joint's commanded velocity
-\layout Description
-
-axis.N.neg-hard-limit The negative hard limit for the joint
-\layout Description
-
-axis.N.neg-soft-limit The negative soft limit for the joint
-\layout Description
-
-axis.N.pos-hard-limit The positive hard limit for the joint
-\layout Description
-
-axis.N.pos-soft-limit The positive soft limit for the joint
 \layout Section
 
 iocontrol (userspace)
@@ -653,48 +528,48 @@ Pins
 
 \layout Description
 
-iocontrol.0.coolant-flood (Bit, Out) TRUE when flood coolant is requested
+iocontrol.0.coolant-flood (bit, out) TRUE when flood coolant is requested
 \layout Description
 
-iocontrol.0.coolant-mist (Bit, Out) TRUE when mist coolant is requested
+iocontrol.0.coolant-mist (bit, out) TRUE when mist coolant is requested
 \layout Description
 
-iocontrol.0.emc-enable-in (Bit, In) Should be driven FALSE when an external
+iocontrol.0.emc-enable-in (bit, in) Should be driven FALSE when an external
  estop condition exists
 \layout Description
 
-iocontrol.0.lube (Bit, Out) TRUE when lube is commanded
+iocontrol.0.lube (bit, out) TRUE when lube is commanded
 \layout Description
 
-iocontrol.0.lube_level (Bit, In) Should be driven TRUE when lube level is
+iocontrol.0.lube_level (bit, in) Should be driven TRUE when lube level is
  high enough
 \layout Description
 
-iocontrol.0.tool-change (Bit, Out) TRUE when a tool change is requested
+iocontrol.0.tool-change (bit, out) TRUE when a tool change is requested
 \layout Description
 
-iocontrol.0.tool-changed (Bit, In) Should be driven TRUE when a tool change
+iocontrol.0.tool-changed (bit, in) Should be driven TRUE when a tool change
  is completed
 \layout Description
 
-iocontrol.0.tool-number (s32, Out) The current tool number
+iocontrol.0.tool-number (s32, out) The current tool number
 \layout Description
 
-iocontrol.0.tool-prep-number (s32, Out) The number of the next tool, from
+iocontrol.0.tool-prep-number (s32, out) The number of the next tool, from
  the RS274NGC T-word
 \layout Description
 
-iocontrol.0.tool-prepare (Bit, Out) TRUE when a tool prepare is requested
+iocontrol.0.tool-prepare (bit, out) TRUE when a tool prepare is requested
 \layout Description
 
-iocontrol.0.tool-prepared (Bit, In) Should be driven TRUE when a tool prepare
+iocontrol.0.tool-prepared (bit, in) Should be driven TRUE when a tool prepare
  is completed 
 \layout Description
 
-iocontrol.0.user-enable-out (Bit, Out) FALSE when an internal estop condition
+iocontrol.0.user-enable-out (bit, out) FALSE when an internal estop condition
  exists
 \layout Description
 
-iocontrol.0.user-request-enable (Bit, Out) TRUE when the user has requested
+iocontrol.0.user-request-enable (bit, out) TRUE when the user has requested
  that estop be cleared
 \the_end
