@@ -51,7 +51,7 @@ static void shutdown(void) {
 static int init() {
     int result = HAL_SUCCESS;
     if(refcount == 0) {
-        result = halcmd_startup();
+        result = halcmd_startup(0);
         atexit(shutdown);
     }
     if(result == HAL_SUCCESS) {

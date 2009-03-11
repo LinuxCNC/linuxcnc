@@ -94,7 +94,8 @@ char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
 
 static void quit(int);
 
-int halcmd_startup(void) {
+int halcmd_startup(int quiet) {
+    int msg_lvl_save=rtapi_get_msg_level();
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
@@ -105,14 +106,18 @@ int halcmd_startup(void) {
     snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
     /* tell the signal handler that we might have the mutex */
     hal_flag = 1;
+    if (quiet) rtapi_set_msg_level(RTAPI_MSG_NONE);
     /* connect to the HAL */
     comp_id = hal_init(comp_name);
+    if (quiet) rtapi_set_msg_level(msg_lvl_save);
     /* done with mutex */
     hal_flag = 0;
     /* check result */
     if (comp_id < 0) {
-	fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
-	fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
+        if (!quiet) {
+            fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
+            fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
+        }
 	return HAL_FAIL;
     }
     hal_ready(comp_id);

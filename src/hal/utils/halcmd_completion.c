@@ -54,6 +54,11 @@ static const char *command_table[] = {
     NULL,
 };
 
+static const char *nonRT_command_table[] = {
+    "-h",
+    NULL,
+};
+
 static const char *alias_table[] = {
     "param", "pin",
     NULL,
@@ -229,7 +234,7 @@ static char *funct_generator_common(const char *text, int state, int inuse) {
         hal_funct_t *funct = SHMPTR(next);
         next = funct->next_ptr;
 	if (( strncmp(text, funct->name, len) == 0 ) 
-            && (!inuse || (funct->users > 0)))
+            && (inuse == funct->users))
             return strdup(funct->name);
     }
     return NULL;
@@ -543,11 +548,9 @@ static inline int isskip(int ch) {
 }
 
 static char *nextword(char *s) {
-    int n;
     s = strchr(s, ' ');
     if(!s) return NULL;
-    n = strspn(s, " \t=<>");
-    return &s[n];
+    return s+strspn(s, " \t=<>");
 }
 
 char **halcmd_completer(const char *text, int start, int end, hal_completer_func func, char *buffer) {
@@ -560,8 +563,13 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         start--;
     }
     if (start<0) start=0;
-    if(start == 0)
-        return completion_matches_table(text, command_table, func);
+    if(start == 0) {
+        if (comp_id >= 0) {
+            return completion_matches_table(text, command_table, func);
+        } else {
+            return completion_matches_table(text, nonRT_command_table, func);
+        }
+    }
 
     for(i=0, argno=0; i<start; i++) {
         if(isskip(buffer[i])) {

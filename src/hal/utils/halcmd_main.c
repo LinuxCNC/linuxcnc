@@ -154,9 +154,9 @@ int main(int argc, char **argv)
                         break;
                     }
                 }
-                halcmd_startup();
+                halcmd_startup(1);
                 propose_completion(cl, cf, n);
-                halcmd_shutdown();
+                if (comp_id >= 0) halcmd_shutdown();
                 exit(0);
                 break;
 #ifndef NO_INI
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( halcmd_startup() != 0 ) return 1;
+    if ( halcmd_startup(0) != 0 ) return 1;
 
     retval = 0;
     errorcount = 0;
