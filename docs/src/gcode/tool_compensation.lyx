@@ -220,6 +220,44 @@ n is on to the left or right side of a line when facing the direction of
  To visualize this imagine you were standing on the part walking behind
  the tool as it progresses across the part.
  G41 is your left side of the line and G42 is the right side of the line.
+\layout Standard
+
+The end point of each move depends on the next move.
+ If the next move creates an outside corner the move will be to the end
+ point of the compensated cut line.
+ If the next move creates in an inside corner the move will stop short so
+ to not gouge the part.
+ The following figure shows how the compensated move will stop at different
+ points depending on the next move.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Compensation End Point
+\begin_inset LatexCommand \label{cap:Compensation-End-Point}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/comp-path-1.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 Overview
