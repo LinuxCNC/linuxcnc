@@ -3600,13 +3600,11 @@ G41, G42 Cutter Radius Compensation
 G41 or G42 D[tool]
 \layout Standard
 
-To turn on cutter radius compensation to the left of the programmed line
- use G41.
+G41 start cutter radius compensation to the left of the programmed line.
  
 \layout Standard
 
-To turn on cutter radius compensation to the right of the programmed line
- use G42.
+G42 start cutter radius compensation to the right of the programmed line.
 \layout Standard
 
 The lead in move must be at least as long as the tool radius and can be

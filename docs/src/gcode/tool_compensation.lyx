@@ -317,21 +317,9 @@ Start a program with G40 to make sure compensation is off.
 \layout Subsection
 
 Examples
-\layout Subsubsection*
+\layout Subsubsection
 
-Outside Square
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-The g code is missing the last move to y1
-\end_inset 
-
-
+Outside Profile
 \layout Standard
 
 
@@ -342,8 +330,34 @@ collapsed false
 
 \layout Caption
 
-Comp Example 1
-\begin_inset LatexCommand \label{cap:Comp-Example-1}
+Outside Profile
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/outside-comp.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Inside Profile
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Inside Profile
+\begin_inset LatexCommand \label{cap:inkscape-test}
 
 \end_inset 
 
@@ -352,7 +366,7 @@ Comp Example 1
 \align center 
 
 \begin_inset Graphics
-	filename images/comp01.png
+	filename images/inside-comp.png
 	scale 80
 
 \end_inset 
