@@ -13,9 +13,9 @@ $HANDSEED
   5
 FFFF
   9
-$DIMADEC
- 70
-2
+$DIMASZ
+ 40
+0.1
   9
 $GRIDUNIT
  10
@@ -23,45 +23,45 @@ $GRIDUNIT
  20
 0.25
   9
-$DIMASZ
- 40
-0.1
+$DIMADEC
+ 70
+2
   9
 $DIMGAP
  40
 0.025
   9
-$LUNITS
+$SPLINESEGS
  70
-2
+8
   9
 $AUPREC
  70
 2
   9
-$SPLINESEGS
+$LUNITS
  70
-8
-  9
-$INSUNITS
- 70
-1
+2
   9
 $DIMEXO
  40
 0.025
   9
+$INSUNITS
+ 70
+1
+  9
 $DIMLUNIT
  70
 2
   9
-$DIMTXT
- 40
-0.1
-  9
 $GRIDMODE
  70
 0
+  9
+$DIMTXT
+ 40
+0.1
   9
 $LUPREC
  70
@@ -71,17 +71,17 @@ $DIMSTYLE
   2
 Standard
   9
-$PLIMMIN
- 10
-0.0
- 20
-0.0
-  9
 $PLIMMAX
  10
 8.5
  20
 11.0
+  9
+$PLIMMIN
+ 10
+0.0
+ 20
+0.0
   9
 $DIMEXE
  40
@@ -2001,7 +2001,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2041,7 +2041,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2081,7 +2081,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2121,7 +2121,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2207,7 +2207,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2241,15 +2241,15 @@ ByLayer
  72
 2
   3
-G-Code\PG40\~(\~Cancel\~Comp\~)\PG10\~L1\~P1\~R0.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~Tool\~)\PG42\~(\~Start\~Comp\~Left\~)\PG1\~X1\~Y1\~(Lead\~In\~Move)\PX5\~(\~Cut\~Path\~)\PY5\PX1\PY1\PG40\~(\~Cancel\~Comp\~)\PG0\~X0\~Y0\~(\~Exit\~Move
+G-Code\PG40\~(\~Cancel\~Comp\~)\PG10\~L1\~P1\~R0.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~Tool\~)\PG42\~(\~Start\~Comp\~Right\~)\PG1\~X1\~Y1\~(Lead\~In\~Move)\PX5\~(\~Cut\~Path\~)\PY5\PX1\PY1\PG40\~(\~Cancel\~Comp\~)\PG0\~X0\~Y0\~(\~Exit\~Mov
   1
-\~)\PM2\~(\~End\~Program\~)
+e\~)\PM2\~(\~End\~Program\~)
   7
 romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0

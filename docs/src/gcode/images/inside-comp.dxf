@@ -13,9 +13,9 @@ $HANDSEED
   5
 FFFF
   9
-$DIMASZ
- 40
-0.1
+$DIMADEC
+ 70
+2
   9
 $GRIDUNIT
  10
@@ -23,61 +23,65 @@ $GRIDUNIT
  20
 0.0
   9
-$DIMADEC
- 70
-2
+$DIMASZ
+ 40
+0.1
   9
 $DIMGAP
  40
 0.025
   9
-$SPLINESEGS
+$LUNITS
  70
-64
+2
   9
 $AUPREC
  70
 2
   9
-$LUNITS
+$SPLINESEGS
  70
-2
-  9
-$DIMEXO
- 40
-0.025
+64
   9
 $INSUNITS
  70
 1
   9
+$DIMEXO
+ 40
+0.025
+  9
 $DIMLUNIT
  70
 2
-  9
-$DIMTXT
- 40
-0.1
   9
 $GRIDMODE
  70
 0
   9
+$DIMTXT
+ 40
+0.1
+  9
 $LUPREC
  70
 4
   9
-$PLIMMAX
- 10
-8.5
- 20
-11.0
+$DIMSTYLE
+  2
+Standard
   9
 $PLIMMIN
  10
 0.0
  20
 0.0
+  9
+$PLIMMAX
+ 10
+8.5
+ 20
+11.0
   9
 $DIMEXE
  40
@@ -1885,7 +1889,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Rapid\~Move
   7
@@ -1893,7 +1897,7 @@ romans2
  50
 0.0
  73
-1
+0
  44
 1.0
   0
@@ -1971,7 +1975,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 \~Part\~Profile
   7
@@ -1979,57 +1983,13 @@ romans2
  50
 0.0
  73
-1
- 44
-1.0
-  0
-MTEXT
-  5
-5B
-100
-AcDbEntity
-100
-AcDbMText
-  8
 0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
--2.0
- 20
-6.0
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-1
- 72
-0
-  3
-G20\~(\~Inch\~Mode\~)\PF30\~(\~Set\~Feed\~Rate\~)\~\PG10\~L1\~P1\~R.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~the\~Tool\~)\PG0\~Z0\~(\~Move\~to\~safe\~Z\~height\~)\PG41\~(\~Start\~Cutter\~Comp\~Left\~)\PX4\~Y3\~(\~Rapid\~to\~start\~point\~)\PG
-  3
-1\~X5\~Z-1\~(\~Move\~to\~cut\~height\~)\PG3\~X6\~Y4\~J1\~(\~Arc\~into\~cut\~path\~)\PX2\~(\~Cut\~Profile\~)\PY2\PX6\PY4\PG3\~X5\~Y5\~I-1\~(\~Arc\~out\~of\~cut\~path\~)\PG0\~Z0\~(\~Move\~cutter\~to\~safe\~Z\~height\~)\PG40\~(\~Stop\~Cutter\~Comp\~)\PG
-  1
-0\~X1\~Y1\~(\~Move\~to\~safe\~position\~)\PT0\~M6\~(\~Remove\~Tool\~)\PM2\~(\~End\~Program\~)
-  7
-romans2
- 50
-0.0
- 73
-1
  44
 1.0
   0
 CIRCLE
   5
-5C
+5B
 100
 AcDbEntity
 100
@@ -2053,7 +2013,7 @@ ByLayer
   0
 LINE
   5
-5D
+5C
 100
 AcDbEntity
 100
@@ -2081,7 +2041,7 @@ ByLayer
   0
 LINE
   5
-5E
+5D
 100
 AcDbEntity
 100
@@ -2109,7 +2069,7 @@ ByLayer
   0
 MTEXT
   5
-5F
+5E
 100
 AcDbEntity
 100
@@ -2135,7 +2095,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 Tool
   7
@@ -2143,13 +2103,13 @@ romans2
  50
 0.0
  73
-1
+0
  44
 1.0
   0
 LEADER
   5
-60
+5F
   8
 0
  62
@@ -2195,7 +2155,7 @@ Standard
   0
 LEADER
   5
-61
+60
   8
 0
  62
@@ -2241,7 +2201,7 @@ Standard
   0
 MTEXT
   5
-62
+61
 100
 AcDbEntity
 100
@@ -2267,7 +2227,7 @@ ByLayer
  71
 2
  72
-0
+2
   1
 Compensated\PCut\~Path
   7
@@ -2275,13 +2235,13 @@ romans2
  50
 0.0
  73
-1
+0
  44
 1.0
   0
 LEADER
   5
-63
+62
   8
 0
  62
@@ -2324,6 +2284,50 @@ Standard
 4.7000000000000002
  20
 2.8000000000000003
+  0
+MTEXT
+  5
+63
+100
+AcDbEntity
+100
+AcDbMText
+  8
+0
+ 62
+256
+370
+-1
+  6
+ByLayer
+ 10
+-2.0
+ 20
+6.0
+ 30
+0.0
+ 40
+0.125
+ 41
+100.0
+ 71
+1
+ 72
+2
+  3
+G20\~(\~Inch\~Mode\~)\PF30\~(\~Set\~Feed\~Rate\~)\~\PG10\~L1\~P1\~R.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~the\~Tool\~)\PG0\~Z0\~(\~Move\~to\~safe\~Z\~height\~)\PG41\~(\~Start\~Cutter\~Comp\~Left\~)\PX4\~Y3\~(\~Rapid\~to\~start\~point\~)\PG
+  3
+1\~X5\~Z-1\~(\~Move\~to\~cut\~height\~)\PG3\~X6\~Y4\~J1\~(\~Arc\~into\~cut\~path\~)\PG1\~X2\~(\~Cut\~Profile\~)\PY2\PX6\PY4\PG3\~X5\~Y5\~I-1\~(\~Arc\~out\~of\~cut\~path\~)\PG0\~Z0\~(\~Move\~cutter\~to\~safe\~Z\~height\~)\PG40\~(\~Stop\~Cutter\~Comp\~
+  1
+)\PG0\~X1\~Y1\~(\~Move\~to\~safe\~position\~)\PT0\~M6\~(\~Remove\~Tool\~)\PM2\~(\~End\~Program\~)
+  7
+romans2
+ 50
+0.0
+ 73
+0
+ 44
+1.0
   0
 ENDSEC
   0
