@@ -249,7 +249,7 @@ Compensation End Point
 \align center 
 
 \begin_inset Graphics
-	filename images/comp-path-1.png
+	filename images/comp-path.png
 	scale 80
 
 \end_inset 
@@ -395,7 +395,7 @@ collapsed false
 \layout Caption
 
 Inside Profile
-\begin_inset LatexCommand \label{cap:inkscape-test}
+\begin_inset LatexCommand \label{cap:Inside-Profile}
 
 \end_inset 
 

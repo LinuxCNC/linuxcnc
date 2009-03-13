@@ -5572,11 +5572,7 @@ M30
  Both of these commands have the following effects.
 \layout Enumerate
 
-Axis offsets are set to zero (like 
-\family typewriter 
-G92.2
-\family default 
-) and origin offsets are set to the default (like 
+Origin offsets are set to the default (like 
 \family typewriter 
 G54
 \family default 
