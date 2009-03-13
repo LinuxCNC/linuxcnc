@@ -108,6 +108,18 @@ By using "G10 L1 Pn Zx" where "n" is the tool number and "x" is the offset
 Editing the Tool Table
 \layout Standard
 
+
+\begin_inset Note
+collapsed false
+
+\layout Standard
+
+this subsection needs to be re-done
+\end_inset 
+
+
+\layout Standard
+
 Tool length offsets are given as positive numbers in the tool table.
  A tool length offset is programmed using G43 Hn, where n is the desired
  table index.
@@ -369,6 +381,11 @@ collapsed false
 \layout Caption
 
 Outside Profile
+\begin_inset LatexCommand \label{cap:Outside-Profile}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 

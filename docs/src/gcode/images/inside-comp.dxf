@@ -13,9 +13,9 @@ $HANDSEED
   5
 FFFF
   9
-$DIMADEC
- 70
-2
+$DIMASZ
+ 40
+0.1
   9
 $GRIDUNIT
  10
@@ -23,45 +23,45 @@ $GRIDUNIT
  20
 0.0
   9
-$DIMASZ
- 40
-0.1
+$DIMADEC
+ 70
+2
   9
 $DIMGAP
  40
 0.025
   9
-$LUNITS
+$SPLINESEGS
  70
-2
+64
   9
 $AUPREC
  70
 2
   9
-$SPLINESEGS
+$LUNITS
  70
-64
-  9
-$INSUNITS
- 70
-1
+2
   9
 $DIMEXO
  40
 0.025
   9
+$INSUNITS
+ 70
+1
+  9
 $DIMLUNIT
  70
 2
   9
-$GRIDMODE
- 70
-0
-  9
 $DIMTXT
  40
 0.1
+  9
+$GRIDMODE
+ 70
+0
   9
 $LUPREC
  70
@@ -71,17 +71,17 @@ $DIMSTYLE
   2
 Standard
   9
-$PLIMMIN
- 10
-0.0
- 20
-0.0
-  9
 $PLIMMAX
  10
 8.5
  20
 11.0
+  9
+$PLIMMIN
+ 10
+0.0
+ 20
+0.0
   9
 $DIMEXE
  40
@@ -1897,7 +1897,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -1983,7 +1983,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2103,7 +2103,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2235,7 +2235,7 @@ romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -2317,15 +2317,15 @@ ByLayer
   3
 G20\~(\~Inch\~Mode\~)\PF30\~(\~Set\~Feed\~Rate\~)\~\PG10\~L1\~P1\~R.25\~Z1\~(\~Set\~Tool\~Table\~)\PT1\~M6\~(\~Load\~the\~Tool\~)\PG0\~Z0\~(\~Move\~to\~safe\~Z\~height\~)\PG41\~(\~Start\~Cutter\~Comp\~Left\~)\PX4\~Y3\~(\~Rapid\~to\~start\~point\~)\PG
   3
-1\~X5\~Z-1\~(\~Move\~to\~cut\~height\~)\PG3\~X6\~Y4\~J1\~(\~Arc\~into\~cut\~path\~)\PG1\~X2\~(\~Cut\~Profile\~)\PY2\PX6\PY4\PG3\~X5\~Y5\~I-1\~(\~Arc\~out\~of\~cut\~path\~)\PG0\~Z0\~(\~Move\~cutter\~to\~safe\~Z\~height\~)\PG40\~(\~Stop\~Cutter\~Comp\~
+1\~X5\~Z-1\~(\~Move\~to\~cut\~height\~)\PG3\~X6\~Y4\~J1\~(\~Arc\~into\~cut\~path\~)\PG1\~Y6\~(\~Cut\~Profile\~)\PX2\PY2\PX6\PY4\PG3\~X5\~Y5\~I-1\~(\~Arc\~out\~of\~cut\~path\~)\PG0\~Z0\~(\~Move\~cutter\~to\~safe\~Z\~height\~)\PG40\~(\~Stop\~Cutter\~Co
   1
-)\PG0\~X1\~Y1\~(\~Move\~to\~safe\~position\~)\PT0\~M6\~(\~Remove\~Tool\~)\PM2\~(\~End\~Program\~)
+mp\~)\PG0\~X1\~Y1\~(\~Move\~to\~safe\~position\~)\PT0\~M6\~(\~Remove\~Tool\~)\PM2\~(\~End\~Program\~)
   7
 romans2
  50
 0.0
  73
-0
+1
  44
 1.0
   0
