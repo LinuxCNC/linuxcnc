@@ -1125,7 +1125,7 @@ Sur un tour, le filetage nécessite un signal de retour entre la broche et
 
 Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur
  qu'en filetage extérieur, voir G76
-\begin_inset LatexCommand \ref{sec:G76:-Filetage-preprogramme}
+\begin_inset LatexCommand \ref{sub:G76:-Filetage-preprogramme}
 
 \end_inset 
 
