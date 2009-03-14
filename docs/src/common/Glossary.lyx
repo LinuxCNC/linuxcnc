@@ -378,6 +378,12 @@ tweaked
 .
 \layout Description
 
+Floating\SpecialChar ~
+Point\SpecialChar ~
+Number A number that has a decimal point.
+ (12.300) In HAL it is known as float.
+\layout Description
+
 G-Code
 \begin_inset LatexCommand \index{G-Code}
 
@@ -765,6 +771,16 @@ Loop
  with a feedback device.
 \layout Description
 
+Signed\SpecialChar ~
+Integer
+\begin_inset LatexCommand \index{Signed Integer}
+
+\end_inset 
+
+ A whole number that can have a positive or negitive sign.
+ (-12) In HAL it is known as s32.
+\layout Description
+
 Spindle
 \begin_inset LatexCommand \index{spindle}
 
@@ -843,8 +859,12 @@ Tcl/Tk
 \layout Description
 
 Traverse\SpecialChar ~
-Move A move in a straight line from the current point to the programmed
- point.
+Move
+\begin_inset LatexCommand \index{Traverse Move}
+
+\end_inset 
+
+ A move in a straight line from the start point to the end point.
 \layout Description
 
 Units
@@ -852,31 +872,17 @@ Units
 
 \end_inset 
 
- See 
-\begin_inset Quotes eld
+ See "Machine Units", "Display Units", or "Program Units".
+\layout Description
+
+Unsigned\SpecialChar ~
+Integer
+\begin_inset LatexCommand \index{Unsigned Integer}
+
 \end_inset 
 
-Machine Units
-\begin_inset Quotes erd
-\end_inset 
-
-, 
-\begin_inset Quotes eld
-\end_inset 
-
-Display Units
-\begin_inset Quotes erd
-\end_inset 
-
-, or 
-\begin_inset Quotes eld
-\end_inset 
-
-Program Units
-\begin_inset Quotes erd
-\end_inset 
-
-, above.
+ A whole number that has no sign.
+ (123) In HAL it is known as u32.
 \layout Description
 
 World\SpecialChar ~
