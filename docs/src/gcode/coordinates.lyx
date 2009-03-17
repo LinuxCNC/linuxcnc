@@ -190,7 +190,7 @@ Fixture Offsets (G54-G59.3
 
 \end_inset 
 
- 
+
 \begin_inset LatexCommand \index{G59.3}
 
 \end_inset 
@@ -200,6 +200,7 @@ Fixture Offsets (G54-G59.3
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -207,7 +208,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename offsets.png
+	filename images/offsets.png
 	display color
 	width 80text%
 
@@ -216,12 +217,12 @@ collapsed false
 
 \layout Caption
 
-
-\begin_inset LatexCommand \label{fig:offsets}
+Fixture Offsets
+\begin_inset LatexCommand \label{cap:Fixture-Offsets}
 
 \end_inset 
 
-Work Offsets
+
 \end_inset 
 
 
@@ -231,12 +232,7 @@ Work or fixture offset are used to make a part home that is different from
  the absolute, machine coordinate system.
  This allows the part programmer to set up home positions for multiple parts.
  A typical operation that uses fixture offsets would be to mill multiple
- copies of parts on "islands" in a piece, similar to figure 
-\begin_inset LatexCommand \ref{fig:offsets}
-
-\end_inset 
-
-
+ copies of parts on multiple part holders or vises.
 \layout Standard
 
 The values for offsets are stored in the VAR file that is requested by the
@@ -345,7 +341,7 @@ Once there are values assigned, a call to G55 in a program block would shift
  Unlike G53, G54 through G59.3 are modal commands.
  They will act on all blocks of code after one of them has been set.
  The program that might be run using figure 
-\begin_inset LatexCommand \ref{fig:offsets}
+\begin_inset LatexCommand \ref{cap:Fixture-Offsets}
 
 \end_inset 
 
