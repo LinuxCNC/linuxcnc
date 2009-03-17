@@ -315,10 +315,10 @@ typedef struct {
     unsigned int hold_timer;	/* timer for dir hold time */
     unsigned int space_timer;	/* timer for pulse spacing */
     unsigned int len_timer;	/* timer for pulse length */
-    hal_u32_t *dir_setup;	/* pin: direction setup time */
-    hal_u32_t *dir_hold;	/* pin: direction hold time */
-    hal_u32_t *step_len;	/* pin: step pulse length */
-    hal_u32_t *step_space;	/* pin: min step pulse spacing */
+    hal_u32_t dir_setup;	/* parameter: direction setup time */
+    hal_u32_t dir_hold;		/* parameter: direction hold time */
+    hal_u32_t step_len;		/* parameter: step pulse length */
+    hal_u32_t step_space;	/* parameter: min step pulse spacing */
 } st0_t;
 
 typedef struct {
@@ -339,17 +339,17 @@ typedef struct {
 	st2_t st2;		/* working data for step types 2 and up */
     } wd;
     hal_bit_t *phase[5];	/* pins for output signals */
-    hal_s32_t *rawcount;	/* pin: current position (feedback) */
+    hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos_scale;	/* pin: scaling factor for pos */
-    double old_scale;		/* stored scale value */
+    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    float old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t *vel;		/* velocity command */
-    hal_float_t *vel_scale;	/* pin: scaling for vel to Hz */
-    hal_float_t *maxfreq;	/* pin: max frequency in Hz */
-    hal_float_t *freq;		/* pin: velocity cmd scaled to Hz */
-    hal_float_t *maxaccel;	/* pin: max accel rate in Hz/sec */
+    hal_float_t vel_scale;	/* parameter: scaling for vel to Hz */
+    hal_float_t maxfreq;	/* parameter: max frequency in Hz */
+    hal_float_t freq;		/* parameter: velocity cmd scaled to Hz */
+    hal_float_t maxaccel;	/* parameter: max accel rate in Hz/sec */
     int printed_error;          /* Has the error message been logged? */
 } freqgen_t;
 
@@ -393,10 +393,10 @@ static int comp_id;		/* component ID */
 static int num_chan;		/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
-static double periodfp;		/* makepulses function period in seconds */
-static double maxf;		/* maximum frequency, step types 1 & up */
-static double freqscale;		/* conv. factor from Hz to addval counts */
-static double accelscale;	/* conv. Hz/sec to addval cnts/period */
+static float periodfp;		/* makepulses function period in seconds */
+static float maxf;		/* maximum frequency, step types 1 & up */
+static float freqscale;		/* conv. factor from Hz to addval counts */
+static float accelscale;	/* conv. Hz/sec to addval cnts/period */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -576,7 +576,7 @@ static void make_pulses(void *arg, long period)
 		    /* terminate step pulse */
 		    *(freqgen->phase[STEP_PIN]) = 0;
 		    /* begin timing pulse space */
-		    freqgen->wd.st0.space_timer = *(freqgen->wd.st0.step_space);
+		    freqgen->wd.st0.space_timer = freqgen->wd.st0.step_space;
 		}
 	    }
 	    /* is direction OK? */
@@ -587,7 +587,7 @@ static void make_pulses(void *arg, long period)
 		    /* set direction output */
 		    *(freqgen->phase[DIR_PIN]) = tmp_dir;
 		    /* start setup timer */
-		    freqgen->wd.st0.setup_timer = *(freqgen->wd.st0.dir_setup);
+		    freqgen->wd.st0.setup_timer = freqgen->wd.st0.dir_setup;
 		}
 	    }
 	    /* do we need to step? */
@@ -599,16 +599,16 @@ static void make_pulses(void *arg, long period)
 		    /* yes, start step pulse */
 		    *(freqgen->phase[STEP_PIN]) = 1;
 		    /* start pulse length and dir hold timers */
-		    freqgen->wd.st0.len_timer = *(freqgen->wd.st0.step_len);
+		    freqgen->wd.st0.len_timer = freqgen->wd.st0.step_len;
 		    freqgen->wd.st0.hold_timer =
-			*(freqgen->wd.st0.step_len) + *(freqgen->wd.st0.dir_hold);
+			freqgen->wd.st0.step_len + freqgen->wd.st0.dir_hold;
 		    /* don't need a step any more */
 		    freqgen->wd.st0.need_step = 0;
 		    /* count the step */
 		    if (tmp_dir) {
-			(*freqgen->rawcount)--;
+			freqgen->rawcount--;
 		    } else {
-			(*freqgen->rawcount)++;
+			freqgen->rawcount++;
 		    }
 		}
 	    }
@@ -620,9 +620,9 @@ static void make_pulses(void *arg, long period)
 	    /* count the step for feedback */
 	    if (tmp_step) {
 		if (tmp_dir) {
-		    (*freqgen->rawcount)--;
+		    freqgen->rawcount--;
 		} else {
-		    (*freqgen->rawcount)++;
+		    freqgen->rawcount++;
 		}
 	    }
 	} else {
@@ -634,13 +634,13 @@ static void make_pulses(void *arg, long period)
 			freqgen->wd.st2.state = freqgen->wd.st2.cycle_max;
 		    }
 		    /* count the step for feedback */
-		    (*freqgen->rawcount)--;
+		    freqgen->rawcount--;
 		} else {
 		    if (++freqgen->wd.st2.state > freqgen->wd.st2.cycle_max) {
 			freqgen->wd.st2.state = 0;
 		    }
 		    /* count the step for feedback */
-		    (*freqgen->rawcount)++;
+		    freqgen->rawcount++;
 		}
 		/* look up correct output pattern */
 		state = (freqgen->wd.st2.lut)[freqgen->wd.st2.state];
@@ -663,7 +663,7 @@ static void update_freq(void *arg, long period)
 {
     freqgen_t *freqgen;
     int n;
-    double tmpf, limf;
+    float tmpf, limf;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the
@@ -685,36 +685,36 @@ static void update_freq(void *arg, long period)
 	    /* stepping type 0 limit depends on timing params that may change 
 	     */
 	    limf =
-		maxf / ( *(freqgen->wd.st0.step_len) +
-		*(freqgen->wd.st0.step_space));
+		maxf / (freqgen->wd.st0.step_len +
+		freqgen->wd.st0.step_space);
 	} else {
 	    limf = maxf;
 	}
 	/* check for user specified frequency limit parameter */
-	if (*(freqgen->maxfreq) <= 0.0) {
+	if (freqgen->maxfreq <= 0.0) {
 	    /* set to zero if negative */
-	    *(freqgen->maxfreq) = 0.0;
+	    freqgen->maxfreq = 0.0;
 	} else {
 	    /* parameter is non-zero, compare to limf */
-	    if (*(freqgen->maxfreq) > limf) {
+	    if (freqgen->maxfreq > limf) {
                  if(!freqgen->printed_error) {
                      rtapi_print_msg(RTAPI_MSG_ERR,
                          "FREQGEN: Channel %d: The requested maximum velocity of %d steps per second is not attainable.\n",
-                         n, (int) *(freqgen->maxfreq));
+                         n, (int) freqgen->maxfreq);
                      rtapi_print_msg(RTAPI_MSG_ERR,
                          "FREQGEN: The maximum number of steps possible is %d per second\n",
                              (int) limf);
                      freqgen->printed_error = 1;
                  }
 		/* parameter is too high, lower it */
-		*(freqgen->maxfreq) = limf;
+		freqgen->maxfreq = limf;
 	    } else {
 		/* lower limit to match parameter */
-		limf = *(freqgen->maxfreq);
+		limf = freqgen->maxfreq;
 	    }
 	}
 	/* convert velocity command to Hz */
-	tmpf = *(freqgen->vel) * (*(freqgen->vel_scale));
+	tmpf = *(freqgen->vel) * freqgen->vel_scale;
 	/* limit the commanded frequency */
 	if (tmpf > limf) {
 	    tmpf = limf;
@@ -722,16 +722,16 @@ static void update_freq(void *arg, long period)
 	    tmpf = -limf;
 	}
 	/* save limited frequency */
-	*(freqgen->freq) = tmpf;
+	freqgen->freq = tmpf;
 	/* calculate new addval */
 	freqgen->newaddval = tmpf * freqscale;
 	/* check for illegal (negative) maxaccel parameter */
-	if (*(freqgen->maxaccel) <= 0.0) {
+	if (freqgen->maxaccel <= 0.0) {
 	    /* set to zero if negative */
-	    *(freqgen->maxaccel) = 0.0;
+	    freqgen->maxaccel = 0.0;
 	}
 	/* calculate new deltalim */
-	freqgen->deltalim = *(freqgen->maxaccel) * accelscale;
+	freqgen->deltalim = freqgen->maxaccel * accelscale;
 	/* move on to next channel */
 	freqgen++;
     }
@@ -746,18 +746,18 @@ static void update_pos(void *arg, long period)
     freqgen = arg;
     for (n = 0; n < num_chan; n++) {
 	/* capture raw counts to latches */
-	*(freqgen->count) = *(freqgen->rawcount);
+	*(freqgen->count) = freqgen->rawcount;
 	/* check for change in scale value */
-	if ( *(freqgen->pos_scale) != freqgen->old_scale ) {
+	if ( freqgen->pos_scale != freqgen->old_scale ) {
 	    /* get ready to detect future scale changes */
-	    freqgen->old_scale = *(freqgen->pos_scale);
+	    freqgen->old_scale = freqgen->pos_scale;
 	    /* validate the new scale value */
-	    if ((*(freqgen->pos_scale) < 1e-20) && (*(freqgen->pos_scale) > -1e-20)) {
+	    if ((freqgen->pos_scale < 1e-20) && (freqgen->pos_scale > -1e-20)) {
 		/* value too small, divide by zero is a bad thing */
-		*(freqgen->pos_scale) = 1.0;
+		freqgen->pos_scale = 1.0;
 	    }
 	    /* we will need the reciprocal */
-	    freqgen->scale_recip = 1.0 / *(freqgen->pos_scale);
+	    freqgen->scale_recip = 1.0 / freqgen->pos_scale;
 	}
 	/* scale count to make floating point position */
 	*(freqgen->pos) = *(freqgen->count) * freqgen->scale_recip;
@@ -783,9 +783,9 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* export pin variable for raw counts */
+    /* export param variable for raw counts */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.rawcounts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->rawcount), comp_id);
+    retval = hal_param_s32_new(buf, HAL_RO, &(addr->rawcount), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -801,9 +801,9 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for position scaling */
+    /* export parameter for position scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.position-scale", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
@@ -813,37 +813,36 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for frequency scaling */
+    /* export parameter for frequency scaling */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.velocity-scale", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->vel_scale), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->vel_scale), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for max frequency */
+    /* export parameter for max frequency */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.maxfreq", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxfreq), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxfreq), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for scaled velocity (frequency in Hz) */
+    /* export param for scaled velocity (frequency in Hz) */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.frequency", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->freq), comp_id);
+    retval = hal_param_float_new(buf, HAL_RO, &(addr->freq), comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export pin for max accel/decel */
+    /* export parameter for max accel/decel */
     rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.maxaccel", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxaccel), comp_id);
+    retval = hal_param_float_new(buf, HAL_RW, &(addr->maxaccel), comp_id);
     if (retval != 0) {
 	return retval;
     }
     /* set default parameter values */
-    *(addr->pos_scale) = 1.0;
-    *(addr->vel_scale) = 1.0;
+    addr->pos_scale = 1.0;
+    addr->vel_scale = 1.0;
     /* set maxfreq very high - let update_freq() fix it */
-    *(addr->freq) = 0.0;
-    *(addr->maxfreq) = 1e15;
-    *(addr->maxaccel) = 0.0;
+    addr->maxfreq = 1e15;
+    addr->maxaccel = 0.0;
     addr->wd.st0.step_type = step_type;
     /* init the step generator core to zero output */
     addr->accum = 0;
@@ -859,37 +858,37 @@ static int export_freqgen(int num, freqgen_t * addr, int step_type)
 	addr->wd.st0.hold_timer = 0;
 	addr->wd.st0.space_timer = 0;
 	addr->wd.st0.len_timer = 0;
-	/* export pins for step/dir pulse timing */
+	/* export parameters for step/dir pulse timing */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirsetup", num);
 	retval =
-	    hal_pin_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_setup), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_setup), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.dirhold", num);
 	retval =
-	    hal_pin_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_hold), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.dir_hold), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.steplen", num);
 	retval =
-	    hal_pin_u32_new(buf, HAL_RW, &(addr->wd.st0.step_len), comp_id);
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_len), comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.stepspace", num);
 	retval =
-	    hal_pin_u32_new(buf, HAL_RW, &(addr->wd.st0.step_space),
+	    hal_param_u32_new(buf, HAL_RW, &(addr->wd.st0.step_space),
 	    comp_id);
 	if (retval != 0) {
 	    return retval;
 	}
 	/* init the parameters */
-	*(addr->wd.st0.dir_setup) = 1;
-	*(addr->wd.st0.dir_hold) = 1;
-	*(addr->wd.st0.step_len) = 1;
-	*(addr->wd.st0.step_space) = 1;
+	addr->wd.st0.dir_setup = 1;
+	addr->wd.st0.dir_hold = 1;
+	addr->wd.st0.step_len = 1;
+	addr->wd.st0.step_space = 1;
 	/* export pins for step and direction */
 	rtapi_snprintf(buf, HAL_NAME_LEN, "freqgen.%d.step", num);
 	retval =
