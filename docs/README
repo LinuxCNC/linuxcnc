@@ -30,6 +30,12 @@ In sub documents the Preamble should be empty.
 
 Creating new sub documents use the template.lyx file as the base.
 
+Drawings from QCad
+-------------------
+Save as .dxf to same directory as the image
+Set line thickness to 0.50mm
+Export image as 480 x 480 Resolution Auto .png
+
 Images
 -------------------
 
