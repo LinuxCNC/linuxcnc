@@ -1190,6 +1190,13 @@ clearpage
 A slightly more complex example.
 \layout Standard
 
+
+\series bold 
+NOTE: This section is being rewritten to use stepgen.
+ Freqgen is depreciated.
+ Please bear with me as I work out the details.
+\layout Standard
+
 Up till now we have only loaded one HAL component.
  But the whole idea behind the HAL is to allow you to load and connect a
  number of simple components to make up a complex system.
@@ -1216,19 +1223,6 @@ halrun
 Installing the components
 \layout Standard
 
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-wow this section needs a rewrite...
- out with freqgen in with stepgen...
-\end_inset 
-
-
-\layout Standard
-
 Now we are going to load the step pulse generator component.
  For a detailed description of this component refer to section 
 \begin_inset LatexCommand \ref{sec:Stepgen}
@@ -1238,7 +1232,7 @@ Now we are going to load the step pulse generator component.
 .
  For now, we can skip the details, and just run the following commands:
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -1268,11 +1262,15 @@ The
 \end_inset 
 
 
+\layout Standard
+
+In this example we will use the "velocity" control type of stepgen.
+ 
 \layout Quote
 
 halrun: 
 \series bold 
-loadrt freqgen step_type=0,0
+loadrt stepgen step_type=0,0 ctrl_type=v,v
 \newline 
 
 \series default 
@@ -1311,38 +1309,49 @@ halcmd:
 \series default 
 Component Pins:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner   Type    Dir         Value           Name
 \newline 
- 03    float -W   0.00000e+00  siggen.0.cosine
+     3       float    IN              1        siggen.0.amplitude
 \newline 
- 03    float -W   0.00000e+00  siggen.0.sawtooth
+     3       float    OUT           0        siggen.0.cosine
 \newline 
- 03    float -W   0.00000e+00  siggen.0.sine
+     3       float    IN              1        siggen.0.frequency
 \newline 
- 03    float -W   0.00000e+00  siggen.0.square
+     3       float    IN              0        siggen.0.offset
 \newline 
- 03    float -W   0.00000e+00  siggen.0.triangle
+     3       float    OUT          0         siggen.0.sawtooth
 \newline 
- 02    s32   -W            0   freqgen.0.counts
+     3       float    OUT         0         siggen.0.sine
 \newline 
- 02    bit   -W     FALSE      freqgen.0.dir
+     3       float    OUT          0         siggen.0.square
 \newline 
- 02    float -W   0.00000e+00  freqgen.0.position
+     3       float    OUT          0         siggen.0.triangle
 \newline 
- 02    bit   -W     FALSE      freqgen.0.step
+     3       float    OUT          0         stepgen.0.counts
 \newline 
- 02    float R-   0.00000e+00  freqgen.0.velocity
+     2       bit       OUT       FALSE    stepgen.0.dir
 \newline 
- 02    s32   -W            0   freqgen.1.counts
+     2       bit       IN          FALSE    stepgen.0.enable
 \newline 
- 02    bit   -W     FALSE      freqgen.1.dir
+     2       float    IN             0         stepgen.0.position-fb
 \newline 
- 02    float -W   0.00000e+00  freqgen.1.position
+     2       float    OUT          0         stepgen.0.step
 \newline 
- 02    bit   -W     FALSE      freqgen.1.step
+     2       bit       OUT       FALSE    stepgen.0.velocity-cmd
 \newline 
- 02    float R-  0.00000e+00  freqgen.1.velocity
+     2       s32      OUT          0         stepgen.1.counts
 \newline 
+     2       bit       OUT       FALSE    stepgen.1.dir
+\newline 
+     2       bit       IN          FALSE    stepgen.1.enable
+\newline 
+     2       float    IN             0         stepgen.1.position-fb
+\newline 
+     2      float    OUT         0         stepgen.1.step
+\newline 
+     2       bit       OUT       FALSE   stepgen.1.velocity-cmd
+\layout Quote
+
 halcmd:
 \series bold 
  show param
@@ -1351,53 +1360,61 @@ halcmd:
 \series default 
 Parameters:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner   Type  Dir               Value                  Name
 \newline 
- 03    float  -W   1.00000e+00  siggen.0.amplitude
+     3       s32   RO                        0           siggen.0.update.time
 \newline 
- 03    float  -W   1.00000e+00  siggen.0.frequency
+     3       s32   RW                       0           siggen.0.update.tmax
 \newline 
- 03    float  -W   0.00000e+00  siggen.0.offset
+     2       u32   RW       00000001           stepgen.0.dirhold
 \newline 
- 02    u32    -W     000000001  freqgen.0.dirhold
+     2       u32   RW       00000001           stepgen.0.dirsetup
 \newline 
- 02    u32    -W     000000001  freqgen.0.dirsetup
+     2       float  RO                       0           stepgen.0.frequency
 \newline 
- 02    float  R-   0.00000e+00  freqgen.0.frequency
+     2       float  RW                      0           stepgen.0.maxaccel
 \newline 
- 02    float  -W   0.00000e+00  freqgen.0.maxaccel
+     2       float  RW                      0           stepgen.0.maxvel
 \newline 
- 02    float  -W   1.00000e+15  freqgen.0.maxfreq
+     2       float  RW                      1           stepgen.0.position-scale
 \newline 
- 02    float  -W   1.00000e+00  freqgen.0.position-scale
+     2       s32   RO                        0           stepgen.0.rawcounts
 \newline 
- 02    s32    R-            0   freqgen.0.rawcounts
+     2       u32   RW       00000001           stepgen.0.steplen
 \newline 
- 02    u32    -W     000000001  freqgen.0.steplen
+     2       u32   RW       00000001           stepgen.0.stepspace
 \newline 
- 02    u32    -W     000000001  freqgen.0.stepspace
+     2       u32   RW       00000001           stepgen.1.dirhold
 \newline 
- 02    float  -W   1.00000e+00  freqgen.0.velocity-scale
+     2       u32   RW       00000001           stepgen.1.dirsetup
 \newline 
- 02    u32    -W     000000001  freqgen.1.dirhold
+     2       float  RO                       0           stepgen.1.frequency
 \newline 
- 02    u32    -W     000000001  freqgen.1.dirsetup
+     2       float  RW                      0           stepgen.1.maxaccel
 \newline 
- 02    float  R-   0.00000e+00  freqgen.1.frequency
+     2       float  RW                      0           stepgen.1.maxvel
 \newline 
- 02    float  -W   0.00000e+00  freqgen.1.maxaccel
+     2       float  RW                      1           stepgen.1.position-scale
 \newline 
- 02    float  -W   1.00000e+15  freqgen.1.maxfreq
+     2       s32   RO                        0           stepgen.1.rawcounts
 \newline 
- 02    float  -W   1.00000e+00  freqgen.1.position-scale
+     2       u32   RW       00000001           stepgen.1.steplen
 \newline 
- 02    s32    R-            0   freqgen.1.rawcounts
+     2       u32   RW       00000001           stepgen.1.stepspace
 \newline 
- 02    u32    -W     000000001  freqgen.1.steplen
+     2       s32   RO                        0           stepgen.capture-position.
+time
 \newline 
- 02    u32    -W     000000001  freqgen.1.stepspace
+     2       s32   RW                       0           stepgen.capture-position.t
+max
 \newline 
- 02    float  -W   1.00000e+00  freqgen.1.velocity-scale
+     2       s32   RO                        0           stepgen.make-pulses.time
+\newline 
+     2       s32   RW                       0           stepgen.make-pulses.tmax
+\newline 
+     2       s32   RO                        0           stepgen.update-freq.time
+\newline 
+     2       s32   RW                       0           stepgen.update-freq.tmax
 \layout Subsection
 
 Connecting pins with signals
@@ -1410,47 +1427,32 @@ What we have is two step pulse generators, and a signal generator.
  We want to move the table in circles.
  To do this, we will send a cosine signal to the X axis, and a sine signal
  to the Y axis.
- The siggen module creates the sine and cosine, but we need 
-\begin_inset Quotes eld
-\end_inset 
-
-wires
-\begin_inset Quotes erd
-\end_inset 
-
- to connect the modules together.
- In the HAL, 
-\begin_inset Quotes eld
-\end_inset 
-
-wires
-\begin_inset Quotes erd
-\end_inset 
-
- are called signals.
+ The siggen module creates the sine and cosine, but we need "wires" to connect
+ the modules together.
+ In the HAL, "wires" are called signals.
  We need to create two of them.
  We can call them anything we want, for this example they will be 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  and 
 \family typewriter 
-Y_vel
+Y-vel
 \family default 
 .
  The signal 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  is intended to run from the cosine output of the signal generator to the
- velocity input of the first step pulse generator.
+ ?? velocity input of the first step pulse generator.
  The first step is to connect the signal to the signal generator output.
  To connect a signal to a pin we use the net command.
 \layout Quote
 
 halcmd:
 \series bold 
- net X_vel <= siggen.0.cosine
+ net X-vel <= siggen.0.cosine
 \layout Standard
 
 To see the effect of the 
@@ -1458,7 +1460,7 @@ To see the effect of the
 net
 \family default 
  command, we show the signals again:
-\layout Quote
+\layout LyX-Code
 
 halcmd:
 \series bold 
@@ -1466,26 +1468,22 @@ halcmd:
 \series default 
 
 \newline 
-ignals:
-\newline 
-Type      Value      Name
-\newline 
-float   0.00000e+00  X_vel
-\newline 
-                         <== siggen.0.cosine
+Signals:
+\layout LyX-Code
+
+Type      Value      Name        (linked to)
+\layout LyX-Code
+
+float         0           X_vel
+\layout LyX-Code
+
+                                     <== siggen.0.cosine
 \layout Standard
 
 When a signal is connected to one or more pins, the show command lists the
  pins immediately following the signal name.
- The 
-\begin_inset Quotes eld
-\end_inset 
-
-arrow
-\begin_inset Quotes erd
-\end_inset 
-
- shows the direction of data flow - in this case, data flows from pin 
+ The "arrow" shows the direction of data flow - in this case, data flows
+ from pin 
 \family typewriter 
 siggen.0.cosine
 \family default 
@@ -1503,7 +1501,7 @@ X_vel
 
 halcmd:
 \series bold 
- net X_vel => freqgen.0.velocity
+ net X-vel => stepgen.0.velocity-cmd
 \layout Standard
 
 We can also connect up the Y axis signal 
@@ -1529,7 +1527,7 @@ X_vel
 
 halcmd:
 \series bold 
- net Y_vel siggen.0.sine => freqgen.1.velocity
+ net Y-vel siggen.0.sine => stepgen.1.velocity-cmd
 \layout Standard
 
 Now let's take a final look at the signals and the pins connected to them:
@@ -1543,19 +1541,19 @@ halcmd:
 \newline 
 Signals:
 \newline 
-Type      Value      Name
+Type      Value      Name            (linked to)
 \newline 
-float   0.00000e+00  X_vel
+float              0     X-vel
 \newline 
-                         <== siggen.0.cosine
+                                                   <== siggen.0.cosine
 \newline 
-                         ==> freqgen.0.velocity
+                                                   ==> freqgen.0.velocity
 \newline 
-float   0.00000e+00  Y_vel
+float              0     Y-vel
 \newline 
-                         <== siggen.0.sine
+                                                  <== siggen.0.sine
 \newline 
-                         ==> freqgen.1.velocity
+                                                  ==> freqgen.1.velocity
 \layout Standard
 
 The 
@@ -1565,7 +1563,7 @@ show sig
  command makes it clear exactly how data flows through the HAL.
  For example, the
 \family typewriter 
- X_vel
+ X-vel
 \family default 
  signal comes from pin 
 \family typewriter 
@@ -1573,23 +1571,16 @@ siggen.0.cosine
 \family default 
 , and goes to pin 
 \family typewriter 
-freqgen.0.velocity
+stepgen.0.velocity
 \family default 
-.
+-cmd.
 \layout Subsection
 
 Setting up realtime execution - threads and functions
 \layout Standard
 
-Thinking about data flowing through 
-\begin_inset Quotes eld
-\end_inset 
-
-wires
-\begin_inset Quotes erd
-\end_inset 
-
- makes pins and signals fairly easy to understand.
+Thinking about data flowing through "wires" makes pins and signals fairly
+ easy to understand.
  Threads and functions are a little more difficult.
  Functions contain the computer instructions that actually get things done.
  Thread are the method used to make those instructions run when they are
@@ -1605,15 +1596,15 @@ halcmd:
 \series default 
 Exported Functions:
 \newline 
-Owner CodeAddr   Arg    FP  Users  Name
+Owner   CodeAddr  Arg               FP   Users  Name
 \newline 
- 03   D89051C4 D88F10FC YES    0   siggen.0.update
+ 00004  d8a3a120  d8bd322c  YES      0     siggen.0.update
 \newline 
- 02   D8902868 D88F1054 YES    0   freqgen.capture_position
+ 00003  d8bf45b0  d8bd30b4   YES      0     stepgen.capture-position
 \newline 
- 02   D8902498 D88F1054 NO     0   freqgen.make_pulses
+ 00003  d8bf42c0  d8bd30b4    NO       0     stepgen.make-pulses
 \newline 
- 02   D89026F0 D88F1054 YES    0   freqgen.update_freq
+ 00003  d8bf46b0  d8bd30b4   YES      0     stepgen.update-freq
 \layout Standard
 
 In general, you will have to refer to the documentation for each component
@@ -1710,11 +1701,11 @@ halcmd:
 \newline 
 Realtime Threads:
 \newline 
-   Period   FP   Name
+         Period   FP   Name  ( Time, Max-Time )
 \newline 
-    1005720 YES  slow    ( 0, 0 )
+     988960  YES  slow    (     0,     0 )
 \newline 
-      50286 NO   fast    ( 0, 0 )
+        49448  NO   fast      (     0,     0 )
 \layout Standard
 
 The two threads were created when we loaded 
@@ -1762,13 +1753,13 @@ halcmd:
 \newline 
 halcmd:
 \series bold 
- addf freqgen.update_freq slow
+ addf stepgen.update-freq slow
 \series default 
 
 \newline 
 halcmd:
 \series bold 
- addf freqgen.make_pulses fast
+ addf stepgen.make-pulses fast
 \layout Standard
 
 After we give these commands, we can run the 
@@ -1776,7 +1767,7 @@ After we give these commands, we can run the
 show thread
 \family default 
  command again to see what happened:
-\layout Quote
+\layout LyX-Code
 
 halcmd:
 \series bold 
@@ -1786,17 +1777,19 @@ halcmd:
 \series default 
 Realtime Threads:
 \newline 
-   Period   FP   Name    (Time, Max-Time)
+   Period       FP       Name                            (Time, Max-Time)
 \newline 
-    1005720 YES  slow    ( 0, 0 )
+    988960   YES                          slow         (       0,      
+        0 )
 \newline 
-                  1 siggen.0.update
+                              1 siggen.0.update
 \newline 
-                  2 freqgen.update-freq
+                              2 stepgen.update-freq
 \newline 
-      50286 NO   fast    ( 0, 0 )
+      49448   NO                             fast         (       0,   
+           0 )
 \newline 
-                  1 freqgen.make-pulses
+                             1 stepgen.make-pulses
 \layout Standard
 
 Now each thread is followed by the names of the functions, in the order
@@ -1831,22 +1824,27 @@ freqgen.n.velocity-scale
  is for.
  In this case, both the X and Y axis have the same scaling, so we set the
  scaling parameters for both to 10000:
+\layout Standard
+
+
+\series bold 
+NOTE: should this be position-scale?
 \layout Quote
 
 halcmd:
 \series bold 
- setp freqgen.0.velocity-scale 10000
+ setp stepgen.0.position-scale 10000
 \newline 
 
 \series default 
 halcmd:
 \series bold 
- setp freqgen.1.velocity-scale 10000
+ setp stepgen.1.position-scale 10000
 \layout Standard
 
 This velocity scaling means that when the pin 
 \family typewriter 
-freqgen.0.velocity
+stepgen.0.velocity-cmd
 \family default 
  is 1.000, the step generator will generate 10000 pulses per second (10KHz).
  With the motor and leadscrew described above, that will result in the axis
@@ -1855,7 +1853,7 @@ freqgen.0.velocity
  lowest possible level, in this case in the step pulse generator.
  The internal signal 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  is the velocity of the table in inches per second, and other components
  such as 
