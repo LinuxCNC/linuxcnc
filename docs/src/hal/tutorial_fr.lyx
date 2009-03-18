@@ -933,7 +933,7 @@ start
 
 \end_inset 
 
-Visualiser le HAL avec halmeter
+Visualiser HAL avec halmeter
 \layout Standard
 
 Vous pouvez construire des systèmes HAL vraiment complexes sans utiliser
@@ -1214,6 +1214,13 @@ clearpage
 Un exemple un peu plus complexe.
 \layout Standard
 
+
+\series bold 
+NOTE: Cette section est en cours de réécriture pour utiliser stepgen en
+ remplacement de freqgen qui est obsolète.
+ Référez vous à le documentation en anglais qui est la plus détaillée.
+\layout Standard
+
 Jusqu'à maintenant, nous avons chargé un composant HAL.
  Mais l'idée générale de HAL est de vous permettre de charger et de relier
  un grand nombre de composants pour en faire un système complexe.
@@ -1245,7 +1252,7 @@ Maintenant, nous allons charger le composant générateur d'impulsions.
  Pour l'instant, nous pouvons nous passer des détails et exécuter les commandes
  suivantes:
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -1276,11 +1283,16 @@ Le signe
 \end_inset 
 
 
+\layout Standard
+
+Dans cet exemple nous utiliserons le type de contrôle "velocity" du composant
+ stepgen.
+ 
 \layout LyX-Code
 
 halrun: 
 \series bold 
-loadrt freqgen step_type=0,0
+loadrt stepgen step_type=0,0 ctrl_type=v,v
 \newline 
 
 \series default 
@@ -1298,8 +1310,8 @@ loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
 La première commande charge deux générateurs d'impulsions, configurés pour
  générer des impulsions de type 0.
  La seconde commande charge notre vieil ami siggen et la troisième crée
- deux threads, un rapide (fast) avec une période de 50
- us et un lent avec une période de 1ms.
+ deux threads, un rapide (fast) avec une période de 50 us et un lent avec
+ une période de 1ms.
  Le thread rapide ne prend pas en charge les fonctions à virgule flottante
  (fp1=0).
 \layout Standard
@@ -1308,7 +1320,7 @@ Comme précédemment, on peut utiliser
 \family typewriter 
 halcmd show
 \family default 
- pour jeter un coup d'oeil au HAL.
+ pour jeter un coup d'oeil à HAL.
  Cette fois, nous aurons beaucoup plus de pins et de paramètres que précédemment
 :
 \layout LyX-Code
@@ -1321,104 +1333,125 @@ show pin
 \series default 
 Component Pins:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner   Type    Dir         Value           Name
 \newline 
- 03    float -W   0.00000e+00  siggen.0.cosine
+     3       float    IN              1        siggen.0.amplitude
 \newline 
- 03    float -W   0.00000e+00  siggen.0.sawtooth
+     3       float    OUT           0        siggen.0.cosine
 \newline 
- 03    float -W   0.00000e+00  siggen.0.sine
+     3       float    IN              1        siggen.0.frequency
 \newline 
- 03    float -W   0.00000e+00  siggen.0.square
+     3       float    IN              0        siggen.0.offset
 \newline 
- 03    float -W   0.00000e+00  siggen.0.triangle
+     3       float    OUT          0         siggen.0.sawtooth
 \newline 
- 02    s32   -W            0   freqgen.0.counts
+     3       float    OUT         0         siggen.0.sine
 \newline 
- 02    bit   -W     FALSE      freqgen.0.dir
+     3       float    OUT          0         siggen.0.square
 \newline 
- 02    float -W   0.00000e+00  freqgen.0.position
+     3       float    OUT          0         siggen.0.triangle
 \newline 
- 02    bit   -W     FALSE      freqgen.0.step
+     3       float    OUT          0         stepgen.0.counts
 \newline 
- 02    float R-   0.00000e+00  freqgen.0.velocity
+     2       bit       OUT       FALSE    stepgen.0.dir
 \newline 
- 02    s32   -W            0   freqgen.1.counts
+     2       bit       IN          FALSE    stepgen.0.enable
 \newline 
- 02    bit   -W     FALSE      freqgen.1.dir
+     2       float    IN             0         stepgen.0.position-fb
 \newline 
- 02    float -W   0.00000e+00  freqgen.1.position
+     2       float    OUT          0         stepgen.0.step
 \newline 
- 02    bit   -W     FALSE      freqgen.1.step
+     2       bit       OUT       FALSE    stepgen.0.velocity-cmd
 \newline 
- 02    float R-   0.00000e+00  freqgen.1.velocity
+     2       s32      OUT          0         stepgen.1.counts
 \newline 
-halcmd: 
+     2       bit       OUT       FALSE    stepgen.1.dir
+\newline 
+     2       bit       IN          FALSE    stepgen.1.enable
+\newline 
+     2       float    IN             0         stepgen.1.position-fb
+\newline 
+     2      float    OUT         0         stepgen.1.step
+\newline 
+     2       bit       OUT       FALSE   stepgen.1.velocity-cmd
+\layout Quote
+
+halcmd:
 \series bold 
-show param
+ show param
 \newline 
 
 \series default 
 Parameters:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner   Type  Dir               Value                  Name
 \newline 
- 03    float  -W   1.00000e+00  siggen.0.amplitude
+     3       s32   RO                        0           siggen.0.update.time
 \newline 
- 03    float  -W   1.00000e+00  siggen.0.frequency
+     3       s32   RW                       0           siggen.0.update.tmax
 \newline 
- 03    float  -W   0.00000e+00  siggen.0.offset
+     2       u32   RW       00000001           stepgen.0.dirhold
 \newline 
- 02    u32    -W     000000001  freqgen.0.dirhold
+     2       u32   RW       00000001           stepgen.0.dirsetup
 \newline 
- 02    u32    -W     000000001  freqgen.0.dirsetup
+     2       float  RO                       0           stepgen.0.frequency
 \newline 
- 02    float  R-   0.00000e+00  freqgen.0.frequency
+     2       float  RW                      0           stepgen.0.maxaccel
 \newline 
- 02    float  -W   0.00000e+00  freqgen.0.maxaccel
+     2       float  RW                      0           stepgen.0.maxvel
 \newline 
- 02    float  -W   1.00000e+15  freqgen.0.maxfreq
+     2       float  RW                      1           stepgen.0.position-scale
 \newline 
- 02    float  -W   1.00000e+00  freqgen.0.position-scale
+     2       s32   RO                        0           stepgen.0.rawcounts
 \newline 
- 02    s32    R-            0   freqgen.0.rawcounts
+     2       u32   RW       00000001           stepgen.0.steplen
 \newline 
- 02    u32    -W     000000001  freqgen.0.steplen
+     2       u32   RW       00000001           stepgen.0.stepspace
 \newline 
- 02    u32    -W     000000001  freqgen.0.stepspace
+     2       u32   RW       00000001           stepgen.1.dirhold
 \newline 
- 02    float  -W   1.00000e+00  freqgen.0.velocity-scale
+     2       u32   RW       00000001           stepgen.1.dirsetup
 \newline 
- 02    u32    -W     000000001  freqgen.1.dirhold
+     2       float  RO                       0           stepgen.1.frequency
 \newline 
- 02    u32    -W     000000001  freqgen.1.dirsetup
+     2       float  RW                      0           stepgen.1.maxaccel
 \newline 
- 02    float  R-   0.00000e+00  freqgen.1.frequency
+     2       float  RW                      0           stepgen.1.maxvel
 \newline 
- 02    float  -W   0.00000e+00  freqgen.1.maxaccel
+     2       float  RW                      1           stepgen.1.position-scale
 \newline 
- 02    float  -W   1.00000e+15  freqgen.1.maxfreq
+     2       s32   RO                        0           stepgen.1.rawcounts
 \newline 
- 02    float  -W   1.00000e+00  freqgen.1.position-scale
+     2       u32   RW       00000001           stepgen.1.steplen
 \newline 
- 02    s32    R-            0   freqgen.1.rawcounts
+     2       u32   RW       00000001           stepgen.1.stepspace
 \newline 
- 02    u32    -W     000000001  freqgen.1.steplen
+     2       s32   RO                        0           stepgen.capture-position.
+time
 \newline 
- 02    u32    -W     000000001  freqgen.1.stepspace
+     2       s32   RW                       0           stepgen.capture-position.t
+max
 \newline 
- 02    float  -W   1.00000e+00  freqgen.1.velocity-scale
+     2       s32   RO                        0           stepgen.make-pulses.time
+\newline 
+     2       s32   RW                       0           stepgen.make-pulses.tmax
+\newline 
+     2       s32   RO                        0           stepgen.update-freq.time
+\newline 
+     2       s32   RW                       0           stepgen.update-freq.tmax
+\layout LyX-Code
+
 \layout Subsection
 
 Connecter les pins avec des signaux
 \layout Standard
 
-Nous avons donc deux générateurs d'impulsions carrées et un générateur de
+Nous avons donc deux générateurs d'impulsions de pas et un générateur de
  signaux.
  Maintenant, nous allons créer des signaux HAL pour connecter ces trois
  composants.
  Nous allons faire comme si nous pilotions les axes X et Y d'une machine
- avec nos générateurs d'impulsions.
+ avec nos générateurs d'impulsions de pas.
  Nous voulons déplacer la table en ronds.
  Pour ce faire, nous allons envoyer un signal cosinusoïdal à l'axe des X
  et un signal sinusoïdal à l'axe des Y.
@@ -1464,7 +1497,7 @@ velocity
 \begin_inset Quotes erd
 \end_inset 
 
- du premier générateur d'impulsions.
+ du premier générateur d'impulsions de pas.
  La première étape consiste à connecter le signal à la sortie du générateur
  de signaux.
  Pour connecter un signal à une pin, nous utilisons la commande 
@@ -1503,15 +1536,23 @@ float   0.00000e+00  X_vel
 
 Quand un signal est connecté à une ou plusieurs pins, la commande 
 \family typewriter 
+
+\begin_inset Quotes fld
+\end_inset 
+
 show
+\begin_inset Quotes frd
+\end_inset 
+
+
 \family default 
- liste les pins immédiatement suivies par nom du signal.
- Les flèches montrent la direction du flux de données, dans ce cas, les
- flux vont de la pin 
+ liste les pins immédiatement suivies par le nom du signal.
+ Les flèches donnent la direction du flux de données, dans ce cas, le flux
+ va de la pin 
 \family typewriter 
 siggen.0.cosine
 \family default 
- pour le signal 
+ vers le signal 
 \family typewriter 
 X_vel
 \family default 
@@ -1528,12 +1569,12 @@ velocity
 \begin_inset Quotes erd
 \end_inset 
 
- du générateur d'impulsions carrées:
+ du générateur d'impulsions de pas:
 \layout LyX-Code
 
 halcmd: 
 \series bold 
-net X_vel => freqgen.0.velocity
+net X_vel => stepgen.0.velocity-cmd
 \layout Standard
 
 On peut aussi connecter l'axe Y au signal 
@@ -1542,7 +1583,7 @@ Y_vel
 \family default 
 .
  Il doit partir de la sortie sinus du générateur de signal pour arriver
- sur l'entrée du second générateur d'impulsions carrées.
+ sur l'entrée du second générateur d'impulsions de pas.
  La commande suivante fait en une ligne, la même chose que les deux commandes
  
 \family typewriter 
@@ -1557,53 +1598,62 @@ X_vel
 
 halcmd: 
 \series bold 
-net Y_vel siggen.0.sine => freqgen.1.velocity
+net Y-vel siggen.0.sine => stepgen.1.velocity-cmd
 \layout Standard
 
-Regardons une dernière fois les signaux et les pins connectés ensembles:
+Pour voir l'effet de la commande net, regardons encore les signaux et les
+ pins:
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-show sig
+ show sig
 \series default 
 
 \newline 
 Signals:
 \newline 
-Type      Value      Name
+Type      Value      Name            (linked to)
 \newline 
-float   0.00000e+00  X_vel
+float              0     X-vel
 \newline 
-                         <== siggen.0.cosine
+                                                   <== siggen.0.cosine
 \newline 
-                         ==> freqgen.0.velocity
+                                                   ==> stepgen.0.velocity-cmd
 \newline 
-float   0.00000e+00  Y_vel
+float              0     Y-vel
 \newline 
-                         <== siggen.0.sine
+                                                  <== siggen.0.sine
 \newline 
-                         ==> freqgen.1.velocity
+                                                  ==> stepgen.1.velocity-cmd
 \layout Standard
 
-Avec la commande 
+La commande 
 \family typewriter 
+
+\begin_inset Quotes fld
+\end_inset 
+
 show sig
+\begin_inset Quotes frd
+\end_inset 
+
+
 \family default 
- on voit clairement comment les flux de données traversent le HAL.
- Par exemple, le signal 
+ montre clairement comment les flux de données circulent dans HAL.
+ Par exemple, le signal
 \family typewriter 
-X_vel
+ X-vel
 \family default 
- part de la pin 
+ provient de la pin 
 \family typewriter 
 siggen.0.cosine
 \family default 
- et arrive sur la pin 
+ et va vers la pin 
 \family typewriter 
-freqgen.0.velocity
+stepgen.0.velocity
 \family default 
-.
+-cmd.
 \layout Subsection
 
 Exécuter les réglages du temps réel - threads et functions
@@ -1633,15 +1683,15 @@ show funct
 \series default 
 Exported Functions:
 \newline 
-Owner CodeAddr   Arg    FP  Users  Name
+Owner   CodeAddr  Arg               FP   Users  Name
 \newline 
- 03   D89051C4 D88F10FC YES    0   siggen.0.update
+ 00004  d8a3a120  d8bd322c  YES      0     siggen.0.update
 \newline 
- 02   D8902868 D88F1054 YES    0   freqgen.capture_position
+ 00003  d8bf45b0  d8bd30b4   YES      0     stepgen.capture-position
 \newline 
- 02   D8902498 D88F1054 NO     0   freqgen.make_pulses
+ 00003  d8bf42c0  d8bd30b4    NO       0     stepgen.make-pulses
 \newline 
- 02   D89026F0 D88F1054 YES    0   freqgen.update_freq
+ 00003  d8bf46b0  d8bd30b4   YES      0     stepgen.update-freq
 \layout Standard
 
 En règle générale, vous devez vous référer à la documentation de chaque
@@ -1658,12 +1708,13 @@ siggen.0.update
  
 \layout Standard
 
-Les trois autres fonctions sont liées au générateur d'impulsions:
+Les trois autres fonctions sont relatives au générateur d'impulsions de
+ pas:
 \layout Standard
 
 La première, 
 \family typewriter 
-freqgen.capture_position
+stepgen.capture_position
 \family default 
 , est utilisée pour un retour de position.
  Elle capture la valeur d'un compteur interne qui compte les impulsions
@@ -1673,7 +1724,7 @@ freqgen.capture_position
 
 La fonction principale du générateur d'impulsions est 
 \family typewriter 
-freqgen.make_pulses
+stepgen.make_pulses
 \family default 
 .
  Chaque fois que 
@@ -1694,7 +1745,7 @@ make_pulses
 
 La dernière fonction, 
 \family typewriter 
-freqgen.update_freq
+stepgen.update_freq
 \family default 
 , est responsable de l'échelle et de quelques autres calculs qui ne doivent
  être effectués que lors d'une commande de changement de fréquence.
@@ -1707,7 +1758,7 @@ siggen.0.update
  avec une vitesse de calcul des valeurs sinus et cosinus modérée.
  Immédiatement après, nous lançons 
 \family typewriter 
-siggen.0.update
+stepgen.0.update
 \family default 
 .
  Nous voulons lancer 
@@ -1715,15 +1766,15 @@ siggen.0.update
 freqgen.update_freq
 \family default 
  pour charger les nouvelles valeurs dans le générateur d'impulsions.
- Finalement nous lancerons 
+ Finalement nous lancerons
 \family typewriter 
-freqgen.make_pulses
+ stepgen.make_pulses
 \family default 
  aussi vite que possible pour des pas plus doux.
  Comme nous n'utilisons pas de retour de position, nous n'avons pas besoin
  de lancer 
 \family typewriter 
-freqgen.capture_position
+stepgen.capture_position
 \family default 
 .
 \layout Standard
@@ -1765,7 +1816,7 @@ iggen.0.update
 \family default 
  et 
 \family typewriter 
-freqgen.update_freq
+stepgen.update_freq
 \family default 
 .
  Le deuxième thread est 
@@ -1776,7 +1827,7 @@ fast
  en virgule flottante.
  Nous l'utilisons pour 
 \family typewriter 
-freqgen.make_pulses
+stepgen.make_pulses
 \family default 
 .
  Pour connecter des fonctions au bon thread, nous utilisons la commande
@@ -1796,13 +1847,13 @@ addf siggen.0.update slow
 \newline 
 halcmd: 
 \series bold 
-addf freqgen.update_freq slow
+addf stepgen.update-freq slow
 \series default 
 
 \newline 
 halcmd: 
 \series bold 
-addf freqgen.make_pulses fast
+addf stepgen.make-pulses fast
 \layout Standard
 
 Après avoir lancé ces commandes, nous pouvons lancer la commande 
@@ -1820,17 +1871,19 @@ show thread
 \series default 
 Realtime Threads:
 \newline 
-   Period   FP   Name    (Time, Max-Time)
+   Period       FP       Name                            (Time, Max-Time)
 \newline 
-    1005720 YES  slow    ( 0, 0 )
+    988960   YES                          slow         (       0,      
+        0 )
 \newline 
-                  1 siggen.0.update
+                              1 siggen.0.update
 \newline 
-                  2 freqgen.update-freq
+                              2 stepgen.update-freq
 \newline 
-      50286 NO   fast    ( 0, 0 )
+      49448   NO                             fast         (       0,   
+           0 )
 \newline 
-                  1 freqgen.make-pulses
+                             1 stepgen.make-pulses
 \layout Standard
 
 Maintenant, chaque thread est suivi par les noms des fonctions, dans l'ordre
@@ -1867,22 +1920,27 @@ freqgen.n.velocity-scale
 .
  Dans notre cas, les axes X et Y ont la même échelle et nous pouvons passer
  les deux paramètres à 10000:
+\layout Standard
+
+
+\series bold 
+NOTE: should this be position-scale?
 \layout LyX-Code
 
 halcmd: 
 \series bold 
-setp freqgen.0.velocity-scale 10000
+setp stepgen.0.position-scale 10000
 \newline 
 
 \series default 
 halcmd: 
 \series bold 
-setp freqgen.1.velocity-scale 10000
+setp stepgen.1.position-scale 10000
 \layout Standard
 
 Cela signifie que, avec la pin 
 \family typewriter 
-freqgen.0.velocity
+stepgen.0.velocity-cmd
 \family default 
  à 1.000 et le générateur réglé pour 10000 impulsions par seconde (10kHz),
  avec le moteur et la vis décrits précédemment, nos axes auront une vitesse
@@ -1978,72 +2036,7 @@ collapsed false
 
 \layout Standard
 
-Plusieurs de ces captures d'écran font référence à des threads nommés 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.thread
-\begin_inset Quotes erd
-\end_inset 
-
- et 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.thread
-\begin_inset Quotes erd
-\end_inset 
-
- au lieu de 
-\begin_inset Quotes eld
-\end_inset 
-
-slow
-\begin_inset Quotes erd
-\end_inset 
-
- et 
-\begin_inset Quotes eld
-\end_inset 
-
-fast
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Lorsque les captures d'écran ont été faites, les composants thread n'existaient
- pas et différentes méthodes étaient utilisées pour créer des threads en
- leur donnant des noms différents.
- Aussi, les captures d'écran montrent des , etc, comme 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.xxx
-\begin_inset Quotes erd
-\end_inset 
-
- au lieux de 
-\begin_inset Quotes eld
-\end_inset 
-
-freqgen.xxx
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Le nom original du module freqgen était stepgen et je n'ai pas eux le temps
- depuis pour refaire toutes les captures avec les nouveaux noms.
- Le nom 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen
-\begin_inset Quotes erd
-\end_inset 
-
- actuel fait référence à un générateur d'impulsions de pas différent, un
- qui accepte les commandes de position au lieu de celles de vitesse.
- Les deux sont décrit en détail plus loin dans ce document.
+Cette note est à réécrire entiérement
 \end_inset 
 
 .
@@ -2587,8 +2580,8 @@ Pour examiner de près une partie d'une forme d'onde, vous pouvez utiliser
  la fréquence d'échantillonnage.
  Par exemple, nous aimerions voir les impulsions de pas qui sont générés
  dans notre exemple.
- Mais les impulsions de pas font seulement 50 us
- de long, l'échantillonnage à 1kHz n'est pas assez rapide.
+ Mais les impulsions de pas font seulement 50 us de long, l'échantillonnage
+ à 1kHz n'est pas assez rapide.
  Pour changer le taux d'échantillonnage, cliquez sur le bouton qui affiche
  la longueur de l'enregistrement et l'échantillonnage pour avoir le dialogue
  
