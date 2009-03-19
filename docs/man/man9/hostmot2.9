@@ -329,7 +329,8 @@ to 0, the driver will choose the maximum velocity based on the values of
 steplen and stepspace (at the time that maxvel was set to 0).
 
 (float r/w) maxaccel: Maximum acceleration, in position units per second
-per second.  If set to 0, the driver will not limit its acceleration.
+per second.  If set to 0, the driver will not accelerate at all, that's
+probably not what you want.
 
 (u32 r/w) steplen: Duration of the step signal, in nanoseconds.
 
