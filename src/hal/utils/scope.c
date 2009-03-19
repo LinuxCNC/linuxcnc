@@ -318,7 +318,7 @@ void start_capture(void)
 	    ctrl_shm->data_len[n] = 0;
 	}
     }
-    ctrl_shm->pre_trig = ctrl_shm->rec_len * ctrl_usr->trig.position;
+    ctrl_shm->pre_trig = (ctrl_shm->rec_len-2) * ctrl_usr->trig.position;
     ctrl_shm->state = INIT;
 }
 
