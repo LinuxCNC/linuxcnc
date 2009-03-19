@@ -22,7 +22,7 @@
 \topmargin 1in
 \rightmargin 0.8in
 \bottommargin 0.8in
-\secnumdepth 1
+\secnumdepth 5
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
@@ -40,44 +40,24 @@
 \end_inset 
 
 HAL Tutorial
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-this needs a rewrite to remove freqgen and add stepgen
-\end_inset 
-
-
 \layout Section
 
-
+Introduction
 \begin_inset LatexCommand \label{sec:Tutorial - Intro}
 
 \end_inset 
 
-Before we start
+
 \layout Standard
 
 Configuration moves from theory to device -- HAL device that is.
  For those who have had just a bit of computer programming, this section
- is the 
-\begin_inset Quotes eld
-\end_inset 
-
-Hello World
-\begin_inset Quotes erd
-\end_inset 
-
- of the HAL.
- As noted above halrun can be used to create a working system.
+ is the "Hello World" of the HAL.
+ Halrun can be used to create a working system.
  It is a command line or text file tool for configuration and tuning.
  The following examples illustrate its setup and operation.
  
-\layout Subsection
+\layout Subsection*
 
 Notation
 \layout Standard
@@ -105,15 +85,47 @@ typewriter
 \family default 
  represents a field that can take on different values, and the adjacent
  paragraph will explain the appropriate values.
- Text items separated by a vertical bar means that one or the other, but
- not both, should be present.
+ Text items separated by a vertical bar "|"means that one or the other,
+ but not both, should be present.
  All command line examples assume that you are in the 
 \family typewriter 
 emc2/
 \family default 
  directory, and paths will be shown accordingly when needed.
  
-\layout Subsection
+\layout Subsection*
+
+Tab-completion
+\layout Standard
+
+Your version of halcmd may include tab-completion.
+ Instead of completing filenames as a shell does, it completes commands
+ with HAL identifiers.
+ Try pressing tab after starting a HAL command:
+\layout Quote
+
+halcmd: 
+\series bold 
+lo<TAB>
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt    loadusr   lock
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt d<TAB>
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+ddt  debounce
+\layout Subsection*
 
 The RTAPI environment
 \layout Standard
@@ -139,20 +151,38 @@ emc2/src/rtapi/rtapi.h
  But if you are a normal person all you need to know about RTAPI is that
  it (and the RTOS) needs to be loaded into the memory of your computer before
  you do anything with HAL.
+\layout Section
+
+A Simple Example
+\begin_inset LatexCommand \label{sec:Tutorial - Simple Example}
+
+\end_inset 
+
+
+\layout Subsection*
+
+Loading a realtime component
 \layout Standard
 
-For this tutorial, we are going to assume that you have successfully compiled
- the emc2/ source tree and, if necessary, invoked the 
+For this tutorial, we are going to assume that you have successfully installed
+ the Live CD or compiled the emc2/ source tree and, if necessary, invoked
+ the 
 \family typewriter 
 emc-environment
 \family default 
  script to prepare your shell.
  In that case, all you need to do is load the required RTOS and RTAPI modules
  into memory.
- Just run the following command:
+ Just run the following command from a terminal window:
 \layout Quote
 
-emc2$ 
+~$ 
+\series bold 
+cd emc2
+\series default 
+
+\newline 
+~/emc2$ 
 \series bold 
 halrun
 \newline 
@@ -162,104 +192,10 @@ halcmd:
 \layout Standard
 
 With the realtime OS and RTAPI loaded, we can move into the first example.
- Notice that the prompt has changed from the shell's 
-\begin_inset Quotes eld
-\end_inset 
-
-$
-\begin_inset Quotes erd
-\end_inset 
-
- to 
-\begin_inset Quotes eld
-\end_inset 
-
-halcmd
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ Notice that the prompt has changed from the shell's "$" to "halcmd:".
  This is because subsequent commands will be interpreted as HAL commands,
  not shell commands.
  
-\family typewriter 
-halrun
-\family default 
- is a simple shell script, and it is more or less equivalent to running
-\layout Quote
-
-emc2$ 
-\series bold 
-realtime start
-\newline 
-
-\series default 
-emc2$ 
-\series bold 
-halcmd -kf
-\layout Standard
-
-When 
-\family typewriter 
-halcmd
-\family default 
- exits, halrun stops the realtime system, just like
-\layout Quote
-
-emc2$ 
-\series bold 
-realtime stop
-\layout Standard
-
-You can also supply arguments to halrun that are passed on to halcmd, or
- give the name of a .hal file.
- Because 
-\family typewriter 
-halrun
-\family default 
- stops the realtime system when it exits, the hal file run in this way will
- typically end with a command that waits for completion, like 
-\family typewriter 
-loadrt -w halscope
-\family default 
-.
-\layout Section
-
-Tab-completion
-\layout Standard
-
-Your version of halcmd may include tab-completion.
- Instead of completing filenames as a shell does, it completes commands
- with HAL identifiers.
- Try pressing tab after starting a HAL command:
-\layout Quote
-
-halcmd: 
-\series bold 
-lo<TAB>
-\series default 
-
-\newline 
-loadrt    loadusr   lock
-\newline 
-halcmd: 
-\series bold 
-loadrt d<TAB>
-\series default 
-
-\newline 
-ddt       debounce
-\layout Section
-
-
-\begin_inset LatexCommand \label{sec:Tutorial - Simple Example}
-
-\end_inset 
-
-A Simple Example
-\layout Subsection
-
-Loading a realtime component
 \layout Standard
 
 For the first example, we will use a HAL component called 
@@ -330,52 +266,28 @@ halcmd:
 \newline 
 Loaded HAL Components:
 \newline 
-ID     Type  Name                                      PID   State
+ID     Type  Name                  PID       State
 \newline 
-32769  RT    siggen                                          ready 
+3       RT     siggen                             ready 
 \newline 
-9775   User  halcmd9775                                 9775 initializing
+2       User  halcmd10190    10190 ready
 \layout Standard
 
 Since 
 \family typewriter 
 halcmd
 \family default 
- itself is a HAL component, it will always show up in the list
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-The number after halcmd in the component list is the process ID.
+ itself is a HAL component, it will always show up in the list.
+ The number after halcmd in the component list is the process ID.
  It is possible to run more than one copy of halcmd at the same time (in
  different windows for example), so the PID is added to the end of the name
  to make it unique.
-\end_inset 
-
-.
  The list also shows the 
 \family typewriter 
 siggen
 \family default 
  component that we installed in the previous step.
- The 
-\begin_inset Quotes eld
-\end_inset 
-
-RT
-\begin_inset Quotes erd
-\end_inset 
-
- under 
-\begin_inset Quotes eld
-\end_inset 
-
-Type
-\begin_inset Quotes erd
-\end_inset 
-
- indicates that 
+ The "RT" under "Type" indicates that 
 \family typewriter 
 siggen
 \family default 
@@ -397,29 +309,35 @@ halcmd:
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir    Value      Name 02    float -W   0.00000e+00  siggen.0.cosine
- 
+Owner  Type    Dir    Value      Name 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.sawtooth 
+         3  float    IN             1  siggen.0.amplitude 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.sine 
+         3  float    OUT          0  siggen.0.cosine 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.square 
+         3  float    IN             1  siggen.0.frequency 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.triangle
+         3  float    IN             0  siggen.0.offset 
+\newline 
+         3  float    OUT          0  siggen.0.sawtooth
+\newline 
+         3  float    OUT          0  siggen.0.sine
+\newline 
+         3  float    OUT          0  siggen.0.square
+\newline 
+         3  float    OUT          0  siggen.0.triangle
 \layout Standard
 
 This command displays all of the pins in the HAL - a complex system could
  have dozens or hundreds of pins.
- But right now there are only five pins.
- All five of these pins are floating point, and all five carry data out
- of the 
+ But right now there are only eight pins.
+ All eight of these pins are floating point, and carry data out of the 
 \family typewriter 
 siggen
 \family default 
  component.
  Since we have not yet executed the code contained within the component,
- all the pins have a value of zero.
+ some the pins have a value of zero.
 \layout Standard
 
 The next step is to look at parameters:
@@ -435,15 +353,9 @@ Parameters:
 \newline 
 Owner  Type  Dir    Value      Name
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.amplitude
+         3    s32    RO            0   siggen.0.update.time
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.frequency
-\newline 
- 32769    float  RW   0.00000e+00  siggen.0.offset
-\newline 
- 32769    s32    RO            0   siggen.0.update.time
-\newline 
- 32769    s32   RW            0   siggen.0.update.tmax
+         3    s32   RW            0   siggen.0.update.tmax
 \layout Standard
 
 The show param command shows all the parameters in the HAL.
@@ -485,7 +397,7 @@ siggen.0.update.tmax
  are for debugging purposes, and won't be covered in this section.
  
 \begin_inset Note
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -501,7 +413,7 @@ ax} parameters.
 
 
 \begin_inset Note
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -513,7 +425,7 @@ The thread parameters are owned by component 02, the siggen module.
 
 
 \begin_inset Note
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -550,22 +462,14 @@ halcmd:
 \newline 
 Exported Functions:
 \newline 
-Owner CodeAddr   Arg    FP  Users  Name
+Owner    CodeAddr   Arg            FP    Users   Name
 \newline 
- 32769   b7f74ac5 b7d0c0b4 YES    0   siggen.0.update
+ 00003   b7f74ac5   b7d0c0b4  YES         0  siggen.0.update
 \layout Standard
 
 The siggen component exported a single function.
  It requires floating point.
- It is not currently linked to any threads, so 
-\begin_inset Quotes eld
-\end_inset 
-
-users
-\begin_inset Quotes erd
-\end_inset 
-
- is zero
+ It is not currently linked to any threads, so "users" is zero
 \begin_inset Foot
 collapsed true
 
@@ -615,9 +519,9 @@ halcmd:
 \series default 
 Realtime Threads:
 \newline 
-   Period   FP   Name    (Time, Max-Time)
+       Period      FP    Name                 (Time, Max-Time)
 \newline 
-     999849 YES  test-thread    ( 0, 0 )
+     999849     YES  test-thread        (       0,              0 )
 \layout Standard
 
 It did.
@@ -665,11 +569,12 @@ halcmd:
 \series default 
 Realtime Threads:
 \newline 
-   Period   FP   Name    (Time, Max-Time)
+       Period    FP    Name                            (Time, Max-Time)
 \newline 
-     999849 YES  test-thread    ( 0, 0 )
+     999849   YES               test-thread     (       0,             
+ 0 )
 \newline 
-                 1 siggen.0.update
+                               1 siggen.0.update
 \layout Standard
 
 There is one more step needed before the 
@@ -693,37 +598,58 @@ Now the signal generator is running.
  Let's look at its output pins:
 \layout Quote
 
-halcmd: show pin
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                Value   Name
 \newline 
- 32769    float OUT   2.12177e-01  siggen.0.cosine
+          3    float     IN                        1   siggen.0.amplitude
 \newline 
- 32769    float OUT  -5.64055e-01  siggen.0.sawtooth
+          3    float     OUT   -0.9406941   siggen.0.cosine
 \newline 
- 32769    float OUT   9.79820e-01  siggen.0.sine
+          3    float     IN                        1   siggen.0.frequency
 \newline 
- 32769    float OUT  -1.00000e+00  siggen.0.square
+          3    float     IN                        0   siggen.0.offset
 \newline 
- 32769    float OUT   1.28110e-01  siggen.0.triangle
+          3    float     OUT   -0.1164055   siggen.0.sawtooth
 \newline 
-halcmd: show pin
+          3    float     OUT      0.379820   siggen.0.sine
+\newline 
+          3    float     OUT                   -1   siggen.0.square
+\newline 
+          3    float     OUT   -0.7728110  siggen.0.triangle
+\layout Quote
+
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                 Value   Name
 \newline 
- 32769    float OUT   5.19530e-01  siggen.0.cosine
+          3    float     IN                         1   siggen.0.amplitude
 \newline 
- 32769    float OUT   6.73893e-01  siggen.0.sawtooth
+          3    float     OUT     0.9958036   siggen.0.cosine
 \newline 
- 32769    float OUT  -8.54452e-01  siggen.0.sine
+          3    float     IN                         1   siggen.0.frequency
 \newline 
- 32769    float OUT   1.00000e+00  siggen.0.square
+          3    float     IN                         0   siggen.0.offset
 \newline 
- 32769    float OUT   3.47785e-01  siggen.0.triangle
+          3    float     OUT     0.9708287   siggen.0.sawtooth
+\newline 
+          3    float     OUT -0.09151597   siggen.0.sine
+\newline 
+          3    float     OUT                     1   siggen.0.square
+\newline 
+          3    float     OUT     0.9416574  siggen.0.triangle
 \layout Standard
 
 We did two 
@@ -743,7 +669,7 @@ Changing parameters
 The real power of HAL is that you can change things.
  For example, we can use the 
 \family typewriter 
-setp
+"setp"
 \family default 
  command to set the value of a parameter.
  Let's change the amplitude of the signal generator from 1.0 to 5.0:
@@ -752,55 +678,58 @@ setp
 halcmd:
 \series bold 
  setp siggen.0.amplitude 5
-\series default 
-
-\newline 
-emc2$
 \layout Standard
 
 Check the parameters and pins again:
 \layout Quote
 
-halcmd: setp siggen.0.amplitude 5
-\newline 
-halcmd: show param
+halcmd: 
+\series bold 
+show param
+\series default 
+
 \newline 
 Parameters:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner    Type  Dir           Value      Name
 \newline 
- 32769    float  RW   5.00000e+00  siggen.0.amplitude
+         3    s32    RO               397   siggen.0.update.time
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.frequency
-\newline 
- 32769    float  RW   0.00000e+00  siggen.0.offset
-\newline 
- 32769    s32    RO          397   siggen.0.update.time
-\newline 
- 32769    s32    RW       109100   siggen.0.update.tmax
-\newline 
-halcmd: show pin
+         3    s32    RW       109100   siggen.0.update.tmax
+\layout Quote
+
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                 Value   Name
 \newline 
- 32769    float OUT   4.78453e+00  siggen.0.cosine
+          3    float     IN                         5   siggen.0.amplitude
 \newline 
- 32769    float OUT  -4.53106e+00  siggen.0.sawtooth
+          3    float     OUT      -4.179375   siggen.0.cosine
 \newline 
- 32769    float OUT   1.45198e+00  siggen.0.sine
+          3    float     IN                         1   siggen.0.frequency
 \newline 
- 32769    float OUT  -5.00000e+00  siggen.0.square
+          3    float     IN                         0   siggen.0.offset
 \newline 
- 32769    float OUT   4.02213e+00  siggen.0.triangle
+          3    float     OUT     0.9248036   siggen.0.sawtooth
+\newline 
+          3    float     OUT      -2.744599   siggen.0.sine
+\newline 
+          3    float     OUT                      5   siggen.0.square
+\newline 
+          3    float     OUT      -3.150393  siggen.0.triangle
 \layout Standard
 
 Note that the value of parameter
 \family typewriter 
  siggen.0.amplitude
 \family default 
- has changed to 5.000, and that the pins now have larger values.
+ has changed to 5, and that the pins now have larger values.
 \layout Subsection
 
 Saving the HAL configuration
@@ -837,17 +766,15 @@ loadrt threads name1=test-thread period1=1000000
 \newline 
 loadrt siggen
 \newline 
+# pin aliases
+\newline 
 # signals
 \newline 
-# links
+# nets
 \newline 
 # parameter values
 \newline 
-setp siggen.0.amplitude  5.00000e+00
-\newline 
-setp siggen.0.frequency  1.00000e+00
-\newline 
-setp siggen.0.offset  0.00000e+00
+setp siggen.0.update.tmax 14687
 \newline 
 # realtime thread/function links
 \newline 
@@ -859,16 +786,8 @@ The output of the
 save
 \family default 
  command is a sequence of HAL commands.
- If you start with an 
-\begin_inset Quotes eld
-\end_inset 
-
-empty
-\begin_inset Quotes erd
-\end_inset 
-
- HAL and run all these commands, you will get the configuration that existed
- when the 
+ If you start with an "empty" HAL and run all these commands, you will get
+ the configuration that existed when the 
 \family typewriter 
 save
 \family default 
@@ -880,6 +799,16 @@ save
 halcmd: 
 \series bold 
 save all saved.hal
+\newline 
+
+\series default 
+halcmd: 
+\series bold 
+exit
+\newline 
+
+\series default 
+~/emc2$
 \layout Subsection
 
 Restoring the HAL configuration
@@ -898,10 +827,10 @@ saved.hal
 \family typewriter 
 -I
 \family default 
- which shows the halcmd prompt after execiting the commands:
+ (upper case i) which shows the halcmd prompt after executing the commands:
 \layout Quote
 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun -I -f saved.hal
 \layout Standard
@@ -913,6 +842,16 @@ Notice that there is not a 'start' command in saved.hal.
 halcmd: 
 \series bold 
 start
+\newline 
+
+\series default 
+halcmd: 
+\series bold 
+exit
+\newline 
+
+\series default 
+~/emc2$
 \layout Section
 
 
@@ -931,11 +870,12 @@ You can build very complex HAL systems without ever using a graphical interface.
 \layout Standard
 
 We will use the siggen component again to check out halmeter.
- If you just finished the previous example, then siggen is already loaded.
+ If you just finished the previous example, then you can load siggen using
+ the saved file.
  If not, we can load it just like we did before:
 \layout Quote
 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun
 \newline 
@@ -968,7 +908,7 @@ halcmd:
 halcmd:
 \series bold 
  setp siggen.0.amplitude 5
-\layout Subsection
+\layout Subsection*
 
 Starting halmeter
 \layout Standard
@@ -983,83 +923,33 @@ halcmd:
 loadusr halmeter
 \layout Standard
 
-At the same time, a halmeter window opens on your screen, looking something
- like figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
-
-\end_inset 
-
-.
+The first window you will see is the "Select Item to Probe" window.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
+
+\layout Caption
+
+HAL Meter Select Window
+\begin_inset LatexCommand \label{cap:HAL-Meter-Select-Window}
+
+\end_inset 
+
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halmeter-demo-1.png
+	filename images/halmeter-select.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-1}
-
-\end_inset 
-
-Halmeter at startup, nothing selected
-\end_inset 
-
-
-\layout Subsection
-
-Using halmeter
-\layout Standard
-
-The meter in figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
-
-\end_inset 
-
- isn't very useful, because it isn't displaying anything.
- To change that, click on the 'Select' button, which will open the probe
- selection dialog (figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-2}
-
-\end_inset 
-
-).
- 
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename halmeter-demo-2.png
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-2}
-
-\end_inset 
-
-Halmeter source selection dialog
 \end_inset 
 
 
@@ -1071,68 +961,49 @@ This dialog has three tabs.
  parameters.
  We would like to look at the pin 
 \family typewriter 
-siggen.0.triangle
+siggen.0.cosine
 \family default 
- first, so click on it then click the 'OK' button.
+ first, so click on it then click the 'Close' button.
  The probe selection dialog will close, and the meter looks something like
- figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-3}
-
-\end_inset 
-
-.
+ the following figure.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
+
+\layout Caption
+
+Halmeter
+\begin_inset LatexCommand \label{cap:Halmeter}
+
+\end_inset 
+
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halmeter-demo-3.png
+	filename images/halmeter-1.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-3}
-
-\end_inset 
-
-Halmeter displaying the value of a pin
 \end_inset 
 
 
 \layout Standard
 
-You should see the value changing as siggen generates its triangle wave.
+To change what the meter displays press the "Select" button which brings
+ back the "Select Item to Probe" window.
+\layout Standard
+
+You should see the value changing as siggen generates its cosine wave.
  Halmeter refreshes its display about 5 times per second.
  
-\layout Standard
-
-If you want to quickly look at a number of pins, you can use the 'Accept'
- button in the source selection dialog.
- Click on 'Select' to open the dialog again.
- This time, click on another pin, like siggen.0.cosine, and then click 'Accept'.
- When you click 'Accept', the meter immediately begins to display the newly
- selected item, but the dialog does not close.
- Try displaying a parameter instead of a pin.
- Click on the 'Parameters' tab, then select a parameter and click 'Accept'
- again.
- You can very quickly move the 
-\begin_inset Quotes eld
-\end_inset 
-
-meter probes
-\begin_inset Quotes erd
-\end_inset 
-
- from one item to the next with a couple of clicks.
 \layout Standard
 
 To shut down halmeter, just click the exit button.
@@ -1143,30 +1014,6 @@ If you want to look at more than one pin, signal, or parameter at a time,
  The halmeter window was intentionally made very small so you could have
  a lot of them on the screen at once.
  
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Halmeter is due for a rewrite.
- The rewrite will do a number of things to make it nicer.
- Scientific notation will go away - it is a pain to read.
- Some form of ranging (including autoranging) will be added to allow it
- to display a wide range of numbers without using scientific notation.
- An 
-\begin_inset Quotes eld
-\end_inset 
-
-analog bar graph
-\begin_inset Quotes erd
-\end_inset 
-
- display will also be added to give a quick indication of trends.
- When the rewrite is done, these screenshots and the accompanying text will
- be revised to match the new version.
-\end_inset 
-
-
 \layout Standard
 
 
@@ -1215,7 +1062,7 @@ exit
 \newline 
 
 \series default 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun
 \layout Subsection
@@ -1232,7 +1079,7 @@ Now we are going to load the step pulse generator component.
 .
  For now, we can skip the details, and just run the following commands:
 \begin_inset Foot
-collapsed false
+collapsed true
 
 \layout Standard
 
@@ -1918,98 +1765,10 @@ halcmd:
  loadusr halscope
 \layout Standard
 
-The scope GUI window will open, immediately followed by a 
-\begin_inset Quotes eld
-\end_inset 
-
-Realtime function not linked
-\begin_inset Quotes erd
-\end_inset 
-
- dialog that looks like figure 
+The scope GUI window will open, immediately followed by a "Realtime function
+ not linked" dialog that looks like figure 
 \begin_inset LatexCommand \ref{fig:Halscope-demo-1}
 
-\end_inset 
-
-
-\begin_inset Foot
-collapsed true
-
-\layout Standard
-
-Several of these screen captures refer to threads named 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.thread
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.thread
-\begin_inset Quotes erd
-\end_inset 
-
- instead of 
-\begin_inset Quotes eld
-\end_inset 
-
-slow
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-fast
-\begin_inset Quotes erd
-\end_inset 
-
-.
- When the screenshots were captured, the 
-\begin_inset Quotes eld
-\end_inset 
-
-threads
-\begin_inset Quotes erd
-\end_inset 
-
- component didn't exist, and a different method was used to create threads,
- giving them different names.
- Also, the screenshots show pins, etc, as 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.xxx
-\begin_inset Quotes erd
-\end_inset 
-
- rather than 
-\begin_inset Quotes eld
-\end_inset 
-
-freqgen.xxx
-\begin_inset Quotes erd
-\end_inset 
-
-.
- The original name of the freqgen module was stepgen, and I haven't gotten
- around to re-doing all the screen shots since it was renamed.
- The name 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen
-\begin_inset Quotes erd
-\end_inset 
-
- now refers to a different step pulse generator, one that accepts position
- instead of velocity commands.
- Both are described in detail later in this document.
 \end_inset 
 
 .
@@ -2017,6 +1776,7 @@ stepgen
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
@@ -2036,15 +1796,7 @@ collapsed false
 
 \end_inset 
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Realtime function not linked
-\begin_inset Quotes erd
-\end_inset 
-
- dialog
+Realtime function not linked dialog
 \end_inset 
 
 
@@ -2052,23 +1804,8 @@ Realtime function not linked
 
 This dialog is where you set the sampling rate for the oscilloscope.
  For now we want to sample once per millisecond, so click on the 1.03mS thread
- 
-\begin_inset Quotes eld
-\end_inset 
-
-slow
-\begin_inset Quotes erd
-\end_inset 
-
- (formerly 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.thread
-\begin_inset Quotes erd
-\end_inset 
-
-, see footnote), and leave the multiplier at 1.
+ "slow" (formerly "siggen.thread", see footnote), and leave the multiplier
+ at 1.
  We will also leave the record length at 4047 samples, so that we can use
  up to four channels at one time.
  When you select a thread and then click 
@@ -2128,15 +1865,7 @@ clearpage
 
 \layout Subsection
 
-Hooking up the 
-\begin_inset Quotes eld
-\end_inset 
-
-scope probes
-\begin_inset Quotes erd
-\end_inset 
-
-
+Hooking up the scope probes
 \layout Standard
 
 At this point, Halscope is ready to use.
@@ -2157,23 +1886,8 @@ virtual scope probes
 \layout Standard
 
 The channel buttons run across the bottom of the halscope screen.
- Click button 
-\begin_inset Quotes eld
-\end_inset 
-
-1
-\begin_inset Quotes erd
-\end_inset 
-
-, and you will see the 
-\begin_inset Quotes eld
-\end_inset 
-
-Select Channel Source
-\begin_inset Quotes erd
-\end_inset 
-
- dialog, figure 
+ Click button "1", and you will see the "Select Channel Source" dialog,
+ figure 
 \begin_inset LatexCommand \ref{fig:Halscope-demo-3}
 
 \end_inset 
@@ -2181,16 +1895,8 @@ Select Channel Source
 .
  This dialog is very similar to the one used by Halmeter.
  We would like to look at the signals we defined earlier, so we click on
- the 
-\begin_inset Quotes eld
-\end_inset 
-
-Signals
-\begin_inset Quotes erd
-\end_inset 
-
- tab, and the dialog displays all of the signals in the HAL (only two for
- this example).
+ the "Signals" tab, and the dialog displays all of the signals in the HAL
+ (only two for this example).
 \layout Standard
 
 
@@ -2221,94 +1927,28 @@ Select Channel Source dialog
 \layout Standard
 
 To choose a signal, just click on it.
- In this case, we want to use channel 1 to display the signal 
-\begin_inset Quotes eld
-\end_inset 
-
-X_vel
-\begin_inset Quotes erd
-\end_inset 
-
-.
- When we click on 
-\begin_inset Quotes eld
-\end_inset 
-
-X_vel
-\begin_inset Quotes erd
-\end_inset 
-
-, the dialog closes and the channel is now selected.
- The channel 1 button is pressed in, and channel number 1 and the name 
-\begin_inset Quotes eld
-\end_inset 
-
-X_vel
-\begin_inset Quotes erd
-\end_inset 
-
+ In this case, we want to use channel 1 to display the signal "X-vel".
+ When we click on "X-vel", the dialog closes and the channel is now selected.
+ The channel 1 button is pressed in, and channel number 1 and the name "X-vel"
  appear below the row of buttons.
  That display always indicates the selected channel - you can have many
  channels on the screen, but the selected one is highlighted, and the various
  controls like vertical position and scale always work on the selected one.
- To add a signal to channel 2, click the 
-\begin_inset Quotes eld
-\end_inset 
-
-2
-\begin_inset Quotes erd
-\end_inset 
-
- button.
- When the dialog pops up, click the 
-\begin_inset Quotes eld
-\end_inset 
-
-Signals
-\begin_inset Quotes erd
-\end_inset 
-
- tab, then click on 
-\begin_inset Quotes eld
-\end_inset 
-
-Y_vel
-\begin_inset Quotes erd
-\end_inset 
-
-.
+ To add a signal to channel 2, click the "2" button.
+ When the dialog pops up, click the "Signals" tab, then click on "Y-vel".
  
 \layout Standard
 
 We also want to look at the square and triangle wave outputs.
- There are no signals connected to those pins, so we use the 
-\begin_inset Quotes eld
-\end_inset 
+ There are no signals connected to those pins, so we use the "Pins" tab
+ instead.
+ For channel 3, select "siggen.0.triangle" and for channel 4, select "siggen.0.squar
+e".
+\layout Standard
 
-Pins
-\begin_inset Quotes erd
-\end_inset 
 
- tab instead.
- For channel 3, select 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.0.triangle
-\begin_inset Quotes erd
-\end_inset 
-
- and for channel 4, select 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.0.square
-\begin_inset Quotes erd
-\end_inset 
-
-.
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -2337,46 +1977,16 @@ Capturing our first waveforms
 
 Now that we have several probes hooked to the HAL, it's time to capture
  some waveforms.
- To start the scope, click the 
-\begin_inset Quotes eld
-\end_inset 
-
-Normal
-\begin_inset Quotes erd
-\end_inset 
-
- button in the 
-\begin_inset Quotes eld
-\end_inset 
-
-Run Mode
-\begin_inset Quotes erd
-\end_inset 
-
- section of the screen (upper right).
+ To start the scope, click the "Normal" button in the "Run Mode" section
+ of the screen (upper right).
  Since we have a 4000 sample record length, and are acquiring 1000 samples
  per second, it will take halscope about 2 seconds to fill half of its buffer.
  During that time a progress bar just above the main screen will show the
  buffer filling.
  Once the buffer is half full, the scope waits for a trigger.
  Since we haven't configured one yet, it will wait forever.
- To manually trigger it, click the 
-\begin_inset Quotes eld
-\end_inset 
-
-Force
-\begin_inset Quotes erd
-\end_inset 
-
- button in the 
-\begin_inset Quotes eld
-\end_inset 
-
-Trigger
-\begin_inset Quotes erd
-\end_inset 
-
- section at the top right.
+ To manually trigger it, click the "Force" button in the "Trigger" section
+ at the top right.
  You should see the remainder of the buffer fill, then the screen will display
  the captured waveforms.
  The result will look something like figure 
@@ -2414,24 +2024,9 @@ Captured Waveforms
 
 \layout Standard
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-Selected Channel
-\begin_inset Quotes erd
-\end_inset 
-
- box at the bottom tells you that the green trace is the currently selected
- one, channel 4, which is displaying the value of the pin 
-\begin_inset Quotes eld
-\end_inset 
-
-siggen.1.square
-\begin_inset Quotes erd
-\end_inset 
-
-.
+The "Selected Channel" box at the bottom tells you that the green trace
+ is the currently selected one, channel 4, which is displaying the value
+ of the pin "siggen.1.square".
  Try clicking channel buttons 1 through 3 to highlight the other three traces.
 \layout Standard
 
@@ -2453,15 +2048,8 @@ Vertical Adjustments
 
 The traces are rather hard to distinguish since all four are on top of each
  other.
- To fix this, we use the 
-\begin_inset Quotes eld
-\end_inset 
-
-Vertical
-\begin_inset Quotes erd
-\end_inset 
-
- controls in the box to the right of the screen.
+ To fix this, we use the "Vertical" controls in the box to the right of
+ the screen.
  These controls act on the currently selected channel.
  When adjusting the gain, notice that it covers a huge range - unlike a
  real scope, this one can display signals ranging from very tiny (pico-units)
@@ -2480,34 +2068,10 @@ Vertical
 Triggering
 \layout Standard
 
-Using the 
-\begin_inset Quotes eld
-\end_inset 
-
-Force
-\begin_inset Quotes erd
-\end_inset 
-
- button is a rather unsatisfying way to trigger the scope.
- To set up real triggering, click on the 
-\begin_inset Quotes eld
-\end_inset 
-
-Source
-\begin_inset Quotes erd
-\end_inset 
-
- button at the bottom right.
- It will pop up the 
-\begin_inset Quotes eld
-\end_inset 
-
-Trigger Source
-\begin_inset Quotes erd
-\end_inset 
-
- dialog, which is simply a list of all the probes that are currently connected
- (Figure 
+Using the "Force" button is a rather unsatisfying way to trigger the scope.
+ To set up real triggering, click on the "Source" button at the bottom right.
+ It will pop up the "Trigger Source" dialog, which is simply a list of all
+ the probes that are currently connected (Figure 
 \begin_inset LatexCommand \ref{fig:Halscope-demo-5}
 
 \end_inset 
@@ -2545,15 +2109,7 @@ Trigger Source Dialog
 \layout Standard
 
 After setting the trigger source, you can adjust the trigger level and trigger
- position using the sliders in the 
-\begin_inset Quotes eld
-\end_inset 
-
-Trigger
-\begin_inset Quotes erd
-\end_inset 
-
- box along the right edge.
+ position using the sliders in the "Trigger" box along the right edge.
  The level can be adjusted from the top to the bottom of the screen, and
  is displayed below the sliders.
  The position is the location of the trigger point within the overall record.
@@ -2566,23 +2122,8 @@ Trigger
  The trigger polarity can be changed by clicking the button just below the
  trigger level display.
  Note that changing the trigger position stops the scope, once the position
- is adjusted you restart the scope by clicking the 
-\begin_inset Quotes eld
-\end_inset 
-
-Normal
-\begin_inset Quotes erd
-\end_inset 
-
- button in the 
-\begin_inset Quotes eld
-\end_inset 
-
-Run Mode
-\begin_inset Quotes erd
-\end_inset 
-
- box.
+ is adjusted you restart the scope by clicking the "Normal" button in the
+ "Run Mode" box.
 \layout Standard
 
 Now that we have adjusted the vertical controls and triggering, the scope
@@ -2647,24 +2188,10 @@ To look closely at part of a waveform, you can use the zoom slider at the
  Since the step pulses may be only 50uS long, sampling at 1KHz isn't fast
  enough.
  To change the sample rate, click on the button that displays the record
- length and sample rate to bring up the 
-\begin_inset Quotes eld
-\end_inset 
-
-Select Sample Rate
-\begin_inset Quotes erd
-\end_inset 
-
- dialog, figure .
- For this example, we will click on the 50uS thread, 
-\begin_inset Quotes eld
-\end_inset 
-
-fast
-\begin_inset Quotes erd
-\end_inset 
-
-, which gives us a sample rate of about 20KHz.
+ length and sample rate to bring up the "Select Sample Rate" dialog, figure
+ .
+ For this example, we will click on the 50uS thread, "fast", which gives
+ us a sample rate of about 20KHz.
  Now instead of displaying about 4 seconds worth of data, one record is
  4000 samples at 20KHz, or about 0.20 seconds.
 \layout Standard
@@ -2716,53 +2243,16 @@ Now let's look at the step pulses.
  Halscope has 16 channels, but for this example we are using only 4 at a
  time.
  Before we select any more channels, we need to turn off a couple.
- Click on the channel 2 button, then click the 
-\begin_inset Quotes eld
-\end_inset 
-
-Off
-\begin_inset Quotes erd
-\end_inset 
-
- button at the bottom of the 
-\begin_inset Quotes eld
-\end_inset 
-
-Vertical
-\begin_inset Quotes erd
-\end_inset 
-
- box.
+ Click on the channel 2 button, then click the "Off" button at the bottom
+ of the "Vertical" box.
  Then click on channel 3, turn if off, and do the same for channel 4.
  Even though the channels are turned off, they still remember what they
  are connected to, and in fact we will continue to use channel 3 as the
  trigger source.
- To add new channels, select channel 5, and choose pin 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.1.dir
-\begin_inset Quotes erd
-\end_inset 
-
-, then channel 6, and select 
-\begin_inset Quotes eld
-\end_inset 
-
-stepgen.1.step
-\begin_inset Quotes erd
-\end_inset 
-
-.
- Then click run mode 
-\begin_inset Quotes eld
-\end_inset 
-
-Normal
-\begin_inset Quotes erd
-\end_inset 
-
- to start the scope, and adjust the horizontal zoom to 5mS per division.
+ To add new channels, select channel 5, and choose pin "stepgen.1.dir", then
+ channel 6, and select "stepgen.1.step".
+ Then click run mode "Normal" to start the scope, and adjust the horizontal
+ zoom to 5mS per division.
  You should see the step pulses slow down as the velocity command (channel
  1) approaches zero, then the direction pin changes state and the step pulses
  speed up again.
