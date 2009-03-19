@@ -1336,12 +1336,12 @@ siggen.0.cosine
 \family default 
  to signal 
 \family typewriter 
-X_vel
+X-vel
 \family default 
 .
  Now let's connect the 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  to the velocity input of a step pulse generator:
 \layout Quote
@@ -1353,7 +1353,7 @@ halcmd:
 
 We can also connect up the Y axis signal 
 \family typewriter 
-Y_vel
+Y-vel
 \family default 
 .
  It is intended to run from the sine output of the signal generator to the
@@ -1367,7 +1367,7 @@ net
 \series default 
 commands accomplished for 
 \family typewriter 
-X_vel
+X-vel
 \family default 
 :
 \layout Quote
@@ -1394,13 +1394,13 @@ float              0     X-vel
 \newline 
                                                    <== siggen.0.cosine
 \newline 
-                                                   ==> freqgen.0.velocity
+                                                   ==> stepgen.0.velocity
 \newline 
 float              0     Y-vel
 \newline 
                                                   <== siggen.0.sine
 \newline 
-                                                  ==> freqgen.1.velocity
+                                                  ==> stepgen.1.velocity
 \layout Standard
 
 The 
@@ -1472,7 +1472,7 @@ The other three functions are related to the step pulse generators:
 
 The first one, 
 \family typewriter 
-freqgen.capture_position
+stepgen.capture_position
 \family default 
 , is used for position feedback.
  It captures the value of an internal counter that counts the step pulses
@@ -1482,7 +1482,7 @@ freqgen.capture_position
 
 The main function for the step pulse generator is 
 \family typewriter 
-freqgen.make_pulses
+stepgen.make_pulses
 \family default 
 .
  Every time 
@@ -1503,7 +1503,7 @@ make_pulses
 
 The last function, 
 \family typewriter 
-freqgen.update_freq
+stepgen.update-freq
 \family default 
 , is responsible for doing scaling and some other calculations that need
  to be performed only when the frequency command changes.
@@ -1520,17 +1520,17 @@ siggen.0.update
 \family default 
 , we want to run 
 \family typewriter 
-freqgen.update_freq
+stepgen.update_freq
 \family default 
  to load the new values into the step pulse generator.
  Finally we need to run 
 \family typewriter 
-freqgen.make_pulses
+stepgen.make_pulses
 \family default 
  as fast as possible for smooth pulses.
  Because we don't use position feedback, we don't need to run 
 \family typewriter 
-freqgen.capture_position
+stepgen.capture_position
 \family default 
  at all.
 \layout Standard
@@ -1571,7 +1571,7 @@ iggen.0.update
 \family default 
  and 
 \family typewriter 
-freqgen.update_freq
+stepgen.update_freq
 \family default 
 .
  The second thread is 
@@ -1581,7 +1581,7 @@ fast
 , which runs every 50 microseconds, and does not support floating point.
  We will use it for 
 \family typewriter 
-freqgen.make_pulses
+stepgen.make_pulses
 \family default 
 .
  To connect the functions to the proper thread, we use the 
@@ -1666,7 +1666,7 @@ We are almost ready to start our HAL system.
  to get the proper output.
  That is exactly what the parameter 
 \family typewriter 
-freqgen.n.velocity-scale
+stepgen.n.velocity-scale
 \family default 
  is for.
  In this case, both the X and Y axis have the same scaling, so we set the
@@ -1944,19 +1944,6 @@ We also want to look at the square and triangle wave outputs.
  instead.
  For channel 3, select "siggen.0.triangle" and for channel 4, select "siggen.0.squar
 e".
-\layout Standard
-
-
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-The siggen component now uses 0 as the starting number, so these screenshots
- need to be updated.
-\end_inset 
-
-
 \layout Standard
 
 
