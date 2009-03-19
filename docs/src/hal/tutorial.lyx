@@ -1065,7 +1065,7 @@ exit
 ~/emc2$ 
 \series bold 
 halrun
-\layout Subsection
+\layout Subsection*
 
 Installing the components
 \layout Standard
@@ -1115,7 +1115,7 @@ In this example we will use the "velocity" control type of stepgen.
  
 \layout Quote
 
-halrun: 
+halcmd: 
 \series bold 
 loadrt stepgen step_type=0,0 ctrl_type=v,v
 \newline 
@@ -1262,7 +1262,7 @@ max
      2       s32   RO                        0           stepgen.update-freq.time
 \newline 
      2       s32   RW                       0           stepgen.update-freq.tmax
-\layout Subsection
+\layout Subsection*
 
 Connecting pins with signals
 \layout Standard
@@ -1421,7 +1421,7 @@ siggen.0.cosine
 stepgen.0.velocity
 \family default 
 -cmd.
-\layout Subsection
+\layout Subsection*
 
 Setting up realtime execution - threads and functions
 \layout Standard
@@ -1641,7 +1641,7 @@ Realtime Threads:
 
 Now each thread is followed by the names of the functions, in the order
  in which the functions will run.
-\layout Subsection
+\layout Subsection*
 
 Setting parameters
 \layout Standard
@@ -1671,11 +1671,6 @@ stepgen.n.velocity-scale
  is for.
  In this case, both the X and Y axis have the same scaling, so we set the
  scaling parameters for both to 10000:
-\layout Standard
-
-
-\series bold 
-NOTE: should this be position-scale?
 \layout Quote
 
 halcmd:
@@ -1710,7 +1705,7 @@ siggen
  don't know (or care) about the scaling at all.
  If we changed the leadscrew, or motor, we would change only the scaling
  parameter of the step pulse generator.
-\layout Subsection
+\layout Subsection*
 
 Run it!
 \layout Standard
@@ -1736,12 +1731,12 @@ Although nothing appears to happen, inside the computer the step pulse generator
  see what is happening.
 \layout Section
 
-
+Halscope
 \begin_inset LatexCommand \label{sec:Tutorial - Halscope}
 
 \end_inset 
 
-Taking a closer look with halscope.
+
 \layout Standard
 
 The previous example generates some very interesting signals.
@@ -1766,12 +1761,45 @@ halcmd:
 \layout Standard
 
 The scope GUI window will open, immediately followed by a "Realtime function
- not linked" dialog that looks like figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-1}
+ not linked" dialog that looks like the following figure .
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Realtime function not linked dialog
+\begin_inset LatexCommand \label{cap:Realtime-function-not-linked}
 
 \end_inset 
 
-.
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-01.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+This dialog is where you set the sampling rate for the oscilloscope.
+ For now we want to sample once per millisecond, so click on the 989uS thread
+ "slow" and leave the multiplier at 1.
+ We will also leave the record length at 4000 samples, so that we can use
+ up to four channels at one time.
+ When you select a thread and then click "OK", the dialog disappears, and
+ the scope window looks something like the following figure.
 \layout Standard
 
 
@@ -1784,57 +1812,7 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-1.png
-
-\end_inset 
-
-
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-1}
-
-\end_inset 
-
-Realtime function not linked dialog
-\end_inset 
-
-
-\layout Standard
-
-This dialog is where you set the sampling rate for the oscilloscope.
- For now we want to sample once per millisecond, so click on the 1.03mS thread
- "slow" (formerly "siggen.thread", see footnote), and leave the multiplier
- at 1.
- We will also leave the record length at 4047 samples, so that we can use
- up to four channels at one time.
- When you select a thread and then click 
-\begin_inset Quotes eld
-\end_inset 
-
-OK
-\begin_inset Quotes erd
-\end_inset 
-
-, the dialog disappears, and the scope window looks something like figure
- 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-2}
-
-\end_inset 
-
-.
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename halscope-demo-2.png
+	filename images/halscope-02.png
 
 \end_inset 
 
@@ -1871,28 +1849,15 @@ Hooking up the scope probes
 At this point, Halscope is ready to use.
  We have already selected a sample rate and record length, so the next step
  is to decide what to look at.
- This is equivalent to hooking 
-\begin_inset Quotes eld
-\end_inset 
-
-virtual scope probes
-\begin_inset Quotes erd
-\end_inset 
-
- to the HAL.
+ This is equivalent to hooking "virtual scope probes" to the HAL.
  Halscope has 16 channels, but the number you can use at any one time depends
  on the record length - more channels means shorter records, since the memory
  available for the record is fixed at approximately 16,000 samples.
 \layout Standard
 
 The channel buttons run across the bottom of the halscope screen.
- Click button "1", and you will see the "Select Channel Source" dialog,
- figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-3}
-
-\end_inset 
-
-.
+ Click button "1", and you will see the "Select Channel Source" dialog as
+ shown in the following figure.
  This dialog is very similar to the one used by Halmeter.
  We would like to look at the signals we defined earlier, so we click on
  the "Signals" tab, and the dialog displays all of the signals in the HAL
@@ -1901,45 +1866,107 @@ The channel buttons run across the bottom of the halscope screen.
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
+
+\layout Caption
+
+Select Channel Source
+\begin_inset LatexCommand \label{cap:Select-Channel-Source}
+
+\end_inset 
+
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-3.png
+	filename images/halscope-03.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-3}
-
-\end_inset 
-
-Select Channel Source dialog
 \end_inset 
 
 
 \layout Standard
 
 To choose a signal, just click on it.
- In this case, we want to use channel 1 to display the signal "X-vel".
- When we click on "X-vel", the dialog closes and the channel is now selected.
- The channel 1 button is pressed in, and channel number 1 and the name "X-vel"
+ In this case, we want channel 1 to display the signal "X-vel".
+ Click on the Signals tab then click on "X-vel" and the dialog closes and
+ the channel is now selected.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Select Signal
+\begin_inset LatexCommand \label{cap:Select-Signal}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-04.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+The channel 1 button is pressed in, and channel number 1 and the name "X-vel"
  appear below the row of buttons.
  That display always indicates the selected channel - you can have many
  channels on the screen, but the selected one is highlighted, and the various
  controls like vertical position and scale always work on the selected one.
- To add a signal to channel 2, click the "2" button.
- When the dialog pops up, click the "Signals" tab, then click on "Y-vel".
  
 \layout Standard
 
-We also want to look at the square and triangle wave outputs.
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+HALScope
+\begin_inset LatexCommand \label{cap:HALScope}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-05.png
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+To add a signal to channel 2, click the "2" button.
+ When the dialog pops up, click the "Signals" tab, then click on "Y-vel".
+ We also want to look at the square and triangle wave outputs.
  There are no signals connected to those pins, so we use the "Pins" tab
  instead.
  For channel 3, select "siggen.0.triangle" and for channel 4, select "siggen.0.squar
@@ -1976,36 +2003,28 @@ Now that we have several probes hooked to the HAL, it's time to capture
  at the top right.
  You should see the remainder of the buffer fill, then the screen will display
  the captured waveforms.
- The result will look something like figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-4}
-
-\end_inset 
-
-.
+ The result will look something like the following figure.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
 
+\layout Caption
+
+Captured Waveforms
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-4.png
+	filename images/halscope-06.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-4}
-
-\end_inset 
-
-Captured Waveforms
 \end_inset 
 
 
@@ -2050,6 +2069,35 @@ The traces are rather hard to distinguish since all four are on top of each
 \end_inset 
 
  for details).
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Vertical Adjustment
+\begin_inset LatexCommand \label{cap:Vertical-Adjustment}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-07.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 Triggering
@@ -2058,29 +2106,16 @@ Triggering
 Using the "Force" button is a rather unsatisfying way to trigger the scope.
  To set up real triggering, click on the "Source" button at the bottom right.
  It will pop up the "Trigger Source" dialog, which is simply a list of all
- the probes that are currently connected (Figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-5}
-
-\end_inset 
-
- ).
+ the probes that are currently connected.
  Select a probe to use for triggering by clicking on it.
- For this example we will use channel 3, the triangle wave.
+ For this example we will use channel 3, the triangle wave as shown in the
+ following figure.
 \layout Standard
 
 
 \begin_inset Float figure
 wide false
 collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename halscope-demo-5.png
-
-\end_inset 
-
 
 \layout Caption
 
@@ -2090,6 +2125,16 @@ collapsed false
 \end_inset 
 
 Trigger Source Dialog
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-08.png
+	scale 80
+
+\end_inset 
+
+
 \end_inset 
 
 
@@ -2114,36 +2159,33 @@ After setting the trigger source, you can adjust the trigger level and trigger
 \layout Standard
 
 Now that we have adjusted the vertical controls and triggering, the scope
- display looks something like figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-6}
-
-\end_inset 
-
-.
+ display looks something like the following figure.
 \layout Standard
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
+
+\layout Caption
+
+Waveforms with Triggering
+\begin_inset LatexCommand \label{cap:Waveforms-with-Triggering}
+
+\end_inset 
+
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-6.png
+	filename images/halscope-09.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-6}
-
-\end_inset 
-
-Waveforms with Triggering
 \end_inset 
 
 
