@@ -576,16 +576,25 @@ class Data:
             pps = max(xhz, yhz, zhz)
         else:
             pps = max(xhz, zhz)
-        base_period = 1e9 / pps
+        if self.doublestep():
+            base_period = 1e9 / pps
+        else:
+            base_period = .5e9 / pps
         if base_period > 100000: base_period = 100000
         if base_period < self.minperiod(): base_period = self.minperiod()
         return int(base_period)
+
+    def ideal_maxvel(self, scale):
+        if self.doublestep():
+            return abs(.95 * 1e9 / self.ideal_period() / scale)
+        else:
+            return abs(.95 * .5 * 1e9 / self.ideal_period() / scale)
 
     def write_one_axis(self, file, num, letter, type, all_homes):
         order = "1203"
         def get(s): return self[letter + s]
         scale = get("scale")
-        vel = min(get("maxvel"), abs(.95 * 1e9 / self.ideal_period() / scale))
+        vel = min(get("maxvel"), self.ideal_maxvel(scale))
         print >>file
         print >>file, "[AXIS_%d]" % num
         print >>file, "TYPE = %s" % type
