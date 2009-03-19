@@ -77,7 +77,7 @@ drivertypes = [
     ["l297", _("L297"), 500,  4000, 4000, 1000],
     ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
     ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
-    ["xylotext", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
+    ["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
     ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
     ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
     ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
@@ -358,26 +358,25 @@ class Data:
             m1 = md5sum(f)
             if m1 and m != m1:
                 warnings.append(_("File %r was modified since it was written by stepconf") % f)
-        if not warnings: return
-
-        warnings.append("")
-        warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
-        if app:
-            dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
-                     "\n".join(warnings))
-            dialog.show_all()
-            dialog.run()
-            dialog.destroy()
-        else:
-            for para in warnings:
-                for line in textwrap.wrap(para, 78): print line
+        if warnings:
+            warnings.append("")
+            warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
+            if app:
+                dialog = gtk.MessageDialog(app.widgets.window1,
+                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                         "\n".join(warnings))
+                dialog.show_all()
+                dialog.run()
+                dialog.destroy()
+            else:
+                for para in warnings:
+                    for line in textwrap.wrap(para, 78): print line
+                    print
                 print
-            print
-            if force: return
-            response = raw_input(_("Continue? "))
-            if response[0] not in _("yY"): raise SystemExit, 1
+                if force: return
+                response = raw_input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit, 1
 
         legacy_hal_output_names = ["xstep", "xdir", "ystep", "ydir",
         "zstep", "zdir", "astep", "adir",
@@ -409,16 +408,17 @@ class Data:
                 self[pin] = legacy_hal_output_names[p]
 
         legacy_driver_type = [  # Must exactly match texts in drivertypes
-            _("Gecko 201"),
-            _("L297"),
-            _("PMDX-150"),
-            _("Sherline"),
-            _("Xylotex"),
-            _("Parker-Compumotor oem750")
+            "gecko201",
+            "l297",
+            "pmdx150",
+            "sherline",
+            "xylotex",
+            "oem750",
         ]
+
         if isinstance(self.drivertype, int):
             if self.drivertype < len(legacy_driver_type):
-                self.drivertype = legacy_driver_type[self.drivertype][0]
+                self.drivertype = legacy_driver_type[self.drivertype]
             else:
                 self.drivertype = "other"
 
@@ -651,17 +651,15 @@ class Data:
 
     def min_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
-                               "max-home-" + axis, "both-" + axis,
-                               "both-home-" + axis))
+           thisaxishome = set((ALL_HOME, "min-" + axis, "min-home-" + axis,
+                               "both-" + axis, "both-home-" + axis))
            for i in inputs:
                if i in thisaxishome: return i
 
     def max_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
-                               "max-home-" + axis, "both-" + axis,
-                               "both-home-" + axis))
+           thisaxishome = set((ALL_HOME, "max-" + axis, "max-home-" + axis,
+                               "both-" + axis, "both-home-" + axis))
            for i in inputs:
                if i in thisaxishome: return i
  
@@ -881,13 +879,11 @@ class Data:
 
         for i in range(4):
             dout = "dout-%02d" % i
-            print dout, dout in outputs
             if dout in outputs:
                 print >>file, "net %s <= motion.digital-out-%02d" % (dout, i)
 
         for i in range(4):
             din = "din-%02d" % i
-            print din, din in inputs
             if din in inputs:
                 print >>file, "net %s <= motion.digital-in-%02d" % (din, i)
 
@@ -1211,10 +1207,7 @@ class App:
             if d[0] == self.data.drivertype: return d[1]
 
     def drivertype_toid(self, what=None):
-        print "toid", what,
         if not isinstance(what, int): what = self.drivertype_toindex(what)
-        print what,
-        print len(drivertypes)
         if what < len(drivertypes): return drivertypes[what][0]
         return "other"
 
@@ -1889,7 +1882,6 @@ class App:
         self.update_axis_params()
     
     def testpanel(self,w):
-        print "display panel"
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.widgets.radiobutton5.get_active() == True:
            return True
@@ -1898,8 +1890,6 @@ class App:
         if self.widgets.radiobutton8.get_active() == True:
            panel = "custompanel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
-        print "panel-%s" % panel
-        print"dir-%s" % panelname
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
         if self.widgets.radiobutton6.get_active() == True:
