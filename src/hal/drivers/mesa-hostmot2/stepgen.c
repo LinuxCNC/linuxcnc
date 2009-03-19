@@ -1,6 +1,6 @@
 
 //
-//    Copyright (C) 2007-2008 Sebastian Kuzminsky
+//    Copyright (C) 2007-2009 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -76,22 +76,29 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
 static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_period_ns, int i) {
-    double steps_per_sec_cmd;
-    double pos_error;
-    s32 counts_cmd;
-    s32 count_pos_error;
+    hal_float_t ff_vel;
+    hal_float_t velocity_error;
+    hal_float_t match_accel;
+    hal_float_t seconds_to_vel_match;
+    hal_float_t position_at_match;
+    hal_float_t position_cmd_at_match;
+    hal_float_t error_at_match;
+    hal_float_t velocity_cmd;
+
+    hal_float_t steps_per_sec_cmd;
+
     hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
 
-    pos_error = *s->hal.pin.position_fb - *s->hal.pin.position_cmd;
-    counts_cmd = *s->hal.pin.position_cmd * s->hal.param.position_scale;
-    count_pos_error = *s->hal.pin.counts - counts_cmd;
 
+    //
+    // first sanity-check our maxaccel and maxvel params
+    //
 
     // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
     {
-        double min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
-        double max_steps_per_s = 1.0e9 / min_ns_per_step;
-        double max_pos_per_s = max_steps_per_s / fabs(s->hal.param.position_scale);
+        hal_float_t min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
+        hal_float_t max_steps_per_s = 1.0e9 / min_ns_per_step;
+        hal_float_t max_pos_per_s = max_steps_per_s / fabs(s->hal.param.position_scale);
         if (s->hal.param.maxvel > max_pos_per_s) {
             s->hal.param.maxvel = max_pos_per_s;
         } else if (s->hal.param.maxvel < 0.0) {
@@ -108,77 +115,94 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
     }
 
-    if (count_pos_error == 0) {
-        *s->hal.pin.velocity_fb = 0.0;
+
+    //
+    // Here's the stepgen position controller.  It uses first-order
+    // feedforward and proportional error feedback.  This code is based
+    // on John Kasunich's software stepgen code.
+    //
+
+    // calculate feed-forward velocity in machine units per second
+    ff_vel = (*s->hal.pin.position_cmd - s->old_position_cmd) / f_period_s;
+    s->old_position_cmd = *s->hal.pin.position_cmd;
+
+    velocity_error = *s->hal.pin.velocity_fb - ff_vel;
+
+    // do we need to speed up or slow down?
+    if (velocity_error > 0) {
+        match_accel = -s->hal.param.maxaccel;
     } else {
-        double seconds_until_stop;
-        double position_at_stop;
-        double pos_error_at_stop;
+        match_accel = s->hal.param.maxaccel;
+    }
 
-        // FIXME: this is buggy for maxaccel == 0
+    seconds_to_vel_match = (ff_vel - *s->hal.pin.velocity_fb) / match_accel;
 
-        if (s->hal.param.maxaccel > 0.0) {
-            seconds_until_stop = fabs(*s->hal.pin.velocity_fb) / s->hal.param.maxaccel;
+    // compute expected position at the time of velocity match
+    {
+        hal_float_t avg_v;
+        avg_v = (ff_vel + *s->hal.pin.velocity_fb) * 0.5;
+        position_at_match = *s->hal.pin.position_fb + (avg_v * seconds_to_vel_match);
+    }
+
+    position_cmd_at_match = *s->hal.pin.position_cmd + (ff_vel * (seconds_to_vel_match - (1.5 * f_period_s)));
+    error_at_match = position_at_match - position_cmd_at_match;
+
+    if (seconds_to_vel_match < f_period_s) {
+        // we can match velocity in one period
+
+        // FIXME: this looks like a reasonable value for the error deadband,
+        //     but maybe it should be configurable?
+        if (fabs(error_at_match) < 0.0001) {
+            velocity_cmd = ff_vel;
         } else {
-            seconds_until_stop = f_period_s;
-        }
+            // try to correct position error
+            velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
-        position_at_stop = *s->hal.pin.position_fb;
-        position_at_stop += *s->hal.pin.velocity_fb * seconds_until_stop;
-        if (*s->hal.pin.velocity_fb > 0) {
-            position_at_stop -= s->hal.param.maxaccel * seconds_until_stop * seconds_until_stop / 2.0;
-        } else {
-            position_at_stop += s->hal.param.maxaccel * seconds_until_stop * seconds_until_stop / 2.0;
-        }
-
-        pos_error_at_stop = position_at_stop - *s->hal.pin.position_cmd;
-
-        if (pos_error_at_stop * pos_error > 0) {
-            // haven't reached decel phase yet, accelerate at top rate (vel will get clipped later if needed)
-            if (pos_error > 0) {
-                if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_fb -= s->hal.param.maxaccel * f_period_s;
-                } else {
-                    *s->hal.pin.velocity_fb = -1.0 * s->hal.param.maxvel;
-                }
-            } else {
-                if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_fb += s->hal.param.maxaccel * f_period_s;
-                } else {
-                    *s->hal.pin.velocity_fb = s->hal.param.maxvel;
-                }
-            }
-        } else {
-            // oh shit i'm gonna overshoot!
-            // FIXME: this should be proportional to pos_error
-            if (pos_error > 0) {
-                if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_fb = -1.0 * s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
-                } else {
-                    // FIXME
-                    *s->hal.pin.velocity_fb = 0.0;
-                }
-            } else {
-                if (s->hal.param.maxaccel > 0.0) {
-                    *s->hal.pin.velocity_fb = s->hal.param.maxaccel * (seconds_until_stop - f_period_s);
-                } else {
-                    // FIXME
-                    *s->hal.pin.velocity_fb = 0.0;
-                }
+            // apply accel limits
+            if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
+            } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
             }
         }
+
+    } else {
+        // we're going to have to work for more than one period to match velocity
+        // FIXME: I dont really get this part yet
+
+        hal_float_t dv;
+        hal_float_t dp;
+
+        /* calculate change in final position if we ramp in the opposite direction for one period */
+        dv = -2.0 * match_accel * f_period_s;
+        dp = dv * seconds_to_vel_match;
+
+        /* decide which way to ramp */
+        if (fabs(error_at_match + (dp * 2.0)) < fabs(error_at_match)) {
+            match_accel = -match_accel;
+        }
+
+        /* and do it */
+        velocity_cmd = *s->hal.pin.velocity_fb + (match_accel * f_period_s);
     }
 
     // clip velocity to maxvel
-    if (*s->hal.pin.velocity_fb > s->hal.param.maxvel) {
-        *s->hal.pin.velocity_fb = s->hal.param.maxvel;
-    } else if (*s->hal.pin.velocity_fb < -1 * s->hal.param.maxvel) {
-        *s->hal.pin.velocity_fb = -1 * s->hal.param.maxvel;
+    if (velocity_cmd > s->hal.param.maxvel) {
+        velocity_cmd = s->hal.param.maxvel;
+    } else if (velocity_cmd < -s->hal.param.maxvel) {
+        velocity_cmd = -s->hal.param.maxvel;
     }
 
-    steps_per_sec_cmd = *s->hal.pin.velocity_fb * s->hal.param.position_scale;
 
-    hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency);
+    //
+    // OK, here we've selected the new velocity we want
+    //
+
+
+    *s->hal.pin.velocity_fb = velocity_cmd;
+
+    steps_per_sec_cmd = velocity_cmd * s->hal.param.position_scale;
+    hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (hal_float_t)hm2->stepgen.clock_frequency);
 }
 
 
@@ -388,6 +412,7 @@ void hm2_stepgen_tram_init(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         hm2->stepgen.instance[i].prev_accumulator = hm2->stepgen.accumulator_reg[i];
+        hm2->stepgen.instance[i].old_position_cmd = *hm2->stepgen.instance[i].hal.pin.position_cmd;
     }
 }
 

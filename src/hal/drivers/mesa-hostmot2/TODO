@@ -2,7 +2,11 @@
 
 next steps:
 
-    stepgen timing fixes
+    stepgen:
+
+        timing fixes
+
+        use 2 IO pins only
 
 
     the config modparam is confusing and poorly documented
@@ -162,11 +166,13 @@ stepgen:
         to ClockLow periods (rounded up); the result decremented (zero
         ok); and the result of *that* sent to the pulsewait FPGA register.
 
-    needs a cleanup() function
+    support smaller stepgens - most dont need 6 pins...
 
-    stepgen overshoots with high maxaccel, but most of the time
-    maxaccel is 0, isn't it?  so the trajectory planner gets to control
-    acceleration?
+        config="stepgen="off,on:width=2"
+
+        for now just use the first two io pins of each stepgen, leave the rest as gpio
+
+    needs a cleanup() function
 
     setting .scale to 1600 (1600 steps/rev) and then commanding position
     to 1600 revs causes chaos, it runs in the wrong direction, some
@@ -181,12 +187,6 @@ stepgen:
     support table output mode
 
     support velocity-mode control
-
-    support smaller stepgens - most dont need 6 pins...
-
-        config="stepgen="off,on:width=2"
-
-        for now just use the first two io pins of each stepgen, leave the rest as gpio
 
 
 

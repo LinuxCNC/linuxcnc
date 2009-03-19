@@ -440,6 +440,10 @@ typedef struct {
 
     } hal;
 
+    // this variable holds the previous position command, for
+    // computing the feedforward velocity
+    hal_float_t old_position_cmd;
+
     // HM2 tracks stepper position with 32 bits of sub-step
     // precision.  This holds the top 16 of those bits, in the
     // bottom 16 bits of the u32.
