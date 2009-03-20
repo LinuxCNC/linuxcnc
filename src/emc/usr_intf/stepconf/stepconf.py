@@ -660,17 +660,17 @@ class Data:
 
     def min_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxishome = set((ALL_HOME, "min-" + axis, "min-home-" + axis,
+           thisaxisminlimits = set((ALL_LIMIT, "min-" + axis, "min-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
            for i in inputs:
-               if i in thisaxishome: return i
+               if i in thisaxisminlimits: return i
 
     def max_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxishome = set((ALL_HOME, "max-" + axis, "max-home-" + axis,
+           thisaxismaxlimits = set((ALL_LIMIT, "max-" + axis, "max-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
            for i in inputs:
-               if i in thisaxishome: return i
+               if i in thisaxismaxlimits: return i
  
     def connect_axis(self, file, num, let):
         axnum = "xyza".index(let)
