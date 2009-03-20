@@ -66,7 +66,7 @@ Hello World
  Il s'agit d'un outil de configuration et de mise au point en ligne de commande
  ou en fichier texte.
  Les exemples suivants illustrent son installation et son fonctionnement.
-\layout Subsection
+\layout Subsection*
 
 Notation
 \layout Standard
@@ -103,7 +103,45 @@ emc2/
 \family default 
  , les chemins sont affichés en accord avec ce principe.
  
-\layout Subsection
+\layout Subsection*
+
+Tab-complétion
+\layout Standard
+
+Votre version de halcmd peut inclure la complétion avec la touche tab.
+ Au lieu de compléter les noms de fichiers comme le fait un shell, il complète
+ les commandes avec les identifiants HAL.
+ Essayez de presser la touche tab après le début d'une commande HAL:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+loa<TAB>
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+load
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt deb<TAB>
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt debounce
+\layout Subsection*
 
 L'environnement RTAPI
 \layout Standard
@@ -131,12 +169,32 @@ emc2/src/rtapi/rtapi.h
  savoir à propos de RTAPI est qu'il doit être (avec le RTOS) chargé dans
  la mémoire de votre ordinateur avant de pouvoir faire n'importe quoi avec
  HAL.
+\layout Section
+
+Un exemple simple
+\begin_inset LatexCommand \label{sec:Tutoriel - Exemple simple}
+
+\end_inset 
+
+
+\layout Subsection*
+
+Charger un composant temps réel
 \layout Standard
 
-Pour ce tutoriel, nous allons supposer que vous avez compilé avec succès
- l'arborescence emc2/src et, si nécessaire, invoqué le script 
+Pour ce tutoriel, nous allons supposer que vous avez installé avec succés
+ le CD-Live ou que vous avez compilé correctement l'arborescence emc2/src.
+ Si nécessaire, invoquez le script 
 \family typewriter 
+
+\begin_inset Quotes fld
+\end_inset 
+
 emc-environment
+\begin_inset Quotes frd
+\end_inset 
+
+
 \family default 
  pour préparer votre shell.
  Dans ce cas, tout ce que vous avez à faire est de charger le RTOS requis
@@ -144,7 +202,13 @@ emc-environment
  Tapez juste les commandes suivantes dans une console:
 \layout LyX-Code
 
-emc2$ 
+~$ 
+\series bold 
+cd emc2
+\series default 
+
+\newline 
+~/emc2$ 
 \series bold 
 halrun
 \newline 
@@ -153,8 +217,7 @@ halrun
 halcmd:
 \layout Standard
 
-Une fois l'OS temps réel et RTAPI chargés, vous pouvez aller au premier
- exemple.
+Avec l'OS temps réel et RTAPI chargés, vous pouvez passer au premier exemple.
  Notez que le prompt a changé, il est passé de 
 \begin_inset Quotes eld
 \end_inset 
@@ -167,7 +230,7 @@ $
 \begin_inset Quotes eld
 \end_inset 
 
-halcmd
+halcmd:
 \begin_inset Quotes erd
 \end_inset 
 
@@ -175,84 +238,6 @@ halcmd
  La raison en est que les commandes ultérieures seront interprétées comme
  des commandes HAL et non plus comme des commandes shell.
  
-\family typewriter 
-halrun
-\family default 
- est un simple script shell, il est plus ou moins équivalent de lancer:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-realtime start
-\newline 
-
-\series default 
-emc2$ 
-\series bold 
-halcmd -kf
-\layout Standard
-
-Pour quitter 
-\family typewriter 
-halcmd
-\family default 
- et que halrun arrête le système temps réel, tapez:
-\layout LyX-Code
-
-emc2$ 
-\series bold 
-realtime stop
-\layout Standard
-
-Vous pouvez également passer des arguments à halrun, il seront répercutés
- sur halcmd, ou passer le nom d'un fichier .hal.
- Parce que 
-\family typewriter 
-halrun
-\family default 
- arrête le système temps réel quand il se termine, le fichier hal fonctionnera
- de cette façon et s'arrêtera généralement avec une commande comme: 
-\family typewriter 
-loadrt -w halscope
-\family default 
-.
-\layout Section
-
-Tab-complétion
-\layout Standard
-
-Votre version de halcmd peut inclure la complétion avec la touche tab.
- Au lieu de compléter les noms de fichiers comme le fait un shell, il complète
- les commandes avec les identifiants HAL.
- Essayez de presser la touche tab après le début d'une commande HAL:
-\layout LyX-Code
-
-halcmd: 
-\series bold 
-lo<TAB>
-\series default 
-
-\newline 
-loadrt    loadusr   lock
-\newline 
-halcmd: 
-\series bold 
-loadrt d<TAB>
-\series default 
-
-\newline 
-ddt       debounce
-\layout Section
-
-
-\begin_inset LatexCommand \label{sec:Tutorial - Simple Exemple}
-
-\end_inset 
-
-Un exemple simple
-\layout Subsection
-
-Chargement d'un composant temps réel
 \layout Standard
 
 Pour le premier exemple, nous allons utiliser un composant HAL appelé 
@@ -270,15 +255,15 @@ siggen
 \end_inset 
 
  de ce document.
- Il s'agit d'un composant en temps réel, mis en oeuvre comme un module du
- noyau Linux.
+ Il s'agit d'un composant temps réel, mis en oeuvre comme un module du noyau
+ Linux.
  Pour charger 
 \family typewriter 
 siggen
 \family default 
  utiliser la commande 
 \family typewriter 
-halcmd loadrt
+de HAL, loadrt
 \family default 
 :
 \layout LyX-Code
@@ -286,7 +271,7 @@ halcmd loadrt
 halcmd: 
 \series bold 
 loadrt siggen
-\layout Subsection
+\layout Subsection*
 
 Examiner HAL
 \layout Standard
@@ -315,32 +300,27 @@ halcmd
  Pour afficher tout ce qui est installé tapez:
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-show comp
+ show comp
 \series default 
 
 \newline 
 Loaded HAL Components:
 \newline 
-ID     Type  Name                                      PID   State
+ID     Type  Name                  PID       State
 \newline 
-32769  RT    siggen                                          ready 
+3       RT     siggen                             ready 
 \newline 
-9775   User  halcmd9775                                 9775 initializing
+2       User  halcmd10190    10190 ready
 \layout Standard
 
 Puisque 
 \family typewriter 
 halcmd
 \family default 
- lui même est un composant HAL, il sera toujours présent dans la liste
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Le nombre après halcmd dans la liste des composants est le 
+ lui même est un composant HAL, il sera toujours présent dans la liste.
+ Le nombre après halcmd dans la liste des composants est le 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -352,9 +332,6 @@ process ID
  Il est toujours possible de lancer plus d'une instance de halcmd en même
  temps (dans différentes fenêtres par exemple), Le numéro PID est ajouté
  à la fin du nom pour rendre celui-ci unique.
-\end_inset 
-
-.
  La liste montre aussi le composant 
 \family typewriter 
 siggen
@@ -390,61 +367,62 @@ siggen
  rend disponibles:
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-show pin
+ show pin
 \series default 
 
 \newline 
 Component Pins:
 \newline 
-Owner   Type  Dir    Value      Name 02    float -W   0.00000e+00  siggen.0.cosine
- 
+Owner  Type    Dir    Value      Name 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.sawtooth 
+         3  float    IN             1  siggen.0.amplitude 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.sine 
+         3  float    OUT          0  siggen.0.cosine 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.square 
+         3  float    IN             1  siggen.0.frequency 
 \newline 
-32769  float OUT  0.00000e+00  siggen.0.triangle
+         3  float    IN             0  siggen.0.offset 
+\newline 
+         3  float    OUT          0  siggen.0.sawtooth
+\newline 
+         3  float    OUT          0  siggen.0.sine
+\newline 
+         3  float    OUT          0  siggen.0.square
+\newline 
+         3  float    OUT          0  siggen.0.triangle
 \layout Standard
 
-Cette commande affiche toutes les pins dans le HAL.
+Cette commande affiche toutes les pins présentes dans le HAL.
  Un système complexe peut avoir plusieurs dizaines ou centaines de pins.
- Mais pour le moment il y a seulement cinq pins.
- Toutes ces cinq pins sont des flottants, elles transportent toutes des
+ Mais pour le moment il y a seulement huit pins.
+ Toutes ces huit pins sont des flottants, elles transportent toutes des
  données en provenance du composant 
 \family typewriter 
 siggen
 \family default 
 .
  Puisque nous n'avons pas encore exécuté le code contenu dans le composant,
- toutes les pins ont une valeur de zéro.
+ certaines pins ont une valeur de zéro.
 \layout Standard
 
 L'étape suivante consiste à examiner les paramètres:
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-show param
+ show param
 \series default 
 
 \newline 
 Parameters:
 \newline 
-Owner     Type  Dir    Value      Name
+Owner  Type  Dir    Value      Name
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.amplitude
+         3    s32    RO            0   siggen.0.update.time
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.frequency
-\newline 
- 32769    float  RW   0.00000e+00  siggen.0.offset
-\newline 
- 32769    s32    RO            0   siggen.0.update.time
-\newline 
- 32769    s32    RW            0   siggen.0.update.tmax
+         3    s32   RW            0   siggen.0.update.tmax
 \layout Standard
 
 La commande 
@@ -462,14 +440,13 @@ show param
 \family typewriter 
 Dir
 \family default 
-.
- Les valeurs marquées 
+, les paramètres marqués 
 \family typewriter 
 -W
 \family default 
- écriture possible, pour ceux qui ne sont jamais modifié par le composant
- lui-même, mais qui sont modifiable par l'utilisateur pour contrôler le
- composant.
+ sont en écriture possible, pour ceux qui ne sont jamais modifiés par le
+ composant lui-même, mais qui sont modifiables par l'utilisateur pour contrôler
+ le composant.
  Nous verrons comment plus tard.
  Les paramètres marqués 
 \family typewriter 
@@ -587,7 +564,7 @@ Les champs codeaddr et arg  ont été utilisés pendant le développement et
 
 .
  
-\layout Subsection
+\layout Subsection*
 
 Exécuter le code temps réel
 \layout Standard
@@ -704,37 +681,58 @@ Maintenant le générateur de signal est en marche.
  Regardons ses pins de sortie:
 \layout LyX-Code
 
-halcmd: show pin
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                Value   Name
 \newline 
- 32769    float OUT   2.12177e-01  siggen.0.cosine
+          3    float     IN                        1   siggen.0.amplitude
 \newline 
- 32769    float OUT  -5.64055e-01  siggen.0.sawtooth
+          3    float     OUT   -0.9406941   siggen.0.cosine
 \newline 
- 32769    float OUT   9.79820e-01  siggen.0.sine
+          3    float     IN                        1   siggen.0.frequency
 \newline 
- 32769    float OUT  -1.00000e+00  siggen.0.square
+          3    float     IN                        0   siggen.0.offset
 \newline 
- 32769    float OUT   1.28110e-01  siggen.0.triangle
+          3    float     OUT   -0.1164055   siggen.0.sawtooth
 \newline 
-halcmd: show pin
+          3    float     OUT      0.379820   siggen.0.sine
+\newline 
+          3    float     OUT                   -1   siggen.0.square
+\newline 
+          3    float     OUT   -0.7728110  siggen.0.triangle
+\layout Quote
+
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                 Value   Name
 \newline 
- 32769    float OUT   5.19530e-01  siggen.0.cosine
+          3    float     IN                         1   siggen.0.amplitude
 \newline 
- 32769    float OUT   6.73893e-01  siggen.0.sawtooth
+          3    float     OUT     0.9958036   siggen.0.cosine
 \newline 
- 32769    float OUT  -8.54452e-01  siggen.0.sine
+          3    float     IN                         1   siggen.0.frequency
 \newline 
- 32769    float OUT   1.00000e+00  siggen.0.square
+          3    float     IN                         0   siggen.0.offset
 \newline 
- 32769    float OUT   3.47785e-01  siggen.0.triangle
+          3    float     OUT     0.9708287   siggen.0.sawtooth
+\newline 
+          3    float     OUT -0.09151597   siggen.0.sine
+\newline 
+          3    float     OUT                     1   siggen.0.square
+\newline 
+          3    float     OUT     0.9416574  siggen.0.triangle
 \layout Standard
 
 Nous avons fait, très rapidement, deux commandes 
@@ -745,7 +743,7 @@ show pin
  Les sorties sinus, cosinus, dents de scie et triangle changent constamment.
  La sortie carrée fonctionne également, mais elle passe simplement de +1.0
  à -1.0 à chaque cycle.
-\layout Subsection
+\layout Subsection*
 
 Modifier des paramètres
 \layout Standard
@@ -771,39 +769,46 @@ emc2$
 Voyons encore une fois les paramètres et les pins:
 \layout LyX-Code
 
-halcmd: setp siggen.0.amplitude 5
-\newline 
-halcmd: show param
+halcmd: 
+\series bold 
+show param
+\series default 
+
 \newline 
 Parameters:
 \newline 
-Owner  Type  Dir    Value      Name
+Owner    Type  Dir           Value      Name
 \newline 
- 32769    float  RW   5.00000e+00  siggen.0.amplitude
+         3    s32    RO               397   siggen.0.update.time
 \newline 
- 32769    float  RW   1.00000e+00  siggen.0.frequency
-\newline 
- 32769    float  RW   0.00000e+00  siggen.0.offset
-\newline 
- 32769    s32    RO          397   siggen.0.update.time
-\newline 
- 32769    s32    RW       109100   siggen.0.update.tmax
-\newline 
-halcmd: show pin
+         3    s32    RW       109100   siggen.0.update.tmax
+\layout Quote
+
+halcmd: 
+\series bold 
+show pin
+\series default 
+
 \newline 
 Component Pins:
 \newline 
-Owner  Type  Dir     Value      Name
+Owner    Type     Dir                 Value   Name
 \newline 
- 32769    float OUT   4.78453e+00  siggen.0.cosine
+          3    float     IN                         5   siggen.0.amplitude
 \newline 
- 32769    float OUT  -4.53106e+00  siggen.0.sawtooth
+          3    float     OUT      -4.179375   siggen.0.cosine
 \newline 
- 32769    float OUT   1.45198e+00  siggen.0.sine
+          3    float     IN                         1   siggen.0.frequency
 \newline 
- 32769    float OUT  -5.00000e+00  siggen.0.square
+          3    float     IN                         0   siggen.0.offset
 \newline 
- 32769    float OUT   4.02213e+00  siggen.0.triangle
+          3    float     OUT     0.9248036   siggen.0.sawtooth
+\newline 
+          3    float     OUT      -2.744599   siggen.0.sine
+\newline 
+          3    float     OUT                      5   siggen.0.square
+\newline 
+          3    float     OUT      -3.150393  siggen.0.triangle
 \layout Standard
 
 Notez que la valeur du paramètre 
@@ -812,7 +817,7 @@ siggen.0.amplitude
 \family default 
  est bien passée à 5.000 et que les pins ont maintenant des valeurs plus
  grandes.
-\layout Subsection
+\layout Subsection*
 
 Enregistrer la configuration de HAL 
 \layout Standard
@@ -838,9 +843,9 @@ show
  commande:
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-save
+ save
 \series default 
 
 \newline 
@@ -850,17 +855,15 @@ loadrt threads name1=test-thread period1=1000000
 \newline 
 loadrt siggen
 \newline 
+# pin aliases
+\newline 
 # signals
 \newline 
-# links
+# nets
 \newline 
 # parameter values
 \newline 
-setp siggen.0.amplitude  5.00000e+00
-\newline 
-setp siggen.0.frequency  1.00000e+00
-\newline 
-setp siggen.0.offset  0.00000e+00
+setp siggen.0.update.tmax 14687
 \newline 
 # realtime thread/function links
 \newline 
@@ -893,7 +896,17 @@ save
 halcmd: 
 \series bold 
 save all saved.hal
-\layout Subsection
+\newline 
+
+\series default 
+halcmd: 
+\series bold 
+exit
+\newline 
+
+\series default 
+~/emc2$
+\layout Subsection*
 
 Restaurer la configuration de HAL 
 \layout Standard
@@ -914,7 +927,7 @@ saved.hal
  qui affichera le prompt halcmd après l'exécution des commandes:
 \layout LyX-Code
 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun -I -f saved.hal
 \layout Standard
@@ -926,6 +939,16 @@ Notez qu'il n'y a pas de commande 'start' dans le fichier saved.hal.
 halcmd: 
 \series bold 
 start
+\newline 
+
+\series default 
+halcmd: 
+\series bold 
+exit
+\newline 
+
+\series default 
+~/emc2$
 \layout Section
 
 
@@ -957,7 +980,7 @@ Nous allons utiliser de nouveaux éléments du composant siggen pour vérifier
  Sinon, on peut charger tout comme nous l'avons fait précédemment:
 \layout LyX-Code
 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun
 \newline 
@@ -981,16 +1004,16 @@ addf siggen.0.update test-thread
 \newline 
 
 \series default 
-halcmd: 
+halcmd:
 \series bold 
-start
+ start
 \newline 
 
 \series default 
-halcmd: 
+halcmd:
 \series bold 
-setp siggen.0.amplitude 5
-\layout Subsection
+ setp siggen.0.amplitude 5
+\layout Subsection*
 
 Lancement de halmeter
 \layout Standard
@@ -1005,9 +1028,9 @@ halcmd:
 loadusr halmeter
 \layout Standard
 
-Dans le même temps, une fenêtre s'ouvre sur votre écran, ressemblant à la
- figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
+Dans le même temps, une fenêtre s'ouvre sur votre écran, demandant de sélectionn
+er le signal à observer 
+\begin_inset LatexCommand \ref{cap:HAL-Meter-Fenetre-selection}
 
 \end_inset 
 
@@ -1023,65 +1046,20 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halmeter-demo-1.png
+	filename images/halmeter-select.png
+	scale 80
 
 \end_inset 
 
 
 \layout Caption
 
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-1}
-
-\end_inset 
-
-Lancement de Halmeter, rien n'est sélectionné
-\end_inset 
-
-
-\layout Subsection
-
-Utilisation de halmeter
-\layout Standard
-
-La fenêtre de la figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-1}
-
-\end_inset 
-
- n'est pas d'une grande utilité, parce qu'elle n'affiche rien.
- Pour afficher des valeurs, cliquez sur le bouton 'Select', le dialogue
- de sélection des éléments à mesurer (figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-2}
-
-\end_inset 
-
-).
- 
-\layout Standard
-
-
-\begin_inset Float figure
-wide false
-collapsed false
-
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename halmeter-demo-2.png
+Fenêtre de sélection de HAL Meter
+\begin_inset LatexCommand \label{cap:HAL-Meter-Fenetre-selection}
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-2}
-
-\end_inset 
-
-Dialogue de sélection de Halmeter
 \end_inset 
 
 
@@ -1092,12 +1070,12 @@ Ce dialogue contient trois onglets.
  La seconde affiche tous les signaux et le troisième affiche tous les paramètres.
  Si nous voulons analyser la pin 
 \family typewriter 
-siggen.0.triangle
+siggen.0.
 \family default 
-, il suffit de cliquer sur elle puis sur le bouton 'OK'.
+cosine en premier, il suffit de cliquer sur elle puis sur le bouton 'Close'.
  Le dialogue de sélection se ferme et la mesure s'affiche, quelque chose
  comme sur la figure 
-\begin_inset LatexCommand \ref{fig:Halmeter-demo-3}
+\begin_inset LatexCommand \ref{cap:Halmeter}
 
 \end_inset 
 
@@ -1106,91 +1084,50 @@ siggen.0.triangle
 
 
 \begin_inset Float figure
+placement H
 wide false
 collapsed false
+
+\layout Caption
+
+Halmeter
+\begin_inset LatexCommand \label{cap:Halmeter}
+
+\end_inset 
+
 
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halmeter-demo-3.png
+	filename images/halmeter-1.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halmeter-demo-3}
-
-\end_inset 
-
-Affichage dans Halmeter de la valeur d'une pin
 \end_inset 
 
 
 \layout Standard
 
-Vous devriez voir la valeur évoluer à mesure que siggen génère son signal
- triangulaire.
- Halmeter est raffraîchi environ 5 fois par seconde.
+Pour modifier ce qui est affiché sur Hal meter pressez le bouton "Select"
+ qui vous raménera à la fenêtre de sélection précédente.
+\layout Standard
+
+Vous devriez voir la valeur évoluer puisque siggen génére une onde cosinusoïdale.
+ Halmeter raffraîchi son affichage environ 5 fois par seconde.
  
 \layout Standard
 
-Si vous voulez visualiser rapidement des pins successives, vous pouvez cliquer
- le bouton 'Accept' du dialogue de sélection.
- Cliquez 'Select' pour ouvrir le dialoque une nouvelle fois.
- Mais cette fois, cliquez une autre pin, comme siggen.0.cosine, puis cliquez
- 'Accept'.
- La nouvelle valeur s'affiche alors immédiatement, mais le dialogue de sélection
- reste ouvert.
- Essayez d'afficher un paramètre au lieu d'une pin.
- Cliquez sur l'onglet 'Parameters', puis sélectionnez un paramètre et cliquez
- encore sur 'Accept'.
- Vous pouvez ainsi afficher très rapidement la valeur d'un élément puis
- d'un autre en quelques clics.
+Pour éteindre halmeter, cliquer sur le bouton exit.
 \layout Standard
 
-Pour arrêter halmeter, cliquez simplement sur le bouton 
-\begin_inset Quotes eld
-\end_inset 
-
-quitter
-\begin_inset Quotes erd
-\end_inset 
-
-.
-\layout Standard
-
-Si vous voulez regarder plus d'une pin, plus d'un signal, ou plusieurs paramètre
-s à la fois, il vous suffit de lancer plusieurs instances de halmeters.
- La fenêtre de halmeter a été conçue petite, pour permettre d'en avoir beaucoup
- à la fois sur l'écran.
+Pour visualiser plusieurs pins, signaux ou paramètres en même temps, il
+ est possible d'ouvrir plusieurs halmeters.
+ La fenêtre de halmeter est intentionnellement petite justement pour permettre
+ d'en ouvrir un grand nombre sur le même écran.
  
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Halmeter sera réécrit.
- Cette réécriture le rendra plus agréable à utiliser.
- La notation scientifique sera éliminée, elle est trop difficile à lire.
- Certaines formes d'échelles seront ajoutées (y compris, une échelle automatique
-) pour afficher des échelles plus grandes sans notation scientifique.
- Un affichage par 
-\begin_inset Quotes eld
-\end_inset 
-
-bargraph analogique
-\begin_inset Quotes erd
-\end_inset 
-
- sera également ajouté pour donner une idée des évolutions rapides.
- Quand cette réécriture sera terminée, ces captures d'écran et les textes
- les accompagnant seront révisés pour refléter la nouvelle version.
-\end_inset 
-
-
 \layout Standard
 
 
@@ -1211,14 +1148,7 @@ clearpage
 
 \end_inset 
 
-Un exemple un peu plus complexe.
-\layout Standard
-
-
-\series bold 
-NOTE: Cette section est en cours de réécriture pour utiliser stepgen en
- remplacement de freqgen qui est obsolète.
- Référez vous à le documentation en anglais qui est la plus détaillée.
+Exemple plus complexe avec stepgen.
 \layout Standard
 
 Jusqu'à maintenant, nous avons chargé un composant HAL.
@@ -1240,10 +1170,10 @@ exit
 \newline 
 
 \series default 
-emc2$ 
+~/emc2$ 
 \series bold 
 halrun
-\layout Subsection
+\layout Subsection*
 
 Installation des composants
 \layout Standard
@@ -1252,7 +1182,7 @@ Maintenant, nous allons charger le composant générateur d'impulsions.
  Pour l'instant, nous pouvons nous passer des détails et exécuter les commandes
  suivantes:
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -1325,9 +1255,9 @@ halcmd show
 :
 \layout LyX-Code
 
-halcmd: 
+halcmd:
 \series bold 
-show pin
+ show pin
 \newline 
 
 \series default 
@@ -1339,7 +1269,7 @@ Owner   Type    Dir         Value           Name
 \newline 
      3       float    OUT           0        siggen.0.cosine
 \newline 
-     3       float    IN              1        siggen.0.frequency
+     3       float   IN              1        siggen.0.frequency
 \newline 
      3       float    IN              0        siggen.0.offset
 \newline 
@@ -1441,9 +1371,9 @@ max
      2       s32   RW                       0           stepgen.update-freq.tmax
 \layout LyX-Code
 
-\layout Subsection
+\layout Subsection*
 
-Connecter les pins avec des signaux
+Connecter des pins avec des signaux
 \layout Standard
 
 Nous avons donc deux générateurs d'impulsions de pas et un générateur de
@@ -1477,16 +1407,16 @@ fils
  Nous devons en créer deux.
  Nous pouvons les appeler comme on veut, pour cet exemple il y aura 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  et 
 \family typewriter 
-Y_vel
+Y-vel
 \family default 
 .
  Le signal 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  partira de la sortie cosinus du générateur de signal et arrivera sur l'entrée
  
@@ -1509,7 +1439,7 @@ net
 
 halcmd: 
 \series bold 
-net X_vel <= siggen.0.cosine
+net X-vel <= siggen.0.cosine
 \layout Standard
 
 Pour voir l'effet de la commande 
@@ -1554,12 +1484,12 @@ siggen.0.cosine
 \family default 
  vers le signal 
 \family typewriter 
-X_vel
+X-vel
 \family default 
 .
  Maintenant, connectons 
 \family typewriter 
-X_vel
+X-vel
 \family default 
  à l'entrée 
 \begin_inset Quotes eld
@@ -1574,12 +1504,12 @@ velocity
 
 halcmd: 
 \series bold 
-net X_vel => stepgen.0.velocity-cmd
+net X-vel => stepgen.0.velocity-cmd
 \layout Standard
 
 On peut aussi connecter l'axe Y au signal 
 \family typewriter 
-Y_vel
+Y-vel
 \family default 
 .
  Il doit partir de la sortie sinus du générateur de signal pour arriver
@@ -1591,7 +1521,7 @@ net
 \family default 
  précédentes ont fait pour 
 \family typewriter 
-X_vel
+X-vel
 \family default 
 :
 \layout LyX-Code
@@ -1654,7 +1584,7 @@ siggen.0.cosine
 stepgen.0.velocity
 \family default 
 -cmd.
-\layout Subsection
+\layout Subsection*
 
 Exécuter les réglages du temps réel - threads et functions
 \layout Standard
@@ -1714,7 +1644,7 @@ Les trois autres fonctions sont relatives au générateur d'impulsions de
 
 La première, 
 \family typewriter 
-stepgen.capture_position
+stepgen.capture-position
 \family default 
 , est utilisée pour un retour de position.
  Elle capture la valeur d'un compteur interne qui compte les impulsions
@@ -1724,19 +1654,19 @@ stepgen.capture_position
 
 La fonction principale du générateur d'impulsions est 
 \family typewriter 
-stepgen.make_pulses
+stepgen.make-pulses
 \family default 
 .
  Chaque fois que 
 \family typewriter 
-make_pulses
+make-pulses
 \family default 
  démarre elle décide qu'il est temps de faire un pas, si oui il fixe les
  sorties en conséquence.
  Pour des pas plus doux, il doit fonctionner le plus souvent possible.
  Parce qu'il a besoin de fonctionner de manière rapide, 
 \family typewriter 
-make_pulses
+make-pulses
 \family default 
  est hautement optimisé et n'effectue que quelques calculs.
  Contrairement aux autres, il n'a pas besoin de virgule flottante pour ses
@@ -1745,7 +1675,7 @@ make_pulses
 
 La dernière fonction, 
 \family typewriter 
-stepgen.update_freq
+stepgen.update-freq
 \family default 
 , est responsable de l'échelle et de quelques autres calculs qui ne doivent
  être effectués que lors d'une commande de changement de fréquence.
@@ -1763,18 +1693,18 @@ stepgen.0.update
 .
  Nous voulons lancer 
 \family typewriter 
-freqgen.update_freq
+freqgen.update-freq
 \family default 
  pour charger les nouvelles valeurs dans le générateur d'impulsions.
  Finalement nous lancerons
 \family typewriter 
- stepgen.make_pulses
+ stepgen.make-pulses
 \family default 
  aussi vite que possible pour des pas plus doux.
  Comme nous n'utilisons pas de retour de position, nous n'avons pas besoin
  de lancer 
 \family typewriter 
-stepgen.capture_position
+stepgen.capture-position
 \family default 
 .
 \layout Standard
@@ -1816,7 +1746,7 @@ iggen.0.update
 \family default 
  et 
 \family typewriter 
-stepgen.update_freq
+stepgen.update-freq
 \family default 
 .
  Le deuxième thread est 
@@ -1827,7 +1757,7 @@ fast
  en virgule flottante.
  Nous l'utilisons pour 
 \family typewriter 
-stepgen.make_pulses
+stepgen.make-pulses
 \family default 
 .
  Pour connecter des fonctions au bon thread, nous utilisons la commande
@@ -1889,7 +1819,7 @@ Realtime Threads:
 Maintenant, chaque thread est suivi par les noms des fonctions, dans l'ordre
  dans lequel les fonctions seront exécutées.
  
-\layout Subsection
+\layout Subsection*
 
 Réglage des paramètres
 \layout Standard
@@ -1906,7 +1836,7 @@ Nous sommes presque prêts à démarrer notre système HAL.
  Il est fort improbable qu'un pas par seconde nous donne une vitesse de
  déplacement de la table d'un pouce par seconde.
  Supposons que notre vis fasse 5 tours par pouce, couplée à un moteur pas
- à pas de 200 pas par tour et une interface qui fournit 10x micropas par
+ à pas de 200 pas par tour et une interface qui fournit 10 micropas par
  pas.
  Il faut donc 2000 pas pour faire un tour de vis et 5 tours pour faire un
  pouce.
@@ -1915,27 +1845,34 @@ Nous sommes presque prêts à démarrer notre système HAL.
  d'impulsions par 10000 pour obtenir la bonne valeur.
  C'est exactement pour cela qu'existe le paramètre 
 \family typewriter 
-freqgen.n.velocity-scale
+stepgen.n.velocity-scale
 \family default 
 .
  Dans notre cas, les axes X et Y ont la même échelle et nous pouvons passer
  les deux paramètres à 10000:
-\layout Standard
+\layout Quote
 
-
+halcmd:
 \series bold 
-NOTE: should this be position-scale?
-\layout LyX-Code
+ setp stepgen.0.position-scale 10000
+\newline 
 
-halcmd: 
+\series default 
+halcmd:
 \series bold 
-setp stepgen.0.position-scale 10000
+ setp stepgen.1.position-scale 10000
 \newline 
 
 \series default 
 halcmd: 
 \series bold 
-setp stepgen.1.position-scale 10000
+setp stepgen.0.enable 1
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+setp stepgen.1.enable 1
 \layout Standard
 
 Cela signifie que, avec la pin 
@@ -1959,7 +1896,7 @@ siggen
  ne savent rien du tout à propos de l'échelle des autres.
  Si on change de vis, ou de moteur, il n'y a qu'un seul paramètre à changer,
  l'échelle du générateur d'impulsions de pas.
-\layout Subsection
+\layout Subsection*
 
 Lançons le!
 \layout Standard
@@ -1999,7 +1936,7 @@ L'exemple précédent génère certains signaux très intéressants.
  Pour examiner de plus près ce qui se passe à l'intérieur de HAL, il faudrait
  un oscilloscope.
  Heureusement HAL en a un, appelé halscope.
-\layout Subsection
+\layout Subsection*
 
 Démarrer Halscope
 \layout Standard
@@ -2026,17 +1963,8 @@ Realtime function not linked
 \end_inset 
 
  visible sur la figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-1}
+\begin_inset LatexCommand \ref{fig:function-not-linked}
 
-\end_inset 
-
-
-\begin_inset Foot
-collapsed false
-
-\layout Standard
-
-Cette note est à réécrire entiérement
 \end_inset 
 
 .
@@ -2051,7 +1979,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-1.png
+	filename images/halscope-01.png
+	scale 80
 
 \end_inset 
 
@@ -2059,7 +1988,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{fig:Halscope-demo-1}
+\begin_inset LatexCommand \label{fig:function-not-linked}
 
 \end_inset 
 
@@ -2088,9 +2017,9 @@ slow
 \begin_inset Quotes erd
 \end_inset 
 
- 1.03mSec et laissez le multiplicateur à 1.
- Nous allons aussi passer la longueur d'enregistrement à 4047 samples (échantill
-ons), de sorte que nous puissions utiliser jusqu'à 4 canaux simultanément.
+ et laissez le multiplicateur à 1.
+ Nous allons aussi passer la longueur d'enregistrement à 4000 samples (échantill
+ons), de sorte que nous puissions utiliser jusqu'à 4 voies simultanément.
  Quand vous sélectionnez un thread puis que vous cliquez sur le bouton 
 \begin_inset Quotes eld
 \end_inset 
@@ -2101,7 +2030,7 @@ OK
 
 , le dialogue disparaît et la fenêtre du scope affiche quelque chose comme
  sur la figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-2}
+\begin_inset LatexCommand \ref{fig:Fenetre-initiale-Halscope}
 
 \end_inset 
 
@@ -2117,7 +2046,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-2.png
+	filename images/halscope-02.png
+	scale 80
 
 \end_inset 
 
@@ -2125,7 +2055,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{fig:Halscope-demo-2}
+\begin_inset LatexCommand \label{fig:Fenetre-initiale-Halscope}
 
 \end_inset 
 
@@ -2146,7 +2076,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Branchement des 
 \begin_inset Quotes eld
@@ -2171,13 +2101,13 @@ sondes virtuelles du scope
 \end_inset 
 
  à HAL.
- Halscope dispose de 16 canaux, mais le nombre que vous pouvez utiliser
- à un moment donné dépend de la longueur d'enregistrement, plus il y a de
- canaux, plus les enregistrements doivent être courts, car la mémoire disponible
+ Halscope dispose de 16 voies, mais le nombre de voies utilisables à un
+ moment donné dépend de la longueur d'enregistrement, plus il y a de voies,
+ plus les enregistrements doivent être courts, car la mémoire disponible
  pour l'enregistrement est fixée à environ 16000 échantillons.
 \layout Standard
 
-Les boutons des canaux se situent en dessous de l'écran du scope.
+Les boutons des voies se situent en dessous de l'écran du scope.
  Cliquez le boutton 
 \begin_inset Quotes eld
 \end_inset 
@@ -2194,24 +2124,15 @@ Select Channel Source
 \begin_inset Quotes erd
 \end_inset 
 
-, comme sur la figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-3}
+, pour sélectionner le signal à afficher sur la voie 1, comme sur la figure
+ 
+\begin_inset LatexCommand \ref{fig:Selection-sources-Halscope}
 
 \end_inset 
 
 .
  Ce dialogue est très similaire à celui utilisé par Halmeter.
- Nous aimerions bien regarder les signaux que nous avons défini précédemment,
- pour cela, cliquons sur l'onglet 
-\begin_inset Quotes eld
-\end_inset 
-
-Signaux
-\begin_inset Quotes erd
-\end_inset 
-
- et le dialogue affichera tous les signaux existants dans le HAL (seulement
- deux dans notre exemple).
+ 
 \layout Standard
 
 
@@ -2223,7 +2144,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-3.png
+	filename images/halscope-03.png
+	scale 80
 
 \end_inset 
 
@@ -2231,30 +2153,110 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{fig:Halscope-demo-3}
+\begin_inset LatexCommand \label{fig:Selection-sources-Halscope}
 
 \end_inset 
 
-Dialogue de sélection du scope
+Dialogue de sélection des sources
+\end_inset 
+
+
+\layout Standard
+
+Nous aimerions bien regarder les signaux que nous avons défini précédemment,
+ pour cela, cliquons sur l'onglet 
+\begin_inset Quotes eld
+\end_inset 
+
+Signals
+\begin_inset Quotes erd
+\end_inset 
+
+ et le dialogue affichera tous les signaux existants dans le HAL (seulement
+ deux dans notre exemple).
+\begin_inset LatexCommand \ref{cap:Select-Signal}
+
 \end_inset 
 
 
 \layout Standard
 
 Pour choisir un signal, il suffit de cliquer dessus.
- Dans notre cas, nous voulons utiliser le canal 1 pour afficher le signal
- `` X_vel''.
- Lorsque l'on clique sur `` X_vel'', la fenêtre se ferme et le canal a été
+ Dans notre cas, nous voulons utiliser la voie 1 pour afficher le signal
+ `` X-vel''.
+ Lorsque l'on clique sur `` X-vel'', la fenêtre se ferme et le canal a été
  sélectionné.
- Le bouton du canal 1 est pressé et le numéro du canal 1 et le nom `` X_vel''
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Sélection du signal
+\begin_inset LatexCommand \label{cap:Select-Signal}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-04.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Le bouton de la voie 1 est pressé, le numéro de la voie 1 et le nom `` X-vel''
  apparaissent sous la rangée de boutons.
- L'affichage indique toujours le canal sélectionné, vous pouvez avoir beaucoup
- de canaux sur l'écran, mais celui qui est actif sera en surbrillance.
- Les différents contrôles comme la position verticale et l'amplitude sont
- toujours relatifs au canal 1.
- Pour ajouter un signal au canal 2, cliquez sur le bouton "2''.
- Dans la fenêtre de dialogue, cliquez sur l'onglet "Signals'', puis cliquez
- sur `` Y_vel''.
+ L'affichage indique toujours la voie sélectionnée, vous pouvez avoir beaucoup
+ de voies sur l'écran, mais celle qui est active sera en surbrillance.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+wide false
+collapsed false
+
+\layout Caption
+
+Halscope
+\begin_inset LatexCommand \label{cap:HALScope}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-05.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Les différents contrôles comme la position verticale et l'amplitude sont
+ toujours relatifs à la voie 1.
+ Pour ajouter un signal sur la voie 2, cliquer sur le bouton "2''.
+ Dans la fenêtre de dialogue, cliquer sur l'onglet "Signals'', puis cliquer
+ sur `` Y-vel''.
 \layout Standard
 
 Nous voulons aussi voir les signaux carrés et triangles produits.
@@ -2267,16 +2269,6 @@ Nous voulons aussi voir les signaux carrés et triangles produits.
  Pour le canal 3, sélectionnez `` siggen.0.triangle'' et pour le canal 4,
  choisissez `` siggen.0.square''.
  
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
-Le composant siggen utilise maintenant 0 comme valeur de départ, ces captures
- d'écran ont beoin d'être mises à jour.
-\end_inset 
-
-
 \layout Standard
 
 
@@ -2290,7 +2282,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Capturer notre première forme d'onde
 \layout Standard
@@ -2311,7 +2303,7 @@ Maintenant que nous avons plusieurs sondes branchées sur HAL, il est temps
  Vous devriez voir le reste de la zone tampon se remplir, puis l'écran afficher
  les ondes capturées.
  Le résultat ressemble à la figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-4}
+\begin_inset LatexCommand \ref{fig:Capture-onde-Halscope}
 
 \end_inset 
 
@@ -2327,7 +2319,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-4.png
+	filename images/halscope-06.png
+	scale 80
 
 \end_inset 
 
@@ -2335,7 +2328,7 @@ collapsed false
 \layout Caption
 
 
-\begin_inset LatexCommand \label{fig:Halscope-demo-4}
+\begin_inset LatexCommand \label{fig:Capture-onde-Halscope}
 
 \end_inset 
 
@@ -2353,17 +2346,17 @@ Selected Channel
 \begin_inset Quotes erd
 \end_inset 
 
- en bas, indique que le canal 4 est actuellement sélectionné, donc, qu'il
- correspond à l'onde verte, celle de la mesurée sur la pin 
+ en bas, indique que la voie 4 est actuellement sélectionnée, donc, qu'elle
+ correspond à la pin 
 \begin_inset Quotes eld
 \end_inset 
 
-siggen.1.square
+siggen.0.square
 \begin_inset Quotes erd
 \end_inset 
 
 .
- Essayez de cliquer sur les autres canaux pour mettre leurs traces en évidence.
+ Essayez de cliquer sur les autres voies pour mettre leurs traces en évidence.
 \layout Standard
 
 
@@ -2377,7 +2370,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Ajustement vertical
 \layout Standard
@@ -2393,7 +2386,7 @@ Vertical
 \end_inset 
 
  situé à droite de l'écran.
- Ces contrôles agissent sur le canal actuellement sélectionné.
+ Ces contrôles agissent sur la voie actuellement sélectionnée.
  En ajustant le gain, notez qu'il couvre une large échelle (contrairement
  aux scopes réels), celle-ci permet d'afficher des signaux très petits (pico
  unités) à très grands (Tera - unités).
@@ -2407,12 +2400,41 @@ position
 
  déplace la trace affichée de haut en bas sur toute la hauteur de l'écran.
  Pour de plus grands ajustements le bouton Offset doit être utilisé (voir
- les références halscope dans la section 
+ les références de halscope dans la section 
 \begin_inset LatexCommand \ref{sec:Halscope}
 
 \end_inset 
 
  pour plus de détails).
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Ajustement vertical
+\begin_inset LatexCommand \label{cap:Ajustement-vertical-halscope}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-07.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Subsection
 
 Triggering
@@ -2427,7 +2449,7 @@ Force
 \end_inset 
 
  n'est parfois pas satisfaisante pour déclencher le scope.
- Pour régler un déclenchement (triggering) réel, cliquez sur le bouton 
+ Pour régler un déclenchement (triggering) réel, cliquer sur le bouton 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -2451,8 +2473,8 @@ Trigger Source
 \end_inset 
 
  ).
- Sélectionnez la sonde à utiliser pour déclencher en cliquant dessus.
- Pour notre exemple nous utilisons 3 canaux, essayez l'onde triangle.
+ Sélectionner la sonde à utiliser pour déclencher en cliquant dessus.
+ Pour notre exemple nous utilisons 3 canaux, essayons l'onde triangle.
 \layout Standard
 
 
@@ -2464,7 +2486,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-5.png
+	filename images/halscope-08.png
+	scale 80
 
 \end_inset 
 
@@ -2482,9 +2505,9 @@ Dialogue des sources de déclenchement
 
 \layout Standard
 
-Après avoir défini les sources de déclenchement, vous pouvez ajuster le
- niveau de déclenchement avec les curseurs dans la boîte `` Trigger'' le
- long du bord droit.
+Après avoir défini les sources de déclenchement, il est possible d'ajuster
+ le niveau de déclenchement avec les curseurs dans la boîte `` Trigger''
+ le long du bord droit.
  Le niveau peut être modifié à partir du haut vers le bas de l'écran, et
  est affiché sous les curseurs.
  La position est l'emplacement du point de déclenchement dans l'enregistrement
@@ -2538,7 +2561,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-6.png
+	filename images/halscope-09.png
+	scale 80
 
 \end_inset 
 
@@ -2567,7 +2591,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Ajustement horizontal
 \layout Standard
@@ -2582,7 +2606,7 @@ Pour examiner de près une partie d'une forme d'onde, vous pouvez utiliser
  dans notre exemple.
  Mais les impulsions de pas font seulement 50 us de long, l'échantillonnage
  à 1kHz n'est pas assez rapide.
- Pour changer le taux d'échantillonnage, cliquez sur le bouton qui affiche
+ Pour changer le taux d'échantillonnage, cliquer sur le bouton qui affiche
  la longueur de l'enregistrement et l'échantillonnage pour avoir le dialogue
  
 \begin_inset Quotes eld
@@ -2598,7 +2622,7 @@ Select Sample Rate
 \end_inset 
 
 .
- Pour notre exemple, nous cliquerons sur le thread à 50uS, 
+ Pour notre exemple, nous cliquerons sur le thread 
 \begin_inset Quotes eld
 \end_inset 
 
@@ -2620,7 +2644,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-7.png
+	filename images/halscope-10.png
+	scale 80
 
 \end_inset 
 
@@ -2649,30 +2674,30 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
-Plus de canaux
+Plus de voies
 \layout Standard
 
 Maintenant regardons les impulsions de pas.
- Halscope dispose de 16 canaux, mais pour cet exemple, nous en utilisons
+ Halscope dispose de 16 voies, mais pour cet exemple, nous en utilisons
  seulement 4 à la fois.
- Avant de sélectionner tout autre canal, nous avons besoin d'en éteindre
- certains.
- Cliquez sur le canal 2, puis sur le bouton "Off'' sous le groupe `` vertical''.
- Ensuite, cliquez sur le canal 3, mettez le off et faites de même pour le
- canal 4.
+ Avant de sélectionner toute autre voie, nous avons besoin d'en éteindre
+ certaines.
+ Cliquer sur la voie 2, puis sur le bouton "Off'' sous le groupe `` vertical''.
+ Ensuite, cliquez sur la voie 3, la mettre off et faire de même pour la
+ voie 4.
  Même si les circuits sont éteints, ils ont encore en mémoire ce à quoi
- ils sont connectés et en fait, nous continuerons d'utiliser le canal 3
- comme source de déclenchement.
- Pour ajouter de nouveaux canaux, sélectionnez le canal 5, choisissez la
- pin `` stepgen.1.dir'', puis canal 6 et sélectionnez "stepgen.1.step''.
- Ensuite, cliquez sur "mode Normal'' pour lancer le scope, ajustez le zoom
+ ils sont connectés et en fait, nous continuerons d'utiliser la voie 3 comme
+ source de déclenchement.
+ Pour ajouter de nouvelles voies, sélectionner la voie 5, choisir la pin
+ `` stepgen.1.dir'', puis la voie 6 et sélectionner "stepgen.1.step''.
+ Ensuite, cliquer sur "mode Normal'' pour lancer le scope, ajustez le zoom
  horizontal à 5ms par division.
  Vous devriez voir les impulsions de pas ralentir à la vitesse commandée
- (channel 1) approcher de zéro, puis la pin de direction changer d'état
- et les impulsions de pas reprendre de nouveau de la vitesse.
- Vous aurez peut être besoin d'augmenter le gain sur le canal 1 à environ
+ (voie 1) approcher de zéro, puis la pin de direction changer d'état et
+ les impulsions de pas reprendre de nouveau de la vitesse.
+ Vous aurez peut être besoin d'augmenter le gain sur la voie 1 à environ
  20ms par division afin de mieux voir l'évolution de la vitesse de commande.
  Le résultat devrait être proche de celui de la figure 
 \begin_inset LatexCommand \ref{fig:Halscope-demo-8}
@@ -2691,7 +2716,8 @@ collapsed false
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-8.png
+	filename images/halscope-11.png
+	scale 80
 
 \end_inset 
 
@@ -2707,7 +2733,7 @@ Observer les impulsions de pas
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Plus d'échantillons
 \layout Standard
@@ -2728,7 +2754,7 @@ scope_rt
 \family default 
  n'est pas déjà chargé, halscope va le charger et lui demander un total
  de 80000 échantillons, de sorte que lorsque l'échantillonnage se fera sur
- 4 canaux à la fois, il y aura 20000 échantillons par canal.
+ 4 voies à la fois, il y aura 20000 échantillons par voie.
  (Si 
 \family typewriter 
 scope_rt
