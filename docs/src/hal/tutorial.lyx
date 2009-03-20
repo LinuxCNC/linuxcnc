@@ -99,32 +99,39 @@ Tab-completion
 \layout Standard
 
 Your version of halcmd may include tab-completion.
- Instead of completing filenames as a shell does, it completes commands
+ Instead of completing file names as a shell does, it completes commands
  with HAL identifiers.
+ You will have to type enough letters for a unique match.
  Try pressing tab after starting a HAL command:
 \layout Quote
 
 halcmd: 
 \series bold 
-lo<TAB>
+loa<TAB>
 \series default 
 
 \newline 
 halcmd: 
 \series bold 
-loadrt    loadusr   lock
+load
 \series default 
 
 \newline 
 halcmd: 
 \series bold 
-loadrt d<TAB>
+loadrt
 \series default 
 
 \newline 
 halcmd: 
 \series bold 
-ddt  debounce
+loadrt deb<TAB>
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+loadrt debounce
 \layout Subsection*
 
 The RTAPI environment
@@ -136,7 +143,7 @@ RTAPI stands for Real Time Application Programming Interface.
  Normal Linux does not support realtime programming or the type of shared
  memory that HAL needs.
  Fortunately there are realtime operating systems (RTOS's) that provide
- the neccessary extensions to Linux.
+ the necessary extensions to Linux.
  Unfortunately, each RTOS does things a little differently.
 \layout Standard
 
@@ -228,7 +235,7 @@ halcmd loadrt
 halcmd:
 \series bold 
  loadrt siggen
-\layout Subsection
+\layout Subsection*
 
 Examining the HAL
 \layout Standard
@@ -370,7 +377,7 @@ Dir
 \family typewriter 
 -W
 \family default 
- are writeable ones that are never changed by the component itself, instead
+ are writable ones that are never changed by the component itself, instead
  they are meant to be changed by the user to control the component.
  We will see how to do this later.
  Parameters labeled 
@@ -384,7 +391,7 @@ R-
 RW
 \family default 
  are read-write parameters.
- That means that thay are changed by the component, but can also be changed
+ That means that they are changed by the component, but can also be changed
  by the user.
  Note: the parameters 
 \family typewriter 
@@ -397,7 +404,7 @@ siggen.0.update.tmax
  are for debugging purposes, and won't be covered in this section.
  
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -413,7 +420,7 @@ ax} parameters.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -425,7 +432,7 @@ The thread parameters are owned by component 02, the siggen module.
 
 
 \begin_inset Note
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -471,7 +478,7 @@ The siggen component exported a single function.
  It requires floating point.
  It is not currently linked to any threads, so "users" is zero
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -481,7 +488,7 @@ The codeaddr and arg fields were used in development, and should probably
 
 .
  
-\layout Subsection
+\layout Subsection*
 
 Making realtime code run
 \layout Standard
@@ -661,9 +668,9 @@ show pin
  The sine, cosine, sawtooth, and triangle outputs are changing constantly.
  The square output is also working, however it simply switches from +1.0
  to -1.0 every cycle.
-\layout Subsection
+\layout Subsection*
 
-Changing parameters
+Changing Parameters
 \layout Standard
 
 The real power of HAL is that you can change things.
@@ -730,7 +737,7 @@ Note that the value of parameter
  siggen.0.amplitude
 \family default 
  has changed to 5, and that the pins now have larger values.
-\layout Subsection
+\layout Subsection*
 
 Saving the HAL configuration
 \layout Standard
@@ -809,7 +816,7 @@ exit
 
 \series default 
 ~/emc2$
-\layout Subsection
+\layout Subsection*
 
 Restoring the HAL configuration
 \layout Standard
@@ -821,7 +828,7 @@ saved.hal
 , we need to execute all of those HAL commands.
  To do that, we use
 \family typewriter 
- -f <filename>
+ -f <file name>
 \family default 
  which reads commands from a file, and 
 \family typewriter 
@@ -854,12 +861,12 @@ exit
 ~/emc2$
 \layout Section
 
-
+Halmeter
 \begin_inset LatexCommand \label{sec:Tutorial - Halmeter}
 
 \end_inset 
 
-Looking at the HAL with halmeter
+
 \layout Standard
 
 You can build very complex HAL systems without ever using a graphical interface.
@@ -1029,19 +1036,12 @@ clearpage
 
 \layout Section
 
-
+Stepgen Example
 \begin_inset LatexCommand \label{sec:Tutorial - More Complex}
 
 \end_inset 
 
-A slightly more complex example.
-\layout Standard
 
-
-\series bold 
-NOTE: This section is being rewritten to use stepgen.
- Freqgen is depreciated.
- Please bear with me as I work out the details.
 \layout Standard
 
 Up till now we have only loaded one HAL component.
@@ -1079,7 +1079,7 @@ Now we are going to load the step pulse generator component.
 .
  For now, we can skip the details, and just run the following commands:
 \begin_inset Foot
-collapsed true
+collapsed false
 
 \layout Standard
 
@@ -1162,7 +1162,7 @@ Owner   Type    Dir         Value           Name
 \newline 
      3       float    OUT           0        siggen.0.cosine
 \newline 
-     3       float    IN              1        siggen.0.frequency
+     3       float   IN              1        siggen.0.frequency
 \newline 
      3       float    IN              0        siggen.0.offset
 \newline 
@@ -1307,7 +1307,7 @@ To see the effect of the
 net
 \family default 
  command, we show the signals again:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -1316,15 +1316,12 @@ halcmd:
 
 \newline 
 Signals:
-\layout LyX-Code
-
-Type      Value      Name        (linked to)
-\layout LyX-Code
-
+\newline 
+Type      Value     Name        (linked to)
+\newline 
 float         0           X_vel
-\layout LyX-Code
-
-                                     <== siggen.0.cosine
+\newline 
+                                    <== siggen.0.cosine
 \layout Standard
 
 When a signal is connected to one or more pins, the show command lists the
@@ -1614,7 +1611,7 @@ After we give these commands, we can run the
 show thread
 \family default 
  command again to see what happened:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -1682,6 +1679,18 @@ halcmd:
 halcmd:
 \series bold 
  setp stepgen.1.position-scale 10000
+\newline 
+
+\series default 
+halcmd: 
+\series bold 
+setp stepgen.0.enable 1
+\series default 
+
+\newline 
+halcmd: 
+\series bold 
+setp stepgen.1.enable 1
 \layout Standard
 
 This velocity scaling means that when the pin 
@@ -1744,7 +1753,7 @@ The previous example generates some very interesting signals.
  To take a closer look at what is going on inside the HAL, we want an oscillosco
 pe.
  Fortunately HAL has one, called halscope.
-\layout Subsection
+\layout Subsection*
 
 Starting Halscope
 \layout Standard
@@ -1813,6 +1822,7 @@ collapsed false
 
 \begin_inset Graphics
 	filename images/halscope-02.png
+	scale 80
 
 \end_inset 
 
@@ -1841,7 +1851,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Hooking up the scope probes
 \layout Standard
@@ -1944,7 +1954,7 @@ collapsed false
 
 \layout Caption
 
-HALScope
+Halscope
 \begin_inset LatexCommand \label{cap:HALScope}
 
 \end_inset 
@@ -1955,6 +1965,7 @@ HALScope
 
 \begin_inset Graphics
 	filename images/halscope-05.png
+	scale 80
 
 \end_inset 
 
@@ -1984,7 +1995,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Capturing our first waveforms
 \layout Standard
@@ -2030,9 +2041,9 @@ Captured Waveforms
 
 \layout Standard
 
-The "Selected Channel" box at the bottom tells you that the green trace
+The "Selected Channel" box at the bottom tells you that the purple trace
  is the currently selected one, channel 4, which is displaying the value
- of the pin "siggen.1.square".
+ of the pin "siggen.0.square".
  Try clicking channel buttons 1 through 3 to highlight the other three traces.
 \layout Standard
 
@@ -2047,7 +2058,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Vertical Adjustments
 \layout Standard
@@ -2098,7 +2109,7 @@ Vertical Adjustment
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Triggering
 \layout Standard
@@ -2153,9 +2164,7 @@ After setting the trigger source, you can adjust the trigger level and trigger
  the screen.
  The trigger polarity can be changed by clicking the button just below the
  trigger level display.
- Note that changing the trigger position stops the scope, once the position
- is adjusted you restart the scope by clicking the "Normal" button in the
- "Run Mode" box.
+ 
 \layout Standard
 
 Now that we have adjusted the vertical controls and triggering, the scope
@@ -2202,7 +2211,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Horizontal Adjustments
 \layout Standard
@@ -2216,9 +2225,9 @@ To look closely at part of a waveform, you can use the zoom slider at the
  generated in our example.
  Since the step pulses may be only 50uS long, sampling at 1KHz isn't fast
  enough.
- To change the sample rate, click on the button that displays the record
- length and sample rate to bring up the "Select Sample Rate" dialog, figure
- .
+ To change the sample rate, click on the button that displays the number
+ of samples and sample rate to bring up the "Select Sample Rate" dialog,
+ figure .
  For this example, we will click on the 50uS thread, "fast", which gives
  us a sample rate of about 20KHz.
  Now instead of displaying about 4 seconds worth of data, one record is
@@ -2230,23 +2239,24 @@ To look closely at part of a waveform, you can use the zoom slider at the
 wide false
 collapsed false
 
+\layout Caption
+
+Sample Rate Dialog
+\begin_inset LatexCommand \label{cap:Sample-Rate-Dialog}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
 \begin_inset Graphics
-	filename halscope-demo-7.png
+	filename images/halscope-10.png
+	scale 80
 
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-7}
-
-\end_inset 
-
-Sample Rate Dialog
 \end_inset 
 
 
@@ -2263,7 +2273,7 @@ clearpage
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 More Channels
 \layout Standard
@@ -2272,14 +2282,14 @@ Now let's look at the step pulses.
  Halscope has 16 channels, but for this example we are using only 4 at a
  time.
  Before we select any more channels, we need to turn off a couple.
- Click on the channel 2 button, then click the "Off" button at the bottom
- of the "Vertical" box.
+ Click on the channel 2 button, then click the "Chan Off" button at the
+ bottom of the "Vertical" box.
  Then click on channel 3, turn if off, and do the same for channel 4.
  Even though the channels are turned off, they still remember what they
  are connected to, and in fact we will continue to use channel 3 as the
  trigger source.
- To add new channels, select channel 5, and choose pin "stepgen.1.dir", then
- channel 6, and select "stepgen.1.step".
+ To add new channels, select channel 5, and choose pin "stepgen.0.dir", then
+ channel 6, and select "stepgen.0.step".
  Then click run mode "Normal" to start the scope, and adjust the horizontal
  zoom to 5mS per division.
  You should see the step pulses slow down as the velocity command (channel
@@ -2300,15 +2310,6 @@ Now let's look at the step pulses.
 wide false
 collapsed false
 
-\layout Standard
-\align center 
-
-\begin_inset Graphics
-	filename halscope-demo-8.png
-
-\end_inset 
-
-
 \layout Caption
 
 
@@ -2317,10 +2318,20 @@ collapsed false
 \end_inset 
 
 Looking at Step Pulses
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/halscope-11.png
+	scale 80
+
 \end_inset 
 
 
-\layout Subsection
+\end_inset 
+
+
+\layout Subsection*
 
 More samples
 \layout Standard
