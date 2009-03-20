@@ -34,6 +34,7 @@
 <doc name="hal_intro" title="Introduction"/>
 <doc name="hal_basic_hal" title="Basic HAL Info"/>
 <doc name="hal_general_ref" title="General Reference"/>
+<doc name="hal_hal-examples" title="HAL Examples"/>
 <doc name="hal_tools" title="Tools"/>
 <doc name="hal_halshow" title="Halshow"/>
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>

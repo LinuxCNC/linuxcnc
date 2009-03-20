@@ -102,6 +102,7 @@ DOC_SRCS := \
 	hal/drivers_fr.lyx \
 	hal/general_ref.lyx \
 	hal/general_ref_fr.lyx \
+	hal/hal-examples.lyx \
 	hal/halshow.lyx \
 	hal/halshow_fr.lyx \
 	hal/halmodule.lyx \
