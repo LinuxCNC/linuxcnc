@@ -1817,6 +1817,14 @@ placement H
 wide false
 collapsed false
 
+\layout Caption
+
+Initial scope window
+\begin_inset LatexCommand \label{cap:Initial-scope-window}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -1827,14 +1835,6 @@ collapsed false
 \end_inset 
 
 
-\layout Caption
-
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-2}
-
-\end_inset 
-
-Initial scope window
 \end_inset 
 
 
@@ -2026,6 +2026,11 @@ collapsed false
 \layout Caption
 
 Captured Waveforms
+\begin_inset LatexCommand \label{cap:Captured-Waveforms}
+
+\end_inset 
+
+
 \layout Standard
 \align center 
 
@@ -2130,12 +2135,12 @@ collapsed false
 
 \layout Caption
 
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-5}
+Trigger Source Dialog
+\begin_inset LatexCommand \label{cap:Trigger-Source-Dialog}
 
 \end_inset 
 
-Trigger Source Dialog
+
 \layout Standard
 \align center 
 
@@ -2312,12 +2317,12 @@ collapsed false
 
 \layout Caption
 
-
-\begin_inset LatexCommand \label{fig:Halscope-demo-8}
+Step Pulses
+\begin_inset LatexCommand \label{cap:Step-Pulses}
 
 \end_inset 
 
-Looking at Step Pulses
+
 \layout Standard
 \align center 
 
