@@ -112,7 +112,7 @@ Votre version de halcmd peut inclure la complétion avec la touche tab.
  Au lieu de compléter les noms de fichiers comme le fait un shell, il complète
  les commandes avec les identifiants HAL.
  Essayez de presser la touche tab après le début d'une commande HAL:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -200,7 +200,7 @@ emc-environment
  Dans ce cas, tout ce que vous avez à faire est de charger le RTOS requis
  et les modules RTAPI dans la mémoire.
  Tapez juste les commandes suivantes dans une console:
-\layout LyX-Code
+\layout Quote
 
 ~$ 
 \series bold 
@@ -266,7 +266,7 @@ siggen
 de HAL, loadrt
 \family default 
 :
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -298,7 +298,7 @@ halcmd
  La première commande de halcmd et show, qui affichera les informations
  concernant l'état actuel du HAL.
  Pour afficher tout ce qui est installé tapez:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -365,7 +365,7 @@ Ensuite, voyons quelles pins
 siggen
 \family default 
  rend disponibles:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -408,7 +408,7 @@ siggen
 \layout Standard
 
 L'étape suivante consiste à examiner les paramètres:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -527,7 +527,7 @@ La plupart des composants temps réel exportent une ou plusieurs fonctions
 siggen
 \family default 
  exporte:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -584,7 +584,7 @@ threads
 test-thread
 \family default 
  avec une période de 1ms (1000000ns):
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -592,7 +592,7 @@ loadrt threads name1=test-thread period1=1000000
 \layout Standard
 
 Voyons si il fonctionne:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -612,7 +612,7 @@ Il fonctionne.
  au matériel, mais nous avons bien un thread qui tourne à une période approximat
 ivement correcte et qui peut manipuler des fonctions en virgule flottante.
  La prochaine étape sera de connecter la fonction au thread:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -642,7 +642,7 @@ siggen.0.update
 test-thread
 \family default 
  et la commande suivante indique qu'il a réussi:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -670,7 +670,7 @@ siggen
  que le code temps réel ne démarre.
  Une fois que vous êtes satisfait de la configuration, vous pouvez lancer
  le code temps réel comme ceci:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -679,7 +679,7 @@ start
 
 Maintenant le générateur de signal est en marche.
  Regardons ses pins de sortie:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -755,7 +755,7 @@ setp
 \family default 
  pour ajuster la valeur d'un paramètre.
  Modifions l'amplitude du signal de sortie du générateur de 1.0 à 5.0:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -767,7 +767,7 @@ emc2$
 \layout Standard
 
 Voyons encore une fois les paramètres et les pins:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -841,7 +841,7 @@ show
  série de commande à chaque fois que l'on veut utiliser le système.
  Nous pouvons enregistrer la configuration de l'ensemble de HAL en une seule
  commande:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -891,7 +891,7 @@ save
 .
  Pour sauver ces commandes pour une utilisation ultérieure, nous allons
  simplement rediriger la sortie vers un fichier:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -925,7 +925,7 @@ saved.hal
 -I
 \family default 
  qui affichera le prompt halcmd après l'exécution des commandes:
-\layout LyX-Code
+\layout Quote
 
 ~/emc2$ 
 \series bold 
@@ -934,7 +934,7 @@ halrun -I -f saved.hal
 
 Notez qu'il n'y a pas de commande 'start' dans le fichier saved.hal.
  Il est nécessaire de la retaper (ou d'éditer saved.hal pour l'ajouter):
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -978,7 +978,7 @@ Nous allons utiliser de nouveaux éléments du composant siggen pour vérifier
  halmeter.
  Si vous avez fini l'exemple précédent, alors siggen est déjà chargé.
  Sinon, on peut charger tout comme nous l'avons fait précédemment:
-\layout LyX-Code
+\layout Quote
 
 ~/emc2$ 
 \series bold 
@@ -1021,7 +1021,7 @@ Lancement de halmeter
 À ce stade, nous avons chargé le composant siggen qui est en cours d'exécution.
  Nous pouvons lancer halmeter.
  Puisque halmeter est une application graphique, X doit être actif.
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1162,7 +1162,7 @@ Avant de mettre en place ce nouvel exemple, nous allons commencer par un
  Si vous avez fini l'un des exemples précédents, il faut supprimer tous
  les composants et ensuite recharger la RTAPI et les librairies de HAL en
  faisant:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1218,7 +1218,7 @@ Le signe
 Dans cet exemple nous utiliserons le type de contrôle "velocity" du composant
  stepgen.
  
-\layout LyX-Code
+\layout Quote
 
 halrun: 
 \series bold 
@@ -1253,7 +1253,7 @@ halcmd show
  pour jeter un coup d'oeil à HAL.
  Cette fois, nous aurons beaucoup plus de pins et de paramètres que précédemment
 :
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -1435,7 +1435,7 @@ velocity
 net
 \family default 
 :
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1447,7 +1447,7 @@ Pour voir l'effet de la commande
 net
 \family default 
 , regardons les signaux:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1500,7 +1500,7 @@ velocity
 \end_inset 
 
  du générateur d'impulsions de pas:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1524,7 +1524,7 @@ net
 X-vel
 \family default 
 :
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1533,7 +1533,7 @@ net Y-vel siggen.0.sine => stepgen.1.velocity-cmd
 
 Pour voir l'effet de la commande net, regardons encore les signaux et les
  pins:
-\layout LyX-Code
+\layout Quote
 
 halcmd:
 \series bold 
@@ -1603,7 +1603,7 @@ fils
  Les threads sont les méthodes utilisées pour faire exécuter ces instructions
  quand c'est nécessaire.
  Premièrement, regardons les fonctions dont nous disposons:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1712,7 +1712,7 @@ stepgen.capture-position
 Nous lançons les fonctions en les ajoutant aux threads.
  Chaque thread va à une vitesse spécifique.
  Regardons de quels threads nous disposons:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1767,7 +1767,7 @@ addf
 \family default 
 .
  Nous spécifions la fonction en premier suivie par le thread:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1791,7 +1791,7 @@ Après avoir lancé ces commandes, nous pouvons lancer la commande
 show thread
 \family default 
  une nouvelle fois pour voir ce qui ce passe:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1907,7 +1907,7 @@ Nous avons maintenant tout configuré et sommes prêts à démarrer.
 start
 \family default 
 :
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -1946,7 +1946,7 @@ Halscope comporte deux parties, une partie en temps réel qui est chargée
  graphique et l'affichage.
  Cependant, vous n'avez pas à vous inquiéter à ce sujet car l'interface
  demandera automatiquement que la partie temps réel soit chargée:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 
@@ -2741,7 +2741,7 @@ Plus d'échantillons
 Si vous souhaitez enregistrer plus d'échantillons à la fois, redémarrez
  le temps réel et chargez halscope avec un argument numérique qui indique
  le nombre d'échantillons que vous voulez capturer, comme:
-\layout LyX-Code
+\layout Quote
 
 halcmd: 
 \series bold 

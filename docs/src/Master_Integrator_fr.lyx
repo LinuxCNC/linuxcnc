@@ -237,6 +237,15 @@ preview false
 \layout Standard
 
 
+\begin_inset Include \include{hal/hal-examples_fr.lyx}
+preview false
+
+\end_inset 
+
+
+\layout Standard
+
+
 \begin_inset Include \include{hal/rtcomps_fr.lyx}
 preview false
 

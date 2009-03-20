@@ -70,8 +70,7 @@ Le chapitre
 
 \end_inset 
 
- montre de nombreux exemples d'utilisation de halcmd, c'est un bon tutoriel
- pour halcmd.
+ donne de nombreux exemples d'utilisation de halcmd.
 \layout Section
 
 
@@ -140,7 +139,7 @@ Select
 \layout Standard
 
 Il est possible d'ouvrir et de faire fonctionner simultanément plusieurs
- halmeters, ce qui permet de visualiser plusiers items en même temps.
+ halmeters, ce qui permet de visualiser plusieurs items en même temps.
  Pour ouvrir un halmeter en libérant la console, taper 
 \begin_inset Quotes eld
 \end_inset 
@@ -184,6 +183,14 @@ pin|sig|par[am] <nom>
  Le nom de l'item sera affiché dans la barre de titre au lieu de sous la
  valeur et il n'y aura pas de bouton.
  Utile pour afficher beaucoup de halmeter dans un petit espace de l'écran.
+\layout Standard
+
+Se référer à la section
+\begin_inset LatexCommand \ref{sec:Tutoriel - Halmeter}
+
+\end_inset 
+
+ Halmeter dans le tutoriel.
 \layout Section
 
 
@@ -206,10 +213,10 @@ oscilloscope
  Il permet de capturer la valeur des pins, signaux et paramètres en fonction
  du temps.
  Des instructions plus complètes seront ajoutées ici, éventuellement.
- Pour l'instant, se référer à la section 
+ Se référer à la section Halscope 
 \begin_inset LatexCommand \ref{sec:Tutoriel - Halscope}
 
 \end_inset 
 
- dans le chapitre du tutoriel, qui explique les bases de son utilisation.
+ dans le tutoriel, qui explique les bases de son utilisation.
 \the_end

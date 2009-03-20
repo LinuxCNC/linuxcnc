@@ -110,6 +110,7 @@
 <doc name="hal_basic_hal_fr" title="Les bases de HAL"/>
 <doc name="hal_tutorial_fr" title="Le tutoriel de HAL"/>
 <doc name="hal_general_ref_fr" title="Documentation générale de HAL"/>
+<doc name="hal_hal-examples_fr" title="Exemples pour HAL"/>
 <doc name="hal_tools_fr" title="Outils et utilitaires pour HAL"/>
 <doc name="hal_halshow_fr" title="Les fonctionnalités de Halshow"/>
 <doc name="hal_vcp_fr" title="Panneau de contrôle virtuel (pyvcp)"/>
