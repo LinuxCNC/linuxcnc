@@ -214,12 +214,7 @@ siggen
 \family typewriter 
 siggen
 \family default 
- component can be found in section 
-\begin_inset LatexCommand \ref{sec:Siggen}
-
-\end_inset 
-
- of this document.
+ component can be found in Siggen section of the Integrators Manual.
  It is a realtime component, implemented as a Linux kernel module.
  To load 
 \family typewriter 
@@ -1071,12 +1066,8 @@ Installing the components
 \layout Standard
 
 Now we are going to load the step pulse generator component.
- For a detailed description of this component refer to section 
-\begin_inset LatexCommand \ref{sec:Stepgen}
-
-\end_inset 
-
-.
+ For a detailed description of this component refer to Stepgen section of
+ the Integrators Manual.
  For now, we can skip the details, and just run the following commands:
 \begin_inset Foot
 collapsed false
@@ -1292,7 +1283,7 @@ Y-vel
 X-vel
 \family default 
  is intended to run from the cosine output of the signal generator to the
- ?? velocity input of the first step pulse generator.
+ velocity input of the first step pulse generator.
  The first step is to connect the signal to the signal generator output.
  To connect a signal to a pin we use the net command.
 \layout Quote
@@ -2302,12 +2293,7 @@ Now let's look at the step pulses.
  speed up again.
  You might want to increase the gain on channel 1 to about 20m per division
  to better see the change in the velocity command.
- The result should look like figure 
-\begin_inset LatexCommand \ref{fig:Halscope-demo-8}
-
-\end_inset 
-
-.
+ The result should look like the following figure.
 \layout Standard
 
 

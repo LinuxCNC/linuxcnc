@@ -1,0 +1,57 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+HAL Examples
+\layout Standard
+
+NOTE: Under construction at the moment.
+\layout Standard
+
+All of these examples assume you have two threads base and servo-thread.
+\layout Section
+
+Compute Velocity
+\layout Standard
+
+This example uses "ddt" to compute the velocity of an axis.
+\layout Quote
+
+loadrt ddt count=1
+\newline 
+loadrt hypot count =1
+\layout Quote
+
+addf ddt.0 servo-thread
+\newline 
+addf hypot.0 servo-thread
+\layout Quote
+
+net X-vel ddt.0.out => ddt.1.in 
+\layout Standard
+
+\the_end
