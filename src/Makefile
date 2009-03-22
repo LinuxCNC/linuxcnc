@@ -475,12 +475,13 @@ install-kernel-indep: install-dirs
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
 
+ifneq ($(BUILD_SYS),sim)
 	@for B in ${HM2_BOARDS}; do  \
 		echo copying files for $$B firmware package;  \
 		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.BIT $(DESTDIR)/lib/firmware/hm2/$$B/;  \
 		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.PIN $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2/;  \
 	done
-
+endif
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
