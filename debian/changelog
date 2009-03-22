@@ -1,8 +1,8 @@
-emc2 (1:2.4.0~pre) hardy; urgency=low
+emc2 (1:2.3.0~beta3~pre) hardy; urgency=low
 
-  * [add bugfixes from the 2.3.x branch here before release]
+  * 
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 14:46:22 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 14:48:44 -0500
 
 emc2 (1:2.3.0~beta2) hardy; urgency=low
 
