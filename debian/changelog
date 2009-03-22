@@ -1,9 +1,33 @@
-emc2 (1:2.3.0~beta2~pre) hardy; urgency=low
+emc2 (1:2.3.0~beta2) hardy; urgency=low
 
   * tweak firmware package building: not on sim, arch "all".
   * rename sim's emc2-dev to emc2-sim-dev
+  * documentation improvements 
+  * french translation improvements
+  * romanian translation improvements
+  * stepconf: fix limit signals
+  * stepconf: fix possible following errors on sherline systems
+    (when the 'step length' setting is long)
+  * stepconf: fix import of emc2.2 stepconf files
+  * stepconf: fix finding certain files included in the sample configurations
+    directories
+  * pickconfig: no longer display /etc/emc2/sample-configs as this directory
+    is no longer used for that purpose
+  * halscope: fix crashing bug
+  * hostmot2: use same behavior as software stepgen for controlling
+    velocity and acceleration
+  * freqgen: fix loadrt error for certain step types
+  * freqgen: note that it is deprecated (use stepgen ctrl_type=v
+  * smartprobe.ngc: write to a "ngc" file since the output is in the form
+    of an ngc program
+  * halui: increase the maximum number of mdi commands specified
+  * configs: new sample config "cooltool"
+  * configs: remove OUTPUT_SCALE (unused item) from sherline sample configs
+  * application menu: new entries for "latency test" and "getting started
+    guide"
+  * mdi: make it possible to use cutter comp in mdi
 
- -- Jeff Epler <jepler@platte>  Sat, 28 Feb 2009 12:48:47 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 13:40:43 -0500
 
 emc2 (1:2.3.0~beta1) unstable; urgency=low
 
