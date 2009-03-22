@@ -20,11 +20,16 @@
             <property name="position">GNOME_EDGE_START</property>
             <property name="title" translatable="yes">EMC2 Stepper Mill Configuration</property>
             <property name="text" translatable="yes">This program creates configuration files (.ini and .hal) for "step and direction" milling machines and lathes connected to the PC parallel port.</property>
+	    <property name="title_color">#ffffffffffff</property>
+	    <property name="background_color">#25252c2c3232</property>
+	    <property name="logo_background_color">#25252c2c3232</property>
             <property name="watermark">emc2-wizard.gif</property>
           </widget>
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="page_newormodify">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <signal name="next" handler="on_page_newormodify_next"/>
             <signal name="prepare" handler="on_page_newormodify_prepare"/>
@@ -159,6 +164,8 @@
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="basicinfo">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="title" translatable="yes">Basic machine information</property>
             <signal name="next" handler="on_basicinfo_next"/>
@@ -945,6 +952,8 @@ Period Jitter </property>
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="pport">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="title" translatable="yes">Parallel Port Setup</property>
             <signal name="next" handler="on_pport_next"/>
@@ -2312,6 +2321,8 @@ Charge Pump</property>
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="xaxis">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="title" translatable="yes">X Axis Configuration</property>
             <signal name="next" handler="on_xaxis_next"/>
@@ -3053,6 +3064,8 @@ Opposite</property>
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="spindle">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="title" translatable="yes">Spindle Configuration</property>
             <signal name="next" handler="on_spindle_next"/>
@@ -3313,6 +3326,8 @@ Opposite</property>
         </child>
         <child>
           <widget class="GnomeDruidPageStandard" id="advanced">
+	    <property name="title_foreground">#ffffffffffff</property>
+	    <property name="background">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="title" translatable="yes">Advanced Configuration Options</property>
             <signal name="next" handler="on_advanced_next"/>
@@ -3911,6 +3926,9 @@ program</property>
         </child>
         <child>
           <widget class="GnomeDruidPageEdge" id="complete">
+	    <property name="title_color">#ffffffffffff</property>
+	    <property name="background_color">#25252c2c3232</property>
+	    <property name="logo_background_color">#25252c2c3232</property>
             <property name="visible">True</property>
             <property name="position">GNOME_EDGE_FINISH</property>
             <property name="title" translatable="yes">Machine configuration complete</property>
