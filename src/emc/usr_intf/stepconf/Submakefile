@@ -8,5 +8,7 @@
 	mkdir -p ../share/emc/
 	cp -f $< $@
 
-PYTARGETS += ../bin/stepconf ../share/emc/stepconf.glade
+../share/emc/emc2-wizard.gif: ../emc2-wizard.gif
+
+PYTARGETS += ../bin/stepconf ../share/emc/stepconf.glade ../share/emc/emc2-wizard.gif
 PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py emc/usr_intf/stepconf/stepconf.glade
