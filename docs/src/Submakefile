@@ -389,7 +389,6 @@ Makefile: $(MAN_DEPS)
 endif
 
 %.png:; $(error Required image file $@ does not exist)
-%.gif:; $(error Required image file $@ does not exist)
 %.jpg:; $(error Required image file $@ does not exist)
 %.svg:; $(error Required image file $@ does not exist)
 %.dxf:; $(error Required image file $@ does not exist)
