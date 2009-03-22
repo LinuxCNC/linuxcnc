@@ -28,7 +28,7 @@ exec wish "$0" "$@"
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
 
-set logo [emc::image_search emc2-wizard]
+set logo [emc::image_search emc2-wizard-pickconfig]
 image create photo machinelogo
 
 option add *font [emc::standard_font]
