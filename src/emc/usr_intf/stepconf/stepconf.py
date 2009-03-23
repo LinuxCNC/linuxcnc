@@ -921,14 +921,14 @@ class Data:
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
-            print >>file, "# **** Setup for external estop ladder program -START ****"
+            print >>file, _("# **** Setup for external estop ladder program -START ****")
             print >>file
             print >>file, "net estop-out => classicladder.0.in-00"
             print >>file, "net estop-ext => classicladder.0.in-01"
             print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
             print >>file
-            print >>file, "# **** Setup for external estop ladder program -END ****"
+            print >>file, _("# **** Setup for external estop ladder program -END ****")
         elif ESTOP_IN in inputs:
             print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
         else:
@@ -948,10 +948,10 @@ class Data:
         if self.classicladder:
             print >>file
             if self.modbus:
-                print >>file, "# Load Classicladder with modbus master included (GUI must run for Modbus)"
+                print >>file, _("# Load Classicladder with modbus master included (GUI must run for Modbus)")
                 print >>file, "loadusr classicladder --modmaster custom.clp"
             else:
-                print >>file, "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
+                print >>file, _("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI")
                 print >>file, "loadusr classicladder --nogui custom.clp"
         if self.pyvcp:
             vcp = os.path.join(base, "custompanel.xml")
@@ -975,19 +975,19 @@ class Data:
 # The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
                   if encoder:
-                      print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, ("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
-                      print >>f1, ("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
+                      print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
-                      print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, ("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
+                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
