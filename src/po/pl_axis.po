@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AXIS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-03-23 19:11+0100\n"
+"POT-Creation-Date: 2009-03-24 18:24+0100\n"
 "PO-Revision-Date: 2009-03-23 21:31+0200\n"
 "Last-Translator: Michał Geszkiewicz <micges@wp.pl>\n"
 "Language-Team: Polish Translation\n"
@@ -732,31 +732,31 @@ msgstr "Odwróć obraz"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:646
 msgid "Normalize Image"
-msgstr "Normalizuj Obraz"
+msgstr "Normalizuj obraz"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:647
 msgid "Extend Image Border"
-msgstr ""
+msgstr "Rozszerz ramkę obrazu"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:648
 msgid "Pixel Size (Units)"
-msgstr ""
+msgstr "Wilkość piksela (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:649
 msgid "Depth (units)"
-msgstr ""
+msgstr "Zagłębianie (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:650
 msgid "Tolerance (units)"
-msgstr ""
+msgstr "Tolerancja (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:651
 msgid "Stepover (pixels)"
-msgstr ""
+msgstr "Przesunięcie kroku (piksele)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:652
 msgid "Tool Diameter (units)"
-msgstr ""
+msgstr "Średnica narzędzia (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:653
 msgid "Tool Type"
@@ -768,7 +768,7 @@ msgstr "Prędkość robocza (jednostki na minute)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:655
 msgid "Plunge Feed Rate (units per minute)"
-msgstr ""
+msgstr "Prędkość zagłębiania (jednostki na minute)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:656
 msgid "Units"
@@ -780,11 +780,11 @@ msgstr "Bezpieczna wysokość (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:658
 msgid "Scan Pattern"
-msgstr ""
+msgstr "Schemat skanowania"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:659
 msgid "Scan Direction"
-msgstr ""
+msgstr "Kierunek skanowania"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:660
 msgid "Lace Bounding"
@@ -792,7 +792,7 @@ msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:661
 msgid "Contact Angle (degrees)"
-msgstr ""
+msgstr "Kąt kontaktu (stopnie)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:662
 msgid "Spindle Speed (RPM)"
@@ -800,11 +800,11 @@ msgstr "Prędkość wrzeciona (RPM)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:663
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr ""
+msgstr "Grubość planowania (jednostki, 0=brak planowania)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:664
 msgid "Roughing depth per pass (units)"
-msgstr ""
+msgstr "Zagłębianie planowania na etap (jednostki)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:731
 msgid "image-to-gcode: User pressed cancel"
@@ -1294,7 +1294,7 @@ msgstr "Mgła"
 
 #: ../share/axis/tcl/axis.tcl:1274
 msgid "Flood"
-msgstr "Chłodziwo"
+msgstr "Polewanie"
 
 #: ../share/axis/tcl/axis.tcl:1346
 msgid "History:"
@@ -1326,7 +1326,7 @@ msgstr "Prędkość przesuwu:"
 
 #: ../share/axis/tcl/axis.tcl:1574
 msgid "Max Velocity:"
-msgstr "Maksymalna Prędkość:"
+msgstr "Maksymalna prędkość:"
 
 #: ../share/axis/tcl/axis.tcl:1603
 msgid "Spindle Override:"
@@ -1641,7 +1641,7 @@ msgstr "Nieużywane"
 
 #: emc/usr_intf/stepconf/stepconf.py:149
 msgid "ESTOP In"
-msgstr "ESTOP Wejście"
+msgstr "Wejście ESTOP"
 
 #: emc/usr_intf/stepconf/stepconf.py:149
 msgid "Probe In"
@@ -1841,13 +1841,31 @@ msgstr "# nadpisane gdy uruchomisz ponownie Stepconf"
 msgid "# add halui MDI commands here (max 64) "
 msgstr "# dodaj polecenia halui MDI (maks 64) "
 
+#: emc/usr_intf/stepconf/stepconf.py:924
+msgid "# **** Setup for external estop ladder program -START ****"
+msgstr "# **** Kofiguracja dla zewnętrznego programu PLC dla stopu awaryjnego -START ****"
+
+#: emc/usr_intf/stepconf/stepconf.py:931
+msgid "# **** Setup for external estop ladder program -END ****"
+msgstr "# **** Kofiguracja dla zewnętrznego programu PLC dla stopu awaryjnego -END ****"
+
+#: emc/usr_intf/stepconf/stepconf.py:951
+msgid ""
+"# Load Classicladder with modbus master included (GUI must run for Modbus)"
+msgstr ""
+"# Uruchom Classicladder z interfejsem modbus master (Modbus musi być uruchomione z GUI)"
+
+#: emc/usr_intf/stepconf/stepconf.py:954
+msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
+msgstr "# Uruchom Classicladder bez GUI (można prezładować PLC GUI w AXIS GUI"
+
 #: emc/usr_intf/stepconf/stepconf.py:964
 msgid "Include your PyVCP panel here.\n"
 msgstr "Dodaj twój panel PyVCP tutaj.\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:973 emc/usr_intf/stepconf/stepconf.py:999
 msgid "# Include your customized HAL commands here"
-msgstr "# Dodaj swoje polecenia HAL tutaj"
+msgstr "# Tutaj dodaj swoje polecenia HAL"
 
 #: emc/usr_intf/stepconf/stepconf.py:974
 msgid ""
@@ -1856,6 +1874,42 @@ msgid ""
 msgstr ""
 "# Polecenia w tym pliku są wykonywane po uruchomieniu AXIS GUI (włączając "
 "panel PyVCP)"
+
+#: emc/usr_intf/stepconf/stepconf.py:978
+msgid ""
+"# **** Setup of spindle speed and tool number display using pyvcp -START ****"
+msgstr ""
+"# **** Konfiguracja wyświetlania prędkości wrzeciona i numeru narzędzia w PyVCP - START ****"
+
+#: emc/usr_intf/stepconf/stepconf.py:980
+msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
+msgstr "# **** Używam AKTUALNEJ prędkości wrzeciona z enkodera"
+
+#: emc/usr_intf/stepconf/stepconf.py:981
+msgid ""
+"# **** spindle-velocity is signed so we use absolute compoent to remove sign"
+msgstr ""
+"# **** prędkość wrzeciona jest ze znakiem wiec używamy komponent abs aby asunąć znak"
+
+#: emc/usr_intf/stepconf/stepconf.py:982
+msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr "# **** prędkość AKTUALNA jest w RPS a nie w RPM więc musimy ją zeskalować."
+
+#: emc/usr_intf/stepconf/stepconf.py:989
+msgid ""
+"# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
+"was specified"
+msgstr ""
+"# **** Używam ZADANEJ prędkości wrzeciona z EMC ponieważ nie był zdefiniowany "
+"enkoder wrzeciona"
+
+#: emc/usr_intf/stepconf/stepconf.py:990
+msgid ""
+"# **** COMANDED velocity is signed so we use absolute component (abs.0) to "
+"remove sign"
+msgstr ""
+"# **** prędkość ZADANA jest ze znakiem więc używamy komponentu (abs.0) aby "
+"usunąć znak"
 
 #: emc/usr_intf/stepconf/stepconf.py:1000
 msgid "# This file will not be overwritten when you run stepconf again"
@@ -1918,7 +1972,7 @@ msgstr "stopnie"
 
 #: emc/usr_intf/stepconf/stepconf.py:1471
 msgid "Steps / deg"
-msgstr "Kroki / stopień"
+msgstr "kroki / stopień"
 
 #: emc/usr_intf/stepconf/stepconf.py:1473
 #: emc/usr_intf/stepconf/stepconf.glade:2534
@@ -1939,11 +1993,11 @@ msgstr ""
 #: emc/usr_intf/stepconf/stepconf.py:1477
 #: emc/usr_intf/stepconf/stepconf.glade:3048
 msgid "Steps / mm"
-msgstr "Kroków / mm"
+msgstr "kroków / mm"
 
 #: emc/usr_intf/stepconf/stepconf.py:1479
 msgid "rev / in"
-msgstr "obrotów / mm"
+msgstr "obrotów / cal"
 
 #: emc/usr_intf/stepconf/stepconf.py:1480
 #: emc/usr_intf/stepconf/stepconf.py:2072
@@ -1957,7 +2011,7 @@ msgstr "cal / sÂ²"
 
 #: emc/usr_intf/stepconf/stepconf.py:1483
 msgid "Steps / in"
-msgstr "Kroki / cal"
+msgstr "kroki / cal"
 
 #: emc/usr_intf/stepconf/stepconf.py:1611
 msgid ""
@@ -2063,11 +2117,11 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:328
 msgid "Min Base Period:"
-msgstr ""
+msgstr "Minimalny okres bazowy:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:344
 msgid "Max step rate:"
-msgstr ""
+msgstr "Maksymalna częstotliwość:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:371
 msgid "Out"
@@ -2100,7 +2154,7 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:508
 msgid "Base Period Maximum _Jitter:"
-msgstr ""
+msgstr "Maksymalne odchylenie okresu bazowego:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:565
 msgid ""
@@ -2151,19 +2205,19 @@ msgstr "Katalog konfiguracji:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:828
 msgid "_Direction Setup:"
-msgstr ""
+msgstr "Czas ustawienia kierunku:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:843
 msgid "Direction _Hold:"
-msgstr ""
+msgstr "Czas podtrzymania kierunku:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:858
 msgid "Step _Space:"
-msgstr "Odstęp kroku:"
+msgstr "Czas odstępu między krokami:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:873
 msgid "Step _Time:"
-msgstr "Czas Kroku:"
+msgstr "Czas trwania kroku:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:888
 msgid "Machine _units:"
@@ -2182,6 +2236,8 @@ msgid ""
 "_Test Base\n"
 "Period Jitter "
 msgstr ""
+"Testuj odchylenie\n"
+"okresu bazowego"
 
 #: emc/usr_intf/stepconf/stepconf.glade:958
 msgid "Parallel Port Setup"
@@ -2363,11 +2419,11 @@ msgstr "Maksymalna prędkość:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2990
 msgid "_Leadscrew Pitch:"
-msgstr ""
+msgstr "Skok śruby:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3005
 msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr ""
+msgstr "Ilość zębów przekładni (Silnik:Śruba):"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3020
 msgid "_Driver Microstepping:"
@@ -2455,7 +2511,7 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3518
 msgid "Pyvcp Example Options"
-msgstr ""
+msgstr "Opcje przykładowego PyVCP"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3537
 msgid "Include _Classicladder PLC"
@@ -2515,7 +2571,7 @@ msgstr "Opcje PLC"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3934
 msgid "Machine configuration complete"
-msgstr "Konfiguracja maszyny zakończona"
+msgstr "Konfigurowanie maszyny zakończone"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3935
 msgid ""
