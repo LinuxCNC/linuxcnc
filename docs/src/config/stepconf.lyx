@@ -564,8 +564,10 @@ Pitch
  Enter the pitch of the leadscrew here.
  If you chose "Inch" units, enter the number of threads per inch here (e.g.,
  enter 8 for 8TPI).
- If you chose "mm" units, enter the number of millimeters per thread here
- (e.g., enter 2 for 2mm/rev).
+ If you have a multi-lead screw then you need to know how many turns per
+ inch it takes to move the "nut".
+ If you chose "mm" units, enter the number of millimeters the "nut" would
+ move per revolution here (e.g., enter 2 for 2mm/rev).
  If the machine travels in the wrong direction, enter a negative number
  here instead of a positive number or invert the direction pin for the axis.
 \layout Description
