@@ -28,7 +28,7 @@ exec wish "$0" "$@"
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
 
-set logo [emc::image_search emc2-wizard-pickconfig]
+set logo [emc::image_search emc2-wizard]
 image create photo machinelogo
 
 option add *font [emc::standard_font]
@@ -113,6 +113,7 @@ proc node_clicked {} {
 	# remove old text
 	$detail_box delete 1.0 end
 	# add new text
+	set node [format %s $node]
 	set dir [ file dirname $node]
 	set name [ file rootname [file tail $node ] ]
 	set readme [file join $dir $name.txt]
@@ -303,10 +304,12 @@ foreach dir $configs_dir_list {
 		set dir_in_tree 1
 	    }
 	    # add subdir to tree
+	    set subdir [format %s $subdir]
 	    $tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
 	    # add second level entries, one per inifile
 	    foreach inifile $inifile_list {
 		# add inifile to tree
+		set inifile [format %s $inifile]
                 set text [file rootname [file tail $inifile]]
 		$tree insert end $subdir $inifile -text $text -open 1
 		incr config_count
@@ -364,8 +367,8 @@ proc prompt_copy configname {
 
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
-    set configdir [file dirname $configname]
-    set copydir [file normalize [file join ~ emc2 configs [file tail $configdir]]]
+    set configdir [format %s [file dirname $configname]]
+    set copydir [format %s [file normalize [file join ~ emc2 configs [file tail $configdir]]]]
     set copybase $copydir
     set i 0
     set ncfiles [file normalize [file join ~ emc2 nc_files]]
