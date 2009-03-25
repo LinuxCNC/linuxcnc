@@ -35,6 +35,11 @@ HAL Components
 \layout Section
 
 Commands and Userspace Components
+\begin_inset LatexCommand \label{sec:Commands-and-Userspace-Components}
+
+\end_inset 
+
+
 \layout Standard
 
 Some of these will have expanded descriptions from the man pages.
@@ -119,7 +124,12 @@ iocontrol.1 = accepts NML I/O commands, interacts with HAL in userspace
 pyvcp.1 = Virtual Control Panel for EMC2
 \layout Section
 
-Realtime components and kernel modules
+Realtime Components
+\begin_inset LatexCommand \label{sec:Realtime-Components}
+
+\end_inset 
+
+
 \layout Standard
 
 Some of these will have expanded descriptions from the man pages.
