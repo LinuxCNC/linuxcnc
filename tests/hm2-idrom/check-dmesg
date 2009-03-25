@@ -22,7 +22,7 @@ hm2_test_unload = 'hm2_test.0: hm2_test fails HM2 registration'
 sought_error = sys.argv[1]
 if sought_error == None:
     print "supply an error message on the command line!"
-    exit(1)
+    sys.exit(1)
 
 
 # is this how you do enum in python?
@@ -55,5 +55,5 @@ while 1:
 if (result == 0): print sought_error
 else: print "test pattern %s didnt produce error '%s'" % (os.getenv("TEST_PATTERN"), sought_error)
 
-exit(result)
+sys.exit(result)
 
