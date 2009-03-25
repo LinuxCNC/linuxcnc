@@ -180,6 +180,16 @@ a telnet based user interface called emcrsh, which allows commands to be
  sent to emc2 from remote computers
 \layout Section
 
+Languages
+\layout Standard
+
+EMC2 uses translation files to translate EMC User Interfaces into many languages.
+ You just need to log in with the language you intend to use and when you
+ start up EMC it comes up in that language.
+ If your language has not been translated contact a developer on the IRC
+ or the mailing list if you can assist in the translation.
+\layout Section
+
 Thinking Like a Machine Operator
 \begin_inset LatexCommand \label{sec:Thinking-Operator}
 
