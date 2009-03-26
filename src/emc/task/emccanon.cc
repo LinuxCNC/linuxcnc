@@ -1123,12 +1123,13 @@ void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
 static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
     double th1 = atan2(sy-cy, sx-cx),
            th2 = atan2(ey-cy, ex-cx),
-           r = hypot(sy-cy, sx-cx);
+           r = hypot(sy-cy, sx-cx),
+           dth = th2 - th1;
 
     if(rotation < 0) {
-        if(th2 >= th1) th2 -= 2*M_PI;
+        if(dth >= -1e-5) th2 -= 2*M_PI;
     } else {
-        if(th2 <= th1) th2 += 2*M_PI;
+        if(dth <= 1e-5) th2 += 2*M_PI;
     }
 
     double included = fabs(th2 - th1);
