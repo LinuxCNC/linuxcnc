@@ -106,8 +106,7 @@ Sélecteur de configuration pour EMC2
 \align center 
 
 \begin_inset Graphics
-	filename configuration-selector1_fr.png
-	lyxscale 50
+	filename images/configuration-selector1_fr.png
 	width 80text%
 
 \end_inset 
@@ -182,7 +181,7 @@ Dialogue de copie de la configuration
 \align center 
 
 \begin_inset Graphics
-	filename copy-configuration_fr.png
+	filename images/copy-configuration_fr.png
 
 \end_inset 
 

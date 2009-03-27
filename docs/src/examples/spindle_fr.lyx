@@ -3,7 +3,7 @@
 \textclass book
 \language french
 \inputencoding auto
-\fontscheme bookman
+\fontscheme default
 \graphics default
 \paperfontsize 10
 \spacing single 
@@ -22,7 +22,7 @@
 \quotes_times 2
 \papercolumns 1
 \papersides 1
-\paperpagestyle headings
+\paperpagestyle default
 
 \layout Chapter
 
@@ -67,20 +67,30 @@ motion.spindle-speed-out
 \end_inset 
 
  entre 0 et 10 comme demandé par le variateur de fréquence.
-\layout Standard
+\layout Quote
 
+
+\series bold 
 loadrt scale count=1
-\layout Standard
+\layout Quote
 
+
+\series bold 
 addf scale.0 servo-thread
-\layout Standard
+\layout Quote
 
+
+\series bold 
 setp scale.0.gain 0.002
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-speed-scale motion.spindle-speed-out => scale.0.in
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-speed-DAC scale.0.out => <le nom de la sortie de votre DAC>
 \layout Section
 
@@ -97,26 +107,40 @@ pwmgen
 \end_inset 
 
  pour créer le signal:
-\layout Standard
+\layout Quote
 
+
+\series bold 
 loadrt pwmgen output_type=0 
-\layout Standard
+\layout Quote
 
+
+\series bold 
 addf pwmgen.update servo-thread
-\layout Standard
+\layout Quote
 
+
+\series bold 
 addf pwmgen.make-pulses base-thread
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-on motion.spindle-on => pwmgen.0.enable
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-\layout Standard
+\layout Quote
 
+
+\series bold 
 setp pwmgen.0.scale 1800 # Adaptez selon la vitesse maximale de votre broche
  en tr/mn 
 \layout Standard
@@ -137,12 +161,6 @@ nist-lathe
  
 \layout Section
 
-Vitesse de broche avec signal de retour
-\layout Standard
-
-Add this section
-\layout Section
-
 Marche broche
 \layout Standard
 
@@ -158,8 +176,10 @@ motion.spindle-on
  Pour relier ces pins à une broche du port parallèle, ajouter une ligne
  comme la suivante dans votre fichier .hal, il faut bien sûr qu'elle soit
  câblée à votre interface de contrôle.
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-enable motion.spindle-on => parport.0.pin-14-out
 \layout Section
 
@@ -191,10 +211,85 @@ motion.spindle-reverse
 Pour relier ces pins à des broches du port parallèle utilisez, par exemple,
  les lignes suivantes dans votre fichier .hal, bien sûr ces broches doivent
  être câblées à votre interface de contrôle.
-\layout Standard
+\layout Quote
 
+
+\series bold 
 net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
+\layout Quote
+
+
+\series bold 
+net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+\layout Chapter
+
+Vitesse de broche avec signal de retour
 \layout Standard
 
-net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+Une information de retour est nécessaire pour qu'EMC puisse réaliser les
+ mouvements synchronisés avec la broche comme le filetage ou la vitesse
+ de coupe constante.
+ L'assistant de configuration StepConf peut réaliser les connections lui
+ même si les signaux 
+\begin_inset Quotes fld
+\end_inset 
+
+Canal A codeur broche
+\begin_inset Quotes frd
+\end_inset 
+
+ et 
+\begin_inset Quotes fld
+\end_inset 
+
+Index codeur broche
+\begin_inset Quotes frd
+\end_inset 
+
+ sont choisis parmi les entrées.
+\layout Standard
+
+Matériel supposé présent:
+\layout Itemize
+
+Un codeur est monté sur la broche et délivre 100 impulsions par tour sur
+ son canal A.
+\layout Itemize
+
+Ce canal A est raccordé à la pin 10 du port parallèle.
+\layout Itemize
+
+L'index de ce codeur est connecté à la pin 11 du port parallèle.
+\layout Standard
+
+Configuration de base pour ajouter ces composants:
+\layout Quote
+
+
+\series bold 
+loadrt encoder num_chan=1
+\newline 
+addf encoder.update-counters base-thread
+\newline 
+addf encoder.capture-position servo-thread
+\newline 
+setp encoder.0.position-scale 100
+\newline 
+setp encoder.0.counter-mode 1
+\newline 
+net spindle-position encoder.0.position => motion.spindle-revs
+\newline 
+net spindle-velocity encoder.0.velocity => motion.spindle-speed-in
+\newline 
+net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable
+\newline 
+net spindle-phase-a encoder.0.phase-A
+\newline 
+net spindle-phase-b encoder.0.phase-B
+\newline 
+net spindle-index encoder.0.phase-Z
+\newline 
+net spindle-phase-a <= parport.0.pin-10-in
+\newline 
+net spindle-index <= parport.0.pin-11-in
 \the_end

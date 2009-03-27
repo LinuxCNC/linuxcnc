@@ -82,7 +82,7 @@ Page d'informations sur la machine
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-basic_fr.png
+	filename images/stepconf-basic_fr.png
 	scale 50
 	keepAspectRatio
 	BoundingBox 0bp 0bp 640bp 460bp
@@ -219,7 +219,7 @@ Page de réglage du port parallèle
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-pinout_fr.png
+	filename images/stepconf-pinout_fr.png
 	scale 70
 	keepAspectRatio
 	BoundingBox 0bp 0bp 695bp 605bp
@@ -380,7 +380,7 @@ Page de configuration des axes
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-axis_fr.png
+	filename images/stepconf-axis_fr.png
 	scale 70
 	keepAspectRatio
 	BoundingBox 0bp 0bp 640bp 460bp
@@ -633,7 +633,7 @@ Page configuration de la broche
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-spindle_fr.png
+	filename images/stepconf-spindle_fr.png
 	scale 50
 	keepAspectRatio
 	BoundingBox 0bp 0bp 718bp 605bp
@@ -902,7 +902,7 @@ Fenêtre du test d'axe
 \align center 
 
 \begin_inset Graphics
-	filename stepconf-test_fr.png
+	filename images/stepconf-test_fr.png
 
 \end_inset 
 
