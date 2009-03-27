@@ -1176,9 +1176,10 @@ Homing
 \layout Standard
 
 If your machine has home switches and a homing sequence defined for all
- axes , the "Home All" button or the Ctrl-HOME key will home all axes using
- the homing sequence.
- Pressing the HOME key sends the current axis home, even if a homing sequence
+ axes the button will read "Home All".
+ The "Home All" button or the Ctrl-HOME key will home all axes using the
+ homing sequence.
+ Pressing the HOME key will home the current axis, even if a homing sequence
  is defined.
  
 \layout Standard
@@ -1190,9 +1191,9 @@ If your machine has home switches and no homing sequence is defined or not
 \layout Standard
 
 If your machine does not have home switches defined in the configuration
- "Home" will set the current selected axis current position to be the absolute
- position 0.0.
- 
+ the "Home" button will set the current selected axis current position to
+ be the absolute position 0 for that axis and will set the "is-homed" bit
+ for that axis.
 \layout Standard
 
 See the Integrators Manual for more information on homing.
