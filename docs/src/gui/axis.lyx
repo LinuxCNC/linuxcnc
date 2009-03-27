@@ -1146,172 +1146,63 @@ AXIS_NO_AUTOCONFIGURE
  is set, this behavior is disabled and all the items will appear.
 \layout Subsubsection
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-Axis
-\begin_inset Quotes erd
-\end_inset 
-
- group
+The "Axis" group
 \layout Standard
 
-
-\begin_inset Quotes eld
-\end_inset 
-
-Axis
-\begin_inset Quotes erd
-\end_inset 
-
- allows you to manually move the machine.
- This action is known as 
-\begin_inset Quotes eld
-\end_inset 
-
-jogging
-\begin_inset Quotes erd
-\end_inset 
-
-.
+"Axis" allows you to manually move the machine.
+ This action is known as "jogging".
  First, select the axis to be moved by clicking it.
- Then, click and hold the 
-\begin_inset Quotes eld
-\end_inset 
-
-+
-\begin_inset Quotes erd
-\end_inset 
-
- or 
-\begin_inset Quotes eld
-\end_inset 
-
--
-\begin_inset Quotes erd
-\end_inset 
-
- button depending on the desired direction of motion.
+ Then, click and hold the "+" or "-" button depending on the desired direction
+ of motion.
  The first four axes can also be moved by the arrow keys (X and Y), PAGE
  UP and PAGE DOWN keys (Z) and the [ and ] keys (A).
 \layout Standard
 
-If 
-\begin_inset Quotes eld
-\end_inset 
-
-Continuous
-\begin_inset Quotes erd
-\end_inset 
-
- is selected, the motion will continue as long as the button or key is pressed.
+If "Continuous" is selected, the motion will continue as long as the button
+ or key is pressed.
  If another value is selected, the machine will move exactly the displayed
  distance each time the button is clicked or the key is pressed.
  By default, the available values are:
 \layout Quotation
 
-0.1000 0.0100 0.0010 0.0001
+0.1000, 0.0100, 0.0010, 0.0001
 \layout Standard
 
-The .ini file setting 
-\family typewriter 
-[DISPLAY]INCREMENTS
-\begin_inset LatexCommand \label{DISPLAY-INCREMENTS}
+See the Configure section of the Integrators Manual for more information
+ on setting the increments.
+\layout Subsubsection
 
-\end_inset 
-
-
-\family default 
- can be used to override the default.
- Its value can contain decimal numbers (e.g., 0.1000) or fractional numbers
- (e.g., 1/16), optionally followed by a unit (one of 'cm', 'mm', 'um', 'inch',
- 'in', or 'mil').
- If a unit is not specified the machine's native unit is assumed.
- For users who prefer metric units, a good setting might be
-\layout Quote
-
-INCREMENTS = 10 um, 50 um, 0.1mm, 0.5mm, 1mm, 5mm, 10 mm
+Homing
 \layout Standard
 
-For users who prefer 
-\begin_inset Quotes eld
-\end_inset 
-
-imperial
-\begin_inset Quotes erd
-\end_inset 
-
- units, a good setting might be
-\layout Quote
-
-INCREMENTS = 1/4 in, 1/16 in, 1/32 in, 1/64 in, 1 mil, .1 mil
-\layout Standard
-
-or
-\layout Quote
-
-INCREMENTS = .5 in, .1 in, 50 mil, 10 mil, 5 mil, 1 mil, .1 mil
-\layout Standard
-
-Metric and imperial distances may be mixed:
-\layout Quote
-
-INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
-\layout Standard
-
-If your machine has a homing sequence defined, the 
-\begin_inset Quotes eld
-\end_inset 
-
-Home All
-\begin_inset Quotes erd
-\end_inset 
-
- button or the Ctrl-HOME key will send all axes home.
- Otherwise, the button will read 
-\begin_inset Quotes eld
-\end_inset 
-
-Home
-\begin_inset Quotes erd
-\end_inset 
-
-, and will send the current axis home.
+If your machine has home switches and a homing sequence defined for all
+ axes , the "Home All" button or the Ctrl-HOME key will home all axes using
+ the homing sequence.
  Pressing the HOME key sends the current axis home, even if a homing sequence
  is defined.
- Depending on your configuration, homing may just set the axis value to
- be the absolute position 0.0, or it may make the machine move to a specific
- home location through use of 
-\begin_inset Quotes eld
-\end_inset 
-
-home switches
-\begin_inset Quotes erd
-\end_inset 
-
-.
- See the Integrators Manual for more information on homing.
+ 
 \layout Standard
 
-By pressing 
-\begin_inset Quotes eld
-\end_inset 
+If your machine has home switches and no homing sequence is defined or not
+ all axes have a homing sequence the button will read "Home" and will home
+ the selected axis only.
+ Each axis must be selected and homed separately.
+\layout Standard
+
+If your machine does not have home switches defined in the configuration
+ "Home" will set the current selected axis current position to be the absolute
+ position 0.0.
+ 
+\layout Standard
+
+See the Integrators Manual for more information on homing.
+\layout Subsubsection
 
 Touch Off
-\begin_inset Quotes erd
-\end_inset 
+\layout Standard
 
- or the END key, the 
-\begin_inset Quotes eld
-\end_inset 
-
-G54 offset
-\begin_inset Quotes erd
-\end_inset 
-
- for the current axis is changed so that the current axis value will be
- the specified value.
+By pressing "Touch Off" or the END key, the "G54 offset" for the current
+ axis is changed so that the current axis value will be the specified value.
  Expressions may be entered using the rules for rs274ngc programs, except
  that variables may not be referred to.
  The resulting value is shown as a number.
@@ -1343,29 +1234,17 @@ Touch Off
 \end_inset 
 
 
-\layout Standard
-
-By pressing 
-\begin_inset Quotes eld
-\end_inset 
-
-Override Limits
-\begin_inset Quotes erd
-\end_inset 
-
-, the machine will temporarily be allowed to jog off of a physical limit
- switch.
 \layout Subsubsection
 
-The 
-\begin_inset Quotes eld
-\end_inset 
+Override Limits
+\layout Standard
 
-Spindle
-\begin_inset Quotes erd
-\end_inset 
+By pressing "Override Limits", the machine will temporarily be allowed to
+ jog off of a physical limit switch.
+ This check box is only available if a limit switch is tripped.
+\layout Subsubsection
 
- group
+The "Spindle" group
 \begin_inset LatexCommand \index{spindle}
 
 \end_inset 
@@ -1382,15 +1261,7 @@ The buttons on the first row select the direction for the spindle to rotate:
  may appear.
 \layout Subsubsection
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-Coolant
-\begin_inset Quotes erd
-\end_inset 
-
- group
+The "Coolant" group
 \begin_inset LatexCommand \index{coolant}
 
 \end_inset 
@@ -1398,23 +1269,8 @@ Coolant
 
 \layout Standard
 
-The two buttons allow the 
-\begin_inset Quotes eld
-\end_inset 
-
-Mist
-\begin_inset Quotes erd
-\end_inset 
-
- and 
-\begin_inset Quotes eld
-\end_inset 
-
-Flood
-\begin_inset Quotes erd
-\end_inset 
-
- coolants to be turned on and off.
+The two buttons allow the "Mist" and "Flood" coolants to be turned on and
+ off.
  Depending on your machine configuration, not all the items in this group
  may appear.
 \layout Subsection
