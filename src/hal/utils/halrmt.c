@@ -2890,12 +2890,16 @@ static cmdResponseType setNet(char *p1, connectionRecType *context)
 
   if (p1 == NULL) return rtStandardError;
   i = 0;
-  pch = strtok(NULL, delims);
-  while (pch != NULL) {
+
+  do {
+    pch = strtok(NULL, delims);
+    if (pch == NULL) break;
     argv[i] = pch;
     i++;
-    }
-  if (i ==0) return rtStandardError;
+    if (i >= MAX_TOK) return rtStandardError;  // too many pins to link to the net
+  } while(1);
+
+  if (i == 0) return rtStandardError;  // no pins to link to the net
   else 
     if (doNet(p1, argv, context) == 0)
       return rtNoError;
