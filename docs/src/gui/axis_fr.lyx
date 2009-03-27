@@ -1102,10 +1102,13 @@ Le mélange entre métrique et impérial est possible:
 \layout LyX-Code
 
 INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um
+\layout Subsubsection
+
+La prise d'origine machine
 \layout Standard
 
-Si votre machine a une séquence de prise d'origines machine définie, le
- bouton 
+Si votre machine a une séquence de prise d'origine machine définie, le bouton
+ 
 \begin_inset Quotes fld
 \end_inset 
 
@@ -1137,6 +1140,9 @@ capteurs d'origine
 
 .
  
+\layout Subsubsection
+
+Toucher
 \layout Standard
 
 Si le bouton 
@@ -1147,16 +1153,13 @@ Toucher
 \begin_inset Quotes frd
 \end_inset 
 
- ou la touche Fin sont appuyés, le décalage d'origine pièce 
-\begin_inset Quotes fld
+ ou la touche Fin sont appuyés, le décalage d'origine pièce de l'axe actif,
+ sur la figure
+\begin_inset LatexCommand \ref{cap:Toucher}
+
 \end_inset 
 
-G54
-\begin_inset Quotes frd
-\end_inset 
-
- de l'axe actif prendra la valeur spécifiée dans le champ de la boite de
- dialogue.
+: P1 G54, prendra la valeur spécifiée dans le champ de la boite de dialogue.
  Les expressions peuvent être entrées en suivant les règles de programmation
  rs274ngc, sauf les variables qui ne peuvent pas être utilisées.
  La valeur résultante sera affichée sous le champ.
