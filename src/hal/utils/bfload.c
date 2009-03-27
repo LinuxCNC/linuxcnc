@@ -466,11 +466,13 @@ int program(char *device_type, char *device_id, char *filename) {
     }
     if (!found_device_type) {
         printf("board type '%s' is unknown\n", device_type);
+        bitfile_free(bf);
         return EC_BADCL;
     }
     if (board == NULL) {
         printf("chip type incompatibility\n");
         printf("board type '%s' is not available with bitfile's FPGA type '%s'\n", device_type, bitfile_chip);
+        bitfile_free(bf);
         return EC_BADCL;
     }
 
@@ -494,8 +496,11 @@ int program(char *device_type, char *device_id, char *filename) {
 
         default:
             printf("don't know how to parse %s device id '%s'\n", board->board_type, device_id);
+            bitfile_free(bf);
             r = EC_BADCL;
     }
+
+    bitfile_free(bf);
     return r;
 }
 
