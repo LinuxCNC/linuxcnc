@@ -1,0 +1,323 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding default
+\fontscheme bookman
+\graphics default
+\float_placement !!h
+\paperfontsize 10
+\spacing single 
+\papersize Custom
+\paperpackage a4
+\use_geometry 1
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\paperwidth 8.5in
+\paperheight 11in
+\leftmargin 1.2in
+\topmargin 1in
+\rightmargin 0.6in
+\bottommargin 0.6in
+\secnumdepth 5
+\tocdepth 5
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+
+\layout Chapter
+
+EMC2
+\layout Standard
+
+
+\series bold 
+\size largest 
+The Enhanced Machine Control
+\layout Section
+
+This Manual
+\layout Standard
+
+The focus of this manual is on using EMC.
+ It is intended to be used once EMC is installed and configured.
+ For standard installations see the Getting Started Guide for step by step
+ instructions to get you up and going.
+ For detailed information on installation and configuration of EMC see the
+ Integrator Manual.
+\layout Section
+
+How EMC2 Works
+\begin_inset LatexCommand \label{sec:How-EMC2-Works}
+
+\end_inset 
+
+
+\layout Standard
+
+The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
+\begin_inset LatexCommand \index{CNC}
+
+\end_inset 
+
+ mill program.
+ It can control machine tools, robots, or other automated devices.
+ It can control servo motors, stepper motors, relays, and other devices
+ related to machine tools.
+ 
+\layout Standard
+
+There are four main components to the EMC2 software: a motion controller,
+ a discrete I/O controller, a task executor which coordinates them, and
+ graphical user interfaces.
+ In addition there is a layer called HAL (Hardware Abstraction Layer) which
+ allows configuration of EMC2 without the need of recompiling.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+
+\begin_inset LatexCommand \label{fig:Typical_machine}
+
+\end_inset 
+
+Simple EMC2 Controlled Machine
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename whatstep1.png
+	lyxscale 70
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Figure 
+\begin_inset LatexCommand \ref{fig:Typical_machine}
+
+\end_inset 
+
+ shows a simple block diagram showing what a typical 3-axis EMC2 system
+ might look like.
+ This diagram shows a stepper motor system.
+ The PC, running Linux
+\begin_inset LatexCommand \index{Linux}
+
+\end_inset 
+
+ as its operating system, is actually controlling the stepper motor drives
+ by sending signals through the printer port.
+ These signals (pulses) make the stepper drives move the stepper motors.
+ The EMC2 can also run servo motors via servo interface cards or by using
+ an extended parallel port to connect with external control boards.
+ As we examine each of the components that make up an EMC2 system we will
+ remind the reader of this typical machine.
+\layout Section
+
+User Interfaces
+\begin_inset LatexCommand \label{sub:Graphical-User-Interfaces}
+
+\end_inset 
+
+
+\layout Standard
+
+A user interface is the part of the EMC2 that the machine tool operator
+ interacts with.
+ The EMC2 comes with several types of user interfaces: 
+\layout Itemize
+
+AXIS an OpenGL-based GUI (Graphical User Interface), with an interactive
+ G-Code previewer.
+ This interface is one of the few that are still under active development
+ and improvement.
+ 
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/axis_2.3.png
+	scale 70
+
+\end_inset 
+
+
+\layout Itemize
+
+Keystick a character-based screen graphics program suitable for minimal
+ installations (without the X server running).
+\layout Itemize
+
+Xemc an X Windows program
+\layout Itemize
+
+two Tcl/Tk-based GUIs named TkEMC and Mini 
+\layout Itemize
+
+a HAL based user interface called halui, which allows to control emc2 using
+ knobs and switches
+\layout Itemize
+
+a telnet based user interface called emcrsh, which allows commands to be
+ sent to emc2 from remote computers
+\layout Section
+
+Languages
+\layout Standard
+
+EMC2 uses translation files to translate EMC User Interfaces into many languages.
+ You just need to log in with the language you intend to use and when you
+ start up EMC it comes up in that language.
+ If your language has not been translated contact a developer on the IRC
+ or the mailing list if you can assist in the translation.
+\layout Section
+
+Thinking Like a Machine Operator
+\begin_inset LatexCommand \label{sec:Thinking-Operator}
+
+\end_inset 
+
+
+\layout Standard
+
+This book will not even pretend that it can teach you to run a mill or a
+ lathe.
+ Becoming a machinist takes time and hard work.
+ An author once said, "We learn from experience, if at all." Broken tools,
+ gouged vices, and scars are the evidence of lessons taught.
+ Good part finish, close tolerances, and careful work are the evidence of
+ lessons learned.
+ No machine, no computer program, can take the place of human experience.
+\layout Standard
+
+As you begin to work with the EMC2 program, you will need to place yourself
+ in the position of operator.
+ You need to think of yourself in the role of the one in charge of a machine.
+ It is a machine that is either waiting for your command or executing the
+ command that you have just given it.
+ Throughout these pages we will give information that will help you become
+ a good operator of the EMC2 mill.
+ You will need some information right up front here so that the following
+ pages will make sense to you.
+ 
+\layout Section
+
+Modes of Operation
+\begin_inset LatexCommand \label{sub:Modes-of-Operation}
+
+\end_inset 
+
+
+\layout Standard
+
+When an EMC2 is running, there are three different major modes used for
+ inputting commands.
+ These are Manual
+\begin_inset LatexCommand \index{Manual}
+
+\end_inset 
+
+, Auto
+\begin_inset LatexCommand \index{Auto}
+
+\end_inset 
+
+, and MDI
+\begin_inset LatexCommand \index{MDI}
+
+\end_inset 
+
+.
+ Changing from one mode to another makes a big difference in the way that
+ the EMC2 behaves.
+ There are specific things that can be done in one mode that can not be
+ done in another.
+ An operator can home an axis in manual mode but not in auto or MDI modes.
+ An operator can cause the machine to execute a whole file full of G-codes
+ in the auto mode but not in manual or MDI.
+ 
+\layout Standard
+
+In manual mode, each command is entered separately.
+ In human terms a manual command might be "turn on coolant" or "jog X at
+ 25 inches per minute".
+ These are roughly equivalent to flipping a switch or turning the hand wheel
+ for an axis.
+ These commands are normally handled on one of the graphical interfaces
+ by pressing a button with the mouse or holding down a key on the keyboard.
+ In auto mode, a similar button or key press might be used to load or start
+ the running of a whole program of G-code that is stored in a file.
+ In the MDI mode the operator might type in a block of code and tell the
+ machine to execute it by pressing the <return> or <enter> key on the keyboard.
+\layout Standard
+
+Some motion control commands are available and will cause the same changes
+ in motion in all modes.
+ These include 
+\series bold 
+\shape smallcaps 
+\noun on 
+abort
+\series default 
+\shape default 
+\noun default 
+
+\begin_inset LatexCommand \index{ABORT}
+
+\end_inset 
+
+, 
+\series bold 
+\shape smallcaps 
+\noun on 
+estop
+\series default 
+\shape default 
+\noun default 
+
+\begin_inset LatexCommand \index{ESTOP}
+
+\end_inset 
+
+, and 
+\series bold 
+\shape smallcaps 
+\noun on 
+feed rate override
+\series default 
+\shape default 
+\noun default 
+
+\begin_inset LatexCommand \index{feed override}
+
+\end_inset 
+
+.
+ Commands like these should be self explanatory.
+\layout Standard
+
+The AXIS user interface hides some of the distinctions between Auto and
+ the other modes by making Auto-commands available at most times.
+ It also blurs the distinction between Manual and MDI because some Manual
+ commands like Touch Off are actually implemented by sending MDI commands.
+ It does this by automatically changing to the mode that is needed for the
+ action the user has requested.
+\the_end

@@ -1,0 +1,2 @@
+check that the right range of values can be assigned to HAL pins of various
+types, no matter the Python type of the value

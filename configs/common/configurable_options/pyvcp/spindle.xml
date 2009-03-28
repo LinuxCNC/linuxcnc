@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+         <vbox>
+         <relief>RIDGE</relief>         
+         <bd>6</bd>
+                <label>
+                        <text>"Spindle Speed:"</text>
+                        <font>("Helvetica",20)</font>
+                </label>
+                <bar>
+                        <halpin>"spindle-speed"</halpin>
+                        <max_>3000</max_>
+                </bar>
+        </vbox>
+</pyvcp>

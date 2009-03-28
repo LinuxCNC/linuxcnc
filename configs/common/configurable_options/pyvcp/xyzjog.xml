@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+ <vbox>
+ <relief>RIDGE</relief>         
+ <bd>6</bd>
+     <labelframe text="Set G92 Origon"> 
+     <font>("Helvetica",20)</font>
+        <hbox> 
+                <label>
+                <width>10</width>
+                </label>
+                <button>
+                            <halpin>"MDI-zerox"</halpin>
+                            <text>"  Zero X  "</text> 
+                            <justify>"right"</justify>
+                            
+                       </button>
+                
+        </hbox>
+                
+        <hbox>
+                <label>
+                <width>10</width>
+                </label>
+                <button>
+                            <halpin>"MDI-zeroy"</halpin>
+                            <text>"  Zero Y  "</text> 
+                       </button>
+        </hbox>
+                
+        <hbox>
+                <label>
+                <width>10</width>
+                </label>
+                <button>
+                            <halpin>"MDI-zeroz"</halpin>
+                            <text>"  Zero Z  "</text> 
+                       </button>
+        </hbox>
+        
+        <hbox>
+                <label>
+                <width>6</width>
+                </label>
+                <button>
+                            <halpin>"MDI-clear-offset"</halpin>
+                            <text>"  Clear G92 offset  "</text> 
+                </button>
+        </hbox>
+        </labelframe>
+        <label>
+                <width>1</width>
+                </label>
+         <labelframe text="Jog"> 
+     <font>("Helvetica",20)</font>
+        <hbox> 
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-x+"</halpin>
+                            <text>"  X +  "</text> 
+                            <justify>"right"</justify>
+                            
+                       </button>
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-x-"</halpin>
+                            <text>"  X -  "</text> 
+                            <justify>"right"</justify>
+                            
+                       </button>
+        </hbox>
+                
+        <hbox>
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-y+"</halpin>
+                            <text>"  Y +  "</text> 
+                       </button>
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-y-"</halpin>
+                            <text>"  Y -  "</text> 
+                       </button>
+        </hbox>
+                
+        <hbox>
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-z+"</halpin>
+                            <text>"  Z +  "</text> 
+                       </button>
+                <label>
+                <width>5</width>
+                </label>
+                <button>
+                            <halpin>"jog-z-"</halpin>
+                            <text>"  Z -  "</text> 
+                       </button>
+        </hbox>
+        <hbox>
+                <label>
+                <width>3</width>
+                </label>
+                <label>
+                <text>"Jog Speed"</text>
+                </label>
+                <label>
+                <width>1</width>
+                </label>
+                <spinbox>
+                           <halpin>"jog-speed"</halpin>
+                           <min_>0</min_>
+                           <resolution>.5</resolution>
+                           <format>"2.1f"</format>
+                           <width>5</width>
+                           <font>("Arial",30)</font>
+                           <justify>RIGHT</justify>
+                           <initval>20</initval>
+                </spinbox>
+        </hbox>
+        
+        </labelframe>
+        <label>
+                <width>1</width>
+        </label>
+        <labelframe text="MDI comands"> 
+       <font>("Helvetica",20)</font>
+		<hbox>
+                     <button>
+                          <halpin>"MDI-z_up"</halpin>
+                          <text>"Goto Z Zero"</text> 
+                     </button>
+                     <button>
+                           <halpin>"MDI-reference"</halpin>
+                           <text>"Goto Reference"</text> 
+                     </button>
+		</hbox>
+        </labelframe>
+        <label>
+                <width>1</width>
+        </label>
+        <labelframe text="Optional Stop"> 
+        <font>("Helvetica",20)</font>
+        <hbox>
+			       <label>
+                <width>1</width>
+                </label>
+                       <button>
+                            <halpin>"ostop-on"</halpin>
+                            <text>"  on  "</text> 
+                       </button>
+                       <label>
+                <width>5</width>
+                </label>
+                       <led> 
+	                    <halpin>"ostop-is-on"</halpin>  
+			    <size>20</size>  
+			    <on_color>"blue"</on_color> 
+			    <off_color>"grey"</off_color> 
+			</led>	
+                        <label>
+                <width>5</width>
+                </label>
+                       <button>
+                             <halpin>"ostop-off"</halpin>
+                             <text>"  off  "</text> 
+                       </button>
+		</hbox>
+       </labelframe>
+    <label>
+                <width>1</width>
+                </label>
+    <labelframe text="Program Control"> 
+    <font>("Helvetica",20)</font>
+		<hbox>
+		      <vbox>
+			<button>
+                            <halpin>"pause"</halpin>
+                            <text>"Pause"</text> 
+                            <bg>"red"</bg>
+                       </button>
+		       </vbox>
+                       <button>
+                            <halpin>"resume"</halpin>
+                            <text>"Resume"</text>
+                            <bg>"green"</bg> 
+                       </button>
+                       <button>
+                             <halpin>"step"</halpin>
+                             <text>"Single block"</text> 
+                             <bg>"yellow"</bg>
+                       </button>
+			<vbox>
+			</vbox>
+		</hbox>
+       </labelframe>
+ </vbox>
+ 
+</pyvcp>

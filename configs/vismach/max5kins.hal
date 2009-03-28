@@ -1,0 +1,117 @@
+# HAL config file for vismach simulation of max5 - 9-axis version
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt maxkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# load five limit3 blocks to simulate the accel and vel limits of the motors
+loadrt limit3 count=5
+# load window comparators for home/limit switches
+loadrt wcomp count=5
+loadrt not count=5
+
+# load the vismach model
+loadusr -W max5gui
+
+# set a visible tool
+#setp max5gui.tool-length 35
+setp max5gui.tool-radius 3
+net tool-len motion.tooloffset.w max5gui.tool-length
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+# add other functions
+addf limit3.0 servo-thread
+addf limit3.1 servo-thread
+addf limit3.2 servo-thread
+addf limit3.3 servo-thread
+addf limit3.4 servo-thread
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf not.0 servo-thread
+addf not.1 servo-thread
+addf not.2 servo-thread
+addf not.3 servo-thread
+addf not.4 servo-thread
+
+# create HAL signals for position commands from motion module
+# send them to limit blocks so it will ferror if it exceeds a limit
+net table-pos-cmd  axis.0.motor-pos-cmd => limit3.0.in
+net saddle-pos-cmd axis.1.motor-pos-cmd => limit3.1.in
+net head-pos-cmd   axis.2.motor-pos-cmd => limit3.2.in
+net tilt-pos-cmd   axis.4.motor-pos-cmd => limit3.3.in
+net rotate-pos-cmd axis.5.motor-pos-cmd => limit3.4.in
+
+# set the limit block parameters from the ini file
+setp limit3.0.maxv [AXIS_0]MAX_VELOCITY
+setp limit3.0.maxa [AXIS_0]MAX_ACCELERATION
+setp limit3.1.maxv [AXIS_1]MAX_VELOCITY
+setp limit3.1.maxa [AXIS_1]MAX_ACCELERATION
+setp limit3.2.maxv [AXIS_2]MAX_VELOCITY
+setp limit3.2.maxa [AXIS_2]MAX_ACCELERATION
+setp limit3.3.maxv [AXIS_4]MAX_VELOCITY
+setp limit3.3.maxa [AXIS_4]MAX_ACCELERATION
+setp limit3.4.maxv [AXIS_5]MAX_VELOCITY
+setp limit3.4.maxa [AXIS_5]MAX_ACCELERATION
+
+# loop limited position commands back to motion module feedback
+# also send them to the vismach model and to the "limit switches"
+net table-pos-fb  limit3.0.out => axis.0.motor-pos-fb max5gui.table  wcomp.0.in
+net saddle-pos-fb limit3.1.out => axis.1.motor-pos-fb max5gui.saddle wcomp.1.in
+net head-pos-fb   limit3.2.out => axis.2.motor-pos-fb max5gui.head   wcomp.2.in
+net tilt-pos-fb   limit3.3.out => axis.4.motor-pos-fb max5gui.tilt   wcomp.3.in
+net rotate-pos-fb limit3.4.out => axis.5.motor-pos-fb max5gui.rotate wcomp.4.in
+
+# this foolishness is needed because EMC thinks that 9 axes means 9 joints
+net Aloop axis.3.motor-pos-cmd axis.3.motor-pos-fb
+net Uloop axis.6.motor-pos-cmd axis.6.motor-pos-fb
+net Vloop axis.7.motor-pos-cmd axis.7.motor-pos-fb
+net Wloop axis.8.motor-pos-cmd axis.8.motor-pos-fb
+
+# route home/limit switch signals to EMC
+net table-limits-ok wcomp.0.out => not.0.in
+net table-limits-tripped not.0.out => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net saddle-limits-ok wcomp.1.out => not.1.in
+net saddle-limits-tripped not.1.out => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+net head-limits-ok wcomp.2.out => not.2.in
+net head-limits-tripped not.2.out => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net tilt-limits-ok wcomp.3.out => not.3.in
+net tilt-limits-tripped not.3.out => axis.4.neg-lim-sw-in axis.4.pos-lim-sw-in axis.4.home-sw-in
+net rotate-home-tripped wcomp.4.out => axis.5.home-sw-in
+
+# set location of switches
+# these positions are in vismach coords - they can be are offset from machine coords
+# these hardware limits are set to allow 2mm more overall travel than the soft limits
+setp wcomp.0.min -101
+setp wcomp.0.max  101
+setp wcomp.1.min -101
+setp wcomp.1.max  21
+setp wcomp.2.min -96
+setp wcomp.2.max  57
+setp wcomp.3.min -91
+setp wcomp.3.max  91
+setp wcomp.4.min  90
+setp wcomp.4.max  100
+
+# kins needs this value
+setp maxkins.pivot-length [MAX]B_PIVOT_LENGTH
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+net spindle-fwd motion.spindle-forward
+net spindle-rev motion.spindle-reverse
+net spindle-speed motion.spindle-speed-out
+
+net lube iocontrol.0.lube
+net flood iocontrol.0.coolant-flood
+net mist iocontrol.0.coolant-mist

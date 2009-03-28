@@ -1,0 +1,5 @@
+template = "I20HostMot2.vhd"
+device = "xc2s200-5pq208"
+constraints = "5i20.ucf"
+board_pins = 72
+extra_fields = []

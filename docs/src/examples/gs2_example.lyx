@@ -1,0 +1,108 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+GS2 Spindle
+\begin_inset LatexCommand \label{cha:GS2-Spindle}
+
+\end_inset 
+
+
+\layout Standard
+
+This example shows the connections needed to use an Automation Direct GS2
+ VFD to drive a spindle.
+ The spindle speed and direction is controlled by EMC.
+ 
+\layout Standard
+
+Using the GS2 component involves very little to set up.
+ We start with a Stepconf Wizard generated config.
+ Make sure the pins with "Spindle CW" and "Spindle PWM" are set to unused
+ in the parallel port setup screen.
+ 
+\layout Standard
+
+In the custom.hal file we place the following to connect EMC to the GS2 and
+ have EMC control the drive.
+\layout Quote
+
+# load the user space component for the Automation Direct GS2 VFD's
+\newline 
+loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
+\layout Quote
+
+# connect the spindle direction pin to the GS2
+\newline 
+net gs2-fwd spindle-vfd.spindle-fwd <= motion.spindle-forward
+\layout Quote
+
+# connect the spindle on pin to the GS2
+\newline 
+net gs2-run spindle-vfd.spindle-on <= motion.spindle-on
+\layout Quote
+
+# connect the GS2 at speed to the motion at speed
+\newline 
+net gs2-at-speed motion.spindle-at-speed <= spindle-vfd.at-speed
+\layout Quote
+
+# connect the spindle RPM to the GS2
+\newline 
+net gs2-RPM spindle-vfd.speed-command <= motion.spindle-speed-out
+\layout Standard
+
+On the GS2 drive itself you need to set a couple of things before the modbus
+ communications will work.
+ Other parameters might need to be set based on your physical requirements
+ but is beyond the scope of this manual.
+ Refer to the GS2 manual that came with the drive for more information on
+ parameters.
+\layout Itemize
+
+The communications switches must be set to RS-232C
+\layout Itemize
+
+The motor parameters must be set
+\layout Itemize
+
+P3.00 (Source of Operation Command) must be set to Operation determined by
+ RS-485 interface 03 or 04
+\layout Itemize
+
+P4.00 (Source of Frequency Command) must be set to Frequency determined by
+ RS232C/RS485 communication interface 05
+\layout Itemize
+
+P9.02 (Communication Protocol) must be set to Modbus RTU mode 8 data bits,
+ no parity, 2 stop bits 03
+\layout Standard
+
+A pyVCP panel based on this example is in the pyVCP Examples section of
+ this manual.
+ 
+\the_end

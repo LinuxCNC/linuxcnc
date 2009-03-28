@@ -1,0 +1,151 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+HAL Examples
+\layout Standard
+
+All of these examples assume you are starting with a stepconf based configuratio
+n and have two threads base-thread and servo-thread.
+ The stepconf wizard will create an empty custom.hal and a custom_postgui.hal
+ file.
+ The custom.hal file will be loaded after the configuration hal file and
+ the custom_postgui.hal file is loaded after the GUI has been loaded.
+ 
+\layout Section
+
+Compute Velocity
+\layout Standard
+
+This example uses "ddt", "mult2" and "abs" to compute the velocity of a
+ single axis.
+ For more information on the real time components see the man pages or the
+ Realtime Components section (
+\begin_inset LatexCommand \ref{sec:Realtime-Components}
+
+\end_inset 
+
+).
+\layout Standard
+
+The first thing is to check your configuration to make sure you are not
+ using any of the real time components all ready.
+ You can do this by opening up the HAL Configuration window and look for
+ the components in the pin section.
+ If you are then find the .hal file that they are being loaded in and increase
+ the counts and adjust the instance to the correct value.
+ Add the following to your custom.hal file.
+ 
+\layout Standard
+
+Load the realtime components.
+ 
+\layout Quote
+
+loadrt ddt count=1
+\newline 
+loadrt mult2 count =1
+\newline 
+loadrt abs count=1
+\layout Standard
+
+Add the functions to a thread so it will get updated.
+\layout Quote
+
+addf ddt.0 servo-thread
+\newline 
+addf mult2.0 servo-thread
+\newline 
+addf abs.0 servo-thread
+\layout Standard
+
+Make the connections.
+\layout Quote
+
+setp mult2.in1 60
+\newline 
+net xpos-cmd ddt.0.in
+\newline 
+net X-IPS mult2.0.in0 <= ddt.0.out
+\newline 
+net X-ABS abs.0.in <= mult2.0.out
+\newline 
+net X-IPM abs.0.out
+\layout Standard
+
+In this last section we are setting the mult2.0.in1 to 60 to convert the inch
+ per second to inch per minute that we get from the ddt.0.out.
+ 
+\layout Standard
+
+The xpos-cmd sends the comanded position to the ddt.0.in.
+ The ddt computes the derivative of the change of the input.
+ 
+\layout Standard
+
+The ddt2.0.out is multiplyed by 60 to give IPM.
+ 
+\layout Standard
+
+The mult2.0.out is sent to the abs to get the absolute value.
+ 
+\layout Standard
+
+The following figure shows the result when the X axis is moving at 15 IPM
+ in the minus direction.
+ Notice that we can get the absolute value from either the abs.0.out pin or
+ the X-ABS signal.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Velocity Example
+\begin_inset LatexCommand \label{cap:Velocity-Example}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/velocity-01.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\the_end

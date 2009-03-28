@@ -1,0 +1,93 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Chapter
+
+Second Parallel Port
+\layout Standard
+
+When you add a second parallel port to your PCI bus you have to find out
+ the address before you can use it with EMC.
+\layout Standard
+
+To find the address of your parallel port card open a terminal window and
+ type
+\layout Quote
+
+lspci -v
+\layout Standard
+
+You will see something similar to this as well as info on everything else
+ on the PCI bus:
+\layout Quote
+
+0000:00:10.0 Communication controller: NetMos Technology PCI 1 port parallel
+ adapter (rev 01) 
+\newline 
+Subsystem: LSI Logic / Symbios Logic: Unknown device 0010 
+\newline 
+Flags: medium devsel, IRQ 11 
+\newline 
+I/O ports at a800 [size=8] 
+\newline 
+I/O ports at ac00 [size=8] 
+\newline 
+I/O ports at b000 [size=8] 
+\newline 
+I/O ports at b400 [size=8] 
+\newline 
+I/O ports at b800 [size=8] 
+\newline 
+I/O ports at bc00 [size=16]
+\layout Standard
+
+In my case the address was the first one so I changed my .hal file from
+\layout Quote
+
+loadrt hal_parport cfg=0x378
+\layout Standard
+
+to
+\layout Quote
+
+loadrt hal_parport cfg="0x378 0xa800 in"
+\layout Standard
+
+Note the double quotes surrounding the addresses.
+\layout Standard
+
+and then added the following lines so the parport will get read and written
+ to.
+\layout Quote
+
+addf parport.1.read base-thread 
+\newline 
+addf parport.1.write base-thread
+\layout Standard
+
+After doing the above then run your config and verify that the parallel
+ port got loaded in Machine/Show Hal Configuration window.
+\the_end

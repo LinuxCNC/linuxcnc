@@ -1,0 +1,2313 @@
+# This file provides serbian translations for AXIS/STEPCONF.
+# Check http://linuxcnc.org/ for further details.
+# Copyright (C) 2005 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the EMC2 package.
+# Bojin Marinkovic <ir.micro.business@gmail.com>, 26.Apr.2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AXIS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-11-07 00:10+0100\n"
+"PO-Revision-Date: 2008-04-27 13:20+0200\n"
+"Last-Translator: Bojin Marinkovic <ir.micro.business@gmail.com>\n"
+"Language-Team: Serbian Translation <emc-developers@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit"
+
+#: emc/usr_intf/axis/scripts/axis.py:123
+msgid "Emergency stop"
+msgstr "E-STOP"
+
+#: emc/usr_intf/axis/scripts/axis.py:124
+msgid "Turn machine on"
+msgstr "Ukljuci masinu"
+
+#: emc/usr_intf/axis/scripts/axis.py:126
+msgid "Activate first axis"
+msgstr "Aktivna prva osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:127
+msgid "Activate second axis"
+msgstr "Aktivna druga osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:128
+msgid "Activate third axis"
+msgstr "Aktivna treca osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:129
+msgid "Activate fourth axis"
+msgstr "Aktivna cetvrta osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:130
+msgid "Activate fifth through ninth axis"
+msgstr "Aktivna peta-deveta osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:131
+msgid "Set Feed Override from 0% to 100%"
+msgstr "Prekoracenje posmaka 0-100%"
+
+#: emc/usr_intf/axis/scripts/axis.py:132
+msgid ", and ."
+msgstr ",i ."
+
+#: emc/usr_intf/axis/scripts/axis.py:132
+msgid "Select jog speed"
+msgstr "Izaberi JOG brzinu"
+
+#: emc/usr_intf/axis/scripts/axis.py:133
+msgid "< and >"
+msgstr "< i >"
+
+#: emc/usr_intf/axis/scripts/axis.py:133
+msgid "Select angular jog speed"
+msgstr "Izaberi ugaonu JOG brzinu"
+
+#: emc/usr_intf/axis/scripts/axis.py:134
+msgid "I, Shift-I"
+msgstr "I, Shift-I"
+
+#: emc/usr_intf/axis/scripts/axis.py:134 ../share/axis/tcl/axis.tcl:1993
+msgid "Select jog increment"
+msgstr "Izaberi JOG inkrement"
+
+#: emc/usr_intf/axis/scripts/axis.py:135
+msgid "Continuous jog"
+msgstr "Kontinualni JOG"
+
+#: emc/usr_intf/axis/scripts/axis.py:136
+msgid "Home"
+msgstr "Home"
+
+#: emc/usr_intf/axis/scripts/axis.py:136
+msgid "Send active axis home"
+msgstr "Pomeri aktivnu osu u HOME"
+
+#: emc/usr_intf/axis/scripts/axis.py:137
+msgid "Ctrl-Home"
+msgstr "Ctrl-Home"
+
+#: emc/usr_intf/axis/scripts/axis.py:137
+msgid "Home all axes"
+msgstr "Pomeri sve osu u HOME"
+
+#: emc/usr_intf/axis/scripts/axis.py:138
+msgid "Shift-Home"
+msgstr "Shift-Home"
+
+#: emc/usr_intf/axis/scripts/axis.py:138
+msgid "Zero G54 offset for active axis"
+msgstr "Nulti G54 ofset za sve aktivne ose"
+
+#: emc/usr_intf/axis/scripts/axis.py:139
+msgid "End"
+msgstr "END"
+
+#: emc/usr_intf/axis/scripts/axis.py:139
+msgid "Set G54 offset for active axis"
+msgstr "Postavi G54 ofset za aktivne ose"
+
+#: emc/usr_intf/axis/scripts/axis.py:140
+msgid "Jog active axis"
+msgstr "JOG aktivne ose"
+
+#: emc/usr_intf/axis/scripts/axis.py:141
+msgid "Left, Right"
+msgstr "Levo, Desno"
+
+#: emc/usr_intf/axis/scripts/axis.py:141
+msgid "Jog first axis"
+msgstr "JOG prva osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:142
+msgid "Up, Down"
+msgstr "Gore, Dole"
+
+#: emc/usr_intf/axis/scripts/axis.py:142
+msgid "Jog second axis"
+msgstr "JOG druga osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:143
+msgid "Pg Up, Pg Dn"
+msgstr "Pg-Up, Pg-Dn"
+
+#: emc/usr_intf/axis/scripts/axis.py:143
+msgid "Jog third axis"
+msgstr "JOG treca osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:144
+msgid "Jog fourth axis"
+msgstr "JOG cetvrta osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:146
+msgid "Toggle between Drag and Rotate mode"
+msgstr "Izbor izmedju DRAG i ROTATE rezima"
+
+#: emc/usr_intf/axis/scripts/axis.py:147
+msgid "Left Button"
+msgstr "Levi taster"
+
+#: emc/usr_intf/axis/scripts/axis.py:147
+msgid "Pan, rotate or select line"
+msgstr "PAN, rotacija ili izbor linije"
+
+#: emc/usr_intf/axis/scripts/axis.py:148
+msgid "Shift+Left Button"
+msgstr "Shift+Levi taster"
+
+#: emc/usr_intf/axis/scripts/axis.py:148
+msgid "Rotate or pan"
+msgstr "Rotiacija ili PAN"
+
+#: emc/usr_intf/axis/scripts/axis.py:149
+msgid "Right Button"
+msgstr "Desni taster"
+
+#: emc/usr_intf/axis/scripts/axis.py:149 emc/usr_intf/axis/scripts/axis.py:151
+#: emc/usr_intf/axis/scripts/axis.py:152
+msgid "Zoom view"
+msgstr "Uvecaj prikaz"
+
+#: emc/usr_intf/axis/scripts/axis.py:150
+msgid "Wheel Button"
+msgstr "Tocak misa"
+
+#: emc/usr_intf/axis/scripts/axis.py:150
+msgid "Rotate view"
+msgstr "Rotiraj prikaz"
+
+#: emc/usr_intf/axis/scripts/axis.py:151
+msgid "Rotate Wheel"
+msgstr "Rotiraj tocak"
+
+#: emc/usr_intf/axis/scripts/axis.py:152
+msgid "Control+Left Button"
+msgstr "Control+Levi taster"
+
+#: emc/usr_intf/axis/scripts/axis.py:155
+msgid "Manual control"
+msgstr "Manualna kontrola"
+
+#: emc/usr_intf/axis/scripts/axis.py:156
+msgid "Code entry (MDI)"
+msgstr "Unos programa (MDI)"
+
+#: emc/usr_intf/axis/scripts/axis.py:157
+msgid "Control-M"
+msgstr "Ctrl-M"
+
+#: emc/usr_intf/axis/scripts/axis.py:157
+msgid "Clear MDI history"
+msgstr "Obrisi MDI istoriju"
+
+#: emc/usr_intf/axis/scripts/axis.py:158
+msgid "Control-H"
+msgstr "Ctrl-H"
+
+#: emc/usr_intf/axis/scripts/axis.py:158
+msgid "Copy selected MDI history elements"
+msgstr "Kopiraj odabrabe elemente MDI istorije"
+
+#: emc/usr_intf/axis/scripts/axis.py:159
+msgid "to clipboard"
+msgstr "u klipbord"
+
+#: emc/usr_intf/axis/scripts/axis.py:160
+msgid "Control-Shift-H"
+msgstr "Ctrl-Shift-H"
+
+#: emc/usr_intf/axis/scripts/axis.py:160
+msgid "Paste clipboard to MDI history"
+msgstr "Zalepi klipbord u MDI istoriju"
+
+#: emc/usr_intf/axis/scripts/axis.py:161 ../share/axis/tcl/axis.tcl:878
+msgid "Override Limits"
+msgstr "Prekoraci ogranicenja"
+
+#: emc/usr_intf/axis/scripts/axis.py:163
+msgid "Open program"
+msgstr "Otvori program"
+
+#: emc/usr_intf/axis/scripts/axis.py:164
+msgid "Control-R"
+msgstr "Ctrl-R"
+
+#: emc/usr_intf/axis/scripts/axis.py:164
+msgid "Reload program"
+msgstr "Ponovo ucitaj program"
+
+#: emc/usr_intf/axis/scripts/axis.py:165
+msgid "Control-S"
+msgstr "Ctrl-S"
+
+#: emc/usr_intf/axis/scripts/axis.py:165
+msgid "Save g-code as"
+msgstr "Sacuvaj G-kod kao"
+
+#: emc/usr_intf/axis/scripts/axis.py:166
+msgid "Run program"
+msgstr "Pokreni program"
+
+#: emc/usr_intf/axis/scripts/axis.py:167
+msgid "Step program"
+msgstr "Izvrsenje programa korak-po-korak"
+
+#: emc/usr_intf/axis/scripts/axis.py:168
+msgid "Pause program"
+msgstr "Puziraj program"
+
+#: emc/usr_intf/axis/scripts/axis.py:169
+msgid "Resume program"
+msgstr "Nastavi izvrsenje programa"
+
+#: emc/usr_intf/axis/scripts/axis.py:170
+msgid "Stop running program, or"
+msgstr "Zaustavi izvrsenje programa ili"
+
+#: emc/usr_intf/axis/scripts/axis.py:171
+msgid "stop loading program preview"
+msgstr "zaustavu ucitavanje pregleda programa"
+
+#: emc/usr_intf/axis/scripts/axis.py:173
+msgid "Toggle mist"
+msgstr "Uklj. Isklj. vazduh"
+
+#: emc/usr_intf/axis/scripts/axis.py:174
+msgid "Toggle flood"
+msgstr "Uklj. Isklj. Emulzija"
+
+#: emc/usr_intf/axis/scripts/axis.py:176
+msgid "Spindle brake off"
+msgstr "Kocnica obr.mot.isklj."
+
+#: emc/usr_intf/axis/scripts/axis.py:177
+msgid "Shift-B"
+msgstr "Shift-B"
+
+#: emc/usr_intf/axis/scripts/axis.py:177
+msgid "Spindle brake on"
+msgstr "Kocnica obr.mot.uklj."
+
+#: emc/usr_intf/axis/scripts/axis.py:178
+msgid "Turn spindle clockwise"
+msgstr "Obr.mot. smer kazaljke"
+
+#: emc/usr_intf/axis/scripts/axis.py:179
+msgid "Turn spindle counterclockwise"
+msgstr "Obr.mot. suprotno od smera kazaljke"
+
+#: emc/usr_intf/axis/scripts/axis.py:180
+msgid "Turn spindle more slowly"
+msgstr "Obr.mot. usporenje"
+
+#: emc/usr_intf/axis/scripts/axis.py:181
+msgid "Turn spindle more quickly"
+msgstr "Obr.mot. ubrzanje"
+
+#: emc/usr_intf/axis/scripts/axis.py:183
+msgid "Control-K"
+msgstr "Ctrl-K"
+
+#: emc/usr_intf/axis/scripts/axis.py:183
+msgid "Clear live plot"
+msgstr "Obrisi prikaz"
+
+#: emc/usr_intf/axis/scripts/axis.py:184
+msgid "Cycle among preset views"
+msgstr "Izmena prikaza"
+
+#: emc/usr_intf/axis/scripts/axis.py:1346
+msgid "AXIS error"
+msgstr "AXIS greska"
+
+#: emc/usr_intf/axis/scripts/axis.py:1346
+#: emc/usr_intf/axis/scripts/axis.py:1349
+#: emc/usr_intf/axis/scripts/axis.py:1711
+#: emc/usr_intf/axis/scripts/axis.py:1761
+#: emc/usr_intf/axis/scripts/axis.py:1987
+#: emc/usr_intf/axis/scripts/axis.py:2922
+#: emc/usr_intf/axis/scripts/axis.py:3525
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:709
+#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1458
+#: ../share/axis/tcl/axis.tcl:1495
+msgid "OK"
+msgstr "OK"
+
+#: emc/usr_intf/axis/scripts/axis.py:1349
+msgid "AXIS Message"
+msgstr "AXIS poruka"
+
+#: emc/usr_intf/axis/scripts/axis.py:1412
+msgid "No tool"
+msgstr "Nema alata"
+
+#: emc/usr_intf/axis/scripts/axis.py:1414
+#, python-format
+msgid "Unknown tool %d"
+msgstr "Nepoznat alat%d"
+
+#: emc/usr_intf/axis/scripts/axis.py:1417
+#: emc/usr_intf/axis/scripts/axis.py:1424
+#, python-format
+msgid "Tool %d, offset %g, diameter %g"
+msgstr "Alat%d, ofser %g, precnik %g"
+
+#: emc/usr_intf/axis/scripts/axis.py:1421
+#, python-format
+msgid "Tool %d, zo %g, xo %g, dia %g"
+msgstr "Alat %d, Zo %g, Xo %g, precnik %g"
+
+#: emc/usr_intf/axis/scripts/axis.py:1665
+msgid "Filtering..."
+msgstr "Filtriranje..."
+
+#: emc/usr_intf/axis/scripts/axis.py:1707
+msgid "Filter failed"
+msgstr "Filtriranje neuspesno"
+
+#: emc/usr_intf/axis/scripts/axis.py:1708
+#, python-format
+msgid ""
+"The program %r exited with code %d.  Any error messages it produced are "
+"shown below:"
+msgstr ""
+"Program %r obustavljen sa kodom %d. Poruke o gresci prikazane su ispod:"
+
+#: emc/usr_intf/axis/scripts/axis.py:1759
+#, python-format
+msgid "G-Code error in %s"
+msgstr "G-kode greska in %s"
+
+#: emc/usr_intf/axis/scripts/axis.py:1760
+#, python-format
+msgid ""
+"Near line %d of %s:\n"
+"%s"
+msgstr ""
+"Najbliza linija %d u %s:\n"
+"%s"
+
+#: emc/usr_intf/axis/scripts/axis.py:1889
+#: emc/usr_intf/axis/scripts/axis.py:3128 ../share/axis/tcl/axis.tcl:857
+#: ../share/axis/tcl/axis.tcl:859 ../share/axis/tcl/axis.tcl:1848
+msgid "Continuous"
+msgstr "Neprekidan"
+
+#: emc/usr_intf/axis/scripts/axis.py:1988
+#: emc/usr_intf/axis/scripts/axis.py:2138
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:711
+msgid "Cancel"
+msgstr "Odustani"
+
+#: emc/usr_intf/axis/scripts/axis.py:2089
+msgid "Coordinate System:"
+msgstr "Koordinatni sistem:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2103
+msgid "Name:"
+msgstr "Naziv:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2103
+msgid "Size:"
+msgstr "Velicina:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2104
+msgid "Tool order:"
+msgstr "Redosled alata:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2104
+msgid "Rapid distance:"
+msgstr "Duzina praznog hoda:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2105
+msgid "Feed distance:"
+msgstr "Radna duzina:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2105
+msgid "Total distance:"
+msgstr "Ukupna duzina:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2106
+msgid "Run time:"
+msgstr "Vreme:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2106
+msgid "X bounds:"
+msgstr "X-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2107
+msgid "Y bounds:"
+msgstr "Y-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2107
+msgid "Z bounds:"
+msgstr "Z-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2108
+msgid "A bounds:"
+msgstr "A-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2108
+msgid "B bounds:"
+msgstr "B-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2109
+msgid "C bounds:"
+msgstr "C-granice:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2127
+#, python-format
+msgid "Program exceeds machine minimum on axis %s"
+msgstr "Program prevazilazi minimum masine po osi %s"
+
+#: emc/usr_intf/axis/scripts/axis.py:2130
+#, python-format
+msgid "Program exceeds machine maximum on axis %s"
+msgstr "Program prevazilazi maksimum masine po osi %s"
+
+#: emc/usr_intf/axis/scripts/axis.py:2135
+msgid "Program exceeds machine limits"
+msgstr "Program prevazilazi granicne vrednosti masine"
+
+#: emc/usr_intf/axis/scripts/axis.py:2138
+msgid "Run Anyway"
+msgstr "Izvrsi bezuslovno"
+
+#: emc/usr_intf/axis/scripts/axis.py:2174
+msgid "No file loaded"
+msgstr "Datoteka nije ucitana"
+
+#: emc/usr_intf/axis/scripts/axis.py:2182
+#, python-format
+msgid "generated from %s"
+msgstr "generisao %s"
+
+#: emc/usr_intf/axis/scripts/axis.py:2188
+#, python-format
+msgid ""
+"%s bytes\n"
+"%s gcode lines"
+msgstr ""
+"%s bajta\n"
+"%s linija G-koda"
+
+#: emc/usr_intf/axis/scripts/axis.py:2192
+#: emc/usr_intf/stepconf/stepconf.py:1092
+#: emc/usr_intf/stepconf/stepconf.py:1435
+#: emc/usr_intf/stepconf/stepconf.glade:5064
+msgid "mm"
+msgstr "mm"
+
+#: emc/usr_intf/axis/scripts/axis.py:2196
+#: emc/usr_intf/stepconf/stepconf.py:1097
+#: emc/usr_intf/stepconf/stepconf.py:1449
+msgid "in"
+msgstr "in"
+
+#: emc/usr_intf/axis/scripts/axis.py:2213
+#, python-format
+msgid "%.1f minutes"
+msgstr "%.1f min"
+
+#: emc/usr_intf/axis/scripts/axis.py:2215
+#, python-format
+msgid "%d seconds"
+msgstr "%d s"
+
+#: emc/usr_intf/axis/scripts/axis.py:2223
+#, python-format
+msgid "%f to %f = %f %s"
+msgstr "%f do %f = %f %s"
+
+#: emc/usr_intf/axis/scripts/axis.py:2224
+msgid "G-Code Properties"
+msgstr "G-kod osobine"
+
+#: emc/usr_intf/axis/scripts/axis.py:2413
+msgid "All machinable files"
+msgstr "Sve izvrsne datoteke"
+
+#: emc/usr_intf/axis/scripts/axis.py:2414
+#: emc/usr_intf/axis/scripts/axis.py:2909
+msgid "rs274ngc files"
+msgstr "NC datoteke"
+
+#: emc/usr_intf/axis/scripts/axis.py:2415
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:745
+msgid "All files"
+msgstr "Sve datoteke"
+
+#: emc/usr_intf/axis/scripts/axis.py:2761 ../share/axis/tcl/axis.tcl:873
+msgid "Touch Off"
+msgstr "Iskljuceno"
+
+#: emc/usr_intf/axis/scripts/axis.py:2762
+#, python-format
+msgid "Enter %s coordinate relative to workpiece:"
+msgstr "Unesite %s-koordinate u odnosu na pripremak"
+
+#: emc/usr_intf/axis/scripts/axis.py:2921
+msgid "Error saving file"
+msgstr "Greska pri snimanju datoteke"
+
+#: emc/usr_intf/axis/scripts/axis.py:3254
+msgid "Home All"
+msgstr "HOME sve ose"
+
+#: emc/usr_intf/axis/scripts/axis.py:3256
+msgid "Home all axes [Ctrl-Home]"
+msgstr "HOME sve ose [Ctrl-Home]"
+
+#: emc/usr_intf/axis/scripts/axis.py:3259
+msgid "Home All Axes"
+msgstr "HOME sve ose"
+
+#: emc/usr_intf/axis/scripts/axis.py:3271
+#, python-format
+msgid "Home Axis _%s"
+msgstr "HOME _%s-osa"
+
+#: emc/usr_intf/axis/scripts/axis.py:3524
+msgid "Error in ~/.axisrc"
+msgstr "Greska~/.axisrc"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:11
+#, python-format
+msgid "Insert tool %d and click continue when ready"
+msgstr "stavite alat %d i kliknite Nastavi kada ste spremni"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:13
+msgid "Remove the tool and click continue when ready"
+msgstr "Uklonite alat i kliknite na Nastavi kada ste spremni"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
+msgid "Tool change"
+msgstr "Promena alata"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
+msgid "Continue"
+msgstr "Nastavi"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:31
+msgid "AXIS Manual Toolchanger"
+msgstr "AXIS manuelna promena alata"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:35
+msgid ""
+"This window is part of the AXIS manual toolchanger.  It is safe to close or "
+"iconify this window, or it will close automatically after a few seconds."
+msgstr ""
+"Ovaj prozor je deo AXIS procedure za manuelnu izmenu alata. Preporuka je da ga zatvorite ili smanjite ili ce biti automatski zatvoren posle nekoliko sekundi."
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:498
+#, python-format
+msgid "%s: Image to gcode"
+msgstr "%s: Slika-G-kod"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:499
+msgid "Image to gcode"
+msgstr "Slika-G-kod"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:509
+#, python-format
+msgid ""
+"Image size: %d x %d pixels\n"
+"Minimum pixel value: %d\n"
+"Maximum pixel value: %d"
+msgstr ""
+"Velicina slike: %d x %d Pixel\n"
+"Min.: %d\n"
+"Max.: %d"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:554
+msgid "Yes"
+msgstr "Da"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:599
+msgid "G20 (in)"
+msgstr "G20 (in)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:599
+msgid "G21 (mm)"
+msgstr "G21 (mm)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+msgid "None"
+msgstr "bez"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+msgid "White"
+msgstr "Bela"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+msgid "Black"
+msgstr "Crna"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Rows"
+msgstr "Red"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Columns"
+msgstr "Kolona"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Rows then Columns"
+msgstr "Red-kolona"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Columns then Rows"
+msgstr "Kolona-red"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Positive"
+msgstr "Pozitivan"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Negative"
+msgstr "Negativan"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Alternating"
+msgstr "Promenjiv"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Up Milling"
+msgstr "Glodanje +"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Down Milling"
+msgstr "Glodanje -"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "Ball End"
+msgstr "Loptasto"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "Flat End"
+msgstr "Cilindricno"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "45 Degree"
+msgstr "45°-konus"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "60 Degree"
+msgstr "60°-konus"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+msgid "Secondary"
+msgstr "Skundarni"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+msgid "Full"
+msgstr "Pun"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:645
+msgid "Invert Image"
+msgstr "Invertovana slika"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:646
+msgid "Normalize Image"
+msgstr "Normalizovana slika"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:647
+msgid "Extend Image Border"
+msgstr "Prosiren okvir slike"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:648
+msgid "Pixel Size (Units)"
+msgstr "Velicina piksela (jedinica mere)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:649
+msgid "Depth (units)"
+msgstr "Dubina (jedinica mere)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:650
+msgid "Tolerance (units)"
+msgstr "Tolerancija (jedinica mere)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:651
+msgid "Stepover (pixels)"
+msgstr "Prekoracenje (Piksel)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:652
+msgid "Tool Diameter (units)"
+msgstr "Precnik alata (jedinica)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:653
+msgid "Tool Type"
+msgstr "Tip alata"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:654
+msgid "Feed Rate (units per minute)"
+msgstr "Posmak (jedinca u minutu)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:655
+msgid "Plunge Feed Rate (units per minute)"
+msgstr "Poniranje (jednica u minuti)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:656
+msgid "Units"
+msgstr "Jedinice"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:657
+msgid "Safety Height (units)"
+msgstr "Bezbedna visina (jedinica)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:658
+msgid "Scan Pattern"
+msgstr "skenirani uzorak"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:659
+msgid "Scan Direction"
+msgstr "Skeniranje Pravac"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:660
+msgid "Lace Bounding"
+msgstr "Granice"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:661
+msgid "Contact Angle (degrees)"
+msgstr "Ugao dodira (stepeni)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:662
+msgid "Spindle Speed (RPM)"
+msgstr "Brzina obradnog motora (1/min)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:663
+msgid "Roughing offset (units, 0=no roughing)"
+msgstr "Gruba obrada ofset (jedinice, 0=bez grube obrade)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:664
+msgid "Roughing depth per pass (units)"
+msgstr "Dubina prolaza - Gruba obrada (jedinice)"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:731
+msgid "image-to-gcode: User pressed cancel"
+msgstr "Slika u G-kod: korisnik je prekinuo operaciju"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:744
+msgid "Depth images"
+msgstr "Dubina slike"
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:42
+msgid "Task Issue"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:43
+msgid "IO Points"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:45
+msgid "Motion Time"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:46
+msgid "Interpreter"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:48
+msgid "Trajectory"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:49
+msgid "Interpreter List"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:43
+msgid "_Open..."
+msgstr "_Otvori..."
+
+#: ../share/axis/tcl/axis.tcl:47
+msgid "_Edit..."
+msgstr "_Uredi..."
+
+#: ../share/axis/tcl/axis.tcl:50
+msgid "Ctrl-R"
+msgstr "Ctrl-R"
+
+#: ../share/axis/tcl/axis.tcl:52
+msgid "_Reload"
+msgstr "_Ucitaj ponovo"
+
+#: ../share/axis/tcl/axis.tcl:55
+msgid "Ctrl-S"
+msgstr "Ctrl-S"
+
+#: ../share/axis/tcl/axis.tcl:57
+msgid "_Save gcode as..."
+msgstr "_Snimi G-kod kao..."
+
+#: ../share/axis/tcl/axis.tcl:61
+msgid "_Properties..."
+msgstr "Oso_bine..."
+
+#: ../share/axis/tcl/axis.tcl:67
+msgid "Edit _tool table..."
+msgstr "_Uredi tabelu alata"
+
+#: ../share/axis/tcl/axis.tcl:71
+msgid "Reload tool ta_ble"
+msgstr "Po_novo ucitaj tabelu alata"
+
+#: ../share/axis/tcl/axis.tcl:77
+msgid "_Ladder Editor..."
+msgstr "_Ladder-Editor"
+
+#: ../share/axis/tcl/axis.tcl:83
+msgid "_Quit"
+msgstr "_Odustani"
+
+#: ../share/axis/tcl/axis.tcl:89
+msgid "Toggle _Emergency Stop"
+msgstr "_E-stop uklj. isklj."
+
+#: ../share/axis/tcl/axis.tcl:94
+msgid "Toggle _Machine Power"
+msgstr "Ma_sina uklj./isklj."
+
+#: ../share/axis/tcl/axis.tcl:100
+msgid "Set _next line"
+msgstr "Slede_ca linija"
+
+#: ../share/axis/tcl/axis.tcl:105
+msgid "_Run program"
+msgstr "Pok_reni program"
+
+#: ../share/axis/tcl/axis.tcl:110
+msgid "S_tep"
+msgstr "_Korak po korak"
+
+#: ../share/axis/tcl/axis.tcl:115
+msgid "_Pause"
+msgstr "_Pauza"
+
+#: ../share/axis/tcl/axis.tcl:120
+msgid "Re_sume"
+msgstr "_Nastavi"
+
+#: ../share/axis/tcl/axis.tcl:125 ../share/axis/tcl/axis.tcl:964
+msgid "Stop"
+msgstr "_Zaustavi"
+
+#: ../share/axis/tcl/axis.tcl:130
+msgid "Stop at M_1"
+msgstr "Zaustavi na M_1"
+
+#: ../share/axis/tcl/axis.tcl:135
+msgid "Skip lines with '_/'"
+msgstr "Preskoci linije sa '_/'"
+
+#: ../share/axis/tcl/axis.tcl:140
+msgid "Ctrl-M"
+msgstr "Ctrl-M"
+
+#: ../share/axis/tcl/axis.tcl:142
+msgid "Clear MDI h_istory"
+msgstr "Obrisi MDI i_storiju"
+
+#: ../share/axis/tcl/axis.tcl:144
+msgid "Ctrl-H"
+msgstr "Ctrl-H"
+
+#: ../share/axis/tcl/axis.tcl:146
+msgid "Copy from MDI hist_ory"
+msgstr "Kopiraj iz MDI ist_orije"
+
+#: ../share/axis/tcl/axis.tcl:148
+msgid "Ctrl-Shift-H"
+msgstr "Ctrl-Shift-H"
+
+#: ../share/axis/tcl/axis.tcl:150
+msgid "Paste to MDI histor_y"
+msgstr "Zalepi na MDI istorij_u"
+
+#: ../share/axis/tcl/axis.tcl:156
+msgid "_Calibration"
+msgstr "_Kalibracija"
+
+#: ../share/axis/tcl/axis.tcl:160
+msgid "Show _Hal Configuration"
+msgstr "_Hal konfiguracija"
+
+#: ../share/axis/tcl/axis.tcl:164
+msgid "H_al Meter"
+msgstr "H_AL-Metar..."
+
+#: ../share/axis/tcl/axis.tcl:168
+msgid "Ha_l Scope"
+msgstr "HA_L-Scope..."
+
+#: ../share/axis/tcl/axis.tcl:172
+msgid "Sho_w EMC Status"
+msgstr "EM_C-Status..."
+
+#: ../share/axis/tcl/axis.tcl:176
+msgid "Set _Debug Level"
+msgstr "_Debug Level..."
+
+#: ../share/axis/tcl/axis.tcl:182
+msgid "Homin_g"
+msgstr "Homin_g"
+
+#: ../share/axis/tcl/axis.tcl:186
+msgid "_Zero coordinate system"
+msgstr "_Nuliraj koord. sistem"
+
+#: ../share/axis/tcl/axis.tcl:190
+msgid "P1  G5_4"
+msgstr "P1  G5_4"
+
+#: ../share/axis/tcl/axis.tcl:194
+msgid "P2  G5_5"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:198
+msgid "P3  G5_6"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:202
+msgid "P4  G5_7"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:206
+msgid "P5  G5_8"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:210
+msgid "P6  G5_9"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:214
+msgid "P7  G59._1"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:218
+msgid "P8  G59._2"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:222
+msgid "P9  G59._3"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:231
+msgid "_Top view"
+msgstr "_Prikaz odozgo"
+
+#: ../share/axis/tcl/axis.tcl:238
+msgid "_Rotated Top view"
+msgstr "Rotirani p_rikaz odozgo"
+
+#: ../share/axis/tcl/axis.tcl:245
+msgid "_Side view"
+msgstr "_Bocni prikaz"
+
+#: ../share/axis/tcl/axis.tcl:252
+msgid "_Front view"
+msgstr "_Ceoni prikaz"
+
+#: ../share/axis/tcl/axis.tcl:259
+msgid "_Perspective view"
+msgstr "_Perspektiva"
+
+#: ../share/axis/tcl/axis.tcl:267
+msgid "Display _Inches"
+msgstr "_Inch"
+
+#: ../share/axis/tcl/axis.tcl:273
+msgid "Display _MM"
+msgstr "_mm"
+
+#: ../share/axis/tcl/axis.tcl:280
+msgid "S_how program"
+msgstr "P_rikazi program"
+
+#: ../share/axis/tcl/axis.tcl:285
+msgid "Sho_w live plot"
+msgstr "Prikazi p_utanje alata"
+
+#: ../share/axis/tcl/axis.tcl:290
+msgid "Show too_l"
+msgstr "_Prikazi alat"
+
+#: ../share/axis/tcl/axis.tcl:295
+msgid "Show e_xtents"
+msgstr "_Prikazi rastojanja"
+
+#: ../share/axis/tcl/axis.tcl:300
+msgid "Sh_ow machine limits"
+msgstr "P_rikazi granicne vrednosti"
+
+#: ../share/axis/tcl/axis.tcl:305
+msgid "Show v_elocity"
+msgstr "B_rzina"
+
+#: ../share/axis/tcl/axis.tcl:310
+msgid "Show _distance to go"
+msgstr "P_reostalo rastojanje"
+
+#: ../share/axis/tcl/axis.tcl:313
+msgid "Ctrl-K"
+msgstr "Ctrl-K"
+
+#: ../share/axis/tcl/axis.tcl:315
+msgid "_Clear live plot"
+msgstr "Obrisi _prikaz"
+
+#: ../share/axis/tcl/axis.tcl:324
+msgid "Show commanded position"
+msgstr "prikazi za_datu poziciju"
+
+#: ../share/axis/tcl/axis.tcl:331
+msgid "Show actual position"
+msgstr "Prikazi _trenutnu poziciju"
+
+#: ../share/axis/tcl/axis.tcl:340
+msgid "Show machine position"
+msgstr "Apsol_utna Pozicija"
+
+#: ../share/axis/tcl/axis.tcl:347
+msgid "Show relative position"
+msgstr "Rela_tivna pozicija"
+
+#: ../share/axis/tcl/axis.tcl:356
+msgid "Joint mode"
+msgstr "Joint rezim"
+
+#: ../share/axis/tcl/axis.tcl:363
+msgid "World mode"
+msgstr "World-rezim"
+
+#: ../share/axis/tcl/axis.tcl:372
+msgid "_About AXIS"
+msgstr "_O programu..."
+
+#: ../share/axis/tcl/axis.tcl:376
+msgid "Quick _Reference"
+msgstr "_Podsetnik..."
+
+#: ../share/axis/tcl/axis.tcl:382
+msgid "_File"
+msgstr "_Datoteka"
+
+#: ../share/axis/tcl/axis.tcl:386
+msgid "_Machine"
+msgstr "_Masina"
+
+#: ../share/axis/tcl/axis.tcl:390
+msgid "_View"
+msgstr "P_rikaz"
+
+#: ../share/axis/tcl/axis.tcl:394
+msgid "_Help"
+msgstr "_Pomoc"
+
+#: ../share/axis/tcl/axis.tcl:403
+msgid "Toggle Emergency Stop [F1]"
+msgstr "E-stop uklj./isklj. [F1]"
+
+#: ../share/axis/tcl/axis.tcl:412
+msgid "Toggle Machine power [F2]"
+msgstr "Masina uklj./isklj. [F2]"
+
+#: ../share/axis/tcl/axis.tcl:423
+msgid "Open G-Code file [O]"
+msgstr "Otvori G-kod [O]"
+
+#: ../share/axis/tcl/axis.tcl:431
+msgid "Reopen current file [Control-R]"
+msgstr "Ponovo otvori tekucu datoteku [Ctrl-R]"
+
+#: ../share/axis/tcl/axis.tcl:441
+msgid "Begin executing current file [R]"
+msgstr "Otpocni izvrsenje tekuce datoteke [R]"
+
+#: ../share/axis/tcl/axis.tcl:449
+msgid "Execute next line [T]"
+msgstr "Izvrsi sledecu liniju [T]"
+
+#: ../share/axis/tcl/axis.tcl:457
+msgid "Pause [P] / resume [S] execution"
+msgstr "Pauza [P] / Nastavi [N]"
+
+#: ../share/axis/tcl/axis.tcl:465
+msgid "Stop program execution [ESC]"
+msgstr "Zaustavi izvrsenje programa [ESC]"
+
+#: ../share/axis/tcl/axis.tcl:475
+msgid "Zoom in"
+msgstr "Uvecaj"
+
+#: ../share/axis/tcl/axis.tcl:483
+msgid "Zoom out"
+msgstr "Umanji"
+
+#: ../share/axis/tcl/axis.tcl:491
+msgid "Top view"
+msgstr "Pogled odozgo"
+
+#: ../share/axis/tcl/axis.tcl:499
+msgid "Rotated top view"
+msgstr "Rotirani pogled odozgo"
+
+#: ../share/axis/tcl/axis.tcl:507
+msgid "Side view"
+msgstr "Bocni pogled"
+
+#: ../share/axis/tcl/axis.tcl:515
+msgid "Front view"
+msgstr "Ceoni prikaz"
+
+#: ../share/axis/tcl/axis.tcl:523
+msgid "Perspective view"
+msgstr "Perspektiva"
+
+#: ../share/axis/tcl/axis.tcl:531
+msgid "Toggle between Drag and Rotate Mode [D]"
+msgstr "Izaberi pomeranje ili rotiranje (D)"
+
+#: ../share/axis/tcl/axis.tcl:546
+msgid "Clear live plot [Ctrl-K]"
+msgstr "Obrisi prikaz [Ctrl-K]"
+
+#: ../share/axis/tcl/axis.tcl:662
+msgid "Manual Control [F3]"
+msgstr "Manualna kontrola [F3]"
+
+#: ../share/axis/tcl/axis.tcl:663
+msgid "MDI [F5]"
+msgstr "MDI [F5]"
+
+#: ../share/axis/tcl/axis.tcl:675
+msgid "Axis:"
+msgstr "Ose:"
+
+#: ../share/axis/tcl/axis.tcl:867
+msgid "Home Axis"
+msgstr "HOME"
+
+#: ../share/axis/tcl/axis.tcl:941
+msgid "Spindle:"
+msgstr "Obradni motor:"
+
+#: ../share/axis/tcl/axis.tcl:988
+msgid "-"
+msgstr "-"
+
+#: ../share/axis/tcl/axis.tcl:1002
+msgid "+"
+msgstr "+"
+
+#: ../share/axis/tcl/axis.tcl:1007
+msgid "Brake"
+msgstr "Kocnica"
+
+#: ../share/axis/tcl/axis.tcl:1054
+msgid "Coolant:"
+msgstr "Hladjenje:"
+
+#: ../share/axis/tcl/axis.tcl:1059
+msgid "Mist"
+msgstr "Kompr.vazduh"
+
+#: ../share/axis/tcl/axis.tcl:1064
+msgid "Flood"
+msgstr "Emulzija"
+
+#: ../share/axis/tcl/axis.tcl:1136
+msgid "History:"
+msgstr "Istorija:"
+
+#: ../share/axis/tcl/axis.tcl:1159
+msgid "MDI Command:"
+msgstr "MDI komande:"
+
+#: ../share/axis/tcl/axis.tcl:1168
+msgid "Go"
+msgstr "Idi"
+
+#: ../share/axis/tcl/axis.tcl:1174
+msgid "Active G-Codes:"
+msgstr "Aktivni G-kod:"
+
+#: ../share/axis/tcl/axis.tcl:1325 ../share/axis/tcl/axis.tcl:1338
+msgid "Jog Speed:"
+msgstr "JOG brzina:"
+
+#: ../share/axis/tcl/axis.tcl:1367
+msgid "Spindle Override:"
+msgstr "Prekoracenje brzine obr.motora:"
+
+#: ../share/axis/tcl/axis.tcl:1369 ../share/axis/tcl/axis.tcl:1409
+msgid "%"
+msgstr "%"
+
+#: ../share/axis/tcl/axis.tcl:1407
+msgid "Feed Override:"
+msgstr "Prekoracenje posmaka:"
+
+#: ../share/axis/tcl/axis.tcl:1449
+msgid ""
+"EMC2/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler and Chris Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with EMC2.\n"
+"\n"
+"Visit the EMC web site: "
+msgstr ""
+"EMC2/AXIS Verzija $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler i Chris Radek.\n"
+"\n"
+"Koriscenje ovog programa je besplatno pod odredjenim uslovima. Za blize informacije pogledajte datoteku COPYNG koja je sastavni deo programa EMC2."
+"Posetite EMC web prezentaciju"
+"\n"
+"Besuchen Sie die EMC-Webseite: "
+
+#: ../share/axis/tcl/axis.tcl:1477
+msgid "About AXIS"
+msgstr "O programu AXIS"
+
+#: ../share/axis/tcl/axis.tcl:1506
+msgid "AXIS Quick Reference"
+msgstr "AXIS kratko uputstvo"
+
+#: ../share/axis/tcl/axis.tcl:1636
+msgid "AXIS (No file)"
+msgstr "AXIS (nema datoteke)"
+
+#: ../share/axis/tcl/axis.tcl:1647
+msgid "ESTOP"
+msgstr "E-STOP"
+
+#: ../share/axis/tcl/axis.tcl:1648
+msgid "OFF"
+msgstr "ISKLJUCEN"
+
+#: ../share/axis/tcl/axis.tcl:1649
+msgid "ON"
+msgstr "UKLJUCEN"
+
+#: ../share/axis/tcl/axis.tcl:1701 ../share/axis/tcl/axis.tcl:1706
+msgid "Position:"
+msgstr "Pozicija:"
+
+#: ../share/axis/tcl/axis.tcl:1703
+msgid "Machine"
+msgstr "apsolutna"
+
+#: ../share/axis/tcl/axis.tcl:1703
+msgid "Relative"
+msgstr "relativna"
+
+#: ../share/axis/tcl/axis.tcl:1704
+msgid "Actual"
+msgstr "trenutna"
+
+#: ../share/axis/tcl/axis.tcl:1704
+msgid "Commanded"
+msgstr "zadata"
+
+#: ../share/axis/tcl/axis.tcl:1975
+msgid "Turn spindle counterclockwise [F10]"
+msgstr "Smer obradnog motora - [F10]"
+
+#: ../share/axis/tcl/axis.tcl:1976
+msgid "Turn spindle clockwise [F9]"
+msgstr "Smer obradnog motora + [F9]"
+
+#: ../share/axis/tcl/axis.tcl:1977
+msgid "Stop spindle [F9/F10]"
+msgstr "Zaustavi obradni motor [F9/F10]"
+
+#: ../share/axis/tcl/axis.tcl:1978
+msgid "Turn spindle Faster [F12]"
+msgstr "Ubrzaj obradni motor [F12]"
+
+#: ../share/axis/tcl/axis.tcl:1979
+msgid "Turn spindle Slower [F11]"
+msgstr "Uspori obradni motor [F12]"
+
+#: ../share/axis/tcl/axis.tcl:1980
+msgid "Turn spindle brake on [Shift-B] or off [B]"
+msgstr "Ukljuci kocnicu [Shift-B] iskljuci kocnicu [B]"
+
+#: ../share/axis/tcl/axis.tcl:1981
+msgid "Turn flood on or off [F8]"
+msgstr "Emulzja uklj./isklj. [F8]"
+
+#: ../share/axis/tcl/axis.tcl:1982
+msgid "Turn mist on or off [F7]"
+msgstr "Komp.vazdug uklj./isklj. [F7]"
+
+#: ../share/axis/tcl/axis.tcl:1983
+msgid "Send active axis home [Home]"
+msgstr "Aktivna osa HOME [Home]"
+
+#: ../share/axis/tcl/axis.tcl:1984
+msgid "Set G54 offset for active axis [End]"
+msgstr "Postavi G54 za aktivne ose [End]"
+
+#: ../share/axis/tcl/axis.tcl:1985
+msgid "Activate axis [X]"
+msgstr "Aktiviraj osu [X]"
+
+#: ../share/axis/tcl/axis.tcl:1986
+msgid "Activate axis [Y]"
+msgstr "Aktiviraj osu [Y]"
+
+#: ../share/axis/tcl/axis.tcl:1987
+msgid "Activate axis [Z]"
+msgstr "Aktiviraj osu [Z]"
+
+#: ../share/axis/tcl/axis.tcl:1988
+msgid "Activate axis [A]"
+msgstr "Aktiviraj osu [A]"
+
+#: ../share/axis/tcl/axis.tcl:1989
+msgid "Activate axis [4]"
+msgstr "Aktiviraj osu [4]"
+
+#: ../share/axis/tcl/axis.tcl:1990
+msgid "Activate axis [5]"
+msgstr "Aktiviraj osu [5]"
+
+#: ../share/axis/tcl/axis.tcl:1991 ../share/axis/tcl/axis.tcl:1992
+msgid "Jog selected axis"
+msgstr "JOG izabrane ose"
+
+#: ../share/axis/tcl/axis.tcl:1994
+msgid "Temporarily allow jogging outside machine limits [L]"
+msgstr "Privremeno omoguci JOG van granica masine [L]"
+
+#: emc/usr_intf/stepconf/stepconf.py:95
+msgid "X Step"
+msgstr "X korak"
+
+#: emc/usr_intf/stepconf/stepconf.py:95
+msgid "X Direction"
+msgstr "X smer"
+
+#: emc/usr_intf/stepconf/stepconf.py:95
+msgid "Y Step"
+msgstr "Y korak"
+
+#: emc/usr_intf/stepconf/stepconf.py:95
+msgid "Y Direction"
+msgstr "Y smer"
+
+#: emc/usr_intf/stepconf/stepconf.py:96
+msgid "Z Step"
+msgstr "Z korak"
+
+#: emc/usr_intf/stepconf/stepconf.py:96
+msgid "Z Direction"
+msgstr "Z smer"
+
+#: emc/usr_intf/stepconf/stepconf.py:96
+msgid "A Step"
+msgstr "A korak"
+
+#: emc/usr_intf/stepconf/stepconf.py:96
+msgid "A Direction"
+msgstr "A smer"
+
+#: emc/usr_intf/stepconf/stepconf.py:97
+msgid "Spindle CW"
+msgstr "Obradni motor +"
+
+#: emc/usr_intf/stepconf/stepconf.py:97
+msgid "Spindle CCW"
+msgstr "Obradni motor -"
+
+#: emc/usr_intf/stepconf/stepconf.py:97
+msgid "Spindle PWM"
+msgstr "Obradni motor PWM"
+
+#: emc/usr_intf/stepconf/stepconf.py:98
+msgid "Coolant Mist"
+msgstr "Hladjenje Komp.vazduh"
+
+#: emc/usr_intf/stepconf/stepconf.py:98
+msgid "Coolant Flood"
+msgstr "Hladjenje Emulzija"
+
+#: emc/usr_intf/stepconf/stepconf.py:98
+msgid "ESTOP Out"
+msgstr "E-STOP Out"
+
+#: emc/usr_intf/stepconf/stepconf.py:98
+msgid "Amplifier Enable"
+msgstr "Pojacavac ukljucen"
+
+#: emc/usr_intf/stepconf/stepconf.py:99
+msgid "Charge Pump"
+msgstr "Charge Pump"
+
+#: emc/usr_intf/stepconf/stepconf.py:99 emc/usr_intf/stepconf/stepconf.py:116
+msgid "Unused"
+msgstr "Neupotrebljen"
+
+#: emc/usr_intf/stepconf/stepconf.py:101
+msgid "ESTOP In"
+msgstr "E-STOP in"
+
+#: emc/usr_intf/stepconf/stepconf.py:101
+msgid "Probe In"
+msgstr "Sonda"
+
+#: emc/usr_intf/stepconf/stepconf.py:102
+msgid "Spindle Index"
+msgstr "Index. sig. enkodera obr.mot."
+
+#: emc/usr_intf/stepconf/stepconf.py:102
+msgid "Spindle Phase A"
+msgstr "Obradni motor faza A"
+
+#: emc/usr_intf/stepconf/stepconf.py:102
+msgid "Spindle Phase B"
+msgstr "Obradni motor faza B"
+
+#: emc/usr_intf/stepconf/stepconf.py:103
+msgid "Home X"
+msgstr "HOME X"
+
+#: emc/usr_intf/stepconf/stepconf.py:103
+msgid "Home Y"
+msgstr "HOME Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:103
+msgid "Home Z"
+msgstr "HOME Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:103
+msgid "Home A"
+msgstr "HOME A"
+
+#: emc/usr_intf/stepconf/stepconf.py:104
+msgid "Minimum Limit + Home X"
+msgstr "Min. granic. + Home. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:104
+msgid "Minimum Limit + Home Y"
+msgstr "Min. granic. + Home. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:105
+msgid "Minimum Limit + Home Z"
+msgstr "Min. granic. + Home. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:105
+msgid "Minimum Limit + Home A"
+msgstr "Min. granic. + Ref. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:106
+msgid "Maximum Limit + Home X"
+msgstr "Max. granic. + Ref. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:106
+msgid "Maximum Limit + Home Y"
+msgstr "Max. granic. + Ref. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:107
+msgid "Maximum Limit + Home Z"
+msgstr "Max. granic. + Ref. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:107
+msgid "Maximum Limit + Home A"
+msgstr "Max. granic. + Ref. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:108
+msgid "Both Limit + Home X"
+msgstr "Oba. granic. + Ref. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:108
+msgid "Both Limit + Home Y"
+msgstr "Oba granic. + Ref. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:109
+msgid "Both Limit + Home Z"
+msgstr "Oba granic. + Ref. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:109
+msgid "Both Limit + Home A"
+msgstr "Oba granic. + Ref. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:110
+msgid "Minimum Limit X"
+msgstr "Minimum granic. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:110
+msgid "Minimum Limit Y"
+msgstr "Minimum granic. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:111
+msgid "Minimum Limit Z"
+msgstr "Minimum granic. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:111
+msgid "Minimum Limit A"
+msgstr "Minimum granic. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:112
+msgid "Maximum Limit X"
+msgstr "Maximum granic. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:112
+msgid "Maximum Limit Y"
+msgstr "Maximum granic. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:113
+msgid "Maximum Limit Z"
+msgstr "Maximum granic. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:113
+msgid "Maximum Limit A"
+msgstr "Maximum granic. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:114
+msgid "Both Limit X"
+msgstr "Oba granic. X"
+
+#: emc/usr_intf/stepconf/stepconf.py:114
+msgid "Both Limit Y"
+msgstr "Oba granic. Y"
+
+#: emc/usr_intf/stepconf/stepconf.py:115
+msgid "Both Limit Z"
+msgstr "Oba granic. Z"
+
+#: emc/usr_intf/stepconf/stepconf.py:115
+msgid "Both Limit A"
+msgstr "Oba granic. A"
+
+#: emc/usr_intf/stepconf/stepconf.py:116
+msgid "All limits"
+msgstr "Svi granicni prek."
+
+#: emc/usr_intf/stepconf/stepconf.py:116
+msgid "All home"
+msgstr "Sve Home"
+
+#: emc/usr_intf/stepconf/stepconf.py:141
+msgid "my-mill"
+msgstr "Moja-masina"
+
+#: emc/usr_intf/stepconf/stepconf.py:283
+#, python-format
+msgid "File %r was modified since it was written by stepconf"
+msgstr "Datoteka %r je izmenjena i izmene sacuvane u stepconf"
+
+#: emc/usr_intf/stepconf/stepconf.py:287
+msgid ""
+"Saving this configuration file will discard configuration changes made "
+"outside stepconf."
+msgstr ""
+"Cuvanjem ove konfiguracione datoteke bice izgubljeni parametri konfiguracije koji se ne cuvaju u datoteci stepconf"
+
+#: emc/usr_intf/stepconf/stepconf.py:302
+msgid "Continue? "
+msgstr "Nastavi?"
+
+#: emc/usr_intf/stepconf/stepconf.py:303
+msgid "yY"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:311 emc/usr_intf/stepconf/stepconf.py:582
+#, python-format
+msgid "# Generated by stepconf at %s"
+msgstr "# Generisao stepconf %s"
+
+#: emc/usr_intf/stepconf/stepconf.py:312 emc/usr_intf/stepconf/stepconf.py:583
+msgid "# If you make changes to this file, they will be"
+msgstr "# Oko izmenite ovu datoteku, izmene ce biti"
+
+#: emc/usr_intf/stepconf/stepconf.py:313 emc/usr_intf/stepconf/stepconf.py:584
+msgid "# overwritten when you run stepconf again"
+msgstr "# prepisane pri sledecem pokretanju stepconf"
+
+#: emc/usr_intf/stepconf/stepconf.py:713
+msgid ""
+"Include your PyVCP panel here.\n"
+"The contents of this file will not be overwritten when you run stepconf "
+"again."
+msgstr ""
+"Hier kann ein benutzerdefiniertes PyVCP-Panel eingebunden werden.\n"
+"Diese Datei wird beim erneuten Aufruf von stepconf nicht überschrieben."
+
+#: emc/usr_intf/stepconf/stepconf.py:721 emc/usr_intf/stepconf/stepconf.py:730
+msgid "# Include your customized HAL commands here"
+msgstr ""
+"# Benutzerdefinierte HAL-Anweisungen können nachfolgend angegeben werden"
+
+#: emc/usr_intf/stepconf/stepconf.py:722
+msgid ""
+"# The commands in this file are run after the AXIS GUI (including PyVCP "
+"panel)\n"
+"# starts\n"
+"# This file will not be overwritten when you run stepconf again"
+msgstr ""
+"# Die Befehle in dieser Datei werden nach der AXIS GUI (und PyVCP-Panel) "
+"ausgeführt.\n"
+"# Diese Datei wird nicht überschrieben, wenn stepconf erneut ausgeführt wird."
+
+#: emc/usr_intf/stepconf/stepconf.py:731
+msgid "# This file will not be overwritten when you run stepconf again"
+msgstr ""
+"# Diese Datei wird überschrieben, wenn stepconf erneut ausgeführt wird."
+
+#: emc/usr_intf/stepconf/stepconf.py:738
+#, python-format
+msgid "Generated by stepconf at %s"
+msgstr "Erstell durch stepconf am %s"
+
+#: emc/usr_intf/stepconf/stepconf.py:801
+#, python-format
+msgid "%s Axis Configuration"
+msgstr "Konfiguration der %s-Achse"
+
+#: emc/usr_intf/stepconf/stepconf.py:850
+msgid "Quit Stepconf and discard changes?"
+msgstr "Maschinenkonfiguration beenden und Änderungen verwerfen?"
+
+#: emc/usr_intf/stepconf/stepconf.py:865
+msgid "EMC2 'stepconf' configuration files"
+msgstr ".stepconf Dateien"
+
+#: emc/usr_intf/stepconf/stepconf.py:866
+msgid "Modify Existing Configuration"
+msgstr "Bestehende Konfiguration bearbeiten"
+
+#: emc/usr_intf/stepconf/stepconf.py:1084
+msgid "degree / rev"
+msgstr "Grad / Umdrehung"
+
+#: emc/usr_intf/stepconf/stepconf.py:1085
+#: emc/usr_intf/stepconf/stepconf.py:1419
+msgid "deg / s"
+msgstr "Grad / s"
+
+#: emc/usr_intf/stepconf/stepconf.py:1086
+#: emc/usr_intf/stepconf/stepconf.py:1420
+msgid "deg / s²"
+msgstr "stepen / s²"
+
+#: emc/usr_intf/stepconf/stepconf.py:1087
+#: emc/usr_intf/stepconf/stepconf.py:1421
+msgid "deg"
+msgstr "stepen"
+
+#: emc/usr_intf/stepconf/stepconf.py:1089
+#: emc/usr_intf/stepconf/stepconf.glade:3869
+msgid "mm / rev"
+msgstr "mm / obr."
+
+#: emc/usr_intf/stepconf/stepconf.py:1090
+#: emc/usr_intf/stepconf/stepconf.py:1433
+#: emc/usr_intf/stepconf/stepconf.glade:3897
+msgid "mm / s"
+msgstr "mm/s"
+
+#: emc/usr_intf/stepconf/stepconf.py:1091
+#: emc/usr_intf/stepconf/stepconf.py:1434
+msgid "mm / s²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1094
+msgid "rev / in"
+msgstr "obr./in"
+
+#: emc/usr_intf/stepconf/stepconf.py:1095
+#: emc/usr_intf/stepconf/stepconf.py:1447
+msgid "in / s"
+msgstr "in / s"
+
+#: emc/usr_intf/stepconf/stepconf.py:1096
+#: emc/usr_intf/stepconf/stepconf.py:1448
+msgid "in / s²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1416
+#, python-format
+msgid "%s Axis Test"
+msgstr "Test %s-ose"
+
+#: emc/usr_intf/stepconf/stepconf.glade:9
+#: emc/usr_intf/stepconf/stepconf.glade:36
+msgid "EMC2 Stepper Mill Configuration"
+msgstr "EMC2 konfiguracija masine"
+
+#: emc/usr_intf/stepconf/stepconf.glade:37
+msgid ""
+"This program creates configuration files (.ini and .hal) for \"step and "
+"direction\" milling machines and lathes connected to the PC parallel port."
+msgstr ""
+"Dieses Programm erstellt Konfigurationsdateien (.ini und .hal) für Fräs- und "
+"Drehmaschinen mit »Schritt- und Richtung«-Schnittstelle, die über den "
+"Druckeranschluss mit dem PC verbunden sind."
+
+#: emc/usr_intf/stepconf/stepconf.glade:68
+msgid "Create a _new configuration"
+msgstr "Kreiraj _novu konfiguraciju"
+
+#: emc/usr_intf/stepconf/stepconf.glade:90
+msgid "_Modify a configuration already created with this program"
+msgstr ""
+"_Modifikuj postojecu konfiguraciju "
+
+#: emc/usr_intf/stepconf/stepconf.glade:112
+msgid "Do you wish to:"
+msgstr "Da li zelite da:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:140
+#: emc/usr_intf/stepconf/stepconf.glade:2161
+msgid "        "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:168
+msgid ""
+"If you have made modifications to this configuration outside this program, "
+"they will be lost when you select \"Modify a configuration\""
+msgstr ""
+"Wenn die Konfiguration mit einem anderen Programm bearbeitet wurde, gehen "
+"diese Änderungen verloren."
+
+#: emc/usr_intf/stepconf/stepconf.glade:227
+msgid "Basic machine information"
+msgstr "Osnovne informacije o masini"
+
+#: emc/usr_intf/stepconf/stepconf.glade:250
+msgid "Machine _Name:"
+msgstr "_Ime masine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:279
+msgid "_Axis configuration:"
+msgstr "Konfiguracija _osa:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:307
+msgid "Machine _units:"
+msgstr "_Jedinica mere:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:335
+msgid "Step _Time:"
+msgstr "_Vreme koraka:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:364
+msgid "Step _Space:"
+msgstr "Duzina _koraka:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:393
+msgid "Direction _Hold:"
+msgstr "Smer:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:422
+msgid "_Direction Setup:"
+msgstr "Zeit zwischen Richtungs_wechsel und Schritt:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:451
+#: emc/usr_intf/stepconf/stepconf.glade:479
+#: emc/usr_intf/stepconf/stepconf.glade:507
+#: emc/usr_intf/stepconf/stepconf.glade:535
+#: emc/usr_intf/stepconf/stepconf.glade:648
+msgid "ns"
+msgstr "ns"
+
+#: emc/usr_intf/stepconf/stepconf.glade:563
+msgid "Configuration directory:"
+msgstr "Verzeichnis:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:591
+msgid "D_river type"
+msgstr "En_dstufe:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:619
+msgid "_Latency test result:"
+msgstr "Rezultat _Latency testa:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:677
+msgid "Onscreen _prompt for tool change"
+msgstr "_Prikazi upit za promenu alata"
+
+#: emc/usr_intf/stepconf/stepconf.glade:698
+msgid ""
+"Gecko\n"
+"L297\n"
+"PMDX-150\n"
+"Sherline\n"
+"Xylotex\n"
+"Other"
+msgstr ""
+"Gecko\n"
+"L297\n"
+"PMDX-150\n"
+"Sherline\n"
+"Xylotex\n"
+"Andere"
+
+#: emc/usr_intf/stepconf/stepconf.glade:722
+msgid ""
+"Inch\n"
+"Millimeter"
+msgstr "Inc\n"
+"Millimetar"
+
+#: emc/usr_intf/stepconf/stepconf.glade:741
+msgid ""
+"XYZ\n"
+"XYZA\n"
+"XZ (Lathe)"
+msgstr ""
+"XYZ\n"
+"XYZA\n"
+"XZ (Drehmaschine)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:762
+msgid "confdir"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:813
+msgid "Parport Base Address:"
+msgstr "Adresa paralelnog porta:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:976
+msgid "Min Base Period:"
+msgstr "Min Base Period:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1004
+msgid "Max step rate:"
+msgstr "Max step rate:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1032
+msgid ""
+"Driver characteristics: (Multiply by 1000 for times specified in µs or "
+"microseconds)\n"
+"\n"
+"Additional signal conditioning or isolation such as optocouplers and RC "
+"filters\n"
+"can impose timing constraints of their own, in addition to those of the "
+"driver."
+msgstr ""
+"Einstellungen für Endstufe (alle Zeiten in Nanosekunden = 10^-9 s):\n"
+"\n"
+"Zusätzliche Signalverarbeitungsbausteine oder Maßnahmen zur galvanischen \n"
+"Trennung, wie Optokoppler oder RC-Filter, können zusätzliche Zeit benötigen."
+
+#: emc/usr_intf/stepconf/stepconf.glade:1063
+msgid "   "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1092
+msgid "x0000 ns"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1121
+msgid "yyyyy Hz"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1189
+msgid "Parallel Port Setup"
+msgstr "Podesavanje paralelnog porta"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1213
+msgid "Pin _1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1241
+msgid "Pin _2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1269
+msgid "Pin _3:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1297
+msgid "Pin _4:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1325
+msgid "Pin _5:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1353
+msgid "Pin _6:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1381
+msgid "Pin _7:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1409
+msgid "Pin _8:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1437
+msgid "Pin _9:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1465
+msgid "_Pin 14:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1493
+msgid "P_in 16:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1521
+msgid "Pi_n 17:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1549
+#: emc/usr_intf/stepconf/stepconf.glade:1582
+#: emc/usr_intf/stepconf/stepconf.glade:1615
+#: emc/usr_intf/stepconf/stepconf.glade:1648
+#: emc/usr_intf/stepconf/stepconf.glade:1681
+#: emc/usr_intf/stepconf/stepconf.glade:1714
+#: emc/usr_intf/stepconf/stepconf.glade:1747
+#: emc/usr_intf/stepconf/stepconf.glade:1780
+#: emc/usr_intf/stepconf/stepconf.glade:1813
+#: emc/usr_intf/stepconf/stepconf.glade:1846
+#: emc/usr_intf/stepconf/stepconf.glade:1879
+#: emc/usr_intf/stepconf/stepconf.glade:2899
+msgid ""
+"X Step\n"
+"X Direction\n"
+"Y Step\n"
+"Y Direction\n"
+"Z Step\n"
+"Z Direction\n"
+"A Step\n"
+"A Direction\n"
+"Spindle CW\n"
+"Spindle CCW\n"
+"Spindle PWM\n"
+"Coolant Mist\n"
+"Coolant Flood\n"
+"ESTOP Request\n"
+"Amplifier Enable\n"
+"Charge Pump"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1912
+msgid "Outputs (PC to Mill):"
+msgstr "Izlazi (od PC racunra ka masini)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1940
+msgid "Pin 1_0:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1968
+msgid "Pin 1_1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1996
+msgid "Pin 1_2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2024
+msgid "Pin 1_3:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2052
+msgid "Pin 1_5:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2080
+#: emc/usr_intf/stepconf/stepconf.glade:2619
+#: emc/usr_intf/stepconf/stepconf.glade:2672
+#: emc/usr_intf/stepconf/stepconf.glade:2725
+#: emc/usr_intf/stepconf/stepconf.glade:2846
+msgid ""
+"ESTOP IN\n"
+"Spindle PPR\n"
+"Spindle A \n"
+"Spindle B \n"
+"Home X \n"
+"Home Y \n"
+"Home Z\n"
+"Home A\n"
+"Minimum Limit + Home X \n"
+"Minimum Limit + Home Y \n"
+"Minimum Limit + Home Z \n"
+"Minimum Limit + Home A\n"
+"Maximum Limit + Home X \n"
+"Maximum Limit + Home Y \n"
+"Maximum Limit + Home Z \n"
+"Maximum Limit + Home A\n"
+"Both Limit + Home X \n"
+"Both Limit + Home Y \n"
+"Both Limit + Home Z \n"
+"Both Limit + Home A\n"
+"Minimum Limit X \n"
+"Minimum Limit Y \n"
+"Minimum Limit Z \n"
+"Minimum Limit A\n"
+"Maximum Limit X \n"
+"Maximum Limit Y \n"
+"Maximum Limit Z \n"
+"Maximum Limit A\n"
+"Both Limit X \n"
+"Both Limit Y \n"
+"Both Limit Z \n"
+"Both Limit A\n"
+"All limits\n"
+"All home\n"
+"Unused"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2133
+msgid "Inputs (Mill to PC):"
+msgstr "Ulazi (od masine ka PC racunaru)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2189
+#: emc/usr_intf/stepconf/stepconf.glade:2217
+msgid "Invert"
+msgstr "Invertovan"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2779
+msgid "_Sherline Outputs"
+msgstr "_Sherline"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2799
+msgid "_Xylotex Outputs"
+msgstr "_Xylotex"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2818
+msgid "Output pinout presets:"
+msgstr "Izlazni pinovi:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2933
+msgid "Include custom _HAL configuration"
+msgstr "ukljuci korisnicku _HAL konfiguraciju"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2955
+msgid "Include custom Py_VCP Panel"
+msgstr "Ukljucu korisnicki P_yVCP-panel"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2987
+msgid "X Axis Configuration"
+msgstr "Konfiguracija X ose"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3011
+msgid "_Motor steps per revolution:"
+msgstr "_Broj koraka po okretaju motora"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3040
+msgid "_Driver Microstepping"
+msgstr "M_ikrostep drajvera"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3069
+msgid "_Pulley ratio (Motor:Leadscrew):"
+msgstr "_Odnos (motor:navojno vreteno):"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3098
+msgid "_Leadscrew Pitch:"
+msgstr "_korak navojnog vretena:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3127
+msgid "Maximum _Velocity:"
+msgstr "Maksinalna _Brzina:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3156
+msgid "Maximum _Acceleration:"
+msgstr "Maksimalno _ubrzanje"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3185
+msgid "Time to accelerate to max speed:"
+msgstr "vreme do maksimalne brzine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3214
+msgid "Distance to accelerate to max speed:"
+msgstr "razdaljina do maksimalne brzine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3375
+msgid "Pulse rate at max speed:"
+msgstr "Ucestanost pri maksimalnoj brzini:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3404
+#: emc/usr_intf/stepconf/stepconf.glade:3433
+#: emc/usr_intf/stepconf/stepconf.glade:3462
+msgid "label42"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3490
+msgid "_Home location:"
+msgstr "_Referentna pozicija:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3519
+msgid "Home _Switch location:"
+msgstr "Pozicija Referentnog _prekidaca:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3548
+msgid "Home Sear_ch velocity:"
+msgstr "Brzina pri _trazenju referentne pozicije:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3577
+msgid "Home La_tch direction:"
+msgstr "Pozija referentnog _Latch-a:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3605
+msgid "_:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3634
+msgid ""
+"Same\n"
+"Opposite"
+msgstr ""
+"Isti\n"
+"Suprotan"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3716
+msgid "Tab_le travel:"
+msgstr "_Radne dimenzije:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3766
+msgid "t_o"
+msgstr "_do"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3925
+msgid "mm / s^2\t"
+msgstr "mm / s²\t"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3953
+msgid "label193"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3981
+msgid "s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4009
+#: emc/usr_intf/stepconf/stepconf.glade:4512
+msgid "Hz"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4080
+msgid "Test this axis"
+msgstr "Testiraj ovu osu"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4119
+msgid "Axis SCALE"
+msgstr "Skala za osu"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4148
+msgid "label230"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4187
+msgid "Spindle Configuration"
+msgstr "Konfiguration der Spindel"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4211
+msgid "Calibration:"
+msgstr "Kalibrierung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4239
+msgid "Speed 1:"
+msgstr "Geschwindigkeit 1"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4267
+msgid "PWM 1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4295
+msgid "Speed 2:"
+msgstr "Geschwindigkeit 2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4323
+msgid "PWM 2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4351
+msgid "PWM Rate:"
+msgstr "PWM-Rate:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4484
+msgid "Cycles per revolution:"
+msgstr "Zyklen pro Umdrehung:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4576
+msgid "Enter 0 Hz for \"PDM\" mode"
+msgstr "Für den PDM-Modus 0Hz eingeben"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4616
+msgid "Machine configuration complete"
+msgstr "Maschinenkonfiguration komplett"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4617
+msgid ""
+"All the necessary information has now been gathered.  Click \"Apply\" to "
+"write your configuration files to disk.\n"
+"If you experience lockups while running emc, you will need to decrease the "
+"maximum velocity which will have the effect of increasing BASE_PERIOD.\n"
+"\n"
+"If you experience lost steps while running emc, first verify that you "
+"entered the proper timings for your stepper drivers.  If that does not fix "
+"the problem, then run a more thorough latency test as described on the "
+"linuxcnc.org wiki:\n"
+" http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+"\n"
+"If you experience the \"Unexpected Realtime Delay\" message, run a more "
+"thorough latency test as described on the linuxcnc.org wiki: \n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+msgstr ""
+"Alle notwendigen Informationen wurden erfasst. Bestätigen Sie mit "
+"»Anwenden«, um die Konfiguration zu speichern.\n"
+"Falls EMC2 nicht mehr reagieren sollte, verkleinern Sie die maximale "
+"Geschwindigkeit, was die Zeit für einen Systemtakt (BASE_PERIOD) "
+"vergrößert.\n"
+"\n"
+"Falls Sie Schrittverluste bemerken sollten, überprüfen Sie zuerst die "
+"Zeiteinstellungen für ihre Endstufe. Wird das Problem hierdurch nicht "
+"behoben, dann führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki "
+"beschrieben werden:\n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+"\n"
+"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten, dann "
+"führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben "
+"werden:\n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4635
+msgid "dialog1"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4707
+msgid "Velocity:"
+msgstr "Brzina:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4736
+msgid "Acceleration:"
+msgstr "Ubrzanje:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4765
+msgid "Jog:"
+msgstr "Verfahren:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4794
+msgid "Test Area:"
+msgstr "Testbereich:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4849
+msgid "mm/s^2"
+msgstr "mm/s²"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4911
+msgid "mm/s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:5026
+msgid ""
+"±\n"
+"+\n"
+"-\n"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:5159
+msgid "Run"
+msgstr "Ausführen"
+

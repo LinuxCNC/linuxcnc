@@ -1,0 +1,16 @@
+component near "Determine whether two values are roughly equal.";
+pin in float in1;
+pin in float in2;
+param rw float scale=1;
+param rw float difference=0;
+pin out bit out "true if in1/scale <= in2 <= in1*scale, OR |in1-in2| <= difference";
+function _;
+license "GPL";
+;;
+#include "rtapi_math.h"
+FUNCTION(_) {
+	if((scale > 1 && in1/scale <= in2 && in2 <= in1*scale) || fabs(in1-in2) <= difference)
+		out = 1;
+	else
+		out = 0;
+}

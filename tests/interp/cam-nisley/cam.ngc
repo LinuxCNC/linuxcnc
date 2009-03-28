@@ -1,0 +1,245 @@
+%
+( Storm door latch cam )
+( Outside milling, clamped on center axis)
+( Ed Nisley - Nov 2006 - Mar 2007)
+(-----------------)
+#1000 =  75.00		(tool change XYZ)
+#1001 =   0.00
+#1002 =  75.00
+#1004 =  10.00		(traverse clearance)
+
+(-----------------)
+(Cutter and material values)
+
+#1110 =   3.10				(cutter diameter from Sherline_mm.tbl entry, per #1113 tool slot)
+#1111 = [0.0005 * 25.4]		(chip load, inches/tooth -> mm/tooth)
+#1112 =   2					(number of teeth)
+#1113 =   1					(tool slot holding this cutter: verify this in *.tbl entry)
+#1114 =  1.00				(max cut depth)
+#1115 =  1.00				(max cut width)
+
+#1120 = [150 * 12 * 25.4]	(cutting speed, surface ft/min > mm/min)
+#1121 = [#1120 / [3.14 * #1110]]	(spindle RPM)
+#1122 = [#1121 * #1111 * #1112]		(milling feed, mm/min = RPM * load * teeth)
+
+(-----------------)
+(Part dimensions)
+
+#1201 =  4.17				(shaft Z thickness)
+#1202 =  2.95				(cam Z thickness)
+
+#1211 = FUP[#1201 / #1114]	(shaft Z passes)
+#1212 = FUP[#1202 / #1114]	(cam Z passes)
+
+#1221 = [#1201 / #1211]		(shaft Z cut depth)
+#1222 = [#1202 / #1212]		(cam Z cut depth)
+
+#1230 = [17.75 / 2]			(raw part OD -> radius)
+#1231 = [10.30 / 2]			(shaft finished OD and cam small OD)
+#1232 = [17.36 / 2]			(cam large OD)
+
+#1241 = FUP[[#1230 - #1231] / #1115]	(shaft radius passes)
+#1242 = FUP[[#1230 - #1232] / #1115]	(cam OD radius passes)
+
+#1251 = [[#1230 - #1231] / #1241]	(shaft radius cut depth)
+#1252 = [[#1230 - #1232] / #1242]	(cam OD radius cut depth)
+
+#1272 = [216 / 2]					(half-angle of cam solid arc)
+
+#1300 =  1.60				(inside corner fillet radius)
+
+(-----------------)
+(Define setup)
+						
+G90				(absolute coordinates)
+G21				(metric units)
+S #1121			(set spindle speed)
+F #1122			(set milling feed)
+T #1113 M6		(set up the tool)
+
+(-----------------)
+(msg,Verify METRIC Sherline.tbl file!)
+(msg,Align XY=0 at center, Z=0 at surface, spindle to match S value, hit [Run])
+						
+M0				(wait for Resume)
+M3				(spindle CW)
+G0 Z#1004		(get air for alignment)
+
+(-----------------)
+(Commence cutting!)
+(Start cutter compensation)
+(External cutting: CCW around the part)
+
+G0 X[0-#1300] Y[0-[#1230 + 3 * #1300]]	(alignment move)
+G42 D#1113								(comp on: tool to right, D = cutter)
+G1 X[0-#1300] Y[0-[#1230 + #1300]]		(first entry move)
+G2 X0 Y[0-#1230] I#1300 J0				(second entry move to part edge)
+
+G0 Z#1004			(to traverse level)
+
+(--- Cut shaft)
+							 
+O309 IF [1]
+
+#900 = 0			(Z iteration counter - start at surface)
+#901 = 0.00			(initial Z cut depth)
+
+O300 DO				(Z iteration)
+							
+G1 Z#901			(to new Z level)
+							
+#910 = 0			(radius iteration counter)
+#911 = #1230		(initial radius - start at raw OD)
+
+O310 DO				(radius iteration)
+
+O311 IF [#911 NE #1230]				(if new is not max OD, then reposition)
+G91									(relative coords)
+G2 Y[0 - 2 * #1300] J[0-#1300]						(loop outward by min radius)
+G2 Y[#1251 + 2 * #1300] J[#1300 + #1251 / 2]		(loop inward to new radius)
+G90									(abs coords)
+O311 ENDIF
+
+G3 Y[0-#911] J[#911]		(one pass CCW around shaft)
+
+#910 = [#910 + 1]			(tick radius counter)
+#911 = [#911 - #1251]		(figure next radius)
+
+O310 WHILE [#910 LE #1241]	(for all radius passes)
+
+G2 Y[0 -[#1230 + 2 * #1300]] J[0 -[[[#1230 - #1231] / 2] + #1300]]	(align to max OD)
+G2 Y[0 -#1230] J[#1300]
+
+#900 = [#900 + 1]		(tick loop counter)
+#901 = [#901 - #1221]	(next Z level)
+				 
+O300 WHILE [#900 LE #1211]	(for all Z steps)
+
+O309 ENDIF
+
+(--- Cut cam OD)
+
+O349 IF [1]
+
+#900 = 0			(Z iteration counter - at top of cam)
+#901 = [0-#1201]	(initial Z cut depth - top of cam = bottom of shaft)
+
+O340 DO				(Z iteration)
+							
+G1 Z#901			(to new Z level)
+							
+#910 = 0			(radius iteration counter)
+#911 = #1230		(initial radius - start at raw OD)
+
+O350 DO				(radius iteration)
+
+O351 IF [#911 NE #1230]				(if new is not max OD, then reposition)
+G91									(relative coords)
+G2 Y[0 - 2 * #1300] J[0-#1300]						(loop outward by min radius)
+G2 Y[#1252 + 2 * #1300] J[#1300 + #1252 / 2]		(loop inward to new radius)
+G90									(abs coords)
+O351 ENDIF
+
+G3 Y[0-#911] J[#911]		(one pass CCW around shaft)
+
+#910 = [#910 + 1]			(tick radius counter)
+#911 = [#911 - #1252]		(figure next radius)
+
+O350 WHILE [#910 LE #1242]	(for all radius passes)
+
+G2 Y[0 -[#1230 + 2 * #1300]] J[0 -[[[#1230 - #1232] / 2] + #1300]]	(align to max OD)
+G2 Y[0 -#1230] J[#1300]
+
+#900 = [#900 + 1]		(tick loop counter)
+#901 = [#901 - #1222]	(next Z level)
+				 
+O340 WHILE [#900 LE #1212]	(for all Z steps)
+
+O349 ENDIF
+
+(--- Cut cam ID)
+(This goes in to shaft OD)
+(Realign for CW passes in air clearing max OD by a bit, CCW cutting in part)
+
+G0 Z#1004			(reposition at clearance OD facing CW for next move)
+
+#520 = [#1110 + 2 * #1300]			(cutter dia + 2 x min fillet radius)
+#521 = [#1230 + #520]				("exterior material contour" for air cutting)
+
+G2 Y[0 -#521] J[0 -[#520 / 2]]		(half-circle to new OD, cutter still to right)
+
+#522 = [#521 - #1300]				(O-P - dist origin to outer circle center)
+#523 = [ASIN[#1300 / #522]]			(alpha - angle cam edge to outer circle center)
+#524 = [#1272 - #523]				(beta - angle Y axis to outer circle center)
+#525 = [#522 * COS[#523]]			(O-B - dist origin to B tangent on cam edge)
+
+#531 = [#521 * SIN[#524]]			(A - X coord fairing circle tangent to OD)
+#532 = [#521 * COS[#524]]			(A - Y coord fairing circle tangent to OD)
+
+#541 = [#525 * SIN[#1272]]			(B - X coord fairing circle tangent to cam)
+#542 = [#525 * COS[#1272]]			(B - Y coord fairing circle tangent to cam)
+
+#551 = [#522 * SIN[#524]]			(P - X coord fairing circle center)
+#552 = [#522 * COS[#524]]			(P - Y coord fairing circle center)
+
+#900 = 0			(Z iteration counter - start at top of cam again)
+#901 = [0 -#1201]	(initial Z cut level - top of cam = bottom of shaft)
+
+O380 DO				(Z iteration)
+							
+G1 Z#901			(to new Z level)
+							
+#910 = 0			(radius iteration counter)
+#911 = #1230		(initial radius - start at raw OD)
+
+O390 DO				(radius iteration)
+
+#622 = [#911 + #1300]				(O-Q - dist orgin to current inner circle center)
+#623 = [ASIN[#1300 / #622]]			(gamma - angle cam edge to inner circle center)
+#624 = [#1272 - #623]				(delta - angle Y axis to inner circle center)
+#625 = [#622 * COS[#623]]			(O-C - dist origin to C tangent on cam edge)
+
+#631 = [#625 * SIN[#1272]]			(C - X coord inner circle tangent to cam)
+#632 = [#625 * COS[#1272]]			(C - Y coord inner circle tangent to cam)
+
+#641 = [#911 * SIN[#624]]			(D - X coord inner circle tangent to shaft)
+#642 = [#911 * COS[#624]]			(D - Y coord inner circle tangent to shaft)
+
+#651 = [#622 * SIN[#624]]			(Q - X coord inner circle center)
+#652 = [#622 * COS[#624]]			(Q - Y coord inner circle center)
+
+G2 X[0 -#531] Y[0 -#532] J[#521]							(left side of air pass)
+G2 X[0 -#541] Y[0 -#542] I[#531 - #551] J[#532 - #552]		(fillet to cam edge)
+
+G1 X[0 -#631] Y[0 -#632]									(left cam edge)
+G2 X[0 -#641] Y[0 -#642] I[#631 - #651] J[#632 - #652]		(fillet to current shaft OD)
+
+G3 X[#641] Y[0 -#642] I[#641] J[#642]						(current shaft OD)
+G2 X[#631] Y[0 -#632] I[#651 - #641] J[#642 - #652]			(fillet to cam edge)
+
+G1 X[#541] Y[0 -#542]										(right cam edge)
+G2 X[#531] Y[0 -#532] I[#551 - #541] J[#542 - #552]			(fillet to air pass)
+
+G2 X[0] Y[0 -#521] I[0 -#531] J[#532]						(right side of air pass)
+
+#910 = [#910 + 1]			(tick radius counter)
+#911 = [#911 - #1251]		(figure next radius)
+
+O390 WHILE [#910 LE #1241]	(for all radius passes)
+
+#900 = [#900 + 1]		(tick loop counter)
+#901 = [#901 - #1222]	(next Z level)
+				 
+O380 WHILE [#900 LE #1212]	(for all Z steps)
+
+(-----------------)
+M5					(spindle off)
+G0 Z#1002			(get air)
+
+G40					(cutter comp off)
+
+G0 X#1000 Y#1001	(return home)
+(msg,Done!)
+M2
+%
+

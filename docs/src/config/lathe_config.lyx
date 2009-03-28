@@ -1,0 +1,46 @@
+#LyX 1.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 221
+\textclass book
+\language english
+\inputencoding auto
+\fontscheme default
+\graphics default
+\paperfontsize default
+\spacing single 
+\papersize Default
+\paperpackage a4
+\use_geometry 0
+\use_amsmath 0
+\use_natbib 0
+\use_numerical_citations 0
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\quotes_times 2
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+
+\layout Section
+
+Lathe
+\layout Subsection
+
+Default Plane
+\layout Standard
+
+When EMC's interperter was first written, it was designed for mills.
+ That is why the default plane is XY (G17).
+ A normal lathe only uses the XZ plane(G18).
+ To change the default plane place the following line in the .ini file in
+ the RS274NGC section.
+\layout Standard
+
+
+\family typewriter 
+\series bold 
+RS274NGC_STARTUP_CODE = G18
+\the_end

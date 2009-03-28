@@ -1,0 +1,557 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+<hbox>
+    <labelframe text="Machine">
+    <hbox>
+        <button>
+                <halpin>"machine.on"</halpin>
+                <text>"ON"</text> 
+                <justify>"center"</justify>
+        </button>
+        <button>
+                <halpin>"machine.off"</halpin>
+                <text>"OFF"</text> 
+                <justify>"center"</justify>
+	</button>
+    </hbox>
+    <hbox>
+	<label><text>"Machine on: "</text></label>
+	<led>
+	    <halpin>"machine.is-on"</halpin>
+	    <size>20</size>
+	    <on_color>"green"</on_color>
+	    <off_color>"black"</off_color>
+	</led>
+    </hbox>
+    </labelframe>
+
+    <labelframe text="Estop">
+    <hbox>
+        <button>
+                <halpin>"estop.activate"</halpin>
+                <text>"Act"</text> 
+                <justify>"center"</justify>
+        </button>
+        <button>
+                <halpin>"estop.reset"</halpin>
+                <text>"Reset"</text> 
+                <justify>"center"</justify>
+	</button>
+    </hbox>
+    <hbox>
+	<label><text>"ESTOP: "</text></label>
+	<led>
+	    <halpin>"estop.is-activated"</halpin>
+	    <size>20</size>
+	    <on_color>"red"</on_color>
+	    <off_color>"green"</off_color>
+	</led>
+    </hbox>
+    </labelframe>
+</hbox>
+
+<hbox>
+    <labelframe text="Mode">
+    <hbox>
+	<vbox>
+        <button>
+                <halpin>"mode.manual"</halpin>
+                <text>"Man"</text> 
+                <justify>"center"</justify>
+        </button>
+	<led>
+	    <halpin>"mode.is-manual"</halpin>
+	    <size>20</size>
+	    <on_color>"blue"</on_color>
+	    <off_color>"black"</off_color>
+	</led>
+	</vbox>
+	<vbox>
+        <button>
+                <halpin>"mode.auto"</halpin>
+                <text>"Auto"</text> 
+                <justify>"center"</justify>
+        </button>
+	<led>
+	    <halpin>"mode.is-auto"</halpin>
+	    <size>20</size>
+	    <on_color>"blue"</on_color>
+	    <off_color>"black"</off_color>
+	</led>
+	</vbox>
+	<vbox>
+        <button>
+                <halpin>"mode.mdi"</halpin>
+                <text>"MDI"</text> 
+                <justify>"center"</justify>
+        </button>
+	<led>
+	    <halpin>"mode.is-mdi"</halpin>
+	    <size>20</size>
+	    <on_color>"blue"</on_color>
+	    <off_color>"black"</off_color>
+	</led>
+	</vbox>
+    </hbox>
+    </labelframe>
+    <button>
+        <halpin>"abort"</halpin>
+        <text>"Abort"</text> 
+        <justify>"center"</justify>
+    </button>
+</hbox>
+
+<labelframe text="Program actions">
+    <hbox>
+    <button>
+        <halpin>"program.run"</halpin>
+        <text>"Run"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+        <halpin>"program.pause"</halpin>
+        <text>"Pause"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+        <halpin>"program.step"</halpin>
+        <text>"Step"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+        <halpin>"program.resume"</halpin>
+        <text>"Resume"</text> 
+        <justify>"center"</justify>
+    </button>
+	
+    </hbox>
+</labelframe>
+
+<labelframe text="IO">
+    <labelframe text="spindle">
+    <hbox>
+	<vbox>
+    	    <button>
+                <halpin>"spindle.on"</halpin>
+                <text>"start"</text> 
+                <justify>"center"</justify>
+    	    </button>
+    	    <button>
+                <halpin>"spindle.off"</halpin>
+                <text>"stop"</text> 
+                <justify>"center"</justify>
+	    </button>
+	</vbox>
+	<vbox>
+	    <led>
+		<halpin>"spindle.is-on"</halpin>
+		<size>20</size>
+		<on_color>"green"</on_color>
+		<off_color>"black"</off_color>
+	    </led>
+	</vbox>
+	<vbox>
+	    <hbox><!-- forward -->
+    	    <button>
+                <halpin>"spindle.forward"</halpin>
+                <text>"forward"</text> 
+                <justify>"center"</justify>
+	    </button>
+	    <vbox>
+    	    <led>
+	        <halpin>"spindle.is-forward"</halpin>
+	        <size>20</size>
+	        <on_color>"blue"</on_color>
+	        <off_color>"black"</off_color>
+	    </led>
+	    </vbox>
+	    </hbox>
+
+	    <hbox><!-- reverse -->
+    	    <button>
+                <halpin>"spindle.reverse"</halpin>
+                <text>"reverse"</text> 
+                <justify>"center"</justify>
+	    </button>
+	    <vbox>
+    	    <led>
+	        <halpin>"spindle.is-reverse"</halpin>
+	        <size>20</size>
+	        <on_color>"blue"</on_color>
+	        <off_color>"black"</off_color>
+	    </led>
+	    </vbox>
+	    </hbox>
+	</vbox>
+	<!-- spd+ -->
+	<vbox>
+	<button>
+    	    <halpin>"spindle.increase"</halpin>
+    	    <text>"spd+"</text> 
+    	    <justify>"center"</justify>
+	</button>
+	<button>
+    	    <halpin>"spindle.decrease"</halpin>
+    	    <text>"spd-"</text> 
+    	    <justify>"center"</justify>
+	</button>
+	</vbox>
+    </hbox>
+    </labelframe>
+    <hbox>
+    <labelframe text="mist">
+	<hbox>
+	<vbox>
+    	    <button>
+                <halpin>"mist.on"</halpin>
+                <text>"on"</text> 
+                <justify>"center"</justify>
+    	    </button>
+    	    <button>
+                <halpin>"mist.off"</halpin>
+                <text>"off"</text> 
+                <justify>"center"</justify>
+	    </button>
+	</vbox>
+	<vbox>
+	    <led>
+		<halpin>"mist.is-on"</halpin>
+		<size>10</size>
+		<on_color>"green"</on_color>
+		<off_color>"black"</off_color>
+	    </led>
+	</vbox>
+	</hbox>
+    </labelframe>
+    
+    <labelframe text="lube">
+	<hbox>
+	<vbox>
+    	    <button>
+                <halpin>"lube.on"</halpin>
+                <text>"on"</text> 
+                <justify>"center"</justify>
+    	    </button>
+    	    <button>
+                <halpin>"lube.off"</halpin>
+                <text>"off"</text> 
+                <justify>"center"</justify>
+	    </button>
+	</vbox>
+	<vbox>
+	    <led>
+		<halpin>"lube.is-on"</halpin>
+		<size>10</size>
+		<on_color>"green"</on_color>
+		<off_color>"black"</off_color>
+	    </led>
+	</vbox>
+	</hbox>
+    </labelframe>
+
+    <labelframe text="flood">
+	<hbox>
+	<vbox>
+    	    <button>
+                <halpin>"flood.on"</halpin>
+                <text>"on"</text> 
+                <justify>"center"</justify>
+    	    </button>
+    	    <button>
+                <halpin>"flood.off"</halpin>
+                <text>"off"</text> 
+                <justify>"center"</justify>
+	    </button>
+	</vbox>
+	<vbox>
+	    <led>
+		<halpin>"flood.is-on"</halpin>
+		<size>10</size>
+		<on_color>"green"</on_color>
+		<off_color>"black"</off_color>
+	    </led>
+	</vbox>
+	</hbox>
+    </labelframe>
+    </hbox>
+</labelframe>
+
+<tabs>
+    <names>["Axis X", "Axis Y", "Axis Z"]</names>
+    <vbox> <!-- Axis X -->
+	<hbox>
+	    <labelframe text="home">
+	    <vbox>
+    		<button>
+            	    <halpin>"x.home"</halpin>
+            	    <text>"home"</text> 
+            	    <justify>"center"</justify>
+		</button>
+		<led>
+		    <halpin>"x.is-homed"</halpin>
+		    <size>25</size>
+		    <on_color>"green"</on_color>
+		    <off_color>"black"</off_color>
+		</led>
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="status">
+	    <vbox>
+		<hbox>
+		    <led><halpin>"x.min-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"x.min-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min soft"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"x.max-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max soft"</text><font>("Arial",5)</font></label>
+		</hbox>
+		<hbox>
+		    <led><halpin>"x.max-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"x.has-fault"</halpin><size>10</size><on_color>"red"</on_color><off_color>"black"</off_color></led>
+		    <label><text>"error"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="jog">
+	    <vbox>
+    		<button>
+            	    <halpin>"jog-x+"</halpin>
+            	    <text>"X +"</text> 
+            	    <justify>"center"</justify>
+    		</button>
+    		<button>
+            	    <halpin>"jog-x-"</halpin>
+            	    <text>"X -"</text> 
+            	    <justify>"center"</justify>
+		</button>
+	    </vbox>
+	    </labelframe>
+	</hbox>
+    </vbox>
+    <vbox> <!-- Axis Y -->
+	<hbox>
+	    <labelframe text="home">
+	    <vbox>
+    		<button>
+            	    <halpin>"y.home"</halpin>
+            	    <text>"home"</text> 
+            	    <justify>"center"</justify>
+		</button>
+		<led>
+		    <halpin>"y.is-homed"</halpin>
+		    <size>25</size>
+		    <on_color>"green"</on_color>
+		    <off_color>"black"</off_color>
+		</led>
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="status">
+	    <vbox>
+		<hbox>
+		    <led><halpin>"y.min-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"y.min-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min soft"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"y.max-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max soft"</text><font>("Arial",5)</font></label>
+		</hbox>
+		<hbox>
+		    <led><halpin>"y.max-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"y.has-fault"</halpin><size>10</size><on_color>"red"</on_color><off_color>"black"</off_color></led>
+		    <label><text>"error"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="jog">
+	    <vbox>
+    		<button>
+            	    <halpin>"jog-y+"</halpin>
+            	    <text>"Y +"</text> 
+            	    <justify>"center"</justify>
+    		</button>
+    		<button>
+            	    <halpin>"jog-y-"</halpin>
+            	    <text>"Y -"</text> 
+            	    <justify>"center"</justify>
+		</button>
+	    </vbox>
+	    </labelframe>
+	</hbox>
+    </vbox>
+    <vbox> <!-- Axis Z -->
+	<hbox>
+	    <labelframe text="home">
+	    <vbox>
+    		<button>
+            	    <halpin>"z.home"</halpin>
+            	    <text>"home"</text> 
+            	    <justify>"center"</justify>
+		</button>
+		<led>
+		    <halpin>"z.is-homed"</halpin>
+		    <size>25</size>
+		    <on_color>"green"</on_color>
+		    <off_color>"black"</off_color>
+		</led>
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="status">
+	    <vbox>
+		<hbox>
+		    <led><halpin>"z.min-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"z.min-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"min soft"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"z.max-soft"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max soft"</text><font>("Arial",5)</font></label>
+		</hbox>
+		<hbox>
+		    <led><halpin>"z.max-hard"</halpin><size>10</size><on_color>"red"</on_color><off_color>"green"</off_color></led>
+		    <label><text>"max hard"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+		<hbox>
+		    <led><halpin>"z.has-fault"</halpin><size>10</size><on_color>"red"</on_color><off_color>"black"</off_color></led>
+		    <label><text>"error"</text><font>("Arial",5)</font></label>
+		</hbox>		    
+	    </vbox>
+	    </labelframe>
+	    <labelframe text="jog">
+	    <vbox>
+    		<button>
+            	    <halpin>"jog-z+"</halpin>
+            	    <text>"Z +"</text> 
+            	    <justify>"center"</justify>
+    		</button>
+    		<button>
+            	    <halpin>"jog-z-"</halpin>
+            	    <text>"Z -"</text> 
+            	    <justify>"center"</justify>
+		</button>
+	    </vbox>
+	    </labelframe>
+	</hbox>
+    </vbox>
+</tabs>
+
+<labelframe text="settings">
+<tabs>
+    <names>["Jogging", "Program control", "Overrides"]</names>
+<vbox> <!-- jogging -->
+    <hbox>
+    <label><text>"jog speed: "</text></label>
+    <spinbox>
+       <halpin>"jog-speed"</halpin>
+       <min_>0</min_>
+       <resolution>.5</resolution>
+       <format>"2.1f"</format>
+       <width>5</width>
+       <justify>RIGHT</justify>
+       <initval>20</initval>
+    </spinbox>
+    </hbox>
+</vbox>
+
+<vbox> <!-- program control -->
+    <hbox>
+    <hbox><led><halpin>"optional-stop.is-on"</halpin><size>10</size><on_color>"green"</on_color><off_color>"black"</off_color></led></hbox>
+    <label><text>" - optional stop - "</text></label>
+    <button>
+	<halpin>"optional-stop.on"</halpin>
+        <text>"On"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"optional-stop.off"</halpin>
+        <text>"Off"</text> 
+        <justify>"center"</justify>
+    </button>
+    </hbox>
+
+    <hbox>
+    <hbox><led><halpin>"block-delete.is-on"</halpin><size>10</size><on_color>"green"</on_color><off_color>"black"</off_color></led></hbox>
+    <label><text>" - block delete - "</text></label>
+    <button>
+	<halpin>"block-delete.on"</halpin>
+        <text>"On"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"block-delete.off"</halpin>
+        <text>"Off"</text> 
+        <justify>"center"</justify>
+    </button>
+    </hbox>
+
+</vbox>
+
+<vbox> <!-- Overrides -->
+    <hbox>
+    <button>
+	<halpin>"feed-override+"</halpin>
+        <text>"+"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"feed-override-"</halpin>
+        <text>"-"</text> 
+        <justify>"center"</justify>
+    </button>
+    <label><text>"feed override: "</text></label>
+    <number>
+	<halpin>"feed-override.value"</halpin>
+    </number>
+    </hbox>
+    
+    <hbox>
+    <button>
+	<halpin>"spindle-override+"</halpin>
+        <text>"+"</text> 
+        <justify>"center"</justify>
+    </button>
+    <button>
+	<halpin>"spindle-override-"</halpin>
+        <text>"-"</text> 
+        <justify>"center"</justify>
+    </button>
+    <label><text>"spindle override: "</text></label>
+    <number>
+	<halpin>"spindle-override.value"</halpin>
+    </number>
+    </hbox>
+</vbox>
+</tabs>
+</labelframe>
+
+<labelframe text="MDI commands">
+    <button>
+        <halpin>"quillup"</halpin>
+        <text>"Quill Up"</text> 
+        <justify>"center"</justify>
+    </button>
+
+    <button>
+        <halpin>"referencepos"</halpin>
+        <text>"Reference pos."</text> 
+        <justify>"center"</justify>
+    </button>
+</labelframe>
+</pyvcp>
