@@ -119,7 +119,12 @@ iocontrol.1 = accepts NML I/O commands, interacts with HAL in userspace
 pyvcp.1 = Virtual Control Panel for EMC2
 \layout Section
 
-Realtime components and kernel modules
+Realtime Components
+\begin_inset LatexCommand \label{sec:Realtime-Components}
+
+\end_inset 
+
+
 \layout Standard
 
 Some of these will have expanded descriptions from the man pages.
@@ -154,7 +159,7 @@ blend.9 = Perform linear interpolation between two values
 \layout List
 \labelwidthstring 00.00.0000
 
-charge_pump.9 = Create a square-wave for the âcharge pumpâ input of some
+charge_pump.9 = Create a square-wave for the "charge pump" input of some
  controller boards
 \layout List
 \labelwidthstring 00.00.0000
