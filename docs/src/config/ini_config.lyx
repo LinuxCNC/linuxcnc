@@ -636,7 +636,8 @@ in,\SpecialChar ~
 OPEN_FILE\SpecialChar ~
 =\SpecialChar ~
 /full/path/to/file.ngc The file to show in the preview plot when
- AXIS starts
+ AXIS starts.
+ Use a blank string "" and no file will be loaded at startup.
 \layout Description
 
 EDITOR\SpecialChar ~
