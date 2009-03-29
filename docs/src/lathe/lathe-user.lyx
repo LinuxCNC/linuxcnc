@@ -1100,4 +1100,14 @@ The G76 threading cycle is used for both internal and external threads for
 \end_inset 
 
  in the G Code section.
+\layout Section
+
+Constant Surface Speed
+\layout Standard
+
+CSS or Constant Surface Speed (G96) uses the machine X origin modified by
+ the tool X offset to compute the spindle speed in RPM.
+ CSS will track changes in tool offsets.
+ The X machine origin should be when the reference tool ( the one with zero
+ offset) is at the center of rotation.
 \the_end
