@@ -41,6 +41,7 @@ usr/bin/max5gui
 usr/bin/mdi
 usr/bin/milltask
 usr/bin/milltaskcanon
+usr/bin/pncconf
 usr/bin/pumagui
 usr/bin/pyvcp
 usr/bin/rs274
