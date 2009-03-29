@@ -220,7 +220,7 @@ class Data:
         self.homenone = False
         self.homeswitch = False
         self.homeindex = False
-        self.homeboth = False
+        self.homeboth = True
 
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
@@ -1781,8 +1781,20 @@ class App:
              self.widgets.pp2_checkbutton.set_active(1)
         if self.data.number_pports>2:
              self.widgets.pp3_checkbutton.set_active(1)
-        for i in self.data.servoinputsignames:
-          print i
+        if self.data.limitsnone :
+             self.widgets.limittype_none.set_active(1)
+        if self.data.limitswitch :
+             self.widgets.limittype_switch.set_active(1)
+        if self.data.limitshared :
+             self.widgets.limittype_shared.set_active(1)
+        if self.data.homenone :
+             self.widgets.home_none.set_active(1)
+        if self.data.homeindex :
+             self.widgets.home_index.set_active(1)
+        if self.data.homeswitch :
+             self.widgets.home_switch.set_active(1)
+        if self.data.homeboth :
+             self.widgets.home_both.set_active(1)
     
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
@@ -1984,18 +1996,7 @@ class App:
             for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15):
                 foundit = 0
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                selection = self.widgets[p].get_active_text()
-                for i in human_input_names:
-                   if selection == i : 
-                      foundit = 1
-                if not foundit:
-                  model = self.widgets[p].get_model()
-                  model.append((selection,))
-                  g = human_input_names
-                  g.append ((selection))
-                  hal_input_names.append ((selection))
-                  self.data.halinputsignames.append ((selection))
-                self.data[p] = hal_input_names[self.widgets[p].get_active()]
+                self.get_input_signals_from_gui(p)
                 p = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 self.data[p] = self.widgets[p].get_active()
             for pin in (16,17,18,19,20,21,22,23):
@@ -2047,6 +2048,23 @@ class App:
         if self.data.number_pports == 0 :       
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True 
+
+    def get_input_signals_from_gui(self,p):
+        foundit = 0
+        selection = self.widgets[p].get_active_text()
+        for index , i in enumerate(human_input_names):
+            if selection == i : 
+                foundit = 1
+                break               
+        if not foundit:
+             model = self.widgets[p].get_model()
+             model.append((selection,))
+             g = human_input_names
+             g.append ((selection))
+             hal_input_names.append ((selection))
+             self.data.halinputsignames.append ((selection))
+        self.data[p] = hal_input_names[index]
+            
 
     def on_m5i20panel_clicked(self, *args):self.m5i20test(self)
        
@@ -2110,7 +2128,14 @@ class App:
             p = '%spppin%din' % (portname, pin)
             model = self.widgets[p].get_model()
             model.clear()
-            for name in human_input_names: model.append((name,))
+            for name in human_input_names:
+                    if self.data.limitshared or self.data.limitsnone:
+                        if name in human_names_limit_only: continue 
+                    if self.data.limitswitch or self.data.limitsnone:
+                        if name in human_names_shared_home: continue                          
+                    if self.data.homenone or self.data.limitshared:
+                        if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue         
+                    model.append((name,))
             self.widgets[p].set_active(hal_input_names.index(self.data[p]))
             p = '%spppin%dinvin' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
@@ -2131,22 +2156,10 @@ class App:
 
     def next_parport(self,portname):
         for pin in (1,2,3,4,5,6,7,8,10,11,12,13,15):           
-            foundit = 0
             p = '%spppin%din' % (portname, pin)
-            selection = self.widgets[p].get_active_text()
-            for i in human_input_names:
-               if selection == i : foundit = 1
-            if not foundit:
-                  model = self.widgets[p].get_model()
-                  model.append((selection,))
-                  g = human_input_names
-                  g.append ((selection))
-                  hal_input_names.append ((selection))
-                  self.data.halinputsignames.append ((selection))
-            self.data[p] = hal_input_names[self.widgets[p].get_active()]
-        self.data[p] = hal_input_names[self.widgets[p].get_active()]
-        p = '%spppin%dinvin' % (portname, pin)
-        self.data[p] = self.widgets[p].get_active()
+            self.get_input_signals_from_gui(p)
+            p = '%spppin%dinvin' % (portname, pin)
+            self.data[p] = self.widgets[p].get_active()
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):           
             foundit = 0
             p = '%spppin%dout' % (portname, pin)
@@ -2307,12 +2320,11 @@ class App:
             w[axis + "minfollowunits"].set_text(_("inches"))
             w[axis + "maxfollowunits"].set_text(_("inches"))
            
-
-        inputs = set((d.firstpppin10in, d.firstpppin11in, d.firstpppin12in, 
-                            d.firstpppin13in, d.firstpppin15in, d.m5i20c3pin0))
-        thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
-                            "max-home-" + axis, "both-home-" + axis))
-        homes = bool(inputs & thisaxishome)
+        thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
+        homes = False
+        for i in thisaxishome:
+            test = self.data.findsignal(i)
+            if not test == "false": homes = True
         w[axis + "homesw"].set_sensitive(homes)
         w[axis + "homevel"].set_sensitive(homes)
         w[axis + "latchdir"].set_sensitive(homes)
@@ -2528,11 +2540,11 @@ class App:
         self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
         self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
 
-        data = self.data
-        if PHA in (data.firstpppin10in, data.firstpppin11in, data.firstpppin12in, data.firstpppin13in, data.firstpppin15in):
-            self.widgets.spindlecpr.set_sensitive(1)
-        else:
+        d = self.data
+        has_spindle_pha = self.data.findsignal("spindle-phase-a")
+        if has_spindle_pha == "false":
             self.widgets.spindlecpr.set_sensitive(0)
+        else: self.widgets.spindlecpr.set_sensitive(1)        
 
     def on_spindle_next(self, *args):
         self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
