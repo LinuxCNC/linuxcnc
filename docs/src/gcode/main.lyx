@@ -6681,11 +6681,15 @@ G96 D[max spindle speed] S[units per minute] is Constant Surface Speed Mode
 G97 is RPM Mode
 \layout Standard
 
-Two spindle control modes are recognized: revolutions per minute, and constant
- surface speed.
+Two spindle control modes are recognized: revolutions per minute, and CSS
+ (constant surface speed).
  Program G96 D- S- to select constant surface speed of S feet per minute
  (if G20 is in effect) or meters per minute (if G21 is in effect).
  The maximum spindle speed is set by the D- number in revolutions per minute.
+ CSS uses the machine X origin modified by the tool X offset to calculate
+ the spindle RPM.
+ The X machine origin should be when the reference tool (the one with zero
+ offset) is at the center of rotation.
 \layout Standard
 
 Program G97 to select RPM mode.
