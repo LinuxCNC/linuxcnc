@@ -164,7 +164,7 @@ blend.9 = Perform linear interpolation between two values
 \layout List
 \labelwidthstring 00.00.0000
 
-charge_pump.9 = Create a square-wave for the âcharge pumpâ input of some
+charge_pump.9 = Create a square-wave for the "charge pump" input of some
  controller boards
 \layout List
 \labelwidthstring 00.00.0000
