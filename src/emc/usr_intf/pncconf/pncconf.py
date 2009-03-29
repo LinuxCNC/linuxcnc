@@ -141,6 +141,19 @@ _("Both Limit Z"), _("Both Limit A"),
 _("All limits"), _("All home"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3")]
 
+human_names_shared_home = [_("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
+_("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
+_("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
+_("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
+_("Both Limit + Home X"), _("Both Limit + Home Y"),
+_("Both Limit + Home Z"), _("Both Limit + Home A")]
+
+human_names_limit_only = [ _("Minimum Limit X"), _("Minimum Limit Y"),
+_("Minimum Limit Z"), _("Minimum Limit A"),
+_("Maximum Limit X"), _("Maximum Limit Y"),
+_("Maximum Limit Z"), _("Maximum Limit A"),
+_("Both Limit X"), _("Both Limit Y"),
+_("Both Limit Z"), _("Both Limit A"),_("All limits"),("All home")]
 
 (UNUSED_OUTPUT, X_DAC, Y_DAC, Z_DAC, A_DAC, SPINDLE_DAC) = hal_servo_output_names = [
 "unused-output","xdac", "ydac", "zdac", "adac", "spindledac"]
@@ -201,6 +214,13 @@ class Data:
         self.ioaddr3 = _("Enter Address")
         self.Thirdpp_direction = 0 # input
         self.number_pports = 0
+        self.limitsnone = False
+        self.limitswitch = False
+        self.limitshared = True
+        self.homenone = False
+        self.homeswitch = False
+        self.homeindex = False
+        self.homeboth = False
 
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
@@ -258,9 +278,9 @@ class Data:
         self.firstpppin7out = UNUSED_OUTPUT
         self.firstpppin8out = UNUSED_OUTPUT
         self.firstpppin9out = UNUSED_OUTPUT
-        self.firstpppin14out = CW
-        self.firstpppin16out = PWM
-        self.firstpppin17out = AMP
+        self.firstpppin14out = UNUSED_OUTPUT
+        self.firstpppin16out = UNUSED_OUTPUT
+        self.firstpppin17out = UNUSED_OUTPUT
         
         self.firstpppin1in = UNUSED_INPUT
         self.firstpppin2in = UNUSED_INPUT
@@ -314,9 +334,9 @@ class Data:
         self.Secondpppin7out = UNUSED_OUTPUT
         self.Secondpppin8out = UNUSED_OUTPUT
         self.Secondpppin9out = UNUSED_OUTPUT
-        self.Secondpppin14out = CW
-        self.Secondpppin16out = PWM
-        self.Secondpppin17out = AMP
+        self.Secondpppin14out = UNUSED_OUTPUT
+        self.Secondpppin16out = UNUSED_OUTPUT
+        self.Secondpppin17out = UNUSED_OUTPUT
         
         self.Secondpppin1in = UNUSED_INPUT
         self.Secondpppin2in = UNUSED_INPUT
@@ -370,9 +390,9 @@ class Data:
         self.Thirdpppin7out = UNUSED_OUTPUT
         self.Thirdpppin8out = UNUSED_OUTPUT
         self.Thirdpppin9out = UNUSED_OUTPUT
-        self.Thirdpppin14out = CW
-        self.Thirdpppin16out = PWM
-        self.Thirdpppin17out = AMP
+        self.Thirdpppin14out = UNUSED_OUTPUT
+        self.Thirdpppin16out = UNUSED_OUTPUT
+        self.Thirdpppin17out = UNUSED_OUTPUT
         
         self.Thirdpppin1in = UNUSED_INPUT
         self.Thirdpppin2in = UNUSED_INPUT
@@ -1823,6 +1843,11 @@ class App:
         self.data.firstpp_direction = self.widgets.firstpp_direction.get_active()
         self.data.Secondpp_direction = self.widgets.Secondpp_direction.get_active()
         self.data.Thirdpp_direction = self.widgets.Thirdpp_direction.get_active()
+        self.data.limitshared = self.widgets.limittype_shared.get_active()
+        self.data.limitsnone = self.widgets.limittype_none.get_active()
+        self.data.limitswitch = self.widgets.limittype_switch.get_active()
+        self.data.limitshared = self.widgets.limittype_shared.get_active()
+        self.data.homenone = self.widgets.home_none.get_active()
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -1923,7 +1948,14 @@ class App:
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 model = self.widgets[p].get_model()
                 model.clear()
-                for name in human_input_names:model.append((name,))
+                for name in human_input_names:
+                    if self.data.limitshared or self.data.limitsnone:
+                        if name in human_names_limit_only: continue 
+                    if self.data.limitswitch or self.data.limitsnone:
+                        if name in human_names_shared_home: continue                          
+                    if self.data.homenone or self.data.limitshared:
+                        if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                    model.append((name,))
                 self.widgets[p].set_active(hal_input_names.index(self.data[p]))
                 self.widgets[pinv].set_active(self.data[pinv])
             for pin in (16,17,18,19,20,21,22,23):
@@ -2562,9 +2594,9 @@ class App:
                    self.data.ladderhaltype = 0
            if self.widgets.ladder1.get_active() == True:
               self.data.laddername = 'estop.clp'
-              inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
-              if ESTOP_IN not in inputs:
-                 self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
+              has_estop = self.data.findsignal("estop-ext")
+              if has_estop == "false":
+                 self.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
                  self.widgets.druid1.set_page(self.widgets.advanced)
                  return True
               self.data.ladderhaltype = 1
@@ -2663,12 +2695,10 @@ class App:
 
     def has_spindle_speed_control(self):
         d = self.data
-        return PWM in (d.firstpppin1out, d.firstpppin2out, d.firstpppin3out, d.firstpppin4out, 
-                       d.firstpppin5out, d.firstpppin6out, d.firstpppin7out,
-            d.firstpppin8out, d.firstpppin9out, d.firstpppin14out, d.firstpppin16out) or \
-                PPR in (d.firstpppin10in, d.firstpppin11in, d.firstpppin12in, d.firstpppin13in, d.firstpppin15in) or \
-                PHA in (d.firstpppin10in, d.firstpppin11in, d.firstpppin12in, d.firstpppin13in, d.firstpppin15in) \
-
+        has_spindle_pwm = self.data.findsignal("spindle-pwm")
+        if has_spindle_pwm == "false":
+            return False
+        else: return True
    
     def on_complete_finish(self, *args):
         self.data.save()        
