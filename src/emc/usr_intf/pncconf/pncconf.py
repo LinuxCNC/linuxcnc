@@ -206,7 +206,6 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
-        self.mesa5i20_driver = 0
         self.firstpp_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -1766,7 +1765,6 @@ class App:
         self.widgets.latency.set_value(self.data.latency)
         self.widgets.machinename.grab_focus()
         self.widgets.mesa5i20_checkbutton.set_active(self.data.mesa5i20)
-        self.widgets.mesa5i20_driver.set_active(self.data.mesa5i20_driver)
         self.widgets.ioaddr.set_text(self.data.ioaddr)
         self.widgets.ioaddr2.set_text(self.data.ioaddr2) 
         self.widgets.ioaddr3.set_text(self.data.ioaddr3)
@@ -1798,7 +1796,6 @@ class App:
     
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
-        self.widgets.mesa5i20_driver.set_sensitive(i)
         self.widgets.nbr5i20.set_sensitive(i)
         
     def on_pp1_checkbutton_toggled(self, *args): 
