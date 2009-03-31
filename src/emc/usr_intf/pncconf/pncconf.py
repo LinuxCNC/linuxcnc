@@ -408,38 +408,80 @@ class Data:
         self.Thirdpppin13in = UNUSED_INPUT
         self.Thirdpppin15in = UNUSED_INPUT
 
-        self.m5i20c2encoder0 = X_ENCODER
         self.m5i20c2pin0 = UNUSED_INPUT
         self.m5i20c2pin1 = UNUSED_INPUT
         self.m5i20c2pin2 = UNUSED_INPUT
-        self.m5i20c2encoder1 = Y_ENCODER
         self.m5i20c2pin3 = UNUSED_INPUT
         self.m5i20c2pin4 = UNUSED_INPUT
         self.m5i20c2pin5 = UNUSED_INPUT
-        self.m5i20c2encoder2 = Z_ENCODER
         self.m5i20c2pin6 = UNUSED_INPUT
         self.m5i20c2pin7 = UNUSED_INPUT
         self.m5i20c2pin8 = UNUSED_INPUT 
-        self.m5i20c2encoder3 = SPINDLE_ENCODER
         self.m5i20c2pin9 = UNUSED_INPUT
         self.m5i20c2pin10 = UNUSED_INPUT
         self.m5i20c2pin11 = UNUSED_INPUT
-        self.m5i20c2dac0 = X_DAC
         self.m5i20c2pin12 = UNUSED_INPUT
         self.m5i20c2pin13 = UNUSED_INPUT
         self.m5i20c2pin14 = UNUSED_INPUT
-        self.m5i20c2dac1 = Y_DAC
         self.m5i20c2pin15 = UNUSED_INPUT    
         self.m5i20c2pin16 = UNUSED_OUTPUT
         self.m5i20c2pin17 = UNUSED_OUTPUT
-        self.m5i20c2dac2 = Z_DAC
         self.m5i20c2pin18 = UNUSED_OUTPUT
         self.m5i20c2pin19 = UNUSED_OUTPUT
         self.m5i20c2pin20 = UNUSED_OUTPUT
-        self.m5i20c2dac3 = SPINDLE_DAC
         self.m5i20c2pin21 = UNUSED_OUTPUT
         self.m5i20c2pin22 = UNUSED_OUTPUT
-        self.m5i20c2pin23 = UNUSED_OUTPUT
+        self.m5i20c2pin23 = X_ENCODER
+
+        self.m5i20c2pin0inv = False
+        self.m5i20c2pin1inv = False
+        self.m5i20c2pin2inv = False
+        self.m5i20c2pin3inv = False
+        self.m5i20c2pin4inv = False
+        self.m5i20c2pin5inv = False
+        self.m5i20c2pin6inv = False
+        self.m5i20c2pin7inv = False
+        self.m5i20c2pin8inv = False
+        self.m5i20c2pin9inv = False
+        self.m5i20c2pin10inv = False
+        self.m5i20c2pin11inv = False
+        self.m5i20c2pin12inv = False
+        self.m5i20c2pin13inv = False
+        self.m5i20c2pin14inv = False
+        self.m5i20c2pin15inv = False
+        self.m5i20c2pin16inv = False
+        self.m5i20c2pin17inv = False
+        self.m5i20c2pin18inv = False
+        self.m5i20c2pin19inv = False
+        self.m5i20c2pin20inv = False
+        self.m5i20c2pin21inv = False
+        self.m5i20c2pin22inv = False
+        self.m5i20c2pin23inv = False
+
+        self.m5i20c2pin0type = 0
+        self.m5i20c2pin1type = 0
+        self.m5i20c2pin2type = 0
+        self.m5i20c2pin3type = 0
+        self.m5i20c2pin4type = 0
+        self.m5i20c2pin5type = 0
+        self.m5i20c2pin6type = 0
+        self.m5i20c2pin7type = 0
+        self.m5i20c2pin8type = 0
+        self.m5i20c2pin9type = 0
+        self.m5i20c2pin10type = 0
+        self.m5i20c2pin11type = 0
+        self.m5i20c2pin12type = 0
+        self.m5i20c2pin13type = 0
+        self.m5i20c2pin14type = 0
+        self.m5i20c2pin15type = 0
+        self.m5i20c2pin16type = 1
+        self.m5i20c2pin17type = 1
+        self.m5i20c2pin18type = 1
+        self.m5i20c2pin19type = 1
+        self.m5i20c2pin20type = 1
+        self.m5i20c2pin21type = 1
+        self.m5i20c2pin22type = 1
+        self.m5i20c2pin23type = 3
 
         self.m5i20c3pin0 = UNUSED_INPUT
         self.m5i20c3pin1 = UNUSED_INPUT
@@ -492,6 +534,31 @@ class Data:
         self.m5i20c3pin22inv = False
         self.m5i20c3pin23inv = False
 
+        self.m5i20c3pin0type = 0
+        self.m5i20c3pin1type = 0
+        self.m5i20c3pin2type = 0
+        self.m5i20c3pin3type = 0
+        self.m5i20c3pin4type = 0
+        self.m5i20c3pin5type = 0
+        self.m5i20c3pin6type = 0
+        self.m5i20c3pin7type = 0
+        self.m5i20c3pin8type = 0
+        self.m5i20c3pin9type = 0
+        self.m5i20c3pin10type = 0
+        self.m5i20c3pin11type = 0
+        self.m5i20c3pin12type = 0
+        self.m5i20c3pin13type = 0
+        self.m5i20c3pin14type = 0
+        self.m5i20c3pin15type = 0
+        self.m5i20c3pin16type = 1
+        self.m5i20c3pin17type = 1
+        self.m5i20c3pin18type = 1
+        self.m5i20c3pin19type = 1
+        self.m5i20c3pin20type = 1
+        self.m5i20c3pin21type = 1
+        self.m5i20c3pin22type = 1
+        self.m5i20c3pin23type = 1
+
         self.m5i20c4pin0 = UNUSED_INPUT
         self.m5i20c4pin1 = UNUSED_INPUT
         self.m5i20c4pin2 = UNUSED_INPUT
@@ -542,6 +609,31 @@ class Data:
         self.m5i20c4pin21inv = False
         self.m5i20c4pin22inv = False
         self.m5i20c4pin23inv = False
+
+        self.m5i20c4pin0type = 0
+        self.m5i20c4pin1type = 0
+        self.m5i20c4pin2type = 0
+        self.m5i20c4pin3type = 0
+        self.m5i20c4pin4type = 0
+        self.m5i20c4pin5type = 0
+        self.m5i20c4pin6type = 0
+        self.m5i20c4pin7type = 0
+        self.m5i20c4pin8type = 0
+        self.m5i20c4pin9type = 0
+        self.m5i20c4pin10type = 0
+        self.m5i20c4pin11type = 0
+        self.m5i20c4pin12type = 0
+        self.m5i20c4pin13type = 0
+        self.m5i20c4pin14type = 0
+        self.m5i20c4pin15type = 0
+        self.m5i20c4pin16type = 1
+        self.m5i20c4pin17type = 1
+        self.m5i20c4pin18type = 1
+        self.m5i20c4pin19type = 1
+        self.m5i20c4pin20type = 1
+        self.m5i20c4pin21type = 1
+        self.m5i20c4pin22type = 1
+        self.m5i20c4pin23type = 1
 
         self.xsteprev = 200
         self.xmicrostep = 2
@@ -1951,42 +2043,35 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa5i20_prepare(self, *args):
-        for connector in (3,4):
-            for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15):
+        for connector in (2,3,4):
+            for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                self.widgets[ptype].set_active(self.data[ptype])
                 model = self.widgets[p].get_model()
                 model.clear()
-                for name in human_input_names:
-                    if self.data.limitshared or self.data.limitsnone:
-                        if name in human_names_limit_only: continue 
-                    if self.data.limitswitch or self.data.limitsnone:
-                        if name in human_names_shared_home: continue                          
-                    if self.data.homenone or self.data.limitshared:
-                        if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
-                    model.append((name,))
-                self.widgets[p].set_active(hal_input_names.index(self.data[p]))
+                if self.data[ptype] == 0:                    
+                    for name in human_input_names:
+                        if self.data.limitshared or self.data.limitsnone:
+                            if name in human_names_limit_only: continue 
+                        if self.data.limitswitch or self.data.limitsnone:
+                            if name in human_names_shared_home: continue                          
+                        if self.data.homenone or self.data.limitshared:
+                            if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                        model.append((name,))
+                    self.widgets[p].set_active(hal_input_names.index(self.data[p]))
+                if self.data[ptype] in (1,2):                
+                    for name in human_output_names: model.append((name,))
+                    self.widgets[p].set_active(hal_output_names.index(self.data[p]))   
+                if self.data[ptype] == 3:              
+                    for name in human_servo_input_names: model.append((name,))
+                    self.widgets[p].set_active(hal_servo_input_names.index(self.data[p]))
+                    self.widgets[ptype].set_sensitive(0)
+                if self.data[ptype] in (4,5):
+                    for name in human_servo_output_names: model.append((name,))
+                    self.widgets[p].set_active(hal_servo_output_names.index(self.data[p])) 
                 self.widgets[pinv].set_active(self.data[pinv])
-            for pin in (16,17,18,19,20,21,22,23):
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                model = self.widgets[p].get_model()
-                model.clear()
-                for name in human_output_names: model.append((name,))
-                self.widgets[p].set_active(hal_output_names.index(self.data[p]))
-                self.widgets[pinv].set_active(self.data[pinv])
-        for pin in (0,1,2,3):
-                p = 'm5i20c2encoder%(num)d' % {'num': pin}
-                model = self.widgets[p].get_model()
-                model.clear()
-                for name in human_servo_input_names: model.append((name,))
-                self.widgets[p].set_active(hal_servo_input_names.index(self.data[p]))
-        for pin in (0,1,2,3):
-                p = 'm5i20c2dac%(num)d' % {'num': pin}
-                model = self.widgets[p].get_model()
-                model.clear()
-                for name in human_servo_output_names: model.append((name,))
-                self.widgets[p].set_active(hal_servo_output_names.index(self.data[p]))
 
     def on_mesa5i20_next(self, *args):
         for connector in (3,4):
@@ -2012,36 +2097,7 @@ class App:
                 self.data[p] = hal_output_names[self.widgets[p].get_active()]
                 p = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 self.data[p] = self.widgets[p].get_active()
-        for pin in (0,1,2,3):
-            foundit = 0 
-            p = 'm5i20c2encoder%(num)d' % {'num': pin}
-            selection = self.widgets[p].get_active_text()
-            for i in human_servo_input_names:
-                if selection == i : 
-                   foundit = 1
-            if not foundit:
-                  model = self.widgets[p].get_model()
-                  model.append((selection,))
-                  g = human_servo_input_names
-                  g.append ((selection))
-                  hal_servo_input_names.append ((selection))
-                  self.data.servoinputsignames.append ((selection))                 
-            self.data[p] = hal_servo_input_names[self.widgets[p].get_active()]
-           
-            foundit = 0
-            p = 'm5i20c2dac%(num)d' % {'num': pin}
-            selection = self.widgets[p].get_active_text()
-            for i in human_servo_output_names:
-                if selection == i : 
-                   foundit = 1
-            if not foundit:
-                  model = self.widgets[p].get_model()
-                  model.append((selection,))
-                  g = human_servo_output_names
-                  g.append ((selection))
-                  hal_servo_output_names.append ((selection))
-                  self.data.servooutputsignames.append ((selection))
-            self.data[p] = hal_servo_output_names[self.widgets[p].get_active()]
+      
         if self.data.number_pports == 0 :       
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True 
