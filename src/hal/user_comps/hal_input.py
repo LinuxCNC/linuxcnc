@@ -75,12 +75,7 @@ class HalInputDevice:
                 comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
                 comp.newpin("%s.%s-reset" % (idx, name), HAL_BIT, HAL_IN)
                 comp.newparam("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_RW)
-                comp.newparam("%s.%s-precision" % (idx, name), HAL_S32, HAL_RW)
-                comp.newparam("%s.%s-absolute" % (idx, name), HAL_BIT, HAL_RW)
-                comp.newparam("%s.%s-last" % (idx, name), HAL_S32, HAL_RW)
                 self.set(name + '-scale', 1.)
-                self.set(name + '-precision', 32)
-                self.set(name + '-absolute', 0)
                 self.rel_items.append(name)
 
         if 'A' in parts:
@@ -149,17 +144,7 @@ class HalInputDevice:
 		    self.set(code, 0)
 		    self.set(code + "-not", 1)
 	    elif ev.type == 'EV_REL':
-                prec = self.get(code + "-precision")
-                mask = (1 << prec ) - 1
-                sign = ev.value & ( 1 << (prec-1) )
-                value = int(ev.value & mask)
-                if sign:
-                    value = value - mask
-                if self.get(code + "-absolute"):
-                    last = self.get(code + "-last")
-                    self.set(code + "-last", value)
-                    value = value - last
-                self.set(code + "-counts", self.get(code + "-counts") + value)
+		self.set(code + "-counts", self.get(code + "-counts") + ev.value)
 	    elif ev.type == 'EV_ABS':
 		flat = self.get(code + "-flat")
 		fuzz = self.get(code + "-fuzz")
