@@ -126,7 +126,9 @@ In your custompanel.xml file we will add the description of the widgets.
 <font>("Helvetica",16)</font>
 \layout Quote
 
-<!-- the X jog buttons -->
+<!-\SpecialChar \-
+- the X jog buttons -\SpecialChar \-
+->
 \newline 
 <hbox>
 \newline 
@@ -161,7 +163,9 @@ In your custompanel.xml file we will add the description of the widgets.
 </hbox>
 \layout Quote
 
-<!-- the Y jog buttons -->
+<!-\SpecialChar \-
+- the Y jog buttons -\SpecialChar \-
+->
 \newline 
 <hbox>
 \newline 
@@ -196,7 +200,9 @@ In your custompanel.xml file we will add the description of the widgets.
 </hbox>
 \layout Quote
 
-<!-- the Z jog buttons -->
+<!-\SpecialChar \-
+- the Z jog buttons -\SpecialChar \-
+->
 \newline 
 <hbox>
 \newline 
@@ -231,7 +237,9 @@ In your custompanel.xml file we will add the description of the widgets.
 </hbox>
 \layout Quote
 
-<!-- the jog speed slider -->
+<!-\SpecialChar \-
+- the jog speed slider -\SpecialChar \-
+->
 \newline 
 <vbox>
 \newline 
@@ -374,7 +382,9 @@ To create the panel we add the following to the .xml file.
 <pyvcp>
 \layout Quote
 
-<!-- the RPM meter -->
+<!-\SpecialChar \-
+- the RPM meter -\SpecialChar \-
+->
 \newline 
 <hbox>
 \newline 
@@ -407,7 +417,9 @@ To create the panel we add the following to the .xml file.
 </hbox>
 \layout Quote
 
-<!-- the On Led -->
+<!-\SpecialChar \-
+- the On Led -\SpecialChar \-
+->
 \newline 
 <hbox>
 \newline 
@@ -462,7 +474,9 @@ To create the panel we add the following to the .xml file.
 </vbox>
 \layout Quote
 
-<!-- the FWD Led -->
+<!-\SpecialChar \-
+- the FWD Led -\SpecialChar \-
+->
 \newline 
 <vbox>
 \newline 
@@ -507,7 +521,9 @@ To create the panel we add the following to the .xml file.
 </vbox>
 \layout Quote
 
-<!-- the REV Led -->
+<!-\SpecialChar \-
+- the REV Led -\SpecialChar \-
+->
 \newline 
 <vbox>
 \newline 
