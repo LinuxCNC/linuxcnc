@@ -422,6 +422,13 @@ static void send_origin_msg(void) {
     set_origin_msg.origin.v = TO_EXT_LEN(programOrigin.v);
     set_origin_msg.origin.w = TO_EXT_LEN(programOrigin.w);
 
+    if(css_maximum) {
+	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
+	emc_spindle_speed_msg.speed = css_maximum;
+	emc_spindle_speed_msg.factor = css_numerator;
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	interp_list.append(emc_spindle_speed_msg);
+    }
     interp_list.append(set_origin_msg);
 }
 
@@ -1505,7 +1512,7 @@ void START_SPINDLE_CLOCKWISE()
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
     } else {
 	emc_spindle_on_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1526,7 +1533,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
     } else {
 	emc_spindle_on_msg.speed = -spindleSpeed;
 	css_numerator = 0;
@@ -1552,7 +1559,7 @@ void SET_SPINDLE_SPEED(double r)
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
     } else {
 	emc_spindle_speed_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1654,7 +1661,7 @@ void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset)
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(currentXToolOffset);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_offset_msg);
