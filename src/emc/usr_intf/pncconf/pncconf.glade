@@ -1492,6 +1492,7 @@ or press the lower default preset buttons below.</property>
                                     <property name="receives_default">True</property>
                                     <property name="label" translatable="yes">Launch test panel</property>
                                     <property name="response_id">0</property>
+                                    <signal name="clicked" handler="on_m5i20panel_clicked"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1637,7 +1638,7 @@ or press the lower default preset buttons below.</property>
                           <packing>
                             <property name="left_attach">2</property>
                             <property name="right_attach">3</property>
-                            <property name="x_options">GTK_EXPAND</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -1681,6 +1682,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -1712,6 +1714,7 @@ StepGen
                           <packing>
                             <property name="left_attach">8</property>
                             <property name="right_attach">9</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -1892,7 +1895,7 @@ StepGen
                           <packing>
                             <property name="left_attach">7</property>
                             <property name="right_attach">8</property>
-                            <property name="x_options"></property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -3643,6 +3646,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3663,6 +3667,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3683,6 +3688,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3703,6 +3709,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3723,6 +3730,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3743,6 +3751,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3763,6 +3772,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3783,6 +3793,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3803,6 +3814,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3823,6 +3835,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3843,6 +3856,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -3863,6 +3877,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3883,6 +3898,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3903,6 +3919,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3923,6 +3940,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3943,6 +3961,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3963,6 +3982,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -3983,6 +4003,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4003,6 +4024,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4023,6 +4045,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4043,6 +4066,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4063,6 +4087,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4083,6 +4108,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -4225,7 +4251,7 @@ StepGen
                           <packing>
                             <property name="left_attach">2</property>
                             <property name="right_attach">3</property>
-                            <property name="x_options">GTK_EXPAND</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -4269,6 +4295,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -4300,6 +4327,7 @@ StepGen
                           <packing>
                             <property name="left_attach">8</property>
                             <property name="right_attach">9</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -4480,7 +4508,7 @@ StepGen
                           <packing>
                             <property name="left_attach">7</property>
                             <property name="right_attach">8</property>
-                            <property name="x_options"></property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -6201,6 +6229,7 @@ Unused</property>
                             <property name="receives_default">True</property>
                             <property name="label" translatable="yes">Launch test panel</property>
                             <property name="response_id">0</property>
+                            <signal name="clicked" handler="on_m5i20panel_clicked"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6230,6 +6259,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6250,6 +6280,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6270,6 +6301,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6290,6 +6322,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6310,6 +6343,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6330,6 +6364,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6350,6 +6385,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6370,6 +6406,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6390,6 +6427,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6410,6 +6448,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6430,6 +6469,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6450,6 +6490,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6470,6 +6511,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6490,6 +6532,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6510,6 +6553,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6530,6 +6574,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6550,6 +6595,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6570,6 +6616,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6590,6 +6637,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6610,6 +6658,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6630,6 +6679,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6650,6 +6700,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6670,6 +6721,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6812,7 +6864,7 @@ Connector 3</property>
                           <packing>
                             <property name="left_attach">2</property>
                             <property name="right_attach">3</property>
-                            <property name="x_options">GTK_EXPAND</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -6856,6 +6908,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -6887,6 +6940,7 @@ StepGen
                           <packing>
                             <property name="left_attach">8</property>
                             <property name="right_attach">9</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -7067,7 +7121,7 @@ StepGen
                           <packing>
                             <property name="left_attach">7</property>
                             <property name="right_attach">8</property>
-                            <property name="x_options"></property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -7171,6 +7225,7 @@ Unused</property>
                             <property name="right_attach">2</property>
                             <property name="top_attach">2</property>
                             <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
                         </child>
@@ -8788,6 +8843,7 @@ Unused</property>
                             <property name="receives_default">True</property>
                             <property name="label" translatable="yes">Launch test panel</property>
                             <property name="response_id">0</property>
+                            <signal name="clicked" handler="on_m5i20panel_clicked"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>

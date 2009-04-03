@@ -117,13 +117,13 @@ DIN3) = hal_input_names = [
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home", "din-00", "din-01", "din-02", "din-03"]
 
-human_output_names = [ _("Unused"),
+human_output_names = [ _("Unused Output"),
 _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
 _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
 _("Charge Pump"),
 _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3")]
 
-human_input_names = [ _("Unused"), _("ESTOP In"), _("Probe In"),
+human_input_names = [ _("Unused Input"), _("ESTOP In"), _("Probe In"),
 _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
 _("Home X"), _("Home Y"), _("Home Z"), _("Home A"),
 _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
@@ -155,20 +155,25 @@ _("Maximum Limit Z"), _("Maximum Limit A"),
 _("Both Limit X"), _("Both Limit Y"),
 _("Both Limit Z"), _("Both Limit A"),_("All limits"),("All home")]
 
-(UNUSED_OUTPUT, X_DAC, Y_DAC, Z_DAC, A_DAC, SPINDLE_DAC) = hal_servo_output_names = [
-"unused-output","xdac", "ydac", "zdac", "adac", "spindledac"]
+(UNUSED_OUTPUT, X_PWM, Y_PWM, Z_PWM, A_PWM, SPINDLE_PWM) = hal_servo_output_names = [
+"unused-output","xpwm", "ypwm", "zpwm", "apwm", "spindlepwm"]
 
-human_servo_output_names =[ _("Unused DAC"), _("X Axis DAC"), _("Y Axis DAC"),
- _("Z Axis DAC"), _("A Axis DAC"), _("Spindle DAC")]
+human_servo_output_names =[ _("Unused PWM Gen"), _("X Hardware PWM Gen"), _("Y Hardware PWM Gen"),
+ _("Z Hardware PWM Gen"), _("A Hardware PWM Gen"), _("Spindle Hrdware PWM Gen")]
 
-( UNUSED_INPUT,X_ENCODER, Y_ENCODER, Z_ENCODER, A_ENCODER, SPINDLE_ENCODER, 
+(UNUSED_INPUT, X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, Y_ENCODER_A, Z_ENCODER_A, A_ENCODER_A, SPINDLE_ENCODER_A, 
 X_MPG, Y_MPG, Z_MPG, SELECT_MPG)  = hal_servo_input_names = [
- "unused-input","x-encoder", "y-encoder","z-encoder", "a-encoder", "spindle-encoder",
-"X-mpg", "y-mpg", "z-mpg", "select-mpg"]
+ "unused-input", "x-encoder-a", "x-encoder-b", "x-encoder-i", "y-encoder-a","z-encoder-a", "a-encoder-a", "spindle-encoder-a",
+"X-mpg-a", "y-mpg-a", "z-mpg-a", "select-mpg-a"]
 
-human_servo_input_names = [ _("Unused"),_("X Axis Hard Encoder"), _("Y Axis Encoder"), _("Z Axis Encoder"), _("A Axis Encoder"),
-_("Spindle Encoder"),_("X Hand Wheel"),_("Y Hand wheel"), _("Z Hand Wheel"),
+human_servo_input_names = [ _("Unused Encoder-A"), _("X Hardware Encoder-A"), _("X Hardware Encoder-B"), _("X Hardware Encoder-I"), _("Y Hardware Encoder"), _("Z Hardware Encoder"),
+_("A Hardware Encoder"), _("Spindle Hrdware Encoder"),_("X Hand Wheel"),_("Y Hand wheel"), _("Z Hand Wheel"),
 _("Selectable Axis Hand Wheel")]
+
+(UNUSED_STEPGEN, X_STEPGEN, Y_STEPGEN, Z_STEPGEN, A_STEPGEN) = hal_stepper_names = ["unused", "x-stepgen", "y-stepgen", 
+"z-stepgen", "a-stepgen"]
+
+human_stepper_names = [_("Unused StepGen"), _("X Hardware StepGen"), _("Y Hardware StepGen"), _("Z Hardware StepGen"), _("A Hardware StepGen")]
 
 pintype_names = [_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),_("HDW Encoder"),_("HDW PWM Gen"),_("HDW Step Gen")]
 
@@ -241,6 +246,7 @@ class Data:
         self.servooutputsignames = []
         self.halinputsignames = []
         self.haloutputsignames = []
+        self.halsteppersignames = []
 
         self.firstpppin1invout = 0
         self.firstpppin2invout = 0
@@ -410,13 +416,13 @@ class Data:
         self.Thirdpppin13in = UNUSED_INPUT
         self.Thirdpppin15in = UNUSED_INPUT
 
-        self.m5i20c2pin0 = X_ENCODER
-        self.m5i20c2pin1 = Y_ENCODER
-        self.m5i20c2pin2 = X_ENCODER
-        self.m5i20c2pin3 = Y_ENCODER
-        self.m5i20c2pin4 = UNUSED_INPUT
+        self.m5i20c2pin0 = X_ENCODER_A
+        self.m5i20c2pin1 = Y_ENCODER_A
+        self.m5i20c2pin2 = X_ENCODER_B
+        self.m5i20c2pin3 = Y_ENCODER_A
+        self.m5i20c2pin4 = X_ENCODER_I
         self.m5i20c2pin5 = UNUSED_INPUT
-        self.m5i20c2pin6 = X_DAC
+        self.m5i20c2pin6 = X_PWM
         self.m5i20c2pin7 = UNUSED_OUTPUT
         self.m5i20c2pin8 = UNUSED_OUTPUT
         self.m5i20c2pin9 = UNUSED_OUTPUT
@@ -433,7 +439,7 @@ class Data:
         self.m5i20c2pin20 = UNUSED_OUTPUT
         self.m5i20c2pin21 = UNUSED_OUTPUT
         self.m5i20c2pin22 = UNUSED_OUTPUT
-        self.m5i20c2pin23 = UNUSED_OUTPUT
+        self.m5i20c2pin23 = UNUSED_STEPGEN
 
         self.m5i20c2pin0inv = False
         self.m5i20c2pin1inv = False
@@ -837,6 +843,10 @@ class Data:
         for i in  self.haloutputsignames:
             hal_output_names.append(i)
             human_output_names.append(i)
+        for i in  self.halsteppersignames:
+            hal_stepper_names.append(i)
+            human_stepper_names.append(i)
+
 
         warnings = []
         for f, m in self.md5sums:
@@ -2045,6 +2055,7 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa5i20_prepare(self, *args):
+        self.in_mesa_prepare = True
         for connector in (2,3,4):
             for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -2053,8 +2064,10 @@ class App:
                 self.widgets[pinv].set_active(self.data[pinv])
                 model = self.widgets[p].get_model()
                 model.clear()
+                print p
                 if self.data[ptype] == 0:                    
                     for name in human_input_names:
+                        print name ,self.data[p]
                         if self.data.limitshared or self.data.limitsnone:
                             if name in human_names_limit_only: continue 
                         if self.data.limitswitch or self.data.limitsnone:
@@ -2070,9 +2083,13 @@ class App:
                     for name in human_servo_input_names: model.append((name,))
                     self.widgets[p].set_active(hal_servo_input_names.index(self.data[p]))
                     self.widgets[pinv].set_sensitive(0)
-                if self.data[ptype] in (4,5):
+                if self.data[ptype] == 4:
                     for name in human_servo_output_names: model.append((name,))
                     self.widgets[p].set_active(hal_servo_output_names.index(self.data[p])) 
+                    self.widgets[pinv].set_sensitive(0)
+                if self.data[ptype] == 5:              
+                    for name in human_stepper_names: model.append((name,))
+                    self.widgets[p].set_active(hal_stepper_names.index(self.data[p]))
                     self.widgets[pinv].set_sensitive(0)
                 model = self.widgets[ptype].get_model()
                 model.clear()
@@ -2081,10 +2098,12 @@ class App:
                     for j in (0,1,2):
                         temp = pintype_names[j]
                         model.append((temp,))
+                    self.widgets[ptype].set_active(i)
                 else:
                     temp = pintype_names[i]
                     model.append((temp,))
-                self.widgets[ptype].set_active(0)
+                    self.widgets[ptype].set_active(0)
+        self.in_mesa_prepare = False
 
     def on_mesa5i20_next(self, *args):
         for connector in (3,4):
@@ -2109,8 +2128,7 @@ class App:
                   self.data.haloutputsignames.append ((selection))
                 self.data[p] = hal_output_names[self.widgets[p].get_active()]
                 p = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                self.data[p] = self.widgets[p].get_active()
-      
+                self.data[p] = self.widgets[p].get_active()     
         if self.data.number_pports == 0 :       
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True 
@@ -2133,6 +2151,42 @@ class App:
             
 
     def on_m5i20panel_clicked(self, *args):self.m5i20test(self)
+    
+    def on_m5i20pintype_changed(self, *args):
+         if self.in_mesa_prepare == True: return
+         #connector = 3
+         #pin = 0
+         for connector in (2,3,4):
+            for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23): 
+                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
+                old = self.data[ptype]
+                new = self.widgets[ptype].get_active()  
+                print p, "old", old, "new", new       
+                if old == 0 and new in (1,2):
+                    print "switch to output"
+                    model = self.widgets[p].get_model()
+                    model.clear()
+                    for name in human_output_names: model.append((name,))
+                    self.widgets[p].set_active(0)
+                    self.data[p] = UNUSED_OUTPUT
+                    self.data[ptype] = new
+                if old in (1,2) and new == 0:
+                    print "switch to input"
+                    model = self.widgets[p].get_model()
+                    model.clear()
+                    for name in human_input_names:
+                        if self.data.limitshared or self.data.limitsnone:
+                            if name in human_names_limit_only: continue 
+                        if self.data.limitswitch or self.data.limitsnone:
+                            if name in human_names_shared_home: continue                          
+                        if self.data.homenone or self.data.limitshared:
+                            if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                        model.append((name,))
+                    self.widgets[p].set_active(0)
+                    self.data[p] = UNUSED_INPUT
+                    print p, old, new
+                    self.data[ptype] = new
        
     def on_firstpport_prepare(self, *args):
         self.in_pport_prepare = True
