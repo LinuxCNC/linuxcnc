@@ -52,7 +52,7 @@ static int endpoint_valid = 0;
 
 std::vector<queued_canon>& qc(void) {
     static std::vector<queued_canon> c;
-    if(0) printf("len %d\n", c.size());
+    if(0) printf("len %d\n", (int)c.size());
     return c;
 }
 
@@ -510,9 +510,9 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             if(debug_qc) printf("moving endpoint of arc lineno %d old sweep %f new speed %f\n", q.data.arc_feed.line_number, l1, l2);
 
             if(fabs(r1-r2) > .01) 
-                ERF((_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2));
+                ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
             if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + 0.001) {
-                ERF((_("Arc move in concave corner cannot be reached by the tool without gouging")));
+                ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
             q.data.arc_feed.end2 = y;
@@ -532,7 +532,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 y2 = y - endpoint[1];
                 break;
             default:
-                ERF((_("BUG: Unsupported plane in cutter compensation")));
+                ERS(_("BUG: Unsupported plane in cutter compensation"));
             }
             
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
@@ -542,7 +542,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight traverse in concave corner cannot be reached by the tool without gouging")));
+                ERS(_("Straight traverse in concave corner cannot be reached by the tool without gouging"));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:
@@ -570,7 +570,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 y2 = y - endpoint[1];
                 break;
             default:
-                ERF((_("BUG: Unsupported plane in cutter compensation")));
+                ERS(_("BUG: Unsupported plane [%d] in cutter compensation"),
+			settings->plane);
             }
 
             dot = x1 * x2 + y1 * y2;
@@ -580,7 +581,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 // oops, the move is the wrong way.  this means the
                 // path has crossed because we backed up further
                 // than the line is long.  this will gouge.
-                ERF((_("Straight feed in concave corner cannot be reached by the tool without gouging")));
+                ERS(_("Straight feed in concave corner cannot be reached by the tool without gouging"));
             }
             switch(settings->plane) {
             case CANON_PLANE_XY:

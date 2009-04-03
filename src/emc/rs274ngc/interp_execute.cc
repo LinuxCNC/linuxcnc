@@ -47,7 +47,6 @@ This just calls either execute_binary1 or execute_binary2.
 int Interp::execute_binary(double *left, int operation, double *right)
 {
   static char name[] = "execute_binary";
-  int status;
 
   if (operation < AND2)
     CHP(execute_binary1(left, operation, right));
@@ -84,7 +83,7 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
   static char name[] = "execute_binary1";
   switch (operation) {
   case DIVIDED_BY:
-    CHK((*right == 0.0), NCE_ATTEMPT_TO_DIVIDE_BY_ZERO);
+    CHKS((*right == 0.0), NCE_ATTEMPT_TO_DIVIDE_BY_ZERO);
     *left = (*left / *right);
     break;
   case MODULO:                 /* always calculates a positive answer */
@@ -94,7 +93,7 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
     }
     break;
   case POWER:
-    CHK(((*left < 0.0) && (floor(*right) != *right)),
+    CHKS(((*left < 0.0) && (floor(*right) != *right)),
         NCE_ATTEMPT_TO_RAISE_NEGATIVE_TO_NON_INTEGER_POWER);
     *left = pow(*left, *right);
     break;
@@ -102,7 +101,7 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
     *left = (*left * *right);
     break;
   default:
-    ERM(NCE_BUG_UNKNOWN_OPERATION);
+    ERS(NCE_BUG_UNKNOWN_OPERATION);
   }
   return INTERP_OK;
 }
@@ -179,7 +178,7 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
       break;
 
   default:
-    ERM(NCE_BUG_UNKNOWN_OPERATION);
+    ERS(NCE_BUG_UNKNOWN_OPERATION);
   }
   return INTERP_OK;
 }
@@ -323,13 +322,13 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
       *double_ptr = (-1.0 * *double_ptr);
     break;
   case ACOS:
-    CHK(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
+    CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE);
     *double_ptr = acos(*double_ptr);
     *double_ptr = ((*double_ptr * 180.0) / M_PIl);
     break;
   case ASIN:
-    CHK(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
+    CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
         NCE_ARGUMENT_TO_ASIN_OUT_OF_RANGE);
     *double_ptr = asin(*double_ptr);
     *double_ptr = ((*double_ptr * 180.0) / M_PIl);
@@ -347,7 +346,7 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
     *double_ptr = ceil(*double_ptr);
     break;
   case LN:
-    CHK((*double_ptr <= 0.0), NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN);
+    CHKS((*double_ptr <= 0.0), NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN);
     *double_ptr = log(*double_ptr);
     break;
   case ROUND:
@@ -358,14 +357,14 @@ int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand
     *double_ptr = sin((*double_ptr * M_PIl) / 180.0);
     break;
   case SQRT:
-    CHK((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
+    CHKS((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
     *double_ptr = sqrt(*double_ptr);
     break;
   case TAN:
     *double_ptr = tan((*double_ptr * M_PIl) / 180.0);
     break;
   default:
-    ERM(NCE_BUG_UNKNOWN_OPERATION);
+    ERS(NCE_BUG_UNKNOWN_OPERATION);
   }
   return INTERP_OK;
 }

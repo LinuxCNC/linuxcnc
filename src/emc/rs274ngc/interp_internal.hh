@@ -477,27 +477,18 @@ macros totally crash-proof. If the function call stack is deeper than
 
 */
 
-#define ERS(string)                                        \
+// Set an error string using printf-style formats and return
+#define ERS(fmt, ...)                                      \
     do {                                                   \
-        setError ("%s", _(string));                        \
+        setError (fmt, ## __VA_ARGS__);                    \
         _setup.stack_index = 0;                            \
         strcpy(_setup.stack[_setup.stack_index++], name);  \
         _setup.stack[_setup.stack_index][0] = 0;           \
-        return NCE_VARIABLE;                               \
+        return INTERP_ERROR;                               \
     } while(0)
 
-
-#define ERF(error_args)                                    \
-    do {                                                   \
-        setError error_args;                               \
-        _setup.stack_index = 0;                            \
-        strcpy(_setup.stack[_setup.stack_index++], name);  \
-        _setup.stack[_setup.stack_index][0] = 0;           \
-        return NCE_VARIABLE;                               \
-    } while(0)
-
-
-#define ERM(error_code)                                    \
+// Return one of the very few numeric errors
+#define ERN(error_code)                                    \
     do {                                                   \
         _setup.stack_index = 0;                            \
         strcpy(_setup.stack[_setup.stack_index++], name);  \
@@ -506,6 +497,7 @@ macros totally crash-proof. If the function call stack is deeper than
     } while(0)
 
 
+// Propagate an error up the stack
 #define ERP(error_code)                                        \
     do {                                                       \
         if (_setup.stack_index < 49) {                         \
@@ -516,49 +508,30 @@ macros totally crash-proof. If the function call stack is deeper than
     } while(0)
 
 
-#define CHKS(bad, string)                                      \
+// If the condition is true, set an error string as with ERS
+#define CHKS(bad, fmt, ...)                                    \
     do {                                                       \
         if (bad) {                                             \
-            setError ("%s", _(string));                        \
-            _setup.stack_index = 0;                            \
-            strcpy(_setup.stack[_setup.stack_index++], name);  \
-            _setup.stack[_setup.stack_index][0] = 0;           \
-            return NCE_VARIABLE;                               \
+	    ERS(fmt, ## __VA_ARGS__);                          \
+        }                                                      \
+    } while(0)
+
+// If the condition is true, return one of the few numeric errors
+#define CHKN(bad, error_code)                                  \
+    do {                                                       \
+        if (bad) {                                             \
+	    ERN(error_code);                                   \
         }                                                      \
     } while(0)
 
 
-#define CHKF(bad, error_args)                                  \
-    do {                                                       \
-        if (bad) {                                             \
-            setError error_args;                               \
-            _setup.stack_index = 0;                            \
-            strcpy(_setup.stack[_setup.stack_index++], name);  \
-            _setup.stack[_setup.stack_index][0] = 0;           \
-            return NCE_VARIABLE;                               \
-        }                                                      \
-    } while(0)
-
-
-#define CHK(bad, error_code)                                   \
-    do {                                                       \
-        if (bad) {                                             \
-            _setup.stack_index = 0;                            \
-            strcpy(_setup.stack[_setup.stack_index++], name);  \
-            _setup.stack[_setup.stack_index][0] = 0;           \
-            return error_code;                                 \
-        }                                                      \
-    } while(0)
-
-
-#define CHP(try_this)                                              \
+// Propagate an error up the stack as with ERP if the result of 'call' is not
+// INTERP_OK
+#define CHP(call)                                                  \
     do {                                                           \
-        if ((status = (try_this)) != INTERP_OK) {                  \
-            if (_setup.stack_index < 49) {                         \
-                strcpy(_setup.stack[_setup.stack_index++], name);  \
-                _setup.stack[_setup.stack_index][0] = 0;           \
-            }                                                      \
-            return status;                                         \
+	int CHP__status = (call);                                  \
+        if (CHP__status != INTERP_OK) {                            \
+	    ERP(CHP__status);                                      \
         }                                                          \
     } while(0)
 

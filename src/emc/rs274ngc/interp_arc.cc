@@ -104,15 +104,15 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   }
   arc_radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHK(((arc_radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
-  CHKF((fabs(arc_radius - radius2) > tolerance),
-      (_("Radius to end of arc differs from radius to start: "
+  CHKS(((arc_radius < min_radius) || (radius2 < min_radius)), _("Zero radius arc"));
+  CHKS((fabs(arc_radius - radius2) > tolerance),
+      _("Radius to end of arc differs from radius to start: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
        a, current_x, b, current_y, 
        a, *center_x, b, *center_y, 
-       a, end_x, b, end_y, arc_radius, radius2));
+       a, end_x, b, end_y, arc_radius, radius2);
 
-  CHK(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
+  CHKS(((arc_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
                                        ((side == RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
@@ -122,7 +122,7 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
   else if (move == G_3)
     *turn = 1;
   else
-    ERM(NCE_BUG_CODE_NOT_G2_OR_G3);
+    ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
   return INTERP_OK;
 }
 
@@ -201,7 +201,7 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
   double abs_radius;            // absolute value of big_radius
 
   abs_radius = fabs(big_radius);
-  CHK(((abs_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
+  CHKS(((abs_radius <= tool_radius) && (((side == LEFT) && (move == G_3)) ||
                                        ((side == RIGHT) && (move == G_2)))),
       NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
@@ -268,19 +268,19 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   }
   radius = hypot((*center_x - current_x), (*center_y - current_y));
   radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHK(((radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
-  CHKF((fabs(radius - radius2) > tolerance),
-      (_("Radius to end of arc differs from radius to start: "
+  CHKS(((radius < min_radius) || (radius2 < min_radius)), NCE_ZERO_RADIUS_ARC);
+  CHKS((fabs(radius - radius2) > tolerance),
+      _("Radius to end of arc differs from radius to start: "
        "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
        a, current_x, b, current_y, 
        a, *center_x, b, *center_y, 
-       a, end_x, b, end_y, radius, radius2));
+       a, end_x, b, end_y, radius, radius2);
   if (move == G_2)
     *turn = -1;
   else if (move == G_3)
     *turn = 1;
   else
-    ERM(NCE_BUG_CODE_NOT_G2_OR_G3);
+    ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
   return INTERP_OK;
 }
 
@@ -341,13 +341,13 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
   double theta;                 /* angle of line from M to center */
   double turn2;                 /* absolute value of half of turn */
 
-  CHK(((end_x == current_x) && (end_y == current_y)),
+  CHKS(((end_x == current_x) && (end_y == current_y)),
       NCE_CURRENT_POINT_SAME_AS_END_POINT_OF_ARC);
   abs_radius = fabs(radius);
   mid_x = (end_x + current_x) / 2.0;
   mid_y = (end_y + current_y) / 2.0;
   half_length = hypot((mid_x - end_x), (mid_y - end_y));
-  CHK(((half_length - abs_radius) > tolerance),
+  CHKS(((half_length - abs_radius) > tolerance),
       NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
   if ((half_length / abs_radius) > (1 - TINY))
     half_length = abs_radius;   /* allow a small error for semicircle */

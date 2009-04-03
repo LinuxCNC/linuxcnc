@@ -79,11 +79,11 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
       if (item == ')') {
         comment = 0;
       } else if (item == '(')
-        ERM(NCE_NESTED_COMMENT_FOUND);
+        ERS(NCE_NESTED_COMMENT_FOUND);
     } else if ((item == ' ') || (item == '\t') || (item == '\r'));
     /* don't copy blank or tab or CR */
     else if (item == '\n') {    /* don't copy newline            *//* but check null follows        */
-      CHK((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
+      CHKS((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
     } else if ((64 < item) && (item < 91)) {    /* downcase upper case letters */
       line[n++] = (32 + item);
     } else if (item == '(') {   /* comment is starting */
@@ -93,7 +93,7 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
       line[n++] = item;         /* copy anything else */
     }
   }
-  CHK((comment), NCE_UNCLOSED_COMMENT_FOUND);
+  CHKS((comment), NCE_UNCLOSED_COMMENT_FOUND);
   line[n] = 0;
   return INTERP_OK;
 }
@@ -161,21 +161,21 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
-      CHK((axis_flag && (!mode_zero_covets_axes)),
+      CHKS((axis_flag && (!mode_zero_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
-      CHK(((!axis_flag) && (mode0 == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
+      CHKS(((!axis_flag) && (mode0 == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
     } else {
-      CHK(mode_zero_covets_axes,
+      CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHK(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3),
+      CHKS(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
-    CHK(((!axis_flag) && (block->g_modes[0] == G_92)),
+    CHKS(((!axis_flag) && (block->g_modes[0] == G_92)),
         NCE_ALL_AXES_MISSING_WITH_G92);
   } else if (axis_flag) {
-    CHK(((settings->motion_mode == -1)
+    CHKS(((settings->motion_mode == -1)
          || (settings->motion_mode == G_80)),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
     block->motion_to_be = settings->motion_mode;
@@ -305,7 +305,6 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
                       setup_pointer settings)   //!< pointer to machine settings         
 {
   static char name[] = "parse_line";
-  int status;
 
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));

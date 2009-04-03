@@ -72,11 +72,10 @@ int Interp::read_a(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_a";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'a'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'a'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->a_flag != OFF), NCE_MULTIPLE_A_WORDS_ON_ONE_LINE);
+  CHKS((block->a_flag != OFF), NCE_MULTIPLE_A_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->a_flag = ON;
   block->a_number = value;
@@ -126,11 +125,10 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
 {
   static char name[] = "read_atan";
   double argument2;
-  int status;
 
-  CHK((line[*counter] != '/'), NCE_SLASH_MISSING_AFTER_FIRST_ATAN_ARGUMENT);
+  CHKS((line[*counter] != '/'), NCE_SLASH_MISSING_AFTER_FIRST_ATAN_ARGUMENT);
   *counter = (*counter + 1);
-  CHK((line[*counter] != '['),
+  CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_SLASH_WITH_ATAN);
   CHP(read_real_expression(line, counter, &argument2, parameters));
   *double_ptr = atan2(*double_ptr, argument2);  /* value in radians */
@@ -184,11 +182,10 @@ int Interp::read_b(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_b";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'b'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'b'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->b_flag != OFF), NCE_MULTIPLE_B_WORDS_ON_ONE_LINE);
+  CHKS((block->b_flag != OFF), NCE_MULTIPLE_B_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->b_flag = ON;
   block->b_number = value;
@@ -241,11 +238,10 @@ int Interp::read_c(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_c";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'c'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'c'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->c_flag != OFF), NCE_MULTIPLE_C_WORDS_ON_ONE_LINE);
+  CHKS((block->c_flag != OFF), NCE_MULTIPLE_C_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->c_flag = ON;
   block->c_number = value;
@@ -294,7 +290,7 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
   static char name[] = "read_comment";
   int n;
 
-  CHK((line[*counter] != '('), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != '('), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   (*counter)++;
   for (n = 0; line[*counter] != ')'; (*counter)++, n++) {
     block->comment[n] = line[*counter];
@@ -314,7 +310,7 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
 {
   static char name[] = "read_semicolon";
 
-  CHK((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   (*counter) = strlen(line);
   return INTERP_OK;
 }
@@ -357,11 +353,10 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_d";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'd'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'd'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->d_flag != OFF), NCE_MULTIPLE_D_WORDS_ON_ONE_LINE);
+  CHKS((block->d_flag != OFF), NCE_MULTIPLE_D_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->d_number_float = value;
   block->d_flag = ON;
@@ -405,11 +400,10 @@ int Interp::read_e(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_e";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'e'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'e'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->e_flag != OFF), NCE_MULTIPLE_E_WORDS_ON_ONE_LINE);
+  CHKS((block->e_flag != OFF), NCE_MULTIPLE_E_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->e_flag = ON;
   block->e_number = value;
@@ -456,13 +450,12 @@ int Interp::read_f(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_f";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'f'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'f'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->f_number > -1.0), NCE_MULTIPLE_F_WORDS_ON_ONE_LINE);
+  CHKS((block->f_number > -1.0), NCE_MULTIPLE_F_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
-  CHK((value < 0.0), NCE_NEGATIVE_F_WORD_USED);
+  CHKS((value < 0.0), NCE_NEGATIVE_F_WORD_USED);
   block->f_number = value;
   return INTERP_OK;
 }
@@ -528,9 +521,8 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
   double value_read;
   int value;
   int mode;
-  int status;
 
-  CHK((line[*counter] != 'g'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'g'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_real_value(line, counter, &value_read, parameters));
   value_read = (10.0 * value_read);
@@ -539,17 +531,17 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
   if ((value_read - value) > 0.999)
     value = (int) ceil(value_read);
   else if ((value_read - value) > 0.001)
-    ERM(NCE_G_CODE_OUT_OF_RANGE);
+    ERS(NCE_G_CODE_OUT_OF_RANGE);
 
-  CHK((value > 999), NCE_G_CODE_OUT_OF_RANGE);
-  CHK((value < 0), NCE_NEGATIVE_G_CODE_USED);
+  CHKS((value > 999), NCE_G_CODE_OUT_OF_RANGE);
+  CHKS((value < 0), NCE_NEGATIVE_G_CODE_USED);
   mode = _gees[value];
-  CHK((mode == -1), NCE_UNKNOWN_G_CODE_USED);
+  CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
   else {
     if (block->g_modes[mode] == G_80);
     else {
-      CHK((block->g_modes[mode] != -1),
+      CHKS((block->g_modes[mode] != -1),
           NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP);
     }
     block->g_modes[mode] = value;
@@ -594,14 +586,13 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_h";
   int value;
-  int status;
 
-  CHK((line[*counter] != 'h'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'h'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->h_flag == ON), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
+  CHKS((block->h_flag == ON), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < -1), NCE_NEGATIVE_H_WORD_USED);
-  CHK((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
+  CHKS((value < -1), NCE_NEGATIVE_H_WORD_USED);
+  CHKS((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
           NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
   block->h_flag = ON;
   block->h_number = value;
@@ -648,11 +639,10 @@ int Interp::read_i(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_i";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'i'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'i'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->i_flag != OFF), NCE_MULTIPLE_I_WORDS_ON_ONE_LINE);
+  CHKS((block->i_flag != OFF), NCE_MULTIPLE_I_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->i_flag = ON;
   block->i_number = value;
@@ -695,9 +685,9 @@ int Interp::read_integer_unsigned(char *line,    //!< string: line of RS274 code
     if ((c < 48) || (c > 57))
       break;
   }
-  CHK((n == *counter), NCE_BAD_FORMAT_UNSIGNED_INTEGER);
+  CHKS((n == *counter), NCE_BAD_FORMAT_UNSIGNED_INTEGER);
   if (sscanf(line + *counter, "%d", integer_ptr) == 0)
-    ERM(NCE_SSCANF_FAILED);
+    ERS(NCE_SSCANF_FAILED);
   *counter = n;
   return INTERP_OK;
 }
@@ -743,14 +733,13 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
 {
   static char name[] = "read_integer_value";
   double float_value;
-  int status;
 
   CHP(read_real_value(line, counter, &float_value, parameters));
   *integer_ptr = (int) floor(float_value);
   if ((float_value - *integer_ptr) > 0.9999) {
     *integer_ptr = (int) ceil(float_value);
   } else if ((float_value - *integer_ptr) > 0.0001)
-    ERM(NCE_NON_INTEGER_VALUE_FOR_INTEGER);
+    ERS(NCE_NON_INTEGER_VALUE_FOR_INTEGER);
   return INTERP_OK;
 }
 
@@ -779,7 +768,6 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
   static char name[] = "read_items";
   int counter;
   int length;
-  int status;
 
   length = strlen(line);
   counter = 0;
@@ -852,11 +840,10 @@ int Interp::read_j(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_j";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'j'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'j'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->j_flag != OFF), NCE_MULTIPLE_J_WORDS_ON_ONE_LINE);
+  CHKS((block->j_flag != OFF), NCE_MULTIPLE_J_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->j_flag = ON;
   block->j_number = value;
@@ -903,11 +890,10 @@ int Interp::read_k(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_k";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'k'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'k'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->k_flag != OFF), NCE_MULTIPLE_K_WORDS_ON_ONE_LINE);
+  CHKS((block->k_flag != OFF), NCE_MULTIPLE_K_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->k_flag = ON;
   block->k_number = value;
@@ -952,13 +938,12 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_l";
   int value;
-  int status;
 
-  CHK((line[*counter] != 'l'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'l'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->l_number > -1), NCE_MULTIPLE_L_WORDS_ON_ONE_LINE);
+  CHKS((block->l_number > -1), NCE_MULTIPLE_L_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_L_WORD_USED);
+  CHKS((value < 0), NCE_NEGATIVE_L_WORD_USED);
   block->l_number = value;
   block->l_flag = ON;
   return INTERP_OK;
@@ -999,14 +984,13 @@ int Interp::read_n_number(char *line, //!< string: line of RS274    code being p
 {
   static char name[] = "read_n_number";
   int value;
-  int status;
 
-  CHK(((line[*counter] != 'n') && (line[*counter] != 'o')),
+  CHKS(((line[*counter] != 'n') && (line[*counter] != 'o')),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_integer_unsigned(line, counter, &value));
 /* This next test is problematic as many CAM systems will exceed this !
-  CHK((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
+  CHKS((value > 99999), NCE_LINE_NUMBER_GREATER_THAN_99999); */
   block->n_number = value;
   return INTERP_OK;
 }
@@ -1053,16 +1037,15 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   static char name[] = "read_m";
   int value;
   int mode;
-  int status;
 
-  CHK((line[*counter] != 'm'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'm'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_M_CODE_USED);
-  CHK((value > 199), NCE_M_CODE_GREATER_THAN_199);
+  CHKS((value < 0), NCE_NEGATIVE_M_CODE_USED);
+  CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199);
   mode = _ems[value];
-  CHK((mode == -1), NCE_UNKNOWN_M_CODE_USED);
-  CHK((block->m_modes[mode] != -1),
+  CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED);
+  CHKS((block->m_modes[mode] != -1),
       NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
   block->m_modes[mode] = value;
   block->m_count++;
@@ -1127,17 +1110,16 @@ int Interp::read_one_item(
     double * parameters) /* array of system parameters  */
 {
   static char name[] = "read_one_item";
-  int status;
   read_function_pointer function_pointer;
   char letter;
 
   letter = line[*counter];      /* check if in array range */
-  CHKF(((letter < ' ') || (letter > 'z')),
-	("Bad character '\\%03o' used", (unsigned char)letter));
+  CHKS(((letter < ' ') || (letter > 'z')),
+	_("Bad character '\\%03o' used"), (unsigned char)letter);
   function_pointer = _readers[(int) letter]; /* Find the function pointer in the array */
-  CHKF((function_pointer == 0),
-	((!isprint(letter) || isspace(letter)) ?
-	    "Bad character '\\%03o' used" : "Bad character '%c' used", letter));
+  CHKS((function_pointer == 0),
+	(!isprint(letter) || isspace(letter)) ?
+	    _("Bad character '\\%03o' used") : _("Bad character '%c' used"), letter);
   CHP((*this.*function_pointer)(line, counter, block, parameters)); /* Call the function */ 
   return INTERP_OK;
 }
@@ -1205,28 +1187,28 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
       *operation = AND2;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_A);
+      ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_A);
     break;
   case 'm':
     if ((line[*counter] == 'o') && (line[(*counter) + 1] == 'd')) {
       *operation = MODULO;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_M);
+      ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_M);
     break;
   case 'o':
     if (line[*counter] == 'r') {
       *operation = NON_EXCLUSIVE_OR;
       *counter = (*counter + 1);
     } else
-      ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_O);
+      ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_O);
     break;
   case 'x':
     if ((line[*counter] == 'o') && (line[(*counter) + 1] == 'r')) {
       *operation = EXCLUSIVE_OR;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_X);
+      ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_X);
     break;
 
       /* relational operators */
@@ -1237,7 +1219,7 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 	  *counter = (*counter + 1);
 	}
       else
-        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_E);
+        ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_E);
       break;
     case 'n':
       if(line[*counter] == 'e')
@@ -1246,7 +1228,7 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 	  *counter = (*counter + 1);
 	}
       else
-        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_N);
+        ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_N);
       break;
     case 'g':
       if(line[*counter] == 'e')
@@ -1260,7 +1242,7 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 	  *counter = (*counter + 1);
 	}
       else
-        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_G);
+        ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_G);
       break;
     case 'l':
       if(line[*counter] == 'e')
@@ -1274,13 +1256,13 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
 	  *counter = (*counter + 1);
 	}
       else
-        ERM(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_L);
+        ERS(NCE_UNKNOWN_OPERATION_NAME_STARTING_WITH_L);
       break;
 
   case 0:
-    ERM(NCE_UNCLOSED_EXPRESSION);
+    ERS(NCE_UNCLOSED_EXPRESSION);
   default:
-    ERM(NCE_UNKNOWN_OPERATION);
+    ERS(NCE_UNKNOWN_OPERATION);
   }
   return INTERP_OK;
 }
@@ -1342,21 +1324,21 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
       *operation = ATAN;
       *counter = (*counter + 3);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_A);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_A);
     break;
   case 'c':
     if ((line[*counter] == 'o') && (line[(*counter) + 1] == 's')) {
       *operation = COS;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_C);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_C);
     break;
   case 'e':
     if ((line[*counter] == 'x') && (line[(*counter) + 1] == 'p')) {
       *operation = EXP;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_E);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_E);
     break;
   case 'f':
     if ((line[*counter] == 'i') && (line[(*counter) + 1] == 'x')) {
@@ -1366,21 +1348,21 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
       *operation = FUP;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_F);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_F);
     break;
   case 'l':
     if (line[*counter] == 'n') {
       *operation = LN;
       *counter = (*counter + 1);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_L);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_L);
     break;
   case 'r':
     if (strncmp((line + *counter), "ound", 4) == 0) {
       *operation = ROUND;
       *counter = (*counter + 4);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_R);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_R);
     break;
   case 's':
     if ((line[*counter] == 'i') && (line[(*counter) + 1] == 'n')) {
@@ -1390,17 +1372,17 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
       *operation = SQRT;
       *counter = (*counter + 3);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_S);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_S);
     break;
   case 't':
     if ((line[*counter] == 'a') && (line[(*counter) + 1] == 'n')) {
       *operation = TAN;
       *counter = (*counter + 2);
     } else
-      ERM(NCE_UNKNOWN_WORD_STARTING_WITH_T);
+      ERS(NCE_UNKNOWN_WORD_STARTING_WITH_T);
     break;
   default:
-    ERM(NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE);
+    ERS(NCE_UNKNOWN_WORD_WHERE_UNARY_OPERATION_COULD_BE);
   }
   return INTERP_OK;
 }
@@ -1467,14 +1449,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 {
   static char name[] = "read_o";
   double value;
-  int status;
   int param_cnt;
   char oNameBuf[LINELEN+1];
   char *subName;
   char fullNameBuf[2*LINELEN+1];
   int oNumber;
 
-  CHK((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'o'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // changed spec so we now read an expression
   // so... we can have a parameter contain a function pointer!
@@ -1610,7 +1591,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	    }
 	  logDebug("counter[%d] rest of line:|%s|", *counter,
 		   line+*counter);
-	  CHK((param_cnt >= INTERP_SUB_PARAMS),
+	  CHKS((param_cnt >= INTERP_SUB_PARAMS),
 	      NCE_TOO_MANY_SUBROUTINE_PARAMETERS);
 	  CHP(read_real_expression(line, counter, &value, parameters));
 	  block->params[param_cnt] = value;
@@ -1699,7 +1680,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     {
       // not legal
       block->o_type = O_none;
-      ERP(NCE_UNKNOWN_COMMAND_IN_O_LINE);
+      ERS(NCE_UNKNOWN_COMMAND_IN_O_LINE);
     }
 
   return INTERP_OK;
@@ -1744,15 +1725,14 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_p";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'p'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'p'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->p_number > -1.0), NCE_MULTIPLE_P_WORDS_ON_ONE_LINE);
+  CHKS((block->p_number > -1.0), NCE_MULTIPLE_P_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   // FMP removed check for negatives, since we may want them for
   // user-defined codes
-  // CHK((value < 0.0), NCE_NEGATIVE_P_WORD_USED);
+  // CHKS((value < 0.0), NCE_NEGATIVE_P_WORD_USED);
   block->p_number = value;
   block->p_flag = ON;
   return INTERP_OK;
@@ -1768,7 +1748,7 @@ int Interp::read_name(
   int done = 0;
   int i;
 
-  CHK(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   // skip over the '<'
@@ -1788,7 +1768,7 @@ int Interp::read_name(
   }
 
   // !!!KL need to rename the error message and change text
-  CHK((!done), NCE_NAMED_PARAMETER_NOT_TERMINATED);
+  CHKS((!done), NCE_NAMED_PARAMETER_NOT_TERMINATED);
 
   return INTERP_OK;
 }
@@ -1839,7 +1819,7 @@ int Interp::store_named_param(
     double value   //!< value to be written
     )   
 {
-  //static char name[] = "store_named_param";
+  static char name[] = "store_named_param";
   struct named_parameters_struct *nameList;
 
   int level;
@@ -1883,7 +1863,7 @@ int Interp::store_named_param(
   logDebug("%s: param:|%s| returning not defined", "store_named_param",
            nameBuf);
 
-  return NCE_NAMED_PARAMETER_NOT_DEFINED;
+  ERS(NCE_NAMED_PARAMETER_NOT_DEFINED);
 }
 
 int Interp::add_named_param(
@@ -1892,9 +1872,6 @@ int Interp::add_named_param(
 {
   static char name[] = "add_named_param";
   struct named_parameters_struct *nameList;
-
-  int status;
-
   int findStatus;
   double value;
   int level;
@@ -1942,14 +1919,14 @@ int Interp::add_named_param(
       if((nameList->named_parameters == 0) ||
          (nameList->named_param_values == 0))
       {
-          ERP(NCE_OUT_OF_MEMORY);
+          ERS(NCE_OUT_OF_MEMORY);
       }
   }
 
   dup = strdup(nameBuf);
   if(dup == 0)
   {
-      ERP(NCE_OUT_OF_MEMORY);
+      ERS(NCE_OUT_OF_MEMORY);
   }
   logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
   nameList->named_parameters[nameList->named_parameter_used_size++] = dup;
@@ -1968,7 +1945,7 @@ Returned Value: int
    1. The first character read is not a <:
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
    2. The named parameter string is not terminated by >:
-      NCE_NAMED_PARAMETER_NOT_TERMINATED
+      NCE_NAMED_PARAMETER_NOT_TERSINATED
    3. The named parameter has not been defined before use:
       NCE_NAMED_PARAMETER_NOT_DEFINED
 
@@ -2006,13 +1983,12 @@ int Interp::read_named_parameter(
   static char name[] = "read_named_parameter";
 
   char paramNameBuf[LINELEN+1];
-  int status;
   int level;
   int i;
 
   struct named_parameters_struct *nameList;
   
-  CHK((line[*counter] != '<'),
+  CHKS((line[*counter] != '<'),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   CHP(read_name(line, counter, paramNameBuf));
@@ -2043,7 +2019,7 @@ int Interp::read_named_parameter(
   
   logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
-  return NCE_NAMED_PARAMETER_NOT_DEFINED;
+  ERS(NCE_NAMED_PARAMETER_NOT_DEFINED);
 }
 
 
@@ -2099,9 +2075,8 @@ int Interp::read_parameter(
 {
   static char name[] = "read_parameter";
   int index;
-  int status;
 
-  CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
   *counter = (*counter + 1);
 
@@ -2116,7 +2091,7 @@ int Interp::read_parameter(
   else
   {
       CHP(read_integer_value(line, counter, &index, parameters));
-      CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
+      CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       *double_ptr = parameters[index];
   }
@@ -2219,10 +2194,9 @@ int Interp::read_parameter_setting(
   int index;
   double value;
   char *param;
-  int status;
   char *dup;
 
-  CHK((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
 
   // named parameters look like '<letter...>' or '<_letter.....>'
@@ -2230,7 +2204,7 @@ int Interp::read_parameter_setting(
   {
       CHP(read_named_parameter_setting(line, counter, &param, parameters));
 
-      CHK((line[*counter] != '='),
+      CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
       CHP(read_real_value(line, counter, &value, parameters));
@@ -2241,7 +2215,7 @@ int Interp::read_parameter_setting(
       dup = strdup(param);
       if(dup == 0)
       {
-          ERP(NCE_OUT_OF_MEMORY);
+          ERS(NCE_OUT_OF_MEMORY);
       }
       logDebug("%s strdup[0x%x]:|%s|", name, dup, dup);
       _setup.named_parameters[_setup.named_parameter_occurrence] = dup;
@@ -2254,9 +2228,9 @@ int Interp::read_parameter_setting(
   else
   {
       CHP(read_integer_value(line, counter, &index, parameters));
-      CHK(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
+      CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHK((line[*counter] != '='),
+      CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
       CHP(read_real_value(line, counter, &value, parameters));
@@ -2347,14 +2321,16 @@ int Interp::read_named_parameter_setting(
   *param = paramNameBuf;
 
   logDebug("entered %s", name);
-  CHK(((line[*counter] != '<') && !isalpha(line[*(counter)])),
+  CHKS(((line[*counter] != '<') && !isalpha(line[*(counter)])),
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
 
-  CHP(read_name(line, counter, paramNameBuf));
+  status=read_name(line, counter, paramNameBuf);
+  CHP(status);
 
   logDebug("%s: returned(%d) from read_name:|%s|", name, status, paramNameBuf);
 
-  CHP(add_named_param(paramNameBuf));
+  status = add_named_param(paramNameBuf);
+  CHP(status);
   logDebug("%s: returned(%d) from add_named_param:|%s|", name, status, paramNameBuf);
 
   // the rest of the work is done in read_parameter_setting
@@ -2399,15 +2375,14 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_q";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'q'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'q'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->q_number > -1.0), NCE_MULTIPLE_Q_WORDS_ON_ONE_LINE);
+  CHKS((block->q_number > -1.0), NCE_MULTIPLE_Q_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   // FMP removed check for negatives, since we may want them for
   // user-defined codes
-  // CHK((value <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
+  // CHKS((value <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
   block->q_number = value;
   return INTERP_OK;
 }
@@ -2454,11 +2429,10 @@ int Interp::read_r(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_r";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'r'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'r'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->r_flag != OFF), NCE_MULTIPLE_R_WORDS_ON_ONE_LINE);
+  CHKS((block->r_flag != OFF), NCE_MULTIPLE_R_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->r_flag = ON;
   block->r_number = value;
@@ -2673,7 +2647,7 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
   int next_operation;
   int status;
 
-  CHK((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_real_value(line, counter, value, parameters));
   CHP(read_operation(line, counter, &next_operation));
@@ -2724,9 +2698,8 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
   double values[MAX_STACK];
   int operators[MAX_STACK];
   int stack_index;
-  int status;
 
-  CHK((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != '['), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHP(read_real_value(line, counter, values, parameters));
   CHP(read_operation(line, counter, operators));
@@ -2814,7 +2787,7 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
   start[after] = save;
 
   if(end == start) {
-    ERM(NCE_BAD_NUMBER_FORMAT);
+    ERS(NCE_BAD_NUMBER_FORMAT);
   }
 
   *counter = end - line;
@@ -2875,10 +2848,9 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
 {
   static char name[] = "read_real_value";
   char c;
-  int status;
 
   c = line[*counter];
-  CHK((c == 0), NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE);
+  CHKS((c == 0), NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE);
   if (c == '[')
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
@@ -3045,13 +3017,12 @@ int Interp::read_s(char *line,   //!< string: line of RS274NGC code being proces
 {
   static char name[] = "read_s";
   double value;
-  int status;
 
-  CHK((line[*counter] != 's'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 's'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->s_number > -1.0), NCE_MULTIPLE_S_WORDS_ON_ONE_LINE);
+  CHKS((block->s_number > -1.0), NCE_MULTIPLE_S_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
-  CHK((value < 0.0), NCE_NEGATIVE_SPINDLE_SPEED_USED);
+  CHKS((value < 0.0), NCE_NEGATIVE_SPINDLE_SPEED_USED);
   block->s_number = value;
   return INTERP_OK;
 }
@@ -3094,13 +3065,12 @@ int Interp::read_t(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_t";
   int value;
-  int status;
 
-  CHK((line[*counter] != 't'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 't'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->t_number > -1), NCE_MULTIPLE_T_WORDS_ON_ONE_LINE);
+  CHKS((block->t_number > -1), NCE_MULTIPLE_T_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
-  CHK((value < 0), NCE_NEGATIVE_TOOL_ID_USED);
+  CHKS((value < 0), NCE_NEGATIVE_TOOL_ID_USED);
   block->t_number = value;
   return INTERP_OK;
 }
@@ -3178,7 +3148,6 @@ int Interp::read_text(
     int *length)       //!< a pointer to an integer to be set
 {
   static char name[] = "read_text";
-  int status;                   /* used in CHP */
   int index;
   int n;
 
@@ -3186,26 +3155,25 @@ int Interp::read_text(
     if (fgets(raw_line, LINELEN, inport) == NULL) {
       if(_setup.skipping_to_sub)
       {
-        setError("EOF in file:%s seeking o-word: o<%s> from line: %d",
+        ERS("EOF in file:%s seeking o-word: o<%s> from line: %d",
                  _setup.filename,
                  _setup.skipping_to_sub,
                  _setup.skipping_start);
-        ERM(NCE_VARIABLE);
       }
       if (_setup.percent_flag == ON)
       {
-        ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
+        ERS(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
       }
       else
       {
-        ERM(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN_OR_PROGRAM_END);
+        ERS(NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN_OR_PROGRAM_END);
       }
     }
     _setup.sequence_number++;   /* moved from version1, was outside if */
     if (strlen(raw_line) == (LINELEN - 1)) { // line is too long. need to finish reading the line to recover
       for (; fgetc(inport) != '\n';) {
       }                         // could also look for EOF
-      ERM(NCE_COMMAND_TOO_LONG);
+      ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (strlen(raw_line) - 1);        // index set on last char
          (index >= 0) && (isspace(raw_line[index]));
@@ -3219,7 +3187,7 @@ int Interp::read_text(
         return INTERP_ENDFILE;
     }
   } else {
-    CHK((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
+    CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
     strcpy(raw_line, command);
     strcpy(line, command);
     CHP(close_and_downcase(line));
@@ -3282,10 +3250,9 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
 {
   static char name[] = "read_unary";
   int operation;
-  int status;
 
   CHP(read_operation_unary(line, counter, &operation));
-  CHK((line[*counter] != '['),
+  CHKS((line[*counter] != '['),
       NCE_LEFT_BRACKET_MISSING_AFTER_UNARY_OPERATION_NAME);
   CHP(read_real_expression(line, counter, double_ptr, parameters));
 
@@ -3303,9 +3270,8 @@ int Interp::read_u(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_u";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'u'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'u'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHKS((block->u_flag != OFF), _("Multiple U words on one line"));
   CHP(read_real_value(line, counter, &value, parameters));
@@ -3321,9 +3287,8 @@ int Interp::read_v(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_v";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'v'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'v'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHKS((block->v_flag != OFF), _("Multiple V words on one line"));
   CHP(read_real_value(line, counter, &value, parameters));
@@ -3339,9 +3304,8 @@ int Interp::read_w(char *line,   //!< string: line of RS274/NGC code being proce
 {
   static char name[] = "read_w";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'w'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'w'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
   CHKS((block->w_flag != OFF), _("Multiple W words on one line"));
   CHP(read_real_value(line, counter, &value, parameters));
@@ -3391,11 +3355,10 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_x";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'x'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'x'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->x_flag != OFF), NCE_MULTIPLE_X_WORDS_ON_ONE_LINE);
+  CHKS((block->x_flag != OFF), NCE_MULTIPLE_X_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->x_flag = ON;
   if(_setup.lathe_diameter_mode)
@@ -3448,11 +3411,10 @@ int Interp::read_y(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_y";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'y'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'y'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->y_flag != OFF), NCE_MULTIPLE_Y_WORDS_ON_ONE_LINE);
+  CHKS((block->y_flag != OFF), NCE_MULTIPLE_Y_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->y_flag = ON;
   block->y_number = value;
@@ -3499,11 +3461,10 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
 {
   static char name[] = "read_z";
   double value;
-  int status;
 
-  CHK((line[*counter] != 'z'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+  CHKS((line[*counter] != 'z'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHK((block->z_flag != OFF), NCE_MULTIPLE_Z_WORDS_ON_ONE_LINE);
+  CHKS((block->z_flag != OFF), NCE_MULTIPLE_Z_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   block->z_flag = ON;
   block->z_number = value;

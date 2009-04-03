@@ -39,6 +39,7 @@ int Interp::findFile( // ARGUMENTS
 		     char *target,  // the name of the file to find
 		     char *foundFileDirect) // where to store the result
 {
+    const char *name="findFile";
     FILE *file;
     DIR *aDir;
     struct dirent *aFile;
@@ -59,7 +60,7 @@ int Interp::findFile( // ARGUMENTS
 
     if(!aDir)
     {
-	return NCE_FILE_NOT_OPEN;
+	ERS(NCE_FILE_NOT_OPEN);
     }
 
     while((aFile = readdir(aDir)))
@@ -78,7 +79,7 @@ int Interp::findFile( // ARGUMENTS
         }
     }
     closedir(aDir);
-    return NCE_FILE_NOT_OPEN;
+    ERS(NCE_FILE_NOT_OPEN);
 }
 
 
@@ -100,15 +101,14 @@ int Interp::control_save_offset( /* ARGUMENTS                   */
   if(control_find_oword(block, settings, &index) == INTERP_OK)
   {
       // already exists
-      setError("File:%s line:%d redefining sub: o|%s| already defined in file:%s",
+      ERS("File:%s line:%d redefining sub: o|%s| already defined in file:%s",
                settings->filename, settings->sequence_number,
 	       block->o_name,
                settings->oword_offset[index].filename);
-      ERM(NCE_VARIABLE);
       //return INTERP_OK;
   }
 
-  CHK((settings->oword_labels >= INTERP_OWORD_LABELS),
+  CHKS((settings->oword_labels >= INTERP_OWORD_LABELS),
       NCE_TOO_MANY_OWORD_LABELS);
 
 
@@ -149,7 +149,7 @@ int Interp::control_find_oword( /* ARGUMENTS                       */
 	}
     }
   logDebug("Unknown oword name: |%s|", block->o_name);
-  ERP(NCE_UNKNOWN_OWORD_NUMBER);
+  ERS(NCE_UNKNOWN_OWORD_NUMBER);
 }
 
 //
@@ -183,7 +183,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
 	{
           if(settings->file_pointer == NULL)
           {
-            ERP(NCE_FILE_NOT_OPEN);
+            ERS(NCE_FILE_NOT_OPEN);
           }
           if(0 != strcmp(settings->filename,
                          settings->oword_offset[i].filename))
@@ -206,7 +206,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
               else
               {
                   logDebug("Unable to open file: %s", settings->filename);
-                  ERP(NCE_UNABLE_TO_OPEN_FILE);
+                  ERS(NCE_UNABLE_TO_OPEN_FILE);
               }
           }
 	  fseek(settings->file_pointer,
@@ -271,7 +271,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   settings->skipping_to_sub = strdup(block->o_name); // start skipping
 
   settings->skipping_start = settings->sequence_number;
-  //ERP(NCE_UNKNOWN_OWORD_NUMBER);
+  //ERS(NCE_UNKNOWN_OWORD_NUMBER);
   return INTERP_OK;
 }
 
@@ -366,7 +366,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	{
 	  logDebug("started a subroutine defn");
 	  // a definition
-	  CHK((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
+	  CHKS((settings->defining_sub == 1), NCE_NESTED_SUBROUTINE_DEFN);
 	  CHP(control_save_offset(block->o_number, block, settings));
           if(settings->skipping_o)free(settings->skipping_o);
           settings->skipping_o = strdup(block->o_name); // start skipping
@@ -415,7 +415,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
           if(settings->file_pointer == NULL)
           {
-            ERP(NCE_FILE_NOT_OPEN);
+            ERS(NCE_FILE_NOT_OPEN);
           }
 
           //!!!KL must open the new file, if changed
@@ -457,7 +457,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       else
 	{
 	  // a definition
-	  CHK((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
+	  CHKS((settings->defining_sub != 1), NCE_NOT_IN_SUBROUTINE_DEFN);
 	  // no longer skipping or defining
           if(settings->skipping_o)
 	    {
@@ -485,7 +485,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 	}
       if(settings->call_level >= INTERP_SUB_ROUTINE_LEVELS)
 	{
-	  ERP(NCE_TOO_MANY_SUBROUTINE_LEVELS);
+	  ERS(NCE_TOO_MANY_SUBROUTINE_LEVELS);
 	}
 
       for(i=0; i<INTERP_SUB_PARAMS; i++)
@@ -500,7 +500,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
         if(settings->file_pointer == NULL)
           {
-            ERP(NCE_FILE_NOT_OPEN);
+            ERS(NCE_FILE_NOT_OPEN);
           }
         settings->sub_context[settings->call_level].position =
 	    ftell(settings->file_pointer);
@@ -868,7 +868,7 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
 
       if(settings->file_pointer == NULL)
       {
-        ERP(NCE_FILE_NOT_OPEN);
+        ERS(NCE_FILE_NOT_OPEN);
       }
 
       //!!!KL must open the new file, if changed

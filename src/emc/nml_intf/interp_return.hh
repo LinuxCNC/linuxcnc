@@ -24,11 +24,12 @@
 #define INTERP_EXECUTE_FINISH 2
 #define INTERP_ENDFILE 3
 #define INTERP_FILE_NOT_OPEN 4
+#define INTERP_ERROR 5
 
 /*
 The return values OK, EXIT, EXECUTE_FINISH, and ENDFILE represent
 normal, non-error return conditions. FILE_NOT_OPEN is the first
-(of perhaps many) value that represents an error result. INTERP_MIN_ERROR
+value that represents an error result. INTERP_MIN_ERROR
 is therefore the index of the last non-error return value.
 */
 

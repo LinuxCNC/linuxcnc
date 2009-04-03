@@ -352,7 +352,6 @@ int Interp::init()
 {
   static char name[] = "Interp::init";
   int k;                        // starting index in parameters of origin offsets
-  int status;
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
 
@@ -611,7 +610,7 @@ int Interp::load_tool_table()
   static char name[] = "Interp::load_tool_table";
   int n;
 
-  CHK((_setup.tool_max > CANON_TOOL_MAX), NCE_TOOL_MAX_TOO_LARGE);
+  CHKS((_setup.tool_max > CANON_TOOL_MAX), NCE_TOOL_MAX_TOO_LARGE);
   for (n = 0; n <= _setup.tool_max; n++) {
     _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
   }
@@ -689,18 +688,18 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
       _setup.lazy_closing = 0;
     }
 
-  CHK((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
-  CHK((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
+  CHKS((_setup.file_pointer != NULL), NCE_A_FILE_IS_ALREADY_OPEN);
+  CHKS((strlen(filename) > (LINELEN - 1)), NCE_FILE_NAME_TOO_LONG);
   _setup.file_pointer = fopen(filename, "r");
-  CHK((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
+  CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
   line = _setup.linetext;
   for (index = -1; index == -1;) {      /* skip blank lines */
-    CHK((fgets(line, LINELEN, _setup.file_pointer) ==
+    CHKS((fgets(line, LINELEN, _setup.file_pointer) ==
          NULL), NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN);
     length = strlen(line);
     if (length == (LINELEN - 1)) {   // line is too long. need to finish reading the line to recover
       for (; fgetc(_setup.file_pointer) != '\n';);      // could look for EOF
-      ERM(NCE_COMMAND_TOO_LONG);
+      ERS(NCE_COMMAND_TOO_LONG);
     }
     for (index = (length - 1);  // index set on last char
          (index >= 0) && (isspace(line[index])); index--);
@@ -760,23 +759,22 @@ zero, this parses the line into the _setup.block1.
 int Interp::read(const char *command)  //!< may be NULL or a string to read
 {
   static char name[] = "Interp::read";
-  int status;
   int read_status;
 
   if (_setup.probe_flag == ON) {
-    CHK((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
     _setup.probe_flag = OFF;
   }
   if (_setup.toolchange_flag == ON) {
-    CHKF((GET_EXTERNAL_QUEUE_EMPTY() == 0),
-         (_("Queue is not empty after tool change")));
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+         _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
     _setup.toolchange_flag = OFF;
   }
   if (_setup.input_flag == ON) {
-    CHK((GET_EXTERNAL_QUEUE_EMPTY() == 0),
+    CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
     if (_setup.input_digital == ON) { // we are checking for a digital input
 	_setup.parameters[5399] =
@@ -788,7 +786,7 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     }
     _setup.input_flag = OFF;
   }
-  CHK(((command == NULL) && (_setup.file_pointer == NULL)),
+  CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
 
   if(_setup.file_pointer)
@@ -953,12 +951,12 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
     }
     // try for a variable-value match in the file
     if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHK(((variable <= 0)
+      CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable)
-          ERM(NCE_PARAMETER_FILE_OUT_OF_ORDER);
+          ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         else if (k == variable) {
           pars[k] = value;
           if (k == required)
@@ -1033,11 +1031,11 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
     // rename as .bak
     strcpy(line, filename);
     strcat(line, RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX);
-    CHK((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
+    CHKS((rename(filename, line) != 0), NCE_CANNOT_CREATE_BACKUP_FILE);
 
     // open backup for reading
     infile = fopen(line, "r");
-    CHK((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
+    CHKS((infile == NULL), NCE_CANNOT_OPEN_BACKUP_FILE);
   } else {
     // it's OK if the parameter file doesn't exist yet
     // it will now be created with a default list of parameters
@@ -1045,7 +1043,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   }
   // open original for writing
   outfile = fopen(filename, "w");
-  CHK((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
+  CHKS((outfile == NULL), NCE_CANNOT_OPEN_VARIABLE_FILE);
 
   k = 0;
   index = 0;
@@ -1056,12 +1054,12 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
     }
     // try for a variable-value match
     if (sscanf(line, "%d %lf", &variable, &value) == 2) {
-      CHK(((variable <= 0)
+      CHKS(((variable <= 0)
            || (variable >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
       for (; k < RS274NGC_MAX_PARAMETERS; k++) {
         if (k > variable)
-          ERM(NCE_PARAMETER_FILE_OUT_OF_ORDER);
+          ERS(NCE_PARAMETER_FILE_OUT_OF_ORDER);
         else if (k == variable) {
           sprintf(line, "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
@@ -1265,7 +1263,7 @@ void Interp::error_text(int error_code,        //!< code number of error
                          char *error_text,      //!< char array to copy error text into  
                          int max_size)  //!< maximum number of characters to copy
 {
-    if(error_code == NCE_VARIABLE)
+    if(error_code == INTERP_ERROR)
     {
         strncpy(error_text, savedError, max_size);
         error_text[max_size-1] = 0;
@@ -1273,16 +1271,7 @@ void Interp::error_text(int error_code,        //!< code number of error
         return;
     }
 
-    if ((error_code >= INTERP_MIN_ERROR) && (error_code <= RS274NGC_MAX_ERROR))
-    {
-    	char *message = _(_rs274ngc_errors[error_code]);
-	strncpy(error_text, message, max_size-1);
-	error_text[max_size-1] = 0;
-    }
-    else
-    {
-        error_text[0] = 0;
-    }
+    error_text[0] = 0;
 }
 
 /***********************************************************************/

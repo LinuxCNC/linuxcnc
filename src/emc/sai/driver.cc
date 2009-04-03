@@ -216,8 +216,7 @@ int interpret_from_file( /* ARGUMENTS                  */
           (status != INTERP_EXECUTE_FINISH))
         {
           report_error(status, print_stack);
-          if ((status == NCE_FILE_ENDED_WITH_NO_PERCENT_SIGN) ||
-              (do_next == 2)) /* 2 means stop */
+          if (do_next == 2) /* 2 means stop */
             {
               status = 1;
               break;

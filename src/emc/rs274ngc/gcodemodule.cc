@@ -41,8 +41,6 @@ char _parameter_file_name[LINELEN];
 #undef offsetof
 #define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
 
-extern char *_rs274ngc_errors[];
-
 #define iserror(x) ((x) < 0 || (x) >= RS274NGC_MIN_ERROR)
 
 static PyObject *int_array(int *arr, int sz) {
@@ -698,21 +696,10 @@ out_error:
 
 static int maxerror = -1;
 
-static int find_maxerror(void) {
-    int i=0;
-    for(;;i++) {
-        if(!_rs274ngc_errors[i] || !strcmp(_rs274ngc_errors[i], "The End"))
-            return i;
-    }
-}
-
 static char savedError[LINELEN+1];
 static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
     if(!PyArg_ParseTuple(o, "i", &err)) return NULL;
-    if(err < 0 || err >= maxerror) {
-        return PyString_FromString("Error number out of range");
-    }
     interp_new.error_text(err, savedError, LINELEN);
     return PyString_FromString(savedError);
 }
@@ -729,7 +716,6 @@ initgcode(void) {
                 "Interface to EMC rs274ngc interpreter");
     PyType_Ready(&LineCodeType);
     PyModule_AddObject(m, "linecode", (PyObject*)&LineCodeType);
-    maxerror = find_maxerror();
     PyObject_SetAttrString(m, "MAX_ERROR", PyInt_FromLong(maxerror));
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
