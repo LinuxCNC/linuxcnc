@@ -179,10 +179,20 @@ _("X Hand Wheel-I Phase"), _("Y Hand wheel-A Phase"), _("Y Hand Wheel-B Phase"),
 _("Z Hand Wheel-B Phase"), _("Z Hand Wheel-I Phase"), _("A Hand Wheel-A Phase"), _("A Hand Wheel-B Phase"), _("A Hand Wheel-I Phase"), 
 _("Multi Hand Wheel-A Phase"), _("Multi Hand Wheel-B Phase"),_("Multi Hand Wheel-I Phase")]
 
-(UNUSED_STEPGEN, X_STEPGEN, Y_STEPGEN, Z_STEPGEN, A_STEPGEN) = hal_stepper_names = ["unused", "x-stepgen", "y-stepgen", 
-"z-stepgen", "a-stepgen"]
+(UNUSED_STEPGEN, 
+X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
+Y_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
+Z_STEPGEN_STEP, Z_STEPGEN_DIR, Z_STEPGEN_PHC, Z_STEPGEN_PHD, Z_STEPGEN_PHE, Z_STEPGEN_PHF,
+A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_STEPGEN_PHF,) = hal_stepper_names = ["unused", 
+"x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f", 
+"y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
+"z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
+"a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",]
 
-human_stepper_names = [_("Unused StepGen"), _("X Hardware StepGen"), _("Y Hardware StepGen"), _("Z Hardware StepGen"), _("A Hardware StepGen")]
+human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved"), _("X reserved"), 
+_("X reserved"), _("X reserved"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved"), _("Y reserved"), _("Y reserved"), 
+_("Y reserved"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved"), _("Z reserved"), _("Z reserved"), _("Z reserved"), 
+_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved"), _("A reserved"), _("A reserved"), _("A reserved"), ]
 
 pintype_names = [_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),_("HDW Encoder"),_("HDW PWM Gen"),_("HDW Step Gen")]
 
@@ -222,6 +232,11 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
+        self.mesa_firmware = 0 #
+        self.numof_mesa_encodergens = 4
+        self.numof_mesa_pwmgens = 4
+        self.numof_mesa_stepgens = 0
+        self.numof_mesa_gpio = 48
         self.firstpp_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -2065,6 +2080,12 @@ class App:
 
     def on_mesa5i20_prepare(self, *args):
         self.in_mesa_prepare = True
+        self.widgets.mesa_firmware.set_active(self.data.mesa_firmware)
+        self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
+        self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
+        self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
+        self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
+
         for connector in (2,3,4):
             for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -2073,7 +2094,6 @@ class App:
                 self.widgets[pinv].set_active(self.data[pinv])
                 model = self.widgets[p].get_model()
                 model.clear()
-                #print p
                 # signal names for input
                 if self.data[ptype] == 0:                    
                     for name in human_input_names:
@@ -2086,10 +2106,12 @@ class App:
                             if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
                         model.append((name,))
                     self.widgets[p].set_active(hal_input_names.index(self.data[p]))
+                    self.widgets[pinv].set_sensitive(1)
                 # signal names for output and open drain output
                 if self.data[ptype] in (1,2):                
                     for name in human_output_names: model.append((name,))
                     self.widgets[p].set_active(hal_output_names.index(self.data[p]))  
+                    self.widgets[pinv].set_sensitive(1)
                 # signal names for encoder 
                 if self.data[ptype] == 3: 
                     if not pin in (1,3,4,5,13,15,16,17): 
@@ -2133,10 +2155,27 @@ class App:
                         self.widgets[p].set_active(hal_servo_output_names.index(self.data[p])) 
                     self.widgets[pinv].set_sensitive(0)
                 # signal names for stepper
-                if self.data[ptype] == 5:              
-                    for name in human_stepper_names: model.append((name,))
-                    self.widgets[p].set_active(hal_stepper_names.index(self.data[p]))
-                    self.widgets[pinv].set_sensitive(0)
+                if self.data[ptype] == 5:   
+                    if not pin in (1,2,3,4,5,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23):
+                        temp = -1
+                        for name in human_stepper_names:                       
+                            temp = temp + 1
+                            if temp in(2,3,4,5): continue
+                            if temp == 6:
+                                temp = 0
+                                continue
+                            model.append((name,))
+                        #print model[1][0],"selected"
+                        for search,item in enumerate(model):
+                            #print model[search][0], search
+                            if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
+                                self.widgets[p].set_active(search)
+                    if pin in (1,2,3,4,5,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23):
+                        self.widgets[p].set_sensitive(0)
+                        for name in human_stepper_names: model.append((name,))
+                        self.widgets[p].set_active(hal_stepper_names.index(self.data[p])) 
+                    self.widgets[pinv].set_sensitive(0)           
+                # This is for changing names in the pintype combobox
                 model = self.widgets[ptype].get_model()
                 model.clear()
                 i = self.data[ptype]                      
@@ -2233,21 +2272,119 @@ class App:
                     #print p, old, new
                     self.data[ptype] = new
 
+    def on_mesa_component_value_changed(self, *args):
+        numofpwmgens = int(self.widgets.numof_mesa_pwmgens.get_value())
+        numofstepgens = int(self.widgets.numof_mesa_stepgens.get_value())
+        numofencoders = int(self.widgets.numof_mesa_encodergens.get_value())
+        # This is for Stepgen / GPIO conversion
+        temp = (numofstepgens * 6)
+        print "temp",temp
+        for pin in range (0,24):
+            connector = 4
+            p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+            ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+            pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+            if pin in range (0,temp):
+                if self.data[ptype] == 5: continue
+                else:
+                    self.data[p] =  UNUSED_STEPGEN
+                    self.data[ptype] = 5
+                    print "changed to stepgen"
+            else:   
+                if self.data[ptype] in (0,1,2) : continue
+                else:
+                    self.data[p] =  UNUSED_INPUT
+                    self.data[ptype] = 0
+                    self.widgets[p].set_sensitive(1)
+                    print"changed",p," to GPIO"
+        self.data.numof_mesa_stepgens = numofstepgens
+        # This is for Encoder / GPIO conversion
+        temp1 = (numofencoders * 3)
+        for connector in (2,3):
+                order= (2,3,5,0,1,4,14,15,17,12,13,16,)
+                j = 0
+                for i, pin in enumerate(order):
+                    p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                    ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}               
+                    if connector == 3: 
+                        j = i + 12
+                    else: j = i
+                    if j in range (0,temp1):
+                        if self.data[ptype] == 3: continue
+                        else:
+                            self.data[p] =  UNUSED_INPUT
+                            self.data[ptype] = 3
+                            print "changed",p," to Encoder"   
+                    else: 
+                        if self.data[ptype] in (0,1,2): continue
+                        else:
+                            self.data[p] =  UNUSED_INPUT
+                            self.data[ptype] = 0
+                            self.widgets[p].set_sensitive(1)
+                            print"changed",p,"to GPIO"
+        self.data.numof_mesa_encodergens = numofencoders
+        # This is for PWM / GPIO conversion
+        temp2 = (numofpwmgens * 3)
+        for connector in (2,3):
+                order= (7,9,11,6,8,10,19,21,23,18,20,22)
+                j = 0
+                for i, pin in enumerate(order):
+                    p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                    ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}               
+                    if connector == 3: 
+                        j = i + 12
+                    else: j = i
+                    if j in range (0,temp2):
+                        if self.data[ptype] == 4: continue
+                        else:
+                            self.data[p] =  UNUSED_OUTPUT
+                            self.data[ptype] = 4
+                            print "changed",p," to pwm"   
+                    else: 
+                        if self.data[ptype] in (0,1,2): continue
+                        else:
+                            self.data[p] =  UNUSED_INPUT
+                            self.data[ptype] = 0
+                            self.widgets[p].set_sensitive(1)
+                            print"changed",p,"to GPIO"
+        self.data.numof_mesa_pwmgens = numofpwmgens
+
+        total = (24-temp+24-temp1+24-temp2)
+        self.data.numof_mesa_gpio= total        
+        self.on_mesa5i20_prepare()
+   
+    def on_gpio_update(self, *args):
+        print "here"
+        i = (int(self.widgets.numof_mesa_pwmgens.get_value()) * 3)
+        j = (int(self.widgets.numof_mesa_stepgens.get_value()) * 6)
+        k = (int(self.widgets.numof_mesa_encodergens.get_value()) * 3)
+        total = (72-i-j-k)
+        self.widgets.numof_mesa_gpio.set_text("%d" % total)
+
     def on_mesa_pin_changed(self, *args):
         if self.in_mesa_prepare == True: return
         for connector in (2,3,4): 
-            for pin in (0,2,6,7,12,14,18,19):
+            for pin in range(0,24):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pinchanged =  self.widgets[p].get_active_text() 
                 used = 0
+                if self.data[ptype] == 5:
+                    for index, name in enumerate(human_stepper_names):
+                        if name == pinchanged:
+                            if not pinchanged == "Unused StepGen":used = 1
+                            if pin in (0,6,12,18):
+                                for temp in range(1,6):
+                                    tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+temp}
+                                    self.widgets[tochange].set_active((index+temp)*used) 
+                    continue
                 if self.data[ptype] == 3: 
                     signals_to_search = human_servo_input_names
                     unusedcheck = "Unused Encoder"
                 elif self.data[ptype] == 4: 
                     signals_to_search = human_servo_output_names
                     unusedcheck = "Unused PWM Gen"
-                else: continue
-                pinchanged =  self.widgets[p].get_active_text()       
+                else: continue                  
                 for index, name in enumerate(signals_to_search):
                     if name == pinchanged:
                         if not pinchanged == unusedcheck:used = 1

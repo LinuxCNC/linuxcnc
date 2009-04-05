@@ -1289,8 +1289,10 @@ shared with home</property>
                         <child>
                           <widget class="GtkLabel" id="label107">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Click on each page to configure each connector port
-or press the lower default preset buttons below.</property>
+                            <property name="label" translatable="yes">Click on each page to configure signal names for 
+each connector port
+The spin buttons below on this page allow you to
+select the amouns of different types of components.</property>
                           </widget>
                         </child>
                         <child>
@@ -1377,9 +1379,10 @@ or press the lower default preset buttons below.</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="label" translatable="yes">Launch test panel</property>
+                                    <property name="label" translatable="yes">Change number
+of components</property>
                                     <property name="response_id">0</property>
-                                    <signal name="clicked" handler="on_m5i20panel_clicked"/>
+                                    <signal name="clicked" handler="on_mesa_component_value_changed"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1392,7 +1395,7 @@ or press the lower default preset buttons below.</property>
                                   <widget class="GtkLabel" id="label105">
                                     <property name="visible">True</property>
                                     <property name="xalign">1.1175870895385742e-08</property>
-                                    <property name="label" translatable="yes">Configuration:</property>
+                                    <property name="label" translatable="yes">Firmware:</property>
                                   </widget>
                                 </child>
                                 <child>
@@ -1440,10 +1443,11 @@ or press the lower default preset buttons below.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="spinbutton11">
+                                  <widget class="GtkSpinButton" id="numof_mesa_encodergens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">8 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 10</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1453,10 +1457,11 @@ or press the lower default preset buttons below.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="spinbutton12">
+                                  <widget class="GtkSpinButton" id="numof_mesa_pwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">8 0 8 1 10 10</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1466,10 +1471,11 @@ or press the lower default preset buttons below.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="spinbutton13">
+                                  <widget class="GtkSpinButton" id="numof_mesa_stepgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">4 0 4 1 10 10</property>
+                                    <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -1479,7 +1485,7 @@ or press the lower default preset buttons below.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label325">
+                                  <widget class="GtkLabel" id="numof_mesa_gpio">
                                     <property name="visible">True</property>
                                     <property name="xalign">0.070000000298023224</property>
                                     <property name="label" translatable="yes">0</property>
@@ -1492,7 +1498,7 @@ or press the lower default preset buttons below.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="combobox1">
+                                  <widget class="GtkComboBox" id="mesa_firmware">
                                     <property name="visible">True</property>
                                     <property name="items" translatable="yes">SVST8_4</property>
                                   </widget>
@@ -2270,6 +2276,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry8">
                               </widget>
@@ -2322,6 +2329,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry9">
                               </widget>
@@ -2374,6 +2382,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry10">
                               </widget>
@@ -2426,6 +2435,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry11">
                               </widget>
@@ -2643,6 +2653,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry23">
                               </widget>
@@ -2677,6 +2688,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry7">
                               </widget>
@@ -2711,6 +2723,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry6">
                               </widget>
@@ -2745,6 +2758,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry5">
                               </widget>
@@ -2779,6 +2793,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry4">
                               </widget>
@@ -2813,6 +2828,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry3">
                               </widget>
@@ -2847,6 +2863,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry2">
                               </widget>
@@ -3010,6 +3027,7 @@ Coolant Flood
 ESTOP Request
 Amplifier Enable
 Charge Pump</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry1">
                               </widget>
@@ -3265,6 +3283,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry12">
                               </widget>
@@ -3317,6 +3336,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry13">
                               </widget>
@@ -3369,6 +3389,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry14">
                               </widget>
@@ -3421,6 +3442,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry15">
                               </widget>
@@ -3473,6 +3495,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry16">
                               </widget>
@@ -3525,6 +3548,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry17">
                               </widget>
@@ -3577,6 +3601,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry18">
                               </widget>
@@ -3629,6 +3654,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry19">
                               </widget>
@@ -3681,6 +3707,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry20">
                               </widget>
@@ -3733,6 +3760,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry21">
                               </widget>
@@ -3785,6 +3813,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry22">
                               </widget>
@@ -3836,6 +3865,7 @@ Both Limit A
 All limits
 All home
 Unused</property>
+                            <signal name="changed" handler="on_mesa_pin_changed"/>
                             <child internal-child="entry">
                               <widget class="GtkEntry" id="comboboxentry-entry24">
                               </widget>
@@ -6874,6 +6904,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6894,6 +6925,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6914,6 +6946,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6934,6 +6967,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6954,6 +6988,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6974,6 +7009,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -6994,6 +7030,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7014,6 +7051,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7034,6 +7072,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7054,6 +7093,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7074,6 +7114,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7094,6 +7135,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">7</property>
@@ -7114,6 +7156,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7134,6 +7177,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7154,6 +7198,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7174,6 +7219,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7194,6 +7240,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7214,6 +7261,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7234,6 +7282,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7254,6 +7303,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7274,6 +7324,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7294,6 +7345,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -7314,6 +7366,7 @@ Encoder
 PWM
 StepGen
 </property>
+                            <signal name="changed" handler="on_m5i20pintype_changed"/>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
