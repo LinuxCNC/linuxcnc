@@ -171,7 +171,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
 
 
-static void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
+void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
     int ioport_number;
     int bit_number;
 
@@ -259,7 +259,7 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
 // all pins whose secondary_tag == gtag and whose
 // secondary_unit < num_instances get their source set to secondary and
 // their pin direction updated to match
-static void hm2_pins_allocate(hostmot2_t *hm2, int gtag, int num_instances) {
+static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances) {
     int i;
 
     for (i = 0; i < hm2->num_pins; i ++) {
@@ -307,10 +307,17 @@ void hm2_configure_pins(hostmot2_t *hm2) {
         hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_INPUT);
     }
 
+
+    //
     // ... then modules get to take what they want
-    hm2_pins_allocate(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
-    hm2_pins_allocate(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
-    hm2_pins_allocate(hm2, HM2_GTAG_STEPGEN, hm2->stepgen.num_instances);
+    //
+
+    // stepgen is special, it wants to think about what pins it takes
+    hm2_stepgen_allocate_pins(hm2);
+
+    // encoder and pwmgen just get all their enabled instances' pins
+    hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
 }
 
 

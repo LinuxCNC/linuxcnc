@@ -419,6 +419,30 @@ void hm2_stepgen_tram_init(hostmot2_t *hm2) {
 
 
 
+void hm2_stepgen_allocate_pins(hostmot2_t *hm2) {
+    int i;
+
+    for (i = 0; i < hm2->num_pins; i ++) {
+        if (
+            (hm2->pin[i].sec_tag != HM2_GTAG_STEPGEN)
+            || (hm2->pin[i].sec_unit >= hm2->stepgen.num_instances)
+        ) {
+            continue;
+        }
+
+        // the hm2 stepgen driver only does two-pin output, step/dir etc
+        if ((hm2->pin[i].sec_pin & 0x7f) > 2) continue;
+
+        hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
+        if (hm2->pin[i].sec_pin & 0x80){
+            hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+        }
+    }
+}
+
+
+
+
 int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;

@@ -683,6 +683,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2);
 void hm2_configure_pins(hostmot2_t *hm2);
 void hm2_print_pin_usage(hostmot2_t *hm2);
 void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction);  // gpio needs this
+void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source);
 
 
 
@@ -749,6 +750,7 @@ void hm2_stepgen_write(hostmot2_t *hm2);
 void hm2_stepgen_tram_init(hostmot2_t *hm2);
 void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long period);
 void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_stepgen_allocate_pins(hostmot2_t *hm2);
 
 
 
