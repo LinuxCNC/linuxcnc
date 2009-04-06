@@ -232,11 +232,11 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
-        self.mesa_firmware = 0 #
+        self.mesa_firmware = 0 # SVST8_4 
         self.numof_mesa_encodergens = 4
-        self.numof_mesa_pwmgens = 4
+        self.numof_mesa_pwmgens = 5
         self.numof_mesa_stepgens = 0
-        self.numof_mesa_gpio = 48
+        self.numof_mesa_gpio = 45
         self.firstpp_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -266,8 +266,8 @@ class Data:
         self.ladderhaltype = 0 # no HAL connections specified
         self.ladderconnect = 1 # HAL connections allowed
 
-        self.servoinputsignames = []
-        self.servooutputsignames = []
+        self.halservoinputsignames = []
+        self.halservooutputsignames = []
         self.halinputsignames = []
         self.haloutputsignames = []
         self.halsteppersignames = []
@@ -530,8 +530,7 @@ class Data:
         self.m5i20c3pin12 = UNUSED_INPUT
         self.m5i20c3pin13 = UNUSED_INPUT
         self.m5i20c3pin14 = UNUSED_INPUT
-        self.m5i20c3pin15 = UNUSED_INPUT
-    
+        self.m5i20c3pin15 = UNUSED_INPUT    
         self.m5i20c3pin16 = UNUSED_OUTPUT
         self.m5i20c3pin17 = UNUSED_OUTPUT
         self.m5i20c3pin18 = UNUSED_OUTPUT
@@ -606,8 +605,7 @@ class Data:
         self.m5i20c4pin12 = UNUSED_INPUT
         self.m5i20c4pin13 = UNUSED_INPUT
         self.m5i20c4pin14 = UNUSED_INPUT
-        self.m5i20c4pin15 = UNUSED_INPUT
-    
+        self.m5i20c4pin15 = UNUSED_INPUT    
         self.m5i20c4pin16 = UNUSED_OUTPUT
         self.m5i20c4pin17 = UNUSED_OUTPUT
         self.m5i20c4pin18 = UNUSED_OUTPUT
@@ -855,10 +853,10 @@ class Data:
             conv = converters[n.getAttribute('type')]
             text = n.getAttribute('value')
             setattr(self, name, conv(text))
-        for i in  self.servoinputsignames:
+        for i in  self.halservoinputsignames:
             hal_servo_input_names.append(i)
             human_servo_input_names.append(i)
-        for i in  self.servooutputsignames:
+        for i in  self.halservooutputsignames:
             hal_servo_output_names.append(i)
             human_servo_output_names.append(i)
         for i in  self.halinputsignames:
@@ -2087,7 +2085,7 @@ class App:
         self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
 
         for connector in (2,3,4):
-            for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
+            for pin in range(0,24):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
@@ -2114,20 +2112,20 @@ class App:
                     self.widgets[pinv].set_sensitive(1)
                 # signal names for encoder 
                 if self.data[ptype] == 3: 
+                    # This sets up the 'controlling' combobox (signal phase A) 
                     if not pin in (1,3,4,5,13,15,16,17): 
                         temp = -1
-                        for name in human_servo_input_names:                       
+                        for name in human_servo_input_names:                      
                             temp = temp +1
                             if temp == 2: continue
                             if temp == 3:
                                 temp = 0
                                 continue
                             model.append((name,))
-                        #print model[1][0],"selected"
                         for search,item in enumerate(model):
-                            #print model[search][0], search
                             if model[search][0]  == human_servo_input_names[hal_servo_input_names.index(self.data[p])]:
                                 self.widgets[p].set_active(search)
+                    # This sets up the 'following' combobox (signal phase B and I)
                     if pin in (1,3,4,5,13,15,16,17):
                         self.widgets[p].set_sensitive(0)
                         for name in human_servo_input_names:model.append((name,))
@@ -2144,9 +2142,7 @@ class App:
                                 temp = 0
                                 continue
                             model.append((name,))
-                        #print model[1][0],"selected"
                         for search,item in enumerate(model):
-                            #print model[search][0], search
                             if model[search][0]  == human_servo_output_names[hal_servo_output_names.index(self.data[p])]:
                                 self.widgets[p].set_active(search)
                     if pin in (8,9,10,11,20,21,22,23):
@@ -2156,7 +2152,7 @@ class App:
                     self.widgets[pinv].set_sensitive(0)
                 # signal names for stepper
                 if self.data[ptype] == 5:   
-                    if not pin in (1,2,3,4,5,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23):
+                    if not pin in range (1,24):
                         temp = -1
                         for name in human_stepper_names:                       
                             temp = temp + 1
@@ -2165,12 +2161,10 @@ class App:
                                 temp = 0
                                 continue
                             model.append((name,))
-                        #print model[1][0],"selected"
                         for search,item in enumerate(model):
-                            #print model[search][0], search
                             if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
                                 self.widgets[p].set_active(search)
-                    if pin in (1,2,3,4,5,7,8,9,10,11,13,14,15,16,17,19,20,21,22,23):
+                    if pin in range(1,24):
                         self.widgets[p].set_sensitive(0)
                         for name in human_stepper_names: model.append((name,))
                         self.widgets[p].set_active(hal_stepper_names.index(self.data[p])) 
@@ -2178,7 +2172,9 @@ class App:
                 # This is for changing names in the pintype combobox
                 model = self.widgets[ptype].get_model()
                 model.clear()
-                i = self.data[ptype]                      
+                i = self.data[ptype]     
+                # if GPIO combobox then only 'input, output, and open drain' in it  
+                # else has only one pintype in it               
                 if i in (0,1,2):
                     for j in (0,1,2):
                         temp = pintype_names[j]
@@ -2190,34 +2186,111 @@ class App:
                     self.widgets[ptype].set_active(0)
         self.in_mesa_prepare = False
 
-    def on_mesa5i20_next(self, *args):
-        return
-        for connector in (3,4):
-            for pin in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15):
+    
+    def on_mesa5i20_next(self,*args):
+        for connector in (2,3,4):
+            for pin in range(0,24):
                 foundit = 0
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                self.get_input_signals_from_gui(p)
-                p = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                self.data[p] = self.widgets[p].get_active()
-            for pin in (16,17,18,19,20,21,22,23):
-                foundit = 0
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pintype = self.data[ptype]
                 selection = self.widgets[p].get_active_text()
-                for i in human_output_names:
-                   if selection == i : foundit = True
+                # type GPIO input
+                if pintype == 0:
+                    nametocheck = human_input_names
+                    signaltocheck = hal_input_names
+                    addsignalto = self.data.halinputsignames
+                # type gpio output and open drain
+                elif pintype in (1,2):
+                    nametocheck = human_output_names
+                    signaltocheck = hal_output_names
+                    addsignalto = self.data.haloutputsignames
+                #type encoder
+                elif pintype == 3:
+                    if not pin in (0,2,12,14):continue
+                    nametocheck = human_servo_input_names
+                    signaltocheck = hal_servo_input_names
+                    addsignalto = self.data.halservoinputsignames
+                # type PWM gen
+                elif pintype == 4:
+                    if not pin in (6,7,18,19):continue
+                    nametocheck = human_servo_output_names
+                    signaltocheck = hal_servo_output_names
+                    addsignalto = self.data.halservooutputsignames
+                # type step gen
+                elif pintype == 5:
+                    if not pin in (0,6,12,18):continue
+                    nametocheck = human_stepper_names
+                    signaltocheck = hal_stepper_names
+                    addsignalto = self.data.halsteppersignames
+                else :
+                    print "error unknown pin type"
+                    return
+                # check apropriote signal array for current signalname
+                # if not found, add it to array
+                for index , i in enumerate(nametocheck):
+                    if selection == i : 
+                        foundit = True
+                        break               
                 if not foundit:
-                  model = self.widgets[p].get_model()
-                  model.append((selection,))
-                  g = human_output_names
-                  g.append ((selection))
-                  hal_output_names.append ((selection))
-                  self.data.haloutputsignames.append ((selection))
-                self.data[p] = hal_output_names[self.widgets[p].get_active()]
-                p = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                self.data[p] = self.widgets[p].get_active()     
-        if self.data.number_pports == 0 :       
-           self.widgets.druid1.set_page(self.widgets.xaxismotor)
-           return True 
+                    model = self.widgets[p].get_model()
+                    if pintype == 3 :
+                        model.append((selection+"-A",))
+                        index = index +1
+                        for ending in ("-a","-b","-i"):
+                            signaltocheck.append ((selection + ending))
+                            nametocheck.append ((selection + ending))
+                            addsignalto.append ((selection + ending))
+                        if pin in (0,12):
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                            self.data[d] = signaltocheck[index+1]
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                            self.data[d] = signaltocheck[index+2]
+                        elif pin in (2,14):
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                            self.data[d] = signaltocheck[index+1]
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                            self.data[d] = signaltocheck[index+2]
+                        else:
+                            print"Encoder pin config error"
+                            continue
+                    elif pintype == 4 :
+                        model.append((selection+"-pulse",))
+                        index = index +1
+                        for ending in ("-pulse","-dir","-enable"):
+                            signaltocheck.append ((selection + ending))
+                            nametocheck.append ((selection + ending))
+                            addsignalto.append ((selection + ending))
+                        if pin in (6,7,18,19):
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                            self.data[d] = signaltocheck[index+1]
+                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                            self.data[d] = signaltocheck[index+2]
+                        else:
+                            print "PWM pin config error"
+                            continue
+                    elif pintype == 5 :
+                        model.append((selection+"-step",))
+                        index = index +1
+                        for ending in ("-step","-dir","-unused1","-unused2","-unused3","-unused4",):
+                            signaltocheck.append ((selection + ending))
+                            nametocheck.append ((selection + ending))
+                            addsignalto.append ((selection + ending))
+                        if pin in (0,6,12,18):
+                                for temp in range(1,6):
+                                    d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+temp}
+                                    self.data[d] = signaltocheck[index+temp]
+                        else:
+                            print "StepGen pin config error"
+                            continue
+                    else:
+                        model.append((selection,))
+                        signaltocheck.append ((selection))
+                        nametocheck.append ((selection))
+                        addsignalto.append ((selection))
+                self.data[p] = signaltocheck[index]
+                self.data[pinv] = self.widgets[pinv].get_active()
 
     def get_input_signals_from_gui(self,p):
         foundit = 0
@@ -2379,13 +2452,18 @@ class App:
                                     self.widgets[tochange].set_active((index+temp)*used) 
                     continue
                 if self.data[ptype] == 3: 
-                    signals_to_search = human_servo_input_names
+                    nametocheck = human_servo_input_names
+                    signaltocheck = hal_servo_input_names
+                    addsignalto = self.data.halservoinputsignames
                     unusedcheck = "Unused Encoder"
                 elif self.data[ptype] == 4: 
-                    signals_to_search = human_servo_output_names
+                    nametocheck = human_servo_output_names
+                    signaltocheck = hal_servo_output_names
+                    addsignalto = self.data.halservooutputsignames
                     unusedcheck = "Unused PWM Gen"
-                else: continue                  
-                for index, name in enumerate(signals_to_search):
+                else: continue      
+                foundit = False            
+                for index, name in enumerate(nametocheck):
                     if name == pinchanged:
                         if not pinchanged == unusedcheck:used = 1
                         if pin in (0,12):
@@ -2402,7 +2480,7 @@ class App:
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                             self.widgets[tochange].set_active((index+1)*used) 
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
-                            self.widgets[tochange].set_active((index+2)*used) 
+                            self.widgets[tochange].set_active((index+2)*used)
 
     def on_firstpport_prepare(self, *args):
         self.in_pport_prepare = True
