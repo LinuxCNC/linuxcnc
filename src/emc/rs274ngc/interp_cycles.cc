@@ -143,7 +143,6 @@ int Interp::convert_cycle_g83(block_pointer block,
                               double bottom_z,   //!< value of z at bottom of cycle   
                               double delta)      //!< size of z-axis feed increment   
 {
-  static char name[] = "convert_cycle_g83";
   double current_depth;
   double rapid_delta;
 
@@ -208,7 +207,6 @@ int Interp::convert_cycle_g73(block_pointer block,
                               double bottom_z,   //!< value of z at bottom of cycle   
                               double delta)      //!< size of z-axis feed increment   
 {
-  static char name[] = "convert_cycle_g73";
   double current_depth;
   double rapid_delta;
 
@@ -275,8 +273,6 @@ int Interp::convert_cycle_g84(block_pointer block,
                               CANON_DIRECTION direction, //!< direction spindle turning at outset
                               CANON_SPEED_FEED_MODE mode)        //!< the speed-feed mode at outset      
 {
-  static char name[] = "convert_cycle_g84";
-
   CHKS((direction != CANON_CLOCKWISE),
       NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84);
 #if 0
@@ -372,8 +368,6 @@ int Interp::convert_cycle_g86(block_pointer block,
                               double dwell,      //!< dwell time                         
                               CANON_DIRECTION direction) //!< direction spindle turning at outset
 {
-  static char name[] = "convert_cycle_g86";
-
   CHKS(((direction != CANON_CLOCKWISE) &&
        (direction != CANON_COUNTERCLOCKWISE)),
       NCE_SPINDLE_NOT_TURNING_IN_G86);
@@ -461,8 +455,6 @@ int Interp::convert_cycle_g87(block_pointer block,
                               double bottom_z,   //!< value of z at bottom of cycle      
                               CANON_DIRECTION direction) //!< direction spindle turning at outset
 {
-  static char name[] = "convert_cycle_g87";
-
   CHKS(((direction != CANON_CLOCKWISE) &&
        (direction != CANON_COUNTERCLOCKWISE)),
       NCE_SPINDLE_NOT_TURNING_IN_G87);
@@ -529,8 +521,6 @@ int Interp::convert_cycle_g88(block_pointer block,
                               double dwell,      //!< dwell time                         
                               CANON_DIRECTION direction) //!< direction spindle turning at outset
 {
-  static char name[] = "convert_cycle_g88";
-
   CHKS(((direction != CANON_CLOCKWISE) &&
        (direction != CANON_COUNTERCLOCKWISE)),
       NCE_SPINDLE_NOT_TURNING_IN_G88);
@@ -620,7 +610,6 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
                          block_pointer block,   //!< pointer to a block of RS274 instructions      
                          setup_pointer settings)        //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle";
   CANON_PLANE plane;
 
   CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
@@ -768,7 +757,6 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274 instructions      
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_xy";
   double aa;
   double aa_increment;
   double bb;
@@ -928,7 +916,6 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274 instructions      
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_uv";
   double aa;
   double aa_increment;
   double bb;
@@ -1137,7 +1124,6 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274/NGC instructions  
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_yz";
   double aa;
   double aa_increment;
   double bb;
@@ -1298,7 +1284,6 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274/NGC instructions  
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_vw";
   double aa;
   double aa_increment;
   double bb;
@@ -1516,7 +1501,6 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274 instructions      
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_zx";
   double aa;
   double aa_increment;
   double bb;
@@ -1676,7 +1660,6 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
                             block_pointer block,        //!< pointer to a block of RS274 instructions      
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
-  static char name[] = "convert_cycle_wu";
   double aa;
   double aa_increment;
   double bb;

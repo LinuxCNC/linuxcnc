@@ -70,7 +70,6 @@ int Interp::read_a(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_a";
   double value;
 
   CHKS((line[*counter] != 'a'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -123,7 +122,6 @@ int Interp::read_atan(char *line,        //!< string: line of RS274/NGC code bei
                      double *double_ptr,        //!< pointer to double to be read                  
                      double *parameters)        //!< array of system parameters                    
 {
-  static char name[] = "read_atan";
   double argument2;
 
   CHKS((line[*counter] != '/'), NCE_SLASH_MISSING_AFTER_FIRST_ATAN_ARGUMENT);
@@ -180,7 +178,6 @@ int Interp::read_b(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_b";
   double value;
 
   CHKS((line[*counter] != 'b'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -236,7 +233,6 @@ int Interp::read_c(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_c";
   double value;
 
   CHKS((line[*counter] != 'c'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -287,7 +283,6 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
                         block_pointer block,    //!< pointer to a block being filled from the line
                         double *parameters)     //!< array of system parameters                   
 {
-  static char name[] = "read_comment";
   int n;
 
   CHKS((line[*counter] != '('), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -308,7 +303,6 @@ int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being
                            block_pointer block,    //!< pointer to a block being filled from the line
                            double *parameters)     //!< array of system parameters                   
 {
-  static char name[] = "read_semicolon";
 
   CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   (*counter) = strlen(line);
@@ -351,7 +345,6 @@ int Interp::read_d(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line
                   double *parameters)   //!< array of system parameters                   
 {
-  static char name[] = "read_d";
   double value;
 
   CHKS((line[*counter] != 'd'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -398,7 +391,6 @@ int Interp::read_e(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_e";
   double value;
 
   CHKS((line[*counter] != 'e'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -448,7 +440,6 @@ int Interp::read_f(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line
                   double *parameters)   //!< array of system parameters                   
 {
-  static char name[] = "read_f";
   double value;
 
   CHKS((line[*counter] != 'f'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -517,7 +508,6 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_g";
   double value_read;
   int value;
   int mode;
@@ -584,7 +574,6 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_h";
   int value;
 
   CHKS((line[*counter] != 'h'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -637,7 +626,6 @@ int Interp::read_i(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_i";
   double value;
 
   CHKS((line[*counter] != 'i'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -676,7 +664,6 @@ int Interp::read_integer_unsigned(char *line,    //!< string: line of RS274 code
                                  int *counter,  //!< pointer to a counter for position on the line
                                  int *integer_ptr)      //!< pointer to the value being read              
 {
-  static char name[] = "read_integer_unsigned";
   int n;
   char c;
 
@@ -731,7 +718,6 @@ int Interp::read_integer_value(char *line,       //!< string: line of RS274/NGC 
                               int *integer_ptr, //!< pointer to the value being read               
                               double *parameters)       //!< array of system parameters                    
 {
-  static char name[] = "read_integer_value";
   double float_value;
 
   CHP(read_real_value(line, counter, &float_value, parameters));
@@ -765,7 +751,6 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
                       char *line,       //!< string: line of RS274/NGC code being processed
                       double *parameters)   //!< array of system parameters 
 {
-  static char name[] = "read_items";
   int counter;
   int length;
 
@@ -838,7 +823,6 @@ int Interp::read_j(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_j";
   double value;
 
   CHKS((line[*counter] != 'j'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -888,7 +872,6 @@ int Interp::read_k(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_k";
   double value;
 
   CHKS((line[*counter] != 'k'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -936,7 +919,6 @@ int Interp::read_l(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_l";
   int value;
 
   CHKS((line[*counter] != 'l'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -982,7 +964,6 @@ int Interp::read_n_number(char *line, //!< string: line of RS274    code being p
                           int *counter,       //!< pointer to a counter for position on the line 
                           block_pointer block)        //!< pointer to a block being filled from the line 
 {
-  static char name[] = "read_n_number";
   int value;
 
   CHKS(((line[*counter] != 'n') && (line[*counter] != 'o')),
@@ -1034,7 +1015,6 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line
                   double *parameters)   //!< array of system parameters                   
 {
-  static char name[] = "read_m";
   int value;
   int mode;
 
@@ -1109,7 +1089,6 @@ int Interp::read_one_item(
     block_pointer block,   //!< pointer to a block being filled from the line 
     double * parameters) /* array of system parameters  */
 {
-  static char name[] = "read_one_item";
   read_function_pointer function_pointer;
   char letter;
 
@@ -1157,7 +1136,6 @@ int Interp::read_operation(char *line,   //!< string: line of RS274/NGC code bei
                           int *counter, //!< pointer to a counter for position on the line 
                           int *operation)       //!< pointer to operation to be read               
 {
-  static char name[] = "read_operation";
   char c;
 
   c = line[*counter];
@@ -1304,7 +1282,6 @@ int Interp::read_operation_unary(char *line,     //!< string: line of RS274/NGC 
                                 int *counter,   //!< pointer to a counter for position on the line 
                                 int *operation) //!< pointer to operation to be read               
 {
-  static char name[] = "read_operation_unary";
   char c;
 
   c = line[*counter];
@@ -1723,7 +1700,6 @@ int Interp::read_p(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_p";
   double value;
 
   CHKS((line[*counter] != 'p'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -1743,7 +1719,6 @@ int Interp::read_name(
     int *counter, //!< pointer to a counter for position on the line 
     char *nameBuf)   //!< pointer to name to be read
 {
-  static char name[] = "read_name";
 
   int done = 0;
   int i;
@@ -1819,7 +1794,6 @@ int Interp::store_named_param(
     double value   //!< value to be written
     )   
 {
-  static char name[] = "store_named_param";
   struct named_parameters_struct *nameList;
 
   int level;
@@ -2073,7 +2047,6 @@ int Interp::read_parameter(
     double *double_ptr,   //!< pointer to double to be read                  
     double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_parameter";
   int index;
 
   CHKS((line[*counter] != '#'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -2373,7 +2346,6 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_q";
   double value;
 
   CHKS((line[*counter] != 'q'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -2427,7 +2399,6 @@ int Interp::read_r(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line
                   double *parameters)   //!< array of system parameters                   
 {
-  static char name[] = "read_r";
   double value;
 
   CHKS((line[*counter] != 'r'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -2694,7 +2665,6 @@ int Interp::read_real_expression(char *line,     //!< string: line of RS274/NGC 
                                 double *value,  //!< pointer to double to be computed              
                                 double *parameters)     //!< array of system parameters                    
 {
-  static char name[] = "read_real_expression";
   double values[MAX_STACK];
   int operators[MAX_STACK];
   int stack_index;
@@ -2773,7 +2743,6 @@ int Interp::read_real_number(char *line, //!< string: line of RS274/NGC code bei
                             int *counter,       //!< pointer to a counter for position on the line 
                             double *double_ptr) //!< pointer to double to be read                  
 {
-  static char name[] = "read_real_number";
   char *start, *end, save;
   size_t after;
 
@@ -2846,7 +2815,6 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
                            double *double_ptr,  //!< pointer to double to be read                  
                            double *parameters)  //!< array of system parameters                    
 {
-  static char name[] = "read_real_value";
   char c;
 
   c = line[*counter];
@@ -3015,7 +2983,6 @@ int Interp::read_s(char *line,   //!< string: line of RS274NGC code being proces
                   block_pointer block,  //!< pointer to a block being filled from the line
                   double *parameters)   //!< array of system parameters                   
 {
-  static char name[] = "read_s";
   double value;
 
   CHKS((line[*counter] != 's'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3063,7 +3030,6 @@ int Interp::read_t(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_t";
   int value;
 
   CHKS((line[*counter] != 't'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3147,7 +3113,6 @@ int Interp::read_text(
     char *line,        //!< array for input line to be processed in
     int *length)       //!< a pointer to an integer to be set
 {
-  static char name[] = "read_text";
   int index;
   int n;
 
@@ -3248,7 +3213,6 @@ int Interp::read_unary(char *line,       //!< string: line of RS274/NGC code bei
                       double *double_ptr,       //!< pointer to double to be read                  
                       double *parameters)       //!< array of system parameters                    
 {
-  static char name[] = "read_unary";
   int operation;
 
   CHP(read_operation_unary(line, counter, &operation));
@@ -3268,7 +3232,6 @@ int Interp::read_u(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_u";
   double value;
 
   CHKS((line[*counter] != 'u'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3285,7 +3248,6 @@ int Interp::read_v(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_v";
   double value;
 
   CHKS((line[*counter] != 'v'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3302,7 +3264,6 @@ int Interp::read_w(char *line,   //!< string: line of RS274/NGC code being proce
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_w";
   double value;
 
   CHKS((line[*counter] != 'w'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3353,7 +3314,6 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_x";
   double value;
 
   CHKS((line[*counter] != 'x'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3409,7 +3369,6 @@ int Interp::read_y(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_y";
   double value;
 
   CHKS((line[*counter] != 'y'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
@@ -3459,7 +3418,6 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
                   block_pointer block,  //!< pointer to a block being filled from the line 
                   double *parameters)   //!< array of system parameters                    
 {
-  static char name[] = "read_z";
   double value;
 
   CHKS((line[*counter] != 'z'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);

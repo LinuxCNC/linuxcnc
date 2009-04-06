@@ -46,8 +46,6 @@ This just calls either execute_binary1 or execute_binary2.
 
 int Interp::execute_binary(double *left, int operation, double *right)
 {
-  static char name[] = "execute_binary";
-
   if (operation < AND2)
     CHP(execute_binary1(left, operation, right));
   else
@@ -80,7 +78,6 @@ int Interp::execute_binary1(double *left,        //!< pointer to the left operan
                            int operation,       //!< integer code for the operation 
                            double *right)       //!< pointer to the right operand   
 {
-  static char name[] = "execute_binary1";
   switch (operation) {
   case DIVIDED_BY:
     CHKS((*right == 0.0), NCE_ATTEMPT_TO_DIVIDE_BY_ZERO);
@@ -134,7 +131,6 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
                            int operation,       //!< integer code for the operation 
                            double *right)       //!< pointer to the right operand   
 {
-  static char name[] = "execute_binary2";
   double diff;
   switch (operation) {
   case AND2:
@@ -235,7 +231,6 @@ error message.
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
                          setup_pointer settings)        //!< pointer to machine settings                 
 {
-  static char name[] = "execute_block";
   int status;
 
   block->line_number = settings->sequence_number;
@@ -315,7 +310,6 @@ All angle measures in the input or output are in degrees.
 int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand         
                          int operation) //!< integer code for the operation 
 {
-  static char name[] = "execute_unary";
   switch (operation) {
   case ABS:
     if (*double_ptr < 0.0)

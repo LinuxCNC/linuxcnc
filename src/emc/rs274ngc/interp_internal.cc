@@ -67,7 +67,6 @@ The KT and NGC manuals say nothing about case or spaces and tabs.
 
 int Interp::close_and_downcase(char *line)       //!< string: one line of NC code
 {
-  static char name[] = "close_and_downcase";
   int m;
   int n;
   int comment;
@@ -139,7 +138,6 @@ This also make the checks described above.
 int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be checked 
                          setup_pointer settings)        //!< pointer to machine settings      
 {
-  static char name[] = "enhance_block";
   int axis_flag;
   int ijk_flag;
   int mode_zero_covets_axes;
@@ -304,8 +302,6 @@ int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
                       block_pointer block,      //!< pointer to a block to be filled     
                       setup_pointer settings)   //!< pointer to machine settings         
 {
-  static char name[] = "parse_line";
-
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));
 

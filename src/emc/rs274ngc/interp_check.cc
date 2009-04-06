@@ -77,7 +77,6 @@ more trouble than would be nice.
 int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be checked
                          setup_pointer settings)        //!< pointer to machine settings
 {
-  static char name[] = "check_g_codes";
   int mode0;
   int p_int;
 
@@ -141,7 +140,6 @@ check_other_codes.
 int Interp::check_items(block_pointer block,     //!< pointer to a block to be checked
                        setup_pointer settings)  //!< pointer to machine settings
 {
-  static char name[] = "check_items";
 
   CHP(check_g_codes(block, settings));
   CHP(check_m_codes(block));
@@ -171,7 +169,6 @@ reading. This function checks for additional errors in m_codes.
 
 int Interp::check_m_codes(block_pointer block)   //!< pointer to a block to be checked
 {
-  static char name[] = "check_m_codes";
 
   CHKS((block->m_count > MAX_EMS), NCE_TOO_MANY_M_CODES_ON_LINE);
   return INTERP_OK;
@@ -227,7 +224,6 @@ reading. This function checks for additional logical errors in codes.
 
 int Interp::check_other_codes(block_pointer block)       //!< pointer to a block of RS274/NGC instructions
 {
-  static char name[] = "check_other_codes";
   int motion;
 
   motion = block->motion_to_be;

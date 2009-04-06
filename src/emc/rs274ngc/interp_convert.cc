@@ -47,7 +47,6 @@
 // enqueue_STRAIGHT_[FEED|TRAVERSE] when adding to the interp queue.
 
 int Interp::comp_get_current(setup_pointer settings, double *x, double *y, double *z) {
-    static char name[] = "comp_get_current";
     switch(settings->plane) {
     case CANON_PLANE_XY:
         *x = settings->current_x;
@@ -66,7 +65,6 @@ int Interp::comp_get_current(setup_pointer settings, double *x, double *y, doubl
 }
 
 int Interp::comp_set_current(setup_pointer settings, double x, double y, double z) {
-    static char name[] = "comp_set_current";
     switch(settings->plane) {
     case CANON_PLANE_XY:
         settings->current_x = x;
@@ -85,7 +83,6 @@ int Interp::comp_set_current(setup_pointer settings, double x, double y, double 
 }
 
 int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, double *z) {
-    static char name[] = "comp_get_programmed";
     switch(settings->plane) {
     case CANON_PLANE_XY:
         *x = settings->program_x;
@@ -104,7 +101,6 @@ int Interp::comp_get_programmed(setup_pointer settings, double *x, double *y, do
 }
 
 int Interp::comp_set_programmed(setup_pointer settings, double x, double y, double z) {
-    static char name[] = "comp_set_programmed";
     switch(settings->plane) {
     case CANON_PLANE_XY:
         settings->program_x = x;
@@ -190,7 +186,6 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                        block_pointer block,     //!< pointer to a block of RS274 instructions
                        setup_pointer settings)  //!< pointer to machine settings             
 {
-  static char name[] = "convert_arc";
   int status;
   int first;                    /* flag set ON if this is first move after comp ON */
   int ijk_flag;                 /* flag set ON if any of i,j,k present in NC code  */
@@ -393,7 +388,6 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         double offset1, //!< center, either abs or offset from current
                         double offset2)
 {
-  static char name[] = "convert_arc2";
   double center1;
   double center2;
   double tolerance;             /* tolerance for difference of radii          */
@@ -469,7 +463,6 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               double CC_end,     //!< c-value at end of arc                     
                               double u_end, double v_end, double w_end) //!< uvw at end of arc
 {
-    static char name[] = "convert_arc_comp1";
     double center_x, center_y;
     double gamma;                 /* direction of perpendicular to arc at end */
     int side;                     /* offset side - right or left              */
@@ -619,7 +612,6 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                               double CC_end,     //!< c-value at end of arc
                               double u, double v, double w) //!< uvw at end of arc
 {
-    static char name[] = "convert_arc_comp2";
     double alpha;                 /* direction of tangent to start of arc */
     double arc_radius;
     double beta;                  /* angle between two tangents above */
@@ -869,7 +861,6 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
                                 block_pointer block,    //!< pointer to a block of RS274/NGC instructions  
                                 setup_pointer settings) //!< pointer to machine settings                   
 {
-  static char name[] = "convert_axis_offsets";
   double *pars;                 /* short name for settings->parameters            */
 
   CHKS((settings->cutter_comp_side != OFF),      /* not "== ON" */
@@ -1041,7 +1032,6 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
-    static char name[] = "convert_param_comment";
     int i;
     char param[LINELEN+1];
     int paramNumber;
@@ -1302,7 +1292,6 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 				double tolerance,    //tolerance for the path following in G64
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
-  static char name[] = "convert_control_mode";
   CHKS((settings->cutter_comp_side != OFF),
        (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
@@ -1397,7 +1386,6 @@ nine coordinate systems. Axis offsets are initialized to zero.
 int Interp::convert_coordinate_system(int g_code,        //!< g_code called (must be one listed above)     
                                      setup_pointer settings)    //!< pointer to machine settings                  
 {
-  static char name[] = "convert_coordinate_system";
   int origin;
   double x;
   double y;
@@ -1537,7 +1525,6 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
                                        block_pointer block,     //!< pointer to a block of RS274 instructions
                                        setup_pointer settings)  //!< pointer to machine settings             
 {
-  static char name[] = "convert_cutter_compensation";
 
   if (g_code == G_40) {
     CHP(convert_cutter_compensation_off(settings));
@@ -1653,7 +1640,6 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                                           setup_pointer settings)       //!< pointer to machine settings              
 {
-  static char name[] = "convert_cutter_compensation_on";
   double radius;
   int index, orientation;
 
@@ -1735,7 +1721,6 @@ Called by: convert_g.
 int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (must be G_90 or G_91)
                                  setup_pointer settings)        //!< pointer to machine settings                 
 {
-  static char name[] = "convert_distance_mode";
   if (g_code == G_90) {
     if (settings->distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
@@ -1783,7 +1768,6 @@ Called by: convert_g.
 int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed (must be G_90_1 or G_91_1)
                                  setup_pointer settings)        //!< pointer to machine settings                 
 {
-  static char name[] = "convert_ijk_distance_mode";
   if (g_code == G_90_1) {
     if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
 #ifdef DEBUG_EMC
@@ -1829,7 +1813,6 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
                   block_pointer block,           //!< pointer to current block
                   setup_pointer settings)        //!< pointer to machine settings
 {
-  static char name[] = "convert_lathe_diameter_mode";
   if (g_code == G_7) {
     if (settings->lathe_diameter_mode != ON) {
       if(block->x_flag)
@@ -1912,7 +1895,6 @@ Called by: execute_block.
 int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93, G_94 or G_95)
                              setup_pointer settings)    //!< pointer to machine settings                 
 {
-  static char name[] = "convert_feed_mode";
   if (g_code == G_93) {
 #ifdef DEBUG_EMC
     enqueue_COMMENT("interpreter: feed mode set to inverse time");
@@ -2026,7 +2008,6 @@ until most of the other modes are set.
 int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                      setup_pointer settings)    //!< pointer to machine settings                 
 {
-  static char name[] = "convert_g";
 
   if (block->g_modes[0] == G_4) {
     CHP(convert_dwell(settings, block->p_number));
@@ -2071,7 +2052,6 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
 }
 
 int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
-    static char name[] = "convert_savehome";
     double *p = s->parameters;
     
     if(s->cutter_comp_side != OFF) {
@@ -2140,7 +2120,6 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                         block_pointer block,    //!< pointer to a block of RS274 instructions
                         setup_pointer settings) //!< pointer to machine settings             
 {
-  static char name[] = "convert_home";
   double end_x;
   double end_y;
   double end_z;
@@ -2289,7 +2268,6 @@ for cycles) need testing.
 int Interp::convert_length_units(int g_code,     //!< g_code being executed (must be G_20 or G_21)
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
-  static char name[] = "convert_length_units";
   if (g_code == G_20) {
     USE_LENGTH_UNITS(CANON_UNITS_INCHES);
     if (settings->length_units != CANON_UNITS_INCHES) {
@@ -2394,7 +2372,6 @@ convert_stop).
 int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                      setup_pointer settings)    //!< pointer to machine settings                 
 {
-  static char name[] = "convert_m";
   int type, timeout;
   double *pars;                 /* short name for settings->parameters            */
 
@@ -2686,7 +2663,6 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
                            block_pointer block, //!< pointer to a block of RS274/NGC instructions
                            setup_pointer settings)      //!< pointer to machine settings                 
 {
-  static char name[] = "convert_modal_0";
 
   if (code == G_10) {
       if(block->l_number == 1)
@@ -2733,7 +2709,6 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                           setup_pointer settings)       //!< pointer to machine settings              
 {
-  static char name[] = "convert_motion";
 
   if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
@@ -2793,7 +2768,6 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
                           int g_code,
                           setup_pointer settings)        //!< pointer to machine settings             
 {
-  static char name[] = "convert_probe";
   double end_x;
   double end_y;
   double end_z;
@@ -2871,7 +2845,6 @@ this function.
 int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (must be G_98 or G_99)
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
-  static char name[] = "convert_retract_mode";
   CHKS((settings->cutter_comp_side != OFF),
        (_("Cannot change retract mode with cutter radius compensation on")));
   if (g_code == G_98) {
@@ -2892,7 +2865,6 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 // G10 L1 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
-    static char name[] = "convert_setup_tool";
     int toolnum;
     int q;
 
@@ -3115,7 +3087,6 @@ Called by: convert_g.
 int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_19 
                              setup_pointer settings)    //!< pointer to machine settings 
 {
-  static char name[] = "convert_set_plane";
   CHKS((settings->cutter_comp_side != OFF && g_code == G_17 && settings->plane != CANON_PLANE_XY),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->cutter_comp_side != OFF && g_code == G_18 && settings->plane != CANON_PLANE_XZ),
@@ -3250,7 +3221,6 @@ settings. They occur on M2 or M30.
 int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS274/NGC instructions
                         setup_pointer settings) //!< pointer to machine settings                 
 {
-  static char name[] = "convert_stop";
   int index;
   char *line;
   int length;
@@ -3438,7 +3408,6 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                             block_pointer block,        //!< pointer to a block of RS274 instructions
                             setup_pointer settings)     //!< pointer to machine settings             
 {
-  static char name[] = "convert_straight";
   double end_x;
   double end_y;
   double end_z;
@@ -3601,7 +3570,6 @@ int Interp::convert_threading_cycle(block_pointer block,
 				    setup_pointer settings,
 				    double end_x, double end_y, double end_z) {
 
-    static char name[] = "convert_threading_cycle";
 
     CHKS((settings->cutter_comp_side != OFF),
          (_("Cannot use G76 threading cycle with cutter radius compensation on")));
@@ -3735,7 +3703,6 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
                                    double CC_end,        //!< C coordinate of end point          
                                    double u_end, double v_end, double w_end)
 {
-    static char name[] = "convert_straight_comp1";
     double alpha;
     double distance;
     double radius = settings->cutter_comp_radius; /* always will be positive */
@@ -3865,7 +3832,6 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    double CC_end,        //!< C coordinate of end point
                                    double u_end, double v_end, double w_end)
 {
-    static char name[] = "convert_straight_comp2";
     double alpha;
     double beta;
     double end_x, end_y, end_z;                 /* x-coordinate of actual end point */
@@ -4092,7 +4058,6 @@ spindle and make new entry moves if necessary.
 
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
-  static char name[] = "convert_tool_change";
 
   if (settings->selected_tool_slot < 0) {
     ERS(NCE_TXX_MISSING_FOR_M6);
@@ -4204,7 +4169,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
-  static char name[] = "convert_tool_length_offset";
   int index;
   double xoffset, zoffset, woffset;
 
@@ -4296,8 +4260,6 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             
 {
-  static char name[] = "convert_tool_select";
-
   CHKS((block->t_number > settings->tool_max),
       NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE);
   SELECT_TOOL(block->t_number);

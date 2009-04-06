@@ -482,7 +482,7 @@ macros totally crash-proof. If the function call stack is deeper than
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
         _setup.stack_index = 0;                            \
-        strcpy(_setup.stack[_setup.stack_index++], name);  \
+        strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
         _setup.stack[_setup.stack_index][0] = 0;           \
         return INTERP_ERROR;                               \
     } while(0)
@@ -491,7 +491,7 @@ macros totally crash-proof. If the function call stack is deeper than
 #define ERN(error_code)                                    \
     do {                                                   \
         _setup.stack_index = 0;                            \
-        strcpy(_setup.stack[_setup.stack_index++], name);  \
+        strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
         _setup.stack[_setup.stack_index][0] = 0;           \
         return error_code;                                 \
     } while(0)
@@ -501,7 +501,7 @@ macros totally crash-proof. If the function call stack is deeper than
 #define ERP(error_code)                                        \
     do {                                                       \
         if (_setup.stack_index < 49) {                         \
-            strcpy(_setup.stack[_setup.stack_index++], name);  \
+            strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
             _setup.stack[_setup.stack_index][0] = 0;           \
         }                                                      \
         return error_code;                                     \

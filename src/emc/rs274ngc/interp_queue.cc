@@ -481,7 +481,6 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
     double x2;
     double y2;
     double dot;
-    static char name[] = "move_endpoint_and_flush";
 
     if(qc().empty()) return 0;
     

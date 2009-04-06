@@ -196,7 +196,6 @@ This executes a previously parsed block.
 
 int Interp::execute(const char *command)
 {
-  static char name[] = "Interp::execute";
   int status;
   int n;
   int MDImode = 0;
@@ -350,7 +349,6 @@ always calls SET_FEED_REFERENCE(CANON_XYZ).
 
 int Interp::init()
 {
-  static char name[] = "Interp::init";
   int k;                        // starting index in parameters of origin offsets
   char filename[LINELEN];
   double *pars;                 // short name for _setup.parameters
@@ -607,7 +605,6 @@ _setup.tool_max is intended to be set for a particular machine.
 
 int Interp::load_tool_table()
 {
-  static char name[] = "Interp::load_tool_table";
   int n;
 
   CHKS((_setup.tool_max > CANON_TOOL_MAX), NCE_TOOL_MAX_TOO_LARGE);
@@ -675,7 +672,6 @@ file.
 
 int Interp::open(const char *filename) //!< string: the name of the input NC-program file
 {
-  static char name[] = "Interp::open";
   char *line;
   int index;
   int length;
@@ -922,7 +918,6 @@ has its value set to zero.
 */
 int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
 {
-  static char name[] = "Interp::restore_parameters";
   FILE *infile;
   char line[256];
   int variable;
@@ -1016,7 +1011,6 @@ complain, but does write it in the output file.
 int Interp::save_parameters(const char *filename,      //!< name of file to write
                              const double parameters[]) //!< parameters to save   
 {
-  static char name[] = "Interp::save_parameters";
   FILE *infile;
   FILE *outfile;
   char line[256];

@@ -39,7 +39,6 @@ int Interp::findFile( // ARGUMENTS
 		     char *target,  // the name of the file to find
 		     char *foundFileDirect) // where to store the result
 {
-    const char *name="findFile";
     FILE *file;
     DIR *aDir;
     struct dirent *aFile;
@@ -293,7 +292,6 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
  block_pointer block,      /* pointer to a block of RS274/NGC instructions */
  setup_pointer settings)   /* pointer to machine settings                  */
 {
-  static char name[] = "convert_control_functions";
   int status;
   int index;
   int i;

@@ -89,7 +89,6 @@ int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc
                              int *turn, //!<pointer to number of full or partial circles CCW
                              double tolerance)  //!<tolerance of differing radii
 {
-  static char name[] = "arc_data_comp_ijk";
   double arc_radius;
   double radius2;
   double min_radius = 0.1 * tolerance;	/* smaller than this is treated as zero */
@@ -197,7 +196,6 @@ int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw ar
                            int *turn,           //!< pointer to number of full or partial circles CCW
                            double tolerance)    //!< tolerance of differing radii
 {
-  static char name[] = "arc_data_comp_r";
   double abs_radius;            // absolute value of big_radius
 
   abs_radius = fabs(big_radius);
@@ -253,7 +251,6 @@ int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
                         int *turn,      //!< pointer to no. of full or partial circles CCW
                         double tolerance)       //!< tolerance of differing radii
 {
-  static char name[] = "arc_data_ijk";
   double radius;                /* radius to current point */
   double radius2;               /* radius to end point     */
   double min_radius = 0.1 * tolerance;	/* smaller than this is treated as zero */
@@ -332,7 +329,6 @@ int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
                       int *turn,        //!< pointer to number of full or partial circles CCW
                       double tolerance) //!< tolerance of differing radii
 {
-  static char name[] = "arc_data_r";
   double abs_radius;            /* absolute value of given radius */
   double half_length;           /* distance from M to end point   */
   double mid_x;                 /* first coordinate of M          */
