@@ -414,6 +414,37 @@ custom_postgui.hal This file is loaded after the GUI loads.
  
 \layout Section
 
+HAL Components
+\layout Standard
+
+Two parameters are automatically added to each HAL component when it is
+ created.
+ These parameters allow you to scope the execution time of a component.
+\layout Quote
+
+.time
+\begin_inset LatexCommand \index{time}
+
+\end_inset 
+
+
+\newline 
+.tmax
+\begin_inset LatexCommand \index{tmax}
+
+\end_inset 
+
+
+\layout Standard
+
+Time is the number of CPU cycles it took to execute the function.
+\layout Standard
+
+Tmax is the maximum number of CPU cycles it took to execute the function.
+ Tmax is a read/write parameter so the user can set it to 0 to get rid of
+ the first time initialization on the function's execution time.
+\layout Section
+
 Logic Components
 \layout Standard
 
