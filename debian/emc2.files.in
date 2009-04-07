@@ -46,6 +46,7 @@ usr/bin/pumagui
 usr/bin/pyvcp
 usr/bin/rs274
 usr/bin/scaragui
+usr/bin/schedrmt
 usr/bin/stepconf
 usr/bin/usrmot
 usr/bin/xemc
