@@ -150,9 +150,8 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     if (seconds_to_vel_match < f_period_s) {
         // we can match velocity in one period
 
-        // FIXME: this looks like a reasonable value for the error deadband,
-        //     but maybe it should be configurable?
-        if (fabs(error_at_match) < 0.0001) {
+        // the ".5/scale" is 1/2 of the step size in position units
+        if (fabs(error_at_match) < (0.5 / s->hal.param.position_scale)) {
             velocity_cmd = ff_vel;
         } else {
             // try to correct position error
@@ -206,10 +205,6 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 }
 
 
-// 
-// FIXME: the rate setting below needs work
-// should it be in full.fractional step count units instead of position units?
-//
 void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long l_period_ns) {
     int i;
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
