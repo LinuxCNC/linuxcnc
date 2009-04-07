@@ -47,7 +47,7 @@ def vee_common(angle):
         return r * slope
     return f
 
-tool_makers = [ ball_tool, endmill, vee_common(45), vee_common(60)]
+tool_makers = [ ball_tool, endmill, vee_common(30), vee_common(45), vee_common(60)]
 
 def make_tool_shape(f, wdia, resp):
     res = 1. / resp
@@ -611,7 +611,7 @@ def ui(im, nim, im_name):
         ("pixelstep", intscale),
         ("tool_diameter", floatentry),
         ("safety_height", floatentry),
-        ("tool_type", optionmenu(_("Ball End"), _("Flat End"), _("45 Degree"), _("60 Degree"))),
+        ("tool_type", optionmenu(_("Ball End"), _("Flat End"), _("30 Degree"), _("45 Degree"), _("60 Degree"))),
         ("bounded", optionmenu(_("None"), _("Secondary"), _("Full"))),
         ("contact_angle", floatentry),
         ("roughing_offset", floatentry),
