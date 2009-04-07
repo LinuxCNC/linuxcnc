@@ -55,6 +55,8 @@
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
+  With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
+            Make sure to include the final slash (/).
   With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
   There are six commands supported, Where the commands set and get contain EMC
@@ -465,6 +467,7 @@ int enabledConn = -1;
 char pwd[16] = "EMC\0";
 char enablePWD[16] = "EMCTOO\0";
 char serverName[24] = "EMCNETSVR\0";
+char defaultPath[80] = "../../nc_files/";
 int sessions = 0;
 int maxSessions = -1;
 
@@ -490,7 +493,8 @@ struct option longopts[] = {
   {"name", 1, NULL, 'n'},
   {"sessions", 1, NULL, 's'},
   {"connectpw", 1, NULL, 'w'},
-  {"enablepw", 1, NULL, 'e'}};
+  {"enablepw", 1, NULL, 'e'},
+  {"path", 1, NULL, 'd'}};
 
 /* static char *skipWhite(char *s)
 {
@@ -937,7 +941,7 @@ static cmdResponseType setToolOffset(char *s, connectionRecType *context)
   
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
-  if (sscanf(pch, "%d", &tool) <=0) return rtStandardError;
+  if (sscanf(pch, "%d", &tool) <= 0) return rtStandardError;
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &length) <= 0) return rtStandardError;
@@ -1051,7 +1055,8 @@ static cmdResponseType setOpen(char *s, connectionRecType *context)
   pch = strtok(NULL, "\n\r\0");
   if (pch == NULL) return rtStandardError;
   strcpy(context->progName, pch);
-  strcpy(fileStr, "../../nc_files/");
+//  strcpy(fileStr, "../../nc_files/");
+  strcpy(fileStr, defaultPath);
   strcat(fileStr, pch);
   if (sendProgramOpen(fileStr) != 0) return rtStandardError;
   return rtNoError;
@@ -2744,13 +2749,14 @@ int main(int argc, char *argv[])
 
     initMain();
     // process local command line args
-    while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
+    while((opt = getopt_long(argc, argv, "e:n:p:s:w:d:", longopts, NULL)) != -1) {
       switch(opt) {
         case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
         case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
         case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
+        case 'd': strncpy(defaultPath, optarg, strlen(optarg) + 1);
         }
       }
 
