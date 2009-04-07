@@ -1,0 +1,15 @@
+component feedcomp "Window comparator";
+pin out float out "Proportionate output value";
+pin in float in "Reference value";
+pin in bit enable "Turn compensation on or off";
+pin in float vel "Current velocity";
+param rw float feed "Feed rate reference value";
+notes "Note that if enable is false, out = in";
+
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+  if (enable) out = in * (vel / feed);
+  else out = in;
+}
