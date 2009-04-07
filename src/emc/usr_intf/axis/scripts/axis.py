@@ -2755,7 +2755,7 @@ class TclCommands(nf.TclCommands):
         if tooltable is None:
             pass
         else:
-            e = string.split(editor)
+            e = string.split(tooleditor)
             e.append(tooltable)
             os.spawnvp(os.P_NOWAIT, e[0], e)
 
@@ -3613,6 +3613,7 @@ coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")
 lathe = bool(inifile.find("DISPLAY", "LATHE"))
 editor = inifile.find("DISPLAY", "EDITOR")
 vars.has_editor.set(editor is not None)
+tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
 lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 if coordinate_display:

@@ -1910,7 +1910,7 @@ proc update_state {args} {
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
         .toolbar.program_run {.menu.machine "_Run program"} \
         {.menu.file "Reload tool ta_ble"}
-    state  {$interp_state == $INTERP_IDLE && $::has_editor} \
+    state  {$interp_state == $INTERP_IDLE} \
         {.menu.file "Edit _tool table..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \

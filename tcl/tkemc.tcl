@@ -772,6 +772,13 @@ $menubar add cascade -label [msgcat::mc "File"] -menu $filemenu -underline 0
 $filemenu add command -label [msgcat::mc "Open..."] -command {fileDialog} -underline 0
 bind . <$modifier-o> {fileDialog}
 $filemenu add command -label [msgcat::mc "Edit..."] -command {popupProgramEditor} -underline 0
+set tooleditor [emc_ini "TOOL_EDITOR" "DISPLAY"]
+if {$tooleditor == ""} {
+  set tooleditor tooledit.tcl
+}
+$filemenu add command -label [msgcat::mc "Tool Table Editor..."] \
+                      -command "exec $tooleditor $toolfilename&" \
+                      -underline 0
 $filemenu add command -label [msgcat::mc "Reset"] -command {emc_task_plan_init} -underline 0
 $filemenu add separator
 $filemenu add command -label [msgcat::mc "Exit"] -command {after cancel updateStatus ; destroy . ; exit} -accelerator $modifierstring+X -underline 1
