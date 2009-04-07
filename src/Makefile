@@ -458,6 +458,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
+	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/

@@ -48,6 +48,7 @@ usr/bin/rs274
 usr/bin/scaragui
 usr/bin/schedrmt
 usr/bin/stepconf
+usr/bin/tooledit
 usr/bin/usrmot
 usr/bin/xemc
 usr/lib/emc/tcl/hal.so
