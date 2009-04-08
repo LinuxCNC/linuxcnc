@@ -46,7 +46,8 @@
   Using emcrsh:
 
   emcrsh {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+             --enablepw <password> --sessions <max sessions> --path <path>
+             -ini<inifile>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5007.
@@ -467,7 +468,6 @@ int enabledConn = -1;
 char pwd[16] = "EMC\0";
 char enablePWD[16] = "EMCTOO\0";
 char serverName[24] = "EMCNETSVR\0";
-char defaultPath[80] = "../../nc_files/";
 int sessions = 0;
 int maxSessions = -1;
 
@@ -2741,7 +2741,6 @@ static void initMain()
     operator_display_string[LINELEN-1] = 0;
     programStartLine = 0;
 }
-
 
 int main(int argc, char *argv[])
 {

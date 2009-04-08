@@ -1,6 +1,6 @@
 /********************************************************************
-* Description: emcrsh.cc
-*   Extended telnet based EMC interface
+* Description: schedrmt.cc
+*   Extended telnet based scheduler interface
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
 *   Further derived from work by jmkasunich
@@ -9,7 +9,7 @@
 * License: GPL Version 2
 * System: Linux
 *
-* Copyright (c) 2006-2008 All rights reserved.
+* Copyright (c) 2009 All rights reserved.
 *
 * Last change:
 ********************************************************************/
@@ -44,10 +44,11 @@
 #include "emcsched.hh"
 
 /*
-  Using emcrsh:
+  Using schedrmt:
 
-  emcrsh {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+  schedrmt {-- --port <port number> --name <server name> --connectpw <password>
+             --enablepw <password> --sessions <max sessions> --path <path>
+             -ini<inifile>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5007.
@@ -56,6 +57,8 @@
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
+  With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
+            Make sure to include the final slash (/).
   With -- -ini <inifile>, uses inifile instead of emc.ini. 
 
   There are six commands supported, Where the commands set and get contain EMC
@@ -160,17 +163,53 @@
   and sets the EMC_DEBUG global here to the same value. This will make
   the two values the same, since they really ought to be the same.
 
-  qmode <mode>
+  QMode <mode>
   stop | run | pause | resume (Set only) | error (Get only)
   With no arg, returns the program queue status as "stop", "run", "pause" or "error". Otherwise,
   sends a command to set the current mode to "stop", "run" or "pause".
 
-  qstatus <Queue Size> <First Tag Id> <Last Tag Id> <Queue CRC>
+  QStatus <Queue Size> <First Tag Id> <Last Tag Id> <Queue CRC>
   Get only, returns then number of programs in queue (Queue Size), the Tag id of the first 
   program in the queue, the Tag id of the last program in the queue, and the CRC of all
   of the Tag Ids in the queue. The actual calculation of the CRC is not important, the
   purpose is to be able to compare the current CRC with the previous CRC. If they
   differ, then there has been a change to the size or order of the programs in queue.
+
+  AutoTagId <Start Id>
+  With get, returns the next autoincremented unique tag id to associate with a queue record.
+  With set, resets auto tag generation to begin at the specified value.
+
+  PgmAdd <priority> <tag id> <x> <y> <z> <zone> <file name> <feed override> <spindle override> <tool>
+  With set, adds a program to the queue with priority of the program, a unique tag identifying the 
+  program, the x, y and z offsets or zone for the origin of the program, the path + file name, the
+  feed and spindle overrides to apply, and the default tool to use. If zone is zero, then the x, y,
+  and z offsets will be used, otherwise zones 1 to 9 correspond to G54 to G59.3 respectively.
+
+  PgmById <tag id>
+  [priority] [tag id] [x] [y] [z] [zone] [file name] [feed override] [spindle override] [tool]
+  With get, returns the queue entry matching the specified tag id, including the priority,
+  tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default
+  tool.
+
+  PgmByIndex <index>
+  [priority] [tag id] [x] [y] [z] [zone] [file name] [feed override] [spindle override] [tool]
+  With get, returns the queue entry matching the specified index into the queue, including the priority,
+  tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default
+  tool.
+
+  PriorityById <tag id> <priority>
+  With get, returns the priority of the queue entry matching the specified tag. With set, changes the 
+  priority of the queue entry to the specified priority.
+
+  PriorityByIndex <tag id> <priority>
+  With get, returns the priority of the queue entry matching the specified index into the queue. With 
+  set, changes the priority of the queue entry to the specified priority.
+
+  DeleteById <tag id>
+  With set, deletes the queue entry matching the specified tag id.
+
+  DeleteByIndex <index>
+  With set, deletes the queue entry matching the specified index into the queue.
 */
 
 // EMC_STAT *emcStatus;
@@ -213,7 +252,6 @@ int enabledConn = -1;
 char pwd[16] = "EMC\0";
 char enablePWD[16] = "EMCTOO\0";
 char serverName[24] = "EMCNETSVR\0";
-char defaultPath[80] = "../../nc_files/";
 int sessions = 0;
 int maxSessions = -1;
 
@@ -900,14 +938,20 @@ static int helpGet(connectionRecType *context)
   sprintf(context->outBuf, "Usage:\n\rGet <emc command>\n\r");
   strcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
   strcat(context->outBuf, "  Emc command may be one of:\n\r");
+  strcat(context->outBuf, "    AutoTagId\n\r");
   strcat(context->outBuf, "    Comm_mode\n\r");
   strcat(context->outBuf, "    Comm_prot\n\r");
   strcat(context->outBuf, "    Debug\n\r");
   strcat(context->outBuf, "    Echo\n\r");
   strcat(context->outBuf, "    Enable\n\r");
   strcat(context->outBuf, "    Inifile\n\r");
+  strcat(context->outBuf, "    PgmById <Tag Id>\n\r");
+  strcat(context->outBuf, "    PgmByIndex <Index>\n\r");
+  strcat(context->outBuf, "    PriorityById <Tag Id>\n\r");
+  strcat(context->outBuf, "    PriorityByIndex <Tag Index>\n\r");
   strcat(context->outBuf, "    Plat\n\r");
   strcat(context->outBuf, "    QMode\n\r");
+  strcat(context->outBuf, "    QStatus\n\r");
   strcat(context->outBuf, "    Verbose\n\r");
 //  strcat(context->outBuf, "CONFIG\n\r");
   sockWrite(context);
@@ -926,7 +970,13 @@ static int helpSet(connectionRecType *context)
   strcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
   strcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
   strcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    QMode\n\r");
+  strcat(context->outBuf, "    AutoTagId <Start Id>\n\r");
+  strcat(context->outBuf, "    PgmAdd <Priority> <Tag Id> <X> <Y> <Z> <Zone> <File Name> <Feed Override> <Spindle Override> <Tool No>\n\r");
+  strcat(context->outBuf, "    PriorityById <Tag Id> <Priority>\n\r");
+  strcat(context->outBuf, "    PriorityByIndex <Index> <Priority>\n\r");
+  strcat(context->outBuf, "    DeleteById <Tag Id> \n\r");
+  strcat(context->outBuf, "    DeleteByIndex <Index> \n\r");
+  strcat(context->outBuf, "    QMode <stop | run | pause | resume>\n\r");
  
   sockWrite(context);
   return 0;

@@ -41,7 +41,6 @@
 #define POLYNOMIAL 0x8005
 #define INITIAL_VALUE 0xFFFF
 
-
 union crcbuftype {
   unsigned long whole;
   struct {
@@ -220,7 +219,8 @@ void updateQueue() {
       if ((emcStatus->task.interpState == EMC_TASK_INTERP_READING) || (emcStatus->task.interpState == EMC_TASK_INTERP_READING)) {
         q.remove(q.front());
         if (!q.empty()) {
-          strcpy(fileStr, "../../nc_files/");
+//          strcpy(fileStr, "../../nc_files/");
+          strcpy(fileStr, defaultPath);
           strcat(fileStr, q.front().getFileName().c_str());
           if (sendProgramOpen(fileStr) != 0) queueStatus = qsError;
           sendMdi();

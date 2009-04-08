@@ -52,7 +52,7 @@ NML *emcErrorBuffer;
 char error_string[NML_ERROR_LEN];
 char operator_text_string[NML_TEXT_LEN];
 char operator_display_string[NML_DISPLAY_LEN];
-
+char defaultPath[80] = DEFAULT_PATH;
 // default value for timeout, 0 means wait forever
 double emcTimeout;
 int programStartLine;

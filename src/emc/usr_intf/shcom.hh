@@ -27,6 +27,7 @@
 #define CM_PER_MM 0.1
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
+#define DEFAULT_PATH "../../nc_files/"
 
 enum LINEAR_UNIT_CONVERSION {
     LINEAR_UNITS_CUSTOM = 1,
@@ -60,6 +61,7 @@ extern NML *emcErrorBuffer;
 extern char error_string[NML_ERROR_LEN];
 extern char operator_text_string[NML_TEXT_LEN];
 extern char operator_display_string[NML_DISPLAY_LEN];
+extern char defaultPath[80]; 
 
 // default value for timeout, 0 means wait forever
 extern double emcTimeout;
