@@ -600,6 +600,8 @@ Location
  for this axis.
  For machines without home switches, this is the location the operator manually
  moves the machine to before pressing the Home button.
+ If you combine the home and limit switches you must move off of the switch
+ to the home position or you will get a joint limit error.
 \layout Description
 
 Table\SpecialChar ~
@@ -625,6 +627,8 @@ Location
  process.
  This item and the two below only appear when Home Switches were chosen
  in the Parallel Port Pinout.
+ If you combine home and limit switches the home switch location can not
+ be the same as the home position or you will get a joint limit error.
 \layout Description
 
 Home\SpecialChar ~
