@@ -986,6 +986,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int spindle_override_enabled;
     int adaptive_feed_enabled;
     int feed_hold_enabled;
+    double delayLeft;           // delay time left of G4, M66..
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes

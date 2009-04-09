@@ -2401,8 +2401,10 @@ static int emcTaskExecute(void)
     case EMC_TASK_EXEC_WAITING_FOR_DELAY:
 	STEPPING_CHECK();
 	// check if delay has passed
+	emcStatus->motion.traj.delayLeft = taskExecDelayTimeout - etime();
 	if (etime() >= taskExecDelayTimeout) {
 	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+	    emcStatus->motion.traj.delayLeft = 0;
 	    if (emcStatus->task.input_timeout != 0)
 		emcStatus->task.input_timeout = 1; // timeout occured
 	    emcTaskEager = 1;
@@ -2416,6 +2418,7 @@ static int emcTaskExecute(void)
 			emcStatus->task.input_timeout = 0; // clear timeout flag
 			emcAuxInputWaitIndex = -1;
 			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->motion.traj.delayLeft = 0;
 		    }
 		    break;
 
@@ -2430,6 +2433,7 @@ static int emcTaskExecute(void)
 			emcStatus->task.input_timeout = 0; // clear timeout flag
 			emcAuxInputWaitIndex = -1;
 			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->motion.traj.delayLeft = 0;
 		    }
 		    break;
 
@@ -2443,6 +2447,7 @@ static int emcTaskExecute(void)
 		    emcStatus->task.input_timeout = 0; // clear timeout flag
 		    emcAuxInputWaitIndex = -1;
 		    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+		    emcStatus->motion.traj.delayLeft = 0;
 		    break;
 		
 		default:

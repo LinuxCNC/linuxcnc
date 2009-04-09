@@ -1,6 +1,7 @@
 emc2 (1:2.4.0~pre) hardy; urgency=low
 
   * [add bugfixes from the 2.3.x branch here before release]
+  * add machine delay time to status (works for G4Pxx and M66)
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 14:46:22 -0500
 
