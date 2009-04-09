@@ -1288,95 +1288,48 @@ halcmd unloadrt encoder
 Pins
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(bit)
-\noun default 
- encoder.<chan>.phase-A
-\family default 
- -- Phase A of the quadrature encoder signal.
+encoder.<chan>.counter-mode (bit, I/O)
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(bit)
-\noun default 
- encoder.<chan>.phase-B
-\family default 
- -- Phase B of the quadrature encoder signal.
+encoder.<chan>.counts (s32, Out)
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(bit)
-\noun default 
- encoder.<chan>.phase-Z
-\family default 
- -- Phase Z (index pulse) of the quadrature encoder signal.
+encoder.<chan>.index-enable (bit, I/O) -- See canonical encoder interface.
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-encoder.<chan>.reset
-\family default 
- -- See the canonical encoder interface section of the HAL manual.
+encoder.<chan>.phase-A (bit, In) -- Phase A of the quadrature encoder signal.
 \layout Itemize
 
+encoder.<chan>.phase-B (bit, In) -- Phase B of the quadrature encoder signal.
+\layout Itemize
 
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-encoder.<chan>.velocity
-\family default 
- -- Estimated speed of the quadrature signal.
+encoder.<chan>.phase-Z (bit, In) -- Phase Z (index pulse) of the quadrature
+ encoder signal.
+\layout Itemize
+
+encoder.<chan>.position (float, Out) -- See canonical encoder interface.
+\layout Itemize
+
+encoder.<chan>.position-interpolated (float, Out) -- See below.
+\layout Itemize
+
+encoder.<chan>.position-scale (float, I/O)
+\layout Itemize
+
+encoder.<chan>.rawcounts (s32, In)
+\layout Itemize
+
+encoder.<chan>.reset (bit, In) -- See the canonical encoder interface section
+ of the HAL manual.
+\layout Itemize
+
+encoder.<chan>.velocity (float, Out) -- Estimated speed of the quadrature
+ signal.
  
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(bit) 
-\noun default 
-encoder.<chan>.index-enable
-\family default 
- -- See canonical encoder interface.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(s32) 
-\noun default 
-encoder.<chan>.count
-\family default 
- -- See canonical encoder interface.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float) 
-\noun default 
-encoder.<chan>.position
-\family default 
- -- See canonical encoder interface.
-\layout Itemize
-
-
-\family typewriter 
-\noun on 
-(float) 
-\noun default 
-encoder.<chan>.position-interpolated
-\family default 
- -- See below.
+encoder.<chan>.x4-mode (bit, I/O) -- Sets encoder to 4x or 1x mode.
+ The 1x mode is usefull for some jogwheels.
 \layout Standard
 
 The pin 
@@ -1402,42 +1355,16 @@ encoder
 Parameters
 \layout Itemize
 
-
-\family typewriter 
-\noun on 
-(s32)
-\noun default 
- encoder.<chan>.raw-count
-\family default 
- -- The raw count value, updated by 
-\family typewriter 
-update-counters()
-\family default 
-.
- 
+encoder.<chan>.capture-position.time (s32, RO) 
 \layout Itemize
 
-
-\family typewriter 
-(
-\noun on 
-bit
-\noun default 
-) encoder.<chan>.x4-mode
-\family default 
- -- Sets encoder to 4x or 1x mode.
- The 1x mode is usefull for some jogwheels.
+encoder.<chan>.capture-position.tmax (s32, RW)
 \layout Itemize
 
+encoder.<chan>.update-counters.time (s32, RO)
+\layout Itemize
 
-\family typewriter 
-\noun on 
-(float)
-\noun default 
- encoder.<chan>.position-scale
-\family default 
- -- See the canonical encoder interface section of the HAL manual.
- 
+encoder.<chan>.update-counter.tmax (s32, RW)
 \layout Subsection
 
 Functions
