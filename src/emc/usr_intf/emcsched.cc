@@ -209,23 +209,51 @@ static void setQueueStatus(queueStatusType qs) {
   else queueStatus = qs;
   }
 
+bool isIdle()
+{
+   return ((emcStatus->task.interpState != EMC_TASK_INTERP_READING) && 
+          (emcStatus->task.interpState != EMC_TASK_INTERP_WAITING) &&
+          (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED));
+}
+
+bool interlocksOk() {
+  if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+    printf("Machine is in E-Stop\n");
+    return false;
+    }
+
+  if (emcStatus->task.state != EMC_TASK_STATE_ON) {
+    printf("Machine is not on\n"); 
+    return false;
+    }
+  return true;
+}
+
 void updateQueue() {
   char fileStr[255];
   float x, y, z;
   char cmd[80];
 
-  if (queueStatus == qsRun)
-    if (!q.empty()) 
-      if ((emcStatus->task.interpState == EMC_TASK_INTERP_READING) || (emcStatus->task.interpState == EMC_TASK_INTERP_READING)) {
-        q.remove(q.front());
-        if (!q.empty()) {
-//          strcpy(fileStr, "../../nc_files/");
+  if (queueStatus == qsRun) {
+    printf("Status changed to RUN\n");
+    if (isIdle() && q.empty()) {
+      queueStatus = qsStop;
+      return;
+      }
+    if (!q.empty()) {
+      printf("Queue is not empty\n");
+      if (isIdle()) {
+        printf("Trying to start first program in queue\n");
+        if (interlocksOk()) {
           strcpy(fileStr, defaultPath);
           strcat(fileStr, q.front().getFileName().c_str());
-          if (sendProgramOpen(fileStr) != 0) queueStatus = qsError;
+          if (sendProgramOpen(fileStr) != 0) {
+            queueStatus = qsError;
+            printf("Could not open program\n");
+            }
           sendMdi();
           sendMdiCmd("G92.1\n");
-          if (q.front().getZone() == 0) {
+          if (q.front().getZone() != 0) {
             switch (q.front().getZone()) {
               case 1: sendMdiCmd("G54\n"); break;
               case 2: sendMdiCmd("G55\n"); break;
@@ -240,16 +268,27 @@ void updateQueue() {
             }
           else {
              q.front().getOffsets(x, y, z);
+             sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
+             sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
              sprintf(cmd, "G0 X%f Y%f Z%f\n", x, y, z); 
              sendMdiCmd(cmd);
              sendMdiCmd("G92 X0 Y0 Z0\n");
-             sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
-             sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
              }
-          if (sendTaskPlanInit() != 0) queueStatus = qsError;
-          if (sendProgramRun(0) != 0) queueStatus = qsError;
+          if (sendTaskPlanInit() != 0) {
+            queueStatus = qsError;
+            printf("Could not send Task Plan Init\n");
+            }
+          sendAuto();
+          if (sendProgramRun(0) != 0) {
+            queueStatus = qsError;
+            printf("Could not change state to run\n");
+            }
+          q.remove(q.front());
           }
+        else queueStatus = qsError;
         } 
+      }
+    }
   }
 
 int addProgram(int pri, int tag, float x, float y, float z, int azone, string progName, float feedOvr, float spindleOvr, int toolNum) {
@@ -257,7 +296,7 @@ int addProgram(int pri, int tag, float x, float y, float z, int azone, string pr
 
   p.setPriority(pri);
   p.setTagId(tag);
-  if (azone > 0) 
+  if (azone == 0) 
     p.setOffsets(x, y, z);
   else p.setZone(azone);
   p.setFileName(progName);
@@ -296,47 +335,46 @@ void queuePause() {
   setQueueStatus(qsPause);
   }
 
-qRecType *getProgramById(int id) {
-  static qRecType qRec;
+int getProgramById(int id, qRecType *qRec) {
   list<SchedEntry>::iterator i;
   
+  if (q.size() == 0) return -1;
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) break;
-    if (i == q.end()) return NULL;
     }
-  qRec.priority = i->getPriority();
-  qRec.tagId = i->getTagId();
-  i->getOffsets(qRec.xpos, qRec.ypos, qRec.zpos);
-  qRec.zone = i->getZone();
-  strcpy(qRec.fileName,  i->getFileName().c_str());
-  qRec.feedOverride = i->getFeedOverride();
-  qRec.spindleOverride = i->getSpindleOverride();
-  qRec.tool = i->getTool();
+  if (i->getTagId() != id) return -1;
+  qRec->priority = i->getPriority();
+  qRec->tagId = i->getTagId();
+  i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
+  qRec->zone = i->getZone();
+  strcpy(qRec->fileName,  i->getFileName().c_str());
+  qRec->feedOverride = i->getFeedOverride();
+  qRec->spindleOverride = i->getSpindleOverride();
+  qRec->tool = i->getTool();
 
-  return &qRec;
+  return 0;
   }
 
-qRecType *getProgramByIndex(int idx) {
-  static qRecType qRec;
+int getProgramByIndex(int idx, qRecType *qRec) {
   list<SchedEntry>::iterator i;
   int index;
 
+  if ((unsigned int) idx >= q.size()) return -1;
   index = 0;
   for (i=q.begin(); i!=q.end(); ++i) {
     if (index == idx) break;
     index++;
-    if (i == q.end()) return NULL;
     }
-  qRec.priority = i->getPriority();
-  qRec.tagId = i->getTagId();
-  i->getOffsets(qRec.xpos, qRec.ypos, qRec.zpos);
-  qRec.zone = i->getZone();
-  strcpy(qRec.fileName,  i->getFileName().c_str());
-  qRec.feedOverride = i->getFeedOverride();
-  qRec.spindleOverride = i->getSpindleOverride();
-  qRec.tool = i->getTool();
+  qRec->priority = i->getPriority();
+  qRec->tagId = i->getTagId();
+  i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
+  qRec->zone = i->getZone();
+  strcpy(qRec->fileName,  i->getFileName().c_str());
+  qRec->feedOverride = i->getFeedOverride();
+  qRec->spindleOverride = i->getSpindleOverride();
+  qRec->tool = i->getTool();
 
-  return &qRec;
+  return 0;
  }
 
 int getQueueCRC() {
@@ -414,24 +452,26 @@ int changePriorityByIndex(int idx, int newPriority) {
   return -1;
   }
 
-int getPriorityById(int id) {
+int getPriorityById(int id, int &pri) {
   list<SchedEntry>::iterator i;
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) {
-      return i->getPriority();
+      pri = i->getPriority();
+      return 0;
       }
     }
   return -1;
   }
 
-int getPriorityByIndex(int idx) {
+int getPriorityByIndex(int idx, int &pri) {
   list<SchedEntry>::iterator i;
   int index = 0;
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (index == idx) {
-      return i->getPriority();
+      pri = i->getPriority();
+      return 0;
       }
     index++;
     }

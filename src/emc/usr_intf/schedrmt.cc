@@ -210,6 +210,10 @@
 
   DeleteByIndex <index>
   With set, deletes the queue entry matching the specified index into the queue.
+
+  PollRate <rate>
+  With set, sets the rate at which the scheduler polls for information. The default is 1.0 or one
+  second. With get, returns the current poll rate.
 */
 
 // EMC_STAT *emcStatus;
@@ -220,7 +224,7 @@ typedef enum {
 typedef enum {
   scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile, scPlat, scIni, scDebug, 
   scQMode, scQStatus, scAutoTagId, scPgmAdd, scPgmById, scPgmByIndex, scPriorityById, scPriorityByIndex, 
-  scDeleteById, scDeleteByIndex, scUnknown} setCommandType;
+  scDeleteById, scDeleteByIndex, scPollRate, scUnknown} setCommandType;
   
 typedef enum {
   rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
@@ -254,11 +258,12 @@ char enablePWD[16] = "EMCTOO\0";
 char serverName[24] = "EMCNETSVR\0";
 int sessions = 0;
 int maxSessions = -1;
+float pollDelay = 1.0;
 
 const char *setCommands[] = {
    "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
    "QMODE", "QSTATUS", "AUTOTAGID", "PGMADD", "PGMBYID", "PGMBYINDEX", "PRIORITYBYID", "PRIORITYBYINDEX", 
-   "DELETEBYID", "DELETEBYINDEX",
+   "DELETEBYID", "DELETEBYINDEX", "POLLRATE",
    ""};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
@@ -550,6 +555,7 @@ static cmdResponseType setPgmAdd(connectionRecType *context)
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%d", &tool) <=0) return rtStandardError;
   ret = addProgram(pri, tag, x, y, z, zone, program, feed, spindle, tool);
+  if (ret == 0) return rtStandardError;
   return rtNoError;
 }
 
@@ -598,8 +604,19 @@ static cmdResponseType setDeleteByIndex(char *s, connectionRecType *context)
 {
   int index;
 
+  if (strlen(s) == 0) return rtStandardError;
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
   if (deleteProgramByIndex(index) == -1) return rtStandardError;
+  return rtNoError;
+}
+
+static cmdResponseType setPollRate(char *s, connectionRecType *context)
+{
+  float rate;
+
+  if (strlen(s) == 0) return rtStandardError;
+  if (sscanf(s, "%f", &rate) <= 0) return rtStandardError;
+  pollDelay = rate;
   return rtNoError;
 }
 
@@ -638,13 +655,14 @@ int commandSet(connectionRecType *context)
     case scQMode: ret = setQMode(strtok(NULL, delims), context); break;
     case scQStatus: break;
     case scAutoTagId: ret = setAutoTagId(strtok(NULL, delims), context); break;
-    case scPgmAdd: setPgmAdd(context); break;
+    case scPgmAdd: ret = setPgmAdd(context); break;
     case scPgmById: break;
     case scPgmByIndex: break;
-    case scPriorityById: setPriorityById(context); break;
-    case scPriorityByIndex: setPriorityByIndex(context); break;
-    case scDeleteById: setDeleteById(strtok(NULL, delims), context); break;
-    case scDeleteByIndex: setDeleteByIndex(strtok(NULL, delims), context); break;
+    case scPriorityById: ret = setPriorityById(context); break;
+    case scPriorityByIndex: ret = setPriorityByIndex(context); break;
+    case scDeleteById: ret = setDeleteById(strtok(NULL, delims), context); break;
+    case scDeleteByIndex: ret = setDeleteByIndex(strtok(NULL, delims), context); break;
+    case scPollRate: ret = setPollRate(strtok(NULL, delims), context); break;
     case scUnknown: ret = rtStandardError;
     }
   switch (ret) {
@@ -780,27 +798,29 @@ static cmdResponseType getTagId(connectionRecType *context)
 
 static cmdResponseType getPgmById(char *s, connectionRecType *context)
 {
-  qRecType *qRec;
+  qRecType qRec;
   int id;
   
-  if (sscanf(s, "%d", &id) <=0) return rtStandardError;
-  qRec = getProgramById(id);
+  if (strlen(s) == 0) return rtStandardError;
+  if (sscanf(s, "%d", &id) <= 0) return rtStandardError;
+  if (getProgramById(id, &qRec) != 0) return rtStandardError;
   sprintf(context->outBuf, "GETPGMBYID %d %d %f %f %f %d %s %f %f %d", 
-    qRec->priority, qRec->tagId, qRec->xpos, qRec->ypos, qRec->zpos, qRec->zone, qRec->fileName,
-    qRec->feedOverride, qRec->spindleOverride, qRec->tool);
+    qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
+    qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
 }
 
 static cmdResponseType getPgmByIndex(char *s, connectionRecType *context)
 {
-  qRecType *qRec;
+  qRecType qRec;
   int index;
-  
+
+  if (strlen(s) == 0) return rtStandardError;  
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
-  qRec = getProgramByIndex(index);
+  if (getProgramByIndex(index, &qRec) != 0) return rtStandardError;
   sprintf(context->outBuf, "GETPGMBYID %d %d %f %f %f %d %s %f %f %d", 
-    qRec->priority, qRec->tagId, qRec->xpos, qRec->ypos, qRec->zpos, qRec->zone, qRec->fileName,
-    qRec->feedOverride, qRec->spindleOverride, qRec->tool);
+    qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
+    qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
 }
 
@@ -810,7 +830,7 @@ static cmdResponseType getPriById(char *s, connectionRecType *context)
   int pri;
 
   if (sscanf(s, "%d", &id) <= 0) return rtStandardError;
-  pri = getPriorityById(id);
+  if (getPriorityById(id, pri) == -1) return rtStandardError;
   sprintf(context->outBuf, "PRIORITYBYID %d %d", id, pri);
   return rtNoError;
 }
@@ -821,8 +841,14 @@ static cmdResponseType getPriByIndex(char *s, connectionRecType *context)
   int pri;
 
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
-  pri = getPriorityByIndex(index);
+  if (getPriorityByIndex(index, pri) == -1) return rtStandardError;
   sprintf(context->outBuf, "PRIORITYBYINDEX %d %d", index, pri);
+  return rtNoError;
+}
+
+static cmdResponseType getPollRate(connectionRecType *context)
+{
+  sprintf(context->outBuf, "POLLRATE %f", pollDelay);
   return rtNoError;
 }
 
@@ -851,7 +877,7 @@ int commandGet(connectionRecType *context)
     case scConfig: ret = getConfig(pch, context); break;
     case scCommMode: ret = getCommMode(pch, context); break;
     case scCommProt: ret = getCommProt(pch, context); break;
-    case scIniFile: getIniFile(pch, context); break;
+    case scIniFile: ret = getIniFile(pch, context); break;
     case scPlat: ret = getPlat(pch, context); break;
     case scIni: break;
     case scDebug: ret = getDebug(pch, context); break;
@@ -859,12 +885,13 @@ int commandGet(connectionRecType *context)
     case scQStatus: ret = getQStatus(context); break;
     case scAutoTagId: ret = getTagId(context);  break;
     case scPgmAdd: break;
-    case scPgmById: getPgmById(pch, context); break;
-    case scPgmByIndex: getPgmByIndex(pch, context); break;
-    case scPriorityById: getPriById(pch, context); break;
-    case scPriorityByIndex: getPriByIndex(pch, context); break;
+    case scPgmById: ret = getPgmById(strtok(NULL, delims), context); break;
+    case scPgmByIndex: ret = getPgmByIndex(strtok(NULL, delims), context); break;
+    case scPriorityById: ret = getPriById(strtok(NULL, delims), context); break;
+    case scPriorityByIndex: ret = getPriByIndex(strtok(NULL, delims), context); break;
     case scDeleteById: break;
     case scDeleteByIndex: break;
+    case scPollRate: ret = getPollRate(context); break;
     case scUnknown: ret = rtStandardError;
     }
   switch (ret) {
@@ -1092,7 +1119,7 @@ void *checkQueue(void *arg)
 {
   while (1) {
     updateQueue();
-    sleep(100);
+    sleep(pollDelay);
     }
   return 0;
 }  
