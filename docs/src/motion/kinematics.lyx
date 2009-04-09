@@ -33,13 +33,8 @@ Kinematics in EMC2
 Introduction
 \layout Standard
 
-When we talk about 
-\begin_inset LatexCommand \index{CNC machines}
-
-\end_inset 
-
-CNC machines, we usually think about machines that are commanded to move
- to certain locations and perform various tasks.
+When we talk about CNC machines, we usually think about machines that are
+ commanded to move to certain locations and perform various tasks.
  In order to have an unified view of the machine space, and to make it fit
  the human point of view over 3D space, most of the machines (if not all)
  use a common coordinate system called the Cartesian Coordinate System.
