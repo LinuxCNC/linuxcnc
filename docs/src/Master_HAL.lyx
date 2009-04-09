@@ -62,7 +62,7 @@ addcontentsline{toc}{chapter}{Cover}
 
 \layout Title
 
-The HAL (Hardware Abstraction Layer) Handbook
+HAL Manual 2.3
 \layout Author
 
 The EMC Team
@@ -79,7 +79,7 @@ The EMC Team
 
 \layout Standard
 \added_space_top 0.75in 
-This handbook is a work in progress.
+This manual is a work in progress.
  If you are able to help with writing, editing, or graphic preparation please
  contact any member of the writing team or join and send an email to emc-users@l
 ists.sourceforge.net.
