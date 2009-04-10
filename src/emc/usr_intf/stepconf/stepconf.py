@@ -462,6 +462,15 @@ class Data:
             print >>file, "LATHE = 1"
 
         print >>file
+        print >>file, "[FILTER]"
+        print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
+        print >>file, "PROGRAM_EXTENSION = .py Python Script"
+        print >>file, "png = image-to-gcode"
+        print >>file, "gif = image-to-gcode"
+        print >>file, "jpg = image-to-gcode"
+        print >>file, "py = python"        
+
+        print >>file
         print >>file, "[TASK]"
         print >>file, "TASK = milltask"
         print >>file, "CYCLE_TIME = 0.010"
