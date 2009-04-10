@@ -157,18 +157,18 @@ _("Maximum Limit Z"), _("Maximum Limit A"),
 _("Both Limit X"), _("Both Limit Y"),
 _("Both Limit Z"), _("Both Limit A"),_("All limits"),("All home")]
 
-(UNUSED_OUTPUT, X_PWM_PULSE, X_PWM_DIR, X_PWM_ENABLE, Y_PWM_PULSE, Y_PWM_DIR, Y_PWM_ENABLE, Z_PWM_PULSE, Z_PWM_DIR, Z_PWM_ENABLE, A_PWM_PULSE, A_PWM_DIR, A_PWM_ENABLE, SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_names = [
-"unused-output","xpwm-pulse", "xpwm-dir", "xpwm-enable", "ypwm-pulse", "ypwm-dir", "ypwm-enable", "zpwm-pulse", "zpwm-dir", "zpwm-enable", "apwm-pulse", "apwm-dir", "apwm-enable", "spindlepwm-pulse", "spindlepwm-dir", "spindlepwm-enable",]
+(UNUSED_PWM, X_PWM_PULSE, X_PWM_DIR, X_PWM_ENABLE, Y_PWM_PULSE, Y_PWM_DIR, Y_PWM_ENABLE, Z_PWM_PULSE, Z_PWM_DIR, Z_PWM_ENABLE, A_PWM_PULSE, A_PWM_DIR, A_PWM_ENABLE, SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_names = [
+"unused-pwm","x-pwm-pulse", "x-pwm-dir", "x-pwm-enable", "y-pwm-pulse", "y-pwm-dir", "y-pwm-enable", "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", "spindle-pwm-pulse", "spindle-pwm-dir", "spindle-pwm-enable",]
 
 human_pwm_output_names =[ _("Unused PWM Gen"), _("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), _("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), _("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"), _("A PWM Pulse Stream"),
 _("A PWM Direction"), _("A PWM Enable"), _("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
 
-(UNUSED_INPUT, X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, Y_ENCODER_A, 
+(UNUSED_ENCODER, X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, Y_ENCODER_A, 
 Y_ENCODER_B, Y_ENCODER_I, Z_ENCODER_A, Z_ENCODER_B, Z_ENCODER_I, 
 A_ENCODER_A, A_ENCODER_B, A_ENCODER_I, SPINDLE_ENCODER_A, SPINDLE_ENCODER_B,
 SPINDLE_ENCODER_I, X_MPG_A, X_MPG_B, X_MPG_I, Y_MPG_A, Y_MPG_B, Y_MPG_I, Z_MPG_A, Z_MPG_B, Z_MPG_I, A_MPG_A, A_MPG_B, A_MPG_I,
 SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I)  = hal_encoder_input_names = [
- "unused-input", "x-encoder-a", "x-encoder-b", "x-encoder-i", "y-encoder-a", "y-encoder-b", "y-encoder-i", "z-encoder-a","z-encoder-b", 
+ "unused-encoder", "x-encoder-a", "x-encoder-b", "x-encoder-i", "y-encoder-a", "y-encoder-b", "y-encoder-i", "z-encoder-a","z-encoder-b", 
 "z-encoder-i", "a-encoder-a", "a-encoder-b", "a-encoder-i", "spindle-encoder-a","spindle-encoder-b","spindle-encoder-i",
 "x-mpg-a","x-mpg-b", "x-mpg-i", "y-mpg-a","y-mpg-b", "y-mpg-i", "z-mpg-a","z-mpg-b", "z-mpg-i", "a-mpg-a","a-mpg-b", "a-mpg-i",
 "select-mpg-a", "select-mpg-b", "select-mpg-i"]
@@ -234,12 +234,14 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
-        self.mesaboardname = "5i20"
-        self.mesa_firmware = 0 # SVST8_4 
+        self.mesa_boardname = "5i20"
+        self.mesa_firmware = "SVST8_4"
+        self.mesa_pwm_frequency = 400000
+        self.mesa_watchdog_timeout = 10000000
         self.numof_mesa_encodergens = 4
-        self.numof_mesa_pwmgens = 5
+        self.numof_mesa_pwmgens = 4
         self.numof_mesa_stepgens = 0
-        self.numof_mesa_gpio = 45
+        self.numof_mesa_gpio = 48
         self.firstpp_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -275,399 +277,54 @@ class Data:
         self.haloutputsignames = []
         self.halsteppersignames = []
 
-        self.firstpppin1invout = 0
-        self.firstpppin2invout = 0
-        self.firstpppin3invout = 0
-        self.firstpppin4invout = 0
-        self.firstpppin5invout = 0
-        self.firstpppin6invout = 0
-        self.firstpppin7invout = 0
-        self.firstpppin8invout = 0
-  
-        self.firstpppin1invin = 0
-        self.firstpppin2invin = 0
-        self.firstpppin3invin = 0
-        self.firstpppin4invin = 0
-        self.firstpppin5invin = 0
-        self.firstpppin6invin = 0
-        self.firstpppin7invin = 0
-        self.firstpppin8invin = 0
+        # For parport one two and three
+        for connector in("first","Second","Third"):
+            # initialize parport input / inv pins
+            for i in (1,2,3,4,5,6,7,8,10,11,12,13,15):
+                pinname ="%spppin%din"% (connector,i)
+                self[pinname] = UNUSED_INPUT
+                pinname ="%spppin%dinvin"% (connector,i)
+                self[pinname] = False
+            # initialize parport output / inv pins
+            for i in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pinname ="%spppin%dout"% (connector,i)
+                self[pinname] = UNUSED_OUTPUT
+                pinname ="%spppin%dinvout"% (connector,i)
+                self[pinname] = False
 
-        self.firstpppin9invout = 0
-        self.firstpppin10invin = 0
-        self.firstpppin11invin = 0
-        self.firstpppin12invin = 0
-        self.firstpppin13invin = 0
-        self.firstpppin14invout = 0
-        self.firstpppin15invin = 0
-        self.firstpppin16invout = 0
-        self.firstpppin17invout = 0
-
-        self.firstpppin1out = UNUSED_OUTPUT
-        self.firstpppin2out = UNUSED_OUTPUT
-        self.firstpppin3out = UNUSED_OUTPUT
-        self.firstpppin4out = UNUSED_OUTPUT
-        self.firstpppin5out = UNUSED_OUTPUT
-        self.firstpppin6out = UNUSED_OUTPUT
-        self.firstpppin7out = UNUSED_OUTPUT
-        self.firstpppin8out = UNUSED_OUTPUT
-        self.firstpppin9out = UNUSED_OUTPUT
-        self.firstpppin14out = UNUSED_OUTPUT
-        self.firstpppin16out = UNUSED_OUTPUT
-        self.firstpppin17out = UNUSED_OUTPUT
+        # for mesa cards
+        connector = 2
+        # This initializes encoder pins
+        for i in (0,1,2,3,4,5,11,12,13,14,15,16,17):
+            pinname ="m5i20c%dpin%d"% (connector,i)
+            self[pinname] = UNUSED_ENCODER
+            pinname ="m5i20c%dpin%dtype"% (connector,i)
+            self[pinname] = 3
+        # This initializes PWM pins
+        for i in (6,7,8,9,10,18,19,20,21,22,23):
+            pinname ="m5i20c%dpin%d"% (connector,i)
+            self[pinname] = UNUSED_PWM
+            pinname ="m5i20c%dpin%dtype"% (connector,i)
+            self[pinname] = 4
+        for connector in(3,4):
+            # This initializes GPIO input pins
+            for i in range(0,16):
+                pinname ="m5i20c%dpin%d"% (connector,i)
+                self[pinname] = UNUSED_INPUT
+                pinname ="m5i20c%dpin%dtype"% (connector,i)
+                self[pinname] = 0
+            # This initializes GPIO output pins
+            for i in range(16,24):
+                pinname ="m5i20c%dpin%d"% (connector,i)
+                self[pinname] = UNUSED_OUTPUT
+                pinname ="m5i20c%dpin%dtype"% (connector,i)
+                self[pinname] = 1
+        for connector in(2,3,4):
+            # This initializes the mesa inverse pins
+            for i in range(0,24):
+                pinname ="m5i20c%dpin%dinv"% (connector,i)
+                self[pinname] = False
         
-        self.firstpppin1in = UNUSED_INPUT
-        self.firstpppin2in = UNUSED_INPUT
-        self.firstpppin3in = UNUSED_INPUT
-        self.firstpppin4in = UNUSED_INPUT
-        self.firstpppin5in = UNUSED_INPUT
-        self.firstpppin6in = UNUSED_INPUT
-        self.firstpppin7in = UNUSED_INPUT
-        self.firstpppin8in = UNUSED_INPUT
-
-        self.firstpppin10in = UNUSED_INPUT
-        self.firstpppin11in = UNUSED_INPUT
-        self.firstpppin12in = UNUSED_INPUT
-        self.firstpppin13in = UNUSED_INPUT
-        self.firstpppin15in = UNUSED_INPUT
-
-        self.Secondpppin1invout = 0
-        self.Secondpppin2invout = 0
-        self.Secondpppin3invout = 0
-        self.Secondpppin4invout = 0
-        self.Secondpppin5invout = 0
-        self.Secondpppin6invout = 0
-        self.Secondpppin7invout = 0
-        self.Secondpppin8invout = 0
-  
-        self.Secondpppin1invin = 0
-        self.Secondpppin2invin = 0
-        self.Secondpppin3invin = 0
-        self.Secondpppin4invin = 0
-        self.Secondpppin5invin = 0
-        self.Secondpppin6invin = 0
-        self.Secondpppin7invin = 0
-        self.Secondpppin8invin = 0
-
-        self.Secondpppin9invout = 0
-        self.Secondpppin10invin = 0
-        self.Secondpppin11invin = 0
-        self.Secondpppin12invin = 0
-        self.Secondpppin13invin = 0
-        self.Secondpppin14invout = 0
-        self.Secondpppin15invin = 0
-        self.Secondpppin16invout = 0
-        self.Secondpppin17invout = 0
-
-        self.Secondpppin1out = UNUSED_OUTPUT
-        self.Secondpppin2out = UNUSED_OUTPUT
-        self.Secondpppin3out = UNUSED_OUTPUT
-        self.Secondpppin4out = UNUSED_OUTPUT
-        self.Secondpppin5out = UNUSED_OUTPUT
-        self.Secondpppin6out = UNUSED_OUTPUT
-        self.Secondpppin7out = UNUSED_OUTPUT
-        self.Secondpppin8out = UNUSED_OUTPUT
-        self.Secondpppin9out = UNUSED_OUTPUT
-        self.Secondpppin14out = UNUSED_OUTPUT
-        self.Secondpppin16out = UNUSED_OUTPUT
-        self.Secondpppin17out = UNUSED_OUTPUT
-        
-        self.Secondpppin1in = UNUSED_INPUT
-        self.Secondpppin2in = UNUSED_INPUT
-        self.Secondpppin3in = UNUSED_INPUT
-        self.Secondpppin4in = UNUSED_INPUT
-        self.Secondpppin5in = UNUSED_INPUT
-        self.Secondpppin6in = UNUSED_INPUT
-        self.Secondpppin7in = UNUSED_INPUT
-        self.Secondpppin8in = UNUSED_INPUT
-
-        self.Secondpppin10in = UNUSED_INPUT
-        self.Secondpppin11in = UNUSED_INPUT
-        self.Secondpppin12in = UNUSED_INPUT
-        self.Secondpppin13in = UNUSED_INPUT
-        self.Secondpppin15in = UNUSED_INPUT
-        
-        self.Thirdpppin1invout = 0
-        self.Thirdpppin2invout = 0
-        self.Thirdpppin3invout = 0
-        self.Thirdpppin4invout = 0
-        self.Thirdpppin5invout = 0
-        self.Thirdpppin6invout = 0
-        self.Thirdpppin7invout = 0
-        self.Thirdpppin8invout = 0
-  
-        self.Thirdpppin1invin = 0
-        self.Thirdpppin2invin = 0
-        self.Thirdpppin3invin = 0
-        self.Thirdpppin4invin = 0
-        self.Thirdpppin5invin = 0
-        self.Thirdpppin6invin = 0
-        self.Thirdpppin7invin = 0
-        self.Thirdpppin8invin = 0
-
-        self.Thirdpppin9invout = 0
-        self.Thirdpppin10invin = 0
-        self.Thirdpppin11invin = 0
-        self.Thirdpppin12invin = 0
-        self.Thirdpppin13invin = 0
-        self.Thirdpppin14invout = 0
-        self.Thirdpppin15invin = 0
-        self.Thirdpppin16invout = 0
-        self.Thirdpppin17invout = 0
-
-        self.Thirdpppin1out = UNUSED_OUTPUT
-        self.Thirdpppin2out = UNUSED_OUTPUT
-        self.Thirdpppin3out = UNUSED_OUTPUT
-        self.Thirdpppin4out = UNUSED_OUTPUT
-        self.Thirdpppin5out = UNUSED_OUTPUT
-        self.Thirdpppin6out = UNUSED_OUTPUT
-        self.Thirdpppin7out = UNUSED_OUTPUT
-        self.Thirdpppin8out = UNUSED_OUTPUT
-        self.Thirdpppin9out = UNUSED_OUTPUT
-        self.Thirdpppin14out = UNUSED_OUTPUT
-        self.Thirdpppin16out = UNUSED_OUTPUT
-        self.Thirdpppin17out = UNUSED_OUTPUT
-        
-        self.Thirdpppin1in = UNUSED_INPUT
-        self.Thirdpppin2in = UNUSED_INPUT
-        self.Thirdpppin3in = UNUSED_INPUT
-        self.Thirdpppin4in = UNUSED_INPUT
-        self.Thirdpppin5in = UNUSED_INPUT
-        self.Thirdpppin6in = UNUSED_INPUT
-        self.Thirdpppin7in = UNUSED_INPUT
-        self.Thirdpppin8in = UNUSED_INPUT
-
-        self.Thirdpppin10in = UNUSED_INPUT
-        self.Thirdpppin11in = UNUSED_INPUT
-        self.Thirdpppin12in = UNUSED_INPUT
-        self.Thirdpppin13in = UNUSED_INPUT
-        self.Thirdpppin15in = UNUSED_INPUT
-
-        self.m5i20c2pin0 = X_ENCODER_A
-        self.m5i20c2pin1 = X_ENCODER_B
-        self.m5i20c2pin2 = Y_ENCODER_A
-        self.m5i20c2pin3 = Y_ENCODER_B
-        self.m5i20c2pin4 = X_ENCODER_I
-        self.m5i20c2pin5 = Y_ENCODER_I
-        self.m5i20c2pin6 = X_PWM_PULSE
-        self.m5i20c2pin7 = UNUSED_OUTPUT
-        self.m5i20c2pin8 = X_PWM_DIR
-        self.m5i20c2pin9 = UNUSED_OUTPUT
-        self.m5i20c2pin10 = X_PWM_ENABLE
-        self.m5i20c2pin11 = UNUSED_OUTPUT
-        self.m5i20c2pin12 = Z_ENCODER_A
-        self.m5i20c2pin13 = Z_ENCODER_B
-        self.m5i20c2pin14 = A_ENCODER_A
-        self.m5i20c2pin15 = A_ENCODER_B    
-        self.m5i20c2pin16 = Z_ENCODER_I
-        self.m5i20c2pin17 = A_ENCODER_I
-        self.m5i20c2pin18 = UNUSED_OUTPUT
-        self.m5i20c2pin19 = UNUSED_OUTPUT
-        self.m5i20c2pin20 = UNUSED_OUTPUT
-        self.m5i20c2pin21 = UNUSED_OUTPUT
-        self.m5i20c2pin22 = UNUSED_OUTPUT
-        self.m5i20c2pin23 = UNUSED_OUTPUT
-
-        self.m5i20c2pin0inv = False
-        self.m5i20c2pin1inv = False
-        self.m5i20c2pin2inv = False
-        self.m5i20c2pin3inv = False
-        self.m5i20c2pin4inv = False
-        self.m5i20c2pin5inv = False
-        self.m5i20c2pin6inv = False
-        self.m5i20c2pin7inv = False
-        self.m5i20c2pin8inv = False
-        self.m5i20c2pin9inv = False
-        self.m5i20c2pin10inv = False
-        self.m5i20c2pin11inv = False
-        self.m5i20c2pin12inv = False
-        self.m5i20c2pin13inv = False
-        self.m5i20c2pin14inv = False
-        self.m5i20c2pin15inv = False
-        self.m5i20c2pin16inv = False
-        self.m5i20c2pin17inv = False
-        self.m5i20c2pin18inv = False
-        self.m5i20c2pin19inv = False
-        self.m5i20c2pin20inv = False
-        self.m5i20c2pin21inv = False
-        self.m5i20c2pin22inv = False
-        self.m5i20c2pin23inv = False
-
-        self.m5i20c2pin0type = 3
-        self.m5i20c2pin1type = 3
-        self.m5i20c2pin2type = 3
-        self.m5i20c2pin3type = 3
-        self.m5i20c2pin4type = 3
-        self.m5i20c2pin5type = 3
-        self.m5i20c2pin6type = 4
-        self.m5i20c2pin7type = 4
-        self.m5i20c2pin8type = 4
-        self.m5i20c2pin9type = 4
-        self.m5i20c2pin10type = 4
-        self.m5i20c2pin11type = 4
-        self.m5i20c2pin12type = 3
-        self.m5i20c2pin13type = 3
-        self.m5i20c2pin14type = 3
-        self.m5i20c2pin15type = 3
-        self.m5i20c2pin16type = 3
-        self.m5i20c2pin17type = 3
-        self.m5i20c2pin18type = 4
-        self.m5i20c2pin19type = 4
-        self.m5i20c2pin20type = 4
-        self.m5i20c2pin21type = 4
-        self.m5i20c2pin22type = 4
-        self.m5i20c2pin23type = 4
-
-        self.m5i20c3pin0 = UNUSED_INPUT
-        self.m5i20c3pin1 = UNUSED_INPUT
-        self.m5i20c3pin2 = UNUSED_INPUT
-        self.m5i20c3pin3 = UNUSED_INPUT
-        self.m5i20c3pin4 = UNUSED_INPUT
-        self.m5i20c3pin5 = UNUSED_INPUT
-        self.m5i20c3pin6 = UNUSED_INPUT
-        self.m5i20c3pin7 = UNUSED_INPUT
-        self.m5i20c3pin8 = UNUSED_INPUT
-        self.m5i20c3pin9 = UNUSED_INPUT
-        self.m5i20c3pin10 = UNUSED_INPUT
-        self.m5i20c3pin11 = UNUSED_INPUT
-        self.m5i20c3pin12 = UNUSED_INPUT
-        self.m5i20c3pin13 = UNUSED_INPUT
-        self.m5i20c3pin14 = UNUSED_INPUT
-        self.m5i20c3pin15 = UNUSED_INPUT    
-        self.m5i20c3pin16 = UNUSED_OUTPUT
-        self.m5i20c3pin17 = UNUSED_OUTPUT
-        self.m5i20c3pin18 = UNUSED_OUTPUT
-        self.m5i20c3pin19 = UNUSED_OUTPUT
-        self.m5i20c3pin20 = UNUSED_OUTPUT
-        self.m5i20c3pin21 = UNUSED_OUTPUT
-        self.m5i20c3pin22 = UNUSED_OUTPUT
-        self.m5i20c3pin23 = UNUSED_OUTPUT
-
-        self.m5i20c3pin0inv = False
-        self.m5i20c3pin1inv = False
-        self.m5i20c3pin2inv = False
-        self.m5i20c3pin3inv = False
-        self.m5i20c3pin4inv = False
-        self.m5i20c3pin5inv = False
-        self.m5i20c3pin6inv = False
-        self.m5i20c3pin7inv = False
-        self.m5i20c3pin8inv = False
-        self.m5i20c3pin9inv = False
-        self.m5i20c3pin10inv = False
-        self.m5i20c3pin11inv = False
-        self.m5i20c3pin12inv = False
-        self.m5i20c3pin13inv = False
-        self.m5i20c3pin14inv = False
-        self.m5i20c3pin15inv = False
-        self.m5i20c3pin16inv = False
-        self.m5i20c3pin17inv = False
-        self.m5i20c3pin18inv = False
-        self.m5i20c3pin19inv = False
-        self.m5i20c3pin20inv = False
-        self.m5i20c3pin21inv = False
-        self.m5i20c3pin22inv = False
-        self.m5i20c3pin23inv = False
-
-        self.m5i20c3pin0type = 0
-        self.m5i20c3pin1type = 0
-        self.m5i20c3pin2type = 0
-        self.m5i20c3pin3type = 0
-        self.m5i20c3pin4type = 0
-        self.m5i20c3pin5type = 0
-        self.m5i20c3pin6type = 0
-        self.m5i20c3pin7type = 0
-        self.m5i20c3pin8type = 0
-        self.m5i20c3pin9type = 0
-        self.m5i20c3pin10type = 0
-        self.m5i20c3pin11type = 0
-        self.m5i20c3pin12type = 0
-        self.m5i20c3pin13type = 0
-        self.m5i20c3pin14type = 0
-        self.m5i20c3pin15type = 0
-        self.m5i20c3pin16type = 1
-        self.m5i20c3pin17type = 1
-        self.m5i20c3pin18type = 4
-        self.m5i20c3pin19type = 4
-        self.m5i20c3pin20type = 4
-        self.m5i20c3pin21type = 4
-        self.m5i20c3pin22type = 4
-        self.m5i20c3pin23type = 4
-
-        self.m5i20c4pin0 = UNUSED_INPUT
-        self.m5i20c4pin1 = UNUSED_INPUT
-        self.m5i20c4pin2 = UNUSED_INPUT
-        self.m5i20c4pin3 = UNUSED_INPUT
-        self.m5i20c4pin4 = UNUSED_INPUT
-        self.m5i20c4pin5 = UNUSED_INPUT
-        self.m5i20c4pin6 = UNUSED_INPUT
-        self.m5i20c4pin7 = UNUSED_INPUT
-        self.m5i20c4pin8 = UNUSED_INPUT
-        self.m5i20c4pin9 = UNUSED_INPUT
-        self.m5i20c4pin10 = UNUSED_INPUT
-        self.m5i20c4pin11 = UNUSED_INPUT
-        self.m5i20c4pin12 = UNUSED_INPUT
-        self.m5i20c4pin13 = UNUSED_INPUT
-        self.m5i20c4pin14 = UNUSED_INPUT
-        self.m5i20c4pin15 = UNUSED_INPUT    
-        self.m5i20c4pin16 = UNUSED_OUTPUT
-        self.m5i20c4pin17 = UNUSED_OUTPUT
-        self.m5i20c4pin18 = UNUSED_OUTPUT
-        self.m5i20c4pin19 = UNUSED_OUTPUT
-        self.m5i20c4pin20 = UNUSED_OUTPUT
-        self.m5i20c4pin21 = UNUSED_OUTPUT
-        self.m5i20c4pin22 = UNUSED_OUTPUT
-        self.m5i20c4pin23 = UNUSED_OUTPUT
-    
-        self.m5i20c4pin0inv = False
-        self.m5i20c4pin1inv = False
-        self.m5i20c4pin2inv = False
-        self.m5i20c4pin3inv = False
-        self.m5i20c4pin4inv = False
-        self.m5i20c4pin5inv = False
-        self.m5i20c4pin6inv = False
-        self.m5i20c4pin7inv = False
-        self.m5i20c4pin8inv = False
-        self.m5i20c4pin9inv = False
-        self.m5i20c4pin10inv = False
-        self.m5i20c4pin11inv = False
-        self.m5i20c4pin12inv = False
-        self.m5i20c4pin13inv = False
-        self.m5i20c4pin14inv = False
-        self.m5i20c4pin15inv = False
-        self.m5i20c4pin16inv = False
-        self.m5i20c4pin17inv = False
-        self.m5i20c4pin18inv = False
-        self.m5i20c4pin19inv = False
-        self.m5i20c4pin20inv = False
-        self.m5i20c4pin21inv = False
-        self.m5i20c4pin22inv = False
-        self.m5i20c4pin23inv = False
-
-        self.m5i20c4pin0type = 0
-        self.m5i20c4pin1type = 0
-        self.m5i20c4pin2type = 0
-        self.m5i20c4pin3type = 0
-        self.m5i20c4pin4type = 0
-        self.m5i20c4pin5type = 0
-        self.m5i20c4pin6type = 0
-        self.m5i20c4pin7type = 0
-        self.m5i20c4pin8type = 0
-        self.m5i20c4pin9type = 0
-        self.m5i20c4pin10type = 0
-        self.m5i20c4pin11type = 0
-        self.m5i20c4pin12type = 0
-        self.m5i20c4pin13type = 0
-        self.m5i20c4pin14type = 0
-        self.m5i20c4pin15type = 0
-        self.m5i20c4pin16type = 1
-        self.m5i20c4pin17type = 1
-        self.m5i20c4pin18type = 1
-        self.m5i20c4pin19type = 1
-        self.m5i20c4pin20type = 1
-        self.m5i20c4pin21type = 1
-        self.m5i20c4pin22type = 1
-        self.m5i20c4pin23type = 1
-
         self.xsteprev = 200
         self.xmicrostep = 2
         self.xpulleynum = 1
@@ -910,7 +567,7 @@ class Data:
         print >>file, _("# Generated by PNCconf at %s") % time.asctime()
         print >>file, _("# If you make changes to this file, they will be")
         print >>file, _("# overwritten when you run PNCconf again")
-
+        
         print >>file
         print >>file, "[EMC]"
         print >>file, "MACHINE = %s" % self.machinename
@@ -964,8 +621,13 @@ class Data:
         print >>file, "COMM_TIMEOUT = 1.0"
         print >>file, "COMM_WAIT = 0.010"
         print >>file, "BASE_PERIOD = %d" % base_period
-        print >>file, "SERVO_PERIOD = 1000000"
-
+        print >>file, "SERVO_PERIOD = 1000000" 
+        print >>file
+        print >>file, "[HOSTMOT2]"
+        print >>file, "DRIVER=hm2_pci"
+        print >>file, "BOARD=%s"% self.mesa_boardname
+        print >>file, """CONFIG="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+        self.mesa_boardname, self.mesa_firmware, self.numof_mesa_encodergens, self.numof_mesa_pwmgens, self.numof_mesa_stepgens )
         print >>file
         print >>file, "[HAL]"
         if self.halui:
@@ -1079,6 +741,9 @@ class Data:
         order = "1203"
         def get(s): return self[letter + s]
         print >>file
+        print >>file, "#********************"
+        print >>file, "# Axis %s" % letter.upper()
+        print >>file, "#********************"
         print >>file, "[AXIS_%d]" % num
         print >>file, "TYPE = %s" % type
         print >>file, "HOME = %s" % get("homepos")
@@ -1159,41 +824,105 @@ class Data:
            for i in thisaxishome:
                test = self.findsignal(i)
                if not test == "false": return i
+    
+    def stepgen_sig(self, axis):
+           thisaxisstepgen =  axis + "-stepgen-step" 
+           test = self.findsignal(thisaxisstepgen)
+           if not test == "false": return test
+
+    def encoder_sig(self, axis): 
+           thisaxisencoder = axis +"-encoder-a"
+           test = self.findsignal(thisaxisencoder)
+           if not test == "false": return test
+
+    def pwmgen_sig(self, axis):
+           thisaxispwmgen =  axis + "-pwm-pulse" 
+           test = self.findsignal( thisaxispwmgen)
+           if not test == "false": return test
  
     def connect_axis(self, file, num, let):
         axnum = "xyza".index(let)
+        pwmgen = self.pwmgen_sig(let)
+        print pwmgen
+        stepgen = self.stepgen_sig(let)
+        print stepgen
+        encoder = self.encoder_sig(let)
+        print encoder
+        homesig = self.home_sig(let)
+        max_limsig = self.max_lim_sig(let)
+        min_limsig = self.min_lim_sig(let)
         lat = self.latency
         print >>file
-        print >>file, "setp pid.%d.maxoutput [AXIS_%d]MAX_VELOCITY"% (num, axnum)
-        print >>file, "setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
-        print >>file, "setp pid.%d.Igain [AXIS_%d]I"% (num, axnum)
-        print >>file, "setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
-        print >>file, "setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
-        print >>file, "setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
-        print >>file, "setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
-        print >>file, "setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
-        print >>file
-        print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
-        print >>file, "setp stepgen.%d.steplen 1" % num
-        if self.doublestep():
-            print >>file, "setp stepgen.%d.stepspace 0" % num
-        else:
-            print >>file, "setp stepgen.%d.stepspace 1" % num
-        print >>file, "setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
-        print >>file, "setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
-        print >>file, "setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
-        print >>file, "net %spos-cmd axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
-        print >>file, "net %spos-fb stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
-        print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
-        print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
-        print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)
-        homesig = self.home_sig(let)
+        print >>file, "#**************"
+        print >>file, "#  Axis %s" % let.upper()
+        print >>file, "#**************"
+        print >>file, "newsig emcmot.%2d.enable bit"% (num)
+        print >>file, "sets emcmot.%2d.enable FALSE"% (num)
+        print >>file, "net emcmot.%2d.enable => pid.%d.enable"% (num, axnum)
+        
+        if pwmgen:
+            boardnum = 0
+            signum = 0
+            print >>file, "net emcmot.%2d.enable => hm2_[HOSTMOT2](BOARD).%d.pwmgen.%2d.enable" % (axnum, boardnum, signum)
+        print >>file, "net emcmot.%2d.enable <= axis.%d.amp-enable-out" % (num, axnum)
+        if not stepgen:
+            print >>file, "setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
+            print >>file, "setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
+            print >>file, "setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
+            print >>file, "setp pid.%d.bias [AXIS_%d]BIAS" % (num, axnum)
+            print >>file, "setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
+            print >>file, "setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
+            print >>file, "setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
+            print >>file, "setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
+            print >>file, "setp pid.%d.maxoutput [AXIS_%d]MAX_VELOCITY" % (num, axnum)
+            print >>file
+            if encoder:
+                boardnum = 0
+                signum = 0
+                #TODO do a check to see if encoder sig is from parport or mesa
+                #also the encoder # needs to reflect pin number not axis number
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.counter-mode 0" % (boardnum, signum)
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.filter 1" % (boardnum, signum)
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.index-invert 0" % (boardnum, signum)
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.index-mask 0" % (boardnum, signum)
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.index-mask-invert 0" % (boardnum, signum)
+              
+                print >>file, "setp  hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.scale  2000" % (boardnum, signum)
+                print >>file, "net motor.%2d.pos-fb hm2_[HOSTMOT2](BOARD).%d.encoder.%2d.position => pid.%d.feedback"% (
+                axnum, boardnum, axnum, axnum)
+                #TODO if this is really for AXIS GUI then will need to be changed for other GUI
+                print >>file, "net motor.%d.pos-fb => axis.%d.motor-pos-fb #push copy back to Axis GUI" % (
+                axnum, axnum)   
+                print >>file        
+            if pwmgen:
+                boardnum = 0
+                signum = 0
+                #TODO do a check to see if encoder sig is from parport or mesa
+                #also the pwm # needs to reflect pin number not axis number
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.pwmgen.%2d.output-type 1" % (boardnum, signum)
+                print >>file, "setp hm2_[HOSTMOT2](BOARD).%d.pwmgen.%2d.scale  1.0" % (boardnum, signum)
+                print >>file, "net emcmot.%2d.pos-cmd axis.%d.motor-pos-cmd => pid.%d.command" % (axnum, axnum , axnum)
+                print >>file, "net motor.%2d.command  pid.%d.output  =>  hm2_[HOSTMOT2](BOARD).%d.pwmgen.%2d.value" % (
+                axnum, axnum, boardnum, signum)      
+        if stepgen:
+            print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
+            print >>file, "setp stepgen.%d.steplen 1" % num
+            if self.doublestep():
+                print >>file, "setp stepgen.%d.stepspace 0" % num
+            else:
+                print >>file, "setp stepgen.%d.stepspace 1" % num
+            print >>file, "setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
+            print >>file, "setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
+            print >>file, "setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
+            print >>file, "net %spos-cmd axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
+            print >>file, "net %spos-fb stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
+            print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
+            print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
+            print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)        
         if homesig:
-            print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)
-        min_limsig = self.min_lim_sig(let)
+            print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
         if min_limsig:
-            print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)
-        max_limsig = self.max_lim_sig(let)
+            print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
         if max_limsig:
             print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
@@ -1202,19 +931,26 @@ class Data:
             p = self['firstpppin%din' % q]
             i = self['firstpppin%dinvin' % q]
             if p == UNUSED_INPUT: continue
-
             if i: print >>file, "net %s <= parport.0.pin-%02d-in-not" % (p, q)
             else: print >>file, "net %s <= parport.0.pin-%02d-in" % (p, q)
         for connector in (2,3,4):
             print >>file
-            board = self.mesaboardname
+            board = self.mesa_boardname
             for q in range(0,24):
                 p = self['m5i20c%dpin%d' % (connector, q)]
                 i = self['m5i20c%dpin%dinv' % (connector, q)]
                 t = self['m5i20c%dpin%dtype' % (connector, q)]
-                if p == "unused-input" or not t == 0: continue
-                if i: print >>file, "net %s <= hm2_%s.0.gpio.%02d-not"  % (p, board, q)
-                else: print >>file, "net %s <= hm2_%s.0.gpio.%02d" % (p, board, q)
+                truepinnum = q + ((connector-2)*24)
+                # for input pins
+                if t == 0:
+                    if p == "unused-input":continue  
+                    if i: print >>file, "net %s <= hm2_%s.0.gpio.%02d-not"  % (p, board, truepinnum)
+                    else: print >>file, "net %s <= hm2_%s.0.gpio.%02d" % (p, board, truepinnum)
+                # for encoder pins
+                if t == 3:
+                    if p == "unused-encoder":continue
+                    if p in (self.halencoderinputsignames): 
+                        print >>file, "net %s <= hm2_%s.0.encoder.%02d"  % (p, board, truepinnum)    
         
     def find_input(self, input):
         inputs = set((10, 11, 12, 13, 15))
@@ -1225,7 +961,7 @@ class Data:
         return None
 
     def find_output(self, output):
-        outputs = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
+        outputs = set((1,2,3,4,5,6,7,8,9,14,16,17))
         for i in outputs:
             pin = getattr(self, "firstpppin%dout" % i)
             inv = getattr(self, "firstpppin%dinvout" % i)
@@ -1233,7 +969,7 @@ class Data:
         return None
 
     def connect_output(self, file):
-        for q in (1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17):
+        for q in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = self['firstpppin%dout' % q]
             i = self['firstpppin%dinvout' % q]
             if p == UNUSED_OUTPUT: continue
@@ -1242,16 +978,28 @@ class Data:
         print >>file
         for connector in (2,3,4):
             print >>file
-            board = self.mesaboardname
+            board = self.mesa_boardname
             for q in range(0,24):
                 p = self['m5i20c%dpin%d' % (connector, q)]
                 i = self['m5i20c%dpin%dinv' % (connector, q)]
                 t = self['m5i20c%dpin%dtype' % (connector, q)]
-                if p == "unused-output" or not t in (1,2): continue
-                if i: print >>file, "setp h2_%s.0.gpio.%02d-invert true" % (board, q)
-                if t == 2: print >>fie, "setp hs_%s.0.gpio.%02d.opendrain" % (board , q)
-                print >>file, "net %s => h2_%s.0.gpio.%02d" % (p, board, q-16)
-        
+                truepinnum = q + ((connector-2)*24)
+                # for output /open drain pins
+                if t in (1,2):
+                    if p == "unused-output":continue
+                    if i: print >>file, "setp h2_%s.0.gpio.%02d-invert true" % (board, truepinnum)
+                    if t == 2: print >>fie, "setp hs_%s.0.gpio.%02d.isopendrain true" % (board , truepinnum)
+                    print >>file, "net %s => h2_%s.0.gpio.%02d" % (p, board, truepinnum)
+                # for encoder pins
+                if t == 4:
+                    if p == "unused-pwm":continue
+                    if p in (self.halpwmoutputsignames): 
+                        print >>file, "net %s <= hm2_%s.0.pwm.%02d"  % (p, board, truepinnum)  
+                # for stepper pins
+                if t == 5:
+                    if p == "unused-stepgen":continue
+                    if p in (self.halsteppersignames): 
+                        print >>file, "net %s <= hm2_%s.0.stepgen.%02d"  % (p, board, truepinnum) 
 
 
     def write_halfile(self, base):
@@ -1265,14 +1013,14 @@ class Data:
         print >>file, _("# Generated by PNCconf at %s") % time.asctime()
         print >>file, _("# If you make changes to this file, they will be")
         print >>file, _("# overwritten when you run PNCconf again")
-
+        print >>file
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         if self.mesa5i20>0:
-            print >>file, "loadrt hpstmot2"
-            print >>file, "loadrt hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
-            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency 40000"
-            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns 10000000"
+            #print >>file, "loadrt hpstmot2"
+            #print >>file, "loadrt hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
+            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
+            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
             print >>file, "loadrt probe_parport"
@@ -1478,14 +1226,14 @@ class Data:
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
-            print >>file, "# **** Setup for external estop ladder program -START ****"
+            print >>file, _("# **** Setup for external estop ladder program -START ****")
             print >>file
             print >>file, "net estop-out => classicladder.0.in-00"
             print >>file, "net estop-ext => classicladder.0.in-01"
             print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
             print >>file
-            print >>file, "# **** Setup for external estop ladder program -END ****"
+            print >>file, _("# **** Setup for external estop ladder program -END ****")
         elif ESTOP_IN in inputs:
             print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
         else:
@@ -1505,10 +1253,10 @@ class Data:
         if self.classicladder:
             print >>file
             if self.modbus:
-                print >>file, "# Load Classicladder with modbus master included (GUI must run for Modbus)"
+                print >>file, _("# Load Classicladder with modbus master included (GUI must run for Modbus)")
                 print >>file, "loadusr classicladder --modmaster custom.clp"
             else:
-                print >>file, "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
+                print >>file, _("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI")
                 print >>file, "loadusr classicladder --nogui custom.clp"
         if self.pyvcp:
             vcp = os.path.join(base, "custompanel.xml")
@@ -1532,27 +1280,27 @@ class Data:
 # The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
                   if encoder:
-                      print >>f1, ("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, ("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
-                      print >>f1, ("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
+                      print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
+                      print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
+                      print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
-                      print >>f1, ("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, ("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
+                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
                   print >>f1, ("net tool-number => pyvcp.toolnumber")
                   print >>f1
-                  print >>f1, ("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
+                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
-                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
+                      print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
                       print >>f1
                       print >>f1, ("net jog-X+ <= pyvcp.jog-x+ => halui.jog.0.plus")
                       print >>f1, ("net jog-X- <= pyvcp.jog-x- => halui.jog.0.minus")
@@ -1568,7 +1316,7 @@ class Data:
                       print >>f1, ("net program-resume <= pyvcp.resume => halui.program.resume")
                       print >>f1, ("net program-single-step <= pyvcp.step => halui.program.step")
                       print >>f1
-                      print >>f1, ("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
+                      print >>f1, _("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
                       print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
                       print >>f1, ("# **** command 01 - rapid to reference point ( G 28 )")
                       print >>f1, ("# **** command 02 - zero X axis in G54 cordinate system")
@@ -1582,7 +1330,7 @@ class Data:
                       print >>f1, ("net MDI-zero_Z <= pyvcp.MDI-zeroz => halui.mdi-command-04")
                       print >>f1, ("net MDI-clear-offset <= pyvcp.MDI-clear-offset => halui.mdi-command-05")
                       print >>f1
-                      print >>f1, ("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
+                      print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
@@ -1737,6 +1485,11 @@ class Data:
                             return mesa4[sig]
                         except :
                             return "false"
+
+    def make_pin(self, pin):
+        print "making pinname"
+
+
 
 class App:
     fname = 'pncconf.glade'  # XXX search path
@@ -2108,7 +1861,17 @@ class App:
 
     def on_mesa5i20_prepare(self, *args):
         self.in_mesa_prepare = True
-        self.widgets.mesa_firmware.set_active(self.data.mesa_firmware)
+        # TODO add board and firmware options including another tab on the mesa page for the 5i22
+        model = self.widgets.mesa_firmware.get_model()
+        model.clear()
+        model.append((self.data.mesa_firmware,))
+        self.widgets.mesa_firmware.set_active(0)
+        model = self.widgets.mesa_boardname.get_model()
+        model.clear()
+        model.append((self.data.mesa_boardname,))
+        self.widgets.mesa_boardname.set_active(0)
+        self.widgets.mesa_pwm_frequency.set_value(self.data.mesa_pwm_frequency)
+        self.widgets.mesa_watchdog_timeout.set_value(self.data.mesa_watchdog_timeout)
         self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
         self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
         self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
@@ -2125,8 +1888,6 @@ class App:
                 # signal names for input
                 if self.data[ptype] == 0:                    
                     for name in human_input_names:
-  
-                        print p,name ,self.data[p],hal_input_names.index(self.data[p])
                         if self.data.limitshared or self.data.limitsnone:
                             if name in human_names_limit_only: continue 
                         if self.data.limitswitch or self.data.limitsnone:
@@ -2231,8 +1992,6 @@ class App:
                 selection = self.widgets[p].get_active_text()
                 # type GPIO input
                 if pintype == 0:
-                    #for search,item in enumerate(model):
-                     #   if model[search][0]  == human_input_names[hal_input_names.index(selection)]:
                     nametocheck = human_input_names
                     signaltocheck = hal_input_names
                     addsignalto = self.data.halinputsignames
@@ -2280,17 +2039,13 @@ class App:
                             addsignalto.append ((selection + ending))
                         if pin in (0,12):
                             d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
-                            print d,signaltocheck[index+1]
                             self.data[d] = signaltocheck[index+1]
                             d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
-                            print d,signaltocheck[index+2]
                             self.data[d] = signaltocheck[index+2]
                         elif pin in (2,14):
                             d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
-                            print d,signaltocheck[index+1]
                             self.data[d] = signaltocheck[index+1]
                             d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
-                            print d,signaltocheck[index+2]
                             self.data[d] = signaltocheck[index+2]
                         else:
                             print"Encoder pin config error"
@@ -2333,8 +2088,6 @@ class App:
                         signaltocheck.append ((selection))
                         nametocheck.append ((selection))
                         addsignalto.append ((selection))
-
-                print p,signaltocheck[index]
                 self.data[p] = signaltocheck[index]
                 self.data[pinv] = self.widgets[pinv].get_active()
                 if self.data.number_pports<1:
@@ -2355,8 +2108,7 @@ class App:
              g.append ((selection))
              hal_input_names.append ((selection))
              self.data.halinputsignames.append ((selection))
-        self.data[p] = hal_input_names[index]
-            
+        self.data[p] = hal_input_names[index]       
 
     def on_m5i20panel_clicked(self, *args):self.m5i20test(self)
     
@@ -2367,8 +2119,7 @@ class App:
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
                 old = self.data[ptype]
-                new = self.widgets[ptype].get_active()  
-                #print p, "old", old, "new", new       
+                new = self.widgets[ptype].get_active()      
                 if old == 0 and new in (1,2):
                     print "switch to output"
                     model = self.widgets[p].get_model()
@@ -2391,16 +2142,16 @@ class App:
                         model.append((name,))
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
-                    #print p, old, new
                     self.data[ptype] = new
 
     def on_mesa_component_value_changed(self, *args):
+        self.data.mesa_pwm_frequency = self.widgets.mesa_pwm_frequency.get_value()
+        self.data.mesa_watchdog_timeout = self.widgets.mesa_watchdog_timeout.get_value()
         numofpwmgens = int(self.widgets.numof_mesa_pwmgens.get_value())
         numofstepgens = int(self.widgets.numof_mesa_stepgens.get_value())
         numofencoders = int(self.widgets.numof_mesa_encodergens.get_value())
         # This is for Stepgen / GPIO conversion
         temp = (numofstepgens * 6)
-        print "temp",temp
         for pin in range(0,24):
             connector = 4
             p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -2476,7 +2227,6 @@ class App:
         self.on_mesa5i20_prepare()
    
     def on_gpio_update(self, *args):
-        print "here"
         i = (int(self.widgets.numof_mesa_pwmgens.get_value()) * 3)
         j = (int(self.widgets.numof_mesa_stepgens.get_value()) * 6)
         k = (int(self.widgets.numof_mesa_encodergens.get_value()) * 3)
@@ -2491,6 +2241,7 @@ class App:
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pinchanged =  self.widgets[p].get_active_text() 
                 used = 0
+                # for stepgen pins
                 if self.data[ptype] == 5:
                     for index, name in enumerate(human_stepper_names):
                         if name == pinchanged:
@@ -2500,11 +2251,13 @@ class App:
                                     tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+temp}
                                     self.widgets[tochange].set_active((index+temp)*used) 
                     continue
+                # for encoder pins
                 if self.data[ptype] == 3: 
                     nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
                     unusedcheck = "Unused Encoder"
+                # for PWM pins
                 elif self.data[ptype] == 4: 
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
@@ -2515,16 +2268,19 @@ class App:
                 for index, name in enumerate(nametocheck):
                     if name == pinchanged:
                         if not pinchanged == unusedcheck:used = 1
+                        # for encoder 0 amd 2 pins
                         if pin in (0,12):
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
                             self.widgets[tochange].set_active((index+1)*used) 
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
                             self.widgets[tochange].set_active((index+2)*used)
+                        # for encoder 1 and 3 pins
                         elif pin in (2,14):
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
                             self.widgets[tochange].set_active((index+1)*used) 
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
                             self.widgets[tochange].set_active((index+2)*used) 
+                        # for stepgen pins
                         elif pin in (6,7,18,19):
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                             self.widgets[tochange].set_active((index+1)*used) 
@@ -2600,18 +2356,20 @@ class App:
                         if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue         
                     model.append((name,))
             for search,item in enumerate(model):
-                        if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
-                            self.widgets[p].set_active(search)
-            #self.widgets[p].set_active(hal_input_names.index(self.data[p]))
+                if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
+                    self.widgets[p].set_active(search)
             p = '%spppin%dinvin' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
-        self.widgets[portname+"pppin1out"].grab_focus()
         self.in_pport_prepare = False
         c = self.data[portname+"pp_direction"]
         for pin in (1,2,3,4,5,6,7,8):
             p = '%spppin%dout' % (portname, pin)
             self.widgets[p].set_sensitive(c)
             if not c :self.widgets[p].set_active(hal_output_names.index("unused-output"))
+            p = '%spppin%dinlabel' % (portname, pin)
+            self.widgets[p].set_sensitive(c)
+            p = '%spppin%doutlabel' % (portname, pin)
+            self.widgets[p].set_sensitive(not c)
             p = '%spppin%dinvout' % (portname, pin)
             self.widgets[p].set_sensitive(c)
             p = '%spppin%din' % (portname, pin)
