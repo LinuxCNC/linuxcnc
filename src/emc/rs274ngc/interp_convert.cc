@@ -122,6 +122,155 @@ int Interp::comp_set_programmed(setup_pointer settings, double x, double y, doub
     
 /****************************************************************************/
 
+/*! convert_nurbs
+ *
+ * Returned value: int
+ * Returns a rs274ngc error code, or INTERP_OK if everything is OK.
+ *
+ * Side effects: Generates a nurbs move and updates the position of the tool
+ */
+
+static unsigned int nurbs_order;
+static std::vector<CONTROL_POINT> nurbs_control_points;
+
+int Interp::convert_nurbs(int mode,
+      block_pointer block,     //!< pointer to a block of RS274 instructions
+      setup_pointer settings)  //!< pointer to machine settings
+{
+    double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
+    CONTROL_POINT CP;   
+
+    if (mode == G_5_2)  {
+	CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
+             "You must specify both X and Y coordinates for Control Points"));
+	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) && 
+             (!nurbs_control_points.empty())), (
+             "Can specify P without X and Y only for the first control point"));
+
+        CHKS(((block->p_number <= 0) && (!nurbs_control_points.empty())), (
+             "Must specify positive weight P for every Control Point"));
+        if (settings->feed_mode == UNITS_PER_MINUTE) {
+            CHKS((settings->feed_rate == 0.0), (
+                 "Cannot make a NURBS with 0 feedrate"));
+        }
+        if (nurbs_control_points.empty()) {
+            CP.X = settings->current_x;
+            CP.Y = settings->current_y;
+            if (!(block->x_flag) && !(block->y_flag) && (block->p_number > 0)) {
+                CP.W = block->p_number;
+            } else {
+                CP.W = 1;
+            }
+            nurbs_order = 3;
+            nurbs_control_points.push_back(CP);
+        } 
+        if (block->l_number != -1 && block->l_number > 3) {
+            nurbs_order = block->l_number;  
+        } 
+        if ((block->x_flag) && (block->y_flag)) {
+            find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,
+            &u_end, &v_end, &w_end);
+            CP.W = block->p_number;
+            nurbs_control_points.push_back(CP);
+            }
+
+//for (i=0;i<nurbs_control_points.size();i++){
+//                printf( "X %8.4f, Y %8.4f, W %8.4f\n",
+//              nurbs_control_points[i].X,
+//               nurbs_control_points[i].Y,
+//               nurbs_control_points[i].W);
+//       }
+//        printf("*-----------------------------------------*\n");
+        settings->motion_mode = mode;
+    }
+    
+    else if (mode == G_5_3){
+        CHKS((settings->motion_mode != G_5_2), (
+             "Cannot use G.3 without G.2 first"));
+        CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
+	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
+        settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
+        NURBS_FEED(nurbs_control_points, nurbs_order);
+	//printf("hello\n");
+	nurbs_control_points.clear();
+	//printf("%d\n", 	nurbs_control_points.size());
+	settings->motion_mode = -1;
+    }
+    return INTERP_OK;
+}
+
+ /****************************************************************************/
+
+/*! convert_spline
+ *
+ * Returned value: int
+ * Returns a rs274ngc error code, or INTERP_OK if everything is OK.
+ *
+ * Side effects: Generates a spline move and updates the position of the tool
+ */
+int Interp::convert_spline(int mode,
+       block_pointer block,     //!< pointer to a block of RS274 instructions
+       setup_pointer settings)  //!< pointer to machine settings
+{
+    double x1, y1, x2, y2, x3, y3;
+    double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
+
+
+    CHKS((settings->cutter_comp_side != OFF), _("Cannot convert spline with cutter radius compensation")); // XXX
+
+    if (settings->feed_mode == UNITS_PER_MINUTE) {
+      CHKS((settings->feed_rate == 0.0),
+        NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
+    } else if (settings->feed_mode == INVERSE_TIME) {
+      CHKS((block->f_number == -1.0),
+        NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
+    }
+
+    CHKS((settings->plane != CANON_PLANE_XY), _("Splines must be in the XY plane")); // XXX
+       //Error (for now): Splines must be in XY plane
+
+    CHKS((block->z_flag == ON || block->a_flag == ON || block->b_flag == ON
+          || block->c_flag == ON),
+          ("Splines may not have motion in Z, A, B, or C"));
+
+    if(mode == G_5_1) {
+      CHKS(block->i_flag != ON || block->j_flag != ON,
+                  ("Must specify both I and J with G5.1"));
+      x1 = settings->current_x + block->i_number;
+      y1 = settings->current_y + block->j_number;
+      find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
+      &u_end, &v_end, &w_end);
+      SPLINE_FEED(x1,y1,x2,y2);
+      settings->current_x = x2;
+      settings->current_y = y2;
+    } else {
+      if(block->i_flag != ON || block->j_flag != ON) {
+          CHKS(block->i_flag == ON || block->j_flag == ON,
+                  ("Must specify both I and J, or neither"));
+          x1 = settings->current_x + settings->cycle_i;
+          y1 = settings->current_y + settings->cycle_j;
+      } else {
+          x1 = settings->current_x + block->i_number;
+          y1 = settings->current_y + block->j_number;
+      }
+      find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
+      &u_end, &v_end, &w_end);
+
+      x2 = x3 + block->p_number;
+      y2 = y3 + block->q_number;
+
+      SPLINE_FEED(x1, y1, x2, y2, x3, y3);
+
+      settings->cycle_i = -block->p_number;
+      settings->cycle_j = -block->q_number;
+      settings->current_x = x3;
+      settings->current_y = y3;
+    }
+    return INTERP_OK;
+}
+
+/****************************************************************************/
+
 /*! convert_arc
 
 Returned Value: int
@@ -2676,6 +2825,8 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
   } else if ((code == G_92) || (code == G_92_1) ||
              (code == G_92_2) || (code == G_92_3)) {
     CHP(convert_axis_offsets(code, block, settings));
+  } else if (code == G_5_3) {
+    CHP(convert_nurbs(code, block, settings));
   } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
   else
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
@@ -2724,6 +2875,10 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     settings->motion_mode = G_80;
   } else if (motion == G_73 || ((motion > G_80) && (motion < G_90))) {
     CHP(convert_cycle(motion, block, settings));
+  } else if ((motion == G_5) || (motion == G_5_1)) {
+    CHP(convert_spline(motion, block, settings));
+  } else if (motion == G_5_2) {
+    CHP(convert_nurbs(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
   }

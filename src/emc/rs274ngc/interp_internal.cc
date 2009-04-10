@@ -165,7 +165,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHKS(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3),
+      CHKS(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;

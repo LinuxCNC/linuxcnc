@@ -176,6 +176,71 @@ void maybe_new_line(int line_number) {
     Py_XDECREF(result);
 }
 
+static double TO_PROG_LEN(double p) {
+    if(metric) return p*25.4;
+    return p;
+}
+static double FROM_PROG_LEN(double p) {
+    if(metric) return p/25.4;
+    return p;
+}
+
+void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+    double u = 0.0;
+    unsigned int n = nurbs_control_points.size() - 1;
+    double umax = n - k + 2;
+    unsigned int div = nurbs_control_points.size()*15;
+    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
+    PLANE_POINT P1;
+    while (u+umax/div < umax) {
+        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+        // EBo -- replace 12345 with *whatever* gives us the line_number
+        STRAIGHT_FEED(12345, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        u = u + umax/div;
+    } 
+    P1.X = nurbs_control_points[n].X;
+    P1.Y = nurbs_control_points[n].Y;
+    // EBo -- replace 12345 with *whatever* gives us the line_number
+    STRAIGHT_FEED(12345, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    knot_vector.clear();
+}
+
+void SPLINE_FEED(double x1, double y1, double x2, double y2) {
+    double x0 = TO_PROG_LEN(_pos_x),
+         y0 = TO_PROG_LEN(_pos_y);
+
+    fprintf(stderr, "SPLINE_FEED(conic): %8.4f %8.4f %8.4f %8.4f %8.4f %8.4f\n",
+          x0,y0,x1,y1,x2,y2);
+
+    for(int i=1; i<=100; i++) {
+      double t = i / 100.;
+      double t2 = t*t;
+      double t1 = 2*t*(1-t);
+      double t0 = (1-t)*(1-t);
+      double x = x0*t0 + x1*t1 + x2*t2;
+      double y = y0*t0 + y1*t1 + y2*t2;
+      // EBo -- replace 12345 with *whatever* gives us the line_number
+      STRAIGHT_FEED(12345, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    }
+}
+
+void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y3) {
+    double x0 = TO_PROG_LEN(_pos_x),
+         y0 = TO_PROG_LEN(_pos_y);
+
+    for(int i=1; i<=100; i++) {      double t = i / 100.;
+      double t3 = t*t*t;
+      double t2 = 3*t*t*(1-t);
+      double t1 = 3*t*(1-t)*(1-t);
+      double t0 = (1-t)*(1-t)*(1-t);
+      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
+      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
+      // EBo -- replace 12345 with *whatever* gives us the line_number
+      STRAIGHT_FEED(12345, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    }
+}
+
+
 void maybe_new_line(void) {
     maybe_new_line(-1);
 }

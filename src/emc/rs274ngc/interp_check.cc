@@ -77,12 +77,12 @@ more trouble than would be nice.
 int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be checked
                          setup_pointer settings)        //!< pointer to machine settings
 {
-  int mode0;
+  int mode0, mode1;
   int p_int;
 
   mode0 = block->g_modes[0];
-
-  if (mode0 == -1) {
+  mode1 = block->g_modes[1];
+  if ((mode0 == -1) && (settings->motion_mode != G_5_2)) {
   } else if (mode0 == G_4) {
     CHKS((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
   } else if (mode0 == G_10) {
@@ -92,6 +92,11 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS(((block->l_number == 2 && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2");
     CHKS(((block->l_number == 1 && ((p_int < 1) || (p_int > CANON_TOOL_MAX)))), "P value out of range with G10 L1");
   } else if (mode0 == G_28) {
+  } else if (mode0 == G_28) {  
+  } else if ((mode1 != G_5_2) && (mode0 != G_5_3)) { 
+    CHKS(((mode1 != G_5_2) && (mode0 != G_5_3) && (mode1 != -1)), _("Can use only G5.2 or G5.3 after G5.2"));
+  } else if (mode1 == G_5_2){
+  } else if (mode0 == G_5_3){ 
   } else if (mode0 == G_30) {
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
   } else if (mode0 == G_53) {
@@ -254,13 +259,15 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   }
 
   if (block->i_flag == ON) {    /* could still be useless if yz_plane arc */
-    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43_1)),
-        "I word with no G2, G3, G76, G87, or G43.1 to use it");
+    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) &&
+          (motion != G_76) && (motion != G_87) && (block->g_modes[8] != G_43_1)),
+        "I word with no G2, G3, G5, G5.1, G76, G87, or G43.1 to use it");
   }
 
   if (block->j_flag == ON) {    /* could still be useless if xz_plane arc */
-    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_76) && (motion != G_87)),
-        NCE_J_WORD_WITH_NO_G2_OR_G3_G76_OR_G87_TO_USE_IT);
+    CHKS(((motion != G_2) && (motion != G_3) && (motion != G_5) && (motion != G_5_1) && 
+          (motion != G_76) && (motion != G_87)),
+        "J word with no G2, G3, G5, G5.1, G76, G87, or G43.1 to use it");
   }
 
   if (block->k_flag == ON) {    /* could still be useless if xy_plane arc */
@@ -284,14 +291,16 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   if (block->l_number != -1) {
     CHKS((((motion < G_81) || (motion > G_89)) &&
          (block->g_modes[0] != G_10) &&
-         (motion != G_76) &&
+//         (motion != G_76) &&
+         (motion != G_76) && (motion != G_5_2) &&
          (motion != G_73) &&
          (block->g_modes[7] != G_41) &&
          (block->g_modes[7] != G_41_1) &&
          (block->g_modes[7] != G_42) &&
          (block->g_modes[7] != G_42_1) &&
 	 (block->m_modes[5] != 66)),
-        "L word with no G10, cutter compensation, or canned cycle");
+//        "L word with no G10, cutter compensation, or canned cycle");
+         "L word with no G10, cutter compensation, or canned cycle or NURBS code");
   }
 
   if (block->p_number != -1.0) {
@@ -311,12 +320,16 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->m_modes[9] != 53) &&
          (block->user_m != 1) &&
          (motion != G_82) && (motion != G_86) &&
-         (motion != G_88) && (motion != G_89) && (motion != G_76)),
+//         (motion != G_88) && (motion != G_89) && (motion != G_76)),
+         (motion != G_88) && (motion != G_89) && (motion != G_76) && (motion != G_5) && 
+         (motion != G_5_2)),
+
         NCE_P_WORD_WITH_NO_G4_G10_G64_G76_G82_G86_G88_G89);
   }
 
   if (block->q_number != -1.0) {
-      CHKS((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
+//      CHKS((motion != G_83) && (motion != G_73) && (block->user_m != 1) && (motion != G_76) &&
+    CHKS((motion != G_83) && (motion != G_5) && (block->user_m != 1) && (motion != G_76) &&
           (block->m_modes[5] != 66) && (block->g_modes[0] != G_10) && (block->m_modes[6] != 61), 
           "Q word with no g code that uses it");
   }

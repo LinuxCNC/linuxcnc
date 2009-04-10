@@ -1147,6 +1147,195 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     return dev;
 }
 
+/* Spline and NURBS additional functions; */
+
+static double max(double a, double b) {
+    if(a < b) return b;
+    return a;
+}
+static void unit(double *x, double *y) {
+    double h = hypot(*x, *y);
+    if(h != 0) { *x/=h; *y/=h; }
+}
+
+static void
+arc(double x0, double y0, double x1, double y1, double dx, double dy) {
+    double small = 0.000001;
+    double x = x1-x0, y=y1-y0;
+    double den = 2 * (y*dx - x*dy);
+    double r = -(x*x+y*y)/den;
+    double i = dy*r, j = -dx*r;
+    double cx = x1+i, cy=y1+j;
+    if (fabs(den) > small) {
+        ARC_FEED(interp_list.get_line_number(), x1, y1, cx, cy, r<0 ? 1 : -1,
+               TO_PROG_LEN(canonEndPoint.z - programOrigin.z), TO_PROG_ANG(canonEndPoint.a),
+               TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
+               TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
+               TO_PROG_ANG(canonEndPoint.w));
+    } else { 
+        STRAIGHT_FEED(interp_list.get_line_number(), x1,y1, 
+               TO_PROG_LEN(canonEndPoint.z), TO_PROG_ANG(canonEndPoint.a),
+               TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
+               TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
+               TO_PROG_ANG(canonEndPoint.w));
+    }
+}
+
+static int
+biarc(double p0x, double p0y, double tsx, double tsy,
+      double p4x, double p4y, double tex, double tey, double r=1.0) {
+    unit(&tsx, &tsy);
+    unit(&tex, &tey);
+
+    double vx = p0x - p4x, vy = p0y - p4y;
+    double c = vx*vx + vy*vy;
+    double b = 2 * (vx * (r*tsx + tex) + vy * (r*tsy + tey));
+    double a = 2 * r * (tsx * tex + tsy * tey - 1);
+
+    double discr = b*b - 4*a*c;
+    if(discr < 0) return 0;
+
+    double disq = sqrt(discr);
+    double beta1 = (-b-disq) / 2 / a;
+    double beta2 = (-b+disq) / 2 / a;
+
+    if(beta1 > 0 && beta2 > 0)
+      return 0;
+    double beta = max(beta1, beta2);
+    double alpha = beta * r;
+    double ab = alpha + beta;
+    double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
+         p3x = p4x - beta * tex, p3y = p4y - beta * tey,
+         p2x = (p1x*beta + p3x*alpha) / ab,
+         p2y = (p1y*beta + p3y*alpha) / ab;
+    double tmx = p3x-p2x, tmy = p3y-p2y;
+    unit(&tmx, &tmy);
+
+    arc(p0x, p0y, p2x, p2y, tsx, tsy);
+    arc(p2x, p2y, p4x, p4y, tmx, tmy);
+    return 1;
+}
+
+
+/* Canon calls */
+
+void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+    double u = 0.0;
+    unsigned int n = nurbs_control_points.size() - 1;
+    double umax = n - k + 2;
+    unsigned int div = nurbs_control_points.size()*4;
+    double dxs,dys,dx1,dy1,dx2,dy2,dxe,dye,alpha1,alpha2, alphaM;
+    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
+    PLANE_POINT P0, P1, P2;
+
+    P0 = nurbs_point(u,k,nurbs_control_points,knot_vector);
+    P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+
+
+    dxs = nurbs_control_points[1].X-nurbs_control_points[0].X;
+    dys = nurbs_control_points[1].Y-nurbs_control_points[0].Y;
+    unit(&dxs,&dys);
+    u = u + umax/div;
+    while (u+umax/div <= umax) {
+        P2= nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+        dx1 = P1.X-P0.X;
+	dy1 = P1.Y-P0.Y;
+        dx2 = P2.X-P1.X;
+        dy2 = P2.Y-P1.Y;
+        alpha1 = alpha_finder(dx1,dy1);
+        alpha2 = alpha_finder(dx2,dy2);
+	if (alpha2 > alpha1 + M_PI)
+            alphaM = (alpha1+alpha2)/2 + M_PI;
+        else
+            alphaM = (alpha1+alpha2)/2;
+        dxe = cos(alphaM);
+        dye = sin(alphaM);
+ 	unit(&dxe,&dye);
+        biarc(P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
+        //printf("___________________________________________\n");
+        //printf("X %8.4f Y %8.4f\n", P0.X, P0.Y); 
+        dxs = dxe;
+        dys = dye;
+        P0 = P1;
+        P1 = P2;   
+        //printf("u = %f\n", u);
+        u = u + umax/div;      
+    }
+    P1.X = nurbs_control_points[n].X;
+    P1.Y = nurbs_control_points[n].Y;	   
+    dxe = nurbs_control_points[n].X - nurbs_control_points[n-1].X;
+    dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
+    unit(&dxe,&dye);
+    biarc(P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
+    //printf("parameters: n = %d, umax = %f, div= %d, u = %f, k = %d\n",n,umax,div,u,k);
+    knot_vector.clear();
+}
+
+void SPLINE_FEED(double x1, double y1, double x2, double y2) {
+    flush_segments();
+
+    double x0 = TO_PROG_LEN(canonEndPoint.x);
+    double y0 = TO_PROG_LEN(canonEndPoint.y);
+    double xx0 = 2*(x1-x0), xx1 = 2*(x2-x1),
+           yy0 = 2*(y1-y0), yy1 = 2*(y2-y1),
+         ox = x0, oy = y0, odx = xx0, ody = yy0;
+
+#define N 2
+    for(int i=1; i<=N; i++) {
+      double t = i * 1. / N;
+      double u = 1. / N;
+      double t0 = (1-t)*(1-t);
+      double t1 = 2*t*(1-t);
+      double t2 = t*t;
+      double q0 = (1-t);
+      double q1 = t;
+
+perturb:
+      double x = x0*t0 + x1*t1 + x2*t2;
+      double y = y0*t0 + y1*t1 + y2*t2;
+      double dx = xx0*q0 + xx1*q1;
+      double dy = yy0*q0 + yy1*q1;
+      if(!biarc(ox, oy, odx, ody, x, y, dx, dy)) {
+          t = t - u; u /= -2; goto perturb;
+      }
+      ox = x; oy = y; odx = dx; ody = dy;
+    }
+}
+
+void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y3) {
+    flush_segments();
+
+    double x0 = TO_PROG_LEN(canonEndPoint.x);
+    double y0 = TO_PROG_LEN(canonEndPoint.y);
+    double xx0 = 3*(x1-x0), xx1 = 3*(x2-x1), xx2 = 3*(x3-x2),
+           yy0 = 3*(y1-y0), yy1 = 3*(y2-y1), yy2 = 3*(y3-y2),
+         ox = x0, oy = y0, odx = xx0, ody = yy0;
+
+//#define N 4
+    for(int i=1; i<=N; i++) {
+      double t = i * 1. / N;
+      double u = 1. / N;
+      double t3 = t*t*t;
+      double t2 = 3*t*t*(1-t);
+      double t1 = 3*t*(1-t)*(1-t);
+      double t0 = (1-t)*(1-t)*(1-t);
+      double q0 = (1-t)*(1-t);
+      double q1 = 2*t*(1-t);
+      double q2 = t*t;
+
+perturb:
+      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
+      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
+      double dx = xx0*q0 + xx1*q1 + xx2*q2;
+      double dy = yy0*q0 + yy1*q1 + yy2*q2;
+      if(!biarc(ox, oy, odx, ody, x, y, dx, dy)) {
+          t = t - u; u /= -2; goto perturb;
+      }
+      ox = x; oy = y; odx = dx; ody = dy;
+    }
+}
+
+
 void ARC_FEED(int line_number,
               double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
