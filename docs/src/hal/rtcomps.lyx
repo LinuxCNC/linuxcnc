@@ -1288,7 +1288,8 @@ halcmd unloadrt encoder
 Pins
 \layout Itemize
 
-encoder.<chan>.counter-mode (bit, I/O)
+encoder.<chan>.counter-mode (bit, I/O) -- When set to true the Phase B input
+ is ignored.
 \layout Itemize
 
 encoder.<chan>.counts (s32, Out)
