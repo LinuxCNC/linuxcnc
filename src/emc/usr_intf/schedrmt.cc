@@ -182,8 +182,9 @@
   PgmAdd <priority> <tag id> <x> <y> <z> <zone> <file name> <feed override> <spindle override> <tool>
   With set, adds a program to the queue with priority of the program, a unique tag identifying the 
   program, the x, y and z offsets or zone for the origin of the program, the path + file name, the
-  feed and spindle overrides to apply, and the default tool to use. If zone is zero, then the x, y,
-  and z offsets will be used, otherwise zones 1 to 9 correspond to G54 to G59.3 respectively.
+  feed and spindle overrides to apply, and the default tool to use. If tag id is zero, the tag id
+  will be generated automatically. If zone is zero, then the x, y, and z offsets will be used, 
+  otherwise zones 1 to 9 correspond to G54 to G59.3 respectively.
 
   PgmById <tag id>
   [priority] [tag id] [x] [y] [z] [zone] [file name] [feed override] [spindle override] [tool]
@@ -196,6 +197,10 @@
   With get, returns the queue entry matching the specified index into the queue, including the priority,
   tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default
   tool.
+
+  PgmAll
+  With get, performs effectively a PgmByIndex for every entry in the queue. Each result will be
+  returned in the form: "PGMBYINDEX ..." with cr lf at the end of each record.
 
   PriorityById <tag id> <priority>
   With get, returns the priority of the queue entry matching the specified tag. With set, changes the 
@@ -223,8 +228,8 @@ typedef enum {
   
 typedef enum {
   scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile, scPlat, scIni, scDebug, 
-  scQMode, scQStatus, scAutoTagId, scPgmAdd, scPgmById, scPgmByIndex, scPriorityById, scPriorityByIndex, 
-  scDeleteById, scDeleteByIndex, scPollRate, scUnknown} setCommandType;
+  scQMode, scQStatus, scAutoTagId, scPgmAdd, scPgmById, scPgmByIndex, scPgmAll, scPriorityById, 
+  scPriorityByIndex, scDeleteById, scDeleteByIndex, scPollRate, scUnknown} setCommandType;
   
 typedef enum {
   rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
@@ -262,8 +267,8 @@ float pollDelay = 1.0;
 
 const char *setCommands[] = {
    "ECHO", "VERBOSE", "ENABLE", "CONFIG", "COMM_MODE", "COMM_PROT", "INIFILE", "PLAT", "INI", "DEBUG",
-   "QMODE", "QSTATUS", "AUTOTAGID", "PGMADD", "PGMBYID", "PGMBYINDEX", "PRIORITYBYID", "PRIORITYBYINDEX", 
-   "DELETEBYID", "DELETEBYINDEX", "POLLRATE",
+   "QMODE", "QSTATUS", "AUTOTAGID", "PGMADD", "PGMBYID", "PGMBYINDEX", "PGMALL", "PRIORITYBYID", 
+   "PRIORITYBYINDEX", "DELETEBYID", "DELETEBYINDEX", "POLLRATE",
    ""};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
@@ -530,6 +535,7 @@ static cmdResponseType setPgmAdd(connectionRecType *context)
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%d", &tag) <=0) return rtStandardError;
+  if (tag == 0) tag = getNextTagId();
   pch = strtok(NULL, delims);
   if (pch == NULL) return rtStandardError;
   if (sscanf(pch, "%f", &x) <=0) return rtStandardError;
@@ -658,6 +664,7 @@ int commandSet(connectionRecType *context)
     case scPgmAdd: ret = setPgmAdd(context); break;
     case scPgmById: break;
     case scPgmByIndex: break;
+    case scPgmAll: break;
     case scPriorityById: ret = setPriorityById(context); break;
     case scPriorityByIndex: ret = setPriorityByIndex(context); break;
     case scDeleteById: ret = setDeleteById(strtok(NULL, delims), context); break;
@@ -804,7 +811,7 @@ static cmdResponseType getPgmById(char *s, connectionRecType *context)
   if (strlen(s) == 0) return rtStandardError;
   if (sscanf(s, "%d", &id) <= 0) return rtStandardError;
   if (getProgramById(id, &qRec) != 0) return rtStandardError;
-  sprintf(context->outBuf, "GETPGMBYID %d %d %f %f %f %d %s %f %f %d", 
+  sprintf(context->outBuf, "PGMBYID %d %d %f %f %f %d %s %f %f %d", 
     qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
     qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
@@ -818,10 +825,27 @@ static cmdResponseType getPgmByIndex(char *s, connectionRecType *context)
   if (strlen(s) == 0) return rtStandardError;  
   if (sscanf(s, "%d", &index) <= 0) return rtStandardError;
   if (getProgramByIndex(index, &qRec) != 0) return rtStandardError;
-  sprintf(context->outBuf, "GETPGMBYID %d %d %f %f %f %d %s %f %f %d", 
+  sprintf(context->outBuf, "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
     qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
     qRec.feedOverride, qRec.spindleOverride, qRec.tool);
   return rtNoError;
+}
+
+static cmdResponseType getPgmAll(connectionRecType *context)
+{
+  qRecType qRec;
+  int i;
+  int sz;
+
+  sz = getQueueSize();
+  for (i = 0; i < sz; i++) {
+    if (getProgramByIndex(i, &qRec) != 0) continue;
+    sprintf(context->outBuf, "PGMBYINDEX %d %d %f %f %f %d %s %f %f %d", 
+      qRec.priority, qRec.tagId, qRec.xpos, qRec.ypos, qRec.zpos, qRec.zone, qRec.fileName,
+      qRec.feedOverride, qRec.spindleOverride, qRec.tool);
+    sockWrite(context);
+    }
+  return rtHandledNoError;
 }
 
 static cmdResponseType getPriById(char *s, connectionRecType *context)
@@ -887,6 +911,7 @@ int commandGet(connectionRecType *context)
     case scPgmAdd: break;
     case scPgmById: ret = getPgmById(strtok(NULL, delims), context); break;
     case scPgmByIndex: ret = getPgmByIndex(strtok(NULL, delims), context); break;
+    case scPgmAll: ret = getPgmAll(context); break;
     case scPriorityById: ret = getPriById(strtok(NULL, delims), context); break;
     case scPriorityByIndex: ret = getPriByIndex(strtok(NULL, delims), context); break;
     case scDeleteById: break;
@@ -1267,6 +1292,7 @@ int main(int argc, char *argv[])
     // attach our quit function to SIGINT
     signal(SIGINT, sigQuit);
 
+    schedInit();
     res = pthread_create(&updateThread, NULL, checkQueue, (void *)NULL);
     if (useSockets) sockMain();
 

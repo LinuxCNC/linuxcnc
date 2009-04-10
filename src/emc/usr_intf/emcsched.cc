@@ -38,17 +38,16 @@
 #include "shcom.hh"             // Common NML communications functions
 #include "emcsched.hh"          // Common scheduling functions
 
-#define POLYNOMIAL 0x8005
-#define INITIAL_VALUE 0xFFFF
+#define MAX_PRIORITY 0x80000000
+#define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
+#define WIDTH  (8 * sizeof(crc))
+#define TOPBIT (1 << (WIDTH - 1))
 
-union crcbuftype {
-  unsigned long whole;
-  struct {
-    unsigned char data;
-    unsigned int remainder;
-    unsigned char head;
-    } part;
-  } crcBuffer;
+typedef uint32_t crc;
+crc crcTable[256];
+crc crcResult;
+int autoTagId = 0;
+queueStatusType queueStatus = qsStop;
 
 class SchedEntry {
     int priority;
@@ -85,17 +84,6 @@ class SchedEntry {
     void setTool(int t);
   };
 
-static void putCRC(unsigned char b) {
-  unsigned char i;
-
-  crcBuffer.part.data = b;
-  for (i=0; i<8; i++) {
-    crcBuffer.whole = crcBuffer.whole << 1;
-    if (crcBuffer.part.head & 0x01)
-      crcBuffer.part.remainder ^= POLYNOMIAL;
-    }
-  }
-
 SchedEntry::SchedEntry() {
     priority = 0;
     tagId = 0;
@@ -107,6 +95,16 @@ SchedEntry::SchedEntry() {
     feedOverride = 100.0;
     spindleOverride = 100.0;
     tool = 1;
+  }
+
+list<SchedEntry> q;
+
+bool operator<(const SchedEntry &a, const SchedEntry &b) {
+  return a.getPriority() < b.getPriority();
+  }
+
+bool operator==(const SchedEntry &a, const SchedEntry &b) {
+  return a.getPriority() == b.getPriority();
   }
 
 SchedEntry::~SchedEntry() {
@@ -188,16 +186,35 @@ void SchedEntry::setTool(int t) {
   tool = t;
   }
 
-list<SchedEntry> q;
-queueStatusType queueStatus = qsStop;
-int autoTagId = 0;
+static void crcInit() {
+  crc rmdr;
+  int i;
+  uint32_t bit;
 
-bool operator<(const SchedEntry &a, const SchedEntry &b) {
-  return a.getPriority() < b.getPriority();
+  for (i = 0; i < 256; ++i)
+    {
+      rmdr = i << (WIDTH - 8);
+      for (bit = 8; bit > 0; --bit)
+        {
+          if (rmdr & TOPBIT)
+            {
+              rmdr = (rmdr << 1) ^ POLYNOMIAL;
+            }
+          else
+            {
+              rmdr = (rmdr << 1);
+            }
+        }
+      crcTable[i] = rmdr;
+    }
   }
 
-bool operator==(const SchedEntry &a, const SchedEntry &b) {
-  return a.getPriority() == b.getPriority();
+static void crcFast(uint32_t value) {
+
+  uint32_t data;
+
+  data = value ^ (crcResult >> (WIDTH - 8));
+  crcResult = crcTable[data] ^ (crcResult << 8);
   }
 
 static queueStatusType getQueueStatus() {
@@ -218,12 +235,10 @@ bool isIdle()
 
 bool interlocksOk() {
   if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
-    printf("Machine is in E-Stop\n");
     return false;
     }
 
   if (emcStatus->task.state != EMC_TASK_STATE_ON) {
-    printf("Machine is not on\n"); 
     return false;
     }
   return true;
@@ -235,24 +250,22 @@ void updateQueue() {
   char cmd[80];
 
   if (queueStatus == qsRun) {
-    printf("Status changed to RUN\n");
     if (isIdle() && q.empty()) {
       queueStatus = qsStop;
       return;
       }
     if (!q.empty()) {
-      printf("Queue is not empty\n");
       if (isIdle()) {
-        printf("Trying to start first program in queue\n");
+        q.front().setPriority(MAX_PRIORITY); // Lock job as first job
         if (interlocksOk()) {
-          strcpy(fileStr, defaultPath);
-          strcat(fileStr, q.front().getFileName().c_str());
-          if (sendProgramOpen(fileStr) != 0) {
-            queueStatus = qsError;
-            printf("Could not open program\n");
-            }
+          sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
+          sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
           sendMdi();
           sendMdiCmd("G92.1\n");
+          if (emcCommandWaitDone(emcCommandSerialNumber) != 0) {
+            queueStatus = qsError;
+            return;
+            }
           if (q.front().getZone() != 0) {
             switch (q.front().getZone()) {
               case 1: sendMdiCmd("G54\n"); break;
@@ -265,23 +278,37 @@ void updateQueue() {
               case 8: sendMdiCmd("G59.2\n"); break;
               case 9: sendMdiCmd("G59.3\n");
               }
+            if (emcCommandWaitDone(emcCommandSerialNumber) != 0) {
+              queueStatus = qsError;
+              return;
+              }
             }
           else {
              q.front().getOffsets(x, y, z);
-             sendFeedOverride(((double) q.front().getFeedOverride()) / 100.0);
-             sendSpindleOverride(((double) q.front().getSpindleOverride()) / 100.0);             
              sprintf(cmd, "G0 X%f Y%f Z%f\n", x, y, z); 
              sendMdiCmd(cmd);
+             if (emcCommandWaitDone(emcCommandSerialNumber) != 0) {
+               queueStatus = qsError;
+               return;
+               }
              sendMdiCmd("G92 X0 Y0 Z0\n");
+             if (emcCommandWaitDone(emcCommandSerialNumber) != 0) {
+               queueStatus = qsError;
+               return;
+               }
              }
           if (sendTaskPlanInit() != 0) {
             queueStatus = qsError;
-            printf("Could not send Task Plan Init\n");
             }
           sendAuto();
+          strcpy(fileStr, defaultPath);
+          strcat(fileStr, q.front().getFileName().c_str());
+          if (sendProgramOpen(fileStr) != 0) {
+            queueStatus = qsError;
+            return;
+            }
           if (sendProgramRun(0) != 0) {
             queueStatus = qsError;
-            printf("Could not change state to run\n");
             }
           q.remove(q.front());
           }
@@ -380,21 +407,20 @@ int getProgramByIndex(int idx, qRecType *qRec) {
 int getQueueCRC() {
   list<SchedEntry>::iterator i;
   
-  crcBuffer.part.remainder = INITIAL_VALUE;
+  crcResult = 0;
   for (i=q.begin(); i!=q.end(); ++i) {
-    putCRC((unsigned char)(i->getTagId() >> 8));
-    putCRC((unsigned char)(i->getTagId() & 0xFF));
+    crcFast(i->getTagId());
     }
-  putCRC(0);
-  putCRC(0);
-  return crcBuffer.part.remainder;
+  return crcResult;
   }
 
 int getFirstTagId() {
+  if (q.empty()) return 0;
   return q.front().getTagId();
   }
 
 int getLastTagId() {
+  if (q.empty()) return 0;
   return q.back().getTagId();
   }
 
@@ -403,6 +429,7 @@ int deleteProgramById(int id) {
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) {
+      if (i->getPriority() == (int)MAX_PRIORITY) return -1;
       i = q.erase(i);
       return 0;
       }
@@ -416,6 +443,7 @@ int deleteProgramByIndex(int idx) {
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (index == idx) {
+      if (i->getPriority() == (int)MAX_PRIORITY) return -1;
       i = q.erase(i);
       return 0;
       }
@@ -429,6 +457,7 @@ int changePriorityById(int id, int newPriority) {
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) {
+      if (i->getPriority() == (int)MAX_PRIORITY) return -1;
       i->setPriority(newPriority);
       q.sort();
       return 0;
@@ -443,6 +472,7 @@ int changePriorityByIndex(int idx, int newPriority) {
   
   for (i=q.begin(); i!=q.end(); ++i) {
     if (index == idx) {
+      if (i->getPriority() == (int)MAX_PRIORITY) return -1;
       i->setPriority(newPriority);
       q.sort();
       return 0;
@@ -484,4 +514,8 @@ int getNextTagId() {
 
 void resetTagIds(int startId) {
   autoTagId = startId;
+  }
+
+void schedInit() {
+  crcInit();
   }

@@ -58,5 +58,6 @@ extern int getPriorityById(int id, int &pri);
 extern int getPriorityByIndex(int idx, int &pri);
 extern int getNextTagId();
 extern void resetTagIds(int startId);
+extern void schedInit();
 
 #endif				/* ifndef SHCOM_HH */
