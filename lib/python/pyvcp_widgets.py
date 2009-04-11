@@ -604,11 +604,25 @@ class pyvcp_label(Label):
             <text>"My Label:"</text>
         </label>
     """
-    def __init__(self,master,pycomp,**kw):
+    n=0
+    def __init__(self,master,pycomp,halpin=None,disablepin=False,**kw):
         Label.__init__(self,master,**kw)
-        
+        self.disablepin=disablepin
+        if disablepin:
+            if halpin == None:
+                halpin = "label."+str(pyvcp_label.n) 
+            halpin_disable = halpin+".disable"
+            self.halpin_disable = halpin_disable
+            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
+        pyvcp_label.n += 1
+
     def update(self,pycomp):
-        pass
+        if self.disablepin: 
+            is_disabled = pycomp[self.halpin_disable]     
+            if is_disabled == 1: Label.config(self,state=DISABLED)
+            else: Label.config(self,state=NORMAL)
+        else:pass
+       
 
 
 # -------------------------------------------
@@ -1017,33 +1031,46 @@ class pyvcp_bar(Canvas):
 
 class pyvcp_led(Canvas):
     """ (indicator) a LED 
-        color is on_color when halpin is 1, off_color when halpin is 0 """
+        <led>
+            <on_color>"colorname"</on_color>             Default color red
+            <off_color>"colorname"</off_color>           Default color green
+            <disable_pin>True</disablepin>               Optional halpin sets led to disable_color
+            <disable_color>"somecolor"</disable_color>   Default color light gray
+        </led>"""
     n=0
-    def __init__(self,master,pycomp, halpin=None,      
-                    off_color="red",on_color="green",size=20,**kw):
+    def __init__(self,master,pycomp, halpin=None,disablepin=False,     
+                    off_color="red",on_color="green",disabled_color="gray80",size=20,**kw):
         Canvas.__init__(self,master,width=size,height=size,bd=0)
         self.off_color=off_color
         self.on_color=on_color
+        self.disabled_color=disabled_color
+        self.disablepin = disablepin
         self.oh=self.create_oval(1,1,size,size)
-        self.state=0
+        self.state = 0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
-            halpin = "led."+str(pyvcp_led.n)
-        
+            halpin = "led."+str(pyvcp_led.n)   
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        if disablepin:
+            halpin_disable = halpin+".disable"
+            self.halpin_disable = halpin_disable
+            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)       
         pyvcp_led.n+=1
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
-        if newstate != self.state:
-            if newstate == 1:
-                self.itemconfig(self.oh,fill=self.on_color)
-                self.state=1
-            else:
-                self.itemconfig(self.oh,fill=self.off_color) 
-                self.state=0
-
+        if self.disablepin:
+            is_disabled = pycomp[self.halpin_disable]
+            if is_disabled == 1:
+                self.itemconfig(self.oh,fill=self.disabled_color)
+        elif newstate == 1:
+            self.itemconfig(self.oh,fill=self.on_color)
+            self.state=1
+        else:
+            self.itemconfig(self.oh,fill=self.off_color) 
+            self.state=0
+        
 
 
 
@@ -1053,32 +1080,51 @@ class pyvcp_led(Canvas):
 class pyvcp_rectled(Canvas):
 
     """ (indicator) a LED 
-        color is on_color when halpin is 1, off_color when halpin is 0 """
+        <rectled>
+            <on_color>"colorname"</on_color>             Default color red
+            <off_color>"colorname"</off_color>           Default color green
+            <disable_pin>True</disablepin>               Optional halpin sets led to disable_color
+            <disable_color>"somecolor"</disable_color>   Default color light gray
+        </rectled>"""
+    
     n=0
-    def __init__(self,master,pycomp, halpin=None,      
-                    off_color="red",on_color="green",height=10,width=30,**kw):
+    def __init__(self,master,pycomp, halpin=None,disablepin=False,     
+                    off_color="red",on_color="green",disabled_color="gray80",height=10,width=30,**kw):
         Canvas.__init__(self,master,width=width,height=height,bd=2)
         self.off_color=off_color
         self.on_color=on_color
+        self.disabled_color=disabled_color
+        self.disablepin = disablepin
         self.oh=self.create_rectangle(1,1,width,height)
         self.state=0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
-            halpin = "led."+str(pyvcp_led.n)
-        
+            halpin = "led."+str(pyvcp_led.n)       
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
+        if disablepin:
+            halpin_disable = halpin+".disable"
+            self.halpin_disable = halpin_disable
+            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
         pyvcp_led.n+=1
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
-        if newstate != self.state:
-            if newstate == 1:
-                self.itemconfig(self.oh,fill=self.on_color)
-                self.state=1
-            else:
-                self.itemconfig(self.oh,fill=self.off_color) 
-                self.state=0
+        if self.disablepin:
+            is_disabled = pycomp[self.halpin_disable]
+            if is_disabled == 1:
+                self.itemconfig(self.oh,fill=self.disabled_color)
+        elif newstate == 1:
+            self.itemconfig(self.oh,fill=self.on_color)
+            self.state=1
+        else:
+            self.itemconfig(self.oh,fill=self.off_color) 
+            self.state=0
+
+
+
+
+
 # -------------------------------------------
 
 
@@ -1126,14 +1172,23 @@ class pyvcp_checkbutton(Checkbutton):
 class pyvcp_button(Button):
     """ (control) a button 
         halpin is 1 when button pressed, 0 otherwise 
-    """
+        optional halpin.disable disables the button
+        <button>
+            <halpin>"name"</halpin>
+            <disablepin>True</disablepin>
+        </button>"""
     n=0
-    def __init__(self,master,pycomp,halpin=None,**kw):
+    def __init__(self,master,pycomp,halpin=None,disablepin=False,**kw):
         Button.__init__(self,master,**kw)
         if halpin == None:
             halpin = "button."+str(pyvcp_button.n)
-        self.halpin=halpin 
+        self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        self.disablepin = disablepin
+        if not disablepin == False:
+            halpin_disable = halpin + ".disable" 
+            pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)
+            self.halpin_disable=halpin_disable      
         self.state=0;
         self.bind("<ButtonPress>", self.pressed)
         self.bind("<ButtonRelease>", self.released) 
@@ -1141,13 +1196,23 @@ class pyvcp_button(Button):
         self.pycomp = pycomp
 
     def pressed(self,event):
+        if self.disablepin: 
+            is_disabled = self.pycomp[self.halpin_disable] 
+            if is_disabled == 1: return
         self.pycomp[self.halpin]=1
 
     def released(self,event):
+        if self.disablepin: 
+            is_disabled = self.pycomp[self.halpin_disable] 
+            if is_disabled == 1: return
         self.pycomp[self.halpin]=0
 
     def update(self,pycomp):
-        pass
+        if self.disablepin: 
+            is_disabled = pycomp[self.halpin_disable]     
+            if is_disabled == 1: Button.config(self,state=DISABLED)
+            else: Button.config(self,state=NORMAL)
+        else:pass
 
 
 
@@ -1217,7 +1282,6 @@ class pyvcp_table(Frame):
             self.grid_rowconfigure(r, weight=1)
         for c in flexible_columns:
             self.grid_columnconfigure(c, weight=1)
-
         for i, r in enumerate(uniform_rows):
             self.grid_rowconfigure(i+1, uniform=r)
         for i, c in enumerate(uniform_columns):
