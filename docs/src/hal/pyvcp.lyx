@@ -556,15 +556,7 @@ A checkbutton controls a "bit" halpin.
 \newline 
 <halpin>"coolant-chkbtn"</halpin>
 \newline 
-<text>
-\begin_inset Quotes erd
-\end_inset 
-
-Coolant
-\begin_inset Quotes erd
-\end_inset 
-
-</text>
+<text>"Coolant"</text>
 \newline 
 </checkbutton>
 \newline 
@@ -572,18 +564,10 @@ Coolant
 \newline 
 <halpin>"chip-chkbtn"</halpin>
 \newline 
-<text>
-\begin_inset Quotes erd
-\end_inset 
-
-Chips\SpecialChar ~
+<text>"Chips\SpecialChar ~
 \SpecialChar ~
 \SpecialChar ~
-
-\begin_inset Quotes erd
-\end_inset 
-
-</text>
+"</text>
 \newline 
 </checkbutton>
 \layout Standard
