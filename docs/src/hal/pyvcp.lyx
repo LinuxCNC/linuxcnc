@@ -406,6 +406,11 @@ A LED is used to indicate the status of a "bit" halpin.
 \newline 
 <off_color> sets the color of the LED when the pin is false.
  default is "red"
+\newline 
+<disable_pin> if set to true will create a disable pin for the led and when
+ disabled the led will ignore inputs.
+\newline 
+<disable_color> the color to display when the led is disabled.
 \layout Quote
 
 <led>
@@ -484,18 +489,20 @@ A button is used to control a BIT pin.
  The pin will be set True when the button is pressed and held down, and
  will be set False when the button is released.
  Buttons can use the following formatting options
-\layout Itemize
+\layout Standard
 
 <padx>n</padx> where "n" is the amount of extra horizontal extra space
-\layout Itemize
-
+\newline 
 <pady>n</pady> where "n" is the amount of extra vertical extra space
-\layout Itemize
-
+\newline 
 <activebackground>"color"</activebackground> the cursor over color
-\layout Itemize
-
+\newline 
 <bg>"color"</bg> the color of the button
+\newline 
+<disable_pin> if set to true will create a disable pin for the led and when
+ disabled the led will ignore inputs.
+\newline 
+<disable_color> the color to display when the led is disabled.
 \layout Subsubsection
 
 Text Button
@@ -1353,6 +1360,13 @@ Label
 \layout Standard
 
 A label is a piece of text on your panel.
+\layout Standard
+
+<halpin> used to set a name for the label.
+\newline 
+<disable_pin> when set to true will add a disable pin
+\newline 
+<disable_color> sets the color of the text when the disable pin is true.
 \layout Quote
 
 <label>
