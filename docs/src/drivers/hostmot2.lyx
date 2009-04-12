@@ -269,12 +269,17 @@ If your running a CVS checkout the files are located:
 \layout Quote
 
 src/hal/drivers/mesa-hostmot2/firmware/<board>
+\layout Section
+
+Firmware Location
 \layout Standard
 
 If your using a CVS Run In Place you will have to create a symbolic link
- to the pin files.
+ to the bit files.
 \layout Quote
 
+
+\size footnotesize 
 sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/
 hm2-trunk
 \layout Standard
