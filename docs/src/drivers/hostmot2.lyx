@@ -1908,7 +1908,9 @@ Parameters
 \layout Description
 
 .couner-mode (Bit, RW) Set to False (the default) for Quadrature.
- Set to True for Up/Down.
+ Set to True for Up/Down or for single input on Phase A.
+ Can be used for a frequency to velocity converter with a single input on
+ Phase A when set to true.
 \layout Description
 
 .filter (Bit, RW) If set to True (the default), the quadrature counter needs
