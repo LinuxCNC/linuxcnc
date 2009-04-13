@@ -15,6 +15,7 @@
 −
 	<led>
 <halpin>"in12"</halpin>
+<disablepin>True</disablepin>
 </led>
 
 	<label>
@@ -23,6 +24,7 @@
 −
 	<led>
 <halpin>"in00"</halpin>
+<disablepin>True</disablepin>
 </led>
 
 </hbox>
@@ -34,6 +36,7 @@
 −
 	<led>
 <halpin>"in13"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-01:"</text>
@@ -41,6 +44,7 @@
 −
 	<led>
 <halpin>"in01"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
@@ -52,6 +56,7 @@
 −
 	<led>
 <halpin>"in14"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-02:"</text>
@@ -59,17 +64,21 @@
 −
 	<led>
 <halpin>"in02"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −
 	<label>
+<disablepin>True</disablepin>
+<halpin>"ledlabel"</halpin>
 <text>"In-15:"</text>
 </label>
 −
 	<led>
 <halpin>"in15"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-03:"</text>
@@ -77,11 +86,13 @@
 −
 	<led>
 <halpin>"in03"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
+<disablepin>True</disablepin>
 <halpin>"out00"</halpin>
 <text>"Out-00"</text>
 </button>−
@@ -91,11 +102,13 @@
 −
 	<led>
 <halpin>"in04"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 	<button>
+<disablepin>True</disablepin>
 <halpin>"out01"</halpin>
 <text>"Out-01"</text>
 </button>−
@@ -105,12 +118,14 @@
 −
 	<led>
 <halpin>"in05"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 	<button>
 <halpin>"out02"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-02"</text>
 </button>−
 	<label>
@@ -119,12 +134,14 @@
 −
 	<led>
 <halpin>"in06"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out03"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-03"</text>
 </button>
 	<label>
@@ -133,12 +150,14 @@
 −
 	<led>
 <halpin>"in07"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out04"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-04"</text>
 </button>
 	<label>
@@ -147,12 +166,14 @@
 −
 	<led>
 <halpin>"in08"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out05"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-05"</text>
 </button>
 	<label>
@@ -161,12 +182,14 @@
 −
 	<led>
 <halpin>"in09"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out06"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-06"</text>
 </button>
 	<label>
@@ -175,12 +198,14 @@
 −
 	<led>
 <halpin>"in10"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>−
 	<button>
 <halpin>"out07"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-07"</text>
 </button>
 	<label>
@@ -189,6 +214,7 @@
 −
 	<led>
 <halpin>"in11"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
@@ -209,6 +235,7 @@
 −
 	<led>
 <halpin>"in28"</halpin>
+<disablepin>True</disablepin>
 </led>
 
 	<label>
@@ -217,6 +244,7 @@
 −
 	<led>
 <halpin>"in16"</halpin>
+<disablepin>True</disablepin>
 </led>
 
 </hbox>
@@ -228,6 +256,7 @@
 −
 	<led>
 <halpin>"in29"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-17:"</text>
@@ -235,6 +264,7 @@
 −
 	<led>
 <halpin>"in17"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
@@ -246,6 +276,7 @@
 −
 	<led>
 <halpin>"in30"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-18:"</text>
@@ -253,6 +284,7 @@
 −
 	<led>
 <halpin>"in18"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
@@ -264,6 +296,7 @@
 −
 	<led>
 <halpin>"in31"</halpin>
+<disablepin>True</disablepin>
 </led>
 	<label>
 <text>"  In-19:"</text>
@@ -271,12 +304,14 @@
 −
 	<led>
 <halpin>"in19"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out08"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-08"</text>
 </button>−
 	<label>
@@ -285,12 +320,14 @@
 −
 	<led>
 <halpin>"in20"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 	<button>
 <halpin>"out09"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-09"</text>
 </button>−
 	<label>
@@ -299,12 +336,14 @@
 −
 	<led>
 <halpin>"in21"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 	<button>
 <halpin>"out10"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-10"</text>
 </button>−
 	<label>
@@ -313,12 +352,14 @@
 −
 	<led>
 <halpin>"in22"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out11"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-11"</text>
 </button>
 	<label>
@@ -327,12 +368,14 @@
 −
 	<led>
 <halpin>"in23"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out12"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-12"</text>
 </button>
 	<label>
@@ -341,12 +384,14 @@
 −
 	<led>
 <halpin>"in24"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out13"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-13"</text>
 </button>
 	<label>
@@ -355,12 +400,14 @@
 −
 	<led>
 <halpin>"in25"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>
 −	<button>
 <halpin>"out14"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-14"</text>
 </button>
 	<label>
@@ -369,12 +416,14 @@
 −
 	<led>
 <halpin>"in26"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
 	<hbox>−
 	<button>
 <halpin>"out15"</halpin>
+<disablepin>True</disablepin>
 <text>"Out-15"</text>
 </button>
 	<label>
@@ -383,6 +432,7 @@
 −
 	<led>
 <halpin>"in27"</halpin>
+<disablepin>True</disablepin>
 </led>
 </hbox>
 −
@@ -538,7 +588,6 @@
 </scale>
 </vbox>
 </labelframe>
-−
 	<labelframe text="DAC 2">
 −
 	<vbox>
