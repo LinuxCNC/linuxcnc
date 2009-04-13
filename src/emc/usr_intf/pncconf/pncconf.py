@@ -862,7 +862,7 @@ class Data:
         stepgen = self.stepgen_sig(let)
         print self.make_pinname(stepgen)
         encoder = self.encoder_sig(let)
-        
+        print self.make_pinname(encoder)
         homesig = self.home_sig(let)
         max_limsig = self.max_lim_sig(let)
         min_limsig = self.min_lim_sig(let)
@@ -871,58 +871,58 @@ class Data:
         print >>file, "#**************"
         print >>file, "#  Axis %s" % let.upper()
         print >>file, "#**************"
-        print >>file, "newsig emcmot.%2d.enable bit"% (num)
-        print >>file, "sets emcmot.%2d.enable FALSE"% (num)
-        print >>file, "net emcmot.%2d.enable => pid.%d.enable"% (num, axnum)
+        print >>file, "newsig emcmot.%02d.enable bit"% (num)
+        print >>file, "    sets emcmot.%02d.enable FALSE"% (num)
+        print >>file, "net emcmot.%02d.enable => pid.%d.enable"% (num, axnum)
         
         if pwmgen:
             boardnum = 0
             signum = 0
-            print >>file, "net emcmot.%2d.enable => hm2_[HOSTMOT2](BOARD).%d.pwmgen.%2d.enable" % (axnum, boardnum, signum)
-        print >>file, "net emcmot.%2d.enable <= axis.%d.amp-enable-out" % (num, axnum)
-        if not stepgen:
-            print >>file, "setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
-            print >>file, "setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
-            print >>file, "setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
-            print >>file, "setp pid.%d.bias [AXIS_%d]BIAS" % (num, axnum)
-            print >>file, "setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
-            print >>file, "setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
-            print >>file, "setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
-            print >>file, "setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
-            print >>file, "setp pid.%d.maxoutput [AXIS_%d]MAX_VELOCITY" % (num, axnum)
+            print >>file, "net emcmot.%02d.enable => hm2_[HOSTMOT2](BOARD).%d.pwmgen.%02d.enable" % (axnum, boardnum, signum)
+        print >>file, "net emcmot.%02d.enable <= axis.%d.amp-enable-out" % (num, axnum)
+        if stepgen == "false":
+            print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
+            print >>file, "    setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
+            print >>file, "    setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
+            print >>file, "    setp pid.%d.bias [AXIS_%d]BIAS" % (num, axnum)
+            print >>file, "    setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
+            print >>file, "    setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
+            print >>file, "    setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
+            print >>file, "    setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
+            print >>file, "    setp pid.%d.maxoutput [AXIS_%d]MAX_VELOCITY" % (num, axnum)
             print >>file
             if 'm5i20' in encoder:
                 pinname = self.make_pinname(encoder)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 #also the encoder # needs to reflect pin number not axis number
-                print >>file, "setp "+pinname+".counter-mode 0"
-                print >>file, "setp "+pinname+".filter 1" 
-                print >>file, "setp "+pinname+".index-invert 0"
-                print >>file, "setp "+pinname+".index-mask 0" 
-                print >>file, "setp "+pinname+".index-mask-invert 0"              
-                print >>file, "setp "+pinname+".scale  [AXIS_%d]SCALE"% (axnum)
-                print >>file, "net motor.%2d.pos-fb "% (axnum) +pinname+ ".position => pid.%d.feedback"% axnum
+                print >>file, "    setp "+pinname+".counter-mode 0"
+                print >>file, "    setp "+pinname+".filter 1" 
+                print >>file, "    setp "+pinname+".index-invert 0"
+                print >>file, "    setp "+pinname+".index-mask 0" 
+                print >>file, "    setp "+pinname+".index-mask-invert 0"              
+                print >>file, "    setp "+pinname+".scale  [AXIS_%d]SCALE"% (axnum)
+                print >>file, "net motor.%02d.pos-fb "% (axnum) +pinname+ ".position => pid.%d.feedback"% axnum
                 #TODO if this is really for AXIS GUI then will need to be changed for other GUI
                 print >>file, "net motor.%d.pos-fb => axis.%d.motor-pos-fb #push copy back to Axis GUI" % (axnum, axnum)   
                 print >>file        
-            if 'mesa' in str(pwmgen):
+            if 'm5i20' in str(pwmgen):
                 pinname = self.make_pinname(pwmgen)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 #also the pwm # needs to reflect pin number not axis number
-                print >>file, "setp "+pinname+".output-type 1" 
-                print >>file, "setp "+pinname+".scale  1.0" 
-                print >>file, "net emcmot.%2d.pos-cmd axis.%d.motor-pos-cmd => pid.%d.command" % (axnum, axnum , axnum)
-                print >>file, "net motor.%2d.command  pid.%d.output  => "% (axnum, axnum) +pinname+ ".value"      
-        if stepgen:
-            print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
-            print >>file, "setp stepgen.%d.steplen 1" % num
+                print >>file, "    setp "+pinname+".output-type 1" 
+                print >>file, "    setp "+pinname+".scale  1.0" 
+                print >>file, "net emcmot.%02d.pos-cmd axis.%d.motor-pos-cmd => pid.%d.command" % (axnum, axnum , axnum)
+                print >>file, "net motor.%02d.command  pid.%d.output  => "% (axnum, axnum) +pinname+ ".value"      
+        if not stepgen == "false":
+            print >>file, "    setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
+            print >>file, "    setp stepgen.%d.steplen 1" % num
             if self.doublestep():
-                print >>file, "setp stepgen.%d.stepspace 0" % num
+                print >>file, "    setp stepgen.%d.stepspace 0" % num
             else:
-                print >>file, "setp stepgen.%d.stepspace 1" % num
-            print >>file, "setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
-            print >>file, "setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
-            print >>file, "setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
+                print >>file, "    setp stepgen.%d.stepspace 1" % num
+            print >>file, "    setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
+            print >>file, "    setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
+            print >>file, "    setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
             print >>file, "net %spos-cmd axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
             print >>file, "net %spos-fb stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
             print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
@@ -958,11 +958,12 @@ class Data:
                     if i: print >>file, "net %s <= "% (p)+pinname+".in_not"  
                     else: print >>file, "net %s <= "% (p)+pinname+".in"
                 # for encoder pins
-                if t == 3:
+                elif t == 3:
                     if p == "unused-encoder":continue
                     if p in (self.halencoderinputsignames): 
                         print >>file, "net %s <= hm2_%s.0.encoder.%02d"  % (p, board, truepinnum)    
-        
+                else: continue
+
     def find_input(self, input):
         inputs = set((10, 11, 12, 13, 15))
         for i in inputs:
@@ -985,8 +986,8 @@ class Data:
             p = self['firstpppin%dout' % q]
             i = self['firstpppin%dinvout' % q]
             if p == UNUSED_OUTPUT: continue
-            if i: print >>file, "setp parport.0.pin-%02d-out-invert true" % q
             print >>file, "net %s => parport.0.pin-%02d-out" % (p, q)
+            if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for connector in (2,3,4):
             for q in range(0,24):
@@ -996,30 +997,24 @@ class Data:
                 truepinnum = q + ((connector-2)*24)
                 # for output /open drain pins
                 if t in (1,2):
-                    print p,i,t
                     if p == "unused-output":continue
                     pinname = self.make_pinname(self.findsignal( p ))
-                    if i: print >>file, "setp "+pinname+".invert_output true"
-                    if t == 2: print >>file, "setp "+pinname+".is_opendrain true"
                     print >>file, "net %s => "% (p)+pinname+".out"
-                # for encoder pins
-                if t == 4:
+                    if i: print >>file, "    setp "+pinname+".invert_output true"
+                    if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"                 
+                # for pwm pins
+                elif t == 4:
                     if p == "unused-pwm":continue
                     if p in (self.halpwmoutputsignames): 
                         print >>file, "net %s <= hm2_%s.0.pwm.%02d"  % (p, board, truepinnum)  
                 # for stepper pins
-                if t == 5:
+                elif t == 5:
                     if p == "unused-stepgen":continue
                     if p in (self.halsteppersignames): 
                         print >>file, "net %s <= hm2_%s.0.stepgen.%02d"  % (p, board, truepinnum) 
-
+                else:continue
 
     def write_halfile(self, base):
-        inputs = set((self.firstpppin10in,self.firstpppin11in,self.firstpppin12in,self.firstpppin13in,self.firstpppin15in))
-        outputs = set((self.firstpppin1out, self.firstpppin2out, self.firstpppin3out, self.firstpppin4out, self.firstpppin5out,
-            self.firstpppin6out, self.firstpppin7out, self.firstpppin8out, self.firstpppin9out, self.firstpppin14out, self.firstpppin16out,
-            self.firstpppin17out))
-
         filename = os.path.join(base, self.machinename + ".hal")
         file = open(filename, "w")
         print >>file, _("# Generated by PNCconf at %s") % time.asctime()
@@ -1031,8 +1026,8 @@ class Data:
         if self.mesa5i20>0:
             #print >>file, "loadrt hpstmot2"
             #print >>file, "loadrt hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
-            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
-            print >>file, "setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
+            print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
+            print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
             print >>file, "loadrt probe_parport"
@@ -1056,18 +1051,36 @@ class Data:
                port1dir =" in"
             print >>file, "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"" % (port1name, port1dir, port2name, port2dir, port3name, port3dir)
             if self.doublestep():
-                print >>file, "setp parport.0.reset-time %d" % self.steptime
+                print >>file, "    setp parport.0.reset-time %d" % self.steptime
 
-        encodertest = self.findsignal("spindle-phase-a")
-        if not encodertest == "false":
-            encoder = True
-        else:
-            encoder = False
+        spindle_enc = counter = probe = pwm = pump = estop = False 
+        spindle_on = spindle_cw = spindle_ccw = False
+        mist = flood = brake = False
 
-        counter = PHB not in inputs
-        probe = PROBE in inputs
-        pwm = "spindle-pwm" in outputs
-        pump = PUMP in outputs
+        if not self.findsignal("spindle-phase-a") == "false":
+            spindle_enc = True        
+        if self.findsignal("spindle-phase-b") =="false":
+            counter = True
+        if not self.findsignal("probe") =="false":
+            probe = True
+        if not self.findsignal("spindle-pwm") =="false":
+            pwm = True
+        if not self.findsignal("pump") =="false":
+            pump = True
+        if not self.findsignal("estop-ext") =="false":
+            estop = True
+        if not self.findsignal("spindle-on") =="false":
+            spindle_on = True
+        if not self.findsignal("spindle-cw") =="false":
+            spindle_cw = True
+        if not self.findsignal("spindl-ccw") =="false":
+            spindle_ccw = True
+        if not self.findsignal("mist") =="false":
+            mist = True
+        if not self.findsignal("flood") =="false":
+            flood = True
+        if not self.findsignal("brake") =="false":
+            brake = True
 
         if self.axes == 2:
             #print >>file, "loadrt stepgen step_type=0,0"
@@ -1079,11 +1092,11 @@ class Data:
             #print >>file, "loadrt stepgen step_type=0,0,0"
             print >>file, "loadrt pid num_chan=3"
 
-        if encoder:
+        if spindle_enc:
             print >>file, "loadrt encoder num_chan=1"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "loadrt abs count=1"
-            if encoder:
+            if spindle_enc:
                print >>file, "loadrt scale count=1"
 
         if pump:
@@ -1106,7 +1119,7 @@ class Data:
             print >>file, "addf parport.2.read base-thread"
 
         #print >>file, "addf stepgen.make-pulses base-thread"
-        if encoder: print >>file, "addf encoder.update-counters base-thread"
+        if spindle_enc: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
         if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
         if self.number_pports > 0:
@@ -1120,7 +1133,7 @@ class Data:
         if self.mesa5i20>0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.read servo-thread" 
         #print >>file, "addf stepgen.capture-position servo-thread"
-        if encoder: print >>file, "addf encoder.capture-position servo-thread"
+        if spindle_enc: print >>file, "addf encoder.capture-position servo-thread"
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
         if self.axes == 2:
@@ -1141,7 +1154,7 @@ class Data:
         if pwm: print >>file, "addf pwmgen.update servo-thread"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "addf abs.0 servo-thread"
-            if encoder:
+            if spindle_enc:
                print >>file, "addf scale.0 servo-thread"
         if self.mesa5i20>0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread" 
@@ -1158,36 +1171,36 @@ class Data:
             print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
             print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
-            print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
-            print >>file, "setp pwmgen.0.scale %s" % scale
-            print >>file, "setp pwmgen.0.offset %s" % offset
-            print >>file, "setp pwmgen.0.dither-pwm true"
+            print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
+            print >>file, "    setp pwmgen.0.scale %s" % scale
+            print >>file, "    setp pwmgen.0.offset %s" % offset
+            print >>file, "    setp pwmgen.0.dither-pwm true"
         else: 
             print >>file, "net spindle-cmd <= motion.spindle-speed-out"
 
-        if ON in outputs:
+        if spindle_on:
             print >>file, "net spindle-on <= motion.spindle-on"
-        if CW in outputs:
+        if spindle_cw:
             print >>file, "net spindle-cw <= motion.spindle-forward"
-        if CCW in outputs:
+        if spindle_ccw:
             print >>file, "net spindle-ccw <= motion.spindle-reverse"
-        if BRAKE in outputs:
+        if brake:
             print >>file, "net spindle-brake <= motion.spindle-brake"
 
-        if MIST in outputs:
+        if mist:
             print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
 
-        if FLOOD in outputs:
+        if flood:
             print >>file, "net coolant-flood <= iocontrol.0.coolant-flood"
 
-        if encoder:
+        if spindle_enc:
             print >>file
-            if PHB not in inputs:
-                print >>file, "setp encoder.0.position-scale %f"\
+            if counter:
+                print >>file, "    setp encoder.0.position-scale %f"\
                      % self.spindlecpr
-                print >>file, "setp encoder.0.counter-mode 1"
+                print >>file, "    setp encoder.0.counter-mode 1"
             else:
-                print >>file, "setp encoder.0.position-scale %f" \
+                print >>file, "    setp encoder.0.position-scale %f" \
                     % ( 4.0 * int(self.spindlecpr))
             print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
             print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
@@ -1196,20 +1209,20 @@ class Data:
             print >>file, "net spindle-phase-b encoder.0.phase-B"
             print >>file, "net spindle-index encoder.0.phase-Z"
 
-
+        
         if probe:
             print >>file
             print >>file, "net probe-in => motion.probe-input"
 
         for i in range(4):
             dout = "dout-%02d" % i
-            if dout in outputs:
+            if not self.findsignal(dout) =="false":
                 print >>file, "net %s <= motion.digital-out-%02d" % (dout, i)
 
         for i in range(4):
             din = "din-%02d" % i
-            if din in inputs:
-                print >>file, "net %s <= motion.digital-in-%02d" % (din, i)
+            if not self.findsignal(din) =="false":
+                print >>file, "net %s => motion.digital-in-%02d" % (din, i)
 
         print >>file
         self.connect_output(file)              
@@ -1242,7 +1255,7 @@ class Data:
             print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
             print >>file
             print >>file, _("# **** Setup for external estop ladder program -END ****")
-        elif ESTOP_IN in inputs:
+        elif estop:
             print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
         else:
             print >>file, "net estop-out => iocontrol.0.emc-enable-in"
@@ -1289,7 +1302,7 @@ class Data:
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
-                  if encoder:
+                  if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
@@ -2142,12 +2155,9 @@ class App:
                         addsignalto.append ((selection))
                 self.data[p] = signaltocheck[index]
                 self.data[pinv] = self.widgets[pinv].get_active()
-        print "mesa here one"
         if self.data.number_pports<1:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
-           print "mesa here two"
            return True
-        print "mesa here three"
 
     def get_input_signals_from_gui(self,p):
         foundit = 0
@@ -2997,6 +3007,57 @@ class App:
         else: return True
    
     def on_complete_finish(self, *args):
+        # if parallel ports not used clear all signals
+        parportnames = ("first","Second","Third")
+        for check,connector in enumerate(parportnames):
+            if self.data.number_pports >= (check+1):continue
+            # initialize parport input / inv pins
+            for i in (1,2,3,4,5,6,7,8,10,11,12,13,15):
+                pinname ="%spppin%din"% (connector,i)
+                self.data[pinname] = UNUSED_INPUT
+                pinname ="%spppin%dinvin"% (connector,i)
+                self.data[pinname] = False
+            # initialize parport output / inv pins
+            for i in (1,2,3,4,5,6,7,8,9,14,16,17):
+                pinname ="%spppin%dout"% (connector,i)
+                self.data[pinname] = UNUSED_OUTPUT
+                pinname ="%spppin%dinvout"% (connector,i)
+                self.data[pinname] = False
+          
+        # if mesa card not used clear all signals
+        if self.data.mesa5i20 == 0:
+            connector = 2
+            # This initializes encoder pins
+            for i in (0,1,2,3,4,5,12,13,14,15,16,17):
+                pinname ="m5i20c%dpin%d"% (connector,i)
+                self.data[pinname] = UNUSED_ENCODER
+                pinname ="m5i20c%dpin%dtype"% (connector,i)
+                self.data[pinname] = 3
+            # This initializes PWM pins
+            for i in (6,7,8,9,10,11,18,19,20,21,22,23):
+                pinname ="m5i20c%dpin%d"% (connector,i)
+                self.data[pinname] = UNUSED_PWM
+                pinname ="m5i20c%dpin%dtype"% (connector,i)
+                self.data[pinname] = 4
+            for connector in(3,4):
+                # This initializes GPIO input pins
+                for i in range(0,16):
+                    pinname ="m5i20c%dpin%d"% (connector,i)
+                    self.data[pinname] = UNUSED_INPUT
+                    pinname ="m5i20c%dpin%dtype"% (connector,i)
+                    self.data[pinname] = 0
+                # This initializes GPIO output pins
+                for i in range(16,24):
+                    pinname ="m5i20c%dpin%d"% (connector,i)
+                    self.data[pinname] = UNUSED_OUTPUT
+                    pinname ="m5i20c%dpin%dtype"% (connector,i)
+                    self.data[pinname] = 1
+            for connector in(2,3,4):
+                # This initializes the mesa inverse pins
+                for i in range(0,24):
+                    pinname ="m5i20c%dpin%dinv"% (connector,i)
+                    self.data[pinname] = False
+
         self.data.save()        
         if self.data.classicladder: 
            if not self.data.laddername == "custom.clp":
@@ -3052,16 +3113,33 @@ class App:
         return True
 
     def m5i20test(self,w):
+        #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
+        #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn m5i20test pyvcp -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter\n")
+        for connector in (3,4):
+           for pin in range(0,24):
+                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pintype = self.data[ptype]
+                #TODO this is just a test the panel needs to be changed for the mesa cards
+                if not pintype == 0:
+                    if pin > 15: break
+                    truepinnum = (connector-3)*16+ pin
+                    halrun.write("setp m5i20test.in%02d.disable true\n"% truepinnum )
+                elif not pintype in (1,2):
+                    if pin > 7: break
+                    truepinnum = (connector-3)*8+ pin
+                    halrun.write("setp m5i20test.out%02d.disable true\n"% truepinnum )
         halrun.write("start\n")
         halrun.write("waitusr m5i20test\n"); halrun.flush()
         halrun.close()
-        terminal.close()
-    
+        #terminal.close()
+        self.widgets['window1'].set_sensitive(1)
+
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.widgets.pyvcpblank.get_active() == True:
