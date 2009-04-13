@@ -1368,16 +1368,14 @@ A labelframe is a frame with a groove and a label at the upper-left corner.
 
 <labelframe text="Group Title">
 \newline 
-\SpecialChar ~
 <font>("Helvetica",16)</font>
 \newline 
-\SpecialChar ~
 <hbox>
 \newline 
-\SpecialChar ~
-<led/> <led/>
+<led/> 
 \newline 
-\SpecialChar ~
+<led/>
+\newline 
 </hbox>
 \newline 
 </labelframe>
