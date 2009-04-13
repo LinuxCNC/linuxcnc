@@ -1348,9 +1348,10 @@ A label is a piece of text on your panel.
 
 <halpin> used to set a name for the label.
 \newline 
-<disable_pin> when set to true will add a disable pin
+<disable_pin> when set to true will add a disable pin.
+ When the disable pin is true the text is greyed.
 \newline 
-<disable_color> sets the color of the text when the disable pin is true.
+
 \layout Quote
 
 <label>
@@ -1382,16 +1383,14 @@ A labelframe is a frame with a groove and a label at the upper-left corner.
 
 <labelframe text="Group Title">
 \newline 
-\SpecialChar ~
 <font>("Helvetica",16)</font>
 \newline 
-\SpecialChar ~
 <hbox>
 \newline 
-\SpecialChar ~
-<led/> <led/>
+<led/> 
 \newline 
-\SpecialChar ~
+<led/>
+\newline 
 </hbox>
 \newline 
 </labelframe>
