@@ -905,7 +905,7 @@ class Data:
         for i in range(4):
             din = "din-%02d" % i
             if din in inputs:
-                print >>file, "net %s <= motion.digital-in-%02d" % (din, i)
+                print >>file, "net %s => motion.digital-in-%02d" % (din, i)
 
         print >>file
         for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)      
