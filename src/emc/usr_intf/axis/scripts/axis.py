@@ -3744,6 +3744,7 @@ for i in range(9):
     c.grid_forget()
 for i in range(num_joints, 9):
     c = getattr(widgets, "joint_%d" % i)
+    c.grid_forget()
     
 if s.axis_mask & 56 == 0:
     widgets.ajogspeed.grid_forget()
