@@ -272,7 +272,7 @@ Widgets for controlling "number" signals: spinbox, scale, jogwheel
 \layout Enumerate
 
 Helper widgets: hbox, vbox, table, label, labelframe
-\layout Subsubsection
+\layout Subsubsection*
 
 Syntax
 \layout Standard
@@ -280,7 +280,7 @@ Syntax
 Each widget is described briefly, followed by the markup used, and a screen
  shot.
  All tags inside the main widget tag are optional.
-\layout Subsubsection
+\layout Subsubsection*
 
 General Notes
 \layout Standard
@@ -323,7 +323,7 @@ When the tag-based syntax is used, the text within the tag is always evaluated
 \layout Standard
 
 The examples below show a mix of formats.
-\layout Subsubsection
+\layout Subsubsection*
 
 Comments
 \layout Standard
@@ -332,8 +332,10 @@ To add a comment use the xml syntax for a comment.
  
 \layout Quote
 
-<!--My Comment-->
-\layout Subsubsection
+<!-\SpecialChar \-
+-My Comment-\SpecialChar \-
+->
+\layout Subsubsection*
 
 Editing the XML file
 \layout Standard
@@ -341,7 +343,7 @@ Editing the XML file
 Edit the XML file with a text editor.
  In most cases you can right click on the file and select "open with text
  editor" or similar.
-\layout Subsubsection
+\layout Subsubsection*
 
 Colors
 \layout Standard
@@ -388,6 +390,21 @@ purple and purple1 - 4
 \layout Itemize
 
 gray and gray0 - 100
+\layout Subsubsection*
+
+HAL Pins
+\layout Standard
+
+HAL pins provide a means to "connect" the widget to something.
+ Once you create a HAL pin for your widget you can "connect" it to another
+ HAL pin with a "net" command in a .hal file.
+ For more information on the "net" command see the HAL Commands section
+ (
+\begin_inset LatexCommand \ref{sec:Hal-Commands}
+
+\end_inset 
+
+).
 \layout Subsection
 
 LED
