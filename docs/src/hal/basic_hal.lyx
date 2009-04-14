@@ -30,6 +30,11 @@ Getting Started
 \layout Section
 
 Hal Commands
+\begin_inset LatexCommand \label{sec:Hal-Commands}
+
+\end_inset 
+
+
 \layout Standard
 
 More detailed information can be found in the man page for halcmd "man halcmd"
