@@ -6,8 +6,6 @@ next steps:
 
         timing fixes
 
-        use 2 IO pins only
-
 
     the config modparam is confusing and poorly documented
 
@@ -166,12 +164,6 @@ stepgen:
         to ClockLow periods (rounded up); the result decremented (zero
         ok); and the result of *that* sent to the pulsewait FPGA register.
 
-    support smaller stepgens - most dont need 6 pins...
-
-        config="stepgen="off,on:width=2"
-
-        for now just use the first two io pins of each stepgen, leave the rest as gpio
-
     needs a cleanup() function
 
     setting .scale to 1600 (1600 steps/rev) and then commanding position
@@ -180,7 +172,8 @@ stepgen:
 
     if a stepgen is stepping, and you set its .enable to 0 it stops
     instantly (which is good).  But if you then set its .enable to 1,
-    it resumes at its previous velocity.  Is that bad?
+    it resumes at its previous velocity.  Is that bad?  Does this still
+    happen with the new stepping logic?
 
     test different steps-pre-rev on different stepgen instances
 
