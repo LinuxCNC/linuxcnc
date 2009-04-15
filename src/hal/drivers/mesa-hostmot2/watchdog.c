@@ -37,11 +37,14 @@ static void hm2_pet_watchdog(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
 
 
+    // if there is no watchdog, then there's nothing to do
+    if (hm2->watchdog.num_instances == 0) return;
+
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
     // if the watchdog has bit, wait for the user to reset it
-    if ((hm2->watchdog.num_instances == 0) || (*hm2->watchdog.instance[0].hal.pin.has_bit)) return;
+    if (*hm2->watchdog.instance[0].hal.pin.has_bit) return;
 
 
     if (hm2->llio->needs_reset) {
