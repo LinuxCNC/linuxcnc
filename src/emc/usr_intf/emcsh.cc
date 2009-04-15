@@ -3420,31 +3420,75 @@ static int localround(ClientData clientdata,
     return TCL_OK;
 }
 
-int Tcl_AppInit(Tcl_Interp * interp)
+static void sigQuit(int sig)
 {
-    /* 
-     * Call the init procedures for included packages.  Each call should
-     * look like this:
-     *
-     * if (Mod_Init(interp) == TCL_ERROR) {
-     *     return TCL_ERROR;
-     * }
-     *
-     * where "Mod" is the name of the module.
-     */
+    thisQuit((ClientData) 0);
+}
 
-    if (Tcl_Init(interp) == TCL_ERROR) {
-	return TCL_ERROR;
+static void initMain()
+{
+    emcWaitType = EMC_WAIT_RECEIVED;
+    emcCommandSerialNumber = 0;
+    saveEmcCommandSerialNumber = 0;
+    emcTimeout = 0.0;
+    emcUpdateType = EMC_UPDATE_AUTO;
+    linearUnitConversion = LINEAR_UNITS_AUTO;
+    angularUnitConversion = ANGULAR_UNITS_AUTO;
+    emcCommandBuffer = 0;
+    emcStatusBuffer = 0;
+    emcStatus = 0;
+
+    emcErrorBuffer = 0;
+    error_string[LINELEN-1] = 0;
+    operator_text_string[LINELEN-1] = 0;
+    operator_display_string[LINELEN-1] = 0;
+    programStartLine = 0;
+}
+
+int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
+{
+    initMain();
+    // process command line args
+    if (0 != emcGetArgs(argc, (char**)argv)) {
+        Tcl_SetResult(interp, "error in argument list\n", TCL_STATIC);
+        return TCL_ERROR;
     }
+    // get configuration information
+    iniLoad(EMC_INIFILE);
 
-    if (Tk_Init(interp) == TCL_ERROR) {
-	return TCL_ERROR;
+    // init NML
+    if (0 != tryNml()) {
+        Tcl_SetResult(interp, "can't connect to emc\n", TCL_STATIC);
+        thisQuit(NULL);
+        return TCL_ERROR;
     }
+    // get current serial number, and save it for restoring when we quit
+    // so as not to interfere with real operator interface
+    updateStatus();
+    emcCommandSerialNumber = emcStatus->echo_serial_number;
+    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
+    // attach our quit function to exit
+    Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
+
+    // attach our quit function to SIGINT
+    signal(SIGINT, sigQuit);
+
+    Tcl_SetResult(interp, "", TCL_STATIC);
+    return TCL_OK;
+}
+
+extern "C" 
+int Emc_Init(Tcl_Interp * interp);
+int Emc_Init(Tcl_Interp * interp)
+{
     /* 
      * Call Tcl_CreateCommand for application-specific commands, if
      * they weren't already created by the init procedures called above.
      */
+
+    Tcl_CreateCommand(interp, "emc_init", emc_init, (ClientData) NULL,
+                         (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_plat", emc_plat, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
@@ -3745,64 +3789,3 @@ int Tcl_AppInit(Tcl_Interp * interp)
     return TCL_OK;
 }
 
-
-static void sigQuit(int sig)
-{
-    thisQuit((ClientData) 0);
-}
-
-static void initMain()
-{
-    emcWaitType = EMC_WAIT_RECEIVED;
-    emcCommandSerialNumber = 0;
-    saveEmcCommandSerialNumber = 0;
-    emcTimeout = 0.0;
-    emcUpdateType = EMC_UPDATE_AUTO;
-    linearUnitConversion = LINEAR_UNITS_AUTO;
-    angularUnitConversion = ANGULAR_UNITS_AUTO;
-    emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
-    emcStatus = 0;
-
-    emcErrorBuffer = 0;
-    error_string[LINELEN-1] = 0;
-    operator_text_string[LINELEN-1] = 0;
-    operator_display_string[LINELEN-1] = 0;
-    programStartLine = 0;
-}
-
-int main(int argc, char *argv[])
-{
-
-    initMain();
-    // process command line args
-    if (0 != emcGetArgs(argc, argv)) {
-	rcs_print_error("error in argument list\n");
-	exit(1);
-    }
-    // get configuration information
-    iniLoad(EMC_INIFILE);
-
-    // init NML
-    if (0 != tryNml()) {
-	rcs_print_error("can't connect to emc\n");
-	thisQuit(NULL);
-	exit(1);
-    }
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-    emcCommandSerialNumber = emcStatus->echo_serial_number;
-    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
-
-    // attach our quit function to exit
-    Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
-
-    // attach our quit function to SIGINT
-    signal(SIGINT, sigQuit);
-
-    // TclX_Main(argc, argv, Tcl_AppInit);
-    Tk_Main(argc, argv, Tcl_AppInit);
-
-    return 0;
-}

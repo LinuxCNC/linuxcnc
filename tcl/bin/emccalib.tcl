@@ -25,6 +25,7 @@ exec $EMC2_EMCSH "$0" "$@"
 # it does not and will not sort on hal components.
 
 source [file join [file dirname [info script]] .. emc.tcl]
+eval emc_init $argv
 
 package require BWidget
 

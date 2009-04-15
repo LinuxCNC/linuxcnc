@@ -33,6 +33,8 @@ namespace eval emc {
     variable _langinit 1
 }
 
+load [file join [file dirname [info script]] emc.so]
+
 if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
     set env(PATH) $::emc::BIN_DIR:$env(PATH)
 }

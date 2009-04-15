@@ -19,6 +19,7 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] emc.tcl]
+eval emc_init $argv
 
 # Tk GUI for the Enhanced Machine Controller
 

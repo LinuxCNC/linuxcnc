@@ -39,16 +39,17 @@ USERSRCS += $(XEMCSRCS)
 endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+$(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 
 ../bin/tooledit: emc/usr_intf/tooledit.tcl
 	cp $< $@
 	chmod +x $@
 TARGETS += ../bin/tooledit
 
-../bin/emcsh: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
+../tcl/emc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
-TARGETS += ../bin/emcsh
+	$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+TARGETS += ../tcl/emc.so
 
 ../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)

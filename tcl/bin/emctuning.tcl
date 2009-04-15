@@ -5,6 +5,7 @@ exec $EMC2_EMCSH "$0" "$@"
 
 # Load the emc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. emc.tcl]
+eval emc_init $argv
 
 ###############################################################
 # Description:  emctuning.tcl

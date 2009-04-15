@@ -21,6 +21,7 @@ exec $EMC2_EMCSH "$0" "$@"
 ###############################################################
 
 source [file join [file dirname [info script]] .. emc.tcl]
+eval emc_init $argv
 
 # check if any emc commands exist, and quit if not
 if {! [string length [info commands emc_plat]]} {
