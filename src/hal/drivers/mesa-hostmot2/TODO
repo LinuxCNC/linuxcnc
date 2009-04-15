@@ -38,8 +38,9 @@ next steps:
 
 
     It's starting to feel like it's ready for some kind of module
-    abstraction...  To standardize the semantics and make it easier to
-    think about.  Pull out the common code.  pins are special
+    abstraction...  To standardize the semantics and make it easier
+    to think about.  Pull out the common code.  pins are special.
+    watchdog too, probably
 
         module drivers are expected to export the following functions:
 
@@ -186,37 +187,32 @@ stepgen:
 
 watchdog:
 
-    currently it's like this: if a watchdog exists, it will be
-    initialized, but if pet_watchdog doesnt run, it'll bite and we wont
-    know about it
+    currently it's like this:
 
-    on watchdog bite, keep doing all reads (encoders, gpios, raw)?
-    
-        reading those things should still work, but what's the use?
+        if a watchdog exists, it will be initialized with a timeout of
+        1 second (!), but if pet_watchdog doesnt run, it'll bite and we
+        wont know about it
 
-        wd bites happen for three reasons i think: 
-        
-            epp cable unplugged,
+        only the pet_watchdog function detects and reports watchdog bites.
+        So you wont get notified of a bite unless you're running the
+        function that prevents it...  I should fix that...
 
-            linux shutdown or crashed,
-
-            user loadrt'ing hm2_pci by hand and not getting to addf & start within 1 second
-
-        In no case does it help to keep reading the FPGA
+        Not Good
 
 
-    to keep halcmd-experimentation from tripping the watchdog right
-    away, have the timeout default to 0, meaning no wd
+    It should be like this:
 
-    let the user set wd.timeout if they want
+        timeout default to 0, meaning no wd (the hm2 firmware reacts to
+        "no write to the watchdog timeout register" by not enabling the
+        watchdog, you can also disable the watchdog later by writing 1
+        to timeout register's MSb)
 
-    dont start watchdog at insmod, start it at the first pet_watchdog
-    (warn if it's 0 and suggest maybe 5x the servo thread period)
+        let the user set wd.timeout if they want
 
+        dont start watchdog at insmod, start it at the first pet_watchdog
+        (warn if it's 0 and suggest maybe 5x the servo period)
 
-    Unfortunately, currently, only the pet_watchdog function detects and
-    reports watchdog bites.  So you wont get notified of a bite unless
-    you're running the function that prevents it...  I should fix that...
+        check for watchdog bite in .read() probably
 
 
 
