@@ -297,8 +297,8 @@ feedback from the first stepgen of the second 5i22 board is:
 hm2_5i22.1.stepgen.00.position-fb (this assumes that the firmware in
 that board is configured so that this HAL object is available)
 
-Each stepgen allocates 2-6 IO pins (selected at firmware compile time),
-but currently only uses two: Step and Direction outputs.
+Each stepgen uses 2 IO pins.  The signals on these pins depends on the
+step_type parameter (described below).
 
 The stepgen representation is modeled on the stepgen software component.
 Each stepgen instance has the following pins and parameters:
