@@ -18,7 +18,6 @@ Description: PC based motion controller for real-time Linux.
  This package includes files needed to build new realtime components and
  alternate front-ends for emc2
 
-
 Package: @EMC2_PACKAGE_NAME@
 Replaces: emc2, emc2-axis
 Conflicts: emc2, emc2-axis
@@ -31,3 +30,4 @@ Description: PC based motion controller for real-time Linux.
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
+
