@@ -95,7 +95,7 @@ MIST, FLOOD, ESTOP, AMP,
 PUMP, DOUT0, DOUT1, DOUT2, DOUT3) = hal_output_names = [
 "unused-output", 
 "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "xenable",
+"coolant-mist", "coolant-flood", "estop-out", "enable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03"
 ]
 
@@ -202,10 +202,10 @@ A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_ST
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
 "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",]
 
-human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved"), _("X reserved"), 
-_("X reserved"), _("X reserved"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved"), _("Y reserved"), _("Y reserved"), 
-_("Y reserved"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved"), _("Z reserved"), _("Z reserved"), _("Z reserved"), 
-_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved"), _("A reserved"), _("A reserved"), _("A reserved"), ]
+human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved c"), _("X reserved d"), 
+_("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
+_("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
+_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), ]
 
 pintype_names = [_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),_("HDW Encoder"),_("HDW PWM Gen"),_("HDW Step Gen")]
 
@@ -794,8 +794,7 @@ class Data:
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         homes = False
         for i in thisaxishome:
-            test = self.findsignal(i)
-            if not test == "false": homes = True
+            if not self.findsignal(i) == "false": homes = True
         if homes:
             print >>file, "HOME_OFFSET = %f" % get("homesw")
             print >>file, "HOME_SEARCH_VEL = %f" % get("homevel")
@@ -807,8 +806,7 @@ class Data:
             else: useindex = "NO"   
             print >>file, "HOME_USE_INDEX = %s" % useindex
             for i in ignore:
-                test = self.findsignal(i)
-                if not test == "false":
+                if not self.findsignal(i) == "false":
                     print >>file, "HOME_IGNORE_LIMITS = YES"
                     break
             if all_homes:
@@ -819,22 +817,19 @@ class Data:
     def home_sig(self, axis):
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
         for i in thisaxishome:
-            test = self.findsignal(i)
-            if not test == "false": return i
-        else:return "false"
+            if not self.findsignal(i) == "false": return i
+        return "false"
 
     def min_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               test = self.findsignal(i)
-               if not test == "false": return i
-           else:return "false"
+               if not self.findsignal(i) == "false": return i
+           return "false"
 
     def max_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "max-" + axis, "max-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               test = self.findsignal(i)
-               if not test == "false": return i
+               if not self.findsignal(i) == "false": return i
            return "false"
 
     def stepgen_sig(self, axis):
@@ -875,10 +870,9 @@ class Data:
         print >>file, "    sets emcmot.%02d.enable FALSE"% (num)
         print >>file, "net emcmot.%02d.enable => pid.%d.enable"% (num, axnum)
         
-        if pwmgen:
-            boardnum = 0
-            signum = 0
-            print >>file, "net emcmot.%02d.enable => hm2_[HOSTMOT2](BOARD).%d.pwmgen.%02d.enable" % (axnum, boardnum, signum)
+        if "m5i20" in pwmgen =="false":
+            pinname = self.make_pinname(pwmgen)
+            print >>file, "net emcmot.%02d.enable => "+pinname+".enable" % (axnum, boardnum, signum)
         print >>file, "net emcmot.%02d.enable <= axis.%d.amp-enable-out" % (num, axnum)
         if stepgen == "false":
             print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
@@ -905,7 +899,7 @@ class Data:
                 #TODO if this is really for AXIS GUI then will need to be changed for other GUI
                 print >>file, "net motor.%d.pos-fb => axis.%d.motor-pos-fb #push copy back to Axis GUI" % (axnum, axnum)   
                 print >>file        
-            if 'm5i20' in str(pwmgen):
+            if 'm5i20' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 #also the pwm # needs to reflect pin number not axis number
@@ -963,22 +957,6 @@ class Data:
                     if p in (self.halencoderinputsignames): 
                         print >>file, "net %s <= hm2_%s.0.encoder.%02d"  % (p, board, truepinnum)    
                 else: continue
-
-    def find_input(self, input):
-        inputs = set((10, 11, 12, 13, 15))
-        for i in inputs:
-            pin = getattr(self, "firstpppin%din" % i)
-            inv = getattr(self, "firstpppin%dinvin" % i)
-            if pin == input: return i
-        return None
-
-    def find_output(self, output):
-        outputs = set((1,2,3,4,5,6,7,8,9,14,16,17))
-        for i in outputs:
-            pin = getattr(self, "firstpppin%dout" % i)
-            inv = getattr(self, "firstpppin%dinvout" % i)
-            if pin == output: return i
-        return None
 
     def connect_output(self, file):
         print >>file
@@ -1502,6 +1480,8 @@ class Data:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+    # This method returns I/O pin designation (name and number) of a given HAL signalname.
+    # It does not check to see if the signalname is in the list more then once.
     def findsignal(self, sig):
         ppinput=dict([(self["firstpppin%din" %s],"firstpppin%din" %s) for s in (1,2,3,4,5,6,7,8,10,11,12,13,15)])
         ppoutput=dict([(self["firstpppin%dout" %s],"firstpppin%dout" %s) for s in (1,2,3,4,5,6,7,8,9,14,16,17)])
@@ -1525,35 +1505,63 @@ class Data:
                         except :
                             return "false"
 
+    # This method takes a signalname data pin (eg m5i20c3pin1)
+    # and converts it to a HAL pin names (eg hm2_[HOSTMOT2](BOARD).0.gpio.01)
+    # The adj variable is for adjustment of position of pins related to the
+    # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
+    # (related pins) 
     def make_pinname(self, pin):
-        test = str(pin)      
+        test = str(pin)       
         if 'm5i20' in test:
             type_name = ["gpio","gpio","gpio","encoder","pwmgen","stepgen"]
             ptype = self[pin+"type"] 
+            signalname = self[pin]
             pinnum = int(test[10:])
             connum = int(test[6:7])
+            #print test,self[pin], ptype, pinnum
+            # GPIO pins truenumber can be any number between 0 and 72 for 5i20 ( 96 in 5i22)
             if ptype in (0,1,2):
                 truepinnum = int(pinnum)+(int(connum)-2)*24
+            # Encoder 
             elif ptype == 3:
-                if pinnum == 0:truepinnum = int(pinnum)+((int(connum)-2)*4)
-                elif pinnum == 2:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4)
-                elif pinnum == 12:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) 
-                elif pinnum == 14:truepinnum = (int(pinnum)-11)+((int(connum)-2)*4)
+                adj = 0
+                if signalname.endswith('b'):adj = 1
+                if signalname.endswith('i'):adj = 3
+                if pinnum == 0 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
+                elif pinnum == 2 + adj:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4) - adj
+                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
+                elif pinnum == 14 + adj:truepinnum = (int(pinnum)-11)+((int(connum)-2)*4) - adj
+                else:print "pin number error"
+            # PWMGen pins
             elif ptype == 4:
-                if pinnum == 6:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4)
-                elif pinnum == 7:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4)
-                elif pinnum == 18:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) 
-                elif pinnum == 19:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4)
+                adj = 0
+                if signalname.endswith('dir'):adj = 2
+                if signalname.endswith('enable'):adj = 4
+                if pinnum == 6 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
+                elif pinnum == 7 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
+                elif pinnum == 18 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj 
+                elif pinnum == 19 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj
+                else:print "pin number error"
+            # StepGen pins 
             elif ptype == 5:
-                if pinnum == 0:truepinnum = int(pinnum)+((int(connum)-2)*4)
-                elif pinnum == 6:truepinnum = (int(pinnum)-5)+((int(connum)-2)*4)
-                elif pinnum == 12:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) 
-                elif pinnum == 18:truepinnum = (int(pinnum)-14)+((int(connum)-2)*4)
+                adj = 0
+                if signalname.endswith('dir'):adj = 1
+                if signalname.endswith('c'):adj = 2
+                if signalname.endswith('d'):adj = 3
+                if signalname.endswith('e'):adj = 4
+                if signalname.endswith('f'):adj = 5
+                if pinnum == 0 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
+                elif pinnum == 6 + adj:truepinnum = (int(pinnum)-5)+((int(connum)-2)*4) -adj
+                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
+                elif pinnum == 18 + adj:truepinnum = (int(pinnum)-14)+((int(connum)-2)*4) - adj
+                else:print "pin number error"
             else: print "pintype error"
             return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+"."+str(truepinnum)
-        elif 'first' in test:return "first parport"
-        elif 'Second' in test:return "Second parport"
-        elif 'Third' in test:return "Third parport"
+        elif 'first' in test:
+            #pinnum = int(test[10:])
+            return "first_parport"
+        elif 'Second' in test:return "Second_parport"
+        elif 'Third' in test:return "Third_parport"
         else: return "false"
 
 class App:
@@ -2044,8 +2052,15 @@ class App:
                     model.append((temp,))
                     self.widgets[ptype].set_active(0)
         self.in_mesa_prepare = False
-
-    
+  
+    # This method converts data from the GUI to signal names for mesa data
+    # It starts by checking pin type to set up the proper lists to search
+    # then depending on the pin type widget data is converted to signal names.
+    # if the signal name is not in the list add it to Human_names, signal_names
+    # and disc-saved signalname lists
+    # if encoder, pwm, or stepper pins the related pin are also set properly
+    # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
+    # pin 4 to [encoder-C]   
     def on_mesa5i20_next(self,*args):
         for connector in (2,3,4):
             for pin in range(0,24):
@@ -2055,6 +2070,7 @@ class App:
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.data[ptype]
                 selection = self.widgets[p].get_active_text()
+                
                 # type GPIO input
                 if pintype == 0:
                     nametocheck = human_input_names
@@ -2067,7 +2083,8 @@ class App:
                     addsignalto = self.data.haloutputsignames
                 #type encoder
                 elif pintype == 3:
-                    if not pin in (0,2,12,14):continue
+                    if not pin in (0,2,12,14):
+                        continue
                     nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
@@ -2087,72 +2104,91 @@ class App:
                     print "error unknown pin type"
                     return
                 # check apropriote signal array for current signalname
-                # if not found, add it to array
+                # if not found, user made a new signalname -add it to array
                 for index , i in enumerate(nametocheck):
                     if selection == i : 
                         foundit = True
-                        break               
-                if not foundit:
-                    model = self.widgets[p].get_model()
-                    # for encoder pins
-                    if pintype == 3 :
+                        break         
+                # **Start widget to data Convertion**                    
+                # for encoder pins
+                if pintype == 3 :
+                    if not foundit:
+                        model = self.widgets[p].get_model()
                         model.append((selection+"-A",))
                         index = index +1
                         for ending in ("-a","-b","-i"):
                             signaltocheck.append ((selection + ending))
                             nametocheck.append ((selection + ending))
                             addsignalto.append ((selection + ending))
-                        if pin in (0,12):
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
-                            self.data[d] = signaltocheck[index+1]
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
-                            self.data[d] = signaltocheck[index+2]
-                        elif pin in (2,14):
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
-                            self.data[d] = signaltocheck[index+1]
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
-                            self.data[d] = signaltocheck[index+2]
-                        else:
-                            print"Encoder pin config error"
-                            continue
-                    # for PWM pins
-                    elif pintype == 4 :
+                    # set related encoder pins
+                    flag = 1
+                    if selection == "Unused Encoder":flag = 0
+                    if pin in (0,12):
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                        self.data[d] = signaltocheck[(index+1)*flag]
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                        self.data[d] = signaltocheck[(index+2)*flag]
+                    elif pin in (2,14):
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                        self.data[d] = signaltocheck[(index+1)*flag]
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                        self.data[d] = signaltocheck[(index+2)*flag]                        
+                    else:
+                        print"Encoder pin config error"
+                        continue                      
+                # for PWM pins
+                elif pintype == 4 :
+                    if not foundit:
+                        model = self.widgets[p].get_model()
                         model.append((selection+"-pulse",))
                         index = index +1
                         for ending in ("-pulse","-dir","-enable"):
                             signaltocheck.append ((selection + ending))
                             nametocheck.append ((selection + ending))
                             addsignalto.append ((selection + ending))
-                        if pin in (6,7,18,19):
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
-                            self.data[d] = signaltocheck[index+1]
-                            d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
-                            self.data[d] = signaltocheck[index+2]
-                        else:
-                            print "PWM pin config error"
-                            continue
+                    # set related pwm pins
+                    flag = 1
+                    if selection == "Unused PWM Gen":flag = 0
+                    if pin in (6,7,18,19):
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                        self.data[d] = signaltocheck[(index+1)*flag]
+                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                        self.data[d] = signaltocheck[(index+2)*flag]
+                    else:
+                        print "PWM pin config error"
+                        continue
                     # for stepgen pins
-                    elif pintype == 5 :
+                elif pintype == 5 :
+                    if not foundit:
+                        model = self.widgets[p].get_model()
                         model.append((selection+"-step",))
                         index = index +1
                         for ending in ("-step","-dir","-unused1","-unused2","-unused3","-unused4",):
                             signaltocheck.append ((selection + ending))
                             nametocheck.append ((selection + ending))
                             addsignalto.append ((selection + ending))
-                        if pin in (0,6,12,18):
-                                for temp in range(1,6):
-                                    d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+temp}
-                                    self.data[d] = signaltocheck[index+temp]
-                        else:
-                            print "StepGen pin config error"
-                            continue
-                    # for input and output
+                    # set related stepgen pins
+                    flag = 1
+                    if selection == "Unused StepGen":flag = 0
+                    if pin in (0,6,12,18):
+                            for temp in range(1,6):
+                                d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+temp}
+                                self.data[d] = signaltocheck[(index+temp)*flag]
                     else:
+                        print "StepGen pin config error"
+                        continue
+                # for input and output
+                elif pintype in(0,1,2):
+                    if not foundit:
+                        model = self.widgets[p].get_model()
                         index = index +1
                         model.append((selection,))
                         signaltocheck.append ((selection))
                         nametocheck.append ((selection))
                         addsignalto.append ((selection))
+                else:
+                        print "pintype error"
+                # ** set data from widget for current pin
                 self.data[p] = signaltocheck[index]
                 self.data[pinv] = self.widgets[pinv].get_active()
         if self.data.number_pports<1:
@@ -2306,6 +2342,7 @@ class App:
 
     def on_mesa_pin_changed(self, *args):
         if self.in_mesa_prepare == True: return
+        print"pin change method"
         for connector in (2,3,4): 
             for pin in range(0,24):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -3276,32 +3313,37 @@ class App:
         axnum = "xyza".index(axis)
         step = axis + "step"
         dir = axis + "dir"
-        halrun.write("""            
-            loadrt probe_parport
-            loadrt hal_parport cfg=%(ioaddr)s
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
-            addf parport.0.write fast
-            
-        """ % {
-            'period': 30000,
-            'ioaddr': data.ioaddr,           
-        })
-       
-        amp = data.find_output(AMP)
-        if amp:
-            halrun.write("setp parport.0.pin-%(enablepin)02d-out 1\n"
-                % {'enablepin': amp})
+        halrun.write("""loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n""" % {'period': 30000   })
+        halrun.write("loadusr halmeter\n")
+        #halrun.write("loadrt probe_parport")
+        #halrun.write("loadrt hal_parport cfg=%(ioaddr)s"% data.ioaddr)
+        #halrun.write("addf parport.0.write fast")
 
-        estop = data.find_output(ESTOP)
-        if estop:
-            halrun.write("setp parport.0.pin-%(estoppin)02d-out 1\n"
-                % {'estoppin': estop})
+       #TODO fix this to work with mesa and parport
+        boardname = self.data.mesa_boardname
+        amp = self.data.make_pinname(self.data.findsignal( "enable"))
+        print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
+        temp = self.data.findsignal( "x-encoder-b")
+        print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
+        print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
+        if not amp == "false":
+            if "HOSTMOT2" in amp:    
+                amp = amp.replace("[HOSTMOT2](BOARD)",boardname)
+            print amp
+            halrun.write("setp %s true\n"% amp)
 
-        for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-            inv = getattr(data, "firstpppin%dinvout" % pin)
-            if inv:
-                halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin}) 
+        estop = self.data.make_pinname(self.data.findsignal( "estop-out"))
+        if not estop =="false":        
+            if "HOSTMOT2" in estop:
+                estop = estop.replace("[HOSTMOT2](BOARD)",boardname)     
+            print estop
+            halrun.write("setp %s true\n"%  estop)
+
+      #  for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
+       #     inv = getattr(data, "firstpppin%dinvout" % pin)
+       #     if inv:
+       #         halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
+        #            % {'pin': pin}) 
 
         widgets.dialog1.set_title(_("%s Axis Test") % axis.upper())
         self.jogplus = self.jogminus = 0
@@ -3314,10 +3356,10 @@ class App:
         result = widgets.dialog1.run()
         widgets.dialog1.hide()
         
-        if amp:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % amp)
-        if estop:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % estop)
+        if not amp == "false":
+             halrun.write("setp %s false\n"% amp)
+        if not estop == "false":
+             halrun.write("setp %s false\n"% estop)
 
         time.sleep(.001)
 
@@ -3335,13 +3377,13 @@ class App:
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun
-        halrun.write("""
-            setp steptest.0.jog-minus %(jogminus)s
-            setp steptest.0.jog-plus %(jogplus)s
-        """ % {
-            'jogminus': self.jogminus,
-            'jogplus': self.jogplus,           
-        })
+       # halrun.write("""
+       #    setp steptest.0.jog-minus %(jogminus)s
+       #     setp steptest.0.jog-plus %(jogplus)s
+       # """ % {
+       #     'jogminus': self.jogminus,
+       #     'jogplus': self.jogplus,           
+       # })
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
