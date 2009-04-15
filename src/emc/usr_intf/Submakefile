@@ -8,10 +8,6 @@ EMCSCHEDSRCS := emc/usr_intf/schedrmt.cc \
 EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/shcom.cc \
               emc/usr_intf/sockets.c
-IOSHSRCS := emc/usr_intf/iosh.cc \
-	emc/motion/usrmotintf.cc \
-	emc/motion/emcmotglb.c \
-	emc/motion/emcmotutil.c
 
 USRMOTSRCS := \
 	emc/usr_intf/usrmot.c \
@@ -28,7 +24,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(IOSHSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -65,11 +61,6 @@ TARGETS += ../bin/schedrmt
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/emclcd
-
-../bin/iosh: $(call TOOBJS, $(IOSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
-TARGETS += ../bin/iosh
 
 ../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemchal.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
