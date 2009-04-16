@@ -253,12 +253,12 @@ class Data:
         self.numof_mesa_pwmgens = 4
         self.numof_mesa_stepgens = 0
         self.numof_mesa_gpio = 48
-        self.firstpp_direction = 1 # output
+        self.pp1_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
-        self.Secondpp_direction = 0 # input
+        self.pp2_direction = 0 # input
         self.ioaddr3 = _("Enter Address")
-        self.Thirdpp_direction = 0 # input
+        self.pp3_direction = 0 # input
         self.number_pports = 0
         self.limitsnone = False
         self.limitswitch = False
@@ -288,19 +288,22 @@ class Data:
         self.haloutputsignames = []
         self.halsteppersignames = []
 
+        # pp1Ipin0
+        # pp1Opin0inv
+        # pp1Ipin0
         # For parport one two and three
-        for connector in("first","Second","Third"):
+        for connector in("pp1","pp2","pp3"):
             # initialize parport input / inv pins
-            for i in (1,2,3,4,5,6,7,8,10,11,12,13,15):
-                pinname ="%spppin%din"% (connector,i)
+            for i in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                pinname ="%sIpin%d"% (connector,i)
                 self[pinname] = UNUSED_INPUT
-                pinname ="%spppin%dinvin"% (connector,i)
+                pinname ="%sIpin%dinv"% (connector,i)
                 self[pinname] = False
             # initialize parport output / inv pins
             for i in (1,2,3,4,5,6,7,8,9,14,16,17):
-                pinname ="%spppin%dout"% (connector,i)
+                pinname ="%sOpin%d"% (connector,i)
                 self[pinname] = UNUSED_OUTPUT
-                pinname ="%spppin%dinvout"% (connector,i)
+                pinname ="%sOpin%dinv"% (connector,i)
                 self[pinname] = False
 
         # for mesa cards
@@ -931,9 +934,9 @@ class Data:
 
     def connect_input(self, file):
         print >>file
-        for q in (1,2,3,4,5,6,7,8,10,11,12,13,15):
-            p = self['firstpppin%din' % q]
-            i = self['firstpppin%dinvin' % q]
+        for q in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = self['pp1Ipin%d' % q]
+            i = self['pp1Ipin%dinv' % q]
             if p == UNUSED_INPUT: continue
             if i: print >>file, "net %s <= parport.0.pin-%02d-in-not" % (p, q)
             else: print >>file, "net %s <= parport.0.pin-%02d-in" % (p, q)
@@ -961,8 +964,8 @@ class Data:
     def connect_output(self, file):
         print >>file
         for q in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = self['firstpppin%dout' % q]
-            i = self['firstpppin%dinvout' % q]
+            p = self['pp1Opin%d' % q]
+            i = self['pp1Opin%dinv' % q]
             if p == UNUSED_OUTPUT: continue
             print >>file, "net %s => parport.0.pin-%02d-out" % (p, q)
             if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
@@ -1012,18 +1015,18 @@ class Data:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
             if self.number_pports>2:
                  port3name = " " + self.ioaddr3
-                 if self.Thirdpp_direction:
+                 if self.pp3_direction:
                     port3dir =" out"
                  else: 
                     port3dir =" in"
             if self.number_pports>1:
                  port2name = " " + self.ioaddr2
-                 if self.Secondpp_direction:
+                 if self.pp2_direction:
                     port2dir =" out"
                  else: 
                     port2dir =" in"
             port1name = self.ioaddr
-            if self.firstpp_direction:
+            if self.pp1_direction:
                port1dir =" out"
             else: 
                port1dir =" in"
@@ -1378,21 +1381,21 @@ class Data:
             print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s" %{
             'type':pintype_names[temptype],'pinnum':x, 'data':temp, 'mess':invmessage}) 
         print >>file
-        templist = ("first","Second","Third")
+        templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
             if self.number_pports < (j+1): break 
             print >>file, _("%(name)s Parport" % { 'name':k})
-            for x in (1,2,3,4,5,6,7,8,10,11,12,13,15): 
-                temp = self["%spppin%din" % (k, x)]
-                tempinv = self["%spppin%dinvin" % (k, x)]
+            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15): 
+                temp = self["%sIpin%d" % (k, x)]
+                tempinv = self["%sIpin%dinv" % (k, x)]
                 if tempinv: 
                     invmessage = _("-> inverted")
                 else: invmessage =""
                 print >>file,_("pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s" 
                 %{ 'pinnum':x,'data':temp,'mesag':invmessage})          
             for x in (1,2,3,4,5,6,7,8,9,14,16,17):  
-                temp = self["%spppin%dout" % (k, x)]
-                tempinv = self["%spppin%dinvout" % (k, x)]
+                temp = self["%sOpin%d" % (k, x)]
+                tempinv = self["%sOpin%dinv" % (k, x)]
                 if tempinv: 
                     invmessage = _("-> inverted")
                 else: invmessage =""
@@ -1483,8 +1486,17 @@ class Data:
     # This method returns I/O pin designation (name and number) of a given HAL signalname.
     # It does not check to see if the signalname is in the list more then once.
     def findsignal(self, sig):
-        ppinput=dict([(self["firstpppin%din" %s],"firstpppin%din" %s) for s in (1,2,3,4,5,6,7,8,10,11,12,13,15)])
-        ppoutput=dict([(self["firstpppin%dout" %s],"firstpppin%dout" %s) for s in (1,2,3,4,5,6,7,8,9,14,16,17)])
+        ppinput = {}
+        ppoutput = {}
+        for i in (1,2,3):
+            for s in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                key = self["pp%dIpin%d" %(i,s)]
+                ppinput[key] = "pp%dIpin%d" %(i,s) 
+            for s in (1,2,3,4,5,6,7,8,9,14,16,17):
+                key = self["pp%dOpin%d" %(i,s)]
+                ppoutput[key] = "pp%dOpin%d" %(i,s) 
+        
+        #ppoutput=dict([(self["pp1Opin%d" %s],"pp1Opin%d" %s) for s in (1,2,3,4,5,6,7,8,9,14,16,17)])
         mesa2=dict([(self["m5i20c2pin%d" %s],"m5i20c2pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
         mesa3=dict([(self["m5i20c3pin%d" %s],"m5i20c3pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
         mesa4=dict([(self["m5i20c4pin%d" %s],"m5i20c4pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
@@ -1557,11 +1569,13 @@ class Data:
                 else:print "pin number error"
             else: print "pintype error"
             return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+"."+str(truepinnum)
-        elif 'first' in test:
-            #pinnum = int(test[10:])
-            return "first_parport"
-        elif 'Second' in test:return "Second_parport"
-        elif 'Third' in test:return "Third_parport"
+        elif 'pp' in test:
+            print test
+            test = str(pin) 
+            print  self[pin]
+            pinnum = int(test[7:])
+            connum = int(test[2:3])-1
+            return "parport."+str(connum)+".pin-"+str(pinnum)
         else: return "false"
 
 class App:
@@ -1620,9 +1634,9 @@ class App:
         nextpage.parentNode.insertBefore(axispage, nextpage)
 
     def make_pportpage(self, doc, axisname):
-        axispage = self._getwidget(doc, 'firstpport').parentNode.cloneNode(True)
+        axispage = self._getwidget(doc, 'pp1pport').parentNode.cloneNode(True)
         nextpage = self._getwidget(doc, 'xaxismotor').parentNode
-        widget = self._getwidget(axispage, "firstpport")
+        widget = self._getwidget(axispage, "pp1pport")
         for node in widget.childNodes:
             if (node.nodeType == xml.dom.Node.ELEMENT_NODE
                     and node.tagName == "property"
@@ -1630,13 +1644,13 @@ class App:
                 node.childNodes[0].data = _("%s Parallel Port Setup") % axisname
         for node in axispage.getElementsByTagName("widget"):
             id = node.getAttribute('id')
-            if id.startswith("first"):
-                node.setAttribute('id', axisname + id[5:])
+            if id.startswith("pp1"):
+                node.setAttribute('id', axisname + id[3:])
             else:
                 node.setAttribute('id', axisname + id)
         for node in axispage.getElementsByTagName("signal"):
             handler = node.getAttribute('handler')
-            node.setAttribute('handler', handler.replace("on_first", "on_" + axisname))
+            node.setAttribute('handler', handler.replace("on_pp1", "on_" + axisname))
         for node in axispage.getElementsByTagName("property"):
             name = node.getAttribute('name')
             if name == "mnemonic_widget":
@@ -1652,8 +1666,8 @@ class App:
         self.make_axismotorpage(glade, 'y')
         self.make_axismotorpage(glade, 'z')
         self.make_axismotorpage(glade, 'a')
-        self.make_pportpage(glade, 'Second')
-        self.make_pportpage(glade, 'Third')
+        self.make_pportpage(glade, 'pp2')
+        self.make_pportpage(glade, 'pp3')
         doc = glade.toxml().encode("utf-8")
 
         self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
@@ -1750,9 +1764,9 @@ class App:
         self.widgets.ioaddr.set_text(self.data.ioaddr)
         self.widgets.ioaddr2.set_text(self.data.ioaddr2) 
         self.widgets.ioaddr3.set_text(self.data.ioaddr3)
-        self.widgets.firstpp_direction.set_active(self.data.firstpp_direction)
-        self.widgets.Secondpp_direction.set_active(self.data.Secondpp_direction)
-        self.widgets.Thirdpp_direction.set_active(self.data.Thirdpp_direction)
+        self.widgets.pp1_direction.set_active(self.data.pp1_direction)
+        self.widgets.pp2_direction.set_active(self.data.pp2_direction)
+        self.widgets.pp3_direction.set_active(self.data.pp3_direction)
         if self.data.number_pports>0:
              self.widgets.pp1_checkbutton.set_active(1)
         else :
@@ -1782,7 +1796,7 @@ class App:
         
     def on_pp1_checkbutton_toggled(self, *args): 
         i = self.widgets.pp1_checkbutton.get_active()   
-        self.widgets.firstpp_direction.set_sensitive(i)
+        self.widgets.pp1_direction.set_sensitive(i)
         self.widgets.ioaddr.set_sensitive(i)
         if i == 0:
            self.widgets.pp2_checkbutton.set_active(i)
@@ -1795,7 +1809,7 @@ class App:
         if self.widgets.pp1_checkbutton.get_active() == 0:
           i = 0  
           self.widgets.pp2_checkbutton.set_active(0)
-        self.widgets.Secondpp_direction.set_sensitive(i)
+        self.widgets.pp2_direction.set_sensitive(i)
         self.widgets.ioaddr2.set_sensitive(i)
         if i == 0:
            self.widgets.pp3_checkbutton.set_active(i)
@@ -1806,7 +1820,7 @@ class App:
         if self.widgets.pp2_checkbutton.get_active() == 0:
           i = 0  
           self.widgets.pp3_checkbutton.set_active(0)
-        self.widgets.Thirdpp_direction.set_sensitive(i)
+        self.widgets.pp3_direction.set_sensitive(i)
         self.widgets.ioaddr3.set_sensitive(i)      
 
     def on_basicinfo_next(self, *args):
@@ -1831,9 +1845,9 @@ class App:
            self.warning_dialog(_("You need to designate a parport and/or mesa 5i20 I/O device before continuing."),True)
            self.widgets.druid1.set_page(self.widgets.basicinfo)
            return True 
-        self.data.firstpp_direction = self.widgets.firstpp_direction.get_active()
-        self.data.Secondpp_direction = self.widgets.Secondpp_direction.get_active()
-        self.data.Thirdpp_direction = self.widgets.Thirdpp_direction.get_active()
+        self.data.pp1_direction = self.widgets.pp1_direction.get_active()
+        self.data.pp2_direction = self.widgets.pp2_direction.get_active()
+        self.data.pp3_direction = self.widgets.pp3_direction.get_active()
         self.data.limitshared = self.widgets.limittype_shared.get_active()
         self.data.limitsnone = self.widgets.limittype_none.get_active()
         self.data.limitswitch = self.widgets.limittype_switch.get_active()
@@ -1857,7 +1871,7 @@ class App:
         else : 
            self.data.frontend = 2
         if not self.data.mesa5i20:
-           self.widgets.druid1.set_page(self.widgets.firstpport)
+           self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
 
     def do_exclusive_inputs(self, pin):
@@ -1910,13 +1924,13 @@ class App:
                 HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A),
         } 
 
-        p = 'firstpppin%din' % pin
+        p = 'pp1Ipin%d' % pin
         v = self.widgets[p].get_active()
         ex = exclusive.get(hal_input_names[v], ())
 
         for pin1 in (10,11,12,13,15):
             if pin1 == pin: continue
-            p = 'firstpppin%din' % pin1
+            p = 'pp1Ipin%d' % pin1
             v1 = hal_input_names[self.widgets[p].get_active()]
             if v1 in ex or v1 == v:
                 self.widgets[p].set_active(hal_input_names.index(UNUSED_INPUT))
@@ -2195,22 +2209,6 @@ class App:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
 
-    def get_input_signals_from_gui(self,p):
-        foundit = 0
-        selection = self.widgets[p].get_active_text()
-        for index , i in enumerate(human_input_names):
-            if selection == i : 
-                foundit = True
-                break               
-        if not foundit:
-             model = self.widgets[p].get_model()
-             model.append((selection,))
-             g = human_input_names
-             g.append ((selection))
-             hal_input_names.append ((selection))
-             self.data.halinputsignames.append ((selection))
-        self.data[p] = hal_input_names[index]       
-
     def on_m5i20panel_clicked(self, *args):self.m5i20test(self)
     
     def on_m5i20pintype_changed(self, *args):
@@ -2395,64 +2393,64 @@ class App:
                             tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
                             self.widgets[tochange].set_active((index+2)*used)
 
-    def on_firstpport_prepare(self, *args):
+    def on_pp1pport_prepare(self, *args):
         self.in_pport_prepare = True
-        self.prepare_parport("first")
-        c = self.data.firstpp_direction
+        self.prepare_parport("pp1")
+        c = self.data.pp1_direction
         if c:
-                self.widgets.firstpport.set_title(_("First Parallel Port set for OUTPUT"))
+                self.widgets.pp1pport.set_title(_("First Parallel Port set for OUTPUT"))
         else:
-                self.widgets.firstpport.set_title(_("First Parallel Port set for INPUT"))   
+                self.widgets.pp1pport.set_title(_("First Parallel Port set for INPUT"))   
 
-    def on_firstpport_next(self, *args):
-        self.next_parport("first")
+    def on_pp1pport_next(self, *args):
+        self.next_parport("pp1")
         #self.findsignal("all-home")          
         #on_pport_back = on_pport_next
         if self.data.number_pports<2:
                 self.widgets.druid1.set_page(self.widgets.xaxismotor)
                 return True
 
-    def on_firstpport_back(self, *args):
+    def on_pp1pport_back(self, *args):
          if not self.data.mesa5i20 :
                 self.widgets.druid1.set_page(self.widgets.GUIconfig)
                 return True
 
-    def on_Secondpport_prepare(self, *args):
-         self.prepare_parport("Second")
-         c = self.data.Secondpp_direction
+    def on_pp2pport_prepare(self, *args):
+         self.prepare_parport("pp2")
+         c = self.data.pp2_direction
          if c:
-                self.widgets.Secondpport.set_title(_("Second Parallel Port set for OUTPUT"))
+                self.widgets.pp2pport.set_title(_("Second Parallel Port set for OUTPUT"))
          else:
-                self.widgets.Secondpport.set_title(_("Second Parallel Port set for INPUT"))
+                self.widgets.pp2pport.set_title(_("Second Parallel Port set for INPUT"))
 
-    def on_Secondpport_next(self, *args):
-        self.next_parport("Second")
+    def on_pp2pport_next(self, *args):
+        self.next_parport("pp2")
         if self.data.number_pports<3:
                 self.widgets.druid1.set_page(self.widgets.xaxismotor)
                 return True
 
-    def on_Thirdpport_prepare(self, *args):
-         self.prepare_parport("Third")
-         c = self.data.Thirdpp_direction
+    def on_pp3pport_prepare(self, *args):
+         self.prepare_parport("pp3")
+         c = self.data.pp3_direction
          if c:
-                self.widgets.Thirdpport.set_title(_("Third Parallel Port set for OUTPUT"))
+                self.widgets.pp3pport.set_title(_("Third Parallel Port set for OUTPUT"))
          else:
-                self.widgets.Thirdpport.set_title(_("Third Parallel Port set for INPUT"))
+                self.widgets.pp3pport.set_title(_("Third Parallel Port set for INPUT"))
   
-    def on_Thirdpport_next(self, *args):
-        self.next_parport("Third")
+    def on_pp3pport_next(self, *args):
+        self.next_parport("pp3")
 
     def prepare_parport(self,portname):
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = '%spppin%dout' % (portname,pin)
+            p = '%sOpin%d' % (portname,pin)
             model = self.widgets[p].get_model()
             model.clear()
             for name in human_output_names: model.append((name,))
             self.widgets[p].set_active(hal_output_names.index(self.data[p]))
-            p = '%spppin%dinvout' % (portname, pin)
+            p = '%sOpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
-        for pin in (1,2,3,4,5,6,7,8,10,11,12,13,15):
-            p = '%spppin%din' % (portname, pin)
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = '%sIpin%d' % (portname, pin)
             model = self.widgets[p].get_model()
             model.clear()
             for name in human_input_names:
@@ -2466,35 +2464,50 @@ class App:
             for search,item in enumerate(model):
                 if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
                     self.widgets[p].set_active(search)
-            p = '%spppin%dinvin' % (portname, pin)
+            p = '%sIpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
         self.in_pport_prepare = False
-        c = self.data[portname+"pp_direction"]
-        for pin in (1,2,3,4,5,6,7,8):
-            p = '%spppin%dout' % (portname, pin)
+        c = self.data[portname+"_direction"]
+        for pin in (2,3,4,5,6,7,8,9):
+            p = '%sOpin%dlabel' % (portname, pin)
+            self.widgets[p].set_sensitive(c)
+            p = '%sOpin%dinv' % (portname, pin)
+            self.widgets[p].set_sensitive(c)
+            p = '%sOpin%d' % (portname, pin)
             self.widgets[p].set_sensitive(c)
             if not c :self.widgets[p].set_active(hal_output_names.index("unused-output"))
-            p = '%spppin%dinlabel' % (portname, pin)
-            self.widgets[p].set_sensitive(c)
-            p = '%spppin%doutlabel' % (portname, pin)
+            p = '%sIpin%dlabel' % (portname, pin)
             self.widgets[p].set_sensitive(not c)
-            p = '%spppin%dinvout' % (portname, pin)
-            self.widgets[p].set_sensitive(c)
-            p = '%spppin%din' % (portname, pin)
+            p = '%sIpin%d' % (portname, pin)
             self.widgets[p].set_sensitive(not c)
-            if not c :self.widgets[p].set_active(hal_input_names.index("unused-input"))
-            p = '%spppin%dinvin' % (portname, pin)
+            if c :self.widgets[p].set_active(hal_input_names.index("unused-input"))
+            p = '%sIpin%dinv' % (portname, pin)
             self.widgets[p].set_sensitive(not c)
 
     def next_parport(self,portname):
-        for pin in (1,2,3,4,5,6,7,8,10,11,12,13,15):           
-            p = '%spppin%din' % (portname, pin)
-            self.get_input_signals_from_gui(p)
-            p = '%spppin%dinvin' % (portname, pin)
+        #check input pins
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):           
+            p = '%sIpin%d' % (portname, pin)       
+            foundit = 0
+            selection = self.widgets[p].get_active_text()
+            for index , i in enumerate(human_input_names):
+                if selection == i : 
+                    foundit = True
+                    break               
+            if not foundit:
+                model = self.widgets[p].get_model()
+                model.append((selection,))
+                g = human_input_names
+                g.append ((selection))
+                hal_input_names.append ((selection))
+                self.data.halinputsignames.append ((selection))
+            self.data[p] = hal_input_names[index]
+            p = '%sIpin%dinv' % (portname, pin)
             self.data[p] = self.widgets[p].get_active()
+        # check output pins
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):           
             foundit = 0
-            p = '%spppin%dout' % (portname, pin)
+            p = '%sOpin%d' % (portname, pin)
             selection = self.widgets[p].get_active_text()
             for i in human_output_names:
                if selection == i : foundit = 1
@@ -2506,7 +2519,7 @@ class App:
                 hal_output_names.append ((selection))
                 self.data.haloutputsignames.append ((selection))
             self.data[p] = hal_output_names[self.widgets[p].get_active()]
-            p = '%spppin%dinvout' % (portname, pin)
+            p = '%sOpin%dinv' % (portname, pin)
             self.data[p] = self.widgets[p].get_active() 
         
     def on_xaxismotor_prepare(self, *args):
@@ -2517,13 +2530,13 @@ class App:
         return True
     def on_xaxismotor_back(self, *args):
         if self.data.number_pports==1:
-                self.widgets.druid1.set_page(self.widgets.firstpport)
+                self.widgets.druid1.set_page(self.widgets.pp1pport)
                 return True
         elif self.data.number_pports==2:
-                self.widgets.druid1.set_page(self.widgets.Secondpport)
+                self.widgets.druid1.set_page(self.widgets.pp2pport)
                 return True
         elif self.data.number_pports==3:
-                self.widgets.druid1.set_page(self.widgets.Thirdpport)
+                self.widgets.druid1.set_page(self.widgets.pp3pport)
                 return True
         elif self.data.mesa5i20 :
                 self.widgets.druid1.set_page(self.widgets.mesa5i20)
@@ -3045,20 +3058,20 @@ class App:
    
     def on_complete_finish(self, *args):
         # if parallel ports not used clear all signals
-        parportnames = ("first","Second","Third")
+        parportnames = ("pp1","pp2","pp3")
         for check,connector in enumerate(parportnames):
             if self.data.number_pports >= (check+1):continue
             # initialize parport input / inv pins
             for i in (1,2,3,4,5,6,7,8,10,11,12,13,15):
-                pinname ="%spppin%din"% (connector,i)
+                pinname ="%sIpin%d"% (connector,i)
                 self.data[pinname] = UNUSED_INPUT
-                pinname ="%spppin%dinvin"% (connector,i)
+                pinname ="%sIpin%dinv"% (connector,i)
                 self.data[pinname] = False
             # initialize parport output / inv pins
             for i in (1,2,3,4,5,6,7,8,9,14,16,17):
-                pinname ="%spppin%dout"% (connector,i)
+                pinname ="%sOpin%d"% (connector,i)
                 self.data[pinname] = UNUSED_OUTPUT
-                pinname ="%spppin%dinvout"% (connector,i)
+                pinname ="%sOpin%dinv"% (connector,i)
                 self.data[pinname] = False
           
         # if mesa card not used clear all signals
@@ -3322,25 +3335,28 @@ class App:
        #TODO fix this to work with mesa and parport
         boardname = self.data.mesa_boardname
         amp = self.data.make_pinname(self.data.findsignal( "enable"))
-        print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
-        temp = self.data.findsignal( "x-encoder-b")
-        print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
-        print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
+        print "AMP =",amp
+        #print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
+        #temp = self.data.findsignal( "x-encoder-b")
+        #print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
+        #print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
         if not amp == "false":
             if "HOSTMOT2" in amp:    
                 amp = amp.replace("[HOSTMOT2](BOARD)",boardname)
-            print amp
+            if 'parport' in amp:
+                amp = amp+"-out"
             halrun.write("setp %s true\n"% amp)
 
         estop = self.data.make_pinname(self.data.findsignal( "estop-out"))
         if not estop =="false":        
             if "HOSTMOT2" in estop:
                 estop = estop.replace("[HOSTMOT2](BOARD)",boardname)     
-            print estop
+            if 'parport' in estop:
+                estop = estop+"-out"
             halrun.write("setp %s true\n"%  estop)
 
       #  for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-       #     inv = getattr(data, "firstpppin%dinvout" % pin)
+       #     inv = getattr(data, "pp1Opin%dinv" % pin)
        #     if inv:
        #         halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
         #            % {'pin': pin}) 
