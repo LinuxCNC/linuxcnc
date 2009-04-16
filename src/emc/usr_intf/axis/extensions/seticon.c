@@ -22,12 +22,25 @@ extern Tk_Window TkpGetWrapperWindow(Tk_Window);
 
 static Tcl_Interp *get_interpreter(PyObject *tkapp) {
     long interpaddr;
+    Tcl_Interp *trp;
     PyObject *interpaddrobj = PyObject_CallMethod(tkapp, "interpaddr", NULL);
     if(interpaddrobj == NULL) { return NULL; }
     interpaddr = PyInt_AsLong(interpaddrobj);
     Py_DECREF(interpaddrobj);
     if(interpaddr == -1) { return NULL; }
-    return (Tcl_Interp*)interpaddr;
+    trp = (Tcl_Interp*)interpaddr;
+    if (Tcl_InitStubs(trp, "8.1", 0) == NULL) 
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Tcl_InitStubs returned NULL");
+        return NULL;
+    }
+    if (Tk_InitStubs(trp, "8.1", 0) == NULL) 
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Tk_InitStubs returned NULL");
+        return NULL;
+    }
+
+    return trp;
 }
 
 static Atom NET_WM_ICON=0, NET_WM_NAME=0, CARDINAL=0, UTF8_STRING=0;
