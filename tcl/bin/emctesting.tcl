@@ -19,7 +19,6 @@ source [file join [file dirname [info script]] .. emc.tcl]
 # standalone. Make sure directory containing emcsh is in your path,
 # or edit the exec line above with the path to emcsh.
 
-source [file join [file dirname [info script]] emc.tcl]
 eval emc_init $argv
 
 # check if any emc commands exist, and quit if not
