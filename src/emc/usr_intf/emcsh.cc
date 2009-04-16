@@ -3482,6 +3482,11 @@ extern "C"
 int Emc_Init(Tcl_Interp * interp);
 int Emc_Init(Tcl_Interp * interp)
 {
+    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) 
+    {
+        return TCL_ERROR;
+    }
+
     /* 
      * Call Tcl_CreateCommand for application-specific commands, if
      * they weren't already created by the init procedures called above.
@@ -3785,6 +3790,8 @@ int Emc_Init(Tcl_Interp * interp)
 
     // set app-specific global variables
     Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+
+    Tcl_ResetResult(interp);
 
     return TCL_OK;
 }

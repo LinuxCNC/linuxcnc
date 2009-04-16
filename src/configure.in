@@ -979,14 +979,14 @@ if (test "x$TCLCONFIG" = "x"); then
    AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
 		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
    AC_CHECK_HEADERS([tcl.h])
-   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl80 tcl8.0 tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
+   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.1 tcl8.2 tcl8.3 tcl8.4],[],[AC_MSG_ERROR([tcl lib not found])])
 else
 # tclConfig.sh found,
 # extracting vars
    AC_MSG_RESULT([$TCLCONFIG found])
    source "$TCLCONFIG"
-   TCL_CFLAGS="$TCL_INCLUDE_SPEC"
-   TCL_LIBS="$TCL_LIB_SPEC"
+   TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+   TCL_LIBS="$TCL_STUB_LIB_SPEC"
 fi
 
 AC_MSG_CHECKING([for tk])
