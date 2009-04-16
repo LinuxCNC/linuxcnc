@@ -129,13 +129,29 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     velocity_error = *s->hal.pin.velocity_fb - ff_vel;
 
     // do we need to speed up or slow down?
-    if (velocity_error > 0) {
-        match_accel = -s->hal.param.maxaccel;
+    if (s->hal.param.maxaccel > 0) {
+        // user has specified a maxaccel (in units/second)
+        if (velocity_error > 0) {
+            match_accel = -s->hal.param.maxaccel;
+        } else {
+            match_accel = s->hal.param.maxaccel;
+        }
     } else {
-        match_accel = s->hal.param.maxaccel;
+        // maxaccel is 0, no limit, fix this velocity error by the next servo period!
+        // this leaves acceleration control up to the trajectory planner
+        if (velocity_error > 0) {
+            match_accel = velocity_error / f_period_s;
+        } else {
+            match_accel = -velocity_error / f_period_s;
+        }
     }
 
-    seconds_to_vel_match = (ff_vel - *s->hal.pin.velocity_fb) / match_accel;
+    if (match_accel == 0) {
+        // vel is just right, dont need to accelerate
+        seconds_to_vel_match = 0.0;
+    } else {
+        seconds_to_vel_match = (ff_vel - *s->hal.pin.velocity_fb) / match_accel;
+    }
 
     // compute expected position at the time of velocity match
     {
@@ -144,7 +160,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         position_at_match = *s->hal.pin.position_fb + (avg_v * seconds_to_vel_match);
     }
 
-    position_cmd_at_match = *s->hal.pin.position_cmd + (ff_vel * (seconds_to_vel_match - (1.5 * f_period_s)));
+    position_cmd_at_match = *s->hal.pin.position_cmd + (ff_vel * seconds_to_vel_match);
     error_at_match = position_at_match - position_cmd_at_match;
 
     if (seconds_to_vel_match < f_period_s) {
@@ -157,11 +173,13 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
             // try to correct position error
             velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
-            // apply accel limits
-            if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
-            } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
-                velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
+            // apply accel limits?
+            if (s->hal.param.maxaccel > 0) {
+                if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
+                    velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
+                } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
+                    velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
+                }
             }
         }
 
