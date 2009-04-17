@@ -1,0 +1,713 @@
+<pyvcp>
+<tabs>
+<names> ["Parport 1","parport 2"]</names>
+
+<hbox>
+<labelframe text="Inputs">
+     <hbox>
+        <label>
+            <text>""</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 2"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 3"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 4"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 5"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 6"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 7"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 8"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 9"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 11"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 12"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 13"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 15"</text>
+        </label>
+    </hbox>
+</labelframe>
+
+<labelframe text="Outputs">
+   
+    <hbox>
+        <label>
+            <text>"Output pin 1 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.1"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.1"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 2 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.2"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.2"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 3 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_butin.3"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.3"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 4 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.4"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.4"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 5 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_butin.5"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.5"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 6 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.6"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.6"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 7 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_butin.7"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.7"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 8 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.8"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.8"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 9 "</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.9"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.9"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 14"</text>
+        </label>
+        <button>
+            <halpin>"pp1_butin.14"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.14"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 16"</text>
+        </label>
+        <button>
+            <halpin>"pp1_out.16"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.16"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 17"</text>
+        </label>
+        <button>
+            <halpin>"pp1_butin.17"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp1_ckbtn.out.17"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+</labelframe>
+</hbox>
+
+<hbox>
+<labelframe text="Inputs">
+     <hbox>
+        <label>
+            <text>""</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 2"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 3"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 4"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 5"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 6"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 7"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 8"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 9"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 11"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 12"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 13"</text>
+        </label>
+    </hbox>
+    <hbox>
+        <led>
+            <disablepin>True</disablepin>
+        </led>
+        <label>
+            <text>"Input pin 15"</text>
+        </label>
+    </hbox>
+</labelframe>
+
+<labelframe text="Outputs">
+   
+    <hbox>
+        <label>
+            <text>"Output pin 1 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.1"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.1"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 2 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.2"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.2"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 3 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_butin.3"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.3"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 4 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.4"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.4"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 5 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_butin.5"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.5"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 6 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.6"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.6"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 7 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_butin.7"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.7"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 8 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.8"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.8"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 9 "</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.9"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.9"</halpin>
+            <text>"Latch"</text>
+            <font>("Helvetica",8)</font>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 14"</text>
+        </label>
+        <button>
+            <halpin>"pp2_butin.14"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.14"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+    <hbox>
+        <label>
+            <text>"Output pin 16"</text>
+        </label>
+        <button>
+            <halpin>"pp2_out.16"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.16"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+    </hbox>
+
+    <hbox>
+        <label>
+            <text>"Output pin 17"</text>
+        </label>
+        <button>
+            <halpin>"pp2_butin.17"</halpin>
+            <disablepin>True</disablepin>
+            <text>"On"</text>
+        </button>
+        <checkbutton>
+            <halpin>"pp2_ckbtn.out.17"</halpin>
+            <font>("Helvetica",8)</font>
+            <text>"Latch"</text>
+        </checkbutton>
+        <led>
+            <disablepin>True</disablepin>
+            <size>10</size> 
+        </led>
+
+    </hbox>
+    
+</labelframe>
+</hbox>
+</tabs>
+</pyvcp>
