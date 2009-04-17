@@ -188,6 +188,37 @@ Each signal can only have one source (a HAL "out
  pin) and as many readers (a HAL "in" pin) as you like.
  In the Dir column of the HAL Configuration window you can see which pins
  are "in" and which are "out".
+ The following figure shows the "direction" for a clearer understanding.
+ 
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Signal Direction
+\begin_inset LatexCommand \label{cap:Signal-Direction}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/signal-direction.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
 \layout Standard
 
 To do this on one line:
