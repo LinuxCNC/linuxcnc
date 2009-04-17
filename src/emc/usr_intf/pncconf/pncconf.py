@@ -1532,13 +1532,24 @@ class Data:
             connum = int(test[6:7])
             #print test,self[pin], ptype, pinnum
             # GPIO pins truenumber can be any number between 0 and 72 for 5i20 ( 96 in 5i22)
-            if ptype in (0,1,2):
+            if ptype == 0:
+                ending =".in"
+                if self[pin+"inv"]: ending = ".in_not"
+                truepinnum = int(pinnum)+(int(connum)-2)*24
+            if ptype in (1,2):
+                ending =".out"
                 truepinnum = int(pinnum)+(int(connum)-2)*24
             # Encoder 
             elif ptype == 3:
+                ending = ".phase-a"
                 adj = 0
-                if signalname.endswith('b'):adj = 1
-                if signalname.endswith('i'):adj = 3
+                if signalname.endswith('b'):
+                    adj = 1
+                    ending = ".phase-b"
+                if signalname.endswith('i'):
+                    ending = ".phase-i"
+                    adj = 4
+                    if pinnum in(2,14):adj = 3
                 if pinnum == 0 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
                 elif pinnum == 2 + adj:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4) - adj
                 elif pinnum == 12 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
@@ -1546,9 +1557,14 @@ class Data:
                 else:print "pin number error"
             # PWMGen pins
             elif ptype == 4:
+                ending = ".pulse"
                 adj = 0
-                if signalname.endswith('dir'):adj = 2
-                if signalname.endswith('enable'):adj = 4
+                if signalname.endswith('dir'):
+                    adj = 2
+                    ending = ".dir"
+                if signalname.endswith('enable'):
+                    adj = 4
+                    ending = ".enable"
                 if pinnum == 6 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
                 elif pinnum == 7 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
                 elif pinnum == 18 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj 
@@ -1556,8 +1572,12 @@ class Data:
                 else:print "pin number error"
             # StepGen pins 
             elif ptype == 5:
+                ending = ".reserved"
                 adj = 0
-                if signalname.endswith('dir'):adj = 1
+                if signalname.endswith('dir'):ending = ".step"
+                if signalname.endswith('dir'):
+                    adj = 1
+                    ending = ".dir"
                 if signalname.endswith('c'):adj = 2
                 if signalname.endswith('d'):adj = 3
                 if signalname.endswith('e'):adj = 4
@@ -1568,14 +1588,17 @@ class Data:
                 elif pinnum == 18 + adj:truepinnum = (int(pinnum)-14)+((int(connum)-2)*4) - adj
                 else:print "pin number error"
             else: print "pintype error"
-            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+"."+str(truepinnum)
+            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+"."+str(truepinnum)+ending
         elif 'pp' in test:
             print test
+            ending = "-out"
             test = str(pin) 
             print  self[pin]
+            pintype = str(test[3:4])
             pinnum = int(test[7:])
             connum = int(test[2:3])-1
-            return "parport."+str(connum)+".pin-"+str(pinnum)
+            if pintype == 'I': ending = "-in"
+            return "parport."+str(connum)+".pin-"+str(pinnum)+ending
         else: return "false"
 
 class App:
@@ -2521,6 +2544,8 @@ class App:
             self.data[p] = hal_output_names[self.widgets[p].get_active()]
             p = '%sOpin%dinv' % (portname, pin)
             self.data[p] = self.widgets[p].get_active() 
+    
+    def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
     def on_xaxismotor_prepare(self, *args):
         self.axis_prepare('x')
@@ -3190,6 +3215,18 @@ class App:
         #terminal.close()
         self.widgets['window1'].set_sensitive(1)
 
+    def parporttest(self,w):
+        panelname = os.path.join(distdir, "configurable_options/pyvcp")
+        #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        halrun.write("loadusr -Wn parporttest pyvcp -c parporttest %(panel)s\n" %{'panel':"parportpanel.xml",})
+        halrun.write("loadusr halmeter\n")
+        halrun.write("start\n")
+        halrun.write("waitusr parporttest\n"); halrun.flush()
+        halrun.close()
+        #terminal.close()
+        self.widgets['window1'].set_sensitive(1)
+
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.widgets.pyvcpblank.get_active() == True:
@@ -3336,23 +3373,22 @@ class App:
         boardname = self.data.mesa_boardname
         amp = self.data.make_pinname(self.data.findsignal( "enable"))
         print "AMP =",amp
-        #print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
-        #temp = self.data.findsignal( "x-encoder-b")
-        #print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
-        #print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
+        print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
+        temp = self.data.findsignal( "x-encoder-b")
+        print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
+        print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
         if not amp == "false":
             if "HOSTMOT2" in amp:    
                 amp = amp.replace("[HOSTMOT2](BOARD)",boardname)
-            if 'parport' in amp:
-                amp = amp+"-out"
+            #if 'parport' in amp:
+                
             halrun.write("setp %s true\n"% amp)
 
         estop = self.data.make_pinname(self.data.findsignal( "estop-out"))
         if not estop =="false":        
             if "HOSTMOT2" in estop:
                 estop = estop.replace("[HOSTMOT2](BOARD)",boardname)     
-            if 'parport' in estop:
-                estop = estop+"-out"
+           # if 'parport' in estop:
             halrun.write("setp %s true\n"%  estop)
 
       #  for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
