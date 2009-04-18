@@ -138,8 +138,8 @@ The resulting text file will contain lots of information as well as the
  
 \layout Standard
 
-To reduce the clutter clear the message buffer before loading EMC by typing
- in the terminal window:
+To reduce the clutter by clearning the message buffer before loading EMC
+ type the following in the terminal window:
 \layout Quote
 
 sudo dmesg -c
@@ -1772,6 +1772,34 @@ Parameters
 \layout Description
 
 .stepspace (u32, RW) Minimum interval between step signals, in nanoseconds.
+\layout Subsection*
+
+Step and Direction Parameters
+\layout Standard
+
+The Step and Direction pins of each StepGen have two additional parameters.
+ To find which I/O pin belongs to which step and direction output run dmesg
+ as described above.
+\layout Description
+
+.invert_output (Bit, RW) This parameter only has an effect if the "is_output"
+ parameter is true.
+ If this parameter is true, the output value of the GPIO will be the inverse
+ of the value on the "out" HAL pin.
+ 
+\layout Description
+
+.is_opendrain (Bit, RW) If this parameter is false, the GPIO behaves as a
+ normal output pin: the IO pin on the connector is driven to the value specified
+ by the "out" HAL pin (possibly inverted).
+ If this parameter is true, the GPIO behaves as an open-drain pin.
+ Writing 0 to the "out" HAL pin drives the IO pin low, writing 1 to the
+ "out" HAL pin puts the IO pin in a high-impedance state.
+ In this high-impedance state the IO pin floats (weakly pulled high), and
+ other devices can drive the value; the resulting value on the IO pin is
+ available on the "in" and "in_not" pins.
+ Only full GPIO pins and IO pins used as outputs by active module instances
+ have this parameter.
 \layout Section
 
 PWMGen
@@ -1857,6 +1885,33 @@ Parameters
  to the max supported frequency of the board.
  Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz
  they're pretty close.
+\layout Subsection*
+
+Output Parameters
+\layout Standard
+
+The output pins of each PWMGen have two additional parameters.
+ To find which I/O pin belongs to which output run dmesg as described above.
+\layout Description
+
+.invert_output (Bit, RW) This parameter only has an effect if the "is_output"
+ parameter is true.
+ If this parameter is true, the output value of the GPIO will be the inverse
+ of the value on the "out" HAL pin.
+ 
+\layout Description
+
+.is_opendrain (Bit, RW) If this parameter is false, the GPIO behaves as a
+ normal output pin: the IO pin on the connector is driven to the value specified
+ by the "out" HAL pin (possibly inverted).
+ If this parameter is true, the GPIO behaves as an open-drain pin.
+ Writing 0 to the "out" HAL pin drives the IO pin low, writing 1 to the
+ "out" HAL pin puts the IO pin in a high-impedance state.
+ In this high-impedance state the IO pin floats (weakly pulled high), and
+ other devices can drive the value; the resulting value on the IO pin is
+ available on the "in" and "in_not" pins.
+ Only full GPIO pins and IO pins used as outputs by active module instances
+ have this parameter.
 \layout Section
 
 Encoder
