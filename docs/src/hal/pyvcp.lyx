@@ -136,7 +136,7 @@ halcmd net
 If you are new to HAL, the HAL basics chapter is a good place to start.
 \layout Section
 
-Security of pyVCP
+Security
 \layout Standard
 
 Parts of pyVCP files are evaluated as Python code, and can take any action
@@ -144,7 +144,7 @@ Parts of pyVCP files are evaluated as Python code, and can take any action
  Only use pyVCP .xml files from a source that you trust.
 \layout Section
 
-pyVCP with AXIS
+AXIS
 \begin_inset LatexCommand \label{sec:pyvcp-with-axis}
 
 \end_inset 
@@ -240,7 +240,7 @@ sim/lathe
  configuration is already configured this way.
 \layout Section
 
-pyVCP Widget reference
+Widgets
 \layout Standard
 
 HAL signals come in two variants, bits and numbers.
@@ -333,7 +333,7 @@ To add a comment use the xml syntax for a comment.
 \layout Quote
 
 <!-\SpecialChar \-
-- My Comment-\SpecialChar \-
+-My Comment-\SpecialChar \-
 ->
 \layout Subsubsection*
 
@@ -407,7 +407,34 @@ HAL pins provide a means to "connect" the widget to something.
 ).
 \layout Subsection
 
-LED
+Label
+\layout Standard
+
+A label is a piece of text on your panel.
+\layout Quote
+
+<label>
+\newline 
+    <text>"This is a Label:"</text>
+\newline 
+    <font>("Helvetica",20)</font>
+\newline 
+</label> 
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_label.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsection
+
+LEDs
 \layout Standard
 
 A LED is used to indicate the status of a "bit" halpin.
@@ -423,11 +450,9 @@ A LED is used to indicate the status of a "bit" halpin.
 \newline 
 <off_color> sets the color of the LED when the pin is false.
  default is "red"
-\newline 
-<disable_pin> if set to true will create a disable pin for the led and when
- disabled the led will ignore inputs.
-\newline 
-<disable_color> the color to display when the led is disabled.
+\layout Subsubsection
+
+Round LED
 \layout Quote
 
 <led>
@@ -453,7 +478,7 @@ The above code produced this example.
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Rectangle LED
 \layout Standard
@@ -499,27 +524,25 @@ Also showing a vertical box with relief.
 
 \layout Subsection
 
-Button
+Buttons
 \layout Standard
 
 A button is used to control a BIT pin.
  The pin will be set True when the button is pressed and held down, and
  will be set False when the button is released.
  Buttons can use the following formatting options
-\layout Standard
+\layout Itemize
 
 <padx>n</padx> where "n" is the amount of extra horizontal extra space
-\newline 
+\layout Itemize
+
 <pady>n</pady> where "n" is the amount of extra vertical extra space
-\newline 
+\layout Itemize
+
 <activebackground>"color"</activebackground> the cursor over color
-\newline 
+\layout Itemize
+
 <bg>"color"</bg> the color of the button
-\newline 
-<disable_pin> if set to true will create a disable pin for the led and when
- disabled the led will ignore inputs.
-\newline 
-<disable_color> the color to display when the led is disabled.
 \layout Subsubsection
 
 Text Button
@@ -743,9 +766,273 @@ u32 Number
 
 The u32 number widget displays the value of a u32 number.
  The syntax is the same as "number" except the name which is <u32>.
+\layout Subsubsection
+
+Bar
+\layout Standard
+
+A bar widget displays the value of a FLOAT signal both graphically using
+ a bar display and numerically.
+\layout Quote
+
+<bar>
+\newline 
+    <halpin>"my-bar"</halpin>
+\newline 
+    <min_>0</min_>
+\newline 
+    <max_>123</max_>
+\newline 
+    <bgcolor>"grey"</bgcolor>
+\newline 
+    <fillcolor>"red"</fillcolor>
+\newline 
+</bar>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_bar.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Meter
+\layout Standard
+
+Meter displays the value of a FLOAT signal using a traditional dial indicator.
+\layout Quote
+
+<meter>
+\newline 
+    <halpin>"mymeter"</halpin>
+\newline 
+    <text>"Battery"</text>
+\newline 
+    <subtext>"Volts"</subtext>
+\newline 
+    <size>250</size>
+\newline 
+    <min_>0</min_>
+\newline 
+    <max_>15.5</max_>
+\newline 
+    <majorscale>1</majorscale>
+\newline 
+    <minorscale>0.2</minorscale>
+\newline 
+    <region1>(14.5,15.5,"yellow")</region1>
+\newline 
+    <region2>(12,14.5,"green")</region2>
+\newline 
+    <region3>(0,12,"red")</region3>
+\newline 
+</meter>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_meter.png
+	scale 70
+
+\end_inset 
+
+
 \layout Subsection
 
-Image Displays
+Number Inputs
+\layout Subsubsection
+
+Spinbox
+\layout Standard
+
+Spinbox controls a FLOAT pin.
+ You increase or decrease the value of the pin by either pressing on the
+ arrows, or pointing at the spinbox and rolling your mouse-wheel.
+\layout Quote
+
+<spinbox>
+\newline 
+    <halpin>"my-spinbox"</halpin>
+\newline 
+    <min_>-12</min_>
+\newline 
+    <max_>33</max_>
+\newline 
+    <resolution>0.1</resolution>
+\newline 
+    <format>"2.3f"</format>
+\newline 
+    <font>("Arial",30)</font>
+\newline 
+</spinbox>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_spinbox.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Scale
+\layout Standard
+
+Scale controls a float or a s32 pin.
+ You increase or decrease the value of the pin be either dragging the slider,
+ or pointing at the scale and rolling your mouse-wheel.
+ The "halpin" will have both "-f" and "-i" added to it to form the float
+ and s32 pins.
+ Width is the width of the slider in vertical and the height of the slider
+ in horizontal orientation.
+\layout Quote
+
+<scale>
+\newline 
+<font>("Helvetica",16)</font>
+\newline 
+<width>"25"</width>
+\newline 
+<halpin>"my-hscale"</halpin>
+\newline 
+<resolution>0.1</resolution>
+\newline 
+<orient>HORIZONTAL</orient>
+\newline 
+<initval>-15</initval>
+\newline 
+<min_>-33</min_>
+\newline 
+<max_>26</max_>
+\newline 
+</scale>
+\layout Quote
+
+<scale>
+\newline 
+<font>("Helvetica",16)</font>
+\newline 
+<width>"50"</width>
+\newline 
+<halpin>"my-vscale"</halpin>
+\newline 
+<resolution>1</resolution>
+\newline 
+<orient>VERTICAL</orient>
+\newline 
+<min_>100</min_>
+\newline 
+<max_>0</max_>
+\newline 
+</scale>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_scale.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Dial
+\layout Standard
+
+The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
+ Double left click to increase the resolution and double right click to
+ reduce the resolution by one digit.
+ The output is capped by the min and max values.
+ The <cpr> is how many tick marks are on the outside of the ring (beware
+ of high numbers).
+\layout Quote
+
+<dial>
+\newline 
+<size>200</size>
+\newline 
+<cpr>100</cpr>
+\newline 
+<min_>-15</min_>
+\newline 
+<max_>15</max_>
+\newline 
+<text>"Dial"</text>
+\newline 
+<initval>0</initval>
+\newline 
+<resolution>0.001</resolution>
+\newline 
+<halpin>"anaout"</halpin>
+\newline 
+<dialcolor>"yellow"</dialcolor>
+\newline 
+<edgecolor>"green"</edgecolor>
+\newline 
+<dotcolor>"black"</dotcolor>
+\newline 
+</dial>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_dial.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsubsection
+
+Jogwheel
+\layout Standard
+
+Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
+ or down as the wheel is turned, either by dragging in a circular motion,
+ or by rolling the mouse-wheel.
+\layout Quote
+
+<jogwheel>
+\newline 
+    <halpin>"my-wheel"</halpin>
+\newline 
+    <cpr>45</cpr>
+\newline 
+    <size>250</size>
+\newline 
+</jogwheel>
+\layout Standard
+\align center 
+The above code produced this example.
+\newline 
+
+\begin_inset Graphics
+	filename images/pyvcp_jogwheel.png
+	scale 80
+
+\end_inset 
+
+
+\layout Subsection
+
+Images
 \layout Standard
 
 Image displays use only .gif image format.
@@ -853,279 +1140,18 @@ by adding the stb.gif image.
 \end_inset 
 
 
-\layout Subsection
-
-Bar
-\layout Standard
-
-A bar widget displays the value of a FLOAT signal both graphically using
- a bar display and numerically.
-\layout Quote
-
-<bar>
-\newline 
-    <halpin>"my-bar"</halpin>
-\newline 
-    <min_>0</min_>
-\newline 
-    <max_>123</max_>
-\newline 
-    <bgcolor>"grey"</bgcolor>
-\newline 
-    <fillcolor>"red"</fillcolor>
-\newline 
-</bar>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_bar.png
-	scale 80
-
-\end_inset 
-
-
-\layout Subsection
-
-Meter
-\layout Standard
-
-Meter displays the value of a FLOAT signal using a traditional dial indicator.
-\layout Quote
-
-<meter>
-\newline 
-    <halpin>"mymeter"</halpin>
-\newline 
-    <text>"Battery"</text>
-\newline 
-    <subtext>"Volts"</subtext>
-\newline 
-    <size>250</size>
-\newline 
-    <min_>0</min_>
-\newline 
-    <max_>15.5</max_>
-\newline 
-    <majorscale>1</majorscale>
-\newline 
-    <minorscale>0.2</minorscale>
-\newline 
-    <region1>(14.5,15.5,"yellow")</region1>
-\newline 
-    <region2>(12,14.5,"green")</region2>
-\newline 
-    <region3>(0,12,"red")</region3>
-\newline 
-</meter>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_meter.png
-	scale 70
-
-\end_inset 
-
-
-\layout Subsection
-
-Spinbox
-\layout Standard
-
-Spinbox controls a FLOAT pin.
- You increase or decrease the value of the pin by either pressing on the
- arrows, or pointing at the spinbox and rolling your mouse-wheel.
-\layout Quote
-
-<spinbox>
-\newline 
-    <halpin>"my-spinbox"</halpin>
-\newline 
-    <min_>-12</min_>
-\newline 
-    <max_>33</max_>
-\newline 
-    <resolution>0.1</resolution>
-\newline 
-    <format>"2.3f"</format>
-\newline 
-    <font>("Arial",30)</font>
-\newline 
-</spinbox>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_spinbox.png
-	scale 80
-
-\end_inset 
-
-
-\layout Subsection
-
-Scale
-\layout Standard
-
-Scale controls a float or a s32 pin.
- You increase or decrease the value of the pin be either dragging the slider,
- or pointing at the scale and rolling your mouse-wheel.
- The "halpin" will have both "-f" and "-i" added to it to form the float
- and s32 pins.
- Width is the width of the slider in vertical and the height of the slider
- in horizontal orientation.
-\layout Quote
-
-<scale>
-\newline 
-<font>("Helvetica",16)</font>
-\newline 
-<width>"25"</width>
-\newline 
-<halpin>"my-hscale"</halpin>
-\newline 
-<resolution>0.1</resolution>
-\newline 
-<orient>HORIZONTAL</orient>
-\newline 
-<initval>-15</initval>
-\newline 
-<min_>-33</min_>
-\newline 
-<max_>26</max_>
-\newline 
-</scale>
-\layout Quote
-
-<scale>
-\newline 
-<font>("Helvetica",16)</font>
-\newline 
-<width>"50"</width>
-\newline 
-<halpin>"my-vscale"</halpin>
-\newline 
-<resolution>1</resolution>
-\newline 
-<orient>VERTICAL</orient>
-\newline 
-<min_>100</min_>
-\newline 
-<max_>0</max_>
-\newline 
-</scale>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_scale.png
-	scale 80
-
-\end_inset 
-
-
 \layout Standard
 
 Notice that the default is the min even though it is set higher than max
  unless there is a negative min.
 \layout Subsection
 
-Dial
-\layout Standard
-
-The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
- Double left click to increase the resolution and double right click to
- reduce the resolution by one digit.
- The output is capped by the min and max values.
- The <cpr> is how many tick marks are on the outside of the ring (beware
- of high numbers).
-\layout Quote
-
-<dial>
-\newline 
-<size>200</size>
-\newline 
-<cpr>100</cpr>
-\newline 
-<min_>-15</min_>
-\newline 
-<max_>15</max_>
-\newline 
-<text>"Dial"</text>
-\newline 
-<initval>0</initval>
-\newline 
-<resolution>0.001</resolution>
-\newline 
-<halpin>"anaout"</halpin>
-\newline 
-<dialcolor>"yellow"</dialcolor>
-\newline 
-<edgecolor>"green"</edgecolor>
-\newline 
-<dotcolor>"black"</dotcolor>
-\newline 
-</dial>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_dial.png
-	scale 80
-
-\end_inset 
-
-
-\layout Subsection
-
-Jogwheel
-\layout Standard
-
-Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
- or down as the wheel is turned, either by dragging in a circular motion,
- or by rolling the mouse-wheel.
-\layout Quote
-
-<jogwheel>
-\newline 
-    <halpin>"my-wheel"</halpin>
-\newline 
-    <cpr>45</cpr>
-\newline 
-    <size>250</size>
-\newline 
-</jogwheel>
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_jogwheel.png
-	scale 80
-
-\end_inset 
-
-
-\layout Section
-
-pyVCP Container reference
+Containers
 \layout Standard
 
 Containers are widgets that contain other widgets.
- 
-\layout Subsection
+ Containers are used to group other widgets.
+\layout Subsubsection
 
 Borders
 \layout Standard
@@ -1211,7 +1237,7 @@ The above code produced this example.
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Hbox
 \layout Standard
@@ -1283,7 +1309,7 @@ anchor="center"
 expand="yes"
 \family default 
 .
-\layout Subsection
+\layout Subsubsection
 
 Vbox
 \layout Standard
@@ -1355,42 +1381,7 @@ anchor="center"
 expand="yes"
 \family default 
 .
-\layout Subsection
-
-Label
-\layout Standard
-
-A label is a piece of text on your panel.
-\layout Standard
-
-<halpin> used to set a name for the label.
-\newline 
-<disable_pin> when set to true will add a disable pin.
- When the disable pin is true the text is greyed.
-\newline 
-
-\layout Quote
-
-<label>
-\newline 
-    <text>"This is a Label:"</text>
-\newline 
-    <font>("Helvetica",20)</font>
-\newline 
-</label> 
-\layout Standard
-\align center 
-The above code produced this example.
-\newline 
-
-\begin_inset Graphics
-	filename images/pyvcp_label.png
-	scale 80
-
-\end_inset 
-
-
-\layout Subsection
+\layout Subsubsection
 
 Labelframe
 \layout Standard
@@ -1423,7 +1414,7 @@ The above code produced this example.
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Table
 \layout Standard
@@ -1513,7 +1504,7 @@ The above code produced this example.
 \end_inset 
 
 
-\layout Subsection
+\layout Subsubsection
 
 Tabs
 \layout Standard
