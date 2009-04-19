@@ -1,643 +1,2149 @@
 <pyvcp>
-−
-	<hbox>
-−
-	<labelframe text="IO on connector 3">
-−
-	<vbox>
-−
-	<hbox>
-−	
-−
-	<label>
-<text>"In-12:"</text>
-</label>
-−
-	<led>
-<halpin>"in12"</halpin>
-<disablepin>True</disablepin>
-</led>
+<tabs>
+<names>["Connector 2","Connector 3","Connector 4","Connector 5"]</names>
+<!--start of connector 2 tab-->
+<hbox>
+        <hbox>
+            <labelframe text="">
+	        <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
-	<label>
-<text>"  In-00:"</text>
-</label>
-−
-	<led>
-<halpin>"in00"</halpin>
-<disablepin>True</disablepin>
-</led>
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+	    <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+        <vbox>
+            <labelframe text="Encoder 0">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"d"</format>
+                    <justify>"right"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 1">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 2">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 3">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+            
+            	<labelframe text="DAC 0">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.0.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.0"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 1">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.1.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac1a"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+            	<labelframe text="DAC 2">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.2.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.2"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 3">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.3-enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.3"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+        </vbox>
+        </labelframe>
+
+        </hbox>
 
 </hbox>
-	<hbox>
-−
-	<label>
-<text>"In-13:"</text>
-</label>
-−
-	<led>
-<halpin>"in13"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-01:"</text>
-</label>
-−
-	<led>
-<halpin>"in01"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"In-14:"</text>
-</label>
-−
-	<led>
-<halpin>"in14"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-02:"</text>
-</label>
-−
-	<led>
-<halpin>"in02"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<disablepin>True</disablepin>
-<halpin>"ledlabel"</halpin>
-<text>"In-15:"</text>
-</label>
-−
-	<led>
-<halpin>"in15"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-03:"</text>
-</label>
-−
-	<led>
-<halpin>"in03"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<disablepin>True</disablepin>
-<halpin>"out00"</halpin>
-<text>"Out-00"</text>
-</button>−
-	<label>
-<text>"In-04:"</text>
-</label>
-−
-	<led>
-<halpin>"in04"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-	<button>
-<disablepin>True</disablepin>
-<halpin>"out01"</halpin>
-<text>"Out-01"</text>
-</button>−
-	<label>
-<text>"In-05:"</text>
-</label>
-−
-	<led>
-<halpin>"in05"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-	<button>
-<halpin>"out02"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-02"</text>
-</button>−
-	<label>
-<text>"In-06:"</text>
-</label>
-−
-	<led>
-<halpin>"in06"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out03"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-03"</text>
-</button>
-	<label>
-<text>"In-07:"</text>
-</label>
-−
-	<led>
-<halpin>"in07"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out04"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-04"</text>
-</button>
-	<label>
-<text>"In-08:"</text>
-</label>
-−
-	<led>
-<halpin>"in08"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out05"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-05"</text>
-</button>
-	<label>
-<text>"In-09:"</text>
-</label>
-−
-	<led>
-<halpin>"in09"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out06"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-06"</text>
-</button>
-	<label>
-<text>"In-10:"</text>
-</label>
-−
-	<led>
-<halpin>"in10"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>−
-	<button>
-<halpin>"out07"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-07"</text>
-</button>
-	<label>
-<text>"In-11:"</text>
-</label>
-−
-	<led>
-<halpin>"in11"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-</vbox>
-</labelframe>
-−
 
-	<labelframe text="IO on connector 4">
-−
-	<vbox>
-−
-	<hbox>
-−	
-−
-	<label>
-<text>"In-28:"</text>
-</label>
-−
-	<led>
-<halpin>"in28"</halpin>
-<disablepin>True</disablepin>
-</led>
+<!--start of connector 3 tab-->
+<hbox>
+        <hbox>
+            <labelframe text="">
+	        <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
-	<label>
-<text>"  In-16:"</text>
-</label>
-−
-	<led>
-<halpin>"in16"</halpin>
-<disablepin>True</disablepin>
-</led>
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
-</hbox>
-	<hbox>
-−
-	<label>
-<text>"In-29:"</text>
-</label>
-−
-	<led>
-<halpin>"in29"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-17:"</text>
-</label>
-−
-	<led>
-<halpin>"in17"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"In-30:"</text>
-</label>
-−
-	<led>
-<halpin>"in30"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-18:"</text>
-</label>
-−
-	<led>
-<halpin>"in18"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"In-31:"</text>
-</label>
-−
-	<led>
-<halpin>"in31"</halpin>
-<disablepin>True</disablepin>
-</led>
-	<label>
-<text>"  In-19:"</text>
-</label>
-−
-	<led>
-<halpin>"in19"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out08"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-08"</text>
-</button>−
-	<label>
-<text>"In-20:"</text>
-</label>
-−
-	<led>
-<halpin>"in20"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-	<button>
-<halpin>"out09"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-09"</text>
-</button>−
-	<label>
-<text>"In-21:"</text>
-</label>
-−
-	<led>
-<halpin>"in21"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-	<button>
-<halpin>"out10"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-10"</text>
-</button>−
-	<label>
-<text>"In-22:"</text>
-</label>
-−
-	<led>
-<halpin>"in22"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out11"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-11"</text>
-</button>
-	<label>
-<text>"In-23:"</text>
-</label>
-−
-	<led>
-<halpin>"in23"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out12"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-12"</text>
-</button>
-	<label>
-<text>"In-24:"</text>
-</label>
-−
-	<led>
-<halpin>"in24"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out13"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-13"</text>
-</button>
-	<label>
-<text>"In-25:"</text>
-</label>
-−
-	<led>
-<halpin>"in25"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>
-−	<button>
-<halpin>"out14"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-14"</text>
-</button>
-	<label>
-<text>"In-26:"</text>
-</label>
-−
-	<led>
-<halpin>"in26"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-	<hbox>−
-	<button>
-<halpin>"out15"</halpin>
-<disablepin>True</disablepin>
-<text>"Out-15"</text>
-</button>
-	<label>
-<text>"In-27:"</text>
-</label>
-−
-	<led>
-<halpin>"in27"</halpin>
-<disablepin>True</disablepin>
-</led>
-</hbox>
-−
-</vbox>
-</labelframe>
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
 
-	<labelframe text="Encoders">
-−
-	<vbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 0:"</text>
-</label>
-−
-	<number>
-<halpin>"enc0"</halpin>
-</number>
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+	    <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+        <vbox>
+            <labelframe text="Encoder 4">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"d"</format>
+                    <justify>"right"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 5">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 6">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 7">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+            
+            	<labelframe text="DAC 4">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac4.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.4"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 5">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.5.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.5"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+            	<labelframe text="DAC 6">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.6.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.6"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 7">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.7-enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.7"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+        </vbox>
+        </labelframe>
+
+        </hbox>
 </hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 1:"</text>
-</label>
-−
-	<number>
-<halpin>"enc1"</halpin>
-</number>
+
+<!--start of connector 4 tab-->
+<hbox>
+        <hbox>
+            <labelframe text="">
+	        <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+	    <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+        
+        <labelframe text="">
+        <vbox>
+
+        </vbox>
+        </labelframe>
+        </hbox>
 </hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 2:"</text>
-</label>
-−
-	<number>
-<halpin>"enc2"</halpin>
-</number>
+<!--start of connector 5 tab-->
+<hbox>
+        <hbox>
+            <labelframe text="">
+	        <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+	    <vbox>
+        
+	            <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+
+                <hbox>
+	                <label>
+                        <text>"In 000:"</text>
+                    </label>
+	                <led>
+                        <disablepin>True</disablepin>
+                    </led>
+                    <button>
+                        <disablepin>True</disablepin>
+                        <text>"Out 000"</text>
+                    </button>
+	                <checkbutton>
+                        <text>"Latch"</text>
+                        <font>("Helvetica",8)</font>
+                    </checkbutton>
+                </hbox>
+       
+        </vbox>
+        </labelframe>
+
+        <labelframe text="">
+        <vbox>
+            <labelframe text="Encoder 8">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"d"</format>
+                    <justify>"right"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 9">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 10">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+
+            <labelframe text="Encoder 11">
+	        <hbox>
+	            <button>
+                        <disablepin>True</disablepin>
+                        <text>"Reset"</text>
+                        <font>("Helvetica",8)</font>
+                </button>
+                <hbox>
+            	<number>
+                    <format>"06d"</format>
+                    <justify>"center"</justify>
+                </number>
+                </hbox>
+            </hbox>
+            </labelframe>
+            
+            	<labelframe text="DAC 8">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.8.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.8"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 9">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.9.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.9"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+            	<labelframe text="DAC 10">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.10.enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.10"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+                <labelframe text="DAC 11">	            
+	            <hbox>
+	                <checkbutton>
+                        <halpin>"dac.11-enbl"</halpin>
+                    </checkbutton>
+                    <label>
+                        <text>"Enable"</text>
+                    </label>
+                
+	                <scale>
+                        <halpin>"dac.11"</halpin>
+                        <resolution>0.1</resolution>
+                        <orient>HORIZONTAL</orient>
+                        <min_>-10</min_>
+                        <max_>10</max_>
+                    </scale>
+                </hbox>              
+                </labelframe>
+
+        </vbox>
+        </labelframe>
+
+        </hbox>
 </hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 3:"</text>
-</label>
-−
-	<number>
-<halpin>"enc3"</halpin>
-</number>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 4:"</text>
-</label>
-−
-	<number>
-<halpin>"enc4"</halpin>
-</number>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 5:"</text>
-</label>
-−
-	<number>
-<halpin>"enc5"</halpin>
-</number>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 6:"</text>
-</label>
-−
-	<number>
-<halpin>"enc6"</halpin>
-</number>
-</hbox>
-−
-	<hbox>
-−
-	<label>
-<text>"ENC 7:"</text>
-</label>
-−
-	<number>
-<halpin>"enc7"</halpin>
-</number>
-</hbox>
-</vbox>
-</labelframe>
-−
-	<labelframe text="DACs">
-−
-	<vbox>
-−
-	<labelframe text="DAC 0">
-−
-	<vbox>
-−
-	<hbox>
-−
-	<label>
-<text>"Enable:"</text>
-</label>
-−
-	<checkbutton>
-<halpin>"dac0-ena"</halpin>
-</checkbutton>
-</hbox>
-−
-	<scale>
-<halpin>"dac0"</halpin>
-<resolution>0.1</resolution>
-<orient>HORIZONTAL</orient>
-<min_>-10</min_>
-<max_>10</max_>
-</scale>
-</vbox>
-</labelframe>
-−
-	<labelframe text="DAC 1">
-−
-	<vbox>
-−
-	<hbox>
-−
-	<label>
-<text>"Enable:"</text>
-</label>
-−
-	<checkbutton>
-<halpin>"dac1-ena"</halpin>
-</checkbutton>
-</hbox>
-−
-	<scale>
-<halpin>"dac1"</halpin>
-<resolution>0.1</resolution>
-<orient>HORIZONTAL</orient>
-<min_>-10</min_>
-<max_>10</max_>
-</scale>
-</vbox>
-</labelframe>
-	<labelframe text="DAC 2">
-−
-	<vbox>
-−
-	<hbox>
-−
-	<label>
-<text>"Enable:"</text>
-</label>
-−
-	<checkbutton>
-<halpin>"dac2-ena"</halpin>
-</checkbutton>
-</hbox>
-−
-	<scale>
-<halpin>"dac2"</halpin>
-<resolution>0.1</resolution>
-<orient>HORIZONTAL</orient>
-<min_>-10</min_>
-<max_>10</max_>
-</scale>
-</vbox>
-</labelframe>
-−
-	<labelframe text="DAC 3">
-−
-	<vbox>
-−
-	<hbox>
-−
-	<label>
-<text>"Enable:"</text>
-</label>
-−
-	<checkbutton>
-<halpin>"dac3-ena"</halpin>
-</checkbutton>
-</hbox>
-−
-	<scale>
-<halpin>"dac3"</halpin>
-<resolution>0.1</resolution>
-<orient>HORIZONTAL</orient>
-<min_>-10</min_>
-<max_>10</max_>
-</scale>
-</vbox>
-</labelframe>
-</vbox>
-</labelframe>
-</hbox>
+</tabs>
+
 </pyvcp>
