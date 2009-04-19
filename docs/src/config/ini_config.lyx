@@ -701,8 +701,24 @@ AXIS has the ability to send loaded files through a filter program.
  and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
  display area, and executed by emc when Run.
- The following lines add support for the image-to-gcode converter included
- with emc2:
+ 
+\layout Description
+
+PROGRAM_EXTENSION\SpecialChar ~
+=\SpecialChar ~
+.extension\SpecialChar ~
+Description
+\layout Standard
+
+If your post processor outputs files in all caps you might want to add the
+ following line:
+\layout Quote
+
+PROGRAM_EXTENSION = .NGC XYZ Post Processor
+\layout Standard
+
+The following lines add support for the image-to-gcode converter included
+ with EMC2:
 \layout Quote
 
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
