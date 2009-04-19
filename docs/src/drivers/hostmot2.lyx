@@ -1967,7 +1967,7 @@ Pins
 Parameters
 \layout Description
 
-.couner-mode (Bit, RW) Set to False (the default) for Quadrature.
+.counter-mode (Bit, RW) Set to False (the default) for Quadrature.
  Set to True for Up/Down or for single input on Phase A.
  Can be used for a frequency to velocity converter with a single input on
  Phase A when set to true.
