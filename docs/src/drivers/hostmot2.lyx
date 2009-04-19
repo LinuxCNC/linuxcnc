@@ -88,7 +88,7 @@ Several pre-compiled HostMot2 firmware binaries are available for the different
 4-channel servo plus 4 step/dir generators 
 \layout Section
 
-Using HostMot2
+Loading HostMot2
 \layout Standard
 
 The EMC support for the HostMot2 firmware is split into a generic driver
@@ -116,6 +116,30 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=
 
 The config parameters are described in the hostmot2 man page.
  
+\layout Section
+
+HostMot2 Functions
+\layout Description
+
+hm2_<BoardType>.<BoardNum>.read Read all inputs, update input HAL pins.
+\layout Description
+
+hm2_<BoardType>.<BoardNum>.write Write all outputs.
+\layout Description
+
+hm2_<BoardType>.<BoardNum>.pet-watchdog Pet the watchdog to keep it from biting
+ us for a while.
+\layout Description
+
+hm2_<BoardType>.<BoardNum>.read_gpio Read the GPIO input pins.
+ (This function is not available on the 7i43 due to limitations of the EPP
+ bus.)
+\layout Description
+
+hm2_<BoardType>.<BoardNum>.write_gpio Write the GPIO control registers and
+ output pins.
+ (This function is not available on the 7i43 due to limitations of the EPP
+ bus.) 
 \layout Section
 
 Pinouts
