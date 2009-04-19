@@ -1,15 +1,12 @@
 [Desktop Entry]
-Version=1.0
 Encoding=UTF-8
-Name=HAL Manual
+Version=
 Type=Application
-Exec=/usr/bin/evince /usr/share/doc/emc2/HAL_Manual.pdf
-TryExec=
-X-GNOME-DocPath=Advanced HAL Manual
+Exec=/usr/bin/see /usr/share/doc/emc2/HAL_Manual.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
 Terminal=false
-Name[en_US]=HAL Manual
-GenericName[en_US]=
-Comment[en_US]=The Hardware Abstract Layer Manual
-GenericName=
-Comment=
-Icon=/usr/share/icons/Human/48x48/apps/gnome-help.png
+Name=EMC2 HAL Manual
+Comment=The EMC2 HAL Manual. Details about the Hardware Abstract Layer.
+StartupNotify=false
+Categories=X-CNC;
