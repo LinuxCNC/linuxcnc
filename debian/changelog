@@ -1,6 +1,9 @@
-emc2 (1:2.3.0~beta3~pre) hardy; urgency=low
+emc2 (1:2.3.0) hardy; urgency=low
 
-  * hostmot2: allow stepgen maxaccel=0 for 'no acceleration limit'.
+  * hostmot2: allow stepgen maxaccel=0 for 'no acceleration limit'.  This is a
+    slightly experimental mode, and using acceleration headroom in the hal
+    file is probably still the best way to get a hostmot2 stepper system
+    running.
   * hostmot2: make each stepgen only use 2 pins instead of 6
   * axis: in a non-trivkins machine in joint mode, do not display the joints
     that are not used
@@ -11,7 +14,7 @@ emc2 (1:2.3.0~beta3~pre) hardy; urgency=low
   * fix several obscure crashes and memory leaks
   * update Polish, Italian, and German translations
 
- -- Jeff Epler <jepler@platte>  Sun, 19 Apr 2009 08:01:59 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 19 Apr 2009 12:11:26 -0500
 
 emc2 (1:2.3.0~beta2) hardy; urgency=low
 
