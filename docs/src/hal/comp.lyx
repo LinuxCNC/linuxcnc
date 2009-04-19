@@ -1297,7 +1297,7 @@ u32
 \family typewriter 
 s32
 \family default 
-, etc.
+, bool, etc.
 \newline 
 Access to array variables uses square brackets.
 \end_deeper 
