@@ -1,8 +1,17 @@
 emc2 (1:2.3.0~beta3~pre) hardy; urgency=low
 
-  * 
+  * hostmot2: allow stepgen maxaccel=0 for 'no acceleration limit'.
+  * hostmot2: make each stepgen only use 2 pins instead of 6
+  * axis: in a non-trivkins machine in joint mode, do not display the joints
+    that are not used
+  * stepconf: enable image-to-gcode and python g-code generators
+  * fix problem with full circles with G64P-
+  * make the center of rotation assumed by G96 include the g5x and g92
+    offsets, if applicable
+  * fix several obscure crashes and memory leaks
+  * update Polish, Italian, and German translations
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 14:48:44 -0500
+ -- Jeff Epler <jepler@platte>  Sun, 19 Apr 2009 08:01:59 -0500
 
 emc2 (1:2.3.0~beta2) hardy; urgency=low
 
