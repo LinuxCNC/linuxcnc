@@ -29,11 +29,11 @@
 pyVCP Examples
 \layout Section
 
-Basic Items
+AXIS
 \layout Standard
 
-To create a pyVCP panel to use with the AXIS interface you need to do the
- following basic things.
+To create a pyVCP panel to use with the AXIS interface that is attached
+ to the right of AXIS you need to do the following basic things.
 \layout Itemize
 
 Create an .xml file that contains your panel description and put it in your
@@ -50,6 +50,47 @@ Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file with
 
 Add the links to HAL pins for your panel in the postgui.hal file to "connect"
  your pyVCP panel to EMC.
+\layout Section
+
+Floating
+\layout Standard
+
+To create floating pyVCP panels that can be used with any interface you
+ need to do the following basic things.
+\layout Itemize
+
+Create an .xml file that contains your panel description and put it in your
+ config directory.
+\layout Itemize
+
+Add a loadusr line to your .hal file to load each panel.
+\layout Itemize
+
+Add the links to HAL pins for your panel in the postgui.hal file to "connect"
+ your pyVCP panel to EMC.
+\layout Standard
+
+The following is an example of a loadusr command to load two pyVCP panels
+ and name each one so the connection names in HAL will be known.
+\layout Quote
+
+loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml
+\newline 
+loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
+\layout Standard
+
+The -Wn makes hal "Wait for name" to be loaded before proceeding.
+ The pyvcp -c makes pyVCP name the panel.
+\layout Standard
+
+The HAL pins from panel1.xml will be named btnpanel.<pin name>
+\layout Standard
+
+The HAL pins from panel2.xml will be named sppanel.<pin name>
+\layout Standard
+
+Make sure the loadusr line is before any net's that make use of the pyVCP
+ pins.
 \layout Section
 \pagebreak_top 
 Jog Buttons
@@ -100,7 +141,7 @@ The Stepconf Wizard will create several files and place them in the /emc/configs
  If you left the create link checked you will have a link to those files
  on your desktop.
  
-\layout Subsection
+\layout Subsection*
 
 Create the Widgets
 \layout Standard
@@ -317,7 +358,7 @@ Jog Buttons
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 Make Connections
 \layout Standard
@@ -371,7 +412,7 @@ The following example uses the Automation Direct GS2 VDF driver and displays
  the RPM and other info in a pyVCP panel.
  This example is based on the GS2 example in the Hardware Examples section
  this manual.
-\layout Subsection
+\layout Subsection*
 
 The Panel
 \layout Standard
@@ -601,7 +642,7 @@ GS2 Panel
 \end_inset 
 
 
-\layout Subsection
+\layout Subsection*
 
 The Connections
 \layout Standard
