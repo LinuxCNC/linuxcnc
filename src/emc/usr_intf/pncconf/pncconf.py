@@ -1005,8 +1005,8 @@ class Data:
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         if self.mesa5i20>0:
-            #print >>file, "loadrt hpstmot2"
-            #print >>file, "loadrt hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
+            #print >>file, "loadrt hpstmot2"loadrt 
+            #print >>file, "hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
@@ -1536,9 +1536,11 @@ class Data:
                 ending =".in"
                 if self[pin+"inv"]: ending = ".in_not"
                 truepinnum = int(pinnum)+(int(connum)-2)*24
-            if ptype in (1,2):
+                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinum +ending
+            elif ptype in (1,2):
                 ending =".out"
                 truepinnum = int(pinnum)+(int(connum)-2)*24
+                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinum +ending
             # Encoder 
             elif ptype == 3:
                 ending = ".phase-a"
@@ -1588,7 +1590,7 @@ class Data:
                 elif pinnum == 18 + adj:truepinnum = (int(pinnum)-14)+((int(connum)-2)*4) - adj
                 else:print "pin number error"
             else: print "pintype error"
-            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+"."+str(truepinnum)+ending
+            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%02d"% (truepinnum)+ending
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -3191,10 +3193,18 @@ class App:
         #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )   
+        halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        halrun.write("loadrt hostmot2\n")
+        halrun.write("""loadrt hm2_pci config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
+         % (self.data.mesa_boardname, self.data.mesa_firmware, self.data.numof_mesa_encodergens,
+            self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
+        halrun.write("addf hm2_%s.0.read slow\n"% self.data.mesa_boardname)
+        halrun.write("addf hm2_%s.0.write slow\n"% self.data.mesa_boardname)
+        halrun.write("addf hm2_%s.0.pet_watchdog slow\n"% self.data.mesa_boardname)
         halrun.write("loadusr -Wn m5i20test pyvcp -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter\n")
-        for connector in (3,4):
+        for connector in (2,3):
            for pin in range(0,24):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
@@ -3202,13 +3212,14 @@ class App:
                 pintype = self.data[ptype]
                 #TODO this is just a test the panel needs to be changed for the mesa cards
                 if not pintype == 0:
-                    if pin > 15: break
-                    truepinnum = (connector-3)*16+ pin
-                    halrun.write("setp m5i20test.in%02d.disable true\n"% truepinnum )
+                    
+                    truepinnum = (connector-2)*24+ pin
+                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp hm2_%s.0.gpio.%03d.is_output true\n"% (self.data.mesa_boardname,truepinnum ))
                 elif not pintype in (1,2):
-                    if pin > 7: break
-                    truepinnum = (connector-3)*8+ pin
-                    halrun.write("setp m5i20test.out%02d.disable true\n"% truepinnum )
+                  
+                    truepinnum = (connector-2)*24+ pin
+                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
         halrun.write("start\n")
         halrun.write("waitusr m5i20test\n"); halrun.flush()
         halrun.close()
