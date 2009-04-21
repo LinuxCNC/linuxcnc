@@ -20,12 +20,12 @@
 """\
 axis-remote: cause AXIS to open, reload its opened file, or exit
 
-Usage: axis-remote [--ping|--reload|--quit|filename]
-       axis-remote [-p|-r|-q]"""
+Usage: axis-remote [--clear|--ping|--reload|--quit|filename]
+       axis-remote [-c|-p|-r|-q]"""
 
 import sys, getopt, Tkinter, os
 
-OPEN, RELOAD, PING, QUIT = range(4)
+OPEN, RELOAD, PING, CLEAR, QUIT = range(5)
 mode = OPEN
 
 def usage(exitval=0):
@@ -33,8 +33,8 @@ def usage(exitval=0):
     raise SystemExit, exitval
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?prq",
-                        ['help','ping', 'reload', 'quit'])
+    opts, args = getopt.getopt(sys.argv[1:], "h?prqc",
+                        ['help','ping', 'reload', 'quit', 'clear'])
 except getopt.GetoptError, detail:
     print detail
     usage(99)
@@ -42,6 +42,10 @@ except getopt.GetoptError, detail:
 for o, a in opts:
     if o in ('-h', '-?', '--help'):
         usage(0)
+    elif o in ('-c', '--clear'):
+        if mode != OPEN:
+            usage(99)
+        mode = CLEAR
     elif o in ('-p', '--ping'):
         if mode != OPEN:
             usage(99)
@@ -74,7 +78,8 @@ elif mode == PING:
     raise SystemExit, 0
 elif mode == RELOAD:
     t.tk.call("send", "axis", "reload_file")
+elif mode == CLEAR:
+    t.tk.call("send", "axis", "clear_live_plot")
 elif mode == QUIT:
     t.tk.call("send", "axis", "destroy", ".")
-
 # vim:sw=4:sts=4:et:

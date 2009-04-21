@@ -28,7 +28,7 @@
 axis-remote \- AXIS Remote Interface
 .SH SYNOPSIS
 .B axis-remote
-<\fI--ping\fR> <\fI--reload\fR> <\fI--quit\fR> <\fI--help\fR>
+[\fI--ping\fR] [\fI--reload\fR] [\fI--clear\fR] [\fI--quit\fR] [\fI--help\fR]
 .SH DESCRIPTION
 \fBaxis-remote\fR is a small script to control a running AXIS GUI.
 Use \fBaxis-remote --help\fR for further information.
@@ -39,6 +39,9 @@ Check whether AXIS is running.
 .TP
 \fB--reload\fR
 Make AXIS reload the currently loaded file.
+.TP
+\fB--clear\fR
+Make AXIS clear the backplot.
 .TP
 \fB--quit\fR
 Make AXIS quit.
