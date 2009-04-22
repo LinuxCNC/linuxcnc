@@ -26,7 +26,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 001:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -43,7 +43,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 002:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -60,7 +60,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 003:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -77,7 +77,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 004:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -94,7 +94,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 005:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -111,7 +111,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 006:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -128,7 +128,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 007:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -145,7 +145,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 008:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -162,7 +162,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 009:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -179,7 +179,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 010:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -196,7 +196,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 011:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -219,7 +219,7 @@
         
 	            <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 012:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -236,7 +236,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 013:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -253,7 +253,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 014:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -270,7 +270,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 015:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -287,7 +287,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 016:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -304,7 +304,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 017:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -321,7 +321,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 018:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -338,7 +338,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 019:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -355,7 +355,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 020:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -372,7 +372,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 021:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -389,7 +389,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 022:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -406,7 +406,7 @@
 
                 <hbox>
 	                <label>
-                        <text>"In 000:"</text>
+                        <text>"In 023:"</text>
                     </label>
 	                <led>
                         <disablepin>True</disablepin>
@@ -430,14 +430,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.0.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -445,15 +446,16 @@
             <labelframe text="Encoder 1">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disablepin>True</disablepin>   
+                        <halpin>"enc.1.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -462,14 +464,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.2.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -478,14 +481,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.3.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -519,7 +523,7 @@
                     </label>
                 
 	                <scale>
-                        <halpin>"dac1a"</halpin>
+                        <halpin>"dac.1"</halpin>
                         <resolution>0.1</resolution>
                         <orient>HORIZONTAL</orient>
                         <min_>-10</min_>
@@ -550,7 +554,7 @@
                 <labelframe text="DAC 3">	            
 	            <hbox>
 	                <checkbutton>
-                        <halpin>"dac.3-enbl"</halpin>
+                        <halpin>"dac.3.enbl"</halpin>
                     </checkbutton>
                     <label>
                         <text>"Enable"</text>
@@ -1002,14 +1006,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.4.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1018,14 +1023,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.5.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1034,14 +1040,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.6.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1050,14 +1057,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.7.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -1122,7 +1130,7 @@
                 <labelframe text="DAC 7">	            
 	            <hbox>
 	                <checkbutton>
-                        <halpin>"dac.7-enbl"</halpin>
+                        <halpin>"dac.7.enbl"</halpin>
                     </checkbutton>
                     <label>
                         <text>"Enable"</text>
@@ -1569,7 +1577,104 @@
         
         <labelframe text="">
         <vbox>
+            <hbox>
+            <labelframe text="stepper 0">	
+                <vbox>            
+	                <hbox>
+	                    <checkbutton>
+                            <halpin>"step.0.enbl"</halpin>
+                        </checkbutton>
+                        <label>
+                            <text>"Enable"</text>
+                        </label>
+                    </hbox>
+                    <dial>
+                        <size>125</size>
+                        <cpr>100</cpr>
+                        <min_>-15</min_>
+                        <max_>15</max_>
+                        <text>"Jog"</text>
+                        <initval>0</initval>
+                        <resolution>1</resolution>
+                        <halpin>"anaout.0"</halpin>
+                        <dotcolor>"black"</dotcolor>
+                    </dial>
+                </vbox>
+            </labelframe>
 
+            <labelframe text="stepper 1">	
+                <vbox> 
+                    <hbox>
+                        <checkbutton>
+                            <halpin>"step.1.enbl"</halpin>
+                        </checkbutton>
+                        <label>
+                            <text>"Enable"</text>
+                        </label>
+                    </hbox>
+                    <dial>
+                        <size>125</size>
+                        <cpr>100</cpr>
+                        <min_>-15</min_>
+                        <max_>15</max_>
+                        <text>"Jog"</text>
+                        <initval>0</initval>
+                        <resolution>1</resolution>
+                        <halpin>"anaout.1"</halpin>
+                        <dotcolor>"black"</dotcolor>
+                    </dial>
+                </vbox>
+             </labelframe>  
+            </hbox>  
+            <hbox>
+            <labelframe text="stepper 2">	
+                <vbox>            
+	                <hbox>
+	                    <checkbutton>
+                            <halpin>"step.2.enbl"</halpin>
+                        </checkbutton>
+                        <label>
+                            <text>"Enable"</text>
+                        </label>
+                    </hbox>
+                    <dial>
+                        <size>125</size>
+                        <cpr>100</cpr>
+                        <min_>-15</min_>
+                        <max_>15</max_>
+                        <text>"Jog"</text>
+                        <initval>0</initval>
+                        <resolution>1</resolution>
+                        <halpin>"anaout.2"</halpin>
+                        <dotcolor>"black"</dotcolor>
+                    </dial>
+                </vbox>
+            </labelframe>
+
+            <labelframe text="stepper 3">	
+                <vbox> 
+                    <hbox>
+                        <checkbutton>
+                            <halpin>"step.3.enbl"</halpin>
+                        </checkbutton>
+                        <label>
+                            <text>"Enable"</text>
+                        </label>
+                    </hbox>
+                    <dial>
+                        <size>125</size>
+                        <cpr>100</cpr>
+                        <min_>-15</min_>
+                        <max_>15</max_>
+                        <text>"Jog"</text>
+                        <initval>0</initval>
+                        <resolution>1</resolution>
+                        <halpin>"anaout.3"</halpin>
+                        <dotcolor>"black"</dotcolor>
+                    </dial>
+                </vbox>
+             </labelframe>  
+            </hbox>          
         </vbox>
         </labelframe>
         </hbox>
@@ -2003,14 +2108,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.8.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"d"</format>
                     <justify>"right"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2019,14 +2125,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.9.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2035,14 +2142,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.10.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
@@ -2051,14 +2159,15 @@
 	        <hbox>
 	            <button>
                         <disablepin>True</disablepin>
+                        <halpin>"enc.11.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
                 </button>
                 <hbox>
-            	<number>
+            	<s32>
                     <format>"06d"</format>
                     <justify>"center"</justify>
-                </number>
+                </s32>
                 </hbox>
             </hbox>
             </labelframe>
