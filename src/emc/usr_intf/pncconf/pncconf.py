@@ -777,6 +777,9 @@ class Data:
         print >>file, "FF0 = %s" % get("FF0")
         print >>file, "FF1 = %s" % get("FF1")
         print >>file, "FF2 = %s" % get("FF2")
+        print >>file, "BIAS = 0" 
+        print >>file, "DEADBAND = 0"
+        print >>file, "SCALE = 1"
         print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
         print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
         print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
@@ -952,8 +955,8 @@ class Data:
                 if t == 0:
                     if p == "unused-input":continue 
                     pinname = self.make_pinname(self.findsignal( p )) 
-                    if i: print >>file, "net %s <= "% (p)+pinname+".in_not"  
-                    else: print >>file, "net %s <= "% (p)+pinname+".in"
+                    if i: print >>file, "net %s <= "% (p)+pinname  
+                    else: print >>file, "net %s <= "% (p)+pinname
                 # for encoder pins
                 elif t == 3:
                     if p == "unused-encoder":continue
@@ -980,7 +983,7 @@ class Data:
                 if t in (1,2):
                     if p == "unused-output":continue
                     pinname = self.make_pinname(self.findsignal( p ))
-                    print >>file, "net %s => "% (p)+pinname+".out"
+                    print >>file, "net %s => "% (p)+pinname
                     if i: print >>file, "    setp "+pinname+".invert_output true"
                     if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"                 
                 # for pwm pins
@@ -1005,9 +1008,9 @@ class Data:
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         if self.mesa5i20>0:
-            #print >>file, "loadrt hpstmot2"loadrt 
-            #print >>file, "hm2_pci config= firmware=hm2/5i20/SVST8_4.BIT num_encoders=4 num_pwmgens=4 num_stepgens=0"
-            print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
+            print >>file, "loadrt hostmot2"
+            print >>file, "loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)"
+            #print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
@@ -1536,37 +1539,37 @@ class Data:
                 ending =".in"
                 if self[pin+"inv"]: ending = ".in_not"
                 truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinum +ending
+                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinnum +ending
             elif ptype in (1,2):
                 ending =".out"
                 truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinum +ending
+                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinnum +ending
             # Encoder 
             elif ptype == 3:
-                ending = ".phase-a"
+                ending = ""
                 adj = 0
                 if signalname.endswith('b'):
                     adj = 1
-                    ending = ".phase-b"
+                    ending = ""
                 if signalname.endswith('i'):
-                    ending = ".phase-i"
+                    ending = ""
                     adj = 4
-                    if pinnum in(2,14):adj = 3
-                if pinnum == 0 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
-                elif pinnum == 2 + adj:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4) - adj
-                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
-                elif pinnum == 14 + adj:truepinnum = (int(pinnum)-11)+((int(connum)-2)*4) - adj
+                    if pinnum in(0,12):adj = 3
+                if pinnum == 2 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
+                elif pinnum == 0 + adj:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4) - adj
+                elif pinnum == 14 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
+                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-11)+((int(connum)-2)*4) - adj
                 else:print "pin number error"
             # PWMGen pins
             elif ptype == 4:
-                ending = ".pulse"
+                ending = ""
                 adj = 0
                 if signalname.endswith('dir'):
                     adj = 2
-                    ending = ".dir"
+                    ending = ""
                 if signalname.endswith('enable'):
                     adj = 4
-                    ending = ".enable"
+                    ending = ""
                 if pinnum == 6 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
                 elif pinnum == 7 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
                 elif pinnum == 18 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj 
@@ -1576,10 +1579,10 @@ class Data:
             elif ptype == 5:
                 ending = ".reserved"
                 adj = 0
-                if signalname.endswith('dir'):ending = ".step"
-                if signalname.endswith('dir'):
+                if signalname.endswith('dir'):ending = ""
+                if signalname.endswith('step'):
                     adj = 1
-                    ending = ".dir"
+                    ending = ""
                 if signalname.endswith('c'):adj = 2
                 if signalname.endswith('d'):adj = 3
                 if signalname.endswith('e'):adj = 4
@@ -3190,37 +3193,90 @@ class App:
         return True
 
     def m5i20test(self,w):
+        board = self.data.mesa_boardname
         #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )   
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         halrun.write("loadrt hostmot2\n")
-        halrun.write("""loadrt hm2_pci config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (self.data.mesa_boardname, self.data.mesa_firmware, self.data.numof_mesa_encodergens,
+        halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
+         % (board, self.data.mesa_firmware, self.data.numof_mesa_encodergens,
             self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
-        halrun.write("addf hm2_%s.0.read slow\n"% self.data.mesa_boardname)
-        halrun.write("addf hm2_%s.0.write slow\n"% self.data.mesa_boardname)
-        halrun.write("addf hm2_%s.0.pet_watchdog slow\n"% self.data.mesa_boardname)
+        halrun.write("loadrt or2 count=72\n")
+        halrun.write("addf hm2_%s.0.read slow\n"% board)
+        for i in range(0,72):
+            halrun.write("addf or2.%d slow\n"% i)
+        halrun.write("addf hm2_%s.0.write slow\n"% board)
+        halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% board)
+        halrun.write("start\n")
         halrun.write("loadusr -Wn m5i20test pyvcp -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter\n")
-        for connector in (2,3):
+        halrun.write("loadusr halmeter\n")
+        for connector in (2,3,4):
            for pin in range(0,24):
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.data[ptype]
-                #TODO this is just a test the panel needs to be changed for the mesa cards
-                if not pintype == 0:
-                    
-                    truepinnum = (connector-2)*24+ pin
+                pininv = self.widgets[pinv].get_active()
+                truepinnum = (connector-2)*24+ pin
+                # for output / open drain pins
+                if  pintype in (1,2):                
                     halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp hm2_%s.0.gpio.%03d.is_output true\n"% (self.data.mesa_boardname,truepinnum ))
-                elif not pintype in (1,2):
-                  
-                    truepinnum = (connector-2)*24+ pin
+                    halrun.write("setp m5i20test.button.%d.disable false\n"% truepinnum )
+                    halrun.write("setp hm2_%s.0.gpio.%03d.is_output true\n"% (board,truepinnum ))
+                    if pininv:  halrun.write("setp hm2_%s.0.gpio.%03d.invert_output true\n"% (board,truepinnum ))
+                    halrun.write("net signal_out%d or2.%d.out hm2_%s.0.gpio.%03d.out\n"% (truepinnum,truepinnum,board,truepinnum))
+                    halrun.write("net pushbutton.%d or2.%d.in1 m5i20test.button.%d\n"% (truepinnum,truepinnum,truepinnum))
+                    halrun.write("net latchbutton.%d or2.%d.in0 m5i20test.checkbutton.%d\n"% (truepinnum,truepinnum,truepinnum))
+                # for input pins
+                elif pintype == 0:                                    
                     halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
-        halrun.write("start\n")
+                    halrun.write("setp m5i20test.led.%d.disable false\n"% truepinnum )
+                    if pininv:  halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in_not m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
+                    else:   halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
+                # for encoder pins
+                elif pintype == 3:
+                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )                   
+                    if not pin in (0,2,12,14):
+                        continue                 
+                    if pin == 2 :encpinnum = (connector-2)*4 
+                    elif pin == 0 :encpinnum = 1+((connector-2)*4) 
+                    elif pin == 14 :encpinnum = 2+((connector-2)*4) 
+                    elif pin == 12 :encpinnum = 3+((connector-2)*4) 
+                    halrun.write("setp m5i20test.enc.%d.reset.disable false\n"% encpinnum )
+                    halrun.write("net yellow_reset%d hm2_%s.0.encoder.%02d.reset m5i20test.enc.%d.reset\n"% (encpinnum,board,encpinnum,encpinnum))
+                    halrun.write("net yellow_count%d hm2_%s.0.encoder.%02d.count m5i20test.number.%d\n"% (encpinnum,board,encpinnum,encpinnum))
+                # for PWM pins
+                elif pintype == 4:
+                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
+                    if not pin in (6,7,18,19):
+                        continue    
+                    if pin == 7 :encpinnum = (connector-2)*4 
+                    elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
+                    elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
+                    elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
+                    halrun.write("net green_enable%d hm2_%s.0.pwmgen.%02d.enable m5i20test.dac.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum)) 
+                    halrun.write("net green_value%d hm2_%s.0.pwmgen.%02d.value m5i20test.dac.%d-f\n"% (encpinnum,board,encpinnum,encpinnum)) 
+                # for Stepgen pins
+                elif pintype == 5:
+                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum ) 
+                    if not pin in (0,6,12,18):
+                        continue 
+                    if pin == 0 :encpinnum = 0
+                    elif pin == 6 :encpinnum = 1 
+                    elif pin == 12 :encpinnum = 2 
+                    elif pin == 18 :encpinnum = 3 
+                    halrun.write("net brown_enable%d hm2_%s.0.stepgen.%02d.enable m5i20test.step.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum))
+                    halrun.write("net brown_value%d hm2_%s.0.stepgen.%02d.position-cmd m5i20test.anaout.%d\n"% (encpinnum,board,encpinnum,encpinnum))
+                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,encpinnum))
+                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,encpinnum))
+                else: 
+                    print "pintype error"
+                    
         halrun.write("waitusr m5i20test\n"); halrun.flush()
         halrun.close()
         #terminal.close()
