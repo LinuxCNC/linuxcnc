@@ -467,7 +467,11 @@ class MyOpengl(Opengl):
             glInitNames()
             glPushName(0)
 
-            glCallList(select_program)
+            
+            if not vars.show_rapids.get() and norapids is not None:
+                glCallList(select_norapids)
+            else:
+                glCallList(select_program)
 
             try:
                 buffer = list(glRenderMode(GL_RENDER))
@@ -1325,7 +1329,7 @@ def scroll_up(event):
 def scroll_down(event):
     t.yview_scroll(2, "units")
 
-select_program = program = highlight = norapids = None
+select_program = select_norapids = program = highlight = norapids = None
 
 def make_cone():
     global cone_program
@@ -1413,10 +1417,14 @@ def lathetool():
     glDepthFunc(GL_LESS)
 
 def make_selection_list(g):
-    global select_program
+    global select_program, select_norapids
     if select_program is None: select_program = glGenLists(1)
+    if select_norapids is None: select_norapids = glGenLists(1)
     glNewList(select_program, GL_COMPILE)
     g.draw(1)
+    glEndList()
+    glNewList(select_norapids, GL_COMPILE)
+    g.draw(1, False)
     glEndList()
 
 def make_main_list(g):
