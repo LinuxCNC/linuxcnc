@@ -186,7 +186,7 @@ int Interp::convert_nurbs(int mode,
     
     else if (mode == G_5_3){
         CHKS((settings->motion_mode != G_5_2), (
-             "Cannot use G.3 without G.2 first"));
+             "Cannot use G5.3 without G5.2 first"));
         CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
 	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
         settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
