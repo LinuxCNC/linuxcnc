@@ -602,6 +602,8 @@ class pyvcp_label(Label):
     """ Static text label 
         <label>
             <text>"My Label:"</text>
+            <halpin>"name"</halpin>
+            <disablepin>True</disablepin>
         </label>
     """
     n=0
@@ -1035,7 +1037,7 @@ class pyvcp_led(Canvas):
             <on_color>"colorname"</on_color>             Default color red
             <off_color>"colorname"</off_color>           Default color green
             <disable_pin>True</disablepin>               Optional halpin sets led to disable_color
-            <disable_color>"somecolor"</disable_color>   Default color light gray
+            <disable_color>"colorname"</disable_color>   Default color gray80
         </led>"""
     n=0
     def __init__(self,master,pycomp, halpin=None,disablepin=False,     
@@ -1060,17 +1062,16 @@ class pyvcp_led(Canvas):
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
-        if self.disablepin:
-            is_disabled = pycomp[self.halpin_disable]
-            if is_disabled == 1:
-                self.itemconfig(self.oh,fill=self.disabled_color)
-        elif newstate == 1:
+        if newstate == 1:
             self.itemconfig(self.oh,fill=self.on_color)
             self.state=1
         else:
             self.itemconfig(self.oh,fill=self.off_color) 
             self.state=0
-        
+        if self.disablepin:
+            is_disabled = pycomp[self.halpin_disable]
+            if is_disabled == 1:
+                self.itemconfig(self.oh,fill=self.disabled_color)
 
 
 
@@ -1110,17 +1111,16 @@ class pyvcp_rectled(Canvas):
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
-        if self.disablepin:
-            is_disabled = pycomp[self.halpin_disable]
-            if is_disabled == 1:
-                self.itemconfig(self.oh,fill=self.disabled_color)
         elif newstate == 1:
             self.itemconfig(self.oh,fill=self.on_color)
             self.state=1
         else:
             self.itemconfig(self.oh,fill=self.off_color) 
             self.state=0
-
+        if self.disablepin:
+            is_disabled = pycomp[self.halpin_disable]
+            if is_disabled == 1:
+                self.itemconfig(self.oh,fill=self.disabled_color)
 
 
 
