@@ -189,7 +189,7 @@ class pyvcp_dial(Canvas):
         # create the hal pin
         if halpin == None:
             halpin = "dial."+str(pyvcp_dial.n)+".out"
-        pyvcp_dial.n += 1
+            pyvcp_dial.n += 1
         pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
 
         self.halpin=halpin
@@ -362,7 +362,7 @@ class pyvcp_meter(Canvas):
         # create the hal pin
         if halpin == None:
             self.halpin = "meter."+str(pyvcp_meter.n)+".value"
-        pyvcp_meter.n += 1
+            pyvcp_meter.n += 1
         pycomp.newpin(self.halpin, HAL_FLOAT, HAL_IN)
         self.value = pycomp[self.halpin]
     
@@ -477,7 +477,7 @@ class pyvcp_jogwheel(Canvas):
         # create the hal pin
         if halpin == None:
             halpin = "jogwheel."+str(pyvcp_jogwheel.n)+".count"
-        pyvcp_jogwheel.n += 1
+            pyvcp_jogwheel.n += 1
         pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         self.halpin=halpin
         pycomp[self.halpin] = self.count
@@ -557,7 +557,7 @@ class pyvcp_radiobutton(Frame):
         self.choices=choices
         if halpin == None:
             halpin = "radiobutton."+str(pyvcp_radiobutton.n)
-        pyvcp_radiobutton.n += 1
+            pyvcp_radiobutton.n += 1
         
         self.halpins=[]
         n=0
@@ -613,10 +613,11 @@ class pyvcp_label(Label):
         if disablepin:
             if halpin == None:
                 halpin = "label."+str(pyvcp_label.n) 
+                pyvcp_label.n += 1
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
-        pyvcp_label.n += 1
+        
 
     def update(self,pycomp):
         if self.disablepin: 
@@ -766,7 +767,7 @@ class pyvcp_spinbox(Spinbox):
         Spinbox.__init__(self,master,textvariable=self.v,**kw)
         if halpin == None:
             halpin = "spinbox."+str(pyvcp_spinbox.n)
-        pyvcp_spinbox.n += 1
+            pyvcp_spinbox.n += 1
         self.halpin=halpin
         if initval < min_:
             self.value=min_
@@ -817,7 +818,7 @@ class pyvcp_number(Label):
         Label.__init__(self,master,textvariable=self.v,**kw)
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
-        pyvcp_number.n += 1
+            pyvcp_number.n += 1
         self.halpin=halpin
         self.value=0.0
         dummy = "%(b)"+self.format
@@ -841,7 +842,7 @@ class pyvcp_u32(Label):
         Label.__init__(self,master,textvariable=self.v,**kw)
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
-        pyvcp_number.n += 1
+            pyvcp_number.n += 1
         self.halpin=halpin
         self.value=0.0
         dummy = "%(b)"+self.format
@@ -865,7 +866,7 @@ class pyvcp_s32(Label):
         Label.__init__(self,master,textvariable=self.v,**kw)
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
-        pyvcp_number.n += 1
+            pyvcp_number.n += 1
         self.halpin=halpin
         self.value=0.0
         dummy = "%(b)"+self.format
@@ -892,7 +893,7 @@ class pyvcp_timer(Label):
         Label.__init__(self,master,textvariable=self.v,**kw)
         if halpin == None:
             halpin = "timer."+str(pyvcp_timer.n)
-        pyvcp_timer.n += 1
+            pyvcp_timer.n += 1
         self.halpins=[]
         c_halpin=halpin+".reset"
         pycomp.newpin(c_halpin, HAL_BIT, HAL_IN)
@@ -958,7 +959,7 @@ class pyvcp_bar(Canvas):
 
         if halpin == None:
             halpin = "bar."+str(pyvcp_bar.n)
-        pyvcp_bar.n += 1
+            pyvcp_bar.n += 1
         self.halpin=halpin
         self.endval=max_
         self.startval=min_
@@ -1051,14 +1052,15 @@ class pyvcp_led(Canvas):
         self.state = 0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
-            halpin = "led."+str(pyvcp_led.n)   
+            halpin = "led."+str(pyvcp_led.n) 
+            pyvcp_led.n+=1
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
         if disablepin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)       
-        pyvcp_led.n+=1
+        
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
@@ -1100,14 +1102,15 @@ class pyvcp_rectled(Canvas):
         self.state=0
         self.itemconfig(self.oh,fill=off_color)
         if halpin == None:
-            halpin = "led."+str(pyvcp_led.n)       
+            halpin = "led."+str(pyvcp_led.n)  
+            pyvcp_led.n+=1     
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
         if disablepin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
-        pyvcp_led.n+=1
+        
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
@@ -1146,6 +1149,7 @@ class pyvcp_checkbutton(Checkbutton):
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
+            pyvcp_checkbutton.n += 1
         self.halpin=halpin
         if initval >= 0.5:
             self.value=1
@@ -1153,7 +1157,7 @@ class pyvcp_checkbutton(Checkbutton):
             self.value=0
         self.v.set(self.value)
         pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-        pyvcp_checkbutton.n += 1
+       
 
     def update(self,pycomp):
         pycomp[self.halpin]=self.v.get()
@@ -1182,6 +1186,7 @@ class pyvcp_button(Button):
         Button.__init__(self,master,**kw)
         if halpin == None:
             halpin = "button."+str(pyvcp_button.n)
+            pyvcp_button.n += 1  
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
         self.disablepin = disablepin
@@ -1191,8 +1196,7 @@ class pyvcp_button(Button):
             self.halpin_disable=halpin_disable      
         self.state=0;
         self.bind("<ButtonPress>", self.pressed)
-        self.bind("<ButtonRelease>", self.released) 
-        pyvcp_button.n += 1    
+        self.bind("<ButtonRelease>", self.released)    
         self.pycomp = pycomp
 
     def pressed(self,event):
@@ -1248,12 +1252,13 @@ class pyvcp_scale(Scale):
                          from_=min_,to=max_,**kw)
         if halpin == None:
             halpin = "scale."+str(pyvcp_scale.n)
+            pyvcp_scale.n += 1
         self.halpin=halpin
         pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
         pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
-        pyvcp_scale.n += 1
+        
 
         if initval < min_:
             self.value=min_
@@ -1403,7 +1408,7 @@ class _pyvcp_image(Label):
         self.images = images
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
-        pyvcp_number.n += 1
+            pyvcp_number.n += 1
         self.halpin = halpin
         self.value = 0
         self.last = None
