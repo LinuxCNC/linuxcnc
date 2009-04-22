@@ -1111,7 +1111,7 @@ class pyvcp_rectled(Canvas):
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
-        elif newstate == 1:
+        if newstate == 1:
             self.itemconfig(self.oh,fill=self.on_color)
             self.state=1
         else:
