@@ -57,11 +57,11 @@ grid .f2.s -row 0 -column 1 -sticky ns
 pack .f2 -fill both -expand 1
 
 insert_file .f2.t "Print file information:" [lindex $argv 1]
+insert_file .f2.t "Debug file information:" [lindex $argv 0]
 if {$emc::SIMULATOR != "yes"} {
     insert_file .f2.t "Kernel message information:" {|dmesg} \
 	"^.*Adeos: Pipelining started."
 }
-insert_file .f2.t "Debug file information:" [lindex $argv 0]
 .f2.t configure -state disabled
 
 frame .f3
