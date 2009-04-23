@@ -172,7 +172,7 @@ int main(int argc, char * argv[])
 	button_exported[n] = 0;
     }
     /* STEP 4: go into the main loop */
-    hal_ready(comp_id);
+    // hal_ready(comp_id);
     while ( !done ) {
 	/* use select to wait for joystick action or a timeout */
 	FD_ZERO(&fds);
