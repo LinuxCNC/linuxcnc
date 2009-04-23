@@ -86,7 +86,7 @@ blocks
 comp
 \emph default 
  preprocessor:
-\layout Quote
+\layout LyX-Code
 
 component ddt "Compute the derivative of the input function";
 \newline 
@@ -326,22 +326,38 @@ SIZE
 
 
 \family typewriter 
-description DOC;
+description 
+\emph on 
+DOC
+\emph default 
+;
 \layout Itemize
 
 
 \family typewriter 
-see_also DOC;
+see_also 
+\emph on 
+DOC
+\emph default 
+;
 \layout Itemize
 
 
 \family typewriter 
-license LICENSE;
+license 
+\emph on 
+LICENSE
+\emph default 
+;
 \layout Itemize
 
 
 \family typewriter 
-author AUTHOR;
+author 
+\emph on 
+AUTHOR
+\emph default 
+;
 \layout Standard
 
 Parentheses indicate optional items.
@@ -738,6 +754,8 @@ triple quoted
 \begin_deeper 
 \layout Quote
 
+
+\family typewriter 
 param rw bit zot=TRUE
 \newline 
 """The effect of this parameter, also known as "the orb of zot",
@@ -1191,12 +1209,28 @@ option \SpecialChar \ldots{}
 \end_deeper 
 \layout Description
 
-LICENSE Specify the license of the module, for the documentation and for
+LICENSE Specify the license of the module for the documentation and for
  the MODULE_LICENSE() module declaration.
- This declaration is required, GPL is the normal license.
+ For example, to specify that the module's license is GPL,
+\begin_deeper 
+\layout LyX-Code
+
+license "GPL";
+\layout Standard
+
+For additional information on the meaning of MODULE_LICENSE() and additional
+ license identifiers, see 
+\family typewriter 
+<linux/module.h>
+\family default 
+.
+\layout Standard
+
+Starting in emc 2.3, this declaration is required.
+\end_deeper 
 \layout Description
 
-AUTHOR Specify the author of the module, for the documentation
+AUTHOR Specify the author of the module for the documentation.
 \layout Section
 
 Per-instance data storage
@@ -1667,7 +1701,7 @@ comp
 rtexample.ko
 \family default 
  in the emc2 realtime module directory:
-\layout Quote
+\layout LyX-Code
 
 comp --install rtexample.comp
 \layout Standard
@@ -1681,7 +1715,7 @@ example.ko
 example.so
 \family default 
  for the simulator) in the current directory:
-\layout Quote
+\layout LyX-Code
 
 comp --compile rtexample.comp
 \layout Standard
@@ -1691,7 +1725,7 @@ Or it can simply process, leaving
 example.c
 \family default 
  in the current directory:
-\layout Quote
+\layout LyX-Code
 
 comp rtexample.comp
 \layout Standard
@@ -1709,14 +1743,14 @@ comp
 --compile
 \family default 
  options shown above:
-\layout Quote
+\layout LyX-Code
 
 comp --install rtexample2.c
 \layout Standard
 
 man-format documentation can also be created from the information in the
  declaration section:
-\layout Quote
+\layout LyX-Code
 
 comp --document rtexample.comp
 \layout Standard
@@ -1726,7 +1760,7 @@ The resulting manpage,
 example.9
 \family default 
  can be viewed with
-\layout Quote
+\layout LyX-Code
 
 man ./example.9
 \layout Standard
@@ -1742,7 +1776,7 @@ Compiling userspace components outside the source tree
 comp
 \family default 
  can process, compile, install, and document userspace components:
-\layout Quote
+\layout LyX-Code
 
 comp usrexample.comp
 \newline 
@@ -1781,7 +1815,7 @@ function _
 \end_inset 
 
  creates functions named 'constant.0', etc.
-\layout Quote
+\layout LyX-Code
 
 component constant;
 \newline 
@@ -1790,6 +1824,8 @@ pin out float out;
 param r float value = 1.0;
 \newline 
 function _;
+\newline 
+license "GPL";
 \newline 
 ;;
 \newline 
@@ -1827,7 +1863,7 @@ cos()
 sincos.<num>.sin
 \family default 
 .
-\layout Quote
+\layout LyX-Code
 
 component sincos;
 \newline 
@@ -1838,6 +1874,8 @@ pin out float cos_;
 pin in float theta;
 \newline 
 function _;
+\newline 
+license "GPL";
 \newline 
 ;;
 \newline 
@@ -1900,7 +1938,7 @@ preview false
 \layout Subsection
 
 hal_loop
-\layout Quote
+\layout LyX-Code
 
 component hal_loop;
 \newline 
@@ -1955,7 +1993,7 @@ arraydemo
 \layout Standard
 
 This realtime component illustrates use of fixed-size arrays:
-\layout Quote
+\layout LyX-Code
 
 component arraydemo "4-bit Shift register";
 \newline 
@@ -1964,6 +2002,8 @@ pin in bit in;
 pin out bit out-# [4];
 \newline 
 function _ nofp;
+\newline 
+license "GPL";
 \newline 
 ;;
 \newline 
