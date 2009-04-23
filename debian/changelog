@@ -1,3 +1,11 @@
+emc2 (1:2.3.1~pre) hardy; urgency=low
+
+  * Fix hal_joystick 'HAL: ERROR: pin_new called after hal_ready'
+  * documentation improvements
+  * Fix User and HAL manual links in applications menu
+
+ -- Jeff Epler <jepler@unpythonic.net>  Thu, 23 Apr 2009 06:43:17 -0500
+
 emc2 (1:2.3.0) hardy; urgency=low
 
   * hostmot2: allow stepgen maxaccel=0 for 'no acceleration limit'.  This is a
