@@ -82,7 +82,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
 
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
-  if ((mode0 == -1) && (settings->motion_mode != G_5_2)) {
+  if (mode0 == -1) {
   } else if (mode0 == G_4) {
     CHKS((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
   } else if (mode0 == G_10) {
@@ -92,12 +92,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS(((block->l_number == 2 && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2");
     CHKS(((block->l_number == 1 && ((p_int < 1) || (p_int > CANON_TOOL_MAX)))), "P value out of range with G10 L1");
   } else if (mode0 == G_28) {
-  } else if (mode0 == G_28) {  
-  } else if ((mode1 != G_5_2) && (mode0 != G_5_3)) { 
-    CHKS(((mode1 != G_5_2) && (mode0 != G_5_3) && (mode1 != -1)), _("Can use only G5.2 or G5.3 after G5.2"));
-  } else if (mode1 == G_5_2){
-  } else if (mode0 == G_5_3){ 
   } else if (mode0 == G_30) {
+  } else if (mode0 == G_5_3) { 
+      CHKS(((mode1 != G_5_2) && (mode1 != -1)), _("Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."));
+  } else if (mode1 == G_5_2){
   } else if (mode0 == G_28_1 || mode0 == G_30_1) {
   } else if (mode0 == G_53) {
     CHKS(((block->motion_to_be != G_0) && (block->motion_to_be != G_1)),
