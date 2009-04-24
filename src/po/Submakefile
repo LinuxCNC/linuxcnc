@@ -52,7 +52,7 @@ po/tcl.pot: $(TCLSRCS)
 TARGETS += po/tcl.pot
 endif
 
-po/rs274_err.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS)
+po/rs274_err.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh
 	$(XGETTEXT) -k_ -o $@ $^ && touch $@
 TARGETS += po/rs274_err.pot
 
