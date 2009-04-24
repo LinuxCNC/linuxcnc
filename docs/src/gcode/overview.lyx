@@ -713,7 +713,7 @@ Z axis of machine
 \end_inset 
 
 
-\layout Subsection
+\layout Section
 
 Number
 \begin_inset LatexCommand \label{sub:Number}
@@ -761,7 +761,7 @@ Numbers used for specific purposes in RS274/NGC are often restricted to
  A decimal number which is supposed be close to an integer is considered
  close enough if it is within 0.0001 of an integer.
  
-\layout Subsection
+\layout Section
 
 Numbered Parameters
 \begin_inset LatexCommand \label{sub:Numbered-Parameters}
@@ -824,7 +824,7 @@ The
  means the value of the parameter whose index is the (integer) value of
  parameter 2.
  
-\layout Subsection
+\layout Section
 
 Named Parameters
 \begin_inset LatexCommand \label{sub:Named-Parameters}
@@ -909,7 +909,7 @@ The global parameters _a, _b, _c, ...
  In the future, they may provide access to the last Aword, Bword, Cword,
  etc.
  
-\layout Subsection
+\layout Section
 
 Expressions
 \begin_inset LatexCommand \label{sub:Expressions}
@@ -938,7 +938,7 @@ An expression is a set of characters starting with a left bracket
 [1 + acos[0] - [#3 ** [4.0/2]]]
 \family default 
 .
-\layout Subsection
+\layout Section
 
 Binary Operators
 \begin_inset LatexCommand \label{sub:Binary-Operators}
@@ -1207,7 +1207,7 @@ lowest
 \end_inset 
 
 
-\layout Subsection
+\layout Section
 
 Functions
 \begin_inset LatexCommand \label{sub:Unary-Operation-Value}
@@ -2328,7 +2328,7 @@ G Code Best Practices
 \end_inset 
 
 
-\layout Section
+\layout Section*
 
 Use an appropriate decimal precision
 \layout Standard
@@ -2337,7 +2337,7 @@ Use at least 3 digits after the decimal when milling in millimeters, and
  at least 4 digits after the decimal when milling in inches.
  In particular, arc tolerance checks are made to .001 and .0001 depending
  on the active units.
-\layout Section
+\layout Section*
 
 Use consistent white space
 \layout Standard
@@ -2345,7 +2345,7 @@ Use consistent white space
 G-code is most legible when at least one space appears before words.
  While it is permitted to insert white space in the middle of numbers, there
  is no reason to do so.
-\layout Section
+\layout Section*
 
 Prefer "Center-format" arcs
 \layout Standard
@@ -2360,7 +2360,7 @@ R-
 \family default 
 ) behave more consistently than R-format arcs, particularly for included
  angles near 180 or 360 degrees.
-\layout Section
+\layout Section*
 
 Put important modal settings at the top of the file
 \layout Standard
@@ -2386,7 +2386,7 @@ Perhaps the most critical modal setting is the distance units--If you do
  not include G20 or G21, then different machines will mill the program at
  different scales.
  Other settings, such as the return mode in canned cycles may also be important.
-\layout Section
+\layout Section*
 
 Don't put too many things on one line
 \layout Standard
@@ -2397,14 +2397,20 @@ Ignore everything in Section
 \end_inset 
 
 , and instead write no line of code that is the slightest bit ambiguous.
- Similarly, don't use and set a parameter on the same line, even though
- the semantics are well defined.
- (Exception: Updating a variable to a new value, such as 
+ 
+\layout Section*
+
+Don't set & use a parameter on the same line
+\layout Standard
+
+Don't use and set a parameter on the same line, even though the semantics
+ are well defined.
+ Updating a variable to a new value, such as 
 \family typewriter 
 #1=[#1+#2
 \family default 
-])
-\layout Section
+] is ok.
+\layout Section*
 
 Don't use line numbers
 \layout Standard
@@ -2412,7 +2418,7 @@ Don't use line numbers
 Line numbers offer no benefits.
  When line numbers are reported in error messages, the numbers refer to
  the line number in the file, not the N-word value.
-\layout Section
+\layout Section*
 
 When moving more than one coordinate system, consider inverse time feed
  mode
