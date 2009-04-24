@@ -450,6 +450,8 @@ A LED is used to indicate the status of a "bit" halpin.
 \newline 
 <off_color> sets the color of the LED when the pin is false.
  default is "red"
+\newline 
+<disable_pin> when true adds a disable pin to the led.
 \layout Subsubsection
 
 Round LED
@@ -551,7 +553,8 @@ Text Button
 A text button controls a "bit" halpin.
  The halpin is false until the button is pressed then it is true.
  The button is a momentary button.
- 
+ The text button has an optional disable pin that is created when you add
+ <disable_pin>true</disable_pin>.
 \layout Quote
 
 <button>
