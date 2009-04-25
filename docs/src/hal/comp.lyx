@@ -1348,6 +1348,8 @@ C++-style one-line comments (
  */
 \family default 
 ) are both supported in the declaration section.
+ If you declare a variable and don't use it in your code you will get an
+ obfuscated error about an unused variable.
 \layout Section
 
 Other restrictions on comp files
