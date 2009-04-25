@@ -904,6 +904,13 @@ G1
 G4
 \family default 
  command) are shown as small "X" marks.
+\layout Standard
+
+G0 (Rapid) moves prior to a feed move will not show up on the preview plot.
+ Rapid moves after a T<n> (Tool Change) will not show on the AXIS preview
+ until after a feed move.
+ To turn either of these features off program a G1 without any moves prior
+ to the G0 moves.
 \layout Subsubsection
 
 Program Extents
