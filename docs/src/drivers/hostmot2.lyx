@@ -128,6 +128,59 @@ The config parameters are described in the hostmot2 man page.
  
 \layout Section
 
+Watchdog
+\layout Standard
+
+The HostMot2 firmware may include a watchdog Module; if it does, the hostmot2
+ driver will use it.
+\layout Standard
+
+The watchdog must be petted by EMC2 periodically or it will bite.
+\layout Standard
+
+When the watchdog bites, all the board's I/O pins are disconnected from
+ their Module instances and become high-impedance inputs (pulled high),
+ and all communication with the board stops.
+ The state of the HostMot2 firwmare modules is not disturbed (except for
+ the configuration of the IO Pins).
+ Encoder instances keep counting quadrature pulses, and pwm- and step-generators
+ keep generating signals (which are not relayed to the motors, because the
+ IO Pins have become inputs).
+\layout Standard
+
+Resetting the watchdog resumes communication and resets the I/O pins to
+ the configuration chosen at load-time.
+\layout Standard
+
+If the firmware includes a watchdog, the following HAL objects will be exported:
+\layout Subsection*
+
+Pins:
+\layout Description
+
+.has_bit: (bit i/o) True if the watchdog has bit, False if the watchdog has
+ not bit.
+ If the watchdog has bit and the has_bit bit is True, the user can reset
+ it to False to resume operation.
+\layout Subsection*
+
+Parameters:
+\layout Description
+
+.timeout_ns: (u32 read/write) Watchdog timeout, in nanoseconds.
+ This is initialized to 1,000,000,000 (1 second) at module load time.
+ If more than this amount of time passes between calls to the pet_watchdog()
+ function, the watchdog will bite.
+\layout Subsection*
+
+Functions:
+\layout Description
+
+pet_watchdog(): Calling this function resets the watchdog timer and postpones
+ the watchdog biting until timeout_ns nanoseconds later.
+ This function should be added to the servo thread.
+\layout Section
+
 HostMot2 Functions
 \layout Description
 
