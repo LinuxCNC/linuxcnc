@@ -247,7 +247,7 @@ class Data:
         self.mesa5i20 = 1
         self.mesa_boardname = "5i20"
         self.mesa_firmware = "SVST8_4"
-        self.mesa_pwm_frequency = 400000
+        self.mesa_pwm_frequency = 100000
         self.mesa_watchdog_timeout = 10000000
         self.numof_mesa_encodergens = 4
         self.numof_mesa_pwmgens = 4
@@ -590,7 +590,12 @@ class Data:
 
         print >>file
         print >>file, "[DISPLAY]"
-        print >>file, "DISPLAY = axis"
+        if self.frontend == 1:
+            print >>file, "DISPLAY = axis"
+        elif self.frontend == 2:
+            print >>file, "DISPLAY = tkemc"
+        else:
+            print >>file, "DISPLAY = mini"
         print >>file, "EDITOR = gedit"
         print >>file, "POSITION_OFFSET = RELATIVE"
         print >>file, "POSITION_FEEDBACK = ACTUAL"
@@ -872,14 +877,11 @@ class Data:
         print >>file, "#**************"
         print >>file, "#  Axis %s" % let.upper()
         print >>file, "#**************"
-        print >>file, "newsig emcmot.%02d.enable bit"% (num)
-        print >>file, "    sets emcmot.%02d.enable FALSE"% (num)
-        print >>file, "net emcmot.%02d.enable => pid.%d.enable"% (num, axnum)
-        
-        if "m5i20" in pwmgen =="false":
+              
+        if not "m5i20" in pwmgen =="false":
             pinname = self.make_pinname(pwmgen)
-            print >>file, "net emcmot.%02d.enable => "+pinname+".enable" % (axnum, boardnum, signum)
-        print >>file, "net emcmot.%02d.enable <= axis.%d.amp-enable-out" % (num, axnum)
+            print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
+                   
         if stepgen == "false":
             print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
             print >>file, "    setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
@@ -889,30 +891,34 @@ class Data:
             print >>file, "    setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
             print >>file, "    setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
             print >>file, "    setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
-            print >>file, "    setp pid.%d.maxoutput [AXIS_%d]MAX_VELOCITY" % (num, axnum)
+            print >>file, "    setp pid.%d.maxoutput [AXIS_%d]MAX_OUTPUT" % (num, axnum)
             print >>file
             if 'm5i20' in encoder:
                 pinname = self.make_pinname(encoder)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 #also the encoder # needs to reflect pin number not axis number
+                print >>file, "# Encoder feedback signals/setup"
+                print >>file
                 print >>file, "    setp "+pinname+".counter-mode 0"
                 print >>file, "    setp "+pinname+".filter 1" 
                 print >>file, "    setp "+pinname+".index-invert 0"
                 print >>file, "    setp "+pinname+".index-mask 0" 
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [AXIS_%d]SCALE"% (axnum)
-                print >>file, "net motor.%02d.pos-fb "% (axnum) +pinname+ ".position => pid.%d.feedback"% axnum
-                #TODO if this is really for AXIS GUI then will need to be changed for other GUI
-                print >>file, "net motor.%d.pos-fb => axis.%d.motor-pos-fb #push copy back to Axis GUI" % (axnum, axnum)   
+                print >>file, "net %spos-fb <= "% (let) +pinname+".position"
+                print >>file, "net %spos-fb => pid.%d.feedback"% (let,axnum) 
+                print >>file, "net %spos-fb => axis.%d.motor-pos-fb" % (let, axnum)   
                 print >>file        
             if 'm5i20' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
                 #TODO do a check to see if encoder sig is from parport or mesa
-                #also the pwm # needs to reflect pin number not axis number
+                print >>file, "# PWM Generator signals/setup"
+                print >>file
                 print >>file, "    setp "+pinname+".output-type 1" 
                 print >>file, "    setp "+pinname+".scale  1.0" 
-                print >>file, "net emcmot.%02d.pos-cmd axis.%d.motor-pos-cmd => pid.%d.command" % (axnum, axnum , axnum)
-                print >>file, "net motor.%02d.command  pid.%d.output  => "% (axnum, axnum) +pinname+ ".value"      
+                print >>file, "net %senable     axis.%d.amp-enable-out => pid.%d.enable" % (let, axnum, num) 
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
+                print >>file, "net %soutput     pid.%d.output  => "% (let, axnum) +pinname+ ".value"      
         if not stepgen == "false":
             print >>file, "    setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
             print >>file, "    setp stepgen.%d.steplen 1" % num
@@ -923,11 +929,11 @@ class Data:
             print >>file, "    setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
             print >>file, "    setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
             print >>file, "    setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
-            print >>file, "net %spos-cmd axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
-            print >>file, "net %spos-fb stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
+            print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
+            print >>file, "net %spos-fb     stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
             print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
             print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
-            print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)        
+            print >>file, "net %senable     axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)        
         if homesig:
             print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
         if min_limsig:
@@ -937,6 +943,7 @@ class Data:
 
     def connect_input(self, file):
         print >>file
+        print >>file, "# external input signals"
         for q in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = self['pp1Ipin%d' % q]
             i = self['pp1Ipin%dinv' % q]
@@ -955,8 +962,8 @@ class Data:
                 if t == 0:
                     if p == "unused-input":continue 
                     pinname = self.make_pinname(self.findsignal( p )) 
-                    if i: print >>file, "net %s <= "% (p)+pinname  
-                    else: print >>file, "net %s <= "% (p)+pinname
+                    if i: print >>file, "net %s <= "% (p)+pinname +".in_not"
+                    else: print >>file, "net %s <= "% (p)+pinname +".in"
                 # for encoder pins
                 elif t == 3:
                     if p == "unused-encoder":continue
@@ -966,6 +973,7 @@ class Data:
 
     def connect_output(self, file):
         print >>file
+        print >>file, "# external output signals"
         for q in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = self['pp1Opin%d' % q]
             i = self['pp1Opin%dinv' % q]
@@ -983,7 +991,8 @@ class Data:
                 if t in (1,2):
                     if p == "unused-output":continue
                     pinname = self.make_pinname(self.findsignal( p ))
-                    print >>file, "net %s => "% (p)+pinname
+                    print >>file, "    setp "+pinname +".is_output true"
+                    print >>file, "net %s => "% (p)+pinname +".out"
                     if i: print >>file, "    setp "+pinname+".invert_output true"
                     if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"                 
                 # for pwm pins
@@ -1010,7 +1019,8 @@ class Data:
         if self.mesa5i20>0:
             print >>file, "loadrt hostmot2"
             print >>file, "loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)"
-            #print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
+            if self.numof_mesa_pwmgens > 0:
+                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
@@ -1038,7 +1048,7 @@ class Data:
                 print >>file, "    setp parport.0.reset-time %d" % self.steptime
 
         spindle_enc = counter = probe = pwm = pump = estop = False 
-        spindle_on = spindle_cw = spindle_ccw = False
+        enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = False
 
         if not self.findsignal("spindle-phase-a") == "false":
@@ -1053,6 +1063,8 @@ class Data:
             pump = True
         if not self.findsignal("estop-ext") =="false":
             estop = True
+        if not self.findsignal("enable") =="false":
+            enable = True
         if not self.findsignal("spindle-on") =="false":
             spindle_on = True
         if not self.findsignal("spindle-cw") =="false":
@@ -1228,6 +1240,7 @@ class Data:
             self.connect_axis(file, 3, 'a')
 
         print >>file
+        print >>file, _("#  estop signals")
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
@@ -1243,6 +1256,8 @@ class Data:
             print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
         else:
             print >>file, "net estop-out => iocontrol.0.emc-enable-in"
+        if enable:
+             print >>file, "net enable => motion.motion-enabled"
 
         print >>file
         if self.manualtoolchange:
@@ -1535,65 +1550,47 @@ class Data:
             connum = int(test[6:7])
             #print test,self[pin], ptype, pinnum
             # GPIO pins truenumber can be any number between 0 and 72 for 5i20 ( 96 in 5i22)
-            if ptype == 0:
-                ending =".in"
-                if self[pin+"inv"]: ending = ".in_not"
+            if ptype in(0,1,2):
                 truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinnum +ending
-            elif ptype in (1,2):
-                ending =".out"
-                truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinnum +ending
+                return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%03d"% truepinnum 
+            
             # Encoder 
             elif ptype == 3:
-                ending = ""
                 adj = 0
-                if signalname.endswith('b'):
-                    adj = 1
-                    ending = ""
+                if signalname.endswith('b'):adj = 1
                 if signalname.endswith('i'):
-                    ending = ""
                     adj = 4
                     if pinnum in(0,12):adj = 3
-                if pinnum == 2 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
-                elif pinnum == 0 + adj:truepinnum = (int(pinnum)-1)+((int(connum)-2)*4) - adj
-                elif pinnum == 14 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
-                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-11)+((int(connum)-2)*4) - adj
+                if pinnum == 2 + adj:truepinnum = 0 +((connum-2)*4) 
+                elif pinnum == 0 + adj:truepinnum = 1 +((connum-2)*4)
+                elif pinnum == 14 + adj:truepinnum = 2 +((connum-2)*4)
+                elif pinnum == 12 + adj:truepinnum = 3 +((connum-2)*4) 
                 else:print "pin number error"
             # PWMGen pins
             elif ptype == 4:
-                ending = ""
                 adj = 0
-                if signalname.endswith('dir'):
-                    adj = 2
-                    ending = ""
-                if signalname.endswith('enable'):
-                    adj = 4
-                    ending = ""
-                if pinnum == 6 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
-                elif pinnum == 7 + adj:truepinnum = (int(pinnum)-6)+((int(connum)-2)*4) - adj
-                elif pinnum == 18 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj 
-                elif pinnum == 19 + adj:truepinnum = (int(pinnum)-16)+((int(connum)-2)*4) - adj
+                if signalname.endswith('dir'):adj = 2
+                if signalname.endswith('enable'):adj = 4         
+                if pinnum == 6 + adj:truepinnum = 0 +((connum-2)*4) 
+                elif pinnum == 7 + adj:truepinnum = 1 +((connum-2)*4)
+                elif pinnum == 18 + adj:truepinnum = 2 +((connum-2)*4)  
+                elif pinnum == 19 + adj:truepinnum = 3 +((connum-2)*4) 
                 else:print "pin number error"
             # StepGen pins 
             elif ptype == 5:
-                ending = ".reserved"
                 adj = 0
-                if signalname.endswith('dir'):ending = ""
-                if signalname.endswith('step'):
-                    adj = 1
-                    ending = ""
+                if signalname.endswith('step'):adj = 1
                 if signalname.endswith('c'):adj = 2
                 if signalname.endswith('d'):adj = 3
                 if signalname.endswith('e'):adj = 4
                 if signalname.endswith('f'):adj = 5
-                if pinnum == 0 + adj:truepinnum = int(pinnum)+((int(connum)-2)*4) - adj
-                elif pinnum == 6 + adj:truepinnum = (int(pinnum)-5)+((int(connum)-2)*4) -adj
-                elif pinnum == 12 + adj:truepinnum = (int(pinnum)-10)+((int(connum)-2)*4) - adj
-                elif pinnum == 18 + adj:truepinnum = (int(pinnum)-14)+((int(connum)-2)*4) - adj
+                if pinnum == 0 + adj:truepinnum = 0 
+                elif pinnum == 6 + adj:truepinnum = 1 
+                elif pinnum == 12 + adj:truepinnum = 2 
+                elif pinnum == 18 + adj:truepinnum = 3
                 else:print "pin number error"
             else: print "pintype error"
-            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%02d"% (truepinnum)+ending
+            return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%02d"% (truepinnum)
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -1888,16 +1885,17 @@ class App:
 
     def on_GUI_config_prepare(self, *args):
         self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
-        if self.data.frontend == 1: i= 1
-        else: i = 0
-        self.widgets.GUIAXIS.set_active(i)
-        self.widgets.GUITkEmc.set_active(not i)
+        if self.data.frontend : self.widgets.GUIAXIS.set_active(True)
+        elif self.data.wigets.GUITKEMC: self.widgets.GUITKEMC.set_active(True)
+        else:   self.widgets.GUIMINI.set_active(True)
 
     def on_GUI_config_next(self, *args):
         if self.widgets.GUIAXIS.get_active():
            self.data.frontend = 1
-        else : 
+        elif self.widgets.GUITKEMC.get_active():
            self.data.frontend = 2
+        else:
+            self.data.frontend = 3
         if not self.data.mesa5i20:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
@@ -2255,7 +2253,7 @@ class App:
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_OUTPUT
                     self.data[ptype] = new
-                if old in (1,2) and new == 0:
+                elif old in (1,2) and new == 0:
                     print "switch GPIO output ",p,"to input"
                     model = self.widgets[p].get_model()
                     model.clear()
@@ -2270,7 +2268,7 @@ class App:
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
                     self.data[ptype] = new
-                if (old == 1 and new ==2) :
+                elif (old == 1 and new ==2) :
                     print "switch GPIO output ",p,"to open drain"
                     self.data[ptype] = new
                 elif (old == 2 and new ==1):
