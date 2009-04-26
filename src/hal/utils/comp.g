@@ -273,8 +273,6 @@ static int comp_id;
         if array: has_array = True
         if isinstance(array, tuple): has_personality = True
         if personality: has_personality = True
-    for type, name, array, value in variables:
-        if array: has_array = True
     for type, name, default, doc in modparams:
         decl = mp_decl_map[type]
         if decl:
