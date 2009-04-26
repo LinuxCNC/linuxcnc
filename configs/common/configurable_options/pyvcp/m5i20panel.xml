@@ -1590,9 +1590,7 @@
                     </hbox>
                     <dial>
                         <size>125</size>
-                        <cpr>100</cpr>
-                        <min_>-15</min_>
-                        <max_>15</max_>
+                        <cpr>100</cpr>                       
                         <text>"Jog"</text>
                         <initval>0</initval>
                         <resolution>1</resolution>
@@ -1615,8 +1613,6 @@
                     <dial>
                         <size>125</size>
                         <cpr>100</cpr>
-                        <min_>-15</min_>
-                        <max_>15</max_>
                         <text>"Jog"</text>
                         <initval>0</initval>
                         <resolution>1</resolution>
@@ -1640,8 +1636,6 @@
                     <dial>
                         <size>125</size>
                         <cpr>100</cpr>
-                        <min_>-15</min_>
-                        <max_>15</max_>
                         <text>"Jog"</text>
                         <initval>0</initval>
                         <resolution>1</resolution>
@@ -1664,8 +1658,6 @@
                     <dial>
                         <size>125</size>
                         <cpr>100</cpr>
-                        <min_>-15</min_>
-                        <max_>15</max_>
                         <text>"Jog"</text>
                         <initval>0</initval>
                         <resolution>1</resolution>
