@@ -88,6 +88,16 @@ Several pre-compiled HostMot2 firmware binaries are available for the different
 4-channel servo plus 4 step/dir generators 
 \layout Section
 
+Installing Firmware
+\layout Standard
+
+Depending on how you installed EMC2 you may have to open the Synaptic Package
+ Manager from the System menu and install the package for your Mesa card.
+ The quickest way to find them is to do a search for "emc" in the Synaptic
+ Package Manager.
+ Mark the firmware for installation then apply.
+\layout Section
+
 Loading HostMot2
 \layout Standard
 
