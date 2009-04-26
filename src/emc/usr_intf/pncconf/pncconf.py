@@ -759,6 +759,8 @@ class Data:
     def write_one_axis(self, file, num, letter, type, all_homes):
         order = "1203"
         def get(s): return self[letter + s]
+        pwmgen = self.pwmgen_sig(letter)
+        stepgen = self.stepgen_sig(letter)
         print >>file
         print >>file, "#********************"
         print >>file, "# Axis %s" % letter.upper()
@@ -773,22 +775,28 @@ class Data:
             print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
         if self[letter + "usebacklash"]:
             print >>file, "BACKLASH = %s" % get("backlash")
-        #print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
         print >>file, "FERROR = %s"% get("maxferror")
         print >>file, "MIN_FERROR = %s" % get("minferror")
-        print >>file, "P = %s" % get("P")
-        print >>file, "I = %s" % get("I") 
-        print >>file, "D = %s" % get("D")
-        print >>file, "FF0 = %s" % get("FF0")
-        print >>file, "FF1 = %s" % get("FF1")
-        print >>file, "FF2 = %s" % get("FF2")
-        print >>file, "BIAS = 0" 
-        print >>file, "DEADBAND = 0"
-        print >>file, "SCALE = 1"
-        print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
-        print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
-        print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
-        print >>file, "INPUT_SCALE = %s" % get("scale")
+        if stepgen == "false":
+            print >>file, "P = %s" % get("P")
+            print >>file, "I = %s" % get("I") 
+            print >>file, "D = %s" % get("D")
+            print >>file, "FF0 = %s" % get("FF0")
+            print >>file, "FF1 = %s" % get("FF1")
+            print >>file, "FF2 = %s" % get("FF2")
+            print >>file, "BIAS = 0" 
+            print >>file, "DEADBAND = 0"
+            print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
+            print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
+            print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
+            print >>file, "INPUT_SCALE = %s" % get("scale")
+        else:
+            print >>file, "# these are in nanoseconds"
+            print >>file, "DIRSETUP   =              200"
+            print >>file, "DIRHOLD    =              200"
+            print >>file, "STEPLEN    =              40000"
+            print >>file, "STEPSPACE  =              40000"
+            print >>file, "SCALE = %s"% get("outputscale")     
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
@@ -877,10 +885,6 @@ class Data:
         print >>file, "#**************"
         print >>file, "#  Axis %s" % let.upper()
         print >>file, "#**************"
-              
-        if not "m5i20" in pwmgen =="false":
-            pinname = self.make_pinname(pwmgen)
-            print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
                    
         if stepgen == "false":
             print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
@@ -916,29 +920,30 @@ class Data:
                 print >>file
                 print >>file, "    setp "+pinname+".output-type 1" 
                 print >>file, "    setp "+pinname+".scale  1.0" 
-                print >>file, "net %senable     axis.%d.amp-enable-out => pid.%d.enable" % (let, axnum, num) 
+                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
+                print >>file, "net %senable     pid.%d.enable" % (let, axnum, num) 
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
                 print >>file, "net %soutput     pid.%d.output  => "% (let, axnum) +pinname+ ".value"      
         if not stepgen == "false":
-            print >>file, "    setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
-            print >>file, "    setp stepgen.%d.steplen 1" % num
-            if self.doublestep():
-                print >>file, "    setp stepgen.%d.stepspace 0" % num
-            else:
-                print >>file, "    setp stepgen.%d.stepspace 1" % num
-            print >>file, "    setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
-            print >>file, "    setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
-            print >>file, "    setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
-            print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
-            print >>file, "net %spos-fb     stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
-            print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
-            print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
-            print >>file, "net %senable     axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)        
-        if homesig:
+            pinname = self.make_pinname(stepgen)
+            print >>file, "# Step Gen signals/setup"
+            print >>file
+            print >>file, "setp " + pinname + ".dirsetup        [AXIS_%d]DIRSETUP"% axnum
+            print >>file, "setp " + pinname + ".dirhold         [AXIS_%d]DIRHOLD"% axnum
+            print >>file, "setp " + pinname + ".steplen         [AXIS_%d]STEPLEN"% axnum
+            print >>file, "setp " + pinname + ".stepspace       [AXIS_%d]STEPSPACE"% axnum
+            print >>file, "setp " + pinname + ".position-scale  [AXIS_%d]SCALE"% axnum
+            print >>file, "setp " + pinname + ".maxaccel        [AXIS_%d]MAX_ACCELERATION"% axnum
+            print >>file, "setp " + pinname + ".maxvel          [AXIS_%d]MAX_VELOCITY"% axnum
+            print >>file, "setp " + pinname + ".step_type       0"
+            print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
+            print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
+            print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"        
+        if not homesig =="false":
             print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
-        if min_limsig:
+        if not min_limsig =="false":
             print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
-        if max_limsig:
+        if not max_limsig =="false":
             print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
     def connect_input(self, file):
@@ -1016,6 +1021,7 @@ class Data:
         print >>file
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
+        print >>file, "loadrt probe_parport"
         if self.mesa5i20>0:
             print >>file, "loadrt hostmot2"
             print >>file, "loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)"
@@ -1024,7 +1030,6 @@ class Data:
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
-            print >>file, "loadrt probe_parport"
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
             if self.number_pports>2:
                  port3name = " " + self.ioaddr3
@@ -1575,11 +1580,11 @@ class Data:
                 elif pinnum == 7 + adj:truepinnum = 1 +((connum-2)*4)
                 elif pinnum == 18 + adj:truepinnum = 2 +((connum-2)*4)  
                 elif pinnum == 19 + adj:truepinnum = 3 +((connum-2)*4) 
-                else:print "pin number error"
+                else:print "pin number error pinnum = %d"% pinnum
             # StepGen pins 
             elif ptype == 5:
                 adj = 0
-                if signalname.endswith('step'):adj = 1
+                if signalname.endswith('dir'):adj = 1
                 if signalname.endswith('c'):adj = 2
                 if signalname.endswith('d'):adj = 3
                 if signalname.endswith('e'):adj = 4
@@ -1588,7 +1593,7 @@ class Data:
                 elif pinnum == 6 + adj:truepinnum = 1 
                 elif pinnum == 12 + adj:truepinnum = 2 
                 elif pinnum == 18 + adj:truepinnum = 3
-                else:print "pin number error"
+                else:print "pin number error pinnum = %d"% pinnum
             else: print "pintype error"
             return "hm2_[HOSTMOT2](BOARD).0."+type_name[ptype]+".%02d"% (truepinnum)
         elif 'pp' in test:
@@ -1867,7 +1872,7 @@ class App:
         else :
             self.data.number_pports = 0
         if self.data.number_pports == 0 and self.data.mesa5i20 == 0 :
-           self.warning_dialog(_("You need to designate a parport and/or mesa 5i20 I/O device before continuing."),True)
+           self.warning_dialog(_("You need to designate a parport and/or mesa I/O device before continuing."),True)
            self.widgets.druid1.set_page(self.widgets.basicinfo)
            return True 
         self.data.pp1_direction = self.widgets.pp1_direction.get_active()
@@ -1878,6 +1883,9 @@ class App:
         self.data.limitswitch = self.widgets.limittype_switch.get_active()
         self.data.limitshared = self.widgets.limittype_shared.get_active()
         self.data.homenone = self.widgets.home_none.get_active()
+        self.data.homeindex = self.widgets.home_index.get_active()
+        self.data.homeswitch = self.widgets.home_switch.get_active()
+        self.data.homeboth = self.widgets.home_both.get_active()
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -1885,8 +1893,8 @@ class App:
 
     def on_GUI_config_prepare(self, *args):
         self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
-        if self.data.frontend : self.widgets.GUIAXIS.set_active(True)
-        elif self.data.wigets.GUITKEMC: self.widgets.GUITKEMC.set_active(True)
+        if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
+        elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
         else:   self.widgets.GUIMINI.set_active(True)
 
     def on_GUI_config_next(self, *args):
@@ -1896,6 +1904,7 @@ class App:
            self.data.frontend = 2
         else:
             self.data.frontend = 3
+        self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
         if not self.data.mesa5i20:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
@@ -1989,6 +1998,7 @@ class App:
         self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
         self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
         self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
+
 
         for connector in (2,3,4):
             for pin in range(0,24):
@@ -3283,9 +3293,74 @@ class App:
     def parporttest(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
-        halrun.write("loadusr -Wn parporttest pyvcp -c parporttest %(panel)s\n" %{'panel':"parportpanel.xml",})
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
+        halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        halrun.write("loadrt probe_parport\n")
+        if self.data.number_pports>0:
+            port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
+            if self.data.number_pports>2:
+                 port3name = " " + self.ioaddr3
+                 if self.data.pp3_direction:
+                    port3dir =" out"
+                 else: 
+                    port3dir =" in"
+            if self.data.number_pports>1:
+                 port2name = " " + self.data.ioaddr2
+                 if self.data.pp2_direction:
+                    port2dir =" out"
+                 else: 
+                    port2dir =" in"
+            port1name = self.data.ioaddr
+            if self.data.pp1_direction:
+               port1dir =" out"
+            else: 
+               port1dir =" in"
+            halrun.write( "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
+        halrun.write("loadrt or2 count=12\n")
+        if self.data.number_pports > 0:
+            halrun.write( "addf parport.0.read fast\n")
+        if self.data.number_pports > 1:
+            halrun.write("addf parport.1.read fast\n")
+        if self.data.number_pports > 2:
+            halrun.write("addf parport.2.read fast\n")
+        for i in range(0,12):
+            halrun.write("addf or2.%d fast\n"% i)
+        if self.data.number_pports > 0:
+            halrun.write( "addf parport.0.write fast\n")
+        if self.data.number_pports > 1:
+            halrun.write("addf parport.1.write fast\n")
+        if self.data.number_pports > 2:
+            halrun.write("addf parport.2.write fast\n")
+        halrun.write("loadusr -Wn parporttest pyvcp -c parporttest %(panel)s\n" %{'panel':"parportpanel.xml\n",})
         halrun.write("loadusr halmeter\n")
+        templist = ("pp1","pp2","pp3")
+        for j, k in enumerate(templist):
+            if self.data.number_pports < (j+1): break 
+            if self.data[k+"_direction"] == 1:
+                inputpins = (10,11,12,13,15)
+                outputpins = (1,2,3,4,5,6,7,8,9,14,16,17)               
+                for x in (2,3,4,5,6,7,8,9):
+                    halrun.write( "setp parporttest.%s_led.%d.disable true\n"%(k, x))
+                    halrun.write( "setp parporttest.%s_led_text.%d.disable true\n"%(k, x))
+            else:
+                inputpins = (2,3,4,5,6,7,8,9,10,11,12,13,15)
+                outputpins = (1,14,16,17)
+                for x in (2,3,4,5,6,7,8,9):
+                    halrun.write( "setp parporttest.%s_button.%d.disable true\n"% (k, x))
+                    halrun.write( "setp parporttest.%s_button_text.%d.disable true\n"% (k, x))
+            for x in inputpins: 
+                i = self.data["%sIpin%dinv" % (k, x)]
+                if i:  halrun.write( "net red_in_not.%d parporttest.%s_led.%d <= parport.%d.pin-%02d-in-not\n" % (x, k, x, j, x))
+                else:  halrun.write( "net red_in.%d parporttest.%s_led.%d <= parport.%d.pin-%02d-in\n" % (x, k, x, j , x))               
+                         
+            for num, x in enumerate(outputpins):  
+                i = self.data["%sOpin%dinv" % (k, x)]
+                if i:  halrun.write( "setp parport.%d.pin-%02d-out-invert true\n" %(j, x))
+                halrun.write("net signal_out%d or2.%d.out parport.%d.pin-%02d-out\n"% (x, num, j, x))
+                halrun.write("net pushbutton.%d or2.%d.in1 parporttest.%s_button.%d\n"% (x, num, k, x))
+                halrun.write("net latchbutton.%d or2.%d.in0 parporttest.%s_checkbutton.%d\n"% (x, num, k, x))
+
+            
         halrun.write("start\n")
         halrun.write("waitusr parporttest\n"); halrun.flush()
         halrun.close()
