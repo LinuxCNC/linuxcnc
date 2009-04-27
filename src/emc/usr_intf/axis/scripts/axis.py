@@ -2357,9 +2357,14 @@ class _prompt_touchoff(_prompt_float):
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
-            if vars.metric.get(): unit_str = " mm"
-            else: unit_str = " in"
-        else: unit_str = u"\xb0"
+            if vars.metric.get(): unit_str = " " + _("mm")
+            else: unit_str = " " + _("in")
+            if lathe and vars.current_axis.get() == "x":
+                if 80 in s.gcodes:
+                    unit_str += _(" radius")
+                else:
+                    unit_str += _(" diameter")
+        else: unit_str = _(u"\xb0")
         _prompt_float.__init__(self, title, text, default, unit_str)
         t = self.t
         f = Frame(t)
