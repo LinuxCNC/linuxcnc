@@ -2218,7 +2218,8 @@ class DummyCanon:
 
 class _prompt_float:
     """ Prompt for a g-code floating point expression """
-    def __init__(self, title, text, default):
+    def __init__(self, title, text, default, unit_str=''):
+        self.unit_str = unit_str
         t = self.t = Toplevel(root_window, padx=7, pady=7)
         t.wm_title(title)
         t.wm_transient(root_window)
@@ -2292,7 +2293,7 @@ class _prompt_float:
                 self.w.set(gcode.strerror(result))
                 ok = 0
             else:
-                self.w.set("= %f" % canon.number)
+                self.w.set("= %f%s" % (canon.number, self.unit_str))
 
         if ok: 
             self.ok.configure(state="normal")
@@ -2323,8 +2324,8 @@ class _prompt_float:
             pass
         return self.result()
 
-def prompt_float(title, text, default):
-    t = _prompt_float(title, text, default)
+def prompt_float(title, text, default, unit_str):
+    t = _prompt_float(title, text, default, unit_str)
     return t.run()
 
 all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
@@ -2343,7 +2344,12 @@ class _prompt_touchoff(_prompt_float):
         if s.tool_in_spindle == 0 or vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
-        _prompt_float.__init__(self, title, text, default)
+        linear_axis = vars.current_axis.get() in "xyzuvw"
+        if linear_axis:
+            if vars.metric.get(): unit_str = " mm"
+            else: unit_str = " in"
+        else: unit_str = u"\xb0"
+        _prompt_float.__init__(self, title, text, default, unit_str)
         t = self.t
         f = Frame(t)
         self.c = c = StringVar(t)
