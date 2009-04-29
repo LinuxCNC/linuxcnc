@@ -791,43 +791,14 @@ In the upper-left corner of the program display is the coordinate display.
 ) is shown if the axis is on one of its limit switches.
 \layout Standard
 
-To properly interpret these numbers, refer to the 
-\begin_inset Quotes eld
-\end_inset 
-
-Position:
-\begin_inset Quotes erd
-\end_inset 
-
- indicator in the status bar.
- If the position is 
-\begin_inset Quotes eld
-\end_inset 
-
-Absolute
-\begin_inset Quotes erd
-\end_inset 
-
-, then the displayed number is in the machine coordinate system.
- If it is 
-\begin_inset Quotes eld
-\end_inset 
-
-Relative
-\begin_inset Quotes erd
-\end_inset 
-
-, then the displayed number is in the offset coordinate system.
+To properly interpret these numbers, refer to the "Position:" indicator
+ in the status bar.
+ If the position is "Absolute", then the displayed number is in the machine
+ coordinate system.
+ If it is "Relative", then the displayed number is in the offset coordinate
+ system.
  When the coordinates displayed are relative and an offset has been set,
- the display will include a cyan 
-\begin_inset Quotes eld
-\end_inset 
-
-machine origin
-\begin_inset Quotes erd
-\end_inset 
-
- marker (
+ the display will include a cyan "machine origin" marker (
 \begin_inset Graphics
 	filename images/axis-machineorigin.png
 	width 2ex
@@ -835,49 +806,20 @@ machine origin
 \end_inset 
 
 ).
- If the position is 
-\begin_inset Quotes eld
-\end_inset 
-
-Commanded
-\begin_inset Quotes erd
-\end_inset 
-
-, then it is the ideal position--for instance, the exact coordinate given
- in a 
+ If the position is "Commanded", then it is the ideal position--for instance,
+ the exact coordinate given in a 
 \family typewriter 
 G0
 \family default 
  command.
- If it is 
-\begin_inset Quotes eld
-\end_inset 
-
-Actual
-\begin_inset Quotes erd
-\end_inset 
-
-, then it is the position the machine has actually been moved to.
+ If it is "Actual", then it is the position the machine has actually been
+ moved to.
  These values can differ for several reasons: Following error, dead band,
  encoder resolution, or step size.
  For instance, if you command a movement to X 0.0033 on your mill, but one
- step of your stepper motor is 0.00125, then the 
-\begin_inset Quotes eld
-\end_inset 
-
-Commanded
-\begin_inset Quotes erd
-\end_inset 
-
- position will be 0.0033 but the 
-\begin_inset Quotes eld
-\end_inset 
-
-Actual
-\begin_inset Quotes erd
-\end_inset 
-
- position will be 0.0025 (2 steps) or 0.00375 (3 steps).
+ step of your stepper motor is 0.00125, then the "Commanded" position will
+ be 0.0033 but the "Actual" position will be 0.0025 (2 steps) or 0.00375 (3
+ steps).
 \layout Subsubsection
 
 Preview Plot
@@ -921,15 +863,7 @@ Program Extents
 
 \layout Standard
 
-The 
-\begin_inset Quotes eld
-\end_inset 
-
-extents
-\begin_inset Quotes erd
-\end_inset 
-
- of the program in each axis are shown.
+The "extents" of the program in each axis are shown.
  At each end, the least or greatest coordinate value is indicated.
  In the middle, the difference between the coordinates is shown.
  In Figure (
@@ -940,16 +874,8 @@ extents
 ), the X extent of the file is from 0.00 to 6.92 inches, a total of 6.92 inches.
 \layout Standard
 
-When some coordinates exceed the 
-\begin_inset Quotes eld
-\end_inset 
-
-soft limits
-\begin_inset Quotes erd
-\end_inset 
-
- in the .ini file, the relevant dimension is shown in a different color and
- enclosed by a box.
+When some coordinates exceed the "soft limits" in the .ini file, the relevant
+ dimension is shown in a different color and enclosed by a box.
  In Figure (
 \begin_inset LatexCommand \ref{cap:Soft-Limit}
 
@@ -990,15 +916,7 @@ Soft Limit
 Tool Cone
 \layout Standard
 
-The location of the tip of the tool is indicated by the 
-\begin_inset Quotes eld
-\end_inset 
-
-tool cone
-\begin_inset Quotes erd
-\end_inset 
-
-.
+The location of the tip of the tool is indicated by the "tool cone".
  The cone does not indicate anything about the shape, length, or radius
  of the tool.
 \layout Standard
@@ -1044,23 +962,8 @@ By rotating the mouse wheel, or by dragging with the right mouse button
  the preview plot will be zoomed in or out.
 \layout Standard
 
-By clicking one of the 
-\begin_inset Quotes eld
-\end_inset 
-
-Preset View
-\begin_inset Quotes erd
-\end_inset 
-
- icons, or by pressing 
-\begin_inset Quotes eld
-\end_inset 
-
-V
-\begin_inset Quotes erd
-\end_inset 
-
-, several preset views may be selected.
+By clicking one of the "Preset View" icons, or by pressing "V", several
+ preset views may be selected.
 \layout Subsection
 
 Text Display Area
@@ -1114,16 +1017,8 @@ Manual Control
 \layout Standard
 
 While the machine is turned on but not running a program, the items in the
- 
-\begin_inset Quotes eld
-\end_inset 
-
-Manual Control
-\begin_inset Quotes erd
-\end_inset 
-
- tab can be used to move the machining center or turn different parts of
- it on and off.
+ "Manual Control" tab can be used to move the machining center or turn different
+ parts of it on and off.
 \layout Standard
 
 When the machine is not turned on, or when a program is running, the manual
@@ -1137,15 +1032,7 @@ ing item in the Manual Control tab is removed.
 \family typewriter 
 motion.spindle-brake
 \family default 
- is not connected, then the 
-\begin_inset Quotes eld
-\end_inset 
-
-Brake
-\begin_inset Quotes erd
-\end_inset 
-
- button will not appear on the screen.
+ is not connected, then the "Brake" button will not appear on the screen.
  If the environment variable 
 \family typewriter 
 AXIS_NO_AUTOCONFIGURE
@@ -1893,15 +1780,8 @@ Cycle among preset views
 Show EMC Status
 \layout Standard
 
-AXIS includes a program called 
-\begin_inset Quotes eld
-\end_inset 
-
-emctop
-\begin_inset Quotes erd
-\end_inset 
-
- which shows some of the details of EMC's state.
+AXIS includes a program called "emctop" which shows some of the details
+ of EMC's state.
  You can run this program by invoking 
 \noun on 
 Machine > Show EMC Status
@@ -1943,15 +1823,8 @@ The name of each item is shown in the left column.
 MDI interface
 \layout Standard
 
-AXIS includes a program called 
-\begin_inset Quotes eld
-\end_inset 
-
-mdi
-\begin_inset Quotes erd
-\end_inset 
-
- which allows text-mode entry of MDI commands to a running EMC session.
+AXIS includes a program called "MDI" which allows text-mode entry of MDI
+ commands to a running EMC session.
  You can run this program by opening a terminal and typing
 \layout Quote
 
@@ -1991,30 +1864,27 @@ MDI>
 axis-remote
 \layout Standard
 
-AXIS includes a program called 
-\begin_inset Quotes eld
-\end_inset 
-
-axis-remote
-\begin_inset Quotes erd
-\end_inset 
-
- which can send certain commands to a running AXIS.
+AXIS includes a program called "axis-remote" which can send certain commands
+ to a running AXIS.
  The available commands are shown by running 
 \family typewriter 
-axis-remote --help
+axis-remote -\SpecialChar \-
+-help
 \family default 
  and include checking whether AXIS is running (
 \family typewriter 
---ping
+-\SpecialChar \-
+-ping
 \family default 
 ), loading a file by name, reloading the currently loaded file (
 \family typewriter 
---reload
+-\SpecialChar \-
+-reload
 \family default 
 ), and making AXIS exit (
 \family typewriter 
---quit
+-\SpecialChar \-
+-quit
 \family default 
 ).
 \layout Section
@@ -2032,15 +1902,8 @@ Manual Tool Change
 
 \layout Standard
 
-EMC2 includes a userspace hal component called 
-\begin_inset Quotes eld
-\end_inset 
-
-hal_manualtoolchange
-\begin_inset Quotes erd
-\end_inset 
-
-, which shows a window (Figure 
+EMC2 includes a userspace hal component called "hal_manualtoolchange", which
+ shows a window (Figure 
 \begin_inset LatexCommand \ref{cap:The-Manual-Toolchange}
 
 \end_inset 
@@ -2115,17 +1978,9 @@ AXIS
 
  modules which may be useful to others.
  For more information on one of these modules, use 
-\begin_inset Quotes eld
-\end_inset 
-
-
 \family typewriter 
-pydoc <module name>
+"pydoc <module name>"
 \family default 
-
-\begin_inset Quotes erd
-\end_inset 
-
  or read the source code.
  These modules include:
 \layout Itemize
@@ -2175,15 +2030,7 @@ minigl
 To use these modules in your own scripts, you must ensure that the directory
  where they reside is on Python's module path.
  When running an installed version of EMC2, this should happen automatically.
- When running 
-\begin_inset Quotes eld
-\end_inset 
-
-in-place
-\begin_inset Quotes erd
-\end_inset 
-
-, this can be done by using 
+ When running "in-place", this can be done by using 
 \family typewriter 
 scripts/emc-environment
 \family default 
@@ -2200,29 +2047,13 @@ LATHE=1
 \layout Standard
 
 in the [DISPLAY] section of the ini file, AXIS selects lathe mode.
- The 
-\begin_inset Quotes eld
-\end_inset 
-
-Y
-\begin_inset Quotes erd
-\end_inset 
-
- axis is not shown in coordinate readouts, the view is changed to show the
- Z axis extending to the right and the X axis extending towards the bottom
- of the screen, and several controls (such as those for preset views) are
- removed.
+ The "Y" axis is not shown in coordinate readouts, the view is changed to
+ show the Z axis extending to the right and the X axis extending towards
+ the bottom of the screen, and several controls (such as those for preset
+ views) are removed.
 \layout Standard
 
-Pressing 
-\begin_inset Quotes eld
-\end_inset 
-
-V
-\begin_inset Quotes erd
-\end_inset 
-
- zooms out to show the entire file, if one is loaded.
+Pressing "V" zooms out to show the entire file, if one is loaded.
 \layout Standard
 
 When in lathe mode, the shape of the loaded tool (if any) is shown.
@@ -2257,20 +2088,17 @@ Lathe Tool Shape
 \layout Section
 
 Advanced Configuration
+\layout Standard
+
+For more information on ini file settings that can change how AXIS works
+ see the INI File/Sections/[DISPLAY] Section of Configuration chapter in
+ the Integrators manual.
 \layout Subsection
 
 Program Filters
 \layout Standard
 
-AXIS has the ability to send loaded files through a 
-\begin_inset Quotes eld
-\end_inset 
-
-filter program
-\begin_inset Quotes erd
-\end_inset 
-
-.
+AXIS has the ability to send loaded files through a "filter program".
  This filter can do any desired task: Something as simple as making sure
  the file ends with '
 \family typewriter 
@@ -2294,24 +2122,9 @@ PROGRAM_EXTENSION
  This program is given the name of the input file as its first argument,
  and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
- display area, and executed by EMC when 
-\begin_inset Quotes eld
-\end_inset 
-
-Run
-\begin_inset Quotes erd
-\end_inset 
-
-.
- The following lines add support for the 
-\begin_inset Quotes eld
-\end_inset 
-
-image-to-gcode
-\begin_inset Quotes erd
-\end_inset 
-
- converter included with EMC2:
+ display area, and executed by EMC when "Run".
+ The following lines add support for the "image-to-gcode" converter included
+ with EMC2:
 \layout Quote
 
 [FILTER]
@@ -2390,14 +2203,7 @@ The colors of most elements of the AXIS user interface can be customized
 \family typewriter 
 axis_light_background
 \family default 
- changes the colors of the backplot window to a 
-\begin_inset Quotes eld
-\end_inset 
-
-dark lines on white background
-\begin_inset Quotes erd
-\end_inset 
-
+ changes the colors of the backplot window to a "dark lines on white background"
  scheme, and also serves as a reference for the configurable items in the
  display area.
  The sample file 
@@ -2428,23 +2234,8 @@ Because modern desktop environments automatically make some settings in
 *Axis*optionLevel: widgetDefault
 \layout Standard
 
-this causes the built-in options to be created at the option level 
-\begin_inset Quotes eld
-\end_inset 
-
-widgetDefault
-\begin_inset Quotes erd
-\end_inset 
-
-, so that X Resources (which are level 
-\begin_inset Quotes eld
-\end_inset 
-
-userDefault
-\begin_inset Quotes erd
-\end_inset 
-
-) can override them.
+this causes the built-in options to be created at the option level "widgetDefaul
+t", so that X Resources (which are level "userDefault") can override them.
 \layout Subsection
 
 
