@@ -2,8 +2,9 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
 
   * [add bugfixes from the 2.3.x branch here before release]
   * add machine delay time to status (works for G4Pxx and M66)
+  * AXIS: shift+jog for XYZ gives a jog at the traverse speed.
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 22 Mar 2009 14:46:22 -0500
+ -- Chris Radek <chris@timeguy.com>  Wed, 29 Apr 2009 11:14:22 -0500
 
 emc2 (1:2.3.0~beta2) hardy; urgency=low
 
