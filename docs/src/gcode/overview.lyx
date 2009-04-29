@@ -2227,6 +2227,24 @@ It is an error to include any unrelated words on a line with
 O-
 \family default 
  flow control.
+\layout Section
+
+Comments
+\layout Standard
+
+Comments can be added to lines of G code to help clear up the intention
+ of the programmer.
+ Comments can be embedded in a line using parentheses () or for the remainder
+ of a line using a semi-colon.
+ The semi-colon is not treated as the start of a comment when enclosed in
+ parentheses.
+\layout Quote
+
+G0 (Rapid to start) X1 Y1
+\newline 
+G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
+\newline 
+M2 ; End of program.
 \layout Chapter
 
 Order of Execution
