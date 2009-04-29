@@ -163,10 +163,14 @@ help1 = [
     (_("Shift-Home"), _("Zero G54 offset for active axis")),
     (_("End"), _("Set G54 offset for active axis")),
     ("-, =", _("Jog active axis")),
+
+    ("", ""),
     (_("Left, Right"), _("Jog first axis")),
     (_("Up, Down"), _("Jog second axis")),
     (_("Pg Up, Pg Dn"), _("Jog third axis")),
+    (_("Shift+above jogs"), _("Jog at traverse speed")),
     ("[, ]", _("Jog fourth axis")),
+
     ("", ""),
     ("D", _("Toggle between Drag and Rotate mode")),
     (_("Left Button"), _("Pan, rotate or select line")),
@@ -175,8 +179,6 @@ help1 = [
     (_("Wheel Button"), _("Rotate view")),
     (_("Rotate Wheel"), _("Zoom view")),
     (_("Control+Left Button"), _("Zoom view")),
-    ("", ""),
-    (_("Ctrl-Space"), _("Clear notifications")),
 ]
 help2 = [
     ("F3", _("Manual control")),
@@ -199,7 +201,6 @@ help2 = [
     ("", ""),
     ("F7", _("Toggle mist")),
     ("F8", _("Toggle flood")),
-    ("", ""),
     ("B", _("Spindle brake off")),
     (_("Shift-B"), _("Spindle brake on")),
     ("F9", _("Turn spindle clockwise")),
@@ -210,6 +211,8 @@ help2 = [
     (_("Control-K"), _("Clear live plot")),
     ("V", _("Cycle among preset views")),
     ("F4", _("Switch between preview and DRO")),
+    ("", ""),
+    (_("Ctrl-Space"), _("Clear notifications")),
 ]
 
 
@@ -2400,6 +2403,11 @@ def get_jog_speed(a):
         return vars.jog_speed.get()/60.
     else: return vars.jog_aspeed.get()/60.
 
+def get_max_jog_speed(a):
+    if vars.joint_mode.get() or a in (0,1,2,6,7,8):
+        return vars.max_speed.get()
+    else: return vars.max_aspeed.get()    
+
 def run_warn():
     warnings = []
     if o.g:
@@ -3555,6 +3563,8 @@ def jog_off_all():
 def bind_axis(a, b, d):
     root_window.bind("<KeyPress-%s>" % a, kp_wrap(lambda e: jog_on(d, -get_jog_speed(d)), "KeyPress"))
     root_window.bind("<KeyPress-%s>" % b, kp_wrap(lambda e: jog_on(d, get_jog_speed(d)), "KeyPress"))
+    root_window.bind("<Shift-KeyPress-%s>" % a, lambda e: jog_on(d, -get_max_jog_speed(d)))
+    root_window.bind("<Shift-KeyPress-%s>" % b, lambda e: jog_on(d, get_max_jog_speed(d)))
     root_window.bind("<KeyRelease-%s>" % a, lambda e: jog_off(d))
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
 
