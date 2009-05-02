@@ -118,7 +118,7 @@ The mult2.0.out is sent to the abs to get the absolute value.
 The following figure shows the result when the X axis is moving at 15 IPM
  in the minus direction.
  Notice that we can get the absolute value from either the abs.0.out pin or
- the X-ABS signal.
+ the X-IPM signal.
 \layout Standard
 
 
@@ -140,7 +140,7 @@ Velocity Example
 
 \begin_inset Graphics
 	filename images/velocity-01.png
-	scale 80
+	scale 70
 
 \end_inset 
 
