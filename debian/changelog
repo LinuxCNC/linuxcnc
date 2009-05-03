@@ -1,5 +1,6 @@
 emc2 (1:2.4.0~pre) hardy; urgency=low
 
+  * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
   * [add bugfixes from the 2.3.x branch here before release]
   * add machine delay time to status (works for G4Pxx and M66)
   * AXIS: shift+jog for XYZ gives a jog at the traverse speed.
