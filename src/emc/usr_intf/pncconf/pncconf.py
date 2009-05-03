@@ -232,6 +232,7 @@ class Widgets:
 class Data:
     def __init__(self):
         pw = pwd.getpwuid(os.getuid())
+        self.help = 0
         self.machinename = _("my_EMC_machine")
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
@@ -338,7 +339,12 @@ class Data:
             for i in range(0,24):
                 pinname ="m5i20c%dpin%dinv"% (connector,i)
                 self[pinname] = False
-        
+
+        # halui comand list
+        for i in range(1,16):
+                pinname ="halui_cmd%s"% i
+                self[pinname] = ""
+
         self.xsteprev = 200
         self.xmicrostep = 2
         self.xpulleynum = 1
@@ -362,6 +368,12 @@ class Data:
         self.xFF0 = 0
         self.xFF1 = 0
         self.xFF2 = 0
+        self.xbias = 0
+        self.xdeadband = 0
+        self.xsteptime = 0
+        self.xstepspace = 0
+        self.xdirhold = 0
+        self.xdirsetup = 0
         self.xminferror = .0005
         self.xmaxferror = .005
         self.xhomepos = 0
@@ -400,6 +412,12 @@ class Data:
         self.yFF0 = 0
         self.yFF1 = 0
         self.yFF2 = 0
+        self.ybias = 0
+        self.ydeadband = 0
+        self.ysteptime = 0
+        self.ystepspace = 0
+        self.ydirhold = 0
+        self.ydirsetup = 0
         self.yminferror = 0.125
         self.ymaxferror = 0.250
         self.yhomepos = 0
@@ -437,6 +455,12 @@ class Data:
         self.zFF0 = 0
         self.zFF1 = 0
         self.zFF2 = 0
+        self.zbias = 0
+        self.zdeadband = 0
+        self.zsteptime = 0
+        self.zstepspace = 0
+        self.zdirhold = 0
+        self.zdirsetup = 0
         self.zminferror = 0.0005
         self.zmaxferror = 0.005
         self.zhomepos = 0
@@ -475,6 +499,12 @@ class Data:
         self.aFF0 = 0
         self.aFF1 = 0
         self.aFF2 = 0
+        self.abias = 0
+        self.adeadband = 0
+        self.asteptime = 0
+        self.astepspace = 0
+        self.adirhold = 0
+        self.adirsetup = 0
         self.aminferror = 0.0005
         self.amaxferror = 0.005
         self.ahomepos = 0
@@ -657,15 +687,13 @@ class Data:
             print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
 
         if self.halui:
-           print >>file
-           print >>file, "[HALUI]"
-           if self.pyvcphaltype == 2 and self.pyvcpconnect:
-               print >>file,"MDI_COMMAND = G0 G53 Z0"
-               print >>file,"MDI_COMMAND = G28"
-               print >>file,"MDI_COMMAND = G92 X0"
-               print >>file,"MDI_COMMAND = G92 Y0"
-               print >>file,"MDI_COMMAND = G92 Z0"
-               print >>file,"MDI_COMMAND = G92.1"
+            print >>file
+            print >>file, "[HALUI]"          
+            if self.halui == True:
+                for i in range(1,16):
+                    cmd =self["halui_cmd" + str(i)]
+                    if cmd =="": break
+                    print >>file,"MDI_COMMAND = %s"% cmd           
 
         print >>file
         print >>file, "[TRAJ]"
@@ -784,18 +812,18 @@ class Data:
             print >>file, "FF0 = %s" % get("FF0")
             print >>file, "FF1 = %s" % get("FF1")
             print >>file, "FF2 = %s" % get("FF2")
-            print >>file, "BIAS = 0" 
-            print >>file, "DEADBAND = 0"
+            print >>file, "BIAS = %s"% get("bias") 
+            print >>file, "DEADBAND = %s"% get("deadband")
             print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
             print >>file, "INPUT_SCALE = %s" % get("scale")
         else:
             print >>file, "# these are in nanoseconds"
-            print >>file, "DIRSETUP   =              200"
-            print >>file, "DIRHOLD    =              200"
-            print >>file, "STEPLEN    =              40000"
-            print >>file, "STEPSPACE  =              40000"
+            print >>file, "DIRSETUP   = %s"% get("dirsetup")
+            print >>file, "DIRHOLD    = %s"% get("dirhold")
+            print >>file, "STEPLEN    = %s"% get("steptime")          
+            print >>file, "STEPSPACE  = %s"% get("stepspace")            
             print >>file, "SCALE = %s"% get("outputscale")     
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
@@ -921,7 +949,7 @@ class Data:
                 print >>file, "    setp "+pinname+".output-type 1" 
                 print >>file, "    setp "+pinname+".scale  1.0" 
                 print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
-                print >>file, "net %senable     pid.%d.enable" % (let, axnum, num) 
+                print >>file, "net %senable     pid.%d.enable" % (let, axnum) 
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
                 print >>file, "net %soutput     pid.%d.output  => "% (let, axnum) +pinname+ ".value"      
         if not stepgen == "false":
@@ -1755,7 +1783,18 @@ class App:
             else:
                 return False
 
+    def on_druid1_help(self, *args):
+        num = self.data.help
+        text=_("I need to add help page %d"% num)
+        if num == 1:
+            text =_("""
+Check 'desktop shortcut' to create a link on the desktop to the folder containing the configuration files
+Check 'desktop launcher' to create a link on the desktop that will directly start your custom configuration""")
+        self.warning_dialog(text,True)
+       
+
     def on_page_newormodify_prepare(self, *args):
+        self.data.help = 1
         self.widgets.createsymlink.set_active(self.data.createsymlink)
         self.widgets.createshortcut.set_active(self.data.createshortcut)
 
@@ -1785,6 +1824,7 @@ class App:
         self.data.createshortcut = self.widgets.createshortcut.get_active()
 
     def on_basicinfo_prepare(self, *args):
+        self.data.help = 2
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
@@ -1854,6 +1894,7 @@ class App:
         self.widgets.ioaddr3.set_sensitive(i)      
 
     def on_basicinfo_next(self, *args):
+
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
@@ -1892,10 +1933,17 @@ class App:
             "~/emc2/configs/%s" % self.widgets.machinename.get_text())
 
     def on_GUI_config_prepare(self, *args):
+        self.data.help = 3
         self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
         if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
         elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
         else:   self.widgets.GUIMINI.set_active(True)
+        self.widgets.pyvcp.set_active(self.data.pyvcp)
+        self.on_pyvcp_toggled()
+        if  not self.widgets.createconfig.get_active():
+           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                self.widgets.pyvcpexist.set_active(True)
+        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
 
     def on_GUI_config_next(self, *args):
         if self.widgets.GUIAXIS.get_active():
@@ -1908,6 +1956,33 @@ class App:
         if not self.data.mesa5i20:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
+        self.data.pyvcp = self.widgets.pyvcp.get_active()
+        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active() 
+        if self.data.pyvcp == True:
+           if self.widgets.pyvcpblank.get_active() == True:
+              self.data.pyvcpname = "blank.xml"
+              self.pyvcphaltype = 0
+           if self.widgets.pyvcp1.get_active() == True:
+              self.data.pyvcpname = "spindle.xml"
+              self.data.pyvcphaltype = 1
+           if self.widgets.pyvcp2.get_active() == True:
+              self.data.pyvcpname = "xyzjog.xml"
+              self.data.pyvcphaltype = 2
+              self.data.halui = True 
+              self.widgets.halui.set_active(True) 
+              self.data.halui_cmd1="G0 G53 Z0"
+              self.data.halui_cmd2="G28"
+              self.data.halui_cmd3="G92 X0"
+              self.data.halui_cmd4="G92 Y0"
+              self.data.halui_cmd5="G92 Z0"
+              self.data.halui_cmd6="G92.1"
+                
+           if self.widgets.pyvcpexist.get_active() == True:
+              self.data.pyvcpname = "custompanel.xml"
+           else:
+              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
+                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
+                   return True
 
     def do_exclusive_inputs(self, pin):
         if self.in_pport_prepare: return
@@ -1982,6 +2057,7 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa5i20_prepare(self, *args):
+        self.data.help = 4
         self.in_mesa_prepare = True
         # TODO add board and firmware options including another tab on the mesa page for the 5i22
         model = self.widgets.mesa_firmware.get_model()
@@ -2430,6 +2506,7 @@ class App:
                             self.widgets[tochange].set_active((index+2)*used)
 
     def on_pp1pport_prepare(self, *args):
+        self.data.help = 5
         self.in_pport_prepare = True
         self.prepare_parport("pp1")
         c = self.data.pp1_direction
@@ -2452,6 +2529,7 @@ class App:
                 return True
 
     def on_pp2pport_prepare(self, *args):
+         self.data.help = 5
          self.prepare_parport("pp2")
          c = self.data.pp2_direction
          if c:
@@ -2474,6 +2552,7 @@ class App:
                 self.widgets.pp3pport.set_title(_("Third Parallel Port set for INPUT"))
   
     def on_pp3pport_next(self, *args):
+        self.data.help = 5
         self.next_parport("pp3")
 
     def prepare_parport(self,portname):
@@ -2561,11 +2640,14 @@ class App:
     def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
     def on_xaxismotor_prepare(self, *args):
+        self.data.help = 6
         self.axis_prepare('x')
+
     def on_xaxismotor_next(self, *args):     
         self.axis_done('x')
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
+
     def on_xaxismotor_back(self, *args):
         if self.data.number_pports==1:
                 self.widgets.druid1.set_page(self.widgets.pp1pport)
@@ -2581,16 +2663,20 @@ class App:
                 return True    
 
     def on_yaxismotor_prepare(self, *args):
+        self.data.help = 6
         self.axis_prepare('y')
+
     def on_yaxismotor_next(self, *args):
         self.axis_done('y')
         self.widgets.druid1.set_page(self.widgets.yaxis)
         return True
+
     def on_yaxismotor_back(self, *args):        
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
     
     def on_zaxismotor_prepare(self, *args):
+        self.data.help = 6
         self.axis_prepare('z')
     def on_zaxismotor_next(self, *args):
         self.axis_done('z')
@@ -2605,6 +2691,7 @@ class App:
             return True
 
     def on_aaxismotor_prepare(self, *args):
+        self.data.help = 7
         self.axis_prepare('a')
     def on_aaxismotor_next(self, *args):
         self.axis_done('a')
@@ -2621,14 +2708,20 @@ class App:
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         
-        #set_text("steprev")
-        #set_text("microstep")
+        set_text("steprev")
+        set_text("microstep")
         set_value("P")
         set_value("I")
         set_value("D")
         set_value("FF0")
         set_value("FF1")
         set_value("FF2")
+        set_text("bias")
+        set_text("deadband")
+        set_text("steptime")
+        set_text("stepspace")
+        set_text("dirhold")
+        set_text("dirsetup")
         set_text("maxferror")
         set_text("minferror")
         set_text("outputscale")
@@ -2658,49 +2751,58 @@ class App:
         set_active("usehomeindex")
 
         if axis == "a":
+            w[axis + "leadscrewlabel"].set_text(_("Reduction Ratio"))
             w[axis + "screwunits"].set_text(_("degrees / rev"))
-            w[axis + "velunits"].set_text(_("degrees / minute"))
-            w[axis + "accunits"].set_text(_("degrees / second²"))
-            w[axis + "homevelunits"].set_text(_("degrees / minute"))
-            w[axis + "homelatchvelunits"].set_text(_("degrees / minute"))
-            w[axis + "homefinalvelunits"].set_text(_("degrees / minute"))
+            w[axis + "velunits"].set_text(_("degrees / min"))
+            w[axis + "accunits"].set_text(_("degrees / sec²"))
+            w[axis + "homevelunits"].set_text(_("degrees / min"))
+            w[axis + "homelatchvelunits"].set_text(_("degrees / min"))
+            w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
             w[axis + "accdistunits"].set_text(_("degrees"))
-            w[axis + "testdistanceunits"].set_text(_("degrees"))
+            #w[axis + "testdistanceunits"].set_text(_("degrees"))
             w[axis + "resolutionunits1"].set_text(_("degrees / encoder pulse"))
-            w[axis + "resolutionunits2"].set_text(_("degreess / encoder pulse"))
+           # w[axis + "resolutionunits2"].set_text(_("degreess / encoder pulse"))
             w[axis + "scaleunits"].set_text(_("Encoder pulses / degree"))
             w[axis + "minfollowunits"].set_text(_("degrees"))
             w[axis + "maxfollowunits"].set_text(_("degrees"))
 
         elif d.units:
-            w[axis + "screwunits"].set_text(_("Pitch (mm / rev)"))
-            w[axis + "velunits"].set_text(_("mm / minute"))
-            w[axis + "accunits"].set_text(_("mm / second²"))
-            w[axis + "homevelunits"].set_text(_("mm / minute"))
-            w[axis + "homelatchvelunits"].set_text(_("mm / minute"))
-            w[axis + "homefinalvelunits"].set_text(_("mm / minute"))
+            w[axis + "leadscrewlabel"].set_text(_("Leadscrew Pitch"))
+            w[axis + "screwunits"].set_text(_("(mm / rev)"))
+            w[axis + "velunits"].set_text(_("mm / min"))
+            w[axis + "accunits"].set_text(_("mm / sec²"))
+            w[axis + "homevelunits"].set_text(_("mm / min"))
+            w[axis + "homelatchvelunits"].set_text(_("mm / min"))
+            w[axis + "homefinalvelunits"].set_text(_("mm / min"))
             w[axis + "accdistunits"].set_text(_("mm"))
             w[axis + "resolutionunits1"].set_text(_("mm / encoder pulse"))
-            w[axis + "resolutionunits2"].set_text(_("mm / encoder pulse"))
+            #w[axis + "resolutionunits2"].set_text(_("mm / encoder pulse"))
             w[axis + "scaleunits"].set_text(_("Encoder pulses / mm"))
-            w[axis + "testdistanceunits"].set_text(_("mm"))
+            #w[axis + "testdistanceunits"].set_text(_("mm"))
             w[axis + "minfollowunits"].set_text(_("mm"))
             w[axis + "maxfollowunits"].set_text(_("mm"))
            
         else:
-            w[axis + "screwunits"].set_text(_("TPI (rev / inch)"))
-            w[axis + "velunits"].set_text(_("inches / minute"))
-            w[axis + "accunits"].set_text(_("inches / second²"))
-            w[axis + "homevelunits"].set_text(_("inches / minute"))
-            w[axis + "homelatchvelunits"].set_text(_("inches / minute"))
-            w[axis + "homefinalvelunits"].set_text(_("inches / minute"))
+            w[axis + "leadscrewlabel"].set_text(_("Leadscrew TPI"))
+            w[axis + "screwunits"].set_text(_("(rev / inch)"))
+            w[axis + "velunits"].set_text(_("inches / min"))
+            w[axis + "accunits"].set_text(_("inches / sec²"))
+            w[axis + "homevelunits"].set_text(_("inches / min"))
+            w[axis + "homelatchvelunits"].set_text(_("inches / min"))
+            w[axis + "homefinalvelunits"].set_text(_("inches / min"))
             w[axis + "accdistunits"].set_text(_("inches"))
             w[axis + "resolutionunits1"].set_text(_("inches / encoder pulse"))
-            w[axis + "resolutionunits2"].set_text(_("inches / encoder pulse"))
+            #w[axis + "resolutionunits2"].set_text(_("inches / encoder pulse"))
             w[axis + "scaleunits"].set_text(_("Encoder pulses / inch"))
-            w[axis + "testdistanceunits"].set_text(_("inches"))
+            #w[axis + "testdistanceunits"].set_text(_("inches"))
             w[axis + "minfollowunits"].set_text(_("inches"))
             w[axis + "maxfollowunits"].set_text(_("inches"))
+
+        test = self.data.findsignal(axis+"-stepgen-step")
+        hide = 0
+        if test == "false":hide = 1
+        w[axis + "servo_info"].set_sensitive(hide)
+        w[axis + "stepper_info"].set_sensitive(not hide)    
            
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
         homes = False
@@ -2753,14 +2855,21 @@ class App:
         w = self.widgets
         def get_text(n): d[axis + n] = float(w[axis + n].get_text())
         def get_active(n): d[axis + n] = w[axis + n].get_active()
-        #get_text("steprev")
-        #get_text("microstep")
+        get_text("steprev")
+        get_text("microstep")
         get_text("P")
         get_text("I")
         get_text("D")
         get_text("FF0")
         get_text("FF1")
         get_text("FF2")
+        get_text("bias")
+        get_text("deadband")
+        get_text("steptime")
+        get_text("stepspace")
+        get_text("dirhold")
+        get_text("dirsetup")
+        #d[axis + "drivertype"] = w[axis + "drivertype"].get_text()
         get_text("maxferror")
         get_text("minferror")
         get_text("outputscale")
@@ -2806,21 +2915,21 @@ class App:
             accdist = acctime * .5 * (get("maxvel")/60)
             w[axis + "acctime"].set_text("%.4f" % acctime)
             w[axis + "accdist"].set_text("%.4f" % accdist)
-           # w[axis + "hz"].set_text("%.1f" % pps)
+            w[axis + "hz"].set_text("%.1f" % pps)
             w[axis+"encodercounts"].set_text( "%d" % ( 4 * float(w[axis+"encoderlines"].get_text())))
             scale = self.data[axis + "scale"] = ( ( pitch) * get("encodercounts") 
                 * (get("pulleynum") / get("pulleyden")))
             w[axis + "scale"].set_text("%.1f" % scale)
             w[axis + "chartresolution"].set_text("%.7f" % (1.0 / scale))
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-            w[axis + "axistest"].set_sensitive(1)
+            w[axis + "axistune"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
             w[axis + "acctime"].set_text("")
             w[axis + "accdist"].set_text("")
-            #w[axis + "hz"].set_text("")
+            w[axis + "hz"].set_text("")
             w[axis + "scale"].set_text("")
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
-            w[axis + "axistest"].set_sensitive(0)
+            w[axis + "axistune"].set_sensitive(0)
 
     def on_xpulleynum_changed(self, *args): self.update_pps('x')
     def on_ypulleynum_changed(self, *args): self.update_pps('y')
@@ -2945,11 +3054,7 @@ class App:
         return True
 
     def on_advanced_prepare(self, *args):       
-        self.widgets.pyvcp.set_active(self.data.pyvcp)
-        self.on_pyvcp_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                self.widgets.pyvcpexist.set_active(True)
+        
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
         self.widgets.digitsin.set_value(self.data.digitsin)
@@ -2959,15 +3064,17 @@ class App:
         self.widgets.floatsin.set_value(self.data.floatsin)
         self.widgets.floatsout.set_value(self.data.floatsout)
         self.widgets.halui.set_active(self.data.halui)
-        self.widgets.ladderconnect.set_active(self.data.ladderconnect)
-        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
+        self.on_halui_toggled()
+        for i in range(1,16):
+            self.widgets["halui_cmd"+str(i)].set_text(self.data["halui_cmd"+str(i)])  
+        self.widgets.ladderconnect.set_active(self.data.ladderconnect)      
         self.on_classicladder_toggled()
         if  not self.widgets.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
                 self.widgets.ladderexist.set_active(True)
 
     def on_advanced_next(self, *args):
-        self.data.pyvcp = self.widgets.pyvcp.get_active()
+         
         self.data.classicladder = self.widgets.classicladder.get_active()
         self.data.modbus = self.widgets.modbus.get_active()
         self.data.digitsin = self.widgets.digitsin.get_value()
@@ -2976,8 +3083,10 @@ class App:
         self.data.s32out = self.widgets.s32out.get_value()
         self.data.floatsin = self.widgets.floatsin.get_value()
         self.data.floatsout = self.widgets.floatsout.get_value()
-        self.data.halui = self.widgets.halui.get_active()    
-        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
+        self.data.halui = self.widgets.halui.get_active() 
+        for i in range(1,16):
+            self.data["halui_cmd"+str(i)] = self.widgets["halui_cmd"+str(i)].get_text()   
+        
         self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
         if self.data.classicladder:
            if self.widgets.ladderblank.get_active() == True:
@@ -3011,24 +3120,7 @@ class App:
                  if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
                    return True       
-        if self.data.pyvcp == True:
-           if self.widgets.pyvcpblank.get_active() == True:
-              self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
-           if self.widgets.pyvcp1.get_active() == True:
-              self.data.pyvcpname = "spindle.xml"
-              self.data.pyvcphaltype = 1
-           if self.widgets.pyvcp2.get_active() == True:
-              self.data.pyvcpname = "xyzjog.xml"
-              self.data.pyvcphaltype = 2
-              self.data.halui = True 
-              self.widgets.halui.set_active(True)   
-           if self.widgets.pyvcpexist.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
-           else:
-              if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
-                   return True
+        
 
     def on_advanced_back(self, *args):
         if self.has_spindle_speed_control():
@@ -3040,6 +3132,10 @@ class App:
         return True
 
     def on_loadladder_clicked(self, *args):self.load_ladder(self)
+ 
+    def on_halui_toggled(self, *args):
+        i= self.widgets.halui.get_active()
+        self.widgets.haluitable.set_sensitive(i)
 
     def on_classicladder_toggled(self, *args):
 
