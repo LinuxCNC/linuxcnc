@@ -89,6 +89,25 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 
+# internalname / displayed name / steptime/ step space / direction hold / direction setup
+drivertypes = [
+    ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
+    ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
+    ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
+    ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
+    ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
+    ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
+    ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
+    ["l297", _("L297"), 500,  4000, 4000, 1000],
+    ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
+    ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
+    ["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
+    ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
+    ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
+    ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
+    ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+]
+
 (UNUSED_OUTPUT,
 ON, CW, CCW, PWM, BRAKE,
 MIST, FLOOD, ESTOP, AMP,
@@ -345,6 +364,7 @@ class Data:
                 pinname ="halui_cmd%s"% i
                 self[pinname] = ""
 
+        self.xdrivertype = "other"
         self.xsteprev = 200
         self.xmicrostep = 2
         self.xpulleynum = 1
@@ -389,6 +409,7 @@ class Data:
         self.xencodercounts =4000
         self.xscale = 0
 
+        self.ydrivertype = "other"
         self.ysteprev = 200
         self.ymicrostep = 2
         self.ypulleynum = 1
@@ -431,7 +452,8 @@ class Data:
         self.yusehomeindex = 0
         self.yencodercounts =4000
         self.yscale = 0
-        
+   
+        self.zdrivertype = "other"     
         self.zsteprev = 200
         self.zmicrostep = 2
         self.zpulleynum = 1
@@ -476,6 +498,7 @@ class Data:
         self.zscale = 0
 
 
+        self.adrivertype = "other"
         self.asteprev = 200
         self.amicrostep = 2
         self.apulleynum = 1
@@ -820,11 +843,11 @@ class Data:
             print >>file, "INPUT_SCALE = %s" % get("scale")
         else:
             print >>file, "# these are in nanoseconds"
-            print >>file, "DIRSETUP   = %s"% get("dirsetup")
-            print >>file, "DIRHOLD    = %s"% get("dirhold")
-            print >>file, "STEPLEN    = %s"% get("steptime")          
-            print >>file, "STEPSPACE  = %s"% get("stepspace")            
-            print >>file, "SCALE = %s"% get("outputscale")     
+            print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
+            print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
+            print >>file, "STEPLEN    = %d"% int(get("steptime"))          
+            print >>file, "STEPSPACE  = %d"% int(get("stepspace"))            
+            print >>file, "SCALE = %s"% get("scale")     
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
@@ -936,7 +959,7 @@ class Data:
                 print >>file, "    setp "+pinname+".index-invert 0"
                 print >>file, "    setp "+pinname+".index-mask 0" 
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
-                print >>file, "    setp "+pinname+".scale  [AXIS_%d]SCALE"% (axnum)
+                print >>file, "    setp "+pinname+".scale  [AXIS_%d]INPUT_SCALE"% (axnum)
                 print >>file, "net %spos-fb <= "% (let) +pinname+".position"
                 print >>file, "net %spos-fb => pid.%d.feedback"% (let,axnum) 
                 print >>file, "net %spos-fb => axis.%d.motor-pos-fb" % (let, axnum)   
@@ -2702,11 +2725,20 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         return True
 
     def axis_prepare(self, axis):
+
+        test = self.data.findsignal(axis+"-stepgen-step")
+        stepdriven = 1
+        if test == "false":stepdriven = 0
         d = self.data
         w = self.widgets
         def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
+        model = w[axis+"drivertype"].get_model()
+        model.clear()
+        for i in drivertypes:
+            model.append((i[1],))
+        model.append((_("Custom"),))
         
         set_text("steprev")
         set_text("microstep")
@@ -2759,10 +2791,12 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w[axis + "homelatchvelunits"].set_text(_("degrees / min"))
             w[axis + "homefinalvelunits"].set_text(_("degrees / min"))
             w[axis + "accdistunits"].set_text(_("degrees"))
-            #w[axis + "testdistanceunits"].set_text(_("degrees"))
-            w[axis + "resolutionunits1"].set_text(_("degrees / encoder pulse"))
-           # w[axis + "resolutionunits2"].set_text(_("degreess / encoder pulse"))
-            w[axis + "scaleunits"].set_text(_("Encoder pulses / degree"))
+            if stepdriven:
+                w[axis + "resolutionunits1"].set_text(_("degree / Step"))        
+                w[axis + "scaleunits"].set_text(_("Steps / degree"))
+            else:
+                w[axis + "resolutionunits1"].set_text(_("degrees / encoder pulse"))
+                w[axis + "scaleunits"].set_text(_("Encoder pulses / degree"))
             w[axis + "minfollowunits"].set_text(_("degrees"))
             w[axis + "maxfollowunits"].set_text(_("degrees"))
 
@@ -2775,10 +2809,13 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w[axis + "homelatchvelunits"].set_text(_("mm / min"))
             w[axis + "homefinalvelunits"].set_text(_("mm / min"))
             w[axis + "accdistunits"].set_text(_("mm"))
-            w[axis + "resolutionunits1"].set_text(_("mm / encoder pulse"))
-            #w[axis + "resolutionunits2"].set_text(_("mm / encoder pulse"))
-            w[axis + "scaleunits"].set_text(_("Encoder pulses / mm"))
-            #w[axis + "testdistanceunits"].set_text(_("mm"))
+            if stepdriven:
+                w[axis + "resolutionunits1"].set_text(_("mm / Step"))        
+                w[axis + "scaleunits"].set_text(_("Steps / mm"))
+            else:
+                w[axis + "resolutionunits1"].set_text(_("mm / encoder pulse"))          
+                w[axis + "scaleunits"].set_text(_("Encoder pulses / mm"))
+           
             w[axis + "minfollowunits"].set_text(_("mm"))
             w[axis + "maxfollowunits"].set_text(_("mm"))
            
@@ -2791,19 +2828,20 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w[axis + "homelatchvelunits"].set_text(_("inches / min"))
             w[axis + "homefinalvelunits"].set_text(_("inches / min"))
             w[axis + "accdistunits"].set_text(_("inches"))
-            w[axis + "resolutionunits1"].set_text(_("inches / encoder pulse"))
-            #w[axis + "resolutionunits2"].set_text(_("inches / encoder pulse"))
-            w[axis + "scaleunits"].set_text(_("Encoder pulses / inch"))
-            #w[axis + "testdistanceunits"].set_text(_("inches"))
+            if stepdriven:
+                w[axis + "resolutionunits1"].set_text(_("inches / Step"))        
+                w[axis + "scaleunits"].set_text(_("Steps / inch"))
+            else:
+                w[axis + "resolutionunits1"].set_text(_("inches / encoder pulse"))        
+                w[axis + "scaleunits"].set_text(_("Encoder pulses / inch"))
+           
             w[axis + "minfollowunits"].set_text(_("inches"))
             w[axis + "maxfollowunits"].set_text(_("inches"))
 
-        test = self.data.findsignal(axis+"-stepgen-step")
-        hide = 0
-        if test == "false":hide = 1
-        w[axis + "servo_info"].set_sensitive(hide)
-        w[axis + "stepper_info"].set_sensitive(not hide)    
-           
+        w[axis + "servo_info"].set_sensitive(not stepdriven)
+        w[axis + "stepper_info"].set_sensitive(stepdriven)    
+        w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
+ 
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
         homes = False
         for i in thisaxishome:
@@ -2832,6 +2870,49 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
     def on_yusebacklash_toggled(self, *args): self.backlash_toggle('y')
     def on_zusebacklash_toggled(self, *args): self.backlash_toggle('z')
     def on_ausebacklash_toggled(self, *args): self.backlash_toggle('a')
+
+    def on_xdrivertype_changed(self, *args): self.driver_changed('x')
+    def on_ydrivertype_changed(self, *args): self.driver_changed('y')
+    def on_zdrivertype_changed(self, *args): self.driver_changed('z')
+    def on_adrivertype_changed(self, *args): self.driver_changed('a')
+
+    def driver_changed(self, axis):
+        d = self.data
+        w = self.widgets
+        v = w[axis + "drivertype"].get_active()
+        if v < len(drivertypes):
+            d = drivertypes[v]
+            w[axis + "steptime"].set_value(d[2])
+            w[axis + "stepspace"].set_value(d[3])
+            w[axis + "dirhold"].set_value(d[4])
+            w[axis + "dirsetup"].set_value(d[5])
+
+            w[axis + "steptime"].set_sensitive(0)
+            w[axis + "stepspace"].set_sensitive(0)
+            w[axis + "dirhold"].set_sensitive(0)
+            w[axis + "dirsetup"].set_sensitive(0)
+        else:
+            w[axis + "steptime"].set_sensitive(1)
+            w[axis + "stepspace"].set_sensitive(1)
+            w[axis + "dirhold"].set_sensitive(1)
+            w[axis + "dirsetup"].set_sensitive(1)
+        #self.on_calculate_ideal_period()
+
+    def drivertype_toindex(self, axis, what=None):
+        if what is None: what = self.data[axis + "drivertype"]
+        for i, d in enumerate(drivertypes):
+            if d[0] == what: return i
+        return len(drivertypes)
+
+    def drivertype_toid(self, axis, what=None):
+        if not isinstance(what, int): what = self.drivertype_toindex(axis, what)
+        if what < len(drivertypes): return drivertypes[what][0]
+        return "custom"
+
+    def drivertype_fromindex(self, axis):
+        i = self.widgets[axis + "drivertype"].get_active()
+        if i < len(drivertypes): return drivertypes[i][1]
+        return _("Custom")
 
     def comp_toggle(self, axis):
         i = self.widgets[axis + "usecomp"].get_active()   
@@ -2869,7 +2950,6 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         get_text("stepspace")
         get_text("dirhold")
         get_text("dirsetup")
-        #d[axis + "drivertype"] = w[axis + "drivertype"].get_text()
         get_text("maxferror")
         get_text("minferror")
         get_text("outputscale")
@@ -2897,6 +2977,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         d[axis + "homefinalvel"] = (float(w[axis + "homefinalvel"].get_text())/60)
         get_active("latchdir")
         get_active("usehomeindex")
+        d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
 
     def update_pps(self, axis):
         #return # temp change
@@ -2916,20 +2997,36 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w[axis + "acctime"].set_text("%.4f" % acctime)
             w[axis + "accdist"].set_text("%.4f" % accdist)
             w[axis + "hz"].set_text("%.1f" % pps)
-            w[axis+"encodercounts"].set_text( "%d" % ( 4 * float(w[axis+"encoderlines"].get_text())))
-            scale = self.data[axis + "scale"] = ( ( pitch) * get("encodercounts") 
+            w[axis + "encodercounts"].set_text( "%d" % ( 4 * float(w[axis+"encoderlines"].get_text())))
+            test = self.data.findsignal(axis+"-stepgen-step")
+            if test == "false":
+                scale = self.data[axis + "scale"] = ( ( pitch) * get("encodercounts") 
                 * (get("pulleynum") / get("pulleyden")))
+            else:
+                scale = self.data[axis + "scale"] = (1.0 * pitch * get("steprev")
+                * get("microstep") * (get("pulleynum") / get("pulleyden")))
             w[axis + "scale"].set_text("%.1f" % scale)
             w[axis + "chartresolution"].set_text("%.7f" % (1.0 / scale))
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
             w[axis + "axistune"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
+            w[axis + "chartresolution"].set_text("")
             w[axis + "acctime"].set_text("")
             w[axis + "accdist"].set_text("")
             w[axis + "hz"].set_text("")
             w[axis + "scale"].set_text("")
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
             w[axis + "axistune"].set_sensitive(0)
+
+    def on_xsteprev_changed(self, *args): self.update_pps('x')
+    def on_ysteprev_changed(self, *args): self.update_pps('y')
+    def on_zsteprev_changed(self, *args): self.update_pps('z')
+    def on_asteprev_changed(self, *args): self.update_pps('a')
+
+    def on_xmicrostep_changed(self, *args): self.update_pps('x')
+    def on_ymicrostep_changed(self, *args): self.update_pps('y')
+    def on_zmicrostep_changed(self, *args): self.update_pps('z')
+    def on_amicrostep_changed(self, *args): self.update_pps('a')
 
     def on_xpulleynum_changed(self, *args): self.update_pps('x')
     def on_ypulleynum_changed(self, *args): self.update_pps('y')

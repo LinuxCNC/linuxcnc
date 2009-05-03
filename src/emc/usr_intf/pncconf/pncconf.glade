@@ -185,7 +185,7 @@
                       <widget class="GtkAlignment" id="alignment8">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="xscale">0.60000002384185791</property>
+                        <property name="xscale">0.49000000953674316</property>
                         <child>
                           <widget class="GtkFrame" id="frame6">
                             <property name="visible">True</property>
@@ -367,7 +367,7 @@ Millimeter</property>
                       <widget class="GtkAlignment" id="alignment9">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="xscale">0.5</property>
+                        <property name="xscale">0.60000002384185791</property>
                         <child>
                           <widget class="GtkFrame" id="frame7">
                             <property name="visible">True</property>
@@ -12581,7 +12581,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xsteptime">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 50000 1 10 10</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12596,7 +12596,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xstepspace">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 50000 1 10 10</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12637,7 +12637,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xdirhold">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 200000 1 10 10</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12652,7 +12652,7 @@ Test</property>
                                       <widget class="GtkSpinButton" id="xdirsetup">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="adjustment">0 0 100 1 10 10</property>
+                                        <property name="adjustment">0 0 200000 1 10 10</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12698,6 +12698,7 @@ Test</property>
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <signal name="changed" handler="on_xsteprev_changed"/>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12713,6 +12714,7 @@ Test</property>
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <signal name="changed" handler="on_xmicrostep_changed"/>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12742,6 +12744,7 @@ Test</property>
                                         <property name="width_request">120</property>
                                         <property name="visible">True</property>
                                         <property name="items"></property>
+                                        <signal name="changed" handler="on_xdrivertype_changed"/>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -12843,6 +12846,7 @@ Test</property>
                                 <property name="width_request">35</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <signal name="changed" handler="on_xmaxacc_changed"/>
                               </widget>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -12859,6 +12863,7 @@ Test</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="text" translatable="yes">123</property>
+                                <signal name="changed" handler="on_xmaxvel_changed"/>
                               </widget>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -13253,6 +13258,24 @@ Test</property>
                                       <placeholder/>
                                     </child>
                                     <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
                                       <widget class="GtkLabel" id="xscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -13294,7 +13317,7 @@ Test</property>
                                         <property name="right_attach">3</property>
                                         <property name="top_attach">7</property>
                                         <property name="bottom_attach">8</property>
-                                        <property name="x_options"></property>
+                                        <property name="x_options">GTK_FILL</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -13302,14 +13325,14 @@ Test</property>
                                       <widget class="GtkLabel" id="label192">
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
-                                        <property name="label" translatable="yes">s</property>
+                                        <property name="label" translatable="yes">sec</property>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">2</property>
                                         <property name="right_attach">3</property>
                                         <property name="top_attach">5</property>
                                         <property name="bottom_attach">6</property>
-                                        <property name="x_options"></property>
+                                        <property name="x_options">GTK_FILL</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -13324,18 +13347,6 @@ Test</property>
                                         <property name="right_attach">3</property>
                                         <property name="top_attach">6</property>
                                         <property name="bottom_attach">7</property>
-                                        <property name="x_options"></property>
-                                        <property name="y_options"></property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <widget class="GtkHSeparator" id="hseparator7">
-                                        <property name="visible">True</property>
-                                      </widget>
-                                      <packing>
-                                        <property name="right_attach">6</property>
-                                        <property name="top_attach">3</property>
-                                        <property name="bottom_attach">4</property>
                                         <property name="x_options">GTK_FILL</property>
                                         <property name="y_options"></property>
                                       </packing>
