@@ -1,5 +1,6 @@
 emc2 (1:2.3.1~pre) hardy; urgency=low
 
+  * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
   * Fix hal_joystick 'HAL: ERROR: pin_new called after hal_ready'
   * documentation improvements
   * Fix User and HAL manual links in applications menu
