@@ -8,3 +8,4 @@ position_mm.txt
 lathe-position.txt
 .scope.cfg
 autosave.halscope
+*.var

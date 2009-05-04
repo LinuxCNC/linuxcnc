@@ -1,2 +1,3 @@
 core_stepper.hal
 emc.nml
+*.var
