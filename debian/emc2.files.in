@@ -14,12 +14,7 @@ usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/doc/emc2/*
 usr/share/doc/emc2/examples/sample-configs/*/*
-usr/share/emc/ncfiles/*
-usr/share/emc/stepconf.glade
-usr/share/emc/tcl/*
-usr/share/emc/tcl/bin/*
-usr/share/emc/tcl/msgs/*
-usr/share/emc/tcl/scripts/*
+usr/share/emc/*
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/*
 usr/share/man/man9/*
