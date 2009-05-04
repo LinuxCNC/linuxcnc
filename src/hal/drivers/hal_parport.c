@@ -95,21 +95,13 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
-#error parport needs RTAPI/ULAPI, check makefile and flags
+#if ( !defined RTAPI )
+#error parport needs RTAPI, check makefile and flags
 #endif
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_ctype.h"	/* isspace() */
-#ifdef RTAPI			/* realtime */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#else /* user space */
-#include <signal.h>		/* signal() */
-#include <sys/time.h>		/* stuct timeval */
-#include <sys/types.h>		/* for select() */
-#include <unistd.h>		/* for select() */
-#include <sys/io.h>		/* iopl() */
-#endif
 
 #include "hal.h"		/* HAL public API decls */
 
@@ -122,21 +114,17 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
-#endif
 
-#ifdef RTAPI			/* realtime */
-#ifdef MODULE
+#include <linux/parport.h>
+
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Parallel Port Driver for EMC HAL");
 MODULE_LICENSE("GPL");
 static char *cfg = "0x0278";	/* config string, default 1 output port at 278 */
 RTAPI_MP_STRING(cfg, "config string");
-#endif /* MODULE */
-#endif /* RTAPI */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -169,6 +157,7 @@ typedef struct {
     unsigned char outdata_ctrl;
     unsigned char reset_mask_ctrl;  /* reset flag for pin 1, 14, 16, 17 */
     unsigned char reset_val_ctrl;   /* reset values for pin 1, 14, 16, 17 */
+    struct pardevice *linux_dev;
 } parport_t;
 
 /* pointer to array of parport_t structs in shared memory, 1 per port */
@@ -327,11 +316,18 @@ rtapi_print ( "config string '%s'\n", cfg );
 	return -1;
     }
     for (n = 0; n < num_ports; n++) {
-        void *region = rtapi_request_region(port_data_array[n].base_addr, 4, "hal_parport");
+        void *region;
+        if(port_data_array[n].linux_dev) continue;
+        region = rtapi_request_region(port_data_array[n].base_addr, 4, "hal_parport");
         if(!region) {
             int m;
             for(m = 0; m < n; m++) {
-                rtapi_release_region(port_data_array[m].base_addr, 4);
+                if(port_data_array[n].linux_dev) {
+                    parport_release(port_data_array[n].linux_dev);
+                    parport_unregister_device(port_data_array[n].linux_dev);
+                } else {
+                    rtapi_release_region(port_data_array[m].base_addr, 4);
+                }
             }
             rtapi_print_msg(RTAPI_MSG_ERR,
                  "PARPORT: ERROR: request_region(%x) failed\n"
@@ -352,7 +348,12 @@ void rtapi_app_exit(void)
 {
     int n;
     for (n = 0; n < num_ports; n++) {
-        rtapi_release_region(port_data_array[n].base_addr, 4);
+        if(port_data_array[n].linux_dev) {
+            parport_release(port_data_array[n].linux_dev);
+            parport_unregister_device(port_data_array[n].linux_dev);
+        } else {
+            rtapi_release_region(port_data_array[n].base_addr, 4);
+        }
     }
     hal_exit(comp_id);
 }
@@ -528,7 +529,7 @@ void write_all(void *arg, long period)
 
 static int pins_and_params(char *argv[])
 {
-    unsigned short port_addr[MAX_PORTS];
+    long port_addr[MAX_PORTS];
     int data_dir[MAX_PORTS];
     int use_control_in[MAX_PORTS];
     int n, retval;
@@ -544,7 +545,7 @@ static int pins_and_params(char *argv[])
     n = 0;
     while ((num_ports < MAX_PORTS) && (argv[n] != 0)) {
 	port_addr[num_ports] = parse_port_addr(argv[n]);
-	if (port_addr[num_ports] == 0) {
+	if (port_addr[num_ports] <= 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PARPORT: ERROR: bad port address '%s'\n", argv[n]);
 	    return -1;
@@ -596,13 +597,62 @@ static int pins_and_params(char *argv[])
     }
     /* export all the pins and params for each port */
     for (n = 0; n < num_ports; n++) {
+	unsigned long this_port_addr = port_addr[n];
+	struct parport *linux_port = 0;
+	struct pardevice *linux_dev = 0;
+
+	if(this_port_addr < 16) {
+	   // I/O addresses 1..16 are assumed to be linux parport numbers
+	   linux_port = parport_find_number(this_port_addr);
+	   if(linux_port) {
+	      this_port_addr = linux_port->base;
+	   } else {
+              rtapi_print_msg(RTAPI_MSG_ERR,
+                        "PARPORT: ERROR: linux parport %ld not found\n",
+                        this_port_addr);
+              hal_exit(comp_id);
+              return -1;
+	   }
+	} else {
+           // Use the linux port at the given hex address if linux registered
+           // it
+	   linux_port = parport_find_base(this_port_addr);
+	}
+	if(linux_port) {
+	    rtapi_print_msg(RTAPI_MSG_INFO,
+                      "Using Linux parport %s at ioaddr=0x%lx\n",
+                      linux_port->name, this_port_addr);
+            linux_dev = parport_register_device(linux_port,
+                    "hal_parport", NULL, NULL, NULL, 0, NULL);
+            parport_put_port(linux_port);
+            if(!linux_dev) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "PARPORT: ERROR: port %d register failed\n", n);
+                hal_exit(comp_id);
+		return -1;
+            }
+            retval = parport_claim(linux_dev);
+            if(retval < 0) {
+                parport_unregister_device(linux_dev);
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                    "PARPORT: ERROR: port %d claim failed\n", n);
+                hal_exit(comp_id);
+		return -1;
+            }
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_INFO,
+                      "Using direct parport at ioaddr=0x%lx\n",
+                      this_port_addr);
+        }
+        port_data_array[n].linux_dev = linux_dev;
+
 	/* config addr and direction */
-	port_data_array[n].base_addr = port_addr[n];
+	port_data_array[n].base_addr = this_port_addr;
 	port_data_array[n].data_dir = data_dir[n];
 	port_data_array[n].use_control_in = use_control_in[n];
 	/* set data port (pins 2-9) direction to "in" if needed */
 	if (data_dir[n]) {
-	    rtapi_outb(rtapi_inb(port_addr[n]+2) | 0x20, port_addr[n]+2);
+	    rtapi_outb(rtapi_inb(this_port_addr+2) | 0x20, this_port_addr+2);
 	}
 	/* export all vars */
 	retval = export_port(n, &(port_data_array[n]));
@@ -643,11 +693,12 @@ static unsigned short parse_port_addr(char *cp)
 	    result += (*cp - 'a') + 10;
 	} else {
 	    /* not a valid hex digit */
-	    return 0;
+	    return -1;
 	}
 	/* next char */
 	cp++;
     }
+
     return result;
 }
 
