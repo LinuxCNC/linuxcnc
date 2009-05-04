@@ -475,6 +475,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
+	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
 
 ifneq ($(BUILD_SYS),sim)
 	@for B in ${HM2_BOARDS}; do  \
@@ -515,11 +516,6 @@ COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 .PHONY: configs
 COPY_CONFIGS := \
-	$(patsubst %,../configs/%/emc.nml, demo_mazak halui_pyvcp hexapod-sim max \
-		univpwm univstep stepper-xyza demo_step_cl stepper motenc m5i20 stg \
-		sim vti nist-lathe dallur-thc demo_sim_cl etch-servo ppmc lathe-pluto \
-		puma scara boss 5axis Sherline3Axis Sherline4Axis SherlineLathe \
-		plasma-thc plasma-thc-sim cooltool) \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe cooltool) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
@@ -529,8 +525,6 @@ COPY_CONFIGS := \
 configs: $(COPY_CONFIGS)
 
 $(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
-	-cp $< $@
-$(call CONFILES,emc.nml): %/emc.nml: ../configs/common/emc.nml
 	-cp $< $@
 $(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
 	-cp $< $@

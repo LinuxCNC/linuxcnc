@@ -465,16 +465,19 @@ AC_ARG_ENABLE(run-in-place,
             RUN_IN_PLACE=yes
             AC_MSG_RESULT([configuring for run-in-place])
             prefix=${BUILD_TOPLEVEL}
+            DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
         ;;
         *)
             RUN_IN_PLACE=no
             EMC2_HOME=$prefix
+            DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
         ;;
     esac
     ],
     [
         RUN_IN_PLACE=no
         EMC2_HOME=$prefix
+        DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
 	AC_MSG_CHECKING(for realtime module directory)
         AC_MSG_RESULT([$MODULE_DIR])
     ])
@@ -482,6 +485,8 @@ AC_ARG_ENABLE(run-in-place,
 AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
+AC_SUBST([DEFAULT_NMLFILE])
+AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
 
 ##############################################################################
 # Subsection 3.4 - define default dirs, these get used in a lot of places    #

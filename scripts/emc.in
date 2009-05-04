@@ -314,6 +314,7 @@ EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 # 2.10. get NML config information
 GetFromIni NML_FILE EMC
 NMLFILE=$retval
+if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
 
 ################################################################################
 # 3. Done gathering information, define a few functions

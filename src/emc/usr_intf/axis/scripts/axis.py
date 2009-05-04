@@ -3635,7 +3635,9 @@ root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed
 root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
 widgets.spinoverride.configure(to=max_spindle_override)
-emc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), inifile.find("EMC", "NML_FILE"))
+nmlfile = inifile.find("EMC", "NML_FILE")
+if nmlfile:
+    emc.nmlfile = os.path.join(os.path.dirname(sys.argv[2]), nmlfile)
 vars.coord_type.set(inifile.find("DISPLAY", "POSITION_OFFSET") == "RELATIVE")
 vars.display_type.set(inifile.find("DISPLAY", "POSITION_FEEDBACK") == "COMMANDED")
 coordinate_display = inifile.find("DISPLAY", "POSITION_UNITS")

@@ -10,7 +10,8 @@ import time
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     ini = emc.ini(sys.argv[2])
-    emc.nmlfile = ini.find("EMC", "NML_FILE")
+    nmlfile = ini.find("EMC", "NML_FILE")
+    if nmlfile: emc.nmlfile = nmlfile
     del sys.argv[1:3]
 
 s = emc.stat()

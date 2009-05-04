@@ -32,6 +32,9 @@
 /* Directory for configuration files */
 #undef EMC2_CONFIG_DIR
 
+/* Default nml file */
+#undef EMC2_DEFAULT_NMLFILE
+
 /* Directory for help files */
 #undef EMC2_HELP_DIR
 

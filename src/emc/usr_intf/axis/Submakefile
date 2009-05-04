@@ -12,11 +12,6 @@ TOGLMODULE := ../lib/python/_togl.so
 
 $(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 
-ifeq "$(RUN_IN_PLACE)" "yes"
-$(call TOOBJSDEPS, $(EMCMODULESRCS)) : EXTRAFLAGS = -DDEFAULT_NMLFILE="\"$(EMC2_HOME)/configs/sim/emc.nml\""
-else
-$(call TOOBJSDEPS, $(EMCMODULESRCS)) : EXTRAFLAGS = -DDEFAULT_NMLFILE="\"$(EMC2_SYSTEM_CONFIG_DIR)/sim/emc.nml\""
-endif
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so

@@ -437,7 +437,6 @@ class Data:
         print >>file
         print >>file, "[EMC]"
         print >>file, "MACHINE = %s" % self.machinename
-        print >>file, "NML_FILE = emc.nml"
         print >>file, "DEBUG = 0"
 
         print >>file

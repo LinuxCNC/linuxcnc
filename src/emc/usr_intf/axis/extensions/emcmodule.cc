@@ -1983,7 +1983,7 @@ initemc(void) {
     PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
     pthread_mutex_init(&mutex, NULL);
 
-    PyModule_AddStringConstant(m, "nmlfile", DEFAULT_NMLFILE);
+    PyModule_AddStringConstant(m, "nmlfile", EMC2_DEFAULT_NMLFILE);
 
     PyModule_AddIntConstant(m, "OPERATOR_ERROR", EMC_OPERATOR_ERROR_TYPE);
     PyModule_AddIntConstant(m, "OPERATOR_TEXT", EMC_OPERATOR_TEXT_TYPE);
