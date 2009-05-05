@@ -39,6 +39,18 @@ from lyxparser import LyxParser
 # when invoking lyxtree
 LYX2LYX = os.getenv('LYX2LYX', '/usr/share/lyx/lyx2lyx/lyx2lyx')
 
+def getlyx(infile):
+    "read a lyx file via lyx2lyx, converting it to the required data version"
+    if isinstance(infile, basestring): infile = open(infile)
+    converter = subprocess.Popen(
+        [LYX2LYX, '-t', str(LyxTreeMaker.SUPPORTED_VERSION)],
+        stdin=infile, stdout=subprocess.PIPE)
+    infile = converter.stdout
+
+    infile = (line.decode('latin-1') for line in infile)
+
+    return infile
+ 
 def getoutput(args):
     return subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
 
@@ -198,7 +210,7 @@ class LyxTreeMaker:
 
 	self.indir = os.path.dirname(fn)
 	try:
-	    contents = (line.decode('latin-1') for line in open(fn))
+	    contents = getlyx(fn)
 	    oldlinenumber = self.parser.linenumber
 	    self.parser.linenumber = 0
 	    self.parser.filename = fn
@@ -711,12 +723,7 @@ def parse(args):
     if infile == '-': infile = sys.stdin
     else: infile = open(infile)
 
-    converter = subprocess.Popen(
-        [LYX2LYX, '-t', str(LyxTreeMaker.SUPPORTED_VERSION)],
-        stdin=infile, stdout=subprocess.PIPE)
-    infile = converter.stdout
-
-    infile = (line.decode('latin-1') for line in infile)
+    infile = getlyx(infile)
 
     h = LyxTreeMaker(indir)
     p = LyxParser(h, filename)
