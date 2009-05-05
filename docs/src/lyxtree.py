@@ -32,6 +32,13 @@ from xcommon import *
 
 from lyxparser import LyxParser
 
+# if you want to build documentation on a system with a different lyx2lyx
+# location--this standard one should apply to all ubuntus I care about, here's
+# what you do: modify configure to detect the lyx2lyx location and write it to
+# Makefile.inc, then make docs/Submakefile export LYX2LYX to the environment
+# when invoking lyxtree
+LYX2LYX = os.getenv('LYX2LYX', '/usr/share/lyx/lyx2lyx/lyx2lyx')
+
 def getoutput(args):
     return subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
 
@@ -703,6 +710,12 @@ def parse(args):
     filename = infile
     if infile == '-': infile = sys.stdin
     else: infile = open(infile)
+
+    converter = subprocess.Popen(
+        [LYX2LYX, '-t', str(LyxTreeMaker.SUPPORTED_VERSION)],
+        stdin=infile, stdout=subprocess.PIPE)
+    infile = converter.stdout
+
     infile = (line.decode('latin-1') for line in infile)
 
     h = LyxTreeMaker(indir)
