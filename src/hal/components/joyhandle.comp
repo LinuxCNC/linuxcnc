@@ -24,15 +24,9 @@ param rw float offset = 0.;
 param rw bit inverse = 0;	
 
 description """
-.\" .de TQ
-.\" .br
-.\" .ns
-.\" .TP \\$1
-.\" ..
-.\" 
 .TH "joyhandle" "9" "2008-02-14 Version 3" "EMC Documentation" "HAL Component"
 .SH "NAME"
-joyhandle \- sets nonlinear joypad movements, deadbands and scales
+joyhandle \\- sets nonlinear joypad movements, deadbands and scales
 .SH "SYNOPSIS"
 .B loadrt joyhandle [count=\\fIN\\fB]
 .SH "DESCRIPTION"
@@ -44,7 +38,7 @@ The parameters a and b are adjusted in such a way, that the function starts at (
 
 Negative values will be treated point symetrically to origin. Values -deadband < x < +deadband will be set to zero.
 
-Values x > 1 and x < -1 will be skipped to +-(scale+offset). Invert transforms the function to a progressive movement.
+Values x > 1 and x < -1 will be skipped to \\(+-(scale+offset). Invert transforms the function to a progressive movement.
 
 With power one can adjust the nonlinearity (default = 2). Default for deadband is 0.
 
@@ -58,11 +52,11 @@ All values can be adjusted for each instance separately.
 
 .SH "PINS"
 .TP  
-.B joyhandle.\fIN\fB.in float in 
-Analog input value (for example form joypad.axis.\fIN\fB)
+.B joyhandle.\\fIN\\fB.in float in 
+Analog input value (for example form joypad.axis.\\fIN\\fB)
 .TP  
-.B joyhandle.\fIN\fB.out float out 
-Analog output value (for example to haluui.jog.\fIN\fB).analog
+.B joyhandle.\\fIN\\fB.out float out 
+Analog output value (for example to haluui.jog.\\fIN\\fB).analog
 
 
 .SH "PARAMETERS"
@@ -82,7 +76,7 @@ Negative values invert the movements
 .B joyhandle.\\fIN\\fB.offset float rw 
 Default offset = 0.
 .TP  
-.B joyhandle.\fIN\fB.ftype unsigned rw 
+.B joyhandle.\\fIN\\fB.ftype unsigned rw 
 Default ftype = 0;
 Not yet used, for further purposes
 .SH ""
