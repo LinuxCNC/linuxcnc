@@ -463,6 +463,22 @@ static int tokenize(char *cmd_buf, char **tokens)
     cp1 = cmd_buf;
     state = BETWEEN_TOKENS;
     while ( m < MAX_TOK ) {
+        if(*cp1 == '\r') 
+        {
+            char nextc = *(cp1+1);
+            if(nextc == '\n' || nextc == '\0') 
+            {
+                static int warned=0;
+                if(!warned) 
+                    halcmd_warning("File contains DOS-style line endings.\n");
+                warned = 1;
+            }
+            else 
+            {
+                halcmd_error("File contains embedded carriage returns.\n");
+                return -1;
+            }
+        }
 	switch ( state ) {
 	case BETWEEN_TOKENS:
 	    if ( *cp1 == '\0' ) {
@@ -545,6 +561,7 @@ static int tokenize(char *cmd_buf, char **tokens)
 	}
     }
     if ( state != END_OF_LINE ) {
+	halcmd_error("too many tokens on line\n");
 	return -1;
     }
     return 0;
@@ -818,7 +835,6 @@ int halcmd_preprocess_line ( char *line, char **tokens )
     /* split cmd_buff into tokens */
     retval = tokenize(cmd_buf, tokens);
     if (retval != 0) {
-	halcmd_error("too many tokens on line\n");
 	return -3;
     }
     /* tokens[] contains MAX_TOK+1 elements so there is always
