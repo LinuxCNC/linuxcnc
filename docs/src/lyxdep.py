@@ -21,10 +21,10 @@ def process_file(name):
     for line in f.readlines():
         m = format_re.search(line)
         if m:
-            if m.group(1) != "221":
+            if m.group(1) not in ("221", "276"):
                 raise SystemExit, """\
-LyX documentation must be written with lyxformat 221 (the format written by
-LyX 1.3.7 on Ubuntu 6.06 Dapper Drake).  For more information, see README
+LyX documentation must be written with lyxformat 276 (the format written
+by LyX 1.5.3 on Ubuntu 8.04 Hardy Heron).  For more information, see README
 or http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?BeyondWiki"""
         m = include_re.search(line)
         if m:
