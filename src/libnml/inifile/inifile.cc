@@ -23,6 +23,25 @@
 #include "config.h"
 #include "inifile.hh"
 
+/// Return TRUE if the line has a line-ending problem
+static bool check_line_endings(const char *s) {
+    if(!s) return false;
+    for(; *s; s++ ) {
+        if(*s == '\r') {
+            char c = s[1];
+            if(c == '\n' || c == '\0') {
+                static bool warned = 0;
+                if(!warned) 
+                    fprintf(stderr, "inifile: warning: File contains DOS-style line endings.\n");
+                warned = true;
+                continue;
+            }
+            fprintf(stderr, "inifile: error: File contains ambiguous carriage returns\n");
+            return true;
+        }
+    }
+    return false;
+}
 
 IniFile::IniFile(int _errMask, FILE *_fp)
 {
@@ -277,6 +296,12 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
                 ThrowException(ERR_SECTION_NOT_FOUND);
                 return(NULL);
             }
+
+            if(check_line_endings(line)) {
+                ThrowException(ERR_CONVERSION);
+                return(NULL);
+            }
+
             /* got a line */
             lineNo++;
 
@@ -310,6 +335,11 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
         if (NULL == fgets(line, LINELEN + 1, (FILE *) fp)) {
             /* got to end of file without finding it */
             ThrowException(ERR_TAG_NOT_FOUND);
+            return(NULL);
+        }
+
+        if(check_line_endings(line)) {
+            ThrowException(ERR_CONVERSION);
             return(NULL);
         }
 
