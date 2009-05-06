@@ -89,7 +89,7 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 
-# internalname / displayed name / steptime/ step space / direction hold / direction setup
+# internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
     ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
     ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
@@ -107,6 +107,23 @@ drivertypes = [
     ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
+
+# boardname, firmwarename, max encoders, max pwm gens, max step gens, # of pins per step gen, watchdog, max gpio
+mesafirmwaredata = [
+    ["5i20", "SV12", 12, 12, 0, 0, 1, 72 ],
+    ["5i20", "SVST8_4", 8, 8, 4, 6, 1, 72 ],
+    ["5i20", "SVST2_8", 2, 2, 8, 6, 1, 72 ],
+    ["5i20", "SVST8_4IM2", 8, 8, 4, 2, 1, 72 ],
+    ["5i22", "SV16", 16, 16, 0, 0, 1, 96 ],
+    ["5i22", "SVST8_8", 8, 8, 8, 6, 1, 96 ],
+    ["5i22", "SVS8_24", 8, 9, 24, 2, 1, 96 ],
+    ["7i43", "SV8", 8, 8, 0, 0, 1, 48 ],
+    ["7i43", "SV4_4", 4, 4, 4, 6, 1, 48 ],
+    ["7i43", "SV4_6", 4, 4, 6, 4, 1, 48 ],
+    ["7i43", "SV4_12", 4, 4, 12, 2, 1, 48 ],
+]
+
+mesaboardnames = [ "5i20", "5i22", "7i43" ]
 
 (UNUSED_OUTPUT,
 ON, CW, CCW, PWM, BRAKE,
@@ -226,7 +243,7 @@ _("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Directio
 _("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
 _("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), ]
 
-pintype_names = [_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),_("HDW Encoder"),_("HDW PWM Gen"),_("HDW Step Gen")]
+pintype_names = [_("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),_("HDW Encoder"),_("HDW PWM Gen"),_("HDW Step Gen"),_("Index Mask")]
 
 def md5sum(filename):
     try:
@@ -265,8 +282,8 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
-        self.mesa_boardname = "5i20"
-        self.mesa_firmware = "SVST8_4"
+        self.mesa_boardname = "5i22"
+        self.mesa_firmware = "SV16"
         self.mesa_pwm_frequency = 100000
         self.mesa_watchdog_timeout = 10000000
         self.numof_mesa_encodergens = 4
@@ -1161,6 +1178,8 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
 
+        if self.pyvcp and not self.frontend == 1:
+            print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
         print >>file
         if self.number_pports > 0:
             print >>file, "addf parport.0.read base-thread"
@@ -1765,13 +1784,38 @@ class App:
         self.in_pport_prepare = False
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
-
-        
+       
         self.data = Data()
    
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
+
+        # add this here to speed up showing of mesa page
+        model = self.widgets.mesa_boardname.get_model()
+        model.clear()
+        for i in mesaboardnames:
+            model.append((i,))
+        model = self.widgets.mesa_firmware.get_model()
+        model.clear()
+        for search,item in enumerate(mesaboardnames):
+            if mesaboardnames[search]  == self.data.mesa_boardname:
+                self.widgets.mesa_boardname.set_active(search)  
+
+        for search, item in enumerate(mesafirmwaredata):
+            d = mesafirmwaredata[search]
+            if not d[0] == self.data.mesa_boardname:continue
+            model.append((d[1],))
+        for search,item in enumerate(model):
+            print mesafirmwaredata[search][1]
+            if model[search][0]  == self.data.mesa_firmware:
+                self.widgets.mesa_firmware.set_active(search)     
+        self.widgets.mesa_pwm_frequency.set_value(self.data.mesa_pwm_frequency)
+        self.widgets.mesa_watchdog_timeout.set_value(self.data.mesa_watchdog_timeout)
+        self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
+        self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
+        self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
+        self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
 
     def gtk_main_quit(self, *args):
         gtk.main_quit()
@@ -2081,23 +2125,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
     def on_mesa5i20_prepare(self, *args):
         self.data.help = 4
         self.in_mesa_prepare = True
-        # TODO add board and firmware options including another tab on the mesa page for the 5i22
-        model = self.widgets.mesa_firmware.get_model()
-        model.clear()
-        model.append((self.data.mesa_firmware,))
-        self.widgets.mesa_firmware.set_active(0)
-        model = self.widgets.mesa_boardname.get_model()
-        model.clear()
-        model.append((self.data.mesa_boardname,))
-        self.widgets.mesa_boardname.set_active(0)
-        self.widgets.mesa_pwm_frequency.set_value(self.data.mesa_pwm_frequency)
-        self.widgets.mesa_watchdog_timeout.set_value(self.data.mesa_watchdog_timeout)
-        self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
-        self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
-        self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
-        self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
-
-
+        # TODO add another tab for 5i22 4th connector and fix these routines to cover that connector and the other board's pin layouts
         for connector in (2,3,4):
             for pin in range(0,24):
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
