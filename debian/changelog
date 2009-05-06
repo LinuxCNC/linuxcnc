@@ -4,8 +4,12 @@ emc2 (1:2.3.1~pre) hardy; urgency=low
   * Fix hal_joystick 'HAL: ERROR: pin_new called after hal_ready'
   * documentation improvements
   * Fix User and HAL manual links in applications menu
+  * latency-test: fix illegible font on some systems
+  * comp: fix a compiler warning when array variables are used
+  * x86_64/rtai: fix a crashing bug reported by Michael Buesch
+  * ppc64/sim: fix a compilation error reported by Michael Buesch
 
- -- Jeff Epler <jepler@unpythonic.net>  Thu, 23 Apr 2009 06:43:17 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Wed, 06 May 2009 07:39:42 -0500
 
 emc2 (1:2.3.0) hardy; urgency=low
 
