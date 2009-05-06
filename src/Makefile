@@ -557,7 +557,7 @@ EXTRA_CFLAGS = $(RTFLAGS) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/motion \
         -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -msse2
+EXTRA_CFLAGS += -msse
 endif
 
 ifeq "$(USE_STUBS)" "1"
