@@ -489,6 +489,7 @@ const char *setCommands[] = {
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
 
 struct option longopts[] = {
+  {"help", 0, NULL, 'h'},
   {"port", 1, NULL, 'p'},
   {"name", 1, NULL, 'n'},
   {"sessions", 1, NULL, 's'},
@@ -2742,14 +2743,32 @@ static void initMain()
     programStartLine = 0;
 }
 
+static void usage(char* pname) {
+    printf("Usage: \n");
+    printf("         %s [Options] [-- emcOptions]\n"
+           "Options:\n"
+           "         --help       this help\n"
+           "         --port       <port number>  (default=%d)\n"
+           "         --name       <server name>  (default=%s)\n"
+           "         --connectpw  <password>     (default=%s)\n"
+           "         --enablepw   <password>     (default=%s)\n"
+           "         --sessions   <max sessions> (default=%d) (-1 ==> no limit) \n"
+           "         --path       <path>         (default=%s)\n"
+           "emcOptions:\n"
+           "          -ini        <inifile>      (default=%s)\n"
+          ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,EMC_INIFILE
+          );
+}
+
 int main(int argc, char *argv[])
 {
     int opt;
 
     initMain();
     // process local command line args
-    while((opt = getopt_long(argc, argv, "e:n:p:s:w:d:", longopts, NULL)) != -1) {
+    while((opt = getopt_long(argc, argv, "he:n:p:s:w:d:", longopts, NULL)) != - 1) {
       switch(opt) {
+        case 'h': usage(argv[0]); exit(1);
         case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
         case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
         case 'p': sscanf(optarg, "%d", &port); break;
