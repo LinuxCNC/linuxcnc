@@ -801,9 +801,15 @@ save
 halcmd: 
 \series bold 
 save all saved.hal
-\newline 
+\layout Subsection*
 
-\series default 
+Exiting HalRun
+\layout Standard
+
+When your finished with your HAL session type "exit" at the halcmd: prompt.
+ Do not simply close the terminal window without shutting down the HAL session.
+\layout Quote
+
 halcmd: 
 \series bold 
 exit
@@ -854,6 +860,19 @@ exit
 
 \series default 
 ~/emc2$
+\layout Subsection*
+
+Removing HAL from memory
+\layout Standard
+
+If an unexpected shut down of a HAL session occurs you might have to unload
+ HAL before another session can begin.
+ To do this type the following command in a terminal window:
+\layout Quote
+
+~/emc2$ 
+\series bold 
+halrun -U
 \layout Section
 
 Halmeter
