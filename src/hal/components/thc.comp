@@ -61,7 +61,7 @@ variable float p_error;
 variable float i_error;
 variable float d_error;
 variable float last_p_error;
-variable bool  first_pass=0;
+variable int   first_pass=0;
 variable float abs_x_vel;
 variable float abs_y_vel;
 variable float min_vel;
