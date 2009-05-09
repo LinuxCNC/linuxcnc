@@ -1,0 +1,134 @@
+component thc "Torch Height Control";
+
+
+
+description 
+"""Torch Height Control using a Mesa THC-AD board. The voltage signal
+from the plasma torch is converted to a frequency by the THC-AD board. This
+frequency is fed to an encoder. The velocity output from the encoder is fed
+into the THC component.
+
+The tip voltage rises as the distance increases.
+
+""";
+
+author "John Thornton";
+
+license "GPL";
+
+// Input Pins
+pin in float volts_setting "Torch Volts Set Point (SP)";
+pin in float p_gain "The Proportional Gain (Kp)"; 
+pin in float i_gain "The Integral Gain (Ki)";
+pin in float d_gain "The Derivative Gain (Kd)";
+
+pin in bit enable "Enable the THC, if not enabled Z position is passed through";
+pin in bit chl_enable "Enable the Corner Height Lock"; // don't know if this is needed.
+
+pin in float vel_tol "Percent of Velocity Deviation 0.00-1.00";
+pin in bit spindle_on "Motion Spindle On"; 
+pin in bit arc_ok "Arc OK from Plasma Torch";
+pin in float encoder_vel "Velocity Output in User Units per Second from Encoder";
+pin in float set_vel "the commanded velocity of XY";
+pin in float x_vel "Used to compute velocity";
+pin in float y_vel "Used to compute velocity";
+pin in float z_pos_cmd "Z Motor Position Command In";
+
+// Output Pins
+pin out float z_pos_out "Z Motor Position Command Out";
+pin out float x_y_velocity "The X + Y velocity";
+pin out float volts "The calculated Volts";
+pin out float vel_out "The velocity reading from the THC";
+pin out float p_out "the Proportional Term correction";
+pin out float i_out "the Integral Term correction";
+pin out float d_out "the Derivative Term correction";
+pin out float correction "the total correction";
+pin out float smoothed "the Input after smoothing";
+pin out bit at_speed "On when within tolerance of speed";
+
+pin out float test "used for testing";
+
+// Parameters
+param rw float vel_scale "The scale to convert the Velocity to Volts";
+param rw float scale_offset "The offset of the velocity input at 0 volts";
+param rw float volt_dist_scale "The Voltage Distance Scale";
+param rw float volts_tol "The Voltage Tolerance.";
+param rw float i_cap "The maximum Integeral error.";
+param rw float input_gain "The maximum change between inputs";
+
+// Variables
+variable float p_error;
+variable float i_error;
+variable float d_error;
+variable float last_p_error;
+variable bool  first_pass=0;
+variable float abs_x_vel;
+variable float abs_y_vel;
+variable float min_vel;
+
+function _;
+
+;;
+
+#include "rtapi_math.h"
+
+FUNCTION(_) {
+    // convert velocity to volts
+    smoothed += (encoder_vel - smoothed) * input_gain;
+    volts = (smoothed - scale_offset) * vel_scale;
+    if(volts < 0){volts =0;} // make sure volts is not a neg number.
+    
+    if(first_pass == 0){
+        p_error = 0; 
+        i_error = 0; 
+        d_error = 0; 
+        last_p_error = 0; 
+        first_pass = 1;
+    } // start things at 0
+    
+    if(x_vel >= 0.0){abs_x_vel = x_vel;} // get the absolute X vel
+    else{abs_x_vel = -x_vel;}
+    
+    if(y_vel >= 0.0){abs_y_vel = y_vel;} // get the absolute Y vel
+    else{abs_y_vel = -y_vel;}
+         
+    // find the combined velocity of X & Y using the Pythagorean theroem Vxy=sqrt(Vx^2+Vy^2)     
+    
+    x_y_velocity = (sqrt(pow(abs_x_vel,2) + pow(abs_y_vel,2)))*60;
+    
+    // find out if we are within the velocity tolerance
+    test = set_vel*vel_tol;
+    min_vel = set_vel * vel_tol;
+    if(spindle_on && (x_y_velocity > 0) && (x_y_velocity >= min_vel)){at_speed=1;}
+    else{at_speed=0;}
+
+    if(enable && spindle_on){
+        
+        last_p_error = p_error;
+        
+        // The P loop
+        p_error = volts_setting - volts;
+        p_out = p_gain * p_error;
+        
+        // The I loop
+        i_error = i_error + p_error;
+        if(i_error > i_cap){i_error = i_cap;} // limit the i error
+        i_out = i_gain * i_error;
+        
+        // The D loop
+        d_error = p_error - last_p_error;
+        d_out = d_gain * d_error;
+        
+        
+        correction = (p_out + i_out + d_out);
+        
+        
+    }
+    
+    if(!enable){
+        z_pos_out = z_pos_cmd; // pass the Z position through
+        first_pass = 0;
+    }
+}
+
+
