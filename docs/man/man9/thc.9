@@ -1,0 +1,128 @@
+.TH THC "9" "2009-05-09" "EMC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+thc \- Torch Height Control
+.SH SYNOPSIS
+.HP
+.B loadrt thc [count=\fIN\fB|names=\fIname1\fB[,\fIname2...\fB]]
+.SH DESCRIPTION
+
+Torch Height Control using a Mesa THC-AD board. The voltage signal
+from the plasma torch is converted to a frequency by the THC-AD board. This
+frequency is fed to an encoder. The velocity output from the encoder is fed
+into the THC component.
+
+The tip voltage rises as the distance increases.
+
+
+.SH FUNCTIONS
+.TP
+\fBthc.\fIN\fB\fR (uses floating-point)
+
+.SH PINS
+.TP
+.B thc.\fIN\fB.volts-setting\fR float in \fR
+Torch Volts Set Point (SP)
+.TP
+.B thc.\fIN\fB.p-gain\fR float in \fR
+The Proportional Gain (Kp)
+.TP
+.B thc.\fIN\fB.i-gain\fR float in \fR
+The Integral Gain (Ki)
+.TP
+.B thc.\fIN\fB.d-gain\fR float in \fR
+The Derivative Gain (Kd)
+.TP
+.B thc.\fIN\fB.enable\fR bit in \fR
+Enable the THC, if not enabled Z position is passed through
+.TP
+.B thc.\fIN\fB.chl-enable\fR bit in \fR
+Enable the Corner Height Lock
+.TP
+.B thc.\fIN\fB.vel-tol\fR float in \fR
+Percent of Velocity Deviation 0.00-1.00
+.TP
+.B thc.\fIN\fB.spindle-on\fR bit in \fR
+Motion Spindle On
+.TP
+.B thc.\fIN\fB.arc-ok\fR bit in \fR
+Arc OK from Plasma Torch
+.TP
+.B thc.\fIN\fB.encoder-vel\fR float in \fR
+Velocity Output in User Units per Second from Encoder
+.TP
+.B thc.\fIN\fB.set-vel\fR float in \fR
+the commanded velocity of XY
+.TP
+.B thc.\fIN\fB.x-vel\fR float in \fR
+Used to compute velocity
+.TP
+.B thc.\fIN\fB.y-vel\fR float in \fR
+Used to compute velocity
+.TP
+.B thc.\fIN\fB.z-pos-cmd\fR float in \fR
+Z Motor Position Command In
+.TP
+.B thc.\fIN\fB.z-pos-out\fR float out \fR
+Z Motor Position Command Out
+.TP
+.B thc.\fIN\fB.x-y-velocity\fR float out \fR
+The X + Y velocity
+.TP
+.B thc.\fIN\fB.volts\fR float out \fR
+The calculated Volts
+.TP
+.B thc.\fIN\fB.vel-out\fR float out \fR
+The velocity reading from the THC
+.TP
+.B thc.\fIN\fB.p-out\fR float out \fR
+the Proportional Term correction
+.TP
+.B thc.\fIN\fB.i-out\fR float out \fR
+the Integral Term correction
+.TP
+.B thc.\fIN\fB.d-out\fR float out \fR
+the Derivative Term correction
+.TP
+.B thc.\fIN\fB.correction\fR float out \fR
+the total correction
+.TP
+.B thc.\fIN\fB.smoothed\fR float out \fR
+the Input after smoothing
+.TP
+.B thc.\fIN\fB.at-speed\fR bit out \fR
+On when within tolerance of speed
+.TP
+.B thc.\fIN\fB.test\fR float out \fR
+used for testing
+.SH PARAMETERS
+.TP
+.B thc.\fIN\fB.vel-scale\fR float rw \fR
+The scale to convert the Velocity to Volts
+.TP
+.B thc.\fIN\fB.scale-offset\fR float rw \fR
+The offset of the velocity input at 0 volts
+.TP
+.B thc.\fIN\fB.volt-dist-scale\fR float rw \fR
+The Voltage Distance Scale
+.TP
+.B thc.\fIN\fB.volts-tol\fR float rw \fR
+The Voltage Tolerance.
+.TP
+.B thc.\fIN\fB.i-cap\fR float rw \fR
+The maximum Integeral error.
+.TP
+.B thc.\fIN\fB.input-gain\fR float rw \fR
+The maximum change between inputs
+.SH AUTHOR
+
+John Thornton
+.SH LICENSE
+
+GPL
