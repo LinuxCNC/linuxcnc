@@ -4129,8 +4129,8 @@ echo "${ECHO_T}yes - $GLIB_VER" >&6; }
   GLIB_CFLAGS=`pkg-config glib-2.0 --cflags`
   GLIB_LIBS=`pkg-config glib-2.0 --libs`
 else
-  { { echo "$as_me:$LINENO: error: no -- required until somebody makes modbus optional" >&5
-echo "$as_me: error: no -- required until somebody makes modbus optional" >&2;}
+  { { echo "$as_me:$LINENO: error: could not find glib development files" >&5
+echo "$as_me: error: could not find glib development files" >&2;}
    { (exit 1); exit 1; }; }
 fi
 

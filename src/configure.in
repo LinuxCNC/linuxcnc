@@ -551,7 +551,7 @@ if pkg-config glib-2.0 >/dev/null 2>&1; then
   GLIB_CFLAGS=`pkg-config glib-2.0 --cflags`
   GLIB_LIBS=`pkg-config glib-2.0 --libs`
 else
-  AC_MSG_ERROR(no -- required until somebody makes modbus optional)
+  AC_MSG_ERROR(could not find glib development files)
 fi
 
 AC_MSG_CHECKING([for GTK 2.4.0 or above])
