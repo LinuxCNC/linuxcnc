@@ -9,6 +9,7 @@ option extra_setup;
 option extra_cleanup;
 option constructable no;
 
+license "GPL";
 ;;
 #include <asm/io.h>
 
