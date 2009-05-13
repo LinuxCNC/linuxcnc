@@ -1144,7 +1144,7 @@ void *checkQueue(void *arg)
 {
   while (1) {
     updateQueue();
-    sleep(pollDelay);
+    sleep((unsigned)pollDelay);
     }
   return 0;
 }  
