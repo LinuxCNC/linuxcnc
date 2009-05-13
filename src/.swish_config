@@ -11,6 +11,8 @@ FileRules filename contains \.dvi$
 FileRules filename contains \.pdf$
 FileRules filename contains \.eps$
 FileRules filename contains \.png$
+FileRules filename contains \.gif$
+FileRules filename contains \.jpg$
 FileRules filename contains \.BIT$
 FileRules filename contains \.tex$
 FileRules filename contains \.aux$
@@ -37,6 +39,11 @@ FileRules filename contains \.vho$
 FileRules filename contains \.bit$
 FileRules filename contains \.ng.$
 FileRules filename contains \.twx$
+FileRules filename contains \.ISE$
+
+# other droppings
+FileRules filename contains ^core$
+FileRules filename contains ^core.[0-9]+$
 
 IndexFile .swishindex
 DefaultContents TXT
