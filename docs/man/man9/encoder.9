@@ -76,9 +76,9 @@ Index pulse input.
 Position in scaled units (see \fBposition-scale\fR)
 .TP
 \fBencoder.\fIN\fB.position-interpolated\fR float out
-Position in scaled units, interpolated between
-encoder counts.  Only valid when velocity is approximately constant, do not
-use for position control.
+Position in scaled units, interpolated between encoder counts.  Only valid when
+velocity is approximately constant and above \fBmin-velocity-estimate\fR.  Do
+not use for position control.
 .TP
 \fBencoder.\fIN\fB.position-scale\fR float i/o
 Scale factor, in counts per length unit.  For example, if \fBposition-scale\fR
@@ -95,8 +95,9 @@ When true, \fBcounts\fR and \fBposition\fR are reset to zero immediately.
 .TP
 \fBencoder.\fIN\fB.velocity\fR float out
 Velocity in scaled units per second.  \fBencoder\fR uses an algorithm that
-greatly reduces quantization noise as compared to simply differentiating
-the \fBposition\fR output.
+greatly reduces quantization noise as compared to simply differentiating the
+\fBposition\fR output.  When the magnitude of the true velocity is below
+\fRmin-velocity-estimate\fR, the \fRvelocity\fR output is 0.
 .TP
 \fBencoder.\fIN\fB.x4-mode\fR bit i/o
 Enables times-4 mode.  When true (the default), the counter counts each edge
@@ -104,21 +105,18 @@ of the quadrature waveform (four counts per full cycle).  When false, it only
 counts once per full cycle.  In \fBcounter-mode\fR, this parameter is ignored.
 
 .SH PARAMETERS
+\fBencoder.\fIN\fB.min-velocity-estimate\fR float rw (default: 1.0)
+Determine the minimum true velocity magnitude at which \fBvelocity\fR will be
+estimated as nonzero and \fBpostition-interpolated\fR will be interpolated.
+The units of \fBmin-velocity-estimate\fR are the same as the units of
+\fBvelocity\fR.  Scale factor, in counts per length unit.  Setting this
+parameter too low will cause it to take a long time for \fBvelocity\fR to go to
+0 after encoder pulses have stopped arriving.
 .TP
-\fBencoder.\fIN\fB.capture-position.time\fR s32 ro
-Number of CPU cycles it took to execute this function.
-.TP
+\fBencoder.\fIN\fB.counter-mode\fR bit rw
+Enables counter mode.  When true, the counter counts each rising edge of the
+phase-A input, ignoring the value on phase-B.  This is useful for counting
+the output of a single channel (non-quadrature) sensor.  When false (the
+default), it counts in quadrature mode.
 \fBencoder.\fIN\fB.capture-position.tmax\fR s32 rw
 Maximum number of CPU cycles it took to execute this function.
-.TP
-\fBencoder.\fIN\fB.update-counters.time\fR s32 ro
-Number of CPU cycles it took to execute this function.
-.TP
-\fBencoder.\fIN\fB.update-counters.tmax\fR s32 rw
-Maximum number of CPU cycles it took to execute this function.
-
-
-.SH
-SEE ALSO
-\fBcounter(9)\fR
-
