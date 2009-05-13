@@ -31,8 +31,7 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 sys.excepthook = sys.__excepthook__
 
 import gettext;
-gettext.install("axis", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
-r_ = gettext.translation("rs274_err", localedir=os.path.join(BASE, "share", "locale"), fallback=True).ugettext
+gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import array, time, atexit, tempfile, shutil, errno, thread, select, re
 
@@ -1977,7 +1976,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         # According to the documentation, MIN_ERROR is the largest value that is
         # not an error.  Crazy though that sounds...
         if result > gcode.MIN_ERROR:
-            error_str = r_(gcode.strerror(result))
+            error_str = _(gcode.strerror(result))
             root_window.tk.call("nf_dialog", ".error",
                     _("G-Code error in %s") % os.path.basename(f),
                     _("Near line %(seq)d of %(f)s:\n%(error_str)s") % {'seq': seq, 'f': f, 'error_str': error_str},

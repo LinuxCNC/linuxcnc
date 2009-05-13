@@ -1,59 +1,73 @@
+#
+# translation of axis.pot to Spanish
+# Medardo Torres <e0526338@stud3.tuwien.ac.at>, 07.Jun.2007.
+# This file provides spanish translations for AXIS.
+# Check http://axis.unpy.net/ for further details.
+# This file is distributed under the same license as the AXIS package.
+#
 msgid ""
 msgstr ""
+"Project-Id-Version: de_axis\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-05-13 08:58-0500\n"
+"PO-Revision-Date: 2007-06-07 01:32+0100\n"
+"Last-Translator: Medardo Torres <e0526338@stud3.tuwien.ac.at>\n"
+"Language-Team: Spanish <emc-developers@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../tcl/bin/emccalib.tcl:80
-#, fuzzy
 msgid "EMC2 Servo Axis Calibration"
-msgstr "EMC2 Calibrare axe"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:90
 msgid "Save To File"
-msgstr "Salveaza in fisier"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:91 ../tcl/bin/halconfig.tcl:103
+#, fuzzy
 msgid "Quit"
-msgstr "Terminare"
+msgstr "_Terminar"
 
 #: ../tcl/bin/emccalib.tcl:106 ../tcl/bin/genedit.tcl:77
 #: ../tcl/bin/halconfig.tcl:151 ../tcl/mini.tcl:2513 ../tcl/tkemc.tcl:772
+#, fuzzy
 msgid "File"
-msgstr "Fisier"
+msgstr "_Archivo"
 
 #: ../tcl/bin/emccalib.tcl:108 ../tcl/bin/emccalib.tcl:235
 #: ../tcl/bin/halconfig.tcl:153 ../tcl/mini.tcl:3555
 msgid "Refresh"
-msgstr "Reactualizeaza"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:110 ../tcl/bin/genedit.tcl:82
 #: ../tcl/bin/halconfig.tcl:155 ../tcl/mini.tcl:2532
 msgid "Save"
-msgstr "Salveaza"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:164 ../tcl/bin/halconfig.tcl:623
 #, tcl-format
 msgid "Tune %d"
-msgstr "Seteaza %d"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:166 ../tcl/bin/halconfig.tcl:628
+#, fuzzy
 msgid "INI Name"
-msgstr "Nume INI"
+msgstr "Archivo:"
 
 #: ../tcl/bin/emccalib.tcl:167 ../tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
-msgstr "Valoare HAL"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:169 ../tcl/bin/halconfig.tcl:631
 msgid "Next Value"
-msgstr "Urmatoarea valoare"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:229 ../tcl/bin/halconfig.tcl:680
 #: ../tcl/bin/halconfig.tcl:731
 msgid "Test"
-msgstr "Testeaza"
+msgstr ""
 
 #: ../tcl/bin/emccalib.tcl:231 ../tcl/bin/genedit.tcl:180
 #: ../tcl/bin/genedit.tcl:450 ../tcl/bin/halconfig.tcl:682
@@ -85,7 +99,7 @@ msgstr "OK"
 #: emc/usr_intf/axis/scripts/axis.py:2428
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:711
 msgid "Cancel"
-msgstr "Anulare"
+msgstr "Cancelar"
 
 #: ../tcl/bin/emccalib.tcl:362 ../tcl/bin/halconfig.tcl:883
 #, tcl-format
@@ -95,10 +109,6 @@ msgid ""
 " has changed. \n"
 " Really quit?"
 msgstr ""
-"Parametrul HAL \n"
-"  %s \n"
-" a fost modificat. \n"
-" Sigur iesiti?"
 
 #: ../tcl/bin/emccalib.tcl:387 ../tcl/bin/halconfig.tcl:1170
 msgid ""
@@ -106,9 +116,6 @@ msgid ""
 "\n"
 "  You need to copy a configuration to your home directory and work there."
 msgstr ""
-"Nu este permisa salvarea aici.\n"
-"\n"
-"  Trebuie sa copiati o configuratie in directorul Dvs. si sa lucrati acolo."
 
 #: ../tcl/bin/emccalib.tcl:439 ../tcl/bin/genedit.tcl:211
 #: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:464
@@ -116,140 +123,149 @@ msgstr ""
 #: ../tcl/scripts/Set_Coordinates.tcl:224
 #, tcl-format
 msgid "can't save %s"
-msgstr "nu pot salva %s"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:166 ../tcl/bin/emcdebug.tcl:177
 msgid "EMC Debug"
-msgstr "EMC Diagnostic"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
-msgstr "Inregistrare INI invalida"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:186
 msgid "Configuration information"
-msgstr "Informatii de configurare"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:187
 msgid "Use of defaults"
-msgstr "Foloseste implicit"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:188
 msgid "Version information"
-msgstr "Informatii versiune"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:189
 msgid "Command issuing"
-msgstr "Comanda activa"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:190
+#, fuzzy
 msgid "IO points"
-msgstr "Puncte IO"
+msgstr "Puntos IO"
 
 #: ../tcl/bin/emcdebug.tcl:191
 msgid "NML"
-msgstr "NML"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:192
+#, fuzzy
 msgid "Motion time"
-msgstr "Timp miscare"
+msgstr "Tiempo de movimiento"
 
 #: ../tcl/bin/emcdebug.tcl:193 emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Interpreter"
-msgstr "Interpretor"
+msgstr "Intérprete"
 
 #: ../tcl/bin/emcdebug.tcl:194
 msgid "RCS"
-msgstr "RCS"
+msgstr ""
 
 #: ../tcl/bin/emcdebug.tcl:195
+#, fuzzy
 msgid "Trajectory level"
-msgstr "Nivel traiectorie"
+msgstr "Trajectoria"
 
 #: ../tcl/bin/emcdebug.tcl:196
+#, fuzzy
 msgid "Interpreter list"
-msgstr "Lista interpretor"
+msgstr "Lista de intérprete"
 
 #: ../tcl/bin/genedit.tcl:78 ../tcl/mini.tcl:2530
 msgid "New"
-msgstr "Nou"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:80 ../tcl/mini.tcl:1664 ../tcl/mini.tcl:2531
 #: ../tcl/tkemc.tcl:773 ../tcl/tkemc.tcl:1698
+#, fuzzy
 msgid "Open..."
-msgstr "Deschide..."
+msgstr "_Abrir"
 
 #: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2533
 msgid "Save As..."
-msgstr "Salveaza ca..."
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:165 ../tcl/mini.tcl:954
 #: ../tcl/tkemc.tcl:785
 msgid "Exit"
-msgstr "Iesire"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:91 ../tcl/mini.tcl:2514
 msgid "Edit"
-msgstr "Editare"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:92 ../tcl/mini.tcl:2540
 msgid "Cut"
-msgstr "Decupare"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:94 ../tcl/mini.tcl:2541
 msgid "Copy"
-msgstr "Copiere"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:96 ../tcl/mini.tcl:2542
+#, fuzzy
 msgid "Paste"
-msgstr "Lipire"
+msgstr "_Pausa"
 
 #: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2545 ../tcl/show_errors.tcl:68
 msgid "Select All"
-msgstr "Selectare totala"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:192 ../tcl/mini.tcl:919
 #: ../tcl/mini.tcl:2516 ../tcl/tkemc.tcl:842
+#, fuzzy
 msgid "Help"
-msgstr "Ajutor"
+msgstr "Ayuda"
 
 #: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:1011 ../tcl/mini.tcl:2556
 #: ../tcl/tkemc.tcl:848
 msgid "About..."
-msgstr "Despre..."
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:130
 msgid "Save and Reload"
-msgstr "Salveaza si reincarca"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:133 ../tcl/mini.tcl:2547
+#, fuzzy
 msgid "Find..."
-msgstr "Cauta..."
+msgstr "Procesando..."
 
 #: ../tcl/bin/genedit.tcl:135 ../tcl/mini.tcl:2549
 msgid "Renumber File..."
-msgstr "Renumeroteaza fisier..."
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:140 ../tcl/mini.tcl:917 ../tcl/mini.tcl:2515
 #: ../tcl/tkemc.tcl:798
 msgid "Settings"
-msgstr "Setari"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2551
 msgid "No Numbering"
-msgstr "Fara numerotare"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:144 ../tcl/mini.tcl:2553
+#, fuzzy
 msgid "Line Numbering..."
-msgstr "Numerotare linii..."
+msgstr "Procesando..."
 
 #: ../tcl/bin/genedit.tcl:150 ../tcl/tkemc.tcl:820
 msgid "Scripts"
-msgstr "Scripturi"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:177
 msgid "About TkEditor"
-msgstr "Despre TkEditor"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:179
 msgid ""
@@ -259,218 +275,223 @@ msgid ""
 "\n"
 "GPL Version 2"
 msgstr ""
-"TkEditor\n"
-"\n"
-"Editor text Tcl/Tk\n"
-"\n"
-"GPL Versiunea 2"
 
 #: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1772
 #: ../tcl/tkemc.tcl:505 emc/task/emctaskmain.cc:1958
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "nu pot deschide %s"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:267 ../tcl/mini.tcl:3087
 msgid "Find"
-msgstr "Cauta"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:270
+#, fuzzy
 msgid "Find:"
-msgstr "Cauta:"
+msgstr "Portabrocas:"
 
 #: ../tcl/bin/genedit.tcl:276
+#, fuzzy
 msgid "Replace:"
-msgstr "Inlocuieste:"
+msgstr "relativo"
 
 #: ../tcl/bin/genedit.tcl:282
 msgid "Find All"
-msgstr "Cauta toate"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:285 ../tcl/mini.tcl:3110
 msgid "Replace All"
-msgstr "Inlocuieste toate"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:288
 msgid "Skip This"
-msgstr "Sari peste"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:291
 msgid "Replace This"
-msgstr "Inlocuieste asta"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:297
 msgid "Clear"
-msgstr "Sterge"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:422 ../tcl/mini.tcl:2637
 msgid "Set Line Numbering"
-msgstr "Seteaza numerotare linii"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:424 ../tcl/mini.tcl:2641
 msgid "Increment"
-msgstr "Increment"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:426 ../tcl/mini.tcl:2643
 msgid "One"
-msgstr "Unu"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:429 ../tcl/mini.tcl:2645
 msgid "Two"
-msgstr "Doi"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2647
+#, fuzzy
 msgid "Five"
-msgstr "Cinci"
+msgstr "_Archivo"
 
 #: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2649
 msgid "Ten"
-msgstr "Zece"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:439 ../tcl/mini.tcl:2651
 msgid "Space"
-msgstr "Spatiu"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2653
 msgid "Single Space"
-msgstr "Spatiu simplu"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:444 ../tcl/mini.tcl:2655
 msgid "Double Space"
-msgstr "Spatiu dublu"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2657
 msgid "Tab Space"
-msgstr "Spatiu tab"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:453
 msgid "Next Number:"
-msgstr "Uramtorul numar:"
+msgstr ""
 
 #: ../tcl/bin/genedit.tcl:474 ../tcl/mini.tcl:2665
+#, fuzzy
 msgid "Renumber"
-msgstr "Renumeroteaza"
+msgstr "_Resumir"
 
 #: ../tcl/bin/halconfig.tcl:88 ../tcl/bin/halshow.tcl:33
+#, fuzzy
 msgid "HAL Configuration"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Vreti sa salvati configurarea inainte de a iesi?"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:103
+#, fuzzy
 msgid "Save All"
-msgstr "Salveaza tot"
+msgstr "Restaurar todos los ejes"
 
 #: ../tcl/bin/halconfig.tcl:103
 msgid "Save Tune"
-msgstr "Salveaza ajustari"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:103
 msgid "Save as Netlist"
-msgstr "Salveaza ca netlist"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:103
+#, fuzzy
 msgid "Don't Save"
-msgstr "Nu salva"
+msgstr "Perspectiva frontal"
 
 #: ../tcl/bin/halconfig.tcl:132
 msgid "Show"
-msgstr "Arata"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:133
 msgid "Watch"
-msgstr "Urmareste"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:134
 msgid "Modify"
-msgstr "Modifica"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:157
 msgid "Save INI Tuning"
-msgstr "Salveaza modificari INI"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:159
 msgid "Save HAL Ini"
-msgstr "Salveaza HAL ini"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:161
 msgid "Save HAL Net"
-msgstr "Salveaza HAL net"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:163
 msgid "Save and Exit"
-msgstr "Salveaza si incheie"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:168 ../tcl/mini.tcl:916 ../tcl/tkemc.tcl:790
+#, fuzzy
 msgid "View"
-msgstr "Vizualizare"
+msgstr "Perspectiva"
 
 #: ../tcl/bin/halconfig.tcl:170 ../tcl/bin/halshow.tcl:87
 msgid "Expand Tree"
-msgstr "Extinde arbore"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:172 ../tcl/bin/halshow.tcl:89
 msgid "Collapse Tree"
-msgstr "Micsoreaza arbore"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:175 ../tcl/bin/halshow.tcl:92
 msgid "Expand Pins"
-msgstr "Extinde pini"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:177 ../tcl/bin/halshow.tcl:94
 msgid "Expand Parameters"
-msgstr "Extinde parametri"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:179 ../tcl/bin/halshow.tcl:96
 msgid "Expand Signals"
-msgstr "Extinde semnale"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:182 ../tcl/bin/halshow.tcl:99
 msgid "Erase Watch"
-msgstr "Sterge urmarire"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:194 ../tcl/mini.tcl:840 ../tcl/mini.tcl:2782
+#, fuzzy
 msgid "About"
-msgstr "Despre"
+msgstr "Sobre AXIS"
 
 #: ../tcl/bin/halconfig.tcl:196
+#, fuzzy
 msgid "Main"
-msgstr "Principal"
+msgstr "Coordenada absoluta"
 
 #: ../tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr "Introdu comanda HAL :"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:479 ../tcl/bin/halconfig.tcl:528
 #: ../tcl/bin/halshow.tcl:382
 msgid "Execute"
-msgstr "Executa"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:943 ../tcl/bin/halshow.tcl:438
 msgid "Select a node to show."
-msgstr "Selecteaza un nod pentru afisare"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:968 ../tcl/bin/halshow.tcl:463
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "<-- Selecteaza o frunza (apasa pe numele ei)."
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:1085 ../tcl/bin/halconfig.tcl:1095
 #: ../tcl/bin/halconfig.tcl:1102 ../tcl/bin/halconfig.tcl:1109
 #: ../tcl/bin/halconfig.tcl:1116
 #, tcl-format
 msgid "Click a highlighted entry where %s should go."
-msgstr "Selecteaza o linie destinatie pentru %s."
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:1092
 msgid "Nothing to be done for parameters here. Try the tuning page"
-msgstr "Nu se poate opera asupra parametrilor aici. Incercati pagina de tuning"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:1124
 #, tcl-format
 msgid "%s is not a leaf, try again"
-msgstr "%s nu este o frunza, incercati din nou"
+msgstr ""
 
 #: ../tcl/bin/halconfig.tcl:1281
 msgid ""
@@ -484,33 +505,26 @@ msgid ""
 "This script is not for the faint hearted and carries no warranty or "
 "liability for its use to the extent allowed by law."
 msgstr ""
-"Copyright Raymond E Henry. 2006\n"
-"Licenta: GPL Version 2\n"
-"\n"
-"Halconfig este un utilitar pentru configurarea EMC2. Trebuie executat din "
-"emc2 si necesita o instanta pornita a emc2. \n"
-"Acest utilitar nu este pentru cei slabi de inima, si nu poarta nici un fel "
-"de raspundere sau garantie pentru folosirea sa, in limitele permise de lege."
 
 #: ../tcl/bin/halshow.tcl:69
 msgid " SHOW "
-msgstr " ARATA "
+msgstr ""
 
 #: ../tcl/bin/halshow.tcl:70
 msgid " WATCH "
-msgstr " URMARESTE "
+msgstr ""
 
 #: ../tcl/bin/halshow.tcl:85
 msgid "Tree View"
-msgstr "Vedere arbore"
+msgstr ""
 
 #: ../tcl/bin/halshow.tcl:379
 msgid "Test HAL command :"
-msgstr "Testeaza comanda HAL :"
+msgstr ""
 
 #: ../tcl/bin/halshow.tcl:583
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr "Comenzi pot fi testate aici, dar nu vor fi salvate"
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:47
 msgid ""
@@ -518,21 +532,18 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
-"Nu gasesc pachetul bwidget 1.7. Daca acesta este un sistem debian, il puteti "
-"instala cu \n"
-"sudo apt-get install bwidget."
 
 #: ../tcl/bin/pickconfig.tcl:145
 msgid "No details available."
-msgstr "Nu exista detalii."
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:177
 msgid "ERROR: must specify a path to search for configurations"
-msgstr "EROARE: trebuie specificata o cale pentru configuratii"
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:189
 msgid "EMC2 Configuration Selector"
-msgstr "Selector configuratii EMC2"
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:210
 msgid ""
@@ -543,28 +554,26 @@ msgid ""
 "right.\n"
 "Click 'OK' to run the selected configuration"
 msgstr ""
-"Bine ati venit la EMC2.\n"
-"\n"
-"Alegeti o configuratie din lista din stanga.\n"
-"Detalii despre aceasta vor fi afisata in partea din dreapta \n"
-"Apasati 'OK' pentru a executa configuratia selectata"
 
 #: ../tcl/bin/pickconfig.tcl:267
+#, fuzzy
 msgid "My Configurations"
-msgstr "Configuratiile mele"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../tcl/bin/pickconfig.tcl:270
+#, fuzzy
 msgid "Sample Configurations"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../tcl/bin/pickconfig.tcl:329
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "EROARE: nu au fost gasite configuratii in '%s'"
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:366
+#, fuzzy
 msgid "Copy Configuration?"
-msgstr "Copiaza configuratie?"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../tcl/bin/pickconfig.tcl:366
 #, tcl-format
@@ -572,21 +581,21 @@ msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
-"Doriti sa copiati configuratia %s in directorul Dvs. pentru a putea sa o "
-"modificati?"
 
 #: ../tcl/bin/pickconfig.tcl:366
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:554
 msgid "Yes"
-msgstr "Da"
+msgstr "Si"
 
 #: ../tcl/bin/pickconfig.tcl:366
+#, fuzzy
 msgid "No"
-msgstr "Nu"
+msgstr "Ninguno"
 
 #: ../tcl/bin/pickconfig.tcl:401
+#, fuzzy
 msgid "Configuration Copied"
-msgstr "Configuratie copiata"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../tcl/bin/pickconfig.tcl:401
 #, tcl-format
@@ -594,71 +603,69 @@ msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting EMC2."
 msgstr ""
-"Configuratia a fost copiata in %s. Data viitoare cand porniti emc2 folositi "
-"aceasta locatie."
 
 #: ../tcl/bin/pickconfig.tcl:426
 msgid "Shortcut Created"
-msgstr "Shortcut creat"
+msgstr ""
 
 #: ../tcl/bin/pickconfig.tcl:426
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
 msgstr ""
-"Un shortcut catre aceasta configuratie a fost creat pe desktop. De acum "
-"inainte puteti sa folositi acest shortcut pentru a porni emc2 cu "
-"configuratia Dvs."
 
 #: ../tcl/bin/pickconfig.tcl:431
 msgid "Create Desktop Shortcut"
-msgstr "Creaza shortcut pe Desktop"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:110
 msgid "TkEmc BackPlot"
-msgstr "Backplot TkEmc"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:125
+#, fuzzy
 msgid "SETUP"
-msgstr "SETARE"
+msgstr "DETENER"
 
 #: ../tcl/bin/tkbackplot.tcl:127
+#, fuzzy
 msgid "RESET"
-msgstr "RESET"
+msgstr "DETENER"
 
 #: ../tcl/bin/tkbackplot.tcl:129
 msgid "CANCEL"
-msgstr "REVOCARE"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:250 emc/usr_intf/pncconf/pncconf.glade:1282
 msgid "AXIS"
-msgstr "AXA"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:251
+#, fuzzy
 msgid "OFFSET"
-msgstr "OFSET"
+msgstr "APAGAR"
 
 #: ../tcl/bin/tkbackplot.tcl:252
 msgid "ANGLE"
-msgstr "UNGHI"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:253
 msgid "DIRECTION"
-msgstr "DIRECTIE"
+msgstr ""
 
 #: ../tcl/bin/tkbackplot.tcl:270
 msgid "SIZE :"
-msgstr "DIMENSIUNE :"
+msgstr ""
 
 #: ../tcl/mini.tcl:490
 #, tcl-format
 msgid "JOG %s +"
-msgstr "JOG %s +"
+msgstr ""
 
 #: ../tcl/mini.tcl:491
 #, tcl-format
 msgid "JOG %s -"
-msgstr "JOG %s -"
+msgstr ""
 
 #: ../tcl/mini.tcl:492
 #, tcl-format
@@ -670,12 +677,6 @@ msgid ""
 "R\n"
 "O"
 msgstr ""
-"Z\n"
-"E\n"
-"R\n"
-"O\n"
-"\n"
-"%s"
 
 #: ../tcl/mini.tcl:840
 msgid ""
@@ -691,145 +692,147 @@ msgid ""
 "This software comes with ABSOLUTELY NO GUARANTEE!   \n"
 "For details see the copyright.html file in this directory."
 msgstr ""
-"TkMini  \n"
-"\n"
-"Tcl/Tk GUI pentru Enhanced Machine Controller\n"
-"\n"
-"GPL Copyright 2003  \n"
-"Ray Henry <rehenry@up.net>\n"
-"\n"
-" Backplot 3D de Paul Corner <paul_c@users.sourceforge.net>\n"
-" \n"
-"Acest software vine fara ABSOLUT NICI O GARANTIE!   \n"
-"Pentru detalii vezi informatiile de copyright."
 
 #: ../tcl/mini.tcl:915
+#, fuzzy
 msgid "Program"
-msgstr "Program"
+msgstr "Pausar programa"
 
 #: ../tcl/mini.tcl:918
 msgid "Info"
-msgstr "Info"
+msgstr ""
 
 #: ../tcl/mini.tcl:923
 msgid "Backplot"
-msgstr "Desenare"
+msgstr ""
 
 #: ../tcl/mini.tcl:925
 msgid "Editor"
-msgstr "Editor"
+msgstr ""
 
 #: ../tcl/mini.tcl:927
 msgid "Offsets"
-msgstr "Ofseturi"
+msgstr ""
 
 #: ../tcl/mini.tcl:929
 msgid "Tools"
-msgstr "Scule"
+msgstr ""
 
 #: ../tcl/mini.tcl:951 ../tcl/mini.tcl:3562 ../tcl/tkemc.tcl:783
+#, fuzzy
 msgid "Reset"
-msgstr "Reseteaza"
+msgstr "_Resumir"
 
 #: ../tcl/mini.tcl:960
+#, fuzzy
 msgid "Position Type"
-msgstr "Tip pozitie"
+msgstr "Posicion:"
 
 #: ../tcl/mini.tcl:962
+#, fuzzy
 msgid "Tool Info"
-msgstr "Informatii scula"
+msgstr "Cambio de pieza"
 
 #: ../tcl/mini.tcl:964
 msgid "Offset Info"
-msgstr "Informatii Ofset"
+msgstr ""
 
 #: ../tcl/mini.tcl:967
+#, fuzzy
 msgid "Show Restart"
-msgstr "Arata restart"
+msgstr "_Mostrar medidas"
 
 #: ../tcl/mini.tcl:968
 msgid "Hide Restart"
-msgstr "Ascunde restart"
+msgstr ""
 
 #: ../tcl/mini.tcl:970
 msgid "Show Split Right"
-msgstr "Arata scindare dreapta"
+msgstr ""
 
 #: ../tcl/mini.tcl:972
 msgid "Show Mode Full"
-msgstr "Arata mod plin"
+msgstr ""
 
 #: ../tcl/mini.tcl:974
 msgid "Show Popin Full"
-msgstr "Arata popin complet"
+msgstr ""
 
 #: ../tcl/mini.tcl:978
+#, fuzzy
 msgid "Actual Position"
-msgstr "Pozitia actuala"
+msgstr "Mostrar posicion actual"
 
 #: ../tcl/mini.tcl:980
+#, fuzzy
 msgid "Commanded Position"
-msgstr "Pozitie comandata"
+msgstr "Mostrar posicion"
 
 #: ../tcl/mini.tcl:983
+#, fuzzy
 msgid "Machine Position"
-msgstr "Pozitie Masina"
+msgstr "Mostrar posicion absoluta"
 
 #: ../tcl/mini.tcl:985
+#, fuzzy
 msgid "Relative Position"
-msgstr "Pozitie relativa"
+msgstr "Mostrar posicion relativa"
 
 #: ../tcl/mini.tcl:988 ../tcl/tkemc.tcl:799
+#, fuzzy
 msgid "Calibration..."
-msgstr "Calibrare..."
+msgstr "_Calibración"
 
 #: ../tcl/mini.tcl:990
 msgid "HAL Show..."
-msgstr "HAL Show..."
+msgstr ""
 
 #: ../tcl/mini.tcl:992
 msgid "HAL Config..."
-msgstr "Config HAL..."
+msgstr ""
 
 #: ../tcl/mini.tcl:997
+#, fuzzy
 msgid "Program File"
-msgstr "Fisier Program"
+msgstr "Filtro_del Programa %r fallido"
 
 #: ../tcl/mini.tcl:998
-#, tcl-format
+#, fuzzy, tcl-format
 msgid "Program file is %s"
-msgstr "Fisier program este %s"
+msgstr "Filtro_del Programa %r fallido"
 
 #: ../tcl/mini.tcl:999
 msgid "Editor File"
-msgstr "Fisier editor"
+msgstr ""
 
 #: ../tcl/mini.tcl:1000
 #, tcl-format
 msgid "Editor file is %s"
-msgstr "Fisier editor este %s"
+msgstr ""
 
 #: ../tcl/mini.tcl:1001
 msgid "Parameter File"
-msgstr "Fisier parametri"
+msgstr ""
 
 #: ../tcl/mini.tcl:1002
 #, tcl-format
 msgid "Parameter file is %s"
-msgstr "Fisier parametri este %s"
+msgstr ""
 
 #: ../tcl/mini.tcl:1003
+#, fuzzy
 msgid "Tool File"
-msgstr "Fisier scule"
+msgstr "Tipo de pieza"
 
 #: ../tcl/mini.tcl:1004
 #, tcl-format
 msgid "Tool file is %s"
-msgstr "Fisier scula este %s"
+msgstr ""
 
 #: ../tcl/mini.tcl:1006
+#, fuzzy
 msgid "Active G Codes"
-msgstr "Coduri G active"
+msgstr "Activar Codigo-G:"
 
 #: ../tcl/mini.tcl:1007
 #, tcl-format
@@ -837,121 +840,126 @@ msgid ""
 "Active codes include; \n"
 "%s"
 msgstr ""
-"Coduri active includ; \n"
-"%s"
 
 #: ../tcl/mini.tcl:1010 ../tcl/mini.tcl:2555 ../tcl/tkemc.tcl:843
+#, fuzzy
 msgid "Help..."
-msgstr "Ajutor..."
+msgstr "Ayuda"
 
 #: ../tcl/mini.tcl:1027 ../tcl/tkemc.tcl:942
 msgid "ABORT"
-msgstr "ABORTARE"
+msgstr ""
 
 #: ../tcl/mini.tcl:1038 ../tcl/mini.tcl:2045
 msgid "CONTINUE"
-msgstr "CONTINUA"
+msgstr ""
 
 #: ../tcl/mini.tcl:1044 ../tcl/tkemc.tcl:880 ../tcl/tkemc.tcl:2289
 msgid "MDI"
-msgstr "MDI"
+msgstr ""
 
 #: ../tcl/mini.tcl:1048 ../tcl/tkemc.tcl:2280
 msgid "AUTO"
-msgstr "AUTO"
+msgstr ""
 
 #: ../tcl/mini.tcl:1052 ../tcl/mini.tcl:1809 ../tcl/tkemc.tcl:2182
 #: ../tcl/tkemc.tcl:2302
 msgid "MANUAL"
-msgstr "MANUAL"
+msgstr ""
 
 #: ../tcl/mini.tcl:1106
+#, fuzzy
 msgid "Tool #:"
-msgstr "Scula #:"
+msgstr "Ordenar herramienta"
 
 #: ../tcl/mini.tcl:1108
 msgid "Length :"
-msgstr "Lungime :"
+msgstr ""
 
 #: ../tcl/mini.tcl:1119
 msgid "Work Offsets: "
-msgstr "Ofseturi de lucru:"
+msgstr ""
 
 #: ../tcl/mini.tcl:1121
 msgid "start offsets popup here"
-msgstr "ofseturi initiale sunt afisate aici"
+msgstr ""
 
 #: ../tcl/mini.tcl:1165
 msgid "start override popup here"
-msgstr "depasiri initiale sunt afisate aici"
+msgstr ""
 
 #: ../tcl/mini.tcl:1168 ../tcl/tkemc.tcl:1617 ../share/axis/tcl/axis.tcl:1643
 msgid "Feed Override:"
-msgstr "Depasire viteza:"
+msgstr "Control de avanze"
 
 #: ../tcl/mini.tcl:1180
 msgid "-- MESSAGES --"
-msgstr "-- MESAJE --"
+msgstr ""
 
 #: ../tcl/mini.tcl:1230
 msgid "toggleView's not doin nothin yet"
-msgstr "toggleView nu face nimic inca"
+msgstr ""
 
 #: ../tcl/mini.tcl:1282
 msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
 msgstr ""
-"Nu se poate initializa cu ofset scula activ, asa ca a fost executat G49 "
-"pentru resetare"
 
 #: ../tcl/mini.tcl:1346
 #, tcl-format
 msgid "Can't update the var file while machine is in auto and %s."
-msgstr "Nu se poate actualiza fisierul var cat timp masina este in auto si %s."
+msgstr ""
 
 #: ../tcl/mini.tcl:1400 ../tcl/tkemc.tcl:1268
+#, fuzzy
 msgid "override limits"
-msgstr "depaseste limite"
+msgstr "Exceder limites"
 
 #: ../tcl/mini.tcl:1405 ../tcl/tkemc.tcl:1304
+#, fuzzy
 msgid "home"
-msgstr "poz.0"
+msgstr "Punto de referencia"
 
 #: ../tcl/mini.tcl:1426
 msgid "DEFAULT"
-msgstr "IMPLICIT"
+msgstr ""
 
 #: ../tcl/mini.tcl:1427
+#, fuzzy
 msgid "Speed:"
-msgstr "Viteza:"
+msgstr "Velocidad:"
 
 #: ../tcl/mini.tcl:1430
 msgid "RAPID"
-msgstr "RAPID"
+msgstr ""
 
 #: ../tcl/mini.tcl:1447 ../tcl/tkemc.tcl:1432
+#, fuzzy
 msgid "Set Jog Speed"
-msgstr "Seteaza viteza jog"
+msgstr "Velocidad:"
 
 #: ../tcl/mini.tcl:1453 ../tcl/tkemc.tcl:1445
+#, fuzzy
 msgid "Set jog speed:"
-msgstr "Viteza jog:"
+msgstr "Elegir velocidad de avance"
 
 #: ../tcl/mini.tcl:1511
 msgid "JOG X +"
-msgstr "JOG X +"
+msgstr ""
 
 #: ../tcl/mini.tcl:1512
 msgid "JOG X -"
-msgstr "JOG X -"
+msgstr ""
 
 #: ../tcl/mini.tcl:1516
+#, fuzzy
 msgid "increment"
-msgstr "increment"
+msgstr "Elegir incremento del avance"
 
 #: ../tcl/mini.tcl:1518 ../tcl/tkemc.tcl:656 ../tcl/tkemc.tcl:1290
 #: ../tcl/tkemc.tcl:1294
+#, fuzzy
 msgid "continuous"
-msgstr "continuu"
+msgstr "Continuo"
 
 #: ../tcl/mini.tcl:1520
 msgid ""
@@ -964,40 +972,35 @@ msgid ""
 "R\n"
 "O"
 msgstr ""
-"Z\n"
-"E\n"
-"R\n"
-"O\n"
-"\n"
-"T\n"
-"O\n"
-"A\n"
-"T\n"
-"E"
 
 #: ../tcl/mini.tcl:1585
+#, fuzzy
 msgid "Spindle Forward"
-msgstr "Freza inainte"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/mini.tcl:1586
+#, fuzzy
 msgid "Spindle Reverse"
-msgstr "Freza sens invers"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/mini.tcl:1587 ../tcl/tkemc.tcl:923
+#, fuzzy
 msgid "Spindle off"
-msgstr "Freza oprita"
+msgstr "Apagar freno de portabrocas"
 
 #: ../tcl/mini.tcl:1589
+#, fuzzy
 msgid "Spindle Slower"
-msgstr "Freza mai incet"
+msgstr "Disminuir revoluciones del Portabrocas [F11]"
 
 #: ../tcl/mini.tcl:1593
+#, fuzzy
 msgid "Spindle Faster"
-msgstr "Freza mai repede"
+msgstr "Aumentar revoluciones del Portabrocas [F12]"
 
 #: ../tcl/mini.tcl:1629 ../tcl/tkemc.tcl:1661
 msgid "MDI:"
-msgstr "MDI:"
+msgstr ""
 
 #: ../tcl/mini.tcl:1666 ../tcl/tkemc.tcl:1699
 #: emc/usr_intf/stepconf/stepconf.glade:4045
@@ -1006,186 +1009,189 @@ msgstr "MDI:"
 #: emc/usr_intf/pncconf/pncconf.glade:17596
 #: emc/usr_intf/pncconf/pncconf.glade:18296
 msgid "Run"
-msgstr "Ruleaza"
+msgstr ""
 
 #: ../tcl/mini.tcl:1668 ../tcl/tkemc.tcl:1700
 #: emc/usr_intf/pncconf/pncconf.glade:16093
 #: emc/usr_intf/pncconf/pncconf.glade:16867
 #: emc/usr_intf/pncconf/pncconf.glade:17567
 #: emc/usr_intf/pncconf/pncconf.glade:18267
+#, fuzzy
 msgid "Pause"
-msgstr "Pauza"
+msgstr "_Pausa"
 
 #: ../tcl/mini.tcl:1670 ../tcl/tkemc.tcl:1701
+#, fuzzy
 msgid "Resume"
-msgstr "Rezuma"
+msgstr "_Resumir"
 
 #: ../tcl/mini.tcl:1672 ../tcl/tkemc.tcl:1702
+#, fuzzy
 msgid "Step"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: ../tcl/mini.tcl:1674 ../tcl/tkemc.tcl:1703
 msgid "Verify"
-msgstr "Verifica"
+msgstr ""
 
 #: ../tcl/mini.tcl:1695
 msgid "RESTART LINE"
-msgstr "Restart linie"
+msgstr ""
 
 #: ../tcl/mini.tcl:1696
+#, fuzzy
 msgid "Back"
-msgstr "Inapoi"
+msgstr "Freno"
 
 #: ../tcl/mini.tcl:1697
 msgid "Ahead"
-msgstr "Inainte"
+msgstr ""
 
 #: ../tcl/mini.tcl:1698
 msgid "Restart"
-msgstr "Restart"
+msgstr ""
 
 #: ../tcl/mini.tcl:1708 ../tcl/mini.tcl:2820 ../tcl/mini.tcl:2879
 #: ../tcl/tkemc.tcl:519 emc/usr_intf/axis/scripts/axis.py:2731
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
 msgid "All files"
-msgstr "Toate fisierele"
+msgstr "Todos los archivos"
 
 #: ../tcl/mini.tcl:1709 ../tcl/mini.tcl:2821 ../tcl/mini.tcl:2880
 #: ../tcl/tkemc.tcl:520
+#, fuzzy
 msgid "Text files"
-msgstr "Fisiere text"
+msgstr "Todos los archivos"
 
 #: ../tcl/mini.tcl:1710 ../tcl/mini.tcl:2822 ../tcl/mini.tcl:2881
 #: ../tcl/tkemc.tcl:521
+#, fuzzy
 msgid "NC files"
-msgstr "Fisiere NC"
+msgstr "Todos los archivos"
 
 #: ../tcl/mini.tcl:1750
 msgid ""
 "The interpreter is running. \n"
 " Pressing OK will abort and load the new program"
 msgstr ""
-"Interpretorul este activ. \n"
-"Apasati OK pentru a abandona si a incarca noul program"
 
 #: ../tcl/mini.tcl:1883
+#, fuzzy
 msgid "ESTOPPED"
-msgstr "ESTOP"
+msgstr "DETENER"
 
 #: ../tcl/mini.tcl:1886
+#, fuzzy
 msgid "ESTOP PUSH"
-msgstr "ESTOP APASAT"
+msgstr "DETENER"
 
 #: ../tcl/mini.tcl:1889 ../tcl/tkemc.tcl:2274
+#, fuzzy
 msgid "ESTOP RESET"
-msgstr "ESTOP RESETAT"
+msgstr "DETENER"
 
 #: ../tcl/mini.tcl:1894 ../tcl/tkemc.tcl:2339
 msgid "SPINDLE FORWARD"
-msgstr "FREZA PORNITA"
+msgstr ""
 
 #: ../tcl/mini.tcl:1896 ../tcl/tkemc.tcl:2341
 msgid "SPINDLE REVERSE"
-msgstr "FREZA SENS INVERS"
+msgstr ""
 
 #: ../tcl/mini.tcl:1898 ../tcl/tkemc.tcl:2343
 msgid "SPINDLE OFF"
-msgstr "FREZA OPRITA"
+msgstr ""
 
 #: ../tcl/mini.tcl:1900 ../tcl/tkemc.tcl:2345
 msgid "SPINDLE INCREASE"
-msgstr "FREZA ACCELERARE"
+msgstr ""
 
 #: ../tcl/mini.tcl:1902 ../tcl/tkemc.tcl:2347
 msgid "SPINDLE DECREASE"
-msgstr "FREZA DECELERARE"
+msgstr ""
 
 #: ../tcl/mini.tcl:1904 ../tcl/tkemc.tcl:2349
 msgid "SPINDLE ?"
-msgstr "SPINDLE ?"
+msgstr ""
 
 #: ../tcl/mini.tcl:1908 ../tcl/tkemc.tcl:2353
 msgid "BRAKE ON"
-msgstr "FRANA PORNITA"
+msgstr ""
 
 #: ../tcl/mini.tcl:1910 ../tcl/tkemc.tcl:2355
 msgid "BRAKE OFF"
-msgstr "FRANA OPRITA"
+msgstr ""
 
 #: ../tcl/mini.tcl:1912 ../tcl/tkemc.tcl:2357
 msgid "BRAKE ?"
-msgstr "FRANA ?"
+msgstr ""
 
 #: ../tcl/mini.tcl:1916 ../tcl/tkemc.tcl:2315
 msgid "MIST ON"
-msgstr "VAPORI PORNITI"
+msgstr ""
 
 #: ../tcl/mini.tcl:1918 ../tcl/tkemc.tcl:2317
 msgid "MIST OFF"
-msgstr "VAPORI OPRITI"
+msgstr ""
 
 #: ../tcl/mini.tcl:1920 ../tcl/tkemc.tcl:2319
 msgid "MIST ?"
-msgstr "VAPORI ?"
+msgstr ""
 
 #: ../tcl/mini.tcl:1924 ../tcl/tkemc.tcl:2323
 msgid "FLOOD ON"
-msgstr "LICHID PORNIT"
+msgstr ""
 
 #: ../tcl/mini.tcl:1926 ../tcl/tkemc.tcl:2325
 msgid "FLOOD OFF"
-msgstr "LICHID OPRIT"
+msgstr ""
 
 #: ../tcl/mini.tcl:1928 ../tcl/tkemc.tcl:2327
 msgid "FLOOD ?"
-msgstr "LICHID ?"
+msgstr ""
 
 #: ../tcl/mini.tcl:2049
 msgid "FEEDHOLD"
-msgstr "OPRIRE AVANS"
+msgstr ""
 
 #: ../tcl/mini.tcl:2121
 msgid ""
 "TOOL SETUP \n"
 " Click or tab to edit.   Press enter to return to keyboard machine control."
 msgstr ""
-"SETARE SCULE \n"
-" Click sau tab pentru editare.   Apasati enter pentru a va reintoarce la "
-"controlul normal."
 
 #: ../tcl/mini.tcl:2127
 msgid "  TOOL NUMBER  "
-msgstr "  NUMAR SCULA  "
+msgstr ""
 
 #: ../tcl/mini.tcl:2128
 msgid "  LENGTH  "
-msgstr "  LUNGIME  "
+msgstr ""
 
 #: ../tcl/mini.tcl:2129
 msgid "  DIAMETER  "
-msgstr "  DIAMETRU  "
+msgstr ""
 
 #: ../tcl/mini.tcl:2130
 msgid "  COMMENT  "
-msgstr "  COMENTARIU  "
+msgstr ""
 
 #: ../tcl/mini.tcl:2185
 msgid "Add Extra Tool"
-msgstr "Adauga scula suplimentara"
+msgstr ""
 
 #: ../tcl/mini.tcl:2186
 msgid "Remove Last Tool"
-msgstr "Sterge ultima scula"
+msgstr ""
 
 #: ../tcl/mini.tcl:2214 ../tcl/mini.tcl:2250
 #, tcl-format
 msgid "Can't update the tool file while machine is in auto and %s."
 msgstr ""
-"Nu se poate actualiza fisierul scule cat timp masina este in auto si %s."
 
 #: ../tcl/mini.tcl:2226
 msgid "This is not a good number."
-msgstr "Acesta nu este un numar valid."
+msgstr ""
 
 #: ../tcl/mini.tcl:2290
 msgid ""
@@ -1195,115 +1201,111 @@ msgid ""
 "control of machine. \n"
 " "
 msgstr ""
-"SETARE SISTEME COORDINATE \n"
-"\n"
-"  Click pe o valoare pentru a putea edita. Apasati enter pentru a reveni la "
-"controlul normal al masinii. \n"
-" "
 
 #: ../tcl/mini.tcl:2317 ../tcl/scripts/Set_Coordinates.tcl:78
+#, fuzzy
 msgid "Axis "
-msgstr "Axa"
+msgstr "Eje:"
 
 #: ../tcl/mini.tcl:2318
 msgid "Value "
-msgstr "Valoare "
+msgstr ""
 
 #: ../tcl/mini.tcl:2323 ../tcl/scripts/Set_Coordinates.tcl:88
 msgid "Teach"
-msgstr "Invata"
+msgstr ""
 
 #: ../tcl/mini.tcl:2331
 msgid "Write And Load File "
-msgstr "Scrie si incarca fisier"
+msgstr ""
 
 #: ../tcl/mini.tcl:2333
 msgid "Offset By Radius"
-msgstr "Ofset - raza"
+msgstr ""
 
 #: ../tcl/mini.tcl:2334
 msgid "Offset By Length"
-msgstr "Ofset - lungime"
+msgstr ""
 
 #: ../tcl/mini.tcl:2339
 msgid "Subtract"
-msgstr "Scade"
+msgstr ""
 
 #: ../tcl/mini.tcl:2341
 msgid "Add"
-msgstr "Aduna"
+msgstr ""
 
 #: ../tcl/mini.tcl:2363
 msgid "Zero All G54"
-msgstr "Zero toate G54"
+msgstr ""
 
 #: ../tcl/mini.tcl:2364
 msgid "Zero All G55"
-msgstr "Zero toate G55"
+msgstr ""
 
 #: ../tcl/mini.tcl:2365
 msgid "Zero All G56"
-msgstr "Zero toate G56"
+msgstr ""
 
 #: ../tcl/mini.tcl:2366
 msgid "Zero All G57"
-msgstr "Zero toate G57"
+msgstr ""
 
 #: ../tcl/mini.tcl:2367
 msgid "Zero All G58"
-msgstr "Zero toate G58"
+msgstr ""
 
 #: ../tcl/mini.tcl:2368
 msgid "Zero All G59"
-msgstr "Zero toate G59"
+msgstr ""
 
 #: ../tcl/mini.tcl:2369
 msgid "Zero All G59.1"
-msgstr "Zero toate G59.1"
+msgstr ""
 
 #: ../tcl/mini.tcl:2370
 msgid "Zero All G59.2"
-msgstr "Zero toate G59.2"
+msgstr ""
 
 #: ../tcl/mini.tcl:2371
 msgid "Zero All G59.3"
-msgstr "Zero toate G59.3"
+msgstr ""
 
 #: ../tcl/mini.tcl:2372
 msgid "Zero All ????"
-msgstr "Zero toate ????"
+msgstr ""
 
 #: ../tcl/mini.tcl:2490
 msgid "Modified..."
-msgstr "Modificat..."
+msgstr ""
 
 #: ../tcl/mini.tcl:2535
 msgid "Save and Load"
-msgstr "Salveaza si incarca"
+msgstr ""
 
 #: ../tcl/mini.tcl:2537
 msgid "Undo"
-msgstr "Anulare"
+msgstr ""
 
 #: ../tcl/mini.tcl:2538
 msgid "Redo"
-msgstr "Repetare"
+msgstr ""
 
 #: ../tcl/mini.tcl:2543
 msgid "Delete"
-msgstr "Sterge"
+msgstr ""
 
 #: ../tcl/mini.tcl:2548
 msgid "Replace..."
-msgstr "Inlocuieste..."
+msgstr ""
 
 #: ../tcl/mini.tcl:2661
 msgid "Next Number: "
-msgstr "Urmatorul numar: "
+msgstr ""
 
 #: ../tcl/mini.tcl:2762
 msgid "Basic Help"
-msgstr "Ajutor de baza"
+msgstr ""
 
 #: ../tcl/mini.tcl:2762
 msgid ""
@@ -1322,20 +1324,6 @@ msgid ""
 "Ctrl+F  Find\n"
 "Ctrl+R  Replace "
 msgstr ""
-"Acesta este un editor ASCII simplu ca multe altele.\n"
-"\n"
-"Ctrl+O  Deschide\n"
-"Ctrl+S  Salveaza\n"
-"Ctrl+Z  Anulare\n"
-"Ctrl+Y  Repetare\n"
-"Ctrl+X  Decupare\n"
-"Ctrl+C  Copiere\n"
-"Ctrl+V  Lipire\n"
-"Del     Stergere\n"
-"Ctrl+A  Selecteaza tot\n"
-"\n"
-"Ctrl+F  Cauta\n"
-"Ctrl+R  Inlocuieste "
 
 #: ../tcl/mini.tcl:2782
 msgid ""
@@ -1343,157 +1331,160 @@ msgid ""
 "\n"
 " Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
 msgstr ""
-"tknotepad de Joseph Acosta. <joeja@mindspring.com>\n"
-"\n"
-" Modificat pentru EMC de: Paul Corner <paul_c@users.sourceforge.net>"
 
 #: ../tcl/mini.tcl:2790
 msgid ""
 "The contents of this file may have changed, do you wish to to save your "
 "changes?"
 msgstr ""
-"Continutul acestui fisier a fost modificat, vreti sa salvatimodificarile?"
 
 #: ../tcl/mini.tcl:2791
 msgid "New Confirm?"
-msgstr "Confirmati nou?"
+msgstr ""
 
 #: ../tcl/mini.tcl:2925
 msgid "Print Setup"
-msgstr "Initializare imprimare"
+msgstr ""
 
 #: ../tcl/mini.tcl:2929
+#, fuzzy
 msgid "Print Command: "
-msgstr "Comanda:"
+msgstr "Comando MDI:"
 
 #: ../tcl/mini.tcl:3092
 msgid "Find what:"
-msgstr "Cauta:"
+msgstr ""
 
 #: ../tcl/mini.tcl:3098
 msgid "Replace with:"
-msgstr "Inlocuieste cu:"
+msgstr ""
 
 #: ../tcl/mini.tcl:3106
 msgid "Find Next"
-msgstr "Cauta urmatorul"
+msgstr ""
 
 #: ../tcl/mini.tcl:3109
+#, fuzzy
 msgid "Replace"
-msgstr "Inlocuieste"
+msgstr "relativo"
 
 #: ../tcl/mini.tcl:3117
 msgid "Up"
-msgstr "Sus"
+msgstr ""
 
 #: ../tcl/mini.tcl:3118
+#, fuzzy
 msgid "Down"
-msgstr "Jos"
+msgstr "Arriba, abajo "
 
 #: ../tcl/mini.tcl:3121
 msgid "Match case"
-msgstr "Potrivire litere mari si mici"
+msgstr ""
 
 #: ../tcl/mini.tcl:3566
 msgid "rot-x"
-msgstr "rot-x"
+msgstr ""
 
 #: ../tcl/mini.tcl:3576
 msgid "rot-y"
-msgstr "rot-y"
+msgstr ""
 
 #: ../tcl/mini.tcl:3586
 msgid "rot-z"
-msgstr "rot-z"
+msgstr ""
 
 #: ../tcl/mini.tcl:3596
 msgid "zoom"
-msgstr "zoom"
+msgstr ""
 
 #: ../tcl/mini.tcl:3652
+#, fuzzy
 msgid "TEST"
-msgstr "TEST"
+msgstr "DETENER"
 
 #: ../tcl/mini.tcl:3696
 msgid "Hide Setup"
-msgstr "Ascunde setari"
+msgstr ""
 
 #: ../tcl/mini.tcl:3700
+#, fuzzy
 msgid "Show Setup"
-msgstr "Arata setari"
+msgstr "Estatus del EMC..."
 
 #: ../tcl/show_errors.tcl:41
 msgid "EMC2 Errors"
-msgstr "Erori EMC2"
+msgstr ""
 
 #: ../tcl/show_errors.tcl:44
 msgid ""
 "EMC2 terminated with an error.  When reporting problems, please include all "
 "the information below in your message."
 msgstr ""
-"EMC2 s-a terminat cu eroare. Cand raportati va rugam includeti toata "
-"informatiade mai jos in mesajul Dvs."
 
 #: ../tcl/show_errors.tcl:69 ../tcl/scripts/Set_Coordinates.tcl:99
 msgid "Close"
-msgstr "Inchide"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:209 ../tcl/tkemc.tcl:236
 msgid "Set Run Mark"
-msgstr "Seteaza punct pornire"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:211
 #, tcl-format
 msgid "Set run mark at line %s?"
-msgstr "Seteaza punct pornire la linia %s?"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:231 ../tcl/tkemc.tcl:254 ../tcl/tkemc.tcl:277
 msgid "untitled"
-msgstr "fara nume"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:259
+#, fuzzy
 msgid "Load Tool Table"
-msgstr "Incarca tabela scule"
+msgstr "Volver a vargar ta_bla de herramientas"
 
 #: ../tcl/tkemc.tcl:285
 msgid "Load Parameter File"
-msgstr "Incarca fisier parametri"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:334
 msgid "EMC Diagnostics"
-msgstr "EMC-Diagnostic"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:336
 msgid "Task"
-msgstr "Task"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:338 ../tcl/tkemc.tcl:361 ../tcl/tkemc.tcl:384
 msgid "Heartbeat:"
-msgstr "Bataie:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:341 ../tcl/tkemc.tcl:364 ../tcl/tkemc.tcl:387
+#, fuzzy
 msgid "Command:"
-msgstr "Comanda:"
+msgstr "dirigido"
 
 #: ../tcl/tkemc.tcl:344 ../tcl/tkemc.tcl:367 ../tcl/tkemc.tcl:390
+#, fuzzy
 msgid "Command #:"
-msgstr "Nr. Comanda:"
+msgstr "dirigido"
 
 #: ../tcl/tkemc.tcl:347 ../tcl/tkemc.tcl:370 ../tcl/tkemc.tcl:393
 msgid "Status:"
-msgstr "Stare:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:359
 msgid "Io"
-msgstr "Io"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:382
+#, fuzzy
 msgid "Motion"
-msgstr "Miscare"
+msgstr "Tiempo de movimiento"
 
 #: ../tcl/tkemc.tcl:423
 msgid "About TkEmc"
-msgstr "Despre TkEmc"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:424
 msgid ""
@@ -1503,78 +1494,74 @@ msgid ""
 "\n"
 "GPL Version 2 (2006)"
 msgstr ""
-"TkEmc\n"
-"\n"
-"Interfata grafica Tcl/Tk pentru Enhanced Machine Controller\n"
-"\n"
-"GPL Versiunea 2 (2006)"
 
 #: ../tcl/tkemc.tcl:444
 msgid "Set Tool Offset"
-msgstr "Seteaza offset scula"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:452 ../tcl/tkemc.tcl:957
+#, fuzzy
 msgid "Tool:"
-msgstr "Scula:"
+msgstr "Ordenar herramienta"
 
 #: ../tcl/tkemc.tcl:456
 msgid "Length:"
-msgstr "Lungime:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:460
 msgid "Diameter:"
-msgstr "Diametru:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:775
 msgid "Edit..."
-msgstr "Editeaza"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:780
-#, fuzzy
 msgid "Tool Table Editor..."
-msgstr "Editor _ladder"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:791
 msgid "Tools..."
-msgstr "Scule..."
+msgstr ""
 
 #: ../tcl/tkemc.tcl:792
 msgid "Offsets and Variables..."
-msgstr "Offseturi si variabile..."
+msgstr ""
 
 #: ../tcl/tkemc.tcl:793
 msgid "Diagnostics..."
-msgstr "Diagnostic"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:794
 msgid "Backplot..."
-msgstr "Desenare"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:800
+#, fuzzy
 msgid "Testing..."
-msgstr "Testare..."
+msgstr "Procesando..."
 
 #: ../tcl/tkemc.tcl:801
 msgid "Debug..."
-msgstr "Depanare..."
+msgstr ""
 
 #: ../tcl/tkemc.tcl:802
 msgid "Font..."
-msgstr "Font..."
+msgstr ""
 
 #: ../tcl/tkemc.tcl:806 emc/usr_intf/axis/scripts/image-to-gcode.py:656
 msgid "Units"
-msgstr "Unitati"
+msgstr "Unidad"
 
 #: ../tcl/tkemc.tcl:807
 msgid "auto"
-msgstr "auto"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:808 emc/usr_intf/pncconf/pncconf.py:2829
 #: emc/usr_intf/pncconf/pncconf.py:2837 emc/usr_intf/pncconf/pncconf.py:2838
 #: emc/usr_intf/pncconf/pncconf.py:3640
 msgid "inches"
-msgstr "inch"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:809 emc/usr_intf/axis/scripts/axis.py:2351
 #: emc/usr_intf/axis/scripts/axis.py:2498
@@ -1590,384 +1577,402 @@ msgstr "inch"
 #: emc/usr_intf/pncconf/pncconf.glade:17861
 #: emc/usr_intf/pncconf/pncconf.glade:18561
 msgid "mm"
-msgstr "mm"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:810
 msgid "cm"
-msgstr "cm"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:814
 msgid "Utilities"
-msgstr "Utilitati"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:815
+#, fuzzy
 msgid "Hal Scope"
-msgstr "Hal Scope"
+msgstr "HA_L-escopio"
 
 #: ../tcl/tkemc.tcl:816
+#, fuzzy
 msgid "Hal Meter"
-msgstr "Hal Meter"
+msgstr "H_AL-metro"
 
 #: ../tcl/tkemc.tcl:837
 msgid "HAL Show"
-msgstr "HAL Show"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:838
 msgid "HAL Config"
-msgstr "HAL Config"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:844
 msgid "Balloon help"
-msgstr "Caseta info"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:867
 msgid "Estop on"
-msgstr "Estop pornit"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:868
 msgid "Estop off"
-msgstr "Estop oprit"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:870
+#, fuzzy
 msgid "Machine on"
-msgstr "Masina pornita"
+msgstr "Coordenada absoluta"
 
 #: ../tcl/tkemc.tcl:871
+#, fuzzy
 msgid "Machine off"
-msgstr "Masina oprita"
+msgstr "Coordenada absoluta"
 
 #: ../tcl/tkemc.tcl:878
+#, fuzzy
 msgid "Manual"
-msgstr "Manual"
+msgstr "Control manual"
 
 #: ../tcl/tkemc.tcl:879
 msgid "Auto"
-msgstr "Auto"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:887
+#, fuzzy
 msgid "Mist on"
-msgstr "Vapori porniti"
+msgstr "Neblina"
 
 #: ../tcl/tkemc.tcl:888
+#, fuzzy
 msgid "Mist off"
-msgstr "Vapori opriti"
+msgstr "Neblina"
 
 #: ../tcl/tkemc.tcl:895
+#, fuzzy
 msgid "Flood on"
-msgstr "Lichid pornit"
+msgstr "Enfriador"
 
 #: ../tcl/tkemc.tcl:896
+#, fuzzy
 msgid "Flood off"
-msgstr "Lichid oprit"
+msgstr "Enfriador"
 
 #: ../tcl/tkemc.tcl:903
 msgid "Lube on"
-msgstr "Lubrifiant pornit"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:904
 msgid "Lube off"
-msgstr "Lubrifiant oprit"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:921
+#, fuzzy
 msgid "Spindle forward"
-msgstr "Freza pornita"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/tkemc.tcl:922
+#, fuzzy
 msgid "Spindle reverse"
-msgstr "Freza sens invers"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/tkemc.tcl:937
+#, fuzzy
 msgid "Brake on"
-msgstr "Frana pornita"
+msgstr "Freno"
 
 #: ../tcl/tkemc.tcl:938
+#, fuzzy
 msgid "Brake off"
-msgstr "Frana oprita"
+msgstr "Freno"
 
 #: ../tcl/tkemc.tcl:959
 msgid "Offset:"
-msgstr "Ofset:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:961
 msgid "Work Offsets:"
-msgstr "Ofseturi de lucru:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1274
+#, fuzzy
 msgid "relative"
-msgstr "relativ"
+msgstr "relativo"
 
 #: ../tcl/tkemc.tcl:1275
+#, fuzzy
 msgid "machine"
-msgstr "masina"
+msgstr "Coordenada absoluta"
 
 #: ../tcl/tkemc.tcl:1277
+#, fuzzy
 msgid "actual"
-msgstr "actual"
+msgstr "Actual"
 
 #: ../tcl/tkemc.tcl:1278
+#, fuzzy
 msgid "commanded"
-msgstr "comandat"
+msgstr "dirigido"
 
 #: ../tcl/tkemc.tcl:1280
 msgid "joint"
-msgstr "articulatie"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1281
 msgid "world"
-msgstr "global"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1374
 msgid "Axis Offset"
-msgstr "Ofset axa"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1376
 msgid "Set axis value:"
-msgstr "Seteaza valoara axa:"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1470
+#, fuzzy
 msgid "Set Feed Override"
-msgstr "Seteaza depasire viteza"
+msgstr "Control de avanze"
 
 #: ../tcl/tkemc.tcl:1476
+#, fuzzy
 msgid "Set feed override:"
-msgstr "Seteaza depasire viteza:"
+msgstr "Control de avanze"
 
 #: ../tcl/tkemc.tcl:1501
+#, fuzzy
 msgid "Set Spindle Override"
-msgstr "Seteaza depasire freza"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/tkemc.tcl:1507
+#, fuzzy
 msgid "Set spindle speed override:"
-msgstr "Seteaza depasire viteza freza:"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/tkemc.tcl:1562
 #, fuzzy
 msgid "Linear Jog Speed"
-msgstr "Seteaza viteza jog"
+msgstr "Velocidad:"
 
 #: ../tcl/tkemc.tcl:1593
 msgid "Angular Jog Speed (deg)/min:"
 msgstr ""
 
 #: ../tcl/tkemc.tcl:1637
+#, fuzzy
 msgid "Spindle speed Override:"
-msgstr "Seteaza depasire viteza"
+msgstr "Controlar portabrocas:"
 
 #: ../tcl/tkemc.tcl:1683
+#, fuzzy
 msgid "Program: "
-msgstr "Program: "
+msgstr "Pausar programa"
 
 #: ../tcl/tkemc.tcl:1688
 msgid "  -  Status: "
-msgstr "  -  Stare: "
+msgstr ""
 
 #: ../tcl/tkemc.tcl:1704
 msgid "Optional Stop"
-msgstr "Stop optional"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2051
 msgid "Error"
-msgstr "Eroare"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2111
 msgid "Set Font"
-msgstr "Seteaza font"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2120
 msgid "Font"
-msgstr "Font"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2127
+#, fuzzy
 msgid "Size"
-msgstr "Dimensiune"
+msgstr "Tama&#324;o:"
 
 #: ../tcl/tkemc.tcl:2134
+#, fuzzy
 msgid "Style"
-msgstr "Tip"
+msgstr "Pa_so"
 
 #: ../tcl/tkemc.tcl:2270 ../share/axis/tcl/axis.tcl:1891
 msgid "ESTOP"
-msgstr "ESTOP"
+msgstr "DETENER"
 
 #: ../tcl/tkemc.tcl:2272 ../share/axis/tcl/axis.tcl:1893
 msgid "ON"
-msgstr "PORNIT"
+msgstr "ENCENDER"
 
 #: ../tcl/tkemc.tcl:2331
 msgid "LUBE ON"
-msgstr "LUBRIFIANT PORNIT"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2333
 msgid "LUBE OFF"
-msgstr "LUBRIFIANT OPRIT"
+msgstr ""
 
 #: ../tcl/tkemc.tcl:2335
 msgid "LUBE ?"
-msgstr "LUBRIFIANT ?"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:23
 msgid "EMC Set Coordinate"
-msgstr "EMC seteaza coordinate"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:26
 msgid "Coordinate System Control Window"
-msgstr "Fereastra sistem control coordinate"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:79
 msgid "Var # "
-msgstr "Var # "
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:80
 msgid "Offset Value "
-msgstr "Valoare Ofset"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:81
 msgid "What to Teach"
-msgstr "Valoare setare"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:97
 msgid "Set Old"
-msgstr "Seteaza vechi"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:98
 msgid "Set Zero"
-msgstr "Seteaza zero"
+msgstr ""
 
 #: ../tcl/scripts/Set_Coordinates.tcl:100
 msgid "Write"
-msgstr "Scrie"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:147
 msgid "Emergency stop"
-msgstr "Stop de avarie"
+msgstr "Detener en Emergencia"
 
 #: emc/usr_intf/axis/scripts/axis.py:148
-#, fuzzy
 msgid "Turn machine on"
-msgstr "Masina pornita"
+msgstr "Encender Maquina"
 
 #: emc/usr_intf/axis/scripts/axis.py:150
 msgid "Activate first axis"
-msgstr "Activeaza prima axa"
+msgstr "Activar primer eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:151
 msgid "Activate second axis"
-msgstr "Activeaza a doua axa"
+msgstr "Activar segundo eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:152
 msgid "Activate third axis"
-msgstr "Activeaza a treia axa"
+msgstr "Activar tercer eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:153
 msgid "Activate fourth axis"
-msgstr "Activeaza a patra axa"
+msgstr "Activar cuarto eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:154
+#, fuzzy
 msgid "Activate fifth through ninth axis"
-msgstr "Activeaza a axele 5-9"
+msgstr "Activar quinto eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:155
-#, fuzzy
 msgid "Set Feed Override from 0% to 100%"
-msgstr "Seteaza depasire viteza"
+msgstr "Control de avanze de 0% hasta 100%"
 
 #: emc/usr_intf/axis/scripts/axis.py:156
 msgid ", and ."
-msgstr ", si ."
+msgstr ", y ."
 
 #: emc/usr_intf/axis/scripts/axis.py:156
-#, fuzzy
 msgid "Select jog speed"
-msgstr "Viteza jog:"
+msgstr "Elegir velocidad de avance"
 
 #: emc/usr_intf/axis/scripts/axis.py:157
 msgid "< and >"
-msgstr "< si >"
+msgstr "< y >"
 
 #: emc/usr_intf/axis/scripts/axis.py:157
-#, fuzzy
 msgid "Select angular jog speed"
-msgstr "Viteza jog:"
+msgstr "Elegir velocidad angular"
 
 #: emc/usr_intf/axis/scripts/axis.py:158
 msgid "I, Shift-I"
-msgstr "I, Shift-I"
+msgstr "I, Ctrl-I"
 
 #: emc/usr_intf/axis/scripts/axis.py:158 ../share/axis/tcl/axis.tcl:2323
-#, fuzzy
 msgid "Select jog increment"
-msgstr "increment"
+msgstr "Elegir incremento del avance"
 
 #: emc/usr_intf/axis/scripts/axis.py:159
-#, fuzzy
 msgid "Continuous jog"
-msgstr "continuu"
+msgstr "Avance continuo"
 
 #: emc/usr_intf/axis/scripts/axis.py:160
 #: emc/usr_intf/pncconf/pncconf.glade:16162
 #: emc/usr_intf/pncconf/pncconf.glade:16936
 #: emc/usr_intf/pncconf/pncconf.glade:17636
 #: emc/usr_intf/pncconf/pncconf.glade:18336
-#, fuzzy
 msgid "Home"
-msgstr "poz.0"
+msgstr "Punto de referencia"
 
 #: emc/usr_intf/axis/scripts/axis.py:160
 msgid "Send active axis home"
-msgstr "Trimita axa curenta la pozitia 0"
+msgstr "Ejecutar Punto de referencia con eje activo"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Ctrl-Home"
-msgstr "Ctrl-Home"
+msgstr "Ctrl-Pos1"
 
 #: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Home all axes"
-msgstr "Pozitie 0 toate axele"
+msgstr "Restaurar todos los ejes"
 
 #: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Shift-Home"
-msgstr "Shift-Home"
+msgstr "Ctrl-Schift-Home"
 
 #: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Zero G54 offset for active axis"
-msgstr "Alege ofset G54 pentru axa activa"
+msgstr "Eliminar desplazamiento del punto de origen para el eje activo"
 
 #: emc/usr_intf/axis/scripts/axis.py:163
 msgid "End"
-msgstr "End"
+msgstr "Fin"
 
 #: emc/usr_intf/axis/scripts/axis.py:163
 msgid "Set G54 offset for active axis"
-msgstr "Alege ofset G54 pentru axa activa"
+msgstr "Activar desplazamiento del punto de origen"
 
 #: emc/usr_intf/axis/scripts/axis.py:164
 msgid "Jog active axis"
-msgstr "Misca a treia axa"
+msgstr "Correr eje activo"
 
 #: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Left, Right"
-msgstr "Stanga, Dreapta"
+msgstr "Izquierda, Derecha"
 
 #: emc/usr_intf/axis/scripts/axis.py:167
 msgid "Jog first axis"
-msgstr "Misca prima axa"
+msgstr "Correr primer eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:168
-#, fuzzy
 msgid "Up, Down"
-msgstr "Jos"
+msgstr "Arriba, abajo "
 
 #: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog second axis"
-msgstr "Misca a doua axa"
+msgstr "Correr segundo eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:169
 msgid "Pg Up, Pg Dn"
-msgstr "Pg Sus, Pg Jos"
+msgstr "Subir Pag., Bajar Pag. "
 
 #: emc/usr_intf/axis/scripts/axis.py:169
 msgid "Jog third axis"
-msgstr "Misca a treia axa"
+msgstr "Correr tercer eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:170
 msgid "Shift+above jogs"
@@ -1979,61 +1984,62 @@ msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:171
 msgid "Jog fourth axis"
-msgstr "Misca a patra axa"
+msgstr "Correr cuarto eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:174
 msgid "Toggle between Drag and Rotate mode"
-msgstr "Comuta intre tras si rotit"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:175
 msgid "Left Button"
-msgstr "Buton stanga"
+msgstr "Boton izquierdo del raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:175
+#, fuzzy
 msgid "Pan, rotate or select line"
-msgstr "Muta vedere, roteste sau selecteaza linie"
+msgstr "Seleccionar linea o mover panorama"
 
 #: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Shift+Left Button"
-msgstr "Shift+Buton stanga"
+msgstr "Shift+Boton izquierdo del raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:176
+#, fuzzy
 msgid "Rotate or pan"
-msgstr "Rotire sau mutare vedere"
+msgstr "Perspectiva superior rotada"
 
 #: emc/usr_intf/axis/scripts/axis.py:177
 msgid "Right Button"
-msgstr "Buton dreapta"
+msgstr "Boton derecho del raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:177 emc/usr_intf/axis/scripts/axis.py:179
 #: emc/usr_intf/axis/scripts/axis.py:180
 msgid "Zoom view"
-msgstr "Mareste vedere"
+msgstr "Acercar/Maximizar perspectiva"
 
 #: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Wheel Button"
-msgstr "Rotita mouse"
+msgstr "Rueda del Raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Rotate view"
-msgstr "Roteste vedere"
+msgstr "Rotar perspectiva"
 
 #: emc/usr_intf/axis/scripts/axis.py:179
 msgid "Rotate Wheel"
-msgstr "Roteste rotita mouse"
+msgstr "Girar rueda del Raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:180
 msgid "Control+Left Button"
-msgstr "Buton stanga"
+msgstr "Ctrl+Boton izquierdo del raton"
 
 #: emc/usr_intf/axis/scripts/axis.py:183
-#, fuzzy
 msgid "Manual control"
-msgstr "Manual"
+msgstr "Control manual"
 
 #: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Code entry (MDI)"
-msgstr "Comenzi manuale (MDI)"
+msgstr "Introducir tarea (MDI)"
 
 #: emc/usr_intf/axis/scripts/axis.py:185
 msgid "Control-M"
@@ -2041,7 +2047,7 @@ msgstr "Ctrl-M"
 
 #: emc/usr_intf/axis/scripts/axis.py:185
 msgid "Clear MDI history"
-msgstr "Sterge istoric MDI"
+msgstr " Borrar historial MDI "
 
 #: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Control-H"
@@ -2049,29 +2055,27 @@ msgstr "Ctrl-H"
 
 #: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Copy selected MDI history elements"
-msgstr "Copiaza elemente MDI selectate"
+msgstr "Copiar elementos seleccionados del historial MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:187
 msgid "to clipboard"
-msgstr "in clipboard"
+msgstr "al portapapeles"
 
 #: emc/usr_intf/axis/scripts/axis.py:188
 msgid "Control-Shift-H"
-msgstr "Control-Shift-H"
+msgstr "Ctrl-Shift-H"
 
 #: emc/usr_intf/axis/scripts/axis.py:188
 msgid "Paste clipboard to MDI history"
-msgstr "Lipeste continut clipboard in istoric MDI"
+msgstr "Pegar portapapeles en historial MDI"
 
 #: emc/usr_intf/axis/scripts/axis.py:189 ../share/axis/tcl/axis.tcl:1088
-#, fuzzy
 msgid "Override Limits"
-msgstr "depaseste limite"
+msgstr "Exceder limites"
 
 #: emc/usr_intf/axis/scripts/axis.py:191
-#, fuzzy
 msgid "Open program"
-msgstr "Program"
+msgstr "Abrir programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:192
 msgid "Control-R"
@@ -2079,82 +2083,77 @@ msgstr "Ctrl-R"
 
 #: emc/usr_intf/axis/scripts/axis.py:192
 msgid "Reload program"
-msgstr "Executa program"
+msgstr "Volver a cargar programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:193
+#, fuzzy
 msgid "Control-S"
-msgstr "Ctrl-S"
+msgstr "Ctrl-K"
 
 #: emc/usr_intf/axis/scripts/axis.py:193
 msgid "Save g-code as"
-msgstr "Salveaza g-cod ca si"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:194
-#, fuzzy
 msgid "Run program"
-msgstr "Program"
+msgstr "Ejecutar Programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:195
-#, fuzzy
 msgid "Step program"
-msgstr "Program"
+msgstr "Ejecutar programa por paso"
 
 #: emc/usr_intf/axis/scripts/axis.py:196
-#, fuzzy
 msgid "Pause program"
-msgstr "Program"
+msgstr "Pausar programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:197
-#, fuzzy
 msgid "Resume program"
-msgstr "Rezuma"
+msgstr "Resumir programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:198
 msgid "Stop running program, or"
-msgstr "Opreste executie"
+msgstr "Detener programa en proceso, o"
 
 #: emc/usr_intf/axis/scripts/axis.py:199
 msgid "stop loading program preview"
-msgstr "opreste incarcarea previzualizarii"
+msgstr "Detener carga de vista preliminar del programa"
 
 #: emc/usr_intf/axis/scripts/axis.py:201
 msgid "Toggle mist"
-msgstr "Vapori On/Off"
+msgstr "Neblina encender/apagar"
 
 #: emc/usr_intf/axis/scripts/axis.py:202
 msgid "Toggle flood"
-msgstr "Lichid On/Off"
+msgstr "Medio enfriador activar/desactivar"
 
 #: emc/usr_intf/axis/scripts/axis.py:203
-#, fuzzy
 msgid "Spindle brake off"
-msgstr "Freza oprita"
+msgstr "Apagar freno de portabrocas"
 
 #: emc/usr_intf/axis/scripts/axis.py:204
 msgid "Shift-B"
 msgstr "Shift-B"
 
 #: emc/usr_intf/axis/scripts/axis.py:204
-#, fuzzy
 msgid "Spindle brake on"
-msgstr "Freza mai repede"
+msgstr "Encender freno del Portabrocas"
 
 #: emc/usr_intf/axis/scripts/axis.py:205
-#, fuzzy
 msgid "Turn spindle clockwise"
-msgstr "Freza mai incet"
+msgstr "Girar portabrocas en sentido de las agujas del reloj"
 
 #: emc/usr_intf/axis/scripts/axis.py:206
+#, fuzzy
 msgid "Turn spindle counterclockwise"
-msgstr "Freza sens antiorar"
+msgstr " Portabrocas gira en sentido contrario de las agujas del reloj [F10]"
 
 #: emc/usr_intf/axis/scripts/axis.py:207
 msgid "Turn spindle more slowly"
-msgstr "Incetineste freza"
+msgstr "Girar Portabrocas mas despacio"
 
 #: emc/usr_intf/axis/scripts/axis.py:208
 msgid "Turn spindle more quickly"
-msgstr "Accelereaza freza"
+msgstr "Girar Portabrocas mas rapido"
 
 #: emc/usr_intf/axis/scripts/axis.py:210
 msgid "Control-K"
@@ -2162,53 +2161,52 @@ msgstr "Ctrl-K"
 
 #: emc/usr_intf/axis/scripts/axis.py:210
 msgid "Clear live plot"
-msgstr "Sterge vedere curenta"
+msgstr "Borrar barra de herramientas"
 
 #: emc/usr_intf/axis/scripts/axis.py:211
 msgid "Cycle among preset views"
-msgstr "Comuta intre vederi presetate"
+msgstr "Cambiar perspectivas en ciclos"
 
 #: emc/usr_intf/axis/scripts/axis.py:212
 msgid "Switch between preview and DRO"
-msgstr "Schimba intre preview si pozitie"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:214
 #, fuzzy
 msgid "Ctrl-Space"
-msgstr "Spatiu"
+msgstr "Ctrl-Pos1"
 
 #: emc/usr_intf/axis/scripts/axis.py:214
-#, fuzzy
 msgid "Clear notifications"
-msgstr "Configuratii model"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:1607
 msgid "No tool"
-msgstr "Fara scula"
+msgstr "Sin herramienta"
 
 #: emc/usr_intf/axis/scripts/axis.py:1609
 #, python-format
 msgid "Unknown tool %d"
-msgstr "Scula %d necunoscuta"
+msgstr "Herramienta desconocida %d"
 
 #: emc/usr_intf/axis/scripts/axis.py:1611
-#, python-format
+#, fuzzy, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
-msgstr "Scula %(tool)d, ofset %(zo)g, diametru %(dia)g"
+msgstr "Herramienta %d, Mover Herramienta %g, Diametro %g"
 
 #: emc/usr_intf/axis/scripts/axis.py:1613
-#, python-format
+#, fuzzy, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
-msgstr "Scula %(tool)d, ofset-z %(zo)g, ofset-x %(xo)g, diametru %(dia)g"
+msgstr "Herramienta %d, zo %g, xo %g, Diam. %g"
 
 #: emc/usr_intf/axis/scripts/axis.py:1865
-#, fuzzy
 msgid "Filtering..."
-msgstr "Testare..."
+msgstr "Procesando..."
 
 #: emc/usr_intf/axis/scripts/axis.py:1921
+#, fuzzy
 msgid "Filter failed"
-msgstr "Filtru esuat"
+msgstr "Filtro_del Programa %r fallido"
 
 #: emc/usr_intf/axis/scripts/axis.py:1922
 #, python-format
@@ -2216,13 +2214,11 @@ msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
-"Programul %(program)r s-a terminat cu codul de eroare %(code)d. Mesajele de "
-"eroare produse sunt vizibile in cele ce urmeaza:"
 
 #: emc/usr_intf/axis/scripts/axis.py:1981
 #, python-format
 msgid "G-Code error in %s"
-msgstr "Eroare G-cod in %s"
+msgstr "Error de codigo-G en %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:1982
 #, fuzzy, python-format
@@ -2230,129 +2226,123 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
-"In apropierea liniei %(seq)d din %(f)s:\n"
-"$(error_str)s"
+"Acercar linea %d en %s:\n"
+"%s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2138
 #: emc/usr_intf/axis/scripts/axis.py:3528 ../share/axis/tcl/axis.tcl:1067
 #: ../share/axis/tcl/axis.tcl:1069 ../share/axis/tcl/axis.tcl:2115
-#, fuzzy
 msgid "Continuous"
-msgstr "continuu"
+msgstr "Continuo"
 
 #: emc/usr_intf/axis/scripts/axis.py:2335
-#, fuzzy
 msgid "T    Tool Table"
-msgstr "Incarca tabela scule"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2352
 #: emc/usr_intf/axis/scripts/axis.py:2502
 #: emc/usr_intf/stepconf/stepconf.py:1492
 #: emc/usr_intf/stepconf/stepconf.py:2084
-#, fuzzy
 msgid "in"
-msgstr "Principal"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2355
 msgid " radius"
 msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2357
-#, fuzzy
 msgid " diameter"
-msgstr "Diametru:"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2358
 msgid "°"
 msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2364
-#, fuzzy
 msgid "Coordinate System:"
-msgstr "Fereastra sistem control coordinate"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2387
-#, fuzzy
 msgid "Name:"
-msgstr "Nume INI"
+msgstr "Archivo:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2387
-#, fuzzy
 msgid "Size:"
-msgstr "Dimensiune"
+msgstr "Tama&#324;o:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2388
-#, fuzzy
 msgid "Tool order:"
-msgstr "Scula #:"
+msgstr "Ordenar herramienta"
 
 #: emc/usr_intf/axis/scripts/axis.py:2388
 msgid "Rapid distance:"
-msgstr "Distanta viteza mare:"
+msgstr "Distancia en marcha rapida:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2389
 msgid "Feed distance:"
-msgstr "Distanta viteza prelucrare:"
+msgstr "Distancia:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2389
 msgid "Total distance:"
-msgstr "Distanta totala:"
+msgstr "Distancia total:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2390
-#, fuzzy
 msgid "Run time:"
-msgstr "Timp miscare"
+msgstr "Tiempo:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2390
 msgid "X bounds:"
-msgstr "Limite X:"
+msgstr "Area X:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2391
 msgid "Y bounds:"
-msgstr "Limite Y:"
+msgstr "Area Y:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2391
+#, fuzzy
 msgid "Z bounds:"
-msgstr "Limite Z:"
+msgstr "Area C:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2392
+#, fuzzy
 msgid "A bounds:"
-msgstr "Limite A:"
+msgstr "Area C:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2392
+#, fuzzy
 msgid "B bounds:"
-msgstr "Limite B:"
+msgstr "Area C:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2393
 msgid "C bounds:"
-msgstr "Limite C:"
+msgstr "Area C:"
 
 #: emc/usr_intf/axis/scripts/axis.py:2417
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
-msgstr "Program depaseste limita inferioara pe axa %s"
+msgstr "El programa excedio el limite inferior en Eje %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2420
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
-msgstr "Program depaseste limita superioara pe axa %s"
+msgstr "El Programa excedio el limite superior en Eje %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2425
 msgid "Program exceeds machine limits"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/usr_intf/axis/scripts/axis.py:2428
 msgid "Run Anyway"
-msgstr "Totusi executa"
+msgstr "Ejecutar de todas formas"
 
 #: emc/usr_intf/axis/scripts/axis.py:2480
 msgid "No file loaded"
-msgstr "Niciun fisier incarcat"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2488
 #, python-format
 msgid "generated from %s"
-msgstr "generat din %s"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2494
 #, python-format
@@ -2360,136 +2350,130 @@ msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
-"%(size)s bytes\n"
-"%(lines)s linii g-cod"
 
 #: emc/usr_intf/axis/scripts/axis.py:2520
 #, python-format
 msgid "%.1f minutes"
-msgstr "%.1f minute"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:2522
-#, python-format
+#, fuzzy, python-format
 msgid "%d seconds"
-msgstr "%d secunde"
+msgstr "Correr segundo eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:2530
-#, python-format
+#, fuzzy, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr "%(a)f la %(b)f = %(diff)f %(units)s"
+msgstr "%f hasta %f = %f %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2531
 msgid "G-Code Properties"
-msgstr "Proprietati G-cod"
+msgstr "Propiedades de codigo-G %s"
 
 #: emc/usr_intf/axis/scripts/axis.py:2729
-#, fuzzy
 msgid "All machinable files"
-msgstr "Toate fisierele"
+msgstr "Todos los Archivos ejecutables"
 
 #: emc/usr_intf/axis/scripts/axis.py:2730
 #: emc/usr_intf/axis/scripts/axis.py:3289
 msgid "rs274ngc files"
-msgstr "fisiere rs274ngc"
+msgstr "rs274ngc-Archivos"
 
 #: emc/usr_intf/axis/scripts/axis.py:3113 ../share/axis/tcl/axis.tcl:1083
 msgid "Touch Off"
-msgstr "Atingere"
+msgstr "Regular Offset"
 
 #: emc/usr_intf/axis/scripts/axis.py:3114
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
-msgstr "Introdu coordinata %s relativa la piesa:"
+msgstr "Introducir %s-coordenada relativa a la pieza:"
 
 #: emc/usr_intf/axis/scripts/axis.py:3301
 msgid "Error saving file"
-msgstr "Eroare salvare fisier"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:3665
-#, fuzzy
 msgid "Home All"
-msgstr "Salveaza tot"
+msgstr "Restaurar todos los ejes"
 
 #: emc/usr_intf/axis/scripts/axis.py:3667
 msgid "Home all axes [Ctrl-Home]"
-msgstr "Pozitie 0 toate axele [Ctrl-Home]"
+msgstr "Restaurar todos los ejes [Ctrl-Pos1]"
 
 #: emc/usr_intf/axis/scripts/axis.py:3670
 msgid "Home All Axes"
-msgstr "Pozitie 0 toate axele"
+msgstr "Restaurar todos los ejes"
 
 #: emc/usr_intf/axis/scripts/axis.py:3675
+#, fuzzy
 msgid "Unhome All Axes"
-msgstr "Anuleaza pozitie 0 toate axele"
+msgstr "Restaurar todos los ejes"
 
 #: emc/usr_intf/axis/scripts/axis.py:3695
 #, python-format
 msgid "Home Axis _%s"
-msgstr "Pozitie 0 axa _%s"
+msgstr "Restaurar _%s-Eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:3697
-#, python-format
+#, fuzzy, python-format
 msgid "Unhome Axis _%s"
-msgstr "Anuleaza pozitie 0 axa _%s"
+msgstr "Restaurar _%s-Eje"
 
 #: emc/usr_intf/axis/scripts/axis.py:3834
 msgid "Run from here"
-msgstr "Ruleaza de aici"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/axis.py:4052
 msgid "Error in ~/.axisrc"
-msgstr "Eroare in ~/.axisrc"
+msgstr "Error en ~/.axisrc"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:11
 #, python-format
 msgid "Insert tool %d and click continue when ready"
-msgstr "Insereaza scula %d si apasati continua cand ati terminat"
+msgstr "Insertar pieza %d y clickear continuar"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:13
 msgid "Remove the tool and click continue when ready"
-msgstr "Scoateti scula si apasati continua cand ati terminat"
+msgstr "Remover pieza y clickear continuar"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
-#, fuzzy
 msgid "Tool change"
-msgstr "Fisier scule"
+msgstr "Cambio de pieza"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
-#, fuzzy
 msgid "Continue"
-msgstr "continuu"
+msgstr "Continuar"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:31
 msgid "AXIS Manual Toolchanger"
-msgstr "AXIS schimbare manuala a sculei"
+msgstr "Cambio manual de herramienta AXIS"
 
 #: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:35
 msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
 msgstr ""
-"Aceasta fereastra face parte din schimbarea manuala a sculei. Poate fi "
-"inchisalinistit, sau minimizata. Se va inchide automat dupa cateva secunde."
+"Esta ventana es parte del \" Cambiador manual de herramienta AXIS \". puede "
+"ser cerrada, minimizada o automaticamente se cerrara despues deunos segundos "
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:498
 #, python-format
 msgid "%s: Image to gcode"
-msgstr "%s: Imagine in gcode"
+msgstr "%s: Transformar imagen a codigo-G"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:499
 msgid "Image to gcode"
-msgstr "Imagine in gcode"
+msgstr "Transformar imagen a codigo-G"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:509
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Image size: %(w)d x %(h)d pixels\n"
 "Minimum pixel value: %(min)d\n"
 "Maximum pixel value: %(max)d"
 msgstr ""
-"Marime imagine: %(w)d x %(h)d pixeli\n"
-"Valoare minima pixeli: %(min)d\n"
-"Valoare maxima pixeli: %(max)d"
+"Tamanho de imagen: %d x %d Resolucion<br>Luminosidad minima:%d<br>Maxima "
+"Luminosidad: %d"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:599
 msgid "G20 (in)"
@@ -2505,215 +2489,212 @@ msgstr "G21 (mm)"
 #: emc/usr_intf/pncconf/pncconf.glade:922
 #: emc/usr_intf/pncconf/pncconf.glade:1028
 #: emc/usr_intf/pncconf/pncconf.glade:1095
-#, fuzzy
 msgid "None"
-msgstr "Nu"
+msgstr "Ninguno"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:602
-#, fuzzy
 msgid "White"
-msgstr "Scrie"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:602
 #, fuzzy
 msgid "Black"
-msgstr "Inapoi"
+msgstr "Freno"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:608
 msgid "Rows"
-msgstr "Randuri"
+msgstr "Filas"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:608
 msgid "Columns"
-msgstr "Coloane"
+msgstr "Columnas"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:608
 msgid "Rows then Columns"
-msgstr "Randuri apoi coloane"
+msgstr "Primero filas despues columnas"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:608
 msgid "Columns then Rows"
-msgstr "Coloane apoi randuri"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
-#, fuzzy
 msgid "Positive"
-msgstr "Tip pozitie"
+msgstr "Positivo"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
-#, fuzzy
 msgid "Negative"
-msgstr "relativ"
+msgstr "Negativo"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
 msgid "Alternating"
-msgstr "Alternant"
+msgstr "Alternando"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
 msgid "Up Milling"
-msgstr "Frezare in sus"
+msgstr "Fresar avanzando"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:609
 msgid "Down Milling"
-msgstr "Frezare in jos"
+msgstr "Fresar hacia abajo "
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "Ball End"
-msgstr "Freza sferica"
+msgstr "Fresador esferico"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "Flat End"
-msgstr "Freza plata"
+msgstr "Fresador plano"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 #, fuzzy
 msgid "30 Degree"
-msgstr "60 Grade"
+msgstr "Fresador de 60°"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "45 Degree"
-msgstr "45 Grade"
+msgstr "Fresador de 45°"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:614
 msgid "60 Degree"
-msgstr "60 Grade"
+msgstr "Fresador de 60°"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "Secondary"
-msgstr "Secundar"
+msgstr "Secundario"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "Full"
-msgstr "Plin"
+msgstr "Full"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:645
 msgid "Invert Image"
-msgstr "Inverseaza imagine"
+msgstr "Invertir Imagen"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:646
 msgid "Normalize Image"
-msgstr "Normalizeaza imagine"
+msgstr "Normalizar imagen"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:647
 msgid "Extend Image Border"
-msgstr "Creste margine imagine"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:648
+#, fuzzy
 msgid "Pixel Size (Units)"
-msgstr "Dimensiune pixel (unitati)"
+msgstr "Tamanho del Pixel"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:649
 msgid "Depth (units)"
-msgstr "Adancime (unitati)"
+msgstr "Profundidad (Unidad)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:650
 msgid "Tolerance (units)"
-msgstr "Toleranta (unitati)"
+msgstr "Tolerancia (Unidad)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:651
+#, fuzzy
 msgid "Stepover (pixels)"
-msgstr "Distanta intre treceri (pixeli)"
+msgstr "Y-Resolucion (Pixel)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:652
 msgid "Tool Diameter (units)"
-msgstr "Diametru scula (unitati)"
+msgstr "Diametro de pieza (Unidad)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:653
-#, fuzzy
 msgid "Tool Type"
-msgstr "Fisier scule"
+msgstr "Tipo de pieza"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:654
 msgid "Feed Rate (units per minute)"
-msgstr "Viteza avans (unitati pe minut)"
+msgstr "Avance (Unidad por minuto)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:655
+#, fuzzy
 msgid "Plunge Feed Rate (units per minute)"
-msgstr "Viteza adancire (unitati pe minut)"
+msgstr "Avance (Unidad por minuto)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:657
 msgid "Safety Height (units)"
-msgstr "Inaltime siguranta (unitati)"
+msgstr "Altura de seguridad (Unidad)"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:658
+#, fuzzy
 msgid "Scan Pattern"
-msgstr "Mod scanare"
+msgstr "Escanear patrón"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:659
+#, fuzzy
 msgid "Scan Direction"
-msgstr "Directie scanare"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:660
+#, fuzzy
 msgid "Lace Bounding"
-msgstr ""
+msgstr "Límite de cortador"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:661
+#, fuzzy
 msgid "Contact Angle (degrees)"
-msgstr "Unghi de contact (grade)"
+msgstr "Ángulo de contacto"
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:662
-#, fuzzy
 msgid "Spindle Speed (RPM)"
-msgstr "Seteaza depasire viteza"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:663
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr "Ofset frezare bruta (unitati, 0=fara frezare bruta)"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:664
 msgid "Roughing depth per pass (units)"
-msgstr "Adancime frezare bruta per trecere (unitati)"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:731
 msgid "image-to-gcode: User pressed cancel"
-msgstr "image-to-gcode: abort utilizator"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:744
 msgid "Depth images"
-msgstr "Imagine de adancime"
+msgstr "Archivos de imagenes"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:22
 #, fuzzy
 msgid "EMC2 Debug Level"
-msgstr "EMC Diagnostic"
+msgstr "Seleccionar nivel de _depuracion"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:23
+#, fuzzy
 msgid "debuglevel"
-msgstr "nivel debug"
+msgstr "Seleccionar nivel de _depuracion"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:36
 #, fuzzy
 msgid "Configuration *"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:37
-#, fuzzy
 msgid "Version Numbers *"
-msgstr "Urmatorul numar: "
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:38
-#, fuzzy
 msgid "NML *"
-msgstr "NML"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:39
-#, fuzzy
 msgid "RCS *"
-msgstr "RCS"
+msgstr ""
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:40
 msgid "Task Issue"
-msgstr "Comanda task"
+msgstr "Tipo de Tarea"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:41
-#, fuzzy
 msgid "Motion Time"
-msgstr "Timp miscare"
+msgstr "Tiempo de movimiento"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:43
-#, fuzzy
 msgid "Interpreter List"
-msgstr "Lista interpretor"
+msgstr "Lista de intérprete"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:47
 #, python-format
@@ -2721,27 +2702,24 @@ msgid ""
 "Inifile setting for this debug level:\n"
 "[EMC]DEBUG=0x%08x"
 msgstr ""
-"Setari fisier ini pentru acest nivel debug:\n"
-"[EMC]DEBUG=0x%08x"
 
 #: emc/usr_intf/axis/scripts/debuglevel.py:81
 msgid "  * This option can only be enabled in the inifile"
-msgstr "  * aceasta optiune poate fi midificata doar din fiesierul ini"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:47
 #, fuzzy
 msgid "_Open..."
-msgstr "Deschide..."
+msgstr "_Abrir"
 
 #: ../share/axis/tcl/axis.tcl:51
 #, fuzzy
 msgid "Recent _Files"
-msgstr "Fisiere text"
+msgstr "Todos los archivos"
 
 #: ../share/axis/tcl/axis.tcl:55
-#, fuzzy
 msgid "_Edit..."
-msgstr "Editeaza"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:58
 msgid "Ctrl-R"
@@ -2749,84 +2727,83 @@ msgstr "Ctrl-R"
 
 #: ../share/axis/tcl/axis.tcl:60
 msgid "_Reload"
-msgstr "_Reincarca"
+msgstr "_recargar "
 
 #: ../share/axis/tcl/axis.tcl:63
+#, fuzzy
 msgid "Ctrl-S"
-msgstr "Ctrl-S"
+msgstr "Ctrl-R"
 
 #: ../share/axis/tcl/axis.tcl:65
-#, fuzzy
 msgid "_Save gcode as..."
-msgstr "Salveaza g-cod ca si"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:69
 msgid "_Properties..."
-msgstr "_Proprietati..."
+msgstr "_Propiedades"
 
 #: ../share/axis/tcl/axis.tcl:75
 msgid "Edit _tool table..."
-msgstr "Editeaza _tabela scule"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:79
 #, fuzzy
 msgid "Reload tool ta_ble"
-msgstr "Incarca tabela scule"
+msgstr "Volver a vargar ta_bla de herramientas"
 
 #: ../share/axis/tcl/axis.tcl:85
-#, fuzzy
 msgid "_Ladder Editor..."
-msgstr "Editor _ladder"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:91
 #, fuzzy
 msgid "_Quit"
-msgstr "Terminare"
+msgstr "_Terminar"
 
 #: ../share/axis/tcl/axis.tcl:97
 msgid "Toggle _Emergency Stop"
-msgstr "_Stop avarie On/Off"
+msgstr "Boton de _emergencia activar/desactivar"
 
 #: ../share/axis/tcl/axis.tcl:102
 msgid "Toggle _Machine Power"
-msgstr "_Masina On/Off"
+msgstr "_Maquina encender/apagar"
 
 #: ../share/axis/tcl/axis.tcl:109
-#, fuzzy
 msgid "_Run program"
-msgstr "Program"
+msgstr "Ejecuta_r programa "
 
 #: ../share/axis/tcl/axis.tcl:113
+#, fuzzy
 msgid "Ru_n from selected line"
-msgstr "Por_neste de la linia selectata"
+msgstr "Seleccionar linea o mover panorama"
 
 #: ../share/axis/tcl/axis.tcl:118
 #, fuzzy
 msgid "S_tep"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: ../share/axis/tcl/axis.tcl:123
 #, fuzzy
 msgid "_Pause"
-msgstr "Pauza"
+msgstr "_Pausa"
 
 #: ../share/axis/tcl/axis.tcl:128
 #, fuzzy
 msgid "Re_sume"
-msgstr "Rezuma"
+msgstr "_Resumir"
 
 #: ../share/axis/tcl/axis.tcl:133 ../share/axis/tcl/axis.tcl:1174
 #, fuzzy
 msgid "Stop"
-msgstr "Pas"
+msgstr "De_tener"
 
 #: ../share/axis/tcl/axis.tcl:138
 msgid "Stop at M_1"
-msgstr "Opreste la M_1"
+msgstr "Detener en M_1"
 
 #: ../share/axis/tcl/axis.tcl:143
 msgid "Skip lines with '_/'"
-msgstr "Sari peste linii cu '_/'"
+msgstr "Saltar filas con '_/'"
 
 #: ../share/axis/tcl/axis.tcl:148
 msgid "Ctrl-M"
@@ -2834,7 +2811,7 @@ msgstr "Ctrl-M"
 
 #: ../share/axis/tcl/axis.tcl:150
 msgid "Clear MDI h_istory"
-msgstr "Sterge _istoric MDI"
+msgstr "Borrar historial de MD_I"
 
 #: ../share/axis/tcl/axis.tcl:152
 msgid "Ctrl-H"
@@ -2842,7 +2819,7 @@ msgstr "Ctrl-H"
 
 #: ../share/axis/tcl/axis.tcl:154
 msgid "Copy from MDI hist_ory"
-msgstr "Copiaza ist_oric MDI"
+msgstr "C_opiar de historial MDI"
 
 #: ../share/axis/tcl/axis.tcl:156
 msgid "Ctrl-Shift-H"
@@ -2850,156 +2827,158 @@ msgstr "Ctrl-Shift-H"
 
 #: ../share/axis/tcl/axis.tcl:158
 msgid "Paste to MDI histor_y"
-msgstr "Lipeste in istoric MDI"
+msgstr "Pegar en historial MDI"
 
 #: ../share/axis/tcl/axis.tcl:164
 #, fuzzy
 msgid "_Calibration"
-msgstr "Calibrare..."
+msgstr "_Calibración"
 
 #: ../share/axis/tcl/axis.tcl:168
 #, fuzzy
 msgid "Show _Hal Configuration"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: ../share/axis/tcl/axis.tcl:172
 #, fuzzy
 msgid "H_al Meter"
-msgstr "Hal Meter"
+msgstr "H_AL-metro"
 
 #: ../share/axis/tcl/axis.tcl:176
 #, fuzzy
 msgid "Ha_l Scope"
-msgstr "Hal Scope"
+msgstr "HA_L-escopio"
 
 #: ../share/axis/tcl/axis.tcl:180
 #, fuzzy
 msgid "Sho_w EMC Status"
-msgstr "Arata setari"
+msgstr "Estatus del EMC..."
 
 #: ../share/axis/tcl/axis.tcl:184
+#, fuzzy
 msgid "Set _Debug Level"
-msgstr "Seteaza nivel _Debug"
+msgstr "Seleccionar nivel de _depuracion"
 
 #: ../share/axis/tcl/axis.tcl:190
 #, fuzzy
 msgid "Homin_g"
-msgstr "Anulare poz.0"
+msgstr "Restaurar"
 
 #: ../share/axis/tcl/axis.tcl:194
 msgid "_Unhoming"
-msgstr "Anulare poz.0"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:198
 msgid "_Zero coordinate system"
-msgstr "Sterge ofset sistem coordinate"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:202
 msgid "P1  G5_4"
-msgstr "P1  G5_4"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:206
 msgid "P2  G5_5"
-msgstr "P2  G5_5"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:210
 msgid "P3  G5_6"
-msgstr "P3  G5_6"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:214
 msgid "P4  G5_7"
-msgstr "P4  G5_7"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:218
 msgid "P5  G5_8"
-msgstr "P5  G5_8"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:222
 msgid "P6  G5_9"
-msgstr "P6  G5_9"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:226
 msgid "P7  G59._1"
-msgstr "P7  G59._1"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:230
 msgid "P8  G59._2"
-msgstr "P8  G59._2"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:234
 msgid "P9  G59._3"
-msgstr "P9  G59._3"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:238
 msgid "_G92"
-msgstr "_G92"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:248
 msgid "_Top view"
-msgstr "Vedere de _sus"
+msgstr "Perspectiva superior"
 
 #: ../share/axis/tcl/axis.tcl:255
 msgid "_Rotated Top view"
-msgstr "Vedere _rotita"
+msgstr "Perspectiva superior _rotada"
 
 #: ../share/axis/tcl/axis.tcl:262
 msgid "_Side view"
-msgstr "Vedere de _lateral"
+msgstr "Per_spectiva lateral"
 
 #: ../share/axis/tcl/axis.tcl:269
 msgid "_Front view"
-msgstr "Vedere din _fata"
+msgstr "Perspectiva _frontal"
 
 #: ../share/axis/tcl/axis.tcl:276
 msgid "_Perspective view"
-msgstr "Vedere din _perspectiva"
+msgstr "Vista en _Perspectivas"
 
 #: ../share/axis/tcl/axis.tcl:285
 msgid "Display _Inches"
-msgstr "Afisaj in _inchi"
+msgstr "_Pulgadas"
 
 #: ../share/axis/tcl/axis.tcl:292
 msgid "Display _MM"
-msgstr "Afisaj in _mm"
+msgstr "Mostrar _MM"
 
 #: ../share/axis/tcl/axis.tcl:299
-#, fuzzy
 msgid "S_how program"
-msgstr "Program"
+msgstr "Mostrar vista preliminar"
 
 #: ../share/axis/tcl/axis.tcl:304
+#, fuzzy
 msgid "Show program r_apids"
-msgstr "_Arata deplasari rapide"
+msgstr "Mostrar vista preliminar"
 
 #: ../share/axis/tcl/axis.tcl:309
 msgid "Sho_w live plot"
-msgstr "Ara_ta plot in timp real"
+msgstr "Mostrar barra de herramientas"
 
 #: ../share/axis/tcl/axis.tcl:314
-#, fuzzy
 msgid "Show too_l"
-msgstr "Arata setari"
+msgstr "_Mostrar herramienta"
 
 #: ../share/axis/tcl/axis.tcl:319
 #, fuzzy
 msgid "Show e_xtents"
-msgstr "Arata restart"
+msgstr "_Mostrar medidas"
 
 #: ../share/axis/tcl/axis.tcl:324
+#, fuzzy
 msgid "Sh_ow machine limits"
-msgstr "Arata limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: ../share/axis/tcl/axis.tcl:329
+#, fuzzy
 msgid "Show v_elocity"
-msgstr "Ara_ta vit_eza"
+msgstr "Mostrar barra de herramientas"
 
 #: ../share/axis/tcl/axis.tcl:334
 msgid "Show _distance to go"
-msgstr "Arata _distanta ramasa"
+msgstr "Mostrar _distancia"
 
 #: ../share/axis/tcl/axis.tcl:339
 msgid "La_rge coordinate font"
-msgstr "Font mare sistem coordinate"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:342
 msgid "Ctrl-K"
@@ -3007,142 +2986,145 @@ msgstr "Ctrl-K"
 
 #: ../share/axis/tcl/axis.tcl:344
 msgid "_Clear live plot"
-msgstr "Sterge vedere curenta"
+msgstr "Eliminar barra de herramienta"
 
 #: ../share/axis/tcl/axis.tcl:353
 #, fuzzy
 msgid "Show commanded position"
-msgstr "Pozitie comandata"
+msgstr "Mostrar posicion"
 
 #: ../share/axis/tcl/axis.tcl:360
 #, fuzzy
 msgid "Show actual position"
-msgstr "Pozitia actuala"
+msgstr "Mostrar posicion actual"
 
 #: ../share/axis/tcl/axis.tcl:369
 #, fuzzy
 msgid "Show machine position"
-msgstr "Pozitie Masina"
+msgstr "Mostrar posicion absoluta"
 
 #: ../share/axis/tcl/axis.tcl:376
 #, fuzzy
 msgid "Show relative position"
-msgstr "Pozitie relativa"
+msgstr "Mostrar posicion relativa"
 
 #: ../share/axis/tcl/axis.tcl:385
 msgid "Joint mode"
-msgstr "Mod articulatii"
+msgstr "Modalidad-Joint "
 
 #: ../share/axis/tcl/axis.tcl:392
 #, fuzzy
 msgid "World mode"
-msgstr "Mod articulatii"
+msgstr "Modalidad-Joint "
 
 #: ../share/axis/tcl/axis.tcl:401
-#, fuzzy
 msgid "_About AXIS"
-msgstr "Despre"
+msgstr "Sobre AXIS"
 
 #: ../share/axis/tcl/axis.tcl:405
 msgid "Quick _Reference"
-msgstr "Ajutor _rapid"
+msgstr "_Referencia rapida"
 
 #: ../share/axis/tcl/axis.tcl:411
 #, fuzzy
 msgid "_File"
-msgstr "Fisier"
+msgstr "_Archivo"
 
 #: ../share/axis/tcl/axis.tcl:415
 #, fuzzy
 msgid "_Machine"
-msgstr "masina"
+msgstr "Coordenada absoluta"
 
 #: ../share/axis/tcl/axis.tcl:419
 #, fuzzy
 msgid "_View"
-msgstr "Vizualizare"
+msgstr "Perspectiva"
 
 #: ../share/axis/tcl/axis.tcl:423
 #, fuzzy
 msgid "_Help"
-msgstr "Ajutor"
+msgstr "Ayuda"
 
 #: ../share/axis/tcl/axis.tcl:432
 msgid "Toggle Emergency Stop [F1]"
-msgstr "Stop urgenta On/Off [F1]"
+msgstr "Boton de Emergencia activar/desactivar [F1]"
 
 #: ../share/axis/tcl/axis.tcl:441
 msgid "Toggle Machine power [F2]"
-msgstr "Masina On/Off [F2]"
+msgstr "Máquina encender/apagar [F2]"
 
 #: ../share/axis/tcl/axis.tcl:452
 msgid "Open G-Code file [O]"
-msgstr "Deschide fisier G-cod [O]"
+msgstr "Abrir archovo de codigo-G [O]"
 
 #: ../share/axis/tcl/axis.tcl:460
 msgid "Reopen current file [Control-R]"
-msgstr "Redeschide fisier curent [Control-R]"
+msgstr "Volver a cargar archivo actual [Ctrl-R]"
 
 #: ../share/axis/tcl/axis.tcl:470
 msgid "Begin executing current file [R]"
-msgstr "Executa fisier curent [R]"
+msgstr "Ejecutar archivo actual [R]"
 
 #: ../share/axis/tcl/axis.tcl:478
 msgid "Execute next line [T]"
-msgstr "Executa linia urmatoare [T]"
+msgstr "Ejecutar siguiente fila [T]"
 
 #: ../share/axis/tcl/axis.tcl:486
 msgid "Pause [P] / resume [S] execution"
-msgstr "Pauza [P] / rezuma [s] executie"
+msgstr "Pausa [P] / resumir [S]"
 
 #: ../share/axis/tcl/axis.tcl:494
 msgid "Stop program execution [ESC]"
-msgstr "Opreste executie program [ESC]"
+msgstr "Detener Programa [ESC]"
 
 #: ../share/axis/tcl/axis.tcl:504
+#, fuzzy
 msgid "Toggle skip lines with '/' [Alt-M /]"
-msgstr "Sari peste linii cu '/' [Alt-M /]"
+msgstr "Saltar filas con '_/'"
 
 #: ../share/axis/tcl/axis.tcl:511
 msgid "Toggle optional pause [Alt-M 1]"
-msgstr "Basculeaza pauza optionala [Alt-M 1]"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:520
+#, fuzzy
 msgid "Zoom in"
-msgstr "Mareste vedere"
+msgstr "Ampliar [+]"
 
 #: ../share/axis/tcl/axis.tcl:528
+#, fuzzy
 msgid "Zoom out"
-msgstr "Micsoreaza vedere"
+msgstr "Disminuir [-]"
 
 #: ../share/axis/tcl/axis.tcl:536
 msgid "Top view"
-msgstr "Vedere de sus"
+msgstr "Perspectiva superior"
 
 #: ../share/axis/tcl/axis.tcl:544
+#, fuzzy
 msgid "Rotated top view"
-msgstr "Vedere de sus, rotita"
+msgstr "Perspectiva superior _rotada"
 
 #: ../share/axis/tcl/axis.tcl:552
 msgid "Side view"
-msgstr "Vedere de lateral"
+msgstr "Perspectiva lateral"
 
 #: ../share/axis/tcl/axis.tcl:560
 #, fuzzy
 msgid "Front view"
-msgstr "Vedere din _fata"
+msgstr "Perspectiva _frontal"
 
 #: ../share/axis/tcl/axis.tcl:568
 msgid "Perspective view"
-msgstr "Vedere din perspectiva"
+msgstr "Vista en perspectiva"
 
 #: ../share/axis/tcl/axis.tcl:576
 msgid "Toggle between Drag and Rotate Mode [D]"
-msgstr "Comuta intre deplasare si rotire vedere [D]"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:591
 msgid "Clear live plot [Ctrl-K]"
-msgstr "Sterge afisaj [Ctrl-K]"
+msgstr "Eliminar barra de herramientas [Ctrl-K]"
 
 #: ../share/axis/tcl/axis.tcl:723
 msgid "Manual Control [F3]"
@@ -3150,22 +3132,23 @@ msgstr "Control manual [F3]"
 
 #: ../share/axis/tcl/axis.tcl:724
 msgid "MDI [F5]"
-msgstr "MDI [F5]"
+msgstr "MDI"
 
 #: ../share/axis/tcl/axis.tcl:738 ../share/axis/tcl/axis.tcl:2011
 #: ../share/axis/tcl/axis.tcl:2174
 #, fuzzy
 msgid "Axis:"
-msgstr "Axa"
+msgstr "Eje:"
 
 #: ../share/axis/tcl/axis.tcl:1077
+#, fuzzy
 msgid "Home Axis"
-msgstr "Pozitie 0 Axa"
+msgstr "Restaurar _%s-Eje"
 
 #: ../share/axis/tcl/axis.tcl:1151
 #, fuzzy
 msgid "Spindle:"
-msgstr "Freza oprita"
+msgstr "Portabrocas:"
 
 #: ../share/axis/tcl/axis.tcl:1198
 msgid "-"
@@ -3178,69 +3161,70 @@ msgstr "+"
 #: ../share/axis/tcl/axis.tcl:1217
 #, fuzzy
 msgid "Brake"
-msgstr "Frana pornita"
+msgstr "Freno"
 
 #: ../share/axis/tcl/axis.tcl:1264
 #, fuzzy
 msgid "Coolant:"
-msgstr "Comanda:"
+msgstr "Enfriador:"
 
 #: ../share/axis/tcl/axis.tcl:1269
 #, fuzzy
 msgid "Mist"
-msgstr "Vapori porniti"
+msgstr "Neblina"
 
 #: ../share/axis/tcl/axis.tcl:1274
 #, fuzzy
 msgid "Flood"
-msgstr "Lichid pornit"
+msgstr "Enfriador"
 
 #: ../share/axis/tcl/axis.tcl:1346
 msgid "History:"
-msgstr "Istoric"
+msgstr "Historial:"
 
 #: ../share/axis/tcl/axis.tcl:1369
 #, fuzzy
 msgid "MDI Command:"
-msgstr "Comanda:"
+msgstr "dirigido"
 
 #: ../share/axis/tcl/axis.tcl:1378
 msgid "Go"
-msgstr "Executa"
+msgstr "Ejecutar"
 
 #: ../share/axis/tcl/axis.tcl:1384
 #, fuzzy
 msgid "Active G-Codes:"
-msgstr "Coduri G active"
+msgstr "Activar Codigo-G:"
 
 #: ../share/axis/tcl/axis.tcl:1462
 #, fuzzy
 msgid "Preview"
-msgstr "Vedere arbore"
+msgstr "Perspectiva lateral"
 
 #: ../share/axis/tcl/axis.tcl:1463
 msgid "DRO"
-msgstr "Pozitie axe"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1549 ../share/axis/tcl/axis.tcl:1562
 #, fuzzy
 msgid "Jog Speed:"
-msgstr "Seteaza viteza jog"
+msgstr "Velocidad:"
 
 #: ../share/axis/tcl/axis.tcl:1574
 msgid "Max Velocity:"
-msgstr "Viteza maxima:"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1603
 #, fuzzy
 msgid "Spindle Override:"
-msgstr "Seteaza depasire freza"
+msgstr "Controlar portabrocas:"
 
 #: ../share/axis/tcl/axis.tcl:1605 ../share/axis/tcl/axis.tcl:1645
 msgid "%"
-msgstr "%"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1685
+#, fuzzy
 msgid ""
 "EMC2/AXIS version $version\n"
 "\n"
@@ -3252,140 +3236,145 @@ msgid ""
 "\n"
 "Visit the EMC web site: "
 msgstr ""
-"EMC2/AXIS versiune $version\n"
+"EMC2/AXIS Version $version\n"
 "\n"
-"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler si Chris Radek.\n"
+"Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler and Chris Radek.\n"
 "\n"
 "This is free software, and you are welcome to redistribute it under certain "
-"conditions.  See the file COPYING, included with EMC2.\n"
+"conditions.  See the file COPYING, included with AXIS.\n"
 "\n"
-"Viziteaza pagina web EMC: "
+"Deutsche Übersetzung: Alex Joni, Florian Hahn, Ingrid Kirst, Frank "
+"Jungclaus\n"
+"\n"
+"Besuchen Sie die AXIS Webseite: "
 
 #: ../share/axis/tcl/axis.tcl:1713
 #, fuzzy
 msgid "About AXIS"
-msgstr "Despre"
+msgstr "Sobre AXIS"
 
 #: ../share/axis/tcl/axis.tcl:1742
 msgid "AXIS Quick Reference"
-msgstr "Referinta rapida AXIS"
+msgstr "Acceso directo a AXIS "
 
 #: ../share/axis/tcl/axis.tcl:1878
 msgid "AXIS $::version on $::machine"
-msgstr "AXIS $::version - $::machine"
+msgstr ""
 
 #: ../share/axis/tcl/axis.tcl:1880
+#, fuzzy
 msgid "(no file)"
-msgstr "(fara fisier)"
+msgstr "AXIS (Vacio)"
 
 #: ../share/axis/tcl/axis.tcl:1892
 #, fuzzy
 msgid "OFF"
-msgstr "OFF"
+msgstr "APAGAR"
 
 #: ../share/axis/tcl/axis.tcl:1951 ../share/axis/tcl/axis.tcl:1956
 #, fuzzy
 msgid "Position:"
-msgstr "Tip pozitie"
+msgstr "Posicion:"
 
 #: ../share/axis/tcl/axis.tcl:1953
 #, fuzzy
 msgid "Machine"
-msgstr "masina"
+msgstr "Coordenada absoluta"
 
 #: ../share/axis/tcl/axis.tcl:1953
 #, fuzzy
 msgid "Relative"
-msgstr "relativ"
+msgstr "relativo"
 
 #: ../share/axis/tcl/axis.tcl:1954
 #, fuzzy
 msgid "Actual"
-msgstr "actual"
+msgstr "Actual"
 
 #: ../share/axis/tcl/axis.tcl:1954
 #, fuzzy
 msgid "Commanded"
-msgstr "comandat"
+msgstr "dirigido"
 
 #: ../share/axis/tcl/axis.tcl:2007 ../share/axis/tcl/axis.tcl:2174
 #, fuzzy
 msgid "Joint:"
-msgstr "articulatie"
+msgstr "Modalidad-Joint "
 
 #: ../share/axis/tcl/axis.tcl:2305
+#, fuzzy
 msgid "Turn spindle counterclockwise [F10]"
-msgstr "Fraza actionata in sens antiorar [F10]"
+msgstr " Portabrocas gira en sentido contrario de las agujas del reloj [F10]"
 
 #: ../share/axis/tcl/axis.tcl:2306
 msgid "Turn spindle clockwise [F9]"
-msgstr "Fraza actionata in sens orar [F9]"
+msgstr " Portabrocas gira en sentido de las agujas del reloj [F9]"
 
 #: ../share/axis/tcl/axis.tcl:2307
 msgid "Stop spindle [F9/F10]"
-msgstr "Opreste freza [F9/F10]"
+msgstr "Detener Portabrocas [F9/F10]"
 
 #: ../share/axis/tcl/axis.tcl:2308
 #, fuzzy
 msgid "Turn spindle Faster [F12]"
-msgstr "Freza mai repede"
+msgstr " Portabrocas gira en sentido de las agujas del reloj [F9]"
 
 #: ../share/axis/tcl/axis.tcl:2309
 #, fuzzy
 msgid "Turn spindle Slower [F11]"
-msgstr "Freza mai incet"
+msgstr " Portabrocas gira en sentido de las agujas del reloj [F9]"
 
 #: ../share/axis/tcl/axis.tcl:2310
 msgid "Turn spindle brake on [Shift-B] or off [B]"
-msgstr "Porneste [Shift-B] sau opreste [B] frana freza"
+msgstr "Freno del portabrocas activar [Shift-B] o desactivar [B]"
 
 #: ../share/axis/tcl/axis.tcl:2311
 msgid "Turn flood on or off [F8]"
-msgstr "Lichid racire On/Off [F8]"
+msgstr "Medio enfriador encender/apagar  [F8]"
 
 #: ../share/axis/tcl/axis.tcl:2312
 msgid "Turn mist on or off [F7]"
-msgstr "Vapori racire On/Off [F7]"
+msgstr "Neblina encender/apagar [F7]"
 
 #: ../share/axis/tcl/axis.tcl:2313
 msgid "Send active axis home [Home]"
-msgstr "Trimite axa curenta acasa [Home]"
+msgstr "Restaurar eje activo [HOME]"
 
 #: ../share/axis/tcl/axis.tcl:2314
 msgid "Set G54 offset for active axis [End]"
-msgstr "Alege ofset G54 pentru axa activa [End]"
+msgstr "Activar G54 para eje activo"
 
 #: ../share/axis/tcl/axis.tcl:2315
 msgid "Activate axis [X]"
-msgstr "Activeaza axa [X]"
+msgstr "Activar eje [X]"
 
 #: ../share/axis/tcl/axis.tcl:2316
 msgid "Activate axis [Y]"
-msgstr "Activeaza axa [Y]"
+msgstr "Activar eje [Y]"
 
 #: ../share/axis/tcl/axis.tcl:2317
 msgid "Activate axis [Z]"
-msgstr "Activeaza axa [Z]"
+msgstr " Activar eje [Z]"
 
 #: ../share/axis/tcl/axis.tcl:2318
 msgid "Activate axis [A]"
-msgstr "Activeaza axa [A]"
+msgstr " Activar eje [A]"
 
 #: ../share/axis/tcl/axis.tcl:2319
 msgid "Activate axis [4]"
-msgstr "Activeaza axa [4]"
+msgstr " Activar eje [4]"
 
 #: ../share/axis/tcl/axis.tcl:2320
 msgid "Activate axis [5]"
-msgstr "Activeaza axa [5]"
+msgstr " Activar eje [5]"
 
 #: ../share/axis/tcl/axis.tcl:2321 ../share/axis/tcl/axis.tcl:2322
 msgid "Jog selected axis"
-msgstr "Misca axa selectata"
+msgstr "Correr eje activo"
 
 #: ../share/axis/tcl/axis.tcl:2324
 msgid "Temporarily allow jogging outside machine limits [L]"
-msgstr "Permite temporar miscarea in afara limitelor [L]"
+msgstr "Permitir correr maquina temporalmente fuera de limitespredeterminados"
 
 #: emc/usr_intf/stepconf/stepconf.py:52
 msgid ""
@@ -3393,423 +3382,421 @@ msgid ""
 "troubleshooting:\n"
 "\n"
 msgstr ""
-"Stepconf a cauzat o eroare.  Informatia urmatoare poate fi folositoare la "
-"depanare:\n"
-"\n"
 
 #: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/pncconf/pncconf.py:94
 msgid "Gecko 201"
-msgstr "Gecko 201"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:71 emc/usr_intf/pncconf/pncconf.py:95
 msgid "Gecko 202"
-msgstr "Gecko 202"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:72 emc/usr_intf/pncconf/pncconf.py:96
 msgid "Gecko 203v"
-msgstr "Gecko 203v"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:73 emc/usr_intf/pncconf/pncconf.py:97
 msgid "Gecko 210"
-msgstr "Gecko 210"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:74 emc/usr_intf/pncconf/pncconf.py:98
 msgid "Gecko 212"
-msgstr "Gecko 212"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:75 emc/usr_intf/pncconf/pncconf.py:99
 msgid "Gecko 320"
-msgstr "Gecko 320"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:76 emc/usr_intf/pncconf/pncconf.py:100
 msgid "Gecko 540"
-msgstr "Gecko 540"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:77 emc/usr_intf/pncconf/pncconf.py:101
 msgid "L297"
-msgstr "L297"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:78 emc/usr_intf/pncconf/pncconf.py:102
 msgid "PMDX-150"
-msgstr "PMDX-150"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:79 emc/usr_intf/pncconf/pncconf.py:103
 msgid "Sherline"
-msgstr "Sherline"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:80 emc/usr_intf/pncconf/pncconf.py:104
 msgid "Xylotex 8S-3"
-msgstr "Xylotex 8S-3"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:81 emc/usr_intf/pncconf/pncconf.py:105
 msgid "Parker-Compumotor oem750"
-msgstr "Parker-Compumotor oem750"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:82 emc/usr_intf/pncconf/pncconf.py:106
 msgid "JVL-SMD41 or 42"
-msgstr "JVL-SMD41 sau 42"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:83 emc/usr_intf/pncconf/pncconf.py:107
 msgid "Hobbycnc Pro Chopper"
-msgstr "Hobbycnc Pro Chopper"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:84 emc/usr_intf/pncconf/pncconf.py:108
 msgid "Keling 4030"
-msgstr "Keling 4030"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:143
 #, fuzzy
 msgid "X Step"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: emc/usr_intf/stepconf/stepconf.py:143
+#, fuzzy
 msgid "X Direction"
-msgstr "X Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/stepconf/stepconf.py:143
 #, fuzzy
 msgid "Y Step"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: emc/usr_intf/stepconf/stepconf.py:143
+#, fuzzy
 msgid "Y Direction"
-msgstr "Y Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
 #, fuzzy
 msgid "Z Step"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
+#, fuzzy
 msgid "Z Direction"
-msgstr "Z Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
 #, fuzzy
 msgid "A Step"
-msgstr "Pas"
+msgstr "Pa_so"
 
 #: emc/usr_intf/stepconf/stepconf.py:144
+#, fuzzy
 msgid "A Direction"
-msgstr "A Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
 #, fuzzy
 msgid "Spindle ON"
-msgstr "Freza oprita"
+msgstr "Portabrocas:"
 
 #: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
 #, fuzzy
 msgid "Spindle CW"
-msgstr "Freza oprita"
+msgstr "Portabrocas:"
 
 #: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
 #, fuzzy
 msgid "Spindle CCW"
-msgstr "Freza oprita"
+msgstr "Portabrocas:"
 
 #: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
 #, fuzzy
 msgid "Spindle PWM"
-msgstr "Freza oprita"
+msgstr "Portabrocas:"
 
 #: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
 #, fuzzy
 msgid "Spindle Brake"
-msgstr "Freza mai repede"
+msgstr "Encender freno del Portabrocas"
 
 #: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+#, fuzzy
 msgid "Coolant Mist"
-msgstr "Racire vapori"
+msgstr "Enfriador:"
 
 #: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+#, fuzzy
 msgid "Coolant Flood"
-msgstr "Racire lichid"
+msgstr "Enfriador:"
 
 #: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
 #, fuzzy
 msgid "ESTOP Out"
-msgstr "ESTOP"
+msgstr "DETENER"
 
 #: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
 msgid "Amplifier Enable"
-msgstr "Activare driver"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:147 emc/usr_intf/pncconf/pncconf.py:144
 msgid "Charge Pump"
-msgstr "Charge pump"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
 msgid "Digital out 0"
-msgstr "Iesire digitala 0"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
 msgid "Digital out 1"
-msgstr "Iesire digitala 1"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
 msgid "Digital out 2"
-msgstr "Iesire digitala 2"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
 msgid "Digital out 3"
-msgstr "Iesire digitala 3"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:149 emc/usr_intf/stepconf/stepconf.py:168
-#, fuzzy
 msgid "Unused"
-msgstr "Anulare"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:151 emc/usr_intf/pncconf/pncconf.py:147
 #, fuzzy
 msgid "ESTOP In"
-msgstr "ESTOP"
+msgstr "DETENER"
 
 #: emc/usr_intf/stepconf/stepconf.py:151 emc/usr_intf/pncconf/pncconf.py:147
 msgid "Probe In"
-msgstr "Digitizor intrare"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
 #, fuzzy
 msgid "Spindle Index"
-msgstr "Freza mai repede"
+msgstr "Controlar portabrocas:"
 
 #: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
 #, fuzzy
 msgid "Spindle Phase A"
-msgstr "Freza mai repede"
+msgstr "Encender freno del Portabrocas"
 
 #: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
 #, fuzzy
 msgid "Spindle Phase B"
-msgstr "Freza mai repede"
+msgstr "Encender freno del Portabrocas"
 
 #: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
 #: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
 #: emc/usr_intf/pncconf/pncconf.py:2599
 #, fuzzy
 msgid "Home X"
-msgstr "poz.0"
+msgstr "Punto de referencia"
 
 #: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
 #: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
 #: emc/usr_intf/pncconf/pncconf.py:2599
 #, fuzzy
 msgid "Home Y"
-msgstr "poz.0"
+msgstr "Punto de referencia"
 
 #: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
 #: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
 #: emc/usr_intf/pncconf/pncconf.py:2599
 #, fuzzy
 msgid "Home Z"
-msgstr "poz.0"
+msgstr "Punto de referencia"
 
 #: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
 #: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
 #: emc/usr_intf/pncconf/pncconf.py:2599
 #, fuzzy
 msgid "Home A"
-msgstr "poz.0"
+msgstr "Restaurar todos los ejes"
 
 #: emc/usr_intf/stepconf/stepconf.py:154 emc/usr_intf/pncconf/pncconf.py:150
 #: emc/usr_intf/pncconf/pncconf.py:165
 msgid "Minimum Limit + Home X"
-msgstr "Limita minima + poz 0 X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:154 emc/usr_intf/pncconf/pncconf.py:150
 #: emc/usr_intf/pncconf/pncconf.py:165
 msgid "Minimum Limit + Home Y"
-msgstr "Limita minima + poz 0 Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:151
 #: emc/usr_intf/pncconf/pncconf.py:166
 msgid "Minimum Limit + Home Z"
-msgstr "Limita minima + poz 0 Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:151
 #: emc/usr_intf/pncconf/pncconf.py:166
 msgid "Minimum Limit + Home A"
-msgstr "Limita minima + poz 0 A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:152
 #: emc/usr_intf/pncconf/pncconf.py:167
 msgid "Maximum Limit + Home X"
-msgstr "Limita maxima + poz 0 X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:152
 #: emc/usr_intf/pncconf/pncconf.py:167
 msgid "Maximum Limit + Home Y"
-msgstr "Limita maxima + poz 0 Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:153
 #: emc/usr_intf/pncconf/pncconf.py:168
 msgid "Maximum Limit + Home Z"
-msgstr "Limita maxima + poz 0 Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:153
 #: emc/usr_intf/pncconf/pncconf.py:168
 msgid "Maximum Limit + Home A"
-msgstr "Limita maxima + poz 0 A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:154
 #: emc/usr_intf/pncconf/pncconf.py:169
 msgid "Both Limit + Home X"
-msgstr "Ambele limite + poz 0 X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:154
 #: emc/usr_intf/pncconf/pncconf.py:169
 msgid "Both Limit + Home Y"
-msgstr "Ambele limite + poz 0 Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:159 emc/usr_intf/pncconf/pncconf.py:155
 #: emc/usr_intf/pncconf/pncconf.py:170
 msgid "Both Limit + Home Z"
-msgstr "Ambele limite + poz 0 Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:159 emc/usr_intf/pncconf/pncconf.py:155
 #: emc/usr_intf/pncconf/pncconf.py:170
 msgid "Both Limit + Home A"
-msgstr "Ambele limite + poz 0 A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:160 emc/usr_intf/pncconf/pncconf.py:156
 #: emc/usr_intf/pncconf/pncconf.py:172
 msgid "Minimum Limit X"
-msgstr "Limita min X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:160 emc/usr_intf/pncconf/pncconf.py:156
 #: emc/usr_intf/pncconf/pncconf.py:172
 msgid "Minimum Limit Y"
-msgstr "Limita min Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:157
 #: emc/usr_intf/pncconf/pncconf.py:173
 msgid "Minimum Limit Z"
-msgstr "Limita min Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:157
 #: emc/usr_intf/pncconf/pncconf.py:173
 msgid "Minimum Limit A"
-msgstr "Limita min A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:162 emc/usr_intf/pncconf/pncconf.py:158
 #: emc/usr_intf/pncconf/pncconf.py:174
 msgid "Maximum Limit X"
-msgstr "Limita max X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:162 emc/usr_intf/pncconf/pncconf.py:158
 #: emc/usr_intf/pncconf/pncconf.py:174
 msgid "Maximum Limit Y"
-msgstr "Limita max Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:163 emc/usr_intf/pncconf/pncconf.py:159
 #: emc/usr_intf/pncconf/pncconf.py:175
 msgid "Maximum Limit Z"
-msgstr "Limita max Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:163 emc/usr_intf/pncconf/pncconf.py:159
 #: emc/usr_intf/pncconf/pncconf.py:175
 msgid "Maximum Limit A"
-msgstr "Limita max A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:164 emc/usr_intf/pncconf/pncconf.py:160
 #: emc/usr_intf/pncconf/pncconf.py:176
 msgid "Both Limit X"
-msgstr "Ambele limite X"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:164 emc/usr_intf/pncconf/pncconf.py:160
 #: emc/usr_intf/pncconf/pncconf.py:176
 msgid "Both Limit Y"
-msgstr "Ambele limite Y"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:165 emc/usr_intf/pncconf/pncconf.py:161
 #: emc/usr_intf/pncconf/pncconf.py:177
 msgid "Both Limit Z"
-msgstr "Ambele limite Z"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:165 emc/usr_intf/pncconf/pncconf.py:161
 #: emc/usr_intf/pncconf/pncconf.py:177
 msgid "Both Limit A"
-msgstr "Ambele limite A"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:166 emc/usr_intf/pncconf/pncconf.py:162
 #: emc/usr_intf/pncconf/pncconf.py:177
 #, fuzzy
 msgid "All limits"
-msgstr "Toate fisierele"
+msgstr "Todos los archivos"
 
 #: emc/usr_intf/stepconf/stepconf.py:166 emc/usr_intf/pncconf/pncconf.py:162
 #: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
 #: emc/usr_intf/pncconf/pncconf.py:2599
-#, fuzzy
 msgid "All home"
-msgstr "poz.0"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
 msgid "Digital in 0"
-msgstr "Intrare digitala 0"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
 msgid "Digital in 1"
-msgstr "Intrare digitala 1"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
 msgid "Digital in 2"
-msgstr "Intrare digitala 2"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
 msgid "Digital in 3"
-msgstr "Intrare digitala 3"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:193
 msgid "my-mill"
-msgstr "freza-mea"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:205 emc/usr_intf/stepconf/stepconf.py:207
 #: emc/usr_intf/pncconf/pncconf.py:278 emc/usr_intf/pncconf/pncconf.py:280
 msgid "Enter Address"
-msgstr "Introdu adresa"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:362
 #, python-format
 msgid "File %r was modified since it was written by stepconf"
-msgstr "Fisierul %r a fost modificat decand a fost generat de stepconf"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:365
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
 msgstr ""
-"Salvarea aceste configuratii va supascrie orice modificari facute in afara "
-"de stepconf."
 
 #: emc/usr_intf/stepconf/stepconf.py:380 emc/usr_intf/pncconf/pncconf.py:625
 #, fuzzy
 msgid "Continue? "
-msgstr "continuu"
+msgstr "Continuar"
 
 #: emc/usr_intf/stepconf/stepconf.py:381 emc/usr_intf/pncconf/pncconf.py:626
 msgid "yY"
-msgstr "yY"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:433 emc/usr_intf/stepconf/stepconf.py:759
 #, python-format
 msgid "# Generated by stepconf at %s"
-msgstr "# Generat de stepconf la %s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:434 emc/usr_intf/stepconf/stepconf.py:760
 #: emc/usr_intf/pncconf/pncconf.py:635 emc/usr_intf/pncconf/pncconf.py:1069
 msgid "# If you make changes to this file, they will be"
-msgstr "# Daca faceti modificari pe acest fisier, ele vor fi"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:435 emc/usr_intf/stepconf/stepconf.py:761
 msgid "# overwritten when you run stepconf again"
-msgstr "# suprascrise cand rulati stepconf din nou"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:503
-#, fuzzy
 msgid "# add halui MDI commands here (max 64) "
-msgstr "# adauga comenzi MDI aici (max 10)"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:934 emc/usr_intf/pncconf/pncconf.py:1302
 msgid "# **** Setup for external estop ladder program -START ****"
@@ -3830,21 +3817,19 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:974 emc/usr_intf/pncconf/pncconf.py:1344
 msgid "Include your PyVCP panel here.\n"
-msgstr "Include panou PyVCP aici.\n"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:983
 #: emc/usr_intf/stepconf/stepconf.py:1009 emc/usr_intf/pncconf/pncconf.py:1353
 #: emc/usr_intf/pncconf/pncconf.py:1414
 msgid "# Include your customized HAL commands here"
-msgstr "# Indlude comenzi HAL customizate aici"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:984 emc/usr_intf/pncconf/pncconf.py:1354
 msgid ""
 "# The commands in this file are run after the AXIS GUI (including PyVCP "
 "panel) starts"
 msgstr ""
-"# Comenzile din acest fisier sunt executate dupa ce AXIS (inclusiv PyVCP)\n"
-"# a pornit"
 
 #: emc/usr_intf/stepconf/stepconf.py:988 emc/usr_intf/pncconf/pncconf.py:1358
 msgid ""
@@ -3878,119 +3863,116 @@ msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1010
 msgid "# This file will not be overwritten when you run stepconf again"
-msgstr "# Acest fisier nu va fi suprascris cand rulati stepconf din nou"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1017
 #, python-format
 msgid "Generated by stepconf at %s"
-msgstr "Generat de stepconf la %s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1086 emc/usr_intf/pncconf/pncconf.py:1546
 #, python-format
 msgid "launch %s"
-msgstr "lanseaza %s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1090
 msgid "Desktop Launcher for EMC config made by Stepconf"
-msgstr "Dekstop Launcher pentru EMC creat de Stepconf"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1114 emc/usr_intf/pncconf/pncconf.py:1676
 #, fuzzy, python-format
 msgid "%s Axis Configuration"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.py:1156
 #: emc/usr_intf/stepconf/stepconf.py:1242
 msgid "Other"
-msgstr "Altele"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1167
 msgid "Quit Stepconf and discard changes?"
-msgstr "Paraseste Stepconf si sterge modificari?"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1203
-#, fuzzy
 msgid "EMC2 'stepconf' configuration files"
-msgstr "Selector configuratii EMC2"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1204 emc/usr_intf/pncconf/pncconf.py:1828
 #, fuzzy
 msgid "Modify Existing Configuration"
-msgstr "Configuratiile mele"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.py:1477
 msgid "degree / rev"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1478
 #: emc/usr_intf/stepconf/stepconf.py:2054
 msgid "deg / s"
-msgstr "grade / s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1479
 #: emc/usr_intf/stepconf/stepconf.py:2055
 msgid "deg / sÂ²"
-msgstr "grade / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1480
 #: emc/usr_intf/stepconf/stepconf.py:2056
 msgid "deg"
-msgstr "grade"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1481
 msgid "Steps / deg"
-msgstr "Pasi / grad"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1483
 #: emc/usr_intf/stepconf/stepconf.glade:2534
 #: emc/usr_intf/pncconf/pncconf.glade:12833
 msgid "mm / rev"
-msgstr "mm / tura"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1484
 #: emc/usr_intf/stepconf/stepconf.py:2068
 #: emc/usr_intf/stepconf/stepconf.glade:2519
 #: emc/usr_intf/pncconf/pncconf.glade:12817
 msgid "mm / s"
-msgstr "mm / s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1485
 #: emc/usr_intf/stepconf/stepconf.py:2069
 msgid "mm / sÂ²"
-msgstr "mm / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1487
 #: emc/usr_intf/stepconf/stepconf.glade:3048
 #: emc/usr_intf/pncconf/pncconf.py:2813
 #: emc/usr_intf/pncconf/pncconf.glade:13458
 msgid "Steps / mm"
-msgstr "Pasi / mm"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1489
 msgid "rev / in"
-msgstr "ture / inch"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1490
 #: emc/usr_intf/stepconf/stepconf.py:2082
 msgid "in / s"
-msgstr "inch / s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1491
 #: emc/usr_intf/stepconf/stepconf.py:2083
 msgid "in / sÂ²"
-msgstr "inch / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1493
 msgid "Steps / in"
-msgstr "Pasi / inch"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.py:1621
 msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
 msgstr ""
-"Trebuie sa asignezi un pin de intrare pentru E-stop la pagina de setare a "
-"portului paralel, pentru acest program."
 
 #: emc/usr_intf/stepconf/stepconf.py:1634 emc/usr_intf/pncconf/pncconf.py:3211
 msgid ""
@@ -3998,9 +3980,6 @@ msgid ""
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
 "Any existing file named -custom_backup.clp- will be lost. "
 msgstr ""
-"OK sa inlocuiesc program ladder existent?\n"
-"Fisierul existent Custom.clp va fi redenumit custom_backup.clp.\n"
-"Daca exista deja un fisier -custom_backup.clp- acesta va fi pierdut. "
 
 #: emc/usr_intf/stepconf/stepconf.py:1639 emc/usr_intf/pncconf/pncconf.py:3216
 msgid ""
@@ -4010,11 +3989,6 @@ msgid ""
 "\n"
 "Are you sure?  "
 msgstr ""
-"Ati editat un program ladder, si ati ales un alt program pentru copiere "
-"catre fisierul Dvs. de configurare.\n"
-"Programul editat se va pierde.\n"
-"\n"
-"Sunteti sigur? "
 
 #: emc/usr_intf/stepconf/stepconf.py:1653 emc/usr_intf/pncconf/pncconf.py:2006
 msgid ""
@@ -4024,38 +3998,31 @@ msgid ""
 "Any existing file named custompanel_backup.xml and custom_postgui.hal will "
 "be lost. "
 msgstr ""
-"Se pot inlocui fisierele pyvcp si custom_postgui.hal existente ?\n"
-"Fisierele existente custompanel.xml si custom_postgui.hal vor fi redenumite "
-"custompanel_backup.xml si postgui_backup.hal.\n"
-"Fisiere existente numite custompanel_backup.xml si custom_postgui.hal vor fi "
-"suprascrise. "
 
 #: emc/usr_intf/stepconf/stepconf.py:2051 emc/usr_intf/pncconf/pncconf.py:3732
-#, fuzzy, python-format
+#, python-format
 msgid "%s Axis Test"
-msgstr "Ofset axa"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:8
 #: emc/usr_intf/stepconf/stepconf.glade:21
 #, fuzzy
 msgid "EMC2 Stepper Mill Configuration"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.glade:22
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port."
 msgstr ""
-"Acest program creza fisiere de configurare (.ini si .hal) pentru freze \"pas "
-"and directie\" conectate la portul paralel al PCului."
 
 #: emc/usr_intf/stepconf/stepconf.glade:64
 msgid "Create a desktop _launcher to start EMC with this configuration."
-msgstr "Creaza desktop shortcut pentru a rula EMC cu aceasta configuratie."
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:81
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Creaza desktop shortcut (link simbolic) catre aceasta configuratie."
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:98
 #: emc/usr_intf/pncconf/pncconf.glade:98
@@ -4063,52 +4030,47 @@ msgid ""
 "If you have made modifications to this configuration outside this program, "
 "they will be lost when you select \"Modify a configuration\""
 msgstr ""
-"Daca ati facut modificari la aceasta configuratie, aceastea vor fi pierdute "
-"cand selectati \"Modifica o configuratie\""
 
 #: emc/usr_intf/stepconf/stepconf.glade:115
 #: emc/usr_intf/pncconf/pncconf.glade:116
 msgid "Do you wish to:"
-msgstr "Doriti sa:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:127
 #: emc/usr_intf/pncconf/pncconf.glade:128
 msgid "Modify a configuration already created with this program"
-msgstr "Modifica o configuratie deja creata cu acest program"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:145
 #, fuzzy
 msgid "Create a _new configuration"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.glade:170
 #: emc/usr_intf/pncconf/pncconf.glade:173
 #, fuzzy
 msgid "Basic machine information"
-msgstr "Informatii versiune"
+msgstr "Mostrar posicion absoluta"
 
 #: emc/usr_intf/stepconf/stepconf.glade:311
 msgid ""
 "_Onscreen prompt for\n"
 "tool change"
 msgstr ""
-"Confirmare pe ecran pentru\n"
-"schimbare scula"
 
 #: emc/usr_intf/stepconf/stepconf.glade:328
 #: emc/usr_intf/pncconf/pncconf.glade:467
 msgid "Min Base Period:"
-msgstr "Perioada Base minima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:344
 #: emc/usr_intf/pncconf/pncconf.glade:434
 msgid "Max step rate:"
-msgstr "Rata maxima pulsuri:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:371
-#, fuzzy
 msgid "Out"
-msgstr "Decupare"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:384
 #: emc/usr_intf/stepconf/stepconf.glade:400
@@ -4119,16 +4081,14 @@ msgid ""
 "In\n"
 "Out"
 msgstr ""
-"Intrare\n"
-"Iesire"
 
 #: emc/usr_intf/stepconf/stepconf.glade:442
 msgid "T_hird Parport Address:"
-msgstr "Adresa port paralel 3:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:458
 msgid "S_econd Parport Address:"
-msgstr "Adresa port paralel 2:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:475
 #: emc/usr_intf/stepconf/stepconf.glade:768
@@ -4138,11 +4098,11 @@ msgstr "Adresa port paralel 2:"
 #: emc/usr_intf/pncconf/pncconf.glade:528
 #: emc/usr_intf/pncconf/pncconf.glade:1708
 msgid "ns"
-msgstr "ns"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:508
 msgid "Base Period Maximum _Jitter:"
-msgstr "_Jitter maxim perioada baza"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:565
 msgid ""
@@ -4154,15 +4114,10 @@ msgid ""
 "can impose timing constraints of their own, in addition to those of the "
 "driver."
 msgstr ""
-"Caracteristici driver: (Inmulteste cu 1000 pentru timpi specificati in µs "
-"sau microsecunde)\n"
-"\n"
-"Alte conditii de semnale sau izolare cum ar fi optocuploare sau filtre RC "
-"pot impune alte cerinte de timp, pe langa cele determinate de catre driver."
 
 #: emc/usr_intf/stepconf/stepconf.glade:649
 msgid "First Parport _Base Address:"
-msgstr "Adresa port paralel 1:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:694
 #: emc/usr_intf/pncconf/pncconf.glade:287
@@ -4171,9 +4126,6 @@ msgid ""
 "XYZA\n"
 "XZ (Lathe)"
 msgstr ""
-"XYZ\n"
-"XYZA\n"
-"XZ (Strung)"
 
 #: emc/usr_intf/stepconf/stepconf.glade:710
 #: emc/usr_intf/pncconf/pncconf.glade:322
@@ -4181,224 +4133,218 @@ msgid ""
 "Inch\n"
 "Millimeter"
 msgstr ""
-"Inch\n"
-"Milimetri"
 
 #: emc/usr_intf/stepconf/stepconf.glade:741
 msgid "D_river type:"
-msgstr "Tip D_river:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:755
 #: emc/usr_intf/pncconf/pncconf.glade:243
-#, fuzzy
 msgid "Configuration directory:"
-msgstr "Selector configuratii EMC2"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:828
-#, fuzzy
 msgid "_Direction Setup:"
-msgstr "Initializare imprimare"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:843
 msgid "Direction _Hold:"
-msgstr "_Hold directie:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:858
-#, fuzzy
 msgid "Step _Space:"
-msgstr "Spatiu simplu"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:873
 msgid "Step _Time:"
-msgstr "_Timp pas:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:888
 #, fuzzy
 msgid "Machine _units:"
-msgstr "Masina pornita"
+msgstr "Coordenada absoluta"
 
 #: emc/usr_intf/stepconf/stepconf.glade:902
 #, fuzzy
 msgid "_Axis configuration:"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.glade:916
 #, fuzzy
 msgid "Machine _Name:"
-msgstr "Masina pornita"
+msgstr "Coordenada absoluta"
 
 #: emc/usr_intf/stepconf/stepconf.glade:929
 msgid ""
 "_Test Base\n"
 "Period Jitter "
 msgstr ""
-"Baza _Testare\n"
-"Period Jitter "
 
 #: emc/usr_intf/stepconf/stepconf.glade:958
-#, fuzzy
 msgid "Parallel Port Setup"
-msgstr "Initializare imprimare"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1142
 msgid "Output pinout presets:"
-msgstr "Presetari pinout iesire:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1157
 msgid "_Xylotex Outputs"
-msgstr "Pinout _Xylotex"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1175
 msgid "_Sherline Outputs"
-msgstr "Pinout _Sherline"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1629
 #: emc/usr_intf/stepconf/stepconf.glade:1642
 #: emc/usr_intf/pncconf/pncconf.glade:11397
 #: emc/usr_intf/pncconf/pncconf.glade:11410
+#, fuzzy
 msgid "Invert"
-msgstr "Inverseaza"
+msgstr "Invertir Imagen"
 
 #: emc/usr_intf/stepconf/stepconf.glade:1668
 msgid "Inputs (Mill to PC):"
-msgstr "Intrari (Freza catre PC):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1730
 #: emc/usr_intf/pncconf/pncconf.glade:10827
 msgid "Pin 1_5:"
-msgstr "Pin 1_5:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1746
 #: emc/usr_intf/pncconf/pncconf.glade:10811
 msgid "Pin 1_3:"
-msgstr "Pin 1_3:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1762
 #: emc/usr_intf/pncconf/pncconf.glade:10795
 msgid "Pin 1_2:"
-msgstr "Pin 1_2:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1778
 #: emc/usr_intf/pncconf/pncconf.glade:10779
 msgid "Pin 1_1:"
-msgstr "Pin 1_1:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1794
 #: emc/usr_intf/pncconf/pncconf.glade:10763
 msgid "Pin 1_0:"
-msgstr "Pin 1_0:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:1810
 msgid "Outputs (PC to Mill):"
-msgstr "Iesiri (PC catre freza)"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2152
 #: emc/usr_intf/pncconf/pncconf.glade:11823
 msgid "Pi_n 17:"
-msgstr "Pi_n 17:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2166
 #: emc/usr_intf/pncconf/pncconf.glade:11837
 msgid "P_in 16:"
-msgstr "P_in 16:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2180
 #: emc/usr_intf/pncconf/pncconf.glade:11851
 msgid "_Pin 14:"
-msgstr "_Pin 14:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2194
 #: emc/usr_intf/pncconf/pncconf.glade:10628
 #: emc/usr_intf/pncconf/pncconf.glade:11865
 msgid "Pin _9:"
-msgstr "Pin _9:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2208
 #: emc/usr_intf/pncconf/pncconf.glade:10645
 #: emc/usr_intf/pncconf/pncconf.glade:11879
 msgid "Pin _8:"
-msgstr "Pin _8:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2222
 #: emc/usr_intf/pncconf/pncconf.glade:10662
 #: emc/usr_intf/pncconf/pncconf.glade:11893
 msgid "Pin _7:"
-msgstr "Pin _7:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2236
 #: emc/usr_intf/pncconf/pncconf.glade:10679
 #: emc/usr_intf/pncconf/pncconf.glade:11907
 msgid "Pin _6:"
-msgstr "Pin _6:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2250
 #: emc/usr_intf/pncconf/pncconf.glade:10696
 #: emc/usr_intf/pncconf/pncconf.glade:11921
 msgid "Pin _5:"
-msgstr "Pin _5:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2264
 #: emc/usr_intf/pncconf/pncconf.glade:10713
 #: emc/usr_intf/pncconf/pncconf.glade:11935
 msgid "Pin _4:"
-msgstr "Pin _4:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2278
 #: emc/usr_intf/pncconf/pncconf.glade:10730
 #: emc/usr_intf/pncconf/pncconf.glade:11949
 msgid "Pin _3:"
-msgstr "Pin _3:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2292
 #: emc/usr_intf/pncconf/pncconf.glade:10747
 #: emc/usr_intf/pncconf/pncconf.glade:11963
 msgid "Pin _2:"
-msgstr "Pin _2:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2306
 #: emc/usr_intf/pncconf/pncconf.glade:11977
 msgid "Pin _1:"
-msgstr "Pin _1:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2327
 #: emc/usr_intf/pncconf/pncconf.glade:13596
 #, fuzzy
 msgid "X Axis Configuration"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2396
 #: emc/usr_intf/pncconf/pncconf.glade:13300
 #, fuzzy
 msgid "Axis SCALE:"
-msgstr "Viteza axa:"
+msgstr "Eje:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2433
+#, fuzzy
 msgid "T_est this axis"
-msgstr "T_esteaza axa"
+msgstr "Correr tercer eje"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2459
 #: emc/usr_intf/stepconf/stepconf.glade:3142
 #: emc/usr_intf/pncconf/pncconf.glade:13313
 #: emc/usr_intf/pncconf/pncconf.glade:14321
 msgid "Hz"
-msgstr "Hz"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2474
 msgid "s"
-msgstr "s"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2504
 #: emc/usr_intf/pncconf/pncconf.glade:12802
 msgid "mm / s²"
-msgstr "mm / s²"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2600
 msgid "t_o"
-msgstr "la"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2631
 msgid "Tab_le travel:"
-msgstr "Cursa masa:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2684
 #: emc/usr_intf/pncconf/pncconf.glade:14030
@@ -4406,155 +4352,152 @@ msgid ""
 "Same\n"
 "Opposite"
 msgstr ""
-"La fel\n"
-"Opus"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2699
 #: emc/usr_intf/pncconf/pncconf.glade:12958
 msgid "_:"
-msgstr "_"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2717
+#, fuzzy
 msgid "Home La_tch direction:"
-msgstr "Directie latch"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/stepconf/stepconf.glade:2731
 msgid "Home Sear_ch velocity:"
-msgstr "Viteza cautare poz 0"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2746
 msgid "Home _Switch location:"
-msgstr "Pozitie limitator poz 0"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2761
 msgid "_Home location:"
-msgstr "Pozitie 0:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2833
 #: emc/usr_intf/pncconf/pncconf.glade:13415
 msgid "Pulse rate at max speed:"
-msgstr "Rata pulsuri la viteza maxima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2930
 msgid "Distance to accelerate to max speed:"
-msgstr "Distanta pentru accelerare la viteza maxima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2945
 #: emc/usr_intf/pncconf/pncconf.glade:13443
 msgid "Time to accelerate to max speed:"
-msgstr "Timp de accelerare la viteza maxima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2960
 #: emc/usr_intf/pncconf/pncconf.glade:12898
 msgid "Maximum _Acceleration:"
-msgstr "_Accelerare maxima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2975
 #: emc/usr_intf/pncconf/pncconf.glade:12913
 msgid "Maximum _Velocity:"
-msgstr "_Viteza maxima:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:2990
 #: emc/usr_intf/pncconf/pncconf.glade:12928
-#, fuzzy
 msgid "_Leadscrew Pitch:"
-msgstr "Inlocuieste cu:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3005
 #: emc/usr_intf/pncconf/pncconf.glade:12992
 msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr "Rata reductie (Motor:surub):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3020
 msgid "_Driver Microstepping:"
-msgstr "Micropasi _drive:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3035
 msgid "_Motor steps per revolution:"
-msgstr "Nr. pasi _motor per tura:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3070
 #: emc/usr_intf/pncconf/pncconf.glade:14249
 #, fuzzy
 msgid "Spindle Configuration"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3103
 #: emc/usr_intf/pncconf/pncconf.glade:14282
 msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "Introduceti 0Hz pentru mod \"PDM\""
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3155
 msgid "_Cycles per revolution:"
-msgstr "_Cicluri per tura:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3233
 msgid "PWM _Rate:"
-msgstr "_Rata PWM:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3246
 msgid "P_WM 2:"
-msgstr "P_WM 2:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3264
 #, fuzzy
 msgid "S_peed 2:"
-msgstr "Viteza:"
+msgstr "Velocidad:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3279
 msgid "_PWM 1:"
-msgstr "_PWM 1:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3297
 #, fuzzy
 msgid "_Speed 1:"
-msgstr "Viteza:"
+msgstr "Velocidad:"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3312
 #: emc/usr_intf/pncconf/pncconf.glade:14477
 #, fuzzy
 msgid "Calibration:"
-msgstr "Calibrare..."
+msgstr "_Calibración"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3332
 #: emc/usr_intf/pncconf/pncconf.glade:14499
-#, fuzzy
 msgid "Advanced Configuration Options"
-msgstr "Configuratii model"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3348
 msgid "Include Halui user interface component"
-msgstr "Include interfata Halui"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3363
 #: emc/usr_intf/pncconf/pncconf.glade:1524
 msgid "Include custom PyVCP GUI panel"
-msgstr "Include panou PyVCP customizat"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3405
 #: emc/usr_intf/pncconf/pncconf.glade:1394
 #, fuzzy
 msgid "Blank program"
-msgstr "Program"
+msgstr "Ejecutar Programa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3420
 #: emc/usr_intf/pncconf/pncconf.glade:1409
 msgid "Spindle speed/tool position display  "
-msgstr "Afisaj viteza/pozitie scula"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3436
 #: emc/usr_intf/stepconf/stepconf.glade:3824
 #: emc/usr_intf/pncconf/pncconf.glade:1441
 #: emc/usr_intf/pncconf/pncconf.glade:15231
 msgid "Existing custom program"
-msgstr "Program existent"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3451
 #: emc/usr_intf/stepconf/stepconf.glade:3840
 #: emc/usr_intf/pncconf/pncconf.glade:1456
 #: emc/usr_intf/pncconf/pncconf.glade:15247
 msgid "Include connections to HAL"
-msgstr "Include conexiuni HAL"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3485
 #: emc/usr_intf/pncconf/pncconf.glade:1490
@@ -4563,87 +4506,85 @@ msgid ""
 "sample\n"
 "panel"
 msgstr ""
-"Afiseaza\n"
-"panou\n"
-"implicit"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3518
 msgid "Pyvcp Example Options"
-msgstr "Optiuni exemple PyVCP"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3537
 #: emc/usr_intf/pncconf/pncconf.glade:15317
 msgid "Include _Classicladder PLC"
-msgstr "Include PLC _Classicladder"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3587
 #: emc/usr_intf/pncconf/pncconf.glade:14994
 msgid "Number of digital in pins:"
-msgstr "Numar de intrari digitale:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3598
 #: emc/usr_intf/pncconf/pncconf.glade:15005
 msgid "Number of digital  out pins:"
-msgstr "Numar de iesiri digitale:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3613
 #: emc/usr_intf/pncconf/pncconf.glade:15020
 msgid " Number of analog (s32) in pins:"
-msgstr "Numare de intrari analogice (s32):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3629
 #: emc/usr_intf/pncconf/pncconf.glade:15036
 msgid " Number of analog (s32) out pins:"
-msgstr "Numar de iesiri analogice (s32):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3644
 #: emc/usr_intf/pncconf/pncconf.glade:15051
 msgid " Number of analog (float) in pins:"
-msgstr "Numar de intrari analogice (float):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3659
 #: emc/usr_intf/pncconf/pncconf.glade:15066
 msgid " Number of analog (float) out pins:"
-msgstr "Numar de iesiri analogice (float):"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3673
 #: emc/usr_intf/pncconf/pncconf.glade:15080
 msgid "Include modbus master support"
-msgstr "Include suport pt. modbus master"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3781
 #: emc/usr_intf/pncconf/pncconf.glade:15188
+#, fuzzy
 msgid "Blank ladder program"
-msgstr "Program ladder gol"
+msgstr "Volver a cargar programa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3794
 #: emc/usr_intf/pncconf/pncconf.glade:15201
+#, fuzzy
 msgid "Estop ladder program"
-msgstr "Program ladder Estop"
+msgstr "Detener carga de vista preliminar del programa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3808
 #: emc/usr_intf/pncconf/pncconf.glade:15215
+#, fuzzy
 msgid "Serial modbus program"
-msgstr "Program serial modbus"
+msgstr "Volver a cargar programa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3873
 #: emc/usr_intf/pncconf/pncconf.glade:15281
+#, fuzzy
 msgid ""
 "Edit ladder\n"
 "program"
-msgstr ""
-"Editeaza program\n"
-"ladder"
+msgstr "Volver a cargar programa"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3908
 msgid "PLC Options"
-msgstr "Optiuni PLC"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3934
 #: emc/usr_intf/pncconf/pncconf.glade:15737
-#, fuzzy
 msgid "Machine configuration complete"
-msgstr "Configuratie copiata"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:3935
 #: emc/usr_intf/pncconf/pncconf.glade:15738
@@ -4663,19 +4604,6 @@ msgid ""
 "thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 msgstr ""
-"Toate informatiile necesare au fost adunate. Apasati \"Valideaza\" pentru a "
-"salva fisierele de configuratie.\n"
-"Daca PCul merge incet sau se blocheaza cu aceasta configuratie, va trebui sa "
-"reduceti viteza maxima, ceea ce va rezulta intr-o valoare mai mare a "
-"BASE_PERIOD.\n"
-"\n"
-"Daca observati pasi pierduti, prima data verificati daca timpii setati sunt "
-"cei corecti.Pentru alte cauze posibile vizitati linuxcnc.org wiki:\n"
-" http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
-"\n"
-"Daca vedeti mesajul de eroare \"Unexpected Realtime Delay\" incercati un "
-"latency test descris la linuxcnc.org wiki: \n"
-" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
 #: emc/usr_intf/stepconf/stepconf.glade:3971
 #: emc/usr_intf/pncconf/pncconf.glade:16361
@@ -4687,18 +4615,14 @@ msgid ""
 "+\n"
 "-\n"
 msgstr ""
-"±\n"
-"+\n"
-"-\n"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4150
-#, fuzzy
 msgid "mm/s"
-msgstr "mm"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:4184
 msgid "mm/s^2"
-msgstr "mm/s^2"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:4205
 #: emc/usr_intf/pncconf/pncconf.glade:16226
@@ -4706,7 +4630,7 @@ msgstr "mm/s^2"
 #: emc/usr_intf/pncconf/pncconf.glade:17700
 #: emc/usr_intf/pncconf/pncconf.glade:18400
 msgid "Test Area:"
-msgstr "Zona test:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:4219
 #: emc/usr_intf/pncconf/pncconf.glade:15935
@@ -4715,15 +4639,16 @@ msgstr "Zona test:"
 #: emc/usr_intf/pncconf/pncconf.glade:17686
 #: emc/usr_intf/pncconf/pncconf.glade:18386
 msgid "Jog:"
-msgstr "Miscare:"
+msgstr ""
 
 #: emc/usr_intf/stepconf/stepconf.glade:4233
 #: emc/usr_intf/pncconf/pncconf.glade:16198
 #: emc/usr_intf/pncconf/pncconf.glade:16972
 #: emc/usr_intf/pncconf/pncconf.glade:17672
 #: emc/usr_intf/pncconf/pncconf.glade:18372
+#, fuzzy
 msgid "Acceleration:"
-msgstr "Accelerare"
+msgstr "Alternando"
 
 #: emc/usr_intf/stepconf/stepconf.glade:4247
 #: emc/usr_intf/pncconf/pncconf.glade:16186
@@ -4731,33 +4656,26 @@ msgstr "Accelerare"
 #: emc/usr_intf/pncconf/pncconf.glade:17660
 #: emc/usr_intf/pncconf/pncconf.glade:18360
 msgid "Velocity:"
-msgstr "Viteza"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:54
-#, fuzzy
 msgid ""
 "PNCconf encountered an error.  The following information may be useful in "
 "troubleshooting:\n"
 "\n"
 msgstr ""
-"Stepconf a cauzat o eroare.  Informatia urmatoare poate fi folositoare la "
-"depanare:\n"
-"\n"
 
 #: emc/usr_intf/pncconf/pncconf.py:141
-#, fuzzy
 msgid "Unused Output"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:147
-#, fuzzy
 msgid "Unused Input"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:187
-#, fuzzy
 msgid "Unused PWM Gen"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:187
 msgid "X PWM Pulse Stream"
@@ -4766,7 +4684,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:187
 #, fuzzy
 msgid "X PWM Direction"
-msgstr "X Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:187
 msgid "X PWM Enable"
@@ -4779,7 +4697,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:187
 #, fuzzy
 msgid "Y PWM Direction"
-msgstr "Y Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:187
 msgid "Y PWM Enable"
@@ -4792,7 +4710,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:187
 #, fuzzy
 msgid "Z PWM Direction"
-msgstr "Z Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:187
 msgid "Z PWM Enable"
@@ -4805,31 +4723,28 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:188
 #, fuzzy
 msgid "A PWM Direction"
-msgstr "A Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:188
 msgid "A PWM Enable"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:188
-#, fuzzy
 msgid "Spindle PWM Pulse Stream"
-msgstr "Freza PWM"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:188
 #, fuzzy
 msgid "Spindle PWM Direction"
-msgstr "Freza PWM"
+msgstr "Encender freno del Portabrocas"
 
 #: emc/usr_intf/pncconf/pncconf.py:188
-#, fuzzy
 msgid "Spindle PWM Enable"
-msgstr "Freza mai incet"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:206
-#, fuzzy
 msgid "Unused Encoder"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:206
 msgid "X Encoder-A Phase"
@@ -4880,19 +4795,16 @@ msgid "A Encoder-I Phase"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:208
-#, fuzzy
 msgid "Spindle Encoder-A Phase"
-msgstr "Freza sens invers"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:209
-#, fuzzy
 msgid "Spindle  Encoder-B Phase"
-msgstr "Freza sens invers"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:209
-#, fuzzy
 msgid "Spindle Encoder-I Phase"
-msgstr "Freza sens invers"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:209
 msgid "X Hand Wheel-A Phase"
@@ -4955,19 +4867,17 @@ msgid "Multi Hand Wheel-I Phase"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:224
-#, fuzzy
 msgid "Unused StepGen"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:224
-#, fuzzy
 msgid "X StepGen-Step"
-msgstr "X Pas"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:224
 #, fuzzy
 msgid "X StepGen-Direction"
-msgstr "X Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:224
 msgid "X reserved c"
@@ -4986,14 +4896,13 @@ msgid "X reserved f"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:225
-#, fuzzy
 msgid "Y StepGen-Step"
-msgstr "Y Pas"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:225
 #, fuzzy
 msgid "Y StepGen-Direction"
-msgstr "Y Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:225
 msgid "Y reserved c"
@@ -5012,14 +4921,13 @@ msgid "Y reserved f"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:226
-#, fuzzy
 msgid "Z StepGen-Step"
-msgstr "Z Pas"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:226
 #, fuzzy
 msgid "Z StepGen-Direction"
-msgstr "Z Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:226
 msgid "Z reserved c"
@@ -5038,14 +4946,13 @@ msgid "Z reserved f"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:227
-#, fuzzy
 msgid "A StepGen-Step"
-msgstr "A Pas"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:227
 #, fuzzy
 msgid "A StepGen-Direction"
-msgstr "A Directie"
+msgstr "Escanear dirección"
 
 #: emc/usr_intf/pncconf/pncconf.py:227
 msgid "A reserved c"
@@ -5090,31 +4997,27 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:255
 #, fuzzy
 msgid "my_EMC_machine"
-msgstr "masina"
+msgstr "_Máquina"
 
 #: emc/usr_intf/pncconf/pncconf.py:606
-#, fuzzy, python-format
+#, python-format
 msgid "File %r was modified since it was written by PNCconf"
-msgstr "Fisierul %r a fost modificat decand a fost generat de stepconf"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:610
-#, fuzzy
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
 msgstr ""
-"Salvarea aceste configuratii va supascrie orice modificari facute in afara "
-"de stepconf."
 
 #: emc/usr_intf/pncconf/pncconf.py:634 emc/usr_intf/pncconf/pncconf.py:1068
-#, fuzzy, python-format
+#, python-format
 msgid "# Generated by PNCconf at %s"
-msgstr "# Generat de stepconf la %s"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:1070
-#, fuzzy
 msgid "# overwritten when you run PNCconf again"
-msgstr "# suprascrise cand rulati stepconf din nou"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1298
 msgid "#  estop signals"
@@ -5144,14 +5047,13 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1415
-#, fuzzy
 msgid "# This file will not be overwritten when you run PNCconf again"
-msgstr "# Acest fisier nu va fi suprascris cand rulati stepconf din nou"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1422
-#, fuzzy, python-format
+#, python-format
 msgid "Generated by PNCconf at %s"
-msgstr "Generat de stepconf la %s"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1424
 msgid "Mesa 5i20 connector 2 "
@@ -5179,7 +5081,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.py:1460
 #, fuzzy
 msgid "name"
-msgstr "Nume:"
+msgstr "Archivo:"
 
 #: emc/usr_intf/pncconf/pncconf.py:1467
 #, python-format
@@ -5196,24 +5098,22 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1550
-#, fuzzy
 msgid "Desktop Launcher for EMC config made by PNCconf"
-msgstr "Dekstop Launcher pentru EMC creat de Stepconf"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1700
-#, fuzzy, python-format
+#, python-format
 msgid "%s Axis Motor/Encoder Configuration"
-msgstr "Configuratie HAL %s"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1724
-#, fuzzy, python-format
+#, python-format
 msgid "%s Parallel Port Setup"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1780
-#, fuzzy
 msgid "Quit PNCconfig and discard changes?"
-msgstr "Paraseste Stepconf si sterge modificari?"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1810
 #, python-format
@@ -5230,9 +5130,8 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1827
-#, fuzzy
 msgid "EMC2 'PNCconf' configuration files"
-msgstr "Selector configuratii EMC2"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:1938
 msgid ""
@@ -5240,109 +5139,92 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2536
-#, fuzzy
 msgid "First Parallel Port set for OUTPUT"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2538
-#, fuzzy
 msgid "First Parallel Port set for INPUT"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2558
 msgid "Second Parallel Port set for OUTPUT"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2560
-#, fuzzy
 msgid "Second Parallel Port set for INPUT"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2572
-#, fuzzy
 msgid "Third Parallel Port set for OUTPUT"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2574
-#, fuzzy
 msgid "Third Parallel Port set for INPUT"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2740 emc/usr_intf/pncconf/pncconf.py:2914
-#, fuzzy
 msgid "Custom"
-msgstr "Decupare"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2785
 msgid "Reduction Ratio"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2786
-#, fuzzy
 msgid "degrees / rev"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2787 emc/usr_intf/pncconf/pncconf.py:2789
 #: emc/usr_intf/pncconf/pncconf.py:2790 emc/usr_intf/pncconf/pncconf.py:2791
-#, fuzzy
 msgid "degrees / min"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2788
-#, fuzzy
 msgid "degrees / secÂ²"
-msgstr "grade / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2792 emc/usr_intf/pncconf/pncconf.py:2799
 #: emc/usr_intf/pncconf/pncconf.py:2800 emc/usr_intf/pncconf/pncconf.py:3632
 #, fuzzy
 msgid "degrees"
-msgstr "grade / tura"
+msgstr "Fresador de 45°"
 
 #: emc/usr_intf/pncconf/pncconf.py:2794
-#, fuzzy
 msgid "degree / Step"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2795
-#, fuzzy
 msgid "Steps / degree"
-msgstr "Pasi / grad"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2797
-#, fuzzy
 msgid "degrees / encoder pulse"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2798
 msgid "Encoder pulses / degree"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2803
-#, fuzzy
 msgid "Leadscrew Pitch"
-msgstr "Pas surub:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2804
-#, fuzzy
 msgid "(mm / rev)"
-msgstr "mm / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2805 emc/usr_intf/pncconf/pncconf.py:2807
 #: emc/usr_intf/pncconf/pncconf.py:2808 emc/usr_intf/pncconf/pncconf.py:2809
-#, fuzzy
 msgid "mm / min"
-msgstr "mm / s"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2806
-#, fuzzy
 msgid "mm / secÂ²"
-msgstr "mm / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2812
-#, fuzzy
 msgid "mm / Step"
-msgstr "Pas"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2815
 #: emc/usr_intf/pncconf/pncconf.glade:13501
@@ -5354,35 +5236,29 @@ msgid "Encoder pulses / mm"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2822
-#, fuzzy
 msgid "Leadscrew TPI"
-msgstr "Pas surub:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2823
-#, fuzzy
 msgid "(rev / inch)"
-msgstr "ture / inch"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2824 emc/usr_intf/pncconf/pncconf.py:2826
 #: emc/usr_intf/pncconf/pncconf.py:2827 emc/usr_intf/pncconf/pncconf.py:2828
-#, fuzzy
 msgid "inches / min"
-msgstr "inch"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2825
-#, fuzzy
 msgid "inches / secÂ²"
-msgstr "inch / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2831
-#, fuzzy
 msgid "inches / Step"
-msgstr "inch"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2832
-#, fuzzy
 msgid "Steps / inch"
-msgstr "Pasi / inch"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:2834
 msgid "inches / encoder pulse"
@@ -5393,58 +5269,49 @@ msgid "Encoder pulses / inch"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3198
-#, fuzzy
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
-"Trebuie sa asignezi un pin de intrare pentru E-stop la pagina de setare a "
-"portului paralel, pentru acest program."
 
 #: emc/usr_intf/pncconf/pncconf.py:3633
-#, fuzzy
 msgid "degrees / minute"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3634
-#, fuzzy
 msgid "degrees / secondÂ²"
-msgstr "grade / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3637
 #: emc/usr_intf/pncconf/pncconf.glade:13839
 #: emc/usr_intf/pncconf/pncconf.glade:13992
 #: emc/usr_intf/pncconf/pncconf.glade:14060
-#, fuzzy
 msgid "mm / minute"
-msgstr "mm / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3638
-#, fuzzy
 msgid "mm / secondÂ²"
-msgstr "mm / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3641
 msgid "inches / minute"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3642
-#, fuzzy
 msgid "inches / secondÂ²"
-msgstr "inch / sÂ²"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.py:3657
-#, fuzzy, python-format
+#, python-format
 msgid "%s Axis Tune"
-msgstr "Testeaza axa %s"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:8
-#, fuzzy
 msgid "EMC2 Point And Click Configuration"
-msgstr "Pentru a executa EMC2 cu o configuratie existenta,"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:23
 #, fuzzy
 msgid "EMC2 Servo Configuration"
-msgstr "Copiaza configuratie?"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/pncconf/pncconf.glade:24
 msgid ""
@@ -5455,52 +5322,46 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:64
-#, fuzzy
 msgid "Create a desktop launcher to start EMC with this configuration."
-msgstr "Creaza desktop shortcut pentru a rula EMC cu aceasta configuratie."
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:81
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files."
-msgstr "Creaza desktop shortcut (link simbolic) catre aceasta configuratie."
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:146
 #, fuzzy
 msgid "Create a new configuration"
-msgstr "Configuratii model"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/pncconf/pncconf.glade:211
 #, fuzzy
 msgid "Machine Name:"
-msgstr "Masina pornita"
+msgstr "Coordenada absoluta"
 
 #: emc/usr_intf/pncconf/pncconf.glade:277
 #, fuzzy
 msgid "Axis configuration:"
-msgstr "Configurare HAL"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/pncconf/pncconf.glade:312
 #, fuzzy
 msgid "Machine units:"
-msgstr "Masina pornita"
+msgstr "Coordenada absoluta"
 
 #: emc/usr_intf/pncconf/pncconf.glade:351
 msgid "<b>Machine Basics</b>"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:395
-#, fuzzy
 msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
-"Baza _Testare\n"
-"Period Jitter "
 
 #: emc/usr_intf/pncconf/pncconf.glade:500
-#, fuzzy
 msgid "Base Period Maximum Jitter:"
-msgstr "_Jitter maxim perioada baza"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:557
 msgid "<b>Computer Response Time</b>"
@@ -5511,19 +5372,16 @@ msgid "Mesa 5i20 PCI"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:615
-#, fuzzy
 msgid "First Parport Address:"
-msgstr "Adresa port paralel 1:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:628
-#, fuzzy
 msgid "Second Parport Address:"
-msgstr "Adresa port paralel 2:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:643
-#, fuzzy
 msgid "Third Parport Address:"
-msgstr "Adresa port paralel 3:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:805
 msgid "<b>I/O Control Ports/ Boards</b>"
@@ -5542,23 +5400,20 @@ msgid "<b>Feedback Type</b>"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:932
-#, fuzzy
 msgid "Analog"
-msgstr "dialog1"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:946
-#, fuzzy
 msgid "Digital"
-msgstr "Intrare digitala 3"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:963
 msgid "<b>Control type</b>"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:982
-#, fuzzy
 msgid "<b>Spindle Info</b>"
-msgstr "Freza oprita"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1038
 msgid "Physical switches"
@@ -5575,9 +5430,8 @@ msgid "<b>Limit</b>"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1105
-#, fuzzy
 msgid "Switch and index"
-msgstr "Freza index"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1119
 msgid "Switch only"
@@ -5590,7 +5444,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:1150
 #, fuzzy
 msgid "<b>Homing</b>"
-msgstr "Pozitie 0"
+msgstr "Restaurar"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1167
 msgid "<b>Limit And Homing Switches</b>"
@@ -5599,28 +5453,23 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:1212
 #, fuzzy
 msgid "GUI configuration"
-msgstr "Configuratiile mele"
+msgstr "Mostrar configuracion _HAl"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1231
 msgid "<b>Frontend</b>"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1270
-#, fuzzy
 msgid "Onscreen prompt for tool change"
 msgstr ""
-"Confirmare pe ecran pentru\n"
-"schimbare scula"
 
 #: emc/usr_intf/pncconf/pncconf.glade:1297
-#, fuzzy
 msgid "TKemc"
-msgstr "Invata"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1311
-#, fuzzy
 msgid "Mini"
-msgstr "Principal"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:1331
 msgid "GUI list"
@@ -5669,7 +5518,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:1804
 #, fuzzy
 msgid "Board name"
-msgstr "Mod cartesian"
+msgstr "Modalidad-World "
 
 #: emc/usr_intf/pncconf/pncconf.glade:1853
 #: emc/usr_intf/pncconf/pncconf.glade:13487
@@ -5731,7 +5580,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:1950
 #, fuzzy
 msgid "Cover Page"
-msgstr "Inverseaza imagine"
+msgstr "Invertir Imagen"
 
 #: emc/usr_intf/pncconf/pncconf.glade:2062
 #: emc/usr_intf/pncconf/pncconf.glade:2076
@@ -5739,9 +5588,8 @@ msgstr "Inverseaza imagine"
 #: emc/usr_intf/pncconf/pncconf.glade:4737
 #: emc/usr_intf/pncconf/pncconf.glade:7368
 #: emc/usr_intf/pncconf/pncconf.glade:7382
-#, fuzzy
 msgid "Pin"
-msgstr "in"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:2087
 #: emc/usr_intf/pncconf/pncconf.glade:2108
@@ -5827,9 +5675,8 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:2585
 #: emc/usr_intf/pncconf/pncconf.glade:5246
 #: emc/usr_intf/pncconf/pncconf.glade:7891
-#, fuzzy
 msgid "Launch test panel"
-msgstr "Rezultat test _latenta:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:2600
 #: emc/usr_intf/pncconf/pncconf.glade:2612
@@ -5925,41 +5772,6 @@ msgid ""
 "All home\n"
 "Unused"
 msgstr ""
-"ESTOP IN\n"
-"Freza PPR\n"
-"Freza A \n"
-"Freza B \n"
-"Poz0 X \n"
-"Poz0 Y \n"
-"Poz0 Z\n"
-"Poz0 A\n"
-"Limita min + Poz0 X \n"
-"Limita min + Poz0 Y \n"
-"Limita min + Poz0 Z \n"
-"Limita min + Poz0 A \n"
-"Limita max + Poz0 X \n"
-"Limita max + Poz0 Y \n"
-"Limita max + Poz0 Z \n"
-"Limita max + Poz0 A \n"
-"Ambele limite + Poz0 X \n"
-"Ambele limite + Poz0 Y \n"
-"Ambele limite + Poz0 Z \n"
-"Ambele limite + Poz0 A \n"
-"Limita min X \n"
-"Limita min Y \n"
-"Limita min Z \n"
-"Limita min A \n"
-"Limita max X \n"
-"Limita max Y \n"
-"Limita max Z \n"
-"Limita max A \n"
-"Limita min+max X \n"
-"Limita min+max Y \n"
-"Limita min+max Z \n"
-"Limita min+max A \n"
-"Toate limitele\n"
-"Toate poz0\n"
-"Nefolosit"
 
 #: emc/usr_intf/pncconf/pncconf.glade:2905
 #: emc/usr_intf/pncconf/pncconf.glade:5564
@@ -6039,9 +5851,8 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:7237
 #: emc/usr_intf/pncconf/pncconf.glade:9627
 #: emc/usr_intf/pncconf/pncconf.glade:9883
-#, fuzzy
 msgid "Pin Type"
-msgstr "Tip pozitie"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:4349
 #: emc/usr_intf/pncconf/pncconf.glade:6994
@@ -6121,9 +5932,8 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:7225
 #: emc/usr_intf/pncconf/pncconf.glade:9807
 #: emc/usr_intf/pncconf/pncconf.glade:9871
-#, fuzzy
 msgid "Inv"
-msgstr "Inverseaza"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:4609
 msgid ""
@@ -6144,28 +5954,24 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:9923
-#, fuzzy
 msgid "First Parallel Port Setup"
-msgstr "Setare port paralel"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:10008
 msgid "Launch Test Panel"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:11436
-#, fuzzy
 msgid "Inputs (Machine to PC):"
-msgstr "Intrari (Freza catre PC):"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:11991
-#, fuzzy
 msgid "Outputs (PC to Machine):"
-msgstr "Iesiri (PC catre freza)"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12012
-#, fuzzy
 msgid "X Axis Motor/Encoder Configuration"
-msgstr "Configuratie Axa X"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12071
 msgid ""
@@ -6176,18 +5982,16 @@ msgid ""
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12095
-#, fuzzy
 msgid "pulses / rev"
-msgstr "mm / tura"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12114
 msgid "x 4 ="
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12125
-#, fuzzy
 msgid "label"
-msgstr "label42"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12162
 msgid "Encoder lines / Rev"
@@ -6212,7 +6016,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:18815
 #, fuzzy
 msgid "FF2"
-msgstr "OFF"
+msgstr "APAGAR"
 
 #: emc/usr_intf/pncconf/pncconf.glade:12345
 #: emc/usr_intf/pncconf/pncconf.glade:16729
@@ -6221,7 +6025,7 @@ msgstr "OFF"
 #: emc/usr_intf/pncconf/pncconf.glade:18825
 #, fuzzy
 msgid "FF1"
-msgstr "OFF"
+msgstr "APAGAR"
 
 #: emc/usr_intf/pncconf/pncconf.glade:12358
 #: emc/usr_intf/pncconf/pncconf.glade:16739
@@ -6230,7 +6034,7 @@ msgstr "OFF"
 #: emc/usr_intf/pncconf/pncconf.glade:18835
 #, fuzzy
 msgid "FF0"
-msgstr "OFF"
+msgstr "APAGAR"
 
 #: emc/usr_intf/pncconf/pncconf.glade:12405
 msgid "Deadband"
@@ -6246,53 +6050,45 @@ msgid "P"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12442
-#, fuzzy
 msgid "I"
-msgstr "Io"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12455
 msgid "D"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12520
-#, fuzzy
 msgid "Servo Info"
-msgstr "Informatii scula"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12558
-#, fuzzy
 msgid "Step On-Time"
-msgstr "_Timp pas:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12571
 #, fuzzy
 msgid "Step Space"
-msgstr "Spatiu simplu"
+msgstr "Ejecutar programa por paso"
 
 #: emc/usr_intf/pncconf/pncconf.glade:12614
-#, fuzzy
 msgid "Direction Hold"
-msgstr "_Hold directie:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12627
-#, fuzzy
 msgid "Direction Setup"
-msgstr "Initializare imprimare"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12670
-#, fuzzy
 msgid "Motor steps per revolution:"
-msgstr "Nr. pasi _motor per tura:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12685
-#, fuzzy
 msgid "Driver Microstepping:"
-msgstr "Micropasi _drive:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12732
-#, fuzzy
 msgid "Driver Type:"
-msgstr "Tip D_river:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:12765
 msgid "Stepper Info"
@@ -6313,9 +6109,8 @@ msgid "Invert Encoder Direction "
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13073
-#, fuzzy
 msgid "Invert Motor Direction"
-msgstr "Directie scanare"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13088
 msgid "Feed Speed Following Error:"
@@ -6330,23 +6125,21 @@ msgid "sec"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13428
-#, fuzzy
 msgid "Distance to acheave max speed:"
-msgstr "Distanta pentru accelerare la viteza maxima:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13473
 #, fuzzy
 msgid "Resolution:"
-msgstr "Pozitie:"
+msgstr "Posicion:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:13545
 msgid "Test / Tune Axis"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13867
-#, fuzzy
 msgid "Home Final Velocity:"
-msgstr "Viteza cautare poz 0"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13877
 msgid ""
@@ -6359,39 +6152,33 @@ msgid "Use Encoder Index For Home:"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13919
-#, fuzzy
 msgid "Home location:"
-msgstr "Pozitie 0:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:13946
 #, fuzzy
 msgid "to"
-msgstr "Auto"
+msgstr "Detener"
 
 #: emc/usr_intf/pncconf/pncconf.glade:13977
-#, fuzzy
 msgid "Table Travel:"
-msgstr "Cursa masa:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14020
-#, fuzzy
 msgid "Home latch Velocity:"
-msgstr "Viteza cautare poz 0"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14046
-#, fuzzy
 msgid "Home Latch Direction:"
-msgstr "Directie latch"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14114
-#, fuzzy
 msgid "Home Switch location:"
-msgstr "Pozitie limitator poz 0"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14129
-#, fuzzy
 msgid "Home Search Velocity:"
-msgstr "Viteza cautare poz 0"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14144
 msgid "Use Compensation File:"
@@ -6412,34 +6199,30 @@ msgid "filename:"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14334
-#, fuzzy
 msgid "Cycles per revolution:"
-msgstr "_Cicluri per tura:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14410
-#, fuzzy
 msgid "PWM Rate:"
-msgstr "_Rata PWM:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14421
-#, fuzzy
 msgid "PWM 2:"
-msgstr "P_WM 2:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14436
 #, fuzzy
 msgid "Speed 2:"
-msgstr "Viteza:"
+msgstr "Velocidad:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:14449
-#, fuzzy
 msgid "PWM 1:"
-msgstr "_PWM 1:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14464
 #, fuzzy
 msgid "Speed 1:"
-msgstr "Viteza:"
+msgstr "Velocidad:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:14583
 msgid "Cmd 15"
@@ -6502,14 +6285,12 @@ msgid "Cmd 1"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:14924
-#, fuzzy
 msgid "Include Halui user interface component / commands"
-msgstr "Include interfata Halui"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15343
-#, fuzzy
 msgid "Advanced realtime components"
-msgstr "Optiuni Configurare Avansata"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15532
 msgid "scale"
@@ -6522,17 +6303,16 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:15552
 #, fuzzy
 msgid "and"
-msgstr "End"
+msgstr "Fin"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15604
-#, fuzzy
 msgid "PID"
-msgstr "RAPID"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15615
 #, fuzzy
 msgid "Step generator"
-msgstr "Executa un pas"
+msgstr "Ejecutar programa por paso"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15626
 msgid "PWM generator"
@@ -6545,7 +6325,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:15650
 #, fuzzy
 msgid "Encoder"
-msgstr "End"
+msgstr "Fin"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15661
 msgid "<b>Component</b>"
@@ -6556,16 +6336,12 @@ msgid "Add realtime components with this page."
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15705
-#, fuzzy
 msgid "Test Page"
-msgstr "Testeaza"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15714
-#, fuzzy
 msgid "Use this page to test / tune the configuration."
 msgstr ""
-"\n"
-"Detalii despre configuratia selectata:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15766
 msgid ""
@@ -6577,26 +6353,25 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:15828
 #, fuzzy
 msgid "Slow Dac Speed"
-msgstr "Arata viteza masina"
+msgstr "Mostrar v_elocidad de maquina"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15843
 msgid "Fast Dac Speed"
 msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15857
-#, fuzzy
 msgid "Invert Motor"
-msgstr "Inverseaza"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:15877
 #, fuzzy
 msgid "estop"
-msgstr "Testeaza"
+msgstr "Detener"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15896
 #, fuzzy
 msgid "Invert Encoder"
-msgstr "Inverseaza imagine"
+msgstr "Invertir Imagen"
 
 #: emc/usr_intf/pncconf/pncconf.glade:15916
 msgid "Reset Encoder"
@@ -6608,7 +6383,7 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:18249
 #, fuzzy
 msgid "Seconds"
-msgstr "Secundar"
+msgstr "Secundario"
 
 #: emc/usr_intf/pncconf/pncconf.glade:16254
 #: emc/usr_intf/pncconf/pncconf.glade:17028
@@ -6639,17 +6414,15 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:17445
 #: emc/usr_intf/pncconf/pncconf.glade:18145
 #: emc/usr_intf/pncconf/pncconf.glade:18845
-#, fuzzy
 msgid "D:"
-msgstr "MDI:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:16759
 #: emc/usr_intf/pncconf/pncconf.glade:17455
 #: emc/usr_intf/pncconf/pncconf.glade:18155
 #: emc/usr_intf/pncconf/pncconf.glade:18855
-#, fuzzy
 msgid "I:"
-msgstr "MDI:"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:16769
 #: emc/usr_intf/pncconf/pncconf.glade:17465
@@ -6662,9 +6435,8 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:17475
 #: emc/usr_intf/pncconf/pncconf.glade:18175
 #: emc/usr_intf/pncconf/pncconf.glade:18875
-#, fuzzy
 msgid "Current"
-msgstr "Decupare"
+msgstr ""
 
 #: emc/usr_intf/pncconf/pncconf.glade:16798
 #: emc/usr_intf/pncconf/pncconf.glade:17494
@@ -6676,52 +6448,52 @@ msgstr ""
 #: emc/usr_intf/pncconf/pncconf.glade:16815
 #, fuzzy
 msgid "X Axis"
-msgstr "Axa"
+msgstr "Eje:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:17514
 #, fuzzy
 msgid "Y Axis"
-msgstr "Axa"
+msgstr "Eje:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:18214
 #, fuzzy
 msgid "Z Axis"
-msgstr "Axa"
+msgstr "Eje:"
 
 #: emc/usr_intf/pncconf/pncconf.glade:18914
 #, fuzzy
 msgid "A Axis"
-msgstr "Axa"
+msgstr "Eje:"
 
 #: emc/task/emctaskmain.cc:418 emc/task/emctaskmain.cc:451
 #, fuzzy, c-format
 msgid "%s exceeds +X limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:423 emc/task/emctaskmain.cc:456
 #, fuzzy, c-format
 msgid "%s exceeds +Y limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:428 emc/task/emctaskmain.cc:461
 #, fuzzy, c-format
 msgid "%s exceeds +Z limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:433 emc/task/emctaskmain.cc:466
 #, fuzzy, c-format
 msgid "%s exceeds -X limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:438 emc/task/emctaskmain.cc:471
 #, fuzzy, c-format
 msgid "%s exceeds -Y limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:443 emc/task/emctaskmain.cc:476
 #, fuzzy, c-format
 msgid "%s exceeds -Z limit"
-msgstr "Program depaseste limite masina"
+msgstr "El programa excedio limite de la Maquina"
 
 #: emc/task/emctaskmain.cc:601
 #, c-format
@@ -6978,11 +6750,8 @@ msgid "Multiple W words on one line"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_pre.cc:768
-#, fuzzy
 msgid "Queue is not empty after tool change"
 msgstr ""
-"Confirmare pe ecran pentru\n"
-"schimbare scula"
 
 #: emc/rs274ngc/rs274ngc_return.hh:4
 msgid "A file is already open"
@@ -7235,7 +7004,7 @@ msgstr ""
 #: emc/rs274ngc/rs274ngc_return.hh:66
 #, fuzzy
 msgid "Command too long"
-msgstr "Pozitie comandata"
+msgstr "Mostrar posicion"
 
 #: emc/rs274ngc/rs274ngc_return.hh:67
 msgid "Concave corner with cutter radius comp"
@@ -7462,9 +7231,8 @@ msgid "Negative f word used"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:123
-#, fuzzy
 msgid "Negative g code used"
-msgstr "Salveaza g-cod ca si"
+msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative h word used"
@@ -7475,9 +7243,8 @@ msgid "Negative l word used"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:126
-#, fuzzy
 msgid "Negative m code used"
-msgstr "grade / tura"
+msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:127
 msgid "Negative or zero q value used"
@@ -7490,7 +7257,7 @@ msgstr ""
 #: emc/rs274ngc/rs274ngc_return.hh:129
 #, fuzzy
 msgid "Negative spindle speed used"
-msgstr "Seteaza depasire viteza freza:"
+msgstr "Controlar portabrocas:"
 
 #: emc/rs274ngc/rs274ngc_return.hh:130
 msgid "Negative tool id used"
@@ -7533,9 +7300,8 @@ msgid "P word with no g4 g10 g64 g76 g82 g86 g88 g89"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:140
-#, fuzzy
 msgid "Parameter file out of order"
-msgstr "Fisier parametri este %s"
+msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:141
 msgid "Parameter number out of range"
@@ -7658,24 +7424,23 @@ msgid "Unclosed comment found"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:171
-#, fuzzy
 msgid "Unclosed expression"
-msgstr "Nefolosit"
+msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:172
 #, fuzzy
 msgid "Unknown g code used"
-msgstr "Scula %d necunoscuta"
+msgstr "Herramienta desconocida %d"
 
 #: emc/rs274ngc/rs274ngc_return.hh:173
 #, fuzzy
 msgid "Unknown m code used"
-msgstr "Scula %d necunoscuta"
+msgstr "Herramienta desconocida %d"
 
 #: emc/rs274ngc/rs274ngc_return.hh:174
 #, fuzzy
 msgid "Unknown operation"
-msgstr "Eroare necunoscuta %s"
+msgstr "Herramienta desconocida %d"
 
 #: emc/rs274ngc/rs274ngc_return.hh:175
 msgid "Unknown operation name starting with a"
@@ -7812,7 +7577,7 @@ msgstr ""
 #: emc/rs274ngc/rs274ngc_return.hh:209
 #, fuzzy
 msgid "Unknown oword number"
-msgstr "Scula %d necunoscuta"
+msgstr "Herramienta desconocida %d"
 
 #: emc/rs274ngc/rs274ngc_return.hh:210
 msgid "Nested subroutine definition"
@@ -7831,11 +7596,8 @@ msgid "File not open"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:214
-#, fuzzy
 msgid "Need tool prepared -Txx- for toolchange"
 msgstr ""
-"Confirmare pe ecran pentru\n"
-"schimbare scula"
 
 #: emc/rs274ngc/rs274ngc_return.hh:215
 msgid "Cannot change planes with cutter radius compensation on"
@@ -7870,9 +7632,8 @@ msgid "Named parameter not terminated"
 msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:223
-#, fuzzy
 msgid "Named parameter not defined"
-msgstr "Incarca fisier parametri"
+msgstr ""
 
 #: emc/rs274ngc/rs274ngc_return.hh:224
 msgid "Named oword not terminated"
@@ -7950,192 +7711,34 @@ msgstr ""
 msgid "R less than V in cycle in UW plane"
 msgstr ""
 
-#~ msgid "Xylotex"
-#~ msgstr "Xylotex"
+#~ msgid "Activate sixth axis"
+#~ msgstr "Activar sexto eje"
 
 #~ msgid "AXIS error"
-#~ msgstr "Eroare AXIS"
-
-#~ msgid "AXIS Message"
-#~ msgstr "Mesaj AXIS"
-
-#~ msgid "Set _next line"
-#~ msgstr "Alege linie _urmatoare"
-
-#~ msgid ""
-#~ "Include your PyVCP panel here.\n"
-#~ "The contents of this file will not be overwritten when you run stepconf "
-#~ "again."
-#~ msgstr ""
-#~ "Include panoul PyVCP aici.\n"
-#~ "Continutul acestui fisier nu va fi suprascris daca rulati stepconf din "
-#~ "nou."
-
-#~ msgid "        "
-#~ msgstr "        "
-
-#~ msgid ""
-#~ "Gecko\n"
-#~ "L297\n"
-#~ "PMDX-150\n"
-#~ "Sherline\n"
-#~ "Xylotex\n"
-#~ "Parker-oem750\n"
-#~ "Other"
-#~ msgstr ""
-#~ "Gecko\n"
-#~ "L297\n"
-#~ "PMDX-150\n"
-#~ "Sherline\n"
-#~ "Xylotex\n"
-#~ "Parker-oem750\n"
-#~ "Altele"
-
-#~ msgid "confdir"
-#~ msgstr "confdir"
-
-#~ msgid "   "
-#~ msgstr "   "
-
-#~ msgid "x0000 ns"
-#~ msgstr "x0000 ns"
-
-#~ msgid "yyyyy Hz"
-#~ msgstr "yyyyy Hz"
-
-#~ msgid ""
-#~ "X Step\n"
-#~ "X Direction\n"
-#~ "Y Step\n"
-#~ "Y Direction\n"
-#~ "Z Step\n"
-#~ "Z Direction\n"
-#~ "A Step\n"
-#~ "A Direction\n"
-#~ "Spindle ON\n"
-#~ "Spindle CW\n"
-#~ "Spindle CCW\n"
-#~ "Spindle PWM\n"
-#~ "Coolant Mist\n"
-#~ "Coolant Flood\n"
-#~ "ESTOP Request\n"
-#~ "Amplifier Enable\n"
-#~ "Charge Pump"
-#~ msgstr ""
-#~ "X Pas\n"
-#~ "X Directie\n"
-#~ "Y Pas\n"
-#~ "Y Directie\n"
-#~ "Z Pas\n"
-#~ "Z Directie\n"
-#~ "A Pas\n"
-#~ "A Directie\n"
-#~ "Freza ON\n"
-#~ "Freza CW\n"
-#~ "Freza CCW\n"
-#~ "Freza PWM\n"
-#~ "Racire vapori\n"
-#~ "Racire lichid\n"
-#~ "ESTOP iesire\n"
-#~ "Activare driver\n"
-#~ "Charge Pump"
-
-#, fuzzy
-#~ msgid "Include custom _HAL configuration"
-#~ msgstr "Configurare HAL"
-
-#~ msgid "mm / s^2\t"
-#~ msgstr "mm / s^2\t"
-
-#~ msgid "label193"
-#~ msgstr "label193"
-
-#~ msgid "label230"
-#~ msgstr "label230"
-
-#~ msgid "Activate sixth axis"
-#~ msgstr "Activeaza a sasea axa"
+#~ msgstr "Error de Axis"
 
 #~ msgid "Exit code %d"
-#~ msgstr "Cod iesire %d"
+#~ msgstr "Terminar-instruccion %d"
 
-#~ msgid "{{rs274ngc files} {.ngc}} {{All files} *}"
-#~ msgstr "{{fisiere rs274ngc} {.ngc}} {{Toate fisierele} *}"
-
-#~ msgid "C_lear live plot"
-#~ msgstr "_Sterge afisaj"
-
-#~ msgid "Code Entry [F5]"
-#~ msgstr "Cod manual [F5]"
-
-#~ msgid "Set G54 offset for active axis [Shift-Home]"
-#~ msgstr "Stabileste ofset G54 pentru axa curente [Shift-Home]"
-
-#~ msgid "_X"
-#~ msgstr "_X"
-
-#~ msgid "_Y"
-#~ msgstr "_Y"
-
-#~ msgid "_Z"
-#~ msgstr "_Z"
-
-#~ msgid "_A"
-#~ msgstr "_A"
-
-#~ msgid "_B"
-#~ msgstr "_B"
-
-#~ msgid "_C"
-#~ msgstr "_C"
-
-#~ msgid "Break on"
-#~ msgstr "Frana pornita"
-
-#~ msgid "Break off"
-#~ msgstr "Frana oprita"
-
-#~ msgid "Error: "
-#~ msgstr "Eroare: "
-
-#~ msgid "Welcome to EMC2!\n"
-#~ msgstr "Bine ati venit la EMC2!\n"
-
-#~ msgid "click the RUN button.\n"
-#~ msgstr "apasati butonul EXECUTA"
-
-#~ msgid "To create a new configuration, edit a configuration, backup or"
-#~ msgstr "Pentru a crea, edita, arhiva sau reincarca o configuratie"
-
-#~ msgid "restore a configuration, or do other configuration related tasks,"
-#~ msgstr "precum si pentru alte activitati legate de configurare"
-
-#~ msgid "click the CONFIG button.\n"
-#~ msgstr "apasati butonul CONFIGURARE.\n"
+#~ msgid "Set _next line"
+#~ msgstr "Insertar siguie_nte fila"
 
 #~ msgid ""
-#~ "Please select an EMC2 configuration from the list below and click 'RUN'."
+#~ "EMC2/AXIS version $version\n"
+#~ "\n"
+#~ "Copyright (C) 2004, 2005, 2006, 2007 Jeff Epler and Chris Radek.\n"
+#~ "\n"
+#~ "Este es un software gratuito y ud esta invitado a distribuirlo bajo "
+#~ "lascondiciones aceptadas. Vea el archivo COPYING; incluido en EMC2.\n"
+#~ " \n"
+#~ "Visita nuestra pagina de EMC: "
 #~ msgstr ""
-#~ "Selectati o configuratie din lista de mai jos si activati 'EXECUTA'."
-
-#~ msgid "You must choose a config if you want to run EMC2!"
-#~ msgstr "Trebuie sa alegeti o configuratie pentru a executa EMC2!"
-
-#~ msgid "ERROR: no ini file(s) found in config directory"
-#~ msgstr "EROARE: nu s-a gasit fisier(e) ini in directorul de configuratie"
-
-#~ msgid "Click OK to continue."
-#~ msgstr "Apasati OK pentru a continua."
-
-#~ msgid ""
-#~ "The config contains multiple ini files.\n"
-#~ "Pick one from the list below and click NEXT."
-#~ msgstr ""
-#~ "Configuratie contine mai multe fisiere ini.\n"
-#~ "Alegeti unul din lista si apasati pe URMATOR pentru a continua."
-
-#~ msgid "You must select one ini file!"
-#~ msgstr "Trebuie sa selectati un fisier ini!"
-
-#~ msgid "The next step is to invoke the run script to run"
-#~ msgstr "Urmatorul pas invoca scriptul de executare"
+#~ "AXIS Version $version\n"
+#~ "\n"
+#~ "Copyright (C) 2004, 2005, 2006 Jeff Epler and Chris Radek.\n"
+#~ "\n"
+#~ "Este es un software gratuito y ud esta invitado a distribuirlo bajo "
+#~ "lascondiciones aceptadas. Vea el archivo COPYING; incluido en AXIS.\n"
+#~ " \n"
+#~ "Traduccion en Espanol: Medardo Torres\n"
+#~ "Visite nuestra pagina de EMC: "

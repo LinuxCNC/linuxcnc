@@ -1,19 +1,19 @@
 Note for translators of the pot files:
 ======================================
 
-Please make a copy of the pot file renaming it to reflect the language it is
-being translated in to. For example, for a German translation of rs274_err.pot,
-your working file would be de_rs274_err.po - If the file does not exist within
-the CVS repository, then feel free to create one from a *.pot template:
-    cp axis.pot xx_axis.pot
+Make a copy of the pot file renaming it to reflect the language it is
+being translated in to. For example, for a German translation of emc2.pot,
+your working file would be de.po - If the file does not exist within
+the CVS repository, then create one from the emc2.pot template:
+    cp emc2.pot de.pot
 
 To update a language's .po file from its .pot file, use the "msgmerge" command.
-Because doing this frequently creates lots of uneeded revisions of the
+Because doing this needlessly creates lots of uneeded revisions of the
 .po files in CVS, and because different translators have preferences about
 msgmerge flags (particularly --width, --no-wrap, and --no-fuzzy-matching),
 this is not done automatically by the "make" process.  The simplest "msgmerge"
 commandline is:
-    msgmerge -U xx_axis.po axis.pot
+    msgmerge -U xx.po emc2.pot
 
 When you are done, "cvs commit" the new .po file.  If you have not yet arranged
 to have "commit access", then e-mail the updated .po file to a developer or
@@ -26,25 +26,7 @@ On Dapper there seem to be two graphical front-ends for editing .po files:
 gtranslator (a part of the Gnome desktop) and kbabel (part of KDE).
 
 
-The different translation files
-===============================
-    axis.pot
-	For the AXIS User Interface
-    rs274_err.pot
-	Error messages from the interpreter (only shown in the AXIS GUI?)
-    tcl.pot
-	For tkemc, mini, and other TCL/Tk programs
-	The .po files are named xx.po, not xx_tcl.po
-
-
 Required versions of xgettext and msgmerge
 ==========================================
-If you see a message like
-    xgettext version 0.14.1 buggy -- need at least 0.14.5
-from configure, then your system has a version of xgettext that cannot properly
-create .pot files from .tcl sources.  Upgrade to the named version.
-
-If you see a message like
-    checking for --tcl support in msgfmt... no
-then your system has a version of msgfmt that cannot create .msg files
-from .po files.  Version 0.14.5 has support for --tcl.
+Configure tries to detect several problems with xgettext and msgmerge.
+Version 0.14.5 is known to work properly.

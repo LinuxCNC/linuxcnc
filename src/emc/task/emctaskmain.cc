@@ -2922,10 +2922,10 @@ int main(int argc, char *argv[])
 
     double minTime, maxTime;
 
-    bindtextdomain("rs274_err", EMC2_PO_DIR);
+    bindtextdomain("emc2", EMC2_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("rs274_err");
+    textdomain("emc2");
 
     // copy command line args
     Argc = argc;

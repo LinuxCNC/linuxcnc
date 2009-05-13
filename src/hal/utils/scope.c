@@ -38,6 +38,11 @@ static char *license = \
 #error This is a user mode component only!
 #endif
 
+#include "config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -105,6 +110,11 @@ int main(int argc, gchar * argv[])
     char *ifilename = "autosave.halscope";
     char *ofilename = "autosave.halscope";
 
+    bindtextdomain("emc2", EMC2_PO_DIR);
+    setlocale(LC_MESSAGES,"");
+    setlocale(LC_CTYPE,"");
+    textdomain("emc2");
+
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
     /* process halscope command line args (if any) here */
@@ -117,8 +127,8 @@ int main(int argc, gchar * argv[])
         switch(c) {
          case 'h':
             rtapi_print_msg(RTAPI_MSG_ERR,
-            "Usage:\n  halscope [-h] [-i infile] [-o outfile]"
-            " [num_samples]\n");
+            _("Usage:\n  halscope [-h] [-i infile] [-o outfile]"
+            " [num_samples]\n"));
             return -1;
             break;
          case 'i':

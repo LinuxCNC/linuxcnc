@@ -303,10 +303,8 @@ HEADERS := \
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
 # Add converting of %.po files
-TARGETS += $(patsubst %.po, %.mo, $(wildcard po/*_axis.po po/*_rs274_err.po))
-ifeq "$(MSGFMT_TCL_WORKS)" "yes"
-TARGETS += $(patsubst %.po, %.msg, $(wildcard po/??.po po/??_??.po))
-endif
+TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/emc2.mo, $(wildcard po/*.po))
+TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)

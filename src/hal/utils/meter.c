@@ -44,6 +44,11 @@
 #error This is a user mode component only!
 #endif
 
+#include "config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -142,6 +147,11 @@ int main(int argc, gchar * argv[])
     char *initial_name, *win_name;
     meter_t *meter;
 
+    bindtextdomain("emc2", EMC2_PO_DIR);
+    setlocale(LC_MESSAGES,"");
+    setlocale(LC_CTYPE,"");
+    textdomain("emc2");
+
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
 
@@ -166,14 +176,14 @@ int main(int argc, gchar * argv[])
 	    /* initial probe is a parameter */
 	    initial_type = 2;
 	} else {
-	    printf("ERROR: '%s' is not a valid probe type\n", argv[n]);
+	    printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
 	    return -1;
 	}
 	n++;
 	if ( argc > n ) {
 	    initial_name = argv[n];
 	} else {
-	    printf("ERROR: no pin/signal/parameter name\n");
+	    printf(_("ERROR: no pin/signal/parameter name\n"));
 	    return -1;
 	}
     } else {

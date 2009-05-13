@@ -48,5 +48,3 @@ $(PYBIN): ../bin/%: emc/usr_intf/axis/scripts/%.py
 PYI18NSRCS := $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
 	../lib/python/propertywindow.py \
 	../share/axis/tcl/axis.tcl
-
-PYTARGETS += po/axis.pot

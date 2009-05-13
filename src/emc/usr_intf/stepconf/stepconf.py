@@ -61,9 +61,9 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 #def _(x): return x
-gettext.install("axis", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("axis", LOCALEDIR)
-gtk.glade.textdomain("axis")
+gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("emc2", LOCALEDIR)
+gtk.glade.textdomain("emc2")
 
 # internalname / displayed name / steptime/ step space / direction hold / direction setup
 drivertypes = [

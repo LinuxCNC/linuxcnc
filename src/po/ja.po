@@ -1,377 +1,7587 @@
 msgid ""
 msgstr ""
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-13 08:58-0500\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "Set Run Mark"
-msgstr "動く点を決める"
+#: ../tcl/bin/emccalib.tcl:80
+msgid "EMC2 Servo Axis Calibration"
+msgstr ""
 
-msgid "Set run mark at line"
-msgstr "線に動く点を決める"
+#: ../tcl/bin/emccalib.tcl:90
+msgid "Save To File"
+msgstr ""
 
-msgid "Load Tool Table"
-msgstr "ツール表を読む"
+#: ../tcl/bin/emccalib.tcl:91 ../tcl/bin/halconfig.tcl:103
+msgid "Quit"
+msgstr ""
 
-msgid "Load Parameter File"
-msgstr "パラムのファイルを読む"
-
-msgid "Cancel"
-msgstr "中止"
-
-msgid "OK"
-msgstr "OK"
-
-msgid "EMC Diagnostics"
-msgstr "EMCの診断"
-
-msgid "Task"
-msgstr "Task"
-
-msgid "Heartbeat:"
-msgstr "心臓の鼓動:"
-
-msgid "Command:"
-msgstr "命令:"
-
-msgid "Command #:"
-msgstr "命令番:"
-
-msgid "Status:"
-msgstr "状態:"
-
-msgid "Io"
-msgstr "IO"
-
-msgid "Motion"
-msgstr "動き"
-
-msgid "About TkEmc"
-msgstr "TkEmcについて"
-
-msgid "TkEmc\n\nTcl/Tk GUI for Enhanced Machine Controller\n\nPublic Domain (1999)"
-msgstr "Enhanced Machine Controller(EMC)の\n\nTkEmc\n\n\nTcl/Tkで書いたGUI\n\n パブリックドメイン(1999)"
-
-msgid "Set Tool Offset"
-msgstr "道具が平行移動"
-
-msgid "Tool:"
-msgstr "道具:"
-
-msgid "Length:"
-msgstr "長さ:"
-
-msgid "Diameter"
-msgstr "直径:"
-
-msgid "can't open"
-msgstr "開けません"
-
-msgid "All files"
-msgstr "全部のファイル"
-
-msgid "Text files"
-msgstr "テキストファイル"
-
-msgid "NC files"
-msgstr "NCファイル"
-
+#: ../tcl/bin/emccalib.tcl:106 ../tcl/bin/genedit.tcl:77
+#: ../tcl/bin/halconfig.tcl:151 ../tcl/mini.tcl:2513 ../tcl/tkemc.tcl:772
 msgid "File"
 msgstr "ファイル"
 
+#: ../tcl/bin/emccalib.tcl:108 ../tcl/bin/emccalib.tcl:235
+#: ../tcl/bin/halconfig.tcl:153 ../tcl/mini.tcl:3555
+msgid "Refresh"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:110 ../tcl/bin/genedit.tcl:82
+#: ../tcl/bin/halconfig.tcl:155 ../tcl/mini.tcl:2532
+msgid "Save"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:164 ../tcl/bin/halconfig.tcl:623
+#, tcl-format
+msgid "Tune %d"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:166 ../tcl/bin/halconfig.tcl:628
+msgid "INI Name"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:167 ../tcl/bin/halconfig.tcl:629
+msgid "HAL's Value"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:169 ../tcl/bin/halconfig.tcl:631
+#, fuzzy
+msgid "Next Value"
+msgstr "テキストファイル"
+
+#: ../tcl/bin/emccalib.tcl:229 ../tcl/bin/halconfig.tcl:680
+#: ../tcl/bin/halconfig.tcl:731
+#, fuzzy
+msgid "Test"
+msgstr "リーセット"
+
+#: ../tcl/bin/emccalib.tcl:231 ../tcl/bin/genedit.tcl:180
+#: ../tcl/bin/genedit.tcl:450 ../tcl/bin/halconfig.tcl:682
+#: ../tcl/bin/halconfig.tcl:733 ../tcl/bin/pickconfig.tcl:252
+#: ../tcl/bin/pickconfig.tcl:401 ../tcl/bin/pickconfig.tcl:426
+#: ../tcl/mini.tcl:1456 ../tcl/mini.tcl:2934 ../tcl/tkemc.tcl:215
+#: ../tcl/tkemc.tcl:318 ../tcl/tkemc.tcl:464 ../tcl/tkemc.tcl:1379
+#: ../tcl/tkemc.tcl:1448 ../tcl/tkemc.tcl:1479 ../tcl/tkemc.tcl:1510
+#: ../tcl/tkemc.tcl:2058 ../tcl/tkemc.tcl:2077 ../tcl/tkemc.tcl:2096
+#: ../tcl/tkemc.tcl:2143 emc/usr_intf/axis/scripts/axis.py:1925
+#: emc/usr_intf/axis/scripts/axis.py:1983
+#: emc/usr_intf/axis/scripts/axis.py:2238
+#: emc/usr_intf/axis/scripts/axis.py:3302
+#: emc/usr_intf/axis/scripts/axis.py:4053
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:709
+#: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1694
+#: ../share/axis/tcl/axis.tcl:1731
+msgid "OK"
+msgstr "OK"
+
+#: ../tcl/bin/emccalib.tcl:233 ../tcl/bin/genedit.tcl:294
+#: ../tcl/bin/halconfig.tcl:103 ../tcl/bin/halconfig.tcl:684
+#: ../tcl/bin/halconfig.tcl:735 ../tcl/bin/pickconfig.tcl:255
+#: ../tcl/bin/pickconfig.tcl:366 ../tcl/mini.tcl:1457 ../tcl/mini.tcl:2935
+#: ../tcl/mini.tcl:3107 ../tcl/tkemc.tcl:217 ../tcl/tkemc.tcl:260
+#: ../tcl/tkemc.tcl:286 ../tcl/tkemc.tcl:465 ../tcl/tkemc.tcl:1380
+#: ../tcl/tkemc.tcl:1449 ../tcl/tkemc.tcl:1480 ../tcl/tkemc.tcl:1511
+#: ../tcl/tkemc.tcl:2144 emc/usr_intf/axis/scripts/axis.py:2239
+#: emc/usr_intf/axis/scripts/axis.py:2428
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:711
+msgid "Cancel"
+msgstr "中止"
+
+#: ../tcl/bin/emccalib.tcl:362 ../tcl/bin/halconfig.tcl:883
+#, tcl-format
+msgid ""
+"The HAL parameter \n"
+"  %s \n"
+" has changed. \n"
+" Really quit?"
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:387 ../tcl/bin/halconfig.tcl:1170
+msgid ""
+"Not permitted to save here.\n"
+"\n"
+"  You need to copy a configuration to your home directory and work there."
+msgstr ""
+
+#: ../tcl/bin/emccalib.tcl:439 ../tcl/bin/genedit.tcl:211
+#: ../tcl/bin/halconfig.tcl:1242 ../tcl/bin/pickconfig.tcl:464
+#: ../tcl/bin/pickconfig.tcl:475 ../tcl/scripts/Set_Coordinates.tcl:201
+#: ../tcl/scripts/Set_Coordinates.tcl:224
+#, fuzzy, tcl-format
+msgid "can't save %s"
+msgstr "開けません"
+
+#: ../tcl/bin/emcdebug.tcl:166 ../tcl/bin/emcdebug.tcl:177
+msgid "EMC Debug"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:185
+msgid "Invalid INI file entries"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:186
+msgid "Configuration information"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:187
+msgid "Use of defaults"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:188
+msgid "Version information"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:189
+#, fuzzy
+msgid "Command issuing"
+msgstr "命令番:"
+
+#: ../tcl/bin/emcdebug.tcl:190
+msgid "IO points"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:191
+msgid "NML"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:192
+#, fuzzy
+msgid "Motion time"
+msgstr "動き"
+
+#: ../tcl/bin/emcdebug.tcl:193 emc/usr_intf/axis/scripts/debuglevel.py:42
+msgid "Interpreter"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:194
+msgid "RCS"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:195
+msgid "Trajectory level"
+msgstr ""
+
+#: ../tcl/bin/emcdebug.tcl:196
+msgid "Interpreter list"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:78 ../tcl/mini.tcl:2530
+msgid "New"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:80 ../tcl/mini.tcl:1664 ../tcl/mini.tcl:2531
+#: ../tcl/tkemc.tcl:773 ../tcl/tkemc.tcl:1698
 msgid "Open..."
 msgstr "開く..."
 
-msgid "Edit..."
-msgstr "エディット..."
+#: ../tcl/bin/genedit.tcl:84 ../tcl/mini.tcl:2533
+msgid "Save As..."
+msgstr ""
 
-msgid "Reset"
-msgstr "リーセット"
-
+#: ../tcl/bin/genedit.tcl:87 ../tcl/bin/halconfig.tcl:165 ../tcl/mini.tcl:954
+#: ../tcl/tkemc.tcl:785
 msgid "Exit"
 msgstr "出る"
 
-msgid "View"
-msgstr "見方"
+#: ../tcl/bin/genedit.tcl:91 ../tcl/mini.tcl:2514
+#, fuzzy
+msgid "Edit"
+msgstr "出る"
 
-msgid "Tools..."
-msgstr "道具..."
+#: ../tcl/bin/genedit.tcl:92 ../tcl/mini.tcl:2540
+msgid "Cut"
+msgstr ""
 
-msgid "Offsets and Variables..."
-msgstr "平行移動と価..."
+#: ../tcl/bin/genedit.tcl:94 ../tcl/mini.tcl:2541
+msgid "Copy"
+msgstr ""
 
-msgid "Diagnostics..."
-msgstr "診断"
+#: ../tcl/bin/genedit.tcl:96 ../tcl/mini.tcl:2542
+#, fuzzy
+msgid "Paste"
+msgstr "間断"
 
-msgid "Backplot..."
-msgstr "描"
+#: ../tcl/bin/genedit.tcl:99 ../tcl/mini.tcl:2545 ../tcl/show_errors.tcl:68
+msgid "Select All"
+msgstr ""
 
-msgid "Settings"
-msgstr "撰"
-
-msgid "Calibration..."
-msgstr "較正..."
-
-msgid "Logging..."
-msgstr "ローグ..."
-
-msgid "Testing..."
-msgstr "テスト..."
-
-msgid "Debug..."
-msgstr "ディバッグ..."
-
-msgid "Font..."
-msgstr "フォント..."
-
-msgid "Units"
-msgstr "ユーニット（刻）"
-
-msgid "auto"
-msgstr "自動"
-
-msgid "inches"
-msgstr "インチ"
-
-msgid "mm"
-msgstr "mm"
-
-msgid "cm"
-msgstr "cm"
-
-msgid "Scripts"
-msgstr "スクリプト"
-
+#: ../tcl/bin/genedit.tcl:104 ../tcl/bin/halconfig.tcl:192 ../tcl/mini.tcl:919
+#: ../tcl/mini.tcl:2516 ../tcl/tkemc.tcl:842
 msgid "Help"
 msgstr "助け"
 
-msgid "Help..."
-msgstr "助け..."
-
-msgid "Balloon help"
-msgstr "バルーン助け"
-
-msgid "Info..."
-msgstr "インフォ..."
-
+#: ../tcl/bin/genedit.tcl:105 ../tcl/mini.tcl:1011 ../tcl/mini.tcl:2556
+#: ../tcl/tkemc.tcl:848
 msgid "About..."
 msgstr "これについて..."
 
-msgid "Estop on"
-msgstr "終止符点いた"
+#: ../tcl/bin/genedit.tcl:130
+msgid "Save and Reload"
+msgstr ""
 
-msgid "Estop off"
-msgstr "終止符消した"
+#: ../tcl/bin/genedit.tcl:133 ../tcl/mini.tcl:2547
+#, fuzzy
+msgid "Find..."
+msgstr "フォント..."
 
-msgid "Machine on"
-msgstr "出来るように"
+#: ../tcl/bin/genedit.tcl:135 ../tcl/mini.tcl:2549
+msgid "Renumber File..."
+msgstr ""
 
-msgid "Machine off"
-msgstr "出来ないように"
+#: ../tcl/bin/genedit.tcl:140 ../tcl/mini.tcl:917 ../tcl/mini.tcl:2515
+#: ../tcl/tkemc.tcl:798
+msgid "Settings"
+msgstr "撰"
 
-msgid "Manual"
+#: ../tcl/bin/genedit.tcl:141 ../tcl/mini.tcl:2551
+msgid "No Numbering"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:144 ../tcl/mini.tcl:2553
+msgid "Line Numbering..."
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:150 ../tcl/tkemc.tcl:820
+msgid "Scripts"
+msgstr "スクリプト"
+
+#: ../tcl/bin/genedit.tcl:177
+#, fuzzy
+msgid "About TkEditor"
+msgstr "TkEmcについて"
+
+#: ../tcl/bin/genedit.tcl:179
+msgid ""
+"TkEditor\n"
+"\n"
+"Simple Tcl/Tk Text Editor\n"
+"\n"
+"GPL Version 2"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:197 ../tcl/mini.tcl:1373 ../tcl/mini.tcl:1772
+#: ../tcl/tkemc.tcl:505 emc/task/emctaskmain.cc:1958
+#, fuzzy, c-format, tcl-format
+msgid "can't open %s"
+msgstr "開けません"
+
+#: ../tcl/bin/genedit.tcl:267 ../tcl/mini.tcl:3087
+msgid "Find"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:270
+msgid "Find:"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:276
+msgid "Replace:"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:282
+msgid "Find All"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:285 ../tcl/mini.tcl:3110
+msgid "Replace All"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:288
+msgid "Skip This"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:291
+msgid "Replace This"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:297
+msgid "Clear"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:422 ../tcl/mini.tcl:2637
+msgid "Set Line Numbering"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:424 ../tcl/mini.tcl:2641
+msgid "Increment"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:426 ../tcl/mini.tcl:2643
+msgid "One"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:429 ../tcl/mini.tcl:2645
+msgid "Two"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:432 ../tcl/mini.tcl:2647
+#, fuzzy
+msgid "Five"
+msgstr "ファイル"
+
+#: ../tcl/bin/genedit.tcl:435 ../tcl/mini.tcl:2649
+msgid "Ten"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:439 ../tcl/mini.tcl:2651
+msgid "Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:441 ../tcl/mini.tcl:2653
+msgid "Single Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:444 ../tcl/mini.tcl:2655
+msgid "Double Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:447 ../tcl/mini.tcl:2657
+msgid "Tab Space"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:453
+msgid "Next Number:"
+msgstr ""
+
+#: ../tcl/bin/genedit.tcl:474 ../tcl/mini.tcl:2665
+#, fuzzy
+msgid "Renumber"
+msgstr "つづく"
+
+#: ../tcl/bin/halconfig.tcl:88 ../tcl/bin/halshow.tcl:33
+msgid "HAL Configuration"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:103
+msgid "Would you like to save your configuration before you exit?"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:103
+msgid "Save All"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:103
+msgid "Save Tune"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:103
+msgid "Save as Netlist"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:103
+msgid "Don't Save"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:132
+msgid "Show"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:133
+msgid "Watch"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:134
+msgid "Modify"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:157
+msgid "Save INI Tuning"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:159
+msgid "Save HAL Ini"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:161
+msgid "Save HAL Net"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:163
+msgid "Save and Exit"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:168 ../tcl/mini.tcl:916 ../tcl/tkemc.tcl:790
+msgid "View"
+msgstr "見方"
+
+#: ../tcl/bin/halconfig.tcl:170 ../tcl/bin/halshow.tcl:87
+msgid "Expand Tree"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:172 ../tcl/bin/halshow.tcl:89
+msgid "Collapse Tree"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:175 ../tcl/bin/halshow.tcl:92
+msgid "Expand Pins"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:177 ../tcl/bin/halshow.tcl:94
+#, fuzzy
+msgid "Expand Parameters"
+msgstr "パラムのファイルを読む"
+
+#: ../tcl/bin/halconfig.tcl:179 ../tcl/bin/halshow.tcl:96
+msgid "Expand Signals"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:182 ../tcl/bin/halshow.tcl:99
+msgid "Erase Watch"
+msgstr ""
+
+#: ../tcl/bin/halconfig.tcl:194 ../tcl/mini.tcl:840 ../tcl/mini.tcl:2782
+#, fuzzy
+msgid "About"
+msgstr "これについて..."
+
+#: ../tcl/bin/halconfig.tcl:196
+#, fuzzy
+msgid "Main"
 msgstr "手動"
 
-msgid "Auto"
-msgstr "自動"
+#: ../tcl/bin/halconfig.tcl:476
+msgid "Enter HAL command :"
+msgstr ""
 
-msgid "Mist on"
-msgstr "雰点いた"
+#: ../tcl/bin/halconfig.tcl:479 ../tcl/bin/halconfig.tcl:528
+#: ../tcl/bin/halshow.tcl:382
+msgid "Execute"
+msgstr ""
 
-msgid "Mist off"
-msgstr "雰消した"
+#: ../tcl/bin/halconfig.tcl:943 ../tcl/bin/halshow.tcl:438
+msgid "Select a node to show."
+msgstr ""
 
-msgid "Flood on"
-msgstr "水洗点いた"
+#: ../tcl/bin/halconfig.tcl:968 ../tcl/bin/halshow.tcl:463
+msgid "<-- Select a Leaf.  Click on its name."
+msgstr ""
 
-msgid "Flood off"
-msgstr "水洗消した"
+#: ../tcl/bin/halconfig.tcl:1085 ../tcl/bin/halconfig.tcl:1095
+#: ../tcl/bin/halconfig.tcl:1102 ../tcl/bin/halconfig.tcl:1109
+#: ../tcl/bin/halconfig.tcl:1116
+#, tcl-format
+msgid "Click a highlighted entry where %s should go."
+msgstr ""
 
-msgid "Lube on"
-msgstr "油点いた"
+#: ../tcl/bin/halconfig.tcl:1092
+msgid "Nothing to be done for parameters here. Try the tuning page"
+msgstr ""
 
-msgid "Lube off"
-msgstr "油消した"
+#: ../tcl/bin/halconfig.tcl:1124
+#, tcl-format
+msgid "%s is not a leaf, try again"
+msgstr ""
 
-msgid "Spindle forward"
-msgstr "スピンドル前進"
+#: ../tcl/bin/halconfig.tcl:1281
+msgid ""
+"Copyright Raymond E Henry. 2006\n"
+"License: GPL Version 2\n"
+"\n"
+"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 "
+"directory and will require that you have started an instance of emc2 or work "
+"up a new configuration starting with a demo rt script.\n"
+"\n"
+"This script is not for the faint hearted and carries no warranty or "
+"liability for its use to the extent allowed by law."
+msgstr ""
 
-msgid "Spindle reverse"
-msgstr "スピンドル逆"
+#: ../tcl/bin/halshow.tcl:69
+msgid " SHOW "
+msgstr ""
 
-msgid "Spindle off"
-msgstr "スピンドル消した"
+#: ../tcl/bin/halshow.tcl:70
+msgid " WATCH "
+msgstr ""
 
-msgid "Break on"
-msgstr "ブレーキ点いた"
+#: ../tcl/bin/halshow.tcl:85
+#, fuzzy
+msgid "Tree View"
+msgstr "見方"
 
-msgid "Break off"
-msgstr "ブレーキ消した"
+#: ../tcl/bin/halshow.tcl:379
+msgid "Test HAL command :"
+msgstr ""
 
-msgid "Brake on"
-msgstr "ブレーキ点いた"
+#: ../tcl/bin/halshow.tcl:583
+msgid "Commands may be tested here but they will NOT be saved"
+msgstr ""
 
-msgid "Brake off"
-msgstr "ブレーキ消した"
+#: ../tcl/bin/pickconfig.tcl:47
+msgid ""
+"Can't find the bwidget 1.7 package.  There is a debian bwidget package; "
+"install \n"
+"it with sudo apt-get install bwidget."
+msgstr ""
 
+#: ../tcl/bin/pickconfig.tcl:145
+msgid "No details available."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:177
+msgid "ERROR: must specify a path to search for configurations"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:189
+msgid "EMC2 Configuration Selector"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:210
+msgid ""
+"Welcome to EMC2.\n"
+"\n"
+"Select a machine configuration from the list on the left.\n"
+"Details about the selected configuration will appear in the display on the "
+"right.\n"
+"Click 'OK' to run the selected configuration"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:267
+msgid "My Configurations"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:270
+msgid "Sample Configurations"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:329
+#, tcl-format
+msgid "ERROR: no configurations found in path '%s'"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:366
+msgid "Copy Configuration?"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:366
+#, tcl-format
+msgid ""
+"Would you like to copy the %s configuration to your home directory so you "
+"can customize it?"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:366
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:554
+msgid "Yes"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:366
+msgid "No"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:401
+msgid "Configuration Copied"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:401
+#, tcl-format
+msgid ""
+"The configuration file has been copied to %s. Next time, choose this "
+"location when starting EMC2."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:426
+msgid "Shortcut Created"
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:426
+msgid ""
+"A shortcut to this configuration file has been created on your desktop.  You "
+"can use it to automatically launch this configuration."
+msgstr ""
+
+#: ../tcl/bin/pickconfig.tcl:431
+msgid "Create Desktop Shortcut"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:110
+msgid "TkEmc BackPlot"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:125
+#, fuzzy
+msgid "SETUP"
+msgstr "終止符"
+
+#: ../tcl/bin/tkbackplot.tcl:127
+#, fuzzy
+msgid "RESET"
+msgstr "リーセット"
+
+#: ../tcl/bin/tkbackplot.tcl:129
+msgid "CANCEL"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:250 emc/usr_intf/pncconf/pncconf.glade:1282
+msgid "AXIS"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:251
+msgid "OFFSET"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:252
+msgid "ANGLE"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:253
+msgid "DIRECTION"
+msgstr ""
+
+#: ../tcl/bin/tkbackplot.tcl:270
+msgid "SIZE :"
+msgstr ""
+
+#: ../tcl/mini.tcl:490
+#, tcl-format
+msgid "JOG %s +"
+msgstr ""
+
+#: ../tcl/mini.tcl:491
+#, tcl-format
+msgid "JOG %s -"
+msgstr ""
+
+#: ../tcl/mini.tcl:492
+#, tcl-format
+msgid ""
+"%s\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+
+#: ../tcl/mini.tcl:840
+msgid ""
+"TkMini  \n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller\n"
+"\n"
+"GPL Copyright 2003  \n"
+"Ray Henry <rehenry@up.net>\n"
+"\n"
+" 3D backplotter by Paul Corner <paul_c@users.sourceforge.net>\n"
+" \n"
+"This software comes with ABSOLUTELY NO GUARANTEE!   \n"
+"For details see the copyright.html file in this directory."
+msgstr ""
+
+#: ../tcl/mini.tcl:915
+#, fuzzy
+msgid "Program"
+msgstr "プローグラム: "
+
+#: ../tcl/mini.tcl:918
+#, fuzzy
+msgid "Info"
+msgstr "インフォ..."
+
+#: ../tcl/mini.tcl:923
+#, fuzzy
+msgid "Backplot"
+msgstr "描"
+
+#: ../tcl/mini.tcl:925
+#, fuzzy
+msgid "Editor"
+msgstr "エディット..."
+
+#: ../tcl/mini.tcl:927
+#, fuzzy
+msgid "Offsets"
+msgstr "平行移動:"
+
+#: ../tcl/mini.tcl:929
+#, fuzzy
+msgid "Tools"
+msgstr "道具:"
+
+#: ../tcl/mini.tcl:951 ../tcl/mini.tcl:3562 ../tcl/tkemc.tcl:783
+msgid "Reset"
+msgstr "リーセット"
+
+#: ../tcl/mini.tcl:960
+msgid "Position Type"
+msgstr ""
+
+#: ../tcl/mini.tcl:962
+msgid "Tool Info"
+msgstr ""
+
+#: ../tcl/mini.tcl:964
+#, fuzzy
+msgid "Offset Info"
+msgstr "平行移動:"
+
+#: ../tcl/mini.tcl:967
+msgid "Show Restart"
+msgstr ""
+
+#: ../tcl/mini.tcl:968
+msgid "Hide Restart"
+msgstr ""
+
+#: ../tcl/mini.tcl:970
+msgid "Show Split Right"
+msgstr ""
+
+#: ../tcl/mini.tcl:972
+msgid "Show Mode Full"
+msgstr ""
+
+#: ../tcl/mini.tcl:974
+msgid "Show Popin Full"
+msgstr ""
+
+#: ../tcl/mini.tcl:978
+msgid "Actual Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:980
+msgid "Commanded Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:983
+#, fuzzy
+msgid "Machine Position"
+msgstr "出来るように"
+
+#: ../tcl/mini.tcl:985
+msgid "Relative Position"
+msgstr ""
+
+#: ../tcl/mini.tcl:988 ../tcl/tkemc.tcl:799
+msgid "Calibration..."
+msgstr "較正..."
+
+#: ../tcl/mini.tcl:990
+msgid "HAL Show..."
+msgstr ""
+
+#: ../tcl/mini.tcl:992
+#, fuzzy
+msgid "HAL Config..."
+msgstr "ローグ..."
+
+#: ../tcl/mini.tcl:997
+#, fuzzy
+msgid "Program File"
+msgstr "プローグラム: "
+
+#: ../tcl/mini.tcl:998
+#, tcl-format
+msgid "Program file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:999
+msgid "Editor File"
+msgstr ""
+
+#: ../tcl/mini.tcl:1000
+#, tcl-format
+msgid "Editor file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:1001
+#, fuzzy
+msgid "Parameter File"
+msgstr "パラムのファイルを読む"
+
+#: ../tcl/mini.tcl:1002
+#, fuzzy, tcl-format
+msgid "Parameter file is %s"
+msgstr "パラムのファイルを読む"
+
+#: ../tcl/mini.tcl:1003
+#, fuzzy
+msgid "Tool File"
+msgstr "ファイル"
+
+#: ../tcl/mini.tcl:1004
+#, tcl-format
+msgid "Tool file is %s"
+msgstr ""
+
+#: ../tcl/mini.tcl:1006
+msgid "Active G Codes"
+msgstr ""
+
+#: ../tcl/mini.tcl:1007
+#, tcl-format
+msgid ""
+"Active codes include; \n"
+"%s"
+msgstr ""
+
+#: ../tcl/mini.tcl:1010 ../tcl/mini.tcl:2555 ../tcl/tkemc.tcl:843
+msgid "Help..."
+msgstr "助け..."
+
+#: ../tcl/mini.tcl:1027 ../tcl/tkemc.tcl:942
 msgid "ABORT"
 msgstr "中断"
 
-msgid "Offset:"
-msgstr "平行移動:"
+#: ../tcl/mini.tcl:1038 ../tcl/mini.tcl:2045
+msgid "CONTINUE"
+msgstr ""
 
-msgid "Work Offsets:"
-msgstr "工作物平行移動:"
-
-msgid "override limits"
-msgstr "方図を聞き捨てる"
-
-msgid "relative"
-msgstr "相対"
-
-msgid "machine"
-msgstr "マッシン"
-
-msgid "actual"
-msgstr "本当"
-
-msgid "commanded"
-msgstr "命令な"
-
-msgid "joint"
-msgstr "関節"
-
-msgid "world"
-msgstr "世界"
-
-msgid "continuous"
-msgstr "連綿"
-
-msgid "home"
-msgstr "原点"
-
-msgid "Axis Offset"
-msgstr "軸の平行移動"
-
-msgid "Set axis value:"
-msgstr "軸の数値:"
-
-msgid "Set Jog Speed"
-msgstr "ジョグ時速"
-
-msgid "Set jog speed:"
-msgstr "ジョグ時速:"
-
-msgid "Set Feed Override"
-msgstr "フィード手直して"
-
-msgid "Set feed override:"
-msgstr "フィード手直して:"
-
-msgid "Axis Speed:"
-msgstr "軸の時速:"
-
-msgid "Feed Override:"
-msgstr "フィード手直し:"
-
-msgid "MDI:"
-msgstr "一線(MDI):"
-
+#: ../tcl/mini.tcl:1044 ../tcl/tkemc.tcl:880 ../tcl/tkemc.tcl:2289
 msgid "MDI"
 msgstr "一線(MDI)"
 
+#: ../tcl/mini.tcl:1048 ../tcl/tkemc.tcl:2280
 msgid "AUTO"
 msgstr "自動"
 
+#: ../tcl/mini.tcl:1052 ../tcl/mini.tcl:1809 ../tcl/tkemc.tcl:2182
+#: ../tcl/tkemc.tcl:2302
 msgid "MANUAL"
 msgstr "手動"
 
-msgid "Program: "
-msgstr "プローグラム: "
+#: ../tcl/mini.tcl:1106
+#, fuzzy
+msgid "Tool #:"
+msgstr "道具:"
 
-msgid " - Status: "
-msgstr " - 状態: "
+#: ../tcl/mini.tcl:1108
+#, fuzzy
+msgid "Length :"
+msgstr "長さ:"
 
+#: ../tcl/mini.tcl:1119
+#, fuzzy
+msgid "Work Offsets: "
+msgstr "工作物平行移動:"
+
+#: ../tcl/mini.tcl:1121
+msgid "start offsets popup here"
+msgstr ""
+
+#: ../tcl/mini.tcl:1165
+msgid "start override popup here"
+msgstr ""
+
+#: ../tcl/mini.tcl:1168 ../tcl/tkemc.tcl:1617 ../share/axis/tcl/axis.tcl:1643
+msgid "Feed Override:"
+msgstr "フィード手直し:"
+
+#: ../tcl/mini.tcl:1180
+msgid "-- MESSAGES --"
+msgstr ""
+
+#: ../tcl/mini.tcl:1230
+msgid "toggleView's not doin nothin yet"
+msgstr ""
+
+#: ../tcl/mini.tcl:1282
+msgid "Can't set zero with a tool offset active so I issued G49 to cancel it."
+msgstr ""
+
+#: ../tcl/mini.tcl:1346
+#, tcl-format
+msgid "Can't update the var file while machine is in auto and %s."
+msgstr ""
+
+#: ../tcl/mini.tcl:1400 ../tcl/tkemc.tcl:1268
+msgid "override limits"
+msgstr "方図を聞き捨てる"
+
+#: ../tcl/mini.tcl:1405 ../tcl/tkemc.tcl:1304
+msgid "home"
+msgstr "原点"
+
+#: ../tcl/mini.tcl:1426
+msgid "DEFAULT"
+msgstr ""
+
+#: ../tcl/mini.tcl:1427
+#, fuzzy
+msgid "Speed:"
+msgstr "軸の時速:"
+
+#: ../tcl/mini.tcl:1430
+msgid "RAPID"
+msgstr ""
+
+#: ../tcl/mini.tcl:1447 ../tcl/tkemc.tcl:1432
+msgid "Set Jog Speed"
+msgstr "ジョグ時速"
+
+#: ../tcl/mini.tcl:1453 ../tcl/tkemc.tcl:1445
+msgid "Set jog speed:"
+msgstr "ジョグ時速:"
+
+#: ../tcl/mini.tcl:1511
+msgid "JOG X +"
+msgstr ""
+
+#: ../tcl/mini.tcl:1512
+msgid "JOG X -"
+msgstr ""
+
+#: ../tcl/mini.tcl:1516
+msgid "increment"
+msgstr ""
+
+#: ../tcl/mini.tcl:1518 ../tcl/tkemc.tcl:656 ../tcl/tkemc.tcl:1290
+#: ../tcl/tkemc.tcl:1294
+msgid "continuous"
+msgstr "連綿"
+
+#: ../tcl/mini.tcl:1520
+msgid ""
+"A\n"
+"L\n"
+"L\n"
+"\n"
+"Z\n"
+"E\n"
+"R\n"
+"O"
+msgstr ""
+
+#: ../tcl/mini.tcl:1585
+#, fuzzy
+msgid "Spindle Forward"
+msgstr "スピンドル前進"
+
+#: ../tcl/mini.tcl:1586
+#, fuzzy
+msgid "Spindle Reverse"
+msgstr "スピンドル逆"
+
+#: ../tcl/mini.tcl:1587 ../tcl/tkemc.tcl:923
+msgid "Spindle off"
+msgstr "スピンドル消した"
+
+#: ../tcl/mini.tcl:1589
+#, fuzzy
+msgid "Spindle Slower"
+msgstr "スピンドル前進"
+
+#: ../tcl/mini.tcl:1593
+#, fuzzy
+msgid "Spindle Faster"
+msgstr "スピンドル前進"
+
+#: ../tcl/mini.tcl:1629 ../tcl/tkemc.tcl:1661
+msgid "MDI:"
+msgstr "一線(MDI):"
+
+#: ../tcl/mini.tcl:1666 ../tcl/tkemc.tcl:1699
+#: emc/usr_intf/stepconf/stepconf.glade:4045
+#: emc/usr_intf/pncconf/pncconf.glade:16122
+#: emc/usr_intf/pncconf/pncconf.glade:16896
+#: emc/usr_intf/pncconf/pncconf.glade:17596
+#: emc/usr_intf/pncconf/pncconf.glade:18296
 msgid "Run"
 msgstr "動く"
 
+#: ../tcl/mini.tcl:1668 ../tcl/tkemc.tcl:1700
+#: emc/usr_intf/pncconf/pncconf.glade:16093
+#: emc/usr_intf/pncconf/pncconf.glade:16867
+#: emc/usr_intf/pncconf/pncconf.glade:17567
+#: emc/usr_intf/pncconf/pncconf.glade:18267
 msgid "Pause"
 msgstr "間断"
 
+#: ../tcl/mini.tcl:1670 ../tcl/tkemc.tcl:1701
 msgid "Resume"
 msgstr "つづく"
 
+#: ../tcl/mini.tcl:1672 ../tcl/tkemc.tcl:1702
 msgid "Step"
 msgstr "徐徐に"
 
+#: ../tcl/mini.tcl:1674 ../tcl/tkemc.tcl:1703
 msgid "Verify"
 msgstr "質す"
 
-msgid "Error: "
-msgstr "越度: "
+#: ../tcl/mini.tcl:1695
+msgid "RESTART LINE"
+msgstr ""
 
-msgid "Error"
-msgstr "越度"
+#: ../tcl/mini.tcl:1696
+msgid "Back"
+msgstr ""
 
-msgid "Set Font"
-msgstr "フォントを撰ぶ"
+#: ../tcl/mini.tcl:1697
+msgid "Ahead"
+msgstr ""
 
-msgid "ESTOP"
+#: ../tcl/mini.tcl:1698
+#, fuzzy
+msgid "Restart"
+msgstr "リーセット"
+
+#: ../tcl/mini.tcl:1708 ../tcl/mini.tcl:2820 ../tcl/mini.tcl:2879
+#: ../tcl/tkemc.tcl:519 emc/usr_intf/axis/scripts/axis.py:2731
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:745
+msgid "All files"
+msgstr "全部のファイル"
+
+#: ../tcl/mini.tcl:1709 ../tcl/mini.tcl:2821 ../tcl/mini.tcl:2880
+#: ../tcl/tkemc.tcl:520
+msgid "Text files"
+msgstr "テキストファイル"
+
+#: ../tcl/mini.tcl:1710 ../tcl/mini.tcl:2822 ../tcl/mini.tcl:2881
+#: ../tcl/tkemc.tcl:521
+msgid "NC files"
+msgstr "NCファイル"
+
+#: ../tcl/mini.tcl:1750
+msgid ""
+"The interpreter is running. \n"
+" Pressing OK will abort and load the new program"
+msgstr ""
+
+#: ../tcl/mini.tcl:1883
+#, fuzzy
+msgid "ESTOPPED"
 msgstr "終止符"
 
-msgid "ON"
-msgstr "点いた"
+#: ../tcl/mini.tcl:1886
+#, fuzzy
+msgid "ESTOP PUSH"
+msgstr "リーセット"
 
+#: ../tcl/mini.tcl:1889 ../tcl/tkemc.tcl:2274
 msgid "ESTOP RESET"
 msgstr "リーセット"
 
-msgid "MIST ON"
-msgstr "雰点け"
-
-msgid "MIST OFF"
-msgstr "雰消した"
-
-msgid "MIST ?"
-msgstr "雰は?"
-
-msgid "FLOOD ON"
-msgstr "水洗点いた"
-
-msgid "FLOOD OFF"
-msgstr "水洗消した"
-
-msgid "FLOOD ?"
-msgstr "水洗は?"
-
-msgid "LUBE ON"
-msgstr "油点いた"
-
-msgid "LUBE OFF"
-msgstr "油消した"
-
+#: ../tcl/mini.tcl:1894 ../tcl/tkemc.tcl:2339
 msgid "SPINDLE FORWARD"
 msgstr "スピンドル前進"
 
+#: ../tcl/mini.tcl:1896 ../tcl/tkemc.tcl:2341
 msgid "SPINDLE REVERSE"
 msgstr "スピンドル逆"
 
+#: ../tcl/mini.tcl:1898 ../tcl/tkemc.tcl:2343
 msgid "SPINDLE OFF"
 msgstr "スピンドル消した"
 
+#: ../tcl/mini.tcl:1900 ../tcl/tkemc.tcl:2345
 msgid "SPINDLE INCREASE"
 msgstr "スピンドル加速"
 
+#: ../tcl/mini.tcl:1902 ../tcl/tkemc.tcl:2347
 msgid "SPINDLE DECREASE"
 msgstr "スピンドル減速"
 
+#: ../tcl/mini.tcl:1904 ../tcl/tkemc.tcl:2349
 msgid "SPINDLE ?"
 msgstr "スピンドルは?"
 
+#: ../tcl/mini.tcl:1908 ../tcl/tkemc.tcl:2353
 msgid "BRAKE ON"
 msgstr "ブレーキ点いた"
 
+#: ../tcl/mini.tcl:1910 ../tcl/tkemc.tcl:2355
 msgid "BRAKE OFF"
 msgstr "ブレーキ消した"
 
+#: ../tcl/mini.tcl:1912 ../tcl/tkemc.tcl:2357
 msgid "BRAKE ?"
 msgstr "ブレーキは?"
 
+#: ../tcl/mini.tcl:1916 ../tcl/tkemc.tcl:2315
+msgid "MIST ON"
+msgstr "雰点け"
+
+#: ../tcl/mini.tcl:1918 ../tcl/tkemc.tcl:2317
+msgid "MIST OFF"
+msgstr "雰消した"
+
+#: ../tcl/mini.tcl:1920 ../tcl/tkemc.tcl:2319
+msgid "MIST ?"
+msgstr "雰は?"
+
+#: ../tcl/mini.tcl:1924 ../tcl/tkemc.tcl:2323
+msgid "FLOOD ON"
+msgstr "水洗点いた"
+
+#: ../tcl/mini.tcl:1926 ../tcl/tkemc.tcl:2325
+msgid "FLOOD OFF"
+msgstr "水洗消した"
+
+#: ../tcl/mini.tcl:1928 ../tcl/tkemc.tcl:2327
+msgid "FLOOD ?"
+msgstr "水洗は?"
+
+#: ../tcl/mini.tcl:2049
+msgid "FEEDHOLD"
+msgstr ""
+
+#: ../tcl/mini.tcl:2121
+msgid ""
+"TOOL SETUP \n"
+" Click or tab to edit.   Press enter to return to keyboard machine control."
+msgstr ""
+
+#: ../tcl/mini.tcl:2127
+msgid "  TOOL NUMBER  "
+msgstr ""
+
+#: ../tcl/mini.tcl:2128
+msgid "  LENGTH  "
+msgstr ""
+
+#: ../tcl/mini.tcl:2129
+msgid "  DIAMETER  "
+msgstr ""
+
+#: ../tcl/mini.tcl:2130
+msgid "  COMMENT  "
+msgstr ""
+
+#: ../tcl/mini.tcl:2185
+msgid "Add Extra Tool"
+msgstr ""
+
+#: ../tcl/mini.tcl:2186
+msgid "Remove Last Tool"
+msgstr ""
+
+#: ../tcl/mini.tcl:2214 ../tcl/mini.tcl:2250
+#, tcl-format
+msgid "Can't update the tool file while machine is in auto and %s."
+msgstr ""
+
+#: ../tcl/mini.tcl:2226
+msgid "This is not a good number."
+msgstr ""
+
+#: ../tcl/mini.tcl:2290
+msgid ""
+"COORDINATE SYSTEM SETUP \n"
+"\n"
+"  Click value to edit with keyboard.  Press enter to return to keyboard "
+"control of machine. \n"
+" "
+msgstr ""
+
+#: ../tcl/mini.tcl:2317 ../tcl/scripts/Set_Coordinates.tcl:78
+#, fuzzy
+msgid "Axis "
+msgstr "軸の平行移動"
+
+#: ../tcl/mini.tcl:2318
+msgid "Value "
+msgstr ""
+
+#: ../tcl/mini.tcl:2323 ../tcl/scripts/Set_Coordinates.tcl:88
+msgid "Teach"
+msgstr ""
+
+#: ../tcl/mini.tcl:2331
+msgid "Write And Load File "
+msgstr ""
+
+#: ../tcl/mini.tcl:2333
+msgid "Offset By Radius"
+msgstr ""
+
+#: ../tcl/mini.tcl:2334
+msgid "Offset By Length"
+msgstr ""
+
+#: ../tcl/mini.tcl:2339
+msgid "Subtract"
+msgstr ""
+
+#: ../tcl/mini.tcl:2341
+msgid "Add"
+msgstr ""
+
+#: ../tcl/mini.tcl:2363
+msgid "Zero All G54"
+msgstr ""
+
+#: ../tcl/mini.tcl:2364
+msgid "Zero All G55"
+msgstr ""
+
+#: ../tcl/mini.tcl:2365
+msgid "Zero All G56"
+msgstr ""
+
+#: ../tcl/mini.tcl:2366
+msgid "Zero All G57"
+msgstr ""
+
+#: ../tcl/mini.tcl:2367
+msgid "Zero All G58"
+msgstr ""
+
+#: ../tcl/mini.tcl:2368
+msgid "Zero All G59"
+msgstr ""
+
+#: ../tcl/mini.tcl:2369
+msgid "Zero All G59.1"
+msgstr ""
+
+#: ../tcl/mini.tcl:2370
+msgid "Zero All G59.2"
+msgstr ""
+
+#: ../tcl/mini.tcl:2371
+msgid "Zero All G59.3"
+msgstr ""
+
+#: ../tcl/mini.tcl:2372
+msgid "Zero All ????"
+msgstr ""
+
+#: ../tcl/mini.tcl:2490
+msgid "Modified..."
+msgstr ""
+
+#: ../tcl/mini.tcl:2535
+msgid "Save and Load"
+msgstr ""
+
+#: ../tcl/mini.tcl:2537
+msgid "Undo"
+msgstr ""
+
+#: ../tcl/mini.tcl:2538
+msgid "Redo"
+msgstr ""
+
+#: ../tcl/mini.tcl:2543
+msgid "Delete"
+msgstr ""
+
+#: ../tcl/mini.tcl:2548
+msgid "Replace..."
+msgstr ""
+
+#: ../tcl/mini.tcl:2661
+msgid "Next Number: "
+msgstr ""
+
+#: ../tcl/mini.tcl:2762
+msgid "Basic Help"
+msgstr ""
+
+#: ../tcl/mini.tcl:2762
+msgid ""
+"This is a simple ASCII editor like many others.\n"
+"\n"
+"Ctrl+O  Open\n"
+"Ctrl+S  Save\n"
+"Ctrl+Z  Undo\n"
+"Ctrl+Y  Redo\n"
+"Ctrl+X  Cut\n"
+"Ctrl+C  Copy\n"
+"Ctrl+V  Paste\n"
+"Del     Delete\n"
+"Ctrl+A  Select All\n"
+"\n"
+"Ctrl+F  Find\n"
+"Ctrl+R  Replace "
+msgstr ""
+
+#: ../tcl/mini.tcl:2782
+msgid ""
+"tknotepad by Joseph Acosta. <joeja@mindspring.com>\n"
+"\n"
+" Modified for EMC by: Paul Corner <paul_c@users.sourceforge.net>"
+msgstr ""
+
+#: ../tcl/mini.tcl:2790
+msgid ""
+"The contents of this file may have changed, do you wish to to save your "
+"changes?"
+msgstr ""
+
+#: ../tcl/mini.tcl:2791
+msgid "New Confirm?"
+msgstr ""
+
+#: ../tcl/mini.tcl:2925
+msgid "Print Setup"
+msgstr ""
+
+#: ../tcl/mini.tcl:2929
+#, fuzzy
+msgid "Print Command: "
+msgstr "命令:"
+
+#: ../tcl/mini.tcl:3092
+msgid "Find what:"
+msgstr ""
+
+#: ../tcl/mini.tcl:3098
+msgid "Replace with:"
+msgstr ""
+
+#: ../tcl/mini.tcl:3106
+msgid "Find Next"
+msgstr ""
+
+#: ../tcl/mini.tcl:3109
+msgid "Replace"
+msgstr ""
+
+#: ../tcl/mini.tcl:3117
+msgid "Up"
+msgstr ""
+
+#: ../tcl/mini.tcl:3118
+msgid "Down"
+msgstr ""
+
+#: ../tcl/mini.tcl:3121
+msgid "Match case"
+msgstr ""
+
+#: ../tcl/mini.tcl:3566
+msgid "rot-x"
+msgstr ""
+
+#: ../tcl/mini.tcl:3576
+msgid "rot-y"
+msgstr ""
+
+#: ../tcl/mini.tcl:3586
+msgid "rot-z"
+msgstr ""
+
+#: ../tcl/mini.tcl:3596
+msgid "zoom"
+msgstr ""
+
+#: ../tcl/mini.tcl:3652
+#, fuzzy
+msgid "TEST"
+msgstr "終止符"
+
+#: ../tcl/mini.tcl:3696
+msgid "Hide Setup"
+msgstr ""
+
+#: ../tcl/mini.tcl:3700
+msgid "Show Setup"
+msgstr ""
+
+#: ../tcl/show_errors.tcl:41
+#, fuzzy
+msgid "EMC2 Errors"
+msgstr "越度"
+
+#: ../tcl/show_errors.tcl:44
+msgid ""
+"EMC2 terminated with an error.  When reporting problems, please include all "
+"the information below in your message."
+msgstr ""
+
+#: ../tcl/show_errors.tcl:69 ../tcl/scripts/Set_Coordinates.tcl:99
+msgid "Close"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:209 ../tcl/tkemc.tcl:236
+msgid "Set Run Mark"
+msgstr "動く点を決める"
+
+#: ../tcl/tkemc.tcl:211
+#, fuzzy, tcl-format
+msgid "Set run mark at line %s?"
+msgstr "線に動く点を決める"
+
+#: ../tcl/tkemc.tcl:231 ../tcl/tkemc.tcl:254 ../tcl/tkemc.tcl:277
+msgid "untitled"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:259
+msgid "Load Tool Table"
+msgstr "ツール表を読む"
+
+#: ../tcl/tkemc.tcl:285
+msgid "Load Parameter File"
+msgstr "パラムのファイルを読む"
+
+#: ../tcl/tkemc.tcl:334
+msgid "EMC Diagnostics"
+msgstr "EMCの診断"
+
+#: ../tcl/tkemc.tcl:336
+msgid "Task"
+msgstr "Task"
+
+#: ../tcl/tkemc.tcl:338 ../tcl/tkemc.tcl:361 ../tcl/tkemc.tcl:384
+msgid "Heartbeat:"
+msgstr "心臓の鼓動:"
+
+#: ../tcl/tkemc.tcl:341 ../tcl/tkemc.tcl:364 ../tcl/tkemc.tcl:387
+msgid "Command:"
+msgstr "命令:"
+
+#: ../tcl/tkemc.tcl:344 ../tcl/tkemc.tcl:367 ../tcl/tkemc.tcl:390
+msgid "Command #:"
+msgstr "命令番:"
+
+#: ../tcl/tkemc.tcl:347 ../tcl/tkemc.tcl:370 ../tcl/tkemc.tcl:393
+msgid "Status:"
+msgstr "状態:"
+
+#: ../tcl/tkemc.tcl:359
+msgid "Io"
+msgstr "IO"
+
+#: ../tcl/tkemc.tcl:382
+msgid "Motion"
+msgstr "動き"
+
+#: ../tcl/tkemc.tcl:423
+msgid "About TkEmc"
+msgstr "TkEmcについて"
+
+#: ../tcl/tkemc.tcl:424
+#, fuzzy
+msgid ""
+"TkEmc\n"
+"\n"
+"Tcl/Tk GUI for Enhanced Machine Controller version 2 (EMC2)\n"
+"\n"
+"GPL Version 2 (2006)"
+msgstr ""
+"Enhanced Machine Controller(EMC)の\n"
+"\n"
+"TkEmc\n"
+"\n"
+"\n"
+"Tcl/Tkで書いたGUI\n"
+"\n"
+" パブリックドメイン(1999)"
+
+#: ../tcl/tkemc.tcl:444
+msgid "Set Tool Offset"
+msgstr "道具が平行移動"
+
+#: ../tcl/tkemc.tcl:452 ../tcl/tkemc.tcl:957
+msgid "Tool:"
+msgstr "道具:"
+
+#: ../tcl/tkemc.tcl:456
+msgid "Length:"
+msgstr "長さ:"
+
+#: ../tcl/tkemc.tcl:460
+#, fuzzy
+msgid "Diameter:"
+msgstr "直径:"
+
+#: ../tcl/tkemc.tcl:775
+msgid "Edit..."
+msgstr "エディット..."
+
+#: ../tcl/tkemc.tcl:780
+msgid "Tool Table Editor..."
+msgstr ""
+
+#: ../tcl/tkemc.tcl:791
+msgid "Tools..."
+msgstr "道具..."
+
+#: ../tcl/tkemc.tcl:792
+msgid "Offsets and Variables..."
+msgstr "平行移動と価..."
+
+#: ../tcl/tkemc.tcl:793
+msgid "Diagnostics..."
+msgstr "診断"
+
+#: ../tcl/tkemc.tcl:794
+msgid "Backplot..."
+msgstr "描"
+
+#: ../tcl/tkemc.tcl:800
+msgid "Testing..."
+msgstr "テスト..."
+
+#: ../tcl/tkemc.tcl:801
+msgid "Debug..."
+msgstr "ディバッグ..."
+
+#: ../tcl/tkemc.tcl:802
+msgid "Font..."
+msgstr "フォント..."
+
+#: ../tcl/tkemc.tcl:806 emc/usr_intf/axis/scripts/image-to-gcode.py:656
+msgid "Units"
+msgstr "ユーニット（刻）"
+
+#: ../tcl/tkemc.tcl:807
+msgid "auto"
+msgstr "自動"
+
+#: ../tcl/tkemc.tcl:808 emc/usr_intf/pncconf/pncconf.py:2829
+#: emc/usr_intf/pncconf/pncconf.py:2837 emc/usr_intf/pncconf/pncconf.py:2838
+#: emc/usr_intf/pncconf/pncconf.py:3640
+msgid "inches"
+msgstr "インチ"
+
+#: ../tcl/tkemc.tcl:809 emc/usr_intf/axis/scripts/axis.py:2351
+#: emc/usr_intf/axis/scripts/axis.py:2498
+#: emc/usr_intf/stepconf/stepconf.py:1486
+#: emc/usr_intf/stepconf/stepconf.py:2070
+#: emc/usr_intf/stepconf/stepconf.glade:3999
+#: emc/usr_intf/pncconf/pncconf.py:2810 emc/usr_intf/pncconf/pncconf.py:2818
+#: emc/usr_intf/pncconf/pncconf.py:2819 emc/usr_intf/pncconf/pncconf.py:3636
+#: emc/usr_intf/pncconf/pncconf.glade:13028
+#: emc/usr_intf/pncconf/pncconf.glade:13115
+#: emc/usr_intf/pncconf/pncconf.glade:16387
+#: emc/usr_intf/pncconf/pncconf.glade:17161
+#: emc/usr_intf/pncconf/pncconf.glade:17861
+#: emc/usr_intf/pncconf/pncconf.glade:18561
+msgid "mm"
+msgstr "mm"
+
+#: ../tcl/tkemc.tcl:810
+msgid "cm"
+msgstr "cm"
+
+#: ../tcl/tkemc.tcl:814
+msgid "Utilities"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:815
+msgid "Hal Scope"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:816
+msgid "Hal Meter"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:837
+msgid "HAL Show"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:838
+msgid "HAL Config"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:844
+msgid "Balloon help"
+msgstr "バルーン助け"
+
+#: ../tcl/tkemc.tcl:867
+msgid "Estop on"
+msgstr "終止符点いた"
+
+#: ../tcl/tkemc.tcl:868
+msgid "Estop off"
+msgstr "終止符消した"
+
+#: ../tcl/tkemc.tcl:870
+msgid "Machine on"
+msgstr "出来るように"
+
+#: ../tcl/tkemc.tcl:871
+msgid "Machine off"
+msgstr "出来ないように"
+
+#: ../tcl/tkemc.tcl:878
+msgid "Manual"
+msgstr "手動"
+
+#: ../tcl/tkemc.tcl:879
+msgid "Auto"
+msgstr "自動"
+
+#: ../tcl/tkemc.tcl:887
+msgid "Mist on"
+msgstr "雰点いた"
+
+#: ../tcl/tkemc.tcl:888
+msgid "Mist off"
+msgstr "雰消した"
+
+#: ../tcl/tkemc.tcl:895
+msgid "Flood on"
+msgstr "水洗点いた"
+
+#: ../tcl/tkemc.tcl:896
+msgid "Flood off"
+msgstr "水洗消した"
+
+#: ../tcl/tkemc.tcl:903
+msgid "Lube on"
+msgstr "油点いた"
+
+#: ../tcl/tkemc.tcl:904
+msgid "Lube off"
+msgstr "油消した"
+
+#: ../tcl/tkemc.tcl:921
+msgid "Spindle forward"
+msgstr "スピンドル前進"
+
+#: ../tcl/tkemc.tcl:922
+msgid "Spindle reverse"
+msgstr "スピンドル逆"
+
+#: ../tcl/tkemc.tcl:937
+msgid "Brake on"
+msgstr "ブレーキ点いた"
+
+#: ../tcl/tkemc.tcl:938
+msgid "Brake off"
+msgstr "ブレーキ消した"
+
+#: ../tcl/tkemc.tcl:959
+msgid "Offset:"
+msgstr "平行移動:"
+
+#: ../tcl/tkemc.tcl:961
+msgid "Work Offsets:"
+msgstr "工作物平行移動:"
+
+#: ../tcl/tkemc.tcl:1274
+msgid "relative"
+msgstr "相対"
+
+#: ../tcl/tkemc.tcl:1275
+msgid "machine"
+msgstr "マッシン"
+
+#: ../tcl/tkemc.tcl:1277
+msgid "actual"
+msgstr "本当"
+
+#: ../tcl/tkemc.tcl:1278
+msgid "commanded"
+msgstr "命令な"
+
+#: ../tcl/tkemc.tcl:1280
+msgid "joint"
+msgstr "関節"
+
+#: ../tcl/tkemc.tcl:1281
+msgid "world"
+msgstr "世界"
+
+#: ../tcl/tkemc.tcl:1374
+msgid "Axis Offset"
+msgstr "軸の平行移動"
+
+#: ../tcl/tkemc.tcl:1376
+msgid "Set axis value:"
+msgstr "軸の数値:"
+
+#: ../tcl/tkemc.tcl:1470
+msgid "Set Feed Override"
+msgstr "フィード手直して"
+
+#: ../tcl/tkemc.tcl:1476
+msgid "Set feed override:"
+msgstr "フィード手直して:"
+
+#: ../tcl/tkemc.tcl:1501
+#, fuzzy
+msgid "Set Spindle Override"
+msgstr "フィード手直して"
+
+#: ../tcl/tkemc.tcl:1507
+#, fuzzy
+msgid "Set spindle speed override:"
+msgstr "フィード手直して:"
+
+#: ../tcl/tkemc.tcl:1562
+#, fuzzy
+msgid "Linear Jog Speed"
+msgstr "ジョグ時速"
+
+#: ../tcl/tkemc.tcl:1593
+msgid "Angular Jog Speed (deg)/min:"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:1637
+#, fuzzy
+msgid "Spindle speed Override:"
+msgstr "フィード手直して"
+
+#: ../tcl/tkemc.tcl:1683
+msgid "Program: "
+msgstr "プローグラム: "
+
+#: ../tcl/tkemc.tcl:1688
+#, fuzzy
+msgid "  -  Status: "
+msgstr " - 状態: "
+
+#: ../tcl/tkemc.tcl:1704
+msgid "Optional Stop"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:2051
+msgid "Error"
+msgstr "越度"
+
+#: ../tcl/tkemc.tcl:2111
+msgid "Set Font"
+msgstr "フォントを撰ぶ"
+
+#: ../tcl/tkemc.tcl:2120
+#, fuzzy
+msgid "Font"
+msgstr "フォント..."
+
+#: ../tcl/tkemc.tcl:2127
+msgid "Size"
+msgstr ""
+
+#: ../tcl/tkemc.tcl:2134
+#, fuzzy
+msgid "Style"
+msgstr "徐徐に"
+
+#: ../tcl/tkemc.tcl:2270 ../share/axis/tcl/axis.tcl:1891
+msgid "ESTOP"
+msgstr "終止符"
+
+#: ../tcl/tkemc.tcl:2272 ../share/axis/tcl/axis.tcl:1893
+msgid "ON"
+msgstr "点いた"
+
+#: ../tcl/tkemc.tcl:2331
+msgid "LUBE ON"
+msgstr "油点いた"
+
+#: ../tcl/tkemc.tcl:2333
+msgid "LUBE OFF"
+msgstr "油消した"
+
+#: ../tcl/tkemc.tcl:2335
+#, fuzzy
+msgid "LUBE ?"
+msgstr "油点いた"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:23
+msgid "EMC Set Coordinate"
+msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:26
+msgid "Coordinate System Control Window"
+msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:79
+msgid "Var # "
+msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:80
+#, fuzzy
+msgid "Offset Value "
+msgstr "平行移動:"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:81
+msgid "What to Teach"
+msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:97
+msgid "Set Old"
+msgstr ""
+
+#: ../tcl/scripts/Set_Coordinates.tcl:98
+#, fuzzy
+msgid "Set Zero"
+msgstr "フォントを撰ぶ"
+
+#: ../tcl/scripts/Set_Coordinates.tcl:100
+msgid "Write"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:147
+msgid "Emergency stop"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:148
+#, fuzzy
+msgid "Turn machine on"
+msgstr "出来るように"
+
+#: emc/usr_intf/axis/scripts/axis.py:150
+msgid "Activate first axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:151
+msgid "Activate second axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:152
+msgid "Activate third axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:153
+msgid "Activate fourth axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:154
+msgid "Activate fifth through ninth axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:155
+#, fuzzy
+msgid "Set Feed Override from 0% to 100%"
+msgstr "フィード手直して"
+
+#: emc/usr_intf/axis/scripts/axis.py:156
+msgid ", and ."
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:156
+#, fuzzy
+msgid "Select jog speed"
+msgstr "ジョグ時速:"
+
+#: emc/usr_intf/axis/scripts/axis.py:157
+msgid "< and >"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:157
+#, fuzzy
+msgid "Select angular jog speed"
+msgstr "ジョグ時速:"
+
+#: emc/usr_intf/axis/scripts/axis.py:158
+msgid "I, Shift-I"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:158 ../share/axis/tcl/axis.tcl:2323
+msgid "Select jog increment"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:159
+#, fuzzy
+msgid "Continuous jog"
+msgstr "連綿"
+
+#: emc/usr_intf/axis/scripts/axis.py:160
+#: emc/usr_intf/pncconf/pncconf.glade:16162
+#: emc/usr_intf/pncconf/pncconf.glade:16936
+#: emc/usr_intf/pncconf/pncconf.glade:17636
+#: emc/usr_intf/pncconf/pncconf.glade:18336
+#, fuzzy
+msgid "Home"
+msgstr "原点"
+
+#: emc/usr_intf/axis/scripts/axis.py:160
+msgid "Send active axis home"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:161
+msgid "Ctrl-Home"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:161
+msgid "Home all axes"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:162
+msgid "Shift-Home"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:162
+msgid "Zero G54 offset for active axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:163
+msgid "End"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:163
+msgid "Set G54 offset for active axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:164
+msgid "Jog active axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:167
+msgid "Left, Right"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:167
+msgid "Jog first axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:168
+msgid "Up, Down"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:168
+msgid "Jog second axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:169
+msgid "Pg Up, Pg Dn"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:169
+msgid "Jog third axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:170
+msgid "Shift+above jogs"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:170
+msgid "Jog at traverse speed"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:171
+msgid "Jog fourth axis"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:174
+msgid "Toggle between Drag and Rotate mode"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:175
+msgid "Left Button"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:175
+msgid "Pan, rotate or select line"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:176
+msgid "Shift+Left Button"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:176
+msgid "Rotate or pan"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:177
+msgid "Right Button"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:177 emc/usr_intf/axis/scripts/axis.py:179
+#: emc/usr_intf/axis/scripts/axis.py:180
+msgid "Zoom view"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:178
+msgid "Wheel Button"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:178
+msgid "Rotate view"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:179
+msgid "Rotate Wheel"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:180
+msgid "Control+Left Button"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:183
+#, fuzzy
+msgid "Manual control"
+msgstr "手動"
+
+#: emc/usr_intf/axis/scripts/axis.py:184
+msgid "Code entry (MDI)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:185
+msgid "Control-M"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:185
+msgid "Clear MDI history"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:186
+msgid "Control-H"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:186
+msgid "Copy selected MDI history elements"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:187
+msgid "to clipboard"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:188
+msgid "Control-Shift-H"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:188
+msgid "Paste clipboard to MDI history"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:189 ../share/axis/tcl/axis.tcl:1088
+#, fuzzy
+msgid "Override Limits"
+msgstr "方図を聞き捨てる"
+
+#: emc/usr_intf/axis/scripts/axis.py:191
+msgid "Open program"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:192
+msgid "Control-R"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:192
+msgid "Reload program"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:193
+msgid "Control-S"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:193
+msgid "Save g-code as"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:194
+#, fuzzy
+msgid "Run program"
+msgstr "プローグラム: "
+
+#: emc/usr_intf/axis/scripts/axis.py:195
+msgid "Step program"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:196
+#, fuzzy
+msgid "Pause program"
+msgstr "プローグラム: "
+
+#: emc/usr_intf/axis/scripts/axis.py:197
+#, fuzzy
+msgid "Resume program"
+msgstr "つづく"
+
+#: emc/usr_intf/axis/scripts/axis.py:198
+msgid "Stop running program, or"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:199
+msgid "stop loading program preview"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:201
+msgid "Toggle mist"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:202
+msgid "Toggle flood"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:203
+#, fuzzy
+msgid "Spindle brake off"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/axis/scripts/axis.py:204
+msgid "Shift-B"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:204
+#, fuzzy
+msgid "Spindle brake on"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/axis/scripts/axis.py:205
+msgid "Turn spindle clockwise"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:206
+msgid "Turn spindle counterclockwise"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:207
+msgid "Turn spindle more slowly"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:208
+msgid "Turn spindle more quickly"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:210
+msgid "Control-K"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:210
+msgid "Clear live plot"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:211
+msgid "Cycle among preset views"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:212
+msgid "Switch between preview and DRO"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:214
+msgid "Ctrl-Space"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:214
+msgid "Clear notifications"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1607
+msgid "No tool"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1609
+#, python-format
+msgid "Unknown tool %d"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1611
+#, python-format
+msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1613
+#, python-format
+msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1865
+#, fuzzy
+msgid "Filtering..."
+msgstr "テスト..."
+
+#: emc/usr_intf/axis/scripts/axis.py:1921
+msgid "Filter failed"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1922
+#, python-format
+msgid ""
+"The program %(program)r exited with code %(code)d.  Any error messages it "
+"produced are shown below:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1981
+#, python-format
+msgid "G-Code error in %s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:1982
+#, python-format
+msgid ""
+"Near line %(seq)d of %(f)s:\n"
+"%(error_str)s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2138
+#: emc/usr_intf/axis/scripts/axis.py:3528 ../share/axis/tcl/axis.tcl:1067
+#: ../share/axis/tcl/axis.tcl:1069 ../share/axis/tcl/axis.tcl:2115
+#, fuzzy
+msgid "Continuous"
+msgstr "連綿"
+
+#: emc/usr_intf/axis/scripts/axis.py:2335
+#, fuzzy
+msgid "T    Tool Table"
+msgstr "ツール表を読む"
+
+#: emc/usr_intf/axis/scripts/axis.py:2352
+#: emc/usr_intf/axis/scripts/axis.py:2502
+#: emc/usr_intf/stepconf/stepconf.py:1492
+#: emc/usr_intf/stepconf/stepconf.py:2084
+msgid "in"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2355
+msgid " radius"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2357
+#, fuzzy
+msgid " diameter"
+msgstr "直径:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2358
+msgid "°"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2364
+msgid "Coordinate System:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2387
+msgid "Name:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2387
+msgid "Size:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2388
+#, fuzzy
+msgid "Tool order:"
+msgstr "道具:"
+
+#: emc/usr_intf/axis/scripts/axis.py:2388
+msgid "Rapid distance:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2389
+msgid "Feed distance:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2389
+msgid "Total distance:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2390
+msgid "Run time:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2390
+msgid "X bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2391
+msgid "Y bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2391
+msgid "Z bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2392
+msgid "A bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2392
+msgid "B bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2393
+msgid "C bounds:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2417
+#, python-format
+msgid "Program exceeds machine minimum on axis %s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2420
+#, python-format
+msgid "Program exceeds machine maximum on axis %s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2425
+msgid "Program exceeds machine limits"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2428
+msgid "Run Anyway"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2480
+msgid "No file loaded"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2488
+#, python-format
+msgid "generated from %s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2494
+#, python-format
+msgid ""
+"%(size)s bytes\n"
+"%(lines)s gcode lines"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2520
+#, python-format
+msgid "%.1f minutes"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2522
+#, python-format
+msgid "%d seconds"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2530
+#, python-format
+msgid "%(a)f to %(b)f = %(diff)f %(units)s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2531
+msgid "G-Code Properties"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:2729
+#, fuzzy
+msgid "All machinable files"
+msgstr "全部のファイル"
+
+#: emc/usr_intf/axis/scripts/axis.py:2730
+#: emc/usr_intf/axis/scripts/axis.py:3289
+msgid "rs274ngc files"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3113 ../share/axis/tcl/axis.tcl:1083
+msgid "Touch Off"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3114
+#, python-format
+msgid "Enter %s coordinate relative to workpiece:"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3301
+msgid "Error saving file"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3665
+msgid "Home All"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3667
+msgid "Home all axes [Ctrl-Home]"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3670
+msgid "Home All Axes"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3675
+msgid "Unhome All Axes"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3695
+#, python-format
+msgid "Home Axis _%s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3697
+#, python-format
+msgid "Unhome Axis _%s"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:3834
+msgid "Run from here"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/axis.py:4052
+msgid "Error in ~/.axisrc"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:11
+#, python-format
+msgid "Insert tool %d and click continue when ready"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:13
+msgid "Remove the tool and click continue when ready"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
+msgid "Tool change"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:17
+#, fuzzy
+msgid "Continue"
+msgstr "連綿"
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:31
+msgid "AXIS Manual Toolchanger"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/hal_manualtoolchange.py:35
+msgid ""
+"This window is part of the AXIS manual toolchanger.  It is safe to close or "
+"iconify this window, or it will close automatically after a few seconds."
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:498
+#, python-format
+msgid "%s: Image to gcode"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:499
+msgid "Image to gcode"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:509
+#, python-format
+msgid ""
+"Image size: %(w)d x %(h)d pixels\n"
+"Minimum pixel value: %(min)d\n"
+"Maximum pixel value: %(max)d"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:599
+msgid "G20 (in)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:599
+msgid "G21 (mm)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+#: emc/usr_intf/pncconf/pncconf.glade:851
+#: emc/usr_intf/pncconf/pncconf.glade:922
+#: emc/usr_intf/pncconf/pncconf.glade:1028
+#: emc/usr_intf/pncconf/pncconf.glade:1095
+msgid "None"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+msgid "White"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:602
+msgid "Black"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Rows"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Columns"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Rows then Columns"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:608
+msgid "Columns then Rows"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Positive"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+#, fuzzy
+msgid "Negative"
+msgstr "相対"
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Alternating"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Up Milling"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:609
+msgid "Down Milling"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "Ball End"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "Flat End"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "30 Degree"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "45 Degree"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:614
+msgid "60 Degree"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+msgid "Secondary"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:615
+msgid "Full"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:645
+msgid "Invert Image"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:646
+msgid "Normalize Image"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:647
+msgid "Extend Image Border"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:648
+msgid "Pixel Size (Units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:649
+msgid "Depth (units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:650
+msgid "Tolerance (units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:651
+msgid "Stepover (pixels)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:652
+msgid "Tool Diameter (units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:653
+msgid "Tool Type"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:654
+msgid "Feed Rate (units per minute)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:655
+msgid "Plunge Feed Rate (units per minute)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:657
+msgid "Safety Height (units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:658
+msgid "Scan Pattern"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:659
+msgid "Scan Direction"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:660
+msgid "Lace Bounding"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:661
+msgid "Contact Angle (degrees)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:662
+msgid "Spindle Speed (RPM)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:663
+msgid "Roughing offset (units, 0=no roughing)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:664
+msgid "Roughing depth per pass (units)"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:731
+msgid "image-to-gcode: User pressed cancel"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/image-to-gcode.py:744
+msgid "Depth images"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:22
+msgid "EMC2 Debug Level"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:23
+msgid "debuglevel"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:36
+msgid "Configuration *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:37
+msgid "Version Numbers *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:38
+msgid "NML *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:39
+msgid "RCS *"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:40
+msgid "Task Issue"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:41
+#, fuzzy
+msgid "Motion Time"
+msgstr "動き"
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:43
+msgid "Interpreter List"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:47
+#, python-format
+msgid ""
+"Inifile setting for this debug level:\n"
+"[EMC]DEBUG=0x%08x"
+msgstr ""
+
+#: emc/usr_intf/axis/scripts/debuglevel.py:81
+msgid "  * This option can only be enabled in the inifile"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:47
+#, fuzzy
+msgid "_Open..."
+msgstr "開く..."
+
+#: ../share/axis/tcl/axis.tcl:51
+#, fuzzy
+msgid "Recent _Files"
+msgstr "テキストファイル"
+
+#: ../share/axis/tcl/axis.tcl:55
+#, fuzzy
+msgid "_Edit..."
+msgstr "エディット..."
+
+#: ../share/axis/tcl/axis.tcl:58
+msgid "Ctrl-R"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:60
+msgid "_Reload"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:63
+msgid "Ctrl-S"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:65
+msgid "_Save gcode as..."
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:69
+msgid "_Properties..."
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:75
+msgid "Edit _tool table..."
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:79
+#, fuzzy
+msgid "Reload tool ta_ble"
+msgstr "ツール表を読む"
+
+#: ../share/axis/tcl/axis.tcl:85
+msgid "_Ladder Editor..."
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:91
+msgid "_Quit"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:97
+msgid "Toggle _Emergency Stop"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:102
+msgid "Toggle _Machine Power"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:109
+#, fuzzy
+msgid "_Run program"
+msgstr "プローグラム: "
+
+#: ../share/axis/tcl/axis.tcl:113
+msgid "Ru_n from selected line"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:118
+#, fuzzy
+msgid "S_tep"
+msgstr "徐徐に"
+
+#: ../share/axis/tcl/axis.tcl:123
+#, fuzzy
+msgid "_Pause"
+msgstr "間断"
+
+#: ../share/axis/tcl/axis.tcl:128
+#, fuzzy
+msgid "Re_sume"
+msgstr "つづく"
+
+#: ../share/axis/tcl/axis.tcl:133 ../share/axis/tcl/axis.tcl:1174
+#, fuzzy
+msgid "Stop"
+msgstr "徐徐に"
+
+#: ../share/axis/tcl/axis.tcl:138
+msgid "Stop at M_1"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:143
+msgid "Skip lines with '_/'"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:148
+msgid "Ctrl-M"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:150
+msgid "Clear MDI h_istory"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:152
+msgid "Ctrl-H"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:154
+msgid "Copy from MDI hist_ory"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:156
+msgid "Ctrl-Shift-H"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:158
+msgid "Paste to MDI histor_y"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:164
+#, fuzzy
+msgid "_Calibration"
+msgstr "較正..."
+
+#: ../share/axis/tcl/axis.tcl:168
+#, fuzzy
+msgid "Show _Hal Configuration"
+msgstr "スピンドル消した"
+
+#: ../share/axis/tcl/axis.tcl:172
+msgid "H_al Meter"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:176
+msgid "Ha_l Scope"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:180
+msgid "Sho_w EMC Status"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:184
+msgid "Set _Debug Level"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:190
+msgid "Homin_g"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:194
+msgid "_Unhoming"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:198
+msgid "_Zero coordinate system"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:202
+msgid "P1  G5_4"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:206
+msgid "P2  G5_5"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:210
+msgid "P3  G5_6"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:214
+msgid "P4  G5_7"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:218
+msgid "P5  G5_8"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:222
+msgid "P6  G5_9"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:226
+msgid "P7  G59._1"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:230
+msgid "P8  G59._2"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:234
+msgid "P9  G59._3"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:238
+msgid "_G92"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:248
+msgid "_Top view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:255
+msgid "_Rotated Top view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:262
+msgid "_Side view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:269
+msgid "_Front view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:276
+msgid "_Perspective view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:285
+msgid "Display _Inches"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:292
+msgid "Display _MM"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:299
+#, fuzzy
+msgid "S_how program"
+msgstr "プローグラム: "
+
+#: ../share/axis/tcl/axis.tcl:304
+msgid "Show program r_apids"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:309
+msgid "Sho_w live plot"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:314
+msgid "Show too_l"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:319
+msgid "Show e_xtents"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:324
+msgid "Sh_ow machine limits"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:329
+msgid "Show v_elocity"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:334
+msgid "Show _distance to go"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:339
+msgid "La_rge coordinate font"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:342
+msgid "Ctrl-K"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:344
+msgid "_Clear live plot"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:353
+msgid "Show commanded position"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:360
+msgid "Show actual position"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:369
+#, fuzzy
+msgid "Show machine position"
+msgstr "出来るように"
+
+#: ../share/axis/tcl/axis.tcl:376
+msgid "Show relative position"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:385
+msgid "Joint mode"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:392
+msgid "World mode"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:401
+#, fuzzy
+msgid "_About AXIS"
+msgstr "これについて..."
+
+#: ../share/axis/tcl/axis.tcl:405
+msgid "Quick _Reference"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:411
+#, fuzzy
+msgid "_File"
+msgstr "ファイル"
+
+#: ../share/axis/tcl/axis.tcl:415
+#, fuzzy
+msgid "_Machine"
+msgstr "マッシン"
+
+#: ../share/axis/tcl/axis.tcl:419
+#, fuzzy
+msgid "_View"
+msgstr "見方"
+
+#: ../share/axis/tcl/axis.tcl:423
+#, fuzzy
+msgid "_Help"
+msgstr "助け"
+
+#: ../share/axis/tcl/axis.tcl:432
+msgid "Toggle Emergency Stop [F1]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:441
+msgid "Toggle Machine power [F2]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:452
+msgid "Open G-Code file [O]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:460
+msgid "Reopen current file [Control-R]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:470
+msgid "Begin executing current file [R]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:478
+msgid "Execute next line [T]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:486
+msgid "Pause [P] / resume [S] execution"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:494
+msgid "Stop program execution [ESC]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:504
+msgid "Toggle skip lines with '/' [Alt-M /]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:511
+msgid "Toggle optional pause [Alt-M 1]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:520
+msgid "Zoom in"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:528
+msgid "Zoom out"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:536
+msgid "Top view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:544
+msgid "Rotated top view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:552
+msgid "Side view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:560
+msgid "Front view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:568
+msgid "Perspective view"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:576
+msgid "Toggle between Drag and Rotate Mode [D]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:591
+msgid "Clear live plot [Ctrl-K]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:723
+#, fuzzy
+msgid "Manual Control [F3]"
+msgstr "手動"
+
+#: ../share/axis/tcl/axis.tcl:724
+msgid "MDI [F5]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:738 ../share/axis/tcl/axis.tcl:2011
+#: ../share/axis/tcl/axis.tcl:2174
+#, fuzzy
+msgid "Axis:"
+msgstr "軸の平行移動"
+
+#: ../share/axis/tcl/axis.tcl:1077
+#, fuzzy
+msgid "Home Axis"
+msgstr "原点"
+
+#: ../share/axis/tcl/axis.tcl:1151
+#, fuzzy
+msgid "Spindle:"
+msgstr "スピンドル消した"
+
+#: ../share/axis/tcl/axis.tcl:1198
+msgid "-"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1212
+msgid "+"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1217
+#, fuzzy
+msgid "Brake"
+msgstr "ブレーキ点いた"
+
+#: ../share/axis/tcl/axis.tcl:1264
+#, fuzzy
+msgid "Coolant:"
+msgstr "命令:"
+
+#: ../share/axis/tcl/axis.tcl:1269
+#, fuzzy
+msgid "Mist"
+msgstr "雰点いた"
+
+#: ../share/axis/tcl/axis.tcl:1274
+#, fuzzy
+msgid "Flood"
+msgstr "水洗点いた"
+
+#: ../share/axis/tcl/axis.tcl:1346
+msgid "History:"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1369
+#, fuzzy
+msgid "MDI Command:"
+msgstr "命令:"
+
+#: ../share/axis/tcl/axis.tcl:1378
+msgid "Go"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1384
+msgid "Active G-Codes:"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1462
+#, fuzzy
+msgid "Preview"
+msgstr "見方"
+
+#: ../share/axis/tcl/axis.tcl:1463
+msgid "DRO"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1549 ../share/axis/tcl/axis.tcl:1562
+#, fuzzy
+msgid "Jog Speed:"
+msgstr "ジョグ時速"
+
+#: ../share/axis/tcl/axis.tcl:1574
+msgid "Max Velocity:"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1603
+#, fuzzy
+msgid "Spindle Override:"
+msgstr "フィード手直して"
+
+#: ../share/axis/tcl/axis.tcl:1605 ../share/axis/tcl/axis.tcl:1645
+msgid "%"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1685
+msgid ""
+"EMC2/AXIS version $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Jeff Epler and Chris "
+"Radek.\n"
+"\n"
+"This is free software, and you are welcome to redistribute it under certain "
+"conditions.  See the file COPYING, included with EMC2.\n"
+"\n"
+"Visit the EMC web site: "
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1713
+#, fuzzy
+msgid "About AXIS"
+msgstr "これについて..."
+
+#: ../share/axis/tcl/axis.tcl:1742
+msgid "AXIS Quick Reference"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1878
+msgid "AXIS $::version on $::machine"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1880
+msgid "(no file)"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1892
+msgid "OFF"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:1951 ../share/axis/tcl/axis.tcl:1956
+#, fuzzy
+msgid "Position:"
+msgstr "動き"
+
+#: ../share/axis/tcl/axis.tcl:1953
+#, fuzzy
+msgid "Machine"
+msgstr "マッシン"
+
+#: ../share/axis/tcl/axis.tcl:1953
+#, fuzzy
+msgid "Relative"
+msgstr "相対"
+
+#: ../share/axis/tcl/axis.tcl:1954
+#, fuzzy
+msgid "Actual"
+msgstr "本当"
+
+#: ../share/axis/tcl/axis.tcl:1954
+#, fuzzy
+msgid "Commanded"
+msgstr "命令な"
+
+#: ../share/axis/tcl/axis.tcl:2007 ../share/axis/tcl/axis.tcl:2174
+#, fuzzy
+msgid "Joint:"
+msgstr "関節"
+
+#: ../share/axis/tcl/axis.tcl:2305
+msgid "Turn spindle counterclockwise [F10]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2306
+msgid "Turn spindle clockwise [F9]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2307
+msgid "Stop spindle [F9/F10]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2308
+#, fuzzy
+msgid "Turn spindle Faster [F12]"
+msgstr "スピンドル前進"
+
+#: ../share/axis/tcl/axis.tcl:2309
+#, fuzzy
+msgid "Turn spindle Slower [F11]"
+msgstr "スピンドル前進"
+
+#: ../share/axis/tcl/axis.tcl:2310
+msgid "Turn spindle brake on [Shift-B] or off [B]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2311
+msgid "Turn flood on or off [F8]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2312
+msgid "Turn mist on or off [F7]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2313
+msgid "Send active axis home [Home]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2314
+msgid "Set G54 offset for active axis [End]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2315
+msgid "Activate axis [X]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2316
+msgid "Activate axis [Y]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2317
+msgid "Activate axis [Z]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2318
+msgid "Activate axis [A]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2319
+msgid "Activate axis [4]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2320
+msgid "Activate axis [5]"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2321 ../share/axis/tcl/axis.tcl:2322
+msgid "Jog selected axis"
+msgstr ""
+
+#: ../share/axis/tcl/axis.tcl:2324
+msgid "Temporarily allow jogging outside machine limits [L]"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:52
+msgid ""
+"Stepconf encountered an error.  The following information may be useful in "
+"troubleshooting:\n"
+"\n"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:70 emc/usr_intf/pncconf/pncconf.py:94
+msgid "Gecko 201"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:71 emc/usr_intf/pncconf/pncconf.py:95
+msgid "Gecko 202"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:72 emc/usr_intf/pncconf/pncconf.py:96
+msgid "Gecko 203v"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:73 emc/usr_intf/pncconf/pncconf.py:97
+msgid "Gecko 210"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:74 emc/usr_intf/pncconf/pncconf.py:98
+msgid "Gecko 212"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:75 emc/usr_intf/pncconf/pncconf.py:99
+msgid "Gecko 320"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:76 emc/usr_intf/pncconf/pncconf.py:100
+msgid "Gecko 540"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:77 emc/usr_intf/pncconf/pncconf.py:101
+msgid "L297"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:78 emc/usr_intf/pncconf/pncconf.py:102
+msgid "PMDX-150"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:79 emc/usr_intf/pncconf/pncconf.py:103
+msgid "Sherline"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:80 emc/usr_intf/pncconf/pncconf.py:104
+msgid "Xylotex 8S-3"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:81 emc/usr_intf/pncconf/pncconf.py:105
+msgid "Parker-Compumotor oem750"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:82 emc/usr_intf/pncconf/pncconf.py:106
+msgid "JVL-SMD41 or 42"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:83 emc/usr_intf/pncconf/pncconf.py:107
+msgid "Hobbycnc Pro Chopper"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:84 emc/usr_intf/pncconf/pncconf.py:108
+msgid "Keling 4030"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:143
+#, fuzzy
+msgid "X Step"
+msgstr "徐徐に"
+
+#: emc/usr_intf/stepconf/stepconf.py:143
+msgid "X Direction"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:143
+#, fuzzy
+msgid "Y Step"
+msgstr "徐徐に"
+
+#: emc/usr_intf/stepconf/stepconf.py:143
+msgid "Y Direction"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:144
+#, fuzzy
+msgid "Z Step"
+msgstr "徐徐に"
+
+#: emc/usr_intf/stepconf/stepconf.py:144
+msgid "Z Direction"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:144
+#, fuzzy
+msgid "A Step"
+msgstr "徐徐に"
+
+#: emc/usr_intf/stepconf/stepconf.py:144
+msgid "A Direction"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
+#, fuzzy
+msgid "Spindle ON"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
+#, fuzzy
+msgid "Spindle CW"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
+#, fuzzy
+msgid "Spindle CCW"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
+#, fuzzy
+msgid "Spindle PWM"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.py:145 emc/usr_intf/pncconf/pncconf.py:142
+#, fuzzy
+msgid "Spindle Brake"
+msgstr "スピンドル前進"
+
+#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+msgid "Coolant Mist"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+msgid "Coolant Flood"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+#, fuzzy
+msgid "ESTOP Out"
+msgstr "終止符"
+
+#: emc/usr_intf/stepconf/stepconf.py:146 emc/usr_intf/pncconf/pncconf.py:143
+msgid "Amplifier Enable"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:147 emc/usr_intf/pncconf/pncconf.py:144
+msgid "Charge Pump"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
+msgid "Digital out 0"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
+msgid "Digital out 1"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
+msgid "Digital out 2"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:148 emc/usr_intf/pncconf/pncconf.py:145
+msgid "Digital out 3"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:149 emc/usr_intf/stepconf/stepconf.py:168
+msgid "Unused"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:151 emc/usr_intf/pncconf/pncconf.py:147
+#, fuzzy
+msgid "ESTOP In"
+msgstr "終止符"
+
+#: emc/usr_intf/stepconf/stepconf.py:151 emc/usr_intf/pncconf/pncconf.py:147
+msgid "Probe In"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
+#, fuzzy
+msgid "Spindle Index"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
+#, fuzzy
+msgid "Spindle Phase A"
+msgstr "スピンドル逆"
+
+#: emc/usr_intf/stepconf/stepconf.py:152 emc/usr_intf/pncconf/pncconf.py:148
+#, fuzzy
+msgid "Spindle Phase B"
+msgstr "スピンドル逆"
+
+#: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
+#: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
+#: emc/usr_intf/pncconf/pncconf.py:2599
+#, fuzzy
+msgid "Home X"
+msgstr "原点"
+
+#: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
+#: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
+#: emc/usr_intf/pncconf/pncconf.py:2599
+#, fuzzy
+msgid "Home Y"
+msgstr "原点"
+
+#: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
+#: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
+#: emc/usr_intf/pncconf/pncconf.py:2599
+#, fuzzy
+msgid "Home Z"
+msgstr "原点"
+
+#: emc/usr_intf/stepconf/stepconf.py:153 emc/usr_intf/pncconf/pncconf.py:149
+#: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
+#: emc/usr_intf/pncconf/pncconf.py:2599
+#, fuzzy
+msgid "Home A"
+msgstr "原点"
+
+#: emc/usr_intf/stepconf/stepconf.py:154 emc/usr_intf/pncconf/pncconf.py:150
+#: emc/usr_intf/pncconf/pncconf.py:165
+msgid "Minimum Limit + Home X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:154 emc/usr_intf/pncconf/pncconf.py:150
+#: emc/usr_intf/pncconf/pncconf.py:165
+msgid "Minimum Limit + Home Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:151
+#: emc/usr_intf/pncconf/pncconf.py:166
+msgid "Minimum Limit + Home Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:155 emc/usr_intf/pncconf/pncconf.py:151
+#: emc/usr_intf/pncconf/pncconf.py:166
+msgid "Minimum Limit + Home A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:152
+#: emc/usr_intf/pncconf/pncconf.py:167
+msgid "Maximum Limit + Home X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:152
+#: emc/usr_intf/pncconf/pncconf.py:167
+msgid "Maximum Limit + Home Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:153
+#: emc/usr_intf/pncconf/pncconf.py:168
+msgid "Maximum Limit + Home Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:157 emc/usr_intf/pncconf/pncconf.py:153
+#: emc/usr_intf/pncconf/pncconf.py:168
+msgid "Maximum Limit + Home A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:154
+#: emc/usr_intf/pncconf/pncconf.py:169
+msgid "Both Limit + Home X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:158 emc/usr_intf/pncconf/pncconf.py:154
+#: emc/usr_intf/pncconf/pncconf.py:169
+msgid "Both Limit + Home Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:159 emc/usr_intf/pncconf/pncconf.py:155
+#: emc/usr_intf/pncconf/pncconf.py:170
+msgid "Both Limit + Home Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:159 emc/usr_intf/pncconf/pncconf.py:155
+#: emc/usr_intf/pncconf/pncconf.py:170
+msgid "Both Limit + Home A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:160 emc/usr_intf/pncconf/pncconf.py:156
+#: emc/usr_intf/pncconf/pncconf.py:172
+msgid "Minimum Limit X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:160 emc/usr_intf/pncconf/pncconf.py:156
+#: emc/usr_intf/pncconf/pncconf.py:172
+msgid "Minimum Limit Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:157
+#: emc/usr_intf/pncconf/pncconf.py:173
+msgid "Minimum Limit Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:161 emc/usr_intf/pncconf/pncconf.py:157
+#: emc/usr_intf/pncconf/pncconf.py:173
+msgid "Minimum Limit A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:162 emc/usr_intf/pncconf/pncconf.py:158
+#: emc/usr_intf/pncconf/pncconf.py:174
+msgid "Maximum Limit X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:162 emc/usr_intf/pncconf/pncconf.py:158
+#: emc/usr_intf/pncconf/pncconf.py:174
+msgid "Maximum Limit Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:163 emc/usr_intf/pncconf/pncconf.py:159
+#: emc/usr_intf/pncconf/pncconf.py:175
+msgid "Maximum Limit Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:163 emc/usr_intf/pncconf/pncconf.py:159
+#: emc/usr_intf/pncconf/pncconf.py:175
+msgid "Maximum Limit A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:164 emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:176
+msgid "Both Limit X"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:164 emc/usr_intf/pncconf/pncconf.py:160
+#: emc/usr_intf/pncconf/pncconf.py:176
+msgid "Both Limit Y"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:165 emc/usr_intf/pncconf/pncconf.py:161
+#: emc/usr_intf/pncconf/pncconf.py:177
+msgid "Both Limit Z"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:165 emc/usr_intf/pncconf/pncconf.py:161
+#: emc/usr_intf/pncconf/pncconf.py:177
+msgid "Both Limit A"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:166 emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:177
+#, fuzzy
+msgid "All limits"
+msgstr "全部のファイル"
+
+#: emc/usr_intf/stepconf/stepconf.py:166 emc/usr_intf/pncconf/pncconf.py:162
+#: emc/usr_intf/pncconf/pncconf.py:2117 emc/usr_intf/pncconf/pncconf.py:2374
+#: emc/usr_intf/pncconf/pncconf.py:2599
+#, fuzzy
+msgid "All home"
+msgstr "原点"
+
+#: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
+msgid "Digital in 0"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
+msgid "Digital in 1"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
+msgid "Digital in 2"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:167 emc/usr_intf/pncconf/pncconf.py:163
+msgid "Digital in 3"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:193
+msgid "my-mill"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:205 emc/usr_intf/stepconf/stepconf.py:207
+#: emc/usr_intf/pncconf/pncconf.py:278 emc/usr_intf/pncconf/pncconf.py:280
+msgid "Enter Address"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:362
+#, python-format
+msgid "File %r was modified since it was written by stepconf"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:365
+msgid ""
+"Saving this configuration file will discard configuration changes made "
+"outside stepconf."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:380 emc/usr_intf/pncconf/pncconf.py:625
+#, fuzzy
+msgid "Continue? "
+msgstr "連綿"
+
+#: emc/usr_intf/stepconf/stepconf.py:381 emc/usr_intf/pncconf/pncconf.py:626
+msgid "yY"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:433 emc/usr_intf/stepconf/stepconf.py:759
+#, python-format
+msgid "# Generated by stepconf at %s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:434 emc/usr_intf/stepconf/stepconf.py:760
+#: emc/usr_intf/pncconf/pncconf.py:635 emc/usr_intf/pncconf/pncconf.py:1069
+msgid "# If you make changes to this file, they will be"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:435 emc/usr_intf/stepconf/stepconf.py:761
+msgid "# overwritten when you run stepconf again"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:503
+msgid "# add halui MDI commands here (max 64) "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:934 emc/usr_intf/pncconf/pncconf.py:1302
+msgid "# **** Setup for external estop ladder program -START ****"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:941 emc/usr_intf/pncconf/pncconf.py:1309
+msgid "# **** Setup for external estop ladder program -END ****"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:961 emc/usr_intf/pncconf/pncconf.py:1331
+msgid ""
+"# Load Classicladder with modbus master included (GUI must run for Modbus)"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:964 emc/usr_intf/pncconf/pncconf.py:1334
+msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:974 emc/usr_intf/pncconf/pncconf.py:1344
+msgid "Include your PyVCP panel here.\n"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:983
+#: emc/usr_intf/stepconf/stepconf.py:1009 emc/usr_intf/pncconf/pncconf.py:1353
+#: emc/usr_intf/pncconf/pncconf.py:1414
+msgid "# Include your customized HAL commands here"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:984 emc/usr_intf/pncconf/pncconf.py:1354
+msgid ""
+"# The commands in this file are run after the AXIS GUI (including PyVCP "
+"panel) starts"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:988 emc/usr_intf/pncconf/pncconf.py:1358
+msgid ""
+"# **** Setup of spindle speed and tool number display using pyvcp -START ****"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:990 emc/usr_intf/pncconf/pncconf.py:1360
+msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:1361
+msgid ""
+"# **** spindle-velocity is signed so we use absolute compoent to remove sign"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:992 emc/usr_intf/pncconf/pncconf.py:1362
+msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:999 emc/usr_intf/pncconf/pncconf.py:1369
+msgid ""
+"# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
+"was specified"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1000 emc/usr_intf/pncconf/pncconf.py:1370
+msgid ""
+"# **** COMANDED velocity is signed so we use absolute component (abs.0) to "
+"remove sign"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1010
+msgid "# This file will not be overwritten when you run stepconf again"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1017
+#, python-format
+msgid "Generated by stepconf at %s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1086 emc/usr_intf/pncconf/pncconf.py:1546
+#, python-format
+msgid "launch %s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1090
+msgid "Desktop Launcher for EMC config made by Stepconf"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1114 emc/usr_intf/pncconf/pncconf.py:1676
+#, python-format
+msgid "%s Axis Configuration"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1156
+#: emc/usr_intf/stepconf/stepconf.py:1242
+msgid "Other"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1167
+msgid "Quit Stepconf and discard changes?"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1203
+msgid "EMC2 'stepconf' configuration files"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1204 emc/usr_intf/pncconf/pncconf.py:1828
+msgid "Modify Existing Configuration"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1477
+msgid "degree / rev"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1478
+#: emc/usr_intf/stepconf/stepconf.py:2054
+msgid "deg / s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1479
+#: emc/usr_intf/stepconf/stepconf.py:2055
+msgid "deg / sÂ²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1480
+#: emc/usr_intf/stepconf/stepconf.py:2056
+msgid "deg"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1481
+msgid "Steps / deg"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1483
+#: emc/usr_intf/stepconf/stepconf.glade:2534
+#: emc/usr_intf/pncconf/pncconf.glade:12833
+msgid "mm / rev"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1484
+#: emc/usr_intf/stepconf/stepconf.py:2068
+#: emc/usr_intf/stepconf/stepconf.glade:2519
+#: emc/usr_intf/pncconf/pncconf.glade:12817
+msgid "mm / s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1485
+#: emc/usr_intf/stepconf/stepconf.py:2069
+msgid "mm / sÂ²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1487
+#: emc/usr_intf/stepconf/stepconf.glade:3048
+#: emc/usr_intf/pncconf/pncconf.py:2813
+#: emc/usr_intf/pncconf/pncconf.glade:13458
+msgid "Steps / mm"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1489
+msgid "rev / in"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1490
+#: emc/usr_intf/stepconf/stepconf.py:2082
+msgid "in / s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1491
+#: emc/usr_intf/stepconf/stepconf.py:2083
+msgid "in / sÂ²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1493
+msgid "Steps / in"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1621
+msgid ""
+"You need to designate an E-stop input pin in the Parallel Port Setup page "
+"for this program."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1634 emc/usr_intf/pncconf/pncconf.py:3211
+msgid ""
+"OK to replace existing custom ladder program?\n"
+"Existing Custom.clp will be renamed custom_backup.clp.\n"
+"Any existing file named -custom_backup.clp- will be lost. "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1639 emc/usr_intf/pncconf/pncconf.py:3216
+msgid ""
+"You edited a ladder program and have selected a different program to copy to "
+"your configuration file.\n"
+"The edited program will be lost.\n"
+"\n"
+"Are you sure?  "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:1653 emc/usr_intf/pncconf/pncconf.py:2006
+msgid ""
+"OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
+"Existing custompanel.xml and custom_postgui.hal will be renamed "
+"custompanel_backup.xml and postgui_backup.hal.\n"
+"Any existing file named custompanel_backup.xml and custom_postgui.hal will "
+"be lost. "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.py:2051 emc/usr_intf/pncconf/pncconf.py:3732
+#, fuzzy, python-format
+msgid "%s Axis Test"
+msgstr "軸の平行移動"
+
+#: emc/usr_intf/stepconf/stepconf.glade:8
+#: emc/usr_intf/stepconf/stepconf.glade:21
+msgid "EMC2 Stepper Mill Configuration"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:22
+msgid ""
+"This program creates configuration files (.ini and .hal) for \"step and "
+"direction\" milling machines and lathes connected to the PC parallel port."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:64
+msgid "Create a desktop _launcher to start EMC with this configuration."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:81
+msgid "Create a desktop _shortcut (symlink) to configuration files."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:98
+#: emc/usr_intf/pncconf/pncconf.glade:98
+msgid ""
+"If you have made modifications to this configuration outside this program, "
+"they will be lost when you select \"Modify a configuration\""
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:115
+#: emc/usr_intf/pncconf/pncconf.glade:116
+msgid "Do you wish to:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:127
+#: emc/usr_intf/pncconf/pncconf.glade:128
+msgid "Modify a configuration already created with this program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:145
+msgid "Create a _new configuration"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:170
+#: emc/usr_intf/pncconf/pncconf.glade:173
+msgid "Basic machine information"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:311
+msgid ""
+"_Onscreen prompt for\n"
+"tool change"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:328
+#: emc/usr_intf/pncconf/pncconf.glade:467
+msgid "Min Base Period:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:344
+#: emc/usr_intf/pncconf/pncconf.glade:434
+msgid "Max step rate:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:371
+msgid "Out"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:384
+#: emc/usr_intf/stepconf/stepconf.glade:400
+#: emc/usr_intf/pncconf/pncconf.glade:747
+#: emc/usr_intf/pncconf/pncconf.glade:759
+#: emc/usr_intf/pncconf/pncconf.glade:772
+msgid ""
+"In\n"
+"Out"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:442
+msgid "T_hird Parport Address:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:458
+msgid "S_econd Parport Address:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:475
+#: emc/usr_intf/stepconf/stepconf.glade:768
+#: emc/usr_intf/stepconf/stepconf.glade:783
+#: emc/usr_intf/stepconf/stepconf.glade:798
+#: emc/usr_intf/stepconf/stepconf.glade:813
+#: emc/usr_intf/pncconf/pncconf.glade:528
+#: emc/usr_intf/pncconf/pncconf.glade:1708
+msgid "ns"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:508
+msgid "Base Period Maximum _Jitter:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:565
+msgid ""
+"Driver characteristics: (Multiply by 1000 for times specified in µs or "
+"microseconds)\n"
+"\n"
+"Additional signal conditioning or isolation such as optocouplers and RC "
+"filters\n"
+"can impose timing constraints of their own, in addition to those of the "
+"driver."
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:649
+msgid "First Parport _Base Address:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:694
+#: emc/usr_intf/pncconf/pncconf.glade:287
+msgid ""
+"XYZ\n"
+"XYZA\n"
+"XZ (Lathe)"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:710
+#: emc/usr_intf/pncconf/pncconf.glade:322
+msgid ""
+"Inch\n"
+"Millimeter"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:741
+msgid "D_river type:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:755
+#: emc/usr_intf/pncconf/pncconf.glade:243
+msgid "Configuration directory:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:828
+msgid "_Direction Setup:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:843
+msgid "Direction _Hold:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:858
+msgid "Step _Space:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:873
+msgid "Step _Time:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:888
+#, fuzzy
+msgid "Machine _units:"
+msgstr "出来るように"
+
+#: emc/usr_intf/stepconf/stepconf.glade:902
+msgid "_Axis configuration:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:916
+#, fuzzy
+msgid "Machine _Name:"
+msgstr "出来るように"
+
+#: emc/usr_intf/stepconf/stepconf.glade:929
+msgid ""
+"_Test Base\n"
+"Period Jitter "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:958
+msgid "Parallel Port Setup"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1142
+msgid "Output pinout presets:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1157
+msgid "_Xylotex Outputs"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1175
+msgid "_Sherline Outputs"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1629
+#: emc/usr_intf/stepconf/stepconf.glade:1642
+#: emc/usr_intf/pncconf/pncconf.glade:11397
+#: emc/usr_intf/pncconf/pncconf.glade:11410
+msgid "Invert"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1668
+msgid "Inputs (Mill to PC):"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1730
+#: emc/usr_intf/pncconf/pncconf.glade:10827
+msgid "Pin 1_5:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1746
+#: emc/usr_intf/pncconf/pncconf.glade:10811
+msgid "Pin 1_3:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1762
+#: emc/usr_intf/pncconf/pncconf.glade:10795
+msgid "Pin 1_2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1778
+#: emc/usr_intf/pncconf/pncconf.glade:10779
+msgid "Pin 1_1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1794
+#: emc/usr_intf/pncconf/pncconf.glade:10763
+msgid "Pin 1_0:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:1810
+msgid "Outputs (PC to Mill):"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2152
+#: emc/usr_intf/pncconf/pncconf.glade:11823
+msgid "Pi_n 17:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2166
+#: emc/usr_intf/pncconf/pncconf.glade:11837
+msgid "P_in 16:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2180
+#: emc/usr_intf/pncconf/pncconf.glade:11851
+msgid "_Pin 14:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2194
+#: emc/usr_intf/pncconf/pncconf.glade:10628
+#: emc/usr_intf/pncconf/pncconf.glade:11865
+msgid "Pin _9:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2208
+#: emc/usr_intf/pncconf/pncconf.glade:10645
+#: emc/usr_intf/pncconf/pncconf.glade:11879
+msgid "Pin _8:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2222
+#: emc/usr_intf/pncconf/pncconf.glade:10662
+#: emc/usr_intf/pncconf/pncconf.glade:11893
+msgid "Pin _7:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2236
+#: emc/usr_intf/pncconf/pncconf.glade:10679
+#: emc/usr_intf/pncconf/pncconf.glade:11907
+msgid "Pin _6:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2250
+#: emc/usr_intf/pncconf/pncconf.glade:10696
+#: emc/usr_intf/pncconf/pncconf.glade:11921
+msgid "Pin _5:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2264
+#: emc/usr_intf/pncconf/pncconf.glade:10713
+#: emc/usr_intf/pncconf/pncconf.glade:11935
+msgid "Pin _4:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2278
+#: emc/usr_intf/pncconf/pncconf.glade:10730
+#: emc/usr_intf/pncconf/pncconf.glade:11949
+msgid "Pin _3:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2292
+#: emc/usr_intf/pncconf/pncconf.glade:10747
+#: emc/usr_intf/pncconf/pncconf.glade:11963
+msgid "Pin _2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2306
+#: emc/usr_intf/pncconf/pncconf.glade:11977
+msgid "Pin _1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2327
+#: emc/usr_intf/pncconf/pncconf.glade:13596
+msgid "X Axis Configuration"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2396
+#: emc/usr_intf/pncconf/pncconf.glade:13300
+#, fuzzy
+msgid "Axis SCALE:"
+msgstr "軸の時速:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2433
+msgid "T_est this axis"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2459
+#: emc/usr_intf/stepconf/stepconf.glade:3142
+#: emc/usr_intf/pncconf/pncconf.glade:13313
+#: emc/usr_intf/pncconf/pncconf.glade:14321
+msgid "Hz"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2474
+msgid "s"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2504
+#: emc/usr_intf/pncconf/pncconf.glade:12802
+msgid "mm / s²"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2600
+msgid "t_o"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2631
+msgid "Tab_le travel:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2684
+#: emc/usr_intf/pncconf/pncconf.glade:14030
+msgid ""
+"Same\n"
+"Opposite"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2699
+#: emc/usr_intf/pncconf/pncconf.glade:12958
+msgid "_:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2717
+msgid "Home La_tch direction:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2731
+msgid "Home Sear_ch velocity:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2746
+msgid "Home _Switch location:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2761
+msgid "_Home location:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2833
+#: emc/usr_intf/pncconf/pncconf.glade:13415
+msgid "Pulse rate at max speed:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2930
+msgid "Distance to accelerate to max speed:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2945
+#: emc/usr_intf/pncconf/pncconf.glade:13443
+msgid "Time to accelerate to max speed:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2960
+#: emc/usr_intf/pncconf/pncconf.glade:12898
+msgid "Maximum _Acceleration:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2975
+#: emc/usr_intf/pncconf/pncconf.glade:12913
+msgid "Maximum _Velocity:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:2990
+#: emc/usr_intf/pncconf/pncconf.glade:12928
+msgid "_Leadscrew Pitch:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3005
+#: emc/usr_intf/pncconf/pncconf.glade:12992
+msgid "_Pulley teeth (Motor:Leadscrew):"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3020
+msgid "_Driver Microstepping:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3035
+msgid "_Motor steps per revolution:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3070
+#: emc/usr_intf/pncconf/pncconf.glade:14249
+#, fuzzy
+msgid "Spindle Configuration"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3103
+#: emc/usr_intf/pncconf/pncconf.glade:14282
+msgid "Enter 0 Hz for \"PDM\" mode"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3155
+msgid "_Cycles per revolution:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3233
+msgid "PWM _Rate:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3246
+msgid "P_WM 2:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3264
+#, fuzzy
+msgid "S_peed 2:"
+msgstr "軸の時速:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3279
+msgid "_PWM 1:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3297
+#, fuzzy
+msgid "_Speed 1:"
+msgstr "軸の時速:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3312
+#: emc/usr_intf/pncconf/pncconf.glade:14477
+#, fuzzy
+msgid "Calibration:"
+msgstr "較正..."
+
+#: emc/usr_intf/stepconf/stepconf.glade:3332
+#: emc/usr_intf/pncconf/pncconf.glade:14499
+msgid "Advanced Configuration Options"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3348
+msgid "Include Halui user interface component"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3363
+#: emc/usr_intf/pncconf/pncconf.glade:1524
+msgid "Include custom PyVCP GUI panel"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3405
+#: emc/usr_intf/pncconf/pncconf.glade:1394
+msgid "Blank program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3420
+#: emc/usr_intf/pncconf/pncconf.glade:1409
+msgid "Spindle speed/tool position display  "
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3436
+#: emc/usr_intf/stepconf/stepconf.glade:3824
+#: emc/usr_intf/pncconf/pncconf.glade:1441
+#: emc/usr_intf/pncconf/pncconf.glade:15231
+msgid "Existing custom program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3451
+#: emc/usr_intf/stepconf/stepconf.glade:3840
+#: emc/usr_intf/pncconf/pncconf.glade:1456
+#: emc/usr_intf/pncconf/pncconf.glade:15247
+msgid "Include connections to HAL"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3485
+#: emc/usr_intf/pncconf/pncconf.glade:1490
+msgid ""
+"_Display\n"
+"sample\n"
+"panel"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3518
+msgid "Pyvcp Example Options"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3537
+#: emc/usr_intf/pncconf/pncconf.glade:15317
+msgid "Include _Classicladder PLC"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3587
+#: emc/usr_intf/pncconf/pncconf.glade:14994
+msgid "Number of digital in pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3598
+#: emc/usr_intf/pncconf/pncconf.glade:15005
+msgid "Number of digital  out pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3613
+#: emc/usr_intf/pncconf/pncconf.glade:15020
+msgid " Number of analog (s32) in pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3629
+#: emc/usr_intf/pncconf/pncconf.glade:15036
+msgid " Number of analog (s32) out pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3644
+#: emc/usr_intf/pncconf/pncconf.glade:15051
+msgid " Number of analog (float) in pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3659
+#: emc/usr_intf/pncconf/pncconf.glade:15066
+msgid " Number of analog (float) out pins:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3673
+#: emc/usr_intf/pncconf/pncconf.glade:15080
+msgid "Include modbus master support"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3781
+#: emc/usr_intf/pncconf/pncconf.glade:15188
+msgid "Blank ladder program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3794
+#: emc/usr_intf/pncconf/pncconf.glade:15201
+msgid "Estop ladder program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3808
+#: emc/usr_intf/pncconf/pncconf.glade:15215
+msgid "Serial modbus program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3873
+#: emc/usr_intf/pncconf/pncconf.glade:15281
+msgid ""
+"Edit ladder\n"
+"program"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3908
+msgid "PLC Options"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3934
+#: emc/usr_intf/pncconf/pncconf.glade:15737
+msgid "Machine configuration complete"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3935
+#: emc/usr_intf/pncconf/pncconf.glade:15738
+msgid ""
+"All the necessary information has now been gathered.  Click \"Apply\" to "
+"write your configuration files to disk.\n"
+"If you experience lockups while running emc, you will need to decrease the "
+"maximum velocity which will have the effect of increasing BASE_PERIOD.\n"
+"\n"
+"If you experience lost steps while running emc, first verify that you "
+"entered the proper timings for your stepper drivers.  If that does not fix "
+"the problem, then run a more thorough latency test as described on the "
+"linuxcnc.org wiki:\n"
+" http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+"\n"
+"If you experience the \"Unexpected Realtime Delay\" message, run a more "
+"thorough latency test as described on the linuxcnc.org wiki: \n"
+" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3971
+#: emc/usr_intf/pncconf/pncconf.glade:16361
+#: emc/usr_intf/pncconf/pncconf.glade:17135
+#: emc/usr_intf/pncconf/pncconf.glade:17835
+#: emc/usr_intf/pncconf/pncconf.glade:18535
+msgid ""
+"±\n"
+"+\n"
+"-\n"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4150
+#, fuzzy
+msgid "mm/s"
+msgstr "mm"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4184
+msgid "mm/s^2"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4205
+#: emc/usr_intf/pncconf/pncconf.glade:16226
+#: emc/usr_intf/pncconf/pncconf.glade:17000
+#: emc/usr_intf/pncconf/pncconf.glade:17700
+#: emc/usr_intf/pncconf/pncconf.glade:18400
+msgid "Test Area:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4219
+#: emc/usr_intf/pncconf/pncconf.glade:15935
+#: emc/usr_intf/pncconf/pncconf.glade:16212
+#: emc/usr_intf/pncconf/pncconf.glade:16986
+#: emc/usr_intf/pncconf/pncconf.glade:17686
+#: emc/usr_intf/pncconf/pncconf.glade:18386
+msgid "Jog:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4233
+#: emc/usr_intf/pncconf/pncconf.glade:16198
+#: emc/usr_intf/pncconf/pncconf.glade:16972
+#: emc/usr_intf/pncconf/pncconf.glade:17672
+#: emc/usr_intf/pncconf/pncconf.glade:18372
+msgid "Acceleration:"
+msgstr ""
+
+#: emc/usr_intf/stepconf/stepconf.glade:4247
+#: emc/usr_intf/pncconf/pncconf.glade:16186
+#: emc/usr_intf/pncconf/pncconf.glade:16960
+#: emc/usr_intf/pncconf/pncconf.glade:17660
+#: emc/usr_intf/pncconf/pncconf.glade:18360
+msgid "Velocity:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:54
+msgid ""
+"PNCconf encountered an error.  The following information may be useful in "
+"troubleshooting:\n"
+"\n"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:141
+msgid "Unused Output"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:147
+msgid "Unused Input"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Unused PWM Gen"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "X PWM Pulse Stream"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "X PWM Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "X PWM Enable"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Y PWM Pulse Stream"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Y PWM Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Y PWM Enable"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Z PWM Pulse Stream"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Z PWM Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "Z PWM Enable"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:187
+msgid "A PWM Pulse Stream"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:188
+msgid "A PWM Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:188
+msgid "A PWM Enable"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:188
+msgid "Spindle PWM Pulse Stream"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:188
+msgid "Spindle PWM Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:188
+msgid "Spindle PWM Enable"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:206
+msgid "Unused Encoder"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:206
+msgid "X Encoder-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:206
+msgid "X Encoder-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:206
+msgid "X Encoder-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:207
+msgid "Y Encoder-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:207
+msgid "Y Encoder-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:207
+msgid "Y Encoder-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:207
+msgid "Z Encoder-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:207
+msgid "Z Encoder-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:208
+msgid "Z Encoder-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:208
+msgid "A Encoder-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:208
+msgid "A Encoder-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:208
+msgid "A Encoder-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:208
+#, fuzzy
+msgid "Spindle Encoder-A Phase"
+msgstr "スピンドル逆"
+
+#: emc/usr_intf/pncconf/pncconf.py:209
+#, fuzzy
+msgid "Spindle  Encoder-B Phase"
+msgstr "スピンドル逆"
+
+#: emc/usr_intf/pncconf/pncconf.py:209
+#, fuzzy
+msgid "Spindle Encoder-I Phase"
+msgstr "スピンドル逆"
+
+#: emc/usr_intf/pncconf/pncconf.py:209
+msgid "X Hand Wheel-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:209
+msgid "X Hand Wheel-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:210
+msgid "X Hand Wheel-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:210
+msgid "Y Hand wheel-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:210
+msgid "Y Hand Wheel-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:210
+msgid "Y Hand Wheel-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:210
+msgid "Z Hand Wheel-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:211
+msgid "Z Hand Wheel-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:211
+msgid "Z Hand Wheel-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:211
+msgid "A Hand Wheel-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:211
+msgid "A Hand Wheel-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:211
+msgid "A Hand Wheel-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:212
+msgid "Multi Hand Wheel-A Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:212
+msgid "Multi Hand Wheel-B Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:212
+msgid "Multi Hand Wheel-I Phase"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:224
+msgid "Unused StepGen"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:224
+msgid "X StepGen-Step"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:224
+msgid "X StepGen-Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:224
+msgid "X reserved c"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:224
+msgid "X reserved d"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "X reserved e"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "X reserved f"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "Y StepGen-Step"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "Y StepGen-Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "Y reserved c"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "Y reserved d"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:225
+msgid "Y reserved e"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Y reserved f"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z StepGen-Step"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z StepGen-Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z reserved c"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z reserved d"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z reserved e"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:226
+msgid "Z reserved f"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A StepGen-Step"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A StepGen-Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A reserved c"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A reserved d"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A reserved e"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:227
+msgid "A reserved f"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "GPIO Input"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "GPIO Output"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "GPIO O Drain"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "HDW Encoder"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "HDW PWM Gen"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:229
+msgid "HDW Step Gen"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:255
+#, fuzzy
+msgid "my_EMC_machine"
+msgstr "マッシン"
+
+#: emc/usr_intf/pncconf/pncconf.py:606
+#, python-format
+msgid "File %r was modified since it was written by PNCconf"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:610
+msgid ""
+"Saving this configuration file will discard configuration changes made "
+"outside PNCconf."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:634 emc/usr_intf/pncconf/pncconf.py:1068
+#, python-format
+msgid "# Generated by PNCconf at %s"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:636 emc/usr_intf/pncconf/pncconf.py:1070
+msgid "# overwritten when you run PNCconf again"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1298
+msgid "#  estop signals"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1376
+msgid ""
+"# **** Setup of spindle speed and tool number display using pyvcp -END ****"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1378
+msgid ""
+"# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - "
+"START ****"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1394
+msgid ""
+"# **** The following mdi-comands are specified in the machine named INI file "
+"under [HALUI] heading"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1408
+msgid ""
+"# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END "
+"****"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1415
+msgid "# This file will not be overwritten when you run PNCconf again"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1422
+#, python-format
+msgid "Generated by PNCconf at %s"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1424
+msgid "Mesa 5i20 connector 2 "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1430 emc/usr_intf/pncconf/pncconf.py:1441
+#: emc/usr_intf/pncconf/pncconf.py:1452 emc/usr_intf/pncconf/pncconf.py:1465
+#: emc/usr_intf/pncconf/pncconf.py:1473
+msgid "-> inverted"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1435
+msgid "Mesa 5i20 connector 3 "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1446
+msgid "Mesa 5i20 connector 4 "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1460
+#, python-format
+msgid "%(name)s Parport"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1460
+msgid "name"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1467
+#, python-format
+msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1468 emc/usr_intf/pncconf/pncconf.py:1476
+msgid "pinnum"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1475
+#, python-format
+msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1550
+msgid "Desktop Launcher for EMC config made by PNCconf"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1700
+#, python-format
+msgid "%s Axis Motor/Encoder Configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1724
+#, python-format
+msgid "%s Parallel Port Setup"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1780
+msgid "Quit PNCconfig and discard changes?"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1810
+#, python-format
+msgid "I need to add help page %d"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1812
+msgid ""
+"\n"
+"Check 'desktop shortcut' to create a link on the desktop to the folder "
+"containing the configuration files\n"
+"Check 'desktop launcher' to create a link on the desktop that will directly "
+"start your custom configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1827
+msgid "EMC2 'PNCconf' configuration files"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:1938
+msgid ""
+"You need to designate a parport and/or mesa I/O device before continuing."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2536
+msgid "First Parallel Port set for OUTPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2538
+msgid "First Parallel Port set for INPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2558
+msgid "Second Parallel Port set for OUTPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2560
+msgid "Second Parallel Port set for INPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2572
+msgid "Third Parallel Port set for OUTPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2574
+msgid "Third Parallel Port set for INPUT"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2740 emc/usr_intf/pncconf/pncconf.py:2914
+#, fuzzy
+msgid "Custom"
+msgstr "自動"
+
+#: emc/usr_intf/pncconf/pncconf.py:2785
+msgid "Reduction Ratio"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2786
+msgid "degrees / rev"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2787 emc/usr_intf/pncconf/pncconf.py:2789
+#: emc/usr_intf/pncconf/pncconf.py:2790 emc/usr_intf/pncconf/pncconf.py:2791
+msgid "degrees / min"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2788
+msgid "degrees / secÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2792 emc/usr_intf/pncconf/pncconf.py:2799
+#: emc/usr_intf/pncconf/pncconf.py:2800 emc/usr_intf/pncconf/pncconf.py:3632
+msgid "degrees"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2794
+msgid "degree / Step"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2795
+msgid "Steps / degree"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2797
+msgid "degrees / encoder pulse"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2798
+msgid "Encoder pulses / degree"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2803
+msgid "Leadscrew Pitch"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2804
+msgid "(mm / rev)"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2805 emc/usr_intf/pncconf/pncconf.py:2807
+#: emc/usr_intf/pncconf/pncconf.py:2808 emc/usr_intf/pncconf/pncconf.py:2809
+msgid "mm / min"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2806
+msgid "mm / secÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2812
+#, fuzzy
+msgid "mm / Step"
+msgstr "徐徐に"
+
+#: emc/usr_intf/pncconf/pncconf.py:2815
+#: emc/usr_intf/pncconf/pncconf.glade:13501
+msgid "mm / encoder pulse"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2816
+msgid "Encoder pulses / mm"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2822
+msgid "Leadscrew TPI"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2823
+msgid "(rev / inch)"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2824 emc/usr_intf/pncconf/pncconf.py:2826
+#: emc/usr_intf/pncconf/pncconf.py:2827 emc/usr_intf/pncconf/pncconf.py:2828
+#, fuzzy
+msgid "inches / min"
+msgstr "インチ"
+
+#: emc/usr_intf/pncconf/pncconf.py:2825
+msgid "inches / secÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2831
+#, fuzzy
+msgid "inches / Step"
+msgstr "インチ"
+
+#: emc/usr_intf/pncconf/pncconf.py:2832
+msgid "Steps / inch"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2834
+msgid "inches / encoder pulse"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:2835
+msgid "Encoder pulses / inch"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3198
+msgid "You need to designate an E-stop input pin for this ladder program."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3633
+msgid "degrees / minute"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3634
+msgid "degrees / secondÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3637
+#: emc/usr_intf/pncconf/pncconf.glade:13839
+#: emc/usr_intf/pncconf/pncconf.glade:13992
+#: emc/usr_intf/pncconf/pncconf.glade:14060
+msgid "mm / minute"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3638
+msgid "mm / secondÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3641
+msgid "inches / minute"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3642
+msgid "inches / secondÂ²"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.py:3657
+#, python-format
+msgid "%s Axis Tune"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:8
+msgid "EMC2 Point And Click Configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:23
+msgid "EMC2 Servo Configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:24
+msgid ""
+"This program creates configuration \n"
+"          files (.ini and .hal) for \n"
+"           \"Closed Loop Servo\" \n"
+"                  machines"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:64
+msgid "Create a desktop launcher to start EMC with this configuration."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:81
+msgid "Create a desktop shortcut (symlink) to configuration files."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:146
+msgid "Create a new configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:211
+#, fuzzy
+msgid "Machine Name:"
+msgstr "出来るように"
+
+#: emc/usr_intf/pncconf/pncconf.glade:277
+msgid "Axis configuration:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:312
+#, fuzzy
+msgid "Machine units:"
+msgstr "出来るように"
+
+#: emc/usr_intf/pncconf/pncconf.glade:351
+msgid "<b>Machine Basics</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:395
+msgid ""
+" Test Base\n"
+"Period Jitter "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:500
+msgid "Base Period Maximum Jitter:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:557
+msgid "<b>Computer Response Time</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:602
+msgid "Mesa 5i20 PCI"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:615
+msgid "First Parport Address:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:628
+msgid "Second Parport Address:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:643
+msgid "Third Parport Address:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:805
+msgid "<b>I/O Control Ports/ Boards</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:862
+msgid "single sensor"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:876
+msgid "Quadature"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:893
+msgid "<b>Feedback Type</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:932
+msgid "Analog"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:946
+msgid "Digital"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:963
+msgid "<b>Control type</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:982
+#, fuzzy
+msgid "<b>Spindle Info</b>"
+msgstr "スピンドル消した"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1038
+msgid "Physical switches"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1052
+msgid ""
+"Physical switches\n"
+"shared with home"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1070
+msgid "<b>Limit</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1105
+msgid "Switch and index"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1119
+msgid "Switch only"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1133
+msgid "Index only"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1150
+msgid "<b>Homing</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1167
+msgid "<b>Limit And Homing Switches</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1212
+msgid "GUI configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1231
+msgid "<b>Frontend</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1270
+msgid "Onscreen prompt for tool change"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1297
+msgid "TKemc"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1311
+#, fuzzy
+msgid "Mini"
+msgstr "動き"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1331
+msgid "GUI list"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1425
+msgid "XYZ buttons (uses Halui)"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1575
+msgid "Mesa I/O setup\n"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1594
+msgid ""
+"Click on each page tab to configure signal names for each connector port.\n"
+"\n"
+"The spin buttons below on this page allow you to select the amouns of \n"
+"different types of components. Press the button to make the tabbed pages\n"
+"accept the changes.\n"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1747
+msgid "Watchdog timeout:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1758
+msgid "PWM base frequency:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1768
+msgid "SVST8_4"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1781
+msgid "Firmware:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1791
+msgid ""
+"5i20\n"
+"5i23\n"
+"5i22"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1804
+msgid "Board name"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1853
+#: emc/usr_intf/pncconf/pncconf.glade:13487
+#: emc/usr_intf/pncconf/pncconf.glade:16500
+#: emc/usr_intf/pncconf/pncconf.glade:16512
+#: emc/usr_intf/pncconf/pncconf.glade:16628
+#: emc/usr_intf/pncconf/pncconf.glade:16640
+#: emc/usr_intf/pncconf/pncconf.glade:16652
+#: emc/usr_intf/pncconf/pncconf.glade:16664
+#: emc/usr_intf/pncconf/pncconf.glade:16676
+#: emc/usr_intf/pncconf/pncconf.glade:16688
+#: emc/usr_intf/pncconf/pncconf.glade:17324
+#: emc/usr_intf/pncconf/pncconf.glade:17336
+#: emc/usr_intf/pncconf/pncconf.glade:17348
+#: emc/usr_intf/pncconf/pncconf.glade:17360
+#: emc/usr_intf/pncconf/pncconf.glade:17372
+#: emc/usr_intf/pncconf/pncconf.glade:17384
+#: emc/usr_intf/pncconf/pncconf.glade:18024
+#: emc/usr_intf/pncconf/pncconf.glade:18036
+#: emc/usr_intf/pncconf/pncconf.glade:18048
+#: emc/usr_intf/pncconf/pncconf.glade:18060
+#: emc/usr_intf/pncconf/pncconf.glade:18072
+#: emc/usr_intf/pncconf/pncconf.glade:18084
+#: emc/usr_intf/pncconf/pncconf.glade:18724
+#: emc/usr_intf/pncconf/pncconf.glade:18736
+#: emc/usr_intf/pncconf/pncconf.glade:18748
+#: emc/usr_intf/pncconf/pncconf.glade:18760
+#: emc/usr_intf/pncconf/pncconf.glade:18772
+#: emc/usr_intf/pncconf/pncconf.glade:18784
+msgid "0"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1866
+msgid "Num of encoders:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1877
+msgid "Num of pwm generators:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1888
+msgid "Num of step generators: "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1899
+msgid "Num of GPIO:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1911
+msgid ""
+"Accept  components\n"
+"          Changes"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1926
+msgid "htz"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:1950
+msgid "Cover Page"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2062
+#: emc/usr_intf/pncconf/pncconf.glade:2076
+#: emc/usr_intf/pncconf/pncconf.glade:4723
+#: emc/usr_intf/pncconf/pncconf.glade:4737
+#: emc/usr_intf/pncconf/pncconf.glade:7368
+#: emc/usr_intf/pncconf/pncconf.glade:7382
+msgid "Pin"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2087
+#: emc/usr_intf/pncconf/pncconf.glade:2108
+#: emc/usr_intf/pncconf/pncconf.glade:2129
+#: emc/usr_intf/pncconf/pncconf.glade:2150
+#: emc/usr_intf/pncconf/pncconf.glade:2171
+#: emc/usr_intf/pncconf/pncconf.glade:2192
+#: emc/usr_intf/pncconf/pncconf.glade:2213
+#: emc/usr_intf/pncconf/pncconf.glade:2234
+#: emc/usr_intf/pncconf/pncconf.glade:2255
+#: emc/usr_intf/pncconf/pncconf.glade:2276
+#: emc/usr_intf/pncconf/pncconf.glade:2297
+#: emc/usr_intf/pncconf/pncconf.glade:2318
+#: emc/usr_intf/pncconf/pncconf.glade:2339
+#: emc/usr_intf/pncconf/pncconf.glade:2360
+#: emc/usr_intf/pncconf/pncconf.glade:2381
+#: emc/usr_intf/pncconf/pncconf.glade:2402
+#: emc/usr_intf/pncconf/pncconf.glade:2423
+#: emc/usr_intf/pncconf/pncconf.glade:2444
+#: emc/usr_intf/pncconf/pncconf.glade:2465
+#: emc/usr_intf/pncconf/pncconf.glade:2486
+#: emc/usr_intf/pncconf/pncconf.glade:2507
+#: emc/usr_intf/pncconf/pncconf.glade:2528
+#: emc/usr_intf/pncconf/pncconf.glade:2549
+#: emc/usr_intf/pncconf/pncconf.glade:4541
+#: emc/usr_intf/pncconf/pncconf.glade:4748
+#: emc/usr_intf/pncconf/pncconf.glade:4769
+#: emc/usr_intf/pncconf/pncconf.glade:4790
+#: emc/usr_intf/pncconf/pncconf.glade:4811
+#: emc/usr_intf/pncconf/pncconf.glade:4832
+#: emc/usr_intf/pncconf/pncconf.glade:4853
+#: emc/usr_intf/pncconf/pncconf.glade:4874
+#: emc/usr_intf/pncconf/pncconf.glade:4895
+#: emc/usr_intf/pncconf/pncconf.glade:4916
+#: emc/usr_intf/pncconf/pncconf.glade:4937
+#: emc/usr_intf/pncconf/pncconf.glade:4958
+#: emc/usr_intf/pncconf/pncconf.glade:4979
+#: emc/usr_intf/pncconf/pncconf.glade:5000
+#: emc/usr_intf/pncconf/pncconf.glade:5021
+#: emc/usr_intf/pncconf/pncconf.glade:5042
+#: emc/usr_intf/pncconf/pncconf.glade:5063
+#: emc/usr_intf/pncconf/pncconf.glade:5084
+#: emc/usr_intf/pncconf/pncconf.glade:5105
+#: emc/usr_intf/pncconf/pncconf.glade:5126
+#: emc/usr_intf/pncconf/pncconf.glade:5147
+#: emc/usr_intf/pncconf/pncconf.glade:5168
+#: emc/usr_intf/pncconf/pncconf.glade:5189
+#: emc/usr_intf/pncconf/pncconf.glade:5210
+#: emc/usr_intf/pncconf/pncconf.glade:7186
+#: emc/usr_intf/pncconf/pncconf.glade:7393
+#: emc/usr_intf/pncconf/pncconf.glade:7414
+#: emc/usr_intf/pncconf/pncconf.glade:7435
+#: emc/usr_intf/pncconf/pncconf.glade:7456
+#: emc/usr_intf/pncconf/pncconf.glade:7477
+#: emc/usr_intf/pncconf/pncconf.glade:7498
+#: emc/usr_intf/pncconf/pncconf.glade:7519
+#: emc/usr_intf/pncconf/pncconf.glade:7540
+#: emc/usr_intf/pncconf/pncconf.glade:7561
+#: emc/usr_intf/pncconf/pncconf.glade:7582
+#: emc/usr_intf/pncconf/pncconf.glade:7603
+#: emc/usr_intf/pncconf/pncconf.glade:7624
+#: emc/usr_intf/pncconf/pncconf.glade:7645
+#: emc/usr_intf/pncconf/pncconf.glade:7666
+#: emc/usr_intf/pncconf/pncconf.glade:7687
+#: emc/usr_intf/pncconf/pncconf.glade:7708
+#: emc/usr_intf/pncconf/pncconf.glade:7729
+#: emc/usr_intf/pncconf/pncconf.glade:7750
+#: emc/usr_intf/pncconf/pncconf.glade:7771
+#: emc/usr_intf/pncconf/pncconf.glade:7792
+#: emc/usr_intf/pncconf/pncconf.glade:7813
+#: emc/usr_intf/pncconf/pncconf.glade:7834
+#: emc/usr_intf/pncconf/pncconf.glade:7855
+#: emc/usr_intf/pncconf/pncconf.glade:9832
+msgid ""
+"GPIO Input\n"
+"GPIO Output\n"
+"GPIO O Drain\n"
+"Encoder\n"
+"PWM\n"
+"StepGen\n"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2585
+#: emc/usr_intf/pncconf/pncconf.glade:5246
+#: emc/usr_intf/pncconf/pncconf.glade:7891
+msgid "Launch test panel"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2600
+#: emc/usr_intf/pncconf/pncconf.glade:2612
+#: emc/usr_intf/pncconf/pncconf.glade:5261
+#: emc/usr_intf/pncconf/pncconf.glade:5273
+#: emc/usr_intf/pncconf/pncconf.glade:7906
+#: emc/usr_intf/pncconf/pncconf.glade:7918
+msgid "function"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2692
+#: emc/usr_intf/pncconf/pncconf.glade:2745
+#: emc/usr_intf/pncconf/pncconf.glade:2798
+#: emc/usr_intf/pncconf/pncconf.glade:2851
+#: emc/usr_intf/pncconf/pncconf.glade:3699
+#: emc/usr_intf/pncconf/pncconf.glade:3752
+#: emc/usr_intf/pncconf/pncconf.glade:3805
+#: emc/usr_intf/pncconf/pncconf.glade:3858
+#: emc/usr_intf/pncconf/pncconf.glade:3911
+#: emc/usr_intf/pncconf/pncconf.glade:3964
+#: emc/usr_intf/pncconf/pncconf.glade:4017
+#: emc/usr_intf/pncconf/pncconf.glade:4070
+#: emc/usr_intf/pncconf/pncconf.glade:4123
+#: emc/usr_intf/pncconf/pncconf.glade:4176
+#: emc/usr_intf/pncconf/pncconf.glade:4229
+#: emc/usr_intf/pncconf/pncconf.glade:4282
+#: emc/usr_intf/pncconf/pncconf.glade:5353
+#: emc/usr_intf/pncconf/pncconf.glade:5405
+#: emc/usr_intf/pncconf/pncconf.glade:5457
+#: emc/usr_intf/pncconf/pncconf.glade:5510
+#: emc/usr_intf/pncconf/pncconf.glade:6352
+#: emc/usr_intf/pncconf/pncconf.glade:6404
+#: emc/usr_intf/pncconf/pncconf.glade:6456
+#: emc/usr_intf/pncconf/pncconf.glade:6508
+#: emc/usr_intf/pncconf/pncconf.glade:6560
+#: emc/usr_intf/pncconf/pncconf.glade:6612
+#: emc/usr_intf/pncconf/pncconf.glade:6665
+#: emc/usr_intf/pncconf/pncconf.glade:6718
+#: emc/usr_intf/pncconf/pncconf.glade:6770
+#: emc/usr_intf/pncconf/pncconf.glade:6822
+#: emc/usr_intf/pncconf/pncconf.glade:6875
+#: emc/usr_intf/pncconf/pncconf.glade:6927
+#: emc/usr_intf/pncconf/pncconf.glade:7998
+#: emc/usr_intf/pncconf/pncconf.glade:8050
+#: emc/usr_intf/pncconf/pncconf.glade:8103
+#: emc/usr_intf/pncconf/pncconf.glade:8155
+#: emc/usr_intf/pncconf/pncconf.glade:8998
+#: emc/usr_intf/pncconf/pncconf.glade:9050
+#: emc/usr_intf/pncconf/pncconf.glade:9102
+#: emc/usr_intf/pncconf/pncconf.glade:9154
+#: emc/usr_intf/pncconf/pncconf.glade:9206
+#: emc/usr_intf/pncconf/pncconf.glade:9258
+#: emc/usr_intf/pncconf/pncconf.glade:9311
+#: emc/usr_intf/pncconf/pncconf.glade:9364
+#: emc/usr_intf/pncconf/pncconf.glade:9416
+#: emc/usr_intf/pncconf/pncconf.glade:9468
+#: emc/usr_intf/pncconf/pncconf.glade:9521
+#: emc/usr_intf/pncconf/pncconf.glade:9573
+msgid ""
+"ESTOP IN\n"
+"Spindle PPR\n"
+"Spindle A \n"
+"Spindle B \n"
+"Home X \n"
+"Home Y \n"
+"Home Z\n"
+"Home A\n"
+"Minimum Limit + Home X \n"
+"Minimum Limit + Home Y \n"
+"Minimum Limit + Home Z \n"
+"Minimum Limit + Home A\n"
+"Maximum Limit + Home X \n"
+"Maximum Limit + Home Y \n"
+"Maximum Limit + Home Z \n"
+"Maximum Limit + Home A\n"
+"Both Limit + Home X \n"
+"Both Limit + Home Y \n"
+"Both Limit + Home Z \n"
+"Both Limit + Home A\n"
+"Minimum Limit X \n"
+"Minimum Limit Y \n"
+"Minimum Limit Z \n"
+"Minimum Limit A\n"
+"Maximum Limit X \n"
+"Maximum Limit Y \n"
+"Maximum Limit Z \n"
+"Maximum Limit A\n"
+"Both Limit X \n"
+"Both Limit Y \n"
+"Both Limit Z \n"
+"Both Limit A\n"
+"All limits\n"
+"All home\n"
+"Unused"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2905
+#: emc/usr_intf/pncconf/pncconf.glade:5564
+#: emc/usr_intf/pncconf/pncconf.glade:8210
+msgid "31:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2921
+#: emc/usr_intf/pncconf/pncconf.glade:5580
+#: emc/usr_intf/pncconf/pncconf.glade:8226
+msgid "29:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2937
+#: emc/usr_intf/pncconf/pncconf.glade:5596
+#: emc/usr_intf/pncconf/pncconf.glade:8242
+msgid "27:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:2953
+#: emc/usr_intf/pncconf/pncconf.glade:5612
+#: emc/usr_intf/pncconf/pncconf.glade:8258
+msgid "25:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3333
+#: emc/usr_intf/pncconf/pncconf.glade:5987
+#: emc/usr_intf/pncconf/pncconf.glade:8633
+msgid "33:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3349
+#: emc/usr_intf/pncconf/pncconf.glade:6003
+#: emc/usr_intf/pncconf/pncconf.glade:8649
+msgid "35:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3365
+#: emc/usr_intf/pncconf/pncconf.glade:6019
+#: emc/usr_intf/pncconf/pncconf.glade:8665
+msgid "37:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3381
+#: emc/usr_intf/pncconf/pncconf.glade:6035
+#: emc/usr_intf/pncconf/pncconf.glade:8681
+msgid "39:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3397
+#: emc/usr_intf/pncconf/pncconf.glade:6051
+#: emc/usr_intf/pncconf/pncconf.glade:8697
+msgid "41:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3413
+#: emc/usr_intf/pncconf/pncconf.glade:6067
+#: emc/usr_intf/pncconf/pncconf.glade:8713
+msgid "43:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3429
+#: emc/usr_intf/pncconf/pncconf.glade:6083
+#: emc/usr_intf/pncconf/pncconf.glade:8729
+msgid "45:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:3497
+#: emc/usr_intf/pncconf/pncconf.glade:6150
+#: emc/usr_intf/pncconf/pncconf.glade:8796
+msgid "47:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4336
+#: emc/usr_intf/pncconf/pncconf.glade:4592
+#: emc/usr_intf/pncconf/pncconf.glade:6981
+#: emc/usr_intf/pncconf/pncconf.glade:7237
+#: emc/usr_intf/pncconf/pncconf.glade:9627
+#: emc/usr_intf/pncconf/pncconf.glade:9883
+msgid "Pin Type"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4349
+#: emc/usr_intf/pncconf/pncconf.glade:6994
+#: emc/usr_intf/pncconf/pncconf.glade:9640
+msgid "23:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4363
+#: emc/usr_intf/pncconf/pncconf.glade:7008
+#: emc/usr_intf/pncconf/pncconf.glade:9654
+msgid "21:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4377
+#: emc/usr_intf/pncconf/pncconf.glade:7022
+#: emc/usr_intf/pncconf/pncconf.glade:9668
+msgid "19:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4391
+#: emc/usr_intf/pncconf/pncconf.glade:7036
+#: emc/usr_intf/pncconf/pncconf.glade:9682
+msgid "17:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4405
+#: emc/usr_intf/pncconf/pncconf.glade:7050
+#: emc/usr_intf/pncconf/pncconf.glade:9696
+msgid "15:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4419
+#: emc/usr_intf/pncconf/pncconf.glade:7064
+#: emc/usr_intf/pncconf/pncconf.glade:9710
+msgid "13:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4433
+#: emc/usr_intf/pncconf/pncconf.glade:7078
+#: emc/usr_intf/pncconf/pncconf.glade:9724
+msgid "11:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4447
+#: emc/usr_intf/pncconf/pncconf.glade:7092
+#: emc/usr_intf/pncconf/pncconf.glade:9738
+msgid "  9:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4461
+#: emc/usr_intf/pncconf/pncconf.glade:7106
+#: emc/usr_intf/pncconf/pncconf.glade:9752
+msgid "  7:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4475
+#: emc/usr_intf/pncconf/pncconf.glade:7120
+#: emc/usr_intf/pncconf/pncconf.glade:9766
+msgid "  5:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4489
+#: emc/usr_intf/pncconf/pncconf.glade:7134
+#: emc/usr_intf/pncconf/pncconf.glade:9780
+msgid "  3:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4503
+#: emc/usr_intf/pncconf/pncconf.glade:7148
+#: emc/usr_intf/pncconf/pncconf.glade:9794
+msgid "  1:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4516
+#: emc/usr_intf/pncconf/pncconf.glade:4580
+#: emc/usr_intf/pncconf/pncconf.glade:7161
+#: emc/usr_intf/pncconf/pncconf.glade:7225
+#: emc/usr_intf/pncconf/pncconf.glade:9807
+#: emc/usr_intf/pncconf/pncconf.glade:9871
+msgid "Inv"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:4609
+msgid ""
+"Input/Output\n"
+" Connector 4"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:7254
+msgid ""
+"Input/Output \n"
+"Connector 3"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:9900
+msgid ""
+"Input/Output\n"
+"Connector 2"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:9923
+msgid "First Parallel Port Setup"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:10008
+msgid "Launch Test Panel"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:11436
+msgid "Inputs (Machine to PC):"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:11991
+msgid "Outputs (PC to Machine):"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12012
+msgid "X Axis Motor/Encoder Configuration"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12071
+msgid ""
+"Open\n"
+"Loop\n"
+"Servo\n"
+"Test"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12095
+msgid "pulses / rev"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12114
+msgid "x 4 ="
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12125
+msgid "label"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12162
+msgid "Encoder lines / Rev"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12194
+msgid "Dac Output Offset:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12226
+msgid "Dac Max Output:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12256
+msgid "Dac Output Scale:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12332
+#: emc/usr_intf/pncconf/pncconf.glade:16719
+#: emc/usr_intf/pncconf/pncconf.glade:17415
+#: emc/usr_intf/pncconf/pncconf.glade:18115
+#: emc/usr_intf/pncconf/pncconf.glade:18815
+msgid "FF2"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12345
+#: emc/usr_intf/pncconf/pncconf.glade:16729
+#: emc/usr_intf/pncconf/pncconf.glade:17425
+#: emc/usr_intf/pncconf/pncconf.glade:18125
+#: emc/usr_intf/pncconf/pncconf.glade:18825
+msgid "FF1"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12358
+#: emc/usr_intf/pncconf/pncconf.glade:16739
+#: emc/usr_intf/pncconf/pncconf.glade:17435
+#: emc/usr_intf/pncconf/pncconf.glade:18135
+#: emc/usr_intf/pncconf/pncconf.glade:18835
+msgid "FF0"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12405
+msgid "Deadband"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12418
+#: emc/usr_intf/pncconf/pncconf.glade:16534
+msgid "Bias"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12431
+msgid "P"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12442
+#, fuzzy
+msgid "I"
+msgstr "IO"
+
+#: emc/usr_intf/pncconf/pncconf.glade:12455
+msgid "D"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12520
+msgid "Servo Info"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12558
+msgid "Step On-Time"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12571
+msgid "Step Space"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12614
+msgid "Direction Hold"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12627
+msgid "Direction Setup"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12670
+msgid "Motor steps per revolution:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12685
+msgid "Driver Microstepping:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12732
+msgid "Driver Type:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12765
+msgid "Stepper Info"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12865
+#: emc/usr_intf/pncconf/pncconf.glade:12882
+msgid "123"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:12947
+#: emc/usr_intf/pncconf/pncconf.glade:12972
+msgid "1"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13058
+msgid "Invert Encoder Direction "
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13073
+msgid "Invert Motor Direction"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13088
+msgid "Feed Speed Following Error:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13102
+msgid "Rapid Speed Following Error:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13328
+msgid "sec"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13428
+msgid "Distance to acheave max speed:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13473
+msgid "Resolution:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13545
+msgid "Test / Tune Axis"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13867
+msgid "Home Final Velocity:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13877
+msgid ""
+"NO\n"
+"YES"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13893
+msgid "Use Encoder Index For Home:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13919
+msgid "Home location:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:13946
+#, fuzzy
+msgid "to"
+msgstr "自動"
+
+#: emc/usr_intf/pncconf/pncconf.glade:13977
+msgid "Table Travel:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14020
+msgid "Home latch Velocity:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14046
+msgid "Home Latch Direction:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14114
+msgid "Home Switch location:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14129
+msgid "Home Search Velocity:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14144
+msgid "Use Compensation File:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14158
+msgid "Use Backlash Compensation:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14188
+msgid ""
+"Type 1\n"
+"Type 2"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14218
+msgid "filename:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14334
+msgid "Cycles per revolution:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14410
+msgid "PWM Rate:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14421
+msgid "PWM 2:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14436
+#, fuzzy
+msgid "Speed 2:"
+msgstr "軸の時速:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:14449
+msgid "PWM 1:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14464
+#, fuzzy
+msgid "Speed 1:"
+msgstr "軸の時速:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:14583
+msgid "Cmd 15"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14595
+msgid "Cmd 14"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14607
+msgid "Cmd 13"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14619
+msgid "Cmd 12"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14631
+msgid "Cmd 11"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14699
+msgid "Cmd 10"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14711
+msgid "Cmd 9"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14723
+msgid "Cmd 8"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14735
+msgid "Cmd 7"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14747
+msgid "Cmd 6"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14873
+msgid "Cmd 5"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14883
+msgid "Cmd 4"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14893
+msgid "Cmd 3"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14903
+msgid "Cmd 2"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14913
+msgid "Cmd 1"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:14924
+msgid "Include Halui user interface component / commands"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15343
+msgid "Advanced realtime components"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15532
+msgid "scale"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15542
+msgid "or"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15552
+msgid "and"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15604
+msgid "PID"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15615
+msgid "Step generator"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15626
+msgid "PWM generator"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15637
+msgid "<b>number of components</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15650
+msgid "Encoder"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15661
+msgid "<b>Component</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15686
+msgid "Add realtime components with this page."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15705
+msgid "Test Page"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15714
+msgid "Use this page to test / tune the configuration."
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15766
+msgid ""
+"<b>  Motor Encoder Test\n"
+"Warning limits switches \n"
+"  Will not be obeyed</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15828
+msgid "Slow Dac Speed"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15843
+msgid "Fast Dac Speed"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15857
+msgid "Invert Motor"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15877
+#, fuzzy
+msgid "estop"
+msgstr "終止符点いた"
+
+#: emc/usr_intf/pncconf/pncconf.glade:15896
+msgid "Invert Encoder"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:15916
+msgid "Reset Encoder"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16075
+#: emc/usr_intf/pncconf/pncconf.glade:16849
+#: emc/usr_intf/pncconf/pncconf.glade:17549
+#: emc/usr_intf/pncconf/pncconf.glade:18249
+msgid "Seconds"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16254
+#: emc/usr_intf/pncconf/pncconf.glade:17028
+#: emc/usr_intf/pncconf/pncconf.glade:17728
+#: emc/usr_intf/pncconf/pncconf.glade:18428
+msgid "mm/minute^2"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16289
+#: emc/usr_intf/pncconf/pncconf.glade:17063
+#: emc/usr_intf/pncconf/pncconf.glade:17763
+#: emc/usr_intf/pncconf/pncconf.glade:18463
+msgid "mm/minute"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16524
+msgid "DeadBand"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16700
+#: emc/usr_intf/pncconf/pncconf.glade:17396
+#: emc/usr_intf/pncconf/pncconf.glade:18096
+#: emc/usr_intf/pncconf/pncconf.glade:18796
+msgid "Original"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16749
+#: emc/usr_intf/pncconf/pncconf.glade:17445
+#: emc/usr_intf/pncconf/pncconf.glade:18145
+#: emc/usr_intf/pncconf/pncconf.glade:18845
+#, fuzzy
+msgid "D:"
+msgstr "一線(MDI):"
+
+#: emc/usr_intf/pncconf/pncconf.glade:16759
+#: emc/usr_intf/pncconf/pncconf.glade:17455
+#: emc/usr_intf/pncconf/pncconf.glade:18155
+#: emc/usr_intf/pncconf/pncconf.glade:18855
+#, fuzzy
+msgid "I:"
+msgstr "一線(MDI):"
+
+#: emc/usr_intf/pncconf/pncconf.glade:16769
+#: emc/usr_intf/pncconf/pncconf.glade:17465
+#: emc/usr_intf/pncconf/pncconf.glade:18165
+#: emc/usr_intf/pncconf/pncconf.glade:18865
+msgid "P:"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16779
+#: emc/usr_intf/pncconf/pncconf.glade:17475
+#: emc/usr_intf/pncconf/pncconf.glade:18175
+#: emc/usr_intf/pncconf/pncconf.glade:18875
+msgid "Current"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16798
+#: emc/usr_intf/pncconf/pncconf.glade:17494
+#: emc/usr_intf/pncconf/pncconf.glade:18194
+#: emc/usr_intf/pncconf/pncconf.glade:18894
+msgid "<b>PID tuning</b>"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:16815
+msgid "X Axis"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:17514
+msgid "Y Axis"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:18214
+msgid "Z Axis"
+msgstr ""
+
+#: emc/usr_intf/pncconf/pncconf.glade:18914
+msgid "A Axis"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:418 emc/task/emctaskmain.cc:451
+#, c-format
+msgid "%s exceeds +X limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:423 emc/task/emctaskmain.cc:456
+#, c-format
+msgid "%s exceeds +Y limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:428 emc/task/emctaskmain.cc:461
+#, c-format
+msgid "%s exceeds +Z limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:433 emc/task/emctaskmain.cc:466
+#, c-format
+msgid "%s exceeds -X limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:438 emc/task/emctaskmain.cc:471
+#, c-format
+msgid "%s exceeds -Y limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:443 emc/task/emctaskmain.cc:476
+#, c-format
+msgid "%s exceeds -Z limit"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:601
+#, c-format
+msgid ""
+"command (%s) cannot be executed until the machine is out of E-stop and "
+"turned on"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:721
+#, c-format
+msgid "can't do that (%s) in manual mode"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:823
+#, c-format
+msgid "can't do that (%s) in auto mode with the interpreter idle"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:885
+#, c-format
+msgid "can't do that (%s) in auto mode with the interpreter reading"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1111
+#, c-format
+msgid "can't do that (%s) in auto mode with the interpreter paused"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1175
+#, c-format
+msgid "can't do that (%s) in auto mode with the interpreter waiting"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1291
+#, c-format
+msgid "can't do that (%s) in MDI mode"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1897
+msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1970
+msgid "Can't issue MDI command when not homed"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:1975
+msgid "Must be in MDI mode to issue MDI command"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:2011
+msgid "Can't run a program when not homed"
+msgstr ""
+
+#: emc/task/emctaskmain.cc:3110
+#, c-format
+msgid "Minimum Software Limit on axis %d exceeded."
+msgstr ""
+
+#: emc/task/emctaskmain.cc:3119
+#, c-format
+msgid "Maximum Software Limit on axis %d exceeded."
+msgstr ""
+
+#: emc/rs274ngc/interp_arc.cc:106 emc/rs274ngc/rs274ngc_return.hh:196
+msgid "Zero radius arc"
+msgstr ""
+
+#: emc/rs274ngc/interp_arc.cc:108 emc/rs274ngc/interp_arc.cc:270
+#, c-format
+msgid ""
+"Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
+"center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
+msgstr ""
+
+#: emc/rs274ngc/interp_check.cc:97
+msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:190
+#, c-format
+msgid ""
+"You must specify a number of control points at least equal to the order L = %"
+"d"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:219
+msgid "Cannot convert spline with cutter radius compensation"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:229
+msgid "Splines must be in the XY plane"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:349
+msgid ""
+"The move just after exiting cutter compensation mode must be straight, not "
+"an arc"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:849 emc/rs274ngc/interp_convert.cc:859
+#: emc/rs274ngc/interp_queue.cc:514
+msgid ""
+"Arc move in concave corner cannot be reached by the tool without gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:885
+msgid "Arc to arc motion is invalid because the arcs have the same center"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:888
+msgid ""
+"Arc to arc motion makes a corner the compensated tool can't fit in without "
+"gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1445
+msgid "Cannot change control mode with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1549
+msgid "Cannot change coordinate systems with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1801
+#, c-format
+msgid "G%d.1 with no D word"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1804
+#, c-format
+msgid "G%d.1 with L word, but plane is not G18"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1815
+#, c-format
+msgid "G%d requires D word to be a whole number"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:1823
+#, c-format
+msgid "G%d with lathe tool, but plane is not G18"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2540 emc/rs274ngc/interp_convert.cc:2544
+msgid "Cannot set motion output with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2548 emc/rs274ngc/interp_convert.cc:2552
+msgid "Cannot set auxiliary output with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2596
+msgid "Cannot wait for digital input with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2608
+msgid "Cannot wait for analog input with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2627
+msgid "Need positive Q-word to specify tool number with M61"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2700 emc/rs274ngc/interp_convert.cc:2717
+#: emc/rs274ngc/interp_convert.cc:2731 emc/rs274ngc/interp_convert.cc:2745
+#: emc/rs274ngc/interp_convert.cc:2759
+msgid "Cannot enable overrides with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2707 emc/rs274ngc/interp_convert.cc:2722
+#: emc/rs274ngc/interp_convert.cc:2736 emc/rs274ngc/interp_convert.cc:2750
+#: emc/rs274ngc/interp_convert.cc:2764
+msgid "Cannot disable overrides with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:2774
+msgid "Cannot call user-defined M code with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:3004
+msgid "Cannot change retract mode with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:3730
+msgid "Cannot use G76 threading cycle with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:4092
+msgid "Zero degree inside corner is invalid for cutter compensation"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:4130 emc/rs274ngc/interp_convert.cc:4138
+msgid ""
+"Arc to straight motion makes a corner the compensated tool can't fit in "
+"without gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:4222
+msgid "Cannot change tools with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_convert.cc:4331
+msgid "Cannot change tool offset with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:512
+#, c-format
+msgid ""
+"BUG: cutter compensation has generated an invalid arc with mismatched radii "
+"r1 %f r2 %f\n"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:534
+msgid "BUG: Unsupported plane in cutter compensation"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:544
+msgid ""
+"Straight traverse in concave corner cannot be reached by the tool without "
+"gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:572
+#, c-format
+msgid "BUG: Unsupported plane [%d] in cutter compensation"
+msgstr ""
+
+#: emc/rs274ngc/interp_queue.cc:583
+msgid ""
+"Straight feed in concave corner cannot be reached by the tool without gouging"
+msgstr ""
+
+#: emc/rs274ngc/interp_read.cc:1097 emc/rs274ngc/interp_read.cc:1101
+#, c-format
+msgid "Bad character '\\%03o' used"
+msgstr ""
+
+#: emc/rs274ngc/interp_read.cc:1101
+#, c-format
+msgid "Bad character '%c' used"
+msgstr ""
+
+#: emc/rs274ngc/interp_read.cc:3239
+msgid "Multiple U words on one line"
+msgstr ""
+
+#: emc/rs274ngc/interp_read.cc:3255
+msgid "Multiple V words on one line"
+msgstr ""
+
+#: emc/rs274ngc/interp_read.cc:3271
+msgid "Multiple W words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_pre.cc:768
+msgid "Queue is not empty after tool change"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:4
+msgid "A file is already open"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:5
+msgid "All axes missing with g92"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:6
+msgid "All axes missing with motion code"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:7
+msgid "Arc radius too small to reach end point"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:8
+msgid "Argument to acos out of range"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:9
+msgid "Argument to asin out of range"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:10
+msgid "Attempt to divide by zero"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:11
+msgid "Attempt to raise negative to non integer power"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:12
+msgid "Bad character used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:13
+msgid "Bad format unsigned integer"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:14
+msgid "Bad number format"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:15
+msgid "Bug bad g code modal group 0"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:16
+msgid "Bug code not g0 or g1"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:17
+msgid "Bug code not g17 g18 or g19"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:18
+msgid "Bug code not g20 or g21"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:19
+msgid "Bug code not g28 or g30"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:20
+msgid "Bug code not g2 or g3"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:21
+msgid "Bug code not g40 g41 or g42"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:22
+msgid "Bug code not g43 or g49"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:23
+msgid "Bug code not g4 g10 g28 g30 g53 or g92 series"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:24
+msgid "Bug code not g61 g61.1 or g64"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:25
+msgid "Bug code not g90 or g91"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:26
+msgid "Bug code not g93 or g94"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:27
+msgid "Bug code not g98 or g99"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:28
+msgid "Bug code not in g92 series"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:29
+msgid "Bug code not in range g54 to g593"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:30
+msgid "Bug code not m0 m1 m2 m30 m60"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:31
+msgid "Bug distance mode not g90 or g91"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:32
+msgid "Bug function should not have been called"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:33
+msgid "Bug in tool radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:34
+msgid "Bug plane not xy yz or xz"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:35
+msgid "Bug side not right or left"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:36
+msgid "Bug unknown motion code"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:37
+msgid "Bug unknown operation"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:38
+msgid "Cannot change axis offsets with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:39
+msgid "Cannot change units with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:40
+msgid "Cannot create backup file"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:41
+msgid "Cannot do g1 with zero feed rate"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:42
+msgid "Cannot do zero repeats of cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:43
+msgid "Cannot make arc with zero feed rate"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:44
+msgid "Cannot move rotary axes during probing"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:45
+msgid "Cannot open backup file"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:46
+msgid "Cannot open variable file"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:47
+msgid "Cannot probe in inverse time feed mode"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:48
+msgid "Cannot probe with cutter radius comp on"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:49
+msgid "Cannot probe with zero feed rate"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:50
+msgid "Cannot put a b in canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:51
+msgid "Cannot put a c in canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:52
+msgid "Cannot put an a in canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:53
+msgid "Cannot turn cutter radius comp on out of xy plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:54
+msgid "Cannot turn cutter radius comp on when on"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:55
+msgid "Cannot use a word"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:56
+msgid "Cannot use axis values with g80"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:57
+msgid "Cannot use axis values without a g code that uses them"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:58
+msgid "Cannot use b word"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:59
+msgid "Cannot use c word"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:60
+msgid "Cannot use g28 or g30 with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:61
+msgid "Cannot use g53 incremental"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:62
+msgid "Cannot use g53 with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:63
+msgid "Cannot use two g codes that both use axis values"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:64
+msgid "Cannot use xz plane with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:65
+msgid "Cannot use yz plane with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:66
+#, fuzzy
+msgid "Command too long"
+msgstr "命令番:"
+
+#: emc/rs274ngc/rs274ngc_return.hh:67
+msgid "Concave corner with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:68
+msgid "Coordinate system index parameter 5220 out of range"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:69
+msgid "Current point same as end point of arc"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:70
+msgid "Cutter gouging with cutter radius comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:71
+msgid "D word with no g41 or g42"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:72
+msgid "Dwell time missing with g4"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:73
+msgid "Dwell time p word missing with g82"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:74
+msgid "Dwell time p word missing with g86"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:75
+msgid "Dwell time p word missing with g88"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:76
+msgid "Dwell time p word missing with g89"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:77
+msgid "Equal sign missing in parameter setting"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:78
+msgid "F word missing with inverse time arc move"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:79
+msgid "F word missing with inverse time g1 move"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:80
+msgid "File ended with no percent sign"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:81
+msgid "File ended with no percent sign or program end"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:82
+msgid "File name too long"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:83
+msgid "G code out of range"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:84
+msgid "H word with no g43"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:85
+msgid "I word given for arc in yz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:86
+msgid "I word missing with g87"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:87
+msgid "I word with no g2, g3, g87, or g43 to use it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:88
+msgid "J word given for arc in xz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:89
+msgid "J word missing with g87"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:90
+msgid "J word with no g2, g3 or g87 to use it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:91
+msgid "K word given for arc in xy plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:92
+msgid "K word missing with g87"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:93
+msgid "K word with no g2, g3, g33, g33.1, g76, g87, or g43.1 to use it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:94
+msgid "L word with no canned cycle, g10, or g76 to use it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:95
+msgid "Left bracket missing after slash with atan"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:96
+msgid "Left bracket missing after unary operation name"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:97
+msgid "Line number greater than 99999"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:98
+msgid "Line with g10 does not have l2"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:99
+msgid "M code greater than 199"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:100
+msgid "Mixed radius ijk format for arc"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:101
+msgid "Multiple a words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:102
+msgid "Multiple b words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:103
+msgid "Multiple c words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:104
+msgid "Multiple d words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:105
+msgid "Multiple f words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:106
+msgid "Multiple h words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:107
+msgid "Multiple i words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:108
+msgid "Multiple j words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:109
+msgid "Multiple k words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:110
+msgid "Multiple l words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:111
+msgid "Multiple p words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:112
+msgid "Multiple q words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:113
+msgid "Multiple r words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:114
+msgid "Multiple s words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:115
+msgid "Multiple t words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:116
+msgid "Multiple x words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:117
+msgid "Multiple y words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:118
+msgid "Multiple z words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:119
+msgid "Must use g0 or g1 with g53"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:120
+msgid "Negative argument to sqrt"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:121
+msgid "Negative d word tool radius index used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:122
+msgid "Negative f word used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:123
+msgid "Negative g code used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:124
+msgid "Negative h word used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:125
+msgid "Negative l word used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:126
+msgid "Negative m code used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:127
+msgid "Negative or zero q value used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:128
+msgid "Negative p word used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:129
+#, fuzzy
+msgid "Negative spindle speed used"
+msgstr "フィード手直して:"
+
+#: emc/rs274ngc/rs274ngc_return.hh:130
+msgid "Negative tool id used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:131
+msgid "Nested comment found"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:132
+msgid "No characters found in reading real value"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:133
+msgid "No digits found where real number should be"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:134
+msgid "Non integer value for integer"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:135
+msgid "Null missing after newline"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:136
+msgid "Offset index missing"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:137
+msgid "P value not an integer with g10 l2"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:138
+msgid "P value out of range with g10 l2"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:139
+msgid "P word with no g4 g10 g64 g76 g82 g86 g88 g89"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:140
+#, fuzzy
+msgid "Parameter file out of order"
+msgstr "パラムのファイルを読む"
+
+#: emc/rs274ngc/rs274ngc_return.hh:141
+msgid "Parameter number out of range"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:142
+msgid "Q word missing with g83"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:143
+msgid "Q word with no g83 or m66"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:144
+msgid "Queue is not empty after probing"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:145
+msgid "R clearance plane unspecified in cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:146
+msgid "R i j k words all missing for arc"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:147
+msgid "R less than x in cycle in yz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:148
+msgid "R less than y in cycle in xz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:149
+msgid "R less than z in cycle in xy plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:150
+msgid "R word with no g code that uses it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:151
+msgid "Radius to end of arc differs from radius to start"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:152
+msgid "Radius too small to reach end point"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:153
+msgid "Required parameter missing"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:154
+msgid "Selected tool slot number too large"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:155
+msgid "Slash missing after first atan argument"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:156
+msgid "Spindle not turning clockwise in g84"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:157
+msgid "Spindle not turning in g86"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:158
+msgid "Spindle not turning in g87"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:159
+msgid "Spindle not turning in g88"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:160
+msgid "Sscanf failed"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:161
+msgid "Start point too close to probe point"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:162
+msgid "Too many m codes on line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:163
+msgid "Tool length offset index too big"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:164
+msgid "Tool max too large"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:165
+msgid "Tool radius index too big"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:166
+msgid "Tool radius not less than arc radius with comp"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:167
+msgid "Two g codes used from same modal group"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:168
+msgid "Two m codes used from same modal group"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:169
+msgid "Unable to open file"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:170
+msgid "Unclosed comment found"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:171
+msgid "Unclosed expression"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:172
+msgid "Unknown g code used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:173
+msgid "Unknown m code used"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:174
+msgid "Unknown operation"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:175
+msgid "Unknown operation name starting with a"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:176
+msgid "Unknown operation name starting with m"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:177
+msgid "Unknown operation name starting with o"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:178
+msgid "Unknown operation name starting with x"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:179
+msgid "Unknown word starting with a"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:180
+msgid "Unknown word starting with c"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:181
+msgid "Unknown word starting with e"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:182
+msgid "Unknown word starting with f"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:183
+msgid "Unknown word starting with l"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:184
+msgid "Unknown word starting with r"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:185
+msgid "Unknown word starting with s"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:186
+msgid "Unknown word starting with t"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:187
+msgid "Unknown word where unary operation could be"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:188
+msgid "X and y words missing for arc in xy plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:189
+msgid "X and z words missing for arc in xz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:190
+msgid "X value unspecified in yz plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:191
+msgid "X, y, z, a, b, c, u, v, and w words all missing with g38.2"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:192
+msgid "Y and z words missing for arc in yz plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:193
+msgid "Y value unspecified in xz plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:194
+msgid "Z value unspecified in xy plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:195
+msgid "Zero or negative argument to ln"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:197
+msgid "K word missing with g33/g33.1"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:198
+msgid "F word used with a g33/g33.1"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:199
+msgid "G33 not supported"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:200
+msgid "Canned cycles not supported"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:201
+msgid "Unknown operation name starting with e"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:202
+msgid "Unknown operation name starting with n"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:203
+msgid "Unknown operation name starting with g"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:204
+msgid "Unknown operation name starting with l"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:205
+msgid "Too many subroutine parameters"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:206
+msgid "Too many subroutine levels"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:207
+msgid "Unknown control command in o word"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:208
+msgid "Too many oword labels"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:209
+msgid "Unknown oword number"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:210
+msgid "Nested subroutine definition"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:211
+msgid "Not in subroutine definition"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:212
+msgid "Return outside of subroutine"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:213
+msgid "File not open"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:214
+msgid "Need tool prepared -Txx- for toolchange"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:215
+msgid "Cannot change planes with cutter radius compensation on"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:216
+msgid "Cutter radius compensation allowed only in XY, XZ planes"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:217
+msgid "P word missing with G76"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:218
+msgid "I J or K words missing with G76"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:219
+msgid "Cannot move rotary axes with G76"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:220
+msgid "Multiple e words on one line"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:221
+msgid "E word with no G76 or M66 to use it"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:222
+msgid "Named parameter not terminated"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:223
+#, fuzzy
+msgid "Named parameter not defined"
+msgstr "パラムのファイルを読む"
+
+#: emc/rs274ngc/rs274ngc_return.hh:224
+msgid "Named oword not terminated"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:225
+msgid "Named oword not defined"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:226
+msgid "Out of memory"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:227
+msgid "X Y Z A B C J words not allowed with G43.1, G41 R, or G42 R"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:228
+msgid "S word missing with G96"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:229
+msgid "Queue is not empty after external input"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:230
+msgid "Can't select analog input with wait type != immediate return"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:231
+msgid "Zero timeout with wait type != immediate return"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:232
+msgid "Invalid to select both a digital and an analog input with M66"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:233
+msgid "Need to have either a valid P or a valid E word with M66"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:234
+msgid "Q word missing with g73"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:235
+msgid "Digital input selected out of bounds"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:236
+msgid "Analog input selected out of bounds"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:237
+msgid "W value unspecified in UV plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:238
+msgid "U value unspecified in VW plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:239
+msgid "V value unspecified in UW plane canned cycle"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:240
+msgid "R less than W in cycle in UV plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:241
+msgid "R less than U in cycle in VW plane"
+msgstr ""
+
+#: emc/rs274ngc/rs274ngc_return.hh:242
+msgid "R less than V in cycle in UW plane"
+msgstr ""
+
+#~ msgid "Break on"
+#~ msgstr "ブレーキ点いた"
+
+#~ msgid "Break off"
+#~ msgstr "ブレーキ消した"
+
+#~ msgid "Error: "
+#~ msgstr "越度: "
