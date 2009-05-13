@@ -110,6 +110,7 @@ typedef struct {
     __u32 timestamp;		/* c:rw captured timestamp */
     __s32 index_count;		/* c:rw captured index count */
     hal_s32_t *count;		/* c:w captured binary count value */
+    hal_float_t *min_speed;     /* c:r minimum velocity to estimate nonzero */
     hal_float_t *pos;		/* c:w scaled position (floating point) */
     hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
@@ -230,6 +231,7 @@ int rtapi_app_main(void)
 	cntr->timestamp = 0;
 	cntr->index_count = 0;
 	*(cntr->count) = 0;
+	*(cntr->min_speed) = 1.0;
 	*(cntr->pos) = 0.0;
 	*(cntr->vel) = 0.0;
 	*(cntr->pos_scale) = 1.0;
@@ -333,11 +335,6 @@ static void update(void *arg, long period)
 }
 
 
-/* if no edges in 100mS time, force vel to zero */
-/* changed to 1 second - low ppr needs a longer time */
-/* FIXME - this shouldn't be a hard coded number */
-#define TIMEOUT 1000000000
-
 static void capture(void *arg, long period)
 {
     counter_t *cntr;
@@ -382,6 +379,11 @@ static void capture(void *arg, long period)
 	    /* we actually want the reciprocal */
 	    cntr->scale = 1.0 / *(cntr->pos_scale);
 	}
+        /* check for valid min_speed */
+        if ( *(cntr->min_speed) == 0 ) {
+            *(cntr->min_speed) = 1;
+        }
+
 	/* check reset input */
 	if (*(cntr->reset)) {
 	    /* reset is active, reset the counter */
@@ -411,7 +413,7 @@ static void capture(void *arg, long period)
 	    if ( cntr->counts_since_timeout ) {
 		/* calc time since last count */
 		delta_time = timebase - cntr->timestamp;
-		if ( delta_time < TIMEOUT ) {
+		if ( delta_time < 1e9 / ( *(cntr->min_speed) * cntr->scale )) {
 		    /* not to long, estimate vel if a count arrived now */
 		    vel = ( cntr->scale ) / (delta_time * 1e-9);
 		    /* make vel positive, even if scale is negative */
@@ -502,6 +504,12 @@ static int export_counter(int num, counter_t * addr)
     /* export pin for counts captured by capture() */
     rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counts", num);
     retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for minimum speed estimated by capture() */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.min-speed-estimate", num);
+    retval = hal_pin_float_new(buf, HAL_IN, &(addr->min_speed), comp_id);
     if (retval != 0) {
 	return retval;
     }
