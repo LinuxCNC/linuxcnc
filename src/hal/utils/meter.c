@@ -213,7 +213,7 @@ int main(int argc, gchar * argv[])
 	win_name = initial_name;
     } else {
 	height = 80;
-	win_name = "Hal Meter";
+	win_name = _("Hal Meter");
     }
     gtk_widget_set_usize(GTK_WIDGET(main_window), 270, height);
     gtk_window_set_policy(GTK_WINDOW(main_window), FALSE, FALSE, FALSE);
@@ -261,8 +261,8 @@ int main(int argc, gchar * argv[])
 	hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
 
 	/* create the buttons and add them to the hbox */
-	button_select = gtk_button_new_with_label("_Select");
-	button_exit = gtk_button_new_with_label("E_xit");
+	button_select = gtk_button_new_with_label(_("_Select"));
+	button_exit = gtk_button_new_with_label(_("E_xit"));
 	gtk_button_set_use_underline((GtkButton *)button_select, TRUE);
 	gtk_button_set_use_underline((GtkButton *)button_exit, TRUE);
 
@@ -306,7 +306,7 @@ static meter_t *meter_new(void)
 	return NULL;
     }
     /* define a probe for the display item */
-    new->probe = probe_new("Select item to display");
+    new->probe = probe_new(_("Select item to display"));
     if (new->probe == NULL) {
 	free(new);
 	return NULL;
@@ -334,7 +334,7 @@ probe_t *probe_new(char *probe_name)
 
     if (probe_name != NULL) {
 	/* no name specified, fake it */
-	probe_name = "Select Item to Probe";
+	probe_name = _("Select Item to Probe");
     }
     /* allocate a new probe structure */
     new = malloc(sizeof(probe_t));
@@ -609,9 +609,9 @@ static void create_probe_window(probe_t * probe)
     /* set overall notebook parameters */
     gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
     /* text for tab labels */
-    tab_label_text[0] = " _Pins ";
-    tab_label_text[1] = " _Signals ";
-    tab_label_text[2] = " Para_meters ";
+    tab_label_text[0] = _(" _Pins ");
+    tab_label_text[1] = _(" _Signals ");
+    tab_label_text[2] = _(" Para_meters ");
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
 	/* Create a scrolled window to display the list */
@@ -654,7 +654,7 @@ static void create_probe_window(probe_t * probe)
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
 
     /* create the close button and add it to the hbox */
-    button_close = gtk_button_new_with_label("_Close");
+    button_close = gtk_button_new_with_label(_("_Close"));
     gtk_button_set_use_underline((GtkButton *)button_close, TRUE);
     gtk_box_pack_start(GTK_BOX(hbox), button_close, TRUE, TRUE, 4);
 

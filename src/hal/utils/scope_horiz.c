@@ -35,6 +35,11 @@
 #error This is a user mode component only!
 #endif
 
+#include "config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -129,8 +134,8 @@ static void init_horiz_window(void)
 	TRUE, 0);
     /* first column - slider labels */
     vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
-    gtk_label_new_in_box("Zoom", vbox, FALSE, TRUE, 0);
-    gtk_label_new_in_box(" Pos ", vbox, FALSE, TRUE, 0);
+    gtk_label_new_in_box(_("Zoom"), vbox, FALSE, TRUE, 0);
+    gtk_label_new_in_box(_(" Pos "), vbox, FALSE, TRUE, 0);
     /* second column - sliders */
     vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, TRUE, TRUE, 3);
     /* add a slider for zoom level */
@@ -163,7 +168,7 @@ static void init_horiz_window(void)
 	"99.9 mSec\nper div");
     /* fourth column - record length and sample rate button */
     horiz->record_button =
-	gtk_button_new_with_label("----- Samples\nat ---- KHz");
+	gtk_button_new_with_label(_("----- Samples\nat ---- KHz"));
     horiz->record_label = (GTK_BIN(horiz->record_button))->child;
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
@@ -199,7 +204,7 @@ static void init_horiz_window(void)
     vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     horiz->state_label =
 	gtk_label_new_in_box(" ---- ", vbox, FALSE, FALSE, 3);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
+    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), _(" TRIGGERED "));
 }
 
 static void init_acquire_function(void)
@@ -458,14 +463,14 @@ static void dialog_realtime_not_loaded(void)
         sleep(1);
         return;
     }
-    title = "Realtime component not loaded";
-    msg = "HALSCOPE uses a realtime component called scope_rt'\n"
+    title = _("Realtime component not loaded");
+    msg = _("HALSCOPE uses a realtime component called scope_rt'\n"
 	"to sample signals for display.  It is not currently loaded\n"
         "and attempting to load it automatically failed.  More information\n"
         "may be available in the terminal where halscope was started.\n\n"
 	"Please do one of the following:\n\n"
 	"Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE";
+	"or\n" "Click 'Quit' to exit HALSCOPE");
     retval =
 	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
 	NULL, NULL);
@@ -495,17 +500,17 @@ static void dialog_realtime_not_linked(void)
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
-	title = "Realtime function not linked";
-	msg = "The HALSCOPE realtime sampling function\n"
+	title = _("Realtime function not linked");
+	msg = _("The HALSCOPE realtime sampling function\n"
 	    "must be called from a HAL thread in to\n"
 	    "determine the sampling rate.\n\n"
 	    "Please do one of the following:\n\n"
 	    "Select a thread name and multiplier then click 'OK'\n"
-	    "or\n" "Click 'Quit' to exit HALSCOPE";
+	    "or\n" "Click 'Quit' to exit HALSCOPE");
     } else {
-	title = "Select Sample Rate";
-	msg = "Select a thread name and multiplier then click 'OK'\n"
-	    "or\n" "Click 'Quit' to exit HALSCOPE";
+	title = _("Select Sample Rate");
+	msg = _("Select a thread name and multiplier then click 'OK'\n"
+	    "or\n" "Click 'Quit' to exit HALSCOPE");
     }
     /* create dialog window, disable resizing */
     dialog.retval = 0;
@@ -526,7 +531,7 @@ static void dialog_realtime_not_linked(void)
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
-    gtk_label_new_in_box("Thread:", hbox, TRUE, TRUE, 0);
+    gtk_label_new_in_box(_("Thread:"), hbox, TRUE, TRUE, 0);
     horiz->thread_name_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
 
@@ -534,7 +539,7 @@ static void dialog_realtime_not_linked(void)
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
-    gtk_label_new_in_box("Sample Period:", hbox, TRUE, TRUE, 0);
+    gtk_label_new_in_box(_("Sample Period:"), hbox, TRUE, TRUE, 0);
     horiz->sample_period_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
 
@@ -542,7 +547,7 @@ static void dialog_realtime_not_linked(void)
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
-    gtk_label_new_in_box("Sample Rate:", hbox, TRUE, TRUE, 0);
+    gtk_label_new_in_box(_("Sample Rate:"), hbox, TRUE, TRUE, 0);
     horiz->sample_rate_label =
 	gtk_label_new_in_box("------", hbox, TRUE, TRUE, 0);
 
@@ -558,8 +563,8 @@ static void dialog_realtime_not_linked(void)
     gtk_widget_show(scrolled_window);
 
     /* create a list to hold the threads */
-    titles[0] = "Thread";
-    titles[1] = "Period";
+    titles[0] = _("Thread");
+    titles[1] = _("Period");
     horiz->thread_list = gtk_clist_new_with_titles(2, titles);
     gtk_clist_column_titles_passive(GTK_CLIST(horiz->thread_list));
     /* set up a callback for when the user selects a line */
@@ -619,7 +624,7 @@ static void dialog_realtime_not_linked(void)
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
-    gtk_label_new_in_box("Multiplier:", hbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Multiplier:"), hbox, FALSE, FALSE, 0);
     /* set up the multiplier spinbutton - ranges from every run of the
        thread, to every 1000th run */
     horiz->mult_adj =
@@ -636,28 +641,28 @@ static void dialog_realtime_not_linked(void)
     gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
 
     /* box for record length buttons */
-    gtk_label_new_in_box("Record Length",
+    gtk_label_new_in_box(_("Record Length"),
 	GTK_DIALOG(dialog.window)->vbox, TRUE, TRUE, 0);
     hbox =
 	gtk_hbox_new_in_box(TRUE, 0, 0, (GTK_DIALOG(dialog.window)->vbox),
 	FALSE, TRUE, 5);
     /* now define the radio buttons */
-    snprintf(buf, BUFLEN, "%5d samples (1 channel)", ctrl_shm->buf_len);
+    snprintf(buf, BUFLEN, _("%5d samples (1 channel)"), ctrl_shm->buf_len);
     buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
     buttongroup = gtk_radio_button_group(GTK_RADIO_BUTTON(buttons[0]));
-    snprintf(buf, BUFLEN, "%5d samples (2 channels)", ctrl_shm->buf_len / 2);
+    snprintf(buf, BUFLEN, _("%5d samples (2 channels)"), ctrl_shm->buf_len / 2);
     buttons[1] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (4 channels)", ctrl_shm->buf_len / 4);
+    snprintf(buf, BUFLEN, _("%5d samples (4 channels)"), ctrl_shm->buf_len / 4);
     buttons[2] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (8 channels)", ctrl_shm->buf_len / 8);
+    snprintf(buf, BUFLEN, _("%5d samples (8 channels)"), ctrl_shm->buf_len / 8);
     buttons[3] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
 	    [0]), buf);
-    snprintf(buf, BUFLEN, "%5d samples (16 channels)",
+    snprintf(buf, BUFLEN, _("%5d samples (16 channels)"),
 	ctrl_shm->buf_len / 16);
     buttons[4] =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
@@ -717,7 +722,7 @@ static void dialog_realtime_not_linked(void)
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
 	GTK_SIGNAL_FUNC(dialog_generic_button1), &dialog);
-    button = gtk_button_new_with_label("Quit");
+    button = gtk_button_new_with_label(_("Quit"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -1058,7 +1063,7 @@ static void refresh_horiz_info(void)
 	snprintf(scale, BUFLEN, "----");
     } else {
 	format_time_value(tmp, BUFLEN, horiz->disp_scale);
-	snprintf(scale, BUFLEN, "%s\nper div", tmp);
+	snprintf(scale, BUFLEN, _("%s\nper div"), tmp);
     }
     if (horiz->sample_period == 0.0) {
 	snprintf(period, BUFLEN, "----");
@@ -1073,7 +1078,7 @@ static void refresh_horiz_info(void)
     } else {
 	snprintf(rec_len, BUFLEN, "%d", ctrl_shm->rec_len);
     }
-    snprintf(msg, BUFLEN, "%s samples\nat %s", rec_len, rate);
+    snprintf(msg, BUFLEN, _("%s samples\nat %s"), rec_len, rate);
     gtk_label_set_text_if(horiz->thread_name_label, name);
     gtk_label_set_text_if(horiz->sample_rate_label, rate);
     gtk_label_set_text_if(horiz->scale_label, scale);

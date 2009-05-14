@@ -475,7 +475,7 @@ static void do_open_configuration(GtkWidget *w, GtkFileSelection *fs) {
 
 static void open_configuration(int junk) {
     GtkWidget *filew;
-    filew = gtk_file_selection_new("Open Configuration File:" );
+    filew = gtk_file_selection_new(_("Open Configuration File:"));
     gtk_signal_connect (GTK_OBJECT (filew), "destroy",
         (GtkSignalFunc) gtk_widget_destroy, &filew);
     gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
@@ -502,7 +502,7 @@ static void do_save_configuration(GtkWidget *w, GtkFileSelection *fs) {
 
 static void save_configuration(int junk) {
     GtkWidget *filew;
-    filew = gtk_file_selection_new("Open Configuration File:" );
+    filew = gtk_file_selection_new(_("Open Configuration File:"));
     gtk_signal_connect (GTK_OBJECT (filew), "destroy",
         (GtkSignalFunc) gtk_widget_destroy, &filew);
     gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
@@ -536,13 +536,13 @@ static void define_menubar(GtkWidget *vboxtop) {
     sep1 = gtk_separator_menu_item_new();
     sep2 = gtk_separator_menu_item_new();
 
-    fileopenconfiguration = gtk_menu_item_new_with_mnemonic("_Open Configuration...");
+    fileopenconfiguration = gtk_menu_item_new_with_mnemonic(_("_Open Configuration..."));
     gtk_menu_append(GTK_MENU(filemenu), fileopenconfiguration);
     gtk_signal_connect_object(GTK_OBJECT(fileopenconfiguration), "activate", 
             GTK_SIGNAL_FUNC(open_configuration), 0);
     gtk_widget_show(fileopenconfiguration);
     
-    filesaveconfiguration = gtk_menu_item_new_with_mnemonic("_Save Configuration...");
+    filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
     gtk_menu_append(GTK_MENU(filemenu), filesaveconfiguration);
     gtk_signal_connect_object(GTK_OBJECT(filesaveconfiguration), "activate", 
             GTK_SIGNAL_FUNC(save_configuration), 0);
@@ -551,14 +551,14 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_menu_append(GTK_MENU(filemenu), sep1);
     gtk_widget_show(sep1);
     
-    fileopendatafile = gtk_menu_item_new_with_mnemonic("O_pen Data File...");
+    fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Data File..."));
     gtk_menu_append(GTK_MENU(filemenu), fileopendatafile);
     gtk_signal_connect_object(GTK_OBJECT(fileopendatafile), "activate", 
             GTK_SIGNAL_FUNC(menuitem_response), "file/open datafile");
     gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
     gtk_widget_show(fileopendatafile);
     
-    filesavedatafile = gtk_menu_item_new_with_mnemonic("S_ave Data File...");
+    filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Data File..."));
     gtk_menu_append(GTK_MENU(filemenu), filesavedatafile);
     gtk_signal_connect_object(GTK_OBJECT(filesavedatafile), "activate", 
             GTK_SIGNAL_FUNC(log_popup), 0);
@@ -567,23 +567,23 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_menu_append(GTK_MENU(filemenu), sep2);
     gtk_widget_show(sep2);
 
-    filequit = gtk_menu_item_new_with_mnemonic("_Quit");
+    filequit = gtk_menu_item_new_with_mnemonic(_("_Quit"));
     gtk_menu_append(GTK_MENU(filemenu), filequit);
     gtk_signal_connect_object(GTK_OBJECT(filequit), "activate", 
             GTK_SIGNAL_FUNC(quit), 0);
     gtk_widget_show(filequit);
 
-    helpabout = gtk_menu_item_new_with_mnemonic("_About Halscope");
+    helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));
     gtk_menu_append(GTK_MENU(helpmenu), helpabout);
     gtk_signal_connect_object(GTK_OBJECT(helpabout), "activate",
             GTK_SIGNAL_FUNC(about), 0);
     gtk_widget_show(helpabout);
 
-    file_rootmenu = gtk_menu_item_new_with_mnemonic("_File");
+    file_rootmenu = gtk_menu_item_new_with_mnemonic(_("_File"));
     gtk_widget_show(file_rootmenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(file_rootmenu),filemenu);
 
-    help_rootmenu = gtk_menu_item_new_with_mnemonic("_Help");
+    help_rootmenu = gtk_menu_item_new_with_mnemonic(_("_Help"));
     gtk_widget_show(help_rootmenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(help_rootmenu),helpmenu);
 
@@ -642,7 +642,7 @@ static void define_scope_windows(void)
     /* allow the user to expand it */
     gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
     /* set main window title */
-    gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), "HAL Oscilloscope");
+    gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */
     vbox = gtk_vbox_new(FALSE, 0);
@@ -670,7 +670,7 @@ static void define_scope_windows(void)
     /* third level of windows */
     /* left side */
     ctrl_usr->horiz_info_win =
-	gtk_vbox_framed_new_in_box("Horizontal", FALSE, 0, 0, vboxleft, FALSE,
+	gtk_vbox_framed_new_in_box(_("Horizontal"), FALSE, 0, 0, vboxleft, FALSE,
 	FALSE, 1);
     /* horizontal row of select buttons */
     ctrl_usr->waveform_win =
@@ -678,22 +678,22 @@ static void define_scope_windows(void)
     ctrl_usr->chan_sel_win =
 	gtk_hbox_new_in_box(TRUE, 0, 0, vboxleft, FALSE, FALSE, 0);
     ctrl_usr->chan_info_win =
-	gtk_hbox_framed_new_in_box("Selected Channel", FALSE, 0, 0, vboxleft,
+	gtk_hbox_framed_new_in_box(_("Selected Channel"), FALSE, 0, 0, vboxleft,
 	FALSE, FALSE, 0);
     /* right side */
     vboxleft = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
     vboxright = gtk_vbox_new_in_box(FALSE, 0, 0, hboxright, FALSE, FALSE, 0);
     ctrl_usr->run_mode_win =
-	gtk_vbox_framed_new_in_box("Run Mode", TRUE, 0, 0, vboxleft, FALSE,
+	gtk_vbox_framed_new_in_box(_("Run Mode"), TRUE, 0, 0, vboxleft, FALSE,
 	FALSE, 0);
     ctrl_usr->trig_info_win =
-	gtk_vbox_framed_new_in_box("Trigger", FALSE, 0, 0, vboxright, TRUE,
+	gtk_vbox_framed_new_in_box(_("Trigger"), FALSE, 0, 0, vboxright, TRUE,
 	TRUE, 0);
     ctrl_usr->trig_mode_win =
 	gtk_vbox_new_in_box(TRUE, 0, 0, ctrl_usr->trig_info_win, FALSE,
 	FALSE, 0);
     ctrl_usr->vert_info_win =
-	gtk_vbox_framed_new_in_box("Vertical", FALSE, 0, 0, vboxleft, TRUE,
+	gtk_vbox_framed_new_in_box(_("Vertical"), FALSE, 0, 0, vboxleft, TRUE,
 	TRUE, 0);
     /* all windows are now defined */
 }
@@ -701,16 +701,16 @@ static void define_scope_windows(void)
 static void init_run_mode_window(void)
 {
     /* define the radio buttons */
-    ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, "Stop");
+    ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, _("Stop"));
     ctrl_usr->rm_normal_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Normal");
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Normal"));
     ctrl_usr->rm_single_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Single");
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Single"));
     ctrl_usr->rm_roll_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), "Roll");
+	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Roll"));
     /* now put them into the box */
     gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
 	ctrl_usr->rm_normal_button, FALSE, FALSE, 0);

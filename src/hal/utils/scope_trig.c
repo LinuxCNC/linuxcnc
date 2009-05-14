@@ -34,6 +34,11 @@
 #error This is a user mode component only!
 #endif
 
+#include "config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -109,21 +114,21 @@ void refresh_trigger(void)
     trig = &(ctrl_usr->trig);
     /* display edge */
     if (ctrl_shm->trig_edge == 0) {
-	snprintf(buf, BUFLEN, "Falling");
+	snprintf(buf, BUFLEN, _("Falling"));
     } else {
-	snprintf(buf, BUFLEN, "Rising");
+	snprintf(buf, BUFLEN, _("Rising"));
     }
     gtk_label_set_text_if(trig->edge_label, buf);
     /* display source */
     if ((ctrl_shm->trig_chan < 1) || (ctrl_shm->trig_chan > 16)) {
 	/* no source */
 	ctrl_shm->trig_chan = 0;
-	gtk_label_set_text_if(trig->source_label, "Source\nNone");
+	gtk_label_set_text_if(trig->source_label, _("Source\nNone"));
 	gtk_label_set_text_if(trig->level_label, "  ----  ");
 	/* nothing left to do */
 	return;
     }
-    snprintf(buf, BUFLEN, "Source\nChan %2d", ctrl_shm->trig_chan);
+    snprintf(buf, BUFLEN, _("Source\nChan %2d"), ctrl_shm->trig_chan);
     gtk_label_set_text_if(trig->source_label, buf);
     /* point to source channel data */
     chan = &(ctrl_usr->chan[ctrl_shm->trig_chan - 1]);
@@ -198,9 +203,9 @@ static void init_trigger_mode_window(void)
     trig->normal_button = gtk_radio_button_new_with_label(NULL, "Normal");
     trig->auto_button =
 	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(trig->normal_button)), "Auto");
+	(GTK_RADIO_BUTTON(trig->normal_button)), _("Auto"));
     /* and a regular button */
-    trig->force_button = gtk_button_new_with_label("Force");
+    trig->force_button = gtk_button_new_with_label(_("Force"));
     /* now put them into the box */
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_mode_win),
 	trig->normal_button, FALSE, FALSE, 0);
@@ -234,7 +239,7 @@ static void init_trigger_info_window(void)
 	0);
     /* box for the level slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box("Level", vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Level"), vbox, FALSE, FALSE, 0);
     trig->level_adj =
 	gtk_adjustment_new(TRIG_LEVEL_RESOLUTION / 2, 0,
 	TRIG_LEVEL_RESOLUTION, 1, 1, 0);
@@ -251,7 +256,7 @@ static void init_trigger_info_window(void)
     gtk_widget_show(trig->level_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box("Pos", vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Pos"), vbox, FALSE, FALSE, 0);
     trig->pos_adj =
 	gtk_adjustment_new(TRIG_POS_RESOLUTION / 2, 0, TRIG_POS_RESOLUTION, 1,
 	1, 0);
@@ -268,13 +273,13 @@ static void init_trigger_info_window(void)
     gtk_widget_show(trig->pos_slider);
     /* level display */
     gtk_hseparator_new_in_box(ctrl_usr->trig_info_win, 3);
-    gtk_label_new_in_box("Level", ctrl_usr->trig_info_win, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Level"), ctrl_usr->trig_info_win, FALSE, FALSE, 0);
     trig->level_label =
 	gtk_label_new_in_box(" ---- ", ctrl_usr->trig_info_win, FALSE, FALSE,
 	0);
     /* define a button to set the trigger edge */
     ctrl_shm->trig_edge = 1;
-    trig->edge_button = gtk_button_new_with_label("Rising");
+    trig->edge_button = gtk_button_new_with_label(_("Rising"));
     trig->edge_label = (GTK_BIN(trig->edge_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->edge_button, FALSE, FALSE, 0);
@@ -282,7 +287,7 @@ static void init_trigger_info_window(void)
 	GTK_SIGNAL_FUNC(edge_button_clicked), NULL);
     gtk_widget_show(trig->edge_button);
     /* define a button to set the trigger source */
-    trig->source_button = gtk_button_new_with_label("Source\nNone");
+    trig->source_button = gtk_button_new_with_label(_("Source\nNone"));
     trig->source_label = (GTK_BIN(trig->source_button))->child;
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->source_button, FALSE, FALSE, 0);
@@ -306,8 +311,8 @@ static void dialog_select_trigger_source(void)
     if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
     vert = &(ctrl_usr->vert);
     trig = &(ctrl_usr->trig);
-    title = "Trigger Source";
-    msg = "Select a channel to use for triggering.";
+    title = _("Trigger Source");
+    msg = _("Select a channel to use for triggering.");
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
@@ -330,8 +335,8 @@ static void dialog_select_trigger_source(void)
 	scrolled_window, TRUE, TRUE, 5);
     gtk_widget_show(scrolled_window);
     /* create a list to hold the data */
-    titles[0] = "Chan";
-    titles[1] = "Source";
+    titles[0] = _("Chan");
+    titles[1] = _("Source");
     trig_list = gtk_clist_new_with_titles(2, titles);
     gtk_clist_column_titles_passive(GTK_CLIST(trig_list));
     /* set up a callback for when the user selects a line */
@@ -370,7 +375,7 @@ static void dialog_select_trigger_source(void)
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
 	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
     /* make Cancel button */
-    button = gtk_button_new_with_label("Cancel");
+    button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",

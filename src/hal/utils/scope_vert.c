@@ -35,6 +35,11 @@
 #error This is a user mode component only!
 #endif
 
+#include "config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -401,7 +406,7 @@ int set_vert_offset(double setting, int ac_coupled)
             format_signal_value(buf1, BUFLEN, chan->vert_offset);
         }
     }
-    snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
+    snprintf(buf2, BUFLEN, _("Offset\n%s"), buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
     /* refresh other stuff */    
     if (chan_num == ctrl_shm->trig_chan) {
@@ -612,7 +617,7 @@ static void init_vert_info_window(void)
 	0);
     /* box for the scale slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box("Gain", vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
     vert->scale_slider = gtk_vscale_new(GTK_ADJUSTMENT(vert->scale_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->scale_slider), 0);
@@ -624,7 +629,7 @@ static void init_vert_info_window(void)
     gtk_widget_show(vert->scale_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
-    gtk_label_new_in_box("Pos", vbox, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Pos"), vbox, FALSE, FALSE, 0);
     vert->pos_adj =
 	gtk_adjustment_new(VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1,
 	1, 0);
@@ -638,7 +643,7 @@ static void init_vert_info_window(void)
     gtk_widget_show(vert->pos_slider);
     /* Scale display */
     gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
-    gtk_label_new_in_box("Scale", ctrl_usr->vert_info_win, FALSE, FALSE, 0);
+    gtk_label_new_in_box(_("Scale"), ctrl_usr->vert_info_win, FALSE, FALSE, 0);
     vert->scale_label =
 	gtk_label_new_in_box(" ---- ", ctrl_usr->vert_info_win, FALSE, FALSE,
 	0);
@@ -651,7 +656,7 @@ static void init_vert_info_window(void)
 	GTK_SIGNAL_FUNC(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
     /* a button to turn off the channel */
-    button = gtk_button_new_with_label("Chan Off");
+    button = gtk_button_new_with_label(_("Chan Off"));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win), button, FALSE, FALSE,
 	0);
     /* turn off the channel if button is clicked */
@@ -707,9 +712,9 @@ static gboolean dialog_set_offset(int chan_num)
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    title = "Set Offset";
-    snprintf(msg, BUFLEN - 1, "Set the vertical offset\n"
-	"for channel %d.", chan_num);
+    title = _("Set Offset");
+    snprintf(msg, BUFLEN - 1, _("Set the vertical offset\n"
+	"for channel %d."), chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
@@ -728,7 +733,7 @@ static gboolean dialog_set_offset(int chan_num)
     /* a separator */
     gtk_hseparator_new_in_box(GTK_DIALOG(dialog.window)->vbox, 0);
     /* a checkbox: AC coupled */
-    vert->offset_ac = gtk_check_button_new_with_label("AC Coupled");
+    vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
         vert->offset_ac, FALSE, TRUE, 0);
     /* react to changes to the checkbox */
@@ -763,7 +768,7 @@ static gboolean dialog_set_offset(int chan_num)
     /* hit the "OK" button if the user hits enter */
     gtk_signal_connect(GTK_OBJECT(vert->offset_entry), "activate",
 	GTK_SIGNAL_FUNC(offset_activated), button);
-    button = gtk_button_new_with_label("Cancel");
+    button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -1020,9 +1025,9 @@ static gboolean dialog_select_source(int chan_num)
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    title = "Select Channel Source";
-    snprintf(msg, BUFLEN - 1, "Select a pin, signal, or parameter\n"
-	"as the source for channel %d.", chan_num);
+    title = _("Select Channel Source");
+    snprintf(msg, BUFLEN - 1, _("Select a pin, signal, or parameter\n"
+	"as the source for channel %d."), chan_num);
     /* create dialog window, disable resizing */
     dialog.retval = 0;
     dialog.window = gtk_dialog_new();
@@ -1053,9 +1058,9 @@ static gboolean dialog_select_source(int chan_num)
     gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
     gtk_signal_connect(GTK_OBJECT(notebk), "switch-page", GTK_SIGNAL_FUNC(change_page), &dialog);
     /* text for tab labels */
-    tab_label_text[0] = "Pins";
-    tab_label_text[1] = "Signals";
-    tab_label_text[2] = "Parameters";
+    tab_label_text[0] = _("Pins");
+    tab_label_text[1] = _("Signals");
+    tab_label_text[2] = _("Parameters");
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
 	/* Create a scrolled window to display the list */
@@ -1165,7 +1170,7 @@ static gboolean dialog_select_source(int chan_num)
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
 	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
     /* make Cancel button */
-    button = gtk_button_new_with_label("Cancel");
+    button = gtk_button_new_with_label(_("Cancel"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -1252,7 +1257,7 @@ void channel_changed(void)
             format_signal_value(buf1, BUFLEN, chan->vert_offset);
         }
     }
-    snprintf(buf2, BUFLEN, "Offset\n%s", buf1);
+    snprintf(buf2, BUFLEN, _("Offset\n%s"), buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
     request_display_refresh(1);
 }
