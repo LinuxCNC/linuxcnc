@@ -10,6 +10,14 @@ into the THC component.
 
 The tip voltage rises as the distance increases.
 
+While testing no change is made to z_pos_out it is just passed through
+
+While enabled and torch is on when x+y velocity is above minimum add correction
+to current z position. 
+
+While enabled and torch is off and z is raising up remove any correction 
+as the torch moves up.
+
 """;
 
 author "John Thornton";
@@ -56,15 +64,11 @@ param rw float volts_tol "The Voltage Tolerance.";
 param rw float i_cap "The maximum Integeral error.";
 param rw float input_gain "The maximum change between inputs";
 
-// Variables
+// Global Variables
 variable float p_error;
 variable float i_error;
-variable float d_error;
 variable float last_p_error;
 variable int   first_pass=0;
-variable float abs_x_vel;
-variable float abs_y_vel;
-variable float min_vel;
 
 function _;
 
@@ -73,6 +77,9 @@ function _;
 #include "rtapi_math.h"
 
 FUNCTION(_) {
+	double abs_x_vel, abs_y_vel, d_error;
+	float min_vel;
+	
     // convert velocity to volts
     smoothed += (encoder_vel - smoothed) * input_gain;
     volts = (smoothed - scale_offset) * vel_scale;
@@ -99,11 +106,13 @@ FUNCTION(_) {
     // find out if we are within the velocity tolerance
     test = set_vel*vel_tol;
     min_vel = set_vel * vel_tol;
-    if(spindle_on && (x_y_velocity > 0) && (x_y_velocity >= min_vel)){at_speed=1;}
-    else{at_speed=0;}
 
-    if(enable && spindle_on){
-        
+    if(enable){
+    
+    	if(spindle_on && (x_y_velocity > 0) && (x_y_velocity >= min_vel)){at_speed=1;}
+    	else{at_speed=0;}
+
+        if(at_speed){
         last_p_error = p_error;
         
         // The P loop
@@ -121,7 +130,14 @@ FUNCTION(_) {
         
         
         correction = (p_out + i_out + d_out);
+        }
         
+        if(!spindle_on){ // remove any correction as Z moves up
+        
+        }
+        
+        
+        z_pos_out = z_pos_cmd; // pass the Z position through
         
     }
     
