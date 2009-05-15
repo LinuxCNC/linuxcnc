@@ -167,7 +167,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         // we can match velocity in one period
 
         // the ".5/scale" is 1/2 of the step size in position units
-        if (fabs(error_at_match) < (0.5 / s->hal.param.position_scale)) {
+        if (fabs(error_at_match) < fabs(0.5 / s->hal.param.position_scale)) {
             velocity_cmd = ff_vel;
         } else {
             // try to correct position error
