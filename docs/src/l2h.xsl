@@ -64,7 +64,7 @@ h1, h2, h3, h4, h5 { border-bottom: 2px solid #8080c0; color: black; }
 div.nav { float: right; background: #ffffff; }
 
 dt { font-weight: bold; }
-pre { margin-left: 4ex; auto; color: black; padding: 1ex; border-left: 2px solid #8080c0; }
+pre { margin-left: 4ex; auto; color: black; padding: 1ex; }
 div.float { text-align: center; margin: 2ex; padding: 1ex; }
 div.float span.caption { display: block; margin: 1em; }
 .typewriter { font-family: monospace; }
