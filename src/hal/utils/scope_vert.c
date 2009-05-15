@@ -760,7 +760,7 @@ static gboolean dialog_set_offset(int chan_num)
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
 	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
-    button = gtk_button_new_with_label("OK");
+    button = gtk_button_new_with_label(_("OK"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -848,11 +848,11 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
 	    /* force the button to pop back out */
 	    ignore_click = 1;
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget), FALSE);
-	    title = "Too many channels";
-	    msg = "You cannot add another channel.\n\n"
+	    title = _("Too many channels");
+	    msg = _("You cannot add another channel.\n\n"
 		"Either turn off one or more channels, or shorten\n"
-		"the record length to allow for more channels";
-	    dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL,
+		"the record length to allow for more channels");
+	    dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), NULL,
 		NULL, NULL);
 	    return;
 	}

@@ -204,7 +204,7 @@ static void init_horiz_window(void)
     vbox = gtk_vbox_new_in_box(TRUE, 0, 0, hbox, FALSE, TRUE, 3);
     horiz->state_label =
 	gtk_label_new_in_box(" ---- ", vbox, FALSE, FALSE, 3);
-    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), _(" TRIGGERED "));
+    gtk_label_size_to_fit(GTK_LABEL(horiz->state_label), " TRIGGERED ");
 }
 
 static void init_acquire_function(void)
@@ -717,7 +717,7 @@ static void dialog_realtime_not_linked(void)
     gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
 	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
     /* make OK and Cancel buttons */
-    button = gtk_button_new_with_label("OK");
+    button = gtk_button_new_with_label(_("OK"));
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
 	button, TRUE, TRUE, 4);
     gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -754,16 +754,16 @@ static void dialog_realtime_not_running(void)
     const gchar *title, *msg;
     gint retval;
 
-    title = "Realtime thread(s) not running";
-    msg = "HALSCOPE uses code in a realtime HAL thread to sample\n"
+    title = _("Realtime thread(s) not running");
+    msg = _("HALSCOPE uses code in a realtime HAL thread to sample\n"
 	"signals for display.  The HAL thread(s) are not running.\n"
 	"Threads are usually started by the application you are\n"
 	"attempting to run, or you can use the 'halcmd start' command.\n\n"
 	"Please do one of the following:\n\n"
 	"Start the threads, then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE";
+	"or\n" "Click 'Quit' to exit HALSCOPE");
     retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), _("Quit"),
 	NULL, NULL);
     if ((retval == 0) || (retval == 2)) {
 	/* user either closed dialog, or hit cancel - end the program */
@@ -788,7 +788,7 @@ void log_popup(int junk)
 {
     //generic selection dialog, straight from the gtk tutorial
     GtkWidget *filew;
-    filew = gtk_file_selection_new("Pick log file to write to:" );
+    filew = gtk_file_selection_new(_("Pick log file to write to:"));
     gtk_signal_connect (GTK_OBJECT (filew), "destroy",
         (GtkSignalFunc) gtk_widget_destroy, &filew);
     gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
@@ -974,11 +974,11 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
     retval = set_rec_len((long)gdata);
     if (retval < 0) {
 	/* too many channels already enabled */
-	title = "Not enough channels";
-	msg = "This record length cannot handle the channels\n"
+	title = _("Not enough channels");
+	msg = _("This record length cannot handle the channels\n"
 	    "that are currently enabled.  Pick a shorter\n"
-	    "record length that supports more channels.";
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", NULL, NULL,
+	    "record length that supports more channels.");
+	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), NULL, NULL,
 	    NULL);
     }
 }
@@ -1182,18 +1182,18 @@ static void format_time_value(char *buf, int buflen, double timeval)
 
     /* convert to nanoseconds */
     timeval *= 1000000000.0;
-    units = "nSec";
+    units = _("nSec");
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = "uSec";
+	units = _("uSec");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = "mSec";
+	units = _("mSec");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = "Sec";
+	units = _("Sec");
     }
     decimals = 2;
     if (timeval >= 10.0) {
@@ -1210,14 +1210,14 @@ static void format_freq_value(char *buf, int buflen, double freqval)
     const char *units;
     int decimals;
 
-    units = "Hz";
+    units = _("Hz");
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = "KHz";
+	units = _("KHz");
     }
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = "Mhz";
+	units = _("Mhz");
     }
     decimals = 2;
     if (freqval >= 10.0) {
