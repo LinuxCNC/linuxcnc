@@ -1,5 +1,7 @@
 emc2 (1:2.3.1~pre) hardy; urgency=low
 
+  * hm2: fixed a bug that would cause the stepgen to oscillate by one
+    step when the scale was negative
   * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
   * Fix hal_joystick 'HAL: ERROR: pin_new called after hal_ready'
   * documentation improvements
