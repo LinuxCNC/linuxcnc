@@ -60,6 +60,7 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
+DOC_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
 EMC2_PACKAGE_NAME=emc2
 case $TARGET in
     sim)
@@ -71,7 +72,7 @@ case $TARGET in
         EXTRA_FILES="usr/bin/rtapi_app"
 	EXTRA_BUILD=lyx-qt
 	if test "$DISTRIB_NAME" = "Ubuntu-8.04" ; then 
-	    EXTRA_BUILD=lyx,texlive-extra-utils,ghostscript,imagemagick
+	    EXTRA_BUILD=$DOC_BUILD
 	fi
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	EMC2_PACKAGE_NAME=emc2-sim
@@ -86,7 +87,7 @@ case $TARGET in
     ;;
     2.6.22.6-magma|2.6.24-16-rtai)
         KERNEL_HEADERS="$KERNEL_HEADERS"
-        EXTRA_BUILD=lyx,texlive-extra-utils,ghostscript,imagemagick
+        EXTRA_BUILD=$DOC_BUILD
     ;;
     2.6.24-16-rtai)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
