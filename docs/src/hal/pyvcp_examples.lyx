@@ -412,185 +412,123 @@ First create the ptest.xml file with the following code to create the panel
 \layout LyX-Code
 
 <!-- Test panel for the parallel port cfg for out -->
-\layout LyX-Code
-
+\newline 
 <pyvcp>
-\layout LyX-Code
-
+\newline 
     <hbox>
-\layout LyX-Code
-
+\newline 
         <relief>RIDGE</relief>
-\layout LyX-Code
-
+\newline 
         <bd>2</bd>
-\layout LyX-Code
-
+\newline 
         <button>
-\layout LyX-Code
-
+\newline 
             <halpin>"btn01"</halpin>
-\layout LyX-Code
-
+\newline 
             <text>"Pin 01"</text>
 \layout LyX-Code
 
         </button>
-\layout LyX-Code
-
+\newline 
         <led>
-\layout LyX-Code
-
+\newline 
             <halpin>"led-01"</halpin>
-\layout LyX-Code
-
+\newline 
             <size>25</size>
-\layout LyX-Code
-
+\newline 
             <on_color>"green"</on_color>
-\layout LyX-Code
-
+\newline 
             <off_color>"red"</off_color>
 \layout LyX-Code
 
-       </led>       
-\layout LyX-Code
-
+       </led>
+\newline 
     </hbox>
-\layout LyX-Code
-
+\newline 
     <hbox>
-\layout LyX-Code
-
+\newline 
         <relief>RIDGE</relief>
-\layout LyX-Code
-
+\newline 
         <bd>2</bd>
-\layout LyX-Code
-
+\newline 
         <button>
-\layout LyX-Code
-
+\newline 
             <halpin>"btn02"</halpin>
-\layout LyX-Code
-
+\newline 
             <text>"Pin 02"</text>
-\layout LyX-Code
-
+\newline 
         </button>
-\layout LyX-Code
-
+\newline 
         <led>
-\layout LyX-Code
-
+\newline 
             <halpin>"led-02"</halpin>
-\layout LyX-Code
-
+\newline 
             <size>25</size>
-\layout LyX-Code
-
+\newline 
             <on_color>"green"</on_color>
-\layout LyX-Code
-
+\newline 
             <off_color>"red"</off_color>
-\layout LyX-Code
-
+\newline 
        </led>       
-\layout LyX-Code
-
+\newline 
     </hbox>
-\layout LyX-Code
-
+\newline 
     <hbox>
-\layout LyX-Code
-
+\newline 
         <relief>RIDGE</relief>
-\layout LyX-Code
-
+\newline 
         <bd>2</bd>
-\layout LyX-Code
-
+\newline 
         <label>
-\layout LyX-Code
-
+\newline 
             <text>"Pin 10"</text>
-\layout LyX-Code
-
+\newline 
             <font>("Helvetica",14)</font>
-\layout LyX-Code
-
+\newline 
         </label>
-\layout LyX-Code
-
+\newline 
         <led>
-\layout LyX-Code
-
+\newline 
             <halpin>"led-10"</halpin>
-\layout LyX-Code
-
+\newline 
             <size>25</size>
-\layout LyX-Code
-
+\newline 
             <on_color>"green"</on_color>
-\layout LyX-Code
-
+\newline 
             <off_color>"red"</off_color>
-\layout LyX-Code
-
+\newline 
         </led>       
-\layout LyX-Code
-
+\newline 
     </hbox>
-\layout LyX-Code
-
-    
-\layout LyX-Code
-
+\newline 
     <hbox>
-\layout LyX-Code
-
+\newline 
         <relief>RIDGE</relief>
-\layout LyX-Code
-
+\newline 
         <bd>2</bd>
-\layout LyX-Code
-
+\newline 
         <label>
-\layout LyX-Code
-
+\newline 
             <text>"Pin 11"</text>
-\layout LyX-Code
-
+\newline 
             <font>("Helvetica",14)</font>
-\layout LyX-Code
-
+\newline 
         </label>
-\layout LyX-Code
-
+\newline 
         <led>
-\layout LyX-Code
-
+\newline 
             <halpin>"led-11"</halpin>
-\layout LyX-Code
-
+\newline 
             <size>25</size>
-\layout LyX-Code
-
+\newline 
             <on_color>"green"</on_color>
-\layout LyX-Code
-
+\newline 
             <off_color>"red"</off_color>
-\layout LyX-Code
-
+\newline 
         </led>       
-\layout LyX-Code
-
+\newline 
     </hbox>
-\layout LyX-Code
-
-   
-\layout LyX-Code
-
+\newline 
 </pyvcp>
 \layout Standard
 
@@ -632,32 +570,24 @@ To run the HAL commands that we need to get everything up and running we
 \layout LyX-Code
 
 loadrt hal_parport cfg="0x378 out"
-\layout LyX-Code
-
+\newline 
 loadusr -Wn ptest pyvcp -c ptest ptest.xml
-\layout LyX-Code
-
+\newline 
 loadrt threads name1=porttest period1=1000000
-\layout LyX-Code
-
+\newline 
 addf parport.0.read porttest
-\layout LyX-Code
-
+\newline 
 addf parport.0.write porttest
-\layout LyX-Code
-
+\newline 
 net pin01 ptest.btn01 parport.0.pin-01-out ptest.led-01
-\layout LyX-Code
-
+\newline 
 net pin02 ptest.btn02 parport.0.pin-02-out ptest.led-02
 \layout LyX-Code
 
 net pin10 parport.0.pin-10-in ptest.led-10
-\layout LyX-Code
-
+\newline 
 net pin11 parport.0.pin-11-in ptest.led-11
-\layout LyX-Code
-
+\newline 
 start
 \layout Standard
 
@@ -714,92 +644,63 @@ show pin
 \layout LyX-Code
 
 Component Pins:
-\layout LyX-Code
-
+\newline 
 Owner   Type  Dir         Value  Name
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-01-out <== pin01
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-02-out <== pin02
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-03-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-04-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-05-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-06-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-07-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-08-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-09-out
-\layout LyX-Code
-
+\newline 
      2  bit   OUT          TRUE  parport.0.pin-10-in ==> pin10
-\layout LyX-Code
-
+\newline 
      2  bit   OUT         FALSE  parport.0.pin-10-in-not
-\layout LyX-Code
-
+\newline 
      2  bit   OUT          TRUE  parport.0.pin-11-in ==> pin11
-\layout LyX-Code
-
+\newline 
      2  bit   OUT         FALSE  parport.0.pin-11-in-not
-\layout LyX-Code
-
+\newline 
      2  bit   OUT          TRUE  parport.0.pin-12-in
-\layout LyX-Code
-
+\newline 
      2  bit   OUT         FALSE  parport.0.pin-12-in-not
-\layout LyX-Code
-
+\newline 
      2  bit   OUT          TRUE  parport.0.pin-13-in
-\layout LyX-Code
-
+\newline 
      2  bit   OUT         FALSE  parport.0.pin-13-in-not
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-14-out
-\layout LyX-Code
-
+\newline 
      2  bit   OUT          TRUE  parport.0.pin-15-in
-\layout LyX-Code
-
+\newline 
      2  bit   OUT         FALSE  parport.0.pin-15-in-not
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-16-out
-\layout LyX-Code
-
+\newline 
      2  bit   IN          FALSE  parport.0.pin-17-out
-\layout LyX-Code
-
+\newline 
      4  bit   OUT         FALSE  ptest.btn01 ==> pin01
-\layout LyX-Code
-
+\newline 
      4  bit   OUT         FALSE  ptest.btn02 ==> pin02
-\layout LyX-Code
-
+\newline 
      4  bit   IN          FALSE  ptest.led-01 <== pin01
-\layout LyX-Code
-
+\newline 
      4  bit   IN          FALSE  ptest.led-02 <== pin02
-\layout LyX-Code
-
+\newline 
      4  bit   IN           TRUE  ptest.led-10 <== pin10
-\layout LyX-Code
-
+\newline 
      4  bit   IN           TRUE  ptest.led-11 <== pin11
 \layout Standard
 
@@ -830,9 +731,7 @@ To create the panel we add the following to the .xml file.
 <pyvcp>
 \layout Quote
 
-<!-\SpecialChar \-
-- the RPM meter -\SpecialChar \-
-->
+<!-- the RPM meter -->
 \newline 
 <hbox>
 \newline 
@@ -865,9 +764,7 @@ To create the panel we add the following to the .xml file.
 </hbox>
 \layout Quote
 
-<!-\SpecialChar \-
-- the On Led -\SpecialChar \-
-->
+<!-- the On Led -->
 \newline 
 <hbox>
 \newline 
@@ -922,9 +819,7 @@ To create the panel we add the following to the .xml file.
 </vbox>
 \layout Quote
 
-<!-\SpecialChar \-
-- the FWD Led -\SpecialChar \-
-->
+<!-- the FWD Led -->
 \newline 
 <vbox>
 \newline 
@@ -969,9 +864,8 @@ To create the panel we add the following to the .xml file.
 </vbox>
 \layout Quote
 
-<!-\SpecialChar \-
-- the REV Led -\SpecialChar \-
-->
+<!-- the REV Led -\SpecialChar \-
+>
 \newline 
 <vbox>
 \newline 
