@@ -87,7 +87,7 @@ Panel Construction
 The layout of a pyVCP panel is specified with an XML file that contains
  widget tags between <pyvcp> and </pyvcp>.
  For example:
-\layout Quote
+\layout LyX-Code
 
 <pyvcp>
 \newline 
@@ -108,7 +108,7 @@ The layout of a pyVCP panel is specified with an XML file that contains
 \layout Standard
 
 If you place this text in a file called tiny.xml, and run 
-\layout Quote
+\layout LyX-Code
 
 halrun -I loadusr pyvcp -c mypanel tiny.xml
 \layout Standard
@@ -127,13 +127,15 @@ For a list of widgets and their tags and options, see the widget reference
 \layout Standard
 
 Once you have created your panel, connecting HAL signals to and from the
- pyVCP pins is done with:
-\layout Quote
+ pyVCP pins is done with the halcmd:
+\layout LyX-Code
 
-halcmd net
+net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name 
+ 
 \layout Standard
 
-If you are new to HAL, the HAL basics chapter is a good place to start.
+If you are new to HAL, the HAL basics chapter in the Integrators Manual
+ is a good place to start.
 \layout Section
 
 Security
@@ -161,7 +163,7 @@ Place your pyVCP XML file describing the panel in the same directory where
  your .ini file is.
  Say we we want to display the current spindle speed using a Bar widget.
  Place the following in a file called spindle.xml:
-\layout Quote
+\layout LyX-Code
 
 <pyvcp>
 \newline 
@@ -183,19 +185,11 @@ Place your pyVCP XML file describing the panel in the same directory where
 \layout Standard
 
 Here we've made a panel with a Label and a Bar widget, specified that the
- HAL pin connected to the Bar should be named 
-\begin_inset Quotes eld
-\end_inset 
-
-spindle-speed
-\begin_inset Quotes erd
-\end_inset 
-
-, and set the maximum value of the bar to 5000 (see widget reference below
- for all options).
+ HAL pin connected to the Bar should be named "spindle-speed", and set the
+ maximum value of the bar to 5000 (see widget reference below for all options).
  To make AXIS aware of this file, and call it at start up, we need to specify
  the following in the [DISPLAY] section of the .ini file:
-\layout Quote
+\layout LyX-Code
 
 PYVCP = spindle.xml
 \layout Standard
@@ -204,14 +198,14 @@ To make our widget actually display the spindle-speed it needs to be hooked
  up to the appropriate HAL signal.
  A .hal file that will be run once AXIS and pyVCP have started can be specified
  in the [HAL] section of the .ini file:
-\layout Quote
+\layout LyX-Code
 
 POSTGUI_HALFILE = spindle_to_pyvcp.hal
 \layout Standard
 
 This change will run the HAL commands specified in "spindle_to_pyvcp.hal".
  In our example the contents could look like this:
-\layout Quote
+\layout LyX-Code
 
 net spindle-rpm-filtered  => pyvcp.spindle-speed
 \layout Standard
@@ -238,6 +232,78 @@ This is what the newly created pyVCP panel should look like in AXIS.
 sim/lathe
 \family default 
  configuration is already configured this way.
+\layout Section
+
+Stand Alone
+\layout Standard
+
+This section shows how pyVCP panels can be displayed on their own with or
+ without EMC's machine controller.
+\layout Standard
+
+To load a stand alone pyVCP panel with EMC use the command:
+\layout LyX-Code
+
+loadusr -Wn panelname pyvcp -c panelname optional-path/panel_file_name.xml
+ 
+\layout Standard
+
+You would use this if you wanted a floating panel or a panel with a GUI
+ other than AXIS.
+ The -Wn makes HAL wait for the component "panelname" to finish loading
+ ("become ready" in HAL speak) before processing more HAL commands.
+ This is important because pyVCP panels export HAL pins and other HAL components
+ will need them present to connect to them.
+ Note the capital W and lowercase n.
+ The -c tells pyVCP what to call the component and also the title of the
+ window.
+ The panelname can be any name without spaces.
+ The panel_file_name.xml can be any name that ends in .xml.
+ The .xml file is the file that describes how to build the panel.
+ You must add the pathname if the panel is not in the directory that the
+ HAL script is in.
+ 
+\layout Standard
+
+To load a 'stand alone' pyVCP panel without EMC use these commands: 
+\layout LyX-Code
+
+loadusr -Wn panelname pyvcp -c panelname optional-pathway/panel_file_name.xml
+ 
+\layout Standard
+
+You would use this if you want a panel without EMC's machine controller
+ such as for testing or a standalone DRO.
+ 
+\layout Standard
+
+The first command is used when you also load a component that will stop
+ HAL from closing until it's done.
+ EG if you loaded a panel and then loaded ClassicLadder using -w ClassicLadder
+ CL would hold HAL open (and the panel)  until you closed CL -Wn means wait
+ for the component 'panelname' to become ready.
+ 'panelname' can be any name.
+ note the capital W and lowercase n.
+ The -c tells pyVCP to build a panel with the name 'panelname' using the
+ info in 'panel_file_name.xml' 'panel_file_name.xml' can be any name but must
+ end in .xml - it is the file that describes how to build the panel.
+ You must add the pathname if the panel is not in the directory that the
+ HAL script is in.
+ 
+\layout Standard
+
+An optional command to use if you want the panel to stop HAL from continuing
+ commands / shutting down.
+ After loading any other components you want the last HAL command to be:
+ 
+\layout LyX-Code
+
+  waituser panelname
+\layout Standard
+
+This tells HAL to wait for component 'panelname' to close before continuing
+ HAL commands This is usually set as the last command so that HAL shuts
+ down when the panel is closed.
 \layout Section
 
 Widgets
@@ -288,13 +354,13 @@ General Notes
 At the present time, both a tag-based and an attribute-based syntax are
  supported.
  For instance, the following XML fragments are treated identically:
-\layout Quote
+\layout LyX-Code
 
 <led halpin="my-led"/>
 \layout Standard
 
 and
-\layout Quote
+\layout LyX-Code
 
 <led><halpin>"my-led"</halpin></led>
 \layout Standard
@@ -330,11 +396,9 @@ Comments
 
 To add a comment use the xml syntax for a comment.
  
-\layout Quote
+\layout LyX-Code
 
-<!-\SpecialChar \-
--My Comment-\SpecialChar \-
-->
+<!-- My Comment -->
 \layout Subsubsection*
 
 Editing the XML file
@@ -411,7 +475,7 @@ Label
 \layout Standard
 
 A label is a piece of text on your panel.
-\layout Quote
+\layout LyX-Code
 
 <label>
 \newline 
@@ -439,33 +503,37 @@ LEDs
 
 A LED is used to indicate the status of a "bit" halpin.
  The LED color will be on_color when the halpin is true, and off_color otherwise.
-\layout Standard
+\layout Description
 
 <halpin> sets the name of the pin, default is "led.n", where n is an integer
-\newline 
+\layout Description
+
 <size> sets the size of the led, default is 20
-\newline 
+\layout Description
+
 <on_color> sets the color of the LED when the pin is true.
  default is "green"
-\newline 
+\layout Description
+
 <off_color> sets the color of the LED when the pin is false.
  default is "red"
-\newline 
+\layout Description
+
 <disable_pin> when true adds a disable pin to the led.
 \layout Subsubsection
 
 Round LED
-\layout Quote
+\layout LyX-Code
 
 <led>
 \newline 
-<halpin>"my-led"</halpin> 
+   <halpin>"my-led"</halpin> 
 \newline 
-<size>50</size> 
+   <size>50</size> 
 \newline 
-<on_color>"green"</on_color>
+   <on_color>"green"</on_color>
 \newline 
-<off_color>"red"</off_color>
+   <off_color>"red"</off_color>
 \newline 
 </led>
 \layout Standard
@@ -487,27 +555,27 @@ Rectangle LED
 
 This is a variant of the "led" widget.
  
-\layout Quote
+\layout LyX-Code
 
 <vbox>
 \newline 
-<relief>RIDGE</relief>
+  <relief>RIDGE</relief>
 \newline 
-<bd>6</bd>
+  <bd>6</bd>
 \newline 
-<rectled>
+  <rectled>
 \newline 
-<halpin>"my-led"</halpin>
+    <halpin>"my-led"</halpin>
 \newline 
-<height>"50"</height>
+    <height>"50"</height>
 \newline 
-<width>"100"</width>
+    <width>"100"</width>
 \newline 
-<on_color>"green"</on_color>
+    <on_color>"green"</on_color>
 \newline 
-<off_color>"red"</off_color>
+    <off_color>"red"</off_color>
 \newline 
-</rectled>
+  </rectled>
 \newline 
 </vbox>
 \layout Standard
@@ -555,7 +623,7 @@ A text button controls a "bit" halpin.
  The button is a momentary button.
  The text button has an optional disable pin that is created when you add
  <disable_pin>true</disable_pin>.
-\layout Quote
+\layout LyX-Code
 
 <button>
 \newline 
@@ -593,24 +661,21 @@ A checkbutton controls a "bit" halpin.
  The halpin will be set True when the button is checked, and false when
  the button is unchecked.
  The checkbutton is a toggle type button.
-\layout Quote
+\layout LyX-Code
 
 <checkbutton>
 \newline 
-<halpin>"coolant-chkbtn"</halpin>
+  <halpin>"coolant-chkbtn"</halpin>
 \newline 
-<text>"Coolant"</text>
+  <text>"Coolant"</text>
 \newline 
 </checkbutton>
 \newline 
 <checkbutton>
 \newline 
-<halpin>"chip-chkbtn"</halpin>
+  <halpin>"chip-chkbtn"</halpin>
 \newline 
-<text>"Chips\SpecialChar ~
-\SpecialChar ~
-\SpecialChar ~
-"</text>
+  <text>"Chips   "</text>
 \newline 
 </checkbutton>
 \layout Standard
@@ -638,7 +703,7 @@ Radiobutton
 
 A radiobutton will set one of the halpins true.
  The other pins are set false.
-\layout Quote
+\layout LyX-Code
 
 <radiobutton>
 \newline 
@@ -691,9 +756,9 @@ Number
 \layout Standard
 
 The number widget displays the value of a float signal.
-\layout Quote
+\layout LyX-Code
 
-<number>
+<number> 
 \newline 
     <halpin>"my-number"</halpin>
 \newline 
@@ -721,7 +786,7 @@ The above code produced this example.
  40 or 50.
  One font that will show up to at least size 200 is "courier 10 pitch",
  so for a really big Number widget you could specify:
-\layout Quote
+\layout LyX-Code
 
 <font>("courier 10 pitch",100)</font>
 \layout Standard
@@ -737,17 +802,17 @@ The s32 number widget displays the value of a s32 number.
  The syntax is the same as "number" except the name which is <s32>.
  Make sure the width is wide enough to cover the largest number you expect
  to use.
-\layout Quote
+\layout LyX-Code
 
 <s32>
 \newline 
-<halpin>"my-number"</halpin>
+    <halpin>"my-number"</halpin>
 \newline 
-<font>("Helvetica",24)</font>
+    <font>("Helvetica",24)</font>
 \newline 
-<format>"6d"</format>
+    <format>"6d"</format>
 \newline 
-<width>6</width>
+    <width>6</width>
 \newline 
 </s32>
 \layout Standard
@@ -776,7 +841,7 @@ Bar
 
 A bar widget displays the value of a FLOAT signal both graphically using
  a bar display and numerically.
-\layout Quote
+\layout LyX-Code
 
 <bar>
 \newline 
@@ -809,7 +874,7 @@ Meter
 \layout Standard
 
 Meter displays the value of a FLOAT signal using a traditional dial indicator.
-\layout Quote
+\layout LyX-Code
 
 <meter>
 \newline 
@@ -859,7 +924,7 @@ Spinbox
 Spinbox controls a FLOAT pin.
  You increase or decrease the value of the pin by either pressing on the
  arrows, or pointing at the spinbox and rolling your mouse-wheel.
-\layout Quote
+\layout LyX-Code
 
 <spinbox>
 \newline 
@@ -900,44 +965,44 @@ Scale controls a float or a s32 pin.
  and s32 pins.
  Width is the width of the slider in vertical and the height of the slider
  in horizontal orientation.
-\layout Quote
+\layout LyX-Code
 
 <scale>
 \newline 
-<font>("Helvetica",16)</font>
+    <font>("Helvetica",16)</font>
 \newline 
-<width>"25"</width>
+    <width>"25"</width>
 \newline 
-<halpin>"my-hscale"</halpin>
+    <halpin>"my-hscale"</halpin>
 \newline 
-<resolution>0.1</resolution>
+    <resolution>0.1</resolution>
 \newline 
-<orient>HORIZONTAL</orient>
+    <orient>HORIZONTAL</orient>
 \newline 
-<initval>-15</initval>
+    <initval>-15</initval>
 \newline 
-<min_>-33</min_>
+    <min_>-33</min_>
 \newline 
-<max_>26</max_>
+    <max_>26</max_>
 \newline 
 </scale>
-\layout Quote
+\layout LyX-Code
 
 <scale>
 \newline 
-<font>("Helvetica",16)</font>
+    <font>("Helvetica",16)</font>
 \newline 
-<width>"50"</width>
+    <width>"50"</width>
 \newline 
-<halpin>"my-vscale"</halpin>
+    <halpin>"my-vscale"</halpin>
 \newline 
-<resolution>1</resolution>
+    <resolution>1</resolution>
 \newline 
-<orient>VERTICAL</orient>
+    <orient>VERTICAL</orient>
 \newline 
-<min_>100</min_>
+    <min_>100</min_>
 \newline 
-<max_>0</max_>
+    <max_>0</max_>
 \newline 
 </scale>
 \layout Standard
@@ -963,31 +1028,31 @@ The Dial outputs a HAL float and reacts to both mouse wheel and dragging.
  The output is capped by the min and max values.
  The <cpr> is how many tick marks are on the outside of the ring (beware
  of high numbers).
-\layout Quote
+\layout LyX-Code
 
 <dial>
 \newline 
-<size>200</size>
+    <size>200</size>
 \newline 
-<cpr>100</cpr>
+    <cpr>100</cpr>
 \newline 
-<min_>-15</min_>
+    <min_>-15</min_>
 \newline 
-<max_>15</max_>
+    <max_>15</max_>
 \newline 
-<text>"Dial"</text>
+    <text>"Dial"</text>
 \newline 
-<initval>0</initval>
+    <initval>0</initval>
 \newline 
-<resolution>0.001</resolution>
+    <resolution>0.001</resolution>
 \newline 
-<halpin>"anaout"</halpin>
+    <halpin>"anaout"</halpin>
 \newline 
-<dialcolor>"yellow"</dialcolor>
+    <dialcolor>"yellow"</dialcolor>
 \newline 
-<edgecolor>"green"</edgecolor>
+    <edgecolor>"green"</edgecolor>
 \newline 
-<dotcolor>"black"</dotcolor>
+    <dotcolor>"black"</dotcolor>
 \newline 
 </dial>
 \layout Standard
@@ -1010,7 +1075,7 @@ Jogwheel
 Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts up
  or down as the wheel is turned, either by dragging in a circular motion,
  or by rolling the mouse-wheel.
-\layout Quote
+\layout LyX-Code
 
 <jogwheel>
 \newline 
@@ -1049,21 +1114,17 @@ Image Bit
 
 The "image_bit" toggles between two images by setting the halpin to true
  or false.
-\layout Quote
+\layout LyX-Code
 
-<pyvcp>
-\newline 
 <image name='fwd' file='fwd.gif'/>
 \newline 
 <image name='rev' file='rev.gif'/>
 \newline 
 <vbox>
 \newline 
-<image_bit halpin='selectimage' images='fwd rev'/>
+    <image_bit halpin='selectimage' images='fwd rev'/>
 \newline 
 </vbox>
-\newline 
-</pyvcp>
 \layout Standard
 \align center 
 This example was produced from the above code.
@@ -1098,10 +1159,8 @@ The "image_u32" is the same as "image_bit" except you have essentially an
  unlimited number of images and you "select" the image by setting the halpin
  to a integer value with 0 for the first image in the images list and 1
  for the second image etc.
-\layout Quote
+\layout LyX-Code
 
-<pyvcp>
-\newline 
 <image name='stb' file='stb.gif'/>
 \newline 
 <image name='fwd' file='fwd.gif'/>
@@ -1110,11 +1169,11 @@ The "image_u32" is the same as "image_bit" except you have essentially an
 \newline 
 <vbox>
 \newline 
-<image_u32 halpin='selectimage' images='stb fwd rev'/>
+    <image_u32 halpin='selectimage' images='stb fwd rev'/>
 \newline 
 </vbox>
 \newline 
-</pyvcp>
+
 \layout Standard
 \align center 
 The above code produced the following example
@@ -1169,63 +1228,63 @@ Container borders are specified with two tags used together.
 \layout Description
 
 <bd>n</bd> Where "n" is the width of the border.
-\layout Quote
+\layout LyX-Code
 
 <hbox>
 \newline 
-<button>
+    <button>
 \newline 
-<relief>FLAT</relief>
+        <relief>FLAT</relief>
 \newline 
-<text>"FLAT"</text>
+        <text>"FLAT"</text>
 \newline 
-<bd>3</bd>
+        <bd>3</bd>
 \newline 
-</button>
-\layout Quote
+    </button>
+\layout LyX-Code
 
-<button>
+    <button>
 \newline 
-<relief>SUNKEN</relief>
+        <relief>SUNKEN</relief>
 \newline 
-<text>"SUNKEN"</text>
+        <text>"SUNKEN"</text>
 \newline 
-<bd>3</bd>
+        <bd>3</bd>
 \newline 
-</button>
-\layout Quote
+    </button>
+\layout LyX-Code
 
-<button>
+    <button>
 \newline 
-<relief>RAISED</relief>
+        <relief>RAISED</relief>
 \newline 
-<text>"RAISED"</text>
+        <text>"RAISED"</text>
 \newline 
-<bd>3</bd>
+        <bd>3</bd>
 \newline 
-</button>
-\layout Quote
+    </button>
+\layout LyX-Code
 
-<button>
+    <button>
 \newline 
-<relief>GROOVE</relief>
+       <relief>GROOVE</relief>
 \newline 
-<text>"GROOVE"</text>
+       <text>"GROOVE"</text>
 \newline 
-<bd>3</bd>
+       <bd>3</bd>
 \newline 
-</button>
-\layout Quote
+    </button>
+\layout LyX-Code
 
-<button>
+    <button>
 \newline 
-<relief>RIDGE</relief>
+        <relief>RIDGE</relief>
 \newline 
-<text>"RIDGE"</text>
+       <text>"RIDGE"</text>
 \newline 
-<bd>3</bd>
+       <bd>3</bd>
 \newline 
-</button>
+    </button>
 \newline 
 </hbox>
 \layout Standard
@@ -1246,21 +1305,21 @@ Hbox
 \layout Standard
 
 Use a Hbox when you want to stack widgets horizontally next to each other.
-\layout Quote
+\layout LyX-Code
 
 <hbox>
 \newline 
-<relief>RIDGE</relief>
+    <relief>RIDGE</relief>
 \newline 
-<bd>6</bd>
+    <bd>6</bd>
 \newline 
-<label><text>"a hbox:"</text></label>
+    <label><text>"a hbox:"</text></label>
 \newline 
-<led></led>
+    <led></led>
 \newline 
-<number></number>
+    <number></number>
 \newline 
-<bar></bar>
+    <bar></bar>
 \newline 
 </hbox>
 \layout Standard
@@ -1318,21 +1377,21 @@ Vbox
 \layout Standard
 
 Use a Vbox when you want to stack widgets vertically on top of each other.
-\layout Quote
+\layout LyX-Code
 
 <vbox>
 \newline 
-<relief>RIDGE</relief>
+    <relief>RIDGE</relief>
 \newline 
-<bd>6</bd>
+    <bd>6</bd>
 \newline 
-<label><text>"a vbox:"</text></label>
+    <label><text>"a vbox:"</text></label>
 \newline 
-<led></led>
+    <led></led>
 \newline 
-<number></number>
+    <number></number>
 \newline 
-<bar></bar>
+    <bar></bar>
 \newline 
 </vbox>
 \layout Standard
@@ -1390,19 +1449,19 @@ Labelframe
 \layout Standard
 
 A labelframe is a frame with a groove and a label at the upper-left corner.
-\layout Quote
+\layout LyX-Code
 
 <labelframe text="Group Title">
 \newline 
-<font>("Helvetica",16)</font>
+    <font>("Helvetica",16)</font>
 \newline 
-<hbox>
+    <hbox>
 \newline 
-<led/> 
+        <led/> 
 \newline 
-<led/>
+        <led/>
 \newline 
-</hbox>
+    </hbox>
 \newline 
 </labelframe>
 \layout Standard
@@ -1450,7 +1509,7 @@ stick
 \layout Standard
 
 Example:
-\layout Quote
+\layout LyX-Code
 
 <table flexible_rows="[2]" flexible_columns="[1,4]">
 \newline 
@@ -1458,41 +1517,42 @@ Example:
 \newline 
 <tablerow/>
 \newline 
-<label text>
+    <label text>
 \newline 
-<text>" A (cell 1,1) "</text>
+        <text>" A (cell 1,1) "</text>
 \newline 
-<relief>RIDGE</relief>
+        <relief>RIDGE</relief>
 \newline 
-<bd>3</bd>
+        <bd>3</bd>
 \newline 
-</label>
+    </label>
 \newline 
-<label text="B (cell 1,2)"/>
+    <label text="B (cell 1,2)"/>
 \newline 
-<tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"/> 
+        <tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"/>
+ 
 \newline 
 <tablerow/>
 \newline 
-<label text="E (cell 2,1)"/>
+    <label text="E (cell 2,1)"/>
 \newline 
-<tablesticky sticky="nsew"/><tablespan rows="2"/>
+    <tablesticky sticky="nsew"/><tablespan rows="2"/>
 \newline 
-<label text="'spans
+    <label text="'spans
 \backslash 
 n2 rows'"/>
 \newline 
-<tablesticky sticky="new"/><label text="G (cell 2,3)"/>
+    <tablesticky sticky="new"/><label text="G (cell 2,3)"/>
 \newline 
-<label text="H (cell 2,4)"/>
+    <label text="H (cell 2,4)"/>
 \newline 
 <tablerow/> 
 \newline 
-<label text="J (cell 3,1)"/>
+    <label text="J (cell 3,1)"/>
 \newline 
-<label text="K (cell 3,2)"/>
+    <label text="K (cell 3,2)"/>
 \newline 
-<u32 halpin="test"/>
+    <u32 halpin="test"/>
 \newline 
 </table> 
 \layout Standard
@@ -1513,55 +1573,55 @@ Tabs
 \layout Standard
 
 A tabbed interface can save quite a bit of space.
-\layout Quote
+\layout LyX-Code
 
 <tabs>
 \newline 
-<names> ["spindle","green eggs"]</names>
+    <names> ["spindle","green eggs"]</names>
 \newline 
 </tabs>
 \newline 
 <tabs>
 \newline 
-<names>["Spindle", "Green Eggs", "Ham"]</names>
+    <names>["Spindle", "Green Eggs", "Ham"]</names>
 \newline 
-<vbox>
+    <vbox>
 \newline 
-<label>
+        <label>
 \newline 
-<text>"Spindle speed:"</text>
+            <text>"Spindle speed:"</text>
 \newline 
-</label>
+        </label>
 \newline 
-<bar>
+        <bar>
 \newline 
-<halpin>"spindle-speed"</halpin>
+            <halpin>"spindle-speed"</halpin>
 \newline 
-<max_>5000</max_>
+            <max_>5000</max_>
 \newline 
-</bar>
+        </bar>
 \newline 
-</vbox>
+    </vbox>
 \newline 
-<vbox>
+    <vbox>
 \newline 
-<label>
+        <label>
 \newline 
-<text>"(this is the green eggs tab)"</text>
+            <text>"(this is the green eggs tab)"</text>
 \newline 
-</label>
+        </label>
 \newline 
-</vbox>
+    </vbox>
 \newline 
-<vbox>
+    <vbox>
 \newline 
-<label>
+        <label>
 \newline 
-<text>"(this tab has nothing on it)"</text>
+            <text>"(this tab has nothing on it)"</text>
 \newline 
-</label>
+        </label>
 \newline 
-</vbox>
+    </vbox>
 \newline 
 </tabs>
 \layout Standard
