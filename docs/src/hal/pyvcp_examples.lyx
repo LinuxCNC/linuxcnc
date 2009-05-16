@@ -400,6 +400,413 @@ After resetting the E-Stop and putting it into jog mode and moving the jog
  MDI tab is selected.
 \layout Section
 \pagebreak_top 
+Port Tester
+\layout Standard
+
+This example shows you how to make a simple parallel port tester using pyVCP
+ and HAL.
+\layout Standard
+
+First create the ptest.xml file with the following code to create the panel
+ description.
+\layout LyX-Code
+
+<!-- Test panel for the parallel port cfg for out -->
+\layout LyX-Code
+
+<pyvcp>
+\layout LyX-Code
+
+    <hbox>
+\layout LyX-Code
+
+        <relief>RIDGE</relief>
+\layout LyX-Code
+
+        <bd>2</bd>
+\layout LyX-Code
+
+        <button>
+\layout LyX-Code
+
+            <halpin>"btn01"</halpin>
+\layout LyX-Code
+
+            <text>"Pin 01"</text>
+\layout LyX-Code
+
+        </button>
+\layout LyX-Code
+
+        <led>
+\layout LyX-Code
+
+            <halpin>"led-01"</halpin>
+\layout LyX-Code
+
+            <size>25</size>
+\layout LyX-Code
+
+            <on_color>"green"</on_color>
+\layout LyX-Code
+
+            <off_color>"red"</off_color>
+\layout LyX-Code
+
+       </led>       
+\layout LyX-Code
+
+    </hbox>
+\layout LyX-Code
+
+    <hbox>
+\layout LyX-Code
+
+        <relief>RIDGE</relief>
+\layout LyX-Code
+
+        <bd>2</bd>
+\layout LyX-Code
+
+        <button>
+\layout LyX-Code
+
+            <halpin>"btn02"</halpin>
+\layout LyX-Code
+
+            <text>"Pin 02"</text>
+\layout LyX-Code
+
+        </button>
+\layout LyX-Code
+
+        <led>
+\layout LyX-Code
+
+            <halpin>"led-02"</halpin>
+\layout LyX-Code
+
+            <size>25</size>
+\layout LyX-Code
+
+            <on_color>"green"</on_color>
+\layout LyX-Code
+
+            <off_color>"red"</off_color>
+\layout LyX-Code
+
+       </led>       
+\layout LyX-Code
+
+    </hbox>
+\layout LyX-Code
+
+    <hbox>
+\layout LyX-Code
+
+        <relief>RIDGE</relief>
+\layout LyX-Code
+
+        <bd>2</bd>
+\layout LyX-Code
+
+        <label>
+\layout LyX-Code
+
+            <text>"Pin 10"</text>
+\layout LyX-Code
+
+            <font>("Helvetica",14)</font>
+\layout LyX-Code
+
+        </label>
+\layout LyX-Code
+
+        <led>
+\layout LyX-Code
+
+            <halpin>"led-10"</halpin>
+\layout LyX-Code
+
+            <size>25</size>
+\layout LyX-Code
+
+            <on_color>"green"</on_color>
+\layout LyX-Code
+
+            <off_color>"red"</off_color>
+\layout LyX-Code
+
+        </led>       
+\layout LyX-Code
+
+    </hbox>
+\layout LyX-Code
+
+    
+\layout LyX-Code
+
+    <hbox>
+\layout LyX-Code
+
+        <relief>RIDGE</relief>
+\layout LyX-Code
+
+        <bd>2</bd>
+\layout LyX-Code
+
+        <label>
+\layout LyX-Code
+
+            <text>"Pin 11"</text>
+\layout LyX-Code
+
+            <font>("Helvetica",14)</font>
+\layout LyX-Code
+
+        </label>
+\layout LyX-Code
+
+        <led>
+\layout LyX-Code
+
+            <halpin>"led-11"</halpin>
+\layout LyX-Code
+
+            <size>25</size>
+\layout LyX-Code
+
+            <on_color>"green"</on_color>
+\layout LyX-Code
+
+            <off_color>"red"</off_color>
+\layout LyX-Code
+
+        </led>       
+\layout LyX-Code
+
+    </hbox>
+\layout LyX-Code
+
+   
+\layout LyX-Code
+
+</pyvcp>
+\layout Standard
+
+This will create the following floating panel which contains a couple of
+ in pins and a couple of out pins.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Port Tester Panel
+\begin_inset LatexCommand \label{cap:Port-Tester-Panel}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/ptest.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+To run the HAL commands that we need to get everything up and running we
+ put the following in our ptest.hal file.
+\layout LyX-Code
+
+loadrt hal_parport cfg="0x378 out"
+\layout LyX-Code
+
+loadusr -Wn ptest pyvcp -c ptest ptest.xml
+\layout LyX-Code
+
+loadrt threads name1=porttest period1=1000000
+\layout LyX-Code
+
+addf parport.0.read porttest
+\layout LyX-Code
+
+addf parport.0.write porttest
+\layout LyX-Code
+
+net pin01 ptest.btn01 parport.0.pin-01-out ptest.led-01
+\layout LyX-Code
+
+net pin02 ptest.btn02 parport.0.pin-02-out ptest.led-02
+\layout LyX-Code
+
+net pin10 parport.0.pin-10-in ptest.led-10
+\layout LyX-Code
+
+net pin11 parport.0.pin-11-in ptest.led-11
+\layout LyX-Code
+
+start
+\layout Standard
+
+To run the HAL file we use the following command from a terminal window.
+\layout Standard
+
+~$ 
+\series bold 
+halrun -I -f ptest.hal
+\layout Standard
+
+The following figure shows what a complete panel might look like.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Port Tester Complete
+\begin_inset LatexCommand \label{cap:Port-Tester-Complete}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/ptest-final.png
+	scale 80
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+To add the rest of the parallel port pins just modify the .xml and .hal files.
+\layout Standard
+
+To show the pins after running the HAL script use the following command
+ at the halcmd prompt:
+\layout LyX-Code
+
+halcmd: 
+\series bold 
+show pin
+\layout LyX-Code
+
+Component Pins:
+\layout LyX-Code
+
+Owner   Type  Dir         Value  Name
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-01-out <== pin01
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-02-out <== pin02
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-03-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-04-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-05-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-06-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-07-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-08-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-09-out
+\layout LyX-Code
+
+     2  bit   OUT          TRUE  parport.0.pin-10-in ==> pin10
+\layout LyX-Code
+
+     2  bit   OUT         FALSE  parport.0.pin-10-in-not
+\layout LyX-Code
+
+     2  bit   OUT          TRUE  parport.0.pin-11-in ==> pin11
+\layout LyX-Code
+
+     2  bit   OUT         FALSE  parport.0.pin-11-in-not
+\layout LyX-Code
+
+     2  bit   OUT          TRUE  parport.0.pin-12-in
+\layout LyX-Code
+
+     2  bit   OUT         FALSE  parport.0.pin-12-in-not
+\layout LyX-Code
+
+     2  bit   OUT          TRUE  parport.0.pin-13-in
+\layout LyX-Code
+
+     2  bit   OUT         FALSE  parport.0.pin-13-in-not
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-14-out
+\layout LyX-Code
+
+     2  bit   OUT          TRUE  parport.0.pin-15-in
+\layout LyX-Code
+
+     2  bit   OUT         FALSE  parport.0.pin-15-in-not
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-16-out
+\layout LyX-Code
+
+     2  bit   IN          FALSE  parport.0.pin-17-out
+\layout LyX-Code
+
+     4  bit   OUT         FALSE  ptest.btn01 ==> pin01
+\layout LyX-Code
+
+     4  bit   OUT         FALSE  ptest.btn02 ==> pin02
+\layout LyX-Code
+
+     4  bit   IN          FALSE  ptest.led-01 <== pin01
+\layout LyX-Code
+
+     4  bit   IN          FALSE  ptest.led-02 <== pin02
+\layout LyX-Code
+
+     4  bit   IN           TRUE  ptest.led-10 <== pin10
+\layout LyX-Code
+
+     4  bit   IN           TRUE  ptest.led-11 <== pin11
+\layout Standard
+
+This will show you what pins are IN and what pins are OUT as well as any
+ connections.
+\layout Section
+\pagebreak_top 
 GS2 RPM Meter
 \begin_inset LatexCommand \label{sec:GS2-RPM-Meter}
 
