@@ -265,7 +265,7 @@ You would use this if you wanted a floating panel or a panel with a GUI
  
 \layout Standard
 
-To load a 'stand alone' pyVCP panel without EMC use these commands: 
+To load a "stand alone" pyVCP panel without EMC use these commands: 
 \layout LyX-Code
 
 loadusr -Wn panelname pyvcp -c panelname optional-pathway/panel_file_name.xml
@@ -281,11 +281,11 @@ The first command is used when you also load a component that will stop
  HAL from closing until it's done.
  EG if you loaded a panel and then loaded ClassicLadder using -w ClassicLadder
  CL would hold HAL open (and the panel)  until you closed CL -Wn means wait
- for the component 'panelname' to become ready.
- 'panelname' can be any name.
+ for the component "panelname" to become ready.
+ "panelname" can be any name.
  note the capital W and lowercase n.
- The -c tells pyVCP to build a panel with the name 'panelname' using the
- info in 'panel_file_name.xml' 'panel_file_name.xml' can be any name but must
+ The -c tells pyVCP to build a panel with the name "panelname" using the
+ info in "panel_file_name.xml" "panel_file_name.xml" can be any name but must
  end in .xml - it is the file that describes how to build the panel.
  You must add the pathname if the panel is not in the directory that the
  HAL script is in.
@@ -301,7 +301,7 @@ An optional command to use if you want the panel to stop HAL from continuing
   waituser panelname
 \layout Standard
 
-This tells HAL to wait for component 'panelname' to close before continuing
+This tells HAL to wait for component "panelname" to close before continuing
  HAL commands This is usually set as the last command so that HAL shuts
  down when the panel is closed.
 \layout Section
@@ -527,13 +527,13 @@ Round LED
 
 <led>
 \newline 
-   <halpin>"my-led"</halpin> 
+     <halpin>"my-led"</halpin> 
 \newline 
-   <size>50</size> 
+     <size>50</size> 
 \newline 
-   <on_color>"green"</on_color>
+     <on_color>"green"</on_color>
 \newline 
-   <off_color>"red"</off_color>
+     <off_color>"red"</off_color>
 \newline 
 </led>
 \layout Standard
@@ -559,23 +559,23 @@ This is a variant of the "led" widget.
 
 <vbox>
 \newline 
-  <relief>RIDGE</relief>
+    <relief>RIDGE</relief>
 \newline 
-  <bd>6</bd>
+    <bd>6</bd>
 \newline 
-  <rectled>
+    <rectled>
 \newline 
-    <halpin>"my-led"</halpin>
+        <halpin>"my-led"</halpin>
 \newline 
-    <height>"50"</height>
+        <height>"50"</height>
 \newline 
-    <width>"100"</width>
+        <width>"100"</width>
 \newline 
-    <on_color>"green"</on_color>
+        <on_color>"green"</on_color>
 \newline 
-    <off_color>"red"</off_color>
+        <off_color>"red"</off_color>
 \newline 
-  </rectled>
+    </rectled>
 \newline 
 </vbox>
 \layout Standard
@@ -601,16 +601,16 @@ A button is used to control a BIT pin.
  The pin will be set True when the button is pressed and held down, and
  will be set False when the button is released.
  Buttons can use the following formatting options
-\layout Itemize
+\layout Description
 
 <padx>n</padx> where "n" is the amount of extra horizontal extra space
-\layout Itemize
+\layout Description
 
 <pady>n</pady> where "n" is the amount of extra vertical extra space
-\layout Itemize
+\layout Description
 
 <activebackground>"color"</activebackground> the cursor over color
-\layout Itemize
+\layout Description
 
 <bg>"color"</bg> the color of the button
 \layout Subsubsection
@@ -665,17 +665,17 @@ A checkbutton controls a "bit" halpin.
 
 <checkbutton>
 \newline 
-  <halpin>"coolant-chkbtn"</halpin>
+    <halpin>"coolant-chkbtn"</halpin>
 \newline 
-  <text>"Coolant"</text>
+    <text>"Coolant"</text>
 \newline 
 </checkbutton>
 \newline 
 <checkbutton>
 \newline 
-  <halpin>"chip-chkbtn"</halpin>
+    <halpin>"chip-chkbtn"</halpin>
 \newline 
-  <text>"Chips   "</text>
+    <text>"Chips   "</text>
 \newline 
 </checkbutton>
 \layout Standard
@@ -789,7 +789,7 @@ The above code produced this example.
 \layout LyX-Code
 
 <font>("courier 10 pitch",100)</font>
-\layout Standard
+\layout Description
 
 <format> is a "C-style" format specified that determines how the number
  is displayed.
