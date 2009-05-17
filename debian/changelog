@@ -1,3 +1,9 @@
+emc2 (1:2.3.2~pre) hardy; urgency=low
+
+  * 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 16 May 2009 19:57:36 -0500
+
 emc2 (1:2.3.1) hardy; urgency=low
 
   * hm2: fixed a bug that would cause the stepgen to oscillate by one
