@@ -354,14 +354,13 @@ static int comp_id;
     print >>f, "    int sz = sizeof(struct state) + get_data_size();"
     print >>f, "    struct state *inst = hal_malloc(sz);"
     print >>f, "    memset(inst, 0, sz);"
-    if options.get("extra_setup"):
-        if has_personality:
-            print >>f, "    r = extra_setup(inst, extra_arg, &personality);"
-        else:
-            print >>f, "    r = extra_setup(inst, extra_arg);"
-	print >>f, "    if(r != 0) return r;"
     if has_personality:
         print >>f, "    inst->_personality = personality;"
+    if options.get("extra_setup"):
+        print >>f, "    r = extra_setup(inst, extra_arg);"
+	print >>f, "    if(r != 0) return r;"
+    if has_personality:
+        print >>f, "    personality = inst->_personality;"
     for name, type, array, dir, value, personality in pins:
         if personality:
             print >>f, "if(%s) {" % personality
