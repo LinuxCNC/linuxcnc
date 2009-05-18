@@ -446,7 +446,9 @@ static int comp_id;
                 print >>f, "RTAPI_MP_ARRAY_STRING(names, 16, \"names of %s\");" % comp_name
 
         if has_personality:
-            print >>f, "static int personality[16] = {0,};"
+            init1 = str(int(options.get('default_personality', 0)))
+            init = ",".join([init1] * 16)
+            print >>f, "static int personality[16] = {%s};" % init
             print >>f, "RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name
         print >>f, "int rtapi_app_main(void) {"
         print >>f, "    int r = 0;"
