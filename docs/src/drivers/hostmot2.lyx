@@ -1798,7 +1798,12 @@ Each stepgen allocates 2-6 IO pins (selected at firmware compile time),
 \layout Standard
 
 The stepgen representation is modeled on the stepgen software component.
- Each stepgen instance has the following pins and parameters:
+ Stepgen default is active high step output (high during step time low during
+ step space).
+ 
+\layout Standard
+
+Each stepgen instance has the following pins and parameters:
 \layout Subsection*
 
 Pins
