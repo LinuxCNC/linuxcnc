@@ -78,7 +78,8 @@ loadrt
 \layout Standard
 
 The command "loadrt" loads a real time HAL component.
- Real time components need to be added to threads to do anything.
+ Real time component functions need to be added to a thread to updated at
+ the rate of the thread.
  You can not load a user space component into the real time space.
 \layout Standard
 
@@ -95,8 +96,12 @@ addf
 \layout Standard
 
 The command "addf" adds a function to a real time thread.
- If you used the Stepper Config Wizard to generate your config you will
- have two threads.
+ You have to add a function from a HAL real time component to a thread to
+ get the function to update at the rate of the thread.
+\layout Standard
+
+If you used the Stepper Config Wizard to generate your config you will have
+ two threads.
 \layout Itemize
 
 base-thread (the high speed thread) this thread handles items that need
@@ -271,6 +276,23 @@ setp <pin/parameter-name> <value>
 setp paraport.0.pin-08-out TRUE
 \layout Subsection
 
+unlinkp
+\layout Standard
+
+The command "unlinkp" unlinks a pin from the connected signal.
+ If no signal was connected to the pin prior running the command, nothing
+ happens.
+\layout Standard
+
+The syntax and an example:
+\layout Quote
+
+unlinkp <pin-name>
+\layout Quote
+
+unlinkp parport.0.pin-02-out
+\layout Subsection
+
 Obsolete Commands
 \layout Subsubsection
 
@@ -309,23 +331,6 @@ linkps parport.0.pin-02-out X-Step
 \layout Standard
 
 The "linkps" command has been superseeded by the "net" command.
-\layout Subsubsection
-
-unlinkp
-\layout Standard
-
-The command "unlinkp" unlinks a pin from the connected signal.
- If no signal was connected to the pin prior running the command, nothing
- happens.
-\layout Standard
-
-The syntax and an example:
-\layout Quote
-
-unlinkp <pin-name>
-\layout Quote
-
-unlinkp parport.0.pin-02-out
 \layout Subsubsection
 
 newsig
