@@ -334,7 +334,7 @@ static int loadToolTable(const char *filename,
                 continue;
             } else {
                 /* lathe tool */
-                toolTable[pocket].id = id;
+                toolTable[pocket].id = pocket; // just ignore the FMS "bookkeeping" column
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].xoffset = xoffset;
                 toolTable[pocket].diameter = diameter;
@@ -352,7 +352,7 @@ static int loadToolTable(const char *filename,
                 continue;
             } else {
                 /* mill tool */
-                toolTable[pocket].id = id;
+                toolTable[pocket].id = pocket;
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].diameter = diameter;
 
