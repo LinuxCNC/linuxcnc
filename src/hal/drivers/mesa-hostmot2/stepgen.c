@@ -217,6 +217,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     }
 
     // clip velocity to maxvel
+    // FIXME: support maxvel==0 here
     if (velocity_cmd > s->hal.param.maxvel) {
         velocity_cmd = s->hal.param.maxvel;
     } else if (velocity_cmd < -s->hal.param.maxvel) {
