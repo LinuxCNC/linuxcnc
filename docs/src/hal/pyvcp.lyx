@@ -265,7 +265,7 @@ You would use this if you wanted a floating panel or a panel with a GUI
  
 \layout Standard
 
-To load a "stand alone" pyVCP panel without EMC use these commands: 
+To load a "stand alone" pyVCP panel without EMC use this command: 
 \layout LyX-Code
 
 loadusr -Wn panelname pyvcp -c panelname optional-pathway/panel_file_name.xml
@@ -277,7 +277,7 @@ You would use this if you want a panel without EMC's machine controller
  
 \layout Standard
 
-The first command is used when you also load a component that will stop
+The loadusr command is used when you also load a component that will stop
  HAL from closing until it's done.
  EG if you loaded a panel and then loaded ClassicLadder using -w ClassicLadder
  CL would hold HAL open (and the panel)  until you closed CL -Wn means wait
