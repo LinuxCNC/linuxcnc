@@ -2,9 +2,20 @@
 
 next steps:
 
+    hm2_pci calls pci_register_driver,
+    and should fail if no boards are found:
+    <http://people.nl.linux.org/ftp/pub/anoncvs/kernelnewbies/documents/kdoc/kernel-api/r8314.html>
+
+
     stepgen:
 
+        fix micges' problem: the new stepgen algorithm can reverse
+        direction at the end of a move (because it gets ahead of cmd?)
+
         timing fixes
+
+
+    test encoders with +/- scale
 
 
     the config modparam is confusing and poorly documented
@@ -82,6 +93,10 @@ SPI:
     <pcw>  (plus a SPI EEPROM and SPI CPLD for GPIO)
     <pcw> ( AD5754 quad 16 bit +-10V out DAC)
     <pcw> ( AD7329 8 channel 1 M/S 12 bit + sign A-D)
+
+    2009-04-27 20:30:58 <seb_kuzminsky> what SPI hardware are you plugging into your 7i43?
+    2009-04-27 20:31:27 <Jon_geo01005> just a Max 6675
+    2009-04-27 20:31:41 <Jon_geo01005> thermocouple to digital converter
 
 
 
@@ -165,6 +180,8 @@ stepgen:
         to ClockLow periods (rounded up); the result decremented (zero
         ok); and the result of *that* sent to the pulsewait FPGA register.
 
+    make maxaccel=0 work right
+
     needs a cleanup() function
 
     setting .scale to 1600 (1600 steps/rev) and then commanding position
@@ -176,7 +193,7 @@ stepgen:
     it resumes at its previous velocity.  Is that bad?  Does this still
     happen with the new stepping logic?
 
-    test different steps-pre-rev on different stepgen instances
+    test different steps-per-rev on different stepgen instances
 
     support table output mode
 

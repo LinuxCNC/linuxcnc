@@ -42,7 +42,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         u32 acc = hm2->stepgen.accumulator_reg[i];
-        s32 counts_delta;
+        s64 acc_delta;
 
         // those tricky users are always trying to get us to divide by zero
         if (fabs(hm2->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
@@ -55,18 +55,22 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
             }
         }
 
-        // the HM2 Accumulator is a 16.16 bit fixed-point representation of the stepper position
-        // the fractional part gives accurate velocity at low speeds
-        // FIXME: should it be used to provide sub-step position feedback too?  Or is integral-step-only position feedback more accurate?
-        counts_delta = (acc >> 16) - (hm2->stepgen.instance[i].prev_accumulator >> 16);
-        if (counts_delta > 32768) {
-            counts_delta -= 65536;
-        } else if (counts_delta < -32768) {
-            counts_delta += 65536;
+        // The HM2 Accumulator Register is a 16.16 bit fixed-point
+        // representation of the current stepper position.
+        // The fractional part gives accurate velocity at low speeds, and
+        // sub-step position feedback (like sw stepgen).
+        acc_delta = acc - hm2->stepgen.instance[i].prev_accumulator;
+        if (acc_delta > INT32_MAX) {
+            acc_delta -= UINT32_MAX;
+        } else if (acc_delta < INT32_MIN) {
+            acc_delta += UINT32_MAX;
         }
-        *(hm2->stepgen.instance[i].hal.pin.counts) += counts_delta;
-        hm2->stepgen.instance[i].counts_fractional = acc & 0xFFFF;
-        *(hm2->stepgen.instance[i].hal.pin.position_fb) = (double)(*hm2->stepgen.instance[i].hal.pin.counts) / hm2->stepgen.instance[i].hal.param.position_scale;
+
+        hm2->stepgen.instance[i].subcounts += acc_delta;
+
+        *(hm2->stepgen.instance[i].hal.pin.counts) = hm2->stepgen.instance[i].subcounts >> 16;
+
+        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((hal_float_t)hm2->stepgen.instance[i].subcounts / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
 
         hm2->stepgen.instance[i].prev_accumulator = acc;
     }
@@ -128,22 +132,26 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     velocity_error = *s->hal.pin.velocity_fb - ff_vel;
 
-    // do we need to speed up or slow down?
-    if (s->hal.param.maxaccel > 0) {
-        // user has specified a maxaccel (in units/second)
-        if (velocity_error > 0) {
+    // Do we need to change speed to match speed of position-cmd?
+    // If maxaccel is 0, there's no accel limit: fix this velocity error
+    // by the next servo period!  This leaves acceleration control up to
+    // the trajectory planner.
+    // If maxaccel is not zero, the user has specified a maxaccel and we
+    // adhere to that.
+    if (velocity_error > 0.0) {
+        if (s->hal.param.maxaccel == 0) {
+            match_accel = velocity_error / f_period_s;
+        } else {
             match_accel = -s->hal.param.maxaccel;
+        }
+    } else if (velocity_error < 0.0) {
+        if (s->hal.param.maxaccel == 0) {
+            match_accel = -velocity_error / f_period_s;
         } else {
             match_accel = s->hal.param.maxaccel;
         }
     } else {
-        // maxaccel is 0, no limit, fix this velocity error by the next servo period!
-        // this leaves acceleration control up to the trajectory planner
-        if (velocity_error > 0) {
-            match_accel = velocity_error / f_period_s;
-        } else {
-            match_accel = -velocity_error / f_period_s;
-        }
+        match_accel = 0;
     }
 
     if (match_accel == 0) {
@@ -162,6 +170,11 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     position_cmd_at_match = *s->hal.pin.position_cmd + (ff_vel * seconds_to_vel_match);
     error_at_match = position_at_match - position_cmd_at_match;
+
+    *s->hal.pin.dbg_ff_vel = ff_vel;
+    *s->hal.pin.dbg_vel_error = velocity_error;
+    *s->hal.pin.dbg_err_at_match = error_at_match;
+    *s->hal.pin.dbg_s_to_match = seconds_to_vel_match;
 
     if (seconds_to_vel_match < f_period_s) {
         // we can match velocity in one period
@@ -220,6 +233,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     steps_per_sec_cmd = velocity_cmd * s->hal.param.position_scale;
     hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (hal_float_t)hm2->stepgen.clock_frequency);
+    *s->hal.pin.dbg_step_rate = hm2->stepgen.step_rate_reg[i];
 }
 
 
@@ -627,6 +641,48 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
+            // debug pins
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_ff_vel", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_ff_vel), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_s_to_match", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_s_to_match), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_vel_error", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_vel_error), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_err_at_match", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_err_at_match), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_step_rate", hm2->llio->name, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_step_rate), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
 
             // parameters
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.position-scale", hm2->llio->name, i);
@@ -703,6 +759,8 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
             hm2->stepgen.instance[i].hal.param.maxvel = 1.0;
             hm2->stepgen.instance[i].hal.param.maxaccel = 1.0;
+
+            hm2->stepgen.instance[i].subcounts = 0;
 
             // start out the slowest possible, let the user speed up if they want
             hm2->stepgen.instance[i].hal.param.steplen   = (double)0x3FFF * ((double)1e9 / (double)hm2->stepgen.clock_frequency);

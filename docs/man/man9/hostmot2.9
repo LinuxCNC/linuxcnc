@@ -310,8 +310,9 @@ position units.
 
 (s32 output) counts: Feedback position in counts (number of steps).
 
-(float output) position-fb: Feedback position in arbitrary position units
-(counts / position_scale).
+(float output) position-fb: Feedback position in arbitrary position
+units.  This is similar to "counts/position_scale", but has finer than
+step resolution.
 
 (float output) velocity-fb: Feedback velocity in arbitrary position
 units per second.
