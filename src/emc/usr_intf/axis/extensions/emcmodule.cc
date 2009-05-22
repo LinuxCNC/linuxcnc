@@ -1242,6 +1242,57 @@ static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *set_feed_override(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_FO_ENABLE m;
+    if(!PyArg_ParseTuple(o, "i", &m.mode))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_spindle_override(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_SO_ENABLE m;
+    if(!PyArg_ParseTuple(o, "i", &m.mode))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_feed_hold(pyCommandChannel *s, PyObject *o) {
+    EMC_TRAJ_SET_FH_ENABLE m;
+    if(!PyArg_ParseTuple(o, "i", &m.mode))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_ADAPTIVE m;
+    if(!PyArg_ParseTuple(o, "i", &m.status))
+        return NULL;
+
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
@@ -1282,6 +1333,10 @@ static PyMethodDef Command_methods[] = {
     {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS},
     {"set_min_limit", (PyCFunction)set_min_limit, METH_VARARGS},
     {"set_max_limit", (PyCFunction)set_max_limit, METH_VARARGS},
+    {"set_feed_override", (PyCFunction)set_feed_override, METH_VARARGS},
+    {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS},
+    {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS},
+    {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
     {NULL}
 };
 
