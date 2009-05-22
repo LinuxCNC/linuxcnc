@@ -433,7 +433,6 @@ typedef struct {
             // debug pins
             hal_float_t *dbg_ff_vel;
             hal_float_t *dbg_vel_error;
-            hal_float_t *dbg_pos_error;
             hal_float_t *dbg_s_to_match;
             hal_float_t *dbg_err_at_match;
             hal_s32_t *dbg_step_rate;
