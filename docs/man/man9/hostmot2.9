@@ -326,8 +326,9 @@ Parameters:
 position = counts / position_scale
 
 (float r/w) maxvel: Maximum speed, in position units per second.  If set
-to 0, the driver will choose the maximum velocity based on the values of
-steplen and stepspace (at the time that maxvel was set to 0).
+to 0, the driver will always use the maximum possible velocity based
+on the current step timings and position-scale.  The max velocity will
+change if the step timings or position-scale changes.  Defaults to 0.
 
 (float r/w) maxaccel: Maximum acceleration, in position units per second
 per second.  If set to 0, the driver will not limit its acceleration at

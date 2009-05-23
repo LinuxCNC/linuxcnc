@@ -89,6 +89,9 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     hal_float_t error_at_match;
     hal_float_t velocity_cmd;
 
+    hal_float_t physical_maxvel;  // max vel supported by current step timings & position-scale
+    hal_float_t maxvel;           // actual max vel to use this time
+
     hal_float_t steps_per_sec_cmd;
 
     hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
@@ -102,14 +105,23 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     {
         hal_float_t min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
         hal_float_t max_steps_per_s = 1.0e9 / min_ns_per_step;
-        hal_float_t max_pos_per_s = max_steps_per_s / fabs(s->hal.param.position_scale);
-        if (s->hal.param.maxvel > max_pos_per_s) {
-            s->hal.param.maxvel = max_pos_per_s;
-        } else if (s->hal.param.maxvel < 0.0) {
+
+        physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
+
+        if (s->hal.param.maxvel < 0.0) {
             HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
             s->hal.param.maxvel = fabs(s->hal.param.maxvel);
-        } else if (s->hal.param.maxvel == 0.0) {
-            s->hal.param.maxvel = max_pos_per_s;
+        }
+
+        if (s->hal.param.maxvel > physical_maxvel) {
+            HM2_ERR("stepgen.%02d.maxvel is too big for current step timings & position-scale, clipping to max possible\n", i);
+            s->hal.param.maxvel = physical_maxvel;
+        }
+
+        if (s->hal.param.maxvel == 0.0) {
+            maxvel = physical_maxvel;
+        } else {
+            maxvel = s->hal.param.maxvel;
         }
     }
 
@@ -137,7 +149,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     velocity_error = (*s->hal.pin.velocity_fb) - ff_vel;
     (*s->hal.pin.dbg_vel_error) = velocity_error;
 
-    // Do we need to change speed to match speed of position-cmd?
+    // Do we need to change speed to match the speed of position-cmd?
     // If maxaccel is 0, there's no accel limit: fix this velocity error
     // by the next servo period!  This leaves acceleration control up to
     // the trajectory planner.
@@ -216,11 +228,10 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     }
 
     // clip velocity to maxvel
-    // FIXME: support maxvel==0 here
-    if (velocity_cmd > s->hal.param.maxvel) {
-        velocity_cmd = s->hal.param.maxvel;
-    } else if (velocity_cmd < -s->hal.param.maxvel) {
-        velocity_cmd = -s->hal.param.maxvel;
+    if (velocity_cmd > maxvel) {
+        velocity_cmd = maxvel;
+    } else if (velocity_cmd < -maxvel) {
+        velocity_cmd = -maxvel;
     }
 
 
@@ -765,7 +776,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->stepgen.instance[i].hal.pin.enable) = 0;
 
             hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
-            hm2->stepgen.instance[i].hal.param.maxvel = 1.0;
+            hm2->stepgen.instance[i].hal.param.maxvel = 0.0;
             hm2->stepgen.instance[i].hal.param.maxaccel = 1.0;
 
             hm2->stepgen.instance[i].subcounts = 0;
