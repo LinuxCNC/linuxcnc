@@ -90,7 +90,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.stepspace       [AXIS_0]STEPSPACE
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.position-scale  [AXIS_0]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.maxaccel        0
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.00.step_type       0
 
@@ -125,7 +125,7 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.stepspace       [AXIS_1]STEPSPACE
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.position-scale  [AXIS_1]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.maxaccel        0
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.01.step_type       0
 
@@ -160,9 +160,38 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.position-scale  [AXIS_2]SCALE
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxvel          0
-setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
+setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.maxaccel        0
 
 setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
+
+
+
+
+# 
+# The Mesa AnyIO output pins can be in open-drain mode (drive low, float
+# high) or push/pull mode (drive low, drive high).
+#
+# When a logical output is 1 in open-drain mode, the FPGA lets the pin
+# float and it gets pulled high to +5V via a 10K resistor.
+#
+# When a logical output is 1 in push/pull mode, the FPGA pushes the pin
+# high but only to +3.3V.  This is problematic on some kinds of inputs.
+#
+# These GPIO numbers work for 3-connector AnyIO boards (5i20, 5i23, 4i65,
+# 4i68), but not for the 2-connector board (7i43) or the 4-connector board
+# (5i22)
+#
+
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.048.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.049.is_opendrain 1
+
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.054.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.055.is_opendrain 1
+
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.060.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.061.is_opendrain 1
+
+
 
 
 # ##################################################

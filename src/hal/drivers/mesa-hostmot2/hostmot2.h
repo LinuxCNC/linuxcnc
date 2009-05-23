@@ -22,6 +22,12 @@
 #endif
 
 
+// please God where do these live in real life?
+#define INT32_MIN (-2147483647-1)
+#define INT32_MAX (2147483647)
+#define UINT32_MAX (4294967295U)
+
+
 #include "rtapi.h"
 #include "hal.h"
 
@@ -419,10 +425,20 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
+            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
             hal_bit_t *enable;
+            hal_bit_t *control_type;  // 0="position control", 1="velocity control"
+
+            // debug pins
+            hal_float_t *dbg_ff_vel;
+            hal_float_t *dbg_vel_error;
+            hal_float_t *dbg_s_to_match;
+            hal_float_t *dbg_err_at_match;
+            hal_s32_t *dbg_step_rate;
+            hal_float_t *dbg_pos_minus_prev_cmd;
         } pin;
 
         struct {
@@ -444,12 +460,11 @@ typedef struct {
     // computing the feedforward velocity
     hal_float_t old_position_cmd;
 
-    // HM2 tracks stepper position with 32 bits of sub-step
-    // precision.  This holds the top 16 of those bits, in the
-    // bottom 16 bits of the u32.
-    u32 counts_fractional;
-
     u32 prev_accumulator;
+
+    // this is a 48.16 signed fixed-point representation of the current
+    // stepgen position (16 bits of sub-step resolution)
+    s64 subcounts;
 
     u32 written_steplen;
     u32 written_stepspace;
