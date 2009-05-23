@@ -305,8 +305,13 @@ Each stepgen instance has the following pins and parameters:
 
 Pins:
 
-(float input) position-cmd: Target of stepper motion, in arbitrary
-position units.
+(float input) position-cmd: Target position of stepper motion, in
+arbitrary position units.  This pin is only used when the stepgen is in
+position control mode (control-type=0).
+
+(float input) velocity-cmd: Target velocity of stepper motion, in
+arbitrary position units per second.  This pin is only used when the
+stepgen is in velocity control mode (control-type=1).
 
 (s32 output) counts: Feedback position in counts (number of steps).
 
@@ -320,6 +325,9 @@ units per second.
 (bit input) enable: Enables output steps.  When false, no steps are
 generated.
 
+(bit input) control-type: Switches between position control mode (0)
+and velocity control mode (1).  Defaults to position control (0).
+
 Parameters:
 
 (float r/w) position-scale: Converts from counts to position units.
@@ -331,10 +339,11 @@ on the current step timings and position-scale.  The max velocity will
 change if the step timings or position-scale changes.  Defaults to 0.
 
 (float r/w) maxaccel: Maximum acceleration, in position units per second
-per second.  If set to 0, the driver will not limit its acceleration at
-all - this requires that the position-cmd pin is driven in a way that does
-not exceed the machine's capabilities.  This is probably what you want if
-you're going to be using the EMC2 trajectory planner to jog or run G-code.
+per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
+acceleration at all - this requires that the position-cmd or velocity-cmd
+pin is driven in a way that does not exceed the machine's capabilities.
+This is probably what you want if you're going to be using the EMC2
+trajectory planner to jog or run G-code.
 
 (u32 r/w) steplen: Duration of the step signal, in nanoseconds.
 
