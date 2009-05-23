@@ -79,7 +79,13 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 
 
-static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_period_ns, int i) {
+//
+// Here's the stepgen position controller.  It uses first-order
+// feedforward and proportional error feedback.  This code is based
+// on John Kasunich's software stepgen code.
+//
+
+static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period_ns, int i, hal_float_t *new_vel) {
     hal_float_t ff_vel;
     hal_float_t velocity_error;
     hal_float_t match_accel;
@@ -89,54 +95,8 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     hal_float_t error_at_match;
     hal_float_t velocity_cmd;
 
-    hal_float_t physical_maxvel;  // max vel supported by current step timings & position-scale
-    hal_float_t maxvel;           // actual max vel to use this time
-
-    hal_float_t steps_per_sec_cmd;
-
     hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
 
-
-    //
-    // first sanity-check our maxaccel and maxvel params
-    //
-
-    // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
-    {
-        hal_float_t min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
-        hal_float_t max_steps_per_s = 1.0e9 / min_ns_per_step;
-
-        physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
-
-        if (s->hal.param.maxvel < 0.0) {
-            HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
-            s->hal.param.maxvel = fabs(s->hal.param.maxvel);
-        }
-
-        if (s->hal.param.maxvel > physical_maxvel) {
-            HM2_ERR("stepgen.%02d.maxvel is too big for current step timings & position-scale, clipping to max possible\n", i);
-            s->hal.param.maxvel = physical_maxvel;
-        }
-
-        if (s->hal.param.maxvel == 0.0) {
-            maxvel = physical_maxvel;
-        } else {
-            maxvel = s->hal.param.maxvel;
-        }
-    }
-
-    // maxaccel may not be negative
-    if (s->hal.param.maxaccel < 0.0) {
-        HM2_ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
-        s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
-    }
-
-
-    //
-    // Here's the stepgen position controller.  It uses first-order
-    // feedforward and proportional error feedback.  This code is based
-    // on John Kasunich's software stepgen code.
-    //
 
     (*s->hal.pin.dbg_pos_minus_prev_cmd) = (*s->hal.pin.position_fb) - s->old_position_cmd;
 
@@ -227,22 +187,82 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         velocity_cmd = *s->hal.pin.velocity_fb + (match_accel * f_period_s);
     }
 
-    // clip velocity to maxvel
-    if (velocity_cmd > maxvel) {
-        velocity_cmd = maxvel;
-    } else if (velocity_cmd < -maxvel) {
-        velocity_cmd = -maxvel;
+    *new_vel = velocity_cmd;
+}
+
+
+static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_period_ns, int i) {
+    hal_float_t new_vel;
+
+    hal_float_t physical_maxvel;  // max vel supported by current step timings & position-scale
+    hal_float_t maxvel;           // actual max vel to use this time
+
+    hal_float_t steps_per_sec_cmd;
+
+    hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
+
+
+    //
+    // first sanity-check our maxaccel and maxvel params
+    //
+
+    // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
+    {
+        hal_float_t min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
+        hal_float_t max_steps_per_s = 1.0e9 / min_ns_per_step;
+
+        physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
+
+        if (s->hal.param.maxvel < 0.0) {
+            HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);
+            s->hal.param.maxvel = fabs(s->hal.param.maxvel);
+        }
+
+        if (s->hal.param.maxvel > physical_maxvel) {
+            HM2_ERR("stepgen.%02d.maxvel is too big for current step timings & position-scale, clipping to max possible\n", i);
+            s->hal.param.maxvel = physical_maxvel;
+        }
+
+        if (s->hal.param.maxvel == 0.0) {
+            maxvel = physical_maxvel;
+        } else {
+            maxvel = s->hal.param.maxvel;
+        }
+    }
+
+    // maxaccel may not be negative
+    if (s->hal.param.maxaccel < 0.0) {
+        HM2_ERR("stepgen.%02d.maxaccel < 0, setting to its absolute value\n", i);
+        s->hal.param.maxaccel = fabs(s->hal.param.maxaccel);
     }
 
 
-    //
-    // OK, here we've selected the new velocity we want
-    //
+    // select the new velocity we want
+    if (*s->hal.pin.control_type == 0) {
+        hm2_stepgen_instance_position_control(hm2, l_period_ns, i, &new_vel);
+    } else {
+        // velocity-mode control is easy
+        new_vel = *s->hal.pin.velocity_cmd;
+        if (s->hal.param.maxaccel > 0.0) {
+            if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) > s->hal.param.maxaccel) {
+                new_vel = (*s->hal.pin.velocity_fb) + (s->hal.param.maxaccel * f_period_s);
+            } else if (((new_vel - *s->hal.pin.velocity_fb) / f_period_s) < -s->hal.param.maxaccel) {
+                new_vel = (*s->hal.pin.velocity_fb) - (s->hal.param.maxaccel * f_period_s);
+            }
+        }
+    }
+
+    // clip velocity to maxvel
+    if (new_vel > maxvel) {
+        new_vel = maxvel;
+    } else if (new_vel < -maxvel) {
+        new_vel = -maxvel;
+    }
 
 
-    *s->hal.pin.velocity_fb = velocity_cmd;
+    *s->hal.pin.velocity_fb = new_vel;
 
-    steps_per_sec_cmd = velocity_cmd * s->hal.param.position_scale;
+    steps_per_sec_cmd = new_vel * s->hal.param.position_scale;
     hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (hal_float_t)hm2->stepgen.clock_frequency);
     *s->hal.pin.dbg_step_rate = hm2->stepgen.step_rate_reg[i];
 }
@@ -620,6 +640,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail5;
             }
 
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-cmd", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.velocity_cmd), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.velocity-fb", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.velocity_fb), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
@@ -646,6 +674,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.control-type", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.control_type), hm2->llio->comp_id);
             if (r != HAL_SUCCESS) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -774,6 +810,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->stepgen.instance[i].hal.pin.position_fb) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = 0.0;
             *(hm2->stepgen.instance[i].hal.pin.enable) = 0;
+            *(hm2->stepgen.instance[i].hal.pin.control_type) = 0;
 
             hm2->stepgen.instance[i].hal.param.position_scale = 1.0;
             hm2->stepgen.instance[i].hal.param.maxvel = 0.0;

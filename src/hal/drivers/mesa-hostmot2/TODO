@@ -12,9 +12,6 @@ next steps:
         timing fixes
 
 
-    test encoders with +/- scale
-
-
     the config modparam is confusing and poorly documented
 
         > Note: Double quotes in hm2_7i43 command took me some time to figure out,
@@ -177,8 +174,6 @@ stepgen:
         to ClockLow periods (rounded up); the result decremented (zero
         ok); and the result of *that* sent to the pulsewait FPGA register.
 
-    make maxaccel=0 and maxvel=0 work right
-
     needs a cleanup() function
 
     setting .scale to 1600 (1600 steps/rev) and then commanding position
@@ -193,8 +188,6 @@ stepgen:
     test different steps-per-rev on different stepgen instances
 
     support table output mode
-
-    support velocity-mode control
 
     The ClockLow reported by the FPGA differs from the actual clock
     frequency.  This is especially severe on the PCI AnyIO boards, since

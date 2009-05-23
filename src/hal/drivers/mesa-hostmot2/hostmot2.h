@@ -425,10 +425,12 @@ typedef struct {
 
         struct {
             hal_float_t *position_cmd;
+            hal_float_t *velocity_cmd;
             hal_s32_t *counts;
             hal_float_t *position_fb;
             hal_float_t *velocity_fb;
             hal_bit_t *enable;
+            hal_bit_t *control_type;  // 0="position control", 1="velocity control"
 
             // debug pins
             hal_float_t *dbg_ff_vel;
