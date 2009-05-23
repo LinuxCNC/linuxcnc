@@ -24,7 +24,7 @@ from _tkinter import TclError
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     ini = emc.ini(sys.argv[2])
-    emc.nmlfile = ini.find("EMC", "NML_FILE")
+    emc.nmlfile = ini.find("EMC", "NML_FILE") or emc.nmlfile
     del sys.argv[1:3]
 
 s = emc.stat(); s.poll()
