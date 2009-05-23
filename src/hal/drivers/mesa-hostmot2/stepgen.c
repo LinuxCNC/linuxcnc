@@ -126,11 +126,16 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     // on John Kasunich's software stepgen code.
     //
 
-    // calculate feed-forward velocity in machine units per second
-    ff_vel = (*s->hal.pin.position_cmd - s->old_position_cmd) / f_period_s;
-    s->old_position_cmd = *s->hal.pin.position_cmd;
+    (*s->hal.pin.dbg_pos_minus_prev_cmd) = (*s->hal.pin.position_fb) - s->old_position_cmd;
 
-    velocity_error = *s->hal.pin.velocity_fb - ff_vel;
+    // calculate feed-forward velocity in machine units per second
+    ff_vel = ((*s->hal.pin.position_cmd) - s->old_position_cmd) / f_period_s;
+    (*s->hal.pin.dbg_ff_vel) = ff_vel;
+
+    s->old_position_cmd = (*s->hal.pin.position_cmd);
+
+    velocity_error = (*s->hal.pin.velocity_fb) - ff_vel;
+    (*s->hal.pin.dbg_vel_error) = velocity_error;
 
     // Do we need to change speed to match speed of position-cmd?
     // If maxaccel is 0, there's no accel limit: fix this velocity error
@@ -140,13 +145,13 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     // adhere to that.
     if (velocity_error > 0.0) {
         if (s->hal.param.maxaccel == 0) {
-            match_accel = velocity_error / f_period_s;
+            match_accel = -velocity_error / f_period_s;
         } else {
             match_accel = -s->hal.param.maxaccel;
         }
     } else if (velocity_error < 0.0) {
         if (s->hal.param.maxaccel == 0) {
-            match_accel = -velocity_error / f_period_s;
+            match_accel = velocity_error / f_period_s;
         } else {
             match_accel = s->hal.param.maxaccel;
         }
@@ -158,8 +163,9 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         // vel is just right, dont need to accelerate
         seconds_to_vel_match = 0.0;
     } else {
-        seconds_to_vel_match = (ff_vel - *s->hal.pin.velocity_fb) / match_accel;
+        seconds_to_vel_match = -velocity_error / match_accel;
     }
+    *s->hal.pin.dbg_s_to_match = seconds_to_vel_match;
 
     // compute expected position at the time of velocity match
     {
@@ -168,31 +174,23 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         position_at_match = *s->hal.pin.position_fb + (avg_v * seconds_to_vel_match);
     }
 
+    // Note: this assumes that position-cmd keeps the current velocity
     position_cmd_at_match = *s->hal.pin.position_cmd + (ff_vel * seconds_to_vel_match);
     error_at_match = position_at_match - position_cmd_at_match;
 
-    *s->hal.pin.dbg_ff_vel = ff_vel;
-    *s->hal.pin.dbg_vel_error = velocity_error;
     *s->hal.pin.dbg_err_at_match = error_at_match;
-    *s->hal.pin.dbg_s_to_match = seconds_to_vel_match;
 
     if (seconds_to_vel_match < f_period_s) {
         // we can match velocity in one period
+        // try to correct whatever position error we have
+        velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
-        // the ".5/scale" is 1/2 of the step size in position units
-        if (fabs(error_at_match) < fabs(0.5 / s->hal.param.position_scale)) {
-            velocity_cmd = ff_vel;
-        } else {
-            // try to correct position error
-            velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
-
-            // apply accel limits?
-            if (s->hal.param.maxaccel > 0) {
-                if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
-                    velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
-                } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
-                    velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
-                }
+        // apply accel limits?
+        if (s->hal.param.maxaccel > 0) {
+            if (velocity_cmd > (*s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb + (s->hal.param.maxaccel * f_period_s);
+            } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s))) {
+                velocity_cmd = *s->hal.pin.velocity_fb - (s->hal.param.maxaccel * f_period_s);
             }
         }
 
@@ -643,6 +641,14 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             // debug pins
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_pos_minus_prev_cmd", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_pos_minus_prev_cmd), hm2->llio->comp_id);
+            if (r != HAL_SUCCESS) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                r = -ENOMEM;
+                goto fail5;
+            }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.stepgen.%02d.dbg_ff_vel", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->stepgen.instance[i].hal.pin.dbg_ff_vel), hm2->llio->comp_id);

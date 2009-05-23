@@ -436,6 +436,7 @@ typedef struct {
             hal_float_t *dbg_s_to_match;
             hal_float_t *dbg_err_at_match;
             hal_s32_t *dbg_step_rate;
+            hal_float_t *dbg_pos_minus_prev_cmd;
         } pin;
 
         struct {

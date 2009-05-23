@@ -9,9 +9,6 @@ next steps:
 
     stepgen:
 
-        fix micges' problem: the new stepgen algorithm can reverse
-        direction at the end of a move (because it gets ahead of cmd?)
-
         timing fixes
 
 
@@ -180,7 +177,7 @@ stepgen:
         to ClockLow periods (rounded up); the result decremented (zero
         ok); and the result of *that* sent to the pulsewait FPGA register.
 
-    make maxaccel=0 work right
+    make maxaccel=0 and maxvel=0 work right
 
     needs a cleanup() function
 
@@ -198,6 +195,14 @@ stepgen:
     support table output mode
 
     support velocity-mode control
+
+    The ClockLow reported by the FPGA differs from the actual clock
+    frequency.  This is especially severe on the PCI AnyIO boards, since
+    the PCI frequency varies by as much as 10% between systems (the 7i43
+    has an on-board oscillator with only +/- 50 PPM frequency error).
+    This frequency discrepancy results in the FPGA stepping at a different
+    rate than the commanded rate.  The driver compensates for this and
+    modifies the step rate to keep the following error under control.
 
 
 
