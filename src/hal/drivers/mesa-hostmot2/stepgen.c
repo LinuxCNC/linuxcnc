@@ -168,10 +168,11 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     *s->hal.pin.dbg_s_to_match = seconds_to_vel_match;
 
     // compute expected position at the time of velocity match
+    // Note: this is "feedback position at the beginning of the servo period after we attain velocity match"
     {
         hal_float_t avg_v;
         avg_v = (ff_vel + *s->hal.pin.velocity_fb) * 0.5;
-        position_at_match = *s->hal.pin.position_fb + (avg_v * seconds_to_vel_match);
+        position_at_match = *s->hal.pin.position_fb + (avg_v * (seconds_to_vel_match + f_period_s));
     }
 
     // Note: this assumes that position-cmd keeps the current velocity
