@@ -3101,6 +3101,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double b;
   double c;
   double u, v, w;
+  double r;
   double *parameters;
   int p_int;
 
@@ -3161,25 +3162,23 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
-/* axis offsets could be included in the two sets of calculations for
-   current_x, current_y, etc., but do not need to be because the results
-   would be the same. They would be added in then subtracted out. */
+  if (block->r_flag == ON) {
+    r = block->r_number;
+    parameters[5210 + (p_int * 20)] = r;
+  } else
+    r = parameters[5210 + (p_int * 20)];
+      
   if (p_int == settings->origin_index) {        /* system is currently used */
-    settings->current_x = (settings->current_x + settings->origin_offset_x);
-    settings->current_y = (settings->current_y + settings->origin_offset_y);
-    settings->current_z = (settings->current_z + settings->origin_offset_z);
-    settings->AA_current =
-      (settings->AA_current + settings->AA_origin_offset);
-    settings->BB_current =
-      (settings->BB_current + settings->BB_origin_offset);
-    settings->CC_current =
-      (settings->CC_current + settings->CC_origin_offset);
-    settings->u_current =
-      (settings->u_current + settings->u_origin_offset);
-    settings->v_current =
-      (settings->v_current + settings->v_origin_offset);
-    settings->w_current =
-      (settings->w_current + settings->w_origin_offset);
+      
+    settings->current_x += settings->origin_offset_x;
+    settings->current_y += settings->origin_offset_y;
+    settings->current_z += settings->origin_offset_z;
+    settings->AA_current += settings->AA_origin_offset;
+    settings->BB_current += settings->BB_origin_offset;
+    settings->CC_current += settings->CC_origin_offset;
+    settings->u_current += settings->u_origin_offset;
+    settings->v_current += settings->v_origin_offset;
+    settings->w_current += settings->w_origin_offset;
 
     settings->origin_offset_x = x;
     settings->origin_offset_y = y;
@@ -3191,15 +3190,15 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_origin_offset = v;
     settings->w_origin_offset = w;
 
-    settings->current_x = (settings->current_x - x);
-    settings->current_y = (settings->current_y - y);
-    settings->current_z = (settings->current_z - z);
-    settings->AA_current = (settings->AA_current - a);
-    settings->BB_current = (settings->BB_current - b);
-    settings->CC_current = (settings->CC_current - c);
-    settings->u_current = (settings->u_current - u);
-    settings->v_current = (settings->v_current - v);
-    settings->w_current = (settings->w_current - w);
+    settings->current_x -= x;
+    settings->current_y -= y;
+    settings->current_z -= z;
+    settings->AA_current -= a;
+    settings->BB_current -= b;
+    settings->CC_current -= c;
+    settings->u_current -= u;
+    settings->v_current -= v;
+    settings->w_current -= w;
 
     SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
                        y + settings->axis_offset_y,
@@ -3210,6 +3209,12 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                        u + settings->u_axis_offset,
                        v + settings->v_axis_offset,
                        w + settings->w_axis_offset);
+
+    // current_xy are relative to this sytem's origin, so we can rotate directly
+    rotate(&settings->current_x, &settings->current_y, r - settings->rotation_xy);
+    settings->rotation_xy = r;
+    SET_XY_ROTATION(settings->rotation_xy);
+
   }
 #ifdef DEBUG_EMC
   else
