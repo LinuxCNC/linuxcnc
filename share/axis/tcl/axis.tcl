@@ -742,7 +742,6 @@ frame $_tabs_manual.axes
 radiobutton $_tabs_manual.axes.axisx \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value x \
 	-variable current_axis \
 	-width 2 \
@@ -752,7 +751,6 @@ radiobutton $_tabs_manual.axes.axisx \
 radiobutton $_tabs_manual.axes.axisy \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value y \
 	-variable current_axis \
 	-width 2 \
@@ -762,7 +760,6 @@ radiobutton $_tabs_manual.axes.axisy \
 radiobutton $_tabs_manual.axes.axisz \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value z \
 	-variable current_axis \
 	-width 2 \
@@ -772,7 +769,6 @@ radiobutton $_tabs_manual.axes.axisz \
 radiobutton $_tabs_manual.axes.axisa \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value a \
 	-variable current_axis \
 	-width 2 \
@@ -782,7 +778,6 @@ radiobutton $_tabs_manual.axes.axisa \
 radiobutton $_tabs_manual.axes.axisb \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value b \
 	-variable current_axis \
 	-width 2 \
@@ -792,7 +787,6 @@ radiobutton $_tabs_manual.axes.axisb \
 radiobutton $_tabs_manual.axes.axisc \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value c \
 	-variable current_axis \
 	-width 2 \
@@ -803,7 +797,6 @@ radiobutton $_tabs_manual.axes.axisc \
 radiobutton $_tabs_manual.axes.axisu \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value u \
 	-variable current_axis \
 	-width 2 \
@@ -813,7 +806,6 @@ radiobutton $_tabs_manual.axes.axisu \
 radiobutton $_tabs_manual.axes.axisv \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value v \
 	-variable current_axis \
 	-width 2 \
@@ -823,7 +815,6 @@ radiobutton $_tabs_manual.axes.axisv \
 radiobutton $_tabs_manual.axes.axisw \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value w \
 	-variable current_axis \
 	-width 2 \
@@ -890,7 +881,6 @@ frame $_tabs_manual.joints
 radiobutton $_tabs_manual.joints.joint0 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value x \
 	-variable current_axis \
 	-width 2 \
@@ -900,7 +890,6 @@ radiobutton $_tabs_manual.joints.joint0 \
 radiobutton $_tabs_manual.joints.joint1 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value y \
 	-variable current_axis \
 	-width 2 \
@@ -910,7 +899,6 @@ radiobutton $_tabs_manual.joints.joint1 \
 radiobutton $_tabs_manual.joints.joint2 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value z \
 	-variable current_axis \
 	-width 2 \
@@ -920,7 +908,6 @@ radiobutton $_tabs_manual.joints.joint2 \
 radiobutton $_tabs_manual.joints.joint3 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value a \
 	-variable current_axis \
 	-width 2 \
@@ -930,7 +917,6 @@ radiobutton $_tabs_manual.joints.joint3 \
 radiobutton $_tabs_manual.joints.joint4 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value b \
 	-variable current_axis \
 	-width 2 \
@@ -940,7 +926,6 @@ radiobutton $_tabs_manual.joints.joint4 \
 radiobutton $_tabs_manual.joints.joint5 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value c \
 	-variable current_axis \
 	-width 2 \
@@ -951,7 +936,6 @@ radiobutton $_tabs_manual.joints.joint5 \
 radiobutton $_tabs_manual.joints.joint6 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value u \
 	-variable current_axis \
 	-width 2 \
@@ -961,7 +945,6 @@ radiobutton $_tabs_manual.joints.joint6 \
 radiobutton $_tabs_manual.joints.joint7 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value v \
 	-variable current_axis \
 	-width 2 \
@@ -971,7 +954,6 @@ radiobutton $_tabs_manual.joints.joint7 \
 radiobutton $_tabs_manual.joints.joint8 \
 	-anchor w \
 	-padx 0 \
-	-selectcolor #4864ab \
 	-value w \
 	-variable current_axis \
 	-width 2 \

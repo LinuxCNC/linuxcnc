@@ -3568,8 +3568,6 @@ def bind_axis(a, b, d):
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
-def set_tabs(e):
-    t.configure(tabs="%d right" % (e.width - 2))
 
 import sys, getopt
 
@@ -3844,7 +3842,6 @@ def rClicker(e):
     return "break"
 
 t = widgets.text
-t.bind("<Configure>", set_tabs)
 t.bind('<Button-3>', rClicker) #allow right-click to select start from line
 t.tag_configure("ignored", background="#ffffff", foreground="#808080")
 t.tag_configure("lineno", foreground="#808080")
