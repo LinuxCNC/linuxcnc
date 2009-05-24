@@ -15,3 +15,4 @@ depend.sh
 axis
 axis.*
 Module.symvers
+config.status.lineno
