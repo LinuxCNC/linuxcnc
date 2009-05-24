@@ -1357,6 +1357,7 @@ static int emcTaskCheckPreconditions(NMLmsg * cmd)
 	// this applies the tool length offset variable after previous
 	// motions
     case EMC_TRAJ_SET_ORIGIN_TYPE:
+    case EMC_TRAJ_SET_ROTATION_TYPE:
 	// this applies the program origin after previous motions
 	return EMC_TASK_EXEC_WAITING_FOR_MOTION;
 	break;
@@ -1694,6 +1695,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         emcStatus->task.toolOffset.w = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.w;
         retval = emcTrajSetOffset(emcStatus->task.toolOffset.tran.z, emcStatus->task.toolOffset.tran.x, emcStatus->task.toolOffset.w);
 	break;
+
+    case EMC_TRAJ_SET_ROTATION_TYPE:
+        emcStatus->task.rotation_xy = ((EMC_TRAJ_SET_ROTATION *) cmd)->rotation;
+        retval = 0;
+        break;
 
     case EMC_TRAJ_SET_ORIGIN_TYPE:
 	// struct-copy program origin
@@ -2149,6 +2155,7 @@ static int emcTaskCheckPostconditions(NMLmsg * cmd)
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
     case EMC_TRAJ_SET_OFFSET_TYPE:
     case EMC_TRAJ_SET_ORIGIN_TYPE:
+    case EMC_TRAJ_SET_ROTATION_TYPE:
     case EMC_TRAJ_PROBE_TYPE:
     case EMC_TRAJ_RIGID_TAP_TYPE:
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:

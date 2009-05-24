@@ -206,6 +206,14 @@ void print_nc_line_number()
 
 /* Representation */
 
+void SET_XY_ROTATION(double t) {
+  fprintf(_outfile, "%5d ", _line_number++);
+  print_nc_line_number();
+  fprintf(_outfile, "SET_XY_ROTATION(%.4f)\n", t);
+  // CJR XXX 
+}
+    
+
 void SET_ORIGIN_OFFSETS(
  double x, double y, double z
 #ifdef AA

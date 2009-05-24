@@ -5,7 +5,7 @@ G54
 #1=0.1   (SafeHeight)
 #2=0.01  (Depth of CUT)
 #3=0.00015 (Scale)
-#4=10.0  (Feed)
+#4=60.0  (Feed)
 (start of symbol 0x47)
 G00 Z #1
 G00 X [2738*#3] Y [225*#3]

@@ -47,6 +47,7 @@ static int debug_velacc = 0;
 static double css_maximum, css_numerator;
 
 static const double tiny = 1e-10;
+static double xy_rotation = 0.;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -208,23 +209,20 @@ static double unoffset_w(double w) {
     return w - programOrigin.w  - currentWToolOffset;
 }
 
-#if 0 // not yet used; uncomment if you want it
-static CANON_POSITION offset_pos(const CANON_POSITION &pos) {
-    CANON_POSITION res;
-    res.x = offset_x(pos.x);
-    res.y = offset_y(pos.y);
-    res.z = offset_z(pos.z);
-    res.a = offset_a(pos.a);
-    res.b = offset_b(pos.b);
-    res.c = offset_c(pos.c);
-    res.u = offset_u(pos.u);
-    res.v = offset_v(pos.v);
-    res.w = offset_w(pos.w);
-    return res;
-}
+#ifndef D2R
+#define D2R(r) ((r)*M_PI/180.0)
 #endif
 
-static void offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+static void rotate(double &x, double &y, double theta) {
+    double xx, yy;
+    double t = D2R(theta);
+    xx = x, yy = y;
+    x = xx * cos(t) - yy * sin(t); 
+    y = xx * sin(t) + yy * cos(t);
+}
+
+static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+    rotate(x, y, xy_rotation);
     x = offset_x(x);
     y = offset_y(y);
     z = offset_z(z);
@@ -236,35 +234,35 @@ static void offset_pos(double &x, double &y, double &z, double &a, double &b, do
     w = offset_w(w);
 }
 
-#if 0 // not yet used; uncomment if you want it
-static CANON_POSITION unoffset_pos(const CANON_POSITION &pos) {
+static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
     CANON_POSITION res;
-    res.x = unoffset_x(res.x);
-    res.y = unoffset_y(res.y);
-    res.z = unoffset_z(res.z);
-    res.a = unoffset_a(res.a);
-    res.b = unoffset_b(res.b);
-    res.c = unoffset_c(res.c);
-    res.u = unoffset_u(res.u);
-    res.v = unoffset_v(res.v);
-    res.w = unoffset_w(res.w);
+    res.x = unoffset_x(pos.x);
+    res.y = unoffset_y(pos.y);
+    rotate(res.x, res.y, -xy_rotation);
+    res.z = unoffset_z(pos.z);
+    res.a = unoffset_a(pos.a);
+    res.b = unoffset_b(pos.b);
+    res.c = unoffset_c(pos.c);
+    res.u = unoffset_u(pos.u);
+    res.v = unoffset_v(pos.v);
+    res.w = unoffset_w(pos.w);
     return res;
 }
-#endif
 
-#if 0 // not yet used; uncomment if you want it
-static void unoffset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
-    x = unoffset_x(x);
-    y = unoffset_y(y);
-    z = unoffset_z(z);
-    a = unoffset_a(a);
-    b = unoffset_b(b);
-    c = unoffset_c(c);
-    u = unoffset_u(u);
-    v = unoffset_v(v);
-    w = unoffset_w(w);
+static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
+    CANON_POSITION res;
+    res.x = unoffset_x(pos.tran.x);
+    res.y = unoffset_y(pos.tran.y);
+    rotate(res.x, res.y, -xy_rotation);
+    res.z = unoffset_z(pos.tran.z);
+    res.a = unoffset_a(pos.a);
+    res.b = unoffset_b(pos.b);
+    res.c = unoffset_c(pos.c);
+    res.u = unoffset_u(pos.u);
+    res.v = unoffset_v(pos.v);
+    res.w = unoffset_w(pos.w);
+    return res;
 }
-#endif
 
 // for c in "xyzabcuvw": print "    %s = offset_%s(%s)" % (c,c,c)
 
@@ -308,6 +306,17 @@ static EmcPose to_ext_pose(double x, double y, double z, double a, double b, dou
     return result;
 }
 
+static void to_prog(CANON_POSITION &e) {
+    e.x = TO_PROG_LEN(e.x);
+    e.y = TO_PROG_LEN(e.y);
+    e.z = TO_PROG_LEN(e.z);
+    e.a = TO_PROG_ANG(e.a);
+    e.b = TO_PROG_ANG(e.b);
+    e.c = TO_PROG_ANG(e.c);
+    e.u = TO_PROG_LEN(e.u);
+    e.v = TO_PROG_LEN(e.v);
+    e.w = TO_PROG_LEN(e.w);
+}
 
 static int axis_valid(int n) {
     return emcStatus->motion.traj.axis_mask & (1<<n);
@@ -433,6 +442,15 @@ static void send_origin_msg(void) {
 }
 
 /* Representation */
+
+void SET_XY_ROTATION(double t) {
+    EMC_TRAJ_SET_ROTATION sr;
+    sr.rotation = t;
+    interp_list.append(sr);
+
+    xy_rotation = t;
+}
+
 void SET_ORIGIN_OFFSETS(double x, double y, double z,
                         double a, double b, double c,
                         double u, double v, double w)
@@ -915,7 +933,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
     from_prog(x,y,z,a,b,c,u,v,w);
-    offset_pos(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
 
     vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
@@ -948,7 +966,7 @@ void STRAIGHT_FEED(int line_number,
     linearMoveMsg.feed_mode = feed_mode;
 
     from_prog(x,y,z,a,b,c,u,v,w);
-    offset_pos(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
     see_segment(line_number, x, y, z, a, b, c, u, v, w);
 }
 
@@ -960,7 +978,7 @@ void RIGID_TAP(int line_number, double x, double y, double z)
     double unused=0;
 
     from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
-    offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
+    rotate_and_offset_pos(x,y,z,unused,unused,unused,unused,unused,unused);
 
     vel = getStraightVelocity(x, y, z, 
                               canonEndPoint.a, canonEndPoint.b, canonEndPoint.c, 
@@ -1005,7 +1023,7 @@ void STRAIGHT_PROBE(int line_number,
     EMC_TRAJ_PROBE probeMsg;
 
     from_prog(x,y,z,a,b,c,u,v,w);
-    offset_pos(x,y,z,a,b,c,u,v,w);
+    rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
 
     flush_segments();
 
@@ -1364,7 +1382,7 @@ void ARC_FEED(int line_number,
                 offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
                 rotation, mx, my) < canonMotionTolerance) {
         double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
-        offset_pos(x, y, z, a, b, c, u, v, w);
+        rotate_and_offset_pos(x, y, z, a, b, c, u, v, w);
         see_segment(line_number, mx, my,
                 (lz + z)/2, 
                 (canonEndPoint.a + a)/2, 
@@ -1392,7 +1410,7 @@ void ARC_FEED(int line_number,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    offset_pos(unused, unused, unused, a, b, c, u, v, w);
+    rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
 
     da = fabs(canonEndPoint.a - a);
     db = fabs(canonEndPoint.b - b);
@@ -2301,6 +2319,7 @@ void INIT_CANON()
     programOrigin.u = 0.0;
     programOrigin.v = 0.0;
     programOrigin.w = 0.0;
+    xy_rotation = 0.;
     activePlane = CANON_PLANE_XY;
     canonEndPoint.x = 0.0;
     canonEndPoint.y = 0.0;
@@ -2414,17 +2433,8 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     canonEndPoint.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(unoffset_x(canonEndPoint.x));
-    position.y = TO_PROG_LEN(unoffset_y(canonEndPoint.y));
-    position.z = TO_PROG_LEN(unoffset_z(canonEndPoint.z));
-
-    position.a = TO_PROG_ANG(unoffset_a(canonEndPoint.a));
-    position.b = TO_PROG_ANG(unoffset_b(canonEndPoint.b));
-    position.c = TO_PROG_ANG(unoffset_c(canonEndPoint.c));
-
-    position.u = TO_PROG_LEN(unoffset_u(canonEndPoint.u));
-    position.v = TO_PROG_LEN(unoffset_v(canonEndPoint.v));
-    position.w = TO_PROG_LEN(unoffset_w(canonEndPoint.w));
+    position = unoffset_and_unrotate_pos(canonEndPoint);
+    to_prog(position);
 
     return position;
 }
@@ -2453,17 +2463,8 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     pos.w = FROM_EXT_LEN(pos.w);
 
     // now calculate position in program units, for interpreter
-    position.x = TO_PROG_LEN(unoffset_x(pos.tran.x));
-    position.y = TO_PROG_LEN(unoffset_y(pos.tran.y));
-    position.z = TO_PROG_LEN(unoffset_z(pos.tran.z));
-
-    position.a = TO_PROG_ANG(unoffset_a(pos.a));
-    position.b = TO_PROG_ANG(unoffset_b(pos.b));
-    position.c = TO_PROG_ANG(unoffset_c(pos.c));
-
-    position.u = TO_PROG_LEN(unoffset_u(pos.u));
-    position.v = TO_PROG_LEN(unoffset_v(pos.v));
-    position.w = TO_PROG_LEN(unoffset_w(pos.w));
+    position = unoffset_and_unrotate_pos(pos);
+    to_prog(position);
 
     if (probefile != NULL) {
 	if (last_probed_position != position) {

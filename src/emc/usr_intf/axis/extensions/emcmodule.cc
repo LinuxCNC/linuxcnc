@@ -370,6 +370,7 @@ static PyMemberDef Stat_members[] = {
     {"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
     {"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
+    {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
     {"delay_left", T_DOUBLE, O(motion.traj.delayLeft), READONLY},
 
 // io

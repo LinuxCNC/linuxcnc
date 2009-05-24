@@ -118,6 +118,8 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     toolOffset.v = 0.0;
     toolOffset.w = 0.0;
 
+    rotation_xy = 0.0;
+
     for (t = 0; t < ACTIVE_G_CODES; t++)
 	activeGCodes[t] = -1;
     for (t = 0; t < ACTIVE_M_CODES; t++)

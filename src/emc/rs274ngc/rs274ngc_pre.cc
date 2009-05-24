@@ -464,6 +464,8 @@ int Interp::init()
                      USER_TO_PROGRAM_LEN(pars[k + 7] + pars[5217]),
                      USER_TO_PROGRAM_LEN(pars[k + 8] + pars[5218]),
                      USER_TO_PROGRAM_LEN(pars[k + 9] + pars[5219]));
+  _setup.rotation_xy = pars[k+10];
+  SET_XY_ROTATION(pars[k+10]);
   SET_FEED_REFERENCE(CANON_XYZ);
   _setup.AA_axis_offset = USER_TO_PROGRAM_ANG(pars[5214]);
 //_setup.Aa_current set in Interp::synch

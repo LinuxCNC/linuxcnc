@@ -111,7 +111,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def get_tool(self, tool):
         return tool, .75, .0625
 
-    # XXX handle abc, uvw offsets?
     def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u, offset_v, offset_w):
         self.offset_x = offset_x
         self.offset_y = offset_y
@@ -125,10 +124,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
-             a + self.offset_a, b + self.offset_b, c + self.offset_c,
-             u + self.offset_u, v + self.offset_v, w + self.offset_w,
-        )
+        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
                 self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
         self.lo = l
@@ -136,10 +132,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def rigid_tap(self, x, y, z):
         if self.suppress > 0: return
         self.first_move = False
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
-             self.lo[3], self.lo[4], self.lo[5],
-             self.lo[6], self.lo[7], self.lo[8], 
-        )
+        l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
+        l += [self.lo[3], self.lo[4], self.lo[5],
+               self.lo[6], self.lo[7], self.lo[8]]
         self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
@@ -162,10 +157,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return
         self.first_move = False
-        l = (x + self.offset_x,y + self.offset_y,z + self.offset_z,
-             a + self.offset_a, b + self.offset_b, c + self.offset_c,
-             u + self.offset_u, v + self.offset_v, w + self.offset_w,
-        )
+        l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
         self.lo = l
     straight_probe = straight_feed

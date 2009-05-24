@@ -126,6 +126,7 @@ class PM_CARTESIAN;
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)
 #define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
+#define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
 /* gap because of removed messages */
 
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)
@@ -451,6 +452,7 @@ extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(double z, double x, double w);
 extern int emcTrajSetOrigin(EmcPose origin);
+extern int emcTrajSetRotation(double rotation);
 extern int emcTrajSetHome(EmcPose home);
 extern int emcTrajSetTloAxis(bool use_w_axis);
 extern int emcTrajClearProbeTrippedFlag();

@@ -30,6 +30,9 @@
 #ifndef R2D
 #define R2D(r) ((r)*180.0/M_PI)
 #endif
+#ifndef D2R
+#define D2R(r) ((r)*M_PI/180.0)
+#endif
 #ifndef SQ
 #define SQ(a) ((a)*(a))
 #endif
@@ -118,8 +121,6 @@ int Interp::comp_set_programmed(setup_pointer settings, double x, double y, doub
     return INTERP_OK;
 }
 
-
-    
 /****************************************************************************/
 
 /*! convert_nurbs
@@ -1532,17 +1533,19 @@ nine coordinate systems. Axis offsets are initialized to zero.
 
 */
 
+void Interp::rotate(double *x, double *y, double theta) {
+    double xx, yy;
+    double t = D2R(theta);
+    xx = *x * cos(t) - *y * sin(t); 
+    yy = *x * sin(t) + *y * cos(t);
+    *x = xx;
+    *y = yy;
+}
+
 int Interp::convert_coordinate_system(int g_code,        //!< g_code called (must be one listed above)     
                                      setup_pointer settings)    //!< pointer to machine settings                  
 {
   int origin;
-  double x;
-  double y;
-  double z;
-  double a;
-  double b;
-  double c;
-  double u, v, w;
   double *parameters;
 
   CHKS((settings->cutter_comp_side != OFF),
@@ -1587,61 +1590,56 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
     return INTERP_OK;
   }
 
+  // remember that this is new system
   settings->origin_index = origin;
   parameters[5220] = (double) origin;
 
-/* axis offsets could be included in the two set of calculations for
-   current_x, current_y, etc., but do not need to be because the results
-   would be the same. They would be added in then subtracted out. */
-  settings->current_x = (settings->current_x + settings->origin_offset_x);
-  settings->current_y = (settings->current_y + settings->origin_offset_y);
-  settings->current_z = (settings->current_z + settings->origin_offset_z);
-  settings->AA_current = (settings->AA_current + settings->AA_origin_offset);
-  settings->BB_current = (settings->BB_current + settings->BB_origin_offset);
-  settings->CC_current = (settings->CC_current + settings->CC_origin_offset);
-  settings->u_current = (settings->u_current + settings->u_origin_offset);
-  settings->v_current = (settings->v_current + settings->v_origin_offset);
-  settings->w_current = (settings->w_current + settings->w_origin_offset);
+  // move the current point back to unoffset coordinates
+  rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
+  settings->current_x += settings->origin_offset_x;
+  settings->current_y += settings->origin_offset_y;
+  settings->current_z += settings->origin_offset_z;
+  settings->AA_current += settings->AA_origin_offset;
+  settings->BB_current += settings->BB_origin_offset;
+  settings->CC_current += settings->CC_origin_offset;
+  settings->u_current += settings->u_origin_offset;
+  settings->v_current += settings->v_origin_offset;
+  settings->w_current += settings->w_origin_offset;
 
-  x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
-  y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
-  z = USER_TO_PROGRAM_LEN(parameters[5203 + (origin * 20)]);
-  a = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
-  b = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
-  c = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
-  u = USER_TO_PROGRAM_LEN(parameters[5207 + (origin * 20)]);
-  v = USER_TO_PROGRAM_LEN(parameters[5208 + (origin * 20)]);
-  w = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
+  // load the origin of the newly-selected system
+  settings->origin_offset_x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
+  settings->origin_offset_y = USER_TO_PROGRAM_LEN(parameters[5202 + (origin * 20)]);
+  settings->origin_offset_z = USER_TO_PROGRAM_LEN(parameters[5203 + (origin * 20)]);
+  settings->AA_origin_offset = USER_TO_PROGRAM_ANG(parameters[5204 + (origin * 20)]);
+  settings->BB_origin_offset = USER_TO_PROGRAM_ANG(parameters[5205 + (origin * 20)]);
+  settings->CC_origin_offset = USER_TO_PROGRAM_ANG(parameters[5206 + (origin * 20)]);
+  settings->u_origin_offset = USER_TO_PROGRAM_LEN(parameters[5207 + (origin * 20)]);
+  settings->v_origin_offset = USER_TO_PROGRAM_LEN(parameters[5208 + (origin * 20)]);
+  settings->w_origin_offset = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
+  settings->rotation_xy = parameters[5210 + (origin * 20)];
 
-  settings->origin_offset_x = x;
-  settings->origin_offset_y = y;
-  settings->origin_offset_z = z;
-  settings->AA_origin_offset = a;
-  settings->BB_origin_offset = b;
-  settings->CC_origin_offset = c;
-  settings->u_origin_offset = u;
-  settings->v_origin_offset = v;
-  settings->w_origin_offset = w;
+  // now move the current point into the new system
+  settings->current_x -= settings->origin_offset_x;
+  settings->current_y -= settings->origin_offset_y;
+  settings->current_z -= settings->origin_offset_z;
+  settings->AA_current -= settings->AA_origin_offset;
+  settings->BB_current -= settings->BB_origin_offset;
+  settings->CC_current -= settings->CC_origin_offset;
+  settings->u_current -= settings->u_origin_offset;
+  settings->v_current -= settings->v_origin_offset;
+  settings->w_current -= settings->w_origin_offset;
+  rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
 
-  settings->current_x = (settings->current_x - x);
-  settings->current_y = (settings->current_y - y);
-  settings->current_z = (settings->current_z - z);
-  settings->AA_current = (settings->AA_current - a);
-  settings->BB_current = (settings->BB_current - b);
-  settings->CC_current = (settings->CC_current - c);
-  settings->u_current = (settings->u_current - u);
-  settings->v_current = (settings->v_current - v);
-  settings->w_current = (settings->w_current - w);
-
-  SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
-                     y + settings->axis_offset_y,
-                     z + settings->axis_offset_z,
-                     a + settings->AA_axis_offset,
-                     b + settings->BB_axis_offset,
-                     c + settings->CC_axis_offset,
-                     u + settings->u_axis_offset,
-                     v + settings->v_axis_offset,
-                     w + settings->w_axis_offset);
+  SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
+                     settings->origin_offset_y + settings->axis_offset_y,
+                     settings->origin_offset_z + settings->axis_offset_z,
+                     settings->AA_origin_offset + settings->AA_axis_offset,
+                     settings->BB_origin_offset + settings->BB_axis_offset,
+                     settings->CC_origin_offset + settings->CC_axis_offset,
+                     settings->u_origin_offset + settings->u_axis_offset,
+                     settings->v_origin_offset + settings->v_axis_offset,
+                     settings->w_origin_offset + settings->w_axis_offset);
+  SET_XY_ROTATION(settings->rotation_xy);
   return INTERP_OK;
 }
 
@@ -3400,6 +3398,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_current += settings->u_origin_offset;
     settings->v_current += settings->v_origin_offset;
     settings->w_current += settings->w_origin_offset;
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
 
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
@@ -3412,7 +3411,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
     settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
     settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
+    settings->rotation_xy = settings->parameters[5230];
 
+    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
     settings->current_x -= settings->origin_offset_x;
     settings->current_y -= settings->origin_offset_y;
     settings->current_z -= settings->origin_offset_z;
@@ -3432,6 +3433,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
                        settings->u_origin_offset + settings->u_axis_offset,
                        settings->v_origin_offset + settings->v_axis_offset,
                        settings->w_origin_offset + settings->w_axis_offset);
+    SET_XY_ROTATION(settings->rotation_xy);
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {
       SELECT_PLANE(CANON_PLANE_XY);

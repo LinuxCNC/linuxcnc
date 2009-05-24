@@ -321,6 +321,15 @@ void SET_ORIGIN_OFFSETS(double x, double y, double z,
     Py_XDECREF(result);
 }
 
+void SET_XY_ROTATION(double t) {
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result =
+        PyObject_CallMethod(callback, "set_xy_rotation", "f", t);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+};
+
 void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 void SET_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 

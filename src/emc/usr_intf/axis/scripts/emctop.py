@@ -68,6 +68,7 @@ maps = {
 'joint_position': show_position,
 'joint_actual_position': show_position,
 'origin': show_position,
+'rotation_xy': show_float,
 'probed_position': show_position,
 'tool_offset': show_position,
 'limit': show_peraxis,

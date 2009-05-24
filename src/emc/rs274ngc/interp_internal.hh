@@ -396,6 +396,7 @@ typedef struct setup_struct
   double origin_offset_x;       // origin offset x
   double origin_offset_y;       // origin offset y
   double origin_offset_z;       // origin offset z
+  double rotation_xy;         // rotation of coordinate system around Z, in degrees
   double parameters[RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[50];    // parameter number buffer

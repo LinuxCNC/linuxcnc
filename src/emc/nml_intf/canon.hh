@@ -194,6 +194,8 @@ extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w);
 
+extern void SET_XY_ROTATION(double t);
+
 /* Offset the origin to the point with absolute coordinates x, y, z,
 a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
 are whatever length units are being used at the time this command is

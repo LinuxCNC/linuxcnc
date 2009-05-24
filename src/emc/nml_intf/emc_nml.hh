@@ -846,6 +846,18 @@ class EMC_TRAJ_SET_ORIGIN:public EMC_TRAJ_CMD_MSG {
     EmcPose origin;
 };
 
+class EMC_TRAJ_SET_ROTATION:public EMC_TRAJ_CMD_MSG {
+  public:
+    EMC_TRAJ_SET_ROTATION():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_ROTATION_TYPE,
+					   sizeof(EMC_TRAJ_SET_ROTATION)) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    double rotation;
+};
+
 class EMC_TRAJ_SET_HOME:public EMC_TRAJ_CMD_MSG {
   public:
     EMC_TRAJ_SET_HOME():EMC_TRAJ_CMD_MSG(EMC_TRAJ_SET_HOME_TYPE,
@@ -1384,6 +1396,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     char file[LINELEN];
     char command[LINELEN];
     EmcPose origin;		// origin, in user units, currently active
+    double rotation_xy;
     EmcPose toolOffset;		// tool offset, in general pose form
     bool tloIsAlongW;		// whether tool offset is applied in Z or W
     int activeGCodes[ACTIVE_G_CODES];

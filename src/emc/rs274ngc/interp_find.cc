@@ -123,7 +123,7 @@ radius compensation is in progress, or (2) the actual current position.
 */
 
 int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
-                      setup_pointer settings,    //!< pointer to machine settings                 
+                      setup_pointer s,    //!< pointer to machine settings                 
                       double *px,        //!< pointer to end_x                            
                       double *py,        //!< pointer to end_y                            
                       double *pz,        //!< pointer to end_z                            
@@ -132,119 +132,134 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                       double *CC_p,      //!< pointer to end_c                      
                       double *u_p, double *v_p, double *w_p)
 {
-  int mode;
-  int middle;
-  int comp;
+    int middle;
+    int comp;
 
-  mode = settings->distance_mode;
-  middle = settings->cutter_comp_firstmove == OFF;
-  comp = (settings->cutter_comp_side != OFF);
+    middle = s->cutter_comp_firstmove == OFF;
+    comp = (s->cutter_comp_side != OFF);
 
-  if (block->g_modes[0] == G_53) {      /* distance mode is absolute in this case */
+    if (block->g_modes[0] == G_53) {      /* distance mode is absolute in this case */
 #ifdef DEBUG_EMC
-    COMMENT("interpreter: offsets temporarily suspended");
+        COMMENT("interpreter: offsets temporarily suspended");
 #endif
-    *px = (block->x_flag == ON) ? (block->x_number -
-                                   (settings->tool_xoffset + 
-                                    settings->origin_offset_x +
-                                    settings->
-                                    axis_offset_x)) : settings->current_x;
-    *py =
-      (block->y_flag ==
-       ON) ? (block->y_number - (settings->origin_offset_y +
-                                 settings->
-                                 axis_offset_y)) : settings->current_y;
-    *pz =
-      (block->z_flag ==
-       ON) ? (block->z_number - (settings->tool_zoffset +
-                                 settings->origin_offset_z +
-                                 settings->
-                                 axis_offset_z)) : settings->current_z;
-    *AA_p = (block->a_flag == ON) ? (block->a_number -
-                                     (settings->AA_origin_offset +
-                                      settings->
-                                      AA_axis_offset)) : settings->AA_current;
-    *BB_p =
-      (block->b_flag ==
-       ON) ? (block->b_number - (settings->BB_origin_offset +
-                                 settings->
-                                 BB_axis_offset)) : settings->BB_current;
-    *CC_p =
-      (block->c_flag ==
-       ON) ? (block->c_number - (settings->CC_origin_offset +
-                                 settings->
-                                 CC_axis_offset)) : settings->CC_current;
-    *u_p = (block->u_flag == ON) ? (block->u_number -
-                                     (settings->u_origin_offset +
-                                      settings->
-                                      u_axis_offset)) : settings->u_current;
-    *v_p =
-      (block->v_flag ==
-       ON) ? (block->v_number - (settings->v_origin_offset +
-                                 settings->
-                                 v_axis_offset)) : settings->v_current;
-    *w_p =
-      (block->w_flag ==
-       ON) ? (block->w_number - (settings->tool_woffset + 
-                                 settings->w_origin_offset +
-                                 settings->
-                                 w_axis_offset)) : settings->w_current;
-  } else if (mode == MODE_ABSOLUTE) {
-    *px = (block->x_flag == ON) ? block->x_number :
-      (comp && middle) ? settings->program_x : settings->current_x;
+        if(block->x_flag == ON) {
+            *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_xoffset;
+        } else {
+            *px = s->current_x;
+        }
 
-    *py = (block->y_flag == ON) ? block->y_number :
-      (comp && middle && settings->plane == CANON_PLANE_XY ) ? settings->program_y : settings->current_y;
+        if(block->y_flag == ON) {
+            *py = block->y_number - s->origin_offset_y - s->axis_offset_y;
+        } else {
+            *py = s->current_y;
+        }
 
-    *pz = (block->z_flag == ON) ? block->z_number :
-      (comp && middle && settings->plane == CANON_PLANE_XZ ) ? settings->program_z : settings->current_z;
+        rotate(px, py, -s->rotation_xy);
 
-    *AA_p = (block->a_flag == ON) ? block->a_number : settings->AA_current;
-    *BB_p = (block->b_flag == ON) ? block->b_number : settings->BB_current;
-    *CC_p = (block->c_flag == ON) ? block->c_number : settings->CC_current;
-    *u_p = (block->u_flag == ON) ? block->u_number : settings->u_current;
-    *v_p = (block->v_flag == ON) ? block->v_number : settings->v_current;
-    *w_p = (block->w_flag == ON) ? block->w_number : settings->w_current;
-  } else {                      /* mode is MODE_INCREMENTAL */
+        if(block->z_flag == ON) {
+            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_zoffset;
+        } else {
+            *pz = s->current_z;
+        }
 
-    *px = (block->x_flag == ON)
-      ? ((comp
-          && middle) ? (block->x_number +
-                        settings->program_x) : (block->x_number +
-                                                settings->current_x))
-      : ((comp && middle) ? settings->program_x : settings->current_x);
+        if(block->a_flag == ON) {
+            *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+        } else {
+            *AA_p = s->AA_current;
+        }
 
-    *py = (block->y_flag == ON)
-      ? ((comp
-          && middle && settings->plane == CANON_PLANE_XY ) ? (block->y_number +
-                        settings->program_y) : (block->y_number +
-                                                settings->current_y))
-      : ((comp && middle) ? settings->program_y : settings->current_y);
+        if(block->b_flag == ON) {
+            *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+        } else {
+            *BB_p = s->BB_current;
+        }
 
-    *pz = (block->z_flag == ON)
-      ? ((comp
-          && middle && settings->plane == CANON_PLANE_XZ ) ? (block->z_number +
-                        settings->program_z) : (block->z_number +
-                                                settings->current_z))
-      : ((comp && middle) ? settings->program_z : settings->current_z);
-    *AA_p = (block->a_flag == ON) ?
-      (settings->AA_current + block->a_number) : settings->AA_current;
-    *BB_p =
-      (block->b_flag ==
-       ON) ? (settings->BB_current + block->b_number) : settings->BB_current;
-    *CC_p =
-      (block->c_flag ==
-       ON) ? (settings->CC_current + block->c_number) : settings->CC_current;
-    *u_p = (block->u_flag == ON) ?
-      (settings->u_current + block->u_number) : settings->u_current;
-    *v_p =
-      (block->v_flag ==
-       ON) ? (settings->v_current + block->v_number) : settings->v_current;
-    *w_p =
-      (block->w_flag ==
-       ON) ? (settings->w_current + block->w_number) : settings->w_current;
-  }
-  return INTERP_OK;
+        if(block->c_flag == ON) {
+            *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+        } else {
+            *CC_p = s->CC_current;
+        }
+
+        if(block->u_flag == ON) {
+            *u_p = block->u_number - s->u_origin_offset - s->u_axis_offset;
+        } else {
+            *u_p = s->u_current;
+        }
+
+        if(block->v_flag == ON) {
+            *v_p = block->v_number - s->v_origin_offset - s->v_axis_offset;
+        } else {
+            *v_p = s->v_current;
+        }
+
+        if(block->w_flag == ON) {
+            *w_p = block->w_number - s->w_origin_offset - s->w_axis_offset - s->tool_woffset;
+        } else {
+            *w_p = s->w_current;
+        }
+    } else if (s->distance_mode == MODE_ABSOLUTE) {
+
+        if(block->x_flag == ON) {
+            *px = block->x_number;
+        } else {
+            // both cutter comp planes affect X ...
+            *px = (comp && middle) ? s->program_x : s->current_x;
+        }
+
+        if(block->y_flag == ON) {
+            *py = block->y_number;
+        } else {
+            // but only XY affects Y ...
+            *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
+        }
+
+        if(block->z_flag == ON) {
+            *pz = block->z_number;
+        } else {
+            // and only XZ affects Z.
+            *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z : s->current_z;
+        }
+    
+        *AA_p = (block->a_flag == ON) ? block->a_number : s->AA_current;
+        *BB_p = (block->b_flag == ON) ? block->b_number : s->BB_current;
+        *CC_p = (block->c_flag == ON) ? block->c_number : s->CC_current;
+        *u_p = (block->u_flag == ON) ? block->u_number : s->u_current;
+        *v_p = (block->v_flag == ON) ? block->v_number : s->v_current;
+        *w_p = (block->w_flag == ON) ? block->w_number : s->w_current;
+
+    } else {                      /* mode is MODE_INCREMENTAL */
+
+        // both cutter comp planes affect X ...
+        *px = (comp && middle) ? s->program_x: s->current_x;
+        if(block->x_flag == ON) *px += block->x_number;
+
+        // but only XY affects Y ...
+        *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y: s->current_y;
+        if(block->y_flag == ON) *py += block->y_number;
+
+        // and only XZ affects Z.
+        *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z: s->current_z;
+        if(block->z_flag == ON) *pz += block->z_number;
+
+        *AA_p = s->AA_current;
+        if(block->a_flag == ON) *AA_p += block->a_number;
+
+        *BB_p = s->BB_current;
+        if(block->b_flag == ON) *BB_p += block->b_number;
+
+        *CC_p = s->CC_current;
+        if(block->c_flag == ON) *CC_p += block->c_number;
+
+        *u_p = s->u_current;
+        if(block->u_flag == ON) *u_p += block->u_number;
+
+        *v_p = s->v_current;
+        if(block->v_flag == ON) *v_p += block->v_number;
+
+        *w_p = s->w_current;
+        if(block->w_flag == ON) *w_p += block->w_number;
+    }
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -289,18 +304,16 @@ int Interp::find_relative(double x1,     //!< absolute x position
                           double *w_2,
                           setup_pointer settings)        //!< pointer to machine settings
 {
-  *x2 = (x1 - (settings->tool_xoffset + settings->origin_offset_x + settings->axis_offset_x));
-  *y2 = (y1 - (settings->origin_offset_y + settings->axis_offset_y));
-  *z2 =
-    (z1 -
-     (settings->tool_zoffset + settings->origin_offset_z +
-      settings->axis_offset_z));
-  *AA_2 = (AA_1 - (settings->AA_origin_offset + settings->AA_axis_offset));
-  *BB_2 = (BB_1 - (settings->BB_origin_offset + settings->BB_axis_offset));
-  *CC_2 = (CC_1 - (settings->CC_origin_offset + settings->CC_axis_offset));
-  *u_2 = (u_1 - (settings->u_origin_offset + settings->u_axis_offset));
-  *v_2 = (v_1 - (settings->v_origin_offset + settings->v_axis_offset));
-  *w_2 = (w_1 - (settings->tool_woffset + settings->w_origin_offset + settings->w_axis_offset));
+  *x2 = x1 - settings->origin_offset_x - settings->axis_offset_x - settings->tool_xoffset;
+  *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y;
+  rotate(x2, y2, -settings->rotation_xy);
+  *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
+  *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+  *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
+  *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+  *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset;
+  *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset;
+  *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_woffset;
   return INTERP_OK;
 }
 

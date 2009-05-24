@@ -18,18 +18,34 @@ import math
 
 class Translated:
     offset_x = offset_y = offset_z = offset_a = offset_b = offset_c = 0
-    def translate(self, x,y,z,a,b,c):
-        return [x+self.offset_x, y+self.offset_y, z+self.offset_z,
-            a+self.offset_a, b+self.offset_b, c+self.offset_c]
+    rotation_xy = 0
+    def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
+        t = self.rotation_xy
+        t = math.radians(t)
+        rotx = x * math.cos(t) - y * math.sin(t)
+        roty = x * math.sin(t) + y * math.cos(t)
+        rotx += self.offset_x
+        roty += self.offset_y
+        return [rotx, roty, z+self.offset_z,
+                a+self.offset_a, b+self.offset_b, c+self.offset_c,
+                u+self.offset_u, v+self.offset_v, w+self.offset_w]
 
     def straight_traverse(self, *args):
-        self.straight_traverse_translated(*self.translate(*args))
+        self.straight_traverse_translated(*self.rotate_and_translate(*args))
     def straight_feed(self, *args):
-        self.straight_feed_translated(*self.translate(*args))
+        self.straight_feed_translated(*self.rotate_and_translate(*args))
     def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u=None, offset_v=None, offset_w=None):
         self.offset_x = offset_x #- (self.ox - self.offset_x)
         self.offset_y = offset_y #- (self.oy - self.offset_y)
         self.offset_z = offset_z #- (self.oz - self.offset_z)
+        self.offset_a = offset_a #- (self.ox - self.offset_x)
+        self.offset_b = offset_b #- (self.oy - self.offset_y)
+        self.offset_c = offset_c #- (self.oz - self.offset_z)
+        self.offset_u = offset_u #- (self.ox - self.offset_x)
+        self.offset_v = offset_v #- (self.oy - self.offset_y)
+        self.offset_w = offset_w #- (self.oz - self.offset_z)
+    def set_xy_rotation(self, theta):
+        self.rotation_xy = theta
 
 class ArcsToSegmentsMixin:
     plane = 1
