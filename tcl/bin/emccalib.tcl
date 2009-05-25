@@ -109,19 +109,14 @@ $filemenu add command -label [msgcat::mc "Refresh"] \
 $filemenu add command -label [msgcat::mc "Save"] \
     -command {saveHAL save}
 
-
-
 # Make a text widget to hold the ini file
 set initext [text $top.initext]
 set haltext [text $top.haltext]
 $initext config -state normal
 $initext delete 1.0 end
-if {[catch {open $thisinifile} programin]} {
-    return 
-} else {
-    $initext insert end [read $programin]
-    catch {close $programin}
-}
+set programin [open $thisinifile]
+$initext insert end [read $programin]
+close $programin
 
 # setup array with section names and line numbers
 array set sectionarray {}
@@ -178,7 +173,7 @@ proc makeIniTune {} {
         if {[catch {open $fname} programin]} {
             return
         } else {
-            $haltext insert end [read $programin]
+            $haltext insert end [halcmdSubstitute [read $programin]]
             catch {close $programin}
         }
 
@@ -198,6 +193,7 @@ proc makeIniTune {} {
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
                         set thishalcommand [lindex $tmpstring 1]
+                        set thishalcommand [halcmdSubstitute $thishalcommand]
 			set tmpval [string trim [hal getp $thishalcommand]]
                         global axis$j-$lowername axis$j-$lowername-next
                         set axis$j-$lowername $tmpval
@@ -430,6 +426,28 @@ proc saveIni {which} {
             killHalConfig
         }
     }
+}
+
+proc halcmdSubstitute {s} {
+    set pat {\[([^]]+)\](\([^)]+\)|[^() \r\n\t]+)}
+    set pos 0
+    set result {}
+    while {$pos < [string length s]
+            && [regexp -start $pos -indices $pat $s indx]} {
+        set start [lindex $indx 0]
+        set end [lindex $indx 1]
+
+        append result [string range $s $pos [expr $start-1]]
+
+        set query [string range $s $start $end]
+        regexp $pat $s - section var
+        set var [regsub {\((.*)\)} $var {\1}]
+        append result [emc_ini $var $section]
+        
+        set pos [expr $end+1]
+    }
+    append result [string range $s $pos end]
+    return $result
 }
 
 proc saveFile {filename contents} {
