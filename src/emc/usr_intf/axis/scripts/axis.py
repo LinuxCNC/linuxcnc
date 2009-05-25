@@ -1060,6 +1060,14 @@ class MyOpengl(Opengl):
                 positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
                 positions = [(i-j) for i, j in zip(positions, s.origin)]
 
+                s.poll()
+                t = -s.rotation_xy
+                t = math.radians(t)
+                x = positions[0]
+                y = positions[1]
+                positions[0] = x * math.cos(t) - y * math.sin(t)
+                positions[1] = x * math.sin(t) + y * math.cos(t)
+
             positions = to_internal_units(positions)
             axisdtg = to_internal_units(s.dtg)
 
