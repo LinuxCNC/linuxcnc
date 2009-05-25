@@ -3456,6 +3456,9 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     // get configuration information
     iniLoad(EMC_INIFILE);
 
+    // update tcl's idea of the inifile name
+    Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+
     // init NML
     if (0 != tryNml()) {
         Tcl_SetResult(interp, "can't connect to emc\n", TCL_STATIC);
