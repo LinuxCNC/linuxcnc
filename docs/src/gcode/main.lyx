@@ -468,7 +468,7 @@ Coordinate System Origin Setting
 
 \layout Standard
 
-P X Y Z A B C
+P R X Y Z A B C
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -2779,7 +2779,7 @@ G10 L2 Set Coordinate System
 
 \layout Quote
 
-G10 L2 P[coordinate system] 
+G10 L2 P[coordinate system] R[rotation about Z] 
 \family typewriter 
 \emph on 
 axes
@@ -2795,7 +2795,7 @@ The coordinate system is described in Section
 
 To set the origin of a coordinate system, program 
 \family typewriter 
-G10 L2 P- 
+G10 L2 P- R- 
 \emph on 
 axes
 \family default 
@@ -2808,7 +2808,8 @@ G54
 \family typewriter 
 G59.3
 \family default 
-) and all axis words are optional.
+) and optionally R to indicate the rotation of the XY axis around the Z
+ and all axis words are optional.
  The origin of the coordinate system specified by the P number is set to
  the given values (in terms of the not offset machine coordinate system).
  Only those coordinates for which an axis word is included on the line will
@@ -2822,6 +2823,19 @@ G91
 G10 L2
 \family default 
 .
+ The direction of rotation is CCW as viewed from the Top View.
+\layout Standard
+
+Important Concepts:
+\layout Itemize
+
+G10 Pn does not change from the current coordinate system to the one specified
+ by P, you have to use G54-59.3 to select a coordinate system.
+\layout Itemize
+
+When a rotation is in effect jogging an axis will only move that axis in
+ a positive or negative direction and not along the rotated axis.
+ 
 \layout Standard
 
 It is an error if: 
