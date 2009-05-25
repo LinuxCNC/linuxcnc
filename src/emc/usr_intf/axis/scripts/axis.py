@@ -1056,9 +1056,8 @@ class MyOpengl(Opengl):
             else:
                 positions = s.actual_position
 
-            positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
-
             if vars.coord_type.get():
+                positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
                 positions = [(i-j) for i, j in zip(positions, s.origin)]
 
             positions = to_internal_units(positions)
