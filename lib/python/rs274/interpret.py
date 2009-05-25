@@ -55,9 +55,19 @@ class ArcsToSegmentsMixin:
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
         if self.plane == 1:
+            t = self.rotation_xy
+            t = math.radians(t)
+            rotx = x1 * math.cos(t) - y1 * math.sin(t)
+            roty = x1 * math.sin(t) + y1 * math.cos(t)
+            x1 = rotx
+            y1 = roty
             f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a, b, c, u, v, w]
-            cx=cx+self.offset_x
-            cy=cy+self.offset_y
+            rotcx = cx * math.cos(t) - cy * math.sin(t)
+            rotcy = cx * math.sin(t) + cy * math.cos(t)
+            cx = rotcx
+            cy = rotcy
+            cx += self.offset_x
+            cy += self.offset_y
             xyz = [0,1,2]
         elif self.plane == 3:
             f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, u, v, w]
@@ -72,7 +82,10 @@ class ArcsToSegmentsMixin:
         o = self.lo[:]
         theta1 = math.atan2(o[xyz[1]]-cy, o[xyz[0]]-cx)
         theta2 = math.atan2(n[xyz[1]]-cy, n[xyz[0]]-cx)
-        rad = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
+
+        # these ought to be the same, but go ahead and display them if not, for debugging
+        rad1 = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
+        rad2 = math.hypot(n[xyz[0]]-cx, n[xyz[1]]-cy)
 
         if rot < 0:
             if theta2 >= theta1: theta2 -= math.pi * 2
@@ -86,6 +99,7 @@ class ArcsToSegmentsMixin:
         p = [0] * 9
         for i in range(1, steps):
             theta = interp(theta1, theta2)
+            rad = interp(rad1, rad2)
             p[xyz[0]] = math.cos(theta) * rad + cx
             p[xyz[1]] = math.sin(theta) * rad + cy
             p[xyz[2]] = interp(o[xyz[2]], n[xyz[2]])

@@ -1372,9 +1372,11 @@ void ARC_FEED(int line_number,
     double mx, my;
 
     double lx, ly, lz;
+    double unused=0;
 
     get_last_pos(lx, ly, lz);
 
+    // XXX rotation?
     if( (activePlane == CANON_PLANE_XY)
             && canonMotionMode == CANON_CONTINUOUS
             && chord_deviation(lx, ly,
@@ -1402,7 +1404,6 @@ void ARC_FEED(int line_number,
     circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
 
-    double unused=0;
     a = FROM_PROG_ANG(a);
     b = FROM_PROG_ANG(b);
     c = FROM_PROG_ANG(c);
@@ -1437,12 +1438,14 @@ void ARC_FEED(int line_number,
     case CANON_PLANE_XY:
 
 	// offset and align args properly
-	end.tran.x = offset_x(first_end);
-	end.tran.y = offset_y(second_end);
-	end.tran.z = offset_z(axis_end_point);
-	center.x = offset_x(first_axis);
-	center.y = offset_y(second_axis);
-	center.z = offset_z(end.tran.z);
+	end.tran.x = first_end;
+	end.tran.y = second_end;
+	end.tran.z = axis_end_point;
+        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
+	center.x = first_axis;
+	center.y = second_axis;
+	center.z = end.tran.z;
+        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
 	normal.x = 0.0;
 	normal.y = 0.0;
 	normal.z = 1.0;

@@ -3099,7 +3099,7 @@ class TclCommands(nf.TclCommands):
         if num == "G92":
             clear_command = "G92.1"
         else:
-            clear_command = "G10 L2 P%c" % num
+            clear_command = "G10 L2 P%c R0" % num
             for i, a in enumerate("XYZABCUVW"):
                 if s.axis_mask & (1<<i): clear_command += " %c0" % a
         c.mdi(clear_command)
