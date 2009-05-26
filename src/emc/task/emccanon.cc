@@ -1472,16 +1472,19 @@ void ARC_FEED(int line_number,
     case CANON_PLANE_YZ:
 
 	// offset and align args properly
-	end.tran.y = offset_y(first_end);
-	end.tran.z = offset_z(second_end);
-	end.tran.x = offset_x(axis_end_point);
+	end.tran.y = first_end;
+	end.tran.z = second_end;
+	end.tran.x = axis_end_point;
+        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
 
-	center.y = offset_y(first_axis);
-	center.z = offset_z(second_axis);
-	center.x = offset_x(end.tran.x);
+        center.y = first_axis;
+        center.z = second_axis;
+	center.x = end.tran.x;
+        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
 	normal.y = 0.0;
 	normal.z = 0.0;
 	normal.x = 1.0;
+        rotate(normal.x, normal.y, xy_rotation);
 
         theta1 = atan2(canonEndPoint.z - center.z, canonEndPoint.y - center.y);
         theta2 = atan2(end.tran.z - center.z, end.tran.y - center.y);
@@ -1506,16 +1509,19 @@ void ARC_FEED(int line_number,
     case CANON_PLANE_XZ:
 
 	// offset and align args properly
-	end.tran.z = offset_z(first_end);
-	end.tran.x = offset_x(second_end);
-	end.tran.y = offset_y(axis_end_point);
+	end.tran.z = first_end;
+	end.tran.x = second_end;
+	end.tran.y = axis_end_point;
+        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
 
-	center.z = offset_z(first_axis);
-	center.x = offset_x(second_axis);
-	center.y = offset_y(end.tran.y);
+	center.z = first_axis;
+	center.x = second_axis;
+	center.y = end.tran.y;
+        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
 	normal.z = 0.0;
 	normal.x = 0.0;
 	normal.y = 1.0;
+        rotate(normal.x, normal.y, xy_rotation);
 
         theta1 = atan2(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
         theta2 = atan2(end.tran.x - center.x, end.tran.z - center.z);
