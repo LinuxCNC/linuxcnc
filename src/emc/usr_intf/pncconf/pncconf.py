@@ -1152,10 +1152,16 @@ class Data:
                     if i: print >>file, "net %s <= "% (p)+pinname +".in_not"
                     else: print >>file, "net %s <= "% (p)+pinname +".in"
                 # for encoder pins
-                elif t in (ENCA,ENCB,ENCI,ENCM):
+                elif t in (ENCA):
                     if p == "unused-encoder":continue
                     if p in (self.halencoderinputsignames): 
-                        print >>file, "net %s <= hm2_%s.0.encoder.%02d"  % (p, board, truepinnum)    
+                        pinname = self.make_pinname(self.findsignal( p )) 
+                        sig = p.replace("-a","")
+                        print >>file, "net %s <= "% (sig+"-position")+pinname +".position"   
+                        print >>file, "net %s <= "% (sig+"-count")+pinname +".count"     
+                        print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity"
+                        print >>file, "net %s <= "% (sig+"-reset")+pinname +".reset"      
+                        print >>file, "net %s <= "% (sig+"-index-enable")+pinname +".index-enable"      
                 else: continue
 
     def connect_output(self, file):
@@ -1183,15 +1189,28 @@ class Data:
                     if i: print >>file, "    setp "+pinname+".invert_output true"
                     if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"                 
                 # for pwm pins
-                elif t in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                elif t in (PWMP,PDMP):
                     if p == "unused-pwm":continue
                     if p in (self.halpwmoutputsignames): 
-                        print >>file, "net %s <= hm2_%s.0.pwm.%02d"  % (p, board, truepinnum)  
+                        pinname = self.make_pinname(self.findsignal( p )) 
+                        sig = p.replace("-pulse","")
+                        if t == PWMP:
+                            print >>file, "    setp "+pinname +".output-type 1"
+                        elif t == PDMP:
+                            print >>file, "    setp "+pinname +".output-type 3"
+                        print >>file, "net %s <= "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s <= "% (sig+"-value")+pinname +".value" 
                 # for stepper pins
-                elif t in (STEPA,STEPB):
+                elif t == (STEPA):
                     if p == "unused-stepgen":continue
                     if p in (self.halsteppersignames): 
-                        print >>file, "net %s <= hm2_%s.0.stepgen.%02d"  % (p, board, truepinnum) 
+                        pinname = self.make_pinname(self.findsignal( p )) 
+                        sig = p.replace("-pulse","")
+                        print >>file, "net %s <= "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s <= "% (sig+"-count")+pinname +".counts" 
+                        print >>file, "net %s <= "% (sig+"-cmd-position")+pinname +".position-cmd"  
+                        print >>file, "net %s <= "% (sig+"-act-position")+pinname +".position-fb" 
+                        print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity-fb"
                 else:continue
 
     def write_halfile(self, base):
@@ -1765,7 +1784,7 @@ class Data:
                 elif pinnum == 13 + adj:truepinnum = 3 +((connum-2)*4) 
                 else:print "(encoder) pin number error pinnum = %d"% pinnum
             # PWMGen pins
-            elif ptype in (PWMP,PWMD,PWME):
+            elif ptype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
                 adj = 0
                 if signalname.endswith('dir'):adj = 2
                 if signalname.endswith('enable'):adj = 4         
@@ -2345,7 +2364,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
                 # type PWM gen
-                elif pintype == PWMP:
+                elif pintype in( PWMP,PDMP):
                     if not pin in (6,7,18,19):continue
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
@@ -2402,7 +2421,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                                     d = 'm5i20c%(con)dpin%(num)d' % {'con':4 ,'num': count}
                                     self.data[d] = signaltocheck[(index+3)*flag]
                 # for PWM pins
-                elif pintype == PWMP :
+                elif pintype in (PWMP,PDMP) :
                     if not foundit:
                         model = self.widgets[p].get_model()
                         model.append((selection+"-pulse",))
@@ -2616,7 +2635,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                         #print "asking for GPIO instead of ENCODER\n"
                         firmptype = GPIOI
                 # signal names for PWM
-                elif firmptype in ( PWMP,PWMD,PWME ):
+                elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     #print numofpwmgens,compnum+1,"pinnnum ",pin,"\n"
                     if numofpwmgens >= (compnum+1):
                         if not self.widgets[ptype].get_active_text() == firmptype:
@@ -2626,11 +2645,10 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                             model.append((firmptype,))
                             temp = pintype_names[12]
                             model.append((temp,))
-                            self.widgets[ptype].set_active(0)
                             model = self.widgets[p].get_model()
                             model.clear()
                             self.widgets[pinv].set_sensitive(0)
-                            if firmptype == PWMP:
+                            if firmptype in(PWMP,PDMP):
                                 temp = -1
                                 self.widgets[p].handler_block(self.data[blocksignal])
                                 for name in human_pwm_output_names:                       
@@ -2644,7 +2662,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[p].set_active(0)
                                 self.widgets[p].handler_unblock(self.data[blocksignal])
-                            if firmptype in (PWMD,PWME):
+                            if firmptype in (PWMD,PWME,PDMD,PDME):                             
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[p].handler_block(self.data[blocksignal])
                                 for name in human_pwm_output_names: model.append((name,))
@@ -2652,6 +2670,8 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                                 self.widgets[p].set_active(0) 
                                 self.widgets[ptype].set_sensitive(0)
                         if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
+                            if self.data[ptype] in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
+                            else:self.widgets[ptype].set_active(1)
                             #print self.data[p]
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
@@ -2809,7 +2829,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                 self.data.numof_mesa_encodergens = numofencoders
 
                 # This is for PWM / GPIO conversion               
-                if firmptype in (PWMP,PWMD,PWME):
+                if firmptype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
                     if numofpwmgens >= (compnum+1):
                         if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): continue
                         else:
