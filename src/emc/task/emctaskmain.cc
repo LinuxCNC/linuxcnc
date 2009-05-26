@@ -378,8 +378,8 @@ static EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
 static int interpResumeState = EMC_TASK_INTERP_IDLE;
 static int programStartLine = 0;	// which line to run program from
 // how long the interp list can be
-/*! \todo FIXME-- make an ini file global */
-#define EMC_TASK_INTERP_MAX_LEN 1000
+
+static int EMC_TASK_INTERP_MAX_LEN;
 
 int stepping = 0;
 int steppingWait = 0;
@@ -1025,7 +1025,7 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.w);
 			    }
 
-                            if (count++ < 1000
+                            if (count++ < EMC_TASK_INTERP_MAX_LEN
                                     && emcStatus->task.interpState == EMC_TASK_INTERP_READING
                                     && interp_list.len() <= EMC_TASK_INTERP_MAX_LEN * 2/3) {
                                 goto interpret_again;
@@ -2810,6 +2810,7 @@ static int iniLoad(const char *filename)
     const char *inistring;
     char version[LINELEN], machine[LINELEN];
     double saveDouble;
+    int saveInt;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2852,6 +2853,17 @@ static int iniLoad(const char *filename)
 	strcpy(EMC_NMLFILE, inistring);
     } else {
 	// not found, use default
+    }
+
+    saveInt = EMC_TASK_INTERP_MAX_LEN; //remember default or previously set value
+    if (NULL != (inistring = inifile.Find("INTERP_MAX_LEN", "TASK"))) {
+	if (1 == sscanf(inistring, "%d", &EMC_TASK_INTERP_MAX_LEN)) {
+	    if (EMC_TASK_INTERP_MAX_LEN <= 0) {
+	    	EMC_TASK_INTERP_MAX_LEN = saveInt;
+	    }
+	} else {
+	    EMC_TASK_INTERP_MAX_LEN = saveInt;
+	}
     }
 
     if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {

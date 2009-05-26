@@ -33,6 +33,9 @@ extern "C" {
 /* cycle time for emctio, in seconds */
 #define DEFAULT_EMC_IO_CYCLE_TIME 0.100
 
+/* default interp len */
+#define DEFAULT_EMC_TASK_INTERP_MAX_LEN 1000
+
 /* default name of EMC_TOOL tool table file */
 #define DEFAULT_TOOL_TABLE_FILE "tool.tbl"
 
