@@ -390,7 +390,7 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
          (reference == CANON_WORKPIECE) ? "CANON_WORKPIECE" : "CANON_XYZ");
 }
 
-extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode)
+extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
   if (mode == CANON_EXACT_STOP)
     {
@@ -404,11 +404,16 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode)
     }
   else if (mode == CANON_CONTINUOUS)
     {
-      PRINT0("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS)\n");
+      PRINT1("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, %f)\n", tolerance);
       _motion_mode = CANON_CONTINUOUS;
     }
   else
     PRINT0("SET_MOTION_CONTROL_MODE(UNKNOWN)\n");
+}
+
+extern void SET_NAIVECAM_TOLERANCE(double tolerance)
+{
+  PRINT1("SET_NAIVECAM_TOLERANCE(%.4f)\n", tolerance);
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
@@ -445,8 +450,7 @@ std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
 {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
-  fprintf(_outfile, "NURBS_FEED(%d\n",
-  nurbs_control_points.size());
+  fprintf(_outfile, "NURBS_FEED(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
 
   _program_position_x = nurbs_control_points[nurbs_control_points.size()].X;
   _program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
@@ -939,8 +943,6 @@ int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
 void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
 CANON_MOTION_MODE motion_mode;
-void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance) { _motion_mode = mode; }
-void SET_MOTION_CONTROL_MODE(double tolerance) { }
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }

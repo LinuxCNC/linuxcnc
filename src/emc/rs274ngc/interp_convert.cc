@@ -1440,6 +1440,7 @@ already in force.
 
 int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
 				double tolerance,    //tolerance for the path following in G64
+				double naivecam_tolerance,    //tolerance for the naivecam
                                 setup_pointer settings) //!< pointer to machine settings                 
 {
   CHKS((settings->cutter_comp_side != OFF),
@@ -1455,6 +1456,13 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
 	} else {
 	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
+	}
+	if (naivecam_tolerance >= 0) {
+	    SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
+	} else if (tolerance >= 0) {
+	    SET_NAIVECAM_TOLERANCE(tolerance);   // if no naivecam_tolerance specified use same for both
+	} else {
+	    SET_NAIVECAM_TOLERANCE(0);
 	}
     settings->control_mode = CANON_CONTINUOUS;
   } else 
@@ -2178,7 +2186,7 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     CHP(convert_coordinate_system(block->g_modes[12], settings));
   }
   if (block->g_modes[13] != -1) {
-    CHP(convert_control_mode(block->g_modes[13], block->p_number, settings));
+    CHP(convert_control_mode(block->g_modes[13], block->p_number, block->q_number, settings));
   }
   if (block->g_modes[3] != -1) {
     CHP(convert_distance_mode(block->g_modes[3], settings));

@@ -344,6 +344,8 @@ extern void SET_FEED_MODE(int mode);
 
 extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance);
 
+extern void SET_NAIVECAM_TOLERANCE(double tolerance);
+
 /*
 
 This sets the motion control mode to one of: CANON_EXACT_STOP,

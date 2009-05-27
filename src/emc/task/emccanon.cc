@@ -371,6 +371,7 @@ static CANON_MOTION_MODE canonMotionMode = 0;
    almost any deviation trying to keep speed up. */
 static double canonMotionTolerance = 0.0;
 
+static double canonNaivecamTolerance = 0.0;
 
 /* Spindle speed is saved here */
 static double spindleSpeed = 0.0;
@@ -862,7 +863,7 @@ linkable(double x, double y, double z,
          double a, double b, double c, 
          double u, double v, double w) {
     struct pt &pos = chained_points().back();
-    if(canonMotionMode != CANON_CONTINUOUS || canonMotionTolerance == 0)
+    if(canonMotionMode != CANON_CONTINUOUS || canonNaivecamTolerance == 0)
         return false;
 
     if(chained_points().size() > 100) return false;
@@ -1094,6 +1095,16 @@ CANON_MOTION_MODE GET_MOTION_CONTROL_MODE()
 double GET_MOTION_CONTROL_TOLERANCE()
 {
     return canonMotionTolerance;
+}
+
+void SET_NAIVECAM_TOLERANCE(double tolerance)
+{
+    canonNaivecamTolerance =  FROM_PROG_LEN(tolerance);
+}
+
+double GET_NAIVECAM_TOLERANCE()
+{
+    return canonNaivecamTolerance;
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
@@ -1382,7 +1393,7 @@ void ARC_FEED(int line_number,
             && chord_deviation(lx, ly,
                 offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
                 offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
-                rotation, mx, my) < canonMotionTolerance) {
+                rotation, mx, my) < canonNaivecamTolerance) {
         double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
         rotate_and_offset_pos(x, y, z, a, b, c, u, v, w);
         see_segment(line_number, mx, my,
