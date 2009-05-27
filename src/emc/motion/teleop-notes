@@ -61,3 +61,39 @@ Mode transition rules:
   if you don't have forward kins, you can only switch to teleop or coord mode when all joints are _at_ their home position
 
 
+the main problem is how to obey constraints in joint space when the motion is being
+generated in axis space (by either the coord mode planner or the single-axis planners)
+
+random thoughts on constraints
+
+At any servo period, the joint level code will have "most recent joint pos cmd from kins" 
+and "previous joint pos cmd from kins", which can be turned into "joint vel cmd".
+Given the joint vel limit, we can compute "percent of joint vel that is being used.
+Also, given joint accel limit, we can compute "time to stop the joint".
+We could then select the highest "percent of vel being used" from all the joints,
+and the longest "time to stop the joint", and do "something" back at the axis level
+with that info.  But what?
+
+Thinking only about the single axis planners for now...
+
+I don't really see any reason to have axis vel and accel limits in the ini file.  The
+machine's mechanical limits are related to the joints, not the axes.  So the axes should
+simply limiit themselves to whatever will keep the joints happy.
+
+If the limits for the single axis planners aren't in the ini file, we need to derive
+them somehow.  That is the root problem.
+
+Suppose we are already moving at some velocity Vx in the single axis X planner.  That
+results in movements of one or more joints, and thus we have a value for "worst % of
+joint vel being used" and "worst time to stop a joint".  We could set the X axis planner's
+accel limit to ( Vx / worst_stop_time ).  This blows up when worst_stop_time approaches
+zero (which is the case at zero speed).  It also results in a zero accel limit for any
+axis that isn't already moving, which means it could never start moving...
+
+So maybe this is stupid, but let's think the rest of it thru anyway...  the above is
+the accel limit, what about velocity limit.  If X is moving at Vx, and the worst
+joint is using 55% of that joint's vel limit, then the X velocity limit should be 
+( Vx / 0.55 ).  Again, it blows up when "percent of limit being used" is zero, and
+any axis that isn't already being moved will have a limit of zero.
+
+
