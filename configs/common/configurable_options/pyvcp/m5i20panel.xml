@@ -1073,7 +1073,7 @@
             	<labelframe text="DAC 4">	            
 	            <hbox>
 	                <checkbutton>
-                        <halpin>"dac4.enbl"</halpin>
+                        <halpin>"dac.4.enbl"</halpin>
                     </checkbutton>
                     <label>
                         <text>"Enable"</text>
