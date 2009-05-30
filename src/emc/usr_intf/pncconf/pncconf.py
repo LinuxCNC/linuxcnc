@@ -1,7 +1,7 @@
 #!/usr/bin/python2.4
 # -*- encoding: utf-8 -*-
 #    This is pncconf, a graphical configuration editor for EMC2
-#    Chris Morley
+#    Chris Morley copyright 2009
 #    This is based from stepconf, a graphical configuration editor for emc2
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
@@ -1228,6 +1228,7 @@ class Data:
             print >>file, "loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)"
             if self.numof_mesa_pwmgens > 0:
                 print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
+                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pdm_frequency %d"% self.mesa_pdm_frequency
             print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
 
         if self.number_pports>0:
@@ -3799,7 +3800,11 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         return True
 
     def m5i20test(self,w):
-        board = self.data.mesa_boardname
+        board = self.data.mesa_currentfirmwaredata[0]
+        firmware = self.data.mesa_currentfirmwaredata[1]         
+        if board in( "5i22", "7i43"):
+            self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
+
         #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
@@ -3819,15 +3824,17 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         halrun.write("loadusr -Wn m5i20test pyvcp -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter\n")
         halrun.write("loadusr halmeter\n")
-        for connector in (2,3,4):
-           for pin in range(0,24):
+        
+        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
+            for pin in range (0,24):
+                firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
-                pintype = self.data[ptype]
+                pintype = self.widgets[ptype].get_active_text()
                 pininv = self.widgets[pinv].get_active()
-                truepinnum = (connector-2)*24+ pin
+                truepinnum = (concount*24) + pin
                 # for output / open drain pins
-                if  pintype in (1,2):                
+                if  pintype in (GPIOO,GPIOD):                
                     halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
                     halrun.write("setp m5i20test.button.%d.disable false\n"% truepinnum )
                     halrun.write("setp hm2_%s.0.gpio.%03d.is_output true\n"% (board,truepinnum ))
@@ -3836,30 +3843,28 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                     halrun.write("net pushbutton.%d or2.%d.in1 m5i20test.button.%d\n"% (truepinnum,truepinnum,truepinnum))
                     halrun.write("net latchbutton.%d or2.%d.in0 m5i20test.checkbutton.%d\n"% (truepinnum,truepinnum,truepinnum))
                 # for input pins
-                elif pintype == 0:                                    
+                elif pintype == GPIOI:                                    
                     halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
                     halrun.write("setp m5i20test.led.%d.disable false\n"% truepinnum )
                     if pininv:  halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in_not m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
                     else:   halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
                 # for encoder pins
-                elif pintype == 3:
+                elif pintype in (ENCA,ENCB,ENCI,ENCM):
                     halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
                     halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )                   
-                    if not pin in (0,2,12,14):
-                        continue                 
-                    if pin == 2 :encpinnum = (connector-2)*4 
-                    elif pin == 0 :encpinnum = 1+((connector-2)*4) 
-                    elif pin == 14 :encpinnum = 2+((connector-2)*4) 
-                    elif pin == 12 :encpinnum = 3+((connector-2)*4) 
+                    if not pintype == ENCA: continue                 
+                    if pin == 3 :encpinnum = (connector-2)*4 
+                    elif pin == 1 :encpinnum = 1+((connector-2)*4) 
+                    elif pin == 15 :encpinnum = 2+((connector-2)*4) 
+                    elif pin == 13 :encpinnum = 3+((connector-2)*4) 
                     halrun.write("setp m5i20test.enc.%d.reset.disable false\n"% encpinnum )
                     halrun.write("net yellow_reset%d hm2_%s.0.encoder.%02d.reset m5i20test.enc.%d.reset\n"% (encpinnum,board,encpinnum,encpinnum))
                     halrun.write("net yellow_count%d hm2_%s.0.encoder.%02d.count m5i20test.number.%d\n"% (encpinnum,board,encpinnum,encpinnum))
                 # for PWM pins
-                elif pintype == 4:
+                elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
                     halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
                     halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
-                    if not pin in (6,7,18,19):
-                        continue    
+                    if not pintype in (PWMP,PDMP): continue    
                     if pin == 7 :encpinnum = (connector-2)*4 
                     elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
                     elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
@@ -3867,22 +3872,24 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                     halrun.write("net green_enable%d hm2_%s.0.pwmgen.%02d.enable m5i20test.dac.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum)) 
                     halrun.write("net green_value%d hm2_%s.0.pwmgen.%02d.value m5i20test.dac.%d-f\n"% (encpinnum,board,encpinnum,encpinnum)) 
                 # for Stepgen pins
-                elif pintype == 5:
+                elif pintype in (STEPA,STEPB):
                     halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
                     halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum ) 
-                    if not pin in (0,6,12,18):
-                        continue 
-                    if pin == 0 :encpinnum = 0
-                    elif pin == 6 :encpinnum = 1 
-                    elif pin == 12 :encpinnum = 2 
-                    elif pin == 18 :encpinnum = 3 
-                    halrun.write("net brown_enable%d hm2_%s.0.stepgen.%02d.enable m5i20test.step.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum))
-                    halrun.write("net brown_value%d hm2_%s.0.stepgen.%02d.position-cmd m5i20test.anaout.%d\n"% (encpinnum,board,encpinnum,encpinnum))
-                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,encpinnum))
-                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,encpinnum))
-                else: 
-                    print "pintype error"
+                    if not pintype == STEPA : continue 
                     
+                    halrun.write("net brown_enable%d hm2_%s.0.stepgen.%02d.enable m5i20test.step.%d.enbl\n"% (compnum,board,compnum,compnum))
+                    halrun.write("net brown_value%d hm2_%s.0.stepgen.%02d.position-cmd m5i20test.anaout.%d\n"% (compnum,board,compnum,compnum))
+                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                else: 
+                    print "pintype error IN mesa test panel method %s"% pintype
+        if not board == "5i22":
+                for pin in range (0,24):
+                    truepinnum = (72) + pin
+                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
+                for pin in range (8,12):
+                    halrun.write("setp m5i20test.enc.%d.reset.disable true\n"% pin )
         halrun.write("waitusr m5i20test\n"); halrun.flush()
         halrun.close()
         #terminal.close()
