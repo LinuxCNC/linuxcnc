@@ -1279,6 +1279,8 @@ class App:
         self.data.ioaddr = self.widgets.ioaddr.get_text()
         self.data.ioaddr2 = self.widgets.ioaddr2.get_text()
         self.data.ioaddr3 = self.widgets.ioaddr3.get_text()
+        self.data.pp2_direction = self.widgets.pp2_direction.get_active()
+        self.data.pp3_direction = self.widgets.pp3_direction.get_active()
         if self.widgets.pp3_checkbutton.get_active() and self.widgets.pp2_checkbutton.get_active():
             self.data.number_pports = 3
         elif self.widgets.pp2_checkbutton.get_active():
