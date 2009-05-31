@@ -88,7 +88,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  2000
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  [AXIS_0]INPUT_SCALE
 net motor.00.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.00.position => pid.0.feedback
 net motor.00.pos-fb => axis.0.motor-pos-fb #push copy back to Axis GUI
 
@@ -128,7 +128,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  2000
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  [AXIS_1]INPUT_SCALE
 net motor.01.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.01.position => pid.1.feedback
 net motor.01.pos-fb => axis.1.motor-pos-fb #push copy back to Axis GUI
 
@@ -168,7 +168,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-invert 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask 0
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask-invert 0
 
-setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  2000
+setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  [AXIS_2]INPUT_SCALE
 net motor.02.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.02.position => pid.2.feedback
 net motor.02.pos-fb => axis.2.motor-pos-fb #push copy back to Axis GUI
 
