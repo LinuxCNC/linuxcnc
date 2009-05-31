@@ -1,13 +1,11 @@
-
-  * stepconf: Fix second and third parport direction settings (in/out) 
-    not following the user request.
-
 emc2 (1:2.3.2~pre) hardy; urgency=low
 
+  * stepconf: Fix second and third parport direction settings (in/out)
+    not following the user request.
   * Increase the HAL shared memory area.  This fixes problems loading complex
     configurations, such as those that use two mesa cards
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 17 May 2009 09:41:30 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 31 May 2009 12:29:40 -0500
 
 emc2 (1:2.3.1) hardy; urgency=low
 
