@@ -201,7 +201,6 @@ static PyTypeObject Ini_Type = {
     0,                      /*tp_is_gc*/
 };
 
-
 #define EMC_COMMAND_TIMEOUT 2.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
@@ -221,7 +220,6 @@ static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {
     }
     return -1;
 }
-
 
 static void emcWaitCommandReceived(int serial_number, RCS_STAT_CHANNEL *s) {
     double start = etime();
@@ -273,23 +271,6 @@ static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
     return true;
 }
 
-static bool wait_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
-    if(!emcStatusBuffer->valid()) { 
-        PyErr_Format( error, "emcStatusBuffer invalid" );
-        return false;
-    }
-    while(emcStatusBuffer->peek() != EMC_STAT_TYPE) {
-        usleep(10000); 
-    }
-    return true;
-}
-
-static PyObject *gettaskfile(pyStatChannel *s, PyObject *o) {
-    if(!wait_stat(s->c)) return NULL;
-    EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
-    return PyString_FromString(emcStatus->task.file);
-}
-
 static PyObject *poll(pyStatChannel *s, PyObject *o) {
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
@@ -302,20 +283,10 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
 
 static PyMethodDef Stat_methods[] = {
     {"poll", (PyCFunction)poll, METH_NOARGS, "Update current machine state"},
-    {"gettaskfile", (PyCFunction)gettaskfile, METH_NOARGS,
-                                             "Get current task file"},
     {NULL}
 };
 
-
 #define O(x) offsetof(pyStatChannel,status.x)
-#define POS(prefix, member) \
-    {prefix "x", T_DOUBLE, O(member.tran.x), READONLY}, \
-    {prefix "y", T_DOUBLE, O(member.tran.y), READONLY}, \
-    {prefix "z", T_DOUBLE, O(member.tran.z), READONLY}, \
-    {prefix "a", T_DOUBLE, O(member.a), READONLY}, \
-    {prefix "b", T_DOUBLE, O(member.b), READONLY}, \
-    {prefix "c", T_DOUBLE, O(member.c), READONLY}
 static PyMemberDef Stat_members[] = {
 // stat 
     {"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
@@ -377,7 +348,6 @@ static PyMemberDef Stat_members[] = {
 // EMC_TOOL_STAT io.tool
     {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
     {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
-    
 
 // EMC_SPINDLE_STAT motion.spindle
     {"spindle_speed", T_DOUBLE, O(motion.spindle.speed), READONLY},
@@ -600,7 +570,6 @@ static PyStructSequence_Desc tool_result_desc = {
     7
 };
 
-
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
@@ -722,7 +691,6 @@ static void Command_dealloc(PyObject *self) {
     PyObject_Del(self);
 }
 
-
 static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
     int t;
     EMC_TASK_PLAN_SET_BLOCK_DELETE m;
@@ -737,7 +705,6 @@ static PyObject *block_delete(pyCommandChannel *s, PyObject *o) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
 
 static PyObject *optional_stop(pyCommandChannel *s, PyObject *o) {
     int t;
@@ -802,7 +769,6 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
@@ -1229,7 +1195,6 @@ static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-
 static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
     EMC_AXIS_SET_MAX_POSITION_LIMIT m;
     if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
@@ -1386,7 +1351,6 @@ static PyTypeObject Command_Type = {
     0,                      /*tp_is_gc*/
 };
 
-
 static int Error_init(pyErrorChannel *self, PyObject *a, PyObject *k) {
     char *file = get_nmlfile();
     if(file == NULL) return -1;
@@ -1528,8 +1492,6 @@ static void rotate_x(double pt[3], double a) {
     pt[1] = tx; pt[2] = tz;
 }
 
-
-
 static void translate(double pt[3], double ox, double oy, double oz) {
     pt[0] += ox;
     pt[1] += oy;
@@ -1558,7 +1520,6 @@ static void vertex9(const double pt[9], double p[3], const char *geometry) {
         }
     }
 }
-
 
 static void glvertex9(const double pt[9], const char *geometry) {
     double p[3];
@@ -1590,6 +1551,7 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
         glvertex9(p2, geometry);
     }
 }
+
 static void line9b(const double p1[9], const double p2[9], const char *geometry) {
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
