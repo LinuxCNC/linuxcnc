@@ -132,18 +132,20 @@ extern "C" {
 #error HAL needs RTAPI/ULAPI, check makefile and flags
 #endif
 
+#include <rtapi_errno.h>
+
 /** These status codes are returned by many HAL functions. */
 
-#define HAL_SUCCESS       0	/* call successfull */
-#define HAL_UNSUP        -1	/* function not supported */
-#define HAL_BADVAR       -2	/* duplicate or not-found variable name */
-#define HAL_INVAL        -3	/* invalid argument */
-#define HAL_NOMEM        -4	/* not enough memory */
-#define HAL_LIMIT        -5	/* resource limit reached */
-#define HAL_PERM         -6	/* permission denied */
-#define HAL_BUSY         -7	/* resource is busy or locked */
-#define HAL_NOTFND       -8	/* object not found */
-#define HAL_FAIL         -9	/* operation failed */
+#define HAL_SUCCESS       0	 /* call successfull */
+#define HAL_UNSUP        -ENOSYS /* function not supported */
+#define HAL_BADVAR       -ENOENT /* duplicate or not-found variable name */
+#define HAL_INVAL        -EINVAL /* invalid argument */
+#define HAL_NOMEM        -ENOMEM /* not enough memory */
+#define HAL_LIMIT        -EMFILE /* resource limit reached */
+#define HAL_PERM         -EPERM	 /* permission denied */
+#define HAL_BUSY         -EBUSY  /* resource is busy or locked */
+#define HAL_NOTFND       -ENOENT /* object not found */
+#define HAL_FAIL         -EINVAL /* operation failed */
 
 #define HAL_NAME_LEN     41	/* length for pin, signal, etc, names */
 

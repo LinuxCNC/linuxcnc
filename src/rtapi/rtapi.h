@@ -73,19 +73,20 @@
     space, the non-underscore types should NEVER be used.
 */
 #include <asm/types.h>
+#include <rtapi_errno.h>
 
 /** These status codes are returned by many RTAPI functions. */
 
-#define RTAPI_SUCCESS     0	/* call successfull */
-#define RTAPI_UNSUP      -1	/* function not supported */
-#define RTAPI_BADID      -2	/* bad task, shmem, sem, or fifo ID */
-#define RTAPI_INVAL      -3	/* invalid argument */
-#define RTAPI_NOMEM      -4	/* not enough memory */
-#define RTAPI_LIMIT      -5	/* resource limit reached */
-#define RTAPI_PERM       -6	/* permission denied */
-#define RTAPI_BUSY       -7	/* resource is busy or locked */
-#define RTAPI_NOTFND     -8	/* object not found */
-#define RTAPI_FAIL       -9	/* operation failed */
+#define RTAPI_SUCCESS     0	 /* call successfull */
+#define RTAPI_UNSUP      -ENOSYS /* function not supported */
+#define RTAPI_BADID      -ENXIO	 /* bad task, shmem, sem, or fifo ID */
+#define RTAPI_INVAL      -EINVAL /* invalid argument */
+#define RTAPI_NOMEM      -ENOMEM /* not enough memory */
+#define RTAPI_LIMIT      -EMFILE /* resource limit reached */
+#define RTAPI_PERM       -EPERM	 /* permission denied */
+#define RTAPI_BUSY       -EBUSY	 /* resource is busy or locked */
+#define RTAPI_NOTFND     -ENOENT /* object not found */
+#define RTAPI_FAIL       -EINVAL /* operation failed */
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 

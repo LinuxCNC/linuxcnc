@@ -76,58 +76,12 @@ typedef struct halobject {
 PyObject *pyhal_error_type = NULL;
 
 static PyObject *pyrtapi_error(int code) {
-    switch(code) {
-	case RTAPI_SUCCESS:
-            PyErr_SetString(pyhal_error_type, "Call Successful"); break;
-        case RTAPI_UNSUP:
-            PyErr_SetString(pyhal_error_type, "Function not supported"); break;
-        case RTAPI_BADID:
-            PyErr_SetString(pyhal_error_type, "Bad Identifier"); break;
-        case RTAPI_INVAL:
-            PyErr_SetString(pyhal_error_type, "Invalid argument"); break;
-        case RTAPI_NOMEM:
-            PyErr_SetString(pyhal_error_type, "Not enough memory"); break;
-        case RTAPI_LIMIT:
-            PyErr_SetString(pyhal_error_type, "Resource limit reached"); break;
-        case RTAPI_PERM:
-            PyErr_SetString(pyhal_error_type, "Permission denied"); break;
-        case RTAPI_BUSY:
-            PyErr_SetString(pyhal_error_type, "Resource is busy or locked"); break;
-        case RTAPI_FAIL:
-            PyErr_SetString(pyhal_error_type, "Operation failed"); break;
-        default:
-            PyErr_Format(pyhal_error_type, "Unknown RTAPI error code %d", code);
-    }
+    PyErr_SetString(pyhal_error_type, strerror(-code));
     return NULL;
 }
 
 static PyObject *pyhal_error(int code) {
-    switch(code) {
-        case HAL_SUCCESS:
-            PyErr_SetString(pyhal_error_type, "Call Successful"); break;
-        case HAL_UNSUP:
-            PyErr_SetString(pyhal_error_type, "Function not supported"); break;
-        case HAL_BADVAR:
-            PyErr_SetString(pyhal_error_type, "Duplicate or not-found variable name"); break;
-        case HAL_INVAL:
-            PyErr_SetString(pyhal_error_type, "Invalid argument"); break;
-        case HAL_NOMEM:
-            PyErr_SetString(pyhal_error_type, "Not enough memory"); break;
-        case HAL_LIMIT:
-            PyErr_SetString(pyhal_error_type, "Resource limit reached"); break;
-        case HAL_PERM:
-            PyErr_SetString(pyhal_error_type, "Permission Denied"); break;
-        case HAL_BUSY:
-            PyErr_SetString(pyhal_error_type, "Resources is busy or locked");
-            break;
-        case HAL_NOTFND:
-            PyErr_SetString(pyhal_error_type, "Object not found"); break;
-        case HAL_FAIL:
-            PyErr_SetString(pyhal_error_type, "Operation failed"); break;
-        default:
-            PyErr_Format(pyhal_error_type, "Unknown HAL error code %d", code);
-            break;
-    }
+    PyErr_SetString(pyhal_error_type, strerror(-code));
     return NULL;
 }
 
