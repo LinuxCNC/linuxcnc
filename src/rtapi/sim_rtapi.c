@@ -127,7 +127,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
   if(nsecs == 0) return period;
   if(period != 0) {
       rtapi_print_msg(RTAPI_MSG_ERR, "attempt to set period twice\n");
-      return RTAPI_INVAL;
+      return -EINVAL;
   }
   period = nsecs;
   gettimeofday(&schedule, NULL);
@@ -155,7 +155,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
   /* check requested priority */
   if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
@@ -177,12 +177,12 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 int rtapi_task_delete(int id) {
   struct rtapi_task *task;
 
-  if(id < 0 || id >= MAX_TASKS) return RTAPI_INVAL;
+  if(id < 0 || id >= MAX_TASKS) return -EINVAL;
 
   task = &(task_array[id]);
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   pth_uctx_destroy(task->ctx);
   
@@ -214,13 +214,13 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   struct rtapi_task *task;
   int retval;
 
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
 
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   if(period_nsec < period) period_nsec = period;
   task->period = period_nsec;
@@ -243,13 +243,13 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 int rtapi_task_stop(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
 
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   pth_uctx_destroy(task->ctx);
 
@@ -259,13 +259,13 @@ int rtapi_task_stop(int task_id)
 int rtapi_task_pause(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   return -ENOSYS;
 }
@@ -273,13 +273,13 @@ int rtapi_task_pause(int task_id)
 int rtapi_task_resume(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   return -ENOSYS;
 }
@@ -289,13 +289,13 @@ int rtapi_task_set_period(int task_id,
 			  unsigned long int period_nsec)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   task->period = period_nsec;
 

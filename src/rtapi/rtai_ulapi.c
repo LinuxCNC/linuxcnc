@@ -178,7 +178,7 @@ int rtapi_exit(int module_id)
     if (rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: exit called before init\n");
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %02d exiting\n", module_id);
     /* validate module ID */
@@ -195,7 +195,7 @@ int rtapi_exit(int module_id)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: not a userspace module\n");
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -271,7 +271,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 int rtapi_set_msg_level(int level)
 {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     msg_level = level;
     return 0;
@@ -406,7 +406,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if ((key == 0) || (key == RTAPI_KEY)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad shmem key: %d\n",
 	    key);
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
@@ -415,13 +415,13 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad module ID: %d\n",
 	    module_id);
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: not a user space module ID: %d\n", module_id);
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a block is already open for this key */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -434,14 +434,14 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: ERROR: shmem size mismatch\n");
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_WARN,
 		    "RTAPI: Warning: shmem already mapped\n");
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 	    /* no, map it */
 	    shmem_addr_array[shmem_id] = rtai_malloc(key, shmem->size);
@@ -529,14 +529,14 @@ int shmem_delete(int shmem_id, int module_id)
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the block? */
     if (test_bit(module_id, shmem->bitmap) == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* OK, we're no longer using it */
     clear_bit(module_id, shmem->bitmap);
@@ -585,11 +585,11 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
     /* key must be non-zero */
     if (key == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* mode must be "R" or "W" */
     if ((mode != 'R') && (mode != 'W')) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* determine mode for fifo */
     if (mode == 'R') {
@@ -603,11 +603,11 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a fifo already exists for this key */
     for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
@@ -723,14 +723,14 @@ static int fifo_delete(int fifo_id, int module_id)
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the fifo? */
     if ((fifo->reader != module_id) && (fifo->writer != module_id)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* update fifo state */
     if (fifo->reader == module_id) {

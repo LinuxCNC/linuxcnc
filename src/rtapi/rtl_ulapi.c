@@ -180,7 +180,7 @@ int rtapi_exit(int module_id)
 
     if (rtapi_data == NULL) {
 	/* not inited */
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* validate module ID */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -194,7 +194,7 @@ int rtapi_exit(int module_id)
     if (module->state != USERSPACE) {
 	/* not an active user space module */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -274,7 +274,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 int rtapi_set_msg_level(int level)
 {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     msg_level = level;
     return 0;
@@ -442,18 +442,18 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a block is already open for this key */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -464,12 +464,12 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    /* is it big enough? */
 	    if (shmem->size < size) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 
 	    /* no, map it */
@@ -552,14 +552,14 @@ int shmem_delete(int shmem_id, int module_id)
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the block? */
     if (test_bit(module_id, shmem->bitmap) == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* OK, we're no longer using it */
     clear_bit(module_id, shmem->bitmap);
@@ -612,11 +612,11 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
     /* key must be non-zero */
     if (key == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* mode must be "R" or "W" */
     if ((mode != 'R') && (mode != 'W')) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* determine mode for fifo */
     if (mode == 'R') {
@@ -630,11 +630,11 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a fifo already exists for this key */
     for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
@@ -750,14 +750,14 @@ static int fifo_delete(int fifo_id, int module_id)
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != USERSPACE) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the fifo? */
     if ((fifo->reader != module_id) && (fifo->writer != module_id)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* update fifo state */
     if (fifo->reader == module_id) {
