@@ -108,7 +108,7 @@ int rtapi_init(const char *modname)
       return result;
     }
   }
-  return RTAPI_NOMEM;
+  return -ENOMEM;
 }
 
 
@@ -150,7 +150,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   while ((n < MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
     n++;
   if (n == MAX_TASKS)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   task = &(task_array[n]);
 
   /* check requested priority */
@@ -230,11 +230,11 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
      to the task structure so it can call the actual task function */
   retval = pth_uctx_create(&task->ctx);
   if (retval == FALSE)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   retval = pth_uctx_make(task->ctx, NULL, task->stacksize, NULL,
 	  wrapper, (void*)task, 0);
   if (retval == FALSE)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
 
   return 0;
 }

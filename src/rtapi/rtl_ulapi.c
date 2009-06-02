@@ -121,7 +121,7 @@ int rtapi_init(const char *modname)
     if (rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: Could not open shared memory area\n");
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
@@ -480,7 +480,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    if (shmem_addr_array[shmem_id] == NULL) {
 		/* map failed */
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_NOMEM;
+		return -ENOMEM;
 	    }
 	    /* update usage data */
 	    set_bit(module_id, shmem->bitmap);
@@ -509,7 +509,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_addr_array[shmem_id] = mbuff_alloc(keystr, size);
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* the block has been created, update data */
     set_bit(module_id, shmem->bitmap);

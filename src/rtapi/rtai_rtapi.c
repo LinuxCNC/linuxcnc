@@ -167,7 +167,7 @@ int init_module(void)
     if (rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open shared memory\n");
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
@@ -717,7 +717,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     ostask_array[task_id] = kmalloc(sizeof(RT_TASK), GFP_USER);
     if (ostask_array[task_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     task->taskcode = taskcode;
     task->arg = arg;
@@ -730,7 +730,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == ENOMEM) {
 	    /* not enough space for stack */
-	    return RTAPI_NOMEM;
+	    return -ENOMEM;
 	}
 	/* unknown error */
 	return RTAPI_FAIL;
@@ -1005,7 +1005,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		shmem_addr_array[shmem_id] = rtai_kmalloc(key, shmem->size);
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_NOMEM;
+		    return -ENOMEM;
 		}
 	    }
 	    /* is this module already using it? */
@@ -1041,7 +1041,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_addr_array[shmem_id] = rtai_kmalloc(key, size);
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* the block has been created, update data */
     set_bit(module_id, shmem->bitmap);
@@ -1423,7 +1423,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == ENOMEM) {
 	    /* couldn't allocate memory */
-	    return RTAPI_NOMEM;
+	    return -ENOMEM;
 	}
 	/* some other failure */
 	return RTAPI_FAIL;
