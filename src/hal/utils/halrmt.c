@@ -756,7 +756,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 //            halcmd_error("pin '%s' does not exist\n", pins[i]);
             sprintf(errorStr, "pin '%s' does not exist", pins[i]);
             sockWriteError(nakStr, context);
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         if(SHMPTR(pin->signal) == sig) {
 	     /* Already on this signal */
@@ -839,7 +839,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
         hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
         rtapi_mutex_give(&(hal_data->mutex));
         if(!pin) {
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         retval = hal_signal_new(signal, pin->type);
     } else {

@@ -383,7 +383,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         if(!pin) {
             halcmd_error("pin '%s' does not exist\n",
                     pins[i]);
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         if(SHMPTR(pin->signal) == sig) {
 	     /* Already on this signal */
@@ -456,7 +456,7 @@ int do_net_cmd(char *signal, char *pins[]) {
         hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
         rtapi_mutex_give(&(hal_data->mutex));
         if(!pin) {
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         retval = hal_signal_new(signal, pin->type);
     } else {
@@ -477,7 +477,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
 
     if(!comp) {
         halcmd_error( "No such component: %s\n", comp_name);
-        return HAL_NOTFND;
+        return -ENOENT;
     }
     if(!comp->make) {
         halcmd_error( "%s does not support 'newinst'\n", comp_name);
