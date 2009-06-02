@@ -75,18 +75,6 @@
 #include <asm/types.h>
 #include <rtapi_errno.h>
 
-/** These status codes are returned by many RTAPI functions. */
-
-#define RTAPI_UNSUP      -ENOSYS /* function not supported */
-#define RTAPI_BADID      -ENXIO	 /* bad task, shmem, sem, or fifo ID */
-#define RTAPI_INVAL      -EINVAL /* invalid argument */
-#define RTAPI_NOMEM      -ENOMEM /* not enough memory */
-#define RTAPI_LIMIT      -EMFILE /* resource limit reached */
-#define RTAPI_PERM       -EPERM	 /* permission denied */
-#define RTAPI_BUSY       -EBUSY	 /* resource is busy or locked */
-#define RTAPI_NOTFND     -ENOENT /* object not found */
-#define RTAPI_FAIL       -EINVAL /* operation failed */
-
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
 #ifdef __cplusplus
@@ -292,8 +280,8 @@ extern "C" {			/* Need this when the header is included in a
     the function will return the actual clock period if it is available,
     otherwise it returns the requested period.  If the requested period
     is outside the limits imposed by the hardware or RTOS, it returns
-    RTAPI_INVAL and does not start the clock.  Once the clock is started,
-    subsequent calls with non-zero 'nsecs' return RTAPI_INVAL and have
+    -EINVAL and does not start the clock.  Once the clock is started,
+    subsequent calls with non-zero 'nsecs' return -EINVAL and have
     no effect.  Calling 'rtapi_clock_set_period() with 'nsecs' set to
     zero queries the clock, returning the current clock period, or zero
     if the clock has not yet been started.  Call only from within
@@ -453,7 +441,7 @@ extern "C" {			/* Need this when the header is included in a
 
 /** 'rtapi_task_start()' starts a task in periodic mode.  'task_id' is
     a task ID from a call to rtapi_task_new().  The task must be in
-    the "paused" state, or it will return RTAPI_INVAL.
+    the "paused" state, or it will return -EINVAL.
     'period_nsec' is the task period in nanoseconds, which will be
     rounded to the nearest multiple of the global clock period.  A
     task period less than the clock period (including zero) will be
@@ -471,7 +459,7 @@ extern "C" {			/* Need this when the header is included in a
 
 /** 'rtapi_task_resume() starts a task in free-running mode. 'task_id'
     is a task ID from a call to rtapi_task_new().  The task must be in
-    the "paused" state, or it will return RTAPI_INVAL.
+    the "paused" state, or it will return -EINVAL.
     A free running task runs continuously until either:
     1) It is prempted by a higher priority task.  It will resume as
        soon as the higher priority task releases the CPU.
@@ -572,7 +560,7 @@ extern "C" {			/* Need this when the header is included in a
     extern int rtapi_sem_give(int sem_id);
 
 /** 'rtapi_sem_take()' locks a semaphore.  Returns 0 or
-    RTAPI_BADH.  If the semaphore is unlocked it returns 0
+    -EINVAL.  If the semaphore is unlocked it returns 0
     immediately.  If the semaphore is locked, the calling task blocks
     until the semaphore is unlocked, then it returns 0.
     Call only from within a realtime task.
@@ -580,9 +568,9 @@ extern "C" {			/* Need this when the header is included in a
     extern int rtapi_sem_take(int sem_id);
 
 /** 'rtapi_sem_try()' does a non-blocking attempt to lock a semaphore.
-    Returns 0, RTAPI_BADH, or RTAPI_BUSY.  If the semaphore
+    Returns 0, -EINVAL, or -EBUSY.  If the semaphore
     is unlocked, it returns 0.  If the semaphore is locked
-    it does not block, instead it returns RTAPI_BUSY, and the caller
+    it does not block, instead it returns -EBUSY, and the caller
     can decide how to deal with the situation.  Call only from within
     a realtime task.
 */
@@ -641,7 +629,7 @@ extern "C" {			/* Need this when the header is included in a
 #ifdef RTAPI
 /** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
     for the data, and 'size' is the maximum number of bytes to read.
-    Returns the number of bytes actually read, or RTAPI_BADID.  Does not
+    Returns the number of bytes actually read, or -EINVAL.  Does not
     block.  If 'size' bytes are not available, it will read whatever is
     available, and return that count (which could be zero).  Call only
     from within a realtime task.
@@ -649,12 +637,12 @@ extern "C" {			/* Need this when the header is included in a
 #else /* ULAPI */
 /** 'rtapi_fifo_read()' reads data from 'fifo_id'.  'buf' is a buffer
     for the data, and 'size' is the maximum number of bytes to read.
-    Returns the number of bytes actually read, or RTAPI_BADID.  If
+    Returns the number of bytes actually read, or -EINVAL.  If
     there is no data in the fifo, it blocks until data appears (or
     a signal occurs).  If 'size' bytes are not available, it will
     read whatever is available, and return that count (will be
     greater than zero).  If interrupted by a signal or some other
-    error occurs, will return RTAPI_FAIL.
+    error occurs, will return -EINVAL.
 */
 #endif /* ULAPI */
 
@@ -664,14 +652,14 @@ extern "C" {			/* Need this when the header is included in a
 #ifdef RTAPI
 /** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
     are taken from the buffer at 'buf'.  Returns the number of bytes
-    actually written, or RTAPI_BADID.  Does not block.  If 'size' bytes
+    actually written, or -EINVAL.  Does not block.  If 'size' bytes
     of space are not available in the fifo, it will write as many bytes
     as it can and return that count (which may be zero).
 */
 #else /* ULAPI */
 /** 'rtapi_fifo_write()' writes data to 'fifo_id'. Up to 'size' bytes
     are taken from the buffer at 'buf'.  Returns the number of bytes
-    actually written, or RTAPI_BADID.  If 'size' bytes of space are
+    actually written, or -EINVAL.  If 'size' bytes of space are
     not available in the fifo, rtapi_fifo_write() may block, or it
     may write as many bytes as it can and return that count (which
     may be zero).
@@ -705,7 +693,7 @@ extern "C" {			/* Need this when the header is included in a
     was previously installed by rtapi_assign_interrupt_handler(). 'irq'
     is the interrupt number.  Removing a realtime module without freeing
     any handlers it has installed will almost certainly crash the box.
-    Returns 0 or RTAPI_INVAL.  Call only from within
+    Returns 0 or -EINVAL.  Call only from within
     init/cleanup code, not from realtime tasks.
 */
     extern int rtapi_irq_delete(unsigned int irq_num);
