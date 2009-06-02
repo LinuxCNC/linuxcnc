@@ -176,7 +176,7 @@ int hal_init(const char *name)
 #ifdef ULAPI
     if (ref_cnt) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: Only one component per process\n");
-	return HAL_LIMIT;
+	return -EMFILE;
     }
 #endif
 
