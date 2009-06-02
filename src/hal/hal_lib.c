@@ -198,7 +198,7 @@ int hal_init(const char *name)
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
@@ -206,7 +206,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not open shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
@@ -214,7 +214,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not access shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     if(hal_shmem_base == 0) {
@@ -227,7 +227,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not init shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get mutex before manipulating the shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -238,7 +238,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: duplicate component name '%s'\n", hal_name);
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* allocate a new component structure */
     comp = halpr_alloc_comp_struct();
@@ -1734,7 +1734,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL_LIB: ERROR: clock_set_period returned %ld\n",
 		    curr_period);
-		return HAL_FAIL;
+		return -EINVAL;
 	    }
 	}
 	/* make sure period <= desired period (allow 1% roundoff error) */
@@ -1742,7 +1742,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL_LIB: ERROR: clock period too long: %ld\n", curr_period);
-	    return HAL_FAIL;
+	    return -EINVAL;
 	}
 	if(hal_data->exact_base_period) {
 		hal_data->base_period = period_nsec;
@@ -1765,7 +1765,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
 	     period_nsec, hal_data->base_period);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* make period an integer multiple of the timer period */
     n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
@@ -1775,7 +1775,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than existing thread period %ld\n",
 	     period_nsec, prev_period);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* make priority one lower than previous */
     new->priority = rtapi_prio_next_lower(prev_priority);
@@ -1786,7 +1786,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: could not create task for thread %s\n", name);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     new->task_id = retval;
     /* start task */
@@ -1795,7 +1795,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: could not start task for thread %s: %d\n", name, retval);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* insert new structure at head of list */
     new->next_ptr = hal_data->thread_list_ptr;
@@ -2546,7 +2546,7 @@ int rtapi_app_main(void)
     lib_module_id = rtapi_init("HAL_LIB");
     if (lib_module_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: ERROR: rtapi init failed\n");
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
@@ -2554,7 +2554,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not open shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(lib_mem_id, &mem);
@@ -2562,7 +2562,7 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not access shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     hal_shmem_base = (char *) mem;
@@ -2573,14 +2573,14 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     retval = hal_proc_init();
     if ( retval ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init /proc files\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,

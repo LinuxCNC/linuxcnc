@@ -585,7 +585,7 @@ static int release_HAL_mutex(void)
     comp_id = rtapi_init("hal_unlocker");
     if (comp_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: rtapi init failed\n");
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
@@ -593,7 +593,7 @@ static int release_HAL_mutex(void)
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not open shared memory\n");
         rtapi_exit(comp_id);
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
@@ -601,7 +601,7 @@ static int release_HAL_mutex(void)
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not access shared memory\n");
         rtapi_exit(comp_id);
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     hal_data = (hal_data_t *) mem;

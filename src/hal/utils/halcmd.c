@@ -118,7 +118,7 @@ int halcmd_startup(int quiet) {
             fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
             fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
         }
-	return HAL_FAIL;
+	return -EINVAL;
     }
     hal_ready(comp_id);
     return HAL_SUCCESS;

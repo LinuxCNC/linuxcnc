@@ -253,7 +253,7 @@ int do_source_cmd(char *hal_filename) {
     if(!f) {
         fprintf(stderr, "Could not open hal file '%s': %s\n",
                 hal_filename, strerror(errno));
-        return HAL_FAIL;
+        return -EINVAL;
     }
     fd = fileno(f);
     fcntl(fd, F_SETFD, FD_CLOEXEC);
@@ -266,7 +266,7 @@ int do_source_cmd(char *hal_filename) {
         if(readresult == 0) {
             if(feof(f)) break;
             halcmd_error("Error reading file: %s\n", strerror(errno));
-            result = HAL_FAIL;
+            result = -EINVAL;
             break;
         }
         result = halcmd_parse_line(buf);
@@ -500,7 +500,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         result = hal_systemv(argv);
         if(result != 0) {
             halcmd_error( "newinst failed: %d\n", result);
-            return HAL_FAIL;
+            return -EINVAL;
         }
     }
 #else
@@ -510,7 +510,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     if(!f) {
         halcmd_error( "cannot open proc entry: %s\n",
                 strerror(errno));
-        return HAL_FAIL;
+        return -EINVAL;
     }
 
     rtapi_mutex_get(&(hal_data->mutex));
@@ -533,7 +533,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         rtapi_mutex_get(&(hal_data->mutex));
         hal_data->pending_constructor = 0;
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_FAIL;
+        return -EINVAL;
     }
     if(fclose(f) != 0) {
         halcmd_error(
@@ -542,7 +542,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         rtapi_mutex_get(&(hal_data->mutex));
         hal_data->pending_constructor = 0;
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_FAIL;
+        return -EINVAL;
     }
 
     while(hal_data->pending_constructor) {
@@ -2562,7 +2562,7 @@ int do_setexact_cmd() {
         halcmd_error(
             "HAL_LIB: Cannot run 'setexact'"
             " after a thread has been created\n");
-        retval = HAL_FAIL;
+        retval = -EINVAL;
     } else {
         halcmd_warning(
             "HAL_LIB: HAL will pretend that the exact"
