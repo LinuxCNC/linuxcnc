@@ -172,11 +172,11 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
 	/* first pin not found*/
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", first_pin_name);
-	return HAL_INVAL; 
+	return -EINVAL; 
     } else if (second_pin == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("pin '%s' not found\n", second_pin_name);
-	return HAL_INVAL; 
+	return -EINVAL; 
     }
     
     /* give the mutex, as the other functions use their own mutex */
@@ -187,7 +187,7 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     if (first_pin->type != second_pin->type) {
 	halcmd_error("pins '%s' and '%s' not of the same type\n",
                 first_pin_name, second_pin_name);
-	return HAL_INVAL; 
+	return -EINVAL; 
     }
 	
     /* now create the signal */
@@ -325,7 +325,7 @@ int do_alias_cmd(char *pinparam, char *name, char *alias) {
     } else if ( strcmp (pinparam, "param" ) == 0 ) {
 	retval = hal_param_alias(name, alias);
     } else {
-	retval = HAL_INVAL;
+	retval = -EINVAL;
     }
     if(retval == 0) {
         halcmd_info("%s '%s' aliased to '%s'\n",
@@ -343,7 +343,7 @@ int do_unalias_cmd(char *pinparam, char *name) {
     } else if ( strcmp (pinparam, "param" ) == 0 ) {
       retval = hal_param_alias(name, NULL);
     } else {
-        return HAL_INVAL;
+        return -EINVAL;
     };
     if(retval == 0) {
         halcmd_info("%s '%s' unaliased\n",
@@ -392,7 +392,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	} else if(pin->signal != 0) {
             halcmd_error("pin '%s' was already linked\n",
                     pin->name);
-            return HAL_INVAL;
+            return -EINVAL;
 	}
 	if (type == -1) {
 	    /* no pre-existing type, use this pin's type */
@@ -401,13 +401,13 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         if(type != pin->type) {
             halcmd_error("Type mismatch on pin '%s'\n",
                     pin->name);
-            return HAL_INVAL;
+            return -EINVAL;
         }
         if(pin->dir == HAL_OUT) {
             if(writers || bidirs) {
                 halcmd_error("Signal '%s' can not add OUT pin '%s'\n",
                         signal, pin->name);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             writers++;
         }
@@ -415,7 +415,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
             if(writers) {
                 halcmd_error("Signal '%s' can not add I/O pin '%s'\n",
                         signal, pin->name);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             bidirs++;
         }
@@ -424,7 +424,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
     if(pincnt)
         return HAL_SUCCESS;
     halcmd_error("'net' requires at least one pin, none given\n");
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 int do_net_cmd(char *signal, char *pins[]) {
@@ -485,7 +485,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
     if ( *inst_name == '\0' ) {
         halcmd_error( "Must supply name for new instance\n");
-        return HAL_INVAL;
+        return -EINVAL;
     }	
 
 #if defined(RTAPI_SIM)
@@ -592,7 +592,7 @@ int do_newsig_cmd(char *name, char *type)
 	retval = hal_signal_new(name, HAL_S32);
     } else {
 	halcmd_error("Unknown signal type '%s'\n", type);
-	retval = HAL_INVAL;
+	retval = -EINVAL;
     }
     if (retval != HAL_SUCCESS) {
 	halcmd_error("newsig failed\n");
@@ -617,7 +617,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    *(hal_bit_t *) (d_ptr) = 0;
 	} else {
 	    halcmd_error("value '%s' invalid for bit\n", value);
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	}
 	break;
     case HAL_FLOAT:
@@ -625,7 +625,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid character(s) in string */
 	    halcmd_error("value '%s' invalid for float\n", value);
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
 	}
@@ -635,7 +635,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    halcmd_error("value '%s' invalid for S32\n", value);
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_s32_t *) (d_ptr)) = lval;
 	}
@@ -645,7 +645,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
 	    halcmd_error("value '%s' invalid for U32\n", value);
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
 	}
@@ -653,7 +653,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     default:
 	/* Shouldn't get here, but just in case... */
 	halcmd_error("bad type %d\n", type);
-	retval = HAL_INVAL;
+	retval = -EINVAL;
     }
     return retval;
 }
@@ -676,19 +676,19 @@ int do_setp_cmd(char *name, char *value)
         if(pin == 0) {
             rtapi_mutex_give(&(hal_data->mutex));
             halcmd_error("parameter or pin '%s' not found\n", name);
-            return HAL_INVAL;
+            return -EINVAL;
         } else {
             /* found it */
             type = pin->type;
             if(pin->dir == HAL_OUT) {
                 rtapi_mutex_give(&(hal_data->mutex));
                 halcmd_error("pin '%s' is not writable\n", name);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             if(pin->signal != 0) {
                 rtapi_mutex_give(&(hal_data->mutex));
                 halcmd_error("pin '%s' is connected to a signal\n", name);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             // d_ptr = (void*)SHMPTR(pin->dummysig);
             d_ptr = (void*)&pin->dummysig;
@@ -700,7 +700,7 @@ int do_setp_cmd(char *name, char *value)
         if (param->dir == HAL_RO) {
             rtapi_mutex_give(&(hal_data->mutex));
             halcmd_error("param '%s' is not writable\n", name);
-            return HAL_INVAL;
+            return -EINVAL;
         }
         d_ptr = SHMPTR(param->data_ptr);
     }
@@ -753,7 +753,7 @@ int do_ptype_cmd(char *name)
     
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_error("parameter '%s' not found\n", name);
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 
@@ -798,7 +798,7 @@ int do_getp_cmd(char *name)
     
     rtapi_mutex_give(&(hal_data->mutex));
     halcmd_error("parameter '%s' not found\n", name);
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 int do_sets_cmd(char *name, char *value)
@@ -816,13 +816,13 @@ int do_sets_cmd(char *name, char *value)
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found it - does it have a writer? */
     if (sig->writers > 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' already has writer(s)\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* no writer, so we can safely set it */
     type = sig->type;
@@ -852,7 +852,7 @@ int do_stype_cmd(char *name)
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found it */
     type = sig->type;
@@ -875,7 +875,7 @@ int do_gets_cmd(char *name)
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' not found\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found it */
     type = sig->type;
@@ -1114,7 +1114,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     if (comp == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("module '%s' not loaded\n", mod_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* link args to comp struct */
     comp->insmod_args = SHMOFF(cp1);
@@ -1360,7 +1360,7 @@ int do_loadusr_cmd(char *args[])
 	    case 'n':
 		new_comp_name = optarg; break;
 	    default:
-		return HAL_INVAL;
+		return -EINVAL;
 		break;
 	}
     }
@@ -1472,19 +1472,19 @@ int do_waitusr_cmd(char *comp_name)
 
     if (*comp_name == '\0') {
 	halcmd_error("component name missing\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_mutex_get(&(hal_data->mutex));
     comp = halpr_find_comp_by_name(comp_name);
     if (comp == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("component '%s' not found\n", comp_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (comp->type != 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("'%s' is not a userspace component\n", comp_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
     /* let the user know what is going on */

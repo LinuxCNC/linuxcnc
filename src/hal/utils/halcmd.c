@@ -332,7 +332,7 @@ static int parse_cmd1(char **argv) {
 	    return do_setp_cmd(argv[0], argv[2]);
 	} else {
             halcmd_error("Unknown command '%s'\n", argv[0]);
-            return HAL_INVAL;
+            return -EINVAL;
         }
     } else {
 	int is_optional = command->type & A_OPTIONAL,
@@ -357,13 +357,13 @@ static int parse_cmd1(char **argv) {
 	if(posargs < nargs && !is_optional) {
 	    halcmd_error("%s requires %s%d arguments, %d given\n",
 		command->name, is_plus ? "at least " : "", nargs, posargs);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 
         if(posargs > nargs && !is_plus) {
 	    halcmd_error("%s requires %s%d arguments, %d given\n",
 		command->name, is_optional ? "at most " : "", nargs, posargs);
-	    return HAL_INVAL;
+	    return -EINVAL;
         }
 
 	switch(nargs | is_plus) {
@@ -422,7 +422,7 @@ static int parse_cmd1(char **argv) {
 	default:
 	    halcmd_error("BUG: unchandled case: command=%s type=0x%x",
 		command->name, command->type);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
     }
 }

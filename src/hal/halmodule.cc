@@ -295,7 +295,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
     }
 
     res = snprintf(param_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
-    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(HAL_INVAL); }
+    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
     res = hal_param_new(param_name, type, dir, (void*)param.u, self->hal_id);
     if(res) return pyhal_error(res);
 
@@ -325,7 +325,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
     }
 
     res = snprintf(pin_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
-    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(HAL_INVAL); }
+    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
     res = hal_pin_new(pin_name, type, dir, (void**)pin.u, self->hal_id);
     if(res) return pyhal_error(res);
 
