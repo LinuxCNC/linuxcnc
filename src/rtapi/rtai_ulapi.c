@@ -123,7 +123,7 @@ int rtapi_init(const char *modname)
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
 	rtai_free(RTAPI_KEY, rtapi_data);
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* set up local pointers to global data */
     module_array = rtapi_data->module_array;
@@ -777,7 +777,7 @@ int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
     /* get whatever data is available */
     retval = read(fifo_fd_array[fifo_id], buf, size);
     if (retval <= 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     return retval;
 
@@ -801,7 +801,7 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
     /* put whatever data will fit */
     retval = write(fifo_fd_array[fifo_id], buf, size);
     if (retval < 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     return retval;
 }

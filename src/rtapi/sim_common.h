@@ -113,7 +113,7 @@ int rtapi_shmem_delete(int handle, int module_id)
   shmem->magic = 0;
 
   if ((r1 != 0) || (r2 != 0))
-    return RTAPI_FAIL;
+    return -EINVAL;
   return 0;
 }
 

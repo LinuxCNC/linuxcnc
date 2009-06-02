@@ -176,7 +176,7 @@ int init_module(void)
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
 	rtai_kfree(RTAPI_KEY);
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* set up local pointers to global data */
     module_array = rtapi_data->module_array;
@@ -733,7 +733,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 	    return -ENOMEM;
 	}
 	/* unknown error */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* the task has been created, update data */
     task->state = PAUSED;
@@ -828,7 +828,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
     if ((rtapi_data->timer_running == 0) || (rtapi_data->timer_period == 0)) {
         rtapi_print_msg(RTAPI_MSG_ERR, 
                 "RTAPI: could not start task: timer isn't running\n");
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
 
     period_counts = nano2count((RTIME)period_nsec);  
@@ -840,7 +840,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
     retval = rt_task_make_periodic(ostask_array[task_id],
 	rt_get_time() + period_counts, period_counts);
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* ok, task is started */
     task->state = PERIODIC;
@@ -905,7 +905,7 @@ int rtapi_task_resume(int task_id)
     /* start the task */
     retval = rt_task_resume(ostask_array[task_id]);
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update task data */
     task->state = FREERUN;
@@ -934,7 +934,7 @@ int rtapi_task_pause(int task_id)
     retval = rt_task_suspend(ostask_array[task_id]);
     if (retval != 0) {
         task->state = oldstate;
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update task data */
     return 0;
@@ -949,7 +949,7 @@ int rtapi_task_self(void)
     ptr = rt_whoami();
     if (ptr == NULL) {
 	/* called from outside a task? */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* find matching entry in task array */
     n = 1;
@@ -960,7 +960,7 @@ int rtapi_task_self(void)
 	}
 	n++;
     }
-    return RTAPI_FAIL;
+    return -EINVAL;
 }
 
 /***********************************************************************
@@ -997,7 +997,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    /* is it big enough? */
 	    if (shmem->size < size) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_FAIL;
+		return -EINVAL;
 	    }
 	    /* yes, has it been mapped into kernel space? */
 	    if (shmem->rtusers == 0) {
@@ -1426,7 +1426,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	    return -ENOMEM;
 	}
 	/* some other failure */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* the fifo has been created, update data */
     if (mode == 'R') {
@@ -1533,7 +1533,7 @@ int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
     /* get whatever data is available */
     retval = rtf_get(fifo_id, &buf, size);
     if (retval < 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     return retval;
 }
@@ -1618,7 +1618,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
 	if (retval == EBUSY) {
 	    return -EBUSY;
 	} else {
-	    return RTAPI_FAIL;
+	    return -EINVAL;
 	}
     }
     /* update data */
@@ -1671,7 +1671,7 @@ static int irq_delete(unsigned int irq_num)
     rt_shutdown_irq(irq_num);
     retval = rt_free_global_irq(irq_num);
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update data */
     irq->irq_num = 0;
