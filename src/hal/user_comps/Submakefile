@@ -10,8 +10,8 @@ PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
 
 MODBUSSRCS := hal/user_comps/gs2_vfd.c\
 	hal/user_comps/modbus.c
-MODBUSLDFLAGS := -lglib-2.0
-MODBUSCCFLAGS := -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+MODBUSLDFLAGS := $(GLIB_LIBS)
+MODBUSCCFLAGS := $(GLIB_CFLAGS)
 USERSRCS += $(MODBUSSRCS)
 
  $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
