@@ -448,7 +448,7 @@ int do_net_cmd(char *signal, char *pins[]) {
 	    halcmd_error("Signal name '%s' must not be the same as a pin.\n",
 		signal);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_BADVAR;
+	    return -ENOENT;
 	}
     }
     if(!sig) {

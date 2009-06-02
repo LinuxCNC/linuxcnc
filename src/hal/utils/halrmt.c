@@ -831,7 +831,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
             sprintf(errorStr, "Signal name '%s' must not be the same as a pin.", signal);
             sockWriteError(nakStr, context);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_BADVAR;
+	    return -ENOENT;
 	}
     }
     if(!sig) {
