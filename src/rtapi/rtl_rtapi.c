@@ -395,7 +395,7 @@ static int module_delete(int module_id)
 
     /* validate module ID */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the module's data */
     module = &(module_array[module_id]);
@@ -793,7 +793,7 @@ static int task_delete(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
@@ -848,7 +848,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
@@ -896,7 +896,7 @@ int rtapi_task_resume(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
@@ -923,7 +923,7 @@ int rtapi_task_pause(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
@@ -1092,13 +1092,13 @@ static int shmem_delete(int shmem_id, int module_id)
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the shmem's data */
     shmem = &(shmem_array[shmem_id]);
     /* is the block valid? */
     if (shmem->key == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -1149,11 +1149,11 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* is the block mapped? */
     if (shmem_addr_array[shmem_id] == NULL) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
@@ -1252,13 +1252,13 @@ static int sem_delete(int sem_id, int module_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -1298,13 +1298,13 @@ int rtapi_sem_give(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* give up the semaphore */
     sem_post(&(ossem_array[sem_id]));
@@ -1317,13 +1317,13 @@ int rtapi_sem_take(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get the semaphore */
     sem_wait(&(ossem_array[sem_id]));
@@ -1336,13 +1336,13 @@ int rtapi_sem_try(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* try the semaphore */
     if (sem_trywait(&(ossem_array[sem_id])) <= 0) {
@@ -1484,13 +1484,13 @@ static int fifo_delete(int fifo_id, int module_id)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if (fifo->state == UNUSED) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -1539,13 +1539,13 @@ int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_READER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get whatever data is available */
     retval = rtf_get(fifo_id, &buf, size);
@@ -1562,13 +1562,13 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_WRITER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* put as much data as possible */
     retval = rtf_put(fifo_id, buf, size);

@@ -68,13 +68,13 @@ int rtapi_shmem_getptr(int handle, void **ptr)
 {
   rtapi_shmem_handle *shmem;
   if(handle < 0 || handle >= MAX_SHM)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem = &shmem_array[handle];
 
   /* validate shmem handle */
   if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   /* pass memory address back to caller */
   *ptr = shmem->mem;
@@ -89,13 +89,13 @@ int rtapi_shmem_delete(int handle, int module_id)
   rtapi_shmem_handle *shmem;
 
   if(handle < 0 || handle >= MAX_SHM)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem = &shmem_array[handle];
 
   /* validate shmem handle */
   if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem->count --;
   if(shmem->count) return 0;

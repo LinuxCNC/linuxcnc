@@ -184,7 +184,7 @@ int rtapi_exit(int module_id)
     /* validate module ID */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad module id\n");
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
@@ -519,13 +519,13 @@ int shmem_delete(int shmem_id, int module_id)
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the shmem's data */
     shmem = &(shmem_array[shmem_id]);
     /* is the block valid? */
     if (shmem->key == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -560,11 +560,11 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
 {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* is the block mapped? */
     if (shmem_addr_array[shmem_id] == NULL) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
@@ -713,13 +713,13 @@ static int fifo_delete(int fifo_id, int module_id)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if (fifo->state == UNUSED) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
@@ -766,13 +766,13 @@ int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_READER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get whatever data is available */
     retval = read(fifo_fd_array[fifo_id], buf, size);
@@ -790,13 +790,13 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_WRITER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* put whatever data will fit */
     retval = write(fifo_fd_array[fifo_id], buf, size);
