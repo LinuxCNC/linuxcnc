@@ -1346,7 +1346,7 @@ int rtapi_sem_try(int sem_id)
     }
     /* try the semaphore */
     if (sem_trywait(&(ossem_array[sem_id])) <= 0) {
-	return RTAPI_BUSY;
+	return -EBUSY;
     }
     return 0;
 }
@@ -1390,7 +1390,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	    if (mode == 'R') {
 		if (fifo->state & HAS_READER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* available, update status */
 		fifo->state |= HAS_READER;
@@ -1405,7 +1405,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
 		if (fifo->state & HAS_WRITER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* available, update status */
 		fifo->state |= HAS_WRITER;
@@ -1616,7 +1616,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
 	if (irq_array[n].irq_num == irq_num) {
 	    /* found a match */
 	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    return RTAPI_BUSY;
+	    return -EBUSY;
 	}
     }
     /* find empty spot in irq array */
@@ -1637,7 +1637,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
     if (retval != 0) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == EBUSY) {
-	    return RTAPI_BUSY;
+	    return -EBUSY;
 	} else {
 	    return RTAPI_FAIL;
 	}

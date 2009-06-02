@@ -619,7 +619,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	    if (mode == 'R') {
 		if (fifo->state & HAS_READER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* determine system name for fifo */
 		sprintf(devstr, "/dev/rtf%d", fifo_id);
@@ -639,7 +639,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
 		if (fifo->state & HAS_WRITER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* determine system name for fifo */
 		sprintf(devstr, "/dev/rtf%d", fifo_id);
