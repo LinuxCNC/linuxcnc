@@ -330,7 +330,7 @@ int rtapi_init(const char *modname)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
 	    n);
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the module */
     module_id = n;
@@ -702,7 +702,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     if (n > RTAPI_MAX_TASKS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the task */
     task_id = n;
@@ -1032,7 +1032,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if (n > RTAPI_MAX_SHMEMS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the block data */
     shmem_id = n;
@@ -1198,7 +1198,7 @@ int rtapi_sem_new(int key, int module_id)
     if (n > RTAPI_MAX_SEMS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the semaphore */
     sem_id = n;
@@ -1410,7 +1410,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     if (n > RTAPI_MAX_FIFOS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have a free ID for the fifo */
     fifo_id = n;
@@ -1606,7 +1606,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
     if (n > RTAPI_MAX_IRQS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the irq */
     irq_id = n;

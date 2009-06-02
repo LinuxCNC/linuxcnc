@@ -149,7 +149,7 @@ int rtapi_init(const char *modname)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached module limit %d\n",
 	    n);
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the module */
     module_id = n;
@@ -473,7 +473,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: reached shmem limit %d\n",
 	    n);
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the block data */
     shmem_id = n;
@@ -666,7 +666,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     if (n > RTAPI_MAX_FIFOS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have a free ID for the fifo */
     fifo_id = n;
