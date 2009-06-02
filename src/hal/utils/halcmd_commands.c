@@ -1051,7 +1051,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	halcmd_error("HAL is locked, loading of modules is not permitted\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
 	halcmd_error("Module path too long\n");
@@ -1336,7 +1336,7 @@ int do_loadusr_cmd(char *args[])
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	halcmd_error("HAL is locked, loading of programs is not permitted\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     wait_flag = 0;
     wait_comp_flag = 0;

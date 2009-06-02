@@ -602,7 +602,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
@@ -698,7 +698,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_alias called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     if (alias != NULL ) {
 	if (strlen(alias) >= HAL_NAME_LEN) {
@@ -832,7 +832,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
@@ -936,7 +936,7 @@ int hal_signal_delete(const char *name)
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
@@ -983,7 +983,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     /* make sure we were given a pin name */
     if (pin_name == 0) {
@@ -1091,7 +1091,7 @@ int hal_unlink(const char *pin_name)
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: unlink called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     /* make sure we were given a pin name */
     if (pin_name == 0) {
@@ -1236,7 +1236,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
@@ -1352,7 +1352,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     if (hal_data->lock & HAL_LOCK_PARAMS)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
@@ -1426,7 +1426,7 @@ int hal_param_alias(const char *param_name, const char *alias)
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_alias called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     if (alias != NULL ) {
 	if (strlen(alias) >= HAL_NAME_LEN) {
@@ -1563,7 +1563,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
@@ -1689,7 +1689,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     /* get mutex before accessing shared data */
@@ -1837,7 +1837,7 @@ extern int hal_thread_delete(const char *name)
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread_delete called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
@@ -1887,7 +1887,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: add_funct_to_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG,
@@ -2018,7 +2018,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: del_funct_from_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG,
@@ -2104,7 +2104,7 @@ int hal_start_threads(void)
     if (hal_data->lock & HAL_LOCK_RUN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: start_threads called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
 
@@ -2125,7 +2125,7 @@ int hal_stop_threads(void)
     if (hal_data->lock & HAL_LOCK_RUN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: stop_threads called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     hal_data->threads_running = 0;

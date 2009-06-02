@@ -1149,7 +1149,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     if (hal_get_lock()&HAL_LOCK_LOAD) {
       sprintf(errorStr,  "HAL is locked, loading of modules is not permitted");
       sockWriteError(nakStr, context);
-	return HAL_PERM;
+	return -EPERM;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
       sprintf(errorStr, "Module path too long");
@@ -1435,7 +1435,7 @@ static int doLoadUsr(char *args[])
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: HAL is locked, loading of programs is not permitted\n", linenumber);
-	return HAL_PERM;
+	return -EPERM;
     }
     /* check for options (-w, -i, and/or -r) */
     wait_flag = 0;
