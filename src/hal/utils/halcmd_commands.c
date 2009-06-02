@@ -481,7 +481,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
     if(!comp->make) {
         halcmd_error( "%s does not support 'newinst'\n", comp_name);
-        return HAL_UNSUP;
+        return -ENOSYS;
     }
     if ( *inst_name == '\0' ) {
         halcmd_error( "Must supply name for new instance\n");
