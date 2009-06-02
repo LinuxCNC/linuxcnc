@@ -655,7 +655,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 		if (fifo_fd_array[fifo_id] < 0) {
 		    /* open failed */
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_NOTFND;
+		    return -ENOENT;
 		}
 		/* fifo opened, update status */
 		fifo->state |= HAS_READER;
@@ -675,7 +675,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 		if (fifo_fd_array[fifo_id] < 0) {
 		    /* open failed */
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_NOTFND;
+		    return -ENOENT;
 		}
 		/* fifo opened, update status */
 		fifo->state |= HAS_WRITER;
@@ -705,7 +705,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     if (fifo_fd_array[fifo_id] < 0) {
 	/* open failed */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_NOTFND;
+	return -ENOENT;
     }
     /* the fifo has been created, update data */
     if (mode == 'R') {
@@ -770,7 +770,7 @@ static int fifo_delete(int fifo_id, int module_id)
     }
     /* close the fifo */
     if (close(fifo_id) < 0) {
-	return RTAPI_NOTFND;
+	return -ENOENT;
     }
     /* is somebody else still using the fifo */
     if (fifo->state != UNUSED) {
