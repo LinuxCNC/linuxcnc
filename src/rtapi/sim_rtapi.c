@@ -117,7 +117,7 @@ int rtapi_exit(int id)
   int n = id - MODULE_OFFSET;
   if(n < 0 || n >= MAX_MODULES) return -1;
   module_array[n].magic = 0;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -187,7 +187,7 @@ int rtapi_task_delete(int id) {
   pth_uctx_destroy(task->ctx);
   
   task->magic = 0;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -236,7 +236,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (retval == FALSE)
     return RTAPI_NOMEM;
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -253,7 +253,7 @@ int rtapi_task_stop(int task_id)
 
   pth_uctx_destroy(task->ctx);
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 int rtapi_task_pause(int task_id)
@@ -299,13 +299,13 @@ int rtapi_task_set_period(int task_id,
 
   task->period = period_nsec;
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 int rtapi_wait(void)
 {
   pth_uctx_switch(this_ctx, main_ctx);
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 

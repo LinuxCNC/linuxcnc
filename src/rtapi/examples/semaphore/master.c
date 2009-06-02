@@ -97,7 +97,7 @@ int rtapi_app_main(void)
 
     /* start the master task */
     retval = rtapi_task_start(master_task, MASTER_PERIOD_NSEC);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem master init: rtapi_task_start returned %d\n",
 	    retval);
 	rtapi_exit(module);
@@ -115,17 +115,17 @@ void rtapi_app_exit(void)
     int retval;
 
     retval = rtapi_task_pause(master_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem master exit: rtapi_task_stop returned %d\n", retval);
     }
     retval = rtapi_task_delete(master_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem master exit: rtapi_task_delete returned %d\n",
 	    retval);
     }
 
     retval = rtapi_sem_delete(master_sem, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem master exit: rtapi_sem_delete returned %d\n",
 	    retval);
     }

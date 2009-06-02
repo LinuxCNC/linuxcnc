@@ -63,7 +63,7 @@ int rtapi_app_main(void)
 
     /* start the slave task */
     retval = rtapi_task_resume(slave_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem slave init: rtapi_task_start returned %d\n", retval);
 	rtapi_exit(module);
 	return -1;
@@ -80,17 +80,17 @@ void rtapi_app_exit(void)
     int retval;
 
     retval = rtapi_task_pause(slave_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem slave exit: rtapi_task_stop returned %d\n", retval);
     }
     retval = rtapi_task_delete(slave_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem slave exit: rtapi_task_delete returned %d\n",
 	    retval);
     }
 
     retval = rtapi_sem_delete(slave_sem, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("sem slave exit: rtapi_sem_delete returned %d\n", retval);
     }
     rtapi_print("sem slave exit: slave count is %d\n", slave_count);

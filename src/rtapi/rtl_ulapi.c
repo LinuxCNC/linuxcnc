@@ -222,7 +222,7 @@ int rtapi_exit(int module_id)
     rtapi_mutex_give(&(rtapi_data->mutex));
     genstr((unsigned int) RTAPI_KEY, keystr);
     mbuff_free(keystr, rtapi_data);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
@@ -277,7 +277,7 @@ int rtapi_set_msg_level(int level)
 	return RTAPI_INVAL;
     }
     msg_level = level;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_get_msg_level(void)
@@ -573,13 +573,13 @@ int shmem_delete(int shmem_id, int module_id)
     /* is somebody else still using the block? */
     if ((shmem->ulusers > 0) || (shmem->rtusers > 0)) {
 	/* yes, we're done for now */
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* update the data array and usage count */
     shmem->key = 0;
     shmem->size = 0;
     rtapi_data->shmem_count--;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_shmem_getptr(int shmem_id, void **ptr)
@@ -594,7 +594,7 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -775,14 +775,14 @@ static int fifo_delete(int fifo_id, int module_id)
     /* is somebody else still using the fifo */
     if (fifo->state != UNUSED) {
 	/* yes, done for now */
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users, update the data array and usage count */
     fifo->state = UNUSED;
     fifo->key = 0;
     fifo->size = 0;
     rtapi_data->fifo_count--;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)

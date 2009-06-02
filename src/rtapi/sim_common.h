@@ -78,7 +78,7 @@ int rtapi_shmem_getptr(int handle, void **ptr)
 
   /* pass memory address back to caller */
   *ptr = shmem->mem;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -98,7 +98,7 @@ int rtapi_shmem_delete(int handle, int module_id)
     return RTAPI_BADID;
 
   shmem->count --;
-  if(shmem->count) return RTAPI_SUCCESS;
+  if(shmem->count) return 0;
 
   /* unmap the shared memory */
   r1 = shmdt(shmem->mem);
@@ -114,7 +114,7 @@ int rtapi_shmem_delete(int handle, int module_id)
 
   if ((r1 != 0) || (r2 != 0))
     return RTAPI_FAIL;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -185,7 +185,7 @@ int rtapi_vsnprintf(char *buffer, unsigned long int size, const char *fmt,
 
 int rtapi_set_msg_level(int level) {
     msg_level = level;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_get_msg_level() { 

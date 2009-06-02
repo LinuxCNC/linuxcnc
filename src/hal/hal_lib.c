@@ -210,7 +210,7 @@ int hal_init(const char *name)
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not access shared memory\n");
 	rtapi_exit(comp_id);
@@ -2558,7 +2558,7 @@ int rtapi_app_main(void)
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(lib_mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not access shared memory\n");
 	rtapi_exit(lib_module_id);

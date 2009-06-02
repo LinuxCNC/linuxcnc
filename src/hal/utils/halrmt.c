@@ -597,7 +597,7 @@ static int release_HAL_mutex(void)
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not access shared memory\n");
         rtapi_exit(comp_id);

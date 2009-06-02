@@ -252,7 +252,7 @@ void rtapi_app_exit(void)
     }
     /* free shared memory */
     retval = rtapi_shmem_delete(emc_shmem_id, mot_comp_id);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: rtapi_shmem_delete() failed, returned %d\n", retval);
     }
@@ -843,7 +843,7 @@ static int init_comm_buffers(void)
 	return -1;
     }
     retval = rtapi_shmem_getptr(emc_shmem_id, (void **) &emcmotStruct);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: rtapi_shmem_getptr failed, returned %d\n", retval);
 	return -1;

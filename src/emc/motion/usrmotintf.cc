@@ -674,7 +674,7 @@ int usrmotInit(char *modname)
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "usrmotintf: ERROR: could not access shared memory\n");
 	rtapi_exit(module_id);

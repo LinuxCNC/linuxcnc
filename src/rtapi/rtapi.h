@@ -77,7 +77,6 @@
 
 /** These status codes are returned by many RTAPI functions. */
 
-#define RTAPI_SUCCESS     0	 /* call successfull */
 #define RTAPI_UNSUP      -ENOSYS /* function not supported */
 #define RTAPI_BADID      -ENXIO	 /* bad task, shmem, sem, or fifo ID */
 #define RTAPI_INVAL      -EINVAL /* invalid argument */
@@ -572,17 +571,17 @@ extern "C" {			/* Need this when the header is included in a
 */
     extern int rtapi_sem_give(int sem_id);
 
-/** 'rtapi_sem_take()' locks a semaphore.  Returns RTAPI_SUCCESS or
-    RTAPI_BADH.  If the semaphore is unlocked it returns RTAPI_SUCCESS
+/** 'rtapi_sem_take()' locks a semaphore.  Returns 0 or
+    RTAPI_BADH.  If the semaphore is unlocked it returns 0
     immediately.  If the semaphore is locked, the calling task blocks
-    until the semaphore is unlocked, then it returns RTAPI_SUCCESS.
+    until the semaphore is unlocked, then it returns 0.
     Call only from within a realtime task.
 */
     extern int rtapi_sem_take(int sem_id);
 
 /** 'rtapi_sem_try()' does a non-blocking attempt to lock a semaphore.
-    Returns RTAPI_SUCCESS, RTAPI_BADH, or RTAPI_BUSY.  If the semaphore
-    is unlocked, it returns RTAPI_SUCCESS.  If the semaphore is locked
+    Returns 0, RTAPI_BADH, or RTAPI_BUSY.  If the semaphore
+    is unlocked, it returns 0.  If the semaphore is locked
     it does not block, instead it returns RTAPI_BUSY, and the caller
     can decide how to deal with the situation.  Call only from within
     a realtime task.
@@ -706,7 +705,7 @@ extern "C" {			/* Need this when the header is included in a
     was previously installed by rtapi_assign_interrupt_handler(). 'irq'
     is the interrupt number.  Removing a realtime module without freeing
     any handlers it has installed will almost certainly crash the box.
-    Returns RTAPI_SUCCESS or RTAPI_INVAL.  Call only from within
+    Returns 0 or RTAPI_INVAL.  Call only from within
     init/cleanup code, not from realtime tasks.
 */
     extern int rtapi_irq_delete(unsigned int irq_num);

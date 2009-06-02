@@ -28,18 +28,18 @@ int rtapi_app_main(void)
     int retval;
 
     module = rtapi_init("EXTINT");
-    if (module != RTAPI_SUCCESS) {
+    if (module < 0) {
 	rtapi_print("extint init: rtapi_init returned %d\n", module);
 	return -1;
     }
     /* set up ISR */
     retval = rtapi_irq_new(PARPORT_IRQ, module, parport_irq_handler);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("extint init: rtapi_irq_new returned %d\n", retval);
 	return -1;
     }
     retval = rtapi_enable_interrupt(PARPORT_IRQ);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("extint init: rtapi_enable_interrupt returned %d\n",
 	    retval);
 	return -1;
@@ -68,7 +68,7 @@ void rtapi_app_exit(void)
 	return;
     }
     retval = rtapi_irq_delete(PARPORT_IRQ);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("extint exit: rtapi_irq_delete returned %d\n", retval);
 	return;
     }
@@ -76,7 +76,7 @@ void rtapi_app_exit(void)
     rtapi_print("extint exit: interrupt count is %d\n", timer_count);
 
     retval = rtapi_exit(module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("extint exit: rtapi_exit returned %d\n", retval);
 	return;
     }

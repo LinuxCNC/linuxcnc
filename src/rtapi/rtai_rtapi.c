@@ -219,7 +219,7 @@ int init_module(void)
 #endif
     /* done */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init complete\n");
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /* This cleanup code attempts to fix any messes left by modules
@@ -440,7 +440,7 @@ static int module_delete(int module_id)
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module %d exited, name: '%s'\n",
 	module_id, name);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
@@ -511,7 +511,7 @@ int rtapi_set_msg_level(int level)
 	return RTAPI_INVAL;
     }
     msg_level = level;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_get_msg_level(void)
@@ -805,7 +805,7 @@ static int task_delete(int task_id)
     }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: task %02d deleted\n", task_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
@@ -909,7 +909,7 @@ int rtapi_task_resume(int task_id)
     }
     /* update task data */
     task->state = FREERUN;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_pause(int task_id)
@@ -937,7 +937,7 @@ int rtapi_task_pause(int task_id)
 	return RTAPI_FAIL;
     }
     /* update task data */
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_self(void)
@@ -1104,7 +1104,7 @@ static int shmem_delete(int shmem_id, int module_id)
 	/* yes, we're done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d closed by module %02d\n", shmem_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other realtime users, free the shared memory from kernel space */
     rtai_kfree(shmem->key);
@@ -1116,7 +1116,7 @@ static int shmem_delete(int shmem_id, int module_id)
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d unmapped by module %02d\n", shmem_id,
 	    module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users at all, this ID is now free */
     /* update the data array and usage count */
@@ -1125,7 +1125,7 @@ static int shmem_delete(int shmem_id, int module_id)
     rtapi_data->shmem_count--;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: shmem %02d freed by module %02d\n",
 	shmem_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_shmem_getptr(int shmem_id, void **ptr)
@@ -1140,7 +1140,7 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr)
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1262,7 +1262,7 @@ static int sem_delete(int sem_id, int module_id)
 	/* yes, we're done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: sem %02d closed by module %02d\n", sem_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users, ask the OS to shut down the semaphore */
     rt_sem_delete(&(ossem_array[sem_id]));
@@ -1272,7 +1272,7 @@ static int sem_delete(int sem_id, int module_id)
     rtapi_data->sem_count--;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: sem %02d deleted by module %02d\n",
 	sem_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_give(int sem_id)
@@ -1291,7 +1291,7 @@ int rtapi_sem_give(int sem_id)
     }
     /* give up the semaphore */
     rt_sem_signal(&(ossem_array[sem_id]));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_take(int sem_id)
@@ -1310,7 +1310,7 @@ int rtapi_sem_take(int sem_id)
     }
     /* get the semaphore */
     rt_sem_wait(&(ossem_array[sem_id]));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_try(int sem_id)
@@ -1331,7 +1331,7 @@ int rtapi_sem_try(int sem_id)
     if (rt_sem_wait_if(&(ossem_array[sem_id])) <= 0) {
 	return RTAPI_BUSY;
     }
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1500,7 +1500,7 @@ static int fifo_delete(int fifo_id, int module_id)
 	/* yes, done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: fifo %02d closed by module %02d\n", fifo_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users, call the OS to destroy the fifo */
     /* OS returns open count, loop until truly destroyed */
@@ -1512,7 +1512,7 @@ static int fifo_delete(int fifo_id, int module_id)
     rtapi_data->fifo_count--;
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: fifo %02d deleted by module %02d\n", fifo_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
@@ -1632,7 +1632,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
 	irq_num, owner);
     /* and return success */
     rtapi_mutex_give(&(rtapi_data->mutex));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_irq_delete(unsigned int irq_num)
@@ -1680,21 +1680,21 @@ static int irq_delete(unsigned int irq_num)
     rtapi_data->irq_count--;
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: handler for IRQ %d deleted\n", irq_num);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_enable_interrupt(unsigned int irq)
 {
     rt_startup_irq(irq);
 
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_disable_interrupt(unsigned int irq)
 {
     rt_shutdown_irq(irq);
 
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************

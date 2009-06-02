@@ -114,7 +114,7 @@ int rtapi_app_main(void)
 
     /* start the fifo task */
     retval = rtapi_task_start(fifo_task, FIFO_PERIOD_NSEC);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("fifotask init: rtapi_task_start failed with %d\n",
 	    retval);
 	rtapi_exit(module);
@@ -132,19 +132,19 @@ void rtapi_app_exit(void)
     int retval;
 
     retval = rtapi_task_pause(fifo_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("fifotask exit: rtapi_task_stop failed with %d\n",
 	    retval);
     }
 
     retval = rtapi_task_delete(fifo_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("fifotask exit: rtapi_task_delete failed with %d\n",
 	    retval);
     }
 
     retval = rtapi_fifo_delete(fifo, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("fifotask exit: rtapi_fifo_delete failed with %d\n",
 	    retval);
     }

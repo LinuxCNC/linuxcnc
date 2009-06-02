@@ -31,7 +31,7 @@ int rtapi_init(const char *modname)
 int rtapi_exit(int module_id)
 {
   /* does nothing, for now */
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
