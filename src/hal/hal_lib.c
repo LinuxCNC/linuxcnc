@@ -349,7 +349,7 @@ int hal_exit(int comp_id)
 
     ref_cnt --;
 
-    return HAL_SUCCESS;
+    return 0;
 }
 
 void *hal_malloc(long int size)
@@ -409,7 +409,7 @@ int hal_set_constructor(int comp_id, constructor make) {
     comp->make = make;
 
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 #endif
 
@@ -450,7 +450,7 @@ int hal_ready(int comp_id) {
     }
     comp->ready = 1;
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -466,7 +466,7 @@ int hal_set_lock(unsigned char lock_type) {
 	return -EINVAL;
     }
     hal_data->lock = lock_type;
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /** The 'hal_get_lock()' function returns the current locking level 
@@ -659,7 +659,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -668,7 +668,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
@@ -790,7 +790,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    pin->next_ptr = next;
 	    *prev = SHMOFF(pin);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, pin->name);
@@ -799,7 +799,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    pin->next_ptr = next;
 	    *prev = SHMOFF(pin);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -905,7 +905,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -914,7 +914,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -954,7 +954,7 @@ int hal_signal_delete(const char *name)
 	    free_sig_struct(sig);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* no match, try the next one */
 	prev = &(sig->next_ptr);
@@ -1022,7 +1022,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
-	return HAL_SUCCESS;
+	return 0;
     }
     /* is the pin connected to something else? */
     if(pin->signal) {
@@ -1075,7 +1075,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     pin->signal = SHMOFF(sig);
     /* done, release the mutex and return */
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_unlink(const char *pin_name)
@@ -1115,7 +1115,7 @@ int hal_unlink(const char *pin_name)
     unlink_pin(pin);
     /* done, release the mutex and return */
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1289,7 +1289,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -1298,7 +1298,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
@@ -1409,7 +1409,7 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	return -EINVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_param_alias(const char *param_name, const char *alias)
@@ -1518,7 +1518,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    param->next_ptr = next;
 	    *prev = SHMOFF(param);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, param->name);
@@ -1527,7 +1527,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    param->next_ptr = next;
 	    *prev = SHMOFF(param);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -1654,7 +1654,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
@@ -1820,7 +1820,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
-    return HAL_SUCCESS;
+    return 0;
 }
 
 extern int hal_thread_delete(const char *name)
@@ -1855,7 +1855,7 @@ extern int hal_thread_delete(const char *name)
 	    free_thread_struct(thread);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* no match, try the next one */
 	prev = &(thread->next_ptr);
@@ -1999,7 +1999,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     /* update the function usage count */
     funct->users++;
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
@@ -2085,7 +2085,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	    free_funct_entry_struct(funct_entry);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* try next one */
 	list_entry = list_next(list_entry);
@@ -2110,7 +2110,7 @@ int hal_start_threads(void)
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: starting threads\n");
     hal_data->threads_running = 1;
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_stop_threads(void)
@@ -2130,7 +2130,7 @@ int hal_stop_threads(void)
 
     hal_data->threads_running = 0;
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************

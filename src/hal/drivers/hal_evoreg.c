@@ -207,7 +207,7 @@ int rtapi_app_main(void)
       rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.dac-%02d-out", 1, num_dac);
       retval =
 	  hal_pin_float_new(name, HAL_IN, &(port_data_array->dac_out[num_dac-1]), comp_id);
-      if (retval != HAL_SUCCESS) {
+      if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	    "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
 	    retval);
@@ -221,7 +221,7 @@ int rtapi_app_main(void)
   	  rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.position-%02d-in", 1, num_enc);
       retval =
 	  hal_pin_float_new(name, HAL_OUT, &(port_data_array->position[num_enc - 1]), comp_id);
-      if (retval != HAL_SUCCESS) {
+      if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
 	      retval);
@@ -240,7 +240,7 @@ int rtapi_app_main(void)
       /* export another write only HAL pin for the same bit inverted */
     /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-in-not", 1, i);
       retval += hal_pin_bit_new(name, HAL_OUT, &(port_data_array->digital_in[(2*i)+1]), comp_id); */
-      if (retval != HAL_SUCCESS) {
+      if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
 	      retval);
@@ -257,7 +257,7 @@ int rtapi_app_main(void)
       /* export another read only HAL pin for the same bit inverted */
     /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-out-not", 1, i);
       retval += hal_pin_bit_new(name, HAL_IN, &(port_data_array->digital_out[(2*i)+1]), comp_id);  */
-      if (retval != HAL_SUCCESS) {
+      if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
 	      retval);
@@ -279,7 +279,7 @@ int rtapi_app_main(void)
     retval =
 	hal_export_funct(name, update_port, &(port_data_array[n]), 1, 0,
 	comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "EVOREG: ERROR: port %d write funct export failed\n", n + 1);
 	hal_exit(comp_id);

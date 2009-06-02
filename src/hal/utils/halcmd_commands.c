@@ -193,16 +193,16 @@ int do_linkpp_cmd(char *first_pin_name, char *second_pin_name)
     /* now create the signal */
     retval = hal_signal_new(first_pin_name, first_pin->type);
 
-    if (retval == HAL_SUCCESS) {
+    if (retval == 0) {
 	/* if it worked, link the pins to it */
 	retval = hal_link(first_pin_name, first_pin_name);
 
-	if ( retval == HAL_SUCCESS ) {
+	if ( retval == 0 ) {
 	/* if that worked, link the second pin to the new signal */
 	    retval = hal_link(second_pin_name, first_pin_name);
 	}
     }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	halcmd_error("linkpp failed\n");
     }
     return retval;
@@ -245,7 +245,7 @@ int do_source_cmd(char *hal_filename) {
     FILE *f = fopen(hal_filename, "r");
     char buf[MAX_CMD_LEN+1];
     int fd;
-    int result = HAL_SUCCESS;
+    int result = 0;
     int lineno_save = halcmd_get_linenumber();
     int linenumber = 1;
     char *filename_save = strdup(halcmd_get_filename());
@@ -422,7 +422,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         pincnt++;
     }
     if(pincnt)
-        return HAL_SUCCESS;
+        return 0;
     halcmd_error("'net' requires at least one pin, none given\n");
     return -EINVAL;
 }
@@ -437,7 +437,7 @@ int do_net_cmd(char *signal, char *pins[]) {
 
     /* verify that everything matches up (pin types, etc) */
     retval = preflight_net_cmd(signal, sig, pins);
-    if(retval != HAL_SUCCESS) {
+    if(retval < 0) {
         rtapi_mutex_give(&(hal_data->mutex));
         return retval;
     }
@@ -464,7 +464,7 @@ int do_net_cmd(char *signal, char *pins[]) {
         rtapi_mutex_give(&(hal_data->mutex));
     }
     /* add pins to signal */
-    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+    for(i=0; retval == 0 && pins[i] && *pins[i]; i++) {
         retval = do_linkps_cmd(pins[i], signal);
     }
 
@@ -574,7 +574,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
 
     rtapi_mutex_give(&(hal_data->mutex));
     }
-    return HAL_SUCCESS;
+    return 0;
 }
 #endif /* newinst deferred */
 
@@ -594,7 +594,7 @@ int do_newsig_cmd(char *name, char *type)
 	halcmd_error("Unknown signal type '%s'\n", type);
 	retval = -EINVAL;
     }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	halcmd_error("newsig failed\n");
     }
     return retval;
@@ -738,7 +738,7 @@ int do_ptype_cmd(char *name)
         type = param->type;
         halcmd_output("%s\n", data_type2(type));
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_SUCCESS;
+        return 0;
     }
         
     /* not found, search pin list for name */
@@ -748,7 +748,7 @@ int do_ptype_cmd(char *name)
         type = pin->type;
         halcmd_output("%s\n", data_type2(type));
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_SUCCESS;
+        return 0;
     }   
     
     rtapi_mutex_give(&(hal_data->mutex));
@@ -776,7 +776,7 @@ int do_getp_cmd(char *name)
         d_ptr = SHMPTR(param->data_ptr);
         halcmd_output("%s\n", data_value2((int) type, d_ptr));
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_SUCCESS;
+        return 0;
     }
         
     /* not found, search pin list for name */
@@ -793,7 +793,7 @@ int do_getp_cmd(char *name)
         }
         halcmd_output("%s\n", data_value2((int) type, d_ptr));
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_SUCCESS;
+        return 0;
     }   
     
     rtapi_mutex_give(&(hal_data->mutex));
@@ -858,7 +858,7 @@ int do_stype_cmd(char *name)
     type = sig->type;
     halcmd_output("%s\n", data_type2(type));
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int do_gets_cmd(char *name)
@@ -882,7 +882,7 @@ int do_gets_cmd(char *name)
     d_ptr = SHMPTR(sig->data_ptr);
     halcmd_output("%s\n", data_value2((int) type, d_ptr));
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 static int get_type(char ***patterns) {
@@ -1266,7 +1266,7 @@ int do_unloadrt_cmd(char *mod_name)
 	    retval1 = retval;
 	}
     }
-    if (retval1 != HAL_SUCCESS) {
+    if (retval1 < 0) {
 	halcmd_error("unloadrt failed\n");
     }
     return retval1;
@@ -2556,7 +2556,7 @@ static void save_threads(FILE *dst)
 }
 
 int do_setexact_cmd() {
-    int retval = HAL_SUCCESS;
+    int retval = 0;
     rtapi_mutex_get(&(hal_data->mutex));
     if(hal_data->base_period) {
         halcmd_error(

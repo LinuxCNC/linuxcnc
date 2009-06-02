@@ -197,7 +197,7 @@ extern int hal_init(const char *name);
     'hal_exit()' calls 'rtapi_exit()', so any rtapi reaources
     allocated should be discarded before calling hal_exit(), and
     rtapi functios should not be called afterwards.
-    On success, hal_exit() returns HAL_SUCCESS, on failure it
+    On success, hal_exit() returns 0, on failure it
     returns a negative error code.
 */
 extern int hal_exit(int comp_id);
@@ -346,7 +346,7 @@ extern unsigned char hal_get_lock(void);
     some cases, a user mode component may be doing setup for a
     realtime component, so the ID should be that of the realtime
     component that will actually be using the pin.
-    If successful, the hal_pin_xxx_new() functions return HAL_SUCCESS.
+    If successful, the hal_pin_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
 extern int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
@@ -361,7 +361,7 @@ extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
 /** The hal_pin_XXX_newf family of functions are similar to
     hal_pin_XXX_new except that they also do printf-style formatting to compute
     the pin name
-    If successful, the hal_pin_xxx_newf() functions return HAL_SUCCESS.
+    If successful, the hal_pin_xxx_newf() functions return 0.
     On failure they return a negative error code.
 */
 extern int hal_pin_bit_newf(hal_pin_dir_t dir,
@@ -390,7 +390,7 @@ extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     the functions above.
     'type' is the hal type of the new pin - the type of data that
     will be passed in/out of the component through the new pin.
-    If successful, hal_pin_new() returns HAL_SUCCESS.  On failure
+    If successful, hal_pin_new() returns 0.  On failure
     it returns a negative error code.
 */
 extern int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
@@ -428,7 +428,7 @@ extern int hal_pin_alias(const char *pin_name, const char *alias);
     the signal.  Also note that signals, unlike pins, do not have
     'owners'.  Once created, a signal remains in place until either it
     is deleted, or the last HAL component exits.
-    If successful, 'hal_signal_new() returns HAL_SUCCESS.  On failure
+    If successful, 'hal_signal_new() returns 0.  On failure
     it returns a negative error code.
 */
 extern int hal_signal_new(const char *name, hal_type_t type);
@@ -436,7 +436,7 @@ extern int hal_signal_new(const char *name, hal_type_t type);
 /** 'hal_signal_delete()' deletes a signal object.  Any pins linked to
     the object are unlinked.
     'name' is the name of the signal to be deleted.
-    If successful, 'hal_signal_delete()' returns HAL_SUCCESS.  On
+    If successful, 'hal_signal_delete()' returns 0.  On
     failure, it returns a negative error code.
 */
 extern int hal_signal_delete(const char *name);
@@ -449,14 +449,14 @@ extern int hal_signal_delete(const char *name);
     to break an existing connection.)  If the signal already has other
     pins linked to it, they are unaffected - one signal can be linked
     to many pins, but a pin can be linked to only one signal.
-    On success, hal_link() returns HAL_SUCCESS, on failure it returns a
+    On success, hal_link() returns 0, on failure it returns a
     negative error code.
 */
 extern int hal_link(const char *pin_name, const char *sig_name);
 
 /** 'hal_unlink()' unlinks any signal from the specified pin.  'pin_name'
     is a string containing the pin name.
-    On success, hal_unlink() returns HAL_SUCCESS, on failure it
+    On success, hal_unlink() returns 0, on failure it
     returns a negative error code.
 */
 extern int hal_unlink(const char *pin_name);
@@ -494,7 +494,7 @@ extern int hal_unlink(const char *pin_name);
     user mode component may be doing setup for a realtime component, so
     the ID should be that of the realtime component that will actually
     be using the parameter.
-    If successful, the hal_param_xxx_new() functions return HAL_SUCCESS.
+    If successful, the hal_param_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
 extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
@@ -537,7 +537,7 @@ extern int hal_param_s32_newf(hal_param_dir_t dir,
     view "into" the component for testing or troubleshooting.  HAL_RW
     parameters are writable from outside and also sometimes modified by the
     component itself as well.
-    If successful, hal_param_new() returns HAL_SUCCESS.  On failure
+    If successful, hal_param_new() returns 0.  On failure
     it returns a negative error code.
 */
 extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
@@ -554,7 +554,7 @@ extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
     parameter type must match the function type, and the parameter
     must not be read-only.
     'value' is the value to be loaded into the parameter.
-    On success, the hal_param_xxx_set() functions return HAL_SUCCESS,
+    On success, the hal_param_xxx_set() functions return 0,
     and on failure they return a negative error code.
 */
 extern int hal_param_bit_set(const char *name, int value);
@@ -581,7 +581,7 @@ extern int hal_param_alias(const char *pin_name, const char *alias);
     'value_addr' is a pointer to the new value of the parameter.
     The data at that location will be interpreted according to the
     type of the parameter.
-    If successful, hal_param_set() returns HAL_SUCCESS.  On failure
+    If successful, hal_param_set() returns 0.  On failure
     it returns a negative error code.
 */
 extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
@@ -619,7 +619,7 @@ extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
     before the first call completes.
     'comp_id' is the ID of the calling component, as returned by
     a call to hal_init().
-    On success, hal_export_funct() returns HAL_SUCCESS, on failure
+    On success, hal_export_funct() returns 0, on failure
     it returns a negative error code.
     Call only from realtime init code, not from user space or
     realtime code.
@@ -655,7 +655,7 @@ extern int hal_create_thread(const char *name, unsigned long period_nsec,
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created
     by 'hal_create_thread()'.
-    On success, hal_thread_delete() returns HAL_SUCCESS, on
+    On success, hal_thread_delete() returns 0, on
     failure it returns a negative error code.
     Call only from realtime init code, not from user
     space or realtime code.
@@ -681,7 +681,7 @@ extern int hal_thread_delete(const char *name);
     function will become the first one to run, +5 means it will
     be the fifth one to run, -2 means it will be next to last,
     and -1 means it will be last.  Zero is illegal.
-    Returns HAL_SUCCESS, or a negative error code.    Call
+    Returns 0, or a negative error code.    Call
     only from within user space or init code, not from
     realtime code.
 */
@@ -693,7 +693,7 @@ extern int hal_add_funct_to_thread(const char *funct_name, const char *thread_na
     a call to hal_export_funct().
     'thread_name' is the name of a thread which currently calls
     the function.
-    Returns HAL_SUCCESS, or a negative error code.    Call
+    Returns 0, or a negative error code.    Call
     only from within user space or init code, not from
     realtime code.
 */
@@ -701,7 +701,7 @@ extern int hal_del_funct_from_thread(const char *funct_name, const char *thread_
 
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
-    On success it returns HAL_SUCCESS, on failure a negative
+    On success it returns 0, on failure a negative
     error code.
 */
 extern int hal_start_threads(void);
@@ -709,7 +709,7 @@ extern int hal_start_threads(void);
 /** hal_stop_threads() stops all threads that were previously
     started by hal_start_threads().  It should be called before
     any component that is part of a system exits.
-    On success it returns HAL_SUCCESS, on failure a negative
+    On success it returns 0, on failure a negative
     error code.
 */
 extern int hal_stop_threads(void);

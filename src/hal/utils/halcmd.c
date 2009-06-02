@@ -121,7 +121,7 @@ int halcmd_startup(int quiet) {
 	return -EINVAL;
     }
     hal_ready(comp_id);
-    return HAL_SUCCESS;
+    return 0;
 }
 
 void halcmd_shutdown(void) {
@@ -324,7 +324,7 @@ static int parse_cmd1(char **argv) {
     int argc = count_args(argv);
 
     if(argc == 0)
-        return HAL_SUCCESS;
+        return 0;
 
     if(!command) {
 	// special case: sig = newvalue

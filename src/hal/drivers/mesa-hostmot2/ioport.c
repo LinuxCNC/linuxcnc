@@ -234,7 +234,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
@@ -247,7 +247,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
@@ -271,7 +271,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }
@@ -284,7 +284,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }
@@ -308,7 +308,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
@@ -324,7 +324,7 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
                 hm2->llio->name,
                 i
             );
-            if (r != HAL_SUCCESS) {
+            if (r < 0) {
                 HM2_ERR("error %d adding gpio param, aborting\n", r);
                 return -EINVAL;
             }

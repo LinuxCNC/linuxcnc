@@ -21,12 +21,12 @@ static void shutdown(void) {
 }
 
 static int init() {
-    int result = HAL_SUCCESS;
+    int result = 0;
     if(refcount == 0) {
         result = halcmd_startup(0);
         atexit(shutdown);
     }
-    if(result == HAL_SUCCESS) {
+    if(result == 0) {
         refcount ++;
     }
     return result;
@@ -49,14 +49,14 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
     result = halcmd_parse_cmd((char **)argv+1);
     target_interp = NULL;
 
-    if(result == HAL_SUCCESS) return TCL_OK;
+    if(result == 0) return TCL_OK;
     halError(interp, result);
     return TCL_ERROR;
 }
 
 int Hal_Init(Tcl_Interp *interp) {
     int result = init();
-    if(result != HAL_SUCCESS) {
+    if(result < 0) {
 	Tcl_ResetResult(interp);
 	halError(interp, result);
 	return TCL_ERROR;

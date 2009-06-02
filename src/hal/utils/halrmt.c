@@ -611,7 +611,7 @@ static int release_HAL_mutex(void)
     rtapi_shmem_delete(mem_id, comp_id);
     rtapi_exit(comp_id);
     /* done */
-    return HAL_SUCCESS;
+    return 0;
 
 }
 
@@ -702,15 +702,15 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     /* now create the signal */
     retval = hal_signal_new(first_pin_name, first_pin->type);
 
-    if (retval == HAL_SUCCESS) {
+    if (retval == 0) {
       /* if it worked, link the pins to it */
       retval = hal_link(first_pin_name, first_pin_name);
 
-      if ( retval == HAL_SUCCESS )
+      if ( retval == 0 )
       /* if that worked, link the second pin to the new signal */
         retval = hal_link(second_pin_name, first_pin_name);
       }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
       sprintf(errorStr, "HAL:%d: linkpp failed", linenumber);
       sockWriteError(nakStr, context);
       }
@@ -799,7 +799,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
         pincnt++;
     }
     if(pincnt)
-        return HAL_SUCCESS;
+        return 0;
 //    halcmd_error("'net' requires at least one pin, none given\n");
     sprintf(errorStr, "'net' requires at least one pin, none given");
     sockWriteError(nakStr, context);
@@ -819,7 +819,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
 
     /* verify that everything matches up (pin types, etc) */
     retval = preflightNet(signal, sig, pins, context);
-    if(retval != HAL_SUCCESS) {
+    if(retval < 0) {
         rtapi_mutex_give(&(hal_data->mutex));
         return retval;
     }
@@ -847,7 +847,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
         rtapi_mutex_give(&(hal_data->mutex));
     }
     /* add pins to signal */
-    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+    for(i=0; retval == 0 && pins[i] && *pins[i]; i++) {
         retval = doLinkPS(pins[i], signal, context);
     }
 
@@ -897,7 +897,7 @@ static int doNewsig(char *name, char *type, connectionRecType *context)
             sockWriteError(nakStr, context);
             retval = -EINVAL;
             }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
       sprintf(errorStr, "HAL:%d: newsig failed", linenumber);
       sockWriteError(nakStr, context);
       }
@@ -1340,7 +1340,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
 	    retval1 = retval;
 	}
     }
-/*    if (retval1 != HAL_SUCCESS) {
+/*    if (retval1 < 0) {
         sprintf(errorStr, "unloadrt failed");
         sockWriteError(nakStr, context);
       } */
@@ -3453,7 +3453,7 @@ int main(int argc, char **argv)
 	    switch (*cp1) {
 	    case 'R':
 		/* force an unlock of the HAL mutex - to be used after a segfault in a hal program */
-		if (release_HAL_mutex() != HAL_SUCCESS) {
+		if (release_HAL_mutex() < 0) {
 			printf("halrmt: Release Mutex failed!\n");
 			return 1;
 		}

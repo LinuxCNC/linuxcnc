@@ -928,7 +928,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
         rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
         r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
-        if (r != HAL_SUCCESS) {
+        if (r < 0) {
             HM2_ERR("error adding param '%s', aborting\n", name);
             r = -EINVAL;
             goto fail0;

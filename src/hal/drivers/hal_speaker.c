@@ -173,7 +173,7 @@ int rtapi_app_main(void)
         rtapi_snprintf(name, HAL_NAME_LEN, "speaker.%d.pin-%02d-out", n, i);
         retval = hal_pin_bit_new(
                 name, HAL_IN, &(port_data_array->signals[i]), comp_id);
-        if (retval != HAL_SUCCESS) {
+        if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "SPEAKER: ERROR: port %d var export failed with err=%i\n", n,
                 retval);
@@ -187,7 +187,7 @@ int rtapi_app_main(void)
     retval =
 	hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,
 	comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: port %d write funct export failed\n", n);
 	hal_exit(comp_id);

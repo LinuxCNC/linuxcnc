@@ -97,7 +97,7 @@ int main(int argc, char **argv)
         switch(c) {
             case 'R':
        		/* force an unlock of the HAL mutex - to be used after a segfault in a hal program */
-		if (release_HAL_mutex() != HAL_SUCCESS) {
+		if (release_HAL_mutex() < 0) {
 			printf("HALCMD: Release Mutex failed!\n");
 			return 1;
 		}
@@ -316,7 +316,7 @@ static int release_HAL_mutex(void)
     rtapi_shmem_delete(mem_id, comp_id);
     rtapi_exit(comp_id);
     /* done */
-    return HAL_SUCCESS;
+    return 0;
 
 }
 

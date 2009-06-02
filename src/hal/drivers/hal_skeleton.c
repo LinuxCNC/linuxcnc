@@ -173,7 +173,7 @@ int rtapi_app_main(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "skeleton.%d.pin-%02d-out", n, 1);
     retval =
 	hal_pin_u32_new(name, HAL_IN, &(port_data_array->data_out), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n,
 	    retval);
@@ -186,7 +186,7 @@ int rtapi_app_main(void)
     retval =
 	hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,
 	comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d write funct export failed\n", n);
 	hal_exit(comp_id);
