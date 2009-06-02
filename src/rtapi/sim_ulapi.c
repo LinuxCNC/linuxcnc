@@ -40,22 +40,22 @@ int rtapi_exit(int module_id)
 int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_delete(int fifo_id, int module_id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_read(int fifo_id, char *buf, unsigned long size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 #include "rtapi/sim_common.h"

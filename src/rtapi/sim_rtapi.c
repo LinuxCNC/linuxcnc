@@ -267,7 +267,7 @@ int rtapi_task_pause(int task_id)
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_task_resume(int task_id)
@@ -281,7 +281,7 @@ int rtapi_task_resume(int task_id)
   if (task->magic != TASK_MAGIC)
     return RTAPI_INVAL;
 
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -325,22 +325,22 @@ unsigned char rtapi_inb(unsigned int port)
 
 int rtapi_assign_interrupt_handler(unsigned int irq, void (*handler) (void))
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_free_interrupt_handler(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_enable_interrupt(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_disable_interrupt(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -348,27 +348,27 @@ int rtapi_disable_interrupt(unsigned int irq)
 
 int rtapi_sem_new(int key, int module_id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_delete(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_give(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_take(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_try(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -378,23 +378,23 @@ int rtapi_sem_try(int id)
 int rtapi_fifo_new(int key, unsigned long int size,
 		   rtapi_fifo_handle * fifoptr)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_delete(rtapi_fifo_handle fifo)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_read(rtapi_fifo_handle fifo, char *buf, unsigned long int size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_write(rtapi_fifo_handle fifo,
 		     char *buf, unsigned long int size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 #endif
 
