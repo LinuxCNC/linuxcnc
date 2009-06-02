@@ -134,23 +134,10 @@ extern "C" {
 
 #include <rtapi_errno.h>
 
-/** These status codes are returned by many HAL functions. */
-
-#define HAL_SUCCESS       0	 /* call successfull */
-#define HAL_UNSUP        -ENOSYS /* function not supported */
-#define HAL_BADVAR       -ENOENT /* duplicate or not-found variable name */
-#define HAL_INVAL        -EINVAL /* invalid argument */
-#define HAL_NOMEM        -ENOMEM /* not enough memory */
-#define HAL_LIMIT        -EMFILE /* resource limit reached */
-#define HAL_PERM         -EPERM	 /* permission denied */
-#define HAL_BUSY         -EBUSY  /* resource is busy or locked */
-#define HAL_NOTFND       -ENOENT /* object not found */
-#define HAL_FAIL         -EINVAL /* operation failed */
-
 #define HAL_NAME_LEN     41	/* length for pin, signal, etc, names */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
-/** The functions locked will return a HAL_PERM error message **/
+/** The functions locked will return a -EPERM error message **/
 
 #define HAL_LOCK_NONE     0     /* no locking done, any command is permitted */
 #define HAL_LOCK_LOAD     1     /* loading rt components is not permitted */
