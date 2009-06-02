@@ -887,7 +887,7 @@ linkable(double x, double y, double z,
         if(t0 > 1) t0 = 1;
 
         double D = mag(P - (B + t0 * M));
-        if(D > canonMotionTolerance) return false;
+        if(D > canonNaivecamTolerance) return false;
     }
     return true;
 }
