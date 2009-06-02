@@ -559,7 +559,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         rtapi_mutex_give(&(hal_data->mutex));
         halcmd_error(
             "insufficient memory for instance '%s'\n", inst_name);
-        return HAL_NOMEM;
+        return -ENOMEM;
     }
     inst->comp_id = comp->comp_id | 0x10000;
     inst->mem_id = -1;

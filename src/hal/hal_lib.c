@@ -248,7 +248,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for component '%s'\n", hal_name);
 	rtapi_exit(comp_id);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     comp->comp_id = comp_id;
@@ -523,7 +523,7 @@ int hal_pin_bit_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -536,7 +536,7 @@ int hal_pin_float_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
 	comp_id);
 }
@@ -550,7 +550,7 @@ int hal_pin_u32_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -563,7 +563,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -638,7 +638,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for pin '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->data_ptr_addr = SHMOFF(data_ptr_addr);
@@ -873,7 +873,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for signal '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the signal value */
     switch (type) {
@@ -1157,7 +1157,7 @@ int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
@@ -1170,7 +1170,7 @@ int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
@@ -1183,7 +1183,7 @@ int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
@@ -1196,7 +1196,7 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
@@ -1272,7 +1272,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for parameter '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->owner_ptr = SHMOFF(comp);
@@ -1598,7 +1598,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for function '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
@@ -1716,7 +1716,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory to create thread\n");
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
@@ -1988,7 +1988,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for thread->function link\n");
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* init struct contents */
     funct_entry->funct_ptr = SHMOFF(funct);
