@@ -308,17 +308,21 @@ _("Multi Hand Wheel-A Phase"), _("Multi Hand Wheel-B Phase"), _("Multi Hand Whee
 X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
 Y_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
 Z_STEPGEN_STEP, Z_STEPGEN_DIR, Z_STEPGEN_PHC, Z_STEPGEN_PHD, Z_STEPGEN_PHE, Z_STEPGEN_PHF,
-A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_STEPGEN_PHF,) = hal_stepper_names = ["unused-stepgen", 
+A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_STEPGEN_PHF,
+spindle_STEPGEN_STEP, spindle_STEPGEN_DIR, spindle_STEPGEN_PHC, spindle_STEPGEN_PHD, spindle_STEPGEN_PHE, spindle_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
 "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f", 
 "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
-"a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",]
+"a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
+"spindle-stepgen-step", "spindle-stepgen-dir", "spindle-stepgen-phase-c", "spindle-stepgen-phase-d", "spindle-stepgen-phase-e", 
+"spindle-stepgen-phase-f",]
 
 human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved c"), _("X reserved d"), 
 _("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
 _("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
-_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), ]
-
+_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
+_("spindle StepGen-Step"), _("spindle StepGen-Direction"), _("spindle reserved c"), _("spindle reserved d"), _("spindle reserved e"), 
+_("spindle reserved f"), ]
 
 def md5sum(filename):
     try:
@@ -357,10 +361,10 @@ class Data:
         self.period = 25000
 
         self.mesa5i20 = 1
-        self.mesa_currentfirmwaredata = mesafirmwaredata[4]
-        self.mesa_boardname = "5i22"
-        self.mesa_firmware = "SV16"
-        self.mesa_maxgpio = 96
+        self.mesa_currentfirmwaredata = mesafirmwaredata[1]
+        self.mesa_boardname = "5i20"
+        self.mesa_firmware = "SVST8_4"
+        self.mesa_maxgpio = 72
         self.mesa_isawatchdog = 1
         self.mesa_pwm_frequency = 100000
         self.mesa_pdm_frequency = 100000
@@ -368,7 +372,7 @@ class Data:
         self.numof_mesa_encodergens = 4
         self.numof_mesa_pwmgens = 4
         self.numof_mesa_stepgens = 0
-        self.numof_mesa_gpio = 72
+        self.numof_mesa_gpio = 48
         self.pp1_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -1267,7 +1271,7 @@ class Data:
             probe = True
         if not self.findsignal("spindle-pwm") =="false":
             pwm = True
-        if not self.findsignal("pump") =="false":
+        if not self.findsignal("charge-pump") =="false":
             pump = True
         if not self.findsignal("estop-ext") =="false":
             estop = True
@@ -1285,6 +1289,7 @@ class Data:
             flood = True
         if not self.findsignal("spindle-brake") =="false":
             brake = True
+        
 
         if self.axes == 2:
             #print >>file, "loadrt stepgen step_type=0,0"
@@ -1799,7 +1804,7 @@ class Data:
                 if ptype == ENCB:adj = -1
                 if ptype == ENCI:
                     adj = 2
-                    if pinnum in(1,13):adj = 3
+                    if pinnum in(4,16):adj = 3
                 if pinnum ==  3 + adj:truepinnum = 0 +((connum-2)*4) 
                 elif pinnum == 1 + adj:truepinnum = 1 +((connum-2)*4)
                 elif pinnum == 15 + adj:truepinnum = 2 +((connum-2)*4)
@@ -4122,77 +4127,99 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
     def test_axis(self, axis):
         data = self.data
         widgets = self.widgets
-
-        fastdac = float(widgets["fastdac"].get_text())
-        slowdac = float(widgets["slowdac"].get_text())
-        dacspeed = widgets.Dac_speed_fast.get_active()
-        widgets.xtestinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
-        widgets.xtestinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
-        
-        
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
-
         axnum = "xyza".index(axis)
         step = axis + "step"
         dir = axis + "dir"
+        boardname = self.data.mesa_currentfirmwaredata[0]
+        firmware = self.data.mesa_currentfirmwaredata[1]  
+        fastdac = float(widgets["fastdac"].get_text())
+        slowdac = float(widgets["slowdac"].get_text())
+        dacspeed = widgets.Dac_speed_fast.get_active()
+        
+        if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
+             self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
+             return
+   
+        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")       
         halrun.write("""loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n""" % {'period': 30000   })
-        halrun.write("loadusr halmeter\n")
         #halrun.write("loadrt probe_parport")
         #halrun.write("loadrt hal_parport cfg=%(ioaddr)s"% data.ioaddr)
+        halrun.write("loadrt hostmot2\n")
+        halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
+         % (boardname, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
+        halrun.write("loadrt steptest\n")
+        halrun.write("loadusr halmeter \n")
+        halrun.write("addf hm2_%s.0.read slow\n"% boardname)
+        halrun.write("addf steptest.0 slow\n")
+        halrun.write("addf hm2_%s.0.write slow\n"% boardname)
+        halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% boardname)
         #halrun.write("addf parport.0.write fast")
 
-       #TODO fix this to work with mesa and parport
-        boardname = self.data.mesa_boardname
-        amp = self.data.make_pinname(self.data.findsignal( "enable"))
-        print "AMP =",amp
-        print "encoder -A ->",self.data.make_pinname(self.data.findsignal( "x-encoder-a"))
-        temp = self.data.findsignal( "x-encoder-b")
-        print "encoder-B ->",temp +" -> "+self.data.make_pinname(temp)
-        print "encoder-C ->",self.data.make_pinname(self.data.findsignal( "x-encoder-i"))
+       #TODO fix this to eork with parport signals
+        
+        temp = self.data.findsignal( "enable")
+        amp = self.data.make_pinname(temp)
         if not amp == "false":
             if "HOSTMOT2" in amp:    
-                amp = amp.replace("[HOSTMOT2](BOARD)",boardname)
-            #if 'parport' in amp:
-                
-            halrun.write("setp %s true\n"% amp)
+                amp = amp.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"% (amp + ".is_output"))             
+                halrun.write("setp %s true\n"% (amp + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
 
-        estop = self.data.make_pinname(self.data.findsignal( "estop-out"))
+        temp = self.data.findsignal( "estop-out")
+        estop = self.data.make_pinname(temp)
         if not estop =="false":        
             if "HOSTMOT2" in estop:
-                estop = estop.replace("[HOSTMOT2](BOARD)",boardname)     
-           # if 'parport' in estop:
-            halrun.write("setp %s true\n"%  estop)
+                estop = estop.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
+                halrun.write("setp %s true\n"%  (estop + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
+            #if 'parport' in estop:
+                #set up parport signal
 
-      #  for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-       #     inv = getattr(data, "pp1Opin%dinv" % pin)
-       #     if inv:
-       #         halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-        #            % {'pin': pin}) 
-
+        pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
+        if not pwm =="false":        
+            if "HOSTMOT2" in pwm:
+                pwm = pwm.replace("[HOSTMOT2](BOARD)",boardname)     
+                halrun.write("net dac %s \n"%  (pwm +".value"))
+                halrun.write("setp %s \n"%  (pwm +".enable true"))
+                halrun.write("setp %s \n"%  (pwm +".scale 10"))
+            
+        self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
+        if not self.enc =="false":        
+            if "HOSTMOT2" in self.enc:
+                self.enc = self.enc.replace("[HOSTMOT2](BOARD)",boardname)     
+           # if 'parport' in enc:
+                halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
+                halrun.write("setp %s 1\n"%  (self.enc +".scale"))
+                halrun.write("setp %s \n"%  (self.enc +".filter true"))
+                halrun.write("loadusr halmeter -s pin %s \n"%  (self.enc +".position"))
+        
         widgets.dialog1.set_title(_("%s Axis Test") % axis.upper())
-        self.jogplus = self.jogminus = 0
+        self.jogplus = self.jogminus = self.enc_reset =  0
+        self.enc_scale = 1
         self.axis_under_test = axis
-        self.update_axis_params()
-
+        widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
+        widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
+        self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
         widgets.dialog1.show_all()
         result = widgets.dialog1.run()
+
         widgets.dialog1.hide()
-        
         if not amp == "false":
-             halrun.write("setp %s false\n"% amp)
+             halrun.write("setp %s false\n"% (amp + ".out"))
         if not estop == "false":
-             halrun.write("setp %s false\n"% estop)
-
+             halrun.write("setp %s false\n"% (estop + ".out"))
         time.sleep(.001)
-
         halrun.close()        
-
         if result == gtk.RESPONSE_OK:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
-            widgets[axis+"invertmotor"].set_active(widgets.xtestinvertmotor.get_active())
-            widgets[axis+"invertencoder"].set_active(widgets.xtestinvertencoder.get_active())
+            widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
+            widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
             #widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
         self.axis_under_test = None
         self.widgets['window1'].set_sensitive(1)
@@ -4201,13 +4228,14 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun
-       # halrun.write("""
-       #    setp steptest.0.jog-minus %(jogminus)s
-       #     setp steptest.0.jog-plus %(jogplus)s
-       # """ % {
-       #     'jogminus': self.jogminus,
-       #     'jogplus': self.jogplus,           
-       # })
+        if self.widgets.Dac_speed_fast.get_active() == True:output = float(self.widgets.fastdac.get_text())
+        else: output = float(self.widgets.slowdac.get_text())
+        if self.jogminus == 1:output = output * -1
+        elif not self.jogplus == 1:output = 0
+        if self.widgets.testinvertmotor.get_active() == True: output = output * -1
+        halrun.write("""setp %(scalepin)s.scale %(scale)d\n""" % { 'scalepin':self.enc, 'scale': self.enc_scale})
+        halrun.write("""sets dac %(output)f\n""" % { 'output': output})
+        halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
         halrun.flush()
 
     def on_jogminus_pressed(self, w):
@@ -4216,13 +4244,24 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
     def on_jogminus_released(self, w):
         self.jogminus = 0
         self.update_axis_params()
-
     def on_jogplus_pressed(self, w):
         self.jogplus = 1
         self.update_axis_params()
     def on_jogplus_released(self, w):
         self.jogplus = 0
         self.update_axis_params()
+    def on_resetbutton_pressed(self, w):
+        self.enc_reset = 1
+        self.update_axis_params()
+    def on_resetbutton_released(self, w):
+        self.enc_reset = 0
+        self.update_axis_params()
+    def on_testinvertmotor_toggled(self, w):
+        self.update_axis_params()
+    def on_testinvertencoder_toggled(self, w):
+        self.enc_scale = self.enc_scale * -1
+        self.update_axis_params()
+
     def run(self, filename=None):
         if filename is not None:
             self.data.load(filename, self)
