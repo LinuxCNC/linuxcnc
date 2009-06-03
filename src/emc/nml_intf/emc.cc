@@ -1756,7 +1756,6 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(units);
     cms->update(backlash);
     cms->update(maxError);
-    cms->update(deadband);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
     cms->update(maxFerror);
@@ -2298,8 +2297,6 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(maxVelocity);
     cms->update(maxAcceleration);
     EmcPose_update(cms, &probedPosition);
-    cms->update(probe_index);
-    cms->update(probe_polarity);
     cms->update(probe_tripped);
     cms->update(probing);
     cms->update(probeval);

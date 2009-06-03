@@ -332,8 +332,6 @@ static PyMemberDef Stat_members[] = {
     {"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
     {"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
     {"max_acceleration", T_DOUBLE, O(motion.traj.maxAcceleration), READONLY},
-    {"probe_index", T_INT, O(motion.traj.probe_index), READONLY},
-    {"probe_polarity", T_INT, O(motion.traj.probe_polarity), READONLY},
     {"probe_tripped", T_INT, O(motion.traj.probe_tripped), READONLY},
     {"probing", T_INT, O(motion.traj.probing), READONLY},
     {"probe_val", T_INT, O(motion.traj.probeval), READONLY},
@@ -520,7 +518,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F(units);
     F(backlash);
     F2("max_error", maxError);
-    F(deadband);
     F2("min_position_limit", minPositionLimit);
     F2("max_position_limit", maxPositionLimit);
     F2("max_ferror", maxFerror);

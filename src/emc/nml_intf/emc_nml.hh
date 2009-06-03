@@ -459,7 +459,6 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     double units;		// units per mm, deg for linear, angular
     double backlash;
     double maxError;
-    double deadband;
     double minPositionLimit;
     double maxPositionLimit;
     double maxFerror;
@@ -980,10 +979,6 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double maxAcceleration;	// system acceleration
 
     EmcPose probedPosition;	// last position where probe was tripped.
-    int probe_index;		// which wire or digital input is the probe
-    // on.
-    int probe_polarity;		// which value should the probe look for to
-    // trip.
     int probe_tripped;		// Has the probe been tripped since the last
     // clear.
     int probing;		// Are we currently looking for a probe
