@@ -1,16 +1,3 @@
-THINGS THAT ARE DESIRABLE FOR THE NEXT MAJOR RELEASE (EMC-2.4)
+Things to consider for the next minor release
 
-TODO     sort out axis/joints issues: 
-	    * limits need to be imposed on joints (tricky with kins)
-	    * ini changes 
-	    * clean out code (on all different levels, when joints are involved, call them joints..)
-
-TODO     Convert all hardware drivers to use canonical homing, 
-
-Fixes in HAL modules:
-TODO     canonical interfaces and naming conventions
-
-TODO	jmkasunich:
-	Remove the abandoned mesa-5i2x driver and firmware trees.
-	The new hostmot2 system actually works (and is far better).
-	The the files will remain in CVS history for reference.
+- backport commit 4e11c1f7cfceedbcda454a6546b980e386c40063 to fix emccalib on hm2-servo-based configs
