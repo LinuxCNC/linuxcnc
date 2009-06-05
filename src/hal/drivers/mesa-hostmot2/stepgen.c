@@ -29,7 +29,7 @@
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
-#define f_period_s ((hal_float_t)(l_period_ns * 1e-9))
+#define f_period_s ((double)(l_period_ns * 1e-9))
 
 
 
@@ -70,7 +70,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
         *(hm2->stepgen.instance[i].hal.pin.counts) = hm2->stepgen.instance[i].subcounts >> 16;
 
-        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((hal_float_t)hm2->stepgen.instance[i].subcounts / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
+        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((double)hm2->stepgen.instance[i].subcounts / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
 
         hm2->stepgen.instance[i].prev_accumulator = acc;
     }
@@ -85,15 +85,15 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 // on John Kasunich's software stepgen code.
 //
 
-static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period_ns, int i, hal_float_t *new_vel) {
-    hal_float_t ff_vel;
-    hal_float_t velocity_error;
-    hal_float_t match_accel;
-    hal_float_t seconds_to_vel_match;
-    hal_float_t position_at_match;
-    hal_float_t position_cmd_at_match;
-    hal_float_t error_at_match;
-    hal_float_t velocity_cmd;
+static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period_ns, int i, double *new_vel) {
+    double ff_vel;
+    double velocity_error;
+    double match_accel;
+    double seconds_to_vel_match;
+    double position_at_match;
+    double position_cmd_at_match;
+    double error_at_match;
+    double velocity_cmd;
 
     hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
 
@@ -142,7 +142,7 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
     // compute expected position at the time of velocity match
     // Note: this is "feedback position at the beginning of the servo period after we attain velocity match"
     {
-        hal_float_t avg_v;
+        double avg_v;
         avg_v = (ff_vel + *s->hal.pin.velocity_fb) * 0.5;
         position_at_match = *s->hal.pin.position_fb + (avg_v * (seconds_to_vel_match + f_period_s));
     }
@@ -171,8 +171,8 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
         // we're going to have to work for more than one period to match velocity
         // FIXME: I dont really get this part yet
 
-        hal_float_t dv;
-        hal_float_t dp;
+        double dv;
+        double dp;
 
         /* calculate change in final position if we ramp in the opposite direction for one period */
         dv = -2.0 * match_accel * f_period_s;
@@ -192,12 +192,12 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
 
 
 static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_period_ns, int i) {
-    hal_float_t new_vel;
+    double new_vel;
 
-    hal_float_t physical_maxvel;  // max vel supported by current step timings & position-scale
-    hal_float_t maxvel;           // actual max vel to use this time
+    double physical_maxvel;  // max vel supported by current step timings & position-scale
+    double maxvel;           // actual max vel to use this time
 
-    hal_float_t steps_per_sec_cmd;
+    double steps_per_sec_cmd;
 
     hm2_stepgen_instance_t *s = &hm2->stepgen.instance[i];
 
@@ -208,8 +208,8 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
 
     // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
     {
-        hal_float_t min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
-        hal_float_t max_steps_per_s = 1.0e9 / min_ns_per_step;
+        double min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
+        double max_steps_per_s = 1.0e9 / min_ns_per_step;
 
         physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
 
@@ -260,10 +260,10 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     }
 
 
-    *s->hal.pin.velocity_fb = new_vel;
+    *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
 
     steps_per_sec_cmd = new_vel * s->hal.param.position_scale;
-    hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (hal_float_t)hm2->stepgen.clock_frequency);
+    hm2->stepgen.step_rate_reg[i] = steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency);
     *s->hal.pin.dbg_step_rate = hm2->stepgen.step_rate_reg[i];
 }
 

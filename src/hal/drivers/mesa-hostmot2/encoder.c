@@ -409,7 +409,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     //
 
     hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 1e6) - 2;
-    hm2->encoder.seconds_per_tsdiv_clock = (hal_float_t)(hm2->encoder.timestamp_div_reg + 2) / (hal_float_t)hm2->encoder.clock_frequency;
+    hm2->encoder.seconds_per_tsdiv_clock = (double)(hm2->encoder.timestamp_div_reg + 2) / (double)hm2->encoder.clock_frequency;
 
 
     return hm2->encoder.num_instances;
@@ -619,15 +619,15 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
             u16 time_of_interest;  // terrible variable name, sorry
 
             s32 dT_clocks;
-            hal_float_t dT_s;
+            double dT_s;
 
             s32 dS_counts;
-            hal_float_t dS_pos_units;
+            double dS_pos_units;
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
             if (reg_count == e->prev_reg_count) {
-                hal_float_t vel;
+                double vel;
 
                 //
                 // we're moving, but so slow that we didnt get an event
@@ -641,7 +641,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 }
 
                 dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
-                dT_s = (hal_float_t)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+                dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
 
                 if (dT_s >= e->hal.param.vel_timeout) {
                     *e->hal.pin.velocity = 0.0;
@@ -680,7 +680,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 }
 
                 dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
-                dT_s = (hal_float_t)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+                dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
 
                 e->tsc_num_rollovers = 0;  // we're "using up" the rollovers now
 
