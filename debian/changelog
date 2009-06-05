@@ -4,8 +4,12 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
     not following the user request.
   * Increase the HAL shared memory area.  This fixes problems loading complex
     configurations, such as those that use two mesa cards
+  * in AXIS, machine position no longer incorrectly shows the tool offset
+  * in AXIS, use [TRAJ]MAX_LINEAR_VELOCITY for the top end of the max velocity
+    slider, instead of [TRAJ]MAX_VELOCITY which is inappropriate for machines
+    with some linear and some rotary axes.
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 31 May 2009 12:29:40 -0500
+ -- Chris Radek <chris@timeguy.com>  Fri,  5 Jun 2009 15:04:51 -0500
 
 emc2 (1:2.3.1) hardy; urgency=low
 
