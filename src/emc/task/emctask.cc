@@ -353,12 +353,21 @@ int emcTaskPlanInit()
 	    }
 	}
     }
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanInit() returned %d\n", retval);
+    }
+
     return retval;
 }
 
 int emcTaskPlanSetWait()
 {
     waitFlag = 1;
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanSetWait() called\n");
+    }
 
     return 0;
 }
@@ -371,6 +380,10 @@ int emcTaskPlanIsWait()
 int emcTaskPlanClearWait()
 {
     waitFlag = 0;
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanClearWait() called\n");
+    }
 
     return 0;
 }
@@ -389,7 +402,13 @@ int emcTaskPlanSetBlockDelete(ON_OFF state)
 
 int emcTaskPlanSynch()
 {
-    return interp.synch();
+    int retval = interp.synch();
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanSynch() returned %d\n", retval);
+    }
+
+    return retval;
 }
 
 int emcTaskPlanExit()
@@ -411,6 +430,11 @@ int emcTaskPlanOpen(const char *file)
 	return retval;
     }
     taskplanopen = 1;
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanOpen(%s) returned %d\n", file, retval);
+    }
+
     return retval;
 }
 
@@ -429,6 +453,11 @@ int emcTaskPlanRead()
     if (retval > INTERP_MIN_ERROR) {
 	print_interp_error(retval);
     }
+    
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanRead() returned %d\n", retval);
+    }
+    
     return retval;
 }
 
@@ -449,6 +478,11 @@ int emcTaskPlanExecute(const char *command)
     if(command != 0) {
 	FINISH();
     }
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanExecute(0) return %d\n", retval);
+    }
+
     return retval;
 }
 
@@ -461,6 +495,11 @@ int emcTaskPlanExecute(const char *command, int line_number)
     if(command != 0) { // this means MDI
 	FINISH();
     }
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanExecute(%s) returned %d\n", command, retval);
+    }
+
     return retval;
 }
 
@@ -477,7 +516,13 @@ int emcTaskPlanClose()
 
 int emcTaskPlanLine()
 {
-    return interp.line();
+    int retval = interp.line();
+    
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanLine() returned %d\n", retval);
+    }
+
+    return retval;
 }
 
 int emcTaskPlanCommand(char *cmd)
@@ -485,6 +530,12 @@ int emcTaskPlanCommand(char *cmd)
     char buf[LINELEN];
 
     strcpy(cmd, interp.command(buf, LINELEN));
+
+    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+        rcs_print("emcTaskPlanCommand(%s) called. (line_number=%d)\n",
+          cmd, emcStatus->task.readLine);
+    }
+
     return 0;
 }
 

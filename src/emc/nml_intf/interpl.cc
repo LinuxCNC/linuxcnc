@@ -20,6 +20,7 @@
 
 #include "rcs.hh"		// LinkedList
 #include "interpl.hh"		// these decls
+#include "emc.hh"
 #include "emcglb.h"
 #include "linklist.hh"
 #include "nmlmsg.hh"            /* class NMLmsg */
@@ -88,15 +89,12 @@ int NML_INTERP_LIST::append(NMLmsg & nml_msg)
 								   size %
 								   32), 1);
 
-// #ifdef DEBUG_INTERPL
-#if 1
     if (EMC_DEBUG & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
-	    ("NML_INTERP_LIST::append(nml_msg{size=%d,type=%d}) : list_size=%d, line_number = %d\n",
-	     nml_msg.size, nml_msg.type, linked_list_ptr->list_size,
-	     temp_node.line_number);
+	    ("NML_INTERP_LIST::append(nml_msg{size=%d,type=%s}) : list_size=%d, line_number=%d\n",
+	     nml_msg.size, emc_symbol_lookup(nml_msg.type),
+	     linked_list_ptr->list_size, temp_node.line_number);
     }
-#endif
 
     return 0;
 }
@@ -161,14 +159,12 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 								   size %
 								   32), 1);
 
-#ifdef DEBUG_INTERPL
     if (EMC_DEBUG & EMC_DEBUG_INTERP_LIST) {
 	rcs_print
-	    ("NML_INTERP_LIST::append(nml_msg{size=%d,type=%d}) : list_size=%d, line_number = %d\n",
-	     nml_msg_ptr->size, nml_msg_ptr->type,
+	    ("NML_INTERP_LIST::append(nml_msg_ptr{size=%d,type=%s}) : list_size=%d, line_number=%d\n",
+	     nml_msg_ptr->size, emc_symbol_lookup(nml_msg_ptr->type),
 	     linked_list_ptr->list_size, temp_node.line_number);
     }
-#endif
 
     return 0;
 }

@@ -581,9 +581,6 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(emcCommand);
 		// signify no more reading
 		emcTaskPlanSetWait();
-		if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-		    rcs_print("emcTaskPlanSetWait() called\n");
-		}
 		// then resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
@@ -701,9 +698,6 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(emcCommand);
 		// signify no more reading
 		emcTaskPlanSetWait();
-		if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-		    rcs_print("emcTaskPlanSetWait() called\n");
-		}
 		// then resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
@@ -809,9 +803,6 @@ static int emcTaskPlan(void)
 		    emcTaskQueueCommand(emcCommand);
 		    // signify no more reading
 		    emcTaskPlanSetWait();
-		    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-			rcs_print("emcTaskPlanSetWait() called\n");
-		    }
 		    // then resynch interpreter
 		    emcTaskQueueCommand(&taskPlanSynchCmd);
 		    break;
@@ -901,17 +892,9 @@ interpret_again:
 			    emcStatus->task.execState ==
 			    EMC_TASK_EXEC_DONE) {
 			    emcTaskPlanClearWait();
-			    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-				rcs_print
-				    ("emcTaskPlanClearWait() called\n");
-			    }
 			}
 		    } else {
 			readRetval = emcTaskPlanRead();
-			if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-			    rcs_print("emcTaskPlanRead() returned %d\n",
-				      readRetval);
-			}
 			/*! \todo MGS FIXME
 			   This next bit of code is goofy for the following reasons:
 			   1. It uses numbers when these values are #defined in interp_return.hh...
@@ -936,29 +919,13 @@ interpret_again:
 			    // got a good line
 			    // record the line number and command
 			    emcStatus->task.readLine = emcTaskPlanLine();
-			    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-				rcs_print
-				    ("emcTaskPlanLine() returned %d\n",
-				     emcStatus->task.readLine);
-			    }
 
 			    interp_list.set_line_number(emcStatus->task.
 							readLine);
 			    emcTaskPlanCommand((char *) &emcStatus->task.
 					       command);
-			    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-				rcs_print
-				    ("emcTaskPlanCommand(%s) called. (line_number=%d)\n",
-				     ((char *) &emcStatus->task.command),
-				     emcStatus->task.readLine);
-			    }
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(0);
-			    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-				rcs_print
-				    ("emcTaskPlanExecute(0) return %d\n",
-				     execRetval);
-			    }
 			    if (execRetval == -1 /* INTERP_ERROR */  ||
 				execRetval > INTERP_MIN_ERROR || execRetval == 1	/* INTERP_EXIT
 											 */ ) {
@@ -972,10 +939,6 @@ interpret_again:
 				// everything
 				// outstanding is completed
 				emcTaskPlanSetWait();
-				if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-				    rcs_print
-					("emcTaskPlanSetWait() called\n");
-				}
 				// and resynch interp WM
 				emcTaskQueueCommand(&taskPlanSynchCmd);
 			    } else if (execRetval != 0) {
@@ -1278,9 +1241,6 @@ interpret_again:
 		emcTaskQueueCommand(emcCommand);
 		// signify no more reading
 		emcTaskPlanSetWait();
-		if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-		    rcs_print("emcTaskPlanSetWait() called\n");
-		}
 		// then resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
@@ -1462,7 +1422,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (0 == cmd) {
         if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
-            printf("emcTaskIssueCommand() null command\n");
+            rcs_print("emcTaskIssueCommand() null command\n");
         }
 	return 0;
     }
@@ -1953,10 +1913,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_PLAN_OPEN_TYPE:
 	open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
 	retval = emcTaskPlanOpen(open_msg->file);
-	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	    rcs_print("emcTaskPlanOpen(%s) returned %d\n", open_msg->file,
-		      retval);
-	}
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
@@ -1987,18 +1943,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		interp_list.set_line_number(--pseudoMdiLineNumber);
 	    }
 	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
-	    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-		rcs_print("emcTaskPlanExecute(%s) returned %d\n",
-			  execute_msg->command, execRetval);
-	    }
 	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {
 		// this is an end-of-file
 		// need to flush execution, so signify no more reading
 		// until all is done
 		emcTaskPlanSetWait();
-		if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-		    rcs_print("emcTaskPlanSetWait() called\n");
-		}
 		// and resynch the interpreter WM
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		// it's success, so retval really is 0
@@ -2068,9 +2017,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_INIT_TYPE:
 	retval = emcTaskPlanInit();
-	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	    rcs_print("emcTaskPlanInit() returned %d\n", retval);
-	}
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
@@ -2078,9 +2024,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_PLAN_SYNCH_TYPE:
 	retval = emcTaskPlanSynch();
-	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	    rcs_print("emcTaskPlanSynch() returned %d\n", retval);
-	}
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
@@ -2116,7 +2059,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     }
 /* debug */
     if ((EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) && retval) {
-    	printf("emcTaskIssueCommand() returning: %d\n", retval);
+    	rcs_print("emcTaskIssueCommand() returning: %d\n", retval);
     }
     return retval;
 }
@@ -3163,7 +3106,7 @@ int main(int argc, char *argv[])
     /* debugging */
     if (emcTaskNoDelay) {
 	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-	    printf("cycle times (seconds): %f min, %f max\n", minTime,
+	    rcs_print("cycle times (seconds): %f min, %f max\n", minTime,
 	       maxTime);
 	}
     }
