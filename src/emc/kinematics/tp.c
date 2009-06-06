@@ -99,6 +99,17 @@ int tpClear(TP_STRUCT * tp)
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
+    emcmotStatus->current_vel = 0.0;
+    emcmotStatus->distance_to_go = 0.0;
+    emcmotStatus->dtg.tran.x = 0.0;
+    emcmotStatus->dtg.tran.y = 0.0;
+    emcmotStatus->dtg.tran.z = 0.0;
+    emcmotStatus->dtg.a = 0.0;
+    emcmotStatus->dtg.b = 0.0;
+    emcmotStatus->dtg.c = 0.0;
+    emcmotStatus->dtg.u = 0.0;
+    emcmotStatus->dtg.v = 0.0;
+    emcmotStatus->dtg.w = 0.0;
 
     return tpClearDIOs();
 }
@@ -121,6 +132,9 @@ int tpInit(TP_STRUCT * tp)
     tp->currentPos.a = 0.0;
     tp->currentPos.b = 0.0;
     tp->currentPos.c = 0.0;
+    tp->currentPos.u = 0.0;
+    tp->currentPos.v = 0.0;
+    tp->currentPos.w = 0.0;
     
     return tpClear(tp);
 }
