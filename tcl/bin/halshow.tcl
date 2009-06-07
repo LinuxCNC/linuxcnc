@@ -491,15 +491,15 @@ proc watchHAL {which} {
 	if {[catch {hal ptype $varname} type]} { return }
     }
     if {$type == "bit"} {
-        $cisp create oval 20 [expr $i * 20 + 5] 35 [expr $i * 20 + 20] \
+        $cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
-        $cisp create text 80 [expr $i * 20 + 12] -text $label \
+        $cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
     } else {
         # other gets a text display for value
         $cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
-        $cisp create text 80 [expr $i * 20 + 12] -text $label \
+        $cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
     }
     $cisp configure -scrollregion [$cisp bbox all]
