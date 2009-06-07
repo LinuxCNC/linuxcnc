@@ -452,7 +452,7 @@ install-kernel-indep: install-dirs
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
@@ -469,6 +469,7 @@ install-kernel-indep: install-dirs
 	$(FILE) Makefile.modinc $(DESTDIR)/etc/emc2
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(libdir)/emc/tcl
+	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
@@ -505,6 +506,8 @@ install-kernel-dep:
 ifneq "$(BUILD_SYS)" "sim"
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/bfload $(DESTDIR)$(bindir)
+	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
+	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/emc2
 endif # RUN_IN_PLACE
