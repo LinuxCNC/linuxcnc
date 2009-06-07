@@ -1389,8 +1389,9 @@ class App:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             model = self.widgets[p].get_model()
-            model.clear()
+            model.clear()        
             for name in human_output_names: model.append((name,))
+            self.widgets[p].set_wrap_width(3)
             self.widgets[p].set_active(hal_output_names.index(self.data[p]))
             p = 'pin%dinv' % pin
             self.widgets[p].set_active(self.data[p])
@@ -1399,6 +1400,7 @@ class App:
             model = self.widgets[p].get_model()
             model.clear()
             for name in human_input_names: model.append((name,))
+            self.widgets[p].set_wrap_width(3)
             self.widgets[p].set_active(hal_input_names.index(self.data[p]))
             p = 'pin%dinv' % pin
             self.widgets[p].set_active(self.data[p])
