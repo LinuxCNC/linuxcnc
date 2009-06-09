@@ -145,7 +145,7 @@ The encoder index pulse is connected to the parallel port pin 11
 \layout Standard
 
 Basic Steps to add the components and configure them:
-\layout Quote
+\layout LyX-Code
 
 loadrt encoder num_chan=1
 \newline 
@@ -153,9 +153,7 @@ addf encoder.update-counters base-thread
 \newline 
 addf encoder.capture-position servo-thread
 \newline 
-setp encoder.0.position-scale 100
-\newline 
-setp encoder.0.counter-mode 1
+setp encoder.0.position-scale 100 
 \newline 
 net spindle-position encoder.0.position => motion.spindle-revs
 \newline 
