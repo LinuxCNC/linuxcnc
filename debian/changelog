@@ -9,6 +9,16 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
   * in AXIS, use [TRAJ]MAX_LINEAR_VELOCITY for the top end of the max velocity
     slider, instead of [TRAJ]MAX_VELOCITY which is inappropriate for machines
     with some linear and some rotary axes.
+  * hm2 stepgen .position-fb now has sub-step resolution (like the sw stepgen)
+  * hm2 stepgen now supports maxaccel=0, useful when a nice trajectory
+    planner manages your acceleration for you
+  * hm2 stepgen now supports velocity mode
+  * bugfix: the hm2-servo sample config now honors INPUT_SCALE from the .ini
+  * bugfix: much lower following error for the hm2 stepgen 
+  * bugfix: hm2 encoder now honors .reset even when no encoder edges are
+    coming in
+  * bugfix: (minor) the hm2 driver now uses double instead of hal_float_t
+    for internal temporary variables
 
  -- Chris Radek <chris@timeguy.com>  Fri,  5 Jun 2009 15:04:51 -0500
 
