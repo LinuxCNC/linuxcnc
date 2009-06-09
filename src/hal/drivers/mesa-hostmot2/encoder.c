@@ -460,14 +460,12 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
 
 /**
- * @brief Updates the driver's idea of the encoder's position.
+ * @brief Updates the encoder's rawcounts accumulator, and checks for index pulse if appropriate.
  *
  * Sets these variables:
  *
  *     hal.pin.rawcounts
- *     hal.pin.count
- *     hal.pin.position
- *     prev_reg_count
+ *     .prev_reg_count
  *     (maybe) .index_enabled and .zero_offset
  *
  * This function expects the TRAM read to have just finished, so that
@@ -480,7 +478,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
  * @param instance The index of the encoder instance.
  */
 
-static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) {
+static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *hm2, int instance) {
     u16 reg_count;
     s32 reg_count_diff;
     s32 prev_rawcounts;
@@ -532,10 +530,44 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
             e->zero_offset = prev_rawcounts + reg_count_diff;
-
             *e->hal.pin.index_enable = 0;
         }
     }
+
+    e->prev_reg_count = reg_count;
+}
+
+
+
+
+/**
+ * @brief Updates the driver's idea of the encoder's position.
+ *
+ * Sets these variables:
+ *
+ *     hal.pin.count
+ *     hal.pin.position
+ *     .prev_reg_count
+ *     .zero_offset (if hal.pin.reset is True)
+ *
+ * This function expects the TRAM read and (if appropriate) the
+ * hm2_encoder_instance_update_rawcounts_and_check_for_index() function to
+ * have just finished, so that counter_reg[i], rawcounts, and zero_offset
+ * are all up-to-date.
+ *
+ * This function optionally sets .zero_offset (if .reset is True), then
+ * computes .counts and .position from .rawcounts, .scale, and
+ * .zero_offset.
+ *
+ * @param hm2 The hostmot2 structure being worked on.
+ *
+ * @param instance The index of the encoder instance.
+ */
+
+static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) {
+    hm2_encoder_instance_t *e;
+
+    e = &hm2->encoder.instance[instance];
 
 
     // 
@@ -563,9 +595,6 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     //
 
     *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
-
-
-    e->prev_reg_count = reg_count;
 }
 
 
@@ -595,10 +624,15 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
-            if (reg_count == e->prev_reg_count) return;  // still not moving
+            if (reg_count == e->prev_reg_count) {
+                // still not moving, but .reset can change the position
+                hm2_encoder_instance_update_position(hm2, instance);
+                return;
+            }
 
             // if we get here, we *were* stopped but now we're moving
 
+            hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
             hm2_encoder_instance_update_position(hm2, instance);
 
             e->prev_event_rawcounts = *e->hal.pin.rawcounts;
@@ -633,6 +667,9 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 // we're moving, but so slow that we didnt get an event
                 // since last time we checked
                 // 
+
+                // .reset can still change the position
+                hm2_encoder_instance_update_position(hm2, instance);
 
                 time_of_interest = hm2_encoder_get_reg_tsc(hm2);
                 if (time_of_interest < e->prev_time_of_interest) {
@@ -671,6 +708,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 //  we got a new event!
                 //
 
+                hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
                 hm2_encoder_instance_update_position(hm2, instance);
 
                 time_of_interest = hm2_encoder_get_reg_timestamp(hm2, instance);

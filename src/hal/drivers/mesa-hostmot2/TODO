@@ -2,6 +2,18 @@
 
 next steps:
 
+    encoder: 
+
+        <micges> and for some values .velocity from encoder was NAN
+        <micges> version from emc2.3 beta but encoder.c didn't change since then
+        ...
+        <seb_kuzminsky> what was the condition when it reported NaN for velocity?  going fast or slow?  changing speed?  anything funky going on?
+        <micges> slow and changing speed to -slow
+        ...
+        <micges> seb: that was on encoder.2 and scale was set to 1000
+        <micges> velocities from +-20 to +-200 changed by setp
+
+
     hm2_pci calls pci_register_driver,
     and should fail if no boards are found:
     <http://people.nl.linux.org/ftp/pub/anoncvs/kernelnewbies/documents/kdoc/kernel-api/r8314.html>
@@ -10,6 +22,36 @@ next steps:
     stepgen:
 
         timing fixes
+
+
+        Got a rare failure from the stepgen/medium-move-with-maxvel=0 test
+        (nothing else wrong in stepgen.samples):
+
+            0
+            0
+            3
+            2
+            3
+            3
+            4
+            4
+            4
+
+
+        <PCW> Theres also a race condition that I cant easily fix (Ive known about this for awhile but didnt think it was likely to run into)
+        <PCW> So it should probably go in the manual:
+        <PCW> The servo thread period  - jitter cannot be less than the sum of dirsetup and dirhold times 
+        <PCW> for modern step drives this  this would be hard to violate, for old parker drives with 300 usec times
+        <PCW> it may be an issue 
+        <PCW> (with servo rate > ~1.6KHz)
+        <PCW> BBL
+        <seb_kuzminsky> PCW, wait a sec
+        <PCW> dog needs to be fed, nibbling on my ankles...
+        <seb_kuzminsky> do you mean the jitter of the servo period cannot be less than (dirsetup+dirhold)?  or (ServoPeriod-jitter) cannot be less?
+        <PCW> servo-jitter
+        <PCW> (the setpgen doesn't expect its direction (rate MSB) to change when its doing a wait-for dir hold/setup cycle 
+        <PCW> so the minimum time between updates is dirsetup+dirhold
+        <seb_kuzminsky> ok thanks
 
 
     the config modparam is confusing and poorly documented
