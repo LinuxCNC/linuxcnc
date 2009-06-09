@@ -379,7 +379,7 @@ static int interpResumeState = EMC_TASK_INTERP_IDLE;
 static int programStartLine = 0;	// which line to run program from
 // how long the interp list can be
 
-static int EMC_TASK_INTERP_MAX_LEN;
+extern int EMC_TASK_INTERP_MAX_LEN;
 
 int stepping = 0;
 int steppingWait = 0;
