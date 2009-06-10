@@ -1837,7 +1837,7 @@ int Interp::store_named_param(
   logDebug("%s: param:|%s| returning not defined", "store_named_param",
            nameBuf);
 
-  ERS(NCE_NAMED_PARAMETER_NOT_DEFINED);
+  ERS(_("Internal error: Could not assign #<%s>"), nameBuf);
 }
 
 int Interp::add_named_param(
@@ -1993,7 +1993,7 @@ int Interp::read_named_parameter(
   
   logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
-  ERS(NCE_NAMED_PARAMETER_NOT_DEFINED);
+  ERS(_("Named parameter #<%s> not defined"), paramNameBuf);
 }
 
 

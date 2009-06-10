@@ -220,7 +220,6 @@
 #define NCE_MULTIPLE_E_WORDS_ON_ONE_LINE _("Multiple e words on one line")
 #define NCE_E_WORD_WITH_NO_G76_OR_M66_TO_USE_IT _("E word with no G76 or M66 to use it")
 #define NCE_NAMED_PARAMETER_NOT_TERMINATED _("Named parameter not terminated")
-#define NCE_NAMED_PARAMETER_NOT_DEFINED _("Named parameter not defined")
 #define NCE_NAMED_OWORD_NOT_TERMINATED _("Named oword not terminated")
 #define NCE_NAMED_OWORD_NOT_DEFINED _("Named oword not defined")
 #define NCE_OUT_OF_MEMORY _("Out of memory")
