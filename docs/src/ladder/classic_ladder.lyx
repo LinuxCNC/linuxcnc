@@ -165,12 +165,14 @@ The speed of the thread that ClassicLadder is running in directly effects
  the responsiveness to inputs and outputs.
  If you can turn a switch on and off faster than ClassicLadder can notice
  it then you may need to speed up the thread.
- The fastest that ClassicLadder can refresh the rungs is one millisecond.
+ The fastest that ClassicLadder can update the rungs is one millisecond.
  You can put it in a faster thread but it will not update any faster.
  If you put it in a slower then one microsecond thread then ClassicLadder
  will update the rungs slower.
- The current refresh rate will be displayed on the section display, it is
- rounded to microseconds.
+ The current scan time will be displayed on the section display, it is rounded
+ to microseconds.
+ If the scan time is longer than one millisecond you may want to shorten
+ the ladder or put it in a slower thread.
 \layout Subsection
 
 Variables
