@@ -1588,7 +1588,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(block->o_type == O_while)
     {
-        // FIXME !!!KL -- should not eval expressions if skipping ???
+      // TESTME !!!KL -- should not eval expressions if skipping ???
+      if((_setup.skipping_o != 0) &&
+	 (0 != strcmp(_setup.skipping_o, block->o_name)))
+      {
+	    return INTERP_OK;
+      }
+
       *counter += strlen("while");
       block->o_type = O_while;
       CHKS((line[*counter] != '['),
@@ -1598,6 +1604,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(block->o_type == O_repeat)
       {
+          // TESTME !!!KL -- should not eval expressions if skipping ???
+          if((_setup.skipping_o != 0) &&
+	     (0 != strcmp(_setup.skipping_o, block->o_name)))
+          {
+	    return INTERP_OK;
+          }
+
           *counter += strlen("repeat");
           block->o_type = O_repeat;
           CHKS((line[*counter] != '['),
@@ -1607,7 +1620,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       }
   else if(block->o_type == O_if)
     {
-        // FIXME !!!KL -- should not eval expressions if skipping ???
+      // TESTME !!!KL -- should not eval expressions if skipping ???
+      if((_setup.skipping_o != 0) &&
+	 (0 != strcmp(_setup.skipping_o, block->o_name)))
+      {
+	    return INTERP_OK;
+      }
+
       *counter += strlen("if");
       block->o_type = O_if;
       CHKS((line[*counter] != '['),
@@ -1617,7 +1636,13 @@ int Interp::read_o(    /* ARGUMENTS                                     */
     }
   else if(block->o_type == O_elseif)
     {
-        // FIXME !!!KL -- should not eval expressions if skipping ???
+      // TESTME !!!KL -- should not eval expressions if skipping ???
+      if((_setup.skipping_o != 0) &&
+	 (0 != strcmp(_setup.skipping_o, block->o_name)))
+      {
+	    return INTERP_OK;
+      }
+
       *counter += strlen("elseif");
       block->o_type = O_elseif;
       CHKS((line[*counter] != '['),
