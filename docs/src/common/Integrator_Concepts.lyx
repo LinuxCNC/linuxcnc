@@ -250,4 +250,27 @@ A simple tuning method is to first set the I and D values to zero.
  more quickly; however, some systems cannot accept overshoot, in which case
  an "over-damped" closed-loop system is required, which will require a P
  setting significantly less than half that of the P setting causing oscillation.
+\layout Section
+
+RTAI
+\layout Standard
+
+The Real Time Application Interface (RTAI) is used to provide the best Real
+ Time (RT) performance.
+ The RTAI patched kernel lets you write applications with strict timing
+ constraints.
+ RTAI gives you the ability to have things like software step generation
+ which require precise timing.
+\layout Subsection*
+
+ACPI
+\layout Standard
+
+The Advanced Configuration and Power Interface (ACPI) has a lot of different
+ functions, most of which interfere with RT performance (for example: power
+ management, CPU power down, CPU frequency scaling, etc).
+ The EMC2 kernel (and probably all RTAI-patched kernels) has ACPI disabled.
+ ACPI also takes care of powering down the system after a shutdown has been
+ started, and that's why you need to push the power button to completely
+ turn off your computer.
 \the_end
