@@ -3,6 +3,9 @@ check debian/changelog for recent news
 # some of EMC2 History & News
 #############################
 
+2009.06.13 - mshaver added emc2/configs/smithy directory and related files
+             for Smithy Company's line of cnc machines.
+
 2006.11.17 - removed HAL types s8, u8, s16, and u16.  HAL now uses float
 	     for analog values, bit for booleans, and s32 or u32 for
 	     integer values.  The only users who will be affected are
