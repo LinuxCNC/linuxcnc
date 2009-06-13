@@ -76,10 +76,18 @@ A less straightforward problem is that of path following.
  It can also do what is called blending, which is to keep the feed rate
  up while going through the corner, making it necessary to round the corner
  off in order to obey machine constraints.
- You can see that there is a tradeoff here: you can slow down to get better
+ You can see that there is a trade off here: you can slow down to get better
  path following, or keep the speed up and have worse path following.
  Depending on the particular cut, the material, the tooling, etc., the programmer
  may want to compromise differently.
+ 
+\layout Standard
+
+Rapid moves also obey the current trajectory control.
+ With moves long enough to reach maximum velocity on a machine with low
+ acceleration and no path tolerance specified, you can get a fairly round
+ corner.
+ 
 \layout Subsection
 
 Programming the Planner
@@ -103,7 +111,9 @@ G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
  are harmful, and can work great as long as the programmer is careful to
  keep in mind that the tool's path will be somewhat more curvy than the
  program specifies.
- 
+ When using G0 (rapid) moves with G64 use caution on clearance moves and
+ allow enough distance to clear obstacles based on the capabilities of your
+ machine.
 \layout Description
 
 G64\SpecialChar ~
@@ -197,6 +207,26 @@ For example, for a feed rate of 1 inch per second and an acceleration of
 \layout Section
 
 G Code
+\layout Subsection
+
+Defaults
+\layout Standard
+
+When EMC first starts up many G and M codes are loaded by default.
+ The current active G and M codes can be viewed on the MDI tab in the "Active
+ G-Codes:" window in the AXIS interface.
+ These G and M codes define the behavior of EMC and it is important that
+ you understand what each one does before running EMC.
+ The defaults can be changed when running a G-Code file and left in a different
+ state than when you started your EMC session.
+ The best practice is to set the defaults needed for the job in the preamble
+ of your G-Code file and not assume that the defaults have not changed.
+ Printing out the G-Code Quick Reference (
+\begin_inset LatexCommand \ref{sec:Quick-Reference-Table}
+
+\end_inset 
+
+) page can help you remember what each one is.
 \layout Subsection
 
 Feed Rate
