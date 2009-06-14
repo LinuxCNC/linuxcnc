@@ -379,7 +379,7 @@ static int interpResumeState = EMC_TASK_INTERP_IDLE;
 static int programStartLine = 0;	// which line to run program from
 // how long the interp list can be
 
-extern int EMC_TASK_INTERP_MAX_LEN;
+static int EMC_TASK_INTERP_MAX_LEN;
 
 int stepping = 0;
 int steppingWait = 0;
@@ -491,134 +491,156 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * stat)
 #undef operator_error_msg
 }
 
-/*
-  readahead_reading() is called in emcTaskPlan() 
-  when in EMC_TASK_MODE_AUTO and INTERP_READING state
- */
-void readahead_reading(void) 
+void readahead_reading(void)
 {
     int readRetval;
     int execRetval;
-    
-    if (interp_list.len() <= EMC_TASK_INTERP_MAX_LEN) {
-        int count = 0;
-        while (1) {
-	    if (emcTaskPlanIsWait()) {
-		// delay reading of next line until all is done
-		if (interp_list.len() == 0 &&
-		    emcTaskCommand == 0 &&
-		    emcStatus->task.execState == EMC_TASK_EXEC_DONE) {
-		    emcTaskPlanClearWait();
-		}
-	    } else {
-		readRetval = emcTaskPlanRead();
-		/*! \todo MGS FIXME The "end of file" comment is inaccurate...
-		   *** Need to look at all calls to things that return INTERP_xxx values! ***
-		   MGS */
-		if (readRetval != INTERP_OK) {
-		     /*  Signal to the rest of the system that that the interp
-		       is now in a paused state. */
-		    emcStatus->task.interpState = EMC_TASK_INTERP_WAITING;
-		} else {
-		    // got a good line
-		    // record the line number and command
-		    emcStatus->task.readLine = emcTaskPlanLine();
 
-		    interp_list.set_line_number(emcStatus->task.readLine);
-		    emcTaskPlanCommand((char *) &emcStatus->task.command);
-		    // and execute it
-		    execRetval = emcTaskPlanExecute(0);
-		    if (execRetval > INTERP_MIN_ERROR || execRetval == INTERP_EXIT) {
-			// end of file
-			emcStatus->task.interpState = EMC_TASK_INTERP_WAITING;
-		    } else if (execRetval == INTERP_EXECUTE_FINISH) {
-			// INTERP_EXECUTE_FINISH signifies
-			// that no more reading should be done until
-        		// everything outstanding is completed
-			emcTaskPlanSetWait();
-			// and resynch interp WM
-			emcTaskQueueCommand(&taskPlanSynchCmd);
-		    } else if (execRetval == INTERP_ENDFILE) {
-			// end of file
-			emcStatus->task.interpState = EMC_TASK_INTERP_WAITING;
-                        emcStatus->task.motionLine = 0;
-                        emcStatus->task.readLine = 0;
-		    } else {
-			// executed a good line
-		    }
-		    
-		    // throw the results away if we're supposed to
-		    // read
-		    // through it
-		    if (programStartLine < 0 ||
-			emcStatus->task.readLine < programStartLine) {
-			// we're stepping over lines, so check them
-			// for
-			// limits, etc. and clear then out
-			if (0 != checkInterpList(&interp_list, emcStatus)) {
-			    // problem with actions, so do same as we did
-			    // for a bad read from emcTaskPlanRead() above
-			    emcStatus->task.interpState = EMC_TASK_INTERP_WAITING;
+		if (interp_list.len() <= EMC_TASK_INTERP_MAX_LEN) {
+                    int count = 0;
+interpret_again:
+		    if (emcTaskPlanIsWait()) {
+			// delay reading of next line until all is done
+			if (interp_list.len() == 0 &&
+			    emcTaskCommand == 0 &&
+			    emcStatus->task.execState ==
+			    EMC_TASK_EXEC_DONE) {
+			    emcTaskPlanClearWait();
 			}
-			// and clear it regardless
-			interp_list.clear();
-		    }
+		    } else {
+			readRetval = emcTaskPlanRead();
+			/*! \todo MGS FIXME
+			   This next bit of code is goofy for the following reasons:
+			   1. It uses numbers when these values are #defined in interp_return.hh...
+			   2. This if() actually evaluates to if (readRetval != INTERP_OK)...
+			   3. The "end of file" comment is inaccurate...
+			   *** Need to look at all calls to things that return INTERP_xxx values! ***
+			   MGS */
+			if (readRetval > INTERP_MIN_ERROR || readRetval == 3	/* INTERP_ENDFILE 
+										 */  ||
+			    readRetval == 1 /* INTERP_EXIT */  ||
+			    readRetval == 2	/* INTERP_ENDFILE,
+						   INTERP_EXECUTE_FINISH */ ) {
+			    /* emcTaskPlanRead retval != INTERP_OK
+			       Signal to the rest of the system that that the interp
+			       is now in a paused state. */
+			    /*! \todo FIXME The above test *should* be reduced to:
+			       readRetVal != INTERP_OK
+			       (N.B. Watch for negative error codes.) */
+			    emcStatus->task.interpState =
+				EMC_TASK_INTERP_WAITING;
+			} else {
+			    // got a good line
+			    // record the line number and command
+			    emcStatus->task.readLine = emcTaskPlanLine();
 
-		    if (emcStatus->task.readLine < programStartLine) {
-			//update the position with our current position, as the other positions are only skipped through
-			CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
-					       emcStatus->motion.traj.actualPosition.tran.y,
-					       emcStatus->motion.traj.actualPosition.tran.z,
-					       emcStatus->motion.traj.actualPosition.a,
-					       emcStatus->motion.traj.actualPosition.b,
-					       emcStatus->motion.traj.actualPosition.c,
-					       emcStatus->motion.traj.actualPosition.u,
-					       emcStatus->motion.traj.actualPosition.v,
-					       emcStatus->motion.traj.actualPosition.w);
-		    }
+			    interp_list.set_line_number(emcStatus->task.
+							readLine);
+			    emcTaskPlanCommand((char *) &emcStatus->task.
+					       command);
+			    // and execute it
+			    execRetval = emcTaskPlanExecute(0);
+			    if (execRetval == -1 /* INTERP_ERROR */  ||
+				execRetval > INTERP_MIN_ERROR || execRetval == 1	/* INTERP_EXIT
+											 */ ) {
+				// end of file
+				emcStatus->task.interpState =
+				    EMC_TASK_INTERP_WAITING;
+			    } else if (execRetval == 2	/* INTERP_EXECUTE_FINISH
+							 */ ) {
+				// INTERP_EXECUTE_FINISH signifies
+				// that no more reading should be done until
+				// everything
+				// outstanding is completed
+				emcTaskPlanSetWait();
+				// and resynch interp WM
+				emcTaskQueueCommand(&taskPlanSynchCmd);
+			    } else if (execRetval != 0) {
+				// end of file
+				emcStatus->task.interpState =
+				    EMC_TASK_INTERP_WAITING;
+                                emcStatus->task.motionLine = 0;
+                                emcStatus->task.readLine = 0;
+			    } else {
 
-                    if (!(count++ < EMC_TASK_INTERP_MAX_LEN &&
-                        emcStatus->task.interpState == EMC_TASK_INTERP_READING &&
-                        interp_list.len() <= EMC_TASK_INTERP_MAX_LEN * 2/3)) {
-                        break;
-                    }
-        	}	// else read was OK, so execute
-	    }		// else not emcTaskPlanIsWait
-        }
-    }		// if interp len is less than max
+				// executed a good line
+			    }
+
+			    // throw the results away if we're supposed to
+			    // read
+			    // through it
+			    if (programStartLine < 0 ||
+				emcStatus->task.readLine <
+				programStartLine) {
+				// we're stepping over lines, so check them
+				// for
+				// limits, etc. and clear then out
+				if (0 != checkInterpList(&interp_list,
+							 emcStatus)) {
+				    // problem with actions, so do same as we
+				    // did
+				    // for a bad read from emcTaskPlanRead()
+				    // above
+				    emcStatus->task.interpState =
+					EMC_TASK_INTERP_WAITING;
+				}
+				// and clear it regardless
+				interp_list.clear();
+			    }
+
+			    if (emcStatus->task.readLine < programStartLine) {
+			    
+				//update the position with our current position, as the other positions are only skipped through
+				CANON_UPDATE_END_POINT(emcStatus->motion.traj.actualPosition.tran.x,
+						       emcStatus->motion.traj.actualPosition.tran.y,
+						       emcStatus->motion.traj.actualPosition.tran.z,
+						       emcStatus->motion.traj.actualPosition.a,
+						       emcStatus->motion.traj.actualPosition.b,
+						       emcStatus->motion.traj.actualPosition.c,
+						       emcStatus->motion.traj.actualPosition.u,
+						       emcStatus->motion.traj.actualPosition.v,
+						       emcStatus->motion.traj.actualPosition.w);
+			    }
+
+                            if (count++ < EMC_TASK_INTERP_MAX_LEN
+                                    && emcStatus->task.interpState == EMC_TASK_INTERP_READING
+                                    && interp_list.len() <= EMC_TASK_INTERP_MAX_LEN * 2/3) {
+                                goto interpret_again;
+                            }
+
+			}	// else read was OK, so execute
+		    }		// else not emcTaskPlanIsWait
+		}		// if interp len is less than max
 }
 
-/*
-  readahead_reading() is called in emcTaskPlan() 
-  when in EMC_TASK_MODE_AUTO and INTERP_WAITING state
-  (all lines from file was readed and executed)
- */
 void readahead_waiting(void)
 {
-    // now handle call logic
-    // check for subsystems done
-    if (interp_list.len() == 0 &&
-        emcTaskCommand == 0 &&
-        emcStatus->motion.traj.queue == 0 &&
-        emcStatus->io.status == RCS_DONE) {
-        // finished
-        int was_open = taskplanopen;
-        if (was_open) {
-            emcTaskPlanClose();
-	    if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
-		rcs_print("emcTaskPlanClose() called at %s:%d\n",
+	// now handle call logic
+	// check for subsystems done
+	if (interp_list.len() == 0 &&
+	    emcTaskCommand == 0 &&
+	    emcStatus->motion.traj.queue == 0 &&
+	    emcStatus->io.status == RCS_DONE)
+	    // finished
+	{
+	    int was_open = taskplanopen;
+	    if (was_open) {
+		emcTaskPlanClose();
+		if (EMC_DEBUG & EMC_DEBUG_INTERP && was_open) {
+		    rcs_print
+			("emcTaskPlanClose() called at %s:%d\n",
 			 __FILE__, __LINE__);
+		}
+		// then resynch interpreter
+		emcTaskQueueCommand(&taskPlanSynchCmd);
+	    } else {
+		emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 	    }
-            // then resynch interpreter
-            emcTaskQueueCommand(&taskPlanSynchCmd);
-        } else {
-	    emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
+	    emcStatus->task.readLine = 0;
+	    interp_list.set_line_number(0);
+	} else {
+	    // still executing
         }
-	emcStatus->task.readLine = 0;
-	interp_list.set_line_number(0);
-    } else {
-        // still executing
-    }
 }
 
 /*
