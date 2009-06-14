@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #    This is a component of emc
 #    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
+#    added option to size/position root window. Chris Morley 2009
+#    use -g [WxH+x+y] or [WxH] or [+x+y]  (in pixel units)
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -50,16 +52,19 @@ def main():
         calls vcpparse with the specified XML file.
     """
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "c:")
+        opts, args = getopt.getopt(sys.argv[1:], "c:g:")
     except getopt.GetoptError, detail:
         print detail
         usage()
         sys.exit(1)
-
+    window_geometry = None
     component_name = None
     for o, a in opts: 
         if o == "-c": 
             component_name = a
+        if o == "-g": 
+            window_geometry = a
+        
 
     try:
         filename=args[0]
@@ -72,6 +77,9 @@ def main():
 
     pyvcp0 = Tk()
     pyvcp0.title(component_name)
+    if not window_geometry == None:
+        pyvcp0.geometry("%s"% str(window_geometry))
+   
     vcpparse.filename=filename
     pycomp=vcpparse.create_vcp(compname=component_name, master=pyvcp0)
     pycomp.ready()
