@@ -143,9 +143,10 @@ int interpret_from_keyboard(  /* ARGUMENTS                 */
 
   for(; ;)
     {
+      char *result;
       printf("READ => ");
-      fgets(line, LINELEN, stdin);
-      if (strcmp (line, "quit\n") == 0)
+      result = fgets(line, LINELEN, stdin);
+      if (!result || strcmp (line, "quit\n") == 0)
         return 0;
       status = interp_read(line);
       if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
