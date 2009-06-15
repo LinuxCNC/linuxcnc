@@ -88,4 +88,8 @@ else
     complete -C "halcmd -C" halcmd
 fi
 
+if [ -f $EMC2_HOME/src/Makefile ]; then
+    build () { make -C $EMC2_HOME/src "$@"; }
+fi
+
 export PYTHONPATH MANPATH
