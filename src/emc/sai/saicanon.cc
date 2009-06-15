@@ -54,39 +54,21 @@ static int               _line_number = 1;
 static int               _mist = 0;
 static CANON_MOTION_MODE _motion_mode = CANON_CONTINUOUS;
 char                     _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];/*Not static.Driver writes*/
-#ifdef AA
 static double            _probe_position_a = 0; /*AA*/
-#endif
-#ifdef BB
 static double            _probe_position_b = 0; /*BB*/
-#endif
-#ifdef CC
 static double            _probe_position_c = 0; /*CC*/
-#endif
 static double            _probe_position_x = 0;
 static double            _probe_position_y = 0;
 static double            _probe_position_z = 0;
-#ifdef AA
 static double            _program_origin_a = 0; /*AA*/
-#endif
-#ifdef BB
 static double            _program_origin_b = 0; /*BB*/
-#endif
-#ifdef CC
 static double            _program_origin_c = 0; /*CC*/
-#endif
 static double            _program_origin_x = 0;
 static double            _program_origin_y = 0;
 static double            _program_origin_z = 0;
-#ifdef AA
 static double            _program_position_a = 0; /*AA*/
-#endif
-#ifdef BB
 static double            _program_position_b = 0; /*BB*/
-#endif
-#ifdef CC
 static double            _program_position_c = 0; /*CC*/
-#endif
 static double            _program_position_x = 0;
 static double            _program_position_y = 0;
 static double            _program_position_z = 0;
