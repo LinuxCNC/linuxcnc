@@ -18,9 +18,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import sys, os
-import emc, time, Tkinter
+import emc, time
 import rs274.options
-from _tkinter import TclError
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     ini = emc.ini(sys.argv[2])
@@ -85,45 +84,88 @@ if s.kinematics_type == 1:
     maps['joint_position'] = None
     maps['joint_actual_position'] = None
 
-root = Tkinter.Tk(className="EmcTop")
-rs274.options.install(root)
-root.title("EMC Status")
+def gui():
+    import Tkinter
+    from _tkinter import TclError
+    root = Tkinter.Tk(className="EmcTop")
+    rs274.options.install(root)
+    root.title("EMC Status")
 
-t = Tkinter.Text()
-sb = Tkinter.Scrollbar(command=t.yview)
-t.configure(yscrollcommand=sb.set)
-t.configure(tabs="150")
+    t = Tkinter.Text()
+    sb = Tkinter.Scrollbar(command=t.yview)
+    t.configure(yscrollcommand=sb.set)
+    t.configure(tabs="150")
 
-base_font = t.tk.call("set", "BASE_FONT")
-fixed_font = t.tk.call("set", "FIXED_FONT")
-t.tag_configure("key", foreground="blue", font=base_font)
-t.tag_configure("value", foreground="black", font=fixed_font)
-t.tag_configure("changedvalue", foreground="black", background="red", font="fixed")
-t.tag_configure("sel", foreground="white")
-t.tag_raise("sel")
-t.bind("<KeyPress>", "break")
+    base_font = t.tk.call("set", "BASE_FONT")
+    fixed_font = t.tk.call("set", "FIXED_FONT")
+    t.tag_configure("key", foreground="blue", font=base_font)
+    t.tag_configure("value", foreground="black", font=fixed_font)
+    t.tag_configure("changedvalue", foreground="black", background="red", font="fixed")
+    t.tag_configure("sel", foreground="white")
+    t.tag_raise("sel")
+    t.bind("<KeyPress>", "break")
 
-t.pack(side="left", expand=1, fill="both")
-sb.pack(side="left", expand=0, fill="y")
+    b = Tkinter.Button(text="Copy All",
+        command="%s tag add sel 0.0 end; tk_textCopy %s" % (t, t))
+    b.pack(side="bottom", anchor="sw")
 
-changetime = {}
-oldvalues = {}
-def timer():
-    try:
-        s.poll()
-    except emc.error:
-	root.destroy()
-    pos = t.yview()[0]
-    selection = t.tag_ranges("sel")
-    insert_point = t.index("insert")
-    insert_gravity = t.mark_gravity("insert")
-    try:
-        anchor_point = t.index("anchor")
-        anchor_gravity = t.mark_gravity("anchor")
-    except TclError:
-        anchor_point = None
-    t.delete("0.0", "end")
-    first = True
+    t.pack(side="left", expand=1, fill="both")
+    sb.pack(side="left", expand=0, fill="y")
+
+    changetime = {}
+    oldvalues = {}
+    def timer():
+        try:
+            s.poll()
+        except emc.error:
+            root.destroy()
+        pos = t.yview()[0]
+        selection = t.tag_ranges("sel")
+        insert_point = t.index("insert")
+        insert_gravity = t.mark_gravity("insert")
+        try:
+            anchor_point = t.index("anchor")
+            anchor_gravity = t.mark_gravity("anchor")
+        except TclError:
+            anchor_point = None
+        t.delete("0.0", "end")
+        first = True
+        for k in dir(s):
+            if k.startswith("_"): continue
+            if maps.has_key(k) and maps[k] == None: continue
+            v = getattr(s, k)
+            if maps.has_key(k):
+                m = maps[k]
+                if callable(m):
+                    v = m(v)
+                else:
+                    v = m.get(v, v)
+            if oldvalues.has_key(k):
+                changed = oldvalues[k] != v
+                if changed: changetime[k] = time.time() + 2
+            oldvalues[k] = v
+            if changetime.has_key(k) and changetime[k] >= time.time():
+                vtag = "changedvalue"
+            else:
+                vtag = "value"
+            if first: first = False
+            else: t.insert("end", "\n")
+            t.insert("end", k, "key", "\t")
+            t.insert("end", v, vtag)
+        t.yview_moveto(pos)
+        if selection:
+            t.tag_add("sel", *selection)
+        t.mark_set("insert", insert_point)
+        t.mark_gravity("insert", insert_gravity)
+        if anchor_point is not None:
+            t.mark_set("anchor", anchor_point)
+            t.mark_gravity("anchor", anchor_gravity)
+        t.after(100, timer)
+    timer()
+    t.mainloop()
+
+def text():
+    s.poll()
     for k in dir(s):
         if k.startswith("_"): continue
         if maps.has_key(k) and maps[k] == None: continue
@@ -134,28 +176,12 @@ def timer():
                 v = m(v)
             else:
                 v = m.get(v, v)
-        if oldvalues.has_key(k):
-            changed = oldvalues[k] != v
-            if changed: changetime[k] = time.time() + 2
-        oldvalues[k] = v
-        if changetime.has_key(k) and changetime[k] >= time.time():
-            vtag = "changedvalue"
-        else:
-            vtag = "value"
-	if first: first = False
-	else: t.insert("end", "\n")
-        t.insert("end", k, "key", "\t")
-        t.insert("end", v, vtag)
-    t.yview_moveto(pos)
-    if selection:
-        t.tag_add("sel", *selection)
-    t.mark_set("insert", insert_point)
-    t.mark_gravity("insert", insert_gravity)
-    if anchor_point is not None:
-        t.mark_set("anchor", anchor_point)
-        t.mark_gravity("anchor", anchor_gravity)
-    t.after(100, timer)
-timer()
-t.mainloop()
+        print "%-20s %-.58s" % (k, v)
+
+if len(sys.argv) > 1 and sys.argv[1] == '-t':
+    text()
+else:
+    gui()
+
 
 # vim:sw=4:sts=4:et
