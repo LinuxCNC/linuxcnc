@@ -50,20 +50,19 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: entering configs userspace modules
+default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),sim)
 	@if [ -f ../bin/emc_module_helper ]; then if ! [ `stat -c %u ../bin/emc_module_helper` -eq 0 -a -u ../bin/emc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
+
 # list of supported hostmot2 boards
 HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
 
-# trick dumb editors into knowing what's going on
-.PHONY: entering
-entering:
-	@echo 'make: Entering directory `'$(PWD)"'"
+# Print 'entering' all the time
+MAKEFLAGS += w
 
 # Create the variables with := so that subsequent += alterations keep it
 # as a "substitute at assignment time" variable
