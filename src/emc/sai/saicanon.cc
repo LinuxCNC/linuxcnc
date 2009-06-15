@@ -80,7 +80,8 @@ CANON_TOOL_TABLE         _tools[CANON_TOOL_MAX]; /*Not static. Driver writes */
 static bool optional_program_stop = ON; //set enabled by default (previous EMC behaviour)
 /* optional block delete */
 static bool block_delete = ON; //set enabled by default (previous EMC behaviour)
-
+static double motion_tolerance = 0.;
+static double naivecam_tolerance = 0.;
 /* Dummy status variables */
 static double            _traverse_rate;
 
@@ -374,6 +375,7 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 
 extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
+  motion_tolerance = 0;
   if (mode == CANON_EXACT_STOP)
     {
       PRINT0("SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP)\n");
@@ -386,6 +388,7 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
     }
   else if (mode == CANON_CONTINUOUS)
     {
+      motion_tolerance = tolerance;
       PRINT1("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, %f)\n", tolerance);
       _motion_mode = CANON_CONTINUOUS;
     }
@@ -395,6 +398,7 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 
 extern void SET_NAIVECAM_TOLERANCE(double tolerance)
 {
+  naivecam_tolerance = tolerance;
   PRINT1("SET_NAIVECAM_TOLERANCE(%.4f)\n", tolerance);
 }
 
@@ -916,7 +920,7 @@ extern double GET_EXTERNAL_ANGLE_UNIT_FACTOR()
 They should return variable values... */
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
-double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1;}
+double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return motion_tolerance;}
 double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
