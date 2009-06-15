@@ -115,7 +115,8 @@ _("HDW Step Gen-A"),_("HDW Step Gen-B"),
 _("HDW PWM Gen-P"),_("HDW PWM Gen-D"),_("HDW PWM Gen-E"),
 _("HDW PDM Gen-P"),_("HDW PDM Gen-D"),_("HDW PDM Gen-E") ]
 
-# boardname, firmwarename, max encoders, max pwm gens, max step gens, # of pins / encoder, # of pins / step gen, watchdog, max GPIOI + COMPONENT TYPES
+#   boardname, firmwarename, max encoders, max pwm gens, max step gens, # of pins / encoder,# of pins / step gen, 
+#   watchdog, max GPIOI + available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
     ["5i20", "SV12", 12, 12, 0, 3, 0, 1, 72 , [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
@@ -378,13 +379,13 @@ class Data:
         self.ioaddr3 = _("Enter Address")
         self.pp3_direction = 0 # input
         self.number_pports = 0
-        self.limitsnone = False
+        self.limitsnone = True
         self.limitswitch = False
-        self.limitshared = True
-        self.homenone = False
+        self.limitshared = False
+        self.homenone = True
         self.homeswitch = False
         self.homeindex = False
-        self.homeboth = True
+        self.homeboth = False
 
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
@@ -509,7 +510,7 @@ class Data:
                 self[pinname] = 1
         self.addcomp6 =""
 
-        self.xdrivertype = "other"
+        self.xdrivertype = "custom"
         self.xsteprev = 200
         self.xmicrostep = 2
         self.xpulleynum = 1
@@ -522,7 +523,7 @@ class Data:
         self.xbacklash = 0
         self.xmaxvel = .0167
         self.xmaxacc = 2
-        self.xinvertmotor = 1
+        self.xinvertmotor = 0
         self.xinvertencoder = 0
         self.xoutputscale = 1
         self.xoutputoffset = 0
@@ -554,7 +555,7 @@ class Data:
         self.xencodercounts =4000
         self.xscale = 0
 
-        self.ydrivertype = "other"
+        self.ydrivertype = "custom"
         self.ysteprev = 200
         self.ymicrostep = 2
         self.ypulleynum = 1
@@ -598,7 +599,7 @@ class Data:
         self.yencodercounts =4000
         self.yscale = 0
    
-        self.zdrivertype = "other"     
+        self.zdrivertype = "custom"     
         self.zsteprev = 200
         self.zmicrostep = 2
         self.zpulleynum = 1
@@ -643,7 +644,7 @@ class Data:
         self.zscale = 0
 
 
-        self.adrivertype = "other"
+        self.adrivertype = "custom"
         self.asteprev = 200
         self.amicrostep = 2
         self.apulleynum = 1
@@ -1833,7 +1834,6 @@ class Data:
         if 'm5i20' in test:
             ptype = self[pin+"type"] 
             signalname = self[pin]
-            print signalname
             pinnum = int(test[10:])
             connum = int(test[6:7])
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", PWMP:"pwmgen", PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
@@ -1993,7 +1993,7 @@ class App:
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
-        self.widgets.dialog1.hide()
+        self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
         self.widgets.complete.set_watermark(self.watermark)
         self.widgets.druidpagestart1.show()
@@ -2569,7 +2569,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
                 old = self.data[ptype]
                 new = self.widgets[ptype].get_active_text()    
-                if new == None :return 
+                if (new == None or new == old): return 
                 if old == GPIOI and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
                     model = self.widgets[p].get_model()
@@ -3759,6 +3759,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         self.widgets.pyvcpblank.set_sensitive(i)
         self.widgets.pyvcp1.set_sensitive(i)
         self.widgets.pyvcp2.set_sensitive(i)
+        self.widgets.pyvcpgeometry.set_sensitive(i)
         if  self.widgets.createconfig.get_active():
             self.widgets.pyvcpexist.set_sensitive(False)
         else:
@@ -3912,7 +3913,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         halrun.write("addf hm2_%s.0.write slow\n"% board)
         halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% board)
         halrun.write("start\n")
-        halrun.write("loadusr -Wn m5i20test pyvcp -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
+        halrun.write("loadusr -Wn m5i20test pyvcp -g +700+0 -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter\n")
         halrun.write("loadusr halmeter\n")
         
@@ -4065,6 +4066,8 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         self.widgets['window1'].set_sensitive(1)
 
     def testpanel(self,w):
+        pos = "+0+0"
+        size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.widgets.pyvcpblank.get_active() == True:
            return True
@@ -4075,13 +4078,20 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         if self.widgets.pyvcpexist.get_active() == True:
            panel = "custompanel.xml"
            panelname = os.path.expanduser("~/emc2/configs/%s" % self.data.machinename)
-        print "panel-%s" % panel
-        print"dir-%s" % panelname
+        if self.widgets.pyvcpposcheckbutton.get_active() == True:
+            xpos = self.widgets.pyvcpxpos.get_value()
+            ypos = self.widgets.pyvcpypos.get_value()
+            pos = "+%d+%d"% (xpos,ypos)
+        if self.widgets.pyvcpsizecheckbutton.get_active() == True:
+            width = self.widgets.pyvcpwidth.get_value()
+            height = self.widgets.pyvcpheight.get_value()
+            size = "%dx%d"% (width,height)
+        
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
-        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
+        halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.widgets.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
-                halrun.write("setp displaytest.toolnumber 4\n")
+                #halrun.write("setp displaytest.toolnumber 4\n")
         halrun.write("waitusr displaytest\n"); halrun.flush()
         halrun.close()
 
@@ -4131,7 +4141,16 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         d = self.data
         w = self.widgets
         axnum = "xyza".index(axis)
+        board = self.data.mesa_currentfirmwaredata[0]
+        firmware = self.data.mesa_currentfirmwaredata[1]
         w.notebook2.set_current_page(axnum)
+        stepgen = self.data.stepgen_sig(axis)
+        if not stepgen == "false":
+            w.notebook3.set_current_page(1)
+            w.pid.set_sensitive(0)
+        else:
+            w.notebook3.set_current_page(0)
+            w.step.set_sensitive(0)
 
         if axis == "a":
             w[axis + "testdistunits"].set_text(_("degrees"))
@@ -4159,19 +4178,106 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         w[axis+"testorigFF1"].set_text("%s" % w[axis+"FF1"].get_value())
         w[axis+"testcurrentFF2"].set_value(w[axis+"FF2"].get_value())
         w[axis+"testorigFF2"].set_text("%s" % w[axis+"FF2"].get_value())
-        w.dialog2.set_title(_("%s Axis Tune") % axis.upper())
+        w[axis+"testcurrentsteptime"].set_value(w[axis+"steptime"].get_value())
+        w[axis+"testorigsteptime"].set_text("%s" % w[axis+"steptime"].get_value())
+        w[axis+"testcurrentstepspace"].set_value(float(w[axis+"stepspace"].get_text()))
+        w[axis+"testorigstepspace"].set_text("%s" % w[axis+"stepspace"].get_value())
+        w[axis+"testcurrentdirhold"].set_value(float(w[axis+"dirhold"].get_text()))
+        w[axis+"testorigdirhold"].set_text("%s" % w[axis+"dirhold"].get_value())
+        w[axis+"testcurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
+        w[axis+"testorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
+        w.servotunedialog.set_title(_("%s Axis Tune") % axis.upper())
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
-        loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
+        loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
         loadusr halscope
-        """ % {
-            'period': 30000,
-         })
+        loadrt steptest
+        loadrt probe_parport
+        loadrt hostmot2
+        """ % {'period': 30000 })    
+        halrun.write("""
+        loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" 
+        addf hm2_%s.0.read slow
+        addf steptest.0 slow
+        addf hm2_%s.0.write slow
+        addf hm2_%s.0.pet_watchdog fast
+        loadusr halmeter
+        """ % (board, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens, board,board,board))
+        
+        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
+            for pin in range (0,24):
+                firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
+                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pintype = self.widgets[ptype].get_active_text()
+                pininv = self.widgets[pinv].get_active()
+                truepinnum = (concount*24) + pin
+                if pintype in (GPIOI,GPIOO,GPIOD): continue 
+                # for encoder pins
+                if pintype in (ENCA,ENCB,ENCI,ENCM):                                    
+                    if not pintype == ENCA: continue                 
+                    if pin == 3 :encpinnum = (connector-2)*4 
+                    elif pin == 1 :encpinnum = 1+((connector-2)*4) 
+                    elif pin == 15 :encpinnum = 2+((connector-2)*4) 
+                    elif pin == 13 :encpinnum = 3+((connector-2)*4) 
+                    halrun.write("net yellow_reset%d hm2_%s.0.encoder.%02d.reset \n"% (encpinnum,board,encpinnum))
+                    halrun.write("net yellow_count%d hm2_%s.0.encoder.%02d.count \n"% (encpinnum,board,encpinnum))
+                # for PWM pins
+                elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                    if not pintype in (PWMP,PDMP): continue    
+                    if pin == 7 :encpinnum = (connector-2)*4 
+                    elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
+                    elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
+                    elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
+                    halrun.write("net green_enable%d hm2_%s.0.pwmgen.%02d.enable \n"% (encpinnum,board,encpinnum)) 
+                    halrun.write("net green_value%d hm2_%s.0.pwmgen.%02d.value \n"% (encpinnum,board,encpinnum)) 
+                    halrun.write("setp hm2_%s.0.pwmgen.%02d.scale 10\n"% (board,encpinnum)) 
+                # for Stepgen pins
+                elif pintype in (STEPA,STEPB):
+                    if not pintype == STEPA : continue    
+                    if "m5i20" in stepgen:        
+                        if compnum == int(stepgen[10:]) :
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.position_scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (board,compnum))
+                            halrun.write("net cmd steptest.0.position-cmd => hm2_%s.0.stepgen.%02d.position-cmd \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.steplen %d \n"% (board,compnum,w[axis+"steptime"].get_value()))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.stepspace %d \n"% (board,compnum,w[axis+"stepspace"].get_value()))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.dirhold %d \n"% (board,compnum,w[axis+"dirhold"].get_value()))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.dirsetup %d \n"% (board,compnum,w[axis+"dirsetup"].get_value()))
+                            print float(w[axis + "scale"].get_text())
+                            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / float(w[axis + "scale"].get_text()))  )
+                else: 
+                    print "pintype error in mesa test panel method pintype:%s connector %d pin %d\n"% (pintype, connector,pin)
+
+        temp = self.data.findsignal( "enable")
+        amp = self.data.make_pinname(temp)
+        if not amp == "false":
+            if "HOSTMOT2" in amp:    
+                amp = amp.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"% (amp + ".is_output"))             
+                halrun.write("setp %s true\n"% (amp + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
+
+        temp = self.data.findsignal( "estop-out")
+        estop = self.data.make_pinname(temp)
+        if not estop =="false":        
+            if "HOSTMOT2" in estop:
+                estop = estop.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"%  (estop + ".is_output"))    
+                halrun.write("setp %s true\n"%  (estop + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (estop + ".invert_output"))
+
         halrun.write("start\n"); halrun.flush()
-        w.dialog2.show_all()
+
+        w.servotunedialog.show_all()
         self.widgets['window1'].set_sensitive(0)
-        result = w.dialog2.run()
-        w.dialog2.hide()
+        result = w.servotunedialog.run()
+        w.servotunedialog.hide()
         if result == gtk.RESPONSE_OK:
             w[axis+"maxvel"].set_text("%s" % w[axis+"testvel"].get_value())
             w[axis+"maxacc"].set_text("%s" % w[axis+"testacc"].get_value())
@@ -4181,6 +4287,15 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w[axis+"FF0"].set_value( float(w[axis+"testcurrentFF0"].get_text()))
             w[axis+"FF1"].set_value( float(w[axis+"testcurrentFF1"].get_text()))
             w[axis+"FF2"].set_value( float(w[axis+"testcurrentFF2"].get_text()))
+            w[axis+"steptime"].set_value(float(w[axis+"testcurrentsteptime"].get_text()))
+            w[axis+"stepspace"].set_value(float(w[axis+"testcurrentstepspace"].get_text()))
+            w[axis+"dirhold"].set_value(float(w[axis+"testcurrentdirhold"].get_text()))
+            w[axis+"dirsetup"].set_value(float(w[axis+"testcurrentdirsetup"].get_text()))
+        if not amp == "false":
+             halrun.write("setp %s false\n"% (amp + ".out"))
+        if not estop == "false":
+             halrun.write("setp %s false\n"% (estop + ".out"))
+        time.sleep(.001)   
         halrun.close()  
         self.widgets['window1'].set_sensitive(1)
 
@@ -4202,7 +4317,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
    
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")       
         halrun.write("""loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n""" % {'period': 30000   })
-        halrun.write("loadrt probe_parport")
+        halrun.write("loadrt probe_parport\n")
         #halrun.write("loadrt hal_parport cfg=%(ioaddr)s"% data.ioaddr)
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
@@ -4215,7 +4330,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% boardname)
         #halrun.write("addf parport.0.write fast")
 
-       #TODO fix this to eork with parport signals
+       #TODO fix this to work with parport signals
         
         temp = self.data.findsignal( "enable")
         amp = self.data.make_pinname(temp)
@@ -4257,7 +4372,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                 halrun.write("setp %s \n"%  (self.enc +".filter true"))
                 halrun.write("loadusr halmeter -s pin %s \n"%  (self.enc +".position"))
         
-        widgets.dialog1.set_title(_("%s Axis Test") % axis.upper())
+        widgets.openloopdialog.set_title(_("%s Axis Test") % axis.upper())
         self.jogplus = self.jogminus = self.enc_reset =  0
         self.enc_scale = 1
         self.axis_under_test = axis
@@ -4266,10 +4381,10 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
-        widgets.dialog1.show_all()
-        result = widgets.dialog1.run()
+        widgets.openloopdialog.show_all()
+        result = widgets.openloopdialog.run()
 
-        widgets.dialog1.hide()
+        widgets.openloopdialog.hide()
         if not amp == "false":
              halrun.write("setp %s false\n"% (amp + ".out"))
         if not estop == "false":
