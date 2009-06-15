@@ -665,7 +665,7 @@ usage:
   fprintf(stderr, "executing\n");
   if (tool_flag == 0)
     {
-      if (read_tool_file("/etc/emc2/sample-configs/sim/sim.tbl") != 0)
+      if (read_tool_file(EMC2_DEFAULT_TOOLTABLE) != 0)
         exit(1);
     }
 

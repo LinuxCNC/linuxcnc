@@ -35,6 +35,9 @@
 /* Default nml file */
 #undef EMC2_DEFAULT_NMLFILE
 
+/* Default nml file */
+#undef EMC2_DEFAULT_TOOLTABLE
+
 /* Directory for help files */
 #undef EMC2_HELP_DIR
 
