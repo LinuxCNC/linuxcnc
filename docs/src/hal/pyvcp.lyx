@@ -237,39 +237,68 @@ sim/lathe
 Stand Alone
 \layout Standard
 
-This section shows how pyVCP panels can be displayed on their own with or
- without EMC's machine controller.
+This section describes how pyVCP panels can be displayed on their own with
+ or without EMC's machine controller.
 \layout Standard
 
-To load a stand alone pyVCP panel with EMC use the command:
+To load a stand alone pyVCP panel with EMC use these commands:
 \layout LyX-Code
 
-loadusr -Wn panelname pyvcp -c panelname optional-path/panel_file_name.xml
- 
+loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml 
 \layout Standard
 
 You would use this if you wanted a floating panel or a panel with a GUI
  other than AXIS.
- The -Wn makes HAL wait for the component "panelname" to finish loading
+ 
+\layout Description
+
+-Wn\SpecialChar ~
+panelname makes HAL wait for the component "panelname" to finish loading
  ("become ready" in HAL speak) before processing more HAL commands.
  This is important because pyVCP panels export HAL pins and other HAL components
  will need them present to connect to them.
  Note the capital W and lowercase n.
- The -c tells pyVCP what to call the component and also the title of the
- window.
- The panelname can be any name without spaces.
- The panel_file_name.xml can be any name that ends in .xml.
+ If you use the -Wn option you must use the -c option to name the panel.
+\layout Description
+
+pyvcp\SpecialChar ~
+<-g>\SpecialChar ~
+<-c>\SpecialChar ~
+panel.xml builds the panel with the optional geometry and/or
+ panelname from the xml panel file.
+ The panel.xml can be any name that ends in .xml.
  The .xml file is the file that describes how to build the panel.
- You must add the pathname if the panel is not in the directory that the
+ You must add the path name if the panel is not in the directory that the
  HAL script is in.
+ 
+\layout Description
+
+-g\SpecialChar ~
+<WxH><+X+Y> specifies the geometry to be used when constructing the panel.
+ The syntax is "Width"x"Height"+"X Anchor"+"Y Anchor".
+ You can set the size or position or both.
+ The anchor point is the upper left corner of the panel.
+ An example is -g 250x500+800+0 This sets the panel at 250 pixels wide,
+ 500 pixels tall, and anchors it at X800 Y0.
+\layout Description
+
+-c\SpecialChar ~
+panelname tells pyVCP what to call the component and also the title of
+ the window.
+ The panelname can be any name without spaces.
  
 \layout Standard
 
 To load a "stand alone" pyVCP panel without EMC use this command: 
 \layout LyX-Code
 
-loadusr -Wn panelname pyvcp -c panelname optional-pathway/panel_file_name.xml
- 
+loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml 
+\layout Standard
+
+The minimum command to load a pyvcp panel is:
+\layout LyX-Code
+
+loadusr pyvcp mypanel.xml
 \layout Standard
 
 You would use this if you want a panel without EMC's machine controller
@@ -279,7 +308,7 @@ You would use this if you want a panel without EMC's machine controller
 
 The loadusr command is used when you also load a component that will stop
  HAL from closing until it's done.
- EG if you loaded a panel and then loaded ClassicLadder using -w ClassicLadder
+ If you loaded a panel and then loaded ClassicLadder using -w ClassicLadder
  CL would hold HAL open (and the panel)  until you closed CL -Wn means wait
  for the component "panelname" to become ready.
  "panelname" can be any name.
@@ -287,7 +316,7 @@ The loadusr command is used when you also load a component that will stop
  The -c tells pyVCP to build a panel with the name "panelname" using the
  info in "panel_file_name.xml" "panel_file_name.xml" can be any name but must
  end in .xml - it is the file that describes how to build the panel.
- You must add the pathname if the panel is not in the directory that the
+ You must add the path name if the panel is not in the directory that the
  HAL script is in.
  
 \layout Standard
