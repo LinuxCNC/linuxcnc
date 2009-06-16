@@ -1672,7 +1672,7 @@ struct logger_point {
 };
 
 #define NUMCOLORS (6)
-#define MAX_POINTS (100000)
+#define MAX_POINTS (10000)
 typedef struct {
     PyObject_HEAD
     int npts, mpts, lpts;
@@ -1683,7 +1683,7 @@ typedef struct {
     pyStatChannel *st;
 } pyPositionLogger;
 
-static const double epsilon = 1e-8;
+static const double epsilon = 1e-4; // 1-cos(1 deg) ~= 1e-4
 
 static inline bool colinear(float xa, float ya, float za, float xb, float yb, float zb, float xc, float yc, float zc) {
     double dx1 = xa-xb, dx2 = xb-xc;
