@@ -653,6 +653,11 @@ class MyOpengl(Opengl):
 
 
     def redraw(self):
+        s.poll()
+
+        if not self.winfo_viewable():
+            self.redraw_dro()
+
         machine_limit_min, machine_limit_max = soft_limits()
 
         if self.select_event:
@@ -745,7 +750,6 @@ class MyOpengl(Opengl):
                 glEnd()
 
                 # Labels
-                s.poll()
                 if vars.coord_type.get():
                     offset = to_internal_units(s.origin)
                 else:
@@ -877,7 +881,6 @@ class MyOpengl(Opengl):
                     glPopMatrix()
 
         if vars.show_live_plot.get() or vars.show_program.get():
-            s.poll()
             glPushMatrix()
 
             if vars.coord_type.get() and (s.origin[0] or s.origin[1] or 
@@ -1029,8 +1032,52 @@ class MyOpengl(Opengl):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
-        s.poll()
 
+        limit, homed, posstrs, droposstrs = self.posstrs()
+
+        maxlen = max([len(p) for p in posstrs])
+        pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
+                        for p in posstrs])
+        glDepthFunc(GL_ALWAYS)
+        glDepthMask(GL_FALSE)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
+        glColor3f(*o.colors['overlay_background'])
+        glBlendColor(0,0,0,1-o.colors['overlay_alpha'])
+        glBegin(GL_QUADS)
+        glVertex3f(0, ypos, 1)
+        glVertex3f(0, ypos - 8 - coordinate_linespace*len(posstrs), 1)
+        glVertex3f(pixel_width+42, ypos - 8 - coordinate_linespace*len(posstrs), 1)
+        glVertex3f(pixel_width+42, ypos, 1)
+        glEnd()
+        glDisable(GL_BLEND)
+
+        maxlen = 0
+        ypos -= coordinate_linespace+5
+        i=0
+        glColor3f(*o.colors['overlay_foreground'])
+        for string in posstrs:
+            maxlen = max(maxlen, len(string))
+            glRasterPos2i(5, ypos)
+            for char in string:
+                glCallList(fontbase + ord(char))
+            if i < len(homed) and homed[i]:
+                glRasterPos2i(pixel_width + 8, ypos)
+                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
+            if i < len(homed) and limit[i]:
+                glBitmap(13, 16, 0, 1, 17, 0, limiticon)
+            ypos -= coordinate_linespace
+            i = i + 1
+        glDepthFunc(GL_LESS)
+        glDepthMask(GL_TRUE)
+
+        glPopMatrix()
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+
+
+    def posstrs(self):
         limit = []
         for i,l in enumerate(s.limit):
             if s.axis_mask & (1<<i):
@@ -1040,6 +1087,7 @@ class MyOpengl(Opengl):
         for i,h in enumerate(s.homed):
             if s.axis_mask & (1<<i):
                 homed.append(h)
+
         if lathe and not s.axis_mask & 2:
             homed.insert(1, 0)
             limit.insert(1, 0)
@@ -1094,6 +1142,11 @@ class MyOpengl(Opengl):
                 zip(range(num_joints), s.joint_actual_position)]
             droposstrs = posstrs
 
+        return limit, homed, posstrs, droposstrs
+
+    def redraw_dro(self):
+        limit, homed, posstrs, droposstrs = self.posstrs()
+
         text = widgets.numbers_text
 
         font = "Courier 10 pitch"
@@ -1128,48 +1181,6 @@ class MyOpengl(Opengl):
         width_ratio = float(window_width) / req_width
         ratio = min(height_ratio, width_ratio)
         text.configure(font=(font, -int(100*ratio), "bold"), wrap="none")
-
-
-        maxlen = max([len(p) for p in posstrs])
-        pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
-                        for p in posstrs])
-        glDepthFunc(GL_ALWAYS)
-        glDepthMask(GL_FALSE)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-        glColor3f(*o.colors['overlay_background'])
-        glBlendColor(0,0,0,1-o.colors['overlay_alpha'])
-        glBegin(GL_QUADS)
-        glVertex3f(0, ypos, 1)
-        glVertex3f(0, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos, 1)
-        glEnd()
-        glDisable(GL_BLEND)
-
-        maxlen = 0
-        ypos -= coordinate_linespace+5
-        i=0
-        glColor3f(*o.colors['overlay_foreground'])
-        for string in posstrs:
-            maxlen = max(maxlen, len(string))
-            glRasterPos2i(5, ypos)
-            for char in string:
-                glCallList(fontbase + ord(char))
-            if i < len(homed) and homed[i]:
-                glRasterPos2i(pixel_width + 8, ypos)
-                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-            if i < len(homed) and limit[i]:
-                glBitmap(13, 16, 0, 1, 17, 0, limiticon)
-            ypos -= coordinate_linespace
-            i = i + 1
-        glDepthFunc(GL_LESS)
-        glDepthMask(GL_TRUE)
-
-        glPopMatrix()
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
 
 def init():
     glDrawBuffer(GL_BACK)
