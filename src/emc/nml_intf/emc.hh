@@ -632,16 +632,4 @@ enum EmcAxisType {
 typedef double                  EmcLinearUnits;
 typedef double                  EmcAngularUnits;
 
-#define ZERO_EMC_POSE(pos)      \
-pos.tran.x = 0.0;               \
-pos.tran.y = 0.0;               \
-pos.tran.z = 0.0;               \
-pos.a = 0.0;                    \
-pos.b = 0.0;                    \
-pos.c = 0.0;                    \
-pos.u = 0.0;                    \
-pos.v = 0.0;                    \
-pos.w = 0.0;
-
-
 #endif				// #ifndef EMC_HH
