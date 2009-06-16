@@ -11,6 +11,9 @@
     initially display the pin/signal/parameter <name>, otherwise it
     will initially display nothing.
 */
+/* Added ability to specify initial window positon on command line 
+    -g Xposition Yposiion    Chris Morley June 2009 
+*/
 
 /** Copyright (C) 2003 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
@@ -40,6 +43,7 @@
     This code was written as part of the EMC HAL project.  For more
     information, go to www.linuxcnc.org.
 */
+
 #ifndef ULAPI
 #error This is a user mode component only!
 #endif
@@ -143,8 +147,8 @@ int main(int argc, gchar * argv[])
     GtkWidget *vbox, *hbox;
     GtkWidget *button_select, *button_exit;
     char buf[30];
-    int initial_type, n, height;
-    char *initial_name, *win_name;
+    int initial_type = 0, n, height, geometryflag = 0, xposition = 0, yposition = 0;
+    char *initial_name = NULL , *win_name;
     meter_t *meter;
 
     bindtextdomain("emc2", EMC2_PO_DIR);
@@ -158,37 +162,46 @@ int main(int argc, gchar * argv[])
     /* process my own command line args (if any) here */
     small = 0;
     n = 1;
-    if ( argc > n ) {
-	if ( strcmp (argv[n], "-s") == 0 ) {
-	    small = 1;
-	    n++;
-	}
-    }
-    if (argc > n) {
-	/* check for user specified initial probe point */
-	if (strncmp(argv[n], "pin", 3) == 0) {
-	    /* initial probe is a pin */
-	    initial_type = 0;
-	} else if (strncmp(argv[n], "sig", 3) == 0) {
-	    /* initial probe is a signal */
-	    initial_type = 1;
-	} else if (strncmp(argv[n], "par", 3) == 0) {
-	    /* initial probe is a parameter */
-	    initial_type = 2;
-	} else {
-	    printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
-	    return -1;
-	}
-	n++;
-	if ( argc > n ) {
-	    initial_name = argv[n];
-	} else {
-	    printf(_("ERROR: no pin/signal/parameter name\n"));
-	    return -1;
-	}
-    } else {
-	initial_type = 0;
-	initial_name = NULL;
+    while ( argc > n ) {
+	    if ( strcmp (argv[n], "-s") == 0 ) {
+	        small = 1;
+	        n++;
+            if (argc > n) {
+	        /* check for user specified initial probe point */
+	            if (strncmp(argv[n], "pin", 3) == 0) {
+	                /* initial probe is a pin */
+	                initial_type = 0;
+	            } else if (strncmp(argv[n], "sig", 3) == 0) {
+	                /* initial probe is a signal */
+	                initial_type = 1;
+	            } else if (strncmp(argv[n], "par", 3) == 0) {
+	                /* initial probe is a parameter */
+	                initial_type = 2;
+	            } else {
+	                printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
+	                return -1;
+	            }
+	            n++;
+	            if ( argc > n ) {
+	                initial_name = argv[n];
+                    n++;
+	            } else {
+	                printf(_("ERROR: no pin/signal/parameter name\n"));
+	                return -1;
+	            }
+            } else {
+                printf(_("ERROR: -s option needs pin/signal/parameter type and name designated\n"));
+	                return -1;
+	        }
+	    } else if ( strcmp (argv[n], "-g") == 0 ) {
+            /*this sets up the variables for initial position of window*/
+	        geometryflag = 1;
+	        n++;
+            xposition =  atoi(argv[n]);
+            n++;
+            yposition =  atoi(argv[n]);
+            n++;
+	    }
     }
 
     /* create a unique module name */
@@ -233,6 +246,7 @@ int main(int argc, gchar * argv[])
     /* create a meter object */
     meter = meter_new();
     if (meter == NULL) {
+    printf("null meter\n");
 	exit(-1);
     }
 
@@ -287,6 +301,10 @@ int main(int argc, gchar * argv[])
     /* The interface is now set up so we show the window and
        enter the gtk_main loop. */
     gtk_widget_show(main_window);
+    /* If the -g option was invoked: set position */
+    if (geometryflag == 1) {
+        gtk_window_move(GTK_WINDOW(main_window),xposition,yposition);
+    }
     gtk_main();
 
     return (0);
