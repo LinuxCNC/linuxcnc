@@ -392,12 +392,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
-		emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
-		emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
-		emcmotDebug->teleop_data.desiredVel.tran.z = 0.0;
-		emcmotDebug->teleop_data.desiredVel.a = 0.0;
-		emcmotDebug->teleop_data.desiredVel.b = 0.0;
-		emcmotDebug->teleop_data.desiredVel.c = 0.0;
+                ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredVel);
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotDebug->queue);
 	    } else {

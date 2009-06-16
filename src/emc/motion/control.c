@@ -836,30 +836,10 @@ static void set_operating_mode(void)
 		cubicDrain(&(joint->cubic));
 	    }
 	    /* Initialize things to do when starting teleop mode. */
-	    emcmotDebug->teleop_data.currentVel.tran.x = 0.0;
-	    emcmotDebug->teleop_data.currentVel.tran.y = 0.0;
-	    emcmotDebug->teleop_data.currentVel.tran.z = 0.0;
-	    emcmotDebug->teleop_data.currentVel.a = 0.0;
-	    emcmotDebug->teleop_data.currentVel.b = 0.0;
-	    emcmotDebug->teleop_data.currentVel.c = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.tran.x = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.tran.y = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.tran.z = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.a = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.b = 0.0;
-	    emcmotDebug->teleop_data.desiredVel.c = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.tran.x = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.tran.y = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.tran.z = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.a = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.b = 0.0;
-	    emcmotDebug->teleop_data.currentAccell.c = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.tran.x = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.tran.y = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.tran.z = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.a = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.b = 0.0;
-	    emcmotDebug->teleop_data.desiredAccell.c = 0.0;
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.currentVel);
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredVel);
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.currentAccell);
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredAccell);
 	    SET_MOTION_TELEOP_FLAG(1);
 	    SET_MOTION_ERROR_FLAG(0);
 	} else {
