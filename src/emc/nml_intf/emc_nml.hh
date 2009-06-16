@@ -1120,9 +1120,7 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
 
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:
-    EMC_MOTION_STAT():EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE,
-					  sizeof(EMC_MOTION_STAT)) {
-    };
+    EMC_MOTION_STAT();
 
     // For internal NML/CMS use only.
     void update(CMS * cms);

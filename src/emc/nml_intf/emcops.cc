@@ -36,10 +36,12 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     homing = 0;
     homed = 0;
     enabled = 0;
+    fault = 0;
     minSoftLimit = 0;
     maxSoftLimit = 0;
     minHardLimit = 0;
     maxHardLimit = 0;
+    overrideLimits = 0;
 }
 
 EMC_TRAJ_STAT::EMC_TRAJ_STAT():
@@ -47,7 +49,9 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
 {
     linearUnits = 1.0;
     angularUnits = 1.0;
+    cycleTime = 0.0;
     axes = 1;
+    axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
     enabled = 0;
     inpos = 1;
@@ -56,32 +60,47 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     queueFull = 0;
     id = 0;
     paused = 0;
+    scale = 0.0;
+    spindle_scale = 0.0;
 
-    position.tran.x = 0.0;
-    position.tran.y = 0.0;
-    position.tran.z = 0.0;
-    position.a = 0.0;
-    position.b = 0.0;
-    position.c = 0.0;
-    position.u = 0.0;
-    position.v = 0.0;
-    position.w = 0.0;
-
-    actualPosition.tran.x = 0.0;
-    actualPosition.tran.y = 0.0;
-    actualPosition.tran.z = 0.0;
-    actualPosition.a = 0.0;
-    actualPosition.b = 0.0;
-    actualPosition.c = 0.0;
-    actualPosition.u = 0.0;
-    actualPosition.v = 0.0;
-    actualPosition.w = 0.0;
+    ZERO_EMC_POSE(position);
+    ZERO_EMC_POSE(actualPosition);
 
     velocity = 1.0;
     acceleration = 1.0;
     maxVelocity = 1.0;
     maxAcceleration = 1.0;
+
+    ZERO_EMC_POSE(probedPosition);
+    probe_tripped = 0;
+    probing = 0;
+    probeval = 0;
+    
+    ZERO_EMC_POSE(dtg);
+    distance_to_go = 0.0;
+    kinematics_type = 0;
+    motion_type = 0;
+    current_vel = 0.0;
+    feed_override_enabled = 0;
+    spindle_override_enabled = 0;
+    adaptive_feed_enabled = 0;
+    feed_hold_enabled = 0;
+    delayLeft = 0.0;
 }
+
+EMC_MOTION_STAT::EMC_MOTION_STAT():
+EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
+{
+    int i;
+
+    for (i = 0; i < EMC_MAX_DIO; i++)
+	synch_di[i] = 0;
+
+    for (i = 0; i < EMC_MAX_AIO; i++)
+	analog_input[i] = 0;
+    
+    debug = 0;
+};
 
 EMC_TASK_STAT::EMC_TASK_STAT():
 EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
@@ -95,30 +114,17 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     motionLine = 0;
     currentLine = 0;
     readLine = 0;
+    optional_stop_state = OFF;
+    block_delete_state = OFF;
+    input_timeout = OFF;
     file[0] = 0;
     command[0] = 0;
 
-    origin.tran.x = 0.0;
-    origin.tran.y = 0.0;
-    origin.tran.z = 0.0;
-    origin.a = 0.0;
-    origin.b = 0.0;
-    origin.c = 0.0;
-    origin.u = 0.0;
-    origin.v = 0.0;
-    origin.w = 0.0;
-
-    toolOffset.tran.x = 0.0;
-    toolOffset.tran.y = 0.0;
-    toolOffset.tran.z = 0.0;
-    toolOffset.a = 0.0;
-    toolOffset.b = 0.0;
-    toolOffset.c = 0.0;
-    toolOffset.u = 0.0;
-    toolOffset.v = 0.0;
-    toolOffset.w = 0.0;
+    ZERO_EMC_POSE(origin);
+    ZERO_EMC_POSE(toolOffset);
 
     rotation_xy = 0.0;
+    tloIsAlongW = OFF;
 
     for (t = 0; t < ACTIVE_G_CODES; t++)
 	activeGCodes[t] = -1;
@@ -126,6 +132,10 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
 	activeMCodes[t] = -1;
     for (t = 0; t < ACTIVE_SETTINGS; t++)
 	activeSettings[t] = 0.0;
+
+    programUnits = CANON_UNITS_MM;
+    interpreter_errcode = 0;
+    task_paused = 0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():
