@@ -620,12 +620,7 @@ int sendJogStop(int axis)
     }
     else {
 	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
-	emc_set_teleop_vector.vector.tran.x = 0;
-	emc_set_teleop_vector.vector.tran.y = 0;
-	emc_set_teleop_vector.vector.tran.z = 0;
-	emc_set_teleop_vector.vector.a = 0;
-	emc_set_teleop_vector.vector.b = 0;
-	emc_set_teleop_vector.vector.c = 0;
+        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
 	emcCommandBuffer->write(emc_set_teleop_vector);
 
 	if (emcWaitType == EMC_WAIT_RECEIVED) {
@@ -660,9 +655,7 @@ int sendJogCont(int axis, double speed)
 	emcCommandBuffer->write(emc_axis_jog_msg);
     } else {
 	emc_set_teleop_vector.serial_number = ++emcCommandSerialNumber;
-	emc_set_teleop_vector.vector.tran.x = 0.0;
-	emc_set_teleop_vector.vector.tran.y = 0.0;
-	emc_set_teleop_vector.vector.tran.z = 0.0;
+        ZERO_EMC_POSE(emc_set_teleop_vector.vector);
 
 	switch (axis) {
 	case 0:

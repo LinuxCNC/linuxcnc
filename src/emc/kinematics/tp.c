@@ -101,15 +101,7 @@ int tpClear(TP_STRUCT * tp)
     emcmotStatus->spindleSync = 0;
     emcmotStatus->current_vel = 0.0;
     emcmotStatus->distance_to_go = 0.0;
-    emcmotStatus->dtg.tran.x = 0.0;
-    emcmotStatus->dtg.tran.y = 0.0;
-    emcmotStatus->dtg.tran.z = 0.0;
-    emcmotStatus->dtg.a = 0.0;
-    emcmotStatus->dtg.b = 0.0;
-    emcmotStatus->dtg.c = 0.0;
-    emcmotStatus->dtg.u = 0.0;
-    emcmotStatus->dtg.v = 0.0;
-    emcmotStatus->dtg.w = 0.0;
+    ZERO_EMC_POSE(emcmotStatus->dtg);
 
     return tpClearDIOs();
 }
@@ -126,15 +118,7 @@ int tpInit(TP_STRUCT * tp)
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
 
-    tp->currentPos.tran.x = 0.0;
-    tp->currentPos.tran.y = 0.0;
-    tp->currentPos.tran.z = 0.0;
-    tp->currentPos.a = 0.0;
-    tp->currentPos.b = 0.0;
-    tp->currentPos.c = 0.0;
-    tp->currentPos.u = 0.0;
-    tp->currentPos.v = 0.0;
-    tp->currentPos.w = 0.0;
+    ZERO_EMC_POSE(tp->currentPos);
     
     return tpClear(tp);
 }
@@ -1147,9 +1131,7 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     EmcPose retval;
 
     if (0 == tp) {
-	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
-	retval.a = retval.b = retval.c = 0.0;
-	retval.u = retval.v = retval.w = 0.0;
+        ZERO_EMC_POSE(retval);
 	return retval;
     }
 

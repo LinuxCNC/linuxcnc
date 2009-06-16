@@ -890,24 +890,8 @@ static int init_comm_buffers(void)
     emcmotStatus->computeTime = 0.0;
     emcmotConfig->numJoints = num_joints;
 
-    emcmotStatus->carte_pos_cmd.tran.x = 0.0;
-    emcmotStatus->carte_pos_cmd.tran.y = 0.0;
-    emcmotStatus->carte_pos_cmd.tran.z = 0.0;
-    emcmotStatus->carte_pos_cmd.a = 0.0;
-    emcmotStatus->carte_pos_cmd.b = 0.0;
-    emcmotStatus->carte_pos_cmd.c = 0.0;
-    emcmotStatus->carte_pos_cmd.u = 0.0;
-    emcmotStatus->carte_pos_cmd.v = 0.0;
-    emcmotStatus->carte_pos_cmd.w = 0.0;
-    emcmotStatus->carte_pos_fb.tran.x = 0.0;
-    emcmotStatus->carte_pos_fb.tran.y = 0.0;
-    emcmotStatus->carte_pos_fb.tran.z = 0.0;
-    emcmotStatus->carte_pos_fb.a = 0.0;
-    emcmotStatus->carte_pos_fb.b = 0.0;
-    emcmotStatus->carte_pos_fb.c = 0.0;
-    emcmotStatus->carte_pos_fb.u = 0.0;
-    emcmotStatus->carte_pos_fb.v = 0.0;
-    emcmotStatus->carte_pos_fb.w = 0.0;
+    ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
+    ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
     emcmotStatus->vel = VELOCITY;
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
@@ -929,9 +913,7 @@ static int init_comm_buffers(void)
     emcmotConfig->kinematics_type = kinType;
 
     emcmotDebug->oldPos = emcmotStatus->carte_pos_cmd;
-    emcmotDebug->oldVel.tran.x = 0.0;
-    emcmotDebug->oldVel.tran.y = 0.0;
-    emcmotDebug->oldVel.tran.z = 0.0;
+    ZERO_EMC_POSE(emcmotDebug->oldVel);
 
     emcmot_config_change();
 
