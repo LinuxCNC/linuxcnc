@@ -64,13 +64,6 @@ extern "C" {
     extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
     extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
 
-    extern double SPINDLE_OFF_WAIT;
-    extern double SPINDLE_ON_WAIT;
-
-    extern int SPINDLE_ON_INDEX;
-    extern double MIN_VOLTS_PER_RPM;
-    extern double MAX_VOLTS_PER_RPM;
-
     extern struct EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;
     extern struct EmcPose TOOL_HOLDER_CLEAR;

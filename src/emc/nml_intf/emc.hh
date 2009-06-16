@@ -556,20 +556,6 @@ extern int emcSpindleEnable();
 extern int emcSpindleDisable();
 
 extern int emcSpindleSetMode(int mode); //determines if Spindle needs to reset on abort
-extern int emcSpindleSetForwardIndex(int index);
-extern int emcSpindleSetReverseIndex(int index);
-extern int emcSpindleSetDecreaseIndex(int index);
-extern int emcSpindleSetIncreaseIndex(int index);
-extern int emcSpindleSetBrakeIndex(int index);
-extern int emcSpindleSetEnableIndex(int index);
-
-extern int emcSpindleSetOnIndex(int index);
-extern int emcMinVoltsPerRpm(double volts);
-extern int emcMaxVoltsPerRpm(double volts);
-
-/*! \todo - FIXME - not used remove */
-extern int emcSpindleSetOffWait(double wait);
-extern int emcSpindleSetOnWait(double wait);
 
 extern int emcSpindleUpdate(EMC_SPINDLE_STAT * stat);
 
