@@ -1163,8 +1163,14 @@ class MyOpengl(Opengl):
         text = widgets.numbers_text
 
         font = "Courier 10 pitch"
-        font_width = text.tk.call("font", "measure", (font, -100, "bold"), "0")
-        font_vertspace = text.tk.call("font", "metrics", (font, -100, "bold"), "-linespace") - 100
+        if not hasattr(self, 'font_width'):
+            self.font_width = text.tk.call(
+                "font", "measure", (font, -100, "bold"), "0")
+            self.font_vertspace = text.tk.call(
+                "font", "metrics", (font, -100, "bold"), "-linespace") - 100
+            self.last_font = None
+        font_width = self.font_width
+        font_vertspace = self.font_vertspace
 
         text.delete("0.0", "end")
         t = droposstrs[:]
@@ -1193,7 +1199,10 @@ class MyOpengl(Opengl):
         height_ratio = float(window_height) / req_height
         width_ratio = float(window_width) / req_width
         ratio = min(height_ratio, width_ratio)
-        text.configure(font=(font, -int(100*ratio), "bold"), wrap="none")
+        new_font = -int(100*ratio)
+        if new_font != self.last_font:
+            text.configure(font=(font, new_font, "bold"))
+            self.last_font = new_font
 
 def init():
     glDrawBuffer(GL_BACK)
