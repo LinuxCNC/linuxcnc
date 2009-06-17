@@ -80,12 +80,8 @@ int tpClearDIOs() {
 int tpClear(TP_STRUCT * tp)
 {
     tcqInit(&tp->queue);
-    tp->goalPos.tran.x = tp->currentPos.tran.x;
-    tp->goalPos.tran.y = tp->currentPos.tran.y;
-    tp->goalPos.tran.z = tp->currentPos.tran.z;
-    tp->goalPos.a = tp->currentPos.a;
-    tp->goalPos.b = tp->currentPos.b;
-    tp->goalPos.c = tp->currentPos.c;
+    tp->queueSize = 0;
+    tp->goalPos = tp->currentPos;
     tp->nextId = 0;
     tp->execId = 0;
     tp->motionType = 0;
@@ -97,6 +93,7 @@ int tpClear(TP_STRUCT * tp)
     tp->pausing = 0;
     tp->vScale = emcmotStatus->net_feed_scale;
     tp->synchronized = 0;
+    tp->velocity_mode = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
     emcmotStatus->current_vel = 0.0;
@@ -303,6 +300,11 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.active = 0;
     tc.atspeed = 1;
 
+    tc.currentvel = 0.0;
+    tc.blending = 0;
+    tc.blend_vel = 0.0;
+    tc.vel_at_blend_start = 0.0;
+
     tc.coords.rigidtap.xyz = line_xyz;
     tc.coords.rigidtap.abc = abc;
     tc.coords.rigidtap.uvw = uvw;
@@ -414,6 +416,11 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.active = 0;
     tc.atspeed = atspeed;
 
+    tc.currentvel = 0.0;
+    tc.blending = 0;
+    tc.blend_vel = 0.0;
+    tc.vel_at_blend_start = 0.0;
+
     tc.coords.line.xyz = line_xyz;
     tc.coords.line.uvw = line_uvw;
     tc.coords.line.abc = line_abc;
@@ -518,6 +525,11 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.id = tp->nextId;
     tc.active = 0;
     tc.atspeed = atspeed;
+
+    tc.currentvel = 0.0;
+    tc.blending = 0;
+    tc.blend_vel = 0.0;
+    tc.vel_at_blend_start = 0.0;
 
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
@@ -1131,9 +1143,7 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     EmcPose retval;
 
     if (0 == tp) {
-	retval.tran.x = retval.tran.y = retval.tran.z = 0.0;
-	retval.a = retval.b = retval.c = 0.0;
-	retval.u = retval.v = retval.w = 0.0;
+        ZERO_EMC_POSE(retval);
 	return retval;
     }
 
