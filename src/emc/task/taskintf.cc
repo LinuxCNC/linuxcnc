@@ -1059,15 +1059,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 #endif
 
     emcmotCommand.command = EMCMOT_PROBE;
-    emcmotCommand.pos.tran.x = pos.tran.x;
-    emcmotCommand.pos.tran.y = pos.tran.y;
-    emcmotCommand.pos.tran.z = pos.tran.z;
-    emcmotCommand.pos.a = pos.a;
-    emcmotCommand.pos.b = pos.b;
-    emcmotCommand.pos.c = pos.c;
-    emcmotCommand.pos.u = pos.u;
-    emcmotCommand.pos.v = pos.v;
-    emcmotCommand.pos.w = pos.w;
+    emcmotCommand.pos = pos;
     emcmotCommand.id = localEmcTrajMotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
@@ -1088,9 +1080,7 @@ int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 #endif
 
     emcmotCommand.command = EMCMOT_RIGID_TAP;
-    emcmotCommand.pos.tran.x = pos.tran.x;
-    emcmotCommand.pos.tran.y = pos.tran.y;
-    emcmotCommand.pos.tran.z = pos.tran.z;
+    emcmotCommand.pos.tran = pos.tran;
     emcmotCommand.id = localEmcTrajMotionId;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1188,15 +1178,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	}
     }
 
-    stat->probedPosition.tran.x = emcmotStatus.probedPos.tran.x;
-    stat->probedPosition.tran.y = emcmotStatus.probedPos.tran.y;
-    stat->probedPosition.tran.z = emcmotStatus.probedPos.tran.z;
-    stat->probedPosition.a = emcmotStatus.probedPos.a;
-    stat->probedPosition.b = emcmotStatus.probedPos.b;
-    stat->probedPosition.c = emcmotStatus.probedPos.c;
-    stat->probedPosition.u = emcmotStatus.probedPos.u;
-    stat->probedPosition.v = emcmotStatus.probedPos.v;
-    stat->probedPosition.w = emcmotStatus.probedPos.w;
+    stat->probedPosition = emcmotStatus.probedPos;
 
     stat->probeval = emcmotStatus.probeVal;
     stat->probe_tripped = emcmotStatus.probeTripped;
