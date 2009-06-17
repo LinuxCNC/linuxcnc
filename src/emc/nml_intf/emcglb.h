@@ -56,6 +56,8 @@ extern "C" {
 
     extern double EMC_IO_CYCLE_TIME;
 
+    extern int EMC_TASK_INTERP_MAX_LEN;
+
     extern char TOOL_TABLE_FILE[LINELEN];
 
     extern double TRAJ_DEFAULT_VELOCITY;
