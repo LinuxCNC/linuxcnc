@@ -27,6 +27,7 @@ import shutil
 import math
 import getopt
 import textwrap
+import commands
 
 import gobject
 import gtk
@@ -1067,18 +1068,22 @@ class Data:
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
         print("%s" % base)
 
+        # see http://freedesktop.org/wiki/Software/xdg-user-dirs
+        desktop = commands.getoutput("""
+            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+            echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
-            if not os.path.exists(os.path.expanduser("~/Desktop/%s" % self.machinename)):
-                os.symlink(base,os.path.expanduser("~/Desktop/%s" % self.machinename))
+            shortcut = os.path.join(desktop, machinename)
+            if os.path.exists(desktop) and not os.path.exists(shortcut):
+                os.symlink(base,shortcut)
 
-        if self.createshortcut:
+        if self.createshortcut and os.path.exists(desktop):
             if os.path.exists(BASE + "/scripts/emc"):
                 scriptspath = (BASE + "/scripts/emc")
             else:
                 scriptspath ="emc"
-            print"%s" % BASE
-            print"%s" % scriptspath
-            filename = os.path.expanduser("~/Desktop/%s.desktop" % self.machinename)
+
+            filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
             print >>file,"[Desktop Entry]"
             print >>file,"Version=1.0"
