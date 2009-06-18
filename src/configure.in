@@ -187,12 +187,6 @@ case $RTS in
     RTFLAGS="$RTFLAGS -DRTAI=3"
     KERNELDIR=`$RTS --linux-dir`
     RTARCH=`$RTS --arch`
-    . `$RTS --config`
-    case $CONFIG_RTAI_MATH in
-    [[ym]]) ;;
-    *)
-        AC_MSG_ERROR([emc2 requires that rtai be configured with --enable-fpu.])
-    esac
 ;;
 */realtime-config)
 # For RTAI-24.1x $RTS = realtime-config
