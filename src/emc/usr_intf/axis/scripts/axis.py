@@ -1042,8 +1042,8 @@ class MyOpengl(Opengl):
         limit, homed, posstrs, droposstrs = self.posstrs()
 
         maxlen = max([len(p) for p in posstrs])
-        pixel_width = max([int(o.tk.call("font", "measure", coordinate_font, p))
-                        for p in posstrs])
+        pixel_width = coordinate_charwidth * max(len(p) for p in posstrs)
+
         glDepthFunc(GL_ALWAYS)
         glDepthMask(GL_FALSE)
         glEnable(GL_BLEND)
@@ -3825,15 +3825,15 @@ font_cache = {}
 def get_coordinate_font(large):
     global coordinate_font
     global coordinate_linespace
+    global coordinate_charwidth
     global fontbase
 
     if large:
         coordinate_font = "-*-lucidatypewriter-medium-r-*-*-20-*-*-*-*-*-*-1"
     else:
         coordinate_font = "9x15"
-    coordinate_font_metrics = o.tk.call("font", "metrics", coordinate_font).split()
-    linespace_index = coordinate_font_metrics.index("-linespace")
-    coordinate_linespace = int(coordinate_font_metrics[linespace_index+1])
+    coordinate_charwidth, coordinate_linespace = map(int,
+        o.tk.call(o, "measurebitmapfont", coordinate_font).split())
     
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))

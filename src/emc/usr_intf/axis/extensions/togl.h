@@ -176,6 +176,9 @@ extern GLuint Togl_LoadBitmapFont( const struct Togl *togl,
                                    const char *fontname );
 
 extern void Togl_UnloadBitmapFont( const struct Togl *togl, GLuint fontbase );
+extern int Togl_BitmapFontMetrics( const struct Togl *togl,
+                                   const char *fontname,
+                                   int *charwidth, int *linespace);
 
 
 /*

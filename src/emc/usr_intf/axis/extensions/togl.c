@@ -1193,6 +1193,24 @@ int Togl_Widget(ClientData clientData, Tcl_Interp *interp,
          result=TCL_ERROR;
       }
    }
+   else if (!strncmp(argv[1], "measurebitmapfont", MAX(1, strlen(argv[1])))) {
+      if (argc != 3) {
+         Tcl_AppendResult(interp, "wrong # args",NULL);
+         result=TCL_ERROR;
+      } else {
+         int width, linespace;
+         if(!Togl_BitmapFontMetrics(togl, argv[2], &width, &linespace))
+         {
+             Tcl_AppendResult(interp, "Could not allocate font",NULL);
+             result=TCL_ERROR;
+         } else {
+             char buf[32];
+             snprintf(buf, sizeof(buf), "%d %d", width, linespace);
+             Tcl_AppendResult(interp, buf, NULL);
+             result=TCL_OK;
+         }
+      }
+   }
    else if (!strncmp(argv[1], "unloadbitmapfont", MAX(1, strlen(argv[1])))) {
       if (argc == 3) {
          Togl_UnloadBitmapFont(togl, atoi(argv[2]));
@@ -2694,6 +2712,18 @@ typedef struct WinFont {
 static GLuint ListBase[MAX_FONTS];
 static GLuint ListCount[MAX_FONTS];
 
+int Togl_BitmapFontMetrics( const struct Togl *togl, const char *fontname,
+                                int *width, int *linespace) {
+   XFontStruct *fontinfo;
+    
+   fontinfo = (XFontStruct *) XLoadQueryFont( Tk_Display(togl->TkWin), fontname );
+   if (!fontinfo) {
+      return 0;
+   }
+   *width = fontinfo->max_bounds.width;
+   *linespace = fontinfo->max_bounds.ascent + fontinfo->max_bounds.descent;
+   return 1;
+}
 
 
 /*
