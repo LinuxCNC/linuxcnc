@@ -336,7 +336,7 @@ setup_menu_accel .menu.view end [_ "Show _distance to go"]
 .menu.view add checkbutton \
 	-variable dro_large_font \
 	-command toggle_dro_large_font
-setup_menu_accel .menu.view end [_ "La_rge coordinate font"]
+setup_menu_accel .menu.view end [_ "Large coordinate fo_nt"]
 
 .menu.view add command \
 	-accelerator [_ "Ctrl-K"] \
