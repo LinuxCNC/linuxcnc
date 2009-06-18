@@ -69,7 +69,8 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity bufferedspi is
     generic (
-		cswidth : integer := 4
+		cswidth : integer := 4;
+		gatedcs : boolean
 		);    
 	port ( 
 		clk : in std_logic;
@@ -108,10 +109,12 @@ alias RateDivReg : std_logic_vector(DivWidth -1 downto 0) is ModeReg(15 downto 8
 alias CSReg : std_logic_vector(cswidth -1 downto 0) is  ModeReg(cswidth-1 +16 downto 16);
 alias CSTimerReg : std_logic_vector(4 downto 0) is ModeReg(28 downto 24);
 alias DontEcho : std_logic is ModeReg(31);
+alias DontClearFrame : std_logic is ModeReg(30);
 signal BitCount : std_logic_vector(5 downto 0);
 signal ClockFF: std_logic; 
 signal SPISreg: std_logic_vector(31 downto 0);
-signal Frame: std_logic; 
+signal LFrame: std_logic; 
+signal EFrame: std_logic;
 signal Dav: std_logic; 
 signal SPIInLatch: std_logic;
 signal FirstLeadingEdge: std_logic;
@@ -138,7 +141,6 @@ alias CSTimerDone: std_logic is CSTimer(4);
 	signal autosenddata: std_logic_vector(35 downto 0);
 	signal autosendadd: std_logic_vector(3 downto 0);
 	signal autosendlength: std_logic_vector(3 downto 0);
-	
 	
 -- channel descriptor related signals
 	signal desc: std_logic_vector(31 downto 0);
@@ -286,7 +288,7 @@ begin
 	end process infifo;
 
 
-	aspiinterface: process (clk,  ModeReg, ClockFF, Frame,
+	aspiinterface: process (clk,  ModeReg, ClockFF, LFrame,
 	                        SPISreg,  BitcountReg, opopdata,
 									Dav,RateDivReg,addr, ibus, 
 									hostpop, ipopdata, readcount, 
@@ -294,10 +296,10 @@ begin
 	begin
 		if rising_edge(clk) then
 			if StartCycle = '0' and ofifohasdata = '1' and opop = '0'
-			and CSTimerDone= '1' and Frame = '0' and Dav = '0' and loaddata = '0' then				
+			and CSTimerDone= '1' and LFrame = '0' and Dav = '0' and loaddata = '0' then				
 			-- if SPI shift register is free and we have data and CS setup/hold time is passed
 				ModeReg <= desc;
-				CSTimer <= CSTimerFromDesc; -- load early for pre-frame delay		
+				CSTimer <= CSTimerFromDesc; -- load early for pre-LFrame delay		
 				StartCycle <= '1';	
 			end if;
 			if StartCycle = '1' then			
@@ -321,7 +323,8 @@ begin
 			if loaddata = '1' then 
 				SPISreg <= opopdata(31 downto 0);
 				BitCount <= BitCountReg;
-				Frame <= '1';
+				LFrame <= '1';
+				EFrame <= '1';
 				ClockFF <= '0';
 				FirstLeadingEdge <= '1';
 				RateDiv <= RateDivReg;
@@ -336,15 +339,18 @@ begin
 				CSTimer <= CSTimer -1;
 			end if;	
 			
-			if Frame = '1' then 										-- single shift register SPI
+			if LFrame = '1' then 										-- single shift register SPI
 				if RateDiv = 0 then									-- maybe update to dual later to allow
 					RateDiv <= RateDivReg;							-- receive data skew adjustment
 					SPIInLatch <= spiin;
 					if ClockFF = '0' then
 						if BitCount(5) = '1' then
-							Frame <= '0';								-- frame cleared 1/2 SPI clock after GO
+							LFrame <= '0';								-- LFrame cleared 1/2 SPI clock after GO
+							if DontClearFrame = '0' then
+								EFrame <= '0';							-- EFrame only cleared if DontClearFrame is false
+							end if;	
 							Dav <= '1';
-							CSTimer <= CSTimerReg;					-- load timer from copy for post frame delay
+							CSTimer <= CSTimerReg;					-- load timer from copy for post LFrame delay
 						else						
 							ClockFF <= '1';
 						end if;	
@@ -365,7 +371,8 @@ begin
 			end if;
 
 			if clear = '1' then 
-				Frame <= '0';
+				LFrame <= '0';
+				EFrame <= '0';
 				ClockFF <= '0';
 				Dav <= '0';
 				LoadData <= '0';
@@ -391,14 +398,19 @@ begin
 		end if;
 			
 		spiclk <= ClockFF xor CPOL;
-		spiframe <= not Frame;
-		spicsout <= CSReg;
---		for i in 0 to 31 loop
---			if i = BitCountReg then
---				spiout <= SPISReg(i);
---			end if;
---		end loop;	
-	spiout <= SPISReg(conv_integer(BitCountReg(4 downto 0)));
+		spiframe <= not EFrame;
+		if gatedcs then							-- gated/decoded CS/frame = DBSPI
+			for i in CSwidth-1 downto 0 loop
+				if i = conv_integer(CSReg) then 
+					spicsout(i) <= not EFrame;
+				else
+					spicsout(i) <= '1';
+				end if;	
+			end loop;  
+		else
+			spicsout <= CSReg;					-- decoded select with separate frame = BSPI
+		end if;
+		spiout <= SPISReg(conv_integer(BitCountReg(4 downto 0)));
 	end process aspiinterface;
 	
 end Behavioral;

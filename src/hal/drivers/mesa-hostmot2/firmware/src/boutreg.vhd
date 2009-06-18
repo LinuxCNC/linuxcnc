@@ -67,7 +67,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --     POSSIBILITY OF SUCH DAMAGE.
 -- 
 
-entity boutreg is
+entity boutreg is		-- basic output register
     generic ( 
 		size : integer;
 	 	buswidth : integer;
@@ -103,13 +103,13 @@ begin
 		end if; -- clk
 		obus <= (others => 'Z');
 		if read = '1' then
-			obus(size -1 downto 0) <= oreg;
+			obus(size -1 downto 0) <= oreg;			-- port data is right justified
 			obus(buswidth -1 downto size) <= (others => '0'); 
 		end if;		
-		if not invert then
-			dout <= oreg;
-		else
+		if invert then
 			dout <= not oreg;
+		else
+			dout <= oreg;
 		end if;	
 	end process;
 end Behavioral;

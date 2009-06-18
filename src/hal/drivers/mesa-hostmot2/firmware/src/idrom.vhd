@@ -68,7 +68,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --     POSSIBILITY OF SUCH DAMAGE.
 -- 
 
-use work.IDROMParms.all;	
+use work.IDROMConst.all;	
 
 entity IDROM is 
 	generic (
@@ -286,7 +286,7 @@ end IDROM;
  signal readout : std_logic_vector(31 downto 0); 
  
  begin 
- 	process (clk) 
+ 	process (clk,RAM, re) 
  	begin 
  		if (clk'event and clk = '1') then  
  			if (we = '1') then 

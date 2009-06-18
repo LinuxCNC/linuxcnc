@@ -112,7 +112,6 @@ signal oldloadpcrreq: std_logic;
 signal olderloadpcrreq: std_logic;
 signal oldtoggle: std_logic;
 signal cyclestart: std_logic;
-signal cyclestartflag: std_logic;
 
 begin
 	apwmgen: process  (clk,hclk,refcount,ibus,loadpwmval,pwmval,pwm,
@@ -129,7 +128,7 @@ begin
 			if oldloadpwmreq = '1'  and olderloadpwmreq = '1' then
 				pwmval <= prepwmval;
 				dir <= predir;
-				cyclestartflag <= '0';
+				oldloadpwmreq <= '0';
 			end if;  		
 			if oldloadpcrreq = '1' and olderloadpcrreq ='1' then
  		   	modereg <= premodereg;			
@@ -137,12 +136,12 @@ begin
 			
 			olderloadpwmreq <= oldloadpwmreq;
 			olderloadpcrreq <= oldloadpcrreq;
+			if (loadpwmreq and (cyclestart or (not doublebuf))) = '1' then
+				oldloadpwmreq <= '1';
+			end if;
 
-			oldloadpwmreq <= loadpwmreq and (cyclestartflag or (not doublebuf));			
+--			oldloadpwmreq <= loadpwmreq and (cyclestartflag or (not doublebuf));			
 			oldloadpcrreq <= loadpcrreq;			
-			if cyclestart = '1' then
-				cyclestartflag <= '1';
-			end if;	
 			-- was combinatorial but now pipelined to meet 100 MHz timing 	
 			if (UNSIGNED(maskedrefcount) < UNSIGNED(pwmval)) then 
 				pwm <= '1'; 

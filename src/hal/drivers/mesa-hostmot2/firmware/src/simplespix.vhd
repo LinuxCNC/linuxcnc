@@ -96,14 +96,16 @@ constant DivWidth: integer := 8;
 
 signal RateDivReg : std_logic_vector(DivWidth -1 downto 0);
 signal RateDiv : std_logic_vector(DivWidth -1 downto 0);
-signal ModeReg : std_logic_vector(7 downto 0);
+signal ModeReg : std_logic_vector(8 downto 0);
 alias BitcountReg : std_logic_vector(5 downto 0) is ModeReg(5 downto 0);
 alias CPOL : std_logic is ModeReg(6);
 alias CPHA : std_logic is ModeReg(7);
+alias DontClearFrame : std_logic is ModeReg(8);
 signal BitCount : std_logic_vector(5 downto 0);
 signal ClockFF: std_logic; 
 signal SPISreg: std_logic_vector(buswidth-1 downto 0);
-signal Frame: std_logic; 
+signal Frame: std_logic;
+signal EFrame: std_logic;  
 signal Dav: std_logic; 
 signal SPIInLatch: std_logic;
 signal FirstLeadingEdge: std_logic;
@@ -120,6 +122,7 @@ begin
 				SPISreg <= ibus;
 				BitCount <= BitCountReg;
 				Frame <= '1';
+				EFrame <= '1';
 				Dav <= '0';
 				ClockFF <= '0';
 				FirstLeadingEdge <= '1';
@@ -133,6 +136,9 @@ begin
 					if ClockFF = '0' then
 						if BitCount(5) = '1' then
 							Frame <= '0';								-- frame cleared 1/2 SPI clock after GO
+							if DontClearFrame = '0' then
+								EFrame <= '0';
+							end if;	
 							Dav <= '1';
 						else						
 							ClockFF <= '1';
@@ -155,7 +161,7 @@ begin
 
 
 			if loadbitcount =  '1' then 
-				ModeReg <= ibus(7 downto 0);
+				ModeReg <= ibus(8 downto 0);
 			end if;
 			if loadbitrate =  '1' then 
 				RateDivReg <= ibus(DivWidth -1 downto 0);				 
@@ -168,14 +174,14 @@ begin
 			obus <= SPISReg;
 		end if;
 		if	readbitcount =  '1' then
-			obus(7 downto 0) <= ModeReg;
+			obus(8 downto 0) <= ModeReg;
 			obus(buswidth -1) <= Dav;			
 		end if;
       if readbitrate =  '1' then
 			obus(DivWidth-1 downto 0) <= RateDivReg;
 		end if;
 		spiclk <= ClockFF xor CPOL;
-		spiframe <= not Frame;
+		spiframe <= not EFrame;
 		davout <= Dav;
 --		for i in 0 to buswidth -1 loop
 --			if i = BitCountReg then
