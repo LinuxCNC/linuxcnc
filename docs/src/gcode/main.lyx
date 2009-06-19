@@ -177,7 +177,7 @@ Quick Reference Table
 \pagebreak_bottom 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="49" columns="4">
+<lyxtabular version="3" rows="50" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -1341,6 +1341,45 @@ n/a
 
 
 \begin_inset LatexCommand \ref{sub:G90,-G91:-Set}
+
+\end_inset 
+
+
+\end_inset 
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+G90.1, G91.1
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+Arc Distance Mode
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+I J K
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+
+\begin_inset LatexCommand \ref{sec:G90.1,-G91.1}
 
 \end_inset 
 
@@ -6331,10 +6370,17 @@ G91
  from the current coordinate.
 \layout Section
 
-G90.1, G91.1 Distance Mode (I, J & K)
-\layout Standard
+G90.1, G91.1 Arc Distance Mode
+\begin_inset LatexCommand \index{Arc Distance Mode}
 
-Note: This feature is currently being developed and may not be fully implemented.
+\end_inset 
+
+
+\begin_inset LatexCommand \label{sec:G90.1,-G91.1}
+
+\end_inset 
+
+
 \layout Standard
 
 G90.1 Absolute Distance Mode for I, J & K offsets.
