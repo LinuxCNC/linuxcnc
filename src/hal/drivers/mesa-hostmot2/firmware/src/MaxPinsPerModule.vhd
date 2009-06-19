@@ -67,7 +67,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --     POSSIBILITY OF SUCH DAMAGE.
 -- 
 
-use work.IDROMParms.all;
+use work.IDROMConst.all;
 package MaxPinsPerModule is
 	function MaxPinsPerModule(PD : PinDescType; Tag : std_logic_vector(7 downto 0))	return integer;
 end MaxPinsPerModule;

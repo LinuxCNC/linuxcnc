@@ -79,7 +79,7 @@ use IEEE.STD_LOGIC_UNSIGNED.all;
 -- OR, XOR, AND, ADD, ADDC, SUB, SUBB, LDA, STA
 -- 13 operate instructions, load immediate, rotate, index load/store: 
 -- LDI, RCL, RCR, LDYL, LDXL, STYL, STXL, LDYH, LDXH, STYL, STXH, RTT, TTR  
--- 1K words instruction space
+-- 1K or 2K words instruction space
 -- 4K words data space
 -- 2 index registers for indirect memory access
 -- 8 bit offset for indirect addressing (ADD sinetable(6) etc)
@@ -128,7 +128,7 @@ architecture Behavioral of DumbAss8 is
 
 
   constant carrymask : std_logic_vector := b"0_1111_1111";  -- mask to drop carry bit
-
+  constant ProcVersion : std_logic_vector (width downto 0) := conv_std_logic_vector(12,width);
 -- basic op codes
 -- Beware, certain bits are used to simpilfy decoding - dont change without knowing what you are doing...
   constant opr	: std_logic_vector (3 downto 0) := x"0";
@@ -175,7 +175,7 @@ architecture Behavioral of DumbAss8 is
   constant ttr	: std_logic_vector (3 downto 0) := x"F";  
 -- basic signals
 
-  signal accumcar  : std_logic_vector (width downto 0);  -- accumulator+carry
+  signal accumcar  : std_logic_vector (width downto 0) := ProcVersion;  -- accumulator+carry
   alias accum		: std_logic_vector (width-1 downto 0) is accumcar(width-1 downto 0);
   alias carrybit	: std_logic is accumcar(width);
   signal maskedcarry : std_logic;
@@ -200,8 +200,8 @@ architecture Behavioral of DumbAss8 is
   alias offset2	 : std_logic_vector (iwidth-9  downto 0) is	id2(iwidth-9 downto 0);
   alias opropcode0 : std_logic_vector (3 downto 0) is idbus(iwidth-5 downto iwidth-8);	 -- operate opcode at pipe2  alias iopr2		: std_logic_vector (7 downto 0) is id2 (7 downto 0);					  -- immediate operand at pipe2
   alias opropcode2 : std_logic_vector (3 downto 0) is id2(iwidth-5 downto iwidth-8);	 -- operate opcode at pipe2  alias iopr2		: std_logic_vector (7 downto 0) is id2 (7 downto 0);					  -- immediate operand at pipe2
-  alias iopr2		: std_logic_vector (7 downto 0) is id2 (7 downto 0);					  -- immediate operand at pipe2
-  signal oprr		: std_logic_vector (width -1 downto 0);										-- operand register
+  alias iopr2		: std_logic_vector (7 downto 0) is id2 (7 downto 0);					  	 -- immediate operand at pipe2
+  signal oprr		: std_logic_vector (width -1 downto 0);										 -- operand register
   signal idx		 : std_logic_vector (maddwidth -1 downto 0);
   signal idy		 : std_logic_vector (maddwidth -1 downto 0);
   signal idn0		 : std_logic_vector (maddwidth -1 downto 0);
@@ -255,9 +255,9 @@ begin  -- the CPU
 		nextpc <= (others => '0');
 	 else
 		if (opcode0 = jmp) or (opcode0 = jsr) then
-		  if ind0 = '1' then					-- indirect
+		  if ind0 = '1' then					  -- indirect
 			 nextpc <= idr;
-		  else									-- direct
+		  else										 -- direct
 			 nextpc <= idbus(paddwidth -1 downto 0);
 		  end if;
 		elsif
@@ -304,8 +304,8 @@ begin  -- the CPU
 		maddpipe3 <= maddpipe2;
 		maddpipe2 <= maddpipe1;
 		maddpipe1 <= mra;
-		if (opcode0 = lda) or (opcode0 = lor) or (opcode0 = lxor) or (opcode0 = land) 		-- memory read strobe
-		or (opcode0 = add) or (opcode0 = addc) or (opcode0 = sub) or (opcode0 = subc) then	-- generation
+		if (opcode0 = lda) or (opcode0 = lor) or (opcode0 = lxor) or (opcode0 = land) 
+		or (opcode0 = add) or (opcode0 = addc) or (opcode0 = sub) or (opcode0 = subc) then
 			mread <= '1';
 		else
 			mread <= '0';
@@ -344,29 +344,26 @@ begin  -- the CPU
 					
 			when opr				=>												  			-- operate
 				case opropcode2 is
-					when ldi		   => accum	 <= iopr2;							-- load immediate byte	  
+					when ldi		  => accum	 <= iopr2;							-- load immediate byte	  
 					when rotcl		=> accumcar <= rotcleft(accumcar);		-- rotate left through carry
 					when rotcr		=> accumcar <= rotcright(accumcar);	 	-- rotate right through carry				  
-					
-					
-					when ldxl		=> accum	 <= idx(width-1 downto 0);		-- load and store index 
-					when ldyl		=> accum	 <= idy(width-1 downto 0);
-					when stxl		=> idx(width-1 downto 0) <= accum;
-					when styl		=> idy(width-1 downto 0) <= accum;
+
+					when ldxl		  => accum	 <= idx(width-1 downto 0);
+					when ldyl		  => accum	 <= idy(width-1 downto 0);
+					when stxl		  => idx(width-1 downto 0) <= accum;
+					when styl		  => idy(width-1 downto 0) <= accum;
 
 					when ldxh		=> accum((maddwidth-width)-1 downto 0) <= idx(maddwidth-1 downto width);
-										   accum(width-1 downto maddwidth-width) <= (others => '0'); 
+										  accum(width-1 downto maddwidth-width) <= (others => '0'); 
 					when ldyh		=> accum((maddwidth-width)-1 downto 0) <= idy(maddwidth-1 downto width);
 											accum(width-1 downto maddwidth-width) <= (others => '0');  
 					when stxh		=> idx(maddwidth-1 downto width) <= accum((maddwidth-width)-1 downto 0);
 					when styh		=> idy(maddwidth-1 downto width) <= accum((maddwidth-width)-1 downto 0);
-				
-					when rtt			=> idt <= idr;					-- save return address
-					when ttr			=> idr <= idt;					-- load return address
-					
-					when addix		=> idx <= maddpipe2;			-- re-use offset in pipeline for add immediate to index
+					when rtt			=> idt <= idr;
+					when ttr			=> idr <= idt;
+					when addix		=> idx <= maddpipe2;
 					when addiy     => idy <= maddpipe2;
-					when others	   => null;
+					when others	  => null;
 			  end case;
 			when others		 => null;
 		end case;

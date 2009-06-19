@@ -67,7 +67,7 @@ use IEEE.std_logic_UNSIGNED.ALL;
 --     POSSIBILITY OF SUCH DAMAGE.
 -- 
 
-use work.IDROMParms.all;	
+use work.IDROMConst.all;	
 library UNISIM;
 use UNISIM.VComponents.all;
 	
@@ -79,14 +79,17 @@ entity HostMot2 is
 		StepGens: integer;
 		QCounters: integer;
 		MuxedQCounters: integer;
+		MuxedQCountersMIM: integer;
 		PWMGens: integer;
 		SPIs: integer;
 		BSPIs: integer;
-		SSIs: integer;
+		DBSPIs: integer;
+		SSSIs: integer;
 		UARTs: integer;
 		PWMRefWidth: integer;
 		StepGenTableWidth: integer;
       BSPICSWidth : integer;
+      DBSPICSWidth : integer;
 		IDROMType: integer;		
 	   SepClocks: boolean;
 		OneWS: boolean;
@@ -263,8 +266,9 @@ architecture dataflow of HostMot2 is
 	signal MuxedQuadA: std_logic_vector(MuxedQCounters/2 -1 downto 0); -- 2 should be muxdepth constant?
 	signal MuxedQuadB: std_logic_vector(MuxedQCounters/2 -1 downto 0);
 	signal MuxedIndex: std_logic_vector(MuxedQCounters/2 -1 downto 0);
-	signal muxedIndexMask: std_logic_vector(MuxedQCounters/2 -1 downto 0);	
-	signal DemuxedIndexMask: std_logic_vector(MuxedQCounters -1 downto 0);	
+	signal MuxedIndexMask: std_logic_vector(MuxedQCounters -1 downto 0);	
+	signal MuxedIndexMaskMIM: std_logic_vector(MuxedQCountersMIM/2 -1 downto 0);	
+	signal DemuxedIndexMask: std_logic_vector(MuxedQCountersMIM -1 downto 0);	
 	signal DeMuxedQuadA: std_logic_vector(MuxedQCounters -1 downto 0);
 	signal DeMuxedQuadB: std_logic_vector(MuxedQCounters -1 downto 0);
 	signal DeMuxedIndex: std_logic_vector(MuxedQCounters -1 downto 0);
@@ -316,6 +320,36 @@ architecture dataflow of HostMot2 is
 	signal BSPIFrame: std_logic_vector(BSPIs -1 downto 0);
 	type BSPICSType is array(BSPIs-1 downto 0) of std_logic_vector(BSPICSWidth-1 downto 0);
 	signal BSPICS : BSPICSType;
+
+--- DBSPI interface related signals
+	signal DBSPIDataSel : std_logic;	
+	signal DBSPIFIFOCountSel : std_logic;
+	signal DBSPIDescriptorSel : std_logic;
+	signal LoadDBSPIData: std_logic_vector(DBSPIs -1 downto 0);
+	signal ReadDBSPIData: std_logic_vector(DBSPIs -1 downto 0);     
+	signal LoadDBSPIDescriptor: std_logic_vector(DBSPIs -1 downto 0);
+	signal ReadDBSPIFIFOCOunt: std_logic_vector(DBSPIs -1 downto 0);
+	signal ClearDBSPIFIFO: std_logic_vector(DBSPIs -1 downto 0);
+	signal DBSPIClk: std_logic_vector(DBSPIs -1 downto 0);
+	signal DBSPIIn: std_logic_vector(DBSPIs -1 downto 0);
+	signal DBSPIOut: std_logic_vector(DBSPIs -1 downto 0);
+	type DBSPICSType is array(DBSPIs-1 downto 0) of std_logic_vector(DBSPICSWidth-1 downto 0);
+	signal DBSPICS : DBSPICSType;
+
+--- SSSI interface related signals
+	signal SSSIDataSel : std_logic;	
+	signal SSSIBitCountSel : std_logic;
+	signal SSSIBitRateSel : std_logic;
+	signal LoadSSSIData: std_logic_vector(SSSIs -1 downto 0);
+	signal ReadSSSIData: std_logic_vector(SSSIs -1 downto 0);     
+	signal LoadSSSIBitCount: std_logic_vector(SSSIs -1 downto 0);
+	signal ReadSSSIBitCOunt: std_logic_vector(SSSIs -1 downto 0);
+	signal LoadSSSIBitRate: std_logic_vector(SSSIs -1 downto 0);
+	signal ReadSSSIBitRate: std_logic_vector(SSSIs -1 downto 0);
+	signal GlobalPStartSSSI : std_logic;
+	signal GlobalTStartSSSI : std_logic;
+	signal SSSIClk: std_logic_vector(SSSIs -1 downto 0);
+	signal SSSIIn: std_logic_vector(SSSIs -1 downto 0);
 
 --- UARTX interface related signals		
 	signal UARTTDataSel : std_logic;
@@ -620,11 +654,33 @@ architecture dataflow of HostMot2 is
 			readcount => ReadMuxedQcounter(i),
 			countclear => LoadMuxedQcounter(i),
 			timestamp => MuxedTimeStampBus,
-			indexmask => DeMuxedIndexMask(i),
+			indexmask => MuxedIndexMask(i),
 			filterrate => MuxedQCountFilterRate,
 			clk =>	clklow
 		);
 	end generate makemuxedquadcounters;
+	
+		makemuxedquadcountersmim: for i in 0 to MuxedQCountersMIM-1 generate
+		qcounterx: entity qcounter 
+		generic map (
+			buswidth => BusWidth
+		)
+		port map (
+			obus => obus,
+			ibus => ibus,
+			quada => DemuxedQuadA(i),
+			quadb => DemuxedQuadB(i),
+			index => DemuxedIndex(i),
+			loadccr => LoadMuxedQcounterCCR(i),
+			readccr => ReadMuxedQcounterCCR(i),
+			readcount => ReadMuxedQcounter(i),
+			countclear => LoadMuxedQcounter(i),
+			timestamp => MuxedTimeStampBus,
+			indexmask => DeMuxedIndexMask(i),
+			filterrate => MuxedQCountFilterRate,
+			clk =>	clklow
+		);
+	end generate makemuxedquadcountersmim;
 
 	makeqcounterglobals:  if (QCounters >0) generate
 		timestampx: entity timestamp 
@@ -753,7 +809,8 @@ architecture dataflow of HostMot2 is
 	makeBSPIs: for i in 0 to BSPIs -1 generate
 		bspi: entity BufferedSPI
 		generic map (
-			cswidth => BSPICSWidth)		
+			cswidth => BSPICSWidth,
+			gatedcs => false)		
 		port map (
 			clk  => clklow,
 			ibus => ibus,
@@ -772,8 +829,50 @@ architecture dataflow of HostMot2 is
 			spicsout => BSPICS(i)
 			);
 	end generate;	
-	
 
+	makeDBSPIs: for i in 0 to DBSPIs -1 generate
+		bspi: entity BufferedSPI
+		generic map (
+			cswidth => DBSPICSWidth,
+			gatedcs => true
+			)		
+		port map (
+			clk  => clklow,
+			ibus => ibus,
+			obus => obus,
+			addr => A(5 downto 2),
+			hostpush => LoadDBSPIData(i),
+			hostpop => ReadDBSPIData(i),
+			loaddesc => LoadDBSPIDescriptor(i),
+			loadasend => '0',
+			clear => ClearDBSPIFIFO(i),
+			readcount => ReadDBSPIFIFOCount(i),
+			spiclk => DBSPIClk(i),
+			spiin => DBSPIIn(i),
+			spiout => DBSPIOut(i),
+			spicsout => DBSPICS(i)
+			);
+	end generate;	
+	
+	MakeSSSIs: for i in 0 to SSSIs -1 generate
+		sssi: entity SimpleSSI
+		Port  map ( 
+			clk => clklow,
+	 		ibus => ibus,
+			obus => obus,
+			loadbitcount => LoadSSSIBitCount(i),
+			loadbitrate => LoadSSSIBitRate(i),
+			lstart => LoadSSSIData(i),
+			tstart => GlobalTStartSSSI,
+			pstart => GlobalPstartSSSI,
+			readdata => ReadSSSIData(i),
+			readbitcount => ReadSSSIBitCount(i),
+			readbitrate => ReadSSSIBitRate(i),
+			ssiclk => SSSIClk(i),
+			ssiin => SSSIIn(i)
+          );
+	end generate;
+	
 	makeUARTRs: for i in 0 to UARTs -1 generate
 		auarrx: entity uartr	
 		port map (
@@ -879,7 +978,8 @@ architecture dataflow of HostMot2 is
 		); 
 
 		DoPinout: process(PWMGenOutA,PWMGenOutB,PWMGenOutC,StepGenOut,SPIFrame,SPIOut,SPIClk,
-		                  UTData,UTDrvEn,BSPIFrame,BSPIOut,BSPIClk,BSPICS,IOBits)
+		                  UTData,UTDrvEn,BSPIFrame,BSPIOut,BSPIClk,BSPICS,DBSPIOut,DBSPIClk,
+								DBSPICS,IOBits)
 		begin
 			Altdata <= (others => '0');
 			for i in 0 to IOWidth -1 loop 
@@ -976,7 +1076,27 @@ architecture dataflow of HostMot2 is
 							-- (this needs to written more clearly!)							
 						end case;
 
---					when SSITag =>  not done
+					when DBSPITag =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function, drop MSB		
+							when DBSPIOutPin =>
+								AltData(i) <= DBSPIOut(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when DBSPIClkPin =>
+								AltData(i) <= DBSPIClk(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when DBSPIInPin =>		
+								DBSPIIn(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when others => AltData(i) <= DBSPICS(conv_integer(ThePinDesc(i)(23 downto 16)))(conv_integer(ThePinDesc(i)(6 downto 0))-5);
+							-- magic foo, magic foo, what on earth does it do?						
+							-- (this needs to written more clearly!)							
+						end case;
+
+					when SSSITag =>
+						case (ThePinDesc(i)(7 downto 0)) is	--secondary pin function, drop MSB
+							when SSSIClkPin =>
+								AltData(i) <= SSSIClk(conv_integer(ThePinDesc(i)(23 downto 16)));				
+							when SSSIInPin =>		
+								SSSIIn(conv_integer(ThePinDesc(i)(23 downto 16))) <= IOBits(i);
+							when others => null;
+						end case;
 					
 					when others => null;		
 				end case;	
@@ -1006,6 +1126,31 @@ architecture dataflow of HostMot2 is
 						DeMuxedQuadA(2*i) <= MuxedQuadA(i);
 						DeMuxedQuadB(2*i) <= MuxedQuadB(i);
 						DeMuxedIndex(2*i) <= MuxedIndex(i);
+					end if;
+					if PreMuxedQCtrSel(0) = '0' and MuxedQCtrSel(0) = '1' then	-- latch the odd inputs
+						DeMuxedQuadA(2*i+1) <= MuxedQuadA(i);
+						DeMuxedQuadB(2*i+1) <= MuxedQuadB(i);
+						DeMuxedIndex(2*i+1) <= MuxedIndex(i);
+					end if;
+				end loop;
+			end if; -- clk
+		end process;
+	end generate;		
+		
+   MuxedEncMIM: if  MuxedQCountersMIM > 0 generate
+	
+		EncoderDeMuxMIM: process(clklow)
+		begin
+			if rising_edge(clklow) then
+				if MuxedQCountFilterRate = '1' then
+					PreMuxedQCtrSel <= PreMuxedQCtrSel + 1;
+				end if;
+				MuxedQCtrSel <= PreMuxedQCtrSel;
+				for i in 0 to ((MuxedQCounters/2) -1) loop -- just 2 deep for now
+					if PreMuxedQCtrSel(0) = '1' and MuxedQCtrSel(0) = '0' then	-- latch the even inputs	
+						DeMuxedQuadA(2*i) <= MuxedQuadA(i);
+						DeMuxedQuadB(2*i) <= MuxedQuadB(i);
+						DeMuxedIndex(2*i) <= MuxedIndex(i);
 						DeMuxedIndexMask(2*i) <= MuxedIndexMask(i);
 					end if;
 					if PreMuxedQCtrSel(0) = '0' and MuxedQCtrSel(0) = '1' then	-- latch the odd inputs
@@ -1018,7 +1163,6 @@ architecture dataflow of HostMot2 is
 			end if; -- clk
 		end process;
 	end generate;		
-		
 	
 
 	Decode: process(A,write, IDROMWEn, read) 
@@ -1140,7 +1284,7 @@ architecture dataflow of HostMot2 is
 			MuxedQCounterSel <= '0';
 		end if;
 
-		if A(15 downto 8) = QCounterCCRAddr then	 --  QCounter CCR register select
+		if A(15 downto 8) = MuxedQCounterCCRAddr then	 --  QCounter CCR register select
 			MuxedQCounterCCRSel <= '1';
 		else
 			MuxedQCounterCCRSel <= '0';
@@ -1175,7 +1319,25 @@ architecture dataflow of HostMot2 is
 		else
 			SPIBitrateSel <= '0';
 		end if;
+	
+		if A(15 downto 8) = SSSIDataAddr then	 --  SSSI data register select
+			SSSIDataSel <= '1';
+		else
+			SSSIDataSel <= '0';
+		end if;
 		
+		if A(15 downto 8) = SSSIBitCountAddr then	 --  SSSI bit count register select
+			SSSIBitCountSel <= '1';
+		else
+			SSSIBitCountSel <= '0';
+		end if;
+
+		if A(15 downto 8) = SSSIBitrateAddr then	 --  SSSI bit rate register select
+			SSSIBitrateSel <= '1';
+		else
+			SSSIBitrateSel <= '0';
+		end if;
+				
 		if A(15 downto 8) = BSPIDataAddr then	 --  BSPI data register select
 			BSPIDataSel <= '1';
 		else
@@ -1192,6 +1354,24 @@ architecture dataflow of HostMot2 is
 			BSPIDescriptorSel <= '1';
 		else
 			BSPIDescriptorSel <= '0';
+		end if;
+
+		if A(15 downto 8) = DBSPIDataAddr then	 --  DBSPI data register select
+			DBSPIDataSel <= '1';
+		else
+			DBSPIDataSel <= '0';
+		end if;
+		
+		if A(15 downto 8) = DBSPIFIFOCountAddr then	 --  DBSPI FIFO count register select
+			DBSPIFIFOCountSel <= '1';
+		else
+			DBSPIFIFOCountSel <= '0';
+		end if;
+
+		if A(15 downto 8) = DBSPIDescriptorAddr then	 --  DBSPI channel descriptor register select
+			DBSPIDescriptorSel <= '1';
+		else
+			DBSPIDescriptorSel <= '0';
 		end if;
 		
 		if A(15 downto 8) = UARTTDataAddr then	 --  UART TX data register select
@@ -1390,12 +1570,18 @@ architecture dataflow of HostMot2 is
 			ReadPWMEnas <= '0';
 		end if;
 
+		if A(15 downto 8) = SSSIGlobalPStartAddr and Write = '1' then	 --  
+			GlobalPStartSSSI <= '1';
+		else
+			GlobalPStartSSSI <= '0';
+		end if;
 
 		if A(15 downto 8) = IDROMWEnAddr and Write = '1' then	 --  
 			LoadIDROMWEn <= '1';
 		else
 			LoadIDROMWEn <= '0';
 		end if;
+	
 		if A(15 downto 8) = IDROMWEnAddr and Read = '1' then	 --  
 			ReadIDROMWEn <= '1';
 		else
@@ -1501,6 +1687,29 @@ architecture dataflow of HostMot2 is
 				ReadBSPIFIFOCOunt <= OneOfNDecode(BSPIs,BSPIFIFOCountSel,Read,A(5 downto 2));
 				ClearBSPIFIFO <= OneOfNDecode(BSPIs,BSPIFIFOCountSel,Write,A(5 downto 2));
 			end process BSPIDecodeProcess;
+		end generate;
+
+		DBSPIDecode: if (DBSPIs > 0) generate		
+			DBSPIDecodeProcess : process (A,Read,write,DBSPIDataSel,DBSPIFIFOCountSel,DBSPIDescriptorSel)
+			begin		
+				LoadDBSPIData <= OneOfNDecode(DBSPIs,DBSPIDataSel,Write,A(7 downto 6)); -- 4 max
+				ReadDBSPIData <= OneOfNDecode(DBSPIs,DBSPIDataSel,Read,A(7 downto 6));
+				LoadDBSPIDescriptor<= OneOfNDecode(DBSPIs,DBSPIDescriptorSel,Write,A(5 downto 2));
+				ReadDBSPIFIFOCOunt <= OneOfNDecode(DBSPIs,DBSPIFIFOCountSel,Read,A(5 downto 2));
+				ClearDBSPIFIFO <= OneOfNDecode(DBSPIs,DBSPIFIFOCountSel,Write,A(5 downto 2));
+			end process DBSPIDecodeProcess;
+		end generate;
+
+		SSSIDecode: if (SSSIs > 0) generate		
+			SSSIDecodeProcess : process (A,Read,write,SSSIDataSel,SSSIBitCountSel,SSSIBitRateSel)
+			begin		
+				LoadSSSIData <= OneOfNDecode(SSSIs,SSSIDataSel,Write,A(5 downto 2)); 
+				ReadSSSIData <= OneOfNDecode(SSSIs,SSSIDataSel,Read,A(5 downto 2));
+				LoadSSSIBitCount <= OneOfNDecode(SSSIs,SSSIBitCountSel,Write,A(5 downto 2));
+				ReadSSSIBitCount <= OneOfNDecode(SSSIs,SSSIBitCountSel,Read,A(5 downto 2));
+				LoadSSSIBitRate <= OneOfNDecode(SSSIs,SSSIBitRateSel,Write,A(5 downto 2));
+				ReadSSSIBitRate <= OneOfNDecode(SSSIs,SSSIBitRateSel,Read,A(5 downto 2));
+			end process SSSIDecodeProcess;
 		end generate;
 
 		UARTDecode: if (UARTs > 0) generate		

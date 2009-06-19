@@ -510,16 +510,23 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     // some standard sanity checks
     //
 
-    if (!hm2_md_is_consistent(hm2, md_index, 1, 10, 4, 0x01FF)) {
-        if (!hm2_md_is_consistent(hm2, md_index, 0, 10, 4, 0x01FF)) {
-            HM2_ERR("unknown stepgen MD:\n");
-            HM2_ERR("    Version = %d, expected 0 or 1\n", md->version);
-            HM2_ERR("    NumRegisters = %d, expected 10\n", md->num_registers);
-            HM2_ERR("    InstanceStride = 0x%08X, expected 4\n", md->instance_stride);
-            HM2_ERR("    MultipleRegisters = 0x%08X, expected 0x000001FF\n", md->multiple_registers);
-            return -EINVAL;
-        }
-        HM2_PRINT("WARNING: This firmware has stepgen v0, high step rates require zero stepspace!  upgrade your firmware!\n");
+    if (hm2_md_is_consistent(hm2, md_index, 0, 10, 4, 0x01FF)) {
+        HM2_PRINT("WARNING: this firmware has stepgen v0!\n");
+        HM2_PRINT("WARNING: high step rates require zero stepspace!\n");
+        HM2_PRINT("WARNING: upgrade your firmware!\n");
+    } else if (hm2_md_is_consistent(hm2, md_index, 1, 10, 4, 0x01FF)) {
+        HM2_PRINT("WARNING: this firmware has stepgen v1!\n");
+        HM2_PRINT("WARNING: this version is susceptible to waveform timing violations in certain configurations!\n");
+        HM2_PRINT("WARNING: upgrade your firmware!\n");
+    } else if (hm2_md_is_consistent(hm2, md_index, 2, 10, 4, 0x01FF)) {
+        // this one is ok, as far as we know
+    } else {
+        HM2_ERR("unknown stepgen MD:\n");
+        HM2_ERR("    Version = %d, expected 0-2\n", md->version);
+        HM2_ERR("    NumRegisters = %d, expected 10\n", md->num_registers);
+        HM2_ERR("    InstanceStride = 0x%08X, expected 4\n", md->instance_stride);
+        HM2_ERR("    MultipleRegisters = 0x%08X, expected 0x000001FF\n", md->multiple_registers);
+        return -EINVAL;
     }
 
     if (hm2->stepgen.num_instances != 0) {
