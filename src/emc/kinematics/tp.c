@@ -974,7 +974,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
              *
              * in the drawing note d = 2T/cos(theta)
              *
-             * when v1 is decelerating at a to stop, v = at, t = v/a
+             * when s1 is decelerating at a to stop, v = at, t = v/a
              * so required d = .5 a (v/a)^2
              *
              * equate the two expressions for d and solve for v
