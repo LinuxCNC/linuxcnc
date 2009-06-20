@@ -11762,15 +11762,17 @@ fi
 # message to the user what to do next, after a succesfull ./configure        #
 ##############################################################################
 bold () {
-    if ! tty > /dev/null 2>&1; then exit; fi
-    if ! type -path tput > /dev/null 2>&1; then exit; fi
-    tput smso
+    if tty > /dev/null 2>&1 && type -path tput > /dev/null 2>&1;
+    then
+        tput smso
+    fi
 }
 
 offbold () {
-    if ! tty > /dev/null 2>&1; then exit; fi
-    if ! type -path tput > /dev/null 2>&1; then exit; fi
-    tput rmso
+    if tty > /dev/null 2>&1 && type -path tput > /dev/null 2>&1;
+    then
+        tput rmso
+    fi
 }
 
 echo ""
