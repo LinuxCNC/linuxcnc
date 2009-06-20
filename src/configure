@@ -6817,7 +6817,7 @@ else
 # extracting vars
    { echo "$as_me:$LINENO: result: $TCLCONFIG found" >&5
 echo "${ECHO_T}$TCLCONFIG found" >&6; }
-   source "$TCLCONFIG"
+   . "$TCLCONFIG"
    TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
    TCL_LIBS="$TCL_STUB_LIB_SPEC"
 fi
@@ -7093,7 +7093,7 @@ else
 # extracting vars
    { echo "$as_me:$LINENO: result: $TKCONFIG found" >&5
 echo "${ECHO_T}$TKCONFIG found" >&6; }
-   source "$TKCONFIG"
+   . "$TKCONFIG"
    TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
