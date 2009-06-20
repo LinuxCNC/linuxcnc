@@ -256,7 +256,9 @@ struct halui_str {
     hal_bit_t *program_bd_is_on;   //status pin that block delete is on
 
     hal_u32_t *tool_number;		//pin for current selected tool
-    hal_float_t *tool_length_offset;	//current applied tool-length-offset
+    hal_float_t *tool_length_offset_x;	//current applied tool-length-offset
+    hal_float_t *tool_length_offset_z;	//current applied tool-length-offset
+    hal_float_t *tool_length_offset_w;	//current applied tool-length-offset
 
     hal_bit_t *spindle_start;		//pin for starting the spindle
     hal_bit_t *spindle_stop;		//pin for stoping the spindle
@@ -814,7 +816,11 @@ int halui_hal_init(void)
     if (retval != HAL_SUCCESS) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
     if (retval != HAL_SUCCESS) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset), comp_id, "halui.tool.length_offset"); 
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_z), comp_id, "halui.tool.length_offset.z"); 
+    if (retval != HAL_SUCCESS) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w"); 
     if (retval != HAL_SUCCESS) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->so_value), comp_id, "halui.spindle-override.value"); 
     if (retval != HAL_SUCCESS) return retval;
@@ -1896,7 +1902,9 @@ static void modify_hal_pins()
     *(halui_data->lube_is_on) = emcStatus->io.lube.on;
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
-    *(halui_data->tool_length_offset) = emcStatus->task.toolOffset.tran.z;
+    *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;
+    *(halui_data->tool_length_offset_z) = emcStatus->task.toolOffset.tran.z;
+    *(halui_data->tool_length_offset_w) = emcStatus->task.toolOffset.w;
 
     *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);
     *(halui_data->spindle_runs_forward) = (emcStatus->motion.spindle.direction == 1);
