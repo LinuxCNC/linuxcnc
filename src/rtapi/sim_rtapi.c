@@ -108,7 +108,7 @@ int rtapi_init(const char *modname)
       return result;
     }
   }
-  return RTAPI_NOMEM;
+  return -ENOMEM;
 }
 
 
@@ -117,7 +117,7 @@ int rtapi_exit(int id)
   int n = id - MODULE_OFFSET;
   if(n < 0 || n >= MAX_MODULES) return -1;
   module_array[n].magic = 0;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -127,7 +127,7 @@ int rtapi_clock_set_period(unsigned long int nsecs)
   if(nsecs == 0) return period;
   if(period != 0) {
       rtapi_print_msg(RTAPI_MSG_ERR, "attempt to set period twice\n");
-      return RTAPI_INVAL;
+      return -EINVAL;
   }
   period = nsecs;
   gettimeofday(&schedule, NULL);
@@ -150,12 +150,12 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   while ((n < MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
     n++;
   if (n == MAX_TASKS)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   task = &(task_array[n]);
 
   /* check requested priority */
   if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
@@ -177,17 +177,17 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 int rtapi_task_delete(int id) {
   struct rtapi_task *task;
 
-  if(id < 0 || id >= MAX_TASKS) return RTAPI_INVAL;
+  if(id < 0 || id >= MAX_TASKS) return -EINVAL;
 
   task = &(task_array[id]);
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   pth_uctx_destroy(task->ctx);
   
   task->magic = 0;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -214,13 +214,13 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   struct rtapi_task *task;
   int retval;
 
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
 
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   if(period_nsec < period) period_nsec = period;
   task->period = period_nsec;
@@ -230,58 +230,58 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
      to the task structure so it can call the actual task function */
   retval = pth_uctx_create(&task->ctx);
   if (retval == FALSE)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   retval = pth_uctx_make(task->ctx, NULL, task->stacksize, NULL,
 	  wrapper, (void*)task, 0);
   if (retval == FALSE)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
 int rtapi_task_stop(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
 
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   pth_uctx_destroy(task->ctx);
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 int rtapi_task_pause(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_task_resume(int task_id)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -289,23 +289,23 @@ int rtapi_task_set_period(int task_id,
 			  unsigned long int period_nsec)
 {
   struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return RTAPI_INVAL;
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
     
   task = &task_array[task_id];
   
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
-    return RTAPI_INVAL;
+    return -EINVAL;
 
   task->period = period_nsec;
 
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 int rtapi_wait(void)
 {
   pth_uctx_switch(this_ctx, main_ctx);
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -325,22 +325,22 @@ unsigned char rtapi_inb(unsigned int port)
 
 int rtapi_assign_interrupt_handler(unsigned int irq, void (*handler) (void))
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_free_interrupt_handler(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_enable_interrupt(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_disable_interrupt(unsigned int irq)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -348,27 +348,27 @@ int rtapi_disable_interrupt(unsigned int irq)
 
 int rtapi_sem_new(int key, int module_id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_delete(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_give(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_take(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_sem_try(int id)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 
@@ -378,23 +378,23 @@ int rtapi_sem_try(int id)
 int rtapi_fifo_new(int key, unsigned long int size,
 		   rtapi_fifo_handle * fifoptr)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_delete(rtapi_fifo_handle fifo)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_read(rtapi_fifo_handle fifo, char *buf, unsigned long int size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 
 int rtapi_fifo_write(rtapi_fifo_handle fifo,
 		     char *buf, unsigned long int size)
 {
-  return RTAPI_UNSUP;
+  return -ENOSYS;
 }
 #endif
 

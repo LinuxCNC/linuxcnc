@@ -504,7 +504,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.user-enable-out", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->user_enable_out), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin user-enable-out export failed with err=%i\n",
 			n, retval);
@@ -515,7 +515,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.user-request-enable", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->user_request_enable), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin user-request-enable export failed with err=%i\n",
 			n, retval);
@@ -526,7 +526,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.coolant-flood", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->coolant_flood),	comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin coolant-flood export failed with err=%i\n",
 			n, retval);
@@ -538,7 +538,7 @@ int iocontrol_hal_init(void)
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->coolant_mist),
 			comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin coolant-mist export failed with err=%i\n",
 			n, retval);
@@ -549,7 +549,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.lube", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->lube), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n",
 			n, retval);
@@ -560,7 +560,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-prepare", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->tool_prepare), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-prepare export failed with err=%i\n",
 			n, retval);
@@ -571,7 +571,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-number", n);
     retval =
 	hal_pin_s32_new(name, HAL_OUT, &(iocontrol_data->tool_number), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-number export failed with err=%i\n",
 			n, retval);
@@ -582,7 +582,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-prep-number", n);
     retval =
 	hal_pin_s32_new(name, HAL_OUT, &(iocontrol_data->tool_prep_number), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-prep-number export failed with err=%i\n",
 			n, retval);
@@ -593,7 +593,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-prepared", n);
     retval =
 	hal_pin_bit_new(name, HAL_IN, &(iocontrol_data->tool_prepared), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-prepared export failed with err=%i\n",
 			n, retval);
@@ -604,7 +604,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-change", n);
     retval =
 	hal_pin_bit_new(name, HAL_OUT, &(iocontrol_data->tool_change), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-change export failed with err=%i\n",
 			n, retval);
@@ -615,7 +615,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.tool-changed", n);
     retval =
 	hal_pin_bit_new(name, HAL_IN, &(iocontrol_data->tool_changed), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin tool-changed export failed with err=%i\n",
 			n, retval);
@@ -628,7 +628,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.emc-enable-in", n);
     retval =
 	hal_pin_bit_new(name, HAL_IN, &(iocontrol_data->emc_enable_in), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin emc-enable-in export failed with err=%i\n",
 			n, retval);
@@ -639,7 +639,7 @@ int iocontrol_hal_init(void)
     rtapi_snprintf(name, HAL_NAME_LEN, "iocontrol.%d.lube_level", n);
     retval =
 	hal_pin_bit_new(name, HAL_IN, &(iocontrol_data->lube_level), comp_id);
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n",
 			n, retval);

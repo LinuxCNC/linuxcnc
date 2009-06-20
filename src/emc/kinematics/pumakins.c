@@ -351,10 +351,10 @@ int rtapi_app_main(void) {
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
-    if((res = hal_pin_float_new("pumakins.A2", HAL_IO, &(haldata->a2), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("pumakins.A3", HAL_IO, &(haldata->a3), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("pumakins.D3", HAL_IO, &(haldata->d3), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("pumakins.D4", HAL_IO, &(haldata->d4), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("pumakins.A2", HAL_IO, &(haldata->a2), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("pumakins.A3", HAL_IO, &(haldata->a3), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("pumakins.D3", HAL_IO, &(haldata->d3), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("pumakins.D4", HAL_IO, &(haldata->d4), comp_id)) < 0) goto error;
     
     PUMA_A2 = DEFAULT_PUMA560_A2;
     PUMA_A3 = DEFAULT_PUMA560_A3;

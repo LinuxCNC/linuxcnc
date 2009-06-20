@@ -274,7 +274,7 @@ int rtapi_app_main(void)
     }
     /* start the task running */
     retval = rtapi_task_start(timer_task, TASK_PERIOD_NSEC);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("timertask init: rtapi_task_start returned %d\n", retval);
 	rtapi_exit(module);
 	return -1;
@@ -293,13 +293,13 @@ void rtapi_app_exit(void)
 
     /* Stop the task */
     retval = rtapi_task_pause(timer_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("timertask exit: rtapi_task_pause returned %d\n", retval);
     }
     /* Remove the task from the list */
 
     retval = rtapi_task_delete(timer_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("timertask exit: rtapi_task_delete returned %d\n",
 	    retval);
     }

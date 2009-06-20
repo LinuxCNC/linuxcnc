@@ -202,7 +202,7 @@ int init_module(void)
     if (rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: Could not open shared memory area\n");
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
@@ -211,7 +211,7 @@ int init_module(void)
 	/* mismatch - release master shared memory block */
 	mbuff_free(keystr, rtapi_data);
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: Version mismatch\n");
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* set up local pointers to global data */
     module_array = rtapi_data->module_array;
@@ -242,7 +242,7 @@ int init_module(void)
 #endif
     /* done */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: Init complete\n");
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /* This cleanup code attempts to fix any messes left by modules
@@ -356,7 +356,7 @@ int rtapi_init(const char *modname)
     if (n > RTAPI_MAX_MODULES) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the module */
     module_id = n;
@@ -395,14 +395,14 @@ static int module_delete(int module_id)
 
     /* validate module ID */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the module's data */
     module = &(module_array[module_id]);
     /* check module status */
     if (module->state != REALTIME) {
 	/* not an active realtime module */
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_TASKS; n++) {
@@ -470,7 +470,7 @@ static int module_delete(int module_id)
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: module exit: ID: %d, name: '%s'\n",
 	module_id, name);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
@@ -537,10 +537,10 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 int rtapi_set_msg_level(int level)
 {
     if ((level < RTAPI_MSG_NONE) || (level > RTAPI_MSG_ALL)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     msg_level = level;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_get_msg_level(void)
@@ -562,7 +562,7 @@ long int rtapi_clock_set_period(long int nsecs)
     }
     if (rtapi_data->timer_running) {
 	/* already started, can't restart */
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* limit period to 2 micro-seconds min, 10 milli-second max (RTLinux
        limit) */
@@ -570,7 +570,7 @@ long int rtapi_clock_set_period(long int nsecs)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERR: clock_set_period: %ld nsecs,  out of range\n",
 	    nsecs);
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
 
     rtl_setclockmode(rtl_getschedclock(), RTL_CLOCK_MODE_PERIODIC, nsecs);
@@ -707,11 +707,11 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     /* validate owner */
     if ((owner < 1) || (owner > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[owner].state != REALTIME) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* find empty spot in task array */
     n = 1;
@@ -721,7 +721,7 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     if (n > RTAPI_MAX_TASKS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the task */
     task_id = n;
@@ -729,18 +729,18 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
     /* check requested priority */
     if ((prio > rtapi_prio_highest()) || (prio < rtapi_prio_lowest())) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* set up task attributes */
     retval = pthread_attr_init(&attr);
     if (retval != 0) {
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     attr.stack_size = stacksize;
     sched_param.sched_priority = prio;
     retval = pthread_attr_setschedparam(&attr, &sched_param);
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* use pre-determined CPU for RT tasks */
     pthread_attr_setcpu_np(&attr, rtapi_data->rt_cpu);
@@ -756,10 +756,10 @@ int rtapi_task_new(void (*taskcode) (void *), void *arg,
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == ENOMEM) {
 	    /* not enough space for stack */
-	    return RTAPI_NOMEM;
+	    return -ENOMEM;
 	}
 	/* unknown error */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* create worked, set scheduling policy */
     pthread_setschedparam(ostask_array[task_id], SCHED_FIFO, &sched_param);
@@ -793,14 +793,14 @@ static int task_delete(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
     /* check task status */
     if (task->state == EMPTY) {
 	/* nothing to delete */
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if ((task->state == PERIODIC) || (task->state == FREERUN)) {
 	/* task is running, need to stop it */
@@ -837,7 +837,7 @@ static int task_delete(int task_id)
     }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: task %02d deleted\n", task_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_start(int task_id, unsigned long int period_nsec)
@@ -848,17 +848,17 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
     /* is task ready to be started? */
     if (task->state != PAUSED) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* can't start periodic tasks if timer isn't running */
     if ((rtapi_data->timer_running == 0) || (rtapi_data->timer_period == 0)) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* make period_nsec an integer multiple of timer_period */
     quo = period_nsec / rtapi_data->timer_period;
@@ -876,7 +876,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
     retval = pthread_make_periodic_np(ostask_array[task_id],
 	gethrtime(), (hrtime_t) period_nsec);
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* ok, task is started */
     task->state = PERIODIC;
@@ -896,23 +896,23 @@ int rtapi_task_resume(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
     /* is task ready to be started? */
     if (task->state != PAUSED) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* start the task */
     retval = pthread_wakeup_np(ostask_array[task_id]);
 
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update task data */
     task->state = FREERUN;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_pause(int task_id)
@@ -923,13 +923,13 @@ int rtapi_task_pause(int task_id)
 
     /* validate task ID */
     if ((task_id < 1) || (task_id > RTAPI_MAX_TASKS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the task's data */
     task = &(task_array[task_id]);
     /* is it running? */
     if ((task->state != PERIODIC) && (task->state != FREERUN)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* pause the task */
     oldstate = task->state;
@@ -937,10 +937,10 @@ int rtapi_task_pause(int task_id)
     retval = pthread_suspend_np(ostask_array[task_id]);
     if (retval != 0) {
 	task->state = oldstate;
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update task data */
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_task_self(void)
@@ -952,7 +952,7 @@ int rtapi_task_self(void)
     ptr = pthread_self();
     if (ptr == NULL) {
 	/* called from outside a task? */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* find matching entry in task array */
     n = 1;
@@ -963,7 +963,7 @@ int rtapi_task_self(void)
 	}
 	n++;
     }
-    return RTAPI_FAIL;
+    return -EINVAL;
 }
 
 /***********************************************************************
@@ -979,7 +979,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* convert the key to a string */
     genstr((unsigned int) key, keystr);
@@ -989,11 +989,11 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a block is already open for this key */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
@@ -1004,7 +1004,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	    /* is it big enough? */
 	    if (shmem->size < size) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_FAIL;
+		return -EINVAL;
 	    }
 	    /* yes, has it been mapped into kernel space? */
 	    if (shmem->rtusers == 0) {
@@ -1015,13 +1015,13 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		shmem_addr_array[shmem_id] = mbuff_alloc(keystr, shmem->size);
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_NOMEM;
+		    return -ENOMEM;
 		}
 	    }
 	    /* is this module already using it? */
 	    if (test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 	    /* update usage data */
 	    set_bit(module_id, shmem->bitmap);
@@ -1042,7 +1042,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if (n > RTAPI_MAX_SHMEMS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the block data */
     shmem_id = n;
@@ -1055,7 +1055,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     shmem_addr_array[shmem_id] = mbuff_alloc(keystr, size);
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_NOMEM;
+	return -ENOMEM;
     }
     /* the block has been created, update data */
     set_bit(module_id, shmem->bitmap);
@@ -1092,24 +1092,24 @@ static int shmem_delete(int shmem_id, int module_id)
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the shmem's data */
     shmem = &(shmem_array[shmem_id]);
     /* is the block valid? */
     if (shmem->key == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the block? */
     if (test_bit(module_id, shmem->bitmap) == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* OK, we're no longer using it */
     clear_bit(module_id, shmem->bitmap);
@@ -1119,7 +1119,7 @@ static int shmem_delete(int shmem_id, int module_id)
 	/* yes, we're done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d closed by module %02d\n", shmem_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* convert the key to a string */
     genstr(shmem->key, keystr);
@@ -1133,7 +1133,7 @@ static int shmem_delete(int shmem_id, int module_id)
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: shmem %02d unmapped by module %02d\n", shmem_id,
 	    module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users at all, this ID is now free */
     /* update the data array and usage count */
@@ -1142,22 +1142,22 @@ static int shmem_delete(int shmem_id, int module_id)
     rtapi_data->shmem_count--;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: shmem %02d freed by module %02d\n",
 	shmem_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_shmem_getptr(int shmem_id, void **ptr)
 {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* is the block mapped? */
     if (shmem_addr_array[shmem_id] == NULL) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1172,18 +1172,18 @@ int rtapi_sem_new(int key, int module_id)
 
     /* key must be non-zero */
     if (key == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a semaphore already exists for this key */
     for (n = 1; n <= RTAPI_MAX_SEMS; n++) {
@@ -1195,7 +1195,7 @@ int rtapi_sem_new(int key, int module_id)
 	    if (test_bit(module_id, sem->bitmap)) {
 		/* yes, can't open it again */
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		return RTAPI_INVAL;
+		return -EINVAL;
 	    }
 	    /* update usage data */
 	    set_bit(module_id, sem->bitmap);
@@ -1215,7 +1215,7 @@ int rtapi_sem_new(int key, int module_id)
     if (n > RTAPI_MAX_SEMS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the semaphore */
     sem_id = n;
@@ -1252,24 +1252,24 @@ static int sem_delete(int sem_id, int module_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the semaphore? */
     if (test_bit(module_id, sem->bitmap) == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* OK, we're no longer using it */
     clear_bit(module_id, sem->bitmap);
@@ -1279,7 +1279,7 @@ static int sem_delete(int sem_id, int module_id)
 	/* yes, we're done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: sem %02d closed by module %02d\n", sem_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users, ask the OS to shut down the semaphore */
     sem_destroy(&(ossem_array[sem_id]));
@@ -1289,7 +1289,7 @@ static int sem_delete(int sem_id, int module_id)
     rtapi_data->sem_count--;
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: sem %02d deleted by module %02d\n",
 	sem_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_give(int sem_id)
@@ -1298,17 +1298,17 @@ int rtapi_sem_give(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* give up the semaphore */
     sem_post(&(ossem_array[sem_id]));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_take(int sem_id)
@@ -1317,17 +1317,17 @@ int rtapi_sem_take(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get the semaphore */
     sem_wait(&(ossem_array[sem_id]));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_sem_try(int sem_id)
@@ -1336,19 +1336,19 @@ int rtapi_sem_try(int sem_id)
 
     /* validate sem ID */
     if ((sem_id < 1) || (sem_id > RTAPI_MAX_SEMS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the semaphores's data */
     sem = &(sem_array[sem_id]);
     /* is the semaphore valid? */
     if (sem->users == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* try the semaphore */
     if (sem_trywait(&(ossem_array[sem_id])) <= 0) {
-	return RTAPI_BUSY;
+	return -EBUSY;
     }
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1363,22 +1363,22 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
     /* key must be non-zero */
     if (key == 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* mode must be "R" or "W" */
     if ((mode != 'R') && (mode != 'W')) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a fifo already exists for this key */
     for (n = 1; n <= RTAPI_MAX_FIFOS; n++) {
@@ -1390,7 +1390,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	    if (mode == 'R') {
 		if (fifo->state & HAS_READER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* available, update status */
 		fifo->state |= HAS_READER;
@@ -1405,7 +1405,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 
 		if (fifo->state & HAS_WRITER) {
 		    rtapi_mutex_give(&(rtapi_data->mutex));
-		    return RTAPI_BUSY;
+		    return -EBUSY;
 		}
 		/* available, update status */
 		fifo->state |= HAS_WRITER;
@@ -1427,7 +1427,7 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
     if (n > RTAPI_MAX_FIFOS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have a free ID for the fifo */
     fifo_id = n;
@@ -1440,10 +1440,10 @@ int rtapi_fifo_new(int key, int module_id, unsigned long int size, char mode)
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == ENOMEM) {
 	    /* couldn't allocate memory */
-	    return RTAPI_NOMEM;
+	    return -ENOMEM;
 	}
 	/* some other failure */
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* the fifo has been created, update data */
     if (mode == 'R') {
@@ -1484,24 +1484,24 @@ static int fifo_delete(int fifo_id, int module_id)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if (fifo->state == UNUSED) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* validate module_id */
     if ((module_id < 1) || (module_id > RTAPI_MAX_MODULES)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[module_id].state != REALTIME) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* is this module using the fifo? */
     if ((fifo->reader != module_id) && (fifo->writer != module_id)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* update fifo state */
     if (fifo->reader == module_id) {
@@ -1517,7 +1517,7 @@ static int fifo_delete(int fifo_id, int module_id)
 	/* yes, done for now */
 	rtapi_print_msg(RTAPI_MSG_DBG,
 	    "RTAPI: fifo %02d closed by module %02d\n", fifo_id, module_id);
-	return RTAPI_SUCCESS;
+	return 0;
     }
     /* no other users, call the OS to destroy the fifo */
     /* OS returns open count, loop until truly destroyed */
@@ -1529,7 +1529,7 @@ static int fifo_delete(int fifo_id, int module_id)
     rtapi_data->fifo_count--;
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: fifo %02d deleted by module %02d\n", fifo_id, module_id);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
@@ -1539,18 +1539,18 @@ int rtapi_fifo_read(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_READER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* get whatever data is available */
     retval = rtf_get(fifo_id, &buf, size);
     if (retval < 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     return retval;
 }
@@ -1562,18 +1562,18 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
 
     /* validate fifo ID */
     if ((fifo_id < 1) || (fifo_id > RTAPI_MAX_FIFOS)) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* point to the fifo's data */
     fifo = &(fifo_array[fifo_id]);
     /* is the fifo valid? */
     if ((fifo->state & HAS_WRITER) == 0) {
-	return RTAPI_BADID;
+	return -EINVAL;
     }
     /* put as much data as possible */
     retval = rtf_put(fifo_id, buf, size);
     if (retval < 0) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     return retval;
 }
@@ -1594,29 +1594,29 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
 
     /* validate irq */
     if ((irq_num < 1) || (irq_num > 255)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* validate handler */
     if (handler == NULL) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* get the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     /* validate owner */
     if ((owner < 1) || (owner > RTAPI_MAX_MODULES)) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     if (module_array[owner].state != REALTIME) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a handler already exists for this irq */
     for (n = 1; n <= RTAPI_MAX_IRQS; n++) {
 	if (irq_array[n].irq_num == irq_num) {
 	    /* found a match */
 	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    return RTAPI_BUSY;
+	    return -EBUSY;
 	}
     }
     /* find empty spot in irq array */
@@ -1627,7 +1627,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
     if (n > RTAPI_MAX_IRQS) {
 	/* no room */
 	rtapi_mutex_give(&(rtapi_data->mutex));
-	return RTAPI_LIMIT;
+	return -EMFILE;
     }
     /* we have space for the irq */
     irq_id = n;
@@ -1637,9 +1637,9 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
     if (retval != 0) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	if (retval == EBUSY) {
-	    return RTAPI_BUSY;
+	    return -EBUSY;
 	} else {
-	    return RTAPI_FAIL;
+	    return -EINVAL;
 	}
     }
     /* update data */
@@ -1653,7 +1653,7 @@ int rtapi_irq_new(unsigned int irq_num, int owner, void (*handler) (void))
 	irq_num, owner);
     /* and return success */
     rtapi_mutex_give(&(rtapi_data->mutex));
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_irq_delete(unsigned int irq_num)
@@ -1676,7 +1676,7 @@ static int irq_delete(unsigned int irq_num)
 
     /* validate irq */
     if ((irq_num < 1) || (irq_num > 255)) {
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* check if a handler exists for this irq */
     n = 1;
@@ -1685,7 +1685,7 @@ static int irq_delete(unsigned int irq_num)
     }
     if (n > RTAPI_MAX_IRQS) {
 	/* not found */
-	return RTAPI_INVAL;
+	return -EINVAL;
     }
     /* found the irq */
     irq_id = n;
@@ -1698,7 +1698,7 @@ static int irq_delete(unsigned int irq_num)
     rtl_restore_interrupts(old_irq_state);
 
     if (retval != 0) {
-	return RTAPI_FAIL;
+	return -EINVAL;
     }
     /* update data */
     irq->irq_num = 0;
@@ -1707,21 +1707,21 @@ static int irq_delete(unsigned int irq_num)
     rtapi_data->irq_count--;
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"RTAPI: handler for IRQ %d deleted\n", irq_num);
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_enable_interrupt(unsigned int irq)
 {
     rtl_hard_enable_irq(irq);
 
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_disable_interrupt(unsigned int irq)
 {
     rtl_hard_disable_irq(irq);
 
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************

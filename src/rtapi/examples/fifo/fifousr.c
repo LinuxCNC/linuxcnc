@@ -63,7 +63,7 @@ int main()
     rtapi_print_msg(RTAPI_MSG_INFO, "shutting down\n");
 
     retval = rtapi_fifo_delete(fifo, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "fifousr main: rtapi_fifo_delete returned %d\n", retval);
 	rtapi_exit(module);

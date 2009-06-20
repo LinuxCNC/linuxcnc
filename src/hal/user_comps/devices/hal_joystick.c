@@ -211,7 +211,7 @@ int main(int argc, char * argv[])
 			/* gotta export the HAL pin */
 			snprintf(name, HAL_NAME_LEN, "%s.axis.%d", prefix, n);
 			retval = hal_pin_float_new(name, HAL_OUT, &(js_data->axis[n]), comp_id);
-			if (retval != HAL_SUCCESS) {
+			if (retval < 0) {
 			    printf( "ERROR: axis %d export failed with err=%d\n", n, retval);
 			    break;
 			}
@@ -228,7 +228,7 @@ int main(int argc, char * argv[])
 			/* gotta export the HAL pin */
 			snprintf(name, HAL_NAME_LEN, "%s.button.%d", prefix, n);
 			retval = hal_pin_bit_new(name, HAL_OUT, &(js_data->button[n]), comp_id);
-			if (retval != HAL_SUCCESS) {
+			if (retval < 0) {
 			    printf( "ERROR: button %d export failed with err=%d\n", n, retval);
 			    break;
 			}

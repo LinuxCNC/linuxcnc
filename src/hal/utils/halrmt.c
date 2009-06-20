@@ -585,7 +585,7 @@ static int release_HAL_mutex(void)
     comp_id = rtapi_init("hal_unlocker");
     if (comp_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: rtapi init failed\n");
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
@@ -593,15 +593,15 @@ static int release_HAL_mutex(void)
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not open shared memory\n");
         rtapi_exit(comp_id);
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not access shared memory\n");
         rtapi_exit(comp_id);
-        return HAL_FAIL;
+        return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     hal_data = (hal_data_t *) mem;
@@ -611,7 +611,7 @@ static int release_HAL_mutex(void)
     rtapi_shmem_delete(mem_id, comp_id);
     rtapi_exit(comp_id);
     /* done */
-    return HAL_SUCCESS;
+    return 0;
 
 }
 
@@ -677,14 +677,14 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
       rtapi_mutex_give(&(hal_data->mutex));
       sprintf(errorStr, "HAL:%d: ERROR: pin '%s' not found\n", linenumber, first_pin_name);
       sockWriteError(nakStr, context);
-      return HAL_INVAL; 
+      return -EINVAL; 
       } 
     else 
       if (second_pin == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
         sprintf(errorStr, "HAL:%d: ERROR: pin '%s' not found", linenumber, second_pin_name);
         sockWriteError(nakStr, context);
-	return HAL_INVAL; 
+	return -EINVAL; 
         }
     
     /* give the mutex, as the other functions use their own mutex */
@@ -696,21 +696,21 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
       sprintf(errorStr, "HAL:%d: ERROR: pins '%s' and '%s' not of the same type", 
 	  linenumber, first_pin_name, second_pin_name);
       sockWriteError(nakStr, context);
-      return HAL_INVAL; 
+      return -EINVAL; 
     }
 	
     /* now create the signal */
     retval = hal_signal_new(first_pin_name, first_pin->type);
 
-    if (retval == HAL_SUCCESS) {
+    if (retval == 0) {
       /* if it worked, link the pins to it */
       retval = hal_link(first_pin_name, first_pin_name);
 
-      if ( retval == HAL_SUCCESS )
+      if ( retval == 0 )
       /* if that worked, link the second pin to the new signal */
         retval = hal_link(second_pin_name, first_pin_name);
       }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
       sprintf(errorStr, "HAL:%d: linkpp failed", linenumber);
       sockWriteError(nakStr, context);
       }
@@ -756,7 +756,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 //            halcmd_error("pin '%s' does not exist\n", pins[i]);
             sprintf(errorStr, "pin '%s' does not exist", pins[i]);
             sockWriteError(nakStr, context);
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         if(SHMPTR(pin->signal) == sig) {
 	     /* Already on this signal */
@@ -766,7 +766,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 //            halcmd_error("pin '%s' was already linked\n", pin->name);
             sprintf(errorStr, "pin '%s' was already linked", pin->name);
             sockWriteError(nakStr, context);
-            return HAL_INVAL;
+            return -EINVAL;
 	}
 	if (type == -1) {
 	    /* no pre-existing type, use this pin's type */
@@ -776,14 +776,14 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 //            halcmd_error("Type mismatch on pin '%s'\n", pin->name);
             sprintf(errorStr, "Type mismatch on pin '%s'", pin->name);
             sockWriteError(nakStr, context);
-            return HAL_INVAL;
+            return -EINVAL;
         }
         if(pin->dir == HAL_OUT) {
             if(writers || bidirs) {
 //                halcmd_error("Signal '%s' can not add OUT pin '%s'\n", signal, pin->name);
             sprintf(errorStr, "Signal '%s' can not add OUT pin '%s'", signal, pin->name);
             sockWriteError(nakStr, context);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             writers++;
         }
@@ -792,18 +792,18 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 //                halcmd_error("Signal '%s' can not add I/O pin '%s'\n", signal, pin->name);
                 sprintf(errorStr, "Signal '%s' can not add I/O pin '%s'", signal, pin->name);
                 sockWriteError(nakStr, context);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             bidirs++;
         }
         pincnt++;
     }
     if(pincnt)
-        return HAL_SUCCESS;
+        return 0;
 //    halcmd_error("'net' requires at least one pin, none given\n");
     sprintf(errorStr, "'net' requires at least one pin, none given");
     sockWriteError(nakStr, context);
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 
@@ -819,7 +819,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
 
     /* verify that everything matches up (pin types, etc) */
     retval = preflightNet(signal, sig, pins, context);
-    if(retval != HAL_SUCCESS) {
+    if(retval < 0) {
         rtapi_mutex_give(&(hal_data->mutex));
         return retval;
     }
@@ -831,7 +831,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
             sprintf(errorStr, "Signal name '%s' must not be the same as a pin.", signal);
             sockWriteError(nakStr, context);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_BADVAR;
+	    return -ENOENT;
 	}
     }
     if(!sig) {
@@ -839,7 +839,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
         hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
         rtapi_mutex_give(&(hal_data->mutex));
         if(!pin) {
-            return HAL_NOTFND;
+            return -ENOENT;
         }
         retval = hal_signal_new(signal, pin->type);
     } else {
@@ -847,7 +847,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
         rtapi_mutex_give(&(hal_data->mutex));
     }
     /* add pins to signal */
-    for(i=0; retval == HAL_SUCCESS && pins[i] && *pins[i]; i++) {
+    for(i=0; retval == 0 && pins[i] && *pins[i]; i++) {
         retval = doLinkPS(pins[i], signal, context);
     }
 
@@ -895,9 +895,9 @@ static int doNewsig(char *name, char *type, connectionRecType *context)
             sprintf(errorStr, "HAL:%d: Unknown signal type '%s'", 
               linenumber, type);
             sockWriteError(nakStr, context);
-            retval = HAL_INVAL;
+            retval = -EINVAL;
             }
-    if (retval != HAL_SUCCESS) {
+    if (retval < 0) {
       sprintf(errorStr, "HAL:%d: newsig failed", linenumber);
       sockWriteError(nakStr, context);
       }
@@ -920,14 +920,14 @@ static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecTy
 	    || (strcasecmp("FALSE", value)) == 0) {
 	    *(hal_bit_t *) (d_ptr) = 0;
 	} else {
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	}
 	break;
     case HAL_FLOAT:
 	fval = strtod ( value, &cp );
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid character(s) in string */
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_float_t *) (d_ptr)) = fval;
 	}
@@ -936,7 +936,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecTy
 	lval = strtol(value, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_s32_t *) (d_ptr)) = lval;
 	}
@@ -945,14 +945,14 @@ static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecTy
 	ulval = strtoul(value, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
 	    /* invalid chars in string */
-	    retval = HAL_INVAL;
+	    retval = -EINVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
 	}
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
-	retval = HAL_INVAL;
+	retval = -EINVAL;
     }
     return retval;
 }
@@ -977,7 +977,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
             sprintf(errorStr,
                 "HAL:%d: ERROR: parameter or pin '%s' not found\n", linenumber, name);
             sockWriteError(nakStr, context);
-            return HAL_INVAL;
+            return -EINVAL;
         } else {
             /* found it */
             type = pin->type;
@@ -986,14 +986,14 @@ static int doSetp(char *name, char *value, connectionRecType *context)
                 sprintf(errorStr,
                     "HAL:%d: ERROR: pin '%s' is not writable\n", linenumber, name);
                 sockWriteError(nakStr, context);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             if(pin->signal != 0) {
                 rtapi_mutex_give(&(hal_data->mutex));
                 sprintf(errorStr,
                     "HAL:%d: ERROR: pin '%s' is connected to a signal\n", linenumber, name);
                 sockWriteError(nakStr, context);
-                return HAL_INVAL;
+                return -EINVAL;
             }
             // d_ptr = (void*)SHMPTR(pin->dummysig);
             d_ptr = (void*)&pin->dummysig;
@@ -1006,7 +1006,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
             rtapi_mutex_give(&(hal_data->mutex));
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "HAL:%d: ERROR: param '%s' is not writable\n", linenumber, name);
-            return HAL_INVAL;
+            return -EINVAL;
         }
         d_ptr = SHMPTR(param->data_ptr);
     }
@@ -1038,7 +1038,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
 	sprintf(errorStr,
 	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
         sockWriteError(nakStr, context);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found it - does it have a writer? */
     if (sig->writers > 0) {
@@ -1046,7 +1046,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
 	sprintf(errorStr,
 	    "HAL:%d: ERROR: signal '%s' already has writer(s)\n", linenumber, name);
         sockWriteError(nakStr, context);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* no writer, so we can safely set it */
     type = sig->type;
@@ -1149,7 +1149,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     if (hal_get_lock()&HAL_LOCK_LOAD) {
       sprintf(errorStr,  "HAL is locked, loading of modules is not permitted");
       sockWriteError(nakStr, context);
-	return HAL_PERM;
+	return -EPERM;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
       sprintf(errorStr, "Module path too long");
@@ -1225,7 +1225,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 	rtapi_mutex_give(&(hal_data->mutex));
         sprintf(errorStr, "module '%s' not loaded", mod_name);
         sockWriteError(nakStr, context);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* link args to comp struct */
     comp->insmod_args = SHMOFF(cp1);
@@ -1340,7 +1340,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
 	    retval1 = retval;
 	}
     }
-/*    if (retval1 != HAL_SUCCESS) {
+/*    if (retval1 < 0) {
         sprintf(errorStr, "unloadrt failed");
         sockWriteError(nakStr, context);
       } */
@@ -1435,7 +1435,7 @@ static int doLoadUsr(char *args[])
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL:%d: ERROR: HAL is locked, loading of programs is not permitted\n", linenumber);
-	return HAL_PERM;
+	return -EPERM;
     }
     /* check for options (-w, -i, and/or -r) */
     wait_flag = 0;
@@ -1459,7 +1459,7 @@ static int doLoadUsr(char *args[])
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL:%d: ERROR: unknown loadusr option '-%c'\n", linenumber, *cp1);
-		return HAL_INVAL;
+		return -EINVAL;
 	    }
 	    cp1++;
 	}
@@ -3453,7 +3453,7 @@ int main(int argc, char **argv)
 	    switch (*cp1) {
 	    case 'R':
 		/* force an unlock of the HAL mutex - to be used after a segfault in a hal program */
-		if (release_HAL_mutex() != HAL_SUCCESS) {
+		if (release_HAL_mutex() < 0) {
 			printf("halrmt: Release Mutex failed!\n");
 			return 1;
 		}

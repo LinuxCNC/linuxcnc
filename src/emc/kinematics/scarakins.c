@@ -206,12 +206,12 @@ int rtapi_app_main(void) {
     
     haldata = hal_malloc(sizeof(*haldata));
     if (!haldata) goto error;
-    if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("scarakins.D2", HAL_IO, &(haldata->d2), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("scarakins.D3", HAL_IO, &(haldata->d3), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("scarakins.D4", HAL_IO, &(haldata->d4), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("scarakins.D5", HAL_IO, &(haldata->d5), comp_id)) != HAL_SUCCESS) goto error;
-    if((res = hal_pin_float_new("scarakins.D6", HAL_IO, &(haldata->d6), comp_id)) != HAL_SUCCESS) goto error;
+    if((res = hal_pin_float_new("scarakins.D1", HAL_IO, &(haldata->d1), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("scarakins.D2", HAL_IO, &(haldata->d2), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("scarakins.D3", HAL_IO, &(haldata->d3), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("scarakins.D4", HAL_IO, &(haldata->d4), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("scarakins.D5", HAL_IO, &(haldata->d5), comp_id)) < 0) goto error;
+    if((res = hal_pin_float_new("scarakins.D6", HAL_IO, &(haldata->d6), comp_id)) < 0) goto error;
     
     D1 = DEFAULT_D1;
     D2 = DEFAULT_D2;

@@ -176,18 +176,18 @@ int hal_init(const char *name)
 #ifdef ULAPI
     if (ref_cnt) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: Only one component per process\n");
-	return HAL_LIMIT;
+	return -EMFILE;
     }
 #endif
 
     if (name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
 	name);
@@ -198,7 +198,7 @@ int hal_init(const char *name)
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
@@ -206,15 +206,15 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not open shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not access shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     if(hal_shmem_base == 0) {
@@ -227,7 +227,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: could not init shared memory\n");
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get mutex before manipulating the shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -238,7 +238,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: duplicate component name '%s'\n", hal_name);
 	rtapi_exit(comp_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* allocate a new component structure */
     comp = halpr_alloc_comp_struct();
@@ -248,7 +248,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for component '%s'\n", hal_name);
 	rtapi_exit(comp_id);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     comp->comp_id = comp_id;
@@ -285,7 +285,7 @@ int hal_exit(int comp_id)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: exit called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: removing component %02d\n", comp_id);
     /* grab mutex before manipulating list */
@@ -298,7 +298,7 @@ int hal_exit(int comp_id)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     comp = SHMPTR(next);
     while (comp->comp_id != comp_id) {
@@ -310,7 +310,7 @@ int hal_exit(int comp_id)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: component %d not found\n", comp_id);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	comp = SHMPTR(next);
     }
@@ -349,7 +349,7 @@ int hal_exit(int comp_id)
 
     ref_cnt --;
 
-    return HAL_SUCCESS;
+    return 0;
 }
 
 void *hal_malloc(long int size)
@@ -389,7 +389,7 @@ int hal_set_constructor(int comp_id, constructor make) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     comp = SHMPTR(next);
@@ -401,7 +401,7 @@ int hal_set_constructor(int comp_id, constructor make) {
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: component %d not found\n", comp_id);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	comp = SHMPTR(next);
     }
@@ -409,7 +409,7 @@ int hal_set_constructor(int comp_id, constructor make) {
     comp->make = make;
 
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 #endif
 
@@ -426,7 +426,7 @@ int hal_ready(int comp_id) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     comp = SHMPTR(next);
@@ -438,7 +438,7 @@ int hal_ready(int comp_id) {
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: component %d not found\n", comp_id);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	comp = SHMPTR(next);
     }
@@ -446,11 +446,11 @@ int hal_ready(int comp_id) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "HAL: ERROR: Component '%s' already ready\n", comp->name);
         rtapi_mutex_give(&(hal_data->mutex));
-        return HAL_INVAL;
+        return -EINVAL;
     }
     comp->ready = 1;
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -463,10 +463,10 @@ int hal_set_lock(unsigned char lock_type) {
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: set_lock called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     hal_data->lock = lock_type;
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /** The 'hal_get_lock()' function returns the current locking level 
@@ -477,7 +477,7 @@ unsigned char hal_get_lock() {
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: get_lock called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     return hal_data->lock;
 }
@@ -523,7 +523,7 @@ int hal_pin_bit_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -536,7 +536,7 @@ int hal_pin_float_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
 	comp_id);
 }
@@ -550,7 +550,7 @@ int hal_pin_u32_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -563,7 +563,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
@@ -580,29 +580,29 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating pin '%s'\n", name);
@@ -615,7 +615,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* validate passed in pointer - must point to HAL shmem */
     if (! SHMCHK(data_ptr_addr)) {
@@ -623,13 +623,13 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: data_ptr_addr not in shared memory\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if(comp->ready) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_new called after hal_ready\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* allocate a new variable structure */
     new = alloc_pin_struct();
@@ -638,7 +638,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for pin '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->data_ptr_addr = SHMOFF(data_ptr_addr);
@@ -659,7 +659,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -668,7 +668,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
@@ -676,7 +676,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate variable '%s'\n", name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -693,18 +693,18 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_alias called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin_alias called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     if (alias != NULL ) {
 	if (strlen(alias) >= HAL_NAME_LEN) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: alias name '%s' is too long\n", alias);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
     }
     /* get mutex before accessing shared data */
@@ -715,7 +715,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
     }
     /* once we unlink the pin from the list, we don't want to have to
@@ -729,7 +729,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for pin_alias\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     free_oldname_struct(oldname);
     /* find the pin and unlink it from pin list */
@@ -741,7 +741,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: pin '%s' not found\n", pin_name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	pin = SHMPTR(next);
 	if ( strcmp(pin->name, pin_name) == 0 ) {
@@ -790,7 +790,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    pin->next_ptr = next;
 	    *prev = SHMOFF(pin);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, pin->name);
@@ -799,7 +799,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    pin->next_ptr = next;
 	    *prev = SHMOFF(pin);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -821,18 +821,18 @@ int hal_signal_new(const char *name, hal_type_t type)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
@@ -843,7 +843,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: duplicate signal '%s'\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* allocate memory for the signal value */
     switch (type) {
@@ -863,7 +863,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: illegal signal type %d'\n", type);
-	return HAL_INVAL;
+	return -EINVAL;
 	break;
     }
     /* allocate a new signal structure */
@@ -873,7 +873,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for signal '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the signal value */
     switch (type) {
@@ -905,7 +905,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -914,7 +914,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -930,13 +930,13 @@ int hal_signal_delete(const char *name)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
@@ -954,7 +954,7 @@ int hal_signal_delete(const char *name)
 	    free_sig_struct(sig);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* no match, try the next one */
 	prev = &(sig->next_ptr);
@@ -964,7 +964,7 @@ int hal_signal_delete(const char *name)
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal '%s' not found\n",
 	name);
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 int hal_link(const char *pin_name, const char *sig_name)
@@ -977,23 +977,23 @@ int hal_link(const char *pin_name, const char *sig_name)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     /* make sure we were given a pin name */
     if (pin_name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* make sure we were given a signal name */
     if (sig_name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: signal name not given\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
@@ -1006,7 +1006,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' not found\n", pin_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* locate the signal */
     sig = halpr_find_sig_by_name(sig_name);
@@ -1015,14 +1015,14 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' not found\n", sig_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found both pin and signal, are they already connected? */
     if (SHMPTR(pin->signal) == sig) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
-	return HAL_SUCCESS;
+	return 0;
     }
     /* is the pin connected to something else? */
     if(pin->signal) {
@@ -1031,14 +1031,14 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' is linked to '%s', cannot link to '%s'\n",
 	    pin_name, sig->name, sig_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* check types */
     if (pin->type != sig->type) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: type mismatch '%s' <- '%s'\n", pin_name, sig_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* linking output pin to sig that already has output or I/O pins? */
     if ((pin->dir == HAL_OUT) && ((sig->writers > 0) || (sig->bidirs > 0 ))) {
@@ -1046,7 +1046,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' already has output or I/O pin(s)\n", sig_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* linking bidir pin to sig that already has output pin? */
     if ((pin->dir == HAL_IO) && (sig->writers > 0)) {
@@ -1054,7 +1054,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* everything is OK, make the new link */
     data_ptr_addr = SHMPTR(pin->data_ptr_addr);
@@ -1075,7 +1075,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     pin->signal = SHMOFF(sig);
     /* done, release the mutex and return */
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_unlink(const char *pin_name)
@@ -1085,18 +1085,18 @@ int hal_unlink(const char *pin_name)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: unlink called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: unlink called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     /* make sure we were given a pin name */
     if (pin_name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: pin name not given\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: unlinking pin '%s'\n", pin_name);
@@ -1109,13 +1109,13 @@ int hal_unlink(const char *pin_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' not found\n", pin_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found pin, unlink it */
     unlink_pin(pin);
     /* done, release the mutex and return */
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -1157,7 +1157,7 @@ int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
 }
 
@@ -1170,7 +1170,7 @@ int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
 }
 
@@ -1183,7 +1183,7 @@ int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
 }
 
@@ -1196,7 +1196,7 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     va_start(ap, fmt);
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return HAL_NOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
@@ -1213,30 +1213,30 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if(dir != HAL_RO && dir != HAL_RW) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param direction not one of HAL_RO, or HAL_RW\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: parameter name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating parameter '%s'\n", name);
@@ -1249,7 +1249,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* validate passed in pointer - must point to HAL shmem */
     if (! SHMCHK(data_addr)) {
@@ -1257,13 +1257,13 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: data_addr not in shared memory\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if(comp->ready) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_new called after hal_ready\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* allocate a new parameter structure */
     new = alloc_param_struct();
@@ -1272,7 +1272,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for parameter '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->owner_ptr = SHMOFF(comp);
@@ -1289,7 +1289,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, new->name);
@@ -1298,7 +1298,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    new->next_ptr = next;
 	    *prev = SHMOFF(new);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	if (cmp == 0) {
 	    /* name already in list, can't insert */
@@ -1306,7 +1306,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate parameter '%s'\n", name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -1346,13 +1346,13 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     
     if (hal_data->lock & HAL_LOCK_PARAMS)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
@@ -1366,21 +1366,21 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: parameter '%s' not found\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found it, is type compatible? */
     if (param->type != type) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: type mismatch setting param '%s'\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* is it read only? */
     if (param->dir == HAL_RO) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param '%s' is not writable\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* everything is OK, set the value */
     d_ptr = SHMPTR(param->data_ptr);
@@ -1406,10 +1406,10 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: bad type %d setting param\n", param->type);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_param_alias(const char *param_name, const char *alias)
@@ -1421,18 +1421,18 @@ int hal_param_alias(const char *param_name, const char *alias)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_alias called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_alias called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     if (alias != NULL ) {
 	if (strlen(alias) >= HAL_NAME_LEN) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: alias name '%s' is too long\n", alias);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
     }
     /* get mutex before accessing shared data */
@@ -1443,7 +1443,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: duplicate pin/alias name '%s'\n", alias);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
     }
     /* once we unlink the param from the list, we don't want to have to
@@ -1457,7 +1457,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for param_alias\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     free_oldname_struct(oldname);
     /* find the param and unlink it from pin list */
@@ -1469,7 +1469,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: param '%s' not found\n", param_name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	param = SHMPTR(next);
 	if ( strcmp(param->name, param_name) == 0 ) {
@@ -1518,7 +1518,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    param->next_ptr = next;
 	    *prev = SHMOFF(param);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	ptr = SHMPTR(next);
 	cmp = strcmp(ptr->name, param->name);
@@ -1527,7 +1527,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    param->next_ptr = next;
 	    *prev = SHMOFF(param);
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(ptr->next_ptr);
@@ -1552,18 +1552,18 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_LOAD)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called while HAL locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
@@ -1576,20 +1576,20 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (comp->type == 0) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d is not realtime\n", comp_id);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if(comp->ready) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: export_funct called after hal_ready\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* allocate a new function structure */
     new = alloc_funct_struct();
@@ -1598,7 +1598,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for function '%s'\n", name);
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
@@ -1634,7 +1634,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate function '%s'\n", name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	/* didn't find it yet, look at next one */
 	prev = &(fptr->next_ptr);
@@ -1654,7 +1654,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
@@ -1673,23 +1673,23 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (period_nsec == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called with period of zero\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (strlen(name) >= HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread name '%s' is too long\n", name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: create_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     /* get mutex before accessing shared data */
@@ -1704,7 +1704,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: duplicate thread name %s\n", name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	/* didn't find it yet, look at next one */
 	next = tptr->next_ptr;
@@ -1716,7 +1716,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory to create thread\n");
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
@@ -1734,7 +1734,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL_LIB: ERROR: clock_set_period returned %ld\n",
 		    curr_period);
-		return HAL_FAIL;
+		return -EINVAL;
 	    }
 	}
 	/* make sure period <= desired period (allow 1% roundoff error) */
@@ -1742,7 +1742,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL_LIB: ERROR: clock period too long: %ld\n", curr_period);
-	    return HAL_FAIL;
+	    return -EINVAL;
 	}
 	if(hal_data->exact_base_period) {
 		hal_data->base_period = period_nsec;
@@ -1765,7 +1765,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
 	     period_nsec, hal_data->base_period);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* make period an integer multiple of the timer period */
     n = (period_nsec + hal_data->base_period / 2) / hal_data->base_period;
@@ -1775,7 +1775,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than existing thread period %ld\n",
 	     period_nsec, prev_period);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* make priority one lower than previous */
     new->priority = rtapi_prio_next_lower(prev_priority);
@@ -1786,7 +1786,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: could not create task for thread %s\n", name);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     new->task_id = retval;
     /* start task */
@@ -1795,7 +1795,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: could not start task for thread %s: %d\n", name, retval);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* insert new structure at head of list */
     new->next_ptr = hal_data->thread_list_ptr;
@@ -1820,7 +1820,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
-    return HAL_SUCCESS;
+    return 0;
 }
 
 extern int hal_thread_delete(const char *name)
@@ -1831,13 +1831,13 @@ extern int hal_thread_delete(const char *name)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread_delete called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread_delete called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
     
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
@@ -1855,7 +1855,7 @@ extern int hal_thread_delete(const char *name)
 	    free_thread_struct(thread);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* no match, try the next one */
 	prev = &(thread->next_ptr);
@@ -1865,7 +1865,7 @@ extern int hal_thread_delete(const char *name)
     rtapi_mutex_give(&(hal_data->mutex));
     rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: thread '%s' not found\n",
 	name);
-    return HAL_INVAL;
+    return -EINVAL;
 }
 
 #endif /* RTAPI */
@@ -1881,13 +1881,13 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: add_funct called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: add_funct_to_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG,
@@ -1900,21 +1900,21 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	/* zero is not allowed */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: bad position: 0\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* make sure we were given a function name */
     if (funct_name == 0) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing function name\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* make sure we were given a thread name */
     if (thread_name == 0) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* search function list for the function */
     funct = halpr_find_funct_by_name(funct_name);
@@ -1923,14 +1923,14 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function '%s' not found\n", funct_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found the function, is it available? */
     if ((funct->users > 0) && (funct->reentrant == 0)) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function '%s' is not reentrant\n", funct_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* search thread list for thread_name */
     thread = halpr_find_thread_by_name(thread_name);
@@ -1939,14 +1939,14 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread '%s' not found\n", thread_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* ok, we have thread and function, are they compatible? */
     if ((funct->uses_fp) && (!thread->uses_fp)) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function '%s' needs FP\n", funct_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* find insertion point */
     list_root = &(thread->funct_list);
@@ -1962,7 +1962,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 		rtapi_mutex_give(&(hal_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL: ERROR: position '%d' is too high\n", position);
-		return HAL_INVAL;
+		return -EINVAL;
 	    }
 	}
     } else {
@@ -1975,7 +1975,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 		rtapi_mutex_give(&(hal_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "HAL: ERROR: position '%d' is too low\n", position);
-		return HAL_INVAL;
+		return -EINVAL;
 	    }
 	}
 	/* want to insert before list_entry, so back up one more step */
@@ -1988,7 +1988,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: insufficient memory for thread->function link\n");
-	return HAL_NOMEM;
+	return -ENOMEM;
     }
     /* init struct contents */
     funct_entry->funct_ptr = SHMOFF(funct);
@@ -1999,7 +1999,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     /* update the function usage count */
     funct->users++;
     rtapi_mutex_give(&(hal_data->mutex));
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
@@ -2012,13 +2012,13 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: del_funct called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_CONFIG) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: del_funct_from_thread called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     rtapi_print_msg(RTAPI_MSG_DBG,
@@ -2031,14 +2031,14 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing function name\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* make sure we were given a thread name */
     if (thread_name == 0) {
 	/* no name supplied */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: missing thread name\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* search function list for the function */
     funct = halpr_find_funct_by_name(funct_name);
@@ -2047,14 +2047,14 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function '%s' not found\n", funct_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* found the function, is it in use? */
     if (funct->users == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function '%s' is not in use\n", funct_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* search thread list for thread_name */
     thread = halpr_find_thread_by_name(thread_name);
@@ -2063,7 +2063,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread '%s' not found\n", thread_name);
-	return HAL_INVAL;
+	return -EINVAL;
     }
     /* ok, we have thread and function, does thread use funct? */
     list_root = &(thread->funct_list);
@@ -2075,7 +2075,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"HAL: ERROR: thread '%s' doesn't use %s\n", thread_name,
 		funct_name);
-	    return HAL_INVAL;
+	    return -EINVAL;
 	}
 	funct_entry = (hal_funct_entry_t *) list_entry;
 	if (SHMPTR(funct_entry->funct_ptr) == funct) {
@@ -2085,7 +2085,7 @@ int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 	    free_funct_entry_struct(funct_entry);
 	    /* done */
 	    rtapi_mutex_give(&(hal_data->mutex));
-	    return HAL_SUCCESS;
+	    return 0;
 	}
 	/* try next one */
 	list_entry = list_next(list_entry);
@@ -2098,19 +2098,19 @@ int hal_start_threads(void)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: start_threads called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_RUN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: start_threads called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: starting threads\n");
     hal_data->threads_running = 1;
-    return HAL_SUCCESS;
+    return 0;
 }
 
 int hal_stop_threads(void)
@@ -2119,18 +2119,18 @@ int hal_stop_threads(void)
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: stop_threads called before init\n");
-	return HAL_INVAL;
+	return -EINVAL;
     }
 
     if (hal_data->lock & HAL_LOCK_RUN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: stop_threads called while HAL is locked\n");
-	return HAL_PERM;
+	return -EPERM;
     }
 
     hal_data->threads_running = 0;
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: threads stopped\n");
-    return HAL_SUCCESS;
+    return 0;
 }
 
 /***********************************************************************
@@ -2546,7 +2546,7 @@ int rtapi_app_main(void)
     lib_module_id = rtapi_init("HAL_LIB");
     if (lib_module_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL_LIB: ERROR: rtapi init failed\n");
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get HAL shared memory block from RTAPI */
     lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
@@ -2554,15 +2554,15 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not open shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* get address of shared memory area */
     retval = rtapi_shmem_getptr(lib_mem_id, &mem);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not access shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* set up internal pointers to shared mem and data structure */
     hal_shmem_base = (char *) mem;
@@ -2573,14 +2573,14 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init shared memory\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     retval = hal_proc_init();
     if ( retval ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: could not init /proc files\n");
 	rtapi_exit(lib_module_id);
-	return HAL_FAIL;
+	return -EINVAL;
     }
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,

@@ -52,7 +52,7 @@ int rtapi_app_main(void)
 	return -1;
     }
     retval = rtapi_shmem_getptr(shmem_mem, (void **) &shmem_struct);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("shmemtask init: rtapi_shmem_getptr returned %d\n",
 	    retval);
 	rtapi_exit(module);
@@ -101,7 +101,7 @@ int rtapi_app_main(void)
 
     /* start the shmem task */
     retval = rtapi_task_start(shmem_task, SHMEM_PERIOD_NSEC);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("shmemtask init: rtapi_task_start returned %d\n", retval);
 	rtapi_exit(module);
 	return -1;
@@ -123,16 +123,16 @@ void rtapi_app_exit(void)
     }
 
     retval = rtapi_task_pause(shmem_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("shmemtask exit: rtapi_task_stop returned %d\n", retval);
     }
     retval = rtapi_task_delete(shmem_task);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("shmemtask exit: rtapi_task_delete returned %d\n",
 	    retval);
     }
     retval = rtapi_shmem_delete(shmem_mem, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print("shmemtask exit: rtapi_shmem_delete returned %d\n",
 	    retval);
     }

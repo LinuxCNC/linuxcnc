@@ -37,19 +37,19 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if(shmem_array[i].magic != SHMEM_MAGIC) break;
   }
   if(i == MAX_SHM)
-    return RTAPI_NOMEM;
+    return -ENOMEM;
 
   shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   }
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((ssize_t) (shmem->mem) == -1) {
-    return RTAPI_NOMEM;
+    return -ENOMEM;
   }
 
   /* label as a valid shmem structure */
@@ -68,17 +68,17 @@ int rtapi_shmem_getptr(int handle, void **ptr)
 {
   rtapi_shmem_handle *shmem;
   if(handle < 0 || handle >= MAX_SHM)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem = &shmem_array[handle];
 
   /* validate shmem handle */
   if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   /* pass memory address back to caller */
   *ptr = shmem->mem;
-  return RTAPI_SUCCESS;
+  return 0;
 }
 
 
@@ -89,16 +89,16 @@ int rtapi_shmem_delete(int handle, int module_id)
   rtapi_shmem_handle *shmem;
 
   if(handle < 0 || handle >= MAX_SHM)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem = &shmem_array[handle];
 
   /* validate shmem handle */
   if (shmem->magic != SHMEM_MAGIC)
-    return RTAPI_BADID;
+    return -EINVAL;
 
   shmem->count --;
-  if(shmem->count) return RTAPI_SUCCESS;
+  if(shmem->count) return 0;
 
   /* unmap the shared memory */
   r1 = shmdt(shmem->mem);
@@ -113,8 +113,8 @@ int rtapi_shmem_delete(int handle, int module_id)
   shmem->magic = 0;
 
   if ((r1 != 0) || (r2 != 0))
-    return RTAPI_FAIL;
-  return RTAPI_SUCCESS;
+    return -EINVAL;
+  return 0;
 }
 
 
@@ -185,7 +185,7 @@ int rtapi_vsnprintf(char *buffer, unsigned long int size, const char *fmt,
 
 int rtapi_set_msg_level(int level) {
     msg_level = level;
-    return RTAPI_SUCCESS;
+    return 0;
 }
 
 int rtapi_get_msg_level() { 

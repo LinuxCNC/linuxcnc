@@ -174,7 +174,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
         "%s.watchdog.has_bit",
         hm2->llio->name
     );
-    if (r != HAL_SUCCESS) {
+    if (r < 0) {
         HM2_ERR("error adding pin, aborting\n");
         r = -EINVAL;
         goto fail3;
@@ -188,7 +188,7 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
         "%s.watchdog.timeout_ns",
         hm2->llio->name
     );
-    if (r != HAL_SUCCESS) {
+    if (r < 0) {
         HM2_ERR("error adding param, aborting\n");
         r = -EINVAL;
         goto fail3;

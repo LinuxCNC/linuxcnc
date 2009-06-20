@@ -35,7 +35,7 @@ int main()
 	return -1;
     }
     retval = rtapi_shmem_getptr(shmem_id, (void **) &shmem_struct);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "shmemusr main: rtapi_shmem_getptr returned %d\n", retval);
 	rtapi_exit(module);
@@ -49,7 +49,7 @@ int main()
     }
 
     retval = rtapi_shmem_delete(shmem_id, module);
-    if (retval != RTAPI_SUCCESS) {
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "shmemusr main: rtapi_free_shmem returned %d\n", retval);
 	rtapi_exit(module);
