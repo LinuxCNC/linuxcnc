@@ -984,7 +984,7 @@ else
 # tclConfig.sh found,
 # extracting vars
    AC_MSG_RESULT([$TCLCONFIG found])
-   source "$TCLCONFIG"
+   . "$TCLCONFIG"
    TCL_CFLAGS="$TCL_INCLUDE_SPEC"
    TCL_LIBS="$TCL_LIB_SPEC"
 fi
@@ -1021,7 +1021,7 @@ else
 # tkConfig.sh found,
 # extracting vars
    AC_MSG_RESULT([$TKCONFIG found])
-   source "$TKCONFIG"
+   . "$TKCONFIG"
    TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES" 
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi

@@ -6140,11 +6140,19 @@ fi
 else
 # tclConfig.sh found,
 # extracting vars
+<<<<<<< HEAD:src/configure
    echo "$as_me:$LINENO: result: $TCLCONFIG found" >&5
 echo "${ECHO_T}$TCLCONFIG found" >&6
    source "$TCLCONFIG"
    TCL_CFLAGS="$TCL_INCLUDE_SPEC"
    TCL_LIBS="$TCL_LIB_SPEC"
+=======
+   { echo "$as_me:$LINENO: result: $TCLCONFIG found" >&5
+echo "${ECHO_T}$TCLCONFIG found" >&6; }
+   . "$TCLCONFIG"
+   TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+   TCL_LIBS="$TCL_STUB_LIB_SPEC"
+>>>>>>> 8571d52... fix './configure.lineno: 6816: source: not found':src/configure
 fi
 
 echo "$as_me:$LINENO: checking for tk" >&5
@@ -6398,6 +6406,7 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+<<<<<<< HEAD:src/configure
 /* Override any gcc2 internal prototype to avoid an error.  */
 #ifdef __cplusplus
 extern "C"
@@ -6464,6 +6473,14 @@ else
    echo "$as_me:$LINENO: result: $TKCONFIG found" >&5
 echo "${ECHO_T}$TKCONFIG found" >&6
    source "$TKCONFIG"
+=======
+else
+# tkConfig.sh found,
+# extracting vars
+   { echo "$as_me:$LINENO: result: $TKCONFIG found" >&5
+echo "${ECHO_T}$TKCONFIG found" >&6; }
+   . "$TKCONFIG"
+>>>>>>> 8571d52... fix './configure.lineno: 6816: source: not found':src/configure
    TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
    TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
 fi
