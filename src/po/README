@@ -4,21 +4,20 @@ Note for translators of the pot files:
 Please make a copy of the pot file renaming it to reflect the language it is
 being translated in to. For example, for a German translation of rs274_err.pot,
 your working file would be de_rs274_err.po - If the file does not exist within
-the CVS repository, then feel free to create one from a *.pot template:
+the source repository, then feel free to create one from a *.pot template:
     cp axis.pot xx_axis.pot
 
 To update a language's .po file from its .pot file, use the "msgmerge" command.
 Because doing this frequently creates lots of uneeded revisions of the
-.po files in CVS, and because different translators have preferences about
+.po files in the history, and because different translators have preferences about
 msgmerge flags (particularly --width, --no-wrap, and --no-fuzzy-matching),
 this is not done automatically by the "make" process.  The simplest "msgmerge"
 commandline is:
     msgmerge -U xx_axis.po axis.pot
 
-When you are done, "cvs commit" the new .po file.  If you have not yet arranged
-to have "commit access", then e-mail the updated .po file to a developer or
-contact the emc-developers mailing list.
-
+When you are done, "git commit" the new .po file.  If you have push access,
+"git push".  Otherwise, format your changes as a patch with "git format-patch"
+and send it to the emc-developers mailing list.
 
 Graphical tools for editing .po files
 =====================================

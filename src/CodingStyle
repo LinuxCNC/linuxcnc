@@ -170,46 +170,6 @@ than the script will break for some users. The same would apply to mawk.
 In short, use the generic awk invocation in preference to gawk or mawk.
 
 
-			CVS Notes
-
-cvs is such a powerful tool that many developers fail to use to its full
-potential. http://www.red-bean/cvsbook should be compulsory reading for
-anyone wanting to use cvs. The chapters on tags, branching, and merging
-can appear daunting at first, so should be read several times. Chapters 
-covering administration, however, can be skipped.
-
-
-			CVS Commit Comments
-
-When committing a change or file to the repository, a short note describing
-the change is helpful for future reference. "A small bug fix to foo" is
-more informative than a "." (which should be another shooting offense).
-
-The most important thing to put in the log is WHY you made this change.
-To say "removed some code" or "renamed some things" serves no purpose
-because the reader can see the exact change for himself.  What he can't
-do is read your mind and see why you made the change.  If you intend that
-this change fixes a bug, say what the bug was.  If it's in the tracker,
-give the bug number.
-
-
-			CVS Tags
-
-Tagging files within the cvs repository enables us to mark a set of files
-with a specific marker. This provides a simple mechanism to retrieve code
-thus marked. The tags could indicate a stable version, or be a precursor
-to branching. Apart from branch tags, the recommendation is to prefix all
-tags with the developers initials.  Note: Tags prefixed with bdi or BDI are
-reserved for use in conjunction with the Brain Dead Install project.
-
-
-			CVS Special Keywords
-
-There are certain special CVS keywords that can be used inside a document.
-However, it is a bad habit to include information that clutters the source
-file.  Their use in emc is strongly discouraged.
-
-
 			C++ Conventions
 
 C++ coding styles are always likely to end up in heated debates (a bit like

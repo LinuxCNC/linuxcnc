@@ -384,8 +384,7 @@ TREE=cp -dR
 CONFIGFILE=install -m 0644
 EXE=install -m 0755 -o root
 SETUID=install -m 4755 -o root
-NOCVS=$(filter-out %CVS,$(1))
-GLOB=$(call NOCVS,$(wildcard $(1)))
+GLOB=$(wildcard $(1))
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE

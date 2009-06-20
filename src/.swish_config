@@ -19,7 +19,7 @@ FileRules filename contains \.odg$
 FileRules filename contains \.dxf$
 FileRules pathname contains /objects/
 FileRules pathname contains /depends/
-FileRules pathname contains /CVS/
+FileRules pathname contains /\.git/
 FileRules pathname contains /tags$
 FileRules pathname contains /TAGS$
 FileRules pathname contains /autom4te.cache/
