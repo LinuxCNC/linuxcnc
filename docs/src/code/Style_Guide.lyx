@@ -259,62 +259,6 @@ gawk versus mawk - Again, not everyone will have gawk installed, mawk is
  In short, use the generic awk invocation in preference to gawk or mawk.
 \layout Section
 
-CVS 
-\layout Subsection
-
-Notes
-\layout Standard
-
-cvs is such a powerful tool that many developers fail to use to its full
- potential.
- http://www.red-bean/cvsbook should be compulsory reading for anyone wanting
- to use cvs.
- The chapters on tags, branching, and merging can appear daunting at first,
- so should be read several times.
- Chapters covering administration, however, can be skipped.
-\layout Subsection
-
-CVS Commit Comments
-\layout Standard
-
-When committing a change or file to the repository, a short note describing
- the change is helpful for future reference.
- "A small bug fix to foo" is more informative than a "." (which should be
- another shooting offense).
-\layout Standard
-
-The most important thing to put in the log is WHY you made this change.
- To say "removed some code" or "renamed some things" serves no purpose because
- the reader can see the exact change for himself.
- What he can't do is read your mind and see why you made the change.
- If you intend that this change fixes a bug, say what the bug was.
- If it's in the tracker, give the bug number.
-\layout Subsection
-
-CVS Tags
-\layout Standard
-
-Tagging files within the cvs repository enables us to mark a set of files
- with a specific marker.
- This provides a simple mechanism to retrieve code thus marked.
- The tags could indicate a stable version, or be a precursor to branching.
- Apart from branch tags, the recommendation is to prefix all tags with the
- developers initials.
- Note: Tags prefixed with bdi or BDI are reserved for use in conjunction
- with the Brain Dead Install project.
-\layout Subsection
-
-CVS Special Keywords
-\layout Standard
-
-There are certain special CVS keywords that can be used inside a document.
- However, it is a bad habit to include information that clutters the source
- file.
- One such example is the $Log directive; that information is stored in the
- CVS server and can easily be viewed with the web interface or the cvs client.
- 
-\layout Section
-
 C++ Conventions
 \layout Standard
 

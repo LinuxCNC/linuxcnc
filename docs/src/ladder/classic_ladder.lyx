@@ -1897,7 +1897,7 @@ To get MODBUS to initialize you must specify that when loading the classicladder
  --modserver on command line) - I have not tested this nor have I tested
  the TCP modbus master.
  I have done some testing with the serial port and had to add some functions
- (now in CVS ) to get it to talk to my VFD -but it does work.
+ to get it to talk to my VFD -but it does work.
  Modbus function 1,2,3,4,5,6,8,15,16 (read coils,read inputs, read holding
  registers, read input registers, write single coils, write single register,
  echo test, write multiple coils, write multiply registers) are currently

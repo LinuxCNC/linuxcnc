@@ -347,13 +347,8 @@ Ces premières applications ont vite été connues du monde entier.
 \layout Standard
 
 Les fichiers du code source pour compiler le contrôleur sont disponibles
- dans le dépot 
-\begin_inset LatexCommand \index{CVS}
-
-\end_inset 
-
- sur 
-\begin_inset LatexCommand \url{http://cvs.linuxcnc.org}
+ dans le dépot sur 
+\begin_inset LatexCommand \url{http://git.linuxcnc.org}
 
 \end_inset 
 
