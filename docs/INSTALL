@@ -1,29 +1,5 @@
 Basic description
 -----------------
-
-The build process follows the standard Linux convention:
-
-From the top level directory, switch to the source directory:
-
-cd src
-
-In the source directory, build EMC2:
-
-./configure
-make clean
-make
-sudo make install
-(or use sudo checkinstall, that builds a package which can be easily removed lateron)
-
-Afterwards you need to issue 'emc' and you'll get emc2 running.
-
-Try-out
--------
-
-If you want only to test the software before installing it,
-or if you're worried about overwriting an existing installation, 
-there is a Run-In-Place (RIP) mode which you can try out:
-
 From the top level directory, switch to the source directory:
 
 cd src
@@ -43,13 +19,12 @@ scripts/emc
 Detailed description
 ====================
 
-
 Run-time script
 ===============
 
 The runtime script is called emc, thus allowing you on an installed to just type
 'emc' and get it running.
-On a run-in-place system (e.g. the one you just got out of CVS), 
+On a run-in-place system (e.g. the one you just got out of git), 
 the runscript is emc2/scripts/emc.
 When you just checked out a fresh copy of emc2, you'll see there is no 
 'scripts/emc', just a 'scripts/emc.in'.
@@ -89,20 +64,6 @@ The simplest way to compile this package is:
   3. Type `scripts/emc` to test the software. 
   
 
-Compilers and Options
-=====================
-
-   Some systems require unusual options for compilation or linking that
-the `configure' script does not know about.  You can give `configure'
-initial values for variables by setting them in the environment.  Using
-a Bourne-compatible shell, you can do that on the command line like
-this:
-     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
-
-Or on systems that have the `env' program, you can do it like this:
-     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
-
-
 Optional Features
 =================
    EMC is a software that can operate hardware only if a real time system has 
@@ -128,22 +89,6 @@ If you don't want to generate the documentation from source:
   --disable-build-documentation          Do not build documentation automatically
 
 configure also accepts other arguments. Use --help to view the list.
- 
-  --with-realtime=<path to RT system>     path where RTAI or RTLINUX is installed
-  --enable-build-documentation=format     Build documentation.
-                Format may be "pdf" or "html" if only one format is desired.
-  --enable-simulator                      don't use a RT system
-  --with-module-dir=<module-dir>          Installation directory for kernel modules
-  --with-gtk_ver=<GTK-version>            GTK version
-  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not
-  --with-rmmod=</path/rmmod>              rmmod variant
-  --with-insmod=</path/insmod>            insmod variant
-  --with-python=<path>                    Specify the Python interpreter
-  --with-tclConfig=<path>                 Specify the path to tclConfig
-  --with-tkConfig=<path>                  Specify the path to tkConfig
-  --with-x                                use the X Window System
-  --with-locale-dir=DIR                   Location of the locale file(s)
-                                          DATADIR/locale
 
 
 Operation Controls

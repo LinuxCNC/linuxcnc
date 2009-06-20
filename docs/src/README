@@ -29,7 +29,7 @@ Many of the lyx documents include drawings.  Most of them were originally
 created using EasyCad, a non-free Windows app, then exported to .eps files
 and included in the the docs.  The original 'source' files (EasyCad .FC7
 format) were not usable on a free system.  To fix this problem, all of
-the source files have been converted to .dxf files, and added to CVS.
+the source files have been converted to .dxf files, and added to git.
 The .dxf files can be edited with multiple CAD packages, and serve as the
 'source' files for future changes to the drawings.  They can be converted
 from .dxf to postscript (not .eps) using Qcad, which is available as an 
@@ -54,7 +54,7 @@ line/arrow connection would remain broken. New lines with
 arrowheads can be created in Qcad with the 'leader' dimension tool.
 
 Because the original EPS files with filled lines and circles, wide lines,
-and dashed lines look so much nicer, they will remain in CVS and should
+and dashed lines look so much nicer, they will remain in git and should
 probably be used for the documents, however if they become inaccurate
 because of changes in the software, we will have to edit the DXF files,
 generate postscript, and use the less pretty but factually corrrect 
@@ -64,7 +64,7 @@ Since Qcad itself is a GUI application, the dxf to postscript conversion
 involves going clicky clicky, and can't be automated and made part of the
 makefile.  Also, not everyone will have Qcad installed on their system.
 Therefore, we will store both the DXF files and the resulting postscript
-files in CVS, and the normal documentation build process will use the
+files in git, and the normal documentation build process will use the
 postscript files only.  If/when the dxf files are edited, they will need
 to be converted to postscript manually. The conversion procedure is as
 follows:

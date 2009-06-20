@@ -119,7 +119,7 @@ II. Upgrading configurations from 2.0.x to 2.1.x
 -----------------------------------------------------------------------------
 
 Please review the following list if you plan to update a configuration from
-emc2.0.x to the latest CVS. It is not needed if you start with a new 
+emc2.0.x to 2.1.x. It is not needed if you start with a new 
 configuration based on the sample configs supplied with this version of emc2.
 
 1. emc.nml

@@ -13,4 +13,4 @@ TODO     canonical interfaces and naming conventions
 TODO	jmkasunich:
 	Remove the abandoned mesa-5i2x driver and firmware trees.
 	The new hostmot2 system actually works (and is far better).
-	The the files will remain in CVS history for reference.
+	The files will remain in history for reference.
