@@ -38,8 +38,7 @@ Introduction
 
 Quelques difficultés sont à surmonter quand vous commencez à installer EMC2,
  son téléchargement et l'installation du software proprement dit.
- L'ensemble des fichiers d'EMC2 sont placés dans le dépôt cvs.linuxcnc.org,
- c'est un dépôt avec gestion des versions (CVS).
+ L'ensemble des fichiers d'EMC2 sont placés dans le dépôt git.linuxcnc.org.
  EMC2 est également disponible en paquets pré-compilés (pour différentes
  plateformes) pour téléchargement depuis ce site.
  
@@ -152,7 +151,7 @@ Testing
 \series bold 
 Testing
 \series default 
- est disponible principalement comme une balise en CVS, toutefois pour la
+ est disponible principalement comme une balise en git, toutefois pour la
  commodité des testeurs, un dépôt "testing" debian et/ou des tarballs peuvent
  aussi être disponibles.
  C'est le conseil d'administration d'EMC qui décide quand une version "Testing"
@@ -164,9 +163,9 @@ Testing
 
 
 \series bold 
-TRUNK
+master
 \series default 
- est un terme CVS pour indiquer l'emplacement des versions en début de développe
+ est un terme pour indiquer l'emplacement des versions en début de développe
 ment.
  Une version 
 \series bold 
@@ -278,12 +277,12 @@ Run-in-place Tous les dossiers sont conservés à l'intérieur du répertoire
  une autre version d'EMC2 installée sur le système..
 \layout Subsection
 
-Télécharger une version CVS
+Télécharger une version git
 \layout Standard
 
-Si vous souhaitez utiliser la version TRUNK d'EMC2, veuillez suivre les
+Si vous souhaitez utiliser la version 'git' d'EMC2, veuillez suivre les
  instructions de notre wiki pour obtenir le code source:: 
-\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?CVS}
+\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git}
 
 \end_inset 
 

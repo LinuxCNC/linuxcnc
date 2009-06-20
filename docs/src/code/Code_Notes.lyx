@@ -179,8 +179,7 @@ Introduction to HAL
 \begin_inset Quotes erd
 \end_inset 
 
- document (available as CVS/documents/lyx/Hal_Introduction.lyx, or CVS/emc2/docs/
-Hal_Introduction.pdf, or http://linuxcnc.org/Hal_Introduction.pdf).
+ document.
  Another chapter of this document will eventually go into the internals
  of the HAL itself, but in this chapter, we only use the HAL API as defined
  in emc2/src/hal/hal.h.

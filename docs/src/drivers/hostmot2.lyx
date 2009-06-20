@@ -352,7 +352,7 @@ If if you installed EMC2 the file is located in:
 /usr/share/doc/emc2-firmware-mesa-<board>-hostmot2 
 \layout Standard
 
-If your running a CVS checkout the files are located:
+In the source tree, the pin files are located in:
 \layout Quote
 
 src/hal/drivers/mesa-hostmot2/firmware/<board>
@@ -361,8 +361,8 @@ src/hal/drivers/mesa-hostmot2/firmware/<board>
 Firmware
 \layout Standard
 
-If your using a CVS Run In Place you will have to create a symbolic link
- to the bit files.
+If your using Run In Place you will have to create a symbolic link to the
+ bit files.
 \layout Quote
 
 

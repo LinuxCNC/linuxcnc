@@ -329,12 +329,8 @@ From these early applications news of the software spread around the world.
 \layout Standard
 
 The source code files that make up the controller are kept in a repository
-\begin_inset LatexCommand \index{CVS}
-
-\end_inset 
-
  on 
-\begin_inset LatexCommand \url{http://cvs.linuxcnc.org}
+\begin_inset LatexCommand \url{http://git.linuxcnc.org}
 
 \end_inset 
 
