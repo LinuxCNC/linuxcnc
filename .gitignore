@@ -1,3 +1,15 @@
 build-stamp
 lib
 share
+*.pyc
+*.o
+*.ko
+*.so
+*.so.*
+*.a
+*.d
+*.pdf
+*.tex
+*.mod.c
+*.cmd
+.tmp*
