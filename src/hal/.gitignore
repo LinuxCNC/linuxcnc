@@ -1,5 +1,0 @@
-*.cmd
-*.ko
-.tmp_versions
-hal_lib.mod.c
-*.mod.c

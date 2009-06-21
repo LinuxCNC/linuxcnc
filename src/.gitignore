@@ -1,8 +1,6 @@
 Modules.symvers
 .swishindex*
 .tmp_versions
-*.ko *.mod.[co] *.cmd
-.tmp
 Makefile.inc
 Makefile.modinc
 config.h
@@ -12,7 +10,5 @@ objects
 depends
 autom4te.cache
 depend.sh
-axis
-axis.*
 Module.symvers
 config.status.lineno
