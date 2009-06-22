@@ -105,7 +105,7 @@ setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  [AXIS_0]OUTPUT_SCALE
 
 net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
 net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
@@ -145,7 +145,7 @@ setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale [AXIS_1]OUTPUT_SCALE
 
 net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
 net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
@@ -185,7 +185,7 @@ setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
-setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale  1.0
+setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale [AXIS_2]OUTPUT_SCALE
 
 net emcmot.02.pos-cmd axis.2.motor-pos-cmd => pid.2.command
 net motor.02.command  pid.2.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.02.value
