@@ -217,7 +217,7 @@ ctrl_type
 
 emc2# 
 \series bold 
-halcmd loadrt stepgen.o step_type=0,0,2 ctrl_type=p,p,v
+halcmd loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
 \layout Standard
 
 will install three step generators.
