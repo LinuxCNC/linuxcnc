@@ -646,6 +646,12 @@ PYVCP\SpecialChar ~
  See the pyVCP section for more information.
 \layout Description
 
+LATHE\SpecialChar ~
+=\SpecialChar ~
+1 This displays in lathe mode with a top view and with Radius and
+ Diameter on the DRO.
+\layout Description
+
 GEOMETRY\SpecialChar ~
 =\SpecialChar ~
 XYZABCUVW Controls the preview and backplot of rotary motion.
