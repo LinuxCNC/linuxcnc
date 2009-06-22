@@ -1,19 +1,28 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement h
 \paperfontsize 10
-\spacing single 
-\papersize Custom
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize custom
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \paperwidth 8.5in
 \paperheight 11in
@@ -26,82 +35,109 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 KEYSTICK
-\begin_inset LatexCommand \index{KEYSTICK}
+\begin_inset LatexCommand index
+name "KEYSTICK"
 
-\end_inset 
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Introduction
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\align center 
-
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/keystick.png
 	display color
 	width 80text%
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
 
+\begin_layout Standard
+\begin_inset Caption
 
-\begin_inset LatexCommand \label{fig:startmini}
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:startmini"
 
-\end_inset 
+\end_inset
 
 The Mini Graphical Interface
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Keystick is a minimal text based interface.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Installing
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To use keystick change the DISPLAY ini file setting to:
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 [DISPLAY]
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 DISPLAY = keystick
-\layout Section
+\end_layout
 
+\begin_layout Section
 Using
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Keystick is very simple to use.
  In the MDI Mode you simply start typing the g code and it shows up in the
  bottom text area.
  The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 ?
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  key toggles help.
-\the_end
+\end_layout
+
+\end_body
+\end_document

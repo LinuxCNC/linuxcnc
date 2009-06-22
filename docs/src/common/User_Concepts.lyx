@@ -1,73 +1,96 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 User Concepts
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This chapter covers important user concepts that should be understood before
  attempting to run a CNC machine with g code.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Trajectory Control
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Trajectory Planning
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Trajectory planning, in general, is the means by which EMC follows the path
  specified by your G Code program, while still operating within the limits
  of your machinery.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A G Code program can never be fully obeyed.
  For example imagine you specify as a single-line program the following
  move:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In reality, the whole move can't be made at F10, since the machine must
  accelerate from a stop, move toward X=1, and then decelerate to stop again.
  Sometimes part of the move is done at F10, but for many moves, especially
  short ones, the specified feed rate is never reached at all.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The basic acceleration and deceleration described above is not complex and
  there is no compromise to be made.
  In the INI file the specified machine constraints such as maximum axis
  velocity and axis acceleration must be obeyed by the trajectory planner.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Path Following
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A less straightforward problem is that of path following.
  When you program a corner in G Code, the trajectory planner can do several
  things, all of which are right in some cases: it can decelerate to a stop
@@ -80,28 +103,33 @@ A less straightforward problem is that of path following.
  path following, or keep the speed up and have worse path following.
  Depending on the particular cut, the material, the tooling, etc., the programmer
  may want to compromise differently.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Rapid moves also obey the current trajectory control.
  With moves long enough to reach maximum velocity on a machine with low
  acceleration and no path tolerance specified, you can get a fairly round
  corner.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Programming the Planner
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The trajectory control commands are as follows:
-\layout Description
+\end_layout
 
+\begin_layout Description
 G61 (Exact Stop Mode) G61 tells the planner to come to an exact stop at
  every segment's end.
  This ensures exact path following but the full stops can be harmful to
  the workpiece or the tooling, depending on the particular cut.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
  naive cam detector is not enabled.
  G64 and G64P0 tell the planner to sacrifice path following accuracy in
@@ -113,9 +141,10 @@ G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
  When using G0 (rapid) moves with G64 use caution on clearance moves and
  allow enough distance to clear obstacles based on the capabilities of your
  machine.
-\layout Description
+\end_layout
 
-G64\SpecialChar ~
+\begin_layout Description
+G64\InsetSpace ~
 Px.xxx (blend tolerance mode) This enables the "naive cam detector" and
  enables blending with a tolerance.
  If you are in inch mode and program G64 P0.05, you tell the planner that
@@ -130,10 +159,11 @@ Px.xxx (blend tolerance mode) This enables the "naive cam detector" and
  Beware that a specification of G64 P0 has the same effect as G64 alone
  (above), which is necessary for backward compatibility for old G Code programs.
  
-\layout Description
+\end_layout
 
-Blending\SpecialChar ~
-without\SpecialChar ~
+\begin_layout Description
+Blending\InsetSpace ~
+without\InsetSpace ~
 tolerance The controlled point will touch each specified
  movement at at least one point.
  The machine will never move at such a speed that it cannot come to an exact
@@ -141,10 +171,11 @@ tolerance The controlled point will touch each specified
  when blending has already started).
  The distance from the end point of the move is as large as it needs to
  be to keep up the best contouring feed.
-\layout Description
+\end_layout
 
-Naive\SpecialChar ~
-Cam\SpecialChar ~
+\begin_layout Description
+Naive\InsetSpace ~
+Cam\InsetSpace ~
 Detector Successive G1 moves that involve only the XYZ axes that
  deviate less than P- from a straight line are merged into a single straight
  line.
@@ -164,53 +195,61 @@ Detector Successive G1 moves that involve only the XYZ axes that
  from the "naive cam detector".
  This improves contouring performance by simplifying the path.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Planning Moves
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Make sure moves are "long enough" to suit your machine/material.
  Principally because of the rule that "the machine will never move at such
  a speed that it cannot come to a complete stop at the end of the current
  movement", there is a minimum movement length that will allow the machine
  to keep up a requested feed rate with a given acceleration setting.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The acceleration and deceleration phase each use half the inifile MAX_ACCELERATI
 ON.
  In a blend that is an exact reversal, this causes the total axis acceleration
  to equal the inifile MAX_ACCELERATION.
  In other cases, the actual machine acceleration is somewhat less than the
  inifile acceleration 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To keep up feed rate, the move must be longer than the distance it takes
  to accelerate from 0 to the desired feed rate and then stop again.
  Using A as 1/2 the inifile MAX_ACCELERATION and F as the feed rate *in
  units per second*, the acceleration time is ta = F/A and the acceleration
  distance is 
 \begin_inset Formula $da=(1/2)*F*ta$
-\end_inset 
+\end_inset
 
  the deceleration time and distance are the same, making the critical distance
  d = da + dd = 2*da = F^2 / A.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For example, for a feed rate of 1 inch per second and an acceleration of
  10 inch/sec^2, the critical distance is 1^2 / 10 = .1 inch.
  For a feed rate of .5 inch per second, the critical distance is .5^2 / 10
  = .025 inch.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 G Code
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Defaults
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When EMC first starts up many G and M codes are loaded by default.
  The current active G and M codes can be viewed on the MDI tab in the "Active
  G-Codes:" window in the AXIS interface.
@@ -221,29 +260,35 @@ When EMC first starts up many G and M codes are loaded by default.
  The best practice is to set the defaults needed for the job in the preamble
  of your G-Code file and not assume that the defaults have not changed.
  Printing out the G-Code Quick Reference (
-\begin_inset LatexCommand \ref{sec:Quick-Reference-Table}
+\begin_inset LatexCommand ref
+reference "sec:Quick-Reference-Table"
 
-\end_inset 
+\end_inset
 
 ) page can help you remember what each one is.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Feed Rate
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 How the feed rate is applied depends on if an axis involved with the move
  is a rotory axis.
  Read and understand the Feed Rate section (
-\begin_inset LatexCommand \ref{sub:Feed-Rate}
+\begin_inset LatexCommand ref
+reference "sub:Feed-Rate"
 
-\end_inset 
+\end_inset
 
 ) if you have a rotary axis or a lathe.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Tool Radius Offset
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Tool Radius Offset (G41/42) requires that the tool be able to touch somewhere
  along each programmed move without gouging the two adjacent moves.
  If that is not possible with the current tool diameter you will get an
@@ -252,31 +297,40 @@ Tool Radius Offset (G41/42) requires that the tool be able to touch somewhere
  This means you can program a cutter to pass down a path that is narrower
  than the cutter without any errors.
  See the Tool Compensation Section (
-\begin_inset LatexCommand \ref{sec:Cutter-Radius-Compensation}
+\begin_inset LatexCommand ref
+reference "sec:Cutter-Radius-Compensation"
 
-\end_inset 
+\end_inset
 
 ) for more information.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Homing
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 After starting EMC2 each axis must be homed prior to running a program or
  running a MDI command.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you want to deviate from the default behaviour, or want to use the Mini
  interface you will need to set the option NO_FORCE_HOMING = 1 in the [TRAJ]
  section of your ini file.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Tool Changes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There are several options when doing manual tool changes.
  See the [EMCIO] section of the Integrators Manual for information on configurat
 ion of these options.
  Also see the G28 and G30 section of the User Manual.
-\the_end
+\end_layout
+
+\end_body
+\end_document

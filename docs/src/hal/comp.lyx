@@ -1,22 +1,31 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !htbp
 \paperfontsize default
-\spacing single 
+\spacing single
 \papersize letterpaper
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 1
-\use_natbib 0
-\use_numerical_citations 0
+\use_geometry true
+\use_amsmath 2
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \leftmargin 1in
 \topmargin 1in
@@ -27,503 +36,627 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
 : a tool for creating HAL modules
-\layout Section
+\end_layout
 
+\begin_layout Section
 Introduction
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Writing a HAL component can be a tedious process, most of it in setup calls
  to 
-\family typewriter 
+\family typewriter
 rtapi_
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 hal_
-\family default 
+\family default
  functions and associated error checking.
  
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
  will write all this code for you, automatically.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Compiling a HAL component is also much easier when using 
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
 , whether the component is part of the emc2 source tree, or outside it.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For instance, the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 ddt
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  portion of 
-\family typewriter 
+\family typewriter
 blocks
-\family default 
+\family default
  is around 80 lines of code.
  The equivalent component is very short when written using the 
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
  preprocessor:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 component ddt "Compute the derivative of the input function";
-\newline 
-pin in float in;
-\newline 
+\newline
+pin in float
+ in;
+\newline
 pin out float out;
-\newline 
+\newline
 variable float old;
-\newline 
+\newline
 function _;
-\newline 
+\newline
 license "GPL";
-\newline 
+\newline
 ;;
-\newline 
-float tmp = in;
-\newline 
+\newline
+float
+ tmp = in;
+\newline
 out = (tmp - old) / fperiod;
-\newline 
+\newline
 old = tmp;
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 and it can be compiled and installed very easily: by simply placing 
-\family typewriter 
+\family typewriter
 ddt.comp
-\family default 
+\family default
  in 
-\family typewriter 
+\family typewriter
 src/hal/components
-\family default 
+\family default
  and running '
-\family typewriter 
+\family typewriter
 make
-\family default 
+\family default
 ', or by placing it anywhere on the system and running 
-\family typewriter 
+\family typewriter
 comp --install ddt.comp
-\layout Section
+\end_layout
 
+\begin_layout Section
 Definitions
-\layout Description
+\end_layout
 
+\begin_layout Description
 component A component is a single real-time module, which is loaded with
  
-\family typewriter 
+\family typewriter
 halcmd loadrt
-\family default 
+\family default
 .
  One 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  file specifies one component.
-\layout Description
+\end_layout
 
+\begin_layout Description
 instance A component can have zero or more instances.
  Each instance of a component is created equal (they all have the same pins,
  parameters, functions, and data) but behave independently when their pins,
  parameters, and data have different values.
-\layout Description
+\end_layout
 
+\begin_layout Description
 singleton It is possible for a component to be a 'singleton', in which case
  exactly one instance is created.
  It seldom makes sense to write a 
-\family typewriter 
+\family typewriter
 singleton
-\family default 
+\family default
  component, unless there can literally only be a single object of that kind
  in the system (for instance, a component whose purpose is to provide a
  pin with the current UNIX time, or a hardware driver for the internal PC
  speaker)
-\layout Section
+\end_layout
 
+\begin_layout Section
 Instance creation
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For a singleton, the one instance is created when the component is loaded.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For a non-singleton, the '
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
 ' module parameter determines how many numbered instances are created.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Syntax
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  file consists of a number of declarations, followed by 
-\family typewriter 
+\family typewriter
 ;;
-\family default 
+\family default
  on a line of its own, followed by C code implementing the module's functions.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Declarations include:
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-component 
-\emph on 
-HALNAME
-\emph default 
+\family typewriter
+component
+\family default
  
-\emph on 
+\family typewriter
+\emph on
+HALNAME
+\family default
+\emph default
+ 
+\family typewriter
+\emph on
 (DOC
-\emph default 
+\emph default
 );
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-pin 
-\emph on 
+\family typewriter
+pin
+\family default
+ 
+\family typewriter
+\emph on
 PINDIRECTION
-\emph default 
+\family default
+\emph default
  
-\emph on 
+\family typewriter
+\emph on
 TYPE
-\emph default 
+\family default
+\emph default
  
-\emph on 
+\family typewriter
+\emph on
 HALNAME
-\emph default 
- ([
-\emph on 
-SIZE
-\emph default 
-]|[
-\emph on 
-MAXSIZE 
-\emph default 
-: 
-\emph on 
-CONDSIZE]
-\emph default 
-) (if 
-\emph on 
-CONDITION
-\emph default 
-) (= 
-\emph on 
-STARTVALUE
-\emph default 
-) (
-\emph on 
-DOC
-\emph default 
-);
-\layout Itemize
-
-
-\family typewriter 
-param 
-\emph on 
-PARAMDIRECTION
-\emph default 
+\family default
+\emph default
  
-\emph on 
-TYPE
-\emph default 
- 
-\emph on 
-HALNAME
-\emph default 
- ([
-\emph on 
-SIZE
-\emph default 
-]|[
-\emph on 
-MAXSIZE 
-\emph default 
-: 
-\emph on 
-CONDSIZE]
-\emph default 
-) (if 
-\emph on 
-CONDITION) 
-\emph default 
-(= 
-\emph on 
-STARTVALUE
-\emph default 
-) (
-\emph on 
-DOC
-\emph default 
-) ;
-\layout Itemize
-
-
-\family typewriter 
-function 
-\emph on 
-HALNAME
-\emph default 
- (fp | nofp) (
-\emph on 
-DOC
-\emph default 
-);
-\layout Itemize
-
-
-\family typewriter 
-option 
-\emph on 
-OPT
-\emph default 
- (
-\emph on 
-VALUE
-\emph default 
-);
-\layout Itemize
-
-
-\family typewriter 
-variable 
-\emph on 
-CTYPE NAME 
-\emph default 
+\family typewriter
 ([
-\emph on 
+\emph on
 SIZE
-\emph default 
+\emph default
+]|[
+\emph on
+MAXSIZE
+\family default
+\emph default
+ 
+\family typewriter
+:
+\family default
+ 
+\family typewriter
+\emph on
+CONDSIZE]
+\emph default
+) (if
+\family default
+ 
+\family typewriter
+\emph on
+CONDITION
+\emph default
+) (=
+\family default
+ 
+\family typewriter
+\emph on
+STARTVALUE
+\emph default
+) (
+\emph on
+DOC
+\emph default
+);
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+param
+\family default
+ 
+\family typewriter
+\emph on
+PARAMDIRECTION
+\family default
+\emph default
+ 
+\family typewriter
+\emph on
+TYPE
+\family default
+\emph default
+ 
+\family typewriter
+\emph on
+HALNAME
+\family default
+\emph default
+ 
+\family typewriter
+([
+\emph on
+SIZE
+\emph default
+]|[
+\emph on
+MAXSIZE
+\family default
+\emph default
+ 
+\family typewriter
+:
+\family default
+ 
+\family typewriter
+\emph on
+CONDSIZE]
+\emph default
+) (if
+\family default
+ 
+\family typewriter
+\emph on
+CONDITION)
+\family default
+\emph default
+ 
+\family typewriter
+(=
+\family default
+ 
+\family typewriter
+\emph on
+STARTVALUE
+\emph default
+) (
+\emph on
+DOC
+\emph default
+) ;
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+function
+\family default
+ 
+\family typewriter
+\emph on
+HALNAME
+\family default
+\emph default
+ 
+\family typewriter
+(fp | nofp) (
+\emph on
+DOC
+\emph default
+);
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+option
+\family default
+ 
+\family typewriter
+\emph on
+OPT
+\family default
+\emph default
+ 
+\family typewriter
+(
+\emph on
+VALUE
+\emph default
+);
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+variable
+\family default
+ 
+\family typewriter
+\emph on
+CTYPE NAME
+\family default
+\emph default
+ 
+\family typewriter
+([
+\emph on
+SIZE
+\emph default
 ]);
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-description 
-\emph on 
+\family typewriter
+description
+\family default
+ 
+\family typewriter
+\emph on
 DOC
-\emph default 
+\emph default
 ;
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-see_also 
-\emph on 
+\family typewriter
+see_also
+\family default
+ 
+\family typewriter
+\emph on
 DOC
-\emph default 
+\emph default
 ;
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-license 
-\emph on 
+\family typewriter
+license
+\family default
+ 
+\family typewriter
+\emph on
 LICENSE
-\emph default 
+\emph default
 ;
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 
-\family typewriter 
-author 
-\emph on 
+\family typewriter
+author
+\family default
+ 
+\family typewriter
+\emph on
 AUTHOR
-\emph default 
+\emph default
 ;
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Parentheses indicate optional items.
  A vertical bar indicates alternatives.
  Words in 
-\emph on 
+\emph on
 CAPITALS
-\emph default 
+\emph default
  indicate variable text, as follows:
-\layout Description
+\end_layout
 
+\begin_layout Description
 HALNAME An identifier.
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 When used to create a HAL identifier, any underscores are replaced with
  dashes, and any trailing dash or period is removed, so that 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 this_name_
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  will be turned into 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 this-name
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , and if the name is 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 _
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , then a trailing period is removed as well, so that 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 function _
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  gives a HAL function name like 
-\family typewriter 
+\family typewriter
 component.<num>
-\family default 
+\family default
  instead of 
-\family typewriter 
+\family typewriter
 component.<num>.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If present, the prefix 
-\family typewriter 
+\family typewriter
 hal_
-\family default 
+\family default
  is removed from the beginning of the component name when creating pins,
  parameters and functions.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In the HAL identifier for a pin or parameter, # denotes an array item, and
  must be used in conjunction with a 
-\family typewriter 
+\family typewriter
 [SIZE]
-\family default 
+\family default
  declaration.
  The hash marks are replaced with a 0-padded number with the same length
  as the number of # characters.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When used to create a C identifier, the following changes are applied to
  the HALNAME:
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Any # characters, and any 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 .
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 _
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  or 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 -
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  characters immediately before them, are removed.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Any remaining 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 .
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  and 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 -
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  characters are replaced with 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 _
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Repeated 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 _
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  characters are changed to a single 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 _
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  character.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A trailing _ is retained, so that HAL identifiers which would otherwise
  collide with reserved names or keywords (e.g., 'min') can be used.
-\layout Standard
+\end_layout
 
-
-\begin_inset  Tabular
+\begin_layout Standard
+\begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -533,1546 +666,1687 @@ A trailing _ is retained, so that HAL identifiers which would otherwise
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HALNAME
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 C Identifier
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL Identifier
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y_z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y_z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x-y-z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x-y.z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y_z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x-y.z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y_z_
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y_z_
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x-y-z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x.##.y
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x_y(MM)
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x.MM.z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x.##
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x(MM)
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 x.MM
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_deeper 
-\layout Description
+\end_layout
 
-if\SpecialChar ~
+\end_deeper
+\begin_layout Description
+if\InsetSpace ~
 CONDITION An expression involving the variable 
-\emph on 
+\emph on
 personality
-\emph default 
+\emph default
  which is nonzero when the pin or parameter should be created
-\layout Description
+\end_layout
 
+\begin_layout Description
 SIZE A number that gives the size of an array.
  The array items are numbered from 0 to 
-\emph on 
+\emph on
 SIZE
-\emph default 
+\emph default
 -1.
-\layout Description
+\end_layout
 
-MAXSIZE\SpecialChar ~
-:\SpecialChar ~
+\begin_layout Description
+MAXSIZE\InsetSpace ~
+:\InsetSpace ~
 CONDSIZE A number that gives the maximum size of the array followed
  by an expression involving the variable 
-\emph on 
+\emph on
 personality
-\emph default 
+\emph default
  and which always evaluates to less than 
-\emph on 
+\emph on
 MAXSIZE
-\emph default 
+\emph default
 .
  When the array is created its size will be 
-\emph on 
+\emph on
 CONDSIZE
-\emph default 
+\emph default
 .
-\layout Description
+\end_layout
 
+\begin_layout Description
 DOC A string that documents the item.
  String can be a C-style 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 double quoted
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  string, like 
-\family typewriter 
+\family typewriter
 "Selects the desired edge: TRUE means falling, FALSE means rising"
-\family default 
+\family default
  or a Python-style 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 triple quoted
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  string, which may include embedded newlines and quote characters, such
  as:
-\begin_deeper 
-\layout Quote
+\end_layout
 
+\begin_deeper
+\begin_layout Quote
 
-\family typewriter 
+\family typewriter
 param rw bit zot=TRUE
-\newline 
-"""The effect of this parameter, also known as "the orb of zot",
-\newline 
+\newline
+"""The effect of this parameter, also known as "the
+ orb of zot",
+\newline
 will require at least two paragraphs to explain.
-\newline 
+\newline
 
-\newline 
-Hopefully these paragraphs have allowed you to understand "zot" 
-\newline 
+\newline
+Hopefully these
+ paragraphs have allowed you to understand "zot" 
+\newline
 better.""";
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The documentation string is in 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 groff -man
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  format.
  For more information on this markup format, see 
-\family typewriter 
+\family typewriter
 groff_man(7)
-\family default 
+\family default
 .
  Remember that comp interprets backslash escapes in strings, so for instance
  to set the italic font for the word 
-\emph on 
+\emph on
 example
-\emph default 
+\emph default
 , write 
-\family typewriter 
+\family typewriter
 "
-\backslash 
+\backslash
 
-\backslash 
+\backslash
 fIexample
-\backslash 
+\backslash
 
-\backslash 
+\backslash
 fB"
-\family default 
+\family default
 .
-\end_deeper 
-\layout Description
+\end_layout
 
+\end_deeper
+\begin_layout Description
 TYPE One of the HAL types: 
-\family typewriter 
+\family typewriter
 bit
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 signed
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 unsigned
-\family default 
+\family default
 , or 
-\family typewriter 
+\family typewriter
 float
-\family default 
+\family default
 .
  The old names 
-\family typewriter 
+\family typewriter
 s32
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 u32
-\family default 
+\family default
  may also be used, but 
-\family typewriter 
+\family typewriter
 signed
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 unsigned
-\family default 
+\family default
  are preferred.
-\layout Description
+\end_layout
 
+\begin_layout Description
 PINDIRECTION One of the following: 
-\family typewriter 
+\family typewriter
 in
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 out
-\family default 
+\family default
 , or 
-\family typewriter 
+\family typewriter
 io
-\family default 
+\family default
 .
  A component sets a value for an 
-\family typewriter 
+\family typewriter
 out
-\family default 
+\family default
  pin, it reads a value from an 
-\family typewriter 
+\family typewriter
 in
-\family default 
+\family default
  pin, and it may read or set the value of an 
-\family typewriter 
+\family typewriter
 io
-\family default 
+\family default
  pin.
-\layout Description
+\end_layout
 
+\begin_layout Description
 PARAMDIRECTION One of the following: 
-\family typewriter 
+\family typewriter
 r
-\family default 
+\family default
  or 
-\family typewriter 
+\family typewriter
 rw
-\family default 
+\family default
 .
  A component sets a value for a 
-\family typewriter 
+\family typewriter
 r
-\family default 
+\family default
  parameter, and it may read or set the value of a 
-\family typewriter 
+\family typewriter
 rw
-\family default 
+\family default
  parameter.
-\layout Description
+\end_layout
 
+\begin_layout Description
 STARTVALUE Specifies the initial value of a pin or parameter.
  If it is not specified, then the default is 
-\family typewriter 
+\family typewriter
 0
-\family default 
+\family default
  or 
-\family typewriter 
+\family typewriter
 FALSE
-\family default 
+\family default
 , depending on the type of the item.
-\layout Description
+\end_layout
 
+\begin_layout Description
 fp Indicates that the function performs floating-point calculations.
-\layout Description
+\end_layout
 
+\begin_layout Description
 nofp Indicates that it only performs integer calculations.
  If neither is specified, 
-\family typewriter 
+\family typewriter
 fp
-\family default 
+\family default
  is assumed.
  Neither comp nor gcc can detect the use of floating-point calculations
  in functions that are tagged 
-\family typewriter 
+\family typewriter
 nofp
-\family default 
+\family default
 .
-\layout Description
+\end_layout
 
-OPT,\SpecialChar ~
+\begin_layout Description
+OPT,\InsetSpace ~
 VALUE Depending on the option name OPT, the valid VALUEs vary.
  The currently defined options are:
-\begin_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-singleton\SpecialChar ~
+\begin_deeper
+\begin_layout Description
+option\InsetSpace ~
+singleton\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 Do not create a 
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
  module parameter, and always create a single instance.
  With 
-\family typewriter 
+\family typewriter
 singleton
-\family default 
+\family default
 , items are named 
-\family typewriter 
+\family typewriter
 component-name.item-name
-\family default 
+\family default
  and without 
-\family typewriter 
+\family typewriter
 singleton
-\family default 
+\family default
 , items for numbered instances are named 
-\family typewriter 
+\family typewriter
 component-name.<num>.item-name
-\family default 
+\family default
 .
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-default_count\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+default_count\InsetSpace ~
 
-\emph on 
+\emph on
 number
-\emph default 
+\emph default
  (default: 1)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 Normally, the module parameter 
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
  defaults to 0.
  If specified, the 
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
  will default to this value instead.
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-count_function\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+count_function\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 Normally, the number of instances to create is specified in the module parameter
  
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
 ; if 
-\family typewriter 
+\family typewriter
 count_function
-\family default 
+\family default
  is specified, the value returned by the function 
-\family typewriter 
+\family typewriter
 int get_count(void)
-\family default 
+\family default
  is used instead, and the 
-\family typewriter 
+\family typewriter
 count
-\family default 
+\family default
  module parameter is not defined.
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-rtapi_app\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+rtapi_app\InsetSpace ~
 no (default: yes)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 Normally, the functions 
-\family typewriter 
+\family typewriter
 rtapi_app_main
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 rtapi_app_exit
-\family default 
+\family default
  are automatically defined.
  With 
-\family typewriter 
+\family typewriter
 option rtapi_app no
-\family default 
+\family default
 , they are not, and must be provided in the C code.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When implementing your own 
-\family typewriter 
+\family typewriter
 rtapi_app_main
-\family default 
+\family default
 , call the function 
-\family typewriter 
+\family typewriter
 int export(char *prefix, long extra_arg)
-\family default 
+\family default
  to register the pins, parameters, and functions for 
-\family typewriter 
+\family typewriter
 prefix
-\family default 
+\family default
 .
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-data\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+data\InsetSpace ~
 
-\emph on 
+\emph on
 type
-\emph default 
+\emph default
  (default: none) 
-\series bold 
-\noun on 
+\series bold
+\noun on
 deprecated
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 If specified, each instance of the component will have an associated data
  block of 
-\emph on 
+\emph on
 type
-\emph default 
+\emph default
  (which can be a simple type like 
-\family typewriter 
+\family typewriter
 float
-\family default 
+\family default
  or the name of a type created with 
-\family typewriter 
+\family typewriter
 typedef
-\family default 
+\family default
 ).
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In new components, 
-\emph on 
+\emph on
 variable
-\emph default 
+\emph default
  should be used instead.
-\end_deeper 
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-extra_setup\SpecialChar ~
+\end_deeper
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+extra_setup\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 If specified, call the function defined by 
-\family typewriter 
+\family typewriter
 EXTRA_SETUP
-\family default 
+\family default
  for each instance.
  If using the automatically defined 
-\family typewriter 
+\family typewriter
 rtapi_app_main
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 extra_arg
-\family default 
+\family default
  is the number of this instance.
  
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-extra_cleanup\SpecialChar ~
+\begin_layout Description
+option\InsetSpace ~
+extra_cleanup\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 If specified, call the function defined by 
-\family typewriter 
+\family typewriter
 EXTRA_CLEANUP
-\family default 
+\family default
  from the automatically defined 
-\family typewriter 
+\family typewriter
 rtapi_app_exit
-\family default 
+\family default
 , or if an error is detected in the automatically defined 
-\family typewriter 
+\family typewriter
 rtapi_app_main
-\family default 
+\family default
 .
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-userspace\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+userspace\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 If specified, this file describes a userspace component, rather than a real
  one.
  A userspace component may not have functions defined by the 
-\family typewriter 
+\family typewriter
 function
-\family default 
+\family default
  directive.
  Instead, after all the instances are constructed, the C function 
-\family typewriter 
+\family typewriter
 user_mainloop()
-\family default 
+\family default
  is called.
  When this function returns, the component exits.
  Typically, 
-\family typewriter 
+\family typewriter
 user_mainloop()
-\family default 
+\family default
  will use 
-\family typewriter 
+\family typewriter
 FOR_ALL_INSTS()
-\family default 
+\family default
  to perform the update action for each instance, then sleep for a short
  time.
  Another common action in 
-\family typewriter 
+\family typewriter
 user_mainloop()
-\family default 
+\family default
  may be to call the event handler loop of a GUI toolkit.
-\end_deeper 
-\layout Description
+\end_layout
 
-option\SpecialChar ~
-userinit\SpecialChar ~
+\end_deeper
+\begin_layout Description
+option\InsetSpace ~
+userinit\InsetSpace ~
 yes (default: no)
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 If specified, the function 
-\family typewriter 
+\family typewriter
 userinit(argc,argv)
-\family default 
+\family default
  is called before 
-\family typewriter 
+\family typewriter
 rtapi_app_main()
-\family default 
+\family default
  (and thus before the call to 
-\family typewriter 
+\family typewriter
 hal_init()
-\family default 
+\family default
 ).
  This function may process the commandline arguments or take other actions.
  Its return type is 
-\family typewriter 
+\family typewriter
 void
-\family default 
+\family default
 ; it may call 
-\family typewriter 
+\family typewriter
 exit()
-\family default 
+\family default
  if it wishes to terminate rather than create a hal component (for instance,
  because the commandline arguments were invalid).
-\end_deeper 
-\layout Standard
+\end_layout
 
+\end_deeper
+\begin_layout Standard
 If an option's VALUE is not specified, then it is equivalent to specifying
  
-\family typewriter 
+\family typewriter
 option \SpecialChar \ldots{}
  yes
-\family default 
+\family default
 .
  The result of assigning an inappropriate value to an option is undefined.
  The result of using any other option is undefined.
-\end_deeper 
-\layout Description
+\end_layout
 
+\end_deeper
+\begin_layout Description
 LICENSE Specify the license of the module for the documentation and for
  the MODULE_LICENSE() module declaration.
  For example, to specify that the module's license is GPL,
-\begin_deeper 
-\layout LyX-Code
+\end_layout
 
+\begin_deeper
+\begin_layout LyX-Code
 license "GPL";
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For additional information on the meaning of MODULE_LICENSE() and additional
  license identifiers, see 
-\family typewriter 
+\family typewriter
 <linux/module.h>
-\family default 
+\family default
 .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Starting in emc 2.3, this declaration is required.
-\end_deeper 
-\layout Description
+\end_layout
 
+\end_deeper
+\begin_layout Description
 AUTHOR Specify the author of the module for the documentation.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Per-instance data storage
-\layout Description
+\end_layout
 
-variable\SpecialChar ~
+\begin_layout Description
+variable\InsetSpace ~
 
-\emph on 
-CTYPE\SpecialChar ~
+\emph on
+CTYPE\InsetSpace ~
 NAME
-\emph default 
+\emph default
 ;
-\layout Description
+\end_layout
 
-variable\SpecialChar ~
+\begin_layout Description
+variable\InsetSpace ~
 
-\emph on 
-CTYPE\SpecialChar ~
+\emph on
+CTYPE\InsetSpace ~
 NAME
-\emph default 
+\emph default
 [
-\emph on 
+\emph on
 SIZE
-\emph default 
+\emph default
 ];
-\layout Description
+\end_layout
 
-variable\SpecialChar ~
+\begin_layout Description
+variable\InsetSpace ~
 
-\emph on 
-CTYPE\SpecialChar ~
+\emph on
+CTYPE\InsetSpace ~
 NAME
-\emph default 
-\SpecialChar ~
-=\SpecialChar ~
+\emph default
+\InsetSpace ~
+=\InsetSpace ~
 
-\emph on 
+\emph on
 DEFAULT
-\emph default 
+\emph default
 ;
-\layout Description
+\end_layout
 
-variable\SpecialChar ~
+\begin_layout Description
+variable\InsetSpace ~
 
-\emph on 
-CTYPE\SpecialChar ~
+\emph on
+CTYPE\InsetSpace ~
 NAME
-\emph default 
+\emph default
 [
-\emph on 
+\emph on
 SIZE
-\emph default 
-]\SpecialChar ~
-=\SpecialChar ~
+\emph default
+]\InsetSpace ~
+=\InsetSpace ~
 
-\emph on 
+\emph on
 DEFAULT
-\emph default 
+\emph default
 ;
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 Declare a per-instance variable 
-\emph on 
+\emph on
 NAME
-\emph default 
+\emph default
  of type 
-\emph on 
+\emph on
 CTYPE
-\emph default 
+\emph default
 , optionally as an array of 
-\emph on 
+\emph on
 SIZE
-\emph default 
+\emph default
  items, and optionally with a default value 
-\emph on 
+\emph on
 DEFAULT
-\emph default 
+\emph default
 .
  Items with no 
-\emph on 
+\emph on
 DEFAULT
-\emph default 
+\emph default
  are initialized to all-bits-zero.
  
-\emph on 
+\emph on
 CTYPE
-\emph default 
+\emph default
  is a simple one-word C type, such as 
-\family typewriter 
+\family typewriter
 float
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 u32
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 s32
-\family default 
+\family default
 , bool, etc.
-\newline 
+\newline
 Access to array variables uses square brackets.
-\end_deeper 
-\layout Standard
+\end_layout
 
+\end_deeper
+\begin_layout Standard
 C++-style one-line comments (
-\family typewriter 
+\family typewriter
 // \SpecialChar \ldots{}
 
-\family default 
+\family default
 ) and C-style multi-line comments (
-\family typewriter 
+\family typewriter
 /* \SpecialChar \ldots{}
  */
-\family default 
+\family default
 ) are both supported in the declaration section.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Other restrictions on comp files
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Though HAL permits a pin, a parameter, and a function to have the same name,
  comp does not.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Convenience Macros
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Based on the items in the declaration section, 
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
  creates a C structure called 
-\family typewriter 
+\family typewriter
 struct state
-\family default 
+\family default
 .
  However, instead of referring to the members of this structure (e.g., 
-\family typewriter 
+\family typewriter
 *(inst->name)
-\family default 
+\family default
 ), they will generally be referred to using the macros below.
  The details of 
-\family typewriter 
+\family typewriter
 struct state
-\family default 
+\family default
  and these macros may change from one version of 
-\emph on 
+\emph on
 comp
-\emph default 
+\emph default
  to the next.
-\layout Description
+\end_layout
 
+\begin_layout Description
 FUNCTION(name) Use this macro to begin the definition of a realtime function
  which was previously declared with '
-\family typewriter 
+\family typewriter
 function NAME
-\family default 
+\family default
 '.
  The function includes a parameter '
-\family typewriter 
+\family typewriter
 period
-\family default 
+\family default
 ' which is the integer number of nanoseconds between calls to the function.
-\layout Description
+\end_layout
 
+\begin_layout Description
 EXTRA_SETUP() Use this macro to begin the definition of the function called
  to perform extra setup of this instance.
  Return a negative Unix 
-\family typewriter 
+\family typewriter
 errno
-\family default 
+\family default
  value to indicate failure (e.g., 
-\family typewriter 
+\family typewriter
 return -EBUSY
-\family default 
+\family default
  on failure to reserve an I/O port), or 0 to indicate success.
-\layout Description
+\end_layout
 
+\begin_layout Description
 EXTRA_CLEANUP() Use this macro to begin the definition of the function called
  to perform extra cleanup of the component.
  Note that this function must clean up all instances of the component, not
  just one.
  The 'pin_name', 'parameter_name', and 'data' macros may not be used here.
-\layout Description
+\end_layout
 
+\begin_layout Description
 
-\emph on 
+\emph on
 pin_name
-\layout Description
+\end_layout
 
+\begin_layout Description
 
-\emph on 
+\emph on
 parameter_name
-\emph default 
+\emph default
  For each pin 
-\family typewriter 
+\family typewriter
 pin_name
-\family default 
+\family default
  or param 
-\family typewriter 
+\family typewriter
 parameter_name
-\family default 
+\family default
  there is a macro which allows the name to be used on its own to refer to
  the pin or parameter.
-\begin_deeper 
-\layout Standard
+\end_layout
 
+\begin_deeper
+\begin_layout Standard
 When 
-\family typewriter 
+\family typewriter
 pin_name
-\family default 
+\family default
  or 
-\family typewriter 
+\family typewriter
 parameter_name
-\family default 
+\family default
  is an array, the macro is of the form 
-\emph on 
+\emph on
 pin_name(idx)
-\emph default 
+\emph default
  or 
-\emph on 
-param_name(idx) 
-\emph default 
-where 
-\emph on 
+\emph on
+param_name(idx)
+\emph default
+ where 
+\emph on
 idx
-\emph default 
+\emph default
  is the index into the pin array.
  When the array is a variable-sized array, it is only legal to refer to
  items up to its 
-\emph on 
+\emph on
 condsize
-\emph default 
+\emph default
 .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When the item is a conditional item, it is only legal to refer to it when
  its 
-\emph on 
+\emph on
 condition
-\emph default 
+\emph default
  evaluated to a nonzero value.
-\end_deeper 
-\layout Description
+\end_layout
 
+\end_deeper
+\begin_layout Description
 
-\emph on 
-variable_name 
-\emph default 
-For each variable 
-\family typewriter 
+\emph on
 variable_name
-\family default 
+\emph default
+ For each variable 
+\family typewriter
+variable_name
+\family default
  there is a macro which allows the name to be used on its own to refer to
  the variable.
  When 
-\family typewriter 
+\family typewriter
 variable_name
-\family default 
+\family default
  is an array, the normal C-style subscript is used: 
-\emph on 
+\emph on
 variable_name[idx]
-\layout Description
+\end_layout
 
+\begin_layout Description
 data If 'option data' is specified, this macro allows access to the instance
  data.
-\layout Description
+\end_layout
 
+\begin_layout Description
 fperiod The floating-point number of seconds between calls to this realtime
  function.
-\layout Description
+\end_layout
 
-FOR_ALL_INSTS()\SpecialChar ~
+\begin_layout Description
+FOR_ALL_INSTS()\InsetSpace ~
 {
-\family typewriter 
+\family typewriter
 \SpecialChar \ldots{}
 
-\family default 
+\family default
 } For userspace components.
  This macro uses the variable 
-\family typewriter 
+\family typewriter
 struct state *inst
-\family default 
+\family default
  to iterate over all the defined instances.
  Inside the body of the loop, the 
-\series bold 
-\emph on 
+\series bold
+\emph on
 pin_name
-\series default 
-\emph default 
+\series default
+\emph default
 , 
-\series bold 
-\emph on 
+\series bold
+\emph on
 parameter_name
-\series default 
-\emph default 
+\series default
+\emph default
 , and 
-\series bold 
+\series bold
 data
-\series default 
+\series default
  macros work as they do in realtime functions.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Components with one function
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If a component has only one function and the string 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 FUNCTION
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  does not appear anywhere after 
-\family typewriter 
+\family typewriter
 ;;
-\family default 
+\family default
 , then the portion after 
-\family typewriter 
+\family typewriter
 ;;
-\family default 
+\family default
  is all taken to be the body of the component's single function.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Component 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Personality
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If a component has any pins or parameters with an 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 if 
-\emph on 
+\emph on
 condition
-\emph default 
+\emph default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  or 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 [
-\emph on 
+\emph on
 maxsize : condsize
-\emph default 
+\emph default
 ]
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , it is called a component with 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\emph on 
+\emph on
 personality
-\emph default 
+\emph default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 .
  The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 personality
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  of each instance is specified when the module is loaded.
  
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Personality
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  can be used to create pins only when needed.
  For instance, personality is used in the 
-\family typewriter 
+\family typewriter
 logic
-\family default 
+\family default
  component, to allow for a variable number of input pins to each logic gate
  and to allow for a selection of any of the basic boolean logic functions
  
-\series bold 
+\series bold
 and
-\series default 
+\series default
 , 
-\series bold 
+\series bold
 or
-\series default 
+\series default
 , and 
-\series bold 
+\series bold
 xor
-\series default 
+\series default
 .
-\layout Section
+\end_layout
 
+\begin_layout Section
 Compiling 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  files in the source tree
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Place the 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  file in the source directory 
-\family typewriter 
+\family typewriter
 emc2/src/hal/components
-\family default 
+\family default
  and re-run 
-\family typewriter 
+\family typewriter
 make
-\family default 
+\family default
 .
  
-\family typewriter 
+\family typewriter
 Comp
-\family default 
+\family default
  files are automatically detected by the build system.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If a 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  file is a driver for hardware, it may be placed in 
-\family typewriter 
+\family typewriter
 emc2/src/hal/components
-\family default 
+\family default
  and will be built except if emc2 is configured as a userspace simulator.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Compiling realtime components outside the source tree
-\begin_inset LatexCommand \label{sec:Compiling-realtime-components}
+\begin_inset LatexCommand label
+name "sec:Compiling-realtime-components"
 
-\end_inset 
-
-
-\layout Standard
+\end_inset
 
 
-\family typewriter 
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
 comp
-\family default 
+\family default
  can process, compile, and install a realtime component in a single step,
  placing 
-\family typewriter 
+\family typewriter
 rtexample.ko
-\family default 
+\family default
  in the emc2 realtime module directory:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp --install rtexample.comp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Or, it can process and compile in one step, leaving 
-\family typewriter 
+\family typewriter
 example.ko
-\family default 
+\family default
  (or 
-\family typewriter 
+\family typewriter
 example.so
-\family default 
+\family default
  for the simulator) in the current directory:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp --compile rtexample.comp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Or it can simply process, leaving 
-\family typewriter 
+\family typewriter
 example.c
-\family default 
+\family default
  in the current directory:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp rtexample.comp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\family typewriter 
+\family typewriter
 comp
-\family default 
+\family default
  can also compile and install a component written in C, using the 
-\family typewriter 
+\family typewriter
 --install
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 --compile
-\family default 
+\family default
  options shown above:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp --install rtexample2.c
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 man-format documentation can also be created from the information in the
  declaration section:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp --document rtexample.comp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The resulting manpage, 
-\family typewriter 
+\family typewriter
 example.9
-\family default 
+\family default
  can be viewed with
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 man ./example.9
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 or copied to a standard location for manual pages.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Compiling userspace components outside the source tree
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\family typewriter 
+\family typewriter
 comp
-\family default 
+\family default
  can process, compile, install, and document userspace components:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 comp usrexample.comp
-\newline 
+\newline
 comp --compile usrexample.comp
-\newline 
+\newline
 comp --install usrexample.comp
-\newline 
-comp --document usrexample.comp
-\layout Standard
+\newline
+com
+p --document usrexample.comp
+\end_layout
 
+\begin_layout Standard
 This only works for 
-\family typewriter 
+\family typewriter
 .comp
-\family default 
+\family default
  files, not for 
-\family typewriter 
+\family typewriter
 .c
-\family default 
+\family default
  files.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Examples
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 constant
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This component functions like the one in 'blocks', including the default
  value of 1.0.
  The declaration 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 function _
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  creates functions named 'constant.0', etc.
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 component constant;
-\newline 
+\newline
 pin out float out;
-\newline 
+\newline
 param r float value = 1.0;
-\newline 
+\newline
 function _;
-\newline 
-license "GPL";
-\newline 
+\newline
+license
+ "GPL";
+\newline
 ;;
-\newline 
+\newline
 FUNCTION(_) { out = value; }
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 sincos
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This component computes the sine and cosine of an input angle in radians.
  It has different capabilities than the 'sine' and 'cosine' outputs of siggen,
  because the input is an angle, rather than running freely based on a 'frequency
 ' parameter.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The pins are declared with the names 
-\family typewriter 
+\family typewriter
 sin_
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 cos_
-\family default 
+\family default
  in the source code so that they do not interfere with the functions 
-\family typewriter 
+\family typewriter
 sin()
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 cos()
-\family default 
+\family default
 .
  The HAL pins are still called 
-\family typewriter 
+\family typewriter
 sincos.<num>.sin
-\family default 
+\family default
 .
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 component sincos;
-\newline 
+\newline
 pin out float sin_;
-\newline 
+\newline
 pin out float cos_;
-\newline 
+\newline
 pin in float theta;
-\newline 
-function _;
-\newline 
+\newline
+functi
+on _;
+\newline
 license "GPL";
-\newline 
+\newline
 ;;
-\newline 
+\newline
 #include <rtapi_math.h>
-\newline 
-FUNCTION(_) { sin_ = sin(theta); cos_ = cos(theta); }
-\layout Subsection
+\newline
+FUNCTION(_) { sin_ = sin(theta);
+ cos_ = cos(theta); }
+\end_layout
 
+\begin_layout Subsection
 out8
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This component is a driver for a 
-\emph on 
+\emph on
 fictional
-\emph default 
+\emph default
  card called 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 out8
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , which has 8 pins of digital output which are treated as a single 8-bit
  value.
  There can be a varying number of such cards in the system, and they can
  be at various addresses.
  The pin is called 
-\family typewriter 
+\family typewriter
 out_
-\family default 
+\family default
  because 
-\family typewriter 
+\family typewriter
 out
-\family default 
+\family default
  is an identifier used in 
-\family typewriter 
+\family typewriter
 <asm/io.h>
-\family default 
+\family default
 .
  It illustrates the use of 
-\family typewriter 
+\family typewriter
 EXTRA_SETUP
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 EXTRA_CLEANUP
-\family default 
+\family default
  to request an I/O region and then free it in case of error or when the
  module is unloaded.
-\layout LyX-Code
+\end_layout
 
-
+\begin_layout LyX-Code
 \begin_inset Include \verbatiminput{out8.comp}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 hal_loop
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 component hal_loop;
-\newline 
+\newline
 pin out float example;
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This fragment of a component illustrates the use of the 
-\family typewriter 
+\family typewriter
 hal_
-\family default 
+\family default
  prefix in a component name.
  
-\family typewriter 
+\family typewriter
 loop
-\family default 
+\family default
  is the name of a standard Linux kernel module, so a 
-\family typewriter 
+\family typewriter
 loop
-\family default 
+\family default
  component might not successfully load if the Linux 
-\family typewriter 
+\family typewriter
 loop
-\family default 
+\family default
  module was also present on the system.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When loaded, 
-\family typewriter 
+\family typewriter
 halcmd show comp
-\family default 
+\family default
  will show a component called 
-\family typewriter 
+\family typewriter
 hal_loop
-\family default 
+\family default
 .
  However, the pin shown by 
-\family typewriter 
+\family typewriter
 halcmd show pin
-\family default 
+\family default
  will be 
-\family typewriter 
+\family typewriter
 loop.0.example
-\family default 
+\family default
 , not 
-\family typewriter 
+\family typewriter
 hal-loop.0.example
-\family default 
+\family default
 .
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 arraydemo
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This realtime component illustrates use of fixed-size arrays:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 component arraydemo "4-bit Shift register";
-\newline 
+\newline
 pin in bit in;
-\newline 
-pin out bit out-# [4];
-\newline 
+\newline
+pin out bit out-#
+ [4];
+\newline
 function _ nofp;
-\newline 
+\newline
 license "GPL";
-\newline 
+\newline
 ;;
-\newline 
+\newline
 int i; 
-\newline 
-for(i=3; i>0; i--) out(i) = out(i-1); 
-\newline 
+\newline
+for(i=3; i>0; i--) out(i) =
+ out(i-1); 
+\newline
 out(0) = in;
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 rand
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This userspace component changes the value on its output pin to a new random
  value in the range 
 \begin_inset Formula $[0,1)$
-\end_inset 
+\end_inset
 
  about once every 1ms.
-\layout LyX-Code
+\end_layout
 
-
+\begin_layout LyX-Code
 \begin_inset Include \verbatiminput{rand.comp}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 logic
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This realtime component shows how to use 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 personality
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  to create variable-size arrays and optional pins.
-\layout LyX-Code
+\end_layout
 
-
+\begin_layout LyX-Code
 \begin_inset Include \verbatiminput{../../../src/hal/components/logic.comp}
 preview false
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A typical load line for this component might be
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt logic count=3 personality=0x102,0x305,0x503
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 which creates the following pins:
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00, logic.1.in-01,
  logic.1.in-02, logic.1.in-03, logic.1.in-04, 
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00, logic.2.in-01,
  logic.2.in-02
-\the_end
+\end_layout
+
+\end_body
+\end_document

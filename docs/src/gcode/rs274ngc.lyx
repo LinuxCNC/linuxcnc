@@ -1,60 +1,80 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 RS274NGC
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Differences that change the meaning of RS274NGC programs
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 Location after a tool change
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In EMC2, the machine does not return to its original position after a tool
  change.
  This change was made because the new tool might be longer than the old
  tool, and the move to the original machine position could therefore leave
  the tool tip too low.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 Offset parameters are inifile units
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In EMC2, the values stored in parameters for the G28 and G30 home locations,
  the P1...P9 coordinate systems, and the G92 offset are in "inifile units".
  This change was made because otherwise the meaning of a location changed
  depending on whether G20 or G21 was active when G28, G30, G10 L2, or G92.3
  is programmed.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 Tool table lengths/diameters are in inifile units
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In EMC2, the tool lengths (offsets) and diameters in the tool table are
  specified in inifile units only.
  This change was made because otherwise the length of a tool and its diameter
@@ -64,122 +84,158 @@ In EMC2, the tool lengths (offsets) and diameters in the tool table are
  even when the gcode was simple and well-formed (starting with G20 or G21,
  and didn't change units throughout the program), without changing the tool
  table.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G84, G87 not implemented
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G84 and G87 are not currently implemented, but may be added to a future
  release of EMC2.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G28, G30 with axis words
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When G28 or G30 is programmed with only some axis words present, EMC2 only
  moves the named axes.
  This is common on other machine controls.
  To move some axes to an intermediate point and then move all axes to the
  predefined point, write two lines of gcode:
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G0 X- Y- (axes to move to intermediate point) G28 (move all axes to predefined
  point)
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 M62, M63 not implemented
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 M62 and M63 are not currently implemented, but may be added to a future
  release of EMC2.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Differences that do not change the meaning of RS274NGC programs
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G33, G76 threading codes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These codes are not defined in RS274NGC.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G38.2
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The probe tip is not retracted after a G38.2 movement.
  This retraction move may be added in a future release of EMC2.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G38.3...G38.5
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These codes are not defined in RS274NGC
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 O-codes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These codes are not defined in RS274NGC
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 M50...M53 overrides
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These codes are not defined in RS274NGC
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 M61..M66
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These codes are not defined in RS274NGC
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G43, G43.1
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Negative Tool Lengths
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The RS274NGC spec says "it is expected that" all tool lengths will be positive.
  However, G43 works for negative tool lengths.
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Lathe tools
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G43 tool length compensation can offset the tool in both the X and Z dimensions.
  This feature is primarily useful on lathes.
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Dynamic tool lengths
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 allows specification of a computed tool length through G43.1 I K.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G41.1, G42.1
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 allows specification of a tool diameter and, if in lathe mode, orientation
  in the gcode.
  The format is G41.1/G42.1 D L, where D is diameter and L (if specified) is
  the lathe tool orientation.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 G43 without H word
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In ngc, this is not allowed.
  In EMC2, it sets length offsets for the currently loaded tool.
  If no tool is currently loaded, it is an error.
  This change was made so the user doesn't have to specify the tool number
  in two places for each tool change, and because it's consistent with the
  way G41/G42 work when the D word is not specified.
-\layout Subsection*
+\end_layout
 
+\begin_layout Subsection*
 U, V, and W axes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 allows machines with up to 9 axes by defining an additional set of
  3 linear axes known as U, V and W
-\the_end
+\end_layout
+
+\end_body
+\end_document

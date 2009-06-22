@@ -1,19 +1,28 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !!h
 \paperfontsize 10
-\spacing single 
-\papersize Custom
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize custom
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \paperwidth 8.5in
 \paperheight 11in
@@ -26,54 +35,62 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 G Code Overview
-\begin_inset LatexCommand \label{cha:Language-Overview}
+\begin_inset LatexCommand label
+name "cha:Language-Overview"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC2 G Code language is based on the RS274/NGC language.
  The G Code language is based on lines of code.
  Each line (also called a "block") may include commands to do several different
  things.
  Lines of code may be collected in a file to make a program.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A typical line of code consists of an optional line number at the beginning
  followed by one or more "words".
  A word consists of a letter followed by a number (or something that evaluates
  to a number).
  A word may either give a command or provide an argument to a command.
  For example, "
-\family typewriter 
+\family typewriter
 G1 X3
-\family default 
+\family default
 " is a valid line of code with two words.
  "
-\family typewriter 
+\family typewriter
 G1
-\family default 
+\family default
 " is a command meaning "move in a straight line at the programmed feed rate
  to the programmed end point", and "
-\family typewriter 
+\family typewriter
 X3
-\family default 
+\family default
 " provides an argument value (the value of X should be 3 at the end of the
  move).
  Most EMC2 G Code commands start with either G or M (for General and Miscellaneo
 us).
  The words for these commands are called "G codes" and "M codes."
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC2 language has no indicator for the start of a program.
  The Interpreter, however, deals with files.
  A single program may be in a single file, or a program may be spread across
@@ -83,94 +100,108 @@ The EMC2 language has no indicator for the start of a program.
  "%", possibly surrounded by white space, and later in the file (normally
  at the end of the file) there may be a similar line.
  Demarcating a file with percents is optional if the file has an 
-\family typewriter 
+\family typewriter
 M2
-\family default 
+\family default
  or 
-\family typewriter 
+\family typewriter
 M30
-\family default 
+\family default
  in it, but is required if not.
  An error will be signalled if a file has a percent line at the beginning
  but not at the end.
  The useful contents of a file demarcated by percents stop after the second
  percent line.
  Anything after that is ignored.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC2 G Code language has two commands (
-\family typewriter 
+\family typewriter
 M2
-\family default 
+\family default
  or 
-\family typewriter 
+\family typewriter
 M30
-\family default 
+\family default
 ), either of which ends a program.
  A program may end before the end of a file.
  Lines of a file that occur after the end of a program are not to be executed.
  The interpreter does not even read them.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Format of a line
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A permissible line of input code consists of the following, in order, with
  the restriction that there is a maximum (currently 256) to the number of
  characters allowed on a line.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 an optional block delete character, which is a slash "/" .
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 an optional line number.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 any number of words, parameter settings, and comments.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 an end of line marker (carriage return or line feed or both).
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Any input not explicitly allowed is illegal and will cause the Interpreter
  to signal an error.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Spaces and tabs are allowed anywhere on a line of code and do not change
  the meaning of the line, except inside comments.
  This makes some strange-looking input legal.
  The line "
-\family typewriter 
+\family typewriter
 G0X +0.
  12 34Y 7
-\family default 
+\family default
 " is equivalent to "
-\family typewriter 
+\family typewriter
 G0 x+0.1234 Y7
-\family default 
+\family default
 ", for example.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Blank lines are allowed in the input.
  They are to be ignored.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Input is case insensitive, except in comments, i.e., any letter outside a
  comment may be in upper or lower case without changing the meaning of a
  line.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Line Number
-\begin_inset LatexCommand \index{Line Number}
+\begin_inset LatexCommand index
+name "Line Number"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A line number is the letter N followed by an integer (with no sign) between
  0 and 99999 written with no more than five digits (000009 is not OK, for
  example).
@@ -179,23 +210,28 @@ A line number is the letter N followed by an integer (with no sign) between
  Line numbers may also be skipped, and that is normal practice.
  A line number is not required to be used, but must be in the proper place
  if used.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Word
-\begin_inset LatexCommand \index{Word}
+\begin_inset LatexCommand index
+name "Word"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A word is a letter other than N followed by a real value.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Words may begin with any of the letters shown in Table 
-\begin_inset LatexCommand \ref{cap:Words-and-their}
+\begin_inset LatexCommand ref
+reference "cap:Words-and-their"
 
-\end_inset 
+\end_inset
 
 .
  The table includes N for completeness, even though, as defined above, line
@@ -204,26 +240,36 @@ Words may begin with any of the letters shown in Table
  contexts.
  Letters which refer to axis names are not valid on a machine which does
  not have the corresponding axis.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Words and their meanings
-\begin_inset LatexCommand \label{cap:Words-and-their}
+\begin_inset LatexCommand label
+name "cap:Words-and-their"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="26" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -232,527 +278,594 @@ Words and their meanings
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Letter
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Meaning
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 A
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 A axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 B
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 B axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 C
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 C axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 D
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tool radius compensation number
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 F
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Feed rate
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 General function (See table 
-\begin_inset LatexCommand \ref{cap:Modal-Groups}
+\begin_inset LatexCommand ref
+reference "cap:Modal-Groups"
 
-\end_inset 
+\end_inset
 
 )
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 H
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tool length offset index
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 I
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 X offset for arcs and G87 canned cycles
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 J
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Y offset for arcs and G87 canned cycles
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 K
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Z offset for arcs and G87 canned cycles.
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Spindle-Motion Ratio for G33 synchronized movements.
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Miscellaneous function (See table 
-\begin_inset LatexCommand \ref{cap:Modal-Groups}
+\begin_inset LatexCommand ref
+reference "cap:Modal-Groups"
 
-\end_inset 
+\end_inset
 
 )
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 N
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Line number
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 P
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Dwell time in canned cycles and with G4.
  
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Key used with G10.
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Q
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Feed increment in G73, G83 canned cycles
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 R
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Arc radius or canned cycle plane
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 S
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Spindle speed
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 T
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tool selection
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 U
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 U axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 V
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 V axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 W
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 W axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 X
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 X axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Y
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Y axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Z
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Z axis of machine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Number
-\begin_inset LatexCommand \label{sub:Number}
+\begin_inset LatexCommand label
+name "sub:Number"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The following rules are used for (explicit) numbers.
  In these rules a digit is a single character between 0 and 9.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 A number consists of (1) an optional plus or minus sign, followed by (2)
  zero to many digits, followed, possibly, by (3) one decimal point, followed
  by (4) zero to many digits - provided that there is at least one digit
  somewhere in the number.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 There are two kinds of numbers: integers and decimals.
  An integer does not have a decimal point in it; a decimal does.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Numbers may have any number of digits, subject to the limitation on line
  length.
  Only about seventeen significant figures will be retained, however (enough
  for all known applications).
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 A non-zero number with no sign as the first character is assumed to be positive.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Notice that initial (before the decimal point and the first non-zero digit)
  and trailing (after the decimal point and the last non-zero digit) zeros
  are allowed but not required.
  A number written with initial or trailing zeros will have the same value
  when it is read as if the extra zeros were not there.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Numbers used for specific purposes in RS274/NGC are often restricted to
  some finite set of values or some to some range of values.
  In many uses, decimal numbers must be close to integers; this includes
@@ -761,172 +874,196 @@ Numbers used for specific purposes in RS274/NGC are often restricted to
  A decimal number which is supposed be close to an integer is considered
  close enough if it is within 0.0001 of an integer.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Numbered Parameters
-\begin_inset LatexCommand \label{sub:Numbered-Parameters}
+\begin_inset LatexCommand label
+name "sub:Numbered-Parameters"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A numbered parameter is the pound character 
-\family typewriter 
+\family typewriter
 #
-\family default 
+\family default
  followed by an integer between 1 and 5399.
  The parameter is referred to by this integer, and its value is whatever
  number is stored in the parameter.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A value is stored in a parameter with the = operator; for example "
-\family typewriter 
+\family typewriter
 #3 = 15
-\family default 
+\family default
 " means "set parameter 3 to 15." A parameter setting does not take effect
  until after all parameter values on the same line have been found.
  For example, if parameter 3 has been previously set to 15 and the line
  "
-\family typewriter 
+\family typewriter
 #3=6 G1 x#3
-\family default 
+\family default
 " is interpreted, a straight move to a point where x equals 15 will occur
  and the value of parameter 3 will be 6.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
-\family typewriter 
+\family typewriter
 #
-\family default 
+\family default
  character takes precedence over other operations, so that, for example,
  "
-\family typewriter 
+\family typewriter
 #1+2
-\family default 
+\family default
 " means the number found by adding 2 to the value of parameter 1, not the
  value found in parameter 3.
  Of course, 
-\family typewriter 
+\family typewriter
 #[1+2]
-\family default 
+\family default
  does mean the value found in parameter 3.
  The 
-\family typewriter 
+\family typewriter
 #
-\family default 
+\family default
  character may be repeated; for example 
-\family typewriter 
+\family typewriter
 ##2
-\family default 
+\family default
  means the value of the parameter whose index is the (integer) value of
  parameter 2.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Named Parameters
-\begin_inset LatexCommand \label{sub:Named-Parameters}
+\begin_inset LatexCommand label
+name "sub:Named-Parameters"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Named parameters work like numbered parameters but are easier to read.
  All parameter names are converted to lower case and have spaces and tabs
  removed.
  Named parameters must be enclosed with 
-\family typewriter 
+\family typewriter
 < >
-\family default 
+\family default
  marks.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\family typewriter 
+\family typewriter
 #<named parameter here>
-\family default 
+\family default
  is a local named parameter.
  By default, a named parameter is local to the scope in which it is assigned.
  You can't access a local parameter outside of its subroutine - this is
  so that two subroutines can use the same parameter names without fear of
  one subroutine overwriting the values in another.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\family typewriter 
+\family typewriter
 #<_global named parameter here>
-\family default 
+\family default
  is a global named parameter.
  They are accessible from within called subroutines and may set values within
  subroutines that are accessible to the caller.
  As far as scope is concerned, they act just like regular numeric parameters.
  They are not stored in files.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Examples: 
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Declaration of named global variable
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 
-\family typewriter 
+\family typewriter
 #<_endmill_dia> = 0.049
-\family default 
+\family default
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Reference to previously declared global variable
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 
-\family typewriter 
+\family typewriter
 #<_endmill_rad> = [#<_endmill_dia>/2.0]
-\family default 
+\family default
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Mixed literal and named parameters
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 
-\family typewriter 
+\family typewriter
 o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>
 ]
-\layout Standard
+\end_layout
 
-\layout Standard
+\begin_layout Standard
 
+\end_layout
+
+\begin_layout Standard
 Notes: 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The global parameters _a, _b, _c, ...
  _z have been reserved for special use.
  In the future, they may provide access to the last Aword, Bword, Cword,
  etc.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Expressions
-\begin_inset LatexCommand \label{sub:Expressions}
+\begin_inset LatexCommand label
+name "sub:Expressions"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 An expression is a set of characters starting with a left bracket 
-\family typewriter 
+\family typewriter
 [
-\family default 
+\family default
  and ending with a balancing right bracket 
-\family typewriter 
+\family typewriter
 ]
-\family default 
+\family default
 .
  In between the brackets are numbers, parameter values, mathematical operations,
  and other expressions.
@@ -934,158 +1071,175 @@ An expression is a set of characters starting with a left bracket
  The expressions on a line are evaluated when the line is read, before anything
  on the line is executed.
  An example of an expression is 
-\family typewriter 
+\family typewriter
 [1 + acos[0] - [#3 ** [4.0/2]]]
-\family default 
+\family default
 .
-\layout Section
+\end_layout
 
+\begin_layout Section
 Binary Operators
-\begin_inset LatexCommand \label{sub:Binary-Operators}
+\begin_inset LatexCommand label
+name "sub:Binary-Operators"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Binary operators only appear inside expressions.
  There are four basic mathematical operations: addition (
-\family typewriter 
+\family typewriter
 +
-\family default 
+\family default
 ), subtraction (
-\family typewriter 
+\family typewriter
 -
-\family default 
+\family default
 ), multiplication (
-\family typewriter 
+\family typewriter
 *
-\family default 
+\family default
 ), and division (
-\family typewriter 
+\family typewriter
 /
-\family default 
+\family default
 ).
  There are three logical operations: non-exclusive or (
-\family typewriter 
+\family typewriter
 OR
-\family default 
+\family default
 ), exclusive or (
-\family typewriter 
+\family typewriter
 XOR
-\family default 
+\family default
 ), and logical and (
-\family typewriter 
+\family typewriter
 AND
-\family default 
+\family default
 ).
  The eighth operation is the modulus operation (
-\family typewriter 
+\family typewriter
 MOD
-\family default 
+\family default
 ).
  The ninth operation is the "power" operation (
-\family typewriter 
+\family typewriter
 **
-\family default 
+\family default
 ) of raising the number on the left of the operation to the power on the
  right.
  The relational operators are equality (
-\family typewriter 
+\family typewriter
 EQ
-\family default 
+\family default
 ), inequality (
-\family typewriter 
+\family typewriter
 NE
-\family default 
+\family default
 ), strictly greater than (
-\family typewriter 
+\family typewriter
 GT
-\family default 
+\family default
 ), greater than or equal to (
-\family typewriter 
+\family typewriter
 GE
-\family default 
+\family default
 ), strictly less than (
-\family typewriter 
+\family typewriter
 LT
-\family default 
+\family default
 ), and less than or equal to (
-\family typewriter 
+\family typewriter
 LE
-\family default 
+\family default
 ).
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The binary operations are divided into several groups according to their
  precedence.
  (see table 
-\begin_inset LatexCommand \ref{cap:Operator-Precedence}
+\begin_inset LatexCommand ref
+reference "cap:Operator-Precedence"
 
-\end_inset 
+\end_inset
 
 ) If operations in different precedence groups are strung together (for
  example in the expression 
-\family typewriter 
+\family typewriter
 [2.0 / 3 * 1.5 - 5.5 / 11.0]
-\family default 
+\family default
 ), operations in a higher group are to be performed before operations in
  a lower group.
  If an expression contains more than one operation from the same group (such
  as the first 
-\family typewriter 
+\family typewriter
 /
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 *
-\family default 
+\family default
  in the example), the operation on the left is performed first.
  Thus, the example is equivalent to: 
-\family typewriter 
+\family typewriter
 [[[2.0 / 3] * 1.5] - [5.5 / 11.0]]
-\family default 
+\family default
  , which is equivalent to to 
-\family typewriter 
+\family typewriter
 [1.0 - 0.5]
-\family default 
+\family default
  , which is 
-\family typewriter 
+\family typewriter
 0.5
-\family default 
+\family default
 .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The logical operations and modulus are to be performed on any real numbers,
  not just on integers.
  The number zero is equivalent to logical false, and any non-zero number
  is equivalent to logical true.
  
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Operator Precedence
-\begin_inset LatexCommand \label{cap:Operator-Precedence}
+\begin_inset LatexCommand label
+name "cap:Operator-Precedence"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{operator precedence}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\begin_inset LatexCommand index
+name "operator precedence"
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -1094,226 +1248,258 @@ Operator Precedence
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Operators
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Precedence
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 **
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-
-\emph on 
+\emph on
 highest
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 * / MOD
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 + -
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 EQ NE GT GE LT LE
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 AND OR XOR
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-
-\emph on 
+\emph on
 lowest
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Functions
-\begin_inset LatexCommand \label{sub:Unary-Operation-Value}
+\begin_inset LatexCommand label
+name "sub:Unary-Operation-Value"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A function is either "
-\family typewriter 
+\family typewriter
 ATAN
-\family default 
+\family default
 " followed by one expression divided by another expression (for example
  "
-\family typewriter 
+\family typewriter
 ATAN[2]/[1+3]
-\family default 
+\family default
 ") or any other function name followed by an expression (for example "
-\family typewriter 
+\family typewriter
 SIN[90]
-\family default 
+\family default
 ").
  The available functions are shown in table 
-\begin_inset LatexCommand \ref{cap:Functions}
+\begin_inset LatexCommand ref
+reference "cap:Functions"
 
-\end_inset 
+\end_inset
 
 .
  Arguments to unary operations which take angle measures (
-\family typewriter 
+\family typewriter
 COS
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 SIN
-\family default 
+\family default
 , and 
-\family typewriter 
+\family typewriter
 TAN
-\family default 
+\family default
 ) are in degrees.
  Values returned by unary operations which return angle measures (
-\family typewriter 
+\family typewriter
 ACOS
-\family default 
+\family default
 , 
-\family typewriter 
+\family typewriter
 ASIN
-\family default 
+\family default
 , and 
-\family typewriter 
+\family typewriter
 ATAN
-\family default 
+\family default
 ) are also in degrees.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
-\family typewriter 
+\family typewriter
 FIX
-\family default 
+\family default
  operation rounds towards the left (less positive or more negative) on a
  number line, so that 
-\family typewriter 
+\family typewriter
 FIX[2.8] =2
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 FIX[-2.8] = -3
-\family default 
+\family default
 , for example.
  The 
-\family typewriter 
+\family typewriter
 FUP
-\family default 
+\family default
  operation rounds towards the right (more positive or less negative) on
  a number line; 
-\family typewriter 
+\family typewriter
 FUP[2.8] = 3
-\family default 
+\family default
  and 
-\family typewriter 
+\family typewriter
 FUP[-2.8] = -2
-\family default 
+\family default
 , for example.
  
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Functions
-\begin_inset LatexCommand \label{cap:Functions}
+\begin_inset LatexCommand label
+name "cap:Functions"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="14" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -1322,387 +1508,434 @@ Functions
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Function Name
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Function result
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ATAN[Y]/[X]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Four quadrant inverse tangent
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ABS[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Absolute value
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ACOS[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Inverse cosine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ASIN[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Inverse sine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 COS[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Cosine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 EXP[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 e raised to the given power
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FIX[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Round down to integer
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FUP[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Round up to integer
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ROUND[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Round to nearest integer
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 LN[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Base-e logarithm
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 SIN[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Sine
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 SQRT[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Square Root
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 TAN[arg]
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tangent
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
-\layout Section
+\begin_layout Standard
 
+\end_layout
+
+\begin_layout Section
 Repeated Items
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A line may have any number of G words, but two G words from the same modal
  group (see Section 
-\begin_inset LatexCommand \ref{sec:Modal-Groups}
+\begin_inset LatexCommand ref
+reference "sec:Modal-Groups"
 
-\end_inset 
+\end_inset
 
 ) may not appear on the same line.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A line may have zero to four M words.
  Two M words from the same modal group may not appear on the same line.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For all other legal letters, a line may have only one word beginning with
  that letter.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If a parameter setting of the same parameter is repeated on a line, "
-\family typewriter 
+\family typewriter
 #3=15 #3=6
-\family default 
+\family default
 ", for example, only the last setting will take effect.
  It is silly, but not illegal, to set the same parameter twice on the same
  line.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If more than one comment appears on a line, only the last one will be used;
  each of the other comments will be read and its format will be checked,
  but it will be ignored thereafter.
  It is expected that putting more than one comment on a line will be very
  rare.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Item order
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The three types of item whose order may vary on a line (as given at the
  beginning of this section) are word, parameter setting, and comment.
  Imagine that these three types of item are divided into three groups by
  type.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The first group (the words) may be reordered in any way without changing
  the meaning of the line.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If the second group (the parameter settings) is reordered, there will be
  no change in the meaning of the line unless the same parameter is set more
  than once.
  In this case, only the last setting of the parameter will take effect.
  For example, after the line 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 #3=15 #3=6
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  has been interpreted, the value of parameter 3 will be 6.
  If the order is reversed to 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 #3=6 #3=15
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  and the line is interpreted, the value of parameter 3 will be 15.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If the third group (the comments) contains more than one comment and is
  reordered, only the last comment will be used.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If each group is kept in order or reordered without changing the meaning
  of the line, then the three groups may be interleaved in any way without
  changing the meaning of the line.
  For example, the line 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 g40 g1 #3=15 (foo) #4=-7.0
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  has five items and means exactly the same thing in any of the 120 possible
  orders (such as 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 #4=-7.0 g1 #3=15 g40 (foo)
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 ) for the five items.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Commands and Machine Modes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Many commands cause the controller to change from one mode to another, and
  the mode stays active until some other command changes it implicitly or
  explicitly.
@@ -1714,26 +1947,31 @@ Many commands cause the controller to change from one mode to another, and
  be executed again on the next line if one or more axis words is available
  on the line, unless an explicit command is given on that next line using
  the axis words or cancelling motion.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 "Non-modal" codes have effect only on the lines on which they occur.
  For example, G4 (dwell) is non-modal.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Modal Groups
-\begin_inset LatexCommand \index{Modal Groups}
+\begin_inset LatexCommand index
+name "Modal Groups"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Modal-Groups}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sec:Modal-Groups"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Modal commands are arranged in sets called "modal groups", and only one
  member of a modal group may be in force at any given time.
  In general, a modal group contains commands for which it is logically impossibl
@@ -1743,31 +1981,42 @@ e for two members to be in effect at the same time - like measure in inches
  A machining center may be in many modes at the same time, with one mode
  from each modal group being in effect.
  The modal groups are shown in Table 
-\begin_inset LatexCommand \ref{cap:Modal-Groups}
+\begin_inset LatexCommand ref
+reference "cap:Modal-Groups"
 
-\end_inset 
+\end_inset
 
 .
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Modal Groups
-\begin_inset LatexCommand \label{cap:Modal-Groups}
+\begin_inset LatexCommand label
+name "cap:Modal-Groups"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
@@ -1776,442 +2025,498 @@ Modal Groups
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Modal Group Meaning
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Member Words
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Motion ("Group 1")
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G0 G1 G2 G3 G33 G38.x G73 G76 G80 G81
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G82 G83 G84 G85 G86 G87 G88 G89
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Plane selection
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G17, G18, G19
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Diameter / Radius for lathes
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G7, G8
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Distance Mode
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G90, G91
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Feed Rate Mode
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G93, G94
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Units
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G20, G21
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Cutter Radius Compensation
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G40, G41, G42, G41.1, G42.1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tool Length Offset
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G43, G43.1, G49
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Return Mode in Canned Cycles
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G98, G99
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System Selection
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G54, G55, G56, G57, G58
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G59, G59.1, G59.2, G59.3
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Stopping
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M0, M1, M2, M30, M60
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Tool Change
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M6 Tn
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Spindle Turning
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M3, M4, M5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coolant
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M7, M8, M9.
  Special case:
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M7 and M8 may be active at the same time
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Override Switches
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M48, M49
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Flow Control
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 O-
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Non-modal codes (
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Group 0
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 )
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G4, G10 G28, G30, G53
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G92, G92.1, G92.2, G92.3
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 M100 to M199
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For several modal groups, when a machining center is ready to accept commands,
  one member of the group must be in effect.
  There are default settings for these modal groups.
  When the machining center is turned on or otherwise re-initialized, the
  default values are automatically in effect.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Group 1, the first group on the table, is a group of G codes for motion.
  One of these is always in effect.
  That one is called the current motion mode.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 It is an error to put a G-code from group 1 and a G-code from group 0 on
  the same line if both of them use axis words.
  If an axis word-using G-code from group 1 is implicitly in effect on a
@@ -2220,230 +2525,286 @@ It is an error to put a G-code from group 1 and a G-code from group 0 on
  is suspended for that line.
  The axis word-using G-codes from group 0 are G10, G28, G30, and G92.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 It is an error to include any unrelated words on a line with 
-\family typewriter 
+\family typewriter
 O-
-\family default 
+\family default
  flow control.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Comments
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Comments can be added to lines of G code to help clear up the intention
  of the programmer.
  Comments can be embedded in a line using parentheses () or for the remainder
  of a line using a semi-colon.
  The semi-colon is not treated as the start of a comment when enclosed in
  parentheses.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 G0 (Rapid to start) X1 Y1
-\newline 
-G0 X1 Y1 (Rapid to start; but don't forget the coolant)
-\newline 
+\newline
+G0 X1 Y1 (Rapid to start; but don't forget the
+ coolant)
+\newline
 M2 ; End of program.
-\layout Chapter
+\end_layout
 
+\begin_layout Chapter
 Order of Execution
-\begin_inset LatexCommand \index{G Code Order of Execution}
+\begin_inset LatexCommand index
+name "G Code Order of Execution"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Order-of-Execution}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sec:Order-of-Execution"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The order of execution of items on a line is defined not by the position
  of each item on the line, but by the following list:
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Comment (including message)
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set feed rate mode (G93, G94).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set feed rate (F).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set spindle speed (S).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Select tool (T).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Change tool (M6).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Spindle on or off (M3, M4, M5).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Coolant on or off (M7, M8, M9).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Enable or disable overrides (M48, M49).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Dwell (G4).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set active plane (G17, G18, G19).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set length units (G20, G21).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Cutter radius compensation on or off (G40, G41, G42) 
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Cutter length compensation on or off (G43, G49) 
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Coordinate system selection (G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set path control mode (G61, G61.1, G64)
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set distance mode (G90, G91).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Set retract mode (G98, G99).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Go to reference location (G28, G30) or change coordinate system data (G10)
  or set axis offsets (G92, G92.1, G92.2, G94).
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Perform motion (G0 to G3, G33, G73, G76, G80 to G89), as modified (possibly)
  by G53.
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Stop (M0, M1, M2, M30, M60).
-\layout Chapter
+\end_layout
 
+\begin_layout Chapter
 G Code Best Practices
-\begin_inset LatexCommand \index{G Code Best Practices}
+\begin_inset LatexCommand index
+name "G Code Best Practices"
 
-\end_inset 
+\end_inset
 
 
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Use an appropriate decimal precision
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Use at least 3 digits after the decimal when milling in millimeters, and
  at least 4 digits after the decimal when milling in inches.
  In particular, arc tolerance checks are made to .001 and .0001 depending
  on the active units.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Use consistent white space
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G-code is most legible when at least one space appears before words.
  While it is permitted to insert white space in the middle of numbers, there
  is no reason to do so.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Use "Center-format" arcs
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Center-format arcs (which use 
-\family typewriter 
+\family typewriter
 I- J- K-
-\family default 
+\family default
  instead of 
-\family typewriter 
+\family typewriter
 R-
-\family default 
+\family default
 ) behave more consistently than R-format arcs, particularly for included
  angles near 180 or 360 degrees.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Put important modal settings at the top of the file
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When correct execution of your program depends on modal settings, be sure
  to set them at the beginning of the part program.
  Modes can carry over from previous programs and from the MDI commands.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 As a good preventative measure, put a line similar to the following at the
  top of all your programs:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 G17 G20 G40 G49 G54 G80 G90 G94 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 (XY plane, inch mode, cancel diameter compensation, cancel length offset,
  coordinate system 1, cancel motion, non-incremental motion, feed/minute
  mode)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Perhaps the most critical modal setting is the distance units--If you do
  not include G20 or G21, then different machines will mill the program at
  different scales.
  Other settings, such as the return mode in canned cycles may also be important.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Don't put too many things on one line
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Ignore everything in Section 
-\begin_inset LatexCommand \ref{sec:Order-of-Execution}
+\begin_inset LatexCommand ref
+reference "sec:Order-of-Execution"
 
-\end_inset 
+\end_inset
 
 , and instead write no line of code that is the slightest bit ambiguous.
  
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Don't set & use a parameter on the same line
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Don't use and set a parameter on the same line, even though the semantics
  are well defined.
  Updating a variable to a new value, such as 
-\family typewriter 
+\family typewriter
 #1=[#1+#2
-\family default 
+\family default
 ] is ok.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 Don't use line numbers
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Line numbers offer no benefits.
  When line numbers are reported in error messages, the numbers refer to
  the line number in the file, not the N-word value.
-\layout Section*
+\end_layout
 
+\begin_layout Section*
 When moving more than one coordinate system, consider inverse time feed
  mode
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Because the meaning of an F-word in feed-per-minute mode varies depending
  on which axes are commanded to move, and because the amount of material
  removed does not depend only on the feed rate, it may be easier to use
  G93 inverse time feed mode to achieve the desired material removal rate.
-\the_end
+\end_layout
+
+\end_body
+\end_document

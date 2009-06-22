@@ -1,19 +1,28 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !htbp
 \paperfontsize default
-\spacing single 
+\spacing single
 \papersize letterpaper
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 1
-\use_natbib 0
-\use_numerical_citations 0
+\use_geometry true
+\use_amsmath 2
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \leftmargin 1in
 \topmargin 1in
@@ -24,278 +33,365 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Section
+\begin_body
 
+\begin_layout Section
 Ladder Examples
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 External E-Stop
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The External E-Stop example is in the /config/classicladder/cl-estop folder.
  It uses a pyVCP panel to simulate the external components.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To interface an external E-Stop to EMC and have the external E-Stop work
  together with the internal E-Stop requires a couple of connections through
  ClassicLadder.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 First we have to open the E-Stop loop in the main hal file by commenting
  out by adding the pound sign as shown or removing the following lines.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 # net estop-out <= iocontrol.0.user-enable-out
-\newline 
-# net estop-out => iocontrol.0.emc-enable-in
-\layout Standard
+\newline
+# net estop-out => iocontrol.0.emc-ena
+ble-in
+\end_layout
 
+\begin_layout Standard
 Next we add ClassicLadder to our custom.hal file by adding these two lines:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt classicladder_rt
-\newline 
+\newline
 addf classicladder.0.refresh servo-thread
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Next we run our config and build the ladder as shown here.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 E-Stop Section Display
-\begin_inset LatexCommand \label{cap:E-Stop-Section-Display}
+\begin_inset LatexCommand label
+name "cap:E-Stop-Section-Display"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/EStop_Section_Display.png
 	scale 70
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 After building the ladder select Save As and save the ladder as estop.clp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Now add the following line to your custom.hal file.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 # Load the ladder
-\newline 
+\newline
 loadusr classicladder --nogui estop.clp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 I/O assignments
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %I1 = Input from EMC's E-Stop
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %I2 = Input from EMC's E-Stop Reset Pulse
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %I3 = Input from the pyVCP panel reset button
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %Q0 = Ouput to EMC to enable
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 %Q1 = Output to external driver board enable pin (use a N/C output if your
  board had a disable pin)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Next we add the following lines to the custom_postgui.hal file
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 # E-Stop example using pyVCP buttons to simulate external components
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 # The pyVCP checkbutton simulates a normally closed external E-Stop
-\newline 
-net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
-\layout Quote
+\newline
+net ext-estop
+ classicladder.0.in-00 <= pyvcp.py-estop
+\end_layout
 
+\begin_layout Quote
 # Request E-Stop Enable from EMC
-\newline 
-net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
-\layout Quote
+\newline
+net estop-all-ok iocontrol.0.emc-enable-in
+ <= classicladder.0.out-00
+\end_layout
 
+\begin_layout Quote
 # Request E-Stop Enable from pyVCP or external source
-\newline 
-net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
-\layout Quote
+\newline
+net ext-estop-reset
+ classicladder.0.in-03 <= pyvcp.py-reset
+\end_layout
 
+\begin_layout Quote
 # This line resets the E-Stop from EMC
-\newline 
-net emc-reset-estop iocontrol.0.user-request-enable => classicladder.0.in-02
-\layout Quote
+\newline
+net emc-reset-estop iocontrol.0.user-request
+-enable => classicladder.0.in-02
+\end_layout
 
+\begin_layout Quote
 # This line enables EMC to unlatch the E-Stop in classicladder
-\newline 
-net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
-\layout Quote
+\newline
+net emc-estop
+ iocontrol.0.user-enable-out => classicladder.0.in-01
+\end_layout
 
+\begin_layout Quote
 # This line turns on the green indicator when out of E-Stop
-\newline 
-net estop-all-ok => pyvcp.py-es-status
-\layout Standard
+\newline
+net estop-all-ok
+ => pyvcp.py-es-status
+\end_layout
 
+\begin_layout Standard
 Next we add the following lines to the panel.xml file.
  Note you have to open it with the text editor not the default html viewer.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 <pyvcp>
-\newline 
+\newline
 <vbox>
-\newline 
+\newline
 <label><text>"E-Stop Demo"</text></label>
-\newline 
+\newline
 <led>
-\newline 
-<halpin>"py-es-status"</halpin>
-\newline 
+\newline
+<halpin>"py-es-status
+"</halpin>
+\newline
 <size>50</size>
-\newline 
+\newline
 <on_color>"green"</on_color>
-\newline 
-<off_color>"red"</off_color>
-\newline 
+\newline
+<off_color>"red"</off_color
+>
+\newline
 </led>
-\newline 
+\newline
 <checkbutton>
-\newline 
+\newline
 <halpin>"py-estop"</halpin>
-\newline 
+\newline
 <text>"E-Stop"</text>
-\newline 
-</checkbutton>
-\newline 
+\newline
+</checkbutto
+n>
+\newline
 </vbox>
-\newline 
+\newline
 <button>
-\newline 
+\newline
 <halpin>"py-reset"</halpin>
-\newline 
+\newline
 <text>"Reset"</text>
-\newline 
+\newline
 </button>
-\newline 
-</pyvcp>
-\layout Standard
+\newline
+</pyvcp
+>
+\end_layout
 
+\begin_layout Standard
 Now start up your config and it should look like this.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 AXIS E-Stop
-\begin_inset LatexCommand \label{cap:AXIS-E-Stop}
+\begin_inset LatexCommand label
+name "cap:AXIS-E-Stop"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/axis_cl-estop.png
 	scale 60
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Note that in this example like in real life you must clear the remote E-Stop
  (simulated by the checkbox) before the AXIS E-Stop or the external Reset
  will put you in OFF mode.
  If the E-Stop in the AXIS screen was pressed you must press it again to
  clear it.
  You cannot reset from the external after you do an E-Stop in AXIS.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Timer/Operate Example
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In this example we are using the Operate block to assign a value to the
  timer preset based on if an input is on or off.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Timer/Operate Example
-\begin_inset LatexCommand \label{cap:Timer/Operate-Example}
+\begin_inset LatexCommand label
+name "cap:Timer/Operate-Example"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/Tmr_Section_Display.png
 	scale 70
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In this case %I0 is true so the timer preset value is 10.
  If %I0 was false the timer preset would be 5.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Tool Turret
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 This Example is not complete yet.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This is a program for one type of tool turret.
  The turret has a home switch at tool position 1 and another  switch to
  tell you when the turret is in a lockable position.
@@ -314,14 +410,17 @@ This is a program for one type of tool turret.
  specifying that you want S32 in and out pins.
  See 'loading options' above.
  [display turret sample]
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Sequential Example
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 This Example is not complete yet.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This is a sequential program when the program is first started step one
  is active then when %B0 is true then steps 2 and 3 are then active and
  step one is inactive then when %B1 and/or %B2 are true, step 4 and/or 5
@@ -333,4 +432,7 @@ This is a sequential program when the program is first started step one
  4 active and step 2 inactive step 3 is active and waiting for %B2 to be
  true step 4 is active and is waiting for %B3 to be true WOW that was quite
  a mouth full!! [display sequential program]
-\the_end
+\end_layout
+
+\end_body
+\end_document

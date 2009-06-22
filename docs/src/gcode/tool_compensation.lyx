@@ -1,142 +1,195 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
+\begin_preamble
+\usepackage{a4}
+\end_preamble
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement h
 \paperfontsize 10
-\spacing single 
-\papersize Default
-\paperpackage a4wide
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 5
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Tool Compensation
-\layout Section
+\end_layout
 
+\begin_layout Section
 Tool Length Offsets
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Touch Off
-\begin_inset LatexCommand \index{Touch Off}
+\begin_inset LatexCommand index
+name "Touch Off"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Using the Touch Off Screen in the AXIS interface you can update the tool
  table automatically.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Typical steps for updating the tool table:
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 After homing load a tool with "TnM6" where "n" is the tool number.
  
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Move tool to an extablished point using a gauge or take a test cut and measure.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Select "Tool Table" in the Coordinate System drop down box.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Enter the gauge or measured dimension and select OK.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Tool Table will be changed with the correct Z length to make the DRO
  display the correct Z position and a G43 command will be issued so the
  new tool Z length will be in effect.
  Tool table touch off is only available when a tool is loaded with "TnM6".
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Touch Off Tool Table
-\begin_inset LatexCommand \label{cap:Touch-Off-Tool}
+\begin_inset LatexCommand label
+name "cap:Touch-Off-Tool"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/ToolTable-TouchOff.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Using G10 L1
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 By using "G10 L1 Pn Zx" where "n" is the tool number and "x" is the offset
  from the MDI window or in your program you can also set the tool table.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Tool Table
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "Tool Table" is a text file that contains information about each tool.
  The file is located in the same directory as your configuration and is
  called "tool.tbl".
  The tools might be in a tool changer or just changed manually.
  The file can be edited with a text editor or be updated using G10 L1.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Mill Format
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Mill Format Tool File
-\begin_inset LatexCommand \label{cap:Mill-Format-Tool-File}
+\begin_inset LatexCommand label
+name "cap:Mill-Format-Tool-File"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -148,257 +201,297 @@ Mill Format Tool File
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Pocket
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FMS
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 TLO
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Diameter
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Comment
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.25
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 endmill
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 10
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 10
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2.4
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 -0.3
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 for testing
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Each line has five entries.
  The first four entries are required.
  The last entry (a comment) is optional.
@@ -408,27 +501,31 @@ Each line has five entries.
  space, tab, or newline at the end of the fourth entry.
  The meanings of the columns and the type of data to be put in each are
  as follows.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "Pocket" column (unsigned integer) represents the pocket number or slot
  number of the tool carousel slot in which the tool is placed.
  The entries in this column must all be different.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "FMS" column (unsigned integer) represents a code number for the tool.
  The user may use any code for any tool, as long as the codes are unsigned
  integers.
  This is typically the same as the pocket number.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "TLO" column (float number) represents the tool length offset.
  This number will be used if tool length offsets are being used and this
  pocket is selected.
  This is normally a positive floating point number, but it may be zero or
  any other number if it is never to be used.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "Diameter" column (float number) is used only if tool radius compensation
  is turned on using this pocket.
  If the programmed path during compensation is the edge of the material
@@ -441,34 +538,46 @@ The "Diameter" column (float number) is used only if tool radius compensation
  If cutter radius compensation is not used with a tool, it does not matter
  what number is in this column.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "Comment" column may optionally be used to describe the tool.
  Any type of description is OK.
  This column is for the benefit of human readers only.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Lathe Format
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Sample Tool File (lathe format)
-\begin_inset LatexCommand \label{cap:Lathe-Tool-File}
+\begin_inset LatexCommand label
+name "cap:Lathe-Tool-File"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="4" columns="9">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -484,386 +593,460 @@ Sample Tool File (lathe format)
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Pocket
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FMS
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ZOFFSET
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 XOFFSET
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 DIA
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FRONTANGLE
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 BACKANGLE
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ORIENTATION
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Comment
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 95.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 155.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 120
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 60
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 6
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Pocket, FMS, DIA and Comment columns are the same as mill format tool
  files.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The ZOFFSET column is the same as the TLO column of mill format tool files.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The DIA column is used by the AXIS gui display to give a visual indication
  of the tool diameter.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The XOFFSET column gives an offset for the X coordinate when tool length
  offsets are in effect.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The ORIENTATION column gives the orientation of the lathe tool, as illustrated
  in 
-\begin_inset LatexCommand \ref{cap:Tool-Orientations}
+\begin_inset LatexCommand ref
+reference "cap:Tool-Orientations"
 
-\end_inset 
+\end_inset
 
 .
  The red cross is the controlled point.
  See 
-\begin_inset LatexCommand \ref{sub:Controlled-Point}
+\begin_inset LatexCommand ref
+reference "sub:Controlled-Point"
 
-\end_inset 
+\end_inset
 
 .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
  display a fancy representation of the lathe tool.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Tool Orientations
-\begin_inset LatexCommand \label{cap:Tool-Orientations}
+\begin_inset LatexCommand label
+name "cap:Tool-Orientations"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/lathe-tool.png
 	scale 50
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Cutter Radius Compensation
-\begin_inset LatexCommand \label{sec:Cutter-Radius-Compensation}
+\begin_inset LatexCommand label
+name "sec:Cutter-Radius-Compensation"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Cutter Radius Compensation allows the programmer to program the tool path
  without knowing the exact tool diameter.
  The only caveat is the programmer must program the lead in move to be at
  least as long as the largest tool radius that might be used.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There are two possible paths the cutter can take while cutter radius compensatio
 n is on to the left or right side of a line when facing the direction of
  cutter motion from behind the cutter.
  To visualize this imagine you were standing on the part walking behind
  the tool as it progresses across the part.
  G41 is your left side of the line and G42 is the right side of the line.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The end point of each move depends on the next move.
  If the next move creates an outside corner the move will be to the end
  point of the compensated cut line.
@@ -871,181 +1054,247 @@ The end point of each move depends on the next move.
  to not gouge the part.
  The following figure shows how the compensated move will stop at different
  points depending on the next move.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Compensation End Point
-\begin_inset LatexCommand \label{cap:Compensation-End-Point}
+\begin_inset LatexCommand label
+name "cap:Compensation-End-Point"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/comp-path.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Overview
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Tool Table
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Cutter radius compensation uses the data from the tool table to determine
  the offset needed.
  The data can be set at run time with G10 L1.
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Programming Entry Moves
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Any move that is long enough to perform the compensation will work as the
  entry move.
  The minimum lenght is the cutter radius.
  This can be a rapid move above the work piece.
  If several rapid moves are issued after a G41/42 only the last one will
  move the tool to the compensated position.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In the following figure you can see that the entry move is compensated to
  the right of the line.
  This puts the center of the tool to the right of X0 in this case.
  If you were to program a profile and the end is at X0 the resulting profile
  would leave a bump due to the offset of the entry move.
  
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Entry Move
-\begin_inset LatexCommand \label{cap:Entry-Move}
+\begin_inset LatexCommand label
+name "cap:Entry-Move"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/comp02.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Z Motion
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Z axis motion may take place while the contour is being followed in the
  XY plane.
  Portions of the contour may be skipped by retracting the Z axis above the
  part and by extending the Z-axis at the next start point.
  
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Rapid Moves
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Rapid moves may be programed while compensation is turned on.
  
-\layout Subsubsection*
+\end_layout
 
+\begin_layout Subsubsection*
 Good Practices
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Start a program with G40 to make sure compensation is off.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Examples
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 Outside Profile
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Outside Profile
-\begin_inset LatexCommand \label{cap:Outside-Profile}
+\begin_inset LatexCommand label
+name "cap:Outside-Profile"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/outside-comp.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 Inside Profile
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Inside Profile
-\begin_inset LatexCommand \label{cap:Inside-Profile}
+\begin_inset LatexCommand label
+name "cap:Inside-Profile"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/inside-comp.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\the_end
+\end_layout
+
+\end_body
+\end_document
