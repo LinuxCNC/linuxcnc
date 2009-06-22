@@ -217,40 +217,35 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
 
 
         //
-        // it's a full GPIO or it's an input for some other module
+        // all pins' values can be read; for pins used as outputs
+        // (including special-purpose outputs), the output value is sampled.
         //
 
-        if (
-            (hm2->pin[i].gtag == HM2_GTAG_IOPORT)
-            || (hm2->pin[i].direction == HM2_PIN_DIR_IS_INPUT)
-        ) {
+        // pins
+        r = hal_pin_bit_newf(
+            HAL_OUT,
+            &(hm2->pin[i].instance->hal.pin.in),
+            hm2->llio->comp_id,
+            "%s.gpio.%03d.in",
+            hm2->llio->name,
+            i
+        );
+        if (r < 0) {
+            HM2_ERR("error %d adding gpio pin, aborting\n", r);
+            return -EINVAL;
+        }
 
-            // pins
-            r = hal_pin_bit_newf(
-                HAL_OUT,
-                &(hm2->pin[i].instance->hal.pin.in),
-                hm2->llio->comp_id,
-                "%s.gpio.%03d.in",
-                hm2->llio->name,
-                i
-            );
-            if (r < 0) {
-                HM2_ERR("error %d adding gpio pin, aborting\n", r);
-                return -EINVAL;
-            }
-
-            r = hal_pin_bit_newf(
-                HAL_OUT,
-                &(hm2->pin[i].instance->hal.pin.in_not),
-                hm2->llio->comp_id,
-                "%s.gpio.%03d.in_not",
-                hm2->llio->name,
-                i
-            );
-            if (r < 0) {
-                HM2_ERR("error %d adding gpio pin, aborting\n", r);
-                return -EINVAL;
-            }
+        r = hal_pin_bit_newf(
+            HAL_OUT,
+            &(hm2->pin[i].instance->hal.pin.in_not),
+            hm2->llio->comp_id,
+            "%s.gpio.%03d.in_not",
+            hm2->llio->name,
+            i
+        );
+        if (r < 0) {
+            HM2_ERR("error %d adding gpio pin, aborting\n", r);
+            return -EINVAL;
         }
 
 
@@ -501,8 +496,6 @@ void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2) {
         for (port_pin = 0; port_pin < hm2->idrom.port_width; port_pin ++) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
             hal_bit_t bit;
-
-            if (hm2->pin[io_pin].direction != HM2_PIN_DIR_IS_INPUT) continue;
 
             bit = (hm2->ioport.data_read_reg[port] >> port_pin) & 0x1;
             *hm2->pin[io_pin].instance->hal.pin.in = bit;
