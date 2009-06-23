@@ -662,7 +662,7 @@ class MyOpengl(Opengl):
         s.poll()
 
         if not self.winfo_viewable():
-            self.redraw_dro()
+            return self.redraw_dro()
 
         machine_limit_min, machine_limit_max = soft_limits()
 
