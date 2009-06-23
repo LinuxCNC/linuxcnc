@@ -9,8 +9,3 @@ TODO     Convert all hardware drivers to use canonical homing,
 
 Fixes in HAL modules:
 TODO     canonical interfaces and naming conventions
-
-TODO	jmkasunich:
-	Remove the abandoned mesa-5i2x driver and firmware trees.
-	The new hostmot2 system actually works (and is far better).
-	The files will remain in history for reference.
