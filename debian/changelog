@@ -1,5 +1,16 @@
 emc2 (1:2.3.2~pre) hardy; urgency=low
 
+  * halshow: fix overlap of pin name and value with long values
+  * calibration now works with hostmot2-style hal files
+  * documentation improvements
+  * documentation: fix User Manual menu item
+  * configure: fix obscure error 'source: not found'
+  * configure: check that tk and Tkinter
+  * configure: fix truncated output on some systems
+  * After an abort, DTG and velocity will now show as 0
+  * axis: improve max velocity slider default maximum for machines with rotary
+    axes
+  * axis: when showing machine position, do not include TLO
   * update CoolTool config files
   * stepconf: Fix second and third parport direction settings (in/out)
     not following the user request.
@@ -13,14 +24,17 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
   * hm2 stepgen now supports maxaccel=0, useful when a nice trajectory
     planner manages your acceleration for you
   * hm2 stepgen now supports velocity mode
-  * bugfix: the hm2-servo sample config now honors INPUT_SCALE from the .ini
-  * bugfix: much lower following error for the hm2 stepgen 
+  * hm2: new firmware 5i20/SVST2_4_7I47 (2 encoder + 1 pwm + 4 stepgen on one
+    header)
+  * bugfix: the hm2-servo sample config now honors INPUT_SCALE and
+    OUTPUT_SCALE from the .ini
+  * bugfix: much lower following error for the hm2 stepgen
   * bugfix: hm2 encoder now honors .reset even when no encoder edges are
     coming in
   * bugfix: (minor) the hm2 driver now uses double instead of hal_float_t
     for internal temporary variables
 
- -- Chris Radek <chris@timeguy.com>  Fri,  5 Jun 2009 15:04:51 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Tue, 23 Jun 2009 07:26:41 -0500
 
 emc2 (1:2.3.1) hardy; urgency=low
 
