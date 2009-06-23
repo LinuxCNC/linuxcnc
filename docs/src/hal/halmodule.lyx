@@ -1,22 +1,31 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \begin_preamble
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \end_preamble
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !htbp
 \paperfontsize default
-\spacing single 
+\spacing single
 \papersize letterpaper
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 1
-\use_natbib 0
-\use_numerical_citations 0
+\use_geometry true
+\use_amsmath 2
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \leftmargin 1in
 \topmargin 1in
@@ -27,119 +36,138 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Creating Userspace Python Components with the 'hal' module
-\layout Section
+\end_layout
 
+\begin_layout Section
 Basic usage
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A userspace component begins by creating its pins and parameters, then enters
  a loop which will periodically drive all the outputs from the inputs.
  The following component copies the value seen on its input pin (
-\family typewriter 
+\family typewriter
 passthrough.in
-\family default 
+\family default
 ) to its output pin (
-\family typewriter 
+\family typewriter
 passthrough.out
-\family default 
+\family default
 ) approximately once per second.
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 #!/usr/bin/python
-\newline 
+\newline
 import hal, time
-\newline 
+\newline
 h = hal.component("passthrough")
-\newline 
-h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-\newline 
+\newline
+h.newpin("in",
+ hal.HAL_FLOAT, hal.HAL_IN)
+\newline
 h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
-\newline 
+\newline
 h.ready()
-\newline 
+\newline
 try:
-\newline 
-    while 1:
-\newline 
-        time.sleep(1)
-\newline 
-        h['out'] = h['in']
-\newline 
-except KeyboardInterrupt:
-\newline 
-    raise SystemExit
-\layout Standard
+\newline
 
+    while 1:
+\newline
+        time.sleep(1)
+\newline
+        h['out'] = h['in']
+\newline
+except KeyboardInterru
+pt:
+\newline
+    raise SystemExit
+\end_layout
+
+\begin_layout Standard
 Copy the above listing into a file named 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 passthrough
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , make it executable (
-\family typewriter 
-chmod +x), 
-\family default 
-and place it on your 
-\family typewriter 
+\family typewriter
+chmod +x),
+\family default
+ and place it on your 
+\family typewriter
 $PATH
-\family default 
+\family default
 .
  Then try it out:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 $ halrun
-\newline 
+\newline
 halcmd: loadusr passthrough
-\newline 
+\newline
 halcmd: show pin
-\newline 
+\newline
 Component Pins:
-\newline 
-Owner  Type  Dir     Value      Name
-\newline 
+\newline
+Owner
+  Type  Dir     Value      Name
+\newline
  03    float IN              0  passthrough.in
-\newline 
+\newline
+
  03    float OUT             0  passthrough.out
-\newline 
-halcmd: setp passthrough.in 3.14
-\newline 
+\newline
+halcmd: setp passthrough.in
+ 3.14
+\newline
 halcmd: show pin
-\newline 
+\newline
 Component Pins:
-\newline 
+\newline
 Owner  Type  Dir     Value      Name
-\newline 
+\newline
+
  03    float IN           3.14  passthrough.in
-\newline 
- 03    float OUT          3.14  passthrough.out
-\layout Section
+\newline
+ 03    float OUT          3.14
+  passthrough.out
+\end_layout
 
+\begin_layout Section
 Userspace components and delays
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you typed 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 show pin
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  quickly, you may see that 
-\family typewriter 
+\family typewriter
 passthrough.out
-\family default 
+\family default
  still had its old value of 0.
  This is because of the call to 'time.sleep(1)', which makes the assignment
  to the output pin occur at most once per second.
@@ -147,57 +175,72 @@ passthrough.out
  can be much longer--for instance, if the memory used by the passthrough
  component is swapped to disk, the assignment could be delayed until that
  memory is swapped back in.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Thus, userspace components are suitable for user-interactive elements such
  as control panels (delays in the range of milliseconds are not noticed,
  and longer delays are acceptable), but not for sending step pulses to a
  stepper driver board (delays must always be in the range of microseconds,
  no matter what).
-\layout Section
+\end_layout
 
+\begin_layout Section
 Create pins and parameters
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 h = hal.component("passthrough")
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The component itself is created by a call to the constructor '
-\family typewriter 
+\family typewriter
 hal.component
-\family default 
+\family default
 '.
  The arguments are the HAL component name and (optionally) the prefix used
  for pin and parameter names.
  If the prefix is not specified, the component name is used.
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Then pins are created by calls to methods on the component object.
  The arguments are: pin name suffix, pin type, and pin direction.
  For parameters, the arguments are: parameter name suffix, parameter type,
  and parameter direction.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 HAL Option Names
-\begin_inset LatexCommand \label{cap:HAL-Option-Names}
+\begin_inset LatexCommand label
+name "cap:HAL-Option-Names"
 
-\end_inset 
-
-
-\layout Standard
+\end_inset
 
 
-\begin_inset  Tabular
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -209,210 +252,242 @@ HAL Option Names
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-
-\series bold 
+\series bold
 Pin and Parameter Types:
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_BIT
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_FLOAT
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_S32
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_U32
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-
-\series bold 
+\series bold
 Pin Directions:
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_IN
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_OUT
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_IO
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-
-\series bold 
+\series bold
 Parameter Directions:
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_RO
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 HAL_RW
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The full pin or parameter name is formed by joining the prefix and the suffix
  with a 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 .
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , so in the example the pin created is called 
-\family typewriter 
+\family typewriter
 passthrough.in
-\family default 
+\family default
 .
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 h.ready()
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Once all the pins and parameters have been created, call the 
-\family typewriter 
+\family typewriter
 .ready()
-\family default 
+\family default
  method.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Changing the prefix
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The prefix can be changed by calling the 
-\family typewriter 
+\family typewriter
 .setprefix()
-\family default 
+\family default
  method.
  The current prefix can be retrieved by calling the 
-\family typewriter 
+\family typewriter
 .getprefix()
-\family default 
+\family default
  method.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Reading and writing pins and parameters
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For pins and parameters which are also proper Python identifiers, the value
  may be accessed or set using the attribute syntax:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 h.out = h.in
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For all pins, whether or not they are also proper Python identifiers, the
  value may be accessed or set using the subscript syntax:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 h['out'] = h['in']
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Driving output (HAL_OUT) pins
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Periodically, usually in response to a timer, all HAL_OUT pins should be
  
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 driven
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  by assigning them a new value.
  This should be done whether or not the value is different than the last
@@ -420,108 +495,123 @@ driven
  When a pin is connected to a signal, its old output value is not copied
  into the signal, so the proper value will only appear on the signal once
  the component assigns a new value.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Driving bidirectional (HAL_IO) pins
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The above rule does not apply to bidirectional pins.
  Instead, a bidirectional pin should only be driven by the component when
  the component wishes to change the value.
  For instance, in the canonical encoder interface, the encoder component
  only sets the 
-\series bold 
+\series bold
 index-enable
-\series default 
+\series default
  pin to 
-\series bold 
+\series bold
 FALSE
-\series default 
+\series default
  (when an index pulse is seen and the old value is 
-\series bold 
+\series bold
 TRUE
-\series default 
+\series default
 ), but never sets it to 
-\series bold 
+\series bold
 TRUE
-\series default 
+\series default
 .
  Repeatedly driving the pin 
-\series bold 
+\series bold
 FALSE
-\series default 
+\series default
  might cause the other connected component to act as though another index
  pulse had been seen.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Exiting
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 
-\family typewriter 
+\family typewriter
 halcmd unload
-\family default 
+\family default
 
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  request for the component is delivered as a 
-\family typewriter 
+\family typewriter
 KeyboardInterrupt
-\family default 
+\family default
  exception.
  When an unload request arrives, the process should either exit in a short
  time, or call the 
-\family typewriter 
+\family typewriter
 .exit()
-\family default 
+\family default
  method on the component if substantial work (such as reading or writing
  files) must be done to complete the shutdown process.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Project ideas
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Create an external control panel with buttons, switches, and indicators.
  Connect everything to a microcontroller, and connect the microcontroller
  to the PC using a serial interface.
  Python has a very capable serial interface module called 
-\begin_inset LatexCommand \url[pyserial]{http://pyserial.sourceforge.net/}
+\begin_inset LatexCommand url
+name "pyserial"
+target "http://pyserial.sourceforge.net/"
 
-\end_inset 
+\end_inset
 
  (Ubuntu package name 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 python-serial
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , in the universe repository)
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Attach a 
-\begin_inset LatexCommand \url[LCDProc]{http://lcdproc.omnipotent.net/}
+\begin_inset LatexCommand url
+name "LCDProc"
+target "http://lcdproc.omnipotent.net/"
 
-\end_inset 
+\end_inset
 
 -compatible LCD module and use it to display a digital readout with information
  of your choice (Ubuntu package name 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 lcdproc
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , in the universe repository)
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Create a virtual control panel using any GUI library supported by Python
  (gtk, qt, wxwindows, etc)
-\the_end
+\end_layout
+
+\end_body
+\end_document

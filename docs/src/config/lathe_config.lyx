@@ -97,7 +97,7 @@ COORDINATES = X Z
 \end_layout
 
 \begin_layout LyX-Code
-[AXIS-0]
+[AXIS_0]
 \end_layout
 
 \begin_layout LyX-Code
@@ -105,7 +105,7 @@ COORDINATES = X Z
 \end_layout
 
 \begin_layout LyX-Code
-[AXIS-2]
+[AXIS_2]
 \end_layout
 
 \begin_layout LyX-Code

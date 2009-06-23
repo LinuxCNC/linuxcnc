@@ -1,58 +1,76 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
 \defskip medskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 PID Tuning
-\layout Section
+\end_layout
 
+\begin_layout Section
 PID Controller
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A proportional-integral-derivative controller (PID controller) is a common
  feedback loop component in industrial control systems.
 \begin_inset Foot
-collapsed true
+status collapsed
 
-\layout Standard
-
+\begin_layout Standard
 This Subsection is taken from an much more extensive article found at http://en.w
 ikipedia.org/wiki/PID_controller
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Controller compares a measured value from a process (typically an industrial
  process) with a reference setpoint value.
  The difference (or "error" signal) is then used to calculate a new value
  for a manipulatable input to the process that brings the process' measured
  value back to its desired setpoint.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Unlike simpler control algorithms, the PID controller can adjust process
  outputs based on the history and rate of change of the error signal, which
  gives more accurate and stable control.
@@ -60,11 +78,13 @@ Unlike simpler control algorithms, the PID controller can adjust process
  stable control in cases where a simple proportional control would either
  have a steady-state error or would cause the process to oscillate).
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Control loop basics
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Intuitively, the PID loop tries to automate what an intelligent operator
  with a gauge and a control knob would do.
  The operator would read a gauge showing the output measurement of a process,
@@ -72,8 +92,9 @@ Intuitively, the PID loop tries to automate what an intelligent operator
  the process's output measurement stabilizes at the desired value on the
  gauge.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In older control literature this adjustment process is called a "reset"
  action.
  The position of the needle on the gauge is a "measurement", "process value"
@@ -81,45 +102,53 @@ In older control literature this adjustment process is called a "reset"
  The desired value on the gauge is called a "setpoint" (also called "set
  value").
  The difference between the gauge's needle and the setpoint is the "error".
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A control loop consists of three parts:
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 1.
  Measurement by a sensor connected to the process (e.g.
  encoder),
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 2.
  Decision in a controller element,
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 3.
  Action through an output device such as an motor.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 As the controller reads a sensor, it subtracts this measurement from the
  "setpoint" to determine the "error".
  It then uses the error to calculate a correction to the process's input
  variable (the "action") so that this correction will remove the error from
  the process's output measurement.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In a PID loop, correction is calculated from the error in three ways: cancel
  out the current error directly (Proportional), the amount of time the error
  has continued uncorrected (Integral), and anticipate the future error from
  the rate of change of the error over time (Derivative).
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A PID controller can be used to control any measurable variable which can
  be affected by manipulating some other process variable.
  For example, it can be used to control temperature, pressure, flow rate,
  chemical composition, speed, or other variables.
  Automobile cruise control is an example of a process outside of industry
  which utilizes crude PID control.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Some control systems arrange PID controllers in cascades or networks.
  That is, a "master" control produces signals used by "slave" controllers.
  One common situation is motor controls: one often wants the motor to have
@@ -127,20 +156,24 @@ Some control systems arrange PID controllers in cascades or networks.
  frequency drive) directly managing the speed based on a proportional input.
  This "slave" input is fed by the "master" controllers' output, which is
  controlling based upon a related variable.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Theory
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 "PID" is named after its three correcting calculations, which all add to
  and adjust the controlled quantity.
  These additions are actually "subtractions" of error, because the proportions
  are usually negative:
-\layout Subparagraph
+\end_layout
 
+\begin_layout Subparagraph
 Proportional
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To handle the present, the error is multiplied by a (negative) constant
  P (for "proportional"), and added to (subtracting error from) the controlled
  quantity.
@@ -148,11 +181,13 @@ To handle the present, the error is multiplied by a (negative) constant
  to the error of the system.
  Note that when the error is zero, a proportional controller's output is
  zero.
-\layout Subparagraph
+\end_layout
 
+\begin_layout Subparagraph
 Integral
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To learn from the past, the error is integrated (added up) over a period
  of time, and then multiplied by a (negative) constant I (making an average),
  and added to (subtracting error from) the controlled quantity.
@@ -168,11 +203,13 @@ To learn from the past, the error is integrated (added up) over a period
  Therefore, eventually, a well-tuned PID loop's process output will settle
  down at the setpoint.
  
-\layout Subparagraph
+\end_layout
 
+\begin_layout Subparagraph
 Derivative
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To handle the future, the first derivative (the slope of the error) over
  time is calculated, and multiplied by another (negative) constant D, and
  also added to (subtracting error from) the controlled quantity.
@@ -180,19 +217,22 @@ To handle the future, the first derivative (the slope of the error) over
  The larger the derivative term, the more rapidly the controller responds
  to changes in the process's output.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 More technically, a PID loop can be characterized as a filter applied to
  a complex frequency-domain system.
  This is useful in order to calculate whether it will actually reach a stable
  value.
  If the values are chosen incorrectly, the controlled process input can
  oscillate, and the process output may never stay at the setpoint.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Loop Tuning
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 "Tuning" a control loop is the adjustment of its control parameters (gain/propor
 tional band, integral gain/reset, derivative gain/rate) to the optimum values
  for the desired control response.
@@ -204,8 +244,9 @@ tional band, integral gain/reset, derivative gain/rate) to the optimum values
  Generally stability of response is required and the process must not oscillate
  for any combination of process conditions and setpoints.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Tuning of loops is made more complicated by the response time of the process;
  it may take minutes or hours for a setpoint change to produce a stable
  effect.
@@ -213,19 +254,22 @@ Tuning of loops is made more complicated by the response time of the process;
  well at full-load conditions don't work when the process is starting up
  from no-load.
  This section describes some traditional manual methods for loop tuning.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There are several methods for tuning a PID loop.
  The choice of method will depend largely on whether or not the loop can
  be taken "offline" for tuning, and the response speed of the system.
  If the system can be taken offline, the best tuning method often involves
  subjecting the system to a step change in input, measuring the output as
  a function of time, and using this response to determine the control parameters.
-\layout Subparagraph
+\end_layout
 
+\begin_layout Subparagraph
 Simple method
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If the system must remain online, one tuning method is to first set the
  I and D values to zero.
  Increase the P until the output of the loop oscillates.
@@ -233,10 +277,11 @@ If the system must remain online, one tuning method is to first set the
  Finally, increase D until the loop is acceptably quick to reach its reference.
  A fast PID loop tuning usually overshoots slightly to reach the setpoint
  more quickly; however, some systems cannot accept overshoot.
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="4" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -248,184 +293,208 @@ If the system must remain online, one tuning method is to first set the
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Parameter
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Rise Time
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Overshoot
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Settling Time
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 S.S.
  Error
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 P
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Decrease
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Increase
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Small Change
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Decrease
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 I
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Decrease
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Increase
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Increase
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Eliminate
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 D
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Small Change
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Decrease
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Decrease
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Small Change
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
+
+\begin_layout Standard
+\align center
 Effects of increasing parameters
-\layout Subparagraph
+\end_layout
 
+\begin_layout Subparagraph
 Ziegler-Nichols method
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Another tuning method is formally known as the "Ziegler-Nichols method",
  introduced by John G.
  Ziegler and Nathaniel B.
@@ -435,18 +504,19 @@ Another tuning method is formally known as the "Ziegler-Nichols method",
  the loop starts to oscillate.
  Write down the critical gain (
 \begin_inset Formula $K_{c}$
-\end_inset 
+\end_inset
 
 ) and the oscillation period of the output (
 \begin_inset Formula $P_{c}$
-\end_inset 
+\end_inset
 
 ).
  Then adjust the P, I and D controls as the table shows:
-\layout Standard
-\pagebreak_bottom \align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="4" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -457,162 +527,184 @@ Another tuning method is formally known as the "Ziegler-Nichols method",
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Control type
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 P
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 I
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 D
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 P
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $.5K_{c}$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 PI
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $.45K_{c}$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $1.2/P_{c}$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 PID
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $.6K_{c}$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $2/P_{c}$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Formula $P\times P_{c}/8$
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\the_end
+\end_layout
+
+\begin_layout Standard
+
+\newpage
+
+\end_layout
+
+\end_body
+\end_document

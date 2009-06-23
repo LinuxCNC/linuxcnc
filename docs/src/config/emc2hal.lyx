@@ -1,144 +1,178 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
 \defskip medskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 EMC2 and HAL
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 See also the manual pages 
-\series bold 
+\series bold
 motion(9)
-\series default 
+\series default
  and 
-\series bold 
+\series bold
 iocontrol(1)
-\series default 
+\series default
 .
-\layout Section
+\end_layout
 
+\begin_layout Section
 motion (realtime)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These pins, parameters, and functions are created by the realtime 
-\family typewriter 
+\family typewriter
 motmod
-\family default 
+\family default
  module.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Pins
-\begin_inset LatexCommand \index{motion (hal pins)}
+\begin_inset LatexCommand index
+name "motion (hal pins)"
 
-\end_inset 
+\end_inset
 
 
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.adaptive-feed (float, in) When adaptive feed is enabled with 
-\family typewriter 
-M52\SpecialChar ~
+\family typewriter
+M52\InsetSpace ~
 P1
-\family default 
+\family default
 , the commanded velocity is multiplied by this value.
  This effect is multiplicative with the NML-level feed override value and
  
-\series bold 
+\series bold
 motion.feed-hold
-\series default 
+\series default
 .
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.analog-in-00 (float, in) These pins (00, 01, 02, 03) are controlled
  by M66.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.coord-error (bit, out) TRUE when motion has encountered an error,
  such as exceeding a soft limit
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.coord-mode (bit, out) TRUE when motion is in "coordinated mode", as
  opposed to "teleop mode"
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.current-vel (float, out) The current tool velocity in user units per
  second.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03) are controlled
  by M62-65.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.digital-out-00 (bit, out) These pins (00, 01, 02, 03) are controlled
  by the 
-\family typewriter 
+\family typewriter
 M62-65
-\family default 
+\family default
 .
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.distance-to-go (float,out) The distance remaining in the current move.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.enable (bit, in) If this bit is driven FALSE, motion stops, the machine
  is placed in the "machine off" state, and a message is displayed for the
  operator.
  For normal motion, drive this bit TRUE.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.feed-hold (bit, in) When Feed Stop Control is enabled with 
-\family typewriter 
-M53\SpecialChar ~
+\family typewriter
+M53\InsetSpace ~
 P1
-\family default 
+\family default
 , and this bit is TRUE, the feed rate is set to 0.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.in-position (bit, out) TRUE if the machine is in position.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.motion-enabled (bit, out) TRUE when in "machine on" state.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.on-soft-limit (bit, out) TRUE when the machine is on a soft limit.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.probe-input (bit, in) 
-\family typewriter 
+\family typewriter
 G38.x
-\family default 
+\family default
  uses the value on this pin to determine when the probe has made contact.
  TRUE for probe contact closed (touching), FALSE for probe contact open.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.program-line (s32, out) The current program line while executing.
  Zero if not running or between lines while single stepping.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-at-speed (bit, in) Motion will pause until this pin is TRUE,
  under the following conditions: before the first feed move after each spindle
  start or speed change; before the start of every chain of spindle-synchronized
@@ -149,427 +183,523 @@ motion.spindle-at-speed (bit, in) Motion will pause until this pin is TRUE,
  diameter.
  Many VFDs have an "at speed" output.
  Otherwise, it is easy to generate this signal with the 
-\family typewriter 
+\family typewriter
 HAL near
-\family default 
+\family default
  component, by comparing requested and actual spindle speeds.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-brake (bit, out) TRUE when the spindle brake should be applied.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-forward (bit, out) TRUE when the spindle should rotate forward.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-index-enable (bit, I/O) For correct operation of spindle synchroni
 zed moves, this pin must be hooked to the index-enable pin of the spindle
  encoder.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-on (bit, out) TRUE when spindle should rotate.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-reverse (bit, out) TRUE when the spindle should rotate backward
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-revs (float, in) For correct operation of spindle synchronized
  moves, this signal must be hooked to the position pin of the spindle encoder.
  The spindle encoder position should be scaled such that spindle-revs increases
  by 1.0 for each rotation of the spindle in the clockwise (
-\family typewriter 
+\family typewriter
 M3
-\family default 
+\family default
 ) direction.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-speed-in (float, in) Feedback of actual spindle speed in rotations
  per second.
  This is used by feed-per-revolution motion (
-\family typewriter 
+\family typewriter
 G95
-\family default 
+\family default
 ).
  If your spindle encoder driver does not have a velocity output, you can
  generate a suitable one by sending the spindle position through a 
-\family typewriter 
+\family typewriter
 ddt
-\family default 
+\family default
  component.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.spindle-speed-out (float, out) Commanded spindle speed in rotations
  per minute.
  Positive for spindle forward (
-\family typewriter 
+\family typewriter
 M3
-\family default 
+\family default
 ), negative for spindle reverse (
-\family typewriter 
+\family typewriter
 M4
-\family default 
+\family default
 ).
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.teleop-mode (bit, out) TRUE when motion is in "teleop mode", as opposed
  to "coordinated mode"
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.tooloffset.w (float, out) shows the w offset in effect; it could come
  from the tool table (
-\family typewriter 
+\family typewriter
 G43
-\family default 
+\family default
  active), or it could come from the gcode (
-\family typewriter 
+\family typewriter
 G43.1
-\family default 
+\family default
  active)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.tooloffset.x (float, out) shows the x offset in effect; it could come
  from the tool table (
-\family typewriter 
+\family typewriter
 G43
-\family default 
+\family default
  active), or it could come from the gcode (
-\family typewriter 
+\family typewriter
 G43.1
-\family default 
+\family default
  active)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.tooloffset.z (float, out) shows the z offset in effect; it could come
  from the tool table (
-\family typewriter 
+\family typewriter
 G43
-\family default 
+\family default
  active), or it could come from the gcode (
-\family typewriter 
+\family typewriter
 G43.1
-\family default 
+\family default
  active)
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Parameters
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Many of these parameters serve as debugging aids, and are subject to change
  or removal at any time.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-command-handler.time (s32, RO)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-command-handler.tmax (s32, RW)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-controller.time (s32, RO)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-controller.tmax (s32, RW)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-bit-0 (bit, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-bit-1 (bit, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-float-0 (float, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-float-1 (float, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-float-2 (float, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-float-3 (float, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-s32-0 (s32, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.debug-s32-1 (s32, RO) This is used for debugging purposes.
  
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.servo.last-period (u32, RO) The number of CPU cycles between invocations
  of the servo thread.
  Typically, this number divided by the CPU speed gives the time in seconds,
  and can be used to determine whether the realtime motion controller is
  meeting its timing constraints
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.servo.last-period-ns (float, RO)
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion.servo.overruns (u32, RW) By noting large differences between successive
- values of
-\emph on 
- motion.servo.last-period
-\emph default 
+ values of 
+\emph on
+motion.servo.last-period
+\emph default
 , the motion controller can determine that there has probably been a failure
  to meet its timing constraints.
  Each time such a failure is detected, this value is incremented.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Functions
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Generally, these functions are both added to the servo-thread in the order
  shown.
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-command-handler Processes motion commands coming from user space
-\layout Description
+\end_layout
 
+\begin_layout Description
 motion-controller Runs the emc motion controller
-\layout Section
+\end_layout
 
+\begin_layout Section
 axis.N (realtime)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These pins and parameters are created by the realtime 
-\family typewriter 
+\family typewriter
 motmod
-\family default 
+\family default
  module.
  These are actually joint values, but the pins and parameters are still
  called "axis.N".
 \begin_inset Foot
-collapsed false
+status open
 
-\layout Standard
-
+\begin_layout Standard
 In "trivial kinematics" machines, there is a one-to-one correspondence between
  joints and axes.
-\end_inset 
+\end_layout
+
+\end_inset
 
  They are read and updated by the 
-\emph on 
+\emph on
 motion-controller
-\emph default 
+\emph default
  function.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Pins
-\begin_inset LatexCommand \index{axis (hal pins)}
+\begin_inset LatexCommand index
+name "axis (hal pins)"
 
-\end_inset 
+\end_inset
 
 
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.active (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.amp-enable-out (bit, out) TRUE if the amplifier for this joint should
  be enabled
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.amp-fault-in (bit, in) Should be driven TRUE if an external fault is
  detected with the amplifier for this joint
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.backlash-corr (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.backlash-filt (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.backlash-vel (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.coarse-pos-cmd (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.error (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.f-error (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.f-error-lim (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.f-errored (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.faulted (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.free-pos-cmd (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.free-tp-enable (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.free-vel-lim (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.home-sw-in (bit, in) Should be driven TRUE if the home switch for this
  joint is closed.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.homed (bit, out) 
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.homing (bit, out) TRUE if the joint is currently homing
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.in-position (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.index-enable (bit, I/O)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.jog-counts (s32, in) Connect to the "counts" pin of an external encoder
  to use a physical jog wheel.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.jog-enable (bit, in) When TRUE (and in manual mode), any change in
  "jog-counts" will result in motion.
  When false, "jog-counts" is ignored.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.jog-scale (float, in) Sets the distance moved for each count on "jog-counts
 ", in machine units.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.jog-vel-mode (bit, in) When FALSE (the default), the jogwheel operates
  in position mode.
  The axis will move exactly jog-scale units for each count, regardless of
  how long that might take.
  When TRUE, the wheel operates in velocity mode - motion stops when the
  wheel stops, even if that means the commanded motion is not completed.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.joint-pos-cmd (float, out) The joint (as opposed to motor) commanded
  position.
  There may be an offset between the joint and motor positions--for example,
  the homing process sets this offset.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.joint-pos-fb (float, out) The joint (as opposed to motor) feedback
  position.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.joint-vel-cmd (float, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.kb-jog-active (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
+\begin_inset Note Note
+status open
 
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
+\begin_layout Standard
 should this be motor not joint?
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.motor-pos-cmd (float, out) The commanded position for this joint.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.motor-pos-fb (float, in) The actual position for this joint.
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.neg-hard-limit (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.pos-lim-sw-in (bit, in) Should be driven TRUE if the positive limit
  switch for this joint is closed
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.pos-hard-limit (bit, out)
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.neg-lim-sw-in (bit, in) Should be driven TRUE if the negative limit
  switch for this joint is closed
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.wheel-jog-active (bit, out) 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Parameters
-\layout Description
+\end_layout
 
+\begin_layout Description
 axis.N.home-state Reflects the step of homing currently taking place
-\layout Section
+\end_layout
 
+\begin_layout Section
 iocontrol (userspace)
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These pins are created by the userspace IO controller, usually called 
-\family typewriter 
+\family typewriter
 io
-\family default 
+\family default
 .
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Pins
-\begin_inset LatexCommand \index{iocontrol (HAL pins)}
+\begin_inset LatexCommand index
+name "iocontrol (HAL pins)"
 
-\end_inset 
+\end_inset
 
 
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.coolant-flood (bit, out) TRUE when flood coolant is requested
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.coolant-mist (bit, out) TRUE when mist coolant is requested
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.emc-enable-in (bit, in) Should be driven FALSE when an external
  estop condition exists
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.lube (bit, out) TRUE when lube is commanded
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.lube_level (bit, in) Should be driven TRUE when lube level is
  high enough
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-change (bit, out) TRUE when a tool change is requested
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-changed (bit, in) Should be driven TRUE when a tool change
  is completed
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-number (s32, out) The current tool number
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-prep-number (s32, out) The number of the next tool, from
  the RS274NGC T-word
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-prepare (bit, out) TRUE when a tool prepare is requested
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.tool-prepared (bit, in) Should be driven TRUE when a tool prepare
  is completed 
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.user-enable-out (bit, out) FALSE when an internal estop condition
  exists
-\layout Description
+\end_layout
 
+\begin_layout Description
 iocontrol.0.user-request-enable (bit, out) TRUE when the user has requested
  that estop be cleared
-\the_end
+\end_layout
+
+\end_body
+\end_document

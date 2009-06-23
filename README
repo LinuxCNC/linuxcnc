@@ -72,6 +72,9 @@ From the top level directory, switch to the source directory:
 In the source directory, build EMC2:
 
   ./configure --enable-run-in-place
+  [or, if you do not have a realtime kernel:]
+  ./configure --enable-run-in-place --enable-simulator
+
   make clean
   make
   sudo make setuid

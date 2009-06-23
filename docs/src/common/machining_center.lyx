@@ -1,42 +1,58 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip medskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 CNC Machine Overview
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This section gives a brief description of how a CNC machine is viewed from
  the input and output ends of the Interpreter.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Mechanical Components
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A CNC machine has many mechanical components that may be controlled or may
  affect the way in which control is exercised.
  This section describes the subset of those components that interact with
@@ -44,16 +60,19 @@ A CNC machine has many mechanical components that may be controlled or may
  Mechanical components that do not interact directly with the Interpreter,
  such as the jog buttons, are not described here, even if they affect control.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Axes
-\begin_inset LatexCommand \index{axes}
+\begin_inset LatexCommand index
+name "axes"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Any CNC machine has one or more Axes.
  Different types of CNC machines have different combinations.
  For instance, a "4-axis milling machine" may have XYZA or XYZB axes.
@@ -61,205 +80,244 @@ Any CNC machine has one or more Axes.
  A foam-cutting machine may have XYUZ axes.
  In EMC, the case of a XYYZ "gantry" machine with two motors for one axis
  is better handled by kinematics rather than by a second linear axis.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Foot
-collapsed false
+status open
 
-\layout Standard
-
+\begin_layout Standard
 If the motion of mechanical components is not independent, as with hexapod
  machines, the RS274/NGC language and the canonical machining functions
  will still be usable, as long as the lower levels of control know how to
  control the actual mechanisms to produce the same relative motion of tool
  and workpiece as would be produced by independent axes.
  This is called 
-\emph on 
+\emph on
 kinematics
-\emph default 
+\emph default
 .
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 Primary Linear Axes
-\begin_inset LatexCommand \index{axes, primary linear}
+\begin_inset LatexCommand index
+name "axes, primary linear"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The X, Y, and Z axes produce linear motion in three mutually orthogonal
  directions.
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 Secondary Linear Axes
-\begin_inset LatexCommand \index{axes, secondary linear}
+\begin_inset LatexCommand index
+name "axes, secondary linear"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The U, V, and W axes produce linear motion in three mutually orthogonal
  directions.
  Typically, X and U are parallel, Y and V are parallel, and Z and W are
  parallel.
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 Rotational Axes
-\begin_inset LatexCommand \index{axes, rotational}
+\begin_inset LatexCommand index
+name "axes, rotational"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The A, B and C axes produce angular motion (rotation).
  Typically, A rotates around a line parallel to X, B rotates around a line
  parallel to Y, and C rotates around a line parallel to Z.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Spindle
-\begin_inset LatexCommand \index{spindle}
+\begin_inset LatexCommand index
+name "spindle"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A CNC machine typically has a spindle which holds one cutting tool, probe,
  or the material in the case of a lathe.
  The spindle may or may not be controlled by the CNC software.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Coolant
-\begin_inset LatexCommand \index{coolant}
+\begin_inset LatexCommand index
+name "coolant"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If a CNC machine has components to provide mist coolant and/or flood coolant
  they can be controlled by G-Codes.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Feed
-\begin_inset LatexCommand \index{feed override}
+\begin_inset LatexCommand index
+name "feed override"
 
-\end_inset 
+\end_inset
 
  and Speed
-\begin_inset LatexCommand \index{spindle speed override}
+\begin_inset LatexCommand index
+name "spindle speed override"
 
-\end_inset 
+\end_inset
 
  Override
-\begin_inset LatexCommand \label{sub:Feed-and-Speed}
+\begin_inset LatexCommand label
+name "sub:Feed-and-Speed"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A CNC machine can have separate feed and speed override controls, which
  let the operator specify that the actual feed rate or spindle speed used
  in machining at some percentage of the programmed rate.
  See Section 
-\begin_inset LatexCommand \ref{sub:Feed-Interaction}
+\begin_inset LatexCommand ref
+reference "sub:Feed-Interaction"
 
-\end_inset 
+\end_inset
 
 .
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Block Delete Switch
-\begin_inset LatexCommand \index{optional block delete}
+\begin_inset LatexCommand index
+name "optional block delete"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Block-Delete-Switch}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:Block-Delete-Switch"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 A CNC machine can have a block delete switch.
  See Section 
-\begin_inset LatexCommand \ref{sub:Block-Delete-Switch-Interaction}
+\begin_inset LatexCommand ref
+reference "sub:Block-Delete-Switch-Interaction"
 
-\end_inset 
+\end_inset
 
 .
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Optional Program Stop
-\begin_inset LatexCommand \index{optional program stop}
+\begin_inset LatexCommand index
+name "optional program stop"
 
-\end_inset 
+\end_inset
 
  Switch
-\begin_inset LatexCommand \label{sub:Optional-Program-Stop}
+\begin_inset LatexCommand label
+name "sub:Optional-Program-Stop"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A CNC machine can have an optional program stop switch.
  See Section 
-\begin_inset LatexCommand \ref{sub:Optional-Program-Stop-Interaction}
+\begin_inset LatexCommand ref
+reference "sub:Optional-Program-Stop-Interaction"
 
-\end_inset 
+\end_inset
 
 .
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Control and Data Components
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Linear Axes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The X, Y, and Z axes form a standard right-handed coordinate system of orthogona
 l linear axes.
  Positions of the three linear motion mechanisms are expressed using coordinates
  on these axes.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The U, V and W axes also form a standard right-handed coordinate system.
  X and U are parallel, Y and V are parallel, and Z and W are parallel.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Rotational Axes
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The rotational axes are measured in degrees as wrapped linear axes in which
  the direction of positive rotation is counterclockwise when viewed from
  the positive end of the corresponding X, Y, or Z-axis.
  By 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 wrapped linear axis,
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  we mean one on which the angular position increases without limit (goes
  towards plus infinity) as the axis turns counterclockwise and deceases
  without limit (goes towards minus infinity) as the axis turns clockwise.
  Wrapped linear axes are used regardless of whether or not there is a mechanical
  limit on rotation.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Clockwise or counterclockwise is from the point of view of the workpiece.
  If the workpiece is fastened to a turntable which turns on a rotational
  axis, a counterclockwise turn from the point of view of the workpiece is
@@ -267,30 +325,35 @@ Clockwise or counterclockwise is from the point of view of the workpiece.
  machine configurations) looks clockwise from the point of view of someone
  standing next to the machine.
 \begin_inset Foot
-collapsed true
+status collapsed
 
-\layout Standard
-
+\begin_layout Standard
 If the parallelism requirement is violated, the system builder will have
  to say how to distinguish clockwise from counterclockwise.
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Controlled Point
-\begin_inset LatexCommand \label{sub:Controlled-Point}
+\begin_inset LatexCommand label
+name "sub:Controlled-Point"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{controlled point}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand index
+name "controlled point"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The controlled point is the point whose position and rate of motion are
  controlled.
  When the tool length offset is zero (the default value), this is a point
@@ -305,40 +368,43 @@ The controlled point is the point whose position and rate of motion are
  the controlled point is either at the tool tip or slightly outside it (where
  the perpendicular, axis-aligned lines touched by the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 front
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  and 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 side
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  of the tool intersect).
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Coordinated Linear Motion
-\begin_inset LatexCommand \label{sub:Coordinate-Linear-Motion}
+\begin_inset LatexCommand label
+name "sub:Coordinate-Linear-Motion"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To drive a tool along a specified path, a machining center must often coordinate
  the motion of several axes.
  We use the term 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 coordinated linear motion
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  to describe the situation in which, nominally, each axis moves at constant
  speed and all axes move from their starting positions to their end positions
@@ -346,11 +412,11 @@ coordinated linear motion
  If only the X, Y, and Z axes (or any one or two of them) move, this produces
  motion in a straight line, hence the word 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 linear
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  in the term.
  In actual motions, it is often not possible to maintain constant speed
@@ -361,122 +427,142 @@ linear
  axes.
  This moves the tool along same path, and we also call this kind of motion
  coordinated linear motion.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Coordinated linear motion can be performed either at the prevailing feed
  rate, or at traverse rate, or it may be synchronized to the spindle rotation.
  If physical limits on axis speed make the desired rate unobtainable, all
  axes are slowed to maintain the desired path.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Feed Rate
-\begin_inset LatexCommand \index{feed rate}
+\begin_inset LatexCommand index
+name "feed rate"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Feed-Rate}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:Feed-Rate"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The rate at which the controlled point or the axes move is nominally a steady
  rate which may be set by the user.
  In the Interpreter, the interpretation of the feed rate is as follows unless
  
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 inverse time feed
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  or 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 feed per revolution
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  modes are being used (see Section 
-\begin_inset LatexCommand \ref{sub:G93,-G94:-Set}
+\begin_inset LatexCommand ref
+reference "sub:G93,-G94:-Set"
 
-\end_inset 
+\end_inset
 
 ).
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 If any of XYZ are moving, F is in units per minute in the XYZ cartesian
  system, and all other axes (UVWABC) move so as to start and stop in coordinated
  fashion
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Otherwise, if any of UVW are moving, F is in units per minute in the UVW
  cartesian system, and all other axes (ABC) move so as to start and stop
  in coordinated fashion
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Otherwise, the move is pure rotary motion and the F word is in rotary units
  in the ABC 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 pseudo-cartesian
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  system.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Coolant
-\begin_inset LatexCommand \index{coolant}
+\begin_inset LatexCommand index
+name "coolant"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Flood coolant and mist coolant may each be turned on independently.
  The RS274/NGC language turns them off together (see Section 
-\begin_inset LatexCommand \ref{sub:M7,-M8,-M9:}
+\begin_inset LatexCommand ref
+reference "sub:M7,-M8,-M9:"
 
-\end_inset 
+\end_inset
 
 ).
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Dwell
-\begin_inset LatexCommand \index{dwell}
+\begin_inset LatexCommand index
+name "dwell"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A machining center may be commanded to dwell (i.e., keep all axes unmoving)
  for a specific amount of time.
  The most common use of dwell is to break and clear chips, so the spindle
  is usually turning during a dwell.
  Regardless of the Path Control Mode (see Section 
-\begin_inset LatexCommand \ref{sub:Path-Control-Mode}
+\begin_inset LatexCommand ref
+reference "sub:Path-Control-Mode"
 
-\end_inset 
+\end_inset
 
 ) the machine will stop exactly at the end of the previous programmed move,
  as though it was in exact path mode.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Units
-\begin_inset LatexCommand \index{units}
+\begin_inset LatexCommand index
+name "units"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Units used for distances along the X, Y, and Z axes may be measured in millimete
 rs or inches.
  Units for all other quantities involved in machine control cannot be changed.
@@ -486,114 +572,137 @@ rs or inches.
  Feed rates are expressed in current length units per minute, or degrees
  per minute, or length units per spindle revolution, as described in Section
  
-\begin_inset LatexCommand \ref{sub:Feed-Rate}
+\begin_inset LatexCommand ref
+reference "sub:Feed-Rate"
 
-\end_inset 
+\end_inset
 
 .
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Current Position
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The controlled point is always at some location called the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 current position,
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  and the controller always knows where that is.
  The numbers representing the current position must be adjusted in the absence
  of any axis motion if any of several events take place:
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Length units are changed.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Tool length offset is changed.
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Coordinate system offsets are changed.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Selected Plane
-\begin_inset LatexCommand \label{sub:Selected-Plane}
+\begin_inset LatexCommand label
+name "sub:Selected-Plane"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There is always a 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 selected plane
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 , which must be the XY-plane, the YZ-plane, or the XZ-plane of the machining
  center.
  The Z-axis is, of course, perpendicular to the XY-plane, the X-axis to
  the YZ-plane, and the Y-axis to the XZ-plane.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Tool Carousel
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Zero or one tool is assigned to each slot in the tool carousel.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Tool Change
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A machining center may be commanded to change tools.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Pallet Shuttle
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The two pallets may be exchanged by command.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Feed and Speed Override Switches
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The feed and speed override switches may be enabled (so they work as expected)
  or disabled (so they have no effect on the feed rate or spindle speed).
  The RS274/NGC language has one command that enables both switches and one
  command that disables both (see Section 
-\begin_inset LatexCommand \ref{sub:M48,-M49:-Override}
+\begin_inset LatexCommand ref
+reference "sub:M48,-M49:-Override"
 
-\end_inset 
+\end_inset
 
 ).
  See Section 
-\begin_inset LatexCommand \ref{sub:Feed-Interaction}
+\begin_inset LatexCommand ref
+reference "sub:Feed-Interaction"
 
-\end_inset 
+\end_inset
 
  for further details.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Path Control Mode
-\begin_inset LatexCommand \index{path control mode}
+\begin_inset LatexCommand index
+name "path control mode"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Path-Control-Mode}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:Path-Control-Mode"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The machining center may be put into any one of three path control modes:
  (1) exact stop mode, (2) exact path mode, or (3) continuous mode with optional
  tolerance.
@@ -605,210 +714,248 @@ The machining center may be put into any one of three path control modes:
  that the feed rate may be kept up (but by no more than the tolerance, if
  specified).
  See Section 
-\begin_inset LatexCommand \ref{sub:G61,-G61.1,-G64:}
+\begin_inset LatexCommand ref
+reference "sub:G61,-G61.1,-G64:"
 
-\end_inset 
+\end_inset
 
 .
-\layout Section
+\end_layout
 
+\begin_layout Section
 Interpreter Interaction with Switches
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Interpreter interacts with several switches.
  This section describes the interactions in more detail.
  In no case does the Interpreter know what the setting of any of these switches
  is.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Feed and Speed Override Switches
-\begin_inset LatexCommand \label{sub:Feed-Interaction}
+\begin_inset LatexCommand label
+name "sub:Feed-Interaction"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Interpreter will interpret RS274/NGC commands which enable (
-\family typewriter 
+\family typewriter
 M48
-\family default 
+\family default
 ) or disable (
-\family typewriter 
+\family typewriter
 M49
-\family default 
+\family default
 ) the feed and speed override switches.
  For certain moves, such as the traverse out of the end of a thread during
  a threading cycle, the switches are disabled automatically.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 reacts to the speed and feed override settings when these switches
  are enabled.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Block Delete
-\begin_inset LatexCommand \index{block delete}
+\begin_inset LatexCommand index
+name "block delete"
 
-\end_inset 
+\end_inset
 
  Switch
-\begin_inset LatexCommand \label{sub:Block-Delete-Switch-Interaction}
+\begin_inset LatexCommand label
+name "sub:Block-Delete-Switch-Interaction"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If the block delete switch is on, lines of RS274/NGC code which start with
  a slash (the block delete character) are not interpreted.
  If the switch is off, such lines are interpreted.
  Normally the block delete switch should be set before starting the NGC
  program.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Optional Program Stop
-\begin_inset LatexCommand \index{optional program stop}
+\begin_inset LatexCommand index
+name "optional program stop"
 
-\end_inset 
+\end_inset
 
  Switch
-\begin_inset LatexCommand \label{sub:Optional-Program-Stop-Interaction}
+\begin_inset LatexCommand label
+name "sub:Optional-Program-Stop-Interaction"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If this switch is on and an M1 code is encountered, program execution is
  paused.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Tool File
-\begin_inset LatexCommand \label{sub:Tool-File}
+\begin_inset LatexCommand label
+name "sub:Tool-File"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A tool file is required to use the Interpreter.
  The file tells which tools are in which carousel slots and what the length
  and diameter of each tool are.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The file consists of any number of header lines, followed by one blank line,
  followed by any number of lines of data.
  The header lines are ignored by the interpreter.
  It is important that there be exactly one blank line (with no spaces or
  tabs, even) before the data.
  The header line shown in Table 
-\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
+\begin_inset LatexCommand ref
+reference "cap:Sample-Tool-File"
 
-\end_inset 
+\end_inset
 
  describes the data columns, so it is suggested (but not required) that
  such a line always be included in the header.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Each data line of the file contains the data for one tool.
  The line may contain 4 or 5 elements (
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 mill format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 ) or 8 or 9 elements (
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 lathe format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 ).
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The units used for the length and diameter are in machine units.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The lines do not have to be in any particular order.
  Switching the order of lines has no effect unless the same slot number
  is used on two or more lines, which should not normally be done, in which
  case the data for only the last such line will be used.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In emc, the location of the tool file is specified in the ini file.
  See the Integrator Manual for more details.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A tool file may have a mixture of 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 mill format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  and 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 lathe format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  lines, though usually the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 lathe format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  lines are only required for lathe-type tooling.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Mill Format Tool Files
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 mill format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  of a tool file is shown in Table 
-\begin_inset LatexCommand \ref{cap:Sample-Tool-File}
+\begin_inset LatexCommand ref
+reference "cap:Sample-Tool-File"
 
-\end_inset 
+\end_inset
 
 .
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Sample Tool File (mill format)
-\begin_inset LatexCommand \label{cap:Sample-Tool-File}
+\begin_inset LatexCommand label
+name "cap:Sample-Tool-File"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -820,257 +967,297 @@ Sample Tool File (mill format)
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Pocket
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FMS
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 TLO
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Diameter
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Comment
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.25
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 endmill
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 10
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 10
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2.4
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 -0.3
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 for testing
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Each line has five entries.
  The first four entries are required.
  The last entry (a comment) is optional.
@@ -1080,58 +1267,62 @@ Each line has five entries.
  space, tab, or newline at the end of the fourth entry.
  The meanings of the columns and the type of data to be put in each are
  as follows.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Pocket
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  column contains the number (unsigned integer) which represents the pocket
  number (slot number) of the tool carousel slot in which the tool is placed.
  The entries in this column must all be different.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 FMS
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  column contains the number (unsigned integer) which represents a code number
  for the tool.
  The user may use any code for any tool, as long as the codes are unsigned
  integers.
  This is typically the same as the pocket number.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 TLO
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  column contains a real number which represents the tool length offset.
  This number will be used if tool length offsets are being used and this
  pocket is selected.
  This is normally a positive real number, but it may be zero or any other
  number if it is never to be used.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Diameter
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  column contains a real number.
  This number is used only if tool radius compensation is turned on using
@@ -1146,58 +1337,72 @@ Diameter
  If cutter radius compensation is not used with a tool, it does not matter
  what number is in this column.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Comment
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  column may optionally be used to describe the tool.
  Any type of description is OK.
  This column is for the benefit of human readers only.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Lathe Format Tool Files
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 lathe format
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  of a tool file is shown in Table 
-\begin_inset LatexCommand \ref{cap:Lathe-Tool-File}
+\begin_inset LatexCommand ref
+reference "cap:Lathe-Tool-File"
 
-\end_inset 
+\end_inset
 
 .
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Sample Tool File (lathe format)
-\begin_inset LatexCommand \label{cap:Lathe-Tool-File}
+\begin_inset LatexCommand label
+name "cap:Lathe-Tool-File"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="4" columns="9">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -1213,369 +1418,440 @@ Sample Tool File (lathe format)
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Pocket
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FMS
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ZOFFSET
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 XOFFSET
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 DIA
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 FRONTANGLE
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 BACKANGLE
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 ORIENTATION
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Comment
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 95.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 155.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 120
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 60
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 6
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
+\begin_layout Standard
 
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Pocket, FMS, DIA and Comment fields are as for mill format tool files.
  The ZOFFSET field is the same as the TLO field of mill format tool files.
  The DIA is also used by the AXIS gui display.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The XOFFSET field gives an offset for the X coordinate when tool length
  offsets are in effect.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The ORIENTATION field gives the orientation of the lathe tool, as illustrated
  in 
-\begin_inset LatexCommand \ref{cap:Tool-Orientations}
+\begin_inset LatexCommand ref
+reference "cap:Tool-Orientations"
 
-\end_inset 
+\end_inset
 
 .
  The red cross is the controlled point.
  See 
-\begin_inset LatexCommand \ref{sub:Controlled-Point}
+\begin_inset LatexCommand ref
+reference "sub:Controlled-Point"
 
-\end_inset 
+\end_inset
 
 .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
  display a fancy representation of the lathe tool.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Tool Orientations
-\begin_inset LatexCommand \label{cap:Tool-Orientations}
+\begin_inset LatexCommand label
+name "cap:Tool-Orientations"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename lathe_tool.png
 	scale 50
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Parameters
-\begin_inset LatexCommand \index{parameters}
+\begin_inset LatexCommand index
+name "parameters"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Parameters}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:Parameters"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 In the RS274/NGC language view, a machining center maintains an array of
  5400 numerical parameters.
  Many of them have specific uses.
@@ -1585,26 +1861,36 @@ In the RS274/NGC language view, a machining center maintains an array of
  the responsibility for maintaining the file.
  The Interpreter reads the file when it starts up, and writes the file when
  it exits.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Parameters Used by the RS274NGC Interpreter
-\begin_inset LatexCommand \label{cap:Parameters-Used-by}
+\begin_inset LatexCommand label
+name "cap:Parameters-Used-by"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="2">
 <features>
 <column alignment="left" valignment="top" leftline="true" width="0">
@@ -1613,336 +1899,369 @@ Parameters Used by the RS274NGC Interpreter
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Parameter Number(s)
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Meaning
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5061-5070
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Result of 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 G38.2
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  Probe
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5161-5169
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 G28
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  Home
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5181-5189
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 G30
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  Home
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5211-5219
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
-
+\begin_layout Standard
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 G92
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  offset
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5220
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System Number
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5221-5229
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5241-5249
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5261-5269
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 3
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5281-5289
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 4
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5301-5309
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 5
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5321-5329
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 6
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5341-5349
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 7
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5361-5369
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 8
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5381-5389
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Coordinate System 9
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5399
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Result of M66 - Check or wait for input
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The format of a parameter file is shown in Table 
-\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+\begin_inset LatexCommand ref
+reference "cap:Parameter-File-Format"
 
-\end_inset 
+\end_inset
 
 .
  The file consists of any number of header lines, followed by one blank
@@ -1951,35 +2270,39 @@ The format of a parameter file is shown in Table
  It is important that there be exactly one blank line (with no spaces or
  tabs, even) before the data.
  The header line shown in Table 
-\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+\begin_inset LatexCommand ref
+reference "cap:Parameter-File-Format"
 
-\end_inset 
+\end_inset
 
  describes the data columns, so it is suggested (but not required) that
  that line always be included in the header.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Interpreter reads only the first two columns of the table.
  The third column, 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Comment,
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  is not read by the Interpreter.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Each line of the file contains the index number of a parameter in the first
  column and the value to which that parameter should be set in the second
  column.
  The value is represented as a double-precision floating point number inside
  the Interpreter, but a decimal point is not required in the file.
  All of the parameters shown in Table 
-\begin_inset LatexCommand \ref{cap:Parameter-File-Format}
+\begin_inset LatexCommand ref
+reference "cap:Parameter-File-Format"
 
-\end_inset 
+\end_inset
 
  are required parameters and must be included in any parameter file, except
  that any parameter representing a rotational axis value for an unused axis
@@ -1993,26 +2316,36 @@ Each line of the file contains the index number of a parameter in the first
  in the file it writes as it exits.
  The original file is saved as a backup file when the new file is written.
  Comments are not preserved when the file is written.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float table
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Parameter File Format
-\begin_inset LatexCommand \label{cap:Parameter-File-Format}
+\begin_inset LatexCommand label
+name "cap:Parameter-File-Format"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -2022,86 +2355,100 @@ Parameter File Format
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Parameter Number
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Parameter Value
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Comment
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5161
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G28 Home X
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 5162
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0.0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 G28 Home Y
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\the_end
+\end_layout
+
+\end_body
+\end_document
