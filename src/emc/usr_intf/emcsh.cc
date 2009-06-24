@@ -3020,7 +3020,7 @@ static int emc_joint_backlash(ClientData clientdata,
 	    return TCL_ERROR;
 	}
 	// write it out
-	sendAxisSetBacklash(joint, backlash);
+	sendJointSetBacklash(joint, backlash);
 	return TCL_OK;
     }
 }
@@ -3065,7 +3065,7 @@ static int emc_joint_enable(ClientData clientdata,
 	return TCL_ERROR;
     }
 
-    sendAxisEnable(joint, val);
+    sendJointEnable(joint, val);
     return TCL_OK;
 }
 
@@ -3100,7 +3100,7 @@ static int emc_joint_load_comp(ClientData clientdata,
     }
 
     // now write it out
-    sendAxisLoadComp(joint, file, type);
+    sendJointLoadComp(joint, file, type);
     return TCL_OK;
 }
 
