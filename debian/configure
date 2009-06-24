@@ -44,8 +44,8 @@ fi
 if [ $1 = "-r" ]; then
     set -- `uname -r`
 elif [ $1 = "-a" ]; then
-    KERNEL="/usr/realtime-$(uname -r)"
-    if [ ! -d "$KERNEL" ]; then
+    KERNEL="$(uname -r)"
+    if [ ! -d "/usr/realtime-$KERNEL" ]; then
         KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
         if [ -z "$KERNEL" ]; then
             echo "no realtime kernels found!"
