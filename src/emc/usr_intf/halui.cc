@@ -1359,11 +1359,7 @@ int sendJogStop(int axis)
     emc_jog_stop_msg.axis = axis;
     emcCommandBuffer->write(emc_jog_stop_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-        return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-        return emcCommandWaitDone(emcCommandSerialNumber);
-    }
+    return emcCommandWaitReceived(emcCommandSerialNumber);
 
     axisJogging[axis] = 0;
     return 0;
@@ -1373,21 +1369,13 @@ int sendJogCont(int axis, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (0 == jogPol[axis]) {
-        speed = -speed;
-    }
-
     emc_jog_cont_msg.serial_number = ++emcCommandSerialNumber;
     emc_jog_cont_msg.axis = axis;
     emc_jog_cont_msg.vel = speed / 60.0;
     emcCommandBuffer->write(emc_jog_cont_msg);
 
     axisJogging[axis] = 1;
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
+    return emcCommandWaitReceived(emcCommandSerialNumber);
 
     return 0;
 }
@@ -1405,21 +1393,13 @@ int sendJogInc(int axis, double speed, double incr)
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
         return -1;
 
-    if (0 == jogPol[axis]) {
-	speed = -speed;
-    }
-
     emc_jog_incr_msg.serial_number = ++emcCommandSerialNumber;
     emc_jog_incr_msg.axis = axis;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
     emcCommandBuffer->write(emc_jog_incr_msg);
 
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone(emcCommandSerialNumber);
-    }
+    return emcCommandWaitReceived(emcCommandSerialNumber);
     axisJogging[axis] = 1;
 
     return 0;
