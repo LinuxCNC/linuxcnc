@@ -1346,25 +1346,13 @@ int sendJogStop(int axis)
     EMC_JOG_STOP emc_jog_stop_msg;
     
     emc_jog_stop_msg.axis = axis;
-    emcCommandBuffer->write(emc_jog_stop_msg);
-
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-        return emcCommandWaitReceived(emcCommandSerialNumber);
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-        return emcCommandWaitDone(emcCommandSerialNumber);
-    }
-
     axisJogging[axis] = 0;
-    return 0;
+    return emcCommandSend(emc_jog_stop_msg);
 }
 
 int sendJogCont(int axis, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
-
-    if (0 == jogPol[axis]) {
-        speed = -speed;
-    }
 
     sendManual();
 
@@ -1390,18 +1378,12 @@ int sendJogInc(int axis, double speed, double incr)
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
         return -1;
 
-    if (0 == jogPol[axis]) {
-	speed = -speed;
-    }
-
     emc_jog_incr_msg.axis = axis;
     emc_jog_incr_msg.vel = speed / 60.0;
     emc_jog_incr_msg.incr = incr;
 
     axisJogging[axis] = 1;
     return emcCommandSend(emc_jog_incr_msg);
-
-    return 0;
 }
 
 static int sendFeedOverride(double override)
