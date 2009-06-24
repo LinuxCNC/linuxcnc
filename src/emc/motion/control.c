@@ -429,8 +429,8 @@ static void process_inputs(void)
             }
 
             // abort any jogs
-            if(joint->free_tp_enable == 1) {
-                joint->free_tp_enable = 0;
+            if(joint->free_tp.enable == 1) {
+                joint->free_tp.enable = 0;
                 // since homing uses free_tp, this protection of aborted
                 // is needed so the user gets the correct error.
                 if(!aborted) aborted=2;
@@ -1795,9 +1795,9 @@ static void output_to_hal(void)
 	*(joint_data->f_error) = joint->ferror;
 	*(joint_data->f_error_lim) = joint->ferror_limit;
 
-	*(joint_data->free_pos_cmd) = joint->free_pos_cmd;
-	*(joint_data->free_vel_lim) = joint->free_vel_lim;
-	*(joint_data->free_tp_enable) = joint->free_tp_enable;
+	*(joint_data->free_pos_cmd) = joint->free_tp.pos_cmd;
+	*(joint_data->free_vel_lim) = joint->free_tp.max_vel;
+	*(joint_data->free_tp_enable) = joint->free_tp.enable;
 	*(joint_data->kb_jog_active) = joint->kb_jog_active;
 	*(joint_data->wheel_jog_active) = joint->wheel_jog_active;
 

@@ -108,7 +108,7 @@ int emcJointSetUnits(int joint, double units)
     return 0;
 }
 
-int emcJointSetBacklash(int axis, double backlash)
+int emcJointSetBacklash(int joint, double backlash)
 {
 #ifdef ISNAN_TRAP
     if (isnan(backlash)) {
@@ -713,7 +713,7 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numAxes)
 	    stat[joint_num].minFerror = joint->min_ferror;
 	    stat[joint_num].maxFerror = joint->max_ferror;
 /*! \todo FIXME - should all homing config params be included here? */
-	    stat[joint_num].homeOffset = joint->home_offset;
+//	    stat[joint_num].homeOffset = joint->home_offset;
 	}
 	stat[joint_num].output = joint->pos_cmd;
 	stat[joint_num].input = joint->pos_fb;

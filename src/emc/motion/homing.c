@@ -690,12 +690,12 @@ void do_homing(void)
 		joint->free_tp.pos_cmd = joint->home;
 		/* if home_vel is set (>0) then we use that, otherwise we rapid there */
 		if (joint->home_final_vel > 0) {
-		    joint->free_vel_lim = fabs(joint->home_final_vel);
+		    joint->free_tp.max_vel = fabs(joint->home_final_vel);
 		    /* clamp on max vel for this joint */
-		    if (joint->free_vel_lim > joint->vel_limit)
-			joint->free_vel_lim = joint->vel_limit;
+		    if (joint->free_tp.max_vel > joint->vel_limit)
+			joint->free_tp.max_vel = joint->vel_limit;
 		} else { 
-		    joint->free_vel_lim = joint->vel_limit;
+		    joint->free_tp.max_vel = joint->vel_limit;
 		}
 		/* start the move */
 		joint->free_tp.enable = 1;

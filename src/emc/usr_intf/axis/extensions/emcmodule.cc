@@ -1169,25 +1169,9 @@ static PyObject *set_traj_mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *set_teleop_vector(pyCommandChannel *s, PyObject *o) {
-    EMC_TRAJ_SET_TELEOP_VECTOR mo;
-
-    mo.vector.a = mo.vector.b = mo.vector.c = 0.;
-
-    if(!PyArg_ParseTuple(o, "ddd|ddd", &mo.vector.tran.x, &mo.vector.tran.y, &mo.vector.tran.z, &mo.vector.a, &mo.vector.b, &mo.vector.c))
-        return NULL;
-
-    mo.serial_number = next_serial(s);
-    s->c->write(mo);
-    emcWaitCommandReceived(s->serial, s->s);
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_SET_MIN_POSITION_LIMIT m;
-    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+    EMC_JOINT_SET_MIN_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.joint, &m.limit))
         return NULL;
 
     m.serial_number = next_serial(s);
@@ -1199,8 +1183,8 @@ static PyObject *set_min_limit(pyCommandChannel *s, PyObject *o) {
 }
 
 static PyObject *set_max_limit(pyCommandChannel *s, PyObject *o) {
-    EMC_AXIS_SET_MAX_POSITION_LIMIT m;
-    if(!PyArg_ParseTuple(o, "id", &m.axis, &m.limit))
+    EMC_JOINT_SET_MAX_POSITION_LIMIT m;
+    if(!PyArg_ParseTuple(o, "id", &m.joint, &m.limit))
         return NULL;
 
     m.serial_number = next_serial(s);
