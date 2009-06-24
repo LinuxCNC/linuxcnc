@@ -38,9 +38,11 @@ char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 double traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
 double traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
 
+double AXIS_MAX_VELOCITY[EMC_JOINT_MAX] = { 1.0 }; // XXX?
 double JOINT_MAX_VELOCITY[EMC_JOINT_MAX] = { 1.0 };	/*! \todo FIXME - I think
 							   these should be
 							   0.0 */
+double AXIS_MAX_ACCELERATION[EMC_JOINT_MAX] = { 1.0 };
 double JOINT_MAX_ACCELERATION[EMC_JOINT_MAX] = { 1.0 };
 
 EmcPose tool_change_position;	/* no defaults */
