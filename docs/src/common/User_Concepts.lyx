@@ -265,12 +265,61 @@ Homing
 
 After starting EMC2 each axis must be homed prior to running a program or
  running a MDI command.
+ Homing each axis and having the machine limits correctly set will prevent
+ you from running a program that would exceed any travel for an axis.
+ If your machine does not have home switches you should jog each axis to
+ a match mark and home at the same place each time.
+ Just because you home an axis in a particular spot does not limit you to
+ how a program center is done.
+ For example if you home your X axis with the table all the way to the right
+ (the tool is in the left most position) and you encounter a g code program
+ that has the X axis 0 position in the center of the part you jog over to
+ the center of the part and touch off the X axis (using the AXIS interface).
  
 \layout Standard
 
 If you want to deviate from the default behaviour, or want to use the Mini
  interface you will need to set the option NO_FORCE_HOMING = 1 in the [TRAJ]
  section of your ini file.
+\layout Section
+
+Touching Off
+\layout Standard
+
+Touching Off is how you tell EMC where your tool and material is.
+ For example if you have a g code program that referenced the X zero from
+ the left side of the material (viewed from the front) and referenced the
+ Y zero from the back side of the materal and the Z zero from the top of
+ the material.
+ Touching off is how you set the X zero, Y zero, and Z zero positions for
+ the cooridnate system your using.
+ In the AXIS interface you simply move the tool to a known position for
+ that axis then select the radio button for that axis on the Manual Control
+ tab then select Touch Off and enter in any offset.
+ If for an example if you are using an edge finder and locating the left
+ edge of your material and the edge finder has a 0.100
+\begin_inset Quotes erd
+\end_inset 
+
+ offset then once you find the edge you select touch off and enter -0.100
+ indicating that your present position is 0.100
+\begin_inset Quotes erd
+\end_inset 
+
+ to the left of edge of the part.
+ One method for touching off Z axis is to have a cylindrical part of known
+ diameter and to lower the tool tip to a point where the cylinder will not
+ roll under the tool, then raise the Z up slowly until the cylinder just
+ rolls under the tool tip.
+ Then touch off and enter the diameter of the cylinder and your Z zero will
+ be set to the top of the material.
+ For more information on coordinate systems see the Coordinate System Chapter
+ (
+\begin_inset LatexCommand \ref{cha:Coordinate-System}
+
+\end_inset 
+
+) in this manual .
 \layout Section
 
 Tool Changes
