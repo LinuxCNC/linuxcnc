@@ -1,37 +1,52 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Motenc
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Vital Systems Motenc-100 and Motenc-LITE
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Vital Systems Motenc-100 and Motenc-LITE are 8- and 4-channel servo
  control boards.
  The Motenc-100 provides 8 quadrature encoder counters, 8 analog inputs,
@@ -40,113 +55,141 @@ The Vital Systems Motenc-100 and Motenc-LITE are 8- and 4-channel servo
  outputs, but it still has 8 analog inputs and 8 analog outputs.
  The driver automatically identifies the installed board and exports the
  appropriate HAL objects.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Installing:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt hal_motenc
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 During loading (or attempted loading) the driver prints some usefull debugging
  message to the kernel log, which can be viewed with dmesg.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Up to 4 boards may be used in one system.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Pins
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In the following pins, parameters, and functions, <board> is the board ID.
  According to the naming conventions the first board should always have
  an ID of zero.
  However this driver sets the ID based on a pair of jumpers on the baord,
  so it may be non-zero even if there is only one board.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (s32) motenc.<board>.enc-<channel>-count -- Encoder position, in counts.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.enc-<channel>-position -- Encoder position, in user
  units.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.enc-<channel>-index -- Current status of index pulse
  input.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.enc-<channel>-idx-latch -- Driver sets this pin true
  when it latches an index pulse (enabled by latch-index).
  Cleared by clearing latch-index.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.enc-<channel>-latch-index -- If this pin is true, the
  driver will reset the counter on the next index pulse.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.enc-<channel>-reset-count -- If this pin is true, the
  counter will immediately be reset to zero, and the pin will be cleared.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.dac-<channel>-value -- Analog output value for DAC
  (in user units, see -gain and -offset)
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.adc-<channel>-value -- Analog input value read by ADC
  (in user units, see -gain and -offset)
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.in-<channel> -- State of digital input pin, see canonical
  digital input.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.in-<channel>-not -- Inverted state of digital input pin,
  see canonical digital input.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.out-<channel> -- Value to be written to digital output,
  seen canonical digital output.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.estop-in -- Dedicated estop input, more details needed.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.estop-in-not -- Inverted state of dedicated estop input.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.watchdog-reset -- Bidirectional, - Set TRUE to reset
  watchdog once, is automatically cleared.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Parameters
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.enc-<channel>-scale -- The number of counts / user
  unit (to convert from counts to units).
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.dac-<channel>-offset -- Sets the DAC offset.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.dac-<channel>-gain -- Sets the DAC gain (scaling).
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.adc-<channel>-offset -- Sets the ADC offset.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (float) motenc.<board>.adc-<channel>-gain -- Sets the ADC gain (scaling).
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) motenc.<board>.out-<channel>-invert -- Inverts a digital output, see
  canonical digital output.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (u32) motenc.<board>.watchdog-control -- Configures the watchdog.
  The value may be a bitwise OR of the following values: 
-\newline 
+\newline
 
-\begin_inset  Tabular
+\begin_inset Tabular
 <lyxtabular version="3" rows="4" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -156,136 +199,159 @@ Parameters
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Bit #
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Value
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Meaning
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Timeout is 16ms if set, 8ms if unset
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 2
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 4
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Watchdog is enabled
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 4
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 16
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 Watchdog is automatically reset by DAC writes (the HAL dac-write function)
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\newline 
+\newline
 Typically, the useful values are 0 (watchdog disabled) or 20 (8ms watchdog
  enabled, cleared by dac-write).
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (u32) motenc.<board>.led-view -- Maps some of the I/O to onboard LEDs?
-\layout Section
+\end_layout
 
+\begin_layout Section
 Functions
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.encoder-read -- Reads all encoder counters.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.adc-read -- Reads the analog-to-digital converters.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.digital-in-read -- Reads digital inputs.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.dac-write -- Writes the voltages to the DACs.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.digital-out-write -- Writes digital outputs.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) motenc.<board>.misc-update -- Updates misc stuff.
-\the_end
+\end_layout
+
+\end_body
+\end_document

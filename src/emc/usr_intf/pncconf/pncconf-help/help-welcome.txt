@@ -1,0 +1,6 @@
+Welcome to PNCCONF a graphical configuration program for EMC2.
+
+             ALPHA Version
+
+Configure a servo or hardware stepper system using the 
+Mesa I / O card and parallel port.

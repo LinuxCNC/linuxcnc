@@ -1,126 +1,151 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
+\begin_preamble
+\usepackage{a4}
+\end_preamble
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement h
 \paperfontsize 10
-\spacing single 
-\papersize Default
-\paperpackage a4wide
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 5
 \tocdepth 5
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Compiling from source
-\layout Section
+\end_layout
 
+\begin_layout Section
 Introduction
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Live CD is the preferred way to install EMC.
  Compliling from source is not normally needed.
  See the Getting Started Manual for infomation on getting and installing
  EMC.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The third hurdle that you face when you begin to set up EMC from scratch
  is getting and installing the EMC2 software itself.
  All of EMC2 has been placed on git.linuxcnc.org.
  EMC2 is also available as a precompiled package (for various platforms)
  for download from that site.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 EMC Download Page
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 You will find the most recent releases of EMC2 announced on www.linuxcnc.org.
  The releases of EMC2 will be done in two ways (sources and binary package).
  The sources (described furtheron) consist of a tarball (emc2-version.tar.gz),
  which you should download and unpack into your home directory.
-\layout Section
+\end_layout
 
+\begin_layout Section
 EMC2 Release Description
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 will be using a release model similar to (but simpler than) the one
  used by Debian.
  At any one time there will be three versions of EMC2.
  Debian uses "stable", "testing", and "unstable".
  We will be using "Released", "Testing", and "Head".
  For the latest information, click on the version you are interested in.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\series bold 
+\series bold
 Released
-\series default 
+\series default
  is exactly that, a released version of EMC2 with a version number.
  It is tested by both developers and beta users before being released, and
  is suitable for the average user.
  Most developers and IRC/mailing list regulars are able to help support
  people running a released version.
  
-\series bold 
+\series bold
 "Released"
-\series default 
+\series default
  is available in several forms, including .debs for Ubuntu and source tarballs
  for local compilation.
  There will be a debian repository which will always have the latest released
  version (and thus allows for easy upgrades from one stable release to the
  next).
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
  is a version of EMC2 that is ready for "beta testing" but not for general
  release.
  Before a version is labeled 
-\series bold 
+\series bold
 testing
-\series default 
+\series default
  it will be known to compile and run on several different platforms, but
  there will probably be various limitations and known problems.
  The 
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
  wiki page will attempt to list known problems and workarounds, but there
  will probably also be undiscovered bugs.
  Since 
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
  is "beta" software, it should not be used for anything critical.
  Users of 
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
  need to understand that it is beta software, and must be willing to give
  detailed bug reports if things go wrong.
  
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
  is available primarily as a tag in git, although for convenience of testers,
  a "testing" debian repository and/or tarballs may also be available.
  The EMC Board of Directors will decide when "Testing" is worthy of becoming
@@ -128,232 +153,272 @@ Testing
  This is a formal decision, made by motion and voting on the board mailing
  list or board IRC channel.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 
-\series bold 
+\series bold
 master
-\series default 
+\series default
  is a term for where all the primary development takes place.
  
-\series bold 
+\series bold
 TRUNK
-\series default 
+\series default
  can be broken at any time.
  When 
-\series bold 
+\series bold
 TRUNK
-\series default 
+\series default
  reaches a state that is deemed worthy of testing by a larger number of
  people, the 
-\series bold 
+\series bold
 "Testing"
-\series default 
+\series default
  tag will be moved.
  This is an informal decision, made by concensus of lead developers, usually
  on IRC.
  Development will immediately continue, and 
-\series bold 
+\series bold
 TRUNK
-\series default 
+\series default
  will once again diverge from 
-\series bold 
+\series bold
 Testing
-\series default 
+\series default
 .
  
-\series bold 
+\series bold
 TRUNK
-\series default 
+\series default
  has no "version number", and on a busy weekend it can literally change
  every 10 minutes.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Download and source preparation.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The following few section will describe how to get EMC2, and compile it.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To download, simply go to www.linuxcnc.org to the Download page, and get the
  latest release or testing tarball.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Once you have it, extract it to your home folder:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ cd ~/
-\newline 
+\newline
 $ tar xzvf emc2-version.tar.gz
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Next you'll need to decide what kind of install you want.
  There are two ways to try EMC2 out:
-\layout Description
+\end_layout
 
+\begin_layout Description
 Installed Like most other software on Linux, the files are placed in system
  directories, and is automatically available to all users of that computer.
 \begin_inset Foot
-collapsed false
+status open
 
-\layout Standard
-
+\begin_layout Standard
 The pre-built packages for Ubuntu Linux use the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 installed
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  method
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Description
+\end_layout
 
+\begin_layout Description
 Run-in-place All the files for EMC2 are kept inside the 
-\family typewriter 
+\family typewriter
 emc2
-\family default 
+\family default
  directory.
  This is useful for trying out EMC2, especially when there is another version
  of EMC2 already installed on the system.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Downloading the development version
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you wish to use the development version of emc2, please follow the instructio
 ns on our wiki to obtain the source code: 
-\begin_inset LatexCommand \url{http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git}
+\begin_inset LatexCommand url
+target "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Git"
 
-\end_inset 
+\end_inset
 
 
-\layout Section
+\end_layout
 
+\begin_layout Section
 Installed
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC2 followes the standard way of compiling linux software.
  To compile it simply go to the sources folder:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ cd ~/emc2/src
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 and issue these commands:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ ./configure
-\newline 
+\newline
 $ make && sudo make install
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To run it simply type 'emc'.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Run-in-place
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you want only to test the software before installing it, or if you're
  worried about overwriting an existing installation, there is a Run-In-Place
  (RIP) mode which you can try out.
  In this mode, there is no installation step, and no files are placed outside
  the top directory , 
-\family typewriter 
+\family typewriter
 ~/emc2
-\family default 
+\family default
  in this example.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ cd ~/emc2/src
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 and issue these commands:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ ./configure --enable-run-in-place
-\newline 
+\newline
 $ make && sudo make setuid
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In a shell session where you want to use the run-in-place version of emc
 \begin_inset Foot
-collapsed true
+status collapsed
 
-\layout Standard
-
+\begin_layout Standard
 By putting this command in a shell start-up script, such as 
-\family typewriter 
+\family typewriter
 ~/.bash_profile
-\family default 
+\family default
 , you do not need to manually run it in each terminal window.
-\end_inset 
+\end_layout
+
+\end_inset
 
 , execute
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ .
  ~/emc2/scripts/emc-environment
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Until you close that terminal, it will be set up so that the programs and
  manual pages from the Run-In-Place directory are available without referring
  to the path each time.
  After that you can run EMC2 by issuing:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ emc
-\layout Section
+\end_layout
 
+\begin_layout Section
 Simulator
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To install EMC2 on a system without a realtime kernel, add 
-\family typewriter 
+\family typewriter
 --enable-simulator
-\family default 
+\family default
  to the 
-\family typewriter 
+\family typewriter
 configure
-\family default 
+\family default
  commandline.
  In this mode, EMC2 runs as a purely userspace program.
  No hardware can be controlled and realtime scheduling is not guaranteed,
  but the other features of HAL, EMC and its various user interfaces are
  available.
  When using 
-\family typewriter 
+\family typewriter
 --enable-run-in-place
-\family default 
+\family default
 , the 
-\family typewriter 
+\family typewriter
 sudo make setuid
-\family default 
+\family default
  step is unneeded.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Editing and Recompiling
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 You may need to recompile the EMC2 code for a number of reasons.
  You may have modified the source code, or you may have downloaded just
  a few new files.
  To recompile, do the following:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 $ cd ~/emc2/src
-\newline 
+\newline
 $ make && sudo make install # for run-installed
-\newline 
-$ make && sudo make setuid  # for run-in-place
-\newline 
-$ make                      # for run-in-place, simulator
-\layout Standard
+\newline
+$ make &&
+ sudo make setuid  # for run-in-place
+\newline
+$ make                      # for run-in-pl
+ace, simulator
+\end_layout
 
+\begin_layout Standard
 The build process is smart enough to only rebuild things that are affected
  by your changes.
-\the_end
+\end_layout
+
+\end_body
+\end_document

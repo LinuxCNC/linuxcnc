@@ -1,19 +1,28 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding default
-\fontscheme bookman
+\font_roman bookman
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \float_placement !!h
 \paperfontsize 10
-\spacing single 
-\papersize Custom
-\paperpackage a4
-\use_geometry 1
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize custom
+\use_geometry true
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \paperwidth 8.5in
 \paperheight 11in
@@ -26,50 +35,61 @@
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
+\begin_inset LatexCommand label
+name "first-section"
 
-\begin_inset LatexCommand \label{first-section}
-
-\end_inset 
+\end_inset
 
 The Enhanced Machine Control
-\layout Section
+\end_layout
 
+\begin_layout Section
 Introduction
-\begin_inset LatexCommand \label{sec:Introduction}
+\begin_inset LatexCommand label
+name "sec:Introduction"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For normal stepper based installations see the Getting Started Guide.
  Once EMC is installed and configured see the User Manual for information
  on using EMC.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Integrator Manual scope is on more complex machines, configurations
  and installations.
  As the system integrator your task is bringing together all the component
  subsystems into a whole and ensuring that those subsystems function together.
  EMC being one of the subsystems.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 The Big CNC Picture
-\begin_inset LatexCommand \label{sec:The-Big-CNC}
+\begin_inset LatexCommand label
+name "sec:The-Big-CNC"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The term CNC has taken on a lot of different meanings over the years.
  In the early days CNC replaced the hands of a skilled machinist with motors
  that followed commands in much the same way that the machinist turned the
@@ -88,58 +108,63 @@ The term CNC has taken on a lot of different meanings over the years.
  In general each machine tool maker has been consistent within their product
  line but different dialects can have commands that cause quite different
  behavior from one machine to another.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 More recently the language of CNC has been hidden behind or side-stepped
  by several programming schemes that are referred to as 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Conversational
 \begin_inset Foot
-collapsed true
+status collapsed
 
-\layout Standard
-
+\begin_layout Standard
 One machine tool manufacturer, Hurco, claims to have a right to the use
  of these programming schemes and to the use of the term conversational
  when used in this context.
  
-\end_inset 
+\end_layout
+
+\end_inset
 
  programming languages.
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  One common feature of these kinds of programming schemes is the selection
  of a shape or geometry and the addition of values for the corners, limits,
  or features of that geometry.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The use of Computer Aided Design has also had an effect on the CNC programming
  languages.
  Because CAD drawings are saved as a list or database of geometries and
  variables associated with each, they are available to be interpreted into
  G-Code.
  These interpreters are called CAM (Computer Aided Manufacturing) programs.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Like the CAD converters, the rise of drawing programs, like Corel
 \begin_inset Formula $^{\textrm{TM}}$
-\end_inset 
+\end_inset
 
  and the whole bunch of paint programs, converters have been written that
  will take a bitmap or raster or vector image and turn it into G-Code that
  can be run with a CNC.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 You're asking yourself, 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Why did I want to know this?
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  The answer is that the EMC2 as it currently exists does not directly take
  in CAD or any image and run a machine using it.
@@ -154,42 +179,48 @@ Why did I want to know this?
  Several commercial CAD/CAM programs are available to do this conversion.
  At least one converter (Ace) has been written that carries a copyright
  that makes it available to the public.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There has been recent talk about writing a 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 conversational
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  or geometric interface that would allow an operator to enter programs is
  much the same way that several modern proprietary controls enter programs
  but it isn't in there yet.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Computer Operating Systems
-\begin_inset LatexCommand \label{sec:Computer-Operating-Systems}
+\begin_inset LatexCommand label
+name "sec:Computer-Operating-Systems"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC2 code can be compiled on almost any GNU-Linux Distribution (assuming
  it has been patched with a real time extension).
  In addition to the raw code, some binary distributions are available.
  The latest packages have been created around the Ubuntu
-\begin_inset LatexCommand \index{Ubuntu}
+\begin_inset LatexCommand index
+name "Ubuntu"
 
-\end_inset 
+\end_inset
 
  GNU-Linux
-\begin_inset LatexCommand \index{GNU-Linux}
+\begin_inset LatexCommand index
+name "GNU-Linux"
 
-\end_inset 
+\end_inset
 
  Distribution.
  Ubuntu is one of the distributions that is aimed at novice Linux users,
@@ -197,44 +228,52 @@ The EMC2 code can be compiled on almost any GNU-Linux Distribution (assuming
  Along with that, there are lots of places around the world that offer support
  for it.
  Installing EMC2 on it is trivial, see section 
-\begin_inset LatexCommand \ref{sec:EMC2-Ubuntu-Live-CD}
+\begin_inset LatexCommand ref
+reference "sec:EMC2-Ubuntu-Live-CD"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC2 will not run under a Microsoft (TM) operating system.
  The reason for this is that the EMC2 requires a real-time environment for
  the proper operation of its motion planning and stepper pulse outputs.
  Along with that, it also benefits from the much-needed stability and performanc
 e of the Linux OS.
-\layout Section
+\end_layout
 
+\begin_layout Section
 History of the Software
-\begin_inset LatexCommand \label{sec:History-of-the}
+\begin_inset LatexCommand label
+name "sec:History-of-the"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The EMC code was started by the Intelligent Systems Division at the National
  Institute of Standards and Technology in the United States.
  The quotation below, taken from the NIST
-\begin_inset LatexCommand \index{NIST}
+\begin_inset LatexCommand index
+name "NIST"
 
-\end_inset 
+\end_inset
 
  web presence some time back, should lend some understanding of the essential
  reasons for the existence of this software and of the NIST involvement
  in it.
-\layout Quotation
+\end_layout
 
+\begin_layout Quotation
 As part of our (NIST) collaboration with the OMAC
-\begin_inset LatexCommand \index{OMAC}
+\begin_inset LatexCommand index
+name "OMAC"
 
-\end_inset 
+\end_inset
 
  User's Group, we have written software which implements real-time control
  of equipment such as machine tools, robots, and coordinate measuring machines.
@@ -244,9 +283,10 @@ As part of our (NIST) collaboration with the OMAC
  the transfer of control technology to small- and medium-sized manufacturers
  via the NIST Manufacturing Extension Partnership.
  The EMC software is based on the NIST Real-time Control System (RCS
-\begin_inset LatexCommand \index{RCS}
+\begin_inset LatexCommand index
+name "RCS"
 
-\end_inset 
+\end_inset
 
 ) Methodology, and is programmed using the NIST RCS Library.
  The RCS Library eases the porting of controller code to a variety of Unix
@@ -267,40 +307,46 @@ g Language, which allows control processes to read and write C++ data structures
  This enables entire factories of EMC machines to be set up and run in a
  computer integrated manufacturing environment.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 EMC has been installed on many machines, both with servo motors and stepper
  motors.
  Here is a sampling of the earliest applications.
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 3-axis Bridgeport
-\begin_inset LatexCommand \index{Bridgeport}
+\begin_inset LatexCommand index
+name "Bridgeport"
 
-\end_inset 
+\end_inset
 
  knee mill at Shaver Engineering.
  The machine uses DC brush servo motors and encoders for motion control,
  and OPTO-22 compatible I/O interfaced to the PC parallel port for digital
  I/O to the spindle, coolant, lube, and e-stop systems.
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 3-axis desktop milling machine used for prototype development.
  The machine uses DC brush servo motors and encoders.
  Spindle control is accomplished using the 4th motion control axis.
  The machine cuts wax parts.
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 4-axis Kearney & Trecker horizontal machining center at General Motors Powertrai
 n in Pontiac, MI.
  This machine ran a precursor to the full-software EMC which used a hardware
  motion control board.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 After these early tests, Jon Elson found the Shaver Engineering notes and
  replaced a refrigerator sized Allen Bradley 7300 control on his Bridgeport
  with the EMC running on a Red Hat 5.2 distribution of Linux.
@@ -309,56 +355,63 @@ After these early tests, Jon Elson found the Shaver Engineering notes and
  He continues to use that installation and has produced several boards that
  are supported by the software.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 From these early applications news of the software spread around the world.
  It is now used to control many different kinds of machines.
  More recently the Sherline
-\begin_inset LatexCommand \index{Sherline}
+\begin_inset LatexCommand index
+name "Sherline"
 
-\end_inset 
+\end_inset
 
  company 
-\begin_inset LatexCommand \url{http://www.sherline.com}
+\begin_inset LatexCommand url
+target "http://www.sherline.com"
 
-\end_inset 
+\end_inset
 
  has released their first CNC mill.
  It uses a standard release of the EMC.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The source code files that make up the controller are kept in a repository
  on 
-\begin_inset LatexCommand \url{http://git.linuxcnc.org}
+\begin_inset LatexCommand url
+target "http://git.linuxcnc.org"
 
-\end_inset 
+\end_inset
 
 .
  They are available for anyone to inspect or download.
  The EMC2 source code (with a few exceptions
 \begin_inset Foot
-collapsed true
+status collapsed
 
-\layout Standard
-
+\begin_layout Standard
 some parts of EMC2 are released under the 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Lesser
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  GPL (LPGL), which allows them to be used with proprietary software as long
  as certain restrictions are observed.
-\end_inset 
+\end_layout
+
+\end_inset
 
 ) is released under the GNU General Public License (GPL).
  The GPL
-\begin_inset LatexCommand \index{GPL}
+\begin_inset LatexCommand index
+name "GPL"
 
-\end_inset 
+\end_inset
 
  controls the terms under which EMC2 can be changed and distributed.
  This is done in order to protect the rights of people like you to use,
@@ -366,25 +419,30 @@ Lesser
  To read about your rights as a user of EMC2, and the terms under which
  you are allowed to distribute any modifications you may make, see the full
  GPL at 
-\begin_inset LatexCommand \url{http://www.gnu.org/copyleft/gpl.html}
+\begin_inset LatexCommand url
+target "http://www.gnu.org/copyleft/gpl.html"
 
-\end_inset 
+\end_inset
 
 .
-\layout Section
+\end_layout
 
+\begin_layout Section
 How EMC2 Works
-\begin_inset LatexCommand \label{sec:How-EMC2-Works}
+\begin_inset LatexCommand label
+name "sec:How-EMC2-Works"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
-\begin_inset LatexCommand \index{CNC}
+\begin_inset LatexCommand index
+name "CNC"
 
-\end_inset 
+\end_inset
 
  mill program.
  It can control machine tools, robots, or other automated devices.
@@ -392,47 +450,61 @@ The Enhanced Machine Controller (EMC2) is a lot more than just another CNC
  related to machine tools.
  In this handbook we focus on only a small part of that awesome capability,
  the minimill.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:Typical_machine"
 
-\begin_inset LatexCommand \label{fig:Typical_machine}
-
-\end_inset 
+\end_inset
 
 Simple EMC2 Controlled Machine
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename whatstep1.png
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Figure 
-\begin_inset LatexCommand \ref{fig:Typical_machine}
+\begin_inset LatexCommand ref
+reference "fig:Typical_machine"
 
-\end_inset 
+\end_inset
 
  shows a simple block diagram showing what a typical 3-axis EMC2 system
  might look like.
  This diagram shows a stepper motor system.
  The PC, running Linux
-\begin_inset LatexCommand \index{Linux}
+\begin_inset LatexCommand index
+name "Linux"
 
-\end_inset 
+\end_inset
 
  as its operating system, is actually controlling the stepper motor drives
  by sending signals through the printer port.
@@ -441,8 +513,9 @@ Figure
  an extended parallel port to connect with external control boards.
  As we examine each of the components that make up an EMC2 system we will
  remind the reader of this typical machine.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 There are four main components to the EMC2 software: a motion controller
  (EMCMOT), a discrete I/O controller (EMCIO), a task executor which coordinates
  them (EMCTASK), and a collection of text-based or graphical user interfaces.
@@ -450,225 +523,313 @@ There are four main components to the EMC2 software: a motion controller
  of these components in order to completely control it.
  Each component is briefly described below.
  In addition there is a layer called HAL
-\begin_inset LatexCommand \index{HAL}
+\begin_inset LatexCommand index
+name "HAL"
 
-\end_inset 
+\end_inset
 
  (Hardware Abstraction Layer) which allows simple reconfiguration of EMC2
  without the need of recompiling.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Graphical User Interfaces
-\begin_inset LatexCommand \label{sub:Graphical-User-Interfaces}
+\begin_inset LatexCommand label
+name "sub:Graphical-User-Interfaces"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A graphical interface is the part of the EMC2 that the machine tool operator
  interacts with.
  The EMC2 comes with several types of user interfaces: 
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 a character-based screen graphics program named keystick
-\begin_inset LatexCommand \index{keystick}
+\begin_inset LatexCommand index
+name "keystick"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \ref{fig:The Keystick Interface}
+\begin_inset LatexCommand ref
+reference "fig:The Keystick Interface"
 
-\end_inset 
+\end_inset
 
 
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 an X Windows programs named xemc
-\begin_inset LatexCommand \index{xemc}
+\begin_inset LatexCommand index
+name "xemc"
 
-\end_inset 
-
- 
-\begin_inset LatexCommand \ref{fig:XEMC_Graphical_Interface}
-
-\end_inset 
+\end_inset
 
  
-\layout Itemize
+\begin_inset LatexCommand ref
+reference "fig:XEMC_Graphical_Interface"
 
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
 two Tcl/Tk-based GUIs named tkemc
-\begin_inset LatexCommand \index{tkemc}
+\begin_inset LatexCommand index
+name "tkemc"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \ref{fig:TkEmc_Graphical_Interface}
+\begin_inset LatexCommand ref
+reference "fig:TkEmc_Graphical_Interface"
 
-\end_inset 
+\end_inset
 
  and mini
-\begin_inset LatexCommand \index{mini}
+\begin_inset LatexCommand index
+name "mini"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \ref{fig:The Mini Graphical Interface}
+\begin_inset LatexCommand ref
+reference "fig:The Mini Graphical Interface"
 
-\end_inset 
+\end_inset
 
 .
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 an OpenGL-based GUI, with an interactive G-Code previewer, called AXIS
-\begin_inset LatexCommand \index{AXIS}
+\begin_inset LatexCommand index
+name "AXIS"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \ref{fig:The AXIS Graphical Interface}
+\begin_inset LatexCommand ref
+reference "fig:The AXIS Graphical Interface"
 
-\end_inset 
-
-
-\layout Standard
+\end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\align center 
-
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/axis_2.3.png
 	lyxscale 75
 	width 80page%
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
 
+\begin_layout Standard
+\begin_inset Caption
 
-\begin_inset LatexCommand \label{fig:The AXIS Graphical Interface}
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:The AXIS Graphical Interface"
 
-\end_inset 
+\end_inset
 
 The AXIS Graphical Interface
-\end_inset 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
 
 
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\align center 
-
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename keystick.png
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
 
+\begin_layout Standard
+\begin_inset Caption
 
-\begin_inset LatexCommand \label{fig:The Keystick Interface}
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:The Keystick Interface"
 
-\end_inset 
+\end_inset
 
 The Keystick interface
-\end_inset 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
 
 
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\align center 
-
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename mini.png
 	lyxscale 50
 	width 80page%
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
 
+\begin_layout Standard
+\begin_inset Caption
 
-\begin_inset LatexCommand \label{fig:The Mini Graphical Interface}
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:The Mini Graphical Interface"
 
-\end_inset 
+\end_inset
 
 The Mini Graphical Interface
-\end_inset 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
 
 
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\align center 
-
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename tkemc.png
 	lyxscale 50
 	width 80page%
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
 
+\begin_layout Standard
+\begin_inset Caption
 
-\begin_inset LatexCommand \label{fig:TkEmc_Graphical_Interface}
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:TkEmc_Graphical_Interface"
 
-\end_inset 
+\end_inset
 
 The TkEmc Graphical Interface
-\end_inset 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
 
 
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Standard
-\added_space_top smallskip \added_space_bottom smallskip \align center 
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
 
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename xemc.png
 	display color
 	width 80page%
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\layout Caption
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
 
 
-\begin_inset LatexCommand \label{fig:XEMC_Graphical_Interface}
+\end_layout
 
-\end_inset 
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:XEMC_Graphical_Interface"
+
+\end_inset
 
 The XEMC Graphical Interface
-\end_inset 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
 
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Tkemc and Mini will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk
  programming language has been installed.
  The Mac and Microsoft Windows version can connect to a real-time EMC2 running
@@ -677,16 +838,19 @@ Tkemc and Mini will run on Linux, Mac, and Microsoft Windows if the Tcl/Tk
  Instructions for installing and configuring the connection between a Mac
  or Microsoft Machine and a PC running the EMC2 can be found in the Integrators
  Handbook.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Motion Controller EMCMOT 
-\begin_inset LatexCommand \label{sub:Motion-Controller-EMCMOT}
+\begin_inset LatexCommand label
+name "sub:Motion-Controller-EMCMOT"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Motion control includes sampling the position of the axes to be controlled,
  computing the next point on the trajectory, interpolating between these
  trajectory points, and computing an output to the motors.
@@ -696,41 +860,48 @@ Motion control includes sampling the position of the axes to be controlled,
  a pulse away from their commanded position.
  The motion controller includes programmable software limits, and interfaces
  to hardware limit and home switches.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The motion controller is written to be fairly generic.
  Initialization files (with the same syntax as Microsoft Windows INI
-\begin_inset LatexCommand \index{INI}
+\begin_inset LatexCommand index
+name "INI"
 
-\end_inset 
+\end_inset
 
  files) are used to configure parameters such as number and type of axes
  (e.g., linear or rotary), scale factors between feedback devices (e.g., encoder
  counts) and axis units
-\begin_inset LatexCommand \index{units}
+\begin_inset LatexCommand index
+name "units"
 
-\end_inset 
+\end_inset
 
  (e.g., millimeters), servo gains, servo and trajectory planning cycle times,
  and other system parameters.
  Complex kinematics for robots can be coded in C according to a prescribed
  interface to replace the default 3-axis Cartesian machine kinematics routines.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Discrete I/O Controller EMCIO
-\begin_inset LatexCommand \index{EMCIO}
+\begin_inset LatexCommand index
+name "EMCIO"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \label{sub:Discrete-I/O-Controller}
+\begin_inset LatexCommand label
+name "sub:Discrete-I/O-Controller"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Discrete I/O controllers are highly machine-specific, and are not customizable
  in general using the INI file technique used to configure the more generic
  motion controller.
@@ -738,62 +909,79 @@ Discrete I/O controllers are highly machine-specific, and are not customizable
  has become very powerful and flexible.
  EMC2 contains a Programmable Logic Controller module (behaves just like
  a hardware PLC
-\begin_inset LatexCommand \index{PLC}
+\begin_inset LatexCommand index
+name "PLC"
 
-\end_inset 
+\end_inset
 
 ) that can be used for very complex scenarios (tool changers, etc.).
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In EMC2 there is only one big I/O controller, which provides support for
  all kinds of actions and hardware control.
  All its outputs and inputs are HAL pins (more on this later on), so you
  can use only the subset that fits your hardware and is necessary for your
  application.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Task Executor EMCTASK
-\begin_inset LatexCommand \index{EMCTASK}
+\begin_inset LatexCommand index
+name "EMCTASK"
 
-\end_inset 
+\end_inset
 
  
-\begin_inset LatexCommand \label{sub:Task-Executor-EMCTASK}
+\begin_inset LatexCommand label
+name "sub:Task-Executor-EMCTASK"
 
-\end_inset 
-
-
-\layout Standard
+\end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:Process_diagram"
 
-\begin_inset LatexCommand \label{fig:Process_diagram}
-
-\end_inset 
+\end_inset
 
 EMC2 Process Diagram
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename whatpc.png
 	keepAspectRatio
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Task Executor is responsible for interpreting G and M code programs
  whose behavior does not vary appreciably between machines.
  G-code programming is designed to work like a machinist might work.
@@ -803,11 +991,13 @@ The Task Executor is responsible for interpreting G and M code programs
  seconds.
  The same machinist programming that same move for CNC might write the following
  block of code.
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 G1 F3 X1.000
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G1 means that the machine is supposed to run at a programmed feed rate rather
  than at the fastest speed that it can (G0 is the way to command a rapid
  move like you would make above the work when not cutting).
@@ -817,68 +1007,80 @@ G1 means that the machine is supposed to run at a programmed feed rate rather
  should move one inch in the positive X direction.
  You will read quite a bit more about G-code in the programming chapters
  .
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Figure 
-\begin_inset LatexCommand \ref{fig:Process_diagram}
+\begin_inset LatexCommand ref
+reference "fig:Process_diagram"
 
-\end_inset 
+\end_inset
 
  is a block diagram of how a personal computer running the EMC2 is used
  to control a machine with G-code
-\begin_inset LatexCommand \index{G-code}
+\begin_inset LatexCommand index
+name "G-code"
 
-\end_inset 
+\end_inset
 
 .
  The actual G-code can be sent using the MDI
-\begin_inset LatexCommand \index{MDI}
+\begin_inset LatexCommand index
+name "MDI"
 
-\end_inset 
+\end_inset
 
  (Machine Device Interface) mode or it can be sent as a file when the machine
  is in Auto
-\begin_inset LatexCommand \index{Auto}
+\begin_inset LatexCommand index
+name "Auto"
 
-\end_inset 
+\end_inset
 
  mode.
  These choices are made by the operator and entered using one of the Graphical
  User Interfaces available with the software.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 G-code is sent to the interpreter which compares the new block with what
  has already been sent to it.
  The interpreter then figures out what needs to be done for the motion and
  input or output systems and sends blocks of canonical commands to the task
  and motion planning programs.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Modes of Operation
-\begin_inset LatexCommand \label{sub:Modes-of-Operation}
+\begin_inset LatexCommand label
+name "sub:Modes-of-Operation"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When an EMC2 is running, there are three different major modes used for
  inputting commands.
  These are Manual
-\begin_inset LatexCommand \index{Manual}
+\begin_inset LatexCommand index
+name "Manual"
 
-\end_inset 
+\end_inset
 
 , Auto
-\begin_inset LatexCommand \index{Auto}
+\begin_inset LatexCommand index
+name "Auto"
 
-\end_inset 
+\end_inset
 
 , and MDI
-\begin_inset LatexCommand \index{MDI}
+\begin_inset LatexCommand index
+name "MDI"
 
-\end_inset 
+\end_inset
 
 .
  Changing from one mode to another makes a big difference in the way that
@@ -889,24 +1091,25 @@ When an EMC2 is running, there are three different major modes used for
  An operator can cause the machine to execute a whole file full of G-codes
  in the auto mode but not in manual or MDI.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In manual mode, each command is entered separately.
  In human terms a manual command might be 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 turn on coolant
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  or 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 jog X at 25 inches per minute.
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  These are roughly equivalent to flipping a switch or turning the handwheel
  for an axis.
@@ -916,61 +1119,69 @@ jog X at 25 inches per minute.
  the running of a whole program of G-code that is stored in a file.
  In the MDI mode the operator might type in a block of code and tell the
  machine to execute it by pressing the <return> or <enter> key on the keyboard.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Some motion control commands are available and will cause the same changes
  in motion in all modes.
  These include 
-\shape smallcaps 
-\noun on 
+\shape smallcaps
+\noun on
 abort
-\shape default 
-\noun default 
+\shape default
+\noun default
 
-\begin_inset LatexCommand \index{ABORT}
+\begin_inset LatexCommand index
+name "ABORT"
 
-\end_inset 
+\end_inset
 
 , 
-\shape smallcaps 
-\noun on 
+\shape smallcaps
+\noun on
 estop
-\shape default 
-\noun default 
+\shape default
+\noun default
 
-\begin_inset LatexCommand \index{ESTOP}
+\begin_inset LatexCommand index
+name "ESTOP"
 
-\end_inset 
+\end_inset
 
 , and 
-\shape smallcaps 
-\noun on 
+\shape smallcaps
+\noun on
 feed rate override
-\shape default 
-\noun default 
+\shape default
+\noun default
 
-\begin_inset LatexCommand \index{feed override}
+\begin_inset LatexCommand index
+name "feed override"
 
-\end_inset 
+\end_inset
 
 .
  Commands like these should be self explanatory.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The AXIS user interface removes some of the distinctions between Auto and
  the other modes by making Auto-commands available at most times.
  It also blurs the distinction between Manual and MDI because some Manual
  commands like Touch Off are actually implemented by sending MDI commands.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Information Display 
-\begin_inset LatexCommand \label{sub:Information-Display}
+\begin_inset LatexCommand label
+name "sub:Information-Display"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 While an EMC2 is running, each of the modules keeps up a conversation with
  the others and with the graphical display.
  It is up to the display to select from that stream of information what
@@ -978,125 +1189,153 @@ While an EMC2 is running, each of the modules keeps up a conversation with
  makes it easy for the operator to understand.
  Perhaps the most important display is the mode the EMC2 is running in.
  You will want to keep your eye on the mode display.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Right up there with knowing what mode is active is consistent display of
  the position of each axis.
  Most of the interfaces will allow the operator to read position based upon
  actual or commanded position as well as machine or relative position.
  
-\layout Description
-\noindent 
-Machine
-\begin_inset LatexCommand \index{Position: Machine}
+\end_layout
 
-\end_inset 
+\begin_layout Description
+\noindent
+Machine
+\begin_inset LatexCommand index
+name "Position: Machine"
+
+\end_inset
 
  This is the position of an axis relative to the place where it started
  or was homed.
  
-\layout Description
-\noindent 
-Relative
-\begin_inset LatexCommand \index{Position: Relative}
+\end_layout
 
-\end_inset 
+\begin_layout Description
+\noindent
+Relative
+\begin_inset LatexCommand index
+name "Position: Relative"
+
+\end_inset
 
  This is the position of an axis after work or tool or other offsets have
  been applied.
  
-\layout Description
-\noindent 
-Actual
-\begin_inset LatexCommand \index{Position: Actual}
+\end_layout
 
-\end_inset 
+\begin_layout Description
+\noindent
+Actual
+\begin_inset LatexCommand index
+name "Position: Actual"
+
+\end_inset
 
  This is the real position of the axis within the machine or relative system.
  
-\layout Description
-\noindent 
-Commanded
-\begin_inset LatexCommand \index{Position: Commanded}
+\end_layout
 
-\end_inset 
+\begin_layout Description
+\noindent
+Commanded
+\begin_inset LatexCommand index
+name "Position: Commanded"
+
+\end_inset
 
  This is where the axis is commanded to be.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These may all be exactly the same if no offsets have been applied and there
  is no deadband set in the INI file.
  Deadband is a small distance which is assumed to be close enough -- perhaps
  one stepper pulse or one encoder count.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 It is also important to see any messages or error codes sent by the EMC2.
  These are used to request the operator change a tool, to describe problems
  in G-code programs, or to tell why the machine stopped running.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 As you work your way through this text, you will be learning, bit by bit,
  how to set up and run a machine with your copy of the EMC2 software.
  While you are learning about setting up and running a minimill here, you
  will be thinking of other applications and other capabilities.
  These are the topics of the other linuxcnc.org handbooks.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Thinking Like An Integrator
-\begin_inset LatexCommand \label{sec:Thinking-Integrator}
+\begin_inset LatexCommand label
+name "sec:Thinking-Integrator"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The biggest task of a machine integrator is figuring out how to connect
  a PC running the EMC2 to a machine and configuring the software so that
  it runs the machine correctly.
  
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Units
-\begin_inset LatexCommand \index{units}
+\begin_inset LatexCommand index
+name "units"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:Units}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:Units"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Units can be confusing.
  You might ask, 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 Does it work in inches, feet, centimeters, millimeters, or what?
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  There are several possible answers to this question but the best one is
  that it works in the units that you set it to work in.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 At a machine level, we set each axis's units to some value using an INI
  variable that looks like this.
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 UNITS = inch
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 or
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 UNITS = mm
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 After we have decided upon a value for the units for an axis, we tell the
  EMC2 how may step pulses or encoder pulses it should send or read for each
  unit of distance to be traveled.
@@ -1106,4 +1345,7 @@ After we have decided upon a value for the units for an axis, we tell the
  You can command distance in millimeters or inches without even thinking
  about the units that you defined.
  There are G-codes that allow you to switch easily between metric and imperial.
-\the_end
+\end_layout
+
+\end_body
+\end_document

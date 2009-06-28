@@ -1395,7 +1395,7 @@ void Interp::stack_name(int stack_index,       //!< index into stack of function
   int n;
   char *the_name;
 
-  if ((stack_index > -1) && (stack_index < 20)) {
+  if ((stack_index > -1) && (stack_index < STACK_LEN)) {
     the_name = _setup.stack[stack_index];
     for (n = 0; n < (max_size - 1); n++) {
       if (the_name[n] != 0)

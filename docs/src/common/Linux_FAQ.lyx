@@ -1,49 +1,67 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \begin_preamble
 
 \end_preamble
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Linux FAQ
-\begin_inset LatexCommand \index{Linux FAQ}
+\begin_inset LatexCommand index
+name "Linux FAQ"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 These are some basic Linux commands and techniques for new to Linux users.
  More complete information can be found on the web or by using the man pages.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Automatic Login
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 When you install EMC2 with the Ubuntu LiveCD the default is to have to log
  in each time you turn the computer on.
  To enable automatic login go to System/Administration/Login Window.
@@ -54,392 +72,488 @@ When you install EMC2 with the Ubuntu LiveCD the default is to have to log
  In the Security tab check off Enable Automatic Login and pick a user name
  from the list (that would be you).
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Man Pages
-\begin_inset LatexCommand \index{Man Pages}
+\begin_inset LatexCommand index
+name "Man Pages"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Man-Pages}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sec:Man-Pages"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Man pages are automatically generated manual pages in most cases.
  Man pages are usually available for most programs and commands in Linux.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To view a man page open up a terminal window by going to Applications, Accessori
 es, Terminal.
  For example if you wanted to find out something about the find command
  in the terminal window type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 man find
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Use the Page Up and Page Down keys to view the man page and the Q key to
  quit viewing.
-\layout Section
+\end_layout
 
+\begin_layout Section
 List Modules
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Sometimes when troubleshooting you need to get a list of modules that are
  loaded.
  In a terminal window type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 lsmod
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you want to send the output from lsmod to a text file in a terminal window
  type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 lsmod > mymod.txt
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The resulting text file will be located in the home directory if you did
  not change directories when you opened up the terminal window and it will
  be named mymod.txt or what ever you named it.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Editing a Root File
-\begin_inset LatexCommand \index{Editing a Root File}
+\begin_inset LatexCommand index
+name "Editing a Root File"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Editing-a-Root-File}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sec:Editing-a-Root-File"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 When you open the file browser and you see the Owner of the file is root
  you must do extra steps to edit that file.
  Editing some root files can have bad results.
  Be careful when editing root files.
  You can open and view most root files normally but they will open in 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 read only
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  mode.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 The Command Line Way
-\begin_inset LatexCommand \index{sudo gedit}
+\begin_inset LatexCommand index
+name "sudo gedit"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Open up Applications, Accessories, Terminal.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In the terminal window type
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 sudo gedit
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Open the file with File, Open then edit
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 The GUI Way
-\begin_inset LatexCommand \index{gksudo}
+\begin_inset LatexCommand index
+name "gksudo"
 
-\end_inset 
+\end_inset
 
 
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Right click on the desktop and select Create Launcher
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Type a name in like sudo edit
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Type 
-\family typewriter 
-\series bold 
+\family typewriter
+\series bold
 gksudo 
 \begin_inset Quotes eld
-\end_inset 
+\end_inset
 
 gnome-open %u
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
 
-\family default 
-\series default 
+\family default
+\series default
  as the command and save the launcher to your desktop
-\layout Enumerate
+\end_layout
 
+\begin_layout Enumerate
 Drag a file onto your launcher to open and edit
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Root Access
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In Ubuntu you can become root by typing in "sudo -i" in a terminal window
  then typing in your password.
  You can really foul up things if you don't know what your doing as root.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Terminal Commands
-\begin_inset LatexCommand \index{Terminal Commands}
+\begin_inset LatexCommand index
+name "Terminal Commands"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sec:Terminal-Commands}
-
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\begin_inset LatexCommand label
+name "sec:Terminal-Commands"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
 Working Directory
-\begin_inset LatexCommand \index{Working Directory}
+\begin_inset LatexCommand index
+name "Working Directory"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{pwd}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand index
+name "pwd"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 To find out the path to the present working directory in the terminal window
  type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 pwd
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Changing Directories
-\begin_inset LatexCommand \index{Changing Directories}
+\begin_inset LatexCommand index
+name "Changing Directories"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{cd}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand index
+name "cd"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 To move up one level in the terminal window type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 cd ..
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To move up two levels in the terminal window type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 cd ../..
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To move down to the emc2/configs subdirectory in the terminal window type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 cd emc2/configs
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Listing files in a directory
-\begin_inset LatexCommand \index{Listing files in a directory}
+\begin_inset LatexCommand index
+name "Listing files in a directory"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{dir}
-
-\end_inset 
+\end_inset
 
 
-\begin_inset LatexCommand \index{ls}
+\begin_inset LatexCommand index
+name "dir"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand index
+name "ls"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 To view a list of all the files and subdirectories in the terminal window
  type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 dir
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 or 
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 ls
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Finding a File
-\begin_inset LatexCommand \index{Finding a File}
+\begin_inset LatexCommand index
+name "Finding a File"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{find}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand index
+name "find"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The find command can be a bit confusing to a new Linux user.
  The basic syntax is:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 find starting-directory parameters actions
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For example to find all the .ini files in your emc2 directory you first need
  to use the pwd command to find out the directory.
  Open a new terminal window and type:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 pwd
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 might return the following result
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 /home/joe
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 With this information put the command together like this:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 find /home/joe/emc2 -name *.ini -print
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The -name is the name of the file your looking for and the -print tells
  it to print out the result to the terminal window.
  The *.ini tells find to return all files that have the .ini extension.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To find all the files in the directory named and all the subdirectories
  under that add the -L option to the find command like this:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 find -L /home/joe/emc2 -name *.ini -print
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Searching for Text
-\begin_inset LatexCommand \index{Searching for Text}
+\begin_inset LatexCommand index
+name "Searching for Text"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \index{grep}
-
-\end_inset 
+\end_inset
 
 
-\layout Quote
+\begin_inset LatexCommand index
+name "grep"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Quote
 grep -i -r 'text to search for' * 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To find all the files that contain the 'text to search for' in the current
  directory and all the subdirectories below the current while ignoring the
  case.
  The -i is for ignore case and the -r is for recursive (include all subdirectori
 es in the search).
  The * is a wild card for search all files.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Bootup Messages
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To view the bootup messages use "dmesg" from the command window.
  To save the bootup messages to a file use the redirection operator like
  this:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 dmesg > bootmsg.txt
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The contents of this file can be copied and pasted on line to share with
  people trying to help you diagnose your problem.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To clear the message buffer type this:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 sudo dmesg -c
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This can be useful to do just before you launch EMC to only show the infomation
  related to the start up of EMC.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 Convenience Items
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Terminal Launcher
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you want to add a terminal launcher to the panel bar on top of the screen
  you typically can right click on the panel at the top of the screen and
  select "Add to Panel".
  Select Custom Application Launcher and Add.
  Give it a name and put gnome-terminal in the command box.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Hardware Problems
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Hardware Info
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To find out what hardware is connected to your motherboard in a terminal
  window type:
-\layout LyX-Code
+\end_layout
 
+\begin_layout LyX-Code
 lspci -v
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Monitor Resolution
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 During installation Ubuntu attempts to detect the monitor settings.
  If this fails you are left with a generic monitor with a maximum resolution
  of 800x600.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Instructions for fixing this are located here:
-\layout Standard
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand url
+target "https://help.ubuntu.com/community/FixVideoResolutionHowto"
+
+\end_inset
 
 
-\begin_inset LatexCommand \url{https://help.ubuntu.com/community/FixVideoResolutionHowto}
+\end_layout
 
-\end_inset 
-
-
-\the_end
+\end_body
+\end_document

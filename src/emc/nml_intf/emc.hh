@@ -380,12 +380,9 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...);
 extern int emcAxisSetAxis(int axis, unsigned char axisType);
 extern int emcAxisSetUnits(int axis, double units);
 extern int emcAxisSetBacklash(int axis, double backlash);
-extern int emcAxisSetInterpolationRate(int axis, int rate);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
 extern int emcAxisSetMotorOffset(int axis, double offset);
-extern int emcAxisSetMinOutputLimit(int axis, double limit);
-extern int emcAxisSetMaxOutputLimit(int axis, double limit);
 extern int emcAxisSetFerror(int axis, double ferror);
 extern int emcAxisSetMinFerror(int axis, double ferror);
 extern int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
@@ -408,7 +405,6 @@ extern int emcAxisAbsJog(int axis, double pos, double vel);
 extern int emcAxisActivate(int axis);
 extern int emcAxisDeactivate(int axis);
 extern int emcAxisOverrideLimits(int axis);
-extern int emcAxisSetOutput(int axis, double output);
 extern int emcAxisLoadComp(int axis, const char *file, int type);
 
 
@@ -525,35 +521,22 @@ extern int emcToolUpdate(EMC_TOOL_STAT * stat);
 
 // implementation functions for EMC_AUX types
 
-extern int emcAuxInit();
-extern int emcAuxHalt();
-extern int emcAuxAbort();
-extern int emcAuxDioWrite(int index, int value);
-extern int emcAuxAioWrite(int index, double value);
 extern int emcAuxEstopOn();
 extern int emcAuxEstopOff();
-extern int emcAuxEstopReset();
 
 extern int emcAuxUpdate(EMC_AUX_STAT * stat);
 
 // implementation functions for EMC_SPINDLE types
 
-extern int emcSpindleInit();
-extern int emcSpindleHalt();
 extern int emcSpindleAbort();
 extern int emcSpindleSpeed(double speed, double factor, double xoffset);
 extern int emcSpindleOn(double speed, double factor, double xoffset);
 extern int emcSpindleOff();
-extern int emcSpindleForward();
-extern int emcSpindleReverse();
-extern int emcSpindleStop();
 extern int emcSpindleIncrease();
 extern int emcSpindleDecrease();
 extern int emcSpindleConstant();
 extern int emcSpindleBrakeRelease();
 extern int emcSpindleBrakeEngage();
-extern int emcSpindleEnable();
-extern int emcSpindleDisable();
 
 extern int emcSpindleSetMode(int mode); //determines if Spindle needs to reset on abort
 

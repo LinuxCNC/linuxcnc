@@ -88,6 +88,7 @@ if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
+helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
 
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
@@ -346,7 +347,7 @@ class Widgets:
 class Data:
     def __init__(self):
         pw = pwd.getpwuid(os.getuid())
-        self.help = 0
+        self.help = "help-welcome.txt"
         self.machinename = _("my_EMC_machine")
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
@@ -2047,18 +2048,28 @@ class App:
             else:
                 return False
 
+    def on_helpwindow_delete_event(self, *args):
+        print "got here"
+        self.widgets.helpwindow.hide()
+        return True
+
     def on_druid1_help(self, *args):
-        num = self.data.help
-        text=_("I need to add help page %d"% num)
-        if num == 1:
-            text =_("""
-Check 'desktop shortcut' to create a link on the desktop to the folder containing the configuration files
-Check 'desktop launcher' to create a link on the desktop that will directly start your custom configuration""")
-        self.warning_dialog(text,True)
+        helpfilename = os.path.join(helpdir, "%s"% self.data.help)
+        textbuffer = self.widgets.helpview.get_buffer()
+        try :
+            infile = open(helpfilename, "r")
+            if infile:
+                string = infile.read()
+                infile.close()
+                textbuffer.set_text(string)
+                self.widgets.helpwindow.show_all()
+        except:
+            text = _("Help page is unavailable\n")
+            self.warning_dialog(text,True)
        
 
     def on_page_newormodify_prepare(self, *args):
-        self.data.help = 1
+        self.data.help = "help-load.txt"
         self.widgets.createsymlink.set_active(self.data.createsymlink)
         self.widgets.createshortcut.set_active(self.data.createshortcut)
 
@@ -3914,8 +3925,8 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% board)
         halrun.write("start\n")
         halrun.write("loadusr -Wn m5i20test pyvcp -g +700+0 -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
-        halrun.write("loadusr halmeter\n")
-        halrun.write("loadusr halmeter\n")
+        halrun.write("loadusr halmeter -g 0 500\n")
+        halrun.write("loadusr halmeter -g 0 620\n")
         
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
             for pin in range (0,24):
@@ -4141,6 +4152,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         d = self.data
         w = self.widgets
         axnum = "xyza".index(axis)
+        self.axis_under_tune = axis
         board = self.data.mesa_currentfirmwaredata[0]
         firmware = self.data.mesa_currentfirmwaredata[1]
         w.notebook2.set_current_page(axnum)
@@ -4153,40 +4165,42 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
             w.step.set_sensitive(0)
 
         if axis == "a":
-            w[axis + "testdistunits"].set_text(_("degrees"))
-            w[axis + "testvelunits"].set_text(_("degrees / minute"))
-            w[axis + "testaccunits"].set_text(_("degrees / second²"))
+            w[axis + "tunedistunits"].set_text(_("degrees"))
+            w[axis + "tunevelunits"].set_text(_("degrees / minute"))
+            w[axis + "tuneaccunits"].set_text(_("degrees / second²"))
         elif d.units:
-            w[axis + "testdistunits"].set_text(_("mm"))
-            w[axis + "testvelunits"].set_text(_("mm / minute"))
-            w[axis + "testaccunits"].set_text(_("mm / second²"))
+            w[axis + "tunedistunits"].set_text(_("mm"))
+            w[axis + "tunevelunits"].set_text(_("mm / minute"))
+            w[axis + "tuneaccunits"].set_text(_("mm / second²"))
         else:
-            w[axis + "testdistunits"].set_text(_("inches"))
-            w[axis + "testvelunits"].set_text(_("inches / minute"))
-            w[axis + "testaccunits"].set_text(_("inches / second²"))
-        w[axis+"testvel"].set_value(float(w[axis+"maxvel"].get_text()))
-        w[axis+"testacc"].set_value(float(w[axis+"maxacc"].get_text()))
-        w[axis+"testcurrentP"].set_value(w[axis+"P"].get_value())
-        w[axis+"testorigP"].set_text("%s" % w[axis+"P"].get_value())
-        w[axis+"testcurrentI"].set_value(w[axis+"I"].get_value())
-        w[axis+"testorigI"].set_text("%s" % w[axis+"I"].get_value())
-        w[axis+"testcurrentD"].set_value(w[axis+"D"].get_value())
-        w[axis+"testorigD"].set_text("%s" % w[axis+"D"].get_value())
-        w[axis+"testcurrentFF0"].set_value(w[axis+"FF0"].get_value())
-        w[axis+"testorigFF0"].set_text("%s" % w[axis+"FF0"].get_value())
-        w[axis+"testcurrentFF1"].set_value(w[axis+"FF1"].get_value())
-        w[axis+"testorigFF1"].set_text("%s" % w[axis+"FF1"].get_value())
-        w[axis+"testcurrentFF2"].set_value(w[axis+"FF2"].get_value())
-        w[axis+"testorigFF2"].set_text("%s" % w[axis+"FF2"].get_value())
-        w[axis+"testcurrentsteptime"].set_value(w[axis+"steptime"].get_value())
-        w[axis+"testorigsteptime"].set_text("%s" % w[axis+"steptime"].get_value())
-        w[axis+"testcurrentstepspace"].set_value(float(w[axis+"stepspace"].get_text()))
-        w[axis+"testorigstepspace"].set_text("%s" % w[axis+"stepspace"].get_value())
-        w[axis+"testcurrentdirhold"].set_value(float(w[axis+"dirhold"].get_text()))
-        w[axis+"testorigdirhold"].set_text("%s" % w[axis+"dirhold"].get_value())
-        w[axis+"testcurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
-        w[axis+"testorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
-        w.servotunedialog.set_title(_("%s Axis Tune") % axis.upper())
+            w[axis + "tunedistunits"].set_text(_("inches"))
+            w[axis + "tunevelunits"].set_text(_("inches / minute"))
+            w[axis + "tuneaccunits"].set_text(_("inches / second²"))
+        w[axis+"tunevel"].set_value(float(w[axis+"maxvel"].get_text()))
+        w[axis+"tuneacc"].set_value(float(w[axis+"maxacc"].get_text()))
+        w[axis+"tunecurrentP"].set_value(w[axis+"P"].get_value())
+        w[axis+"tuneorigP"].set_text("%s" % w[axis+"P"].get_value())
+        w[axis+"tunecurrentI"].set_value(w[axis+"I"].get_value())
+        w[axis+"tuneorigI"].set_text("%s" % w[axis+"I"].get_value())
+        w[axis+"tunecurrentD"].set_value(w[axis+"D"].get_value())
+        w[axis+"tuneorigD"].set_text("%s" % w[axis+"D"].get_value())
+        w[axis+"tunecurrentFF0"].set_value(w[axis+"FF0"].get_value())
+        w[axis+"tuneorigFF0"].set_text("%s" % w[axis+"FF0"].get_value())
+        w[axis+"tunecurrentFF1"].set_value(w[axis+"FF1"].get_value())
+        w[axis+"tuneorigFF1"].set_text("%s" % w[axis+"FF1"].get_value())
+        w[axis+"tunecurrentFF2"].set_value(w[axis+"FF2"].get_value())
+        w[axis+"tuneorigFF2"].set_text("%s" % w[axis+"FF2"].get_value())
+        w[axis+"tunecurrentsteptime"].set_value(w[axis+"steptime"].get_value())
+        w[axis+"tuneorigsteptime"].set_text("%s" % w[axis+"steptime"].get_value())
+        w[axis+"tunecurrentstepspace"].set_value(float(w[axis+"stepspace"].get_text()))
+        w[axis+"tuneorigstepspace"].set_text("%s" % w[axis+"stepspace"].get_value())
+        w[axis+"tunecurrentdirhold"].set_value(float(w[axis+"dirhold"].get_text()))
+        w[axis+"tuneorigdirhold"].set_text("%s" % w[axis+"dirhold"].get_value())
+        w[axis+"tunecurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
+        w[axis+"tuneorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
+        self.tunejogplus = self.tunejogminus = 0
+
+        
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
@@ -4201,7 +4215,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         addf steptest.0 slow
         addf hm2_%s.0.write slow
         addf hm2_%s.0.pet_watchdog fast
-        loadusr halmeter
+        loadusr halmeter -g 0 500
         """ % (board, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens, board,board,board))
         
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
@@ -4235,10 +4249,11 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                 # for Stepgen pins
                 elif pintype in (STEPA,STEPB):
                     if not pintype == STEPA : continue    
-                    if "m5i20" in stepgen:        
-                        if compnum == int(stepgen[10:]) :
+                    if "m5i20" in stepgen:      
+                        # check current component number to signal's component number  
+                        if compnum == int(stepgen[10:]):
                             halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (board,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.position_scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (board,compnum))
                             halrun.write("net cmd steptest.0.position-cmd => hm2_%s.0.stepgen.%02d.position-cmd \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
@@ -4247,7 +4262,6 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                             halrun.write("setp hm2_%s.0.stepgen.%02d.stepspace %d \n"% (board,compnum,w[axis+"stepspace"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirhold %d \n"% (board,compnum,w[axis+"dirhold"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirsetup %d \n"% (board,compnum,w[axis+"dirsetup"].get_value()))
-                            print float(w[axis + "scale"].get_text())
                             halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / float(w[axis + "scale"].get_text()))  )
                 else: 
                     print "pintype error in mesa test panel method pintype:%s connector %d pin %d\n"% (pintype, connector,pin)
@@ -4271,26 +4285,25 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
                 halrun.write("setp %s true\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-
         halrun.write("start\n"); halrun.flush()
-
+        w.servotunedialog.set_title(_("%s Axis Tune") % axis.upper())
         w.servotunedialog.show_all()
         self.widgets['window1'].set_sensitive(0)
         result = w.servotunedialog.run()
         w.servotunedialog.hide()
         if result == gtk.RESPONSE_OK:
-            w[axis+"maxvel"].set_text("%s" % w[axis+"testvel"].get_value())
-            w[axis+"maxacc"].set_text("%s" % w[axis+"testacc"].get_value())
-            w[axis+"P"].set_value( float(w[axis+"testcurrentP"].get_text()))
-            w[axis+"I"].set_value( float(w[axis+"testcurrentI"].get_text()))
-            w[axis+"D"].set_value( float(w[axis+"testcurrentD"].get_text()))
-            w[axis+"FF0"].set_value( float(w[axis+"testcurrentFF0"].get_text()))
-            w[axis+"FF1"].set_value( float(w[axis+"testcurrentFF1"].get_text()))
-            w[axis+"FF2"].set_value( float(w[axis+"testcurrentFF2"].get_text()))
-            w[axis+"steptime"].set_value(float(w[axis+"testcurrentsteptime"].get_text()))
-            w[axis+"stepspace"].set_value(float(w[axis+"testcurrentstepspace"].get_text()))
-            w[axis+"dirhold"].set_value(float(w[axis+"testcurrentdirhold"].get_text()))
-            w[axis+"dirsetup"].set_value(float(w[axis+"testcurrentdirsetup"].get_text()))
+            w[axis+"maxvel"].set_text("%s" % w[axis+"tunevel"].get_value())
+            w[axis+"maxacc"].set_text("%s" % w[axis+"tuneacc"].get_value())
+            w[axis+"P"].set_value( float(w[axis+"tunecurrentP"].get_text()))
+            w[axis+"I"].set_value( float(w[axis+"tunecurrentI"].get_text()))
+            w[axis+"D"].set_value( float(w[axis+"tunecurrentD"].get_text()))
+            w[axis+"FF0"].set_value( float(w[axis+"tunecurrentFF0"].get_text()))
+            w[axis+"FF1"].set_value( float(w[axis+"tunecurrentFF1"].get_text()))
+            w[axis+"FF2"].set_value( float(w[axis+"tunecurrentFF2"].get_text()))
+            w[axis+"steptime"].set_value(float(w[axis+"tunecurrentsteptime"].get_text()))
+            w[axis+"stepspace"].set_value(float(w[axis+"tunecurrentstepspace"].get_text()))
+            w[axis+"dirhold"].set_value(float(w[axis+"tunecurrentdirhold"].get_text()))
+            w[axis+"dirsetup"].set_value(float(w[axis+"tunecurrentdirsetup"].get_text()))
         if not amp == "false":
              halrun.write("setp %s false\n"% (amp + ".out"))
         if not estop == "false":
@@ -4298,6 +4311,43 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         time.sleep(.001)   
         halrun.close()  
         self.widgets['window1'].set_sensitive(1)
+
+    def update_tune_axis_params(self, *args):
+        axis = self.axis_under_tune
+        if axis is None: return
+        halrun = self.halrun
+        halrun.write("""
+            setp stepgen.0.maxaccel %(accel)f
+            setp stepgen.0.maxvel %(vel)f
+            setp steptest.0.jog-minus %(jogminus)s
+            setp steptest.0.jog-plus %(jogplus)s
+            setp steptest.0.run %(run)s
+            setp steptest.0.amplitude %(amplitude)f
+            setp steptest.0.maxvel %(vel)f
+            setp steptest.0.dir %(dir)s
+        """ % {
+            'jogminus': self.tunejogminus,
+            'jogplus': self.tunejogplus,
+            'run': self.widgets.tunerun.get_active(),
+            'amplitude': self.widgets.tuneamplitude.get_value(),
+            'accel': self.widgets.tuneacc.get_value(),
+            'vel': self.widgets.tunevel.get_value(),
+            'dir': self.widgets.tunedir.get_active(),
+        })
+        halrun.flush()
+
+    def on_tunejogminus_pressed(self, w):
+        self.tunejogminus = 1
+        self.update_tune_axis_params()
+    def on_tunejogminus_released(self, w):
+        self.tunejogminus = 0
+        self.update_tune_axis_params()
+    def on_tunejogplus_pressed(self, w):
+        self.tunejogplus = 1
+        self.update_tune_axis_params()
+    def on_tunejogplus_released(self, w):
+        self.tunejogplus = 0
+        self.update_tune_axis_params()
 
     def test_axis(self, axis):
         data = self.data
@@ -4323,7 +4373,7 @@ Check 'desktop launcher' to create a link on the desktop that will directly star
         halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
          % (boardname, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
         halrun.write("loadrt steptest\n")
-        halrun.write("loadusr halmeter \n")
+        halrun.write("loadusr halmeter -g 0 500\n")
         halrun.write("addf hm2_%s.0.read slow\n"% boardname)
         halrun.write("addf steptest.0 slow\n")
         halrun.write("addf hm2_%s.0.write slow\n"% boardname)

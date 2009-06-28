@@ -2023,7 +2023,7 @@ echo "$as_me: error: GNU PTH library is required: get it with apt-get install li
   fi
 else
   if test -z "$RTDIR"; then
-    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr /usr/src/rtai*"
+    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
   else
     DIRS="$RTDIR"
   fi

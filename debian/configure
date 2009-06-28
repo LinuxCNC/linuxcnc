@@ -24,6 +24,10 @@ Usage:
 
     $P -r
         Build for the currently running kernel
+
+    $P -a
+        If the currently running kernel has realtime extensions, use it.
+        Otherwise use any available realtime kernel it can find.
 EOF
 }
 
@@ -39,6 +43,16 @@ fi
 
 if [ $1 = "-r" ]; then
     set -- `uname -r`
+elif [ $1 = "-a" ]; then
+    KERNEL="$(uname -r)"
+    if [ ! -d "/usr/realtime-$KERNEL" ]; then
+        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
+        if [ -z "$KERNEL" ]; then
+            echo "no realtime kernels found!"
+            exit 1
+        fi
+    fi
+    set -- $KERNEL
 fi
 
 TARGET=$1

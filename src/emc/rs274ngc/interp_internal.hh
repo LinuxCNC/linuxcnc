@@ -337,6 +337,9 @@ values are set by g54 - g59.3. The net origin offset uses both values
 and is not represented here
 
 */
+#define STACK_LEN 50
+#define STACK_ENTRY_LEN 80
+
 typedef struct setup_struct
 {
   double AA_axis_offset;        // A-axis g92 offset
@@ -423,7 +426,7 @@ typedef struct setup_struct
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   ON_OFF speed_override;        // whether speed override is enabled
   CANON_DIRECTION spindle_turning;      // direction spindle is turning
-  char stack[50][80];           // stack of calls for error reporting
+  char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   double tool_zoffset;          // current tool Z offset (AKA tool length offset)
   double tool_xoffset;          // current tool X offset
@@ -487,7 +490,9 @@ macros totally crash-proof. If the function call stack is deeper than
     do {                                                   \
         setError (fmt, ## __VA_ARGS__);                    \
         _setup.stack_index = 0;                            \
-        strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
+        strncpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN); \
+        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
+        _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
         return INTERP_ERROR;                               \
     } while(0)
@@ -496,7 +501,9 @@ macros totally crash-proof. If the function call stack is deeper than
 #define ERN(error_code)                                    \
     do {                                                   \
         _setup.stack_index = 0;                            \
-        strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
+        strncpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN); \
+        _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0; \
+        _setup.stack_index++; \
         _setup.stack[_setup.stack_index][0] = 0;           \
         return error_code;                                 \
     } while(0)
@@ -505,8 +512,10 @@ macros totally crash-proof. If the function call stack is deeper than
 // Propagate an error up the stack
 #define ERP(error_code)                                        \
     do {                                                       \
-        if (_setup.stack_index < 49) {                         \
-            strcpy(_setup.stack[_setup.stack_index++], __PRETTY_FUNCTION__);  \
+        if (_setup.stack_index < STACK_LEN - 1) {                         \
+            strncpy(_setup.stack[_setup.stack_index], __PRETTY_FUNCTION__, STACK_ENTRY_LEN); \
+            _setup.stack[_setup.stack_index][STACK_ENTRY_LEN-1] = 0;    \
+            _setup.stack_index++;                                       \
             _setup.stack[_setup.stack_index][0] = 0;           \
         }                                                      \
         return error_code;                                     \

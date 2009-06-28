@@ -1,0 +1,3 @@
+Use this page to load an existing configuration or build a new one
+Check the option boxes to put a system-link (shortcut) to the config files
+and / or startup Icon 

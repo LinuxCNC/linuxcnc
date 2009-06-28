@@ -1,536 +1,690 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Getting Started
-\layout Section
+\end_layout
 
+\begin_layout Section
 Hal Commands
-\begin_inset LatexCommand \label{sec:Hal-Commands}
+\begin_inset LatexCommand label
+name "sec:Hal-Commands"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 More detailed information can be found in the man page for halcmd "man halcmd"
  in a terminal window.
  To see the HAL configuration and check the status of pins and parameters
  use the HAL Configuration window on the Machine menu in AXIS.
  To watch a pin status open the Watch tab and click on each pin you wish
  to watch and it will be added to the watch window.
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 HAL Configuration Window
-\begin_inset LatexCommand \label{cap:HAL-Configuration-Window}
+\begin_inset LatexCommand label
+name "cap:HAL-Configuration-Window"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/HAL_Configuration.png
 	scale 60
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 loadrt
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "loadrt" loads a real time HAL component.
  Real time component functions need to be added to a thread to be updated
  at the rate of the thread.
  You can not load a user space component into the real time space.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt <component> <options>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt mux4 count=1
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 addf
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "addf" adds a real time component function to a thread.
  You have to add a function from a HAL real time component to a thread to
  get the function to update at the rate of the thread.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you used the Stepper Config Wizard to generate your config you will have
  two threads.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 base-thread (the high speed thread) this thread handles items that need
  a fast response like making pulses, reading and writing to the parallel
  port.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 servo-thread (the slow speed thread) this thread handles items that don't
  quite need as fast of a thread like motion controller, ClassicLadder, motion
  command handler.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 addf <component> <thread>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 addf mux4 servo-thread
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 loadusr
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "loadusr" loads a user space HAL component.
  User space programs are their own separate processes, which optionally
  talk to other HAL components via pins and parameters.
  You can not load real time components into user space.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Flags may be one or more of the following:
-\layout Description
+\end_layout
 
+\begin_layout Description
 -W to wait for the component to become ready.
  The component is assumed to have the same name as the first argument of
  the command.
-\layout Description
+\end_layout
 
--Wn\SpecialChar ~
+\begin_layout Description
+-Wn\InsetSpace ~
 <name> to wait for the component, which will have the given <name>.
-\layout Description
+\end_layout
 
+\begin_layout Description
 -w to wait for the program to exit
-\layout Description
+\end_layout
 
+\begin_layout Description
 -i to ignore the program return value (with -w) 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and examples:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadusr <component> <options>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadusr halui
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadusr -Wn spindle gs2_vfd -n spindle
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 in English is "loadusr wait for name spindle component gs2_vfd name spindle."
-\newline 
-the -n spindle is part of the gs2_vfd component not the loadusr command.
-\layout Subsection
+\newline
+the
+ -n spindle is part of the gs2_vfd component not the loadusr command.
+\end_layout
 
+\begin_layout Subsection
 net
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "net" creates a "connection" between a signal and and one or
  more pins.
  The direction indicator "<= and =>" is only to make it easier to read for
  humans and is not used by net.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net both-home-y <= paraport.0.pin-11-in
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Each signal can only have one source (a HAL "out
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  pin) and as many readers (a HAL "in" pin) as you like.
  In the Dir column of the HAL Configuration window you can see which pins
  are "in" and which are "out".
  The following figure shows the "direction" for a clearer understanding.
  
-\layout Standard
+\end_layout
 
-
+\begin_layout Standard
 \begin_inset Float figure
 placement H
 wide false
-collapsed false
+sideways false
+status open
 
-\layout Caption
+\begin_layout Standard
+\begin_inset Caption
 
+\begin_layout Standard
 Signal Direction
-\begin_inset LatexCommand \label{cap:Signal-Direction}
+\begin_inset LatexCommand label
+name "cap:Signal-Direction"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
-\align center 
+\end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename images/signal-direction.png
 	scale 80
 
-\end_inset 
+\end_inset
 
 
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To do this on one line:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To do this on multiple lines just use the signal with the readers on subsequent
  lines:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net xStep stepgen.0.out => parport.0.pin-02-out
-\newline 
+\newline
 net xStep => parport.0.pin-02-out
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The so called I/O pins like index-enable do not follow this rule.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 setp
-\begin_inset LatexCommand \index{setp}
+\begin_inset LatexCommand index
+name "setp"
 
-\end_inset 
-
-
-\begin_inset LatexCommand \label{sub:setp}
-
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\begin_inset LatexCommand label
+name "sub:setp"
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The command "setp" sets the value of a pin or parameter.
  The valid values will depend on the type of the pin or parameter.
  It is an error if the data types do not match.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Some components have parameters that need to be set before use.
  Parameters can be set before use or while running as needed.
  You can not use setp on a pin that is connected to a signal.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 setp <pin/parameter-name> <value>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 setp paraport.0.pin-08-out TRUE
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 unlinkp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "unlinkp" unlinks a pin from the connected signal.
  If no signal was connected to the pin prior running the command, nothing
  happens.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 unlinkp <pin-name>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 unlinkp parport.0.pin-02-out
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Obsolete Commands
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 linksp
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "linksp" creates a "connection" between a signal and one pin.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 linksp <signal-name> <pin-name>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 linksp X-step parport.0.pin-02-out
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "linksp" command has been superseeded by the "net" command.
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 linkps
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The command "linkps" creates a "connection" between one pin and one signal.
  It is the same as linksp but the arguments are reversed.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 linkps <pin-name> <signal-name>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 linkps parport.0.pin-02-out X-Step
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "linkps" command has been superseeded by the "net" command.
-\layout Subsubsection
+\end_layout
 
+\begin_layout Subsubsection
 newsig
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 the command "newsig" creates a new HAL signal by the name <signame> and
  the data type of <type>.
  Type must be "bit", "s32", "u32" or "float".
  Error if <signame> all ready exists.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The syntax and an example:
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 newsig <signame> <type>
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 newsig Xstep bit
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 More information can be found in the HAL manual or the man pages for halrun.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Hal Data
-\begin_inset LatexCommand \label{sec:Hal-Data}
+\begin_inset LatexCommand label
+name "sec:Hal-Data"
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Bit
-\begin_inset LatexCommand \index{Bit}
+\begin_inset LatexCommand index
+name "Bit"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A bit value is an on or off.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Float
-\begin_inset LatexCommand \index{Float}
+\begin_inset LatexCommand index
+name "Float"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A "float" is a floating point number.
  In other words the decimal point can move as needed.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 float values = a 32 bit floating point value, with approximately 24 bits
  of resolution and over 200 bits of dynamic range.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For more information on floating point numbers see:
-\layout Standard
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand url
+target "http://en.wikipedia.org/wiki/Floating_point"
+
+\end_inset
 
 
-\begin_inset LatexCommand \url{http://en.wikipedia.org/wiki/Floating_point}
+\end_layout
 
-\end_inset 
-
-
-\layout Subsection
-
+\begin_layout Subsection
 s32
-\begin_inset LatexCommand \index{s32}
+\begin_inset LatexCommand index
+name "s32"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 An "s32" number is a whole number that can have a negative or positive value.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 s32 values = integer numbers -2147483648 to 2147483647
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 u32
-\begin_inset LatexCommand \index{u32}
+\begin_inset LatexCommand index
+name "u32"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 A "u32" number is a whole number that is positive only.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 u32 values = integer numbers 0 to 4294967295
-\layout Section
+\end_layout
 
+\begin_layout Section
 Hal Files
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 If you used the Stepper Config Wizard to generate your config you will have
  up to three HAL files in your config directory.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 my-mill.hal (if your config is named "my-mill") This file is loaded first
  and should not be changed if you used the Stepper Config Wizard.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 custom.hal This file is loaded next and before the GUI loads.
  This is where you put your custom HAL commands that you want loaded before
  the GUI is loaded.
  
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 custom_postgui.hal This file is loaded after the GUI loads.
  This is where you put your custom HAL commands that you want loaded after
  the GUI is loaded.
  Any HAL commands that use pyVCP widgets need to be placed here.
  
-\layout Section
+\end_layout
 
+\begin_layout Section
 HAL Components
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Two parameters are automatically added to each HAL component when it is
  created.
  These parameters allow you to scope the execution time of a component.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 .time
-\begin_inset LatexCommand \index{time}
+\begin_inset LatexCommand index
+name "time"
 
-\end_inset 
+\end_inset
 
 
-\newline 
+\newline
 .tmax
-\begin_inset LatexCommand \index{tmax}
+\begin_inset LatexCommand index
+name "tmax"
 
-\end_inset 
+\end_inset
 
 
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Time is the number of CPU cycles it took to execute the function.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Tmax is the maximum number of CPU cycles it took to execute the function.
  Tmax is a read/write parameter so the user can set it to 0 to get rid of
  the first time initialization on the function's execution time.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Logic Components
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Hal contains several real time logic components.
  Logic components follow a "Truth Table" that states what the output is
  for any given input.
  Typically these are bit manipulators and follow electrical logic gate truth
  tables.
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 and2
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "and2" component is a two input "and" gate.
  The truth table below shows the ouput based on each combination of input.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Syntax
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 and2 [count=N|names=name1[,name2...]]
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Functions
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 and2.n
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Pins
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 and2.N.in0 (bit, in)
-\newline 
+\newline
 and2.N.in1 (bit, in)
-\newline 
+\newline
 and2.N.out (bit, out)
-\layout Standard
-\align center 
-Truth Table
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+Truth Table
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -540,173 +694,199 @@ Truth Table
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 out
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 not
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "not" component is a bit inverter.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Syntax
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 not [count=n|names=name1[,name2...]]
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Functions
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 not.all
-\newline 
+\newline
 not.n
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Pins
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 not.n.in (bit, in)
-\newline 
+\newline
 not.n.out (bit, out)
-\layout Standard
-\align center 
-Truth Table
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+Truth Table
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="2">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -715,96 +895,113 @@ Truth Table
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 out
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 or2
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "or2" component is a two input OR gate.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Syntax
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 or2[count=,|names=name1[,name2...]]
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Functions
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 or2.n
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Pins
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 or2.n.in0 (bit, in)
-\newline 
+\newline
 or2.n.in1 (bit, in)
-\newline 
+\newline
 or2.n.out (bit, out)
-\layout Standard
-\align center 
-Truth Table
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+Truth Table
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -814,172 +1011,198 @@ Truth Table
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 out
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 xor2
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The "xor2" component is a two input XOR (exclusive OR)gate.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Syntax
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 xor2[count=,|names=name1[,name2...]]
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Functions
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 xor2.n
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Pins
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 xor2.n.in0 (bit, in)
-\newline 
+\newline
 xor2.n.in1 (bit, in)
-\newline 
+\newline
 xor2.n.out (bit, out)
-\layout Standard
-\align center 
-Truth Table
-\layout Standard
-\align center 
+\end_layout
 
-\begin_inset  Tabular
+\begin_layout Standard
+\align center
+Truth Table
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -989,156 +1212,177 @@ Truth Table
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in0
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 in1
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 out
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 True
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
-\layout Standard
-
+\begin_layout Standard
 False
-\end_inset 
+\end_layout
+
+\end_inset
 </cell>
 </row>
 </lyxtabular>
 
-\end_inset 
+\end_inset
 
 
-\layout Subsection
+\end_layout
 
+\begin_layout Subsection
 Logic Examples
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 An "and2" example connecting two inputs to one output.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt and2 count=1
-\newline 
+\newline
 addf and2.0 servo-thread
-\newline 
-net my-sigin1 and2.0.in0 <= paraport.0.pin-11-in
-\newline 
+\newline
+net my-sigin1 and2.0.in0 <= paraport.0.pin
+-11-in
+\newline
 net my-sigin2 and2.0.in.1 <= paraport.0.pin-12-in
-\newline 
-net both-on paraport.0.pin-14-out <= and2.0.out
-\layout Standard
+\newline
+net both-on paraport.0.pin-14-ou
+t <= and2.0.out
+\end_layout
 
+\begin_layout Standard
 In the above example one copy of and2 is loaded into real time space and
  added to the servo thread.
  Next pin 11 of the parallel port is connected to the in0 bit of the and
@@ -1147,4 +1391,7 @@ In the above example one copy of and2 is loaded into real time space and
  Last we connect the and2 out bit to the parallel port pin 14.
  So following the truth table for and2 if pin 11 and pin 12 are on then
  the output pin 14 will be on.
-\the_end
+\end_layout
+
+\end_body
+\end_document

@@ -311,6 +311,8 @@ static PyMemberDef Stat_members[] = {
     {"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
     {"task_paused", T_INT, O(task.task_paused), READONLY},
     {"tlo_is_along_w", T_BOOL, O(task.tloIsAlongW), READONLY},
+    {"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
+    {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
 
 // motion
 //   EMC_TRAJ_STAT traj
@@ -323,6 +325,8 @@ static PyMemberDef Stat_members[] = {
     {"enabled", T_INT, O(motion.traj.enabled), READONLY},
     {"inpos", T_INT, O(motion.traj.inpos), READONLY},
     {"queue", T_INT, O(motion.traj.queue), READONLY},
+    {"active_queue", T_INT, O(motion.traj.activeQueue), READONLY},
+    {"queue_full", T_INT, O(motion.traj.queueFull), READONLY},
     {"id", T_INT, O(motion.traj.id), READONLY},
     {"paused", T_INT, O(motion.traj.paused), READONLY},
     {"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
@@ -339,13 +343,11 @@ static PyMemberDef Stat_members[] = {
     {"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
     {"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
-    {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
     {"delay_left", T_DOUBLE, O(motion.traj.delayLeft), READONLY},
-
-// io
-// EMC_TOOL_STAT io.tool
-    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
-    {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
+    {"feed_override_enabled", T_INT, O(motion.traj.feed_override_enabled), READONLY},
+    {"spindle_override_enabled", T_INT, O(motion.traj.spindle_override_enabled), READONLY},
+    {"adaptive_feed_enabled", T_INT, O(motion.traj.adaptive_feed_enabled), READONLY},
+    {"feed_hold_enabled", T_INT, O(motion.traj.feed_hold_enabled), READONLY},
 
 // EMC_SPINDLE_STAT motion.spindle
     {"spindle_speed", T_DOUBLE, O(motion.spindle.speed), READONLY},
@@ -353,6 +355,11 @@ static PyMemberDef Stat_members[] = {
     {"spindle_brake", T_INT, O(motion.spindle.brake), READONLY},
     {"spindle_increasing", T_INT, O(motion.spindle.increasing), READONLY},
     {"spindle_enabled", T_INT, O(motion.spindle.enabled), READONLY},
+
+// io
+// EMC_TOOL_STAT io.tool
+    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
+    {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
 
 // EMC_COOLANT_STAT io.cooland
     {"mist", T_INT, O(io.coolant.mist), READONLY},

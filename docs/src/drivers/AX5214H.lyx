@@ -1,47 +1,64 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 AX5214H
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O board.
  It plugs into an ISA bus, and resembles a pair of 8255 chips.
  In fact it may be a pair of 8255 chips, but I'm not sure.
  If/when someone starts a driver for an 8255 they should look at the ax5214
  code, much of the work is already done.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Installing
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 loadrt hal_ax5214h cfg="<config-string>"
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The config string consists of a hex port address, followed by an 8 character
  string of "I" and "O" which sets groups of pins as inputs and outputs.
  The first two character set the direction of the first two 8 bit blocks
@@ -59,24 +76,30 @@ The config string consists of a hex port address, followed by an 8 character
  40-43) and 28 outputs (0-7.
  16-23, 32-39, and 44-47).
  Up to 8 boards may be used in one system.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Pins
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) ax5214.<boardnum>.out-<pinnum> -- Drives a physical output pin.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) ax5214.<boardnum>.in-<pinnum> -- Tracks a physical input pin.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) ax5214.<boardnum>.in-<pinnum>-not -- Tracks a physical input pin, inverted.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For each pin, <boardnum> is the board number (starts at zero), and <pinnum>
  is the I/O channel number (0 to 47).
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Note that the driver assumes active LOW signals.
  This is so that modules such as OPTO-22 will work correctly (TRUE means
  output ON, or input energized).
@@ -88,14 +111,17 @@ Note that the driver assumes active LOW signals.
  pin is low (OPTO-22 module energized).
  By connecting a signal to one or the other, the user can determine the
  state of the input.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Parameters
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (bit) ax5214.<boardnum>.out-<pinnum>-invert -- Inverts an output pin.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 The -invert parameter determines whether an output pin is active high or
  active low.
  If -invert is FALSE, setting the HAL out- pin TRUE drives the physical
@@ -103,13 +129,19 @@ The -invert parameter determines whether an output pin is active high or
  turning OFF the OPTO-22 module.
  If -invert is TRUE, then setting the HAL out- pin TRUE will drive the physical
  pin high and turn the module OFF.
-\layout Section
+\end_layout
 
+\begin_layout Section
 Functions
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) ax5214.<boardnum>.read -- Reads all digital inputs on one board.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 (funct) ax5214.<boardnum>.write -- Writes all digital outputs on one board.
-\the_end
+\end_layout
+
+\end_body
+\end_document

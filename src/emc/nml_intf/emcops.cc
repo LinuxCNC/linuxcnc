@@ -27,6 +27,7 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     maxError = 0.0;
     minPositionLimit = -1.0;
     maxPositionLimit = 1.0;
+    minFerror = 1.0;
     maxFerror = 1.0;
     ferrorCurrent = 0.0;
     ferrorHighMark = 0.0;
