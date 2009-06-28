@@ -86,7 +86,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     spindle_override_enabled = 0;
     adaptive_feed_enabled = 0;
     feed_hold_enabled = 0;
-    delayLeft = 0.0;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT():
@@ -137,6 +136,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     programUnits = CANON_UNITS_MM;
     interpreter_errcode = 0;
     task_paused = 0;
+    delayLeft = 0.0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():

@@ -313,6 +313,7 @@ static PyMemberDef Stat_members[] = {
     {"tlo_is_along_w", T_BOOL, O(task.tloIsAlongW), READONLY},
     {"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
     {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
+    {"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
 
 // motion
 //   EMC_TRAJ_STAT traj
@@ -343,7 +344,6 @@ static PyMemberDef Stat_members[] = {
     {"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
     {"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
-    {"delay_left", T_DOUBLE, O(motion.traj.delayLeft), READONLY},
     {"feed_override_enabled", T_INT, O(motion.traj.feed_override_enabled), READONLY},
     {"spindle_override_enabled", T_INT, O(motion.traj.spindle_override_enabled), READONLY},
     {"adaptive_feed_enabled", T_INT, O(motion.traj.adaptive_feed_enabled), READONLY},
