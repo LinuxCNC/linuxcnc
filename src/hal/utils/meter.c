@@ -162,11 +162,21 @@ int main(int argc, gchar * argv[])
     /* process my own command line args (if any) here */
     small = 0;
     n = 1;
-    while ( argc > n ) {
-	    if ( strcmp (argv[n], "-s") == 0 ) {
+    while ( argc > n ) {  
+        if ( strcmp (argv[n], "-g") == 0 ) {
+            /*this sets up the variables for initial position of window*/
+	        geometryflag = 1;
+	        n++;
+            xposition =  atoi(argv[n]);
+            n++;
+            yposition =  atoi(argv[n]);
+            n++;
+	    }
+        if ((argc > n) && ( strcmp (argv[n], "-s") == 0 )) {
 	        small = 1;
 	        n++;
-            if (argc > n) {
+        }
+        if (argc > n) {
 	        /* check for user specified initial probe point */
 	            if (strncmp(argv[n], "pin", 3) == 0) {
 	                /* initial probe is a pin */
@@ -188,20 +198,12 @@ int main(int argc, gchar * argv[])
 	            } else {
 	                printf(_("ERROR: no pin/signal/parameter name\n"));
 	                return -1;
-	            }
-            } else {
-                printf(_("ERROR: -s option needs pin/signal/parameter type and name designated\n"));
-	                return -1;
-	        }
-	    } else if ( strcmp (argv[n], "-g") == 0 ) {
-            /*this sets up the variables for initial position of window*/
-	        geometryflag = 1;
-	        n++;
-            xposition =  atoi(argv[n]);
-            n++;
-            yposition =  atoi(argv[n]);
-            n++;
-	    }
+	            }	
+        }     
+    }
+    if ((initial_name == NULL) && (small == 1)) {
+        printf(_("ERROR: -s option requires a probe type and a pin/signal/parameter name\n"));
+        return -1;
     }
 
     /* create a unique module name */

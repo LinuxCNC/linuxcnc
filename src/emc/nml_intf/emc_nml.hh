@@ -958,15 +958,15 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int axis_mask;		// mask of axes actually present
     enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
     // EMC_TRAJ_MODE_COORD
-    int enabled;		// non-zero means enabled
+    bool enabled;		// non-zero means enabled
 
-    int inpos;			// non-zero means in position
+    bool inpos;			// non-zero means in position
     int queue;			// number of pending motions, counting
     // current
     int activeQueue;		// number of motions blending
-    int queueFull;		// non-zero means can't accept another motion
+    bool queueFull;		// non-zero means can't accept another motion
     int id;			// id of the currently executing motion
-    int paused;			// non-zero means motion paused
+    bool paused;			// non-zero means motion paused
     double scale;		// velocity scale factor
     double spindle_scale;	// spindle velocity scale factor
 
@@ -979,9 +979,9 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double maxAcceleration;	// system acceleration
 
     EmcPose probedPosition;	// last position where probe was tripped.
-    int probe_tripped;		// Has the probe been tripped since the last
+    bool probe_tripped;		// Has the probe been tripped since the last
     // clear.
-    int probing;		// Are we currently looking for a probe
+    bool probing;		// Are we currently looking for a probe
     // signal.
     int probeval;		// Current value of probe input.
     int kinematics_type;	// identity=1,serial=2,parallel=3,custom=4
@@ -989,11 +989,10 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double distance_to_go;         // in current move
     EmcPose dtg;
     double current_vel;         // in current move
-    int feed_override_enabled;
-    int spindle_override_enabled;
-    int adaptive_feed_enabled;
-    int feed_hold_enabled;
-    double delayLeft;           // delay time left of G4, M66..
+    bool feed_override_enabled;
+    bool spindle_override_enabled;
+    bool adaptive_feed_enabled;
+    bool feed_hold_enabled;
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes
@@ -1400,6 +1399,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
+    double delayLeft;           // delay time left of G4, M66..
 };
 
 // declarations for EMC_TOOL classes
