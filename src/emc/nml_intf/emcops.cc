@@ -54,13 +54,13 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
-    enabled = 0;
-    inpos = 1;
+    enabled = OFF;
+    inpos = ON;
     queue = 0;
     activeQueue = 0;
-    queueFull = 0;
+    queueFull = OFF;
     id = 0;
-    paused = 0;
+    paused = OFF;
     scale = 0.0;
     spindle_scale = 0.0;
 
@@ -73,8 +73,8 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     maxAcceleration = 1.0;
 
     ZERO_EMC_POSE(probedPosition);
-    probe_tripped = 0;
-    probing = 0;
+    probe_tripped = OFF;
+    probing = OFF;
     probeval = 0;
     
     ZERO_EMC_POSE(dtg);
@@ -82,11 +82,10 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     kinematics_type = 0;
     motion_type = 0;
     current_vel = 0.0;
-    feed_override_enabled = 0;
-    spindle_override_enabled = 0;
-    adaptive_feed_enabled = 0;
-    feed_hold_enabled = 0;
-    delayLeft = 0.0;
+    feed_override_enabled = OFF;
+    spindle_override_enabled = OFF;
+    adaptive_feed_enabled = OFF;
+    feed_hold_enabled = OFF;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT():
@@ -137,6 +136,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     programUnits = CANON_UNITS_MM;
     interpreter_errcode = 0;
     task_paused = 0;
+    delayLeft = 0.0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():
