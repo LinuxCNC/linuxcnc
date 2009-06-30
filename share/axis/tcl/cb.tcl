@@ -100,6 +100,7 @@ proc ::cb::install {} {
     rename ::checkbutton ::cb::real_checkbutton
     proc ::checkbutton { path args } {
         eval [concat ::cb::real_checkbutton $path $args]
+        if {[winfo toplevel $path] != "."} { return $path }
         rename $path ::cb::_$path
         proc $path { args } [subst -nocommands {
             set ret [eval [concat ::cb::_$path \$args]]
