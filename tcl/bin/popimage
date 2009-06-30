@@ -51,15 +51,15 @@ if {! [file exists $img]} {
   exit
 }
 
-if {[catch {image create photo image1 -file $img}]} {
+if {[catch {image create photo -file $img} image]} {
   puts stderr "bad image file $img"
   exit
 }
 
-set w [image width image1]
-set h [image height image1]
+set w [image width $image]
+set h [image height $image]
 canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
-.c create image 0 0 -anchor nw -image image1
+.c create image 0 0 -anchor nw -image $image
 .c create text 4 [expr $h-4] -anchor sw \
     -text $env(EMC2VERSION) -fill white -font {Helvetica 18}
 
