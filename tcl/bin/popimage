@@ -30,6 +30,8 @@ if {$argc < 1} {
   exit
 }
 
+load [file join [file dirname [info script]] .. emc.so]
+
 . configure -borderwidth 0 -highlightthickness 0
 
 set img [lindex $argv 0]
@@ -65,10 +67,15 @@ pack .c
 
 # Center popup in screen.
 
-set xmax [winfo screenwidth .]
-set ymax [winfo screenheight .]
-set x [expr ($xmax - [image width image1] )  / 2]
-set y [expr ($ymax - [image height image1] )  / 2]
+set si [lindex [multihead] 0]
+set x0 [lindex $si 0]
+set y0 [lindex $si 1]
+set x1 [lindex $si 2]
+set y1 [lindex $si 3]
+set cx [expr {($x0+$x1)/2}]
+set cy [expr {($y0+$y1)/2}]
+set x [expr {$cx-$w/2}]
+set y [expr {$cy-$h/2}]
 wm geometry . "+$x+$y"
 wm overrideredirect . 1
 
