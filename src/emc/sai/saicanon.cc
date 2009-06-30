@@ -33,6 +33,7 @@
 
 #include "canon.hh"
 #include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>

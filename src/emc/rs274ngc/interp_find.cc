@@ -25,6 +25,7 @@
 #include "rs274ngc.hh"
 #include "interp_return.hh"
 #include "interp_internal.hh"
+#include "rs274ngc_interp.hh"
 
 /****************************************************************************/
 

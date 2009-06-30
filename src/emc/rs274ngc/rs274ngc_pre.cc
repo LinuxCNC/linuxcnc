@@ -85,6 +85,7 @@ include an option for suppressing superfluous commands.
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 #include "interp_queue.hh"
+#include "rs274ngc_interp.hh"
 //#include "rs274ngc_errors.cc"
 
 #include "units.h"
@@ -221,8 +222,8 @@ int Interp::execute(const char *command)
       // !!!KL not clear what happens if last execution failed while in
       // !!!KL a subroutine
 
-      // NOTE: If LAZY_CLOSE is set in ini file, the last executed file
-      // NOTE: will still be open.
+      // NOTE: the last executed file will still be open, because "close"
+      // is really a lazy close.
     
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
@@ -402,10 +403,7 @@ int Interp::init()
     	    }
           }
 
-          if(NULL != (inistring = inifile.Find("LAZY_CLOSE", "RS274NGC")))
-          {
-              _setup.use_lazy_close = atol(inistring);
-          }
+          _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
