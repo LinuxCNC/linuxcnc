@@ -222,8 +222,8 @@ int Interp::execute(const char *command)
       // !!!KL not clear what happens if last execution failed while in
       // !!!KL a subroutine
 
-      // NOTE: If LAZY_CLOSE is set in ini file, the last executed file
-      // NOTE: will still be open.
+      // NOTE: the last executed file will still be open, because "close"
+      // is really a lazy close.
     
       logDebug("!!!KL Open file is:%s:", _setup.filename);
       logDebug("MDImode = %d", MDImode);
