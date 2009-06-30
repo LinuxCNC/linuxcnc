@@ -33,6 +33,8 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
     coming in
   * bugfix: (minor) the hm2 driver now uses double instead of hal_float_t
     for internal temporary variables
+  * axis: fix a bug that made axis lock up when clicking the "show hidden
+    files" checkbox in the Open dialog 
 
  -- Jeff Epler <jepler@unpythonic.net>  Tue, 23 Jun 2009 07:26:41 -0500
 
