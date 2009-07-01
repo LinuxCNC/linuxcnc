@@ -56,6 +56,10 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 {
 	if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return "Error blank symbol name";}
 	if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
+    if (VarNameParam == NULL) { 
+        printf("ERROR---null converted varname\n");
+        return "ERROR";
+    }
 	if( VarNameParam[0] == '%'){
             char pin_name[100] = {0};
             int arrowside=0;
@@ -194,10 +198,18 @@ char * FirstVariableInArithm(char * Expr)
 			case '=' :
 			case '\0':
 			case '&' :
+            case '^' :
 			case '!' :
 			case '|' :
 			case '[' :
 			case '(' :
+            case ')' :
+            case '<' :
+            case '>' :
+            case '+' :
+            case '-' :
+            case '*' :
+            case '/' :
 
 			snprintf(Buffer, i+1, "%s", Expr);
 			snprintf(Tempbuf, 100, " %s (for %s)  Exprsn~ %s",ConvVarNameToHalSigName(Buffer),Buffer,Expr);
