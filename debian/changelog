@@ -1,5 +1,6 @@
 emc2 (1:2.3.2~pre) hardy; urgency=low
 
+  * classicladder:Fix crash from clicking on comparison objects
   * halshow: fix overlap of pin name and value with long values
   * calibration now works with hostmot2-style hal files
   * documentation improvements
