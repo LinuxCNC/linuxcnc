@@ -291,9 +291,6 @@ static PyMemberDef Stat_members[] = {
 // stat 
     {"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {"state", T_INT, O(status), READONLY},
-    {"line", T_INT, O(line), READONLY},
-    {"source_line", T_INT, O(line), READONLY},
-    {"source_file", T_STRING_INPLACE, O(source_file), READONLY},
 
 // task
     {"task_mode", T_INT, O(task.mode), READONLY},
