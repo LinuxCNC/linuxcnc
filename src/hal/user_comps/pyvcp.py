@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #    This is a component of emc
 #    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
-#    added option to size/position root window. Chris Morley 2009
-#    use -g [WxH+x+y] or [WxH] or [+x+y]  (in pixel units)
+#    
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,13 +23,15 @@
     A virtual control panel (VCP) is used to display and control
     HAL pins, which are either BIT or FLOAT valued.
 
-    Usage: pyvcp -c compname myfile.xml
+    Usage: pyvcp -g WxH+X+Y -c compname myfile.xml
 
     compname is the name of the HAL component to be created. 
     The name of the HAL pins associated with the VCP will begin with 'compname.'
     
     myfile.xml is an XML file which specifies the layout of the VCP.
     Valid XML tags are described in the documentation for pyvcp_widgets.py
+
+    -g option allows setting of the inital size and/or position of the panel
 """
 
 import sys, os
@@ -44,8 +45,10 @@ import getopt
 
 def usage():
     """ prints the usage message """
-    print "Usage: pyvcp [-c hal_component_name] myfile.xml"
+    print "Usage: pyvcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.xml"
     print "If the component name is not specified, the basename of the xml file is used."
+    print "-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen"
+    print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
 
 def main():
     """ creates a HAL component.
@@ -77,8 +80,8 @@ def main():
 
     pyvcp0 = Tk()
     pyvcp0.title(component_name)
-    if not window_geometry == None:
-        pyvcp0.geometry("%s"% str(window_geometry))
+    if window_geometry:
+        pyvcp0.geometry(window_geometry)
    
     vcpparse.filename=filename
     pycomp=vcpparse.create_vcp(compname=component_name, master=pyvcp0)
