@@ -20,6 +20,7 @@
 #include <structmember.h>
 
 #include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
 #include "interp_return.hh"
 #include "canon.hh"
 #include "config.h"		// LINELEN

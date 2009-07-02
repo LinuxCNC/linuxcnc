@@ -97,9 +97,11 @@ proc ::cb::nicer_cb_configure {w} {
 }
 
 proc ::cb::install {} {
+    if {$::tk_version >= "8.5"} { return }
     rename ::checkbutton ::cb::real_checkbutton
     proc ::checkbutton { path args } {
         eval [concat ::cb::real_checkbutton $path $args]
+        if {[winfo toplevel $path] != "."} { return $path }
         rename $path ::cb::_$path
         proc $path { args } [subst -nocommands {
             set ret [eval [concat ::cb::_$path \$args]]
