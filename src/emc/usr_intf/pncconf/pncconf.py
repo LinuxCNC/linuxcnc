@@ -2243,7 +2243,8 @@ class App:
             numofencoders = self.data.numof_mesa_encodergens 
             board = self.data.mesa_boardname 
             firmware = self.data.mesa_firmware 
-            self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
+            if not self.widgets.createconfig.get_active():
+                self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -3904,7 +3905,8 @@ class App:
 
     def m5i20test(self,w):
         board = self.data.mesa_currentfirmwaredata[0]
-        firmware = self.data.mesa_currentfirmwaredata[1]         
+        firmware = self.data.mesa_currentfirmwaredata[1]   
+        print "-%s-%s-"% (firmware,  self.data.mesa_firmware)      
         if board in( "5i22", "7i43"):
             self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
 
@@ -3915,7 +3917,7 @@ class App:
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (board, self.data.mesa_firmware, self.data.numof_mesa_encodergens,
+         % (board, firmware, self.data.numof_mesa_encodergens,
             self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
         halrun.write("loadrt or2 count=72\n")
         halrun.write("addf hm2_%s.0.read slow\n"% board)
@@ -4157,12 +4159,13 @@ class App:
         firmware = self.data.mesa_currentfirmwaredata[1]
         w.notebook2.set_current_page(axnum)
         stepgen = self.data.stepgen_sig(axis)
+        print axis,stepgen
         if not stepgen == "false":
             w.notebook3.set_current_page(1)
-            w.pid.set_sensitive(0)
+            w[axis+"pid"].set_sensitive(0)
         else:
             w.notebook3.set_current_page(0)
-            w.step.set_sensitive(0)
+            w[axis+"step"].set_sensitive(0)
 
         if axis == "a":
             w[axis + "tunedistunits"].set_text(_("degrees"))
@@ -4199,8 +4202,9 @@ class App:
         w[axis+"tunecurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
         w[axis+"tuneorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
         self.tunejogplus = self.tunejogminus = 0
-
-        
+        w[axis+"tunedir"].set_active(0)
+        w[axis+"tunerun"].set_active(0)
+     
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
@@ -4215,7 +4219,6 @@ class App:
         addf steptest.0 slow
         addf hm2_%s.0.write slow
         addf hm2_%s.0.pet_watchdog fast
-        loadusr halmeter -g 0 500
         """ % (board, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens, board,board,board))
         
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
@@ -4251,18 +4254,22 @@ class App:
                     if not pintype == STEPA : continue    
                     if "m5i20" in stepgen:      
                         # check current component number to signal's component number  
-                        if compnum == int(stepgen[10:]):
+                        if pin == int(stepgen[10:]):
+                            self.currentstepgen = compnum
+                            self.boardname = board
                             halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (board,compnum))
                             halrun.write("net cmd steptest.0.position-cmd => hm2_%s.0.stepgen.%02d.position-cmd \n"% (board,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                            halrun.write("net feedback steptest.0.position-fb <= hm2_%s.0.stepgen.%02d.position-fb \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.steplen %d \n"% (board,compnum,w[axis+"steptime"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.stepspace %d \n"% (board,compnum,w[axis+"stepspace"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirhold %d \n"% (board,compnum,w[axis+"dirhold"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirsetup %d \n"% (board,compnum,w[axis+"dirsetup"].get_value()))
                             halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / float(w[axis + "scale"].get_text()))  )
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                            halrun.write("loadusr halmeter pin hm2_%s.0.stepgen.%02d.velocity-fb -g 0 500\n"% (board,compnum))
                 else: 
                     print "pintype error in mesa test panel method pintype:%s connector %d pin %d\n"% (pintype, connector,pin)
 
@@ -4285,6 +4292,7 @@ class App:
                 halrun.write("setp %s true\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
+
         halrun.write("start\n"); halrun.flush()
         w.servotunedialog.set_title(_("%s Axis Tune") % axis.upper())
         w.servotunedialog.show_all()
@@ -4314,25 +4322,41 @@ class App:
 
     def update_tune_axis_params(self, *args):
         axis = self.axis_under_tune
+        compnum = self.currentstepgen
+        board = self.boardname
         if axis is None: return
         halrun = self.halrun
         halrun.write("""
-            setp stepgen.0.maxaccel %(accel)f
-            setp stepgen.0.maxvel %(vel)f
+            setp hm2_%s.0.stepgen.%(num)02d.steplen %(len)d
+            setp hm2_%s.0.stepgen.%(num)02d.stepspace %(space)d
+            setp hm2_%s.0.stepgen.%(num)02d.dirhold %(hold)d
+            setp hm2_%s.0.stepgen.%(num)02d.dirsetup %(setup)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.maxaccel %(accel)f
+            setp hm2_%(board)s.0.stepgen.%(num)02d.maxvel %(velps)f
             setp steptest.0.jog-minus %(jogminus)s
             setp steptest.0.jog-plus %(jogplus)s
             setp steptest.0.run %(run)s
             setp steptest.0.amplitude %(amplitude)f
             setp steptest.0.maxvel %(vel)f
+            setp steptest.0.maxaccel %(accel)f
             setp steptest.0.dir %(dir)s
+            setp steptest.0.pause %(pause)d
         """ % {
+            'len':self.widgets[axis+"steptime"].get_value(),
+            'space':self.widgets[axis+"stepspace"].get_value(),
+            'hold':self.widgets[axis+"dirhold"].get_value(),
+            'setup':self.widgets[axis+"dirsetup"].get_value(),
+            'board': board,
+            'num': compnum,
             'jogminus': self.tunejogminus,
             'jogplus': self.tunejogplus,
-            'run': self.widgets.tunerun.get_active(),
-            'amplitude': self.widgets.tuneamplitude.get_value(),
-            'accel': self.widgets.tuneacc.get_value(),
-            'vel': self.widgets.tunevel.get_value(),
-            'dir': self.widgets.tunedir.get_active(),
+            'run': self.widgets[axis+"tunerun"].get_active(),
+            'amplitude': self.widgets[axis+"tuneamplitude"].get_value(),
+            'accel': self.widgets[axis+"tuneacc"].get_value(),
+            'vel': self.widgets[axis+"tunevel"].get_value(),
+            'velps': (self.widgets[axis+"tunevel"].get_value()/60),
+            'dir': self.widgets[axis+"tunedir"].get_active(),
+            'pause':int(self.widgets[axis+"tunepause"].get_value()),
         })
         halrun.flush()
 
