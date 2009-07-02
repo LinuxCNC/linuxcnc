@@ -61,6 +61,7 @@ if(run) {
     position_cmd = run_start;
     if(fabs(position_fb - run_start) < epsilon) {
         running = 0;
+        timer_on = false;
     }
 } else {
     if(jog_minus) {
