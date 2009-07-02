@@ -500,9 +500,9 @@ static PyObject *Stat_ain(pyStatChannel *s) {
     return double_array(s->status.motion.analog_input, EMC_MAX_AIO);
 }
 
-//static PyObject *Stat_aout(pyStatChannel *s) {
-//    return double_array(s->status.io.aux.aout, EMC_AUX_MAX_AOUT);
-//}
+static PyObject *Stat_aout(pyStatChannel *s) {
+    return double_array(s->status.motion.analog_output, EMC_MAX_AIO);
+}
 
 static void dict_add(PyObject *d, char *name, unsigned char v) {
     PyObject *o;
@@ -600,7 +600,7 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
 static PyGetSetDef Stat_getsetlist[] = {
     {"actual_position", (getter)Stat_actual},
     {"ain", (getter)Stat_ain},
-//    {"aout", (getter)Stat_aout},
+    {"aout", (getter)Stat_aout},
     {"axis", (getter)Stat_axis},
     {"din", (getter)Stat_din},
     {"dout", (getter)Stat_dout},

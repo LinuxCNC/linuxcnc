@@ -1132,6 +1132,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int synch_di[EMC_MAX_DIO];  // motion inputs queried by interp
     int synch_do[EMC_MAX_DIO];  // motion outputs queried by interp
     double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
+    double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
     int debug;			// copy of EMC_DEBUG global
 };
 

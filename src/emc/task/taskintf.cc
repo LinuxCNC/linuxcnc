@@ -1495,14 +1495,12 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 
     for (dio = 0; dio < EMC_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
-    }
-
-    for (dio = 0; dio < EMC_MAX_DIO; dio++) {
 	stat->synch_do[dio] = emcmotStatus.synch_do[dio];
     }
 
     for (aio = 0; aio < EMC_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
+	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
 
     // set the status flag
