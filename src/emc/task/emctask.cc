@@ -24,7 +24,7 @@
 #include "emcglb.h"		// EMC_INIFILE
 #include "interpl.hh"		// NML_INTERP_LIST, interp_list
 #include "canon.hh"		// CANON_VECTOR, GET_PROGRAM_ORIGIN()
-#include "rs274ngc.hh"		// the interpreter
+#include "rs274ngc_interp.hh"	// the interpreter
 #include "interp_return.hh"	// INTERP_FILE_NOT_OPEN
 #include "inifile.hh"
 #include "rcs_print.hh"

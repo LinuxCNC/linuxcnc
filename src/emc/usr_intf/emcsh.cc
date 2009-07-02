@@ -3388,6 +3388,13 @@ static int localint(ClientData clientdata,
     return TCL_OK;
 }
 
+static const char *one_head(int x0, int y0, int x1, int y1)
+{
+    static char buf[100];
+    snprintf(buf, sizeof(buf), "%d %d %d %d", x0, y0, x1, y1);
+    return buf;
+}
+
 // "round", as in "round 3.9" which returns 4
 static int localround(ClientData clientdata,
 		      Tcl_Interp * interp, int objc,
@@ -3417,6 +3424,47 @@ static int localround(ClientData clientdata,
 		     Tcl_NewIntObj(val <
 				   0.0 ? (int) (val - 0.5) : (int) (val +
 								    0.5)));
+    return TCL_OK;
+}
+
+#include <X11/extensions/Xinerama.h>
+
+static int multihead(ClientData clientdata,
+		      Tcl_Interp * interp, int objc,
+		      Tcl_Obj * CONST objv[])
+{
+    if(objc > 1)
+	Tcl_SetResult(interp, "wrong # args: should be \"multihead\"",
+		      TCL_VOLATILE);
+
+    Tk_Window tkwin = Tk_MainWindow(interp);
+    if(!tkwin) return TCL_ERROR;
+
+    Display *d = Tk_Display(tkwin);
+    if(!d) return TCL_ERROR;
+
+    Tcl_ResetResult(interp);
+
+    XineramaScreenInfo *inf = NULL;
+    int count = 0;
+
+    int i, j;
+    if(XineramaQueryExtension(d, &i, &j)) {
+        inf = XineramaQueryScreens(d, &count);
+    }
+
+    if( !inf ) {
+        Tcl_AppendElement(interp, one_head(0, 0,
+                   DisplayWidth(d, DefaultScreen(d)),
+                   DisplayHeight(d, DefaultScreen(d))));
+    } else {
+        for(i=0; i<count; i++) {
+            Tcl_AppendElement(interp, one_head(inf[i].x_org, inf[i].y_org,
+                        inf[i].x_org + inf[i].width,
+                        inf[i].y_org + inf[i].height));
+        }
+        XFree(inf);
+    }
     return TCL_OK;
 }
 
@@ -3781,6 +3829,9 @@ int Emc_Init(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "round", localround, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateObjCommand(interp, "multihead", multihead, (ClientData) NULL,
+                         (Tcl_CmdDeleteProc*) NULL);
 
     /* 
      * Specify a user-specific startup file to invoke if the application

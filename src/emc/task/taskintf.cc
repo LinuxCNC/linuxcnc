@@ -1231,7 +1231,7 @@ static double last_id_time;
 
 int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 {
-    int joint;
+    int joint, enables;
 
     //FIXME-AJ: are these really axes?
     stat->axes = localEmcTrajJoints;
@@ -1261,8 +1261,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	}
     }
 
-    stat->inpos =
-	emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0;
+    stat->inpos = emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT;
     stat->queue = emcmotStatus.depth;
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
@@ -1316,11 +1315,18 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->probedPosition = emcmotStatus.probedPos;
 
     stat->probeval = emcmotStatus.probeVal;
+    stat->probing = emcmotStatus.probing;
     stat->probe_tripped = emcmotStatus.probeTripped;
-    stat->feed_override_enabled = emcmotStatus.enables_new & FS_ENABLED ? 1 : 0;
-    stat->spindle_override_enabled = emcmotStatus.enables_new & SS_ENABLED ? 1 : 0;
-    stat->adaptive_feed_enabled = emcmotStatus.enables_new & AF_ENABLED ? 1 : 0;
-    stat->feed_hold_enabled = emcmotStatus.enables_new & FH_ENABLED ? 1 : 0;
+    
+    if (emcmotStatus.motionFlag & EMCMOT_MOTION_COORD_BIT)
+        enables = emcmotStatus.enables_queued;
+    else
+        enables = emcmotStatus.enables_new;
+    
+    stat->feed_override_enabled = enables & FS_ENABLED;
+    stat->spindle_override_enabled = enables & SS_ENABLED;
+    stat->adaptive_feed_enabled = enables & AF_ENABLED;
+    stat->feed_hold_enabled = enables & FH_ENABLED;
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;

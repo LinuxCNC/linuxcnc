@@ -19,6 +19,7 @@
 ********************************************************************/
 
 #include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
 #include "rs274ngc_return.hh"
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name

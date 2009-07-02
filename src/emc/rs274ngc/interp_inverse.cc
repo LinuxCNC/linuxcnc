@@ -23,6 +23,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "interp_queue.hh"
+#include "rs274ngc_interp.hh"
 
 /****************************************************************************/
 
