@@ -1261,6 +1261,34 @@ static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *set_digital_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_DOUT m;
+    if(!PyArg_ParseTuple(o, "ii", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_analog_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_AOUT m;
+    if(!PyArg_ParseTuple(o, "id", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
 }
@@ -1304,6 +1332,8 @@ static PyMethodDef Command_methods[] = {
     {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS},
     {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS},
     {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
+    {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
+    {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
     {NULL}
 };
 
