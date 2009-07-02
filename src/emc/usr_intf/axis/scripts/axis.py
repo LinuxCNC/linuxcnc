@@ -2899,7 +2899,6 @@ class TclCommands(nf.TclCommands):
             vars.mdi_command.set(widgets.mdi_history.get(mdi_history_index))
             widgets.mdi_command.selection_range(0, "end")
 
-
     def send_mdi(*event):
         if not manual_ok(): return "break"
         global mdi_history_index, mdi_history_save_filename
@@ -2907,11 +2906,7 @@ class TclCommands(nf.TclCommands):
         commands.send_mdi_command(command)
         return "break"
 
-    def send_mdi_commandx(c1, c2):
-        #print "send_mdi_command:%s:%s:" % (c1, c2)
-        commands.send_mdi_command(c2)
-
-    def send_mid_command(command):
+    def send_mdi_command(command):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
