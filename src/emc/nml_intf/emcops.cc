@@ -161,25 +161,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 EMC_AUX_STAT::EMC_AUX_STAT():
 EMC_AUX_STAT_MSG(EMC_AUX_STAT_TYPE, sizeof(EMC_AUX_STAT))
 {
-    int t;
-
     estop = 1;
-
-    for (t = 0; t < EMC_AUX_MAX_DOUT; t++) {
-	dout[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_DIN; t++) {
-	din[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AOUT; t++) {
-	aout[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AIN; t++) {
-	ain[t] = 0;
-    }
 }
 
 EMC_SPINDLE_STAT::EMC_SPINDLE_STAT():
@@ -223,32 +205,6 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 	toolTable[t].frontangle = s.toolTable[t].frontangle;
 	toolTable[t].backangle = s.toolTable[t].backangle;
 	toolTable[t].orientation = s.toolTable[t].orientation;
-    }
-
-    return s;
-}
-
-// overload = , since class has array elements
-EMC_AUX_STAT EMC_AUX_STAT::operator =(EMC_AUX_STAT s)
-{
-    int t;
-
-    estop = s.estop;
-
-    for (t = 0; t < EMC_AUX_MAX_DOUT; t++) {
-	dout[t] = s.dout[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_DIN; t++) {
-	din[t] = s.din[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AOUT; t++) {
-	aout[t] = s.aout[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AIN; t++) {
-	ain[t] = s.ain[t];
     }
 
     return s;

@@ -465,13 +465,13 @@ static PyObject *Stat_activesettings(pyStatChannel *s) {
    return double_array(s->status.task.activeSettings, ACTIVE_SETTINGS);
 }
 
-static PyObject *Stat_din(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.din, EMC_AUX_MAX_DIN);
-}
+//static PyObject *Stat_din(pyStatChannel *s) {
+//    return uchar_array(s->status.io.aux.din, EMC_AUX_MAX_DIN);
+//}
 
-static PyObject *Stat_dout(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.dout, EMC_AUX_MAX_DOUT);
-}
+//static PyObject *Stat_dout(pyStatChannel *s) {
+//    return uchar_array(s->status.io.aux.dout, EMC_AUX_MAX_DOUT);
+//}
 
 static PyObject *Stat_limit(pyStatChannel *s) {
     int sz = NUM_AXES;
@@ -496,13 +496,13 @@ static PyObject *Stat_homed(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_ain(pyStatChannel *s) {
-    return double_array(s->status.io.aux.ain, EMC_AUX_MAX_AIN);
-}
+//static PyObject *Stat_ain(pyStatChannel *s) {
+//    return double_array(s->status.io.aux.ain, EMC_AUX_MAX_AIN);
+//}
 
-static PyObject *Stat_aout(pyStatChannel *s) {
-    return double_array(s->status.io.aux.aout, EMC_AUX_MAX_AOUT);
-}
+//static PyObject *Stat_aout(pyStatChannel *s) {
+//    return double_array(s->status.io.aux.aout, EMC_AUX_MAX_AOUT);
+//}
 
 static void dict_add(PyObject *d, char *name, unsigned char v) {
     PyObject *o;
@@ -599,11 +599,11 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
 
 static PyGetSetDef Stat_getsetlist[] = {
     {"actual_position", (getter)Stat_actual},
-    {"ain", (getter)Stat_ain},
-    {"aout", (getter)Stat_aout},
+//    {"ain", (getter)Stat_ain},
+//    {"aout", (getter)Stat_aout},
     {"axis", (getter)Stat_axis},
-    {"din", (getter)Stat_din},
-    {"dout", (getter)Stat_dout},
+//    {"din", (getter)Stat_din},
+//    {"dout", (getter)Stat_dout},
     {"gcodes", (getter)Stat_activegcodes},
     {"homed", (getter)Stat_homed},
     {"limit", (getter)Stat_limit},

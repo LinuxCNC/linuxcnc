@@ -1622,26 +1622,14 @@ class EMC_AUX_STAT_MSG:public RCS_STAT_MSG {
     void update(CMS * cms);
 };
 
-#define EMC_AUX_MAX_DOUT 4	// digital out bytes
-#define EMC_AUX_MAX_DIN  4	// digital in bytes
-#define EMC_AUX_MAX_AOUT 32	// analog out points
-#define EMC_AUX_MAX_AIN  32	// analog in points
-
 class EMC_AUX_STAT:public EMC_AUX_STAT_MSG {
   public:
     EMC_AUX_STAT();
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    EMC_AUX_STAT operator =(EMC_AUX_STAT s);	// need this for [] members
 
     int estop;			// non-zero means estopped
-
-    unsigned char dout[EMC_AUX_MAX_DOUT];	// digital output readings
-    unsigned char din[EMC_AUX_MAX_DIN];	// digital input readings
-
-    double aout[EMC_AUX_MAX_AOUT];	// digital output readings
-    double ain[EMC_AUX_MAX_AIN];	// digital input readings
 };
 
 // EMC_SPINDLE type declarations
