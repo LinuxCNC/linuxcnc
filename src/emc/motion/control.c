@@ -1909,6 +1909,9 @@ static void update_status(void)
     for (dio = 0; dio < num_dio; dio++)
 	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);
 
+    for (dio = 0; dio < num_dio; dio++)
+	emcmotStatus->synch_do[dio] = *(emcmot_hal_data->synch_do[dio]);
+
     for (aio = 0; aio < num_aio; aio++)
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
 

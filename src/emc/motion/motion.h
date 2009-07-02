@@ -614,6 +614,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	spindle_status spindle;	/* data types for spindle status */
 	
 	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by g-code */
+	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
