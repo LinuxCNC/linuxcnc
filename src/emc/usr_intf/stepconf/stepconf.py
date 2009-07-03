@@ -1069,7 +1069,7 @@ class Data:
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
-            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
             shortcut = os.path.join(desktop, machinename)
