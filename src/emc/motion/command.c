@@ -323,7 +323,11 @@ void emcmotDioWrite(int index, char value)
 */
 void emcmotAioWrite(int index, double value)
 {
-    reportError("emcmotAioWrite called, yet not implemented\n");
+    if ((index >= num_aio) || (index < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, num_aio, EMCMOT_MAX_AIO);
+    } else {
+        *(emcmot_hal_data->analog_output[index]) = value;
+    }
 }
 
 /*
@@ -1439,6 +1443,7 @@ check_stuff ( "before command_handler()" );
 
 	/* needed for synchronous I/O */
 	case EMCMOT_SET_AOUT:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AOUT");
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotAioWrite(emcmotCommand->out, emcmotCommand->minLimit);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite

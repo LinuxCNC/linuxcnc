@@ -311,17 +311,15 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) < 0) goto error;
 
     /* export motion-synched digital output pins */
-    for (n = 0; n < num_dio; n++) {
-	if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) < 0) goto error;
-    }
-
     /* export motion digital input pins */
     for (n = 0; n < num_dio; n++) {
+	if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) < 0) goto error;
 	if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) < 0) goto error;
     }
 
     /* export motion analog input pins */
     for (n = 0; n < num_aio; n++) {
+	if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", n)) < 0) goto error;
 	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) < 0) goto error;
     }
 
@@ -544,6 +542,7 @@ static int init_hal_io(void)
     }
 
     for (n = 0; n < num_aio; n++) {
+	 *(emcmot_hal_data->analog_output[n]) = 0.0;
 	 *(emcmot_hal_data->analog_input[n]) = 0.0;
     }
     

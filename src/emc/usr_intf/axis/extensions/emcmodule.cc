@@ -291,9 +291,6 @@ static PyMemberDef Stat_members[] = {
 // stat 
     {"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {"state", T_INT, O(status), READONLY},
-    {"line", T_INT, O(line), READONLY},
-    {"source_line", T_INT, O(line), READONLY},
-    {"source_file", T_STRING_INPLACE, O(source_file), READONLY},
 
 // task
     {"task_mode", T_INT, O(task.mode), READONLY},
@@ -469,11 +466,11 @@ static PyObject *Stat_activesettings(pyStatChannel *s) {
 }
 
 static PyObject *Stat_din(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.din, EMC_AUX_MAX_DIN);
+    return int_array(s->status.motion.synch_di, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_dout(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.dout, EMC_AUX_MAX_DOUT);
+    return int_array(s->status.motion.synch_do, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_limit(pyStatChannel *s) {
@@ -500,11 +497,11 @@ static PyObject *Stat_homed(pyStatChannel *s) {
 }
 
 static PyObject *Stat_ain(pyStatChannel *s) {
-    return double_array(s->status.io.aux.ain, EMC_AUX_MAX_AIN);
+    return double_array(s->status.motion.analog_input, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_aout(pyStatChannel *s) {
-    return double_array(s->status.io.aux.aout, EMC_AUX_MAX_AOUT);
+    return double_array(s->status.motion.analog_output, EMC_MAX_AIO);
 }
 
 static void dict_add(PyObject *d, char *name, unsigned char v) {
@@ -1264,6 +1261,34 @@ static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *set_digital_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_DOUT m;
+    if(!PyArg_ParseTuple(o, "ii", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_analog_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_AOUT m;
+    if(!PyArg_ParseTuple(o, "id", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
 }
@@ -1307,6 +1332,8 @@ static PyMethodDef Command_methods[] = {
     {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS},
     {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS},
     {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
+    {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
+    {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
     {NULL}
 };
 

@@ -1493,17 +1493,19 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->spindle.brake = emcmotStatus.spindle.brake;
     stat->spindle.direction = emcmotStatus.spindle.direction;
 
-    // set the status flag
-    error = 0;
-    exec = 0;
-
     for (dio = 0; dio < EMC_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
+	stat->synch_do[dio] = emcmotStatus.synch_do[dio];
     }
 
     for (aio = 0; aio < EMC_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
+	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
+
+    // set the status flag
+    error = 0;
+    exec = 0;
 
     for (axis = 0; axis < stat->traj.axes; axis++) {
 	if (stat->axis[axis].status == RCS_ERROR) {
