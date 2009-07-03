@@ -18,6 +18,8 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
     not following the user request.
   * stepconf: Fix creating shortcuts on systems where the Desktop directory
     is not called "Desktop"
+  * pickconfig: Fix creating shortcuts on systems where the Desktop directory
+    is not called "Desktop"
   * Increase the HAL shared memory area.  This fixes problems loading complex
     configurations, such as those that use two mesa cards
   * in AXIS, machine position no longer incorrectly shows the tool offset
