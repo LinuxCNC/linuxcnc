@@ -3006,14 +3006,16 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 */
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-  EMC_AUX_AIO_WRITE aio_msg;
+  EMC_MOTION_SET_AOUT aout_msg;
 
   flush_segments();
 
-  aio_msg.index = index;
-  aio_msg.value = value;
+  aout_msg.index = index;	// which output
+  aout_msg.start = value;	// start value
+  aout_msg.end = value;		// end value
+  aout_msg.now = 1;		// immediate=1, or synched when motion start=0
 
-  interp_list.append(aio_msg);
+  interp_list.append(aout_msg);
 
   return;
 }
@@ -3026,7 +3028,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
 	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
-	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
     if ((index < 0) || (index >= EMC_MAX_DIO))

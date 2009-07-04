@@ -105,6 +105,8 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "emc2", "examples", "sample-configs", "common")
+if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
@@ -1041,9 +1043,7 @@ class Data:
         self.write_readme(base)
         self.write_inifile(base)
         self.write_halfile(base)
-        self.copy(base, "emc.nml")
         self.copy(base, "tool.tbl")
-        self.copy(base, "emc.var")
 
         filename = "%s.stepconf" % base
 
@@ -1070,7 +1070,7 @@ class Data:
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
-            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
             shortcut = os.path.join(desktop, machinename)

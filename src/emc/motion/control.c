@@ -1714,8 +1714,10 @@ static void output_to_hal(void)
             speed = emcmotStatus->spindle.speed;
 
 	*(emcmot_hal_data->spindle_speed_out) = speed;
+	*(emcmot_hal_data->spindle_speed_out_rps) = speed/60.;
     } else {
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
+	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
@@ -1851,11 +1853,15 @@ static void update_status(void)
 	joint_status->home_offset = joint->home_offset;
     }
 
-    for (dio = 0; dio < num_dio; dio++)
+    for (dio = 0; dio < num_dio; dio++) {
 	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);
+	emcmotStatus->synch_do[dio] = *(emcmot_hal_data->synch_do[dio]);
+    }
 
-    for (aio = 0; aio < num_aio; aio++)
+    for (aio = 0; aio < num_aio; aio++) {
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
+	emcmotStatus->analog_output[aio] = *(emcmot_hal_data->analog_output[aio]);
+    }
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I

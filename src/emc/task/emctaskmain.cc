@@ -711,6 +711,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
@@ -825,6 +827,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
@@ -1241,6 +1245,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
@@ -2886,8 +2892,7 @@ int main(int argc, char *argv[])
 {
     int taskPlanError = 0;
     int taskExecuteError = 0;
-    double startTime;
-
+    double startTime, endTime, deltaTime;
     double minTime, maxTime;
 
     bindtextdomain("emc2", EMC2_PO_DIR);
@@ -3100,6 +3105,16 @@ int main(int argc, char *argv[])
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
 	// emcTaskEager = 0;
+	if (emcTaskNoDelay) {
+            endTime = etime();
+            deltaTime = endTime - startTime;
+            if (deltaTime < minTime)
+                minTime = deltaTime; 
+            else if (deltaTime > maxTime)
+                maxTime = deltaTime; 
+            startTime = endTime;
+        }
+
 	if ((emcTaskNoDelay) || (emcTaskEager)) {
 	    emcTaskEager = 0;
 	} else {
@@ -3111,7 +3126,7 @@ int main(int argc, char *argv[])
     emctask_shutdown();
     /* debugging */
     if (emcTaskNoDelay) {
-	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print("cycle times (seconds): %f min, %f max\n", minTime,
 	       maxTime);
 	}
