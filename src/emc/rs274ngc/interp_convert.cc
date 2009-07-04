@@ -2545,18 +2545,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if (block->m_modes[5] == 62) {
       CHKS((settings->cutter_comp_side != OFF),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M62"));
       SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
       CHKS((settings->cutter_comp_side != OFF),
            (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M63"));
       CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 64) {
       CHKS((settings->cutter_comp_side != OFF),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M64"));
       SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 65) {
       CHKS((settings->cutter_comp_side != OFF),
            (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M65"));
       CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 66) {
     //P-word = digital channel
