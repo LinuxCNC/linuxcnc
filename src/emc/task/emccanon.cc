@@ -3028,7 +3028,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
 	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
-	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
     if ((index < 0) || (index >= EMC_MAX_DIO))

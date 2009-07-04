@@ -2528,7 +2528,8 @@ convert_stop).
 int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                      setup_pointer settings)    //!< pointer to machine settings                 
 {
-  int type, timeout;
+  int type;
+  double timeout;               // timeout for M66
   double *pars;                 /* short name for settings->parameters            */
 
   pars = settings->parameters;
@@ -2574,7 +2575,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED);
 
     // L-word not 0, and timeout <= 0 
-    CHKS(((round_to_int(block->q_number) <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) > 0)),
+    CHKS(((block->q_number <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) > 0)),
 	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
 	
     // E-word specified (analog input) and wait type not immediate
@@ -2597,8 +2598,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    type = WAIT_MODE_IMMEDIATE;
         }
 	    
-	if (round_to_int(block->q_number) >= 0) {
-	    timeout = round_to_int(block->q_number);
+	if (block->q_number > 0) {
+	    timeout = block->q_number;
 	} else {
 	    timeout = 0;
         }

@@ -726,7 +726,7 @@ extern void SET_AUX_OUTPUT_VALUE(int index, double value);
 extern int WAIT(int index, /* index of the motion exported input */
 		int input_type, /* 1=DIGITAL_INPUT or 0=ANALOG_INPUT */
 	        int wait_type, /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
-		int timeout); /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+		double timeout); /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 /* WAIT - program execution is stopped until the input selected by index 
    changed to the needed state (specified by wait_type).
    Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
