@@ -2548,15 +2548,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+           (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
       CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 64) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 65) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
       CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 66) {
     //P-word = digital channel
@@ -2622,8 +2622,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_digital = OFF;
 	}
     } 
+  } else if (block->m_modes[5] == 67) {
+    //E-word = analog channel
+    //Q-word = analog value
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set motion analog output with cutter radius compensation on")));  // XXX
+      CHKS((block->e_flag == OFF) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
+      SET_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
+  } else if (block->m_modes[5] == 68) {
+    //E-word = analog channel
+    //Q-word = analog value
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
+      CHKS((block->e_flag == OFF) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
+      SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
   }    
-
+  
   if (block->m_modes[6] != -1) {
     // when we have M6 do the actual toolchange
     if (block->m_modes[6] == 6)

@@ -311,8 +311,6 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          (block->m_modes[5] != 64) &&
          (block->m_modes[5] != 65) &&
          (block->m_modes[5] != 66) &&
-         (block->m_modes[5] != 67) &&
-         (block->m_modes[5] != 68) &&
          (block->m_modes[9] != 50) &&
          (block->m_modes[9] != 51) &&
          (block->m_modes[9] != 52) &&
@@ -328,12 +326,14 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->q_number != -1.0) {
       CHKS((motion != G_83) && (motion != G_73) && (motion != G_5) && (block->user_m != 1) && (motion != G_76) &&
-          (block->m_modes[5] != 66) && (block->g_modes[0] != G_10) && (block->m_modes[6] != 61) && (block->g_modes[13] != G_64), 
+          (block->m_modes[5] != 66) && (block->m_modes[5] != 67) && (block->m_modes[5] != 68) && 
+          (block->g_modes[0] != G_10) && (block->m_modes[6] != 61) && (block->g_modes[13] != G_64), 
           "Q word with no g code that uses it");
   }
 
   if (block->e_flag == ON) {
-    CHKS(((motion != G_76) && (block->m_modes[5] != 66)), NCE_E_WORD_WITH_NO_G76_OR_M66_TO_USE_IT);
+    CHKS(((motion != G_76) && (block->m_modes[5] != 66) && 
+      (block->m_modes[5] != 67) && (block->m_modes[5] != 68)), NCE_E_WORD_WITH_NO_G76_OR_M66_TO_USE_IT);
   }
 
   if (block->r_flag == ON) {
