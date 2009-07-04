@@ -892,7 +892,8 @@ int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
-void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
+void START_SPEED_FEED_SYNCH(double sync, bool vel)
+{PRINT2("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance) { _motion_mode = mode; }
 void SET_MOTION_CONTROL_MODE(double tolerance) { }
