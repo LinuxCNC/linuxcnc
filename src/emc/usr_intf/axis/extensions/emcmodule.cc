@@ -1718,6 +1718,7 @@ typedef struct {
 } pyPositionLogger;
 
 static const double epsilon = 1e-4; // 1-cos(1 deg) ~= 1e-4
+static const double tiny = 1e-10; 
 
 static inline bool colinear(float xa, float ya, float za, float xb, float yb, float zb, float xc, float yc, float zc) {
     double dx1 = xa-xb, dx2 = xb-xc;
@@ -1725,7 +1726,7 @@ static inline bool colinear(float xa, float ya, float za, float xb, float yb, fl
     double dz1 = za-zb, dz2 = zb-zc;
     double dp = sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
     double dq = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
-    if( fabs(dp) < epsilon || fabs(dq) < epsilon ) return true;
+    if( fabs(dp) < tiny || fabs(dq) < tiny ) return true;
     double dot = (dx1*dx2 + dy1*dy2 + dz1*dz2) / dp / dq;
     if( fabs(1-dot) < epsilon) return true;
     return false;
