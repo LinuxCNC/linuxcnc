@@ -1601,7 +1601,7 @@ class EMC_AUX_INPUT_WAIT:public EMC_AUX_CMD_MSG {
     int index;			// input channel to wait for
     int input_type;		// DIGITAL or ANALOG
     int wait_type;		// 0 - immediate, 1- rise, 2 - fall, 3 - be high, 4 - be low
-    int timeout;		// timeout for waiting
+    double timeout;		// timeout for waiting
 };
 
 
