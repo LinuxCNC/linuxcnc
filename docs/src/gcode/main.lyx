@@ -6503,7 +6503,7 @@ G93 is Inverse Time Mode
 G94 is Units per Minute Mode
 \layout Quote
 
-G95 is Units per Reveloution Mode.
+G95 is Units per Revolution Mode.
 \layout Standard
 
 Three feed rate modes are recognized: units per minute, inverse time, and
