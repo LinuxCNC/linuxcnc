@@ -302,26 +302,16 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
          "L word with no G10, cutter compensation, or canned cycle or NURBS code");
   }
 
-  if (block->p_number != -1.0) {
-    CHKS(((block->g_modes[0] != G_10) &&
-         (block->g_modes[0] != G_4) &&
-	 (block->g_modes[13] != G_64) &&
-         (block->m_modes[5] != 62) &&
-         (block->m_modes[5] != 63) &&
-         (block->m_modes[5] != 64) &&
-         (block->m_modes[5] != 65) &&
-         (block->m_modes[5] != 66) &&
-         (block->m_modes[9] != 50) &&
-         (block->m_modes[9] != 51) &&
-         (block->m_modes[9] != 52) &&
-         (block->m_modes[9] != 53) &&
-         (block->user_m != 1) &&
-         (motion != G_82) && (motion != G_86) &&
-//         (motion != G_88) && (motion != G_89) && (motion != G_76)),
-         (motion != G_88) && (motion != G_89) && (motion != G_76) && (motion != G_5) && 
-         (motion != G_5_2)),
-
-        NCE_P_WORD_WITH_NO_G4_G10_G64_G76_G82_G86_G88_G89);
+  if (block->p_flag == ON) {
+      CHKS(((block->g_modes[0] != G_10) && (block->g_modes[0] != G_4) && (block->g_modes[13] != G_64) &&
+          (motion != G_76) && (motion != G_82) && (motion != G_86) && (motion != G_88) && 
+          (motion != G_89) && (motion != G_5) && (motion != G_5_2) &&
+          (block->m_modes[9] != 50) && (block->m_modes[9] != 51) && (block->m_modes[9] != 52) &&
+          (block->m_modes[9] != 53) && (block->m_modes[5] != 62) && (block->m_modes[5] != 63) &&
+          (block->m_modes[5] != 64) && (block->m_modes[5] != 65) && (block->m_modes[5] != 66) &&
+          (block->user_m != 1)),
+          _("P word with no g4 g10 g64 g5 g5.2 g76 g82 g86 g88 g89\n"
+            "or m50 m51 m52 m53 m62 m63 m64 m65 m66 or user M code to use it"));
   }
 
   if (block->q_number != -1.0) {

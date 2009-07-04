@@ -136,7 +136,6 @@
 #define NCE_OFFSET_INDEX_MISSING _("Offset index missing")
 #define NCE_P_VALUE_NOT_AN_INTEGER_WITH_G10_L2 _("P value not an integer with g10 l2")
 #define NCE_P_VALUE_OUT_OF_RANGE_WITH_G10_L2 _("P value out of range with g10 l2")
-#define NCE_P_WORD_WITH_NO_G4_G10_G64_G76_G82_G86_G88_G89 _("P word with no g4 g10 g64 g76 g82 g86 g88 g89")
 #define NCE_PARAMETER_FILE_OUT_OF_ORDER _("Parameter file out of order")
 #define NCE_PARAMETER_NUMBER_OUT_OF_RANGE _("Parameter number out of range")
 #define NCE_Q_WORD_MISSING_WITH_G83 _("Q word missing with g83")
