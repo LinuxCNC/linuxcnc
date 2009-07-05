@@ -207,6 +207,8 @@ int interpret_from_file( /* ARGUMENTS                  */
   int status=0;
   char line[LINELEN];
 
+  SET_BLOCK_DELETE(block_delete);
+
   for(; ;)
     {
       status = interp_read(NULL);
