@@ -702,11 +702,15 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     else
         nexttc = NULL;
 
-    if(!tc->synchronized && nexttc && nexttc->synchronized && !nexttc->velocity_mode) {
-        // we'll have to wait for spindle sync; might as well
-        // stop at the right place (don't blend)
-        tc->blend_with_next = 0;
-        nexttc = NULL;
+    {
+	int this_synch_pos = tc->synchronized && !tc->velocity_mode;
+	int next_synch_pos = nexttc && nexttc->synchronized && !nexttc->velocity_mode;
+	if(!this_synch_pos && next_synch_pos) {
+	    // we'll have to wait for spindle sync; might as well
+	    // stop at the right place (don't blend)
+	    tc->blend_with_next = 0;
+	    nexttc = NULL;
+	}
     }
 
     if(nexttc && nexttc->atspeed) {
