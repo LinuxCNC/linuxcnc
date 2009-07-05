@@ -609,200 +609,199 @@ static int export_joint(int num, joint_hal_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export joint pins */ //FIXME-AJ: changing these will bork configs, still we should do it
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-fb", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.pos-fb", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.motor-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-fb", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.motor-pos-fb", num);
     retval =
 	hal_pin_float_new(buf, HAL_IN, &(addr->motor_pos_fb), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-lim-sw-in", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.pos-lim-sw-in", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->pos_lim_sw), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-lim-sw-in", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.neg-lim-sw-in", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->neg_lim_sw), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-sw-in", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.home-sw-in", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->home_sw), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.index-enable", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.index-enable", num);
     retval = hal_pin_bit_new(buf, HAL_IO, &(addr->index_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.amp-enable-out", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.amp-enable-out", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->amp_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.amp-fault-in", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.amp-fault-in", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->amp_fault), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-counts", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.jog-counts", num);
     retval = hal_pin_s32_new(buf, HAL_IN, &(addr->jog_counts), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-enable", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.jog-enable", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->jog_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-scale", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.jog-scale", num);
     retval = hal_pin_float_new(buf, HAL_IN, &(addr->jog_scale), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.jog-vel-mode", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.jog-vel-mode", num);
     retval = hal_pin_bit_new(buf, HAL_IN, &(addr->jog_vel_mode), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homing", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.homing", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->homing), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    /* export joint parameters */ //FIXME-AJ: changing these to joints will break configs.
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.coarse-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.coarse-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->coarse_pos_cmd),
 	mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-vel-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.vel-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_vel_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-corr", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.backlash-corr", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->backlash_corr), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-filt", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.backlash-filt", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->backlash_filt), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.backlash-vel", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.backlash-vel", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->backlash_vel), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.f-error", num);
     retval = hal_pin_float_new(buf, HAL_OUT, &(addr->f_error), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-error-lim", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.f-error-lim", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->f_error_lim), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-pos-cmd", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.free-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->free_pos_cmd), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-vel-lim", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.free-vel-lim", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->free_vel_lim), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.free-tp-enable", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.free-tp-enable", num);
     retval =
 	hal_pin_bit_new(buf, HAL_OUT, &(addr->free_tp_enable), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.kb-jog-active", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.kb-jog-active", num);
     retval =
 	hal_pin_bit_new(buf, HAL_OUT, &(addr->kb_jog_active), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.wheel-jog-active", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.wheel-jog-active", num);
     retval =
 	hal_pin_bit_new(buf, HAL_OUT, &(addr->wheel_jog_active), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.active", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.active", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->active), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.in-position", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.in-position", num);
     retval =
 	hal_pin_bit_new(buf, HAL_OUT, &(addr->in_position), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.error", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.error", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->error), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.pos-hard-limit", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.pos-hard-limit", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.neg-hard-limit", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.neg-hard-limit", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->nhl), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.homed", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.homed", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->homed), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.f-errored", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.f-errored", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->f_errored), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.faulted", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.faulted", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->faulted), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.home-state", num);
+    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.home-state", num);
     retval = hal_param_s32_new(buf, HAL_RO, &(addr->home_state), mot_comp_id);
     if (retval != 0) {
 	return retval;
