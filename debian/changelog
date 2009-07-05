@@ -1,3 +1,9 @@
+emc2 (1:2.3.3~pre) hardy; urgency=low
+
+  * 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 05 Jul 2009 14:42:51 -0500
+
 emc2 (1:2.3.2) hardy; urgency=low
 
   * pyvcp: New "-g" flag to specify window size and position
