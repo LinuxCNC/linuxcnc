@@ -13,6 +13,7 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
   * axis: improve max velocity slider default maximum for machines with rotary
     axes
   * axis: when showing machine position, do not include TLO
+  * axis: in touch-off, show mm/in/degree, radius/diameter
   * update CoolTool config files
   * stepconf: Fix second and third parport direction settings (in/out)
     not following the user request.
@@ -41,6 +42,7 @@ emc2 (1:2.3.2~pre) hardy; urgency=low
     for internal temporary variables
   * axis: fix a bug that made axis lock up when clicking the "show hidden
     files" checkbox in the Open dialog
+  * motion: fix G95 G1 followed by G33
 
  -- Jeff Epler <jepler@unpythonic.net>  Thu, 02 Jul 2009 13:46:13 -0500
 
