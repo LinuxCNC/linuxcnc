@@ -200,66 +200,36 @@ void SET_XY_ROTATION(double t) {
 
 void SET_ORIGIN_OFFSETS(
  double x, double y, double z
-#ifdef AA
  , double a  /*AA*/
-#endif
-#ifdef BB
  , double b  /*BB*/
-#endif
-#ifdef CC
  , double c  /*CC*/
-#endif
  , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "SET_ORIGIN_OFFSETS(%.4f, %.4f, %.4f"
-#ifdef AA
          ", %.4f"  /*AA*/
-#endif
-#ifdef BB
          ", %.4f"  /*BB*/
-#endif
-#ifdef CC
          ", %.4f"  /*CC*/
-#endif
          ")\n", x, y, z
-#ifdef AA
          , a  /*AA*/
-#endif
-#ifdef BB
          , b  /*BB*/
-#endif
-#ifdef CC
          , c  /*CC*/
-#endif
          );
   _program_position_x = _program_position_x + _program_origin_x - x;
   _program_position_y = _program_position_y + _program_origin_y - y;
   _program_position_z = _program_position_z + _program_origin_z - z;
-#ifdef AA
   _program_position_a = _program_position_a + _program_origin_a - a;/*AA*/
-#endif
-#ifdef BB
   _program_position_b = _program_position_b + _program_origin_b - b;/*BB*/
-#endif
-#ifdef CC
   _program_position_c = _program_position_c + _program_origin_c - c;/*CC*/
-#endif
 
   _program_origin_x = x;
   _program_origin_y = y;
   _program_origin_z = z;
-#ifdef AA
   _program_origin_a = a;  /*AA*/
-#endif
-#ifdef BB
   _program_origin_b = b;  /*BB*/
-#endif
-#ifdef CC
   _program_origin_c = c;  /*CC*/
-#endif
 }
 
 void USE_LENGTH_UNITS(CANON_UNITS in_unit)
@@ -307,53 +277,29 @@ void SET_TRAVERSE_RATE(double rate)
 
 void STRAIGHT_TRAVERSE( int line_number,
  double x, double y, double z
-#ifdef AA
  , double a /*AA*/
-#endif
-#ifdef BB
  , double b /*BB*/
-#endif
-#ifdef CC
  , double c /*CC*/
-#endif
  , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "STRAIGHT_TRAVERSE(%.4f, %.4f, %.4f"
-#ifdef AA
          ", %.4f" /*AA*/
-#endif
-#ifdef BB
          ", %.4f" /*BB*/
-#endif
-#ifdef CC
          ", %.4f" /*CC*/
-#endif
          ")\n", x, y, z
-#ifdef AA
          , a /*AA*/
-#endif
-#ifdef BB
          , b /*BB*/
-#endif
-#ifdef CC
          , c /*CC*/
-#endif
          );
   _program_position_x = x;
   _program_position_y = y;
   _program_position_z = z;
-#ifdef AA
   _program_position_a = a; /*AA*/
-#endif
-#ifdef BB
   _program_position_b = b; /*BB*/
-#endif
-#ifdef CC
   _program_position_c = c; /*CC*/
-#endif
 }
 
 /* Machining Attributes */
@@ -471,41 +417,23 @@ double x1, double y1, double x2, double y2)
 void ARC_FEED(int line_number,
  double first_end, double second_end,
  double first_axis, double second_axis, int rotation, double axis_end_point
-#ifdef AA
  , double a /*AA*/
-#endif
-#ifdef BB
  , double b /*BB*/
-#endif
-#ifdef CC
  , double c /*CC*/
-#endif
  , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "ARC_FEED(%.4f, %.4f, %.4f, %.4f, %d, %.4f"
-#ifdef AA
          ", %.4f" /*AA*/
-#endif
-#ifdef BB
          ", %.4f" /*BB*/
-#endif
-#ifdef CC
          ", %.4f" /*CC*/
-#endif
          ")\n", first_end, second_end, first_axis, second_axis,
          rotation, axis_end_point
-#ifdef AA
          , a /*AA*/
-#endif
-#ifdef BB
          , b /*BB*/
-#endif
-#ifdef CC
          , c /*CC*/
-#endif
          );
   if (_active_plane == CANON_PLANE_XY)
     {
@@ -525,66 +453,36 @@ void ARC_FEED(int line_number,
       _program_position_y = axis_end_point;
       _program_position_z = first_end;
     }
-#ifdef AA
   _program_position_a = a; /*AA*/
-#endif
-#ifdef BB
   _program_position_b = b; /*BB*/
-#endif
-#ifdef CC
   _program_position_c = c; /*CC*/
-#endif
 }
 
 void STRAIGHT_FEED(int line_number,
  double x, double y, double z
-#ifdef AA
  , double a /*AA*/
-#endif
-#ifdef BB
  , double b /*BB*/
-#endif
-#ifdef CC
  , double c /*CC*/
-#endif
  , double u, double v, double w
 )
 {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "STRAIGHT_FEED(%.4f, %.4f, %.4f"
-#ifdef AA
          ", %.4f" /*AA*/
-#endif
-#ifdef BB
          ", %.4f" /*BB*/
-#endif
-#ifdef CC
          ", %.4f" /*CC*/
-#endif
          ")\n", x, y, z
-#ifdef AA
          , a /*AA*/
-#endif
-#ifdef BB
          , b /*BB*/
-#endif
-#ifdef CC
          , c /*CC*/
-#endif
          );
   _program_position_x = x;
   _program_position_y = y;
   _program_position_z = z;
-#ifdef AA
   _program_position_a = a; /*AA*/
-#endif
-#ifdef BB
   _program_position_b = b; /*BB*/
-#endif
-#ifdef CC
   _program_position_c = c; /*CC*/
-#endif
 }
 
 
@@ -594,15 +492,9 @@ point is not the same as the previous point -- which it should not be. */
 
 void STRAIGHT_PROBE(int line_number,
  double x, double y, double z
-#ifdef AA
  , double a /*AA*/
-#endif
-#ifdef BB
  , double b /*BB*/
-#endif
-#ifdef CC
  , double c /*CC*/
-#endif
  , double u, double v, double w, unsigned char probe_type
 )
 {
@@ -618,38 +510,20 @@ void STRAIGHT_PROBE(int line_number,
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "STRAIGHT_PROBE(%.4f, %.4f, %.4f"
-#ifdef AA
          ", %.4f" /*AA*/
-#endif
-#ifdef BB
          ", %.4f" /*BB*/
-#endif
-#ifdef CC
          ", %.4f" /*CC*/
-#endif
          ")\n", x, y, z
-#ifdef AA
          , a /*AA*/
-#endif
-#ifdef BB
          , b /*BB*/
-#endif
-#ifdef CC
          , c /*CC*/
-#endif
          );
   _probe_position_x = x;
   _probe_position_y = y;
   _probe_position_z = z;
-#ifdef AA
   _probe_position_a = a; /*AA*/
-#endif
-#ifdef BB
   _probe_position_b = b; /*BB*/
-#endif
-#ifdef CC
   _probe_position_c = c; /*CC*/
-#endif
   if (distance == 0)
     {
       _program_position_x = _program_position_x;
@@ -663,26 +537,10 @@ void STRAIGHT_PROBE(int line_number,
       _program_position_y = (y + (backoff * (dy / distance)));
       _program_position_z = (z + (backoff * (dz / distance)));
     }
-#ifdef AA
   _program_position_a = a; /*AA*/
-#endif
-#ifdef BB
   _program_position_b = b; /*BB*/
-#endif
-#ifdef CC
   _program_position_c = c; /*CC*/
-#endif
 }
-
-/*
-void PARAMETRIC_2D_CURVE_FEED(FunctionPtr f1, FunctionPtr f2,
-                              double start_parameter_value,
-                              double end_parameter_value) {}
-
-void PARAMETRIC_3D_CURVE_FEED(FunctionPtr xfcn, FunctionPtr yfcn,
-        FunctionPtr zfcn, double start_parameter_value,
-                              double end_parameter_value) {}
-*/
 
 
 void RIGID_TAP(int line_number, double x, double y, double z)
@@ -928,7 +786,8 @@ int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
-void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
+void START_SPEED_FEED_SYNCH(double sync, bool vel)
+{PRINT2("START_FEED_SPEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
@@ -972,52 +831,6 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 }
 
 
-/* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
-
-#ifdef AA
-// returns the current a-axis origin offset
-double GET_EXTERNAL_ORIGIN_A()
-{
-  return _program_origin_a;
-}
-#endif
-
-#ifdef BB
-// returns the current b-axis origin offset
-double GET_EXTERNAL_ORIGIN_B()
-{
-  return _program_origin_b;
-}
-#endif
-
-#ifdef CC
-// returns the current c-axis origin offset
-double GET_EXTERNAL_ORIGIN_C()
-{
-  return _program_origin_c;
-}
-#endif
-
-// returns the current x-axis origin offset
-double GET_EXTERNAL_ORIGIN_X()
-{
-  return _program_origin_x;
-}
-
-// returns the current y-axis origin offset
-double GET_EXTERNAL_ORIGIN_Y()
-{
-  return _program_origin_y;
-}
-
-// returns the current z-axis origin offset
-double GET_EXTERNAL_ORIGIN_Z()
-{
-  return _program_origin_z;
-}
-
-*/
-
 void GET_EXTERNAL_PARAMETER_FILE_NAME(
  char * file_name,       /* string: to copy file name into       */
  int max_size)           /* maximum number of characters to copy */
@@ -1040,29 +853,23 @@ CANON_PLANE GET_EXTERNAL_PLANE()
   return _active_plane;
 }
 
-#ifdef AA
 /* returns the current a-axis position */
 double GET_EXTERNAL_POSITION_A()
 {
   return _program_position_a;
 }
-#endif
 
-#ifdef BB
 /* returns the current b-axis position */
 double GET_EXTERNAL_POSITION_B()
 {
   return _program_position_b;
 }
-#endif
 
-#ifdef CC
 /* returns the current c-axis position */
 double GET_EXTERNAL_POSITION_C()
 {
   return _program_position_c;
 }
-#endif
 
 /* returns the current x-axis position */
 double GET_EXTERNAL_POSITION_X()
@@ -1113,32 +920,26 @@ double GET_EXTERNAL_PROBE_POSITION_W()
     return 0.;
 }
 
-#ifdef AA
 /* returns the a-axis position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
 double GET_EXTERNAL_PROBE_POSITION_A()
 {
   return _probe_position_a;
 }
-#endif
 
-#ifdef BB
 /* returns the b-axis position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
 double GET_EXTERNAL_PROBE_POSITION_B()
 {
   return _probe_position_b;
 }
-#endif
 
-#ifdef CC
 /* returns the c-axis position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
 double GET_EXTERNAL_PROBE_POSITION_C()
 {
   return _probe_position_c;
 }
-#endif
 
 /* returns the x-axis position at the last probe trip. This is only valid
    once the probe command has executed to completion. */
