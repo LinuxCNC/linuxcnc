@@ -3032,23 +3032,106 @@ Sample NURBs Code
 \end_layout
 
 \begin_layout LyX-Code
-G5.2 X3.00 Y3.00  P1 L3
+G0 X0 Y0
 \end_layout
 
 \begin_layout LyX-Code
-     X4.33 Y8.35  P1
+F10 
 \end_layout
 
 \begin_layout LyX-Code
-     X5.00 Y10.50 P2
+G5.2 X0 Y1 P1 L3
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y2 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y0 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X0 Y0 P2
 \end_layout
 
 \begin_layout LyX-Code
 G5.3
 \end_layout
 
+\begin_layout LyX-Code
+/ The rapid moves show the same path without the NURBs Block
+\end_layout
+
+\begin_layout LyX-Code
+G0 X0 Y1
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y2
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y0
+\end_layout
+
+\begin_layout LyX-Code
+   X0 Y0
+\end_layout
+
+\begin_layout LyX-Code
+M2
+\end_layout
+
 \begin_layout Standard
-More information on NURBs can be found here: 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Sample NURBs Output
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/nurbs01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+More information on NURBs can be found here:
+\end_layout
+
+\begin_layout Standard
 \begin_inset LatexCommand url
 target "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS"
 
