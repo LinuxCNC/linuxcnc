@@ -636,177 +636,175 @@ static int export_joint(int num, joint_hal_t * addr)
 
     /* export joint pins */ //FIXME-AJ: changing these will bork configs, still we should do it
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->joint_pos_cmd), mot_comp_id, "axis.%d.joint-pos-cmd", num);
+	hal_pin_float_newf(HAL_OUT, &(addr->joint_pos_cmd), mot_comp_id, "joint.%d.pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->joint_pos_fb), mot_comp_id, "axis.%d.joint-pos-fb", num);
+	hal_pin_float_newf(HAL_OUT, &(addr->joint_pos_fb), mot_comp_id, "joint.%d.pos-fb", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id, "axis.%d.motor-pos-cmd", num);
+	hal_pin_float_newf(HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id, "joint.%d.motor-pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->motor_offset), mot_comp_id, "axis.%d.motor-offset", num);
+	hal_pin_float_newf(HAL_OUT, &(addr->motor_offset), mot_comp_id, "joint.%d.motor-offset", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_IN, &(addr->motor_pos_fb), mot_comp_id, "axis.%d.motor-pos-fb", num);
+	hal_pin_float_newf(HAL_IN, &(addr->motor_pos_fb), mot_comp_id, "joint.%d.motor-pos-fb", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->pos_lim_sw), mot_comp_id, "axis.%d.pos-lim-sw-in", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->pos_lim_sw), mot_comp_id, "joint.%d.pos-lim-sw-in", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->neg_lim_sw), mot_comp_id, "axis.%d.neg-lim-sw-in", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->neg_lim_sw), mot_comp_id, "joint.%d.neg-lim-sw-in", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->home_sw), mot_comp_id, "axis.%d.home-sw-in", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->home_sw), mot_comp_id, "joint.%d.home-sw-in", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IO, &(addr->index_enable), mot_comp_id, "axis.%d.index-enable", num);
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->index_enable), mot_comp_id, "joint.%d.index-enable", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->amp_enable), mot_comp_id, "axis.%d.amp-enable-out", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->amp_enable), mot_comp_id, "joint.%d.amp-enable-out", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->amp_fault), mot_comp_id, "axis.%d.amp-fault-in", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->amp_fault), mot_comp_id, "joint.%d.amp-fault-in", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_s32_newf(HAL_IN, &(addr->jog_counts), mot_comp_id, "axis.%d.jog-counts", num);
+    retval = hal_pin_s32_newf(HAL_IN, &(addr->jog_counts), mot_comp_id, "joint.%d.jog-counts", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_enable), mot_comp_id, "axis.%d.jog-enable", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_enable), mot_comp_id, "joint.%d.jog-enable", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->jog_scale), mot_comp_id, "axis.%d.jog-scale", num);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->jog_scale), mot_comp_id, "joint.%d.jog-scale", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_vel_mode), mot_comp_id, "axis.%d.jog-vel-mode", num);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_vel_mode), mot_comp_id, "joint.%d.jog-vel-mode", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->homing), mot_comp_id, "axis.%d.homing", num);
-    if (retval != 0) {
-	return retval;
-    }
-    /* export joint parameters */ //FIXME-AJ: changing these to joints will break configs.
-    retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->coarse_pos_cmd),
-	mot_comp_id, "axis.%d.coarse-pos-cmd", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->homing), mot_comp_id, "joint.%d.homing", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->joint_vel_cmd), mot_comp_id, "axis.%d.joint-vel-cmd", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->coarse_pos_cmd), mot_comp_id, "joint.%d.coarse-pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->backlash_corr), mot_comp_id, "axis.%d.backlash-corr", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->joint_vel_cmd), mot_comp_id, "joint.%d.vel-cmd", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->backlash_filt), mot_comp_id, "axis.%d.backlash-filt", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->backlash_corr), mot_comp_id, "joint.%d.backlash-corr", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->backlash_vel), mot_comp_id, "axis.%d.backlash-vel", num);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->f_error), mot_comp_id, "axis.%d.f-error", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->backlash_filt), mot_comp_id, "joint.%d.backlash-filt", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->f_error_lim), mot_comp_id, "axis.%d.f-error-lim", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->backlash_vel), mot_comp_id, "joint.%d.backlash-vel", num);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->f_error), mot_comp_id, "joint.%d.f-error", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->free_pos_cmd), mot_comp_id, "axis.%d.free-pos-cmd", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->f_error_lim), mot_comp_id, "joint.%d.f-error-lim", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_float_newf(HAL_OUT, &(addr->free_vel_lim), mot_comp_id, "axis.%d.free-vel-lim", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->free_pos_cmd), mot_comp_id, "joint.%d.free-pos-cmd", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_bit_newf(HAL_OUT, &(addr->free_tp_enable), mot_comp_id, "axis.%d.free-tp-enable", num);
+        hal_pin_float_newf(HAL_OUT, &(addr->free_vel_lim), mot_comp_id, "joint.%d.free-vel-lim", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_bit_newf(HAL_OUT, &(addr->kb_jog_active), mot_comp_id, "axis.%d.kb-jog-active", num);
+        hal_pin_bit_newf(HAL_OUT, &(addr->free_tp_enable), mot_comp_id, "joint.%d.free-tp-enable", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_bit_newf(HAL_OUT, &(addr->wheel_jog_active), mot_comp_id, "axis.%d.wheel-jog-active", num);
-    if (retval != 0) {
-	return retval;
-    }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->active), mot_comp_id, "axis.%d.active", num);
+        hal_pin_bit_newf(HAL_OUT, &(addr->kb_jog_active), mot_comp_id, "joint.%d.kb-jog-active", num);
     if (retval != 0) {
 	return retval;
     }
     retval =
-	hal_pin_bit_newf(HAL_OUT, &(addr->in_position), mot_comp_id, "axis.%d.in-position", num);
+        hal_pin_bit_newf(HAL_OUT, &(addr->wheel_jog_active), mot_comp_id, "joint.%d.wheel-jog-active", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->error), mot_comp_id, "axis.%d.error", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->active), mot_comp_id, "joint.%d.active", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phl), mot_comp_id, "axis.%d.pos-hard-limit", num);
+    retval =
+        hal_pin_bit_newf(HAL_OUT, &(addr->in_position), mot_comp_id, "joint.%d.in-position", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->nhl), mot_comp_id, "axis.%d.neg-hard-limit", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->error), mot_comp_id, "joint.%d.error", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->homed), mot_comp_id, "axis.%d.homed", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phl), mot_comp_id, "joint.%d.pos-hard-limit", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->f_errored), mot_comp_id, "axis.%d.f-errored", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->nhl), mot_comp_id, "joint.%d.neg-hard-limit", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->faulted), mot_comp_id, "axis.%d.faulted", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->homed), mot_comp_id, "joint.%d.homed", num);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "axis.%d.home-state", num);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->f_errored), mot_comp_id, "joint.%d.f-errored", num);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->faulted), mot_comp_id, "joint.%d.faulted", num);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "joint.%d.home-state", num);
     if (retval != 0) {
 	return retval;
     }
     if(num >=3 && num <= 5) {
         // for rotaries only...
-        retval = hal_pin_bit_newf(HAL_OUT, &(addr->unlock), mot_comp_id, "axis.%d.unlock", num);
+        retval = hal_pin_bit_newf(HAL_OUT, &(addr->unlock), mot_comp_id, "joint.%d.unlock", num);
         if (retval != 0) return retval;
-        retval = hal_pin_bit_newf(HAL_IN, &(addr->is_unlocked), mot_comp_id, "axis.%d.is-unlocked", num);
+        retval = hal_pin_bit_newf(HAL_IN, &(addr->is_unlocked), mot_comp_id, "joint.%d.is-unlocked", num);
         if (retval != 0) return retval;
     }
     /* restore saved message level */
