@@ -3614,6 +3614,13 @@ int Interp::convert_threading_cycle(block_pointer block,
     CHKS((settings->cutter_comp_side != OFF),
          (_("Cannot use G76 threading cycle with cutter radius compensation on")));
 
+    CHKS((block->i_number <= 0),
+        (_("In G76, I must not be 0")));
+    CHKS((block->j_number <= 0),
+        (_("In G76, J must be greater than 0")));
+    CHKS((block->k_number <= block->j_number),
+        (_("In G76, K must be greater than J")));
+
     double start_x = settings->current_x;
     double start_y = settings->current_y;
     double start_z = settings->current_z;
