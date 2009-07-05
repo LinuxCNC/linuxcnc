@@ -1,4 +1,4 @@
-emc2 (1:2.3.2~pre) hardy; urgency=low
+emc2 (1:2.3.2) hardy; urgency=low
 
   * pyvcp: New "-g" flag to specify window size and position
   * classicladder:Fix crash from clicking on comparison objects
