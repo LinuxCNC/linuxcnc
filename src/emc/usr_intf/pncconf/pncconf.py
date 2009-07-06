@@ -344,6 +344,14 @@ class Widgets:
         if r is None: raise IndexError, "No widget %r" % attr
         return r
 
+class Intrnl_data:
+    def __init__(self):
+        self.mesa_configured = False
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 class Data:
     def __init__(self):
         pw = pwd.getpwuid(os.getuid())
@@ -2006,6 +2014,7 @@ class App:
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
        
+        self.intrnldata = Intrnl_data()
         self.data = Data()
         
    
@@ -2204,15 +2213,21 @@ class App:
         self.data.homeboth = self.widgets.home_both.get_active()
         
         # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
-        # do it here to speed up showing of Mesa page -need to speed this up.
-        if not self.data.mesa5i20 == 0: 
+        # record the signal ID numbers so we can block the signals later in the mesa routines
+        # have to do it hear manually (instead of autoconnect) because glade doesn't handle added
+        # user info (pin number designations) and doesn't record the signal ID numbers
+        # none of this is done if mesa is not checked off in pncconf
+
+        if (self.data.mesa5i20 ): 
             for connector in (2,3,4,5):
                 for pin in range(0,24):
                     cb = "m5i20c%ipin%i"% (connector,pin)
                     i = "mesasignalhandlerc%ipin%i"% (connector,pin)
-                    self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
+                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
                     cb = "m5i20c%ipin%itype"% (connector,pin)
-                    self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin)
+                    i = "mesaptypesignalhandlerc%ipin%i"% (connector,pin)
+                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin))
+
             model = self.widgets.mesa_boardname.get_model()
             model.clear()
             for i in mesaboardnames:
@@ -2243,8 +2258,11 @@ class App:
             numofencoders = self.data.numof_mesa_encodergens 
             board = self.data.mesa_boardname 
             firmware = self.data.mesa_firmware 
+
+            # we just reloaded a config then
             if not self.widgets.createconfig.get_active():
                 self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
+                self.intrnldata.mesa_configured == True
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -2416,9 +2434,12 @@ class App:
 
 
     def on_mesa5i20_prepare(self, *args):
-        self.data.help = 4
-        #self.in_mesa_prepare = True      
-        #self.in_mesa_prepare = False
+        self.data.help = "help-mesa.txt"
+        # we just reloaded a config then update the page right now
+        # as we already know what board /firmware /components are wanted.
+        if not self.widgets.createconfig.get_active():
+            self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
+        
   
     # This method converts data from the GUI to signal names for mesa data
     # It starts by checking pin type to set up the proper lists to search
@@ -2586,10 +2607,10 @@ class App:
                     print "switch GPIO input ",p," to output",new
                     model = self.widgets[p].get_model()
                     blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                    self.widgets[p].handler_block(self.data[blocksignal])
+                    self.widgets[p].handler_block(self.intrnldata[blocksignal])
                     model.clear()
                     for name in human_output_names: model.append((name,))
-                    self.widgets[p].handler_unblock(self.data[blocksignal])  
+                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_OUTPUT
                     self.data[ptype] = new
@@ -2598,7 +2619,7 @@ class App:
                     model = self.widgets[p].get_model()
                     model.clear()
                     blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                    self.widgets[p].handler_block(self.data[blocksignal])              
+                    self.widgets[p].handler_block(self.intrnldata[blocksignal])              
                     for name in human_input_names:
                         if self.data.limitshared or self.data.limitsnone:
                             if name in human_names_limit_only: continue 
@@ -2607,7 +2628,7 @@ class App:
                         if self.data.homenone or self.data.limitshared:
                             if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
                         model.append((name,))
-                    self.widgets[p].handler_unblock(self.data[blocksignal])  
+                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
                     self.data[ptype] = new
@@ -2664,18 +2685,25 @@ class App:
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)                
+                blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)    
+                ptypeblocksignal  = "mesaptypesignalhandlerc%ipin%i" % (connector,pin)               
                 # convert widget[ptype] to component specified in firmwaredata                      
                 # add human names to widget removing signalnames specified in homing limit and spindle
                 # signal names for encoder 
                 if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
                     #print numofencoders,compnum+1,"pinnnum ",pin,"\n"
+                    # check that we are not converting more encoders then requested
+                    # if we are we will change the variable 'firmtype' to ask for gpio
                     if numofencoders >= (compnum+1):
+                        # if the combobox is not already the right component:
                         if not self.widgets[ptype].get_active_text() == firmptype: 
-                            #print "converting to encoder \n"
+                            #print "converting to encoder \n"                          
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                             self.widgets[ptype].set_active(0)
                             model = self.widgets[p].get_model()
                             model.clear()
@@ -2683,8 +2711,7 @@ class App:
                             # This sets up the 'controlling' combobox (signal phase A) 
                             if firmptype == ENCA: 
                                 #print " encoder phase A \n"
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal]) 
+                                temp = -1                               
                                 for name in human_encoder_input_names:                      
                                     temp = temp +1
                                     if temp in (2,3): continue
@@ -2692,33 +2719,35 @@ class App:
                                         temp = 0
                                         continue
                                     model.append((name,))
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                 self.widgets[p].set_active(0)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
                             # This sets up the 'following' combobox (signal phase B and I)
-                            if firmptype in(ENCB,ENCI,ENCM):
+                            elif firmptype in(ENCB,ENCI,ENCM):
                                 #print " encoder phase B or I or M\n"                            
-                                self.widgets[p].handler_block(self.data[blocksignal]) 
                                 for name in human_encoder_input_names:model.append((name,)) 
-                                self.widgets[p].handler_unblock(self.data[blocksignal])  
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[ptype].set_sensitive(0)
                                 self.widgets[p].set_active(0)  
+                        # if the data stored ptype is the encoder family then use the data store signal name
                         if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): 
                             #print self.data[p]
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_encoder_input_names[hal_encoder_input_names.index(self.data[p])]:
                                     self.widgets[p].set_active(search)
-                                else:print "unknown type in component_changed method -encoder\n"   
+                                else:
+                                    print "unknown type in component_changed method -encoder\n"  
+                                    self.widgets[p].set_active(0) 
+                                         
                         else:
                             self.data[p] =  UNUSED_ENCODER
                             self.data[ptype] = firmptype
                             self.widgets[p].set_active(0)  
                             #print "changed",p," to Encoder"    
                         continue                
-                        #self.data[p] =  UNUSED_INPUT
                     else:   
                         #print "asking for GPIO instead of ENCODER\n"
                         firmptype = GPIOI
@@ -2728,17 +2757,19 @@ class App:
                     if numofpwmgens >= (compnum+1):
                         if not self.widgets[ptype].get_active_text() == firmptype:
                             print "converting to pwm \n"
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
                             temp = pintype_names[12]
                             model.append((temp,))
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
                             model = self.widgets[p].get_model()
                             model.clear()
                             self.widgets[pinv].set_sensitive(0)
                             if firmptype in(PWMP,PDMP):
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal])
+                                temp = -1                               
                                 for name in human_pwm_output_names:                       
                                     temp = temp +1
                                     if temp == 2: continue
@@ -2749,12 +2780,11 @@ class App:
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[p].set_active(0)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
-                            if firmptype in (PWMD,PWME,PDMD,PDME):                             
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                            elif firmptype in (PWMD,PWME,PDMD,PDME):                             
                                 self.widgets[p].set_sensitive(0)
-                                self.widgets[p].handler_block(self.data[blocksignal])
                                 for name in human_pwm_output_names: model.append((name,))
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                 self.widgets[p].set_active(0) 
                                 self.widgets[ptype].set_sensitive(0)
                         if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
@@ -2765,7 +2795,9 @@ class App:
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]:
                                     self.widgets[p].set_active(search)
-                                else:print "unknown type in component_changed method -pwm\n"   
+                                else:
+                                    print "unknown type in component_changed method -pwm\n"
+                                    self.widgets[p].set_active(0)    
                         else:
                             self.data[p] =  UNUSED_PWM
                             self.data[ptype] = firmptype
@@ -2781,16 +2813,17 @@ class App:
                 elif firmptype in (STEPA,STEPB):  
                     if numofstepgens >= (compnum+1): 
                         if not self.widgets[ptype].get_active_text() == firmptype:
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
-                            self.widgets[ptype].set_active(0)
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])                  
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
                             model = self.widgets[p].get_model()
                             model.clear()
                             self.widgets[pinv].set_sensitive(0) 
                             if firmptype == STEPA:
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal])
+                                temp = -1                              
                                 for name in (human_stepper_names):
                                     temp = temp + 1
                                     if temp in(2,3,4,5): continue
@@ -2800,15 +2833,16 @@ class App:
                                     model.append((name,))
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
-                            if firmptype == STEPB:                               
-                                    self.widgets[p].handler_block(self.data[blocksignal])
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                            elif firmptype == STEPB:                               
+                                    self.widgets[p].handler_block(self.intrnldata[blocksignal])
                                     for name in human_stepper_names: model.append((name,))
-                                    self.widgets[p].handler_unblock(self.data[blocksignal])
+                                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                     self.widgets[p].set_sensitive(0)
                                     self.widgets[p].set_active(0)
                                     self.widgets[ptype].set_sensitive(0) 
                         if self.data[ptype] in (STEPA,STEPB): 
+                            self.widgets[ptype].set_active(0)  
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
@@ -2818,6 +2852,7 @@ class App:
                             self.data[p] =  UNUSED_STEPGEN
                             self.data[ptype] = firmptype
                             self.widgets[p].set_active(0)
+                            self.widgets[ptype].set_active(0)
                             print "changed ",p," to stepgen"
                         
                         continue
@@ -2827,20 +2862,22 @@ class App:
                 if firmptype in (GPIOI,GPIOO,GPIOD):
                     #if self.widgets[ptype].get_active_text()  in (GPIOI,GPIOO,GPIOD): continue
                     print "converting to GPIO\n"
+                    self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                     model = self.widgets[ptype].get_model()
                     model.clear()
                     # if GPIO combobox then 'input, output, and open drain' in it
                     for j in (0,1,2):
                         temp = pintype_names[j]
                         model.append((temp,))
+                    self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                    print "finished GPIO conversion\n"
                     self.widgets[ptype].set_sensitive(1)
+                    # signal names for GPIO INPUT
+                    self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                     model = self.widgets[p].get_model()
                     model.clear()
-                    # signal names for GPIO INPUT
                     if not self.data[ptype] in (GPIOO,GPIOD):  
-                        self.widgets[ptype].set_active(0)
-                        blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                        self.widgets[p].handler_block(self.data[blocksignal])                
+                        self.widgets[ptype].set_active(0)                                     
                         for name in human_input_names:
                             if self.data.limitshared or self.data.limitsnone:
                                 if name in human_names_limit_only: continue 
@@ -2850,7 +2887,7 @@ class App:
                                 if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
                             model.append((name,))  
                         self.widgets[p].set_wrap_width(3)
-                        self.widgets[p].handler_unblock(self.data[blocksignal])  
+                        self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                         self.widgets[p].set_active(0)
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
@@ -2870,10 +2907,8 @@ class App:
                     elif self.data[ptype] in (GPIOO,GPIOD):     
                         if firmptype == GPIOO:self.widgets[ptype].set_active(2)
                         else:self.widgets[ptype].set_active(1)  
-                        blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                        self.widgets[p].handler_block(self.data[blocksignal]) 
                         for name in human_output_names: model.append((name,))
-                        self.widgets[p].handler_unblock(self.data[blocksignal])  
+                        self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                         self.widgets[p].set_active(0)  
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
@@ -2958,6 +2993,7 @@ class App:
         self.widgets.numof_mesa_encodergens.set_value(numofencoders)      
         self.widgets.numof_mesa_pwmgens.set_value(numofpwmgens)
         self.in_mesa_prepare = False   
+        self.intrnldata.mesa_configured = True
         self.on_mesa5i20_prepare()
        
 
@@ -2968,7 +3004,7 @@ class App:
                 pinchanged =  self.widgets[p].get_active_text() 
                 dataptype = self.data[ptype]
                 used = 0
-                #print"pin change method ",ptype," = ",dataptype,"active ",pinchanged,"\n"
+                print"pin change method ",ptype," = ",dataptype,"active ",pinchanged,"\n"
                 if dataptype in (ENCB,ENCI,ENCM,STEPB,PWMD,PWME,GPIOI,GPIOO,GPIOD):return
                 # for stepgen pins
                 if dataptype == STEPA:
@@ -4327,10 +4363,10 @@ class App:
         if axis is None: return
         halrun = self.halrun
         halrun.write("""
-            setp hm2_%s.0.stepgen.%(num)02d.steplen %(len)d
-            setp hm2_%s.0.stepgen.%(num)02d.stepspace %(space)d
-            setp hm2_%s.0.stepgen.%(num)02d.dirhold %(hold)d
-            setp hm2_%s.0.stepgen.%(num)02d.dirsetup %(setup)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.steplen %(len)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.stepspace %(space)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.dirhold %(hold)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.dirsetup %(setup)d
             setp hm2_%(board)s.0.stepgen.%(num)02d.maxaccel %(accel)f
             setp hm2_%(board)s.0.stepgen.%(num)02d.maxvel %(velps)f
             setp steptest.0.jog-minus %(jogminus)s
