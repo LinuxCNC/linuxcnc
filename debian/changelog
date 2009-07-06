@@ -1,6 +1,6 @@
 emc2 (1:2.3.3~pre) hardy; urgency=low
 
-  * Reject bad values of I, J, K in G76
+  * Reject bad values of I, J, K in G76 (SF#2817324)
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 05 Jul 2009 14:42:51 -0500
 
