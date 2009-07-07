@@ -396,7 +396,13 @@ class Data:
         self.homeindex = False
         self.homeboth = False
 
-        self.manualtoolchange = 1
+        self.manualtoolchange = False
+        self.require_homing = True
+        self.restore_joint_position = False
+        self.tooloffset_on_w = False
+        self.restore_toolnumber = False
+        self.raise_z_on_toolchange = False
+        self.allow_spindle_on_toolchange = False
         self.customhal = 1 # include custom hal file
         self.pyvcp = 0 # not included
         self.pyvcpname = "custom.xml"
@@ -897,12 +903,25 @@ class Data:
         defvel = min(maxvel, max(.1, maxvel/10.))
         print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
+        if self.restore_joint_position:
+            print >>file, "POSITION_FILE = position.txt"
+        if not self.require_homing:
+            print >>file, "NO_FORCE_HOMING = 1"
+        if self.tooloffset_on_w:
+            print >>file, "TLO_IS_ALONG_W = 1"
+        #if self.restore_toolnumber:
+        #    print >>file, "TLO_IS-ALONG_W = 1"
 
         print >>file
         print >>file, "[EMCIO]"
         print >>file, "EMCIO = io"
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
+        if self.allow_spindle_on_toolchange:
+            print >>file, "TOOLCHANGE_WITH_SPINDLE_ON = 1"
+        if self.raise_z_on_toolchange:
+            print >>file, "TOOLCHANGE_QUILL_UP = 1"
+        
 
         all_homes = self.home_sig("x") and self.home_sig("z")
         if self.axes != 2: all_homes = all_homes and self.home_sig("y")
@@ -2251,18 +2270,7 @@ class App:
             self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
             self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
             self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
-            self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
-
-            numofpwmgens = self.data.numof_mesa_pwmgens
-            numofstepgens = self.data.numof_mesa_stepgens
-            numofencoders = self.data.numof_mesa_encodergens 
-            board = self.data.mesa_boardname 
-            firmware = self.data.mesa_firmware 
-
-            # we just reloaded a config then
-            if not self.widgets.createconfig.get_active():
-                self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
-                self.intrnldata.mesa_configured == True
+            self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)          
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -2280,6 +2288,12 @@ class App:
            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
                 self.widgets.pyvcpexist.set_active(True)
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
+        self.widgets.require_homing.set_active(self.data.require_homing)
+        self.widgets.restore_joint_position.set_active(self.data.restore_joint_position) 
+        self.widgets.tooloffset_on_w.set_active(self.data.tooloffset_on_w) 
+        self.widgets.restore_toolnumber.set_active(self.data.restore_toolnumber) 
+        self.widgets.raise_z_on_toolchange.set_active(self.data.raise_z_on_toolchange) 
+        self.widgets.allow_spindle_on_toolchange.set_active(self.data.allow_spindle_on_toolchange)
 
     def on_GUI_config_next(self, *args):
         if self.widgets.GUIAXIS.get_active():
@@ -2289,6 +2303,12 @@ class App:
         else:
             self.data.frontend = 3
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
+        self.data.require_homing = self.widgets.require_homing.get_active()
+        self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
+        self.data.tooloffset_on_w = self.widgets.tooloffset_on_w.get_active() 
+        self.data.restore_toolnumber = self.widgets.restore_toolnumber.get_active() 
+        self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
+        self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
         if not self.data.mesa5i20:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
@@ -2311,8 +2331,7 @@ class App:
               self.data.halui_cmd3="G92 X0"
               self.data.halui_cmd4="G92 Y0"
               self.data.halui_cmd5="G92 Z0"
-              self.data.halui_cmd6="G92.1"
-                
+              self.data.halui_cmd6="G92.1"               
            if self.widgets.pyvcpexist.get_active() == True:
               self.data.pyvcpname = "custompanel.xml"
            else:
@@ -2437,8 +2456,9 @@ class App:
         self.data.help = "help-mesa.txt"
         # we just reloaded a config then update the page right now
         # as we already know what board /firmware /components are wanted.
-        if not self.widgets.createconfig.get_active():
-            self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
+        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa_configured  :
+            self.set_mesa_options(self.data.mesa_boardname,self.data.mesa_firmware,self.data.numof_mesa_pwmgens,
+                    self.data.numof_mesa_stepgens,self.data.numof_mesa_encodergens)
         
   
     # This method converts data from the GUI to signal names for mesa data
@@ -2450,6 +2470,10 @@ class App:
     # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
     # pin 4 to [encoder-C]   
     def on_mesa5i20_next(self,*args):
+        if not self.intrnldata.mesa_configured:
+            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa5i20)
+            return True
         for connector in self.data.mesa_currentfirmwaredata[9] :
             for pin in range(0,24):
                 foundit = 0
@@ -2813,7 +2837,7 @@ class App:
                 elif firmptype in (STEPA,STEPB):  
                     if numofstepgens >= (compnum+1): 
                         if not self.widgets[ptype].get_active_text() == firmptype:
-                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
@@ -2835,7 +2859,6 @@ class App:
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                             elif firmptype == STEPB:                               
-                                    self.widgets[p].handler_block(self.intrnldata[blocksignal])
                                     for name in human_stepper_names: model.append((name,))
                                     self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                     self.widgets[p].set_sensitive(0)
@@ -2994,7 +3017,6 @@ class App:
         self.widgets.numof_mesa_pwmgens.set_value(numofpwmgens)
         self.in_mesa_prepare = False   
         self.intrnldata.mesa_configured = True
-        self.on_mesa5i20_prepare()
        
 
     def on_mesa_pin_changed(self, widget, connector, pin):
@@ -3930,7 +3952,7 @@ class App:
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
         self.widgets['window1'].set_sensitive(0)
-        gobject.timeout_add(15, self.latency_running_callback)
+        gobject.timeout_add(1, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
