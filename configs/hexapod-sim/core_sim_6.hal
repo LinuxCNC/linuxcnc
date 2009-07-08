@@ -20,26 +20,26 @@ addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
 newsig Xpos float
-linksp Xpos <= axis.0.motor-pos-cmd
+linksp Xpos <= joint.0.motor-pos-cmd
 newsig Ypos float
-linksp Ypos <= axis.1.motor-pos-cmd
+linksp Ypos <= joint.1.motor-pos-cmd
 newsig Zpos float
-linksp Zpos <= axis.2.motor-pos-cmd
+linksp Zpos <= joint.2.motor-pos-cmd
 newsig Apos float
-linksp Apos <= axis.3.motor-pos-cmd
+linksp Apos <= joint.3.motor-pos-cmd
 newsig Bpos float
-linksp Bpos <= axis.4.motor-pos-cmd
+linksp Bpos <= joint.4.motor-pos-cmd
 newsig Cpos float
-linksp Cpos <= axis.5.motor-pos-cmd
+linksp Cpos <= joint.5.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-linksp Xpos => axis.0.motor-pos-fb
-linksp Ypos => axis.1.motor-pos-fb
-linksp Zpos => axis.2.motor-pos-fb
-linksp Apos => axis.3.motor-pos-fb
-linksp Bpos => axis.4.motor-pos-fb
-linksp Cpos => axis.5.motor-pos-fb
+linksp Xpos => joint.0.motor-pos-fb
+linksp Ypos => joint.1.motor-pos-fb
+linksp Zpos => joint.2.motor-pos-fb
+linksp Apos => joint.3.motor-pos-fb
+linksp Bpos => joint.4.motor-pos-fb
+linksp Cpos => joint.5.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -81,27 +81,27 @@ net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
 newsig xena bit
-linksp xena axis.0.amp-enable-out
+linksp xena joint.0.amp-enable-out
 newsig yena bit
-linksp yena axis.1.amp-enable-out
+linksp yena joint.1.amp-enable-out
 newsig zena bit
-linksp zena axis.2.amp-enable-out
+linksp zena joint.2.amp-enable-out
 newsig aena bit
-linksp aena axis.3.amp-enable-out
+linksp aena joint.3.amp-enable-out
 newsig bena bit
-linksp bena axis.4.amp-enable-out
+linksp bena joint.4.amp-enable-out
 newsig cena bit
-linksp cena axis.5.amp-enable-out
+linksp cena joint.5.amp-enable-out
 
 newsig xflt bit
-linksp xflt axis.0.amp-fault-in
+linksp xflt joint.0.amp-fault-in
 newsig yflt bit
-linksp yflt axis.1.amp-fault-in
+linksp yflt joint.1.amp-fault-in
 newsig zflt bit
-linksp zflt axis.2.amp-fault-in
+linksp zflt joint.2.amp-fault-in
 newsig aflt bit
-linksp aflt axis.3.amp-fault-in
+linksp aflt joint.3.amp-fault-in
 newsig bflt bit
-linksp bflt axis.4.amp-fault-in
+linksp bflt joint.4.amp-fault-in
 newsig cflt bit
-linksp cflt axis.5.amp-fault-in
+linksp cflt joint.5.amp-fault-in

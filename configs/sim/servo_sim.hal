@@ -59,9 +59,9 @@ addf ddt.5 servo-thread
 
 # get position feedback from encoder module
 # connect position feedback to PID loop and motion module
-net Xpos-fb encoder.0.position => pid.0.feedback axis.0.motor-pos-fb
-net Ypos-fb encoder.1.position => pid.1.feedback axis.1.motor-pos-fb
-net Zpos-fb encoder.2.position => pid.2.feedback axis.2.motor-pos-fb
+net Xpos-fb encoder.0.position => pid.0.feedback joint.0.motor-pos-fb
+net Ypos-fb encoder.1.position => pid.1.feedback joint.1.motor-pos-fb
+net Zpos-fb encoder.2.position => pid.2.feedback joint.2.motor-pos-fb
 
 # set position feedback scaling
 setp encoder.0.position-scale [AXIS_0]INPUT_SCALE
@@ -69,19 +69,19 @@ setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
 setp encoder.2.position-scale [AXIS_2]INPUT_SCALE
 
 # connect encoder index-enables for homing on index
-net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable
-net Yindex-enable encoder.1.index-enable <=> axis.1.index-enable
-net Zindex-enable encoder.2.index-enable <=> axis.2.index-enable
+net Xindex-enable encoder.0.index-enable <=> joint.0.index-enable
+net Yindex-enable encoder.1.index-enable <=> joint.1.index-enable
+net Zindex-enable encoder.2.index-enable <=> joint.2.index-enable
 
 # connect position commands from motion controller to PID input
-net Xpos-cmd <= axis.0.motor-pos-cmd => pid.0.command
-net Ypos-cmd <= axis.1.motor-pos-cmd => pid.1.command
-net Zpos-cmd <= axis.2.motor-pos-cmd => pid.2.command
+net Xpos-cmd <= joint.0.motor-pos-cmd => pid.0.command
+net Ypos-cmd <= joint.1.motor-pos-cmd => pid.1.command
+net Zpos-cmd <= joint.2.motor-pos-cmd => pid.2.command
 
 # connect motion controller enables to PID blocks
-net Xenable axis.0.amp-enable-out => pid.0.enable
-net Yenable axis.1.amp-enable-out => pid.1.enable
-net Zenable axis.2.amp-enable-out => pid.2.enable
+net Xenable joint.0.amp-enable-out => pid.0.enable
+net Yenable joint.1.amp-enable-out => pid.1.enable
+net Zenable joint.2.amp-enable-out => pid.2.enable
 
 # connect PID loops to scale blocks that translate to motor revs per sec
 net Xoutput pid.0.output => scale.0.in
@@ -194,9 +194,9 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
-net xflt => axis.0.amp-fault-in
-net yflt => axis.1.amp-fault-in
-net zflt => axis.2.amp-fault-in
+net xflt => joint.0.amp-fault-in
+net yflt => joint.1.amp-fault-in
+net zflt => joint.2.amp-fault-in
 
 # a second set of encoder counters keeps track of position
 net XphA => encoder.3.phase-A
@@ -217,17 +217,17 @@ net Yaxis-pos encoder.4.position => wcomp.3.in wcomp.4.in wcomp.5.in
 net Zaxis-pos encoder.5.position => wcomp.6.in wcomp.7.in wcomp.8.in
 
 # connect simulated switch outputs to motion controller
-net Xminlim wcomp.0.out => axis.0.neg-lim-sw-in
-net Xmaxlim wcomp.1.out => axis.0.pos-lim-sw-in
-net Xhome wcomp.2.out => axis.0.home-sw-in
+net Xminlim wcomp.0.out => joint.0.neg-lim-sw-in
+net Xmaxlim wcomp.1.out => joint.0.pos-lim-sw-in
+net Xhome wcomp.2.out => joint.0.home-sw-in
 
-net Yminlim wcomp.3.out => axis.1.neg-lim-sw-in
-net Ymaxlim wcomp.4.out => axis.1.pos-lim-sw-in
-net Yhome wcomp.5.out => axis.1.home-sw-in
+net Yminlim wcomp.3.out => joint.1.neg-lim-sw-in
+net Ymaxlim wcomp.4.out => joint.1.pos-lim-sw-in
+net Yhome wcomp.5.out => joint.1.home-sw-in
 
-net Zminlim wcomp.6.out => axis.2.neg-lim-sw-in
-net Zmaxlim wcomp.7.out => axis.2.pos-lim-sw-in
-net Zhome wcomp.8.out => axis.2.home-sw-in
+net Zminlim wcomp.6.out => joint.2.neg-lim-sw-in
+net Zmaxlim wcomp.7.out => joint.2.pos-lim-sw-in
+net Zhome wcomp.8.out => joint.2.home-sw-in
 
 # configure the points at which the simulated switches trip
 # X axis first

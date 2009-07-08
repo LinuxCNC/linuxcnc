@@ -215,7 +215,7 @@ linksp motion-enable motion.enable
 # servo amp enable (only one, driven by axis 0)
 newsig servo-enable bit
 linksp servo-enable motenc.3.out-02
-linksp servo-enable axis.0.amp-enable-out
+linksp servo-enable joint.0.amp-enable-out
 
 # servo amp fault signals
 # the signals from the amps are actually "not running"
@@ -234,29 +234,29 @@ linksp Z-amp-running motenc.3.out-15
 # controller, they are derived from the ones above by
 # ladder logic
 newsig X-amp-fault bit
-linksp X-amp-fault axis.0.amp-fault-in
+linksp X-amp-fault joint.0.amp-fault-in
 newsig Y-amp-fault bit
-linksp Y-amp-fault axis.1.amp-fault-in
+linksp Y-amp-fault joint.1.amp-fault-in
 newsig Z-amp-fault bit
-linksp Z-amp-fault axis.2.amp-fault-in
+linksp Z-amp-fault joint.2.amp-fault-in
 
 # Limit switches
 # (the switches are NC, and open when hit, so
 # we invert the signals by using the -not input
 # pin - the result is limit signals that are
 # TRUE when the machine is on the limit.)
-net X-lim-plus  motenc.3.in-00-not => axis.0.pos-lim-sw-in
-net X-lim-minus motenc.3.in-01-not => axis.0.neg-lim-sw-in
-net Y-lim-plus  motenc.3.in-02-not => axis.1.pos-lim-sw-in
-net Y-lim-minus motenc.3.in-03-not => axis.1.neg-lim-sw-in
-net Z-lim-plus  motenc.3.in-04-not => axis.2.pos-lim-sw-in
-net Z-lim-minus motenc.3.in-05-not => axis.2.neg-lim-sw-in
+net X-lim-plus  motenc.3.in-00-not => joint.0.pos-lim-sw-in
+net X-lim-minus motenc.3.in-01-not => joint.0.neg-lim-sw-in
+net Y-lim-plus  motenc.3.in-02-not => joint.1.pos-lim-sw-in
+net Y-lim-minus motenc.3.in-03-not => joint.1.neg-lim-sw-in
+net Z-lim-plus  motenc.3.in-04-not => joint.2.pos-lim-sw-in
+net Z-lim-minus motenc.3.in-05-not => joint.2.neg-lim-sw-in
 
 # Home switches
 # (the switches are NC, see note above)
-net X-home motenc.3.in-08-not => axis.0.home-sw-in
-net Y-home motenc.3.in-09-not => axis.1.home-sw-in
-net Z-home motenc.3.in-10-not => axis.2.home-sw-in
+net X-home motenc.3.in-08-not => joint.0.home-sw-in
+net Y-home motenc.3.in-09-not => joint.1.home-sw-in
+net Z-home motenc.3.in-10-not => joint.2.home-sw-in
 
 # spindle related signals: "high level" signals
 #   ready (from drive to PC)
@@ -637,9 +637,9 @@ linksp Y-enc-pos motenc.3.enc-01-position
 linksp Z-enc-pos motenc.3.enc-02-position
 
 # index pulses
-net X-index-enable motenc.3.enc-00-index-enable axis.0.index-enable
-net Y-index-enable motenc.3.enc-01-index-enable axis.1.index-enable
-net Z-index-enable motenc.3.enc-02-index-enable axis.2.index-enable
+net X-index-enable motenc.3.enc-00-index-enable joint.0.index-enable
+net Y-index-enable motenc.3.enc-01-index-enable joint.1.index-enable
+net Z-index-enable motenc.3.enc-02-index-enable joint.2.index-enable
 
 # -----------------------------------------------------
 # DACs - output to servo amps
@@ -684,9 +684,9 @@ newsig X-pos-cmd float
 newsig Y-pos-cmd float
 newsig Z-pos-cmd float
 # hook the motion controller outputs to the position command
-linksp X-pos-cmd axis.0.motor-pos-cmd
-linksp Y-pos-cmd axis.1.motor-pos-cmd
-linksp Z-pos-cmd axis.2.motor-pos-cmd
+linksp X-pos-cmd joint.0.motor-pos-cmd
+linksp Y-pos-cmd joint.1.motor-pos-cmd
+linksp Z-pos-cmd joint.2.motor-pos-cmd
 # and to the PID inputs
 linksp X-pos-cmd pid.0.command
 linksp Y-pos-cmd pid.1.command
@@ -697,9 +697,9 @@ linksp X-enc-pos pid.0.feedback
 linksp Y-enc-pos pid.1.feedback
 linksp Z-enc-pos pid.2.feedback
 # and to motion controller
-linksp X-enc-pos axis.0.motor-pos-fb
-linksp Y-enc-pos axis.1.motor-pos-fb
-linksp Z-enc-pos axis.2.motor-pos-fb
+linksp X-enc-pos joint.0.motor-pos-fb
+linksp Y-enc-pos joint.1.motor-pos-fb
+linksp Z-enc-pos joint.2.motor-pos-fb
 
 # hook PID outputs to DACs
 linksp X-volts pid.0.output

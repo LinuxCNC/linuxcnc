@@ -41,11 +41,11 @@ addf not.4 servo-thread
 
 # create HAL signals for position commands from motion module
 # send them to limit blocks so it will ferror if it exceeds a limit
-net table-pos-cmd  axis.0.motor-pos-cmd => limit3.0.in
-net saddle-pos-cmd axis.1.motor-pos-cmd => limit3.1.in
-net head-pos-cmd   axis.2.motor-pos-cmd => limit3.2.in
-net tilt-pos-cmd   axis.4.motor-pos-cmd => limit3.3.in
-net rotate-pos-cmd axis.5.motor-pos-cmd => limit3.4.in
+net table-pos-cmd  joint.0.motor-pos-cmd => limit3.0.in
+net saddle-pos-cmd joint.1.motor-pos-cmd => limit3.1.in
+net head-pos-cmd   joint.2.motor-pos-cmd => limit3.2.in
+net tilt-pos-cmd   joint.4.motor-pos-cmd => limit3.3.in
+net rotate-pos-cmd joint.5.motor-pos-cmd => limit3.4.in
 
 # set the limit block parameters from the ini file
 setp limit3.0.maxv [AXIS_0]MAX_VELOCITY
@@ -61,28 +61,28 @@ setp limit3.4.maxa [AXIS_5]MAX_ACCELERATION
 
 # loop limited position commands back to motion module feedback
 # also send them to the vismach model and to the "limit switches"
-net table-pos-fb  limit3.0.out => axis.0.motor-pos-fb max5gui.table  wcomp.0.in
-net saddle-pos-fb limit3.1.out => axis.1.motor-pos-fb max5gui.saddle wcomp.1.in
-net head-pos-fb   limit3.2.out => axis.2.motor-pos-fb max5gui.head   wcomp.2.in
-net tilt-pos-fb   limit3.3.out => axis.4.motor-pos-fb max5gui.tilt   wcomp.3.in
-net rotate-pos-fb limit3.4.out => axis.5.motor-pos-fb max5gui.rotate wcomp.4.in
+net table-pos-fb  limit3.0.out => joint.0.motor-pos-fb max5gui.table  wcomp.0.in
+net saddle-pos-fb limit3.1.out => joint.1.motor-pos-fb max5gui.saddle wcomp.1.in
+net head-pos-fb   limit3.2.out => joint.2.motor-pos-fb max5gui.head   wcomp.2.in
+net tilt-pos-fb   limit3.3.out => joint.4.motor-pos-fb max5gui.tilt   wcomp.3.in
+net rotate-pos-fb limit3.4.out => joint.5.motor-pos-fb max5gui.rotate wcomp.4.in
 
 # this foolishness is needed because EMC thinks that 9 axes means 9 joints
-net Aloop axis.3.motor-pos-cmd axis.3.motor-pos-fb
-net Uloop axis.6.motor-pos-cmd axis.6.motor-pos-fb
-net Vloop axis.7.motor-pos-cmd axis.7.motor-pos-fb
-net Wloop axis.8.motor-pos-cmd axis.8.motor-pos-fb
+net Aloop joint.3.motor-pos-cmd joint.3.motor-pos-fb
+net Uloop joint.6.motor-pos-cmd joint.6.motor-pos-fb
+net Vloop joint.7.motor-pos-cmd joint.7.motor-pos-fb
+net Wloop joint.8.motor-pos-cmd joint.8.motor-pos-fb
 
 # route home/limit switch signals to EMC
 net table-limits-ok wcomp.0.out => not.0.in
-net table-limits-tripped not.0.out => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net table-limits-tripped not.0.out => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in joint.0.home-sw-in
 net saddle-limits-ok wcomp.1.out => not.1.in
-net saddle-limits-tripped not.1.out => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+net saddle-limits-tripped not.1.out => joint.1.neg-lim-sw-in joint.1.pos-lim-sw-in joint.1.home-sw-in
 net head-limits-ok wcomp.2.out => not.2.in
-net head-limits-tripped not.2.out => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net head-limits-tripped not.2.out => joint.2.neg-lim-sw-in joint.2.pos-lim-sw-in joint.2.home-sw-in
 net tilt-limits-ok wcomp.3.out => not.3.in
-net tilt-limits-tripped not.3.out => axis.4.neg-lim-sw-in axis.4.pos-lim-sw-in axis.4.home-sw-in
-net rotate-home-tripped wcomp.4.out => axis.5.home-sw-in
+net tilt-limits-tripped not.3.out => joint.4.neg-lim-sw-in joint.4.pos-lim-sw-in joint.4.home-sw-in
+net rotate-home-tripped wcomp.4.out => joint.5.home-sw-in
 
 # set location of switches
 # these positions are in vismach coords - they can be are offset from machine coords

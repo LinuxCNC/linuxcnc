@@ -14,10 +14,10 @@ linksp Zpos-fb => pid.2.feedback
 linksp Apos-fb => pid.3.feedback
 
 # connect position feedback to motion module
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
-linksp Apos-fb => axis.3.motor-pos-fb
+linksp Xpos-fb => joint.0.motor-pos-fb
+linksp Ypos-fb => joint.1.motor-pos-fb
+linksp Zpos-fb => joint.2.motor-pos-fb
+linksp Apos-fb => joint.3.motor-pos-fb
 
 # create PID to DAC output signals
 newsig Xoutput float
@@ -81,10 +81,10 @@ newsig Zpos-cmd float
 newsig Apos-cmd float
 
 # connect position commands to motion controller
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
-linksp Apos-cmd <= axis.3.motor-pos-cmd
+linksp Xpos-cmd <= joint.0.motor-pos-cmd
+linksp Ypos-cmd <= joint.1.motor-pos-cmd
+linksp Zpos-cmd <= joint.2.motor-pos-cmd
+linksp Apos-cmd <= joint.3.motor-pos-cmd
 
 # connect position commands to PID input
 linksp Xpos-cmd => pid.0.command
@@ -99,10 +99,10 @@ newsig Zenable bit
 newsig Aenable bit
 
 # connect the signals to the motion controller
-linksp Xenable <= axis.0.amp-enable-out
-linksp Yenable <= axis.1.amp-enable-out
-linksp Zenable <= axis.2.amp-enable-out
-linksp Aenable <= axis.3.amp-enable-out
+linksp Xenable <= joint.0.amp-enable-out
+linksp Yenable <= joint.1.amp-enable-out
+linksp Zenable <= joint.2.amp-enable-out
+linksp Aenable <= joint.3.amp-enable-out
 
 # connect the signals to the PID blocks
 linksp Xenable => pid.0.enable

@@ -96,11 +96,11 @@ newsig limit-reached bit
 # connect this signal to pin 10 on the parport
 linkps parport.0.pin-10-in-not  limit-reached
 # connect this signal to all limit signals of relevant axes
-linksp limit-reached  axis.0.neg-lim-sw-in  
-linksp limit-reached  axis.0.pos-lim-sw-in  
-linksp limit-reached  axis.1.neg-lim-sw-in  
-linksp limit-reached  axis.1.pos-lim-sw-in  
-linksp limit-reached  axis.2.neg-lim-sw-in  
-#linksp limit-reached  axis.2.pos-lim-sw-in  
+linksp limit-reached  joint.0.neg-lim-sw-in  
+linksp limit-reached  joint.0.pos-lim-sw-in  
+linksp limit-reached  joint.1.neg-lim-sw-in  
+linksp limit-reached  joint.1.pos-lim-sw-in  
+linksp limit-reached  joint.2.neg-lim-sw-in  
+#linksp limit-reached  joint.2.pos-lim-sw-in  
 
 

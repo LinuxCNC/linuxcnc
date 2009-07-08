@@ -20,29 +20,29 @@ addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
 newsig J0pos float
-linksp J0pos <= axis.0.motor-pos-cmd
+linksp J0pos <= joint.0.motor-pos-cmd
 newsig J1pos float
-linksp J1pos <= axis.1.motor-pos-cmd
+linksp J1pos <= joint.1.motor-pos-cmd
 newsig J2pos float
-linksp J2pos <= axis.2.motor-pos-cmd
+linksp J2pos <= joint.2.motor-pos-cmd
 newsig J3pos float
-linksp J3pos <= axis.3.motor-pos-cmd
+linksp J3pos <= joint.3.motor-pos-cmd
 newsig J4pos float
-linksp J4pos <= axis.4.motor-pos-cmd
+linksp J4pos <= joint.4.motor-pos-cmd
 newsig J5pos float
-linksp J5pos <= axis.5.motor-pos-cmd
+linksp J5pos <= joint.5.motor-pos-cmd
 newsig J8pos float
-linksp J8pos <= axis.8.motor-pos-cmd
+linksp J8pos <= joint.8.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-linksp J0pos => axis.0.motor-pos-fb
-linksp J1pos => axis.1.motor-pos-fb
-linksp J2pos => axis.2.motor-pos-fb
-linksp J3pos => axis.3.motor-pos-fb
-linksp J4pos => axis.4.motor-pos-fb
-linksp J5pos => axis.5.motor-pos-fb
-linksp J8pos => axis.8.motor-pos-fb
+linksp J0pos => joint.0.motor-pos-fb
+linksp J1pos => joint.1.motor-pos-fb
+linksp J2pos => joint.2.motor-pos-fb
+linksp J3pos => joint.3.motor-pos-fb
+linksp J4pos => joint.4.motor-pos-fb
+linksp J5pos => joint.5.motor-pos-fb
+linksp J8pos => joint.8.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -84,42 +84,42 @@ net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
 newsig xena bit
-linksp xena axis.0.amp-enable-out
+linksp xena joint.0.amp-enable-out
 newsig yena bit
-linksp yena axis.1.amp-enable-out
+linksp yena joint.1.amp-enable-out
 newsig zena bit
-linksp zena axis.2.amp-enable-out
+linksp zena joint.2.amp-enable-out
 newsig aena bit
-linksp aena axis.3.amp-enable-out
+linksp aena joint.3.amp-enable-out
 newsig bena bit
-linksp bena axis.4.amp-enable-out
+linksp bena joint.4.amp-enable-out
 newsig cena bit
-linksp cena axis.5.amp-enable-out
+linksp cena joint.5.amp-enable-out
 newsig wena bit
-linksp wena axis.8.amp-enable-out
+linksp wena joint.8.amp-enable-out
 
 newsig xflt bit
-linksp xflt axis.0.amp-fault-in
+linksp xflt joint.0.amp-fault-in
 newsig yflt bit
-linksp yflt axis.1.amp-fault-in
+linksp yflt joint.1.amp-fault-in
 newsig zflt bit
-linksp zflt axis.2.amp-fault-in
+linksp zflt joint.2.amp-fault-in
 newsig aflt bit
-linksp aflt axis.3.amp-fault-in
+linksp aflt joint.3.amp-fault-in
 newsig bflt bit
-linksp bflt axis.4.amp-fault-in
+linksp bflt joint.4.amp-fault-in
 newsig cflt bit
-linksp cflt axis.5.amp-fault-in
+linksp cflt joint.5.amp-fault-in
 newsig wflt bit
-linksp wflt axis.8.amp-fault-in
+linksp wflt joint.8.amp-fault-in
 
 loadusr -W 5axisgui
 
-net j0 axis.0.joint-pos-fb 5axisgui.joint0
-net j1 axis.1.joint-pos-fb 5axisgui.joint1
-net j2 axis.2.joint-pos-fb 5axisgui.joint2
-net j3 axis.3.joint-pos-fb 5axisgui.joint3
-net j4 axis.4.joint-pos-fb 5axisgui.joint4
-net j5 axis.5.joint-pos-fb 5axisgui.joint5
+net j0 joint.0.pos-fb 5axisgui.joint0
+net j1 joint.1.pos-fb 5axisgui.joint1
+net j2 joint.2.pos-fb 5axisgui.joint2
+net j3 joint.3.pos-fb 5axisgui.joint3
+net j4 joint.4.pos-fb 5axisgui.joint4
+net j5 joint.5.pos-fb 5axisgui.joint5
 
 net tool-len motion.tooloffset.w 5axisgui.tool_length

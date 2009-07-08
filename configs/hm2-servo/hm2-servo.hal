@@ -79,7 +79,7 @@ newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
 net emcmot.00.enable => pid.0.enable
 net emcmot.00.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.00.enable
-net emcmot.00.enable <= axis.0.amp-enable-out 
+net emcmot.00.enable <= joint.0.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.00.counter-mode 0
@@ -90,7 +90,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.00.index-mask-invert 0
 
 setp  hm2_[HOSTMOT2](BOARD).0.encoder.00.scale  [AXIS_0]INPUT_SCALE
 net motor.00.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.00.position => pid.0.feedback
-net motor.00.pos-fb => axis.0.motor-pos-fb #push copy back to Axis GUI
+net motor.00.pos-fb => joint.0.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
 setp pid.0.Pgain [AXIS_0]P
@@ -107,7 +107,7 @@ setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  [AXIS_0]OUTPUT_SCALE
 
-net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
+net emcmot.00.pos-cmd joint.0.motor-pos-cmd => pid.0.command
 net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
 
 # ################
@@ -119,7 +119,7 @@ newsig emcmot.01.enable bit
 sets emcmot.01.enable FALSE
 net emcmot.01.enable => pid.1.enable
 net emcmot.01.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.01.enable
-net emcmot.01.enable <= axis.1.amp-enable-out 
+net emcmot.01.enable <= joint.1.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.01.counter-mode 0
@@ -130,7 +130,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.01.index-mask-invert 0
 
 setp  hm2_[HOSTMOT2](BOARD).0.encoder.01.scale  [AXIS_1]INPUT_SCALE
 net motor.01.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.01.position => pid.1.feedback
-net motor.01.pos-fb => axis.1.motor-pos-fb #push copy back to Axis GUI
+net motor.01.pos-fb => joint.1.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
 setp pid.1.Pgain [AXIS_1]P
@@ -147,7 +147,7 @@ setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale [AXIS_1]OUTPUT_SCALE
 
-net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
+net emcmot.01.pos-cmd joint.1.motor-pos-cmd => pid.1.command
 net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
 
 # ################
@@ -159,7 +159,7 @@ newsig emcmot.02.enable bit
 sets emcmot.02.enable FALSE
 net emcmot.02.enable => pid.2.enable
 net emcmot.02.enable => hm2_[HOSTMOT2](BOARD).0.pwmgen.02.enable
-net emcmot.02.enable <= axis.2.amp-enable-out 
+net emcmot.02.enable <= joint.2.amp-enable-out 
 
 # encoder feedback
 setp hm2_[HOSTMOT2](BOARD).0.encoder.02.counter-mode 0
@@ -170,7 +170,7 @@ setp hm2_[HOSTMOT2](BOARD).0.encoder.02.index-mask-invert 0
 
 setp  hm2_[HOSTMOT2](BOARD).0.encoder.02.scale  [AXIS_2]INPUT_SCALE
 net motor.02.pos-fb hm2_[HOSTMOT2](BOARD).0.encoder.02.position => pid.2.feedback
-net motor.02.pos-fb => axis.2.motor-pos-fb #push copy back to Axis GUI
+net motor.02.pos-fb => joint.2.motor-pos-fb #push copy back to Axis GUI
 
 # set PID loop gains from inifile
 setp pid.2.Pgain [AXIS_2]P
@@ -187,7 +187,7 @@ setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.scale [AXIS_2]OUTPUT_SCALE
 
-net emcmot.02.pos-cmd axis.2.motor-pos-cmd => pid.2.command
+net emcmot.02.pos-cmd joint.2.motor-pos-cmd => pid.2.command
 net motor.02.command  pid.2.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.02.value
 
 

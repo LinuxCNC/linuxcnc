@@ -71,36 +71,36 @@ addf mult2.0			servo-thread
 
 # connect position commands from motion module to step generator
 newsig Xpos-cmd float
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Xpos-cmd <= joint.0.motor-pos-cmd
 linksp Xpos-cmd => stepgen.0.position-cmd
 newsig Ypos-cmd float
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Ypos-cmd <= joint.1.motor-pos-cmd
 linksp Ypos-cmd => stepgen.1.position-cmd
 newsig Zpos-cmd float
-linksp Zpos-cmd <= axis.2.motor-pos-cmd
+linksp Zpos-cmd <= joint.2.motor-pos-cmd
 linksp Zpos-cmd => stepgen.2.position-cmd
 
 # connect position feedback from step generators
 # to motion module
 newsig Xpos-fb float
 linksp Xpos-fb <= stepgen.0.position-fb
-linksp Xpos-fb => axis.0.motor-pos-fb
+linksp Xpos-fb => joint.0.motor-pos-fb
 newsig Ypos-fb float
 linksp Ypos-fb <= stepgen.1.position-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
+linksp Ypos-fb => joint.1.motor-pos-fb
 newsig Zpos-fb float
 linksp Zpos-fb <= stepgen.2.position-fb
-linksp Zpos-fb => axis.2.motor-pos-fb
+linksp Zpos-fb => joint.2.motor-pos-fb
 
 # connect enable signals for step generators
 newsig Xen bit
-linksp Xen <= axis.0.amp-enable-out
+linksp Xen <= joint.0.amp-enable-out
 linksp Xen => stepgen.0.enable
 newsig Yen bit
-linksp Yen <= axis.1.amp-enable-out
+linksp Yen <= joint.1.amp-enable-out
 linksp Yen => stepgen.1.enable
 newsig Zen bit
-linksp Zen <= axis.2.amp-enable-out
+linksp Zen <= joint.2.amp-enable-out
 linksp Zen => stepgen.2.enable
 
 # connect signals to step pulse generator outputs
@@ -214,8 +214,8 @@ setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
 
 newsig homeswitches bit
 linkps parport.0.pin-10-in => homeswitches
-linkps axis.0.home-sw-in <= homeswitches
-linkps axis.2.home-sw-in <= homeswitches
+linkps joint.0.home-sw-in <= homeswitches
+linkps joint.2.home-sw-in <= homeswitches
 
 #######################################################
 # Beginning of threading-related stuff

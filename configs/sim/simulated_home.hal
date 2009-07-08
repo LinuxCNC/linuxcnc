@@ -15,12 +15,12 @@ setp comp.1.hyst .02
 setp comp.2.hyst .02
 
 net Xhomesw <= comp.0.out
-net Yhomesw <= comp.1.out => axis.1.home-sw-in
+net Yhomesw <= comp.1.out => joint.1.home-sw-in
 net Zhomesw <= comp.2.out
 
 net Xhomesw => or2.0.in0
 net Zhomesw => or2.0.in1
-net XZhomesw or2.0.out => axis.0.home-sw-in axis.2.home-sw-in
+net XZhomesw or2.0.out => joint.0.home-sw-in joint.2.home-sw-in
 
 addf comp.0 servo-thread
 addf comp.1 servo-thread

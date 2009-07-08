@@ -32,10 +32,10 @@ addf hypot.1 servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt.0.in
-net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt.2.in
-net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.4.in
-net Y1pos axis.3.motor-pos-cmd => axis.3.motor-pos-fb
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt.0.in
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt.2.in
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt.4.in
+net Y1pos joint.3.motor-pos-cmd => joint.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -58,10 +58,10 @@ net tool-prepare iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # amp control
-net xena <= axis.0.amp-enable-out
-net yena <= axis.1.amp-enable-out
-net zena <= axis.2.amp-enable-out
+net xena <= joint.0.amp-enable-out
+net yena <= joint.1.amp-enable-out
+net zena <= joint.2.amp-enable-out
 
-net xflt => axis.0.amp-fault-in
-net yflt => axis.1.amp-fault-in
-net zflt => axis.2.amp-fault-in
+net xflt => joint.0.amp-fault-in
+net yflt => joint.1.amp-fault-in
+net zflt => joint.2.amp-fault-in

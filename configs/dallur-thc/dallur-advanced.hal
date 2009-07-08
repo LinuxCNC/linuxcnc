@@ -86,14 +86,14 @@ linkps parport.0.pin-13-in-not  limit-reached-z
 linkps parport.0.pin-15-in-not  limit-reached-a
 
 #Connect all limit signals to relevant axes
-linksp limit-reached-x  axis.0.neg-lim-sw-in
-linksp limit-reached-x  axis.0.pos-lim-sw-in
-linksp limit-reached-y  axis.1.neg-lim-sw-in
-linksp limit-reached-y  axis.1.pos-lim-sw-in
-linksp limit-reached-a  axis.1.neg-lim-sw-in
-linksp limit-reached-a  axis.1.neg-lim-sw-in
-linksp limit-reached-z  axis.2.neg-lim-sw-in
-linksp limit-reached-z  axis.2.neg-lim-sw-in
+linksp limit-reached-x  joint.0.neg-lim-sw-in
+linksp limit-reached-x  joint.0.pos-lim-sw-in
+linksp limit-reached-y  joint.1.neg-lim-sw-in
+linksp limit-reached-y  joint.1.pos-lim-sw-in
+linksp limit-reached-a  joint.1.neg-lim-sw-in
+linksp limit-reached-a  joint.1.neg-lim-sw-in
+linksp limit-reached-z  joint.2.neg-lim-sw-in
+linksp limit-reached-z  joint.2.neg-lim-sw-in
 
 
 ########## Charge Pump #########
@@ -245,7 +245,7 @@ addf mux2.2 servo-thread
 
 #Disconnect Machine/Manual Axis Z Control while ArcOK for safety and to eliminate jitter
 newsig Zpos-instructed-cmd float
-linksp Zpos-instructed-cmd <= axis.2.motor-pos-cmd
+linksp Zpos-instructed-cmd <= joint.2.motor-pos-cmd
 
 linksp Zpos-instructed-cmd => mux2.3.in0
 linksp Zpos-fb => mux2.3.in1

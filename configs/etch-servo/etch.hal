@@ -47,8 +47,8 @@ newsig Yvel-cmd float
 
 linksp Xpos-fb => pid.0.feedback
 linksp Ypos-fb => pid.1.feedback
-linksp Xpos-fb => axis.0.motor-pos-fb
-linksp Ypos-fb => axis.1.motor-pos-fb
+linksp Xpos-fb => joint.0.motor-pos-fb
+linksp Ypos-fb => joint.1.motor-pos-fb
 
 linksp Xvel-cmd <= pid.0.output
 linksp Yvel-cmd <= pid.1.output
@@ -102,14 +102,14 @@ setp pid.1.deadband [AXIS_1]DEADBAND
 
 newsig Xpos-cmd float
 newsig Ypos-cmd float
-linksp Xpos-cmd <= axis.0.motor-pos-cmd
-linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Xpos-cmd <= joint.0.motor-pos-cmd
+linksp Ypos-cmd <= joint.1.motor-pos-cmd
 linkps pid.0.command <= Xpos-cmd
 linkps pid.1.command <= Ypos-cmd
 newsig Xenable bit
 newsig Yenable bit
-linkps axis.0.amp-enable-out => Xenable
-linkps axis.1.amp-enable-out => Yenable
+linkps joint.0.amp-enable-out => Xenable
+linkps joint.1.amp-enable-out => Yenable
 linksp Xenable => pid.0.enable 
 linksp Xenable => pwmgen.0.enable
 linksp Yenable => pid.1.enable
