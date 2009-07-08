@@ -19,17 +19,17 @@ addf ddt.7 servo-thread
 addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
-net J0pos <= axis.0.motor-pos-cmd
-net J1pos <= axis.1.motor-pos-cmd
-net J2pos <= axis.2.motor-pos-cmd
-net J3pos <= axis.3.motor-pos-cmd
+net J0pos <= joint.0.motor-pos-cmd
+net J1pos <= joint.1.motor-pos-cmd
+net J2pos <= joint.2.motor-pos-cmd
+net J3pos <= joint.3.motor-pos-cmd
 
 
 # loop position commands back to motion module feedback
-net J0pos => axis.0.motor-pos-fb
-net J1pos => axis.1.motor-pos-fb
-net J2pos => axis.2.motor-pos-fb
-net J3pos => axis.3.motor-pos-fb
+net J0pos => joint.0.motor-pos-fb
+net J1pos => joint.1.motor-pos-fb
+net J2pos => joint.2.motor-pos-fb
+net J3pos => joint.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
@@ -62,19 +62,19 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # amp control
-net xena axis.0.amp-enable-out
-net yena axis.1.amp-enable-out
-net zena axis.2.amp-enable-out
-net aena axis.3.amp-enable-out
+net xena joint.0.amp-enable-out
+net yena joint.1.amp-enable-out
+net zena joint.2.amp-enable-out
+net aena joint.3.amp-enable-out
 
-net xflt axis.0.amp-fault-in
-net yflt axis.1.amp-fault-in
-net zflt axis.2.amp-fault-in
-net aflt axis.3.amp-fault-in
+net xflt joint.0.amp-fault-in
+net yflt joint.1.amp-fault-in
+net zflt joint.2.amp-fault-in
+net aflt joint.3.amp-fault-in
 
 loadusr -W scaragui
 
-net j0 axis.0.joint-pos-fb scaragui.joint0
-net j1 axis.1.joint-pos-fb scaragui.joint1
-net j2 axis.2.joint-pos-fb scaragui.joint2
-net j3 axis.3.joint-pos-fb scaragui.joint3
+net j0 joint.0.pos-fb scaragui.joint0
+net j1 joint.1.pos-fb scaragui.joint1
+net j2 joint.2.pos-fb scaragui.joint2
+net j3 joint.3.pos-fb scaragui.joint3

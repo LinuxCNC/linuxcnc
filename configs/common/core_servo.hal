@@ -16,9 +16,9 @@ addf pid.1.do-pid-calcs servo-thread
 addf pid.2.do-pid-calcs servo-thread
 
 # connect position feedback
-net Xpos-fb axis.0.motor-pos-fb => pid.0.feedback
-net Ypos-fb axis.1.motor-pos-fb => pid.1.feedback
-net Zpos-fb axis.2.motor-pos-fb => pid.2.feedback
+net Xpos-fb joint.0.motor-pos-fb => pid.0.feedback
+net Ypos-fb joint.1.motor-pos-fb => pid.1.feedback
+net Zpos-fb joint.2.motor-pos-fb => pid.2.feedback
 
 # create PID to DAC output signals
 net Xoutput <= pid.0.output
@@ -64,11 +64,11 @@ setp pid.2.FF2 [AXIS_2]FF2
 setp pid.2.deadband [AXIS_2]DEADBAND
 
 # position command signals
-net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command
-net Ypos-cmd axis.1.motor-pos-cmd => pid.1.command
-net Zpos-cmd axis.2.motor-pos-cmd => pid.2.command
+net Xpos-cmd joint.0.motor-pos-cmd => pid.0.command
+net Ypos-cmd joint.1.motor-pos-cmd => pid.1.command
+net Zpos-cmd joint.2.motor-pos-cmd => pid.2.command
 
 # axis enable signals
-net Xenable axis.0.amp-enable-out => pid.0.enable
-net Yenable axis.1.amp-enable-out => pid.1.enable
-net Zenable axis.2.amp-enable-out => pid.2.enable
+net Xenable joint.0.amp-enable-out => pid.0.enable
+net Yenable joint.1.amp-enable-out => pid.1.enable
+net Zenable joint.2.amp-enable-out => pid.2.enable

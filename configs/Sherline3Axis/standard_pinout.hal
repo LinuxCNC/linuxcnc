@@ -47,7 +47,7 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 ### to EMC's axis 0 home switch input pin
 ###
 
-# net Xhome parport.0.pin-10-in => axis.0.home-sw-in
+# net Xhome parport.0.pin-10-in => joint.0.home-sw-in
 
 ###
 ### Shared home switches all on one parallel port pin?
@@ -57,16 +57,16 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 ###
 
 # net homeswitches <= parport.0.pin-10-in
-# net homeswitches => axis.0.home-sw-in
-# net homeswitches => axis.1.home-sw-in
-# net homeswitches => axis.2.home-sw-in
+# net homeswitches => joint.0.home-sw-in
+# net homeswitches => joint.1.home-sw-in
+# net homeswitches => joint.2.home-sw-in
 
 ###
 ### Sample separate limit switches on the X axis (axis 0)
 ###
 
-# net X-neg-limit parport.0.pin-11-in => axis.0.neg-lim-sw-in
-# net X-pos-limit parport.0.pin-12-in => axis.0.pos-lim-sw-in
+# net X-neg-limit parport.0.pin-11-in => joint.0.neg-lim-sw-in
+# net X-pos-limit parport.0.pin-12-in => joint.0.pos-lim-sw-in
 
 ###
 ### Just like the shared home switches example, you can wire together
@@ -74,4 +74,4 @@ net spindle-on motion.spindle-on => parport.0.pin-09-out
 ### you which switch/axis has faulted.  Use caution when recovering from this.
 ###
 
-# net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in
+# net Xlimits parport.0.pin-13-in => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in

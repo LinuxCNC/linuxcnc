@@ -64,34 +64,34 @@ addf sim-encoder.update-speed   servo-thread
 #######################################################
 
 # connect position commands from motion module to step generator
-net Xpos-cmd <= axis.0.motor-pos-cmd
+net Xpos-cmd <= joint.0.motor-pos-cmd
 net Xpos-cmd => stepgen.0.position-cmd
-net Ypos-cmd <= axis.1.motor-pos-cmd
+net Ypos-cmd <= joint.1.motor-pos-cmd
 net Ypos-cmd => stepgen.1.position-cmd
-net Zpos-cmd <= axis.2.motor-pos-cmd
+net Zpos-cmd <= joint.2.motor-pos-cmd
 net Zpos-cmd => stepgen.2.position-cmd
-net Apos-cmd <= axis.3.motor-pos-cmd
+net Apos-cmd <= joint.3.motor-pos-cmd
 net Apos-cmd => stepgen.3.position-cmd
 
 # connect position feedback from step generators
 # to motion module
 net Xpos-fb <= stepgen.0.position-fb
-net Xpos-fb => axis.0.motor-pos-fb
+net Xpos-fb => joint.0.motor-pos-fb
 net Ypos-fb <= stepgen.1.position-fb
-net Ypos-fb => axis.1.motor-pos-fb
+net Ypos-fb => joint.1.motor-pos-fb
 net Zpos-fb <= stepgen.2.position-fb
-net Zpos-fb => axis.2.motor-pos-fb
+net Zpos-fb => joint.2.motor-pos-fb
 net Apos-fb <= stepgen.3.position-fb
-net Apos-fb => axis.3.motor-pos-fb
+net Apos-fb => joint.3.motor-pos-fb
 
 # connect enable signals for step generators
-net Xen <= axis.0.amp-enable-out
+net Xen <= joint.0.amp-enable-out
 net Xen => stepgen.0.enable
-net Yen <= axis.1.amp-enable-out
+net Yen <= joint.1.amp-enable-out
 net Yen => stepgen.1.enable
-net Zen <= axis.2.amp-enable-out
+net Zen <= joint.2.amp-enable-out
 net Zen => stepgen.2.enable
-net Aen <= axis.3.amp-enable-out
+net Aen <= joint.3.amp-enable-out
 net Aen => stepgen.3.enable
 
 # connect signals to step pulse generator outputs

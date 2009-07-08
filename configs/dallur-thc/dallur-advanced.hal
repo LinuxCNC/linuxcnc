@@ -80,14 +80,14 @@ net limit-reached-z parport.0.pin-13-in-not
 net limit-reached-a parport.0.pin-15-in-not
 
 #Connect all limit signals to relevant axes
-net limit-reached-x axis.0.neg-lim-sw-in
-net limit-reached-x axis.0.pos-lim-sw-in
-net limit-reached-y axis.1.neg-lim-sw-in
-net limit-reached-y axis.1.pos-lim-sw-in
-net limit-reached-a axis.1.neg-lim-sw-in
-net limit-reached-a axis.1.neg-lim-sw-in
-net limit-reached-z axis.2.neg-lim-sw-in
-net limit-reached-z axis.2.neg-lim-sw-in
+net limit-reached-x joint.0.neg-lim-sw-in
+net limit-reached-x joint.0.pos-lim-sw-in
+net limit-reached-y joint.1.neg-lim-sw-in
+net limit-reached-y joint.1.pos-lim-sw-in
+net limit-reached-a joint.1.neg-lim-sw-in
+net limit-reached-a joint.1.neg-lim-sw-in
+net limit-reached-z joint.2.neg-lim-sw-in
+net limit-reached-z joint.2.neg-lim-sw-in
 
 
 ########## Charge Pump #########
@@ -214,7 +214,7 @@ net Zpos-cmd-muxed mux2.2.out
 addf mux2.2 servo-thread
 
 #Disconnect Machine/Manual Axis Z Control while ArcOK for safety and to eliminate jitter
-net Zpos-instructed-cmd <= axis.2.motor-pos-cmd
+net Zpos-instructed-cmd <= joint.2.motor-pos-cmd
 
 net Zpos-instructed-cmd => mux2.3.in0
 net Zpos-fb => mux2.3.in1
