@@ -3693,7 +3693,7 @@ else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
     root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
-homing_order_defined = inifile.find("AXIS_0", "HOME_SEQUENCE") is not None
+homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
 
 if homing_order_defined:
     widgets.homebutton.configure(text=_("Home All"), command="home_all_axes")
@@ -4054,10 +4054,10 @@ forget(widgets.spinoverridef, "motion.spindle-speed-out")
 has_limit_switch = 0
 for j in range(9):
     try:
-        if hal.pin_has_writer("axis.%d.neg-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.neg-lim-sw-in" % j):
             has_limit_switch=1
             break
-        if hal.pin_has_writer("axis.%d.pos-lim-sw-in" % j):
+        if hal.pin_has_writer("joint.%d.pos-lim-sw-in" % j):
             has_limit_switch=1
             break
     except NameError, detail:
