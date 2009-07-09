@@ -1072,7 +1072,7 @@ class Data:
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
-            shortcut = os.path.join(desktop, machinename)
+            shortcut = os.path.join(desktop, self.machinename)
             if os.path.exists(desktop) and not os.path.exists(shortcut):
                 os.symlink(base,shortcut)
 
