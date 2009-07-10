@@ -60,10 +60,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if !defined(RTAPI)
-#error parport needs RTAPI
-#endif
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -80,7 +76,6 @@
 #include <asm/io.h>
 #endif
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Jeff Epler");
 MODULE_DESCRIPTION("PC Speaker Driver");
@@ -88,7 +83,6 @@ MODULE_LICENSE("GPL");
 /* static char *cfg = 0; */
 /* config string
 RTAPI_MP_STRING(cfg, "config string"); */
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

@@ -42,10 +42,6 @@
  *  Based heavily on the "encoder" hal module by John Kasunich
  */
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include "rtapi.h"              /* RTAPI realtime OS API */
 #include "rtapi_app.h"          /* RTAPI realtime module decls */
 #include "rtapi_errno.h"        /* EINVAL etc */

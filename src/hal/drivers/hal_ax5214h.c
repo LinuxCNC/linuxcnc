@@ -87,10 +87,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI )
-#error This is a realtime driver, needs RTAPI
-#endif
-
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -108,14 +104,12 @@
 #include <asm/io.h>
 #endif
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Axiom AX5214H Driver for HAL");
 MODULE_LICENSE("GPL");
 static char *cfg = "";	/* config string, default no boards */
 RTAPI_MP_STRING(cfg, "config string");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

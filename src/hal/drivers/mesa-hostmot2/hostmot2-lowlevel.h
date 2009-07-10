@@ -20,12 +20,6 @@
 #ifndef HOSTMOT2_LOWLEVEL_H
 #define HOSTMOT2_LOWLEVEL_H
 
-
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
 #include <linux/device.h>
 #include <linux/firmware.h>
 

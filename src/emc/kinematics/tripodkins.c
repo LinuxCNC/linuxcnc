@@ -72,7 +72,6 @@
 #endif
 #endif
 
-#ifdef RTAPI
 #include "hal.h"
 struct haldata {
     hal_float_t *bx, *cx, *cy;
@@ -81,9 +80,6 @@ struct haldata {
 #define Bx (*(haldata->bx))
 #define Cx (*(haldata->cx))
 #define Cy (*(haldata->cy))
-#else
-double Bx, Cx, Cy;
-#endif
 
 #define sq(x) ((x)*(x))
 
@@ -348,7 +344,6 @@ int main(int argc, char *argv[])
 
 #endif /* MAIN */
 
-#ifdef RTAPI
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
@@ -385,4 +380,3 @@ error:
 }
 
 void rtapi_app_exit(void) { hal_exit(comp_id); }
-#endif
