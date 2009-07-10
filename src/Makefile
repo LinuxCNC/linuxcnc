@@ -195,6 +195,12 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	@$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
+configure: configure.in
+	AUTOGEN_TARGET=configure ./autogen.sh
+
+config.h.in: configure.in
+	AUTOGEN_TARGET=config.h.in ./autogen.sh
+
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
 endif
