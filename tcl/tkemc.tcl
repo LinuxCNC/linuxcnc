@@ -2659,7 +2659,7 @@ proc updateStatus {} {
     }
 
     # position text so line shows
-    $programfiletext see $activeLine.0
+    $programfiletext yview $activeLine.0
 
     # enable plotting if plotter exists
     if {[winfo exists .plot]} {
