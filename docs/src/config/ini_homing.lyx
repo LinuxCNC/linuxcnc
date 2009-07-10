@@ -296,7 +296,8 @@ If HOME_SEARCH_VEL is non-zero, then EMC assumes that there is a home switch.
  If tripped it backs off the switch at HOME_SEARCH_VEL.
  The direction of the back-off is opposite the sign of HOME_SEARCH_VEL.
  Then it searches for the home switch by moving in the direction specified
- by the sign of HOME_SEARCH_VEL, at a speed determined by its absolute value.
+ by the sign of HOME_SEARCH_VEL, at a speed in user units per second determined
+ by its absolute value.
  When the home switch is detected, the joint will stop as fast as possible,
  but there will always be some overshoot.
  The amount of overshoot depends on the speed.
@@ -314,9 +315,9 @@ HOME_LATCH_VEL
 
 \layout Standard
 
-Specifies the speed and direction that EMC uses when it makes its final
- accurate determination of the home switch (if present) and index pulse
- location (if present).
+Specifies the speed in user units per second and direction that EMC uses
+ when it makes its final accurate determination of the home switch (if present)
+ and index pulse location (if present).
  It will usually be slower than the search velocity to maximise accuracy.
  If HOME_SEARCH_VEL and HOME_LATCH_VEL have the same sign, then the latch
  phase is done while moving in the same direction as the search phase.
@@ -335,8 +336,8 @@ Specifies the speed and direction that EMC uses when it makes its final
 HOME_FINAL_VEL
 \layout Standard
 
-It specifies the speed that EMC uses when it makes its move from HOME_OFFSET
- to the HOME position.
+It specifies the speed in user units per second that EMC uses when it makes
+ its move from HOME_OFFSET to the HOME position.
  If the HOME_FINAL_VEL is missing from the ini file, then the maximum joint
  speed is used to make this move.
  The value must a positive number.
