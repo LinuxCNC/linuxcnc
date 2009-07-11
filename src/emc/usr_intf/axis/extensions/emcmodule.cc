@@ -373,14 +373,6 @@ static PyMemberDef Stat_members[] = {
     {NULL}
 };
 
-static PyObject *uchar_array(unsigned char *arr, int sz) {
-    PyObject *res = PyTuple_New(sz);
-    for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(arr[i]));
-    }
-    return res;
-}
-
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
