@@ -692,9 +692,6 @@ void INIT_CANON()
 void MESSAGE(char *s)
 {PRINT1("MESSAGE(\"%s\")\n", s);}
 
-void SYSTEM(char *s)
-{PRINT1("SYSTEM(\"%s\")\n", s);}
-
 void LOG(char *s)
 {PRINT1("LOG(\"%s\")\n", s);}
 void LOGOPEN(char *s)
