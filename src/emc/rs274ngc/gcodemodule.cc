@@ -181,10 +181,6 @@ static double TO_PROG_LEN(double p) {
     if(metric) return p*25.4;
     return p;
 }
-static double FROM_PROG_LEN(double p) {
-    if(metric) return p/25.4;
-    return p;
-}
 
 void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
     double u = 0.0;
