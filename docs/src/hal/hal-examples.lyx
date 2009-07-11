@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -50,6 +51,72 @@ n and have two threads base-thread and servo-thread.
  The custom.hal file will be loaded after the configuration hal file and
  the custom_postgui.hal file is loaded after the GUI has been loaded.
  
+\end_layout
+
+\begin_layout Section
+Manual Toolchange
+\end_layout
+
+\begin_layout Standard
+In this example it is assumed that your "rolling your own" configuration
+ and wish to add the HAL Manual Toolchange window.
+ The HAL Manual Toolchange is primarily useful if you have presettable tools
+ and you store the offsets in the tool table.
+ If you need to touch off for each tool change then it is best just to split
+ up your g code.
+ To use the HAL Manual Toolchange window you basically have to load the
+ hal manualtoolchange component then send the iocontrol "tool change" to
+ the hal manualtoolchange "change" and send the hal manualtoolchange "changed"
+ back to the iocontrol "tool changed".
+\end_layout
+
+\begin_layout Standard
+This is an example of 
+\series bold
+with
+\series default
+ the HAL Manual Toolchange from the stepconf wizard
+\end_layout
+
+\begin_layout LyX-Code
+loadusr -W hal_manualtoolchange 
+\end_layout
+
+\begin_layout LyX-Code
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
+\end_layout
+
+\begin_layout LyX-Code
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed 
+\end_layout
+
+\begin_layout LyX-Code
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+ 
+\end_layout
+
+\begin_layout LyX-Code
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+\end_layout
+
+\begin_layout Standard
+This is an example of 
+\series bold
+without
+\series default
+ the HAL Manual Toolchange from the stepconf wizard
+\end_layout
+
+\begin_layout LyX-Code
+net tool-number <= iocontrol.0.tool-prep-number
+\end_layout
+
+\begin_layout LyX-Code
+net tool-change-loopback iocontrol.0.tool.-change => iocontrol.0.tool-changed
+\end_layout
+
+\begin_layout LyX-Code
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 \end_layout
 
 \begin_layout Section
