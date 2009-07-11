@@ -321,8 +321,8 @@ human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Di
 _("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
 _("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
 _("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
-_("spindle StepGen-Step"), _("spindle StepGen-Direction"), _("spindle reserved c"), _("spindle reserved d"), _("spindle reserved e"), 
-_("spindle reserved f"), ]
+_("Spindle StepGen-Step"), _("Spindle StepGen-Direction"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
+_("Spindle reserved f"), ]
 
 def md5sum(filename):
     try:
@@ -1094,7 +1094,7 @@ class Data:
            else:return "false"
 
     def connect_axis(self, file, num, let):
-        axnum = "xyza".index(let)
+        axnum = "xyzabcuxzs".index(let)
         jogwheel = False
         pwmgen = self.pwmgen_sig(let)
         stepgen = self.stepgen_sig(let)
@@ -1214,6 +1214,7 @@ class Data:
                 if t == GPIOI:
                     if p == "unused-input":continue 
                     pinname = self.make_pinname(self.findsignal( p )) 
+                    print >>file, "# ---",p.upper,"---"
                     if i: print >>file, "net %s <= "% (p)+pinname +".in_not"
                     else: print >>file, "net %s <= "% (p)+pinname +".in"
                 # for encoder pins
@@ -1221,7 +1222,8 @@ class Data:
                     if p == "unused-encoder":continue
                     if p in (self.halencoderinputsignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-a","")
+                        sig = p.rstrip("-a")
+                        print >>file, "# ---",sig.upper,"---"
                         print >>file, "net %s <= "% (sig+"-position")+pinname +".position"   
                         print >>file, "net %s <= "% (sig+"-count")+pinname +".count"     
                         print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity"
@@ -1249,6 +1251,7 @@ class Data:
                 if t in (GPIOO,GPIOD):
                     if p == "unused-output":continue
                     pinname = self.make_pinname(self.findsignal( p ))
+                    print >>file, "# ---",p.upper(),"---"
                     print >>file, "    setp "+pinname +".is_output true"
                     print >>file, "net %s => "% (p)+pinname +".out"
                     if i: print >>file, "    setp "+pinname+".invert_output true"
@@ -1258,7 +1261,8 @@ class Data:
                     if p == "unused-pwm":continue
                     if p in (self.halpwmoutputsignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-pulse","")
+                        sig = p.rstrip("-pulse")
+                        print >>file, "# ---",sig.upper(),"---"
                         if t == PWMP:
                             print >>file, "    setp "+pinname +".output-type 1"
                         elif t == PDMP:
@@ -1270,7 +1274,8 @@ class Data:
                     if p == "unused-stepgen":continue
                     if p in (self.halsteppersignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-pulse","")
+                        sig = p.rstrip("-step")
+                        print >>file, "# ---",sig.upper(),"---"
                         print >>file, "net %s <= "% (sig+"-enable")+pinname +".enable"  
                         print >>file, "net %s <= "% (sig+"-count")+pinname +".counts" 
                         print >>file, "net %s <= "% (sig+"-cmd-position")+pinname +".position-cmd"  
@@ -1523,10 +1528,12 @@ class Data:
         if self.axes == 2:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'z')
+            self.connect_axis(file, 2, 's')
         elif self.axes == 0:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
             self.connect_axis(file, 2, 'z')
+            self.connect_axis(file, 3, 's')
         elif self.axes == 1:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
@@ -2620,7 +2627,7 @@ class App:
     def on_mesa_pintype_changed(self, widget,connector,pin):
          
                # if self.in_mesa_prepare == True: return
-                print "got to pintype change method ",connector,pin,"\n"
+               #print "got to pintype change method ",connector,pin,"\n"
          
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
@@ -2704,7 +2711,8 @@ class App:
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
             for pin in range (0,24):
                 firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
-                print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"
+                if connector ==2:
+                    print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"
                 
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
@@ -2758,14 +2766,12 @@ class App:
                         # if the data stored ptype is the encoder family then use the data store signal name
                         if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): 
                             #print self.data[p]
+                            self.widgets[p].set_active(0) 
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_encoder_input_names[hal_encoder_input_names.index(self.data[p])]:
                                     self.widgets[p].set_active(search)
-                                else:
-                                    print "unknown type in component_changed method -encoder\n"  
-                                    self.widgets[p].set_active(0) 
-                                         
+                                    break                                          
                         else:
                             self.data[p] =  UNUSED_ENCODER
                             self.data[ptype] = firmptype
@@ -2814,21 +2820,21 @@ class App:
                         if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
                             if self.data[ptype] in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
                             else:self.widgets[ptype].set_active(1)
-                            #print self.data[p]
+                            print "looking for:",self.data[p]
+                            self.widgets[p].set_active(0)
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]:
                                     self.widgets[p].set_active(search)
-                                else:
-                                    print "unknown type in component_changed method -pwm\n"
-                                    self.widgets[p].set_active(0)    
+                                    print "found:%s"%  human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]
+                                    break    
                         else:
                             self.data[p] =  UNUSED_PWM
                             self.data[ptype] = firmptype
                             self.widgets[p].set_active(0) 
                             if firmptype in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
                             else:self.widgets[ptype].set_active(1) 
-                            #print "changed",p," to PWM "
+                            print "changed",p," to PWM "
                         continue
                     else:
                         #print "asking for GPIO instead of PWM\n"
@@ -2866,6 +2872,7 @@ class App:
                                     self.widgets[ptype].set_sensitive(0) 
                         if self.data[ptype] in (STEPA,STEPB): 
                             self.widgets[ptype].set_active(0)  
+                            self.widgets[p].set_active(0)
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
@@ -2876,7 +2883,7 @@ class App:
                             self.data[ptype] = firmptype
                             self.widgets[p].set_active(0)
                             self.widgets[ptype].set_active(0)
-                            print "changed ",p," to stepgen"
+                            #print "changed ",p," to stepgen"
                         
                         continue
                     else:firmptype = GPIOI
@@ -2884,7 +2891,7 @@ class App:
                 # else has only one pintype in it               
                 if firmptype in (GPIOI,GPIOO,GPIOD):
                     #if self.widgets[ptype].get_active_text()  in (GPIOI,GPIOO,GPIOD): continue
-                    print "converting to GPIO\n"
+                    #print "converting to GPIO\n"
                     self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                     model = self.widgets[ptype].get_model()
                     model.clear()
@@ -2893,7 +2900,7 @@ class App:
                         temp = pintype_names[j]
                         model.append((temp,))
                     self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
-                    print "finished GPIO conversion\n"
+                    #print "finished GPIO conversion\n"
                     self.widgets[ptype].set_sensitive(1)
                     # signal names for GPIO INPUT
                     self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
@@ -2954,14 +2961,14 @@ class App:
                         else:
                             self.data[p] =  UNUSED_STEPGEN
                             self.data[ptype] = firmptype
-                            print "changed ",p," to stepgen"
+                            #print "changed ",p," to stepgen"
                     else:   
                         if self.data[ptype] in (GPIOI,GPIOO,GPIOD) : continue
                         else:
                             self.data[p] =  UNUSED_INPUT
                             self.data[ptype] = GPIOI
                             self.widgets[p].set_sensitive(1)
-                            print"changed",p," to GPIO"
+                            #print"changed",p," to GPIO"
                     self.data.numof_mesa_stepgens = numofstepgens
 
                 # This is for Encoder / GPIO conversion
@@ -2988,14 +2995,14 @@ class App:
                         else:
                             self.data[p] =  UNUSED_PWM
                             self.data[ptype] = firmptype
-                            print "changed",p," to pwm"   
+                            #print "changed",p," to pwm"   
                     else: 
                         if self.data[ptype] in (GPIOI,GPIOO,GPIOD): continue
                         else:
                             self.data[p] =  UNUSED_INPUT
                             self.data[ptype] = GPIOI
                             self.widgets[p].set_sensitive(1)
-                            print"changed",p,"to GPIO"
+                            #print"changed",p,"to GPIO"
                 self.data.numof_mesa_pwmgens = numofpwmgens
 
                 # This is for GPIO only conversion
@@ -3005,7 +3012,7 @@ class App:
                         self.data[p] =  UNUSED_INPUT
                         self.data[ptype] = firmptype
                         self.widgets[p].set_sensitive(1)
-                        print"changed",p,"to GPIO"
+                        #print"changed",p,"to GPIO"
 
         temp = (numofstepgens * self.data.mesa_currentfirmwaredata[6])
         temp1 = (numofencoders * self.data.mesa_currentfirmwaredata[5])
@@ -3026,7 +3033,7 @@ class App:
                 pinchanged =  self.widgets[p].get_active_text() 
                 dataptype = self.data[ptype]
                 used = 0
-                print"pin change method ",ptype," = ",dataptype,"active ",pinchanged,"\n"
+                #print"pin change method ",ptype," = ",dataptype,"active ",pinchanged,"\n"
                 if dataptype in (ENCB,ENCI,ENCM,STEPB,PWMD,PWME,GPIOI,GPIOO,GPIOD):return
                 # for stepgen pins
                 if dataptype == STEPA:
@@ -3679,16 +3686,44 @@ class App:
     def on_aaxistune_clicked(self, *args): self.tune_axis('a')
 
     def on_spindle_prepare(self, *args):
+        d = self.data
+        w = self.widgets
+        test = self.data.findsignal("spindle-stepgen-step")
+        stepdriven = 1
+        if test == "false":stepdriven = 0
+        def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
+        def set_value(n): w[axis + n].set_value(d[axis + n])
+        def set_active(n): w[axis + n].set_active(d[axis + n])
+        
         #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
-        self.widgets['spindlespeed1'].set_text("%s" % self.data.spindlespeed1)
-        self.widgets['spindlespeed2'].set_text("%s" % self.data.spindlespeed2)
-        self.widgets['spindlepwm1'].set_text("%s" % self.data.spindlepwm1)
-        self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
+        w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
+        w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
+        w['spindlepwm1'].set_text("%s" % d.spindlepwm1)
+        w['spindlepwm2'].set_text("%s" % d.spindlepwm2)
         #self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
-        has_spindle_pha = self.data.findsignal("spindle-phase-a")
+        has_spindle_pha = self.data.findsignal("spindle-encoder-a")
         if has_spindle_pha == "false":
-            self.widgets.spindlecpr.set_sensitive(0)
-        else: self.widgets.spindlecpr.set_sensitive(1)        
+            w.sencoderlines.set_sensitive(0)
+            w.sencodercounts.set_sensitive(0)
+        else: 
+            w.sencoderlines.set_sensitive(1) 
+            w.sencodercounts.set_sensitive(1)  
+        w.sP.set_sensitive(not stepdriven)
+        w.sI.set_sensitive(not stepdriven)
+        w.sD.set_sensitive(not stepdriven)
+        w.sFF0.set_sensitive(not stepdriven)
+        w.sFF1.set_sensitive(not stepdriven)
+        w.sFF2.set_sensitive(not stepdriven)
+        w.sbias.set_sensitive(not stepdriven)
+        w.sdeadband.set_sensitive(not stepdriven)
+        w.ssteptime.set_sensitive(stepdriven)
+        w.sstepspace.set_sensitive(stepdriven)
+        w.sdirhold.set_sensitive(stepdriven)
+        w.sdirsetup.set_sensitive(stepdriven)
+        w.ssteprev.set_sensitive(stepdriven)
+        w.smicrostep.set_sensitive(stepdriven)
+        w.sdrivertype.set_sensitive(stepdriven)
+             
 
     def on_spindle_next(self, *args):
         #self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
@@ -3707,7 +3742,7 @@ class App:
         return True
 
     def has_spindle_speed_control(self):
-        for test in ("spindle-pwm", "spindle-pwm-pulse", "spindle-phase-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake"):
+        for test in ("spindle-pwm", "spindle-pwm-pulse", "spindle-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake"):
             has_spindle = self.data.findsignal(test)
             if not has_spindle == "false":
                 return True

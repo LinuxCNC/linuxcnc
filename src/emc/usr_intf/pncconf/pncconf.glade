@@ -1216,7 +1216,7 @@ shared with home</property>
                           <widget class="GtkLabel" id="label413">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Operator Panel&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Virtual Control Panel&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </widget>
                           <packing>
@@ -17017,7 +17017,7 @@ Type 2</property>
                       <widget class="GtkHBox" id="hbox14">
                         <property name="visible">True</property>
                         <child>
-                          <widget class="GtkFrame" id="xservo_info1">
+                          <widget class="GtkFrame" id="sservo_info">
                             <property name="visible">True</property>
                             <property name="label_xalign">0</property>
                             <child>
@@ -17040,7 +17040,7 @@ Type 2</property>
                                       <placeholder/>
                                     </child>
                                     <child>
-                                      <widget class="GtkButton" id="xaxistest1">
+                                      <widget class="GtkButton" id="saxistest">
                                         <property name="width_request">120</property>
                                         <property name="height_request">80</property>
                                         <property name="visible">True</property>
@@ -17110,7 +17110,7 @@ Test</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <widget class="GtkLabel" id="xencodercounts1">
+                                          <widget class="GtkLabel" id="sencodercounts">
                                             <property name="width_request">100</property>
                                             <property name="visible">True</property>
                                             <property name="label" translatable="yes">label</property>
@@ -17130,7 +17130,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xencoderlines1">
+                                      <widget class="GtkEntry" id="sencoderlines">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17161,7 +17161,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xoutputoffset1">
+                                      <widget class="GtkEntry" id="soutputoffset">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17192,7 +17192,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xmaxoutput1">
+                                      <widget class="GtkEntry" id="smaxoutput">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17223,7 +17223,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xoutputscale1">
+                                      <widget class="GtkEntry" id="soutputscale">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17261,7 +17261,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xFF5">
+                                      <widget class="GtkSpinButton" id="sFF2">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17278,7 +17278,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xFF4">
+                                      <widget class="GtkSpinButton" id="sFF1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17296,11 +17296,11 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xFF3">
+                                      <widget class="GtkSpinButton" id="sFF0">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
-                                        <property name="adjustment">0 0 10000 1 10 10</property>
+                                        <property name="adjustment">2 0 10000 1 10 10</property>
                                         <property name="digits">2</property>
                                       </widget>
                                       <packing>
@@ -17352,7 +17352,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xdeadband1">
+                                      <widget class="GtkSpinButton" id="sdeadband">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17369,7 +17369,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xbias1">
+                                      <widget class="GtkSpinButton" id="sbias">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17449,7 +17449,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xP1">
+                                      <widget class="GtkSpinButton" id="sP">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17464,7 +17464,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xI1">
+                                      <widget class="GtkSpinButton" id="sI">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17481,7 +17481,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xD1">
+                                      <widget class="GtkSpinButton" id="sD">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">0.5</property>
@@ -17519,7 +17519,7 @@ Test</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkFrame" id="xstepper_info1">
+                          <widget class="GtkFrame" id="sstepper_info">
                             <property name="visible">True</property>
                             <property name="label_xalign">0</property>
                             <child>
@@ -17565,7 +17565,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xsteptime1">
+                                      <widget class="GtkSpinButton" id="ssteptime">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">0 0 50000 1 10 10</property>
@@ -17580,7 +17580,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xstepspace1">
+                                      <widget class="GtkSpinButton" id="sstepspace">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">0 0 50000 1 10 10</property>
@@ -17621,7 +17621,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xdirhold1">
+                                      <widget class="GtkSpinButton" id="sdirhold">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">0 0 200000 1 10 10</property>
@@ -17636,7 +17636,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkSpinButton" id="xdirsetup1">
+                                      <widget class="GtkSpinButton" id="sdirsetup">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="adjustment">0 0 200000 1 10 10</property>
@@ -17681,7 +17681,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xsteprev1">
+                                      <widget class="GtkEntry" id="ssteprev">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17696,7 +17696,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkEntry" id="xmicrostep1">
+                                      <widget class="GtkEntry" id="smicrostep">
                                         <property name="width_request">75</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -17725,7 +17725,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkComboBox" id="xdrivertype1">
+                                      <widget class="GtkComboBox" id="sdrivertype">
                                         <property name="width_request">120</property>
                                         <property name="visible">True</property>
                                         <property name="items"></property>
@@ -17789,7 +17789,7 @@ Test</property>
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="xaccunits1">
+                              <widget class="GtkLabel" id="saccunits">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">mm / s²</property>
@@ -17804,7 +17804,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="xvelunits1">
+                              <widget class="GtkLabel" id="svelunits">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">mm / s</property>
@@ -17819,7 +17819,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkEntry" id="xmaxacc1">
+                              <widget class="GtkEntry" id="smaxacc">
                                 <property name="width_request">35</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -17834,7 +17834,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkEntry" id="xmaxvel1">
+                              <widget class="GtkEntry" id="smaxvel">
                                 <property name="width_request">35</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -17883,7 +17883,7 @@ Test</property>
                               <widget class="GtkHBox" id="hbox65">
                                 <property name="visible">True</property>
                                 <child>
-                                  <widget class="GtkEntry" id="xpulleyden1">
+                                  <widget class="GtkEntry" id="spulleyden">
                                     <property name="width_request">35</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -17907,7 +17907,7 @@ Test</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="xpulleynum1">
+                                  <widget class="GtkEntry" id="spulleynum">
                                     <property name="width_request">35</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -17972,7 +17972,7 @@ Test</property>
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkCheckButton" id="xinvertencoder1">
+                              <widget class="GtkCheckButton" id="sinvertencoder">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="label" translatable="yes">Invert Encoder Direction </property>
@@ -17987,7 +17987,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkCheckButton" id="xinvertmotor1">
+                              <widget class="GtkCheckButton" id="sinvertmotor">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="label" translatable="yes">Invert Motor Direction</property>
@@ -18014,7 +18014,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="xmaxfollowunits1">
+                              <widget class="GtkLabel" id="smaxfollowunits">
                                 <property name="width_request">50</property>
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
@@ -18028,7 +18028,7 @@ Test</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkEntry" id="xmaxferror1">
+                              <widget class="GtkEntry" id="smaxferror">
                                 <property name="width_request">75</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -18167,7 +18167,7 @@ Test</property>
                                       <placeholder/>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xscale1">
+                                      <widget class="GtkLabel" id="sscale">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">1</property>
@@ -18228,7 +18228,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xhz1">
+                                      <widget class="GtkLabel" id="shz">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">1</property>
@@ -18247,7 +18247,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xacctime1">
+                                      <widget class="GtkLabel" id="sacctime">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="xalign">1</property>
@@ -18294,7 +18294,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xscaleunits1">
+                                      <widget class="GtkLabel" id="sscaleunits">
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
                                         <property name="label" translatable="yes">Steps / mm</property>
@@ -18322,7 +18322,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xchartresolution1">
+                                      <widget class="GtkLabel" id="schartresolution">
                                         <property name="width_request">100</property>
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
@@ -18337,7 +18337,7 @@ Test</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <widget class="GtkLabel" id="xresolutionunits2">
+                                      <widget class="GtkLabel" id="sresolutionunits">
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
                                         <property name="label" translatable="yes">mm / encoder pulse</property>
@@ -18473,7 +18473,7 @@ Test</property>
                               </widget>
                             </child>
                             <child>
-                              <widget class="GtkButton" id="xaxistune1">
+                              <widget class="GtkButton" id="saxistune">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
@@ -19457,70 +19457,58 @@ program</property>
                           <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="addcomp5">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">15</property>
-                            <property name="bottom_attach">16</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                            <property name="y_options"></property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="addcomp4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">14</property>
-                            <property name="bottom_attach">15</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="addcomp3">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">13</property>
-                            <property name="bottom_attach">14</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="addcomp2">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">12</property>
-                            <property name="bottom_attach">13</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkEntry" id="addcomp1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">11</property>
-                            <property name="bottom_attach">12</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                         <child>
                           <widget class="GtkLabel" id="label177">
@@ -19745,188 +19733,296 @@ program</property>
                             <property name="y_options">GTK_EXPAND</property>
                           </packing>
                         </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">11</property>
-                            <property name="bottom_attach">12</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp2">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">12</property>
-                            <property name="bottom_attach">13</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp3">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">13</property>
-                            <property name="bottom_attach">14</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">14</property>
-                            <property name="bottom_attach">15</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp5">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">15</property>
-                            <property name="bottom_attach">16</property>
-                            <property name="x_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed1">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">11</property>
-                            <property name="bottom_attach">12</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed2">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">12</property>
-                            <property name="bottom_attach">13</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed3">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">13</property>
-                            <property name="bottom_attach">14</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed4">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">14</property>
-                            <property name="bottom_attach">15</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed5">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">15</property>
-                            <property name="bottom_attach">16</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkExpander" id="add to thread 6">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <child>
-                              <widget class="GtkTextView" id="addcomp6">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label6">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Add to thread command</property>
-                              </widget>
-                              <packing>
-                                <property name="type">label_item</property>
-                              </packing>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">16</property>
-                            <property name="bottom_attach">17</property>
-                            <property name="x_options">GTK_FILL</property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkComboBox" id="threadspeed6">
-                            <property name="visible">True</property>
-                            <property name="items" translatable="yes">fast (base)
-slow (servo)</property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">2</property>
-                            <property name="right_attach">3</property>
-                            <property name="top_attach">16</property>
-                            <property name="bottom_attach">17</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkEntry" id="loadcomp6">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                          </widget>
-                          <packing>
-                            <property name="top_attach">16</property>
-                            <property name="bottom_attach">17</property>
-                            <property name="x_options"></property>
-                            <property name="y_options"></property>
-                          </packing>
-                        </child>
                       </widget>
                     </child>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkAlignment" id="alignment17">
+                    <property name="visible">True</property>
+                    <property name="xalign">0</property>
+                    <property name="xscale">0</property>
+                    <child>
+                      <widget class="GtkExpander" id="expander1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <child>
+                          <widget class="GtkTable" id="table31">
+                            <property name="visible">True</property>
+                            <property name="n_rows">7</property>
+                            <property name="n_columns">3</property>
+                            <child>
+                              <widget class="GtkLabel" id="label417">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Thread Speed</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label416">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Add to Thread Cmnd</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label415">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Load Component Cmnd </property>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed6">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed5">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed4">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed3">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed2">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkTextView" id="addcomp6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="addcomp5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="addcomp4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="addcomp3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="addcomp2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp3">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkComboBox" id="threadspeed1">
+                                <property name="visible">True</property>
+                                <property name="items" translatable="yes">fast (base)
+slow (servo)</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="addcomp1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkEntry" id="loadcomp1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_EXPAND</property>
+                              </packing>
+                            </child>
+                          </widget>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label414">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Custom Components Commands&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </widget>
+                          <packing>
+                            <property name="type">label_item</property>
+                          </packing>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </widget>
