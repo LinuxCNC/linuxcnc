@@ -678,6 +678,7 @@ static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
     RCS_STAT_CHANNEL *s =
         new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
     if(!c) {
+	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
     }
