@@ -44,10 +44,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef ULAPI
-#error This is a user mode component only!
-#endif
-
 #include "config.h"
 #include <locale.h>
 #include <libintl.h>

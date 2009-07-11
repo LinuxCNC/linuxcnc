@@ -273,10 +273,6 @@
 
 ****************************************************************************/
 
-#ifndef ULAPI
-#error This is a user mode component only!
-#endif
-
 #include "config.h"
 
 #define _REENTRANT

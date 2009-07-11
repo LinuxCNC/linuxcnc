@@ -17,11 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
 #define HM2_7I43_VERSION "0.3"
 
 #define HM2_LLIO_NAME "hm2_7i43"

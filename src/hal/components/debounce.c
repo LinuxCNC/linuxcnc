@@ -40,10 +40,6 @@
 *
 ********************************************************************/
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */

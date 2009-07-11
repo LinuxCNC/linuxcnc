@@ -111,11 +111,6 @@
  *
  ******************************************************************************/
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
 #include <linux/pci.h>
 
 #include "rtapi.h"			// RTAPI realtime OS API.
@@ -124,13 +119,6 @@
 #include "plx9030.h"			// Hardware dependent defines.
 #include "m5i20.h"			// Hardware dependent defines.
 
-
-#ifndef MODULE
-#define MODULE
-#endif
-
-
-#ifdef MODULE
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Mesa Electronics 5i20 for EMC HAL");
@@ -139,7 +127,6 @@ static unsigned long			loadFpga = 1;
 RTAPI_MP_LONG(loadFpga, "Set to have FPGA configuration loaded");
 static unsigned long			dacRate = 32000;// PWM rate in Hz. 1 Hz to 32 KHz.
 RTAPI_MP_LONG(dacRate, "DAC PWM rate");
-#endif // MODULE
 
 
 /******************************************************************************

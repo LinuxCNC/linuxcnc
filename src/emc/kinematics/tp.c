@@ -11,11 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#ifdef ULAPI
-#include <stdio.h>
-#include <stdlib.h>
-#endif
-
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "rtapi_string.h"       /* NULL */
 #include "posemath.h"

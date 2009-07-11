@@ -5,6 +5,9 @@
 class Interp {
 
 public:
+ Interp();
+ ~Interp();
+
 /* Interface functions to call to tell the interpreter what to do.
    Return values indicate status of execution.
    These functions may change the state of the interpreter. */

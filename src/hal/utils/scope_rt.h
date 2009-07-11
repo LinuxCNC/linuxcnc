@@ -36,10 +36,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI )
-#error This file needs RTAPI!
-#endif
-
 /* import the shared declarations */
 #include "scope_shm.h"
 
