@@ -63,22 +63,9 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
-#error parport needs RTAPI/ULAPI, check makefile and flags
-#endif
-
-#ifdef RTAPI			/* realtime */
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#else /* user space */
-#include <ctype.h>		/* isspace() */
-#include <signal.h>		/* signal() */
-#include <sched.h>		/* sched_yield() */
-#include <sys/io.h>		/* iopl() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#endif
-
 #include "hal.h"		/* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
@@ -90,13 +77,9 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
-#endif
 
-#ifdef RTAPI			/* realtime */
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Martin Kuhnle");
 MODULE_DESCRIPTION("SIEMENS-EVOREG Driver for EMC HAL");
@@ -104,8 +87,6 @@ MODULE_LICENSE("GPL");
 /* static char *cfg = 0; */
 /* config string
 RTAPI_MP_STRING(cfg, "config string"); */
-#endif /* MODULE */
-#endif /* RTAPI */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -148,7 +129,6 @@ static void update_port(void *arg, long period);
 #define MAX_PORTS 8
 #define MAX_DAC 3               /* number of DACs per card */
 #define MAX_ENC 3               /* number of Encoders per card */
-#ifdef RTAPI			/* realtime part of EVOREG driver */
 
 #define MAX_TOK ((MAX_PORTS*2)+3)
 
@@ -297,10 +277,6 @@ void rtapi_app_exit(void)
     outw(0x0,0x300);
     hal_exit(comp_id);
 }
-
-#else /* !RTAPI - non-realtime version would go here */
-
-#endif /* !RTAPI */
 
 /**************************************************************
 * REALTIME PORT WRITE FUNCTION                                *

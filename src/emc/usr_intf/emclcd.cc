@@ -542,6 +542,7 @@ static int loadFiles()
         }
       }
     }
+  closedir(dp);
   return 0;
 }
 

@@ -57,10 +57,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -70,17 +66,9 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
-#endif
 
-
-#ifndef MODULE
-#define MODULE
-#endif
-
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Tiro-PC104 board for EMC HAL");
@@ -89,7 +77,6 @@ static int base = 0x300;	/* board base address */
 RTAPI_MP_INT(base, "board base address");
 static int num_chan = 4;	/* number of channels - default = 4 */
 RTAPI_MP_INT(num_chan, "number of channels");
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

@@ -210,13 +210,6 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 	}
 }
 
-void DumpVars(void)
-{
-	int NumVar;
-	for (NumVar=0; NumVar<20; NumVar++)
-		debug_printf("Var %d=%d\n",NumVar,ReadVar(VAR_MEM_BIT,NumVar));
-}
-
 /* these are only useful for the MAT-connected version */
 void DoneVars(void) {}
 void CycleStart(void) {}

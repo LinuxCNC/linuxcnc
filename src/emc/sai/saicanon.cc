@@ -692,9 +692,6 @@ void INIT_CANON()
 void MESSAGE(char *s)
 {PRINT1("MESSAGE(\"%s\")\n", s);}
 
-void SYSTEM(char *s)
-{PRINT1("SYSTEM(\"%s\")\n", s);}
-
 void LOG(char *s)
 {PRINT1("LOG(\"%s\")\n", s);}
 void LOGOPEN(char *s)
@@ -804,12 +801,6 @@ double GET_EXTERNAL_FEED_RATE()
 int GET_EXTERNAL_FLOOD()
 {
   return _flood;
-}
-
-/* Returns the system length unit factor, in units per mm */
-extern double GET_EXTERNAL_LENGTH_UNIT_FACTOR()
-{
-  return 1/_length_unit_factor;
 }
 
 /* Returns the system length unit type */

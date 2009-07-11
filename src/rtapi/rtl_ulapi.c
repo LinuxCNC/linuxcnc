@@ -55,10 +55,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef ULAPI
-#error ULAPI must be defined to compile rtl_ulapi.c!
-#endif
-
 #include <stdio.h>		/* sprintf() */
 #include <string.h>		/* strcpy, etc. */
 #include <stdarg.h>		/* va_arg, etc. */

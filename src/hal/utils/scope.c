@@ -34,10 +34,6 @@ static char *license = \
     information, go to www.linuxcnc.org.\n\
 ";
 
-#ifndef ULAPI
-#error This is a user mode component only!
-#endif
-
 #include "config.h"
 #include <locale.h>
 #include <libintl.h>
