@@ -1134,11 +1134,6 @@ void STOP_SPEED_FEED_SYNCH()
     synched = 0;
 }
 
-void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
-{
-    // nothing need be done here
-}
-
 /* Machining Functions */
 
 static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
@@ -2478,13 +2473,6 @@ double GET_EXTERNAL_PROBE_VALUE()
 {
     // only for analog non-contact probe, so force a 0
     return 0.0;
-}
-
-int IS_EXTERNAL_QUEUE_EMPTY()
-{
-    flush_segments();
-
-    return emcStatus->motion.traj.queue == 0 ? 1 : 0;
 }
 
 // feed rate wanted is in program units per minute
