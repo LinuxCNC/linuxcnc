@@ -332,7 +332,6 @@ void SET_XY_ROTATION(double t) {
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
-void SET_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 
 void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();   
@@ -413,15 +412,6 @@ void MESSAGE(char *comment) {
 void LOG(char *s) {}
 void LOGOPEN(char *f) {}
 void LOGCLOSE() {}
-
-void SYSTEM(char *comment) {
-    maybe_new_line();   
-    if(interp_error) return;
-    PyObject *result =
-        PyObject_CallMethod(callback, "system", "s", comment);
-    if(result == NULL) interp_error ++;
-    Py_XDECREF(result);
-}
 
 void COMMENT(char *comment) {
     maybe_new_line();   
