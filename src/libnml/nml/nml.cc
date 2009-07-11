@@ -2093,20 +2093,6 @@ static int info_message_printed = 0;
 char cwd_buf[256];
 char host_name_buf[MAXHOSTNAMELEN];
 
-const char *get_ip_address(char *hostname)
-{
-    struct sockaddr_in socket_address;
-    /* Get the IP address of the server using it's BufferHost. */
-    struct hostent *host_entry;
-    host_entry = gethostbyname(hostname);
-    if (NULL == host_entry) {
-	return "UNKNOWN";
-    }
-    socket_address.sin_addr.s_addr = *((int *) host_entry->h_addr_list[0]);
-    socket_address.sin_family = host_entry->h_addrtype;
-    return inet_ntoa(socket_address.sin_addr);
-}
-
 char last_bufname[10];
 char last_procname[10];
 char last_cfg_file[40];
