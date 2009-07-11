@@ -1087,24 +1087,9 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
     interp_list.append(setTermCondMsg);
 }
 
-CANON_MOTION_MODE GET_MOTION_CONTROL_MODE()
-{
-    return canonMotionMode;
-}
-
-double GET_MOTION_CONTROL_TOLERANCE()
-{
-    return canonMotionTolerance;
-}
-
 void SET_NAIVECAM_TOLERANCE(double tolerance)
 {
     canonNaivecamTolerance =  FROM_PROG_LEN(tolerance);
-}
-
-double GET_NAIVECAM_TOLERANCE()
-{
-    return canonNaivecamTolerance;
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
@@ -2295,17 +2280,6 @@ void PROGRAM_END()
     interp_list.append(endMsg);
 }
 
-/* returns the current active units */
-CANON_UNITS GET_LENGTH_UNITS()
-{
-    return lengthUnits;
-}
-
-CANON_PLANE GET_PLANE()
-{
-    return activePlane;
-}
-
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
     return TO_PROG_LEN(currentXToolOffset);
@@ -2313,10 +2287,6 @@ double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
     return TO_PROG_LEN(currentZToolOffset);
-}
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
-{
-    return TO_PROG_LEN(currentWToolOffset);
 }
 
 /*
@@ -2574,11 +2544,6 @@ double GET_EXTERNAL_ANGLE_UNITS(void)
     }
 }
 
-int GET_EXTERNAL_TOOL()
-{
-    return emcStatus->io.tool.toolInSpindle;
-}
-
 int GET_EXTERNAL_MIST()
 {
     return emcStatus->io.coolant.mist;
@@ -2587,11 +2552,6 @@ int GET_EXTERNAL_MIST()
 int GET_EXTERNAL_FLOOD()
 {
     return emcStatus->io.coolant.flood;
-}
-
-int GET_EXTERNAL_POCKET()
-{
-    return emcStatus->io.tool.toolPrepped;
 }
 
 double GET_EXTERNAL_SPEED()
