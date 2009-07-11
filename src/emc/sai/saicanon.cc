@@ -803,12 +803,6 @@ int GET_EXTERNAL_FLOOD()
   return _flood;
 }
 
-/* Returns the system length unit factor, in units per mm */
-extern double GET_EXTERNAL_LENGTH_UNIT_FACTOR()
-{
-  return 1/_length_unit_factor;
-}
-
 /* Returns the system length unit type */
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE()
 {
