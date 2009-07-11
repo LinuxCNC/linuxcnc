@@ -3023,33 +3023,6 @@ void Togl_SetClientData( struct Togl *togl, ClientData clientData )
 
 
 
-/*
- * X11-only functions
- * Contributed by Miguel A. De Riera Pasenau (miguel@DALILA.UPC.ES)
- */
-
-Display* Togl_Display( const struct Togl *togl)
-{
-   return Tk_Display(togl->TkWin);
-}
-
-Screen* Togl_Screen( const struct Togl *togl)
-{
-   return Tk_Screen(togl->TkWin);
-}
-
-int Togl_ScreenNumber( const struct Togl *togl)
-{
-   return Tk_ScreenNumber(togl->TkWin);
-}
-
-Colormap Togl_Colormap( const struct Togl *togl)
-{
-   return Tk_Colormap(togl->TkWin);
-}
-
-
-
 #ifdef MESA_COLOR_HACK
 /*
  * Let's know how many free colors do we have
