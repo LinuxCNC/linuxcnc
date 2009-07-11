@@ -96,6 +96,17 @@ extern char * _rs274ngc_errors[];
 
 #define LOG_FILE &_setup.log_file[0]
 
+Interp::Interp() 
+    : log_file(0)
+{}
+
+Interp::~Interp() {
+    if(log_file) {
+	fclose(log_file);
+	log_file = 0;
+    }
+}
+
 void Interp::doLog(char *fmt, ...)
 {
 #ifdef LOG_FILE
