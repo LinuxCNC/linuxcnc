@@ -113,10 +113,8 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         // set units
         if(jointType == EMC_LINEAR){
             units = emcTrajGetLinearUnits();
-            jointIniFile->FindLinearUnits(&units, "UNITS", jointString);
         }else{
             units = emcTrajGetAngularUnits();
-            jointIniFile->FindAngularUnits(&units, "UNITS", jointString);
         }
         if (0 != emcJointSetUnits(joint, units)) {
             return -1;
