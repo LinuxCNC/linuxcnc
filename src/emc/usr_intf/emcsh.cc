@@ -1564,7 +1564,7 @@ static int emc_joint_limit(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
 	    Tcl_SetResult(interp,
 			  "emc_joint_limit: joint out of bounds",
 			  TCL_VOLATILE);
@@ -1612,7 +1612,7 @@ static int emc_joint_fault(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
 	    Tcl_SetResult(interp,
 			  "emc_joint_fault: joint out of bounds",
 			  TCL_VOLATILE);
@@ -1699,7 +1699,7 @@ static int emc_joint_homed(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
 	    Tcl_SetResult(interp,
 			  "emc_joint_homed: joint out of bounds",
 			  TCL_VOLATILE);
@@ -2269,7 +2269,7 @@ static int emc_joint_type(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
 	    Tcl_SetResult(interp,
 			  "emc_joint_type: joint out of bounds",
 			  TCL_VOLATILE);
@@ -2314,7 +2314,7 @@ static int emc_joint_units(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_AXIS_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_AXIS) {
 	    Tcl_SetResult(interp,
 			  "emc_joint_type: joint out of bounds",
 			  TCL_VOLATILE);
@@ -2999,7 +2999,7 @@ static int emc_axis_backlash(ClientData clientdata,
     }
     // get axis number
     if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
+	axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	Tcl_SetResult(interp,
 		      "emc_axis_backlash: need axis as integer, 0..EMC_AXIS_MAX-1",
 		      TCL_VOLATILE);
@@ -3042,7 +3042,7 @@ static int emc_axis_enable(ClientData clientdata,
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
+	axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	Tcl_SetResult(interp,
 		      "emc_axis_enable: need axis as integer, 0..EMC_AXIS_MAX-1",
 		      TCL_VOLATILE);
@@ -3085,7 +3085,7 @@ static int emc_axis_load_comp(ClientData clientdata,
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &axis) ||
-	axis < 0 || axis >= EMC_AXIS_MAX) {
+	axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	Tcl_SetResult(interp,
 		      "emc_axis_load_comp: need axis as integer, 0..EMC_AXIS_MAX-1",
 		      TCL_VOLATILE);

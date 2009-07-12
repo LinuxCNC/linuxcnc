@@ -445,7 +445,7 @@ static double convertAngularUnits(double u)
 #endif
 
 // polarities for axis jogging, from ini file
-static int jogPol[EMC_AXIS_MAX];
+static int jogPol[EMCMOT_MAX_AXIS];
 
 int sendDebug(int level)
 {
@@ -601,7 +601,7 @@ int sendJogStop(int axis)
     // (hint TELEOP mode is for nontrivial kinematics)
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
     }
 
@@ -640,7 +640,7 @@ int sendJogCont(int axis, double speed)
     EMC_AXIS_JOG emc_axis_jog_msg;
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
     }
 
@@ -694,7 +694,7 @@ int sendJogIncr(int axis, double speed, double incr)
 {
     EMC_AXIS_INCR_JOG emc_axis_incr_jog_msg;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
     }
 
@@ -1368,7 +1368,7 @@ int iniLoad(const char *filename)
 	// not found, use default
     }
 
-    for (t = 0; t < EMC_AXIS_MAX; t++) {
+    for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	jogPol[t] = 1;		// set to default
 	sprintf(displayString, "AXIS_%d", t);
 	if (NULL != (inistring =

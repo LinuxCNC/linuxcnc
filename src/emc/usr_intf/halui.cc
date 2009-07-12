@@ -1321,7 +1321,7 @@ static int sendJogStop(int axis)
     if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
 	return -1;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
     }
 
@@ -1348,7 +1348,7 @@ static int sendJogCont(int axis, double speed)
     if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
 	return -1;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
     }
 

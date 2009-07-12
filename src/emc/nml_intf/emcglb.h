@@ -23,8 +23,6 @@
 extern "C" {
 #endif
 
-#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
-
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
 
@@ -63,8 +61,8 @@ extern "C" {
     extern double TRAJ_DEFAULT_VELOCITY;
     extern double TRAJ_MAX_VELOCITY;
 
-    extern double AXIS_MAX_VELOCITY[EMC_AXIS_MAX];
-    extern double AXIS_MAX_ACCELERATION[EMC_AXIS_MAX];
+    extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
+    extern double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS];
 
     extern struct EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;

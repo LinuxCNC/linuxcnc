@@ -292,7 +292,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 int emcAxisSetMaxAcceleration(int axis, double acc)
 {
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
     if (acc < 0.0) {
