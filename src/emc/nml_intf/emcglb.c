@@ -38,12 +38,12 @@ char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 double traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
 double traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
 
-double AXIS_MAX_VELOCITY[EMC_JOINT_MAX] = { 1.0 }; // XXX?
-double JOINT_MAX_VELOCITY[EMC_JOINT_MAX] = { 1.0 };	/*! \todo FIXME - I think
+double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS] = { 1.0 }; // XXX?
+double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS] = { 1.0 };	/*! \todo FIXME - I think
 							   these should be
 							   0.0 */
-double AXIS_MAX_ACCELERATION[EMC_JOINT_MAX] = { 1.0 };
-double JOINT_MAX_ACCELERATION[EMC_JOINT_MAX] = { 1.0 };
+double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS] = { 1.0 };
+double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS] = { 1.0 };
 
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
@@ -56,11 +56,11 @@ void emcInitGlobals()
 {
     int t;
 
-    for (t = 0; t < EMC_JOINT_MAX; t++) {
+    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	JOINT_MAX_VELOCITY[t] = DEFAULT_JOINT_MAX_VELOCITY;
     }
 
-    for (t = 0; t < EMC_AXIS_MAX; t++) {
+    for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	AXIS_MAX_VELOCITY[t] = DEFAULT_AXIS_MAX_VELOCITY;
     }
 }
