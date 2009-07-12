@@ -231,7 +231,9 @@ def prologue(f):
         sys.argv[0], time.asctime())
     print >> f, """\
 #include "rtapi.h"
+#ifdef RTAPI
 #include "rtapi_app.h"
+#endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
@@ -254,12 +256,12 @@ static int comp_id;
         if not v: continue
         v = ":".join(map(str, v))
         print >>f, "MODULE_INFO(emc2, %s);" % q(v)
+        license = finddoc('license')
+        if license and license[1]:
+            print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
     print >>f, "#endif // MODULE_INFO"
     print >>f
 
-    license = finddoc('license')    
-    if license and license[1]:
-        print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
 
     has_data = options.get("data")
 
@@ -869,16 +871,23 @@ def process(filename, mode, outfilename):
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
-        if "FUNCTION" in b:
+
+        if options.get("userspace"):
+            if functions:
+                raise SystemExit, "May not specify functions with a userspace component."
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
-        elif len(functions) == 1:
-            f.write("FUNCTION(%s) {\n" % functions[0][0])
-            f.write("#line %d \"%s\"\n" % (lineno, filename))
-            f.write(b)
-            f.write("}\n")
         else:
-            raise SystemExit, "Must use FUNCTION() when more than one function is defined"
+            if "FUNCTION" in b:
+                f.write("#line %d \"%s\"\n" % (lineno, filename))
+                f.write(b)
+            elif len(functions) == 1:
+                f.write("FUNCTION(%s) {\n" % functions[0][0])
+                f.write("#line %d \"%s\"\n" % (lineno, filename))
+                f.write(b)
+                f.write("}\n")
+            else:
+                raise SystemExit, "Must use FUNCTION() when more than one function is defined"
         epilogue(f)
         f.close()
 
