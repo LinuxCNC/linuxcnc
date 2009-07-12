@@ -75,10 +75,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI )
-#error parport needs RTAPI, check makefile and flags
-#endif
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 
@@ -93,12 +89,9 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#ifdef RTAPI			/* for ULAPI, sys/io.h defines these functs */
 #include <asm/io.h>
 #endif
-#endif
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Martin Kuhnle");
 MODULE_DESCRIPTION("Test Driver for ISA-LED Board for EMC HAL");
@@ -106,7 +99,6 @@ MODULE_LICENSE("GPL");
 /* static char *cfg = 0; */
 /* config string
 RTAPI_MP_STRING(cfg, "config string"); */
-#endif /* MODULE */
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

@@ -2883,8 +2883,6 @@ static int iniLoad(const char *filename)
     return 0;
 }
 
-static EMC_STAT last_emc_status;
-
 /*
   syntax: a.out {-d -ini <inifile>} {-nml <nmlfile>} {-shm <key>}
   */
@@ -3068,33 +3066,7 @@ int main(int argc, char *argv[])
 	    emcStatus->status = RCS_EXEC;
 	    emcStatus->task.status = RCS_EXEC;
 	}
-	// ignore state, line, source_line, and source_file[] since they're
-	// N/A
 
-	// Check for some error/warning conditions and warn the operator.
-	// The GUI would be a better place to check these but we will have
-	// lot's
-	// of gui's and some will neglect to check these flags.
-	for (int i = 0; i < EMC_JOINT_MAX; i++) {
-	    if (last_emc_status.motion.joint[i].minSoftLimit == 0
-		&& emcStatus->motion.joint[i].minSoftLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Minimum Software Limit on joint %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.joint[i].minSoftLimit =
-		emcStatus->motion.joint[i].minSoftLimit;
-	    if (last_emc_status.motion.joint[i].maxSoftLimit == 0
-		&& emcStatus->motion.joint[i].maxSoftLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Maximum Software Limit on joint %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.joint[i].maxSoftLimit =
-		emcStatus->motion.joint[i].maxSoftLimit;
-	}
 	// write it
 	// since emcStatus was passed to the WM init functions, it
 	// will be updated in the _update() functions above. There's

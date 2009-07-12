@@ -373,14 +373,6 @@ static PyMemberDef Stat_members[] = {
     {NULL}
 };
 
-static PyObject *uchar_array(unsigned char *arr, int sz) {
-    PyObject *res = PyTuple_New(sz);
-    for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(arr[i]));
-    }
-    return res;
-}
-
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
@@ -678,6 +670,7 @@ static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
     RCS_STAT_CHANNEL *s =
         new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
     if(!c) {
+	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
     }

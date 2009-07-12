@@ -122,11 +122,6 @@
  *
  ******************************************************************************/
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
 #include <linux/pci.h>
 
 #include "rtapi.h"			// RTAPI realtime OS API.
@@ -134,18 +129,10 @@
 #include "hal.h"			// HAL public API decls.
 #include "motenc.h"			// Hardware dependent defines.
 
-
-#ifndef MODULE
-#define MODULE
-#endif
-
-
-#ifdef MODULE
 // Module information.
 MODULE_AUTHOR("Pete Vavaroutsos");
 MODULE_DESCRIPTION("Driver for Vital Systems MOTENC-100 for EMC HAL");
 MODULE_LICENSE("GPL");
-#endif // MODULE
 
 
 /******************************************************************************

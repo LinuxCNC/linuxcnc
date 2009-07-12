@@ -445,7 +445,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
+	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
 
         # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
@@ -465,7 +465,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) Makefile.modinc $(DESTDIR)/etc/emc2
+	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/emc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(libdir)/emc/tcl
 	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)

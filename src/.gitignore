@@ -9,7 +9,6 @@ config.status
 objects
 depends
 autom4te.cache
-depend.sh
 Module.symvers
 config.status.lineno
 tags

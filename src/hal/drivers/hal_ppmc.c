@@ -59,10 +59,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include <linux/slab.h>		/* kmalloc() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -72,7 +68,6 @@
 
 #define	EPSILON		1e-20
 
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
@@ -90,7 +85,6 @@ int extradout[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
 RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out modules");
-#endif /* MODULE */
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *

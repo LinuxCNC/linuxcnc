@@ -59,10 +59,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef RTAPI
-#error RTAPI must be defined to compile rtai_rtapi.c!
-#endif
-
 #include <stdarg.h>		/* va_* */
 #include <linux/module.h>
 #include <linux/kernel.h>

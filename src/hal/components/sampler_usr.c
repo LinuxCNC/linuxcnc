@@ -59,10 +59,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#ifndef ULAPI
-#error This is a user mode component only!
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>

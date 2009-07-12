@@ -212,27 +212,6 @@ int iniGetFloatPrec(const char *str)
 	INIFILE_MIN_FLOAT_PRECISION ? prec : INIFILE_MIN_FLOAT_PRECISION;
 }
 
-int iniFormatFloat(char *fmt, const char *var, const char *val)
-{
-    sprintf(fmt, "%s = %%.%df\n", var, iniGetFloatPrec(val));
-
-    return 0;
-}
-
-// 'val' in this case is a string with a pair of floats, the first
-// which sets the precision
-int iniFormatFloat2(char *fmt, const char *var, const char *val)
-{
-    int prec;
-
-    /*! \todo FIXME-- should capture each one's float precision; right
-       now we're using the first as the precision for both */
-    prec = iniGetFloatPrec(val);
-    sprintf(fmt, "%s = %%.%df %%.%df\n", var, prec, prec);
-
-    return 0;
-}
-
 // end temporary insert of ini file stuff
 
 /*
