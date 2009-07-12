@@ -48,9 +48,9 @@ In this example it is assumed that your "rolling your own" configuration
  If you need to touch off for each tool change then it is best just to split
  up your g code.
  To use the HAL Manual Toolchange window you basically have to load the
- hal manualtoolchange component then send the iocontrol tool change to the
- hal manualtoolchange change and send the hal manualtoolchange changed back
- to the iocontrol tool changed.
+ hal manualtoolchange component then send the iocontrol "tool change" to
+ the hal manualtoolchange "change" and send the hal manualtoolchange "changed"
+ back to the iocontrol "tool changed".
 \layout Standard
 
 This is an example of 
