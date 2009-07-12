@@ -51,6 +51,7 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     linearUnits = 1.0;
     angularUnits = 1.0;
     cycleTime = 0.0;
+    joints = 1;
     axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
