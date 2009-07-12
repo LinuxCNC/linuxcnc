@@ -2,6 +2,7 @@ component rand;
 option userspace;
 
 pin out float out;
+license "GPL";
 ;;
 #include <unistd.h>
 
