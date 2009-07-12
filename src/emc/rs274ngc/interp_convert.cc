@@ -3693,7 +3693,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
          settings->u_current != u_end ||
          settings->v_current != v_end ||
          settings->w_current != w_end), NCE_CANNOT_MOVE_ROTARY_AXES_WITH_G76);
-    convert_threading_cycle(block, settings, end_x, end_y, end_z);
+    int result = convert_threading_cycle(block, settings, end_x, end_y, end_z);
+    if(result != INTERP_OK) return result;
   } else
     ERS(NCE_BUG_CODE_NOT_G0_OR_G1);
 
