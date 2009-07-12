@@ -24,8 +24,8 @@
 extern "C" {
 #endif
 
-#define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
-#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
+//#define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
+//#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
 
 
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
@@ -58,12 +58,12 @@ extern "C" {
     extern char tool_table_file[LINELEN];
 
 // JOINT_MAX_* are used to send limits to motion
-    extern double JOINT_MAX_VELOCITY[EMC_JOINT_MAX];
-    extern double JOINT_MAX_ACCELERATION[EMC_JOINT_MAX];
+    extern double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS];
+    extern double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS];
 
 // AXIS_MAX_* are used by canon
-    extern double AXIS_MAX_VELOCITY[EMC_JOINT_MAX];
-    extern double AXIS_MAX_ACCELERATION[EMC_JOINT_MAX];
+    extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
+    extern double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS];
 
     extern double traj_default_velocity;
     extern double traj_max_velocity;

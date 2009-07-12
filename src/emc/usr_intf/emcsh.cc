@@ -1563,7 +1563,7 @@ static int emc_joint_limit(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_JOINT_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_limit: joint out of bounds");
 	    return TCL_ERROR;
 	}
@@ -1607,7 +1607,7 @@ static int emc_joint_fault(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_JOINT_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_fault: joint out of bounds");
 	    return TCL_ERROR;
 	}
@@ -1685,7 +1685,7 @@ static int emc_joint_homed(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_JOINT_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_homed: joint out of bounds");
 	    return TCL_ERROR;
 	}
@@ -2240,7 +2240,7 @@ static int emc_joint_type(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_JOINT_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_type: joint out of bounds");
 	    return TCL_ERROR;
 	}
@@ -2281,7 +2281,7 @@ static int emc_joint_units(ClientData clientdata,
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
-	if (joint < 0 || joint >= EMC_JOINT_MAX) {
+	if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	    setresult(interp,"emc_joint_units: joint out of bounds");
 	    return TCL_ERROR;
 	}
@@ -2960,8 +2960,8 @@ static int emc_joint_backlash(ClientData clientdata,
     }
     // get joint number
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
-	joint < 0 || joint >= EMC_JOINT_MAX) {
-	setresult(interp,"emc_joint_backlash: need joint as integer, 0..EMC_JOINT_MAX-1");
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_backlash: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
     // test for get or set
@@ -2999,8 +2999,8 @@ static int emc_joint_enable(ClientData clientdata,
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
-	joint < 0 || joint >= EMC_JOINT_MAX) {
-	setresult(interp,"emc_joint_enable: need joint as integer, 0..EMC_JOINT_MAX-1");
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_enable: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
 
@@ -3038,8 +3038,8 @@ static int emc_joint_load_comp(ClientData clientdata,
     }
 
     if (0 != Tcl_GetIntFromObj(0, objv[1], &joint) ||
-	joint < 0 || joint >= EMC_JOINT_MAX) {
-	setresult(interp,"emc_joint_load_comp: need joint as integer, 0..EMC_JOINT_MAX-1");
+	joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	setresult(interp,"emc_joint_load_comp: need joint as integer, 0..EMCMOT_MAX_JOINTS-1");
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
