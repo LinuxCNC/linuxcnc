@@ -1,2 +1,2 @@
 #!/bin/sh
-[ -x rand ]
+[ -x $(dirname $1)/rand ]
