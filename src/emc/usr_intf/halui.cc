@@ -1387,8 +1387,9 @@ int sendJogInc(int axis, double speed, double incr)
     if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
 	return -1;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX)
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
+    }
 
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
         return -1;
