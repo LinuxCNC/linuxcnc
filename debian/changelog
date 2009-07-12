@@ -1,9 +1,10 @@
 emc2 (1:2.3.3~pre) hardy; urgency=low
 
   * Reject bad values of I, J, K in G76 (SF#2817324)
-  * Stepconf: fix error "global name 'machinename' is not defined" 
+  * Stepconf: fix error "global name 'machinename' is not defined"
+  * comp: fix building userspace components
 
- -- Jeff Epler <jepler@unpythonic.net>  Thu, 09 Jul 2009 07:21:21 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 11 Jul 2009 21:47:03 -0500
 
 emc2 (1:2.3.2) hardy; urgency=low
 
