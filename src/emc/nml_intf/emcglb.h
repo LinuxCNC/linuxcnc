@@ -24,10 +24,6 @@
 extern "C" {
 #endif
 
-//#define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
-//#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
-
-
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
 
