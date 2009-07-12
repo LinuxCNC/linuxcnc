@@ -317,6 +317,7 @@ static PyMemberDef Stat_members[] = {
     {"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY},
     {"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
     {"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
+    {"joints", T_INT, O(motion.traj.joints), READONLY},
     {"axes", T_INT, O(motion.traj.axes), READONLY},
     {"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {"motion_mode", T_INT, O(motion.traj.mode), READONLY},

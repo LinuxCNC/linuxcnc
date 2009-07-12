@@ -768,35 +768,38 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numAxes)
 
 // local status data, not provided by emcmot
 static int localEmcTrajJoints = 0;
-static int localEmcTrajJointMask = 0;
+static int localEmcTrajAxes = 0;
+static int localEmcTrajAxisMask = 0;
 static double localEmcTrajLinearUnits = 1.0;
 static double localEmcTrajAngularUnits = 1.0;
 static int localEmcTrajMotionId = 0;
 
-int emcTrajSetJoints(int joints, int axismask)
+int emcTrajSetJoints(int joints)
 {
-    if(joints == 0) { //FIXME-AJ: trivkins?
-	if(axismask & 256) joints = 9;
-	else if(axismask & 128) joints = 8;
-	else if(axismask & 64) joints = 7;
-	else if(axismask & 32) joints = 6;
-	else if(axismask & 16) joints = 5;
-	else if(axismask & 8) joints = 4;
-	else if(axismask & 4) joints = 3;
-	else if(axismask & 2) joints = 2;
-	else if(axismask & 1) joints = 1;
-    }
-    if (joints <= 0 || joints > EMCMOT_MAX_JOINTS) { //FIXME-AJ: figure out jointmask/axismask || axismask >= (1<<joints)) {
-	rcs_print("emcTrajSetAxes failing: joints=%d axismask=%x\n",
-		joints, axismask);
+    if (joints <= 0 || joints > EMCMOT_MAX_JOINTS) {
+	rcs_print("emcTrajSetJoints failing: joints=%d\n",
+		joints);
 	return -1;
     }
 
     localEmcTrajJoints = joints;
-    localEmcTrajJointMask = axismask;
     emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
     emcmotCommand.joint = joints;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajSetAxes(int axes, int axismask)
+{
+    if (axes <= 0 || axes > EMCMOT_MAX_AXIS) { //FIXME-AJ: figure out jointmask/axismask || axismask >= (1<<joints)) {
+	rcs_print("emcTrajSetAxes failing: axes=%d axismask=%x\n",
+		axes, axismask);
+	return -1;
+    }
+
+    localEmcTrajAxes = axes;
+    localEmcTrajAxisMask = axismask;
+    
+    return 0;
 }
 
 int emcTrajSetUnits(double linearUnits, double angularUnits)
@@ -1233,9 +1236,9 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 {
     int joint, enables;
 
-    //FIXME-AJ: are these really axes?
-    stat->axes = localEmcTrajJoints;
-    stat->axis_mask = localEmcTrajJointMask;
+    stat->joints = localEmcTrajJoints;
+    stat->axes = localEmcTrajAxes;
+    stat->axis_mask = localEmcTrajAxisMask;
     stat->linearUnits = localEmcTrajLinearUnits;
     stat->angularUnits = localEmcTrajAngularUnits;
 

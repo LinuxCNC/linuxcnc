@@ -26,6 +26,31 @@
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 
+static int loadKins(EmcIniFile *trajInifile)
+{
+    trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
+
+    try {
+	int joints = 0;
+	trajInifile->Find(&joints, "JOINTS", "KINS");
+
+        if (0 != emcTrajSetJoints(joints)) {
+            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetJoints\n");
+            }
+            return -1;
+        }
+    }
+   
+    catch (EmcIniFile::Exception &e) {
+        e.Print();
+        return -1;
+    }
+    
+    return 0;
+}
+
+
 /*
   loadTraj()
 
@@ -71,7 +96,7 @@ static int loadTraj(EmcIniFile *trajInifile)
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try{
-	int joints = 0;
+	int axes = 0;
 	int axismask = 0;
 	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {
@@ -87,11 +112,11 @@ static int loadTraj(EmcIniFile *trajInifile)
 	} else {
 	    axismask = 1 | 2 | 4;		// default: XYZ machine
 	}
-	trajInifile->Find(&joints, "JOINTS", "KINS");
+	trajInifile->Find(&axes, "AXES", "TRAJ");
 
-        if (0 != emcTrajSetJoints(joints, axismask)) {
+        if (0 != emcTrajSetAxes(axes, axismask)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetJoints\n");
+                rcs_print("bad return value from emcTrajSetAxes\n");
             }
             return -1;
         }
@@ -257,6 +282,10 @@ int iniTraj(const char *filename)
     EmcIniFile trajInifile;
 
     if (trajInifile.Open(filename) == false) {
+	return -1;
+    }
+    // load trajectory values
+    if (0 != loadKins(&trajInifile)) {
 	return -1;
     }
     // load trajectory values
