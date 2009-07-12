@@ -393,12 +393,16 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, limit);
+    }
     return 0;
 }
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_JOINTS) {
+    if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return 0;
     }
 
@@ -419,6 +423,10 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, limit);
+    }
     return 0;
 }
 
@@ -443,6 +451,10 @@ int emcAxisSetMaxVelocity(int axis, double vel)
     emcmotCommand.vel = vel;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, vel);
+    }
     return 0;
 }
 
@@ -464,6 +476,10 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     emcmotCommand.acc = acc;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, acc);
+    }
     return 0;
 }
 
@@ -1452,7 +1468,7 @@ int emcPositionSave() {
 int emcMotionInit()
 {
     int r1, r2, r3, r4;
-    int joint;//,axis;
+    int joint, axis;
 
     r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
@@ -1465,12 +1481,11 @@ int emcMotionInit()
     }
 
     r3 = 0;
-/* FIXME-AJ: disabled for now
     for (axis = 0; axis < localEmcTrajAxes; axis++) {
 	if (0 != emcAxisInit(axis)) {
 	    r3 = -1;		// at least one is busted
 	}
-    } */
+    }
 
     r4 = emcPositionLoad();
 
