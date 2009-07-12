@@ -121,7 +121,6 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
  */
 int iniAxis(int axis, const char *filename)
 {
-    int axes;
     EmcIniFile axisIniFile(EmcIniFile::ERR_TAG_NOT_FOUND |
                            EmcIniFile::ERR_SECTION_NOT_FOUND |
                            EmcIniFile::ERR_CONVERSION);

@@ -253,8 +253,8 @@ class PM_CARTESIAN;
 
 // EMC IO point configuration declarations
 
-#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001)
-#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002)
+/* removed #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) */
+/* removed #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) */
 
 
 // digital IO point indices

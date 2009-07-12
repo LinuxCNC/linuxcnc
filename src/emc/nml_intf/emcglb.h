@@ -23,10 +23,6 @@
 extern "C" {
 #endif
 
-//#define EMC_JOINT_MAX EMCMOT_MAX_JOINTS
-//#define EMC_AXIS_MAX EMCMOT_MAX_AXIS
-
-
 #define EMC_MAX_DIO EMCMOT_MAX_DIO
 #define EMC_MAX_AIO EMCMOT_MAX_AIO
 
@@ -77,9 +73,6 @@ extern "C" {
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;
     extern struct EmcPose TOOL_HOLDER_CLEAR;
     extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
-
-#define DEFAULT_EMCLOG_INCLUDE_HEADER (1)
-    extern int EMCLOG_INCLUDE_HEADER;
 
 /*just used to keep track of unneccessary debug printing. */
     extern int taskplanopen;
