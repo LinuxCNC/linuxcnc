@@ -106,11 +106,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         // set joint type
         jointType = EMC_LINEAR;	// default
         jointIniFile->Find(&jointType, "TYPE", jointString);
-
         if (0 != emcJointSetJoint(joint, jointType)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetJoint\n");
-            }
             return -1;
         }
 
@@ -122,65 +118,41 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
             units = emcTrajGetAngularUnits();
             jointIniFile->FindAngularUnits(&units, "UNITS", jointString);
         }
-
         if (0 != emcJointSetUnits(joint, units)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetUnits\n");
-            }
             return -1;
         }
 
         // set backlash
         backlash = 0;	                // default
         jointIniFile->Find(&backlash, "BACKLASH", jointString);
-
         if (0 != emcJointSetBacklash(joint, backlash)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetBacklash\n");
-            }
             return -1;
         }
 
         // set min position limit
         limit = -1e99;	                // default
         jointIniFile->Find(&limit, "MIN_LIMIT", jointString);
-
         if (0 != emcJointSetMinPositionLimit(joint, limit)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetMinPositionLimit\n");
-            }
-            return -1;
+             return -1;
         }
 
         // set max position limit
         limit = 1e99;	                // default
         jointIniFile->Find(&limit, "MAX_LIMIT", jointString);
-
         if (0 != emcJointSetMaxPositionLimit(joint, limit)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetMaxPositionLimit\n");
-            }
             return -1;
         }
 
         // set following error limit (at max speed)
         ferror = 1;	                // default
         jointIniFile->Find(&ferror, "FERROR", jointString);
-
         if (0 != emcJointSetFerror(joint, ferror)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetFerror\n");
-            }
-            return -1;
+             return -1;
         }
 
         // do MIN_FERROR, if it's there. If not, use value of maxFerror above
         jointIniFile->Find(&ferror, "MIN_FERROR", jointString);
-
         if (0 != emcJointSetMinFerror(joint, ferror)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetMinFerror\n");
-            }
             return -1;
         }
 
@@ -205,46 +177,30 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         jointIniFile->Find(&sequence, "HOME_SEQUENCE", jointString);
         volatile_home = 0;	        // default
         jointIniFile->Find(&volatile_home, "VOLATILE_HOME", jointString);
-
         // issue NML message to set all params
         if (0 != emcJointSetHomingParams(joint, home, offset, home_vel, search_vel,
                                         latch_vel, (int)use_index, (int)ignore_limits,
                                         (int)is_shared, sequence, volatile_home)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetHomingParams\n");
-            }
             return -1;
         }
 
         // set maximum velocity
         maxVelocity = DEFAULT_JOINT_MAX_VELOCITY;
         jointIniFile->Find(&maxVelocity, "MAX_VELOCITY", jointString);
-
         if (0 != emcJointSetMaxVelocity(joint, maxVelocity)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetMaxVelocity\n");
-            }
             return -1;
         }
 
         maxAcceleration = DEFAULT_JOINT_MAX_ACCELERATION;
         jointIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", jointString);
-
         if (0 != emcJointSetMaxAcceleration(joint, maxAcceleration)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print_error("bad return from emcJointSetMaxAcceleration\n");
-            }
             return -1;
         }
 
         comp_file_type = 0;             // default
         jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);
-
         if (NULL != (inistring = jointIniFile->Find("COMP_FILE", jointString))) {
             if (0 != emcJointLoadComp(joint, inistring, comp_file_type)) {
-                if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                    rcs_print_error("bad return from emcJointLoadComp\n");
-                }
                 return -1;
             }
         }

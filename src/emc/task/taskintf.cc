@@ -94,6 +94,9 @@ int emcJointSetJoint(int joint, unsigned char jointType)
 
     localEmcJointType[joint] = jointType;
 
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d)\n", __FUNCTION__, joint, jointType);
+    }
     return 0;
 }
 
@@ -105,6 +108,9 @@ int emcJointSetUnits(int joint, double units)
 
     localEmcJointUnits[joint] = units;
 
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, joint, units);
+    }
     return 0;
 }
 
@@ -125,7 +131,12 @@ int emcJointSetBacklash(int joint, double backlash)
     emcmotCommand.joint = joint;
     emcmotCommand.backlash = backlash;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, backlash, retval);
+    }
+    return retval;
 }
 
 // saved values of limits, since emcmot expects them to be set in
@@ -152,7 +163,12 @@ int emcJointSetMinPositionLimit(int joint, double limit)
     emcmotCommand.minLimit = limit;
     saveMinLimit[joint] = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+    }
+    return retval;
 }
 
 int emcJointSetMaxPositionLimit(int joint, double limit)
@@ -174,7 +190,12 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
     emcmotCommand.maxLimit = limit;
     saveMaxLimit[joint] = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, limit, retval);
+    }
+    return retval;
 }
 
 int emcJointSetMotorOffset(int joint, double offset) 
@@ -193,7 +214,12 @@ int emcJointSetMotorOffset(int joint, double offset)
     emcmotCommand.joint = joint;
     emcmotCommand.motor_offset = offset;
     
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, offset, retval);
+    }
+    return retval;
 }
 
 int emcJointSetFerror(int joint, double ferror)
@@ -213,7 +239,12 @@ int emcJointSetFerror(int joint, double ferror)
     emcmotCommand.joint = joint;
     emcmotCommand.maxFerror = ferror;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, ferror, retval);
+    }
+    return retval;
 }
 
 int emcJointSetMinFerror(int joint, double ferror)
@@ -232,7 +263,12 @@ int emcJointSetMinFerror(int joint, double ferror)
     emcmotCommand.joint = joint;
     emcmotCommand.minFerror = ferror;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, ferror, retval);
+    }
+    return retval;
 }
 
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
@@ -272,7 +308,14 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 	emcmotCommand.flags |= HOME_IS_SHARED;
     }
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %d, %d, %d, %d, %d) returned %d\n",
+          __FUNCTION__, joint, home, offset, home_final_vel, search_vel, latch_vel,
+          use_index, ignore_limits, is_shared, sequence, volatile_home, retval);
+    }
+    return retval;
 }
 
 int emcJointSetMaxVelocity(int joint, double vel)
@@ -290,7 +333,13 @@ int emcJointSetMaxVelocity(int joint, double vel)
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.vel = vel;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, vel, retval);
+    }
+    return retval;
 }
 
 int emcJointSetMaxAcceleration(int joint, double acc)
@@ -308,7 +357,13 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, acc, retval);
+    }
+    return retval;
 }
 
 /**********************************************************************************************
@@ -516,7 +571,12 @@ int emcJointActivate(int joint)
     emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
     emcmotCommand.joint = joint;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, joint, retval);
+    }
+    return retval;
 }
 
 int emcJointDeactivate(int joint)
