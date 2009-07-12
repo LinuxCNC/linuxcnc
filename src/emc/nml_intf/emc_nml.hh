@@ -1147,7 +1147,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
 
     // aggregate of motion-related status classes
     EMC_TRAJ_STAT traj;
-    EMC_JOINT_STAT joint[EMC_JOINT_MAX];
+    EMC_JOINT_STAT joint[EMCMOT_MAX_JOINTS];
     EMC_SPINDLE_STAT spindle;
 
     int synch_di[EMC_MAX_DIO];  // motion inputs queried by interp

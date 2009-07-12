@@ -2481,7 +2481,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
 
     EMC_MOTION_STAT_MSG::update(cms);
     traj.update(cms);
-    for (int i_joint = 0; i_joint < EMC_JOINT_MAX; i_joint++)
+    for (int i_joint = 0; i_joint < EMCMOT_MAX_JOINTS; i_joint++)
 	joint[i_joint].update(cms);
     cms->update(debug);
 

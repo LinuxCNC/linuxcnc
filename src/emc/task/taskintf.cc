@@ -56,7 +56,7 @@ static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
 static int emcmotJointsInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
-static int emcmotAxesInited[EMC_AXIS_MAX] = { 0 };	// non-zero means joint called init
+static int emcmotAxesInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
 
 __attribute__ ((unused))
 static int emcmotIoInited = 0;	// non-zero means io called init
@@ -77,7 +77,7 @@ static double localEmcJointUnits[EMCMOT_MAX_JOINTS];
 
 //things referring to axes
 //FIXME-AJ: see if needed
-static double localEmcAxisUnits[EMC_AXIS_MAX];
+static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 
 // axes and joints are numbered 0..NUM-1
 
@@ -345,7 +345,7 @@ int emcJointSetMaxVelocity(int joint, double vel)
 int emcJointSetMaxAcceleration(int joint, double acc)
 {
 
-    if (joint < 0 || joint >= EMC_JOINT_MAX) {
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
     if (acc < 0.0) {
@@ -372,7 +372,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
 
@@ -402,7 +402,7 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
 
@@ -433,7 +433,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxVelocity(int axis, double vel)
 {
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
 
@@ -461,7 +461,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 int emcAxisSetMaxAcceleration(int axis, double acc)
 {
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
     if (acc < 0.0) {
@@ -530,7 +530,7 @@ int emcAxisInit(int axis)
 {
     int retval = 0;
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
     // init emcmot interface

@@ -1308,7 +1308,7 @@ static int sendAbort()
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
-static int axisJogging[EMC_AXIS_MAX] = {0,};
+static int axisJogging[EMCMOT_MAX_JOINTS] = {0,};
 
 int sendJogStop(int axis)
 {

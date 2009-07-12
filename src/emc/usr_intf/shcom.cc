@@ -445,7 +445,7 @@ static double convertAngularUnits(double u)
 #endif
 
 // polarities for axis jogging, from ini file
-static int jogPol[EMC_JOINT_MAX];
+static int jogPol[EMCMOT_MAX_JOINTS];
 
 int sendDebug(int level)
 {
@@ -590,7 +590,7 @@ int sendOverrideLimits(int axis)
 
     return 0;
 }
-static int axisJogging[EMC_AXIS_MAX] = {0,};
+static int axisJogging[EMCMOT_MAX_AXIS] = {0,};
 
 int sendJogStop(int axis)
 {
@@ -1307,7 +1307,7 @@ int iniLoad(const char *filename)
 	// not found, use default
     }
 
-    for (t = 0; t < EMC_JOINT_MAX; t++) {
+    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
 	sprintf(displayString, "JOINT_%d", t);
 	if (NULL != (inistring =

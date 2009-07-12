@@ -425,8 +425,8 @@ static PyObject *Stat_actual(pyStatChannel *s) {
 }
 
 static PyObject *Stat_joint_position(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_JOINT_MAX);
-    for(int i=0; i<EMC_JOINT_MAX; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
                 PyFloat_FromDouble(s->status.motion.joint[i].output));
     }
@@ -434,8 +434,8 @@ static PyObject *Stat_joint_position(pyStatChannel *s) {
 }
 
 static PyObject *Stat_joint_actual(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_JOINT_MAX);
-    for(int i=0; i<EMC_JOINT_MAX; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
                 PyFloat_FromDouble(s->status.motion.joint[i].input));
     }
@@ -539,8 +539,8 @@ static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
 #undef F2
 
 static PyObject *Stat_joint(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(EMC_JOINT_MAX);
-    for(int i=0; i<EMC_JOINT_MAX; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i, Stat_joint_one(s, i));
     }
     return res;
