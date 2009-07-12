@@ -468,6 +468,31 @@ With the normal install the Update Manager will notify you of updates to
 
 Warning: Do not upgrade Ubuntu to a new version (like 8.04 to 8.10) as it
  will prevent EMC from running.
+\layout Subsection*
+
+Without Internet
+\layout Standard
+
+To update a computer that does not have an internet connection you can download
+ the ".deb" file and transfer it using a USB drive or any other method.
+ Ubuntu 8.04 Hardy packages are located 
+\begin_inset LatexCommand \url[here]{http://linuxcnc.org/hardy/dists/hardy/}
+
+\end_inset 
+
+.
+ 
+\layout Standard
+
+.deb files can be installed or upgraded from the commandline:
+\layout LyX-Code
+
+$ sudo dpkg -i filename.deb
+\layout Standard
+
+Depending on your system, double-clicking (or single click if your system
+ is set up that way) the file in your browser may also install or upgrade
+ the package.
 \layout Section
 
 Install Problems
