@@ -129,7 +129,6 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     return 0;
 }
 
-
 /*
   iniAxis(int axis, const char *filename)
 
@@ -149,80 +148,10 @@ int iniAxis(int axis, const char *filename)
 	return -1;
     }
 
-    try {
-        axisIniFile.Find(&axes, "AXES", "TRAJ");
-    }
-
-    catch(EmcIniFile::Exception &e){
-        e.Print();
-        return -1;
-    }
-
-    if (axis < 0 || axis >= axes) {
-	// requested axis exceeds machine axes
-	return -1;
-    }
-
     // load its values
     if (0 != loadAxis(axis, &axisIniFile)) {
         return -1;
     }
 
-    return 0;
-}
-
-/*! \todo FIXME-- begin temporary insert of ini file stuff */
-
-#define INIFILE_MIN_FLOAT_PRECISION 3
-#define INIFILE_BACKUP_SUFFIX ".bak"
-
-int iniGetFloatPrec(const char *str)
-{
-    const char *ptr = str;
-    int prec = 0;
-
-    // find '.', return min precision if no decimal point
-    while (1) {
-	if (*ptr == 0) {
-	    return INIFILE_MIN_FLOAT_PRECISION;
-	}
-	if (*ptr == '.') {
-	    break;
-	}
-	ptr++;
-    }
-
-    // ptr is on '.', so step over
-    ptr++;
-
-    // count number of digits until whitespace or end or non-digit
-    while (1) {
-	if (*ptr == 0) {
-	    break;
-	}
-	if (!isdigit(*ptr)) {
-	    break;
-	}
-	// else it's a digit
-	prec++;
-	ptr++;
-    }
-
-    return prec >
-	INIFILE_MIN_FLOAT_PRECISION ? prec : INIFILE_MIN_FLOAT_PRECISION;
-}
-
-// end temporary insert of ini file stuff
-
-/*
-  dumpAxis(int axis, const char *filename, EMC_AXIS_STAT *status)
-
-  This used to rewrite an AXIS_n section of the ini file.  Everyone
-  now seems to think this is a bad idea.  It's certainly incompatible
-  with template/sample configurations that should not be changed by
-  the user OR the program.
- */
-int dumpAxis(int axis, const char *filename, EMC_AXIS_STAT * status)
-{
     return 0;
 }
