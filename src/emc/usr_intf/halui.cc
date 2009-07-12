@@ -1402,8 +1402,9 @@ int sendJogInc(int axis, double speed, double incr)
 	return -1;
     }
 
-    if (axis < 0 || axis >= EMC_AXIS_MAX)
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return -1;
+    }
 
     sendManual();
 
