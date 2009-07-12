@@ -48,6 +48,7 @@ Tool Files
 Lathe Tool Files differ from mill tool files by the addition of FRONTANGLE,
  BACKANGLE and ORIENT.
  The following table show the lathe format for a tool table.
+ Use the "DIA" column for the tool tip diameter.
 \layout Standard
 
 
