@@ -77,7 +77,7 @@ static double localEmcJointUnits[EMCMOT_MAX_JOINTS];
 
 //things referring to axes
 //FIXME-AJ: see if needed
-static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
+//static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 
 // axes and joints are numbered 0..NUM-1
 
