@@ -227,26 +227,11 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
  */
 int iniJoint(int joint, const char *filename)
 {
-    int axes;
     EmcIniFile jointIniFile(EmcIniFile::ERR_TAG_NOT_FOUND |
                            EmcIniFile::ERR_SECTION_NOT_FOUND |
                            EmcIniFile::ERR_CONVERSION);
 
     if (jointIniFile.Open(filename) == false) {
-	return -1;
-    }
-
-    try {
-        jointIniFile.Find(&axes, "AXES", "TRAJ");
-    }
-
-    catch(EmcIniFile::Exception &e){
-        e.Print();
-        return -1;
-    }
-
-    if (joint < 0 || joint >= axes) {
-	// requested joint exceeds machine axes
 	return -1;
     }
 
