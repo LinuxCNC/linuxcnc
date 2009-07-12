@@ -2090,6 +2090,8 @@ rt pin below).
 \layout Description
 
 .scale (Float, RW) Converts from "count" units to "position" units.
+ A quadrature encoder will normally have 4 counts per line so a 100 line
+ encoder would have 400 counts per revolution.
 \layout Description
 
 .vel-timeout (Float, RW) When the encoder is moving slower than one pulse
