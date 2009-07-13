@@ -330,6 +330,21 @@ void emcmotAioWrite(int index, double value)
     }
 }
 
+static int is_feed_type(int motion_type)
+{
+    switch(motion_type) {
+    case EMC_MOTION_TYPE_ARC:
+    case EMC_MOTION_TYPE_FEED:
+    case EMC_MOTION_TYPE_PROBING:
+        return 1;
+    default:
+        rtapi_print_msg(RTAPI_MSG_ERR, "Internal error: unhandled motion type %d\n", motion_type);
+    case EMC_MOTION_TYPE_TOOLCHANGE:
+    case EMC_MOTION_TYPE_TRAVERSE:
+        return 0;
+    }
+}
+
 /*
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
@@ -864,11 +879,11 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
-            if(emcmotStatus->atspeed_next_feed && emcmotCommand->motion_type != EMC_MOTION_TYPE_TRAVERSE) {
+            if(emcmotStatus->atspeed_next_feed && is_feed_type(emcmotCommand->motion_type) ) {
                 issue_atspeed = 1;
                 emcmotStatus->atspeed_next_feed = 0;
             }
-            if(emcmotCommand->motion_type == EMC_MOTION_TYPE_TRAVERSE && emcmotStatus->spindle.css_factor) {
+            if(!is_feed_type(emcmotCommand->motion_type) && emcmotStatus->spindle.css_factor) {
                 emcmotStatus->atspeed_next_feed = 1;
             }
 	    /* append it to the emcmotDebug->queue */
