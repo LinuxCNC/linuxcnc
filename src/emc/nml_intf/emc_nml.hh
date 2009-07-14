@@ -1860,35 +1860,6 @@ class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
     int level;			// 0 low, 1 okay
 };
 
-// EMC IO configuration classes
-
-class EMC_SET_DIO_INDEX:public RCS_CMD_MSG {
-  public:
-    EMC_SET_DIO_INDEX():RCS_CMD_MSG(EMC_SET_DIO_INDEX_TYPE,
-				    sizeof(EMC_SET_DIO_INDEX)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int value;			// one of enum EMC_SET_DIO_INDEX_XXX
-    int index;			// index, 0..max
-};
-
-class EMC_SET_AIO_INDEX:public RCS_CMD_MSG {
-  public:
-    EMC_SET_AIO_INDEX():RCS_CMD_MSG(EMC_SET_AIO_INDEX_TYPE,
-				    sizeof(EMC_SET_AIO_INDEX)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int value;			// one of enum EMC_SET_AIO_INDEX_XXX
-    int index;			// index, 0..max
-};
-
-
 // EMC_IO is aggregate of all EMC IO-related status classes
 
 // EMC_IO command base class
