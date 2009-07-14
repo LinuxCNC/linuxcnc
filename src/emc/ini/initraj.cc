@@ -113,71 +113,45 @@ static int loadTraj(EmcIniFile *trajInifile)
 	    axismask = 1 | 2 | 4;		// default: XYZ machine
 	}
 	trajInifile->Find(&axes, "AXES", "TRAJ");
-
         if (0 != emcTrajSetAxes(axes, axismask)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetAxes\n");
-            }
-            return -1;
+             return -1;
         }
 
         linearUnits = 0;
         trajInifile->FindLinearUnits(&linearUnits, "LINEAR_UNITS", "TRAJ");
         angularUnits = 0;
         trajInifile->FindAngularUnits(&angularUnits, "ANGULAR_UNITS", "TRAJ");
-
         if (0 != emcTrajSetUnits(linearUnits, angularUnits)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetUnits\n");
-            }
-            return -1;
+             return -1;
         }
 
         vel = 1.0;
-        trajInifile->Find(&vel, "DEFAULT_VELOCITY", "TRAJ");
-
+        trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
         // set the corresponding global
         TRAJ_DEFAULT_VELOCITY = vel;
-
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetVelocity\n");
-            }
-            return -1;
+             return -1;
         }
 
         vel = 1e99; // by default, use AXIS limit
-        trajInifile->Find(&vel, "MAX_VELOCITY", "TRAJ");
-
+        trajInifile->Find(&vel, "MAX_LINEAR_VELOCITY", "TRAJ");
         // set the corresponding global
         TRAJ_MAX_VELOCITY = vel;
-
         // and set dynamic value
         if (0 != emcTrajSetMaxVelocity(vel)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetMaxVelocity\n");
-            }
             return -1;
         }
 
         acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "DEFAULT_ACCELERATION", "TRAJ");
-
+        trajInifile->Find(&acc, "DEFAULT_LINEAR_ACCEL", "TRAJ");
         if (0 != emcTrajSetAcceleration(acc)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetAcceleration\n");
-            }
             return -1;
         }
 
         acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "MAX_ACCELERATION", "TRAJ");
-
+        trajInifile->Find(&acc, "MAX_LINEAR_ACCEL", "TRAJ");
         if (0 != emcTrajSetMaxAcceleration(acc)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
-            }
             return -1;
         }
     }
