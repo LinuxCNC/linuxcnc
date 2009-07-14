@@ -742,10 +742,20 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     // this is no longer the segment we were waiting_for_index for
     if(waiting_for_index && waiting_for_index != tc->id) 
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Was waiting for index on motion id %d, but reached id %d\n",
+                waiting_for_index, tc->id);
         waiting_for_index = 0;
+    }
+    if(waiting_for_atspeed && waiting_for_atspeed != tc->id)  
+    {
 
-    if(waiting_for_atspeed && waiting_for_atspeed != tc->id) 
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Was waiting for atspeed on motion id %d, but reached id %d\n",
+                waiting_for_atspeed, tc->id);
         waiting_for_atspeed = 0;
+    }
 
     // check for at-speed before marking the tc active
     if(waiting_for_atspeed) {
