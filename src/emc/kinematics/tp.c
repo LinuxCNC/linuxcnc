@@ -681,7 +681,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         return 0;
     }
 
-    if (tc->target == tc->progress) {
+    if (tc->target == tc->progress && waiting_for_atspeed != tc->id) {
         // if we're synced, and this move is ending, save the
         // spindle position so the next synced move can be in
         // the right place.
