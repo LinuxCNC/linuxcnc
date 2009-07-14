@@ -865,7 +865,12 @@ int emcTrajSetJoints(int joints)
     localEmcTrajJoints = joints;
     emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
     emcmotCommand.joint = joints;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, joints, retval);
+    }
+    return retval;
 }
 
 int emcTrajSetAxes(int axes, int axismask)
@@ -879,6 +884,9 @@ int emcTrajSetAxes(int axes, int axismask)
     localEmcTrajAxes = axes;
     localEmcTrajAxisMask = axismask;
     
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %d)\n", __FUNCTION__, axes, axismask);
+    }
     return 0;
 }
 
@@ -891,6 +899,9 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
     localEmcTrajLinearUnits = linearUnits;
     localEmcTrajAngularUnits = angularUnits;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f)\n", __FUNCTION__, linearUnits, angularUnits);
+    }
     return 0;
 }
 
@@ -916,8 +927,6 @@ int emcTrajSetMode(int mode)
 
 int emcTrajSetVelocity(double vel, double ini_maxvel)
 {
-    int retval;
-
     if (vel < 0.0) {
 	vel = 0.0;
     } else if (vel > traj_max_velocity) {
@@ -934,8 +943,11 @@ int emcTrajSetVelocity(double vel, double ini_maxvel)
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
 
-    retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f) returned %d\n", __FUNCTION__, vel, ini_maxvel, retval);
+    }
     return retval;
 }
 
@@ -950,7 +962,12 @@ int emcTrajSetAcceleration(double acc)
     emcmotCommand.command = EMCMOT_SET_ACC;
     emcmotCommand.acc = acc;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, acc, retval);
+    }
+    return retval;
 }
 
 /*
@@ -968,7 +985,12 @@ int emcTrajSetMaxVelocity(double vel)
     emcmotCommand.command = EMCMOT_SET_VEL_LIMIT;
     emcmotCommand.vel = vel;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, vel, retval);
+    }
+    return retval;
 }
 
 int emcTrajSetMaxAcceleration(double acc)
@@ -979,6 +1001,9 @@ int emcTrajSetMaxAcceleration(double acc)
 
     localEmcMaxAcceleration = acc;
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f)\n", __FUNCTION__, acc);
+    }
     return 0;
 }
 
