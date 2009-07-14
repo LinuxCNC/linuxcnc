@@ -703,6 +703,33 @@ class Data:
         self.aencodercounts = 1000
         self.ascale = 0
 
+        self.sdrivertype = "custom"
+        self.ssteprev = 200
+        self.smicrostep = 2
+        self.spulleynum = 1
+        self.spulleyden = 1
+        self.sleadscrew = 5
+        self.smaxvel = .0167
+        self.smaxacc = 2
+        self.sinvertmotor = 0
+        self.sinvertencoder = 0
+        self.sscale = 0
+        self.soutputscale = 1
+        self.soutputoffset = 0
+        self.smaxoutput = 10
+        self.sP = 1.0
+        self.sI = 0
+        self.sD = 0
+        self.sFF0 = 0
+        self.sFF1 = 0
+        self.sFF2 = 0
+        self.sbias = 0
+        self.sdeadband = 0
+        self.ssteptime = 0
+        self.sstepspace = 0
+        self.sdirhold = 0
+        self.sdirsetup = 0
+        self.sencodercounts = 1000
         self.spindlecarrier = 100
         self.spindlecpr = 100
         self.spindlespeed1 = 100
@@ -933,6 +960,7 @@ class Data:
         self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
         if self.axes == 1:
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
+        self.write_one_axis(file, 0, "s", "null", all_homes)
 
         file.close()
         self.add_md5sum(filename)
@@ -983,22 +1011,25 @@ class Data:
     def write_one_axis(self, file, num, letter, type, all_homes):
         order = "1203"
         def get(s): return self[letter + s]
-        pwmgen = self.pwmgen_sig(letter)
-        stepgen = self.stepgen_sig(letter)
+        if letter == 's':temp = 'spindle'
+        else: temp = letter
+        pwmgen = self.pwmgen_sig(temp)
+        stepgen = self.stepgen_sig(temp)
         print >>file
         print >>file, "#********************"
-        print >>file, "# Axis %s" % letter.upper()
-        print >>file, "#********************"
-        print >>file, "[AXIS_%d]" % num
-        print >>file, "TYPE = %s" % type
-        print >>file, "HOME = %s" % get("homepos")
+        if letter == 's':
+            num = 0
+            print >>file, "#Spindle "
+            print >>file, "#********************"
+            print >>file, "[SPINDLE_%d]" % num
+        else:
+            print >>file, "# Axis %s" % letter.upper()
+            print >>file, "#********************"
+            print >>file, "[AXIS_%d]" % num
+            print >>file, "TYPE = %s" % type
+            print >>file, "HOME = %s" % get("homepos")
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        if self[letter + "usecomp"]:
-            print >>file, "COMP_FILE = %s" % get("compfilename")
-            print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
-        if self[letter + "usebacklash"]:
-            print >>file, "BACKLASH = %s" % get("backlash")
         print >>file, "FERROR = %s"% get("maxferror")
         print >>file, "MIN_FERROR = %s" % get("minferror")
         if stepgen == "false":
@@ -1020,7 +1051,13 @@ class Data:
             print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
             print >>file, "STEPSPACE  = %d"% int(get("stepspace"))            
-            print >>file, "SCALE = %s"% get("scale")     
+            print >>file, "SCALE = %s"% get("scale")   
+        if letter == 's':return  
+        if self[letter + "usecomp"]:
+            print >>file, "COMP_FILE = %s" % get("compfilename")
+            print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
+        if self[letter + "usebacklash"]:
+            print >>file, "BACKLASH = %s" % get("backlash")
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
@@ -1094,7 +1131,12 @@ class Data:
            else:return "false"
 
     def connect_axis(self, file, num, let):
-        axnum = "xyzabcuxzs".index(let)
+        axnum = "xyzabcuvws".index(let)
+        title = 'AXIS'
+        if let == 's':
+            let ='spindle'
+            title = 'SPINDLE'
+            axnum = 0
         jogwheel = False
         pwmgen = self.pwmgen_sig(let)
         stepgen = self.stepgen_sig(let)
@@ -1105,21 +1147,21 @@ class Data:
         max_limsig = self.max_lim_sig(let)
         min_limsig = self.min_lim_sig(let)
         lat = self.latency
-        print >>file, "#**************"
-        print >>file, "#  Axis %s" % let.upper()
-        print >>file, "#**************"
+        print >>file, "#*******************"
+        print >>file, "#  %s %s" % (title, let.upper())
+        print >>file, "#*******************"
         print >>file
          
         if stepgen == "false":
-            print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
-            print >>file, "    setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
-            print >>file, "    setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
-            print >>file, "    setp pid.%d.bias [AXIS_%d]BIAS" % (num, axnum)
-            print >>file, "    setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
-            print >>file, "    setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
-            print >>file, "    setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
-            print >>file, "    setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
-            print >>file, "    setp pid.%d.maxoutput [AXIS_%d]MAX_OUTPUT" % (num, axnum)
+            print >>file, "    setp pid.%d.Pgain [%s_%d]P" % (num, title, axnum)
+            print >>file, "    setp pid.%d.Igain [%s_%d]I" % (num, title, axnum)
+            print >>file, "    setp pid.%d.Dgain [%s_%d]D" % (num, title, axnum)
+            print >>file, "    setp pid.%d.bias [%s_%d]BIAS" % (num, title, axnum)
+            print >>file, "    setp pid.%d.FF0 [%s_%d]FF0" % (num, title, axnum)
+            print >>file, "    setp pid.%d.FF1 [%s_%d]FF1" % (num, title, axnum)
+            print >>file, "    setp pid.%d.FF2 [%s_%d]FF2" % (num, title, axnum)
+            print >>file, "    setp pid.%d.deadband [%s_%d]DEADBAND" % (num, title, axnum)
+            print >>file, "    setp pid.%d.maxoutput [%s_%d]MAX_OUTPUT" % (num, title, axnum)
             print >>file
             if 'm5i20' in encoder:
                 pinname = self.make_pinname(encoder)
@@ -1132,10 +1174,11 @@ class Data:
                 print >>file, "    setp "+pinname+".index-invert 0"
                 print >>file, "    setp "+pinname+".index-mask 0" 
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
-                print >>file, "    setp "+pinname+".scale  [AXIS_%d]INPUT_SCALE"% (axnum)
+                print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)
                 print >>file, "net %spos-fb <= "% (let) +pinname+".position"
                 print >>file, "net %spos-fb => pid.%d.feedback"% (let,axnum) 
-                print >>file, "net %spos-fb => axis.%d.motor-pos-fb" % (let, axnum)   
+                if not let == 'spindle':
+                    print >>file, "net %spos-fb => axis.%d.motor-pos-fb" % (let, axnum)   
                 print >>file        
             if 'm5i20' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
@@ -1143,37 +1186,68 @@ class Data:
                 print >>file, "# PWM Generator signals/setup"
                 print >>file
                 print >>file, "    setp "+pinname+".output-type 1" 
-                print >>file, "    setp "+pinname+".scale  1.0" 
-                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
-                print >>file, "net %senable     pid.%d.enable" % (let, axnum) 
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
+                print >>file, "    setp "+pinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum) 
+                print >>file, "net %senable     pid.%d.enable" % (let, axnum)                
                 print >>file, "net %soutput     pid.%d.output  => "% (let, axnum) +pinname+ ".value"  
+                if let == 'spindle':  
+                    
+                    x1 = self.spindlepwm1
+                    x2 = self.spindlepwm2
+                    y1 = self.spindlespeed1
+                    y2 = self.spindlespeed2
+                    scale = (y2-y1) / (x2-x1)
+                    offset = x1 - y1 / scale
+                    print >>file
+                    
+                    print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
+                    print >>file, "    setp pwmgen.0.scale %s" % scale
+                    print >>file, "    setp pwmgen.0.offset %s" % offset
+                    print >>file, "    setp pwmgen.0.dither-pwm true"
+                    print >>file, "net %spos-cmd => pid.%d.command" % (let, axnum)
+                else:
+                    print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
+                    print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
                 print >>file    
         if not stepgen == "false":
             pinname = self.make_pinname(stepgen)
             print >>file, "# Step Gen signals/setup"
             print >>file
-            print >>file, "    setp " + pinname + ".dirsetup        [AXIS_%d]DIRSETUP"% axnum
-            print >>file, "    setp " + pinname + ".dirhold         [AXIS_%d]DIRHOLD"% axnum
-            print >>file, "    setp " + pinname + ".steplen         [AXIS_%d]STEPLEN"% axnum
-            print >>file, "    setp " + pinname + ".stepspace       [AXIS_%d]STEPSPACE"% axnum
-            print >>file, "    setp " + pinname + ".position-scale  [AXIS_%d]SCALE"% axnum
-            print >>file, "    setp " + pinname + ".maxaccel        [AXIS_%d]MAX_ACCELERATION"% axnum
-            print >>file, "    setp " + pinname + ".maxvel          [AXIS_%d]MAX_VELOCITY"% axnum
-            print >>file, "    setp " + pinname + ".step_type       0"
-            print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
-            print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
-            print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"  
+            print >>file, "    setp " + pinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+            print >>file, "    setp " + pinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+            print >>file, "    setp " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+            print >>file, "    setp " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+            print >>file, "    setp " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
+            print >>file, "    setp " + pinname + ".maxaccel        [%s_%d]MAX_ACCELERATION"% (title, axnum)
+            print >>file, "    setp " + pinname + ".maxvel          [%s_%d]MAX_VELOCITY"% (title, axnum)
+            print >>file, "    setp " + pinname + ".step_type       0"        
+            if let == 'spindle':  
+                print >>file, "    setp " + pinname + ".control-type    1"
+            else:
+                print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
+                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"  
             print >>file
-        print >>file, "# setup home / limit switche signal"       
-        if not homesig =="false":
-            print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
-        if not min_limsig =="false":
-            print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
-        if not max_limsig =="false":
-            print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
+        if let =='spindle':
+            print >>file, "# ---setup spindle control signals---" 
+            print >>file
+            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
+            print >>file, "net spindleenable <= motion.spindle-on"
+            #print >>file, "net spindle-on <= motion.spindle-on"
+            print >>file, "net spindle-cw <= motion.spindle-forward"
+            print >>file, "net spindle-ccw <= motion.spindle-reverse"
+            print >>file, "net spindle-brake <= motion.spindle-brake"            
+
+            print >>file, "net spindle-revs => motion.spindle-revs"
+            print >>file, "net spindle-atspeed => motion.spindle-at-speed"
+            print >>file, "net spindle-fb => motion.spindle-speed-in"
+            return
+        print >>file, "# ---setup home / limit switche signal---"       
+        print >>file       
+        print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
+        print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
+        print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
         print >>file
-        print >>file, "# Setup jogwheel mpg signals"
+        print >>file, "# ---Setup jogwheel mpg signals---"
         print >>file
         print >>file, "net %s-jog-count => axis.%d.jog-counts" % (let,axnum)
         print >>file, "net %s-jog-enable => axis.%d.jog-enable" % (let,axnum)
@@ -1223,7 +1297,7 @@ class Data:
                     if p in (self.halencoderinputsignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
                         sig = p.rstrip("-a")
-                        print >>file, "# ---",sig.upper,"---"
+                        print >>file, "# ---",sig.upper(),"---"
                         print >>file, "net %s <= "% (sig+"-position")+pinname +".position"   
                         print >>file, "net %s <= "% (sig+"-count")+pinname +".count"     
                         print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity"
@@ -1455,32 +1529,6 @@ class Data:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread" 
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread"
         print >>file
-        if pwm:
-            x1 = self.spindlepwm1
-            x2 = self.spindlepwm2
-            y1 = self.spindlespeed1
-            y2 = self.spindlespeed2
-            scale = (y2-y1) / (x2-x1)
-            offset = x1 - y1 / scale
-            print >>file
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
-            print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
-            print >>file, "net spindle-pwm <= pwmgen.0.pwm"
-            print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
-            print >>file, "    setp pwmgen.0.scale %s" % scale
-            print >>file, "    setp pwmgen.0.offset %s" % offset
-            print >>file, "    setp pwmgen.0.dither-pwm true"
-        else: 
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
-
-        if spindle_on:
-            print >>file, "net spindle-on <= motion.spindle-on"
-        if spindle_cw:
-            print >>file, "net spindle-cw <= motion.spindle-forward"
-        if spindle_ccw:
-            print >>file, "net spindle-ccw <= motion.spindle-reverse"
-        if brake:
-            print >>file, "net spindle-brake <= motion.spindle-brake"
 
         if mist:
             print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
@@ -1528,20 +1576,24 @@ class Data:
         if self.axes == 2:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'z')
-            self.connect_axis(file, 2, 's')
+            self.connect_axis(file, 0, 's')
         elif self.axes == 0:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
             self.connect_axis(file, 2, 'z')
-            self.connect_axis(file, 3, 's')
+            self.connect_axis(file, 0, 's')
         elif self.axes == 1:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
             self.connect_axis(file, 2, 'z')
             self.connect_axis(file, 3, 'a')
+            self.connect_axis(file, 0, 's')
 
+        print >>file, "#************************"
+        print >>file, _("# connect miscellaneous signals") 
+        print >>file, "#************************"
         print >>file
-        print >>file, _("#  estop signals")
+        print >>file, _("#  ---estop signals---")
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
@@ -3440,6 +3492,7 @@ class App:
     def on_ydrivertype_changed(self, *args): self.driver_changed('y')
     def on_zdrivertype_changed(self, *args): self.driver_changed('z')
     def on_adrivertype_changed(self, *args): self.driver_changed('a')
+    def on_sdrivertype_changed(self, *args): self.driver_changed('s')
 
     def driver_changed(self, axis):
         d = self.data
@@ -3691,9 +3744,14 @@ class App:
         test = self.data.findsignal("spindle-stepgen-step")
         stepdriven = 1
         if test == "false":stepdriven = 0
-        def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
-        def set_value(n): w[axis + n].set_value(d[axis + n])
-        def set_active(n): w[axis + n].set_active(d[axis + n])
+        def set_text(n): w[n].set_text("%s" % d[n])
+        def set_value(n): w[n].set_value(d[n])
+        def set_active(n): w[n].set_active(d[n])
+        model = w["sdrivertype"].get_model()
+        model.clear()
+        for i in drivertypes:
+            model.append((i[1],))
+        model.append((_("Custom"),))
         
         #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
         w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
@@ -3707,25 +3765,68 @@ class App:
             w.sencodercounts.set_sensitive(0)
         else: 
             w.sencoderlines.set_sensitive(1) 
-            w.sencodercounts.set_sensitive(1)  
-        w.sP.set_sensitive(not stepdriven)
-        w.sI.set_sensitive(not stepdriven)
-        w.sD.set_sensitive(not stepdriven)
-        w.sFF0.set_sensitive(not stepdriven)
-        w.sFF1.set_sensitive(not stepdriven)
-        w.sFF2.set_sensitive(not stepdriven)
-        w.sbias.set_sensitive(not stepdriven)
-        w.sdeadband.set_sensitive(not stepdriven)
-        w.ssteptime.set_sensitive(stepdriven)
-        w.sstepspace.set_sensitive(stepdriven)
-        w.sdirhold.set_sensitive(stepdriven)
-        w.sdirsetup.set_sensitive(stepdriven)
-        w.ssteprev.set_sensitive(stepdriven)
-        w.smicrostep.set_sensitive(stepdriven)
-        w.sdrivertype.set_sensitive(stepdriven)
+            w.sencodercounts.set_sensitive(1) 
+        w["sservo_info"].set_sensitive(not stepdriven)
+        w["sstepper_info"].set_sensitive(stepdriven)    
+        w["sdrivertype"].set_active(self.drivertype_toindex('s')) 
+        set_text("ssteprev")
+        set_text("smicrostep")
+        set_value("sP")
+        set_value("sI")
+        set_value("sD")
+        set_value("sFF0")
+        set_value("sFF1")
+        set_value("sFF2")
+        set_text("sbias")
+        set_text("sdeadband")
+        set_text("ssteptime")
+        set_text("sstepspace")
+        set_text("sdirhold")
+        set_text("sdirsetup")
+        set_text("soutputscale")
+        set_text("soutputoffset")
+        set_active("sinvertmotor")
+        set_active("sinvertencoder")  
+        set_text("smaxoutput")
+        set_text("spulleynum")
+        set_text("spulleyden")
+        w["sencoderlines"].set_text("%d" % (d["sencodercounts"]/4))
+        set_text("sencodercounts")
+        w["smaxvel"].set_text("%d" % (d["smaxvel"]*60))
+        set_text("smaxacc")
              
 
     def on_spindle_next(self, *args):
+        d = self.data
+        w = self.widgets
+        def get_text(n): d["s" + n] = float(w["s" + n].get_text())
+        def get_active(n): d["s" + n] = w["s" + n].get_active()
+        get_text("steprev")
+        get_text("microstep")
+        get_text("P")
+        get_text("I")
+        get_text("D")
+        get_text("FF0")
+        get_text("FF1")
+        get_text("FF2")
+        get_text("bias")
+        get_text("deadband")
+        get_text("steptime")
+        get_text("stepspace")
+        get_text("dirhold")
+        get_text("dirsetup")        
+        get_text("outputscale")
+        get_text("outputoffset")
+        get_text("maxoutput")
+        get_text("encodercounts")
+        get_active("invertmotor")
+        get_active("invertencoder") 
+        get_text("pulleynum")
+        get_text("pulleyden")
+        d["smaxvel"] = (float(w["smaxvel"].get_text())/60)
+        get_text("maxacc")
+        
+        d["sdrivertype"] = self.drivertype_toid('s', w["sdrivertype"].get_active())
         #self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
         self.data.spindlespeed1 = float(self.widgets.spindlespeed1.get_text())
         self.data.spindlespeed2 = float(self.widgets.spindlespeed2.get_text())

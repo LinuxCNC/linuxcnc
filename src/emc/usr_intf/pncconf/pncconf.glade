@@ -17047,6 +17047,7 @@ Type 2</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="response_id">0</property>
+                                        <signal name="clicked" handler="on_saxistest_clicked"/>
                                         <child>
                                           <widget class="GtkHBox" id="hbox63">
                                             <property name="visible">True</property>
@@ -17729,6 +17730,7 @@ Test</property>
                                         <property name="width_request">120</property>
                                         <property name="visible">True</property>
                                         <property name="items"></property>
+                                        <signal name="changed" handler="on_sdrivertype_changed"/>
                                       </widget>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -18478,6 +18480,7 @@ Test</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="response_id">0</property>
+                                <signal name="clicked" handler="on_saxistune_clicked"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment35">
                                     <property name="visible">True</property>
