@@ -1273,6 +1273,8 @@ class App:
         
 
     def on_basicinfo_next(self, *args):
+        self.widgets.drivetime_expander.set_expanded(False)
+        self.widgets.parport_expander.set_expanded(False)
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
