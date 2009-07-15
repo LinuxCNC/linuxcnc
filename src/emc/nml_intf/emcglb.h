@@ -68,6 +68,7 @@ extern "C" {
 // AXIS_MAX_* are used by canon
     extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
     extern double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS];
+    extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
 
     extern struct EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;

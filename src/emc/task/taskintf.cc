@@ -1017,7 +1017,14 @@ int emcTrajSetHome(EmcPose home)
     emcmotCommand.command = EMCMOT_SET_WORLD_HOME;
     emcmotCommand.pos = home;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f) returned %d\n", 
+          __FUNCTION__, home.tran.x, home.tran.y, home.tran.z, home.a, home.b, home.c, 
+          home.u, home.v, home.w, retval);
+    }
+    return retval;
 }
 
 int emcTrajSetScale(double scale)
@@ -1494,6 +1501,7 @@ int emcMotionInit()
 {
     int r1, r2, r3, r4;
     int joint, axis;
+    EmcPose home;
 
     r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
@@ -1511,6 +1519,18 @@ int emcMotionInit()
 	    r3 = -1;		// at least one is busted
 	}
     }
+
+    home.tran.x = AXIS_WORLD_HOME[0];
+    home.tran.y = AXIS_WORLD_HOME[1];
+    home.tran.z = AXIS_WORLD_HOME[2];
+    home.a = AXIS_WORLD_HOME[3];
+    home.b = AXIS_WORLD_HOME[4];
+    home.c = AXIS_WORLD_HOME[5];
+    home.u = AXIS_WORLD_HOME[6];
+    home.v = AXIS_WORLD_HOME[7];
+    home.w = AXIS_WORLD_HOME[8];
+
+    emcTrajSetHome(home);
 
     r4 = emcPositionLoad();
 

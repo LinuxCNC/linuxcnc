@@ -85,12 +85,8 @@ static int loadTraj(EmcIniFile *trajInifile)
     EmcAngularUnits angularUnits;
     double vel;
     double acc;
-    unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
     int t;
     int len;
-    char homes[LINELEN];
-    char home[LINELEN];
-    EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double d;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
@@ -159,82 +155,6 @@ static int loadTraj(EmcIniFile *trajInifile)
     catch(EmcIniFile::Exception &e){
         e.Print();
         return -1;
-    }
-
-    // set coordinateMark[] to hold 1's for each coordinate present,
-    // so that home position can be interpreted properly
-    if ((inistring = trajInifile->Find("COORDINATES", "TRAJ")) != NULL) {
-        len = strlen(inistring);
-        // there's an entry in ini file, so clear all the marks out first
-        // so that defaults don't apply at all
-        for (t = 0; t < 6; t++) {
-            coordinateMark[t] = 0;
-        }
-        // now set actual marks
-        for (t = 0; t < len; t++) {
-            if (inistring[t] == 'X')
-                coordinateMark[0] = 1;
-            else if (inistring[t] == 'Y')
-                coordinateMark[1] = 1;
-            else if (inistring[t] == 'Z')
-                coordinateMark[2] = 1;
-            else if (inistring[t] == 'R')
-                coordinateMark[3] = 1;
-            else if (inistring[t] == 'P')
-                coordinateMark[4] = 1;
-            else if (inistring[t] == 'W')
-                coordinateMark[5] = 1;
-        }
-    }
-
-    if (NULL != (inistring = trajInifile->Find("HOME", "TRAJ"))) {
-	// found it, now interpret it according to coordinateMark[]
-	strcpy(homes, inistring);
-	len = 0;
-	for (t = 0; t < 6; t++) {
-	    if (!coordinateMark[t]) {
-		continue;	// position t at index of next non-zero mark
-	    }
-	    // there is a mark, so read the string for a value
-	    if (1 == sscanf(&homes[len], "%s", home) &&
-		1 == sscanf(home, "%lf", &d)) {
-		// got an entry, index into coordinateMark[] is 't'
-		if (t == 0)
-		    homePose.tran.x = d;
-		else if (t == 1)
-		    homePose.tran.y = d;
-		else if (t == 2)
-		    homePose.tran.z = d;
-		else if (t == 3)
-		    homePose.a = d;
-		else if (t == 4)
-		    homePose.b = d;
-		else
-		    homePose.c = d;
-
-		// position string ptr past this value
-		len += strlen(home);
-		// and at start of next value
-		while ((len < LINELEN) && (homes[len] == ' ' || homes[len] == '\t')) {
-		    len++;
-		}
-		if (len >= LINELEN) {
-		    break;	// out of for loop
-		}
-	    } else {
-		// badly formatted entry
-		rcs_print("invalid inifile value for [TRAJ] HOME: %s\n",
-			  inistring);
-                return -1;
-	    }
-	}			// end of for-loop on coordinateMark[]
-    }
-
-    if (0 != emcTrajSetHome(homePose)) {
-	if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-	    rcs_print("bad return value from emcTrajSetHome\n");
-	}
-	return -1;
     }
 
     return 0;

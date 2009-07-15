@@ -56,6 +56,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     char axisString[16];
     int axisType=0;
     double limit;
+    double home;
     double maxVelocity;
     double maxAcceleration;
 
@@ -75,6 +76,10 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     axisIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
     
     try {
+        home = 0;
+        axisIniFile->Find(&home, "HOME", axisString);
+        AXIS_WORLD_HOME[axis] = home;
+
         // set min position limit
         limit = -1e99;	                // default
         axisIniFile->Find(&limit, "MIN_LIMIT", axisString);
