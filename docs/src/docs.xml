@@ -13,7 +13,6 @@
 <doc name="config_emc2hal" title="EMC2's interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 
-<doc name="common_User_Concepts" title="Important User Concepts"/>
 <doc name="gcode_overview" title="G Code Overview"/>
 <doc name="gcode_main" title="The EMC2 G Code Language"/>
 <doc name="gcode_coordinates" title="Coordinate Systems"/>
@@ -29,6 +28,7 @@
 <doc name="gui_image-to-gcode" title="Image-to-gcode"/>
 
 <doc name="common_User_Concepts" title="Important User Concepts"/>
+<doc name="common_Integrator_Concepts" title="Important Integrator Concepts"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
 
 <doc name="hal_intro" title="Introduction"/>

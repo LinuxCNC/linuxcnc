@@ -1,0 +1,30 @@
+(cut a small 1/4-20 thread and part it)
+
+g20 g64 g18
+
+(thread)
+t4 m6
+g43
+s800 m3
+g4p1
+g0z.2x.2
+
+(p = thread pitch, distance per revolution)
+(z = end of drive line)
+(i = offset from drive line to thread peaks)
+(    negative i means the threads are at a smaller radius than the drive line,)
+(    so i is negative for outside threads, positive for inside threads)
+(j = initial cut depth; subsequent depths follow degression formula)
+(r = depth degression: 1.0 = constant depth, 2.0 = constant area)
+(                      any number >= 1.0 allowed)
+(k = full thread depth)
+(q = "compound slide" angle)
+(h = number of spring passes)
+(e = distance along drive line used for tapered start/end)
+(l = which ends get the taper: 0 = neither, 1 = begin, 2 = end, 3 = both)
+g76 p.05 z-.5 i-.075 j.008 k.045 h3 r2.0 q29.5 e.05 l2
+g0x.5
+g0z0
+m5
+
+m2

@@ -2903,6 +2903,10 @@ class TclCommands(nf.TclCommands):
         if not manual_ok(): return "break"
         global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
+        commands.send_mdi_command(command)
+        return "break"
+
+    def send_mdi_command(command):
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
@@ -2932,7 +2936,6 @@ class TclCommands(nf.TclCommands):
             c.mdi(command)
             o.tkRedraw()
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
-        return "break"
 
     # write out mdi history file (history_size equal to -1 will delete history)
     def mdi_history_write_to_file(file_name, history_size):

@@ -2528,7 +2528,8 @@ convert_stop).
 int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                      setup_pointer settings)    //!< pointer to machine settings                 
 {
-  int type, timeout;
+  int type;
+  double timeout;               // timeout for M66
   double *pars;                 /* short name for settings->parameters            */
 
   pars = settings->parameters;
@@ -2545,18 +2546,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   if (block->m_modes[5] == 62) {
       CHKS((settings->cutter_comp_side != OFF),
            (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M62"));
       SET_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 63) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set motion output with cutter radius compensation on")));  // XXX
+           (_("Cannot set motion digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M63"));
       CLEAR_MOTION_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 64) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M64"));
       SET_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 65) {
       CHKS((settings->cutter_comp_side != OFF),
-           (_("Cannot set auxiliary output with cutter radius compensation on")));  // XXX
+           (_("Cannot set auxiliary digital output with cutter radius compensation on")));  // XXX
+      CHKS((block->p_flag == OFF), _("No valid P word with M65"));
       CLEAR_AUX_OUTPUT_BIT(round_to_int(block->p_number));
   } else if (block->m_modes[5] == 66) {
     //P-word = digital channel
@@ -2570,7 +2575,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED);
 
     // L-word not 0, and timeout <= 0 
-    CHKS(((round_to_int(block->q_number) <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) > 0)),
+    CHKS(((block->q_number <= 0) && (block->l_flag == ON) && (round_to_int(block->l_number) > 0)),
 	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
 	
     // E-word specified (analog input) and wait type not immediate
@@ -2593,8 +2598,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    type = WAIT_MODE_IMMEDIATE;
         }
 	    
-	if (round_to_int(block->q_number) >= 0) {
-	    timeout = round_to_int(block->q_number);
+	if (block->q_number > 0) {
+	    timeout = block->q_number;
 	} else {
 	    timeout = 0;
         }
@@ -2622,8 +2627,22 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_digital = OFF;
 	}
     } 
+  } else if (block->m_modes[5] == 67) {
+    //E-word = analog channel
+    //Q-word = analog value
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set motion analog output with cutter radius compensation on")));  // XXX
+      CHKS((block->e_flag == OFF) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M67")));
+      SET_MOTION_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
+  } else if (block->m_modes[5] == 68) {
+    //E-word = analog channel
+    //Q-word = analog value
+      CHKS((settings->cutter_comp_side != OFF),
+           (_("Cannot set auxiliary analog output with cutter radius compensation on")));  // XXX
+      CHKS((block->e_flag == OFF) || (round_to_int(block->e_number) < 0), (_("Invalid analog index with M68")));
+      SET_AUX_OUTPUT_VALUE(round_to_int(block->e_number), block->q_number);
   }    
-
+  
   if (block->m_modes[6] != -1) {
     // when we have M6 do the actual toolchange
     if (block->m_modes[6] == 6)
@@ -3674,7 +3693,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
          settings->u_current != u_end ||
          settings->v_current != v_end ||
          settings->w_current != w_end), NCE_CANNOT_MOVE_ROTARY_AXES_WITH_G76);
-    convert_threading_cycle(block, settings, end_x, end_y, end_z);
+    int result = convert_threading_cycle(block, settings, end_x, end_y, end_z);
+    if(result != INTERP_OK) return result;
   } else
     ERS(NCE_BUG_CODE_NOT_G0_OR_G1);
 
@@ -3744,6 +3764,13 @@ int Interp::convert_threading_cycle(block_pointer block,
 
     CHKS((settings->cutter_comp_side != OFF),
          (_("Cannot use G76 threading cycle with cutter radius compensation on")));
+
+    CHKS((block->i_number == 0),
+        (_("In G76, I must not be 0")));
+    CHKS((block->j_number <= 0),
+        (_("In G76, J must be greater than 0")));
+    CHKS((block->k_number <= block->j_number),
+        (_("In G76, K must be greater than J")));
 
     double start_x = settings->current_x;
     double start_y = settings->current_y;

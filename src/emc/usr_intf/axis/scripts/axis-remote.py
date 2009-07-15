@@ -20,20 +20,20 @@
 """\
 axis-remote: cause AXIS to open, reload its opened file, or exit
 
-Usage: axis-remote [--clear|--ping|--reload|--quit|filename]
-       axis-remote [-c|-p|-r|-q]"""
+Usage: axis-remote [--clear|--ping|--reload|--quit|--mdi command|filename]
+       axis-remote [-c|-p|-r|-q|-m command]"""
 
 import sys, getopt, Tkinter, os
 
-OPEN, RELOAD, PING, CLEAR, QUIT = range(5)
-mode = OPEN
+UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = range(7)
+mode = UNSPECIFIED
 
 def usage(exitval=0):
     print __doc__
     raise SystemExit, exitval
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?prqc",
+    opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
                         ['help','ping', 'reload', 'quit', 'clear'])
 except getopt.GetoptError, detail:
     print detail
@@ -43,23 +43,32 @@ for o, a in opts:
     if o in ('-h', '-?', '--help'):
         usage(0)
     elif o in ('-c', '--clear'):
-        if mode != OPEN:
+        if mode != UNSPECIFIED:
             usage(99)
         mode = CLEAR
     elif o in ('-p', '--ping'):
-        if mode != OPEN:
+        if mode != UNSPECIFIED:
             usage(99)
         mode = PING
     elif o in ('-r', '--reload'):
-        if mode != OPEN:
+        if mode != UNSPECIFIED:
             usage(99)
         mode = RELOAD
     elif o in ('-q', '--quit'):
-        if mode != OPEN:
+        if mode != UNSPECIFIED:
             usage(99)
         mode = QUIT
+    elif o in ('-m', '--mdi'):
+        if mode != UNSPECIFIED:
+            usage(99)
+        mode = MDI
+if mode == UNSPECIFIED:
+    mode = OPEN
 
 if mode == OPEN:
+    if len(args) != 1:
+        usage(99)
+elif mode == MDI:
     if len(args) != 1:
         usage(99)
 else:
@@ -69,7 +78,9 @@ else:
 t = Tkinter.Tk(); t.wm_withdraw()
 
 if mode == OPEN:
-    t.tk.call("send", "axis", "open_file_name", os.path.abspath(args[0]))
+    t.tk.call("send", "axis", ("open_file_name", os.path.abspath(args[0])))
+elif mode == MDI:
+    t.tk.call("send", "axis", ("send_mdi_command", args[0]))
 elif mode == PING:
     try:
         t.tk.call("send", "axis", "expr", "1")

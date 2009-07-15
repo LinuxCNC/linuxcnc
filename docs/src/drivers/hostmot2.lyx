@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -2107,6 +2108,12 @@ Pins
 \end_layout
 
 \begin_layout Description
+.control-type (Bit, In) Switches between position control mode (0) and velocity
+ control mode (1).
+ Defaults to position control (0).
+\end_layout
+
+\begin_layout Description
 .counts (s32, Out) Feedback position in counts (number of steps).
 \end_layout
 
@@ -2116,18 +2123,25 @@ Pins
 \end_layout
 
 \begin_layout Description
-.position-cmd (Float, In) Target of stepper motion, in arbitrary position
- units.
+.position-cmd (Float, In) Target position of stepper motion, in user-defined
+ position units.
 \end_layout
 
 \begin_layout Description
-.position-fb (Float, Out) Feedback position in arbitrary position units (counts
- / position_scale).
+.position-fb (Float, Out) Feedback position in user-defined position units
+ (counts / position_scale).
 \end_layout
 
 \begin_layout Description
-.velocity-fb (Float, Out) Feedback velocity in arbitrary position units per
- second.
+.velocity-cmd (Float, In) Target velocity of stepper motion, in user-defined
+ position units per second.
+ This pin is only used when the stepgen is in velocity control mode (control-typ
+e=1).
+\end_layout
+
+\begin_layout Description
+.velocity-fb (Float, Out) Feedback velocity in user-defined position units
+ per second.
 \end_layout
 
 \begin_layout Subsection*
@@ -2440,6 +2454,10 @@ rt pin below).
 
 \begin_layout Description
 .scale (Float, RW) Converts from "count" units to "position" units.
+ A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
+ encoder would be 400 counts per revolution.
+ In ".counter-mode" a 100 PPR encoder would have 100 counts per revelution
+ as it only uses the rising edge of A and direction is B.
 \end_layout
 
 \begin_layout Description

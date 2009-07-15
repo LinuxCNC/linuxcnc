@@ -11,11 +11,6 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#ifdef ULAPI
-#include <stdio.h>
-#include <stdlib.h>
-#endif
-
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "rtapi_string.h"       /* NULL */
 #include "posemath.h"
@@ -677,7 +672,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         return 0;
     }
 
-    if (tc->target == tc->progress) {
+    if (tc->target == tc->progress && waiting_for_atspeed != tc->id) {
         // if we're synced, and this move is ending, save the
         // spindle position so the next synced move can be in
         // the right place.
@@ -702,11 +697,15 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     else
         nexttc = NULL;
 
-    if(!tc->synchronized && nexttc && nexttc->synchronized && !nexttc->velocity_mode) {
-        // we'll have to wait for spindle sync; might as well
-        // stop at the right place (don't blend)
-        tc->blend_with_next = 0;
-        nexttc = NULL;
+    {
+	int this_synch_pos = tc->synchronized && !tc->velocity_mode;
+	int next_synch_pos = nexttc && nexttc->synchronized && !nexttc->velocity_mode;
+	if(!this_synch_pos && next_synch_pos) {
+	    // we'll have to wait for spindle sync; might as well
+	    // stop at the right place (don't blend)
+	    tc->blend_with_next = 0;
+	    nexttc = NULL;
+	}
     }
 
     if(nexttc && nexttc->atspeed) {
@@ -743,10 +742,20 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     // this is no longer the segment we were waiting_for_index for
     if(waiting_for_index && waiting_for_index != tc->id) 
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Was waiting for index on motion id %d, but reached id %d\n",
+                waiting_for_index, tc->id);
         waiting_for_index = 0;
+    }
+    if(waiting_for_atspeed && waiting_for_atspeed != tc->id)  
+    {
 
-    if(waiting_for_atspeed && waiting_for_atspeed != tc->id) 
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "Was waiting for atspeed on motion id %d, but reached id %d\n",
+                waiting_for_atspeed, tc->id);
         waiting_for_atspeed = 0;
+    }
 
     // check for at-speed before marking the tc active
     if(waiting_for_atspeed) {
