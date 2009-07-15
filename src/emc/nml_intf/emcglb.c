@@ -45,6 +45,8 @@ double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS] = { 1.0 };	/*! \todo FIXME - I thin
 double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS] = { 1.0 };
 double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS] = { 1.0 };
 
+double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS] = {0.0,};
+
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
 EmcPose tool_holder_clear;	/* no defaults */

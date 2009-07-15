@@ -60,6 +60,7 @@ extern "C" {
 // AXIS_MAX_* are used by canon
     extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
     extern double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS];
+    extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
 
     extern double traj_default_velocity;
     extern double traj_max_velocity;
