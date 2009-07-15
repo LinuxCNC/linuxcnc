@@ -13,3 +13,5 @@ Module.symvers
 config.status.lineno
 tags
 TAGS
+config.h.in
+configure
