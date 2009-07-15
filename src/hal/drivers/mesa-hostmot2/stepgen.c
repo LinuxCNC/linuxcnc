@@ -194,7 +194,8 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
 // This function was invented by Jeff Epler.
 // It forces a floating-point variable to be degraded from native register
 // size (80 bits on x86) to C double size (64 bits).
-static double force_precision(double d) __attribute__((__noinline__)) {
+static double force_precision(double d) __attribute__((__noinline__));
+static double force_precision(double d) {
     return d;
 }
 
