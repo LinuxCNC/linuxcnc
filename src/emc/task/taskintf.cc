@@ -1514,9 +1514,11 @@ int emcMotionInit()
     }
 
     r3 = 0;
-    for (axis = 0; axis < localEmcTrajAxes; axis++) {
-	if (0 != emcAxisInit(axis)) {
-	    r3 = -1;		// at least one is busted
+    for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
+        if (localEmcTrajAxisMask & (1<<axis)) {
+	    if (0 != emcAxisInit(axis)) {
+	        r3 = -1;		// at least one is busted
+	    }
 	}
     }
 
