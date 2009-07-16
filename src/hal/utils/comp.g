@@ -231,7 +231,9 @@ def prologue(f):
         sys.argv[0], time.asctime())
     print >> f, """\
 #include "rtapi.h"
+#ifdef RTAPI
 #include "rtapi_app.h"
+#endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
@@ -254,12 +256,12 @@ static int comp_id;
         if not v: continue
         v = ":".join(map(str, v))
         print >>f, "MODULE_INFO(emc2, %s);" % q(v)
+        license = finddoc('license')
+        if license and license[1]:
+            print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
     print >>f, "#endif // MODULE_INFO"
     print >>f
 
-    license = finddoc('license')    
-    if license and license[1]:
-        print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
 
     has_data = options.get("data")
 
@@ -605,7 +607,7 @@ def find_modinc():
     global modinc
     if modinc: return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/emc2', '/etc/emc2']:
+    for e in ['src', 'etc/emc2', '/etc/emc2', 'share/emc']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
             modinc = e
@@ -618,7 +620,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal %s" % (
+    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
@@ -870,16 +872,23 @@ def process(filename, mode, outfilename):
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
         lineno = a.count("\n") + 3
-        if "FUNCTION" in b:
+
+        if options.get("userspace"):
+            if functions:
+                raise SystemExit, "May not specify functions with a userspace component."
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
-        elif len(functions) == 1:
-            f.write("FUNCTION(%s) {\n" % functions[0][0])
-            f.write("#line %d \"%s\"\n" % (lineno, filename))
-            f.write(b)
-            f.write("}\n")
         else:
-            raise SystemExit, "Must use FUNCTION() when more than one function is defined"
+            if "FUNCTION" in b:
+                f.write("#line %d \"%s\"\n" % (lineno, filename))
+                f.write(b)
+            elif len(functions) == 1:
+                f.write("FUNCTION(%s) {\n" % functions[0][0])
+                f.write("#line %d \"%s\"\n" % (lineno, filename))
+                f.write(b)
+                f.write("}\n")
+            else:
+                raise SystemExit, "Must use FUNCTION() when more than one function is defined"
         epilogue(f)
         f.close()
 

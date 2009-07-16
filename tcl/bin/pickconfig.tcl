@@ -38,6 +38,8 @@ option add *Tree*background white
 
 ################### PROCEDURE DEFINITIONS #####################
 
+set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
+
 # use initialize_config for bwidget and .emcrc
 proc initialize_config {} {
     # need bwidget
@@ -415,7 +417,7 @@ proc make_shortcut {inifile} {
     set inistring [read $inifd]
     close $inifd
     set name [getVal $inistring EMC MACHINE]
-    set filename0 ~/Desktop/[file rootname [file tail $inifile]]
+    set filename0 [file join $::desktopdir [file rootname [file tail $inifile]]]
     set filename ${filename0}.desktop
     set i 0
     while {[file exists $filename]} {
@@ -427,7 +429,7 @@ proc make_shortcut {inifile} {
 }
 
 set make_shortcut 0
-if {[file isdir ~/Desktop]} {
+if {[file isdir $::desktopdir]} {
     checkbutton $f5.c -variable make_shortcut -text [msgcat::mc "Create Desktop Shortcut"]
     pack $f5.c -side left -expand 1 -anchor w
 }

@@ -88,14 +88,6 @@ void ClassicLadderEndOfAppli( void )
 
 }
 
-void HandlerSignalInterrupt( int signal_id )
-{
-	printf("End of application asked\n");
-	ClassicLadderEndOfAppli( );
-	exit( 0 );
-}
-
-
 void display_help (void)
 {
 	printf("\nClassicLadder v"CL_RELEASE_VER_STRING"\n"CL_RELEASE_DATE_STRING"\n"

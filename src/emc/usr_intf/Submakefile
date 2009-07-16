@@ -44,7 +44,7 @@ TARGETS += ../bin/tooledit
 
 ../tcl/emc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS)
+	$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
 TARGETS += ../tcl/emc.so
 
 ../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0

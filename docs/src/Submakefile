@@ -47,6 +47,7 @@ DOC_SRCS := \
 	common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
+	common/Integrator_Concepts.lyx \
 	common/integrator_intro.lyx \
 	common/integrator_intro_fr.lyx \
 	common/Linux_FAQ.lyx \

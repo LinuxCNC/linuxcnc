@@ -14,9 +14,6 @@
 * Last change:
 ********************************************************************/
 
-#ifdef ULAPI
-#include <stdio.h>
-#endif
 /*
   FIXME-- should include <stdlib.h> for sizeof(), but conflicts with
   a bunch of <linux> headers
@@ -358,9 +355,6 @@ TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period)
 	return (TC_STRUCT *) 0;
     }
     t = &(tcq->queue[(tcq->start + n) % tcq->size]);
-#ifndef RTAPI
-    t->cycle_time = period * 0.000000001;;
-#endif
     return t;
 }
 

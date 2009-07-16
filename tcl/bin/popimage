@@ -30,6 +30,8 @@ if {$argc < 1} {
   exit
 }
 
+load [file join [file dirname [info script]] .. emc.so]
+
 . configure -borderwidth 0 -highlightthickness 0
 
 set img [lindex $argv 0]
@@ -49,15 +51,15 @@ if {! [file exists $img]} {
   exit
 }
 
-if {[catch {image create photo image1 -file $img}]} {
+if {[catch {image create photo -file $img} image]} {
   puts stderr "bad image file $img"
   exit
 }
 
-set w [image width image1]
-set h [image height image1]
+set w [image width $image]
+set h [image height $image]
 canvas .c -width $w -height $h -borderwidth 0 -highlightthickness 0
-.c create image 0 0 -anchor nw -image image1
+.c create image 0 0 -anchor nw -image $image
 .c create text 4 [expr $h-4] -anchor sw \
     -text $env(EMC2VERSION) -fill white -font {Helvetica 18}
 
@@ -65,10 +67,15 @@ pack .c
 
 # Center popup in screen.
 
-set xmax [winfo screenwidth .]
-set ymax [winfo screenheight .]
-set x [expr ($xmax - [image width image1] )  / 2]
-set y [expr ($ymax - [image height image1] )  / 2]
+set si [lindex [multihead] 0]
+set x0 [lindex $si 0]
+set y0 [lindex $si 1]
+set x1 [lindex $si 2]
+set y1 [lindex $si 3]
+set cx [expr {($x0+$x1)/2}]
+set cy [expr {($y0+$y1)/2}]
+set x [expr {$cx-$w/2}]
+set y [expr {$cy-$h/2}]
 wm geometry . "+$x+$y"
 wm overrideredirect . 1
 

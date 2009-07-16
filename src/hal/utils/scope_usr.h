@@ -36,10 +36,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined ULAPI )
-#error This file needs ULAPI!
-#endif
-
 /* import the shared declarations */
 #include "scope_shm.h"
 

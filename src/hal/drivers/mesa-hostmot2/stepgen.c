@@ -191,6 +191,15 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
 }
 
 
+// This function was invented by Jeff Epler.
+// It forces a floating-point variable to be degraded from native register
+// size (80 bits on x86) to C double size (64 bits).
+static double force_precision(double d) __attribute__((__noinline__));
+static double force_precision(double d) {
+    return d;
+}
+
+
 static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_period_ns, int i) {
     double new_vel;
 
@@ -212,6 +221,7 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
         double max_steps_per_s = 1.0e9 / min_ns_per_step;
 
         physical_maxvel = max_steps_per_s / fabs(s->hal.param.position_scale);
+        physical_maxvel = force_precision(physical_maxvel);
 
         if (s->hal.param.maxvel < 0.0) {
             HM2_ERR("stepgen.%02d.maxvel < 0, setting to its absolute value\n", i);

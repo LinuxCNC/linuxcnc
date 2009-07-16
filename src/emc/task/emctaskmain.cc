@@ -709,6 +709,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
@@ -823,6 +825,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
@@ -1240,6 +1244,8 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
+	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
@@ -2881,8 +2887,6 @@ static int iniLoad(const char *filename)
     return 0;
 }
 
-static EMC_STAT last_emc_status;
-
 /*
   syntax: a.out {-d -ini <inifile>} {-nml <nmlfile>} {-shm <key>}
   */
@@ -2890,8 +2894,7 @@ int main(int argc, char *argv[])
 {
     int taskPlanError = 0;
     int taskExecuteError = 0;
-    double startTime;
-
+    double startTime, endTime, deltaTime;
     double minTime, maxTime;
 
     bindtextdomain("emc2", EMC2_PO_DIR);
@@ -3067,33 +3070,7 @@ int main(int argc, char *argv[])
 	    emcStatus->status = RCS_EXEC;
 	    emcStatus->task.status = RCS_EXEC;
 	}
-	// ignore state, line, source_line, and source_file[] since they're
-	// N/A
 
-	// Check for some error/warning conditions and warn the operator.
-	// The GUI would be a better place to check these but we will have
-	// lot's
-	// of gui's and some will neglect to check these flags.
-	for (int i = 0; i < EMC_AXIS_MAX; i++) {
-	    if (last_emc_status.motion.axis[i].minSoftLimit == 0
-		&& emcStatus->motion.axis[i].minSoftLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Minimum Software Limit on axis %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.axis[i].minSoftLimit =
-		emcStatus->motion.axis[i].minSoftLimit;
-	    if (last_emc_status.motion.axis[i].maxSoftLimit == 0
-		&& emcStatus->motion.axis[i].maxSoftLimit == 1) {
-		emcOperatorError(0,
-				 _
-				 ("Maximum Software Limit on axis %d exceeded."),
-				 i);
-	    }
-	    last_emc_status.motion.axis[i].maxSoftLimit =
-		emcStatus->motion.axis[i].maxSoftLimit;
-	}
 	// write it
 	// since emcStatus was passed to the WM init functions, it
 	// will be updated in the _update() functions above. There's
@@ -3104,6 +3081,16 @@ int main(int argc, char *argv[])
 	// interval if ini file says to run full out via
 	// [TASK] CYCLE_TIME <= 0.0
 	// emcTaskEager = 0;
+	if (emcTaskNoDelay) {
+            endTime = etime();
+            deltaTime = endTime - startTime;
+            if (deltaTime < minTime)
+                minTime = deltaTime; 
+            else if (deltaTime > maxTime)
+                maxTime = deltaTime; 
+            startTime = endTime;
+        }
+
 	if ((emcTaskNoDelay) || (emcTaskEager)) {
 	    emcTaskEager = 0;
 	} else {
@@ -3115,7 +3102,7 @@ int main(int argc, char *argv[])
     emctask_shutdown();
     /* debugging */
     if (emcTaskNoDelay) {
-	if (EMC_DEBUG & EMC_DEBUG_INTERP) {
+	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print("cycle times (seconds): %f min, %f max\n", minTime,
 	       maxTime);
 	}

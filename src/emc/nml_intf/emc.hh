@@ -197,7 +197,7 @@ class PM_CARTESIAN;
 /* removed #define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202) */
 /* removed #define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203) */
 /* removed #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204) */
-#define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)
+/* removed #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205) */
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
@@ -250,8 +250,8 @@ class PM_CARTESIAN;
 
 // EMC IO point configuration declarations
 
-#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001)
-#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002)
+/* removed #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) */
+/* removed #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) */
 
 
 // digital IO point indices

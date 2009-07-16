@@ -30,17 +30,24 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
+AC_MSG_CHECKING(build toplevel)
+BUILD_TOPLEVEL="$(cd ..; pwd -P)"
+AC_MSG_RESULT($BUILD_TOPLEVEL)
+
 AC_CONFIG_HEADER(config.h)
 
 # Support some of the standard configure options for directories
-AC_PREFIX_DEFAULT(/usr/local)
+AC_PREFIX_DEFAULT(run-in-place)
 
-if test "x$prefix" = "xNONE"; then
-  prefix=$ac_default_prefix
-  ac_configure_args="$ac_configure_args --prefix $prefix"
-fi
 AC_MSG_CHECKING(installation prefix)
-AC_MSG_RESULT($prefix)
+if test "x$prefix" = "xNONE"; then
+  RUN_IN_PLACE=yes
+  AC_MSG_RESULT(run in place)
+  prefix=${BUILD_TOPLEVEL}
+else
+  RUN_IN_PLACE=no
+  AC_MSG_RESULT($prefix)
+fi
 AC_SUBST(AUTODIRS)
 
 # EMC2 internationalisation package name:
@@ -77,8 +84,6 @@ RTFLAGS=""
 RTAI3_MOD=""
 RTAI_MOD=""
 RTL_MOD=""
-
-BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 
 ##############################################################################
 # Subsection 2.1                                                             #
@@ -456,32 +461,28 @@ if test "x" = "x$MODULE_DIR" ; then
   fi
 fi
     
+if test "$RUN_IN_PLACE" = "yes"; then
+    RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
+    AC_MSG_RESULT([configuring for run-in-place])
+    prefix=${BUILD_TOPLEVEL}
+    DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
+    DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
+    AC_MSG_RESULT([$RIP_MODULE_DIR])
+else
+    RUN_IN_PLACE=no
+    EMC2_HOME=$prefix
+    DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
+    AC_MSG_RESULT([$MODULE_DIR])
+fi
+
 AC_ARG_ENABLE(run-in-place,
-    [  --enable-run-in-place   Configure EMC to run without make install],
+    [  --enable-run-in-place   A deprecated flag
+                          (instead, configure without specifying --prefix)],
     [
-        case "$enableval" in
-        Y*|y*)
-            RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
-            RUN_IN_PLACE=yes
-            AC_MSG_RESULT([configuring for run-in-place])
-            prefix=${BUILD_TOPLEVEL}
-            DEFAULT_NMLFILE=${prefix}/configs/common/emc.nml
-            DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
-        ;;
-        *)
-            RUN_IN_PLACE=no
-            EMC2_HOME=$prefix
-            DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
-            DEFAULT_TOOLTABLE=${prefix}/share/doc/emc2/examples/sample-configs/sim/sim.tbl
-        ;;
-    esac
-    ],
-    [
-        RUN_IN_PLACE=no
-        EMC2_HOME=$prefix
-        DEFAULT_NMLFILE=${prefix}/share/emc/emc.nml
-	AC_MSG_CHECKING(for realtime module directory)
-        AC_MSG_RESULT([$MODULE_DIR])
+        if ! test -z "$enableval"; then
+            AC_MSG_WARN([--enable-run-in-place will be removed soon.
+Configure without specifying --prefix to get a run-in-place build.])
+        fi
     ])
 
 AC_SUBST([MODULE_DIR])
@@ -495,6 +496,15 @@ AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml 
 # Subsection 3.4 - define default dirs, these get used in a lot of places    #
 # we decide based on RIP or install where stuff goes                         #
 ##############################################################################
+
+fe () {
+    # Fully expand argument.  Example:
+    # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
+    case "$1" in
+    *\$*) eval fe \""$1"\" ;;
+    *) echo "$1" ;;
+    esac
+}
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_BIN_DIR=$EMC2_HOME/bin
@@ -523,7 +533,7 @@ else
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=$(eval echo $sysconfdir)/emc2/
+    EMC2_IMAGE_DIR=$(fe "$datadir")/emc
 fi
 
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])

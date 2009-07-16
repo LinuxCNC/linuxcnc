@@ -253,6 +253,7 @@ int do_source_cmd(char *hal_filename) {
     if(!f) {
         fprintf(stderr, "Could not open hal file '%s': %s\n",
                 hal_filename, strerror(errno));
+	free(filename_save);
         return -EINVAL;
     }
     fd = fileno(f);

@@ -20,6 +20,7 @@
 #include <sys/stat.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
+#include "rs274ngc_interp.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
@@ -152,7 +153,7 @@ const int Interp::_ems[] = {
    4, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 39
   -1, -1, -1, -1, -1, -1, -1, -1,  9,  9,  // 49
    9,  9,  9,  9, -1, -1, -1, -1, -1, -1,  // 59
-   4,  6,  5,  5,  5,  5,  5, -1, -1, -1,  // 69
+   4,  6,  5,  5,  5,  5,  5,  5,  5, -1,  // 69
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 79
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 89
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  // 99

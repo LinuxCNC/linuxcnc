@@ -25,6 +25,7 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"
+#include "rs274ngc_interp.hh"
 
 /****************************************************************************/
 
@@ -760,6 +761,10 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
   if (line[counter] == '/')     /* skip the slash character if first */
     counter++;
 
+  if (line[counter] == 'n') {
+    CHP(read_n_number(line, &counter, block));
+  }
+
   if (line[counter] == 'o')
  /* Handle 'o' explicitly here. Default is
     to read letters via pointer calls to related
@@ -774,11 +779,7 @@ int Interp::read_items(block_pointer block,      //!< pointer to a block being f
       // if we are skipping, do NOT evaluate non-olines
       return INTERP_OK;
   }
-  else if (line[counter] == 'n')
-  {
 
-    CHP(read_n_number(line, &counter, block));
-  }
   for (; counter < length;) {
     CHP(read_one_item(line, &counter, block, parameters));
   }
