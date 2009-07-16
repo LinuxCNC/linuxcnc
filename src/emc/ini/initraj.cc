@@ -26,6 +26,16 @@
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 
+/*
+  loadKins()
+
+  JOINTS <int>                  number of joints (DOF) in system
+
+  calls:
+
+  emcTrajSetJoints(int joints);
+*/
+
 static int loadKins(EmcIniFile *trajInifile)
 {
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
@@ -35,9 +45,6 @@ static int loadKins(EmcIniFile *trajInifile)
 	trajInifile->Find(&joints, "JOINTS", "KINS");
 
         if (0 != emcTrajSetJoints(joints)) {
-            if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-                rcs_print("bad return value from emcTrajSetJoints\n");
-            }
             return -1;
         }
     }
@@ -56,38 +63,30 @@ static int loadKins(EmcIniFile *trajInifile)
 
   Loads ini file params for traj
 
-  AXES <int>                    number of axes in system
-  LINEAR_UNITS <float>          units per mm
-  ANGULAR_UNITS <float>         units per degree
-  CYCLE_TIME <float>            cycle time for traj calculations
-  DEFAULT_VELOCITY <float>      default velocity
-  MAX_VELOCITY <float>          max velocity
-  MAX_ACCELERATION <float>      max acceleration
-  DEFAULT_ACCELERATION <float>  default acceleration
-  HOME <float> ...              world coords of home, in X Y Z R P W
+  AXES <int>                      number of axes in system
+  LINEAR_UNITS <float>            units per mm
+  ANGULAR_UNITS <float>           units per degree
+  DEFAULT_LINEAR_VELOCITY <float> default linear velocity
+  MAX_LINEAR_VELOCITY <float>     max linear velocity
+  DEFAULT_LINEAR_ACCEL <float>    default linear acceleration
+  MAX_LINEAR_ACCEL <float>        max linear acceleration
 
   calls:
 
   emcTrajSetJoints(int joints);
   emcTrajSetUnits(double linearUnits, double angularUnits);
-  emcTrajSetCycleTime(double cycleTime);
   emcTrajSetVelocity(double vel);
   emcTrajSetAcceleration(double acc);
   emcTrajSetMaxVelocity(double vel);
   emcTrajSetMaxAcceleration(double acc);
-  emcTrajSetHome(EmcPose home);
   */
 
 static int loadTraj(EmcIniFile *trajInifile)
 {
-    const char *inistring;
     EmcLinearUnits linearUnits;
     EmcAngularUnits angularUnits;
     double vel;
     double acc;
-    int t;
-    int len;
-    double d;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
@@ -152,7 +151,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
     }
 
-    catch(EmcIniFile::Exception &e){
+    catch (EmcIniFile::Exception &e) {
         e.Print();
         return -1;
     }
