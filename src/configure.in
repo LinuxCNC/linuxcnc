@@ -497,6 +497,15 @@ AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml 
 # we decide based on RIP or install where stuff goes                         #
 ##############################################################################
 
+fe () {
+    # Fully expand argument.  Example:
+    # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
+    case "$1" in
+    *\$*) eval fe \""$1"\" ;;
+    *) echo "$1" ;;
+    esac
+}
+
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
@@ -524,7 +533,7 @@ else
     EMC2_CONFIG_PATH="~/emc2/configs:/usr/local/etc/emc2/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/emc/ncfiles
     REALTIME=/etc/init.d/realtime
-    EMC2_IMAGE_DIR=$(eval echo $datadir)/emc
+    EMC2_IMAGE_DIR=$(fe "$datadir")/emc
 fi
 
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
