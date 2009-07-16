@@ -9,8 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 
 #include <stdio.h>		// NULL
@@ -75,7 +73,7 @@ static int loadKins(EmcIniFile *trajInifile)
 
   emcTrajSetJoints(int joints);
   emcTrajSetUnits(double linearUnits, double angularUnits);
-  emcTrajSetVelocity(double vel);
+  emcTrajSetVelocity(double vel, double ini_maxvel);
   emcTrajSetAcceleration(double acc);
   emcTrajSetMaxVelocity(double vel);
   emcTrajSetMaxAcceleration(double acc);

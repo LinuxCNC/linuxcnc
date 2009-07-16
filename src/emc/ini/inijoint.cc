@@ -33,23 +33,20 @@
   Loads ini file params for joint, joint = 0, ...
 
   TYPE <LINEAR ANGULAR>        type of joint
-  UNITS <float>                units per mm or deg
   MAX_VELOCITY <float>         max vel for joint
   MAX_ACCELERATION <float>     max accel for joint
   BACKLASH <float>             backlash
-  INPUT_SCALE <float> <float>  scale, offset
-  OUTPUT_SCALE <float> <float> scale, offset
   MIN_LIMIT <float>            minimum soft position limit
   MAX_LIMIT <float>            maximum soft position limit
   FERROR <float>               maximum following error, scaled to max vel
   MIN_FERROR <float>           minimum following error
   HOME <float>                 home position (where to go after home)
-  HOME_VEL <float>             speed to move from HOME_OFFSET to HOME location (at the end of homing)
+  HOME_FINAL_VEL <float>       speed to move from HOME_OFFSET to HOME location (at the end of homing)
   HOME_OFFSET <float>          home switch/index pulse location
   HOME_SEARCH_VEL <float>      homing speed, search phase
   HOME_LATCH_VEL <float>       homing speed, latch phase
-  HOME_USE_INDEX <bool>        use index pulse when homing?
-  HOME_IGNORE_LIMITS <bool>    ignore limit switches when homing?
+  HOME_USE_INDEX <bool>        use index pulse when homing
+  HOME_IGNORE_LIMITS <bool>    ignore limit switches when homing
   COMP_FILE <filename>         file of joint compensation points
 
   calls:
@@ -57,21 +54,17 @@
   emcJointSetJoint(int joint, unsigned char jointType);
   emcJointSetUnits(int joint, double units);
   emcJointSetBacklash(int joint, double backlash);
-  emcJointSetInterpolationRate(int joint, int rate);
-  emcJointSetInputScale(int joint, double scale, double offset);
-  emcJointSetOutputScale(int joint, double scale, double offset);
   emcJointSetMinPositionLimit(int joint, double limit);
   emcJointSetMaxPositionLimit(int joint, double limit);
   emcJointSetFerror(int joint, double ferror);
   emcJointSetMinFerror(int joint, double ferror);
-  emcJointSetHomingParams(int joint, double home, double offset,
-    double search_vel, double latch_vel, int use_index, int ignore_limits );
+  emcJointSetHomingParams(int joint, double home, double offset, double home_vel, 
+                          double search_vel, double latch_vel, int use_index, 
+                          int ignore_limits, int is_shared, int sequence, int volatile_home));
   emcJointActivate(int joint);
-  emcJointDeactivate(int joint);
   emcJointSetMaxVelocity(int joint, double vel);
   emcJointSetMaxAcceleration(int joint, double acc);
-  emcJointLoadComp(int joint, const char * file);
-  emcJointLoadComp(int joint, const char * file);
+  emcJointLoadComp(int joint, const char * file, int comp_file_type);
   */
 
 static int loadJoint(int joint, EmcIniFile *jointIniFile)
@@ -204,18 +197,19 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         }
     }
 
-    catch(EmcIniFile::Exception &e){
+    catch (EmcIniFile::Exception &e) {
         e.Print();
         return -1;
     }
 
     // lastly, activate joint. Do this last so that the motion controller
     // won't flag errors midway during configuration
-    emcJointActivate(joint);
+    if (0 != emcJointActivate(joint)) {
+        return -1;
+    }
 
     return 0;
 }
-
 
 /*
   iniJoint(int joint, const char *filename)
