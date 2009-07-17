@@ -52,6 +52,7 @@ parser Hal:
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
+      | "include" String ";"   {{ include(String) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
@@ -120,10 +121,10 @@ deprecated = ['s32', 'u32']
 
 def initialize():
     global functions, params, pins, options, comp_name, names, docs, variables
-    global modparams
+    global modparams, includes
 
     functions = []; params = []; pins = []; options = {}; variables = []
-    modparams = []; docs = []
+    modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
@@ -214,6 +215,9 @@ def modparam(type, name, default, doc):
     names[name] = None
     modparams.append((type, name, default, doc))
 
+def include(value):
+    includes.append((value))
+
 def removeprefix(s,p):
     if s.startswith(p): return s[len(p):]
     return s
@@ -240,6 +244,9 @@ def prologue(f):
 
 static int comp_id;
 """
+    for name in includes:
+        print >>f, "#include \"%s\"" % name
+
     names = {}
 
     def q(s):
