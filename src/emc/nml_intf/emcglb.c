@@ -39,11 +39,7 @@ double TRAJ_DEFAULT_VELOCITY = DEFAULT_TRAJ_DEFAULT_VELOCITY;
 double TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
 
 double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS] = { 1.0 }; // XXX?
-double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS] = { 1.0 };	/*! \todo FIXME - I think
-							   these should be
-							   0.0 */
 double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS] = { 1.0 };
-double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS] = { 1.0 };
 
 double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS] = {0.0,};
 
@@ -57,10 +53,6 @@ int taskplanopen = 0;
 void emcInitGlobals()
 {
     int t;
-
-    for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	JOINT_MAX_VELOCITY[t] = DEFAULT_JOINT_MAX_VELOCITY;
-    }
 
     for (t = 0; t < EMCMOT_MAX_AXIS; t++) {
 	AXIS_MAX_VELOCITY[t] = DEFAULT_AXIS_MAX_VELOCITY;

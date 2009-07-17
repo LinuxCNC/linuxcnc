@@ -62,8 +62,8 @@ extern "C" {
     extern double TRAJ_MAX_VELOCITY;
 
 // JOINT_MAX_* are used to send limits to motion
-    extern double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS];
-    extern double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS];
+ //   extern double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS];
+//    extern double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS];
 
 // AXIS_MAX_* are used by canon
     extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
@@ -80,6 +80,16 @@ extern "C" {
 
     extern int emcGetArgs(int argc, char *argv[]);
     extern void emcInitGlobals();
+
+typedef struct JointConfig_t {
+    int Inited;
+    unsigned char Type;   // non-zero means joint called init
+    double Units;
+    double MaxVel;
+    double MaxAccel;
+    double MinLimit;
+    double MaxLimit;
+} JointConfig_t;
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */
