@@ -55,10 +55,11 @@ static emcmot_status_t emcmotStatus;
   been called.
   */
 
+JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+
 static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
-static int emcmotJointsInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
 static int emcmotAxesInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
 
 __attribute__ ((unused))
@@ -66,17 +67,13 @@ static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
 						// emcMotionInit called.
 
-// EMC_AXIS functions
-
 // local status data, not provided by emcmot
 static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
 
 //things referring to joints
-static unsigned char localEmcJointType[EMCMOT_MAX_JOINTS];
 static double localEmcMaxAcceleration = DBL_MAX;
-static double localEmcJointUnits[EMCMOT_MAX_JOINTS];
 
 //things referring to axes
 //FIXME-AJ: see if needed
@@ -95,7 +92,7 @@ int emcJointSetJoint(int joint, unsigned char jointType)
 	return 0;
     }
 
-    localEmcJointType[joint] = jointType;
+    JointConfig[joint].Type = jointType;
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%d, %d)\n", __FUNCTION__, joint, jointType);
@@ -109,7 +106,7 @@ int emcJointSetUnits(int joint, double units)
 	return 0;
     }
 
-    localEmcJointUnits[joint] = units;
+    JointConfig[joint].Units = units;
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%d, %.4f)\n", __FUNCTION__, joint, units);
@@ -142,11 +139,6 @@ int emcJointSetBacklash(int joint, double backlash)
     return retval;
 }
 
-// saved values of limits, since emcmot expects them to be set in
-// pairs and we set them individually.
-static double saveMinLimit[EMCMOT_MAX_JOINTS];
-static double saveMaxLimit[EMCMOT_MAX_JOINTS];
-
 int emcJointSetMinPositionLimit(int joint, double limit)
 {
 #ifdef ISNAN_TRAP
@@ -160,11 +152,12 @@ int emcJointSetMinPositionLimit(int joint, double limit)
 	return 0;
     }
 
+    JointConfig[joint].MinLimit = limit;
+
     emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
     emcmotCommand.joint = joint;
-    emcmotCommand.maxLimit = saveMaxLimit[joint];
-    emcmotCommand.minLimit = limit;
-    saveMinLimit[joint] = limit;
+    emcmotCommand.maxLimit = JointConfig[joint].MinLimit;
+    emcmotCommand.minLimit = JointConfig[joint].MaxLimit;
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
@@ -187,11 +180,12 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
 	return 0;
     }
 
+    JointConfig[joint].MaxLimit = limit;
+
     emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
     emcmotCommand.joint = joint;
-    emcmotCommand.minLimit = saveMinLimit[joint];
-    emcmotCommand.maxLimit = limit;
-    saveMaxLimit[joint] = limit;
+    emcmotCommand.minLimit = JointConfig[joint].MinLimit;
+    emcmotCommand.maxLimit = JointConfig[joint].MaxLimit;
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
@@ -334,7 +328,7 @@ int emcJointSetMaxVelocity(int joint, double vel)
 	vel = 0.0;
     }
 
-    JOINT_MAX_VELOCITY[joint] = vel;
+    JointConfig[joint].MaxVel = vel;
 
     emcmotCommand.command = EMCMOT_SET_JOINT_VEL_LIMIT;
     emcmotCommand.joint = joint;
@@ -357,9 +351,8 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     if (acc < 0.0) {
 	acc = 0.0;
     }
-    JOINT_MAX_ACCELERATION[joint] = acc;
+    JointConfig[joint].MaxAccel = acc;
     //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the ini, or from kins..)
-    AXIS_MAX_ACCELERATION[joint] = acc;    
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
@@ -502,7 +495,7 @@ static int JointOrTrajInited(void)
     int joint;
 
     for (joint = 0; joint < EMCMOT_MAX_JOINTS; joint++) {
-	if (emcmotJointsInited[joint]) {
+	if (JointConfig[joint].Inited) {
 	    return 1;
 	}
     }
@@ -525,7 +518,7 @@ int emcJointInit(int joint)
 	    return -1;
 	}
     }
-    emcmotJointsInited[joint] = 1;
+    JointConfig[joint].Inited = 1;
     if (0 != iniJoint(joint, emc_inifile)) {
 	retval = -1;
     }
@@ -560,11 +553,10 @@ int emcJointHalt(int joint)
     }
     /*! \todo FIXME-- refs global emcStatus; should make EMC_JOINT_STAT an arg here */
     if (NULL != emcStatus && emcmotion_initialized
-	&& emcmotJointsInited[joint]) {
-	//FIXME-AJ: we don't need to dump any data
-	//dumpJoint(joint, emc_inifile, &emcStatus->motion.joint[joint]);	
+	&& JointConfig[joint].Inited) {
+	//dumpJoint(joint, emc_inifile, &emcStatus->motion.joint[joint]);
     }
-    emcmotJointsInited[joint] = 0;
+    JointConfig[joint].Inited = 0;
 
     if (!JointOrTrajInited()) {
 	usrmotExit();		// ours is final exit
@@ -680,10 +672,10 @@ int emcJogCont(int nr, double vel)
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[nr]) {
-	vel = JOINT_MAX_VELOCITY[nr];
-    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
-	vel = -JOINT_MAX_VELOCITY[nr];
+    if (vel > JointConfig[nr].MaxVel) {
+	vel = JointConfig[nr].MaxVel;
+    } else if (vel < -JointConfig[nr].MaxVel) {
+	vel = -JointConfig[nr].MaxVel;
     }
 
     emcmotCommand.command = EMCMOT_JOG_CONT;
@@ -699,10 +691,10 @@ int emcJogIncr(int nr, double incr, double vel)
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[nr]) {
-	vel = JOINT_MAX_VELOCITY[nr];
-    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
-	vel = -JOINT_MAX_VELOCITY[nr];
+    if (vel > JointConfig[nr].MaxVel) {
+	vel = JointConfig[nr].MaxVel;
+    } else if (vel < -JointConfig[nr].MaxVel) {
+	vel = -JointConfig[nr].MaxVel;
     }
 
     emcmotCommand.command = EMCMOT_JOG_INCR;
@@ -719,10 +711,10 @@ int emcJogAbs(int nr, double pos, double vel)
 	return 0;
     }
 
-    if (vel > JOINT_MAX_VELOCITY[nr]) {
-	vel = JOINT_MAX_VELOCITY[nr];
-    } else if (vel < -JOINT_MAX_VELOCITY[nr]) {
-	vel = -JOINT_MAX_VELOCITY[nr];
+    if (vel > JointConfig[nr].MaxVel) {
+	vel = JointConfig[nr].MaxVel;
+    } else if (vel < -JointConfig[nr].MaxVel) {
+	vel = -JointConfig[nr].MaxVel;
     }
 
     emcmotCommand.command = EMCMOT_JOG_ABS;
@@ -786,8 +778,8 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numAxes)
 
 	joint = &(emcmotStatus.joint_status[joint_num]);
 
-	stat[joint_num].jointType = localEmcJointType[joint_num];
-	stat[joint_num].units = localEmcJointUnits[joint_num];
+	stat[joint_num].jointType = JointConfig[joint_num].Type;
+	stat[joint_num].units = JointConfig[joint_num].Units;
 	if (new_config) {
 	    stat[joint_num].backlash = joint->backlash;
 	    stat[joint_num].minPositionLimit = joint->min_pos_limit;
