@@ -57,7 +57,6 @@ struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
 static emcmot_command_t emcmotCommand;
 
 static int emcmotTrajInited = 0;	// non-zero means traj called init
-static int emcmotAxesInited[EMCMOT_MAX_JOINTS] = { 0 };	// non-zero means joint called init
 
 __attribute__ ((unused))
 static int emcmotIoInited = 0;	// non-zero means io called init
@@ -534,7 +533,7 @@ int emcAxisInit(int axis)
 	    return -1;
 	}
     }
-    emcmotAxesInited[axis] = 1;
+    AxisConfig[axis].Inited = 1;
     if (0 != iniAxis(axis, EMC_INIFILE)) {
 	retval = -1;
     }
