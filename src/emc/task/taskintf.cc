@@ -52,7 +52,7 @@ static emcmot_status_t emcmotStatus;
   been called.
   */
 
-JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
 
 static emcmot_command_t emcmotCommand;
 
@@ -434,7 +434,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 	vel = 0.0;
     }
 
-    AXIS_MAX_VELOCITY[axis] = vel;
+    AxisConfig[axis].MaxVel = vel;
 
     //FIXME-AJ: need to see if we want to send these to motion
     // disabled for now
@@ -460,7 +460,8 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     if (acc < 0.0) {
 	acc = 0.0;
     }
-    AXIS_MAX_ACCELERATION[axis] = acc;    
+    
+    AxisConfig[axis].MaxAccel = acc;    
     //FIXME-AJ: need to see if we want to send these to motion
     // disabled for now
 #if 0
