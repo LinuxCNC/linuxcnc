@@ -59,7 +59,7 @@ maps = {
 'task_mode':   {emc.MODE_AUTO: 'auto', emc.MODE_MDI: 'mdi',
                 emc.MODE_MANUAL: 'manual'},
 'mcodes': show_mcodes, 'gcodes': show_gcodes, 'poll': None, 'tool_table': None,
-'axis': None, 'gettaskfile': None,
+'axis': None, 'joint': None, 'gettaskfile': None,
 'actual_position': show_position, 
 'position': show_position, 
 'dtg': show_position, 
