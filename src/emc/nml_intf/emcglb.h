@@ -53,8 +53,6 @@ extern "C" {
 
     extern char tool_table_file[LINELEN];
 
-    extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
-
     extern double traj_default_velocity;
     extern double traj_max_velocity;
 
@@ -82,6 +80,7 @@ typedef struct AxisConfig_t {
     unsigned char Type;
     double MaxVel;
     double MaxAccel;
+    double Home;
     double MinLimit;
     double MaxLimit;
 } AxisConfig_t;
