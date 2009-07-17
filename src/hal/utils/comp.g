@@ -337,7 +337,7 @@ static int comp_id;
 
     print >>f, "static int get_data_size(void);"
     if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct state *inst, long extra_arg);"
+        print >>f, "static int extra_setup(struct state *inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
@@ -366,7 +366,7 @@ static int comp_id;
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
-        print >>f, "    r = extra_setup(inst, extra_arg);"
+        print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
     if has_personality:
         print >>f, "    personality = inst->_personality;"
@@ -557,7 +557,7 @@ static int comp_id;
         print >>f, "#undef FUNCTION"
         print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
         print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, char *prefix, long extra_arg)"
         print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#undef fperiod"
