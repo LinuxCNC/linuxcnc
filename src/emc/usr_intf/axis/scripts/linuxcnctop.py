@@ -67,7 +67,7 @@ maps = {
 'kinematics_type': {linuxcnc.KINEMATICS_IDENTITY: 'identity', linuxcnc.KINEMATICS_FORWARD_ONLY: 'forward_only', 
                     linuxcnc.KINEMATICS_INVERSE_ONLY: 'inverse_only', linuxcnc.KINEMATICS_BOTH: 'both'},
 'mcodes': show_mcodes, 'gcodes': show_gcodes, 'poll': None, 'tool_table': None,
-'axis': None, 'gettaskfile': None,
+'axis': None, 'joint': None, 'gettaskfile': None,
 'actual_position': show_position, 
 'position': show_position, 
 'dtg': show_position, 
