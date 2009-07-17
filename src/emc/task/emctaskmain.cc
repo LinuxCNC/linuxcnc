@@ -128,9 +128,8 @@ static int emctask_shutdown(void);
 static int pseudoMdiLineNumber = -1;
 
 static int all_homed(void) {
-    for(int i=0; i<9; i++) {
-        unsigned int mask = 1<<i;
-        if((emcStatus->motion.traj.axis_mask & mask) && !emcStatus->motion.joint[i].homed) // XXX
+    for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
+        if(!emcStatus->motion.joint[i].homed) // XXX
             return 0;
     }
     return 1;
