@@ -1514,15 +1514,15 @@ int emcMotionInit()
 	}
     }
 
-    home.tran.x = AXIS_WORLD_HOME[0];
-    home.tran.y = AXIS_WORLD_HOME[1];
-    home.tran.z = AXIS_WORLD_HOME[2];
-    home.a = AXIS_WORLD_HOME[3];
-    home.b = AXIS_WORLD_HOME[4];
-    home.c = AXIS_WORLD_HOME[5];
-    home.u = AXIS_WORLD_HOME[6];
-    home.v = AXIS_WORLD_HOME[7];
-    home.w = AXIS_WORLD_HOME[8];
+    home.tran.x = AxisConfig[0].Home;
+    home.tran.y = AxisConfig[1].Home;
+    home.tran.z = AxisConfig[2].Home;
+    home.a = AxisConfig[3].Home;
+    home.b = AxisConfig[4].Home;
+    home.c = AxisConfig[5].Home;
+    home.u = AxisConfig[6].Home;
+    home.v = AxisConfig[7].Home;
+    home.w = AxisConfig[8].Home;
 
     emcTrajSetHome(home);
 

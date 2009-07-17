@@ -61,8 +61,6 @@ extern "C" {
     extern double TRAJ_DEFAULT_VELOCITY;
     extern double TRAJ_MAX_VELOCITY;
 
-    extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
-
     extern struct EmcPose TOOL_CHANGE_POSITION;
     extern unsigned char HAVE_TOOL_CHANGE_POSITION;
     extern struct EmcPose TOOL_HOLDER_CLEAR;
@@ -89,6 +87,7 @@ typedef struct AxisConfig_t {
     unsigned char Type;
     double MaxVel;
     double MaxAccel;
+    double Home;
     double MinLimit;
     double MaxLimit;
 } AxisConfig_t;
