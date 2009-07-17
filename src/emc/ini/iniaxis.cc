@@ -78,7 +78,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     try {
         home = 0;
         axisIniFile->Find(&home, "HOME", axisString);
-        AXIS_WORLD_HOME[axis] = home;
+        AxisConfig[axis].Home = home;
 
         // set min position limit
         limit = -1e99;	                // default
