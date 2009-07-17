@@ -1361,9 +1361,23 @@ void ARC_FEED(int line_number,
     double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
     double mx, my;
-
+    double axis_max_acc[EMCMOT_MAX_AXIS], axis_max_vel[EMCMOT_MAX_AXIS];
     double lx, ly, lz;
     double unused=0;
+    int i;
+    
+    for (i = 0; i < 3; i++) {
+        axis_max_acc[i] = FROM_EXT_LEN(AxisConfig[i].MaxAccel);
+        axis_max_vel[i] = FROM_EXT_LEN(AxisConfig[i].MaxVel);
+    }
+    for (i = 3; i < 6; i++) {
+        axis_max_acc[i] = FROM_EXT_ANG(AxisConfig[i].MaxAccel);
+        axis_max_vel[i] = FROM_EXT_ANG(AxisConfig[i].MaxVel);
+    }
+    for (i = 6; i < 9; i++) {
+        axis_max_acc[i] = FROM_EXT_LEN(AxisConfig[i].MaxAccel);
+        axis_max_vel[i] = FROM_EXT_LEN(AxisConfig[i].MaxVel);
+    }
 
     get_last_pos(lx, ly, lz);
 
@@ -1446,15 +1460,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.y - center.y);
         axis_len = fabs(end.tran.z - canonEndPoint.z);
 
-	v1 = FROM_EXT_LEN(AxisConfig[0].MaxVel);
-	v2 = FROM_EXT_LEN(AxisConfig[1].MaxVel);
-	a1 = FROM_EXT_LEN(AxisConfig[0].MaxAccel);
-	a2 = FROM_EXT_LEN(AxisConfig[1].MaxAccel);
+	v1 = axis_max_vel[0];
+	v2 = axis_max_vel[1];
+	a1 = axis_max_acc[0];
+	a2 = axis_max_acc[1];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(2) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AxisConfig[2].MaxVel);
-            axial_acc = a1 = FROM_EXT_LEN(AxisConfig[2].MaxAccel);
+            axial_maxvel = v1 = axis_max_vel[2];
+            axial_acc = a1 = axis_max_acc[2];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1482,15 +1496,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.y - center.y, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.x - canonEndPoint.x);
 
-	v1 = FROM_EXT_LEN(AxisConfig[1].MaxVel);
-	v2 = FROM_EXT_LEN(AxisConfig[2].MaxVel);
-	a1 = FROM_EXT_LEN(AxisConfig[1].MaxAccel);
-	a2 = FROM_EXT_LEN(AxisConfig[2].MaxAccel);
+	v1 = axis_max_vel[1];
+	v2 = axis_max_vel[2];
+	a1 = axis_max_acc[1];
+	a2 = axis_max_acc[2];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(0) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AxisConfig[0].MaxVel);
-            axial_acc = a1 = FROM_EXT_LEN(AxisConfig[0].MaxAccel);
+            axial_maxvel = v1 = axis_max_vel[0];
+            axial_acc = a1 = axis_max_acc[0];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1519,15 +1533,15 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.y - canonEndPoint.y);
 
-	v1 = FROM_EXT_LEN(AxisConfig[0].MaxVel);
-	v2 = FROM_EXT_LEN(AxisConfig[2].MaxVel);
-	a1 = FROM_EXT_LEN(AxisConfig[0].MaxAccel);
-	a2 = FROM_EXT_LEN(AxisConfig[2].MaxAccel);
+	v1 = axis_max_vel[0];
+	v2 = axis_max_vel[2];
+	a1 = axis_max_acc[0];
+	a2 = axis_max_acc[2];
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
         if(axis_valid(1) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(AxisConfig[1].MaxVel);
-            axial_acc = a1 = FROM_EXT_LEN(AxisConfig[1].MaxAccel);
+            axial_maxvel = v1 = axis_max_vel[1];
+            axial_acc = a1 = axis_max_acc[1];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
         }
@@ -1543,13 +1557,13 @@ void ARC_FEED(int line_number,
     helical_length = hypot(angle * radius, axis_len);
 
 // COMPUTE VELOCITIES
-    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(AxisConfig[3].MaxVel)):0.0;
-    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(AxisConfig[4].MaxVel)):0.0;
-    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(AxisConfig[5].MaxVel)):0.0;
+    ta = (axis_valid(3) && da)? fabs(da / axis_max_vel[3]):0.0;
+    tb = (axis_valid(4) && db)? fabs(db / axis_max_vel[4]):0.0;
+    tc = (axis_valid(5) && dc)? fabs(dc / axis_max_vel[5]):0.0;
                            
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AxisConfig[6].MaxVel)): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AxisConfig[7].MaxVel)): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AxisConfig[8].MaxVel)): 0.0;
+    tu = (axis_valid(6) && du)? (du / axis_max_vel[6]): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / axis_max_vel[7]): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / axis_max_vel[8]): 0.0;
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     v1 = sqrt(circ_acc * radius);
@@ -1588,13 +1602,13 @@ void ARC_FEED(int line_number,
     // expression of the acceleration in the various directions.
 
     thelix = (helical_length / acc);
-    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(AxisConfig[3].MaxAccel)): 0.0;
-    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(AxisConfig[4].MaxAccel)): 0.0;
-    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(AxisConfig[5].MaxAccel)): 0.0;
+    ta = (axis_valid(3) && da)? (da / axis_max_acc[3]): 0.0;
+    tb = (axis_valid(4) && db)? (db / axis_max_acc[4]): 0.0;
+    tc = (axis_valid(5) && dc)? (dc / axis_max_acc[5]): 0.0;
 
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(AxisConfig[6].MaxAccel)): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(AxisConfig[7].MaxAccel)): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(AxisConfig[8].MaxAccel)): 0.0;
+    tu = (axis_valid(6) && du)? (du / axis_max_acc[6]): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / axis_max_acc[7]): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / axis_max_acc[8]): 0.0;
 
     tmax = MAX4(thelix, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
