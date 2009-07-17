@@ -53,20 +53,10 @@ extern "C" {
 
     extern char tool_table_file[LINELEN];
 
-// JOINT_MAX_* are used to send limits to motion
- //   extern double JOINT_MAX_VELOCITY[EMCMOT_MAX_JOINTS];
-//    extern double JOINT_MAX_ACCELERATION[EMCMOT_MAX_JOINTS];
-
-// AXIS_MAX_* are used by canon
-    extern double AXIS_MAX_VELOCITY[EMCMOT_MAX_AXIS];
-    extern double AXIS_MAX_ACCELERATION[EMCMOT_MAX_AXIS];
     extern double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS];
 
     extern double traj_default_velocity;
     extern double traj_max_velocity;
-
-    extern double axis_max_velocity[EMC_AXIS_MAX];
-    extern double axis_max_acceleration[EMC_AXIS_MAX];
 
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
@@ -88,6 +78,17 @@ typedef struct JointConfig_t {
     double MinLimit;
     double MaxLimit;
 } JointConfig_t;
+
+typedef struct AxisConfig_t {
+    int Inited;
+    unsigned char Type;
+    double MaxVel;
+    double MaxAccel;
+    double MinLimit;
+    double MaxLimit;
+} AxisConfig_t;
+
+    extern AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */
