@@ -38,8 +38,6 @@ char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 double traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
 double traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
 
-double AXIS_WORLD_HOME[EMCMOT_MAX_AXIS] = {0.0,};
-
 struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
 EmcPose tool_change_position;	/* no defaults */
