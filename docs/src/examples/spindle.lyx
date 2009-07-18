@@ -34,16 +34,35 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
 
 \begin_layout Chapter
 Spindle Control
+\begin_inset LatexCommand index
+name "Spindle Control"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "cha:Spindle-Control"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
 0-10v Spindle Speed
+\begin_inset LatexCommand index
+name "0-10v Spindle Speed"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -67,7 +86,7 @@ We have to add a scale component to the hal file to scale the motion.spindle-spe
 d-out to the 0 to 10 needed by the VFD if your DAC card does not do scaling.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt scale count=1
 \newline
 addf scale.0 servo-thread
@@ -83,6 +102,12 @@ net spindle-speed-DAC scale.0.out
 
 \begin_layout Section
 PWM Spindle Speed
+\begin_inset LatexCommand index
+name "PWM Spindle Speed"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -90,7 +115,7 @@ If your spindle can be controlled by a PWM signal, use the pwmgen component
  to create the signal:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt pwmgen output_type=0 
 \newline
 addf pwmgen.update servo-thread
@@ -106,8 +131,10 @@ net
 net spindle-pwm pwmgen.0.pwm
  => parport.0.pin-09-out
 \newline
-setp pwmgen.0.scale 1800 # Change to your spindle's
- top speed in RPM 
+# Set the spindle's top speed in RPM 
+\newline
+setp pwmgen.0.scale
+ 1800
 \end_layout
 
 \begin_layout Standard
@@ -120,6 +147,12 @@ This assumes that the spindle controller's response to PWM is simple: 0%
 
 \begin_layout Section
 Spindle Enable
+\begin_inset LatexCommand index
+name "Spindle Enable"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -129,19 +162,25 @@ If you need a spindle enable signal link your output pin to motion.spindle-on.
  control device.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 net spindle-enable motion.spindle-on => parport.0.pin-14-out
 \end_layout
 
 \begin_layout Section
 Spindle Direction
+\begin_inset LatexCommand index
+name "Spindle Direction"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
 If you have direction control of your spindle the hal pins motion.spindle-forward
  and motion.spindle-reverse are controlled by M3 and M4.
- S must be set to a positive non zero value for M3/4 to turn on spindle
- motion.
+ Spindle speed "Sn" must be set to a positive non zero value for M3/4 to
+ turn on spindle motion.
  
 \end_layout
 
@@ -151,8 +190,8 @@ To link these pins to a parallel port pin put something like the following
  control device.
 \end_layout
 
-\begin_layout Quote
-net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
+\begin_layout LyX-Code
+net spindle-fwd motion.spindle-forward => parport.0.pin-16-out
 \newline
 net spindle-rev
  motion.spindle-reverse => parport.0.pin-17-out
@@ -160,6 +199,34 @@ net spindle-rev
 
 \begin_layout Chapter
 Spindle Feedback
+\begin_inset LatexCommand index
+name "Spindle Feedback"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "cha:Spindle-Feedback"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Spindle Synchronized Motion
+\begin_inset LatexCommand index
+name "Spindle Synchronized Motion"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:Spindle-Synchronized-Motion"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -220,6 +287,71 @@ net spindle-phase-a
  <= parport.0.pin-10-in
 \newline
 net spindle-index <= parport.0.pin-11-in
+\end_layout
+
+\begin_layout Section
+Spindle At Speed
+\begin_inset LatexCommand index
+name "Spindle At Speed"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:Spindle-At-Speed"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To enable EMC to wait for the spindle to be at speed before executing a
+ series of moves you need to set motion.spindle-at-speed to true when the
+ spindle is at the commanded speed.
+ To do this you need spindle feedback from an encoder.
+ Since the feedback and the commanded speed are not usually 
+\series bold
+exactly
+\series default
+ the same you need to use the "near" component to say that the two numbers
+ are close enough.
+ The connections needed are from the spindle velocity command signal to
+ near.n.in1 and from the spindle velocity from the encoder to near.n.in2.
+ Then the near.n.out is connected to motion.spindle-at-speed.
+ The near.n.scale needs to be set to say how close the two numbers must be
+ before turning on the output.
+ Depending on your setup you may need to adjust the scale to work with your
+ hardware.
+ The following is typical of the additions needed to your hal file to enable
+ Spindle At Speed.
+ If you already have near in your hal file then increase the count and adjust
+ code to suit.
+ Check to make sure the signal names are the same in your hal file.
+\end_layout
+
+\begin_layout LyX-Code
+loadrt near
+\end_layout
+
+\begin_layout LyX-Code
+addf near.0 servo-thread
+\end_layout
+
+\begin_layout LyX-Code
+net spindle-cmd near.0.in1
+\end_layout
+
+\begin_layout LyX-Code
+net spindle-velocity near.0.in2
+\end_layout
+
+\begin_layout LyX-Code
+net spindle-at-speed motion.spindle-at-speed <= near.0.out
+\end_layout
+
+\begin_layout LyX-Code
+setp near.0.scale 1.01
 \end_layout
 
 \end_body
