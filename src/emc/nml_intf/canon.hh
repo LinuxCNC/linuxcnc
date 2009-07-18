@@ -36,24 +36,6 @@
   ZX-plane of the machine.
 */
 
-/*
-  The RS274NGC compiler references canon.hh, and here we switch on the
-  symbols AA, BB and CC to declare the position structures. The EMC
-  uses AA, BB and CC, and thus by default will get these.
- */
-
-#ifndef NO_AA
-#define AA
-#endif
-
-#ifndef NO_BB
-#define BB
-#endif
-
-#ifndef NO_CC
-#define CC
-#endif
-
 #define OFF 0
 #define ON 1
 
