@@ -750,7 +750,7 @@ static int new_config = 0;
    JOINT_FLAG */
 // #define WATCH_FLAGS 1
 
-int emcJointUpdate(EMC_JOINT_STAT stat[], int numAxes)
+int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 {
 /*! \todo FIXME - this function accesses data that has been
    moved.  Once I know what it is used for I'll fix it */
@@ -762,11 +762,11 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numAxes)
 #endif
 
     // check for valid range
-    if (numAxes <= 0 || numAxes > EMCMOT_MAX_JOINTS) {
+    if (numJoints <= 0 || numJoints > EMCMOT_MAX_JOINTS) {
 	return -1;
     }
 
-    for (joint_num = 0; joint_num < numAxes; joint_num++) {
+    for (joint_num = 0; joint_num < numJoints; joint_num++) {
 	/* point to joint data */
 
 	joint = &(emcmotStatus.joint_status[joint_num]);
@@ -1742,7 +1742,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     localMotionCommandType = emcmotStatus.commandEcho;	/*! \todo FIXME-- not NML one! */
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
-    r1 = emcJointUpdate(&stat->joint[0], EMCMOT_MAX_JOINTS);
+    r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
     r2 = emcTrajUpdate(&stat->traj);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
@@ -1769,7 +1769,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     exec = 0;
 
     // FIXME-AJ: joints not axes
-    for (joint = 0; joint < stat->traj.axes; joint++) {
+    for (joint = 0; joint < stat->traj.joints; joint++) {
 	if (stat->joint[joint].status == RCS_ERROR) {
 	    error = 1;
 	    break;
