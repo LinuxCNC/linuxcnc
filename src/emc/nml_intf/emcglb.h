@@ -23,9 +23,6 @@
 extern "C" {
 #endif
 
-#define EMC_MAX_DIO EMCMOT_MAX_DIO
-#define EMC_MAX_AIO EMCMOT_MAX_AIO
-
     extern char EMC_INIFILE[LINELEN];
 
     extern char EMC_NMLFILE[LINELEN];

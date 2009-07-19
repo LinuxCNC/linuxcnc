@@ -459,11 +459,11 @@ static PyObject *Stat_activesettings(pyStatChannel *s) {
 }
 
 static PyObject *Stat_din(pyStatChannel *s) {
-    return int_array(s->status.motion.synch_di, EMC_MAX_AIO);
+    return int_array(s->status.motion.synch_di, EMCMOT_MAX_AIO);
 }
 
 static PyObject *Stat_dout(pyStatChannel *s) {
-    return int_array(s->status.motion.synch_do, EMC_MAX_AIO);
+    return int_array(s->status.motion.synch_do, EMCMOT_MAX_AIO);
 }
 
 static PyObject *Stat_limit(pyStatChannel *s) {
@@ -490,11 +490,11 @@ static PyObject *Stat_homed(pyStatChannel *s) {
 }
 
 static PyObject *Stat_ain(pyStatChannel *s) {
-    return double_array(s->status.motion.analog_input, EMC_MAX_AIO);
+    return double_array(s->status.motion.analog_input, EMCMOT_MAX_AIO);
 }
 
 static PyObject *Stat_aout(pyStatChannel *s) {
-    return double_array(s->status.motion.analog_output, EMC_MAX_AIO);
+    return double_array(s->status.motion.analog_output, EMCMOT_MAX_AIO);
 }
 
 static void dict_add(PyObject *d, char *name, unsigned char v) {

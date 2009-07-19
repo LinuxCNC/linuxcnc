@@ -2732,7 +2732,7 @@ CANON_PLANE GET_EXTERNAL_PLANE()
 /* returns current value of the digital input selected by index.*/
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def)
 {
-    if ((index < 0) || (index >= EMC_MAX_DIO))
+    if ((index < 0) || (index >= EMCMOT_MAX_DIO))
 	return -1;
 
     if (emcStatus->task.input_timeout == 1)
@@ -2750,7 +2750,7 @@ double GET_EXTERNAL_ANALOG_INPUT(int index, double def)
 //#ifdef INPUT_DEBUG
     printf("GET_EXTERNAL_ANALOG_INPUT called\n ai[%d]=%g \n timeout=%d \n",index,emcStatus->motion.analog_input[index],emcStatus->task.input_timeout);
 //#endif
-    if ((index < 0) || (index >= EMC_MAX_AIO))
+    if ((index < 0) || (index >= EMCMOT_MAX_AIO))
 	return -1;
 
     if (emcStatus->task.input_timeout == 1)
@@ -2934,10 +2934,10 @@ int WAIT(int index, /* index of the motion exported input */
 	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
-    if ((index < 0) || (index >= EMC_MAX_DIO))
+    if ((index < 0) || (index >= EMCMOT_MAX_DIO))
 	return -1;
   } else if (input_type == ANALOG_INPUT) {
-    if ((index < 0) || (index >= EMC_MAX_AIO))
+    if ((index < 0) || (index >= EMCMOT_MAX_AIO))
 	return -1;
   }
 

@@ -1754,12 +1754,12 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->spindle.brake = emcmotStatus.spindle.brake;
     stat->spindle.direction = emcmotStatus.spindle.direction;
 
-    for (dio = 0; dio < EMC_MAX_DIO; dio++) {
+    for (dio = 0; dio < EMCMOT_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
 	stat->synch_do[dio] = emcmotStatus.synch_do[dio];
     }
 
-    for (aio = 0; aio < EMC_MAX_AIO; aio++) {
+    for (aio = 0; aio < EMCMOT_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
