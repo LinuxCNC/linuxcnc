@@ -93,12 +93,12 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 {
     int i;
 
-    for (i = 0; i < EMC_MAX_DIO; i++) {
+    for (i = 0; i < EMCMOT_MAX_DIO; i++) {
 	synch_di[i] = 0;
 	synch_do[i] = 0;
     }
 
-    for (i = 0; i < EMC_MAX_AIO; i++) {
+    for (i = 0; i < EMCMOT_MAX_AIO; i++) {
 	analog_input[i] = 0.0;
 	analog_output[i] = 0.0;
     }
