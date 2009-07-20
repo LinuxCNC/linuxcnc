@@ -424,7 +424,7 @@ static int saveToolTable(const char *filename,
                 "COMMENT");
         for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno)
-                fprintf(fp, "%6d%6d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
+                fprintf(fp, "%7d%7d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
                         pocket,
                         toolTable[pocket].toolno,
                         toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
@@ -436,7 +436,7 @@ static int saveToolTable(const char *filename,
                 "POCKET", "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
         for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno)
-                fprintf(fp, "%7d%4d%+11f%11f  %s\n",
+                fprintf(fp, "%7d%7d%+11f%11f  %s\n",
                         pocket,
                         toolTable[pocket].toolno,
                         toolTable[pocket].zoffset, toolTable[pocket].diameter,
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
                 b = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->backangle;
                 o = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->orientation;
 
-                rtapi_print_msg(RTAPI_MSG_DBG,
+                rtapi_print_msg(RTAPI_MSG_ERR,
                                 "EMC_TOOL_SET_OFFSET pocket=%d toolno=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
                                 " frontangle=%lf, backangle=%lf, orientation=%d\n",
                                 p, t, z, x, d, f, b, o);

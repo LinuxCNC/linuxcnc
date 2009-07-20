@@ -1822,7 +1822,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[7]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          index = find_tool_pocket(settings, tool);
+          CHP((find_tool_pocket(settings, tool, &index)));
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
       orientation = settings->tool_table[index].orientation;
@@ -3050,7 +3050,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     is_near_int(&toolno, block->p_number);
 
-    pocket = find_tool_pocket(settings, toolno);
+    CHP((find_tool_pocket(settings, toolno, &pocket)));
+    printf("setting up tool %d which is in pocket %d\n", toolno, pocket);
 
     CHKS((block->y_flag || block->a_flag || block->b_flag || block->c_flag ||
           block->u_flag || block->v_flag), "Invalid axis specified for G10 L1");
@@ -3090,6 +3091,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].toolno,
                              settings->tool_table[pocket].zoffset,
                              settings->tool_table[pocket].diameter);
+
+    printf("SET_TOOL_TABLE_ENTRY(pocket=%d toolno=%d zoffset=%f diameter=%f\n", 
+           pocket,
+           settings->tool_table[pocket].toolno,
+           settings->tool_table[pocket].zoffset,
+           settings->tool_table[pocket].diameter);
         
     return INTERP_OK;
 }
@@ -4383,7 +4390,13 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   } else if (g_code == G_43) {
     CHKS((block->h_flag == OFF && !settings->current_pocket), 
         NCE_OFFSET_INDEX_MISSING);
-    index = block->h_flag == ON? find_tool_pocket(settings, block->h_number): settings->current_pocket;
+
+    if(block->h_flag == ON) {
+        CHP((find_tool_pocket(settings, block->h_number, &index)));
+    } else {
+        index = settings->current_pocket;
+    }
+
     xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
     if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
         woffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
@@ -4461,7 +4474,8 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             
 {
-  int pocket = find_tool_pocket(settings, block->t_number);
+  int pocket;
+  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
   SELECT_POCKET(pocket);
   settings->selected_pocket = pocket;
   return INTERP_OK;

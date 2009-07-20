@@ -1393,6 +1393,7 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
 
     EMC_TOOL_CMD_MSG::update(cms);
+    cms->update(pocket);
     cms->update(toolno);
     cms->update(zoffset);
     cms->update(xoffset);
