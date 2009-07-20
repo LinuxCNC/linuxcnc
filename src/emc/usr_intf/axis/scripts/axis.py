@@ -2232,6 +2232,7 @@ class DummyCanon:
     def comment(*args): pass
     def next_line(*args): pass
     def set_origin_offsets(*args): pass
+    def set_xy_rotation(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0
     def set_plane(*args): pass
