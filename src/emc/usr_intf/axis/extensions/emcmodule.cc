@@ -566,13 +566,13 @@ static PyStructSequence_Desc tool_result_desc = {
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(CANON_TOOL_MAX);
+    PyObject *res = PyTuple_New(CANON_POCKETS_MAX);
     int j=0;
-    for(int i=1; i<=CANON_TOOL_MAX; i++) {
+    for(int i=1; i<=CANON_POCKETS_MAX; i++) {
         struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
-        if(t.id == 0) continue;
+        if(t.toolno == 0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.id));
+        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
         PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.zoffset));
         PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.xoffset));
         PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.diameter));
@@ -857,7 +857,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.id, &m.zoffset, &m.xoffset, &m.diameter, 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.zoffset, &m.xoffset, &m.diameter, 
                          &m.frontangle, &m.backangle, &m.orientation)) 
         return NULL;
     m.serial_number = next_serial(s);

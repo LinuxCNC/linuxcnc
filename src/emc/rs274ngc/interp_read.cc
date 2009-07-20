@@ -582,8 +582,6 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
   CHKS((block->h_flag == ON), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < -1), NCE_NEGATIVE_H_WORD_USED);
-  CHKS((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
-          NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
   block->h_flag = ON;
   block->h_number = value;
   return INTERP_OK;

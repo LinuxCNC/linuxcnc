@@ -366,7 +366,7 @@ typedef struct setup_struct
   block block1;                 // parsed next block
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
-  int current_slot;             // carousel slot number of current tool
+  int current_pocket;             // carousel slot number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position
   double current_z;             // current Z-axis position
@@ -419,7 +419,7 @@ typedef struct setup_struct
   double program_y;             // program y, used when cutter comp on
   double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
-  int selected_tool_slot;       // tool slot selected but not active
+  int selected_pocket;          // tool slot selected but not active
   int sequence_number;          // sequence number of line last read
   double speed;                 // current spindle speed in rpm or SxM
   SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
@@ -431,8 +431,8 @@ typedef struct setup_struct
   double tool_zoffset;          // current tool Z offset (AKA tool length offset)
   double tool_xoffset;          // current tool X offset
   double tool_woffset;          // current tool W offset
-  int tool_max;                 // highest number tool slot in carousel
-  CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
+  int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
+  CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX + 1];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
 
   /* stuff for subroutines and control structures */

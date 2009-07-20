@@ -1499,7 +1499,8 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int    id;
+    int pocket;
+    int toolno;
     double zoffset;
     double xoffset;
     double diameter;
@@ -1540,7 +1541,7 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 
     int toolPrepped;		// tool ready for loading, 0 is no tool
     int toolInSpindle;		// tool loaded, 0 is no tool
-    CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];
+    CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX + 1];
 };
 
 // EMC_AUX type declarations

@@ -74,7 +74,7 @@ static RCS_STAT_CHANNEL *emcioStatusBuffer = 0;
 static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
-static char *ttcomments[CANON_TOOL_MAX+1];
+static char *ttcomments[CANON_POCKETS_MAX+1];
 
 struct iocontrol_str {
     hal_bit_t *user_enable_out;	/* output, TRUE when EMC wants stop */
@@ -281,9 +281,9 @@ static int loadToolTable(const char *filename,
 	return -1;
     }
     // clear out tool table
-    for (t = 0; t <= CANON_TOOL_MAX; t++) {
+    for (t = 0; t <= CANON_POCKETS_MAX; t++) {
 	// unused tools are 0, 0.0, 0.0
-	toolTable[t].id = 0;
+	toolTable[t].toolno = 0;
 	toolTable[t].zoffset = 0.0;
 	toolTable[t].diameter = 0.0;
         toolTable[t].xoffset = 0.0;
@@ -313,7 +313,7 @@ static int loadToolTable(const char *filename,
 
     while (!feof(fp)) {
 	int pocket;
-	int id;
+	int toolno;
 	double zoffset;  // AKA length
         double xoffset;
 	double diameter;
@@ -326,15 +326,15 @@ static int loadToolTable(const char *filename,
 	    break;
 	}
         if((scanned = sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d %[^\n]",
-                             &pocket, &id, &zoffset, &xoffset, &diameter,
+                             &pocket, &toolno, &zoffset, &xoffset, &diameter,
                              &frontangle, &backangle, &orientation, comment)) &&
            (scanned == 8 || scanned == 9)) {
-            if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+            if (pocket < 0 || pocket > CANON_POCKETS_MAX) {
                 printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
                 /* lathe tool */
-                toolTable[pocket].id = pocket; // just ignore the FMS "bookkeeping" column
+                toolTable[pocket].toolno = toolno;
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].xoffset = xoffset;
                 toolTable[pocket].diameter = diameter;
@@ -345,14 +345,14 @@ static int loadToolTable(const char *filename,
                 if(scanned == 9) strcpy(ttcomments[pocket], comment);
             }
         } else if ((scanned = sscanf(buffer, "%d %d %lf %lf %[^\n]",
-                                     &pocket, &id, &zoffset, &diameter, comment)) &&
+                                     &pocket, &toolno, &zoffset, &diameter, comment)) &&
                    (scanned == 4 || scanned == 5)) {
-            if (pocket < 0 || pocket > CANON_TOOL_MAX) {
+            if (pocket < 0 || pocket > CANON_POCKETS_MAX) {
                 printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
                 /* mill tool */
-                toolTable[pocket].id = pocket;
+                toolTable[pocket].toolno = toolno;
                 toolTable[pocket].zoffset = zoffset;
                 toolTable[pocket].diameter = diameter;
 
@@ -396,7 +396,7 @@ static int saveToolTable(const char *filename,
     const char *name;
     int lathe_style = 0;
 
-    for(pocket=1; pocket <= CANON_TOOL_MAX; pocket++) {
+    for(pocket=1; pocket <= CANON_POCKETS_MAX; pocket++) {
         if(toolTable[pocket].orientation != 0) {
             lathe_style = 1;
             break;
@@ -418,27 +418,27 @@ static int saveToolTable(const char *filename,
     }
 
     if(lathe_style) {
-        fprintf(fp, "%6s%4s%11s%11s%11s%12s%12s%7s  %s\n\n",
-                "POCKET", "FMS", "ZOFFSET", "XOFFSET",
+        fprintf(fp, "%7s%7s%11s%11s%11s%12s%12s%7s  %s\n\n",
+                "POCKET", "TOOLNO", "ZOFFSET", "XOFFSET",
                 "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
                 "COMMENT");
-        for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
-            if (toolTable[pocket].id)
-                fprintf(fp, "%6d%4d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
+        for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
+            if (toolTable[pocket].toolno)
+                fprintf(fp, "%6d%6d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
                         pocket,
-                        toolTable[pocket].id,
+                        toolTable[pocket].toolno,
                         toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
                         toolTable[pocket].frontangle, toolTable[pocket].backangle, 
                         toolTable[pocket].orientation, ttcomments[pocket]);
         }
     } else {
-        fprintf(fp, "%7s%4s%11s%11s  %s\n\n",
-                "POCKET", "FMS", "LENGTH", "DIAMETER", "COMMENT");
-        for (pocket = 1; pocket <= CANON_TOOL_MAX; pocket++) {
-            if (toolTable[pocket].id)
+        fprintf(fp, "%7s%7s%11s%11s  %s\n\n",
+                "POCKET", "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
+        for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
+            if (toolTable[pocket].toolno)
                 fprintf(fp, "%7d%4d%+11f%11f  %s\n",
                         pocket,
-                        toolTable[pocket].id,
+                        toolTable[pocket].toolno,
                         toolTable[pocket].zoffset, toolTable[pocket].diameter,
                         ttcomments[pocket]);
         }
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
 	return -1;
     }
 
-    for(int i=0; i<=CANON_TOOL_MAX; i++) {
+    for(int i=0; i<CANON_POCKETS_MAX+1; i++) {
         ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
     }
 
@@ -947,10 +947,11 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_SET_OFFSET_TYPE: 
             {
-                int i, o;
+                int p, t, o;
                 double z, x, d, f, b;
 
-                i = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->id;
+                p = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->pocket;
+                t = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->toolno;
                 z = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->zoffset;
                 x = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->xoffset;
                 d = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
@@ -959,17 +960,17 @@ int main(int argc, char *argv[])
                 o = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->orientation;
 
                 rtapi_print_msg(RTAPI_MSG_DBG,
-                                "EMC_TOOL_SET_OFFSET id=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
+                                "EMC_TOOL_SET_OFFSET pocket=%d toolno=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
                                 " frontangle=%lf, backangle=%lf, orientation=%d\n",
-                                i, z, x, d, f, b, o);
+                                p, t, z, x, d, f, b, o);
 
-                emcioStatus.tool.toolTable[i].id = i;
-                emcioStatus.tool.toolTable[i].zoffset = z;
-                emcioStatus.tool.toolTable[i].xoffset = x;
-                emcioStatus.tool.toolTable[i].diameter = d;
-                emcioStatus.tool.toolTable[i].frontangle = f;
-                emcioStatus.tool.toolTable[i].backangle = b;
-                emcioStatus.tool.toolTable[i].orientation = o;
+                emcioStatus.tool.toolTable[p].toolno = t;
+                emcioStatus.tool.toolTable[p].zoffset = z;
+                emcioStatus.tool.toolTable[p].xoffset = x;
+                emcioStatus.tool.toolTable[p].diameter = d;
+                emcioStatus.tool.toolTable[p].frontangle = f;
+                emcioStatus.tool.toolTable[p].backangle = b;
+                emcioStatus.tool.toolTable[p].orientation = o;
             }
 	    if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
 		emcioStatus.status = RCS_ERROR;
@@ -1083,7 +1084,7 @@ int main(int argc, char *argv[])
 	emcioCommandBuffer = 0;
     }
 
-    for(int i=0; i<CANON_TOOL_MAX; i++) {
+    for(int i=0; i<CANON_POCKETS_MAX+1; i++) {
         free(ttcomments[i]);
     }
 

@@ -159,7 +159,7 @@
 #define NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT _("Start point too close to probe point")
 #define NCE_TOO_MANY_M_CODES_ON_LINE _("Too many m codes on line")
 #define NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG _("Tool length offset index too big")
-#define NCE_TOOL_MAX_TOO_LARGE _("Tool max too large")
+#define NCE_POCKET_MAX_TOO_LARGE _("Pocket max too large")
 #define NCE_TOOL_RADIUS_INDEX_TOO_BIG _("Tool radius index too big")
 #define NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP _("Tool radius not less than arc radius with comp")
 #define NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP _("Two g codes used from same modal group")
