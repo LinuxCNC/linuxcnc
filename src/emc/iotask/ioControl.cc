@@ -711,6 +711,23 @@ int read_hal_inputs(void)
     return retval;
 }
 
+void swap_pockets(int p1, int p2) {
+    CANON_TOOL_TABLE temp;
+    char *comment_temp;
+
+    temp = emcioStatus.tool.toolTable[p1];
+    emcioStatus.tool.toolTable[p1] = emcioStatus.tool.toolTable[p2];
+    emcioStatus.tool.toolTable[p2] = temp;
+
+    comment_temp = ttcomments[p1];
+    ttcomments[p1] = ttcomments[p2];
+    ttcomments[p2] = comment_temp;
+
+    if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
+        emcioStatus.status = RCS_ERROR;
+
+}
+
 
 /********************************************************************
 *
@@ -736,6 +753,7 @@ int read_tool_inputs(void)
     }
     
     if (*iocontrol_data->tool_change && *iocontrol_data->tool_changed) {
+	swap_pockets(0, emcioStatus.tool.toolPrepped);
 	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolPrepped; //the tool now in the spindle is the one that was prepared
 	*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	emcioStatus.tool.toolPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded
@@ -918,7 +936,7 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
+	    rtapi_print_msg(RTAPI_MSG_ERR, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
 	    if ( emcioStatus.tool.toolInSpindle != emcioStatus.tool.toolPrepped
 		    && emcioStatus.tool.toolPrepped != -1) {
 		//notify HW for toolchange
