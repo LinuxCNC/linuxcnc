@@ -432,7 +432,7 @@ typedef struct setup_struct
   double tool_xoffset;          // current tool X offset
   double tool_woffset;          // current tool W offset
   int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
-  CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX + 1];      // index is pocket number
+  CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
 
   /* stuff for subroutines and control structures */

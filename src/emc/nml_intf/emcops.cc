@@ -151,7 +151,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
     toolPrepped = 0;
     toolInSpindle = 0;
 
-    for (t = 0; t <= CANON_POCKETS_MAX; t++) {
+    for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = 0;
 	toolTable[t].xoffset = 0.0;
 	toolTable[t].zoffset = 0.0;
@@ -201,7 +201,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
     toolPrepped = s.toolPrepped;
     toolInSpindle = s.toolInSpindle;
 
-    for (t = 0; t <= CANON_POCKETS_MAX; t++) {
+    for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = s.toolTable[t].toolno;
 	toolTable[t].xoffset = s.toolTable[t].xoffset;
 	toolTable[t].zoffset = s.toolTable[t].zoffset;

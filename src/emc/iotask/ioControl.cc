@@ -74,7 +74,7 @@ static RCS_STAT_CHANNEL *emcioStatusBuffer = 0;
 static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
-static char *ttcomments[CANON_POCKETS_MAX+1];
+static char *ttcomments[CANON_POCKETS_MAX];
 
 struct iocontrol_str {
     hal_bit_t *user_enable_out;	/* output, TRUE when EMC wants stop */
@@ -281,7 +281,7 @@ static int loadToolTable(const char *filename,
 	return -1;
     }
     // clear out tool table
-    for (t = 0; t <= CANON_POCKETS_MAX; t++) {
+    for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	// unused tools are 0, 0.0, 0.0
 	toolTable[t].toolno = 0;
 	toolTable[t].zoffset = 0.0;
@@ -329,7 +329,7 @@ static int loadToolTable(const char *filename,
                              &pocket, &toolno, &zoffset, &xoffset, &diameter,
                              &frontangle, &backangle, &orientation, comment)) &&
            (scanned == 8 || scanned == 9)) {
-            if (pocket < 0 || pocket > CANON_POCKETS_MAX) {
+            if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
                 printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
@@ -347,7 +347,7 @@ static int loadToolTable(const char *filename,
         } else if ((scanned = sscanf(buffer, "%d %d %lf %lf %[^\n]",
                                      &pocket, &toolno, &zoffset, &diameter, comment)) &&
                    (scanned == 4 || scanned == 5)) {
-            if (pocket < 0 || pocket > CANON_POCKETS_MAX) {
+            if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
                 printf("skipping tool: bad pocket number %d\n", pocket);
                 continue;
             } else {
@@ -396,7 +396,7 @@ static int saveToolTable(const char *filename,
     const char *name;
     int lathe_style = 0;
 
-    for(pocket=1; pocket <= CANON_POCKETS_MAX; pocket++) {
+    for(pocket=0; pocket < CANON_POCKETS_MAX; pocket++) {
         if(toolTable[pocket].orientation != 0) {
             lathe_style = 1;
             break;
@@ -422,7 +422,7 @@ static int saveToolTable(const char *filename,
                 "POCKET", "TOOLNO", "ZOFFSET", "XOFFSET",
                 "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
                 "COMMENT");
-        for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
+        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno)
                 fprintf(fp, "%7d%7d%+11f%+11f%11f%+12f%+12f%7d  %s\n",
                         pocket,
@@ -434,7 +434,7 @@ static int saveToolTable(const char *filename,
     } else {
         fprintf(fp, "%7s%7s%11s%11s  %s\n\n",
                 "POCKET", "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
-        for (pocket = 0; pocket <= CANON_POCKETS_MAX; pocket++) {
+        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno)
                 fprintf(fp, "%7d%7d%+11f%11f  %s\n",
                         pocket,
@@ -833,7 +833,7 @@ int main(int argc, char *argv[])
 	return -1;
     }
 
-    for(int i=0; i<CANON_POCKETS_MAX+1; i++) {
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
         ttcomments[i] = (char *)malloc(CANON_TOOL_ENTRY_LEN);
     }
 
@@ -936,9 +936,8 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_ERR, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
-	    if ( emcioStatus.tool.toolInSpindle != emcioStatus.tool.toolPrepped
-		    && emcioStatus.tool.toolPrepped != -1) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.toolPrepped);
+	    if (emcioStatus.tool.toolPrepped != -1) {
 		//notify HW for toolchange
 		*(iocontrol_data->tool_change) = 1;
 		// the feedback logic is done inside read_hal_inputs() we only
@@ -977,7 +976,7 @@ int main(int argc, char *argv[])
                 b = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->backangle;
                 o = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->orientation;
 
-                rtapi_print_msg(RTAPI_MSG_ERR,
+                rtapi_print_msg(RTAPI_MSG_DBG,
                                 "EMC_TOOL_SET_OFFSET pocket=%d toolno=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
                                 " frontangle=%lf, backangle=%lf, orientation=%d\n",
                                 p, t, z, x, d, f, b, o);
@@ -1102,7 +1101,7 @@ int main(int argc, char *argv[])
 	emcioCommandBuffer = 0;
     }
 
-    for(int i=0; i<CANON_POCKETS_MAX+1; i++) {
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
         free(ttcomments[i]);
     }
 

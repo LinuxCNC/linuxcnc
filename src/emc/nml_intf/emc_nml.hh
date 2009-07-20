@@ -1541,7 +1541,7 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 
     int toolPrepped;		// tool ready for loading, 0 is no tool
     int toolInSpindle;		// tool loaded, 0 is no tool
-    CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX + 1];
+    CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
 };
 
 // EMC_AUX type declarations

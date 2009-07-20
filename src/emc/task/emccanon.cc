@@ -2369,7 +2369,7 @@ void CANON_ERROR(const char *fmt, ...)
   GET_EXTERNAL_TOOL_TABLE(int pocket)
 
   Returns the tool table structure associated with pocket. Note that
-  pocket can run from 0 (by definition, no tool), to pocket CANON_POCKETS_MAX - 1.
+  pocket can run from 0 (by definition, the spindle), to pocket CANON_POCKETS_MAX - 1.
 
   Tool table is always in machine units.
 
@@ -2378,7 +2378,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 {
     CANON_TOOL_TABLE retval;
 
-    if (pocket < 1 || pocket >= CANON_POCKETS_MAX) {
+    if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
 	retval.toolno = 0;
         retval.xoffset = 0.0;
 	retval.zoffset = 0.0;
