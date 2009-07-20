@@ -1932,7 +1932,8 @@ void CHANGE_TOOL(int slot)
 
     /* regardless of optional moves above, we'll always send a load tool
        message */
-    interp_list.append(load_tool_msg);
+    if(slot > 0)
+        interp_list.append(load_tool_msg);
 }
 
 /* SELECT_POCKET results from T1, for example */

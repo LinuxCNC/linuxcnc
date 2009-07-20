@@ -1815,7 +1815,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
   } else {
       if(block->d_flag == OFF) {
-          index = settings->current_pocket;
+          index = 0;
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
@@ -4388,13 +4388,10 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     woffset = 0.;
     index = 0;
   } else if (g_code == G_43) {
-    CHKS((block->h_flag == OFF && !settings->current_pocket), 
-        NCE_OFFSET_INDEX_MISSING);
-
     if(block->h_flag == ON) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
     } else {
-        index = settings->current_pocket;
+        index = 0;
     }
 
     xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);

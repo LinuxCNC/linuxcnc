@@ -1627,16 +1627,11 @@ class LivePlotter:
                 on_any_limit = True
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
-        current_tool = None
-        for i in self.stat.tool_table:
-            if i[0] == self.stat.tool_in_spindle:
-                current_tool = i
+        current_tool = self.stat.tool_table[0]
         if current_tool:
             tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
-        if self.stat.tool_in_spindle == 0:
-            vupdate(vars.tool, _("No tool"))
-        elif current_tool is None:
-            vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
+        if current_tool is None:
+            vupdate(vars.tool, _("Unknown tool which came from pocket %d") % self.stat.tool_in_spindle)
         elif current_tool.xoffset == 0 and not lathe:
             vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
         else:
@@ -2373,7 +2368,7 @@ class _prompt_touchoff(_prompt_float):
             tool_offset_axes = "xz"
         else:
             tool_offset_axes = "z"
-        if s.tool_in_spindle == 0 or vars.current_axis.get() not in tool_offset_axes:
+        if vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
         linear_axis = vars.current_axis.get() in "xyzuvw"
@@ -3182,7 +3177,7 @@ class TclCommands(nf.TclCommands):
             p0 *= 2
 
         if system.split()[0] == "T":
-            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_in_spindle, vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_table[0][0], vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
