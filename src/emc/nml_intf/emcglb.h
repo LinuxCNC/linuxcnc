@@ -93,7 +93,6 @@ typedef struct TrajConfig_t {
     int Inited;	// non-zero means traj called init
     int Joints;
     double MaxAccel;
-    double DefaultVel;
     double MaxVel;
     int Axes;
     int AxisMask;
@@ -103,7 +102,6 @@ typedef struct TrajConfig_t {
 } TrajConfig_t;
 
     extern AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
-    extern TrajConfig_t TrajConfig;
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

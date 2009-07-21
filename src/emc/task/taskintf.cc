@@ -13,6 +13,7 @@
 ********************************************************************/
 
 #include <math.h>		// isnan()
+#include <float.h>              // DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
 
@@ -21,6 +22,7 @@
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "motion_debug.h"
 #include "emc.hh"
+#include "emccfg.h"		// EMC_INIFILE
 #include "emcglb.h"		// EMC_INIFILE
 #include "emc_nml.hh"
 #include "rcs_print.hh"
@@ -51,7 +53,8 @@ static emcmot_status_t emcmotStatus;
   been called.
   */
 
-struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+static struct TrajConfig_t TrajConfig;
+static struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
 
 static emcmot_command_t emcmotCommand;
 
@@ -1083,6 +1086,16 @@ int emcTrajSetMotionId(int id)
 int emcTrajInit()
 {
     int retval = 0;
+
+    TrajConfig.Inited = 0;
+    TrajConfig.Joints = 0;
+    TrajConfig.MaxAccel = DBL_MAX;
+    TrajConfig.Axes = 0;
+    TrajConfig.AxisMask = 0;
+    TrajConfig.LinearUnits = 1.0;
+    TrajConfig.AngularUnits = 1.0;
+    TrajConfig.MotionId = 0;
+    TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
 
     // init emcmot interface
     if (!JointOrTrajInited()) {

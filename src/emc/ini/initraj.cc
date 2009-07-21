@@ -120,8 +120,6 @@ static int loadTraj(EmcIniFile *trajInifile)
 
         vel = 1.0;
         trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
-        // set the corresponding global
-        TrajConfig.DefaultVel = vel;
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
              return -1;
