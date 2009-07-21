@@ -55,6 +55,7 @@ static emcmot_status_t emcmotStatus;
 
 static struct TrajConfig_t TrajConfig;
 static struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+static struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
 static emcmot_command_t emcmotCommand;
 
@@ -473,6 +474,39 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
         rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, acc);
     }
     return 0;
+}
+
+int emcAxisSetHome(int axis, double home)
+{
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+	return 0;
+    }
+    
+    AxisConfig[axis].Home = home;
+
+    if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, home);
+    }
+    return 0;
+}
+
+double emcAxisGetMaxVelocity(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxVel;
+}
+
+double emcAxisGetMaxAcceleration(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxAccel;
 }
 
 

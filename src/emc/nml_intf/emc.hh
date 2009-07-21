@@ -385,7 +385,9 @@ extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
-
+extern int emcAxisSetHome(int axis, double home);
+extern double emcAxisGetMaxVelocity(int axis);
+extern double emcAxisGetMaxAcceleration(int axis);
 
 // implementation functions for EMC_JOINT types
 

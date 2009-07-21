@@ -101,8 +101,6 @@ typedef struct TrajConfig_t {
     int MotionId;
 } TrajConfig_t;
 
-    extern AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
-
 #ifdef __cplusplus
 }				/* matches extern "C" at top */
 #endif
