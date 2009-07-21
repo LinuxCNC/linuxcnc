@@ -14,6 +14,7 @@
 ********************************************************************/
 
 #include <string.h>		/* strcpy() */
+#include <float.h>		// DBL_MAX
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "emcpos.h"		/* EmcPose */
@@ -35,10 +36,8 @@ int emc_task_interp_max_len = DEFAULT_EMC_TASK_INTERP_MAX_LEN;
 
 char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 
-double traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
-double traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
-
 struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
+struct TrajConfig_t TrajConfig;
 
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
@@ -49,5 +48,21 @@ int taskplanopen = 0;
 
 void emcInitGlobals()
 {
-    return;
+    int i;
+
+    TrajConfig.Inited = 0;
+    TrajConfig.Joints = 0;
+    TrajConfig.MaxAccel = DBL_MAX;
+    TrajConfig.Axes = 0;
+    TrajConfig.AxisMask = 0;
+    TrajConfig.LinearUnits = 1.0;
+    TrajConfig.AngularUnits = 1.0;
+    TrajConfig.MotionId = 0;
+    TrajConfig.DefaultVel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
+    TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
+
+    for (i = 0; i < EMCMOT_MAX_AXIS; i++) {
+        AxisConfig[i].MaxVel = DEFAULT_AXIS_MAX_VELOCITY; 
+    }
+        
 }

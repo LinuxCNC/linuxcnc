@@ -1434,14 +1434,14 @@ static int iniLoad(const char *filename)
 
   if ((inistring = inifile.Find("MAX_VELOCITY", "TRAJ")))
     {
-      if (1 != sscanf(inistring, "%lf", &traj_max_velocity))
+      if (1 != sscanf(inistring, "%lf", &TrajConfig.MaxVel))
         {
-          traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
+            TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
         }
     }
   else
     {
-      traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
+      TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
   if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
@@ -2689,9 +2689,9 @@ int main(int argc, char *argv[])
           else
             {
               jogSpeed += 1;
-              if (jogSpeed > traj_max_velocity * 60.0)
+              if (jogSpeed > TrajConfig.MaxVel * 60.0)
                 {
-                  jogSpeed = traj_max_velocity * 60.0;
+                  jogSpeed = TrajConfig.MaxVel * 60.0;
                 }
             }
           break;
