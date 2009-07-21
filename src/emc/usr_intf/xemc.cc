@@ -639,6 +639,10 @@ typedef enum {
 
 static POS_DISPLAY_TYPE posDisplay = POS_DISPLAY_ACT;
 
+// traj
+static double traj_defvel;
+static double traj_maxvel;
+
 // marker for the active axis
 static int activeAxis = 0;      // default is 0, X
 static int oldActiveAxis = -1;  // force an update at startup
@@ -4524,27 +4528,27 @@ static int iniLoad(const char *filename)
     strcpy(PARAMETER_FILE, "rs274ngc.var"); // FIXME-- hardcoded
   }
 
-  if (NULL != (inistring = inifile.Find("DEFAULT_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &TrajConfig.DefaultVel)) {
-      TrajConfig.DefaultVel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
+  if (NULL != (inistring = inifile.Find("DEFAULT_LINEAR_VELOCITY", "TRAJ"))) {
+    if (1 != sscanf(inistring, "%lf", &traj_defvel)) {
+      traj_defvel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
     }
   }
   else {
-    TrajConfig.DefaultVel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
+    traj_defvel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
   }
   // round jogSpeed in display to integer, per-minute
-  jogSpeed = (int) (TrajConfig.DefaultVel * 60.0 + 0.5);
+  jogSpeed = (int) (traj_defvel * 60.0 + 0.5);
 
   if (NULL != (inistring = inifile.Find("MAX_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &TrajConfig.MaxVel)) {
-      TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
+    if (1 != sscanf(inistring, "%lf", &traj_maxvel)) {
+      traj_maxvel = DEFAULT_TRAJ_MAX_VELOCITY;
     }
   }
   else {
-    TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
+    traj_maxvel = DEFAULT_TRAJ_MAX_VELOCITY;
   }
   // round maxJogSpeed in display to integer, per-minute
-  maxJogSpeed = (int) (TrajConfig.MaxVel * 60.0 + 0.5);
+  maxJogSpeed = (int) (traj_maxvel * 60.0 + 0.5);
 
   if (NULL != (inistring = inifile.Find("HELP_FILE", "DISPLAY"))) {
     strcpy(HELP_FILE, inistring);
