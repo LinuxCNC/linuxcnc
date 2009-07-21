@@ -78,7 +78,12 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     try {
         home = 0;
         axisIniFile->Find(&home, "HOME", axisString);
-        AxisConfig[axis].Home = home;
+        if (0 != emcAxisSetHome(axis, home)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetHome\n");
+            }
+            return -1;
+        };
 
         // set min position limit
         limit = -1e99;	                // default
