@@ -121,7 +121,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         vel = 1.0;
         trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
         // set the corresponding global
-        TRAJ_DEFAULT_VELOCITY = vel;
+        TrajConfig.DefaultVel = vel;
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
              return -1;
@@ -129,8 +129,6 @@ static int loadTraj(EmcIniFile *trajInifile)
 
         vel = 1e99; // by default, use AXIS limit
         trajInifile->Find(&vel, "MAX_LINEAR_VELOCITY", "TRAJ");
-        // set the corresponding global
-        TRAJ_MAX_VELOCITY = vel;
         // and set dynamic value
         if (0 != emcTrajSetMaxVelocity(vel)) {
             return -1;

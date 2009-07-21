@@ -13,7 +13,6 @@
 ********************************************************************/
 
 #include <math.h>		// isnan()
-#include <float.h>		// DBL_MAX
 #include <string.h>		// memcpy() strncpy()
 #include <unistd.h>             // unlink()
 
@@ -56,8 +55,6 @@ struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
 
 static emcmot_command_t emcmotCommand;
 
-static int emcmotTrajInited = 0;	// non-zero means traj called init
-
 __attribute__ ((unused))
 static int emcmotIoInited = 0;	// non-zero means io called init
 static int emcmotion_initialized = 0;	// non-zero means both
@@ -69,7 +66,6 @@ static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
 
 //things referring to joints
-static double localEmcMaxAcceleration = DBL_MAX;
 
 //things referring to axes
 //FIXME-AJ: see if needed
@@ -493,7 +489,7 @@ static int JointOrTrajInited(void)
 	    return 1;
 	}
     }
-    if (emcmotTrajInited) {
+    if (TrajConfig.Inited) {
 	return 1;
     }
     return 0;
@@ -833,14 +829,6 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 
 // EMC_TRAJ functions
 
-// local status data, not provided by emcmot
-static int localEmcTrajJoints = 0;
-static int localEmcTrajAxes = 0;
-static int localEmcTrajAxisMask = 0;
-static double localEmcTrajLinearUnits = 1.0;
-static double localEmcTrajAngularUnits = 1.0;
-static int localEmcTrajMotionId = 0;
-
 int emcTrajSetJoints(int joints)
 {
     if (joints <= 0 || joints > EMCMOT_MAX_JOINTS) {
@@ -849,7 +837,7 @@ int emcTrajSetJoints(int joints)
 	return -1;
     }
 
-    localEmcTrajJoints = joints;
+    TrajConfig.Joints = joints;
     emcmotCommand.command = EMCMOT_SET_NUM_JOINTS;
     emcmotCommand.joint = joints;
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -868,8 +856,8 @@ int emcTrajSetAxes(int axes, int axismask)
 	return -1;
     }
 
-    localEmcTrajAxes = axes;
-    localEmcTrajAxisMask = axismask;
+    TrajConfig.Axes = axes;
+    TrajConfig.AxisMask = axismask;
     
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%d, %d)\n", __FUNCTION__, axes, axismask);
@@ -883,8 +871,8 @@ int emcTrajSetUnits(double linearUnits, double angularUnits)
 	return -1;
     }
 
-    localEmcTrajLinearUnits = linearUnits;
-    localEmcTrajAngularUnits = angularUnits;
+    TrajConfig.LinearUnits = linearUnits;
+    TrajConfig.AngularUnits = angularUnits;
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%.4f, %.4f)\n", __FUNCTION__, linearUnits, angularUnits);
@@ -916,14 +904,14 @@ int emcTrajSetVelocity(double vel, double ini_maxvel)
 {
     if (vel < 0.0) {
 	vel = 0.0;
-    } else if (vel > TRAJ_MAX_VELOCITY) {
-	vel = TRAJ_MAX_VELOCITY;
+    } else if (vel > TrajConfig.MaxVel) {
+	vel = TrajConfig.MaxVel;
     }
 
     if (ini_maxvel < 0.0) {
 	    ini_maxvel = 0.0;
-    } else if (vel > TRAJ_MAX_VELOCITY) {
-	    ini_maxvel = TRAJ_MAX_VELOCITY;
+    } else if (vel > TrajConfig.MaxVel) {
+	    ini_maxvel = TrajConfig.MaxVel;
     }
 
     emcmotCommand.command = EMCMOT_SET_VEL;
@@ -942,8 +930,8 @@ int emcTrajSetAcceleration(double acc)
 {
     if (acc < 0.0) {
 	acc = 0.0;
-    } else if (acc > localEmcMaxAcceleration) {
-	acc = localEmcMaxAcceleration;
+    } else if (acc > TrajConfig.MaxAccel) {
+	acc = TrajConfig.MaxAccel;
     }
 
     emcmotCommand.command = EMCMOT_SET_ACC;
@@ -967,7 +955,7 @@ int emcTrajSetMaxVelocity(double vel)
 	vel = 0.0;
     }
 
-    TRAJ_MAX_VELOCITY = vel;
+    TrajConfig.MaxVel = vel;
 
     emcmotCommand.command = EMCMOT_SET_VEL_LIMIT;
     emcmotCommand.vel = vel;
@@ -986,7 +974,7 @@ int emcTrajSetMaxAcceleration(double acc)
 	acc = 0.0;
     }
 
-    localEmcMaxAcceleration = acc;
+    TrajConfig.MaxAccel = acc;
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%.4f)\n", __FUNCTION__, acc);
@@ -1082,12 +1070,12 @@ int emcTrajSetMotionId(int id)
 {
 
     if (EMC_DEBUG_MOTION_TIME & EMC_DEBUG) {
-	if (id != localEmcTrajMotionId) {
+	if (id != TrajConfig.MotionId) {
 	    rcs_print("Outgoing motion id is %d.\n", id);
 	}
     }
 
-    localEmcTrajMotionId = id;
+    TrajConfig.MotionId = id;
 
     return 0;
 }
@@ -1103,7 +1091,7 @@ int emcTrajInit()
 	    return -1;
 	}
     }
-    emcmotTrajInited = 1;
+    TrajConfig.Inited = 1;
     // initialize parameters from ini file
     if (0 != iniTraj(EMC_INIFILE)) {
 	retval = -1;
@@ -1113,7 +1101,7 @@ int emcTrajInit()
 
 int emcTrajHalt()
 {
-    emcmotTrajInited = 0;
+    TrajConfig.Inited = 0;
 
     if (!JointOrTrajInited()) {
 	usrmotExit();		// ours is final exit
@@ -1173,12 +1161,12 @@ int emcTrajDelay(double delay)
 
 double emcTrajGetLinearUnits()
 {
-    return localEmcTrajLinearUnits;
+    return TrajConfig.LinearUnits;
 }
 
 double emcTrajGetAngularUnits()
 {
-    return localEmcTrajAngularUnits;
+    return TrajConfig.AngularUnits;
 }
 
 int emcTrajSetOffset(double z, double x, double w) 
@@ -1230,7 +1218,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
 
     emcmotCommand.pos = end;
 
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1267,7 +1255,7 @@ int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
     emcmotCommand.normal.z = normal.z;
 
     emcmotCommand.turn = turn;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
 
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1296,7 +1284,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos = pos;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.motion_type = type;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
@@ -1317,7 +1305,7 @@ int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
-    emcmotCommand.id = localEmcTrajMotionId;
+    emcmotCommand.id = TrajConfig.MotionId;
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
@@ -1335,11 +1323,11 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 {
     int joint, enables;
 
-    stat->joints = localEmcTrajJoints;
-    stat->axes = localEmcTrajAxes;
-    stat->axis_mask = localEmcTrajAxisMask;
-    stat->linearUnits = localEmcTrajLinearUnits;
-    stat->angularUnits = localEmcTrajAngularUnits;
+    stat->joints = TrajConfig.Joints;
+    stat->axes = TrajConfig.Axes;
+    stat->axis_mask = TrajConfig.AxisMask;
+    stat->linearUnits = TrajConfig.LinearUnits;
+    stat->angularUnits = TrajConfig.AngularUnits;
 
     stat->mode =
 	emcmotStatus.
@@ -1351,7 +1339,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     /* enabled if motion enabled and all joints enabled */
     stat->enabled = 0;		/* start at disabled */
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ENABLE_BIT) {
-	for (joint = 0; joint < localEmcTrajJoints; joint++) {
+	for (joint = 0; joint < TrajConfig.Joints; joint++) {
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - the axis flag has been moved to the joint struct */
 	    if (!emcmotStatus.axisFlag[axis] & EMCMOT_JOINT_ENABLE_BIT) {
@@ -1394,7 +1382,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->velocity = emcmotStatus.vel;
     stat->acceleration = emcmotStatus.acc;
-    stat->maxAcceleration = localEmcMaxAcceleration;
+    stat->maxAcceleration = TrajConfig.MaxAccel;
 
     if (emcmotStatus.motionFlag & EMCMOT_MOTION_ERROR_BIT) {
 	stat->status = RCS_ERROR;
@@ -1493,12 +1481,12 @@ int emcMotionInit()
     int r1, r2, r3, r4;
     int joint, axis;
     EmcPose home;
-
+    
     r1 = emcTrajInit(); // we want to check Traj first, the sane defaults for units are there
     // it also determines the number of existing joints, and axes
 
     r2 = 0;
-    for (joint = 0; joint < localEmcTrajJoints; joint++) {
+    for (joint = 0; joint < TrajConfig.Joints; joint++) {
 	if (0 != emcJointInit(joint)) {
 	    r2 = -1;		// at least one is busted
 	}
@@ -1506,7 +1494,7 @@ int emcMotionInit()
 
     r3 = 0;
     for (axis = 0; axis < EMCMOT_MAX_AXIS; axis++) {
-        if (localEmcTrajAxisMask & (1<<axis)) {
+        if (TrajConfig.AxisMask & (1<<axis)) {
 	    if (0 != emcAxisInit(axis)) {
 	        r3 = -1;		// at least one is busted
 	    }
