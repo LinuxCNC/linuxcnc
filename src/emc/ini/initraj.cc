@@ -130,7 +130,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         vel = 1.0;
         trajInifile->Find(&vel, "DEFAULT_LINEAR_VELOCITY", "TRAJ");
         // set the corresponding global
-        traj_default_velocity = vel;
+        TrajConfig.DefaultVel = vel;
         old_inihal_data.traj_default_velocity = vel;
 
         // and set dynamic value
@@ -143,8 +143,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 
         vel = 1e99; // by default, use AXIS limit
         trajInifile->Find(&vel, "MAX_LINEAR_VELOCITY", "TRAJ");
-        // set the corresponding global
-        traj_max_velocity = vel;
+        // XXX CJR merge question: Set something in TrajConfig here?
         old_inihal_data.traj_max_velocity = vel;
 
         // and set dynamic value
