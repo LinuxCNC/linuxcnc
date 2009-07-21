@@ -355,7 +355,7 @@ static PyMemberDef Stat_members[] = {
 
 // io
 // EMC_TOOL_STAT io.tool
-    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
+    {"pocket_prepped", T_INT, O(io.tool.pocketPrepped), READONLY},
     {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
 
 // EMC_COOLANT_STAT io.cooland

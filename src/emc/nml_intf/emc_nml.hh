@@ -1539,7 +1539,7 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT operator =(EMC_TOOL_STAT s);	// need this for [] members
 
-    int toolPrepped;		// tool ready for loading, 0 is no tool
+    int pocketPrepped;		// pocket ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool
     CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
 };

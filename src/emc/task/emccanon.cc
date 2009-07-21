@@ -2745,7 +2745,7 @@ int GET_EXTERNAL_TOOL_SLOT()
 
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
-    return emcStatus->io.tool.toolPrepped;
+    return emcStatus->io.tool.pocketPrepped;
 }
 
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()

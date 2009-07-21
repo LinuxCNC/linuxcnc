@@ -148,7 +148,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 {
     int t;
 
-    toolPrepped = 0;
+    pocketPrepped = 0;
     toolInSpindle = 0;
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {
@@ -198,7 +198,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 {
     int t;
 
-    toolPrepped = s.toolPrepped;
+    pocketPrepped = s.pocketPrepped;
     toolInSpindle = s.toolInSpindle;
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {

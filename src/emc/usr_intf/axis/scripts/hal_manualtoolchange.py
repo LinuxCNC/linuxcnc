@@ -8,7 +8,7 @@ import emc, hal
 
 def do_change(n):
     if n:
-        message = _("Insert tool from pocket %d and click continue when ready") % n
+        message = _("Insert tool %d and click continue when ready") % n
     else:
         message = _("Remove the tool and click continue when ready")
     app.wm_withdraw()
