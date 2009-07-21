@@ -50,9 +50,6 @@ extern "C" {
 
     extern char tool_table_file[LINELEN];
 
-    extern double traj_default_velocity;
-    extern double traj_max_velocity;
-
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
     extern struct EmcPose tool_holder_clear;
@@ -84,7 +81,21 @@ typedef struct AxisConfig_t {
     double MaxLimit;
 } AxisConfig_t;
 
+typedef struct TrajConfig_t {
+    int Inited;	// non-zero means traj called init
+    int Joints;
+    double MaxAccel;
+    double DefaultVel;
+    double MaxVel;
+    int Axes;
+    int AxisMask;
+    double LinearUnits;
+    double AngularUnits;
+    int MotionId;
+} TrajConfig_t;
+
     extern AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
+    extern TrajConfig_t TrajConfig;
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

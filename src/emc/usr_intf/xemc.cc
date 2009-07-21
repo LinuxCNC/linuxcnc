@@ -4514,26 +4514,26 @@ static int iniLoad(const char *filename)
   }
 
   if (NULL != (inistring = inifile.Find("DEFAULT_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &traj_default_velocity)) {
-      traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
+    if (1 != sscanf(inistring, "%lf", &TrajConfig.DefaultVel)) {
+      TrajConfig.DefaultVel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
     }
   }
   else {
-    traj_default_velocity = DEFAULT_TRAJ_DEFAULT_VELOCITY;
+    TrajConfig.DefaultVel = DEFAULT_TRAJ_DEFAULT_VELOCITY;
   }
   // round jogSpeed in display to integer, per-minute
-  jogSpeed = (int) (traj_default_velocity * 60.0 + 0.5);
+  jogSpeed = (int) (TrajConfig.DefaultVel * 60.0 + 0.5);
 
   if (NULL != (inistring = inifile.Find("MAX_VELOCITY", "TRAJ"))) {
-    if (1 != sscanf(inistring, "%lf", &traj_max_velocity)) {
-      traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
+    if (1 != sscanf(inistring, "%lf", &TrajConfig.MaxVel)) {
+      TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
     }
   }
   else {
-    traj_max_velocity = DEFAULT_TRAJ_MAX_VELOCITY;
+    TrajConfig.MaxVel = DEFAULT_TRAJ_MAX_VELOCITY;
   }
   // round maxJogSpeed in display to integer, per-minute
-  maxJogSpeed = (int) (traj_max_velocity * 60.0 + 0.5);
+  maxJogSpeed = (int) (TrajConfig.MaxVel * 60.0 + 0.5);
 
   if (NULL != (inistring = inifile.Find("HELP_FILE", "DISPLAY"))) {
     strcpy(HELP_FILE, inistring);
