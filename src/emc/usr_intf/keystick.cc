@@ -95,6 +95,9 @@ static EMC_TASK_PLAN_STEP task_plan_step_msg;
 // from interrupting your window printing
 static unsigned char critFlag = 0;
 
+// traj
+static double traj_maxvel;
+
 // the program path prefix
 static char programPrefix[LINELEN] = "";
 // the saved program name
@@ -1440,16 +1443,16 @@ static int iniLoad(const char *filename)
         }
     }
 
-  if ((inistring = inifile.Find("MAX_VELOCITY", "TRAJ")))
+  if ((inistring = inifile.Find("MAX_LINEAR_VELOCITY", "TRAJ")))
     {
-      if (1 != sscanf(inistring, "%lf", &TRAJ_MAX_VELOCITY))
+      if (1 != sscanf(inistring, "%lf", &traj_maxvel))
         {
-          TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
+            traj_maxvel = DEFAULT_TRAJ_MAX_VELOCITY;
         }
     }
   else
     {
-      TRAJ_MAX_VELOCITY = DEFAULT_TRAJ_MAX_VELOCITY;
+      traj_maxvel = DEFAULT_TRAJ_MAX_VELOCITY;
     }
 
   if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
@@ -2697,9 +2700,9 @@ int main(int argc, char *argv[])
           else
             {
               jogSpeed += 1;
-              if (jogSpeed > TRAJ_MAX_VELOCITY * 60.0)
+              if (jogSpeed > traj_maxvel * 60.0)
                 {
-                  jogSpeed = TRAJ_MAX_VELOCITY * 60.0;
+                  jogSpeed = traj_maxvel * 60.0;
                 }
             }
           break;
