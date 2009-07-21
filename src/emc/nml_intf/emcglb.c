@@ -35,8 +35,6 @@ int emc_task_interp_max_len = DEFAULT_EMC_TASK_INTERP_MAX_LEN;
 
 char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 
-struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
-
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
 EmcPose tool_holder_clear;	/* no defaults */
@@ -46,10 +44,4 @@ int taskplanopen = 0;
 
 void emcInitGlobals()
 {
-    int i;
-
-    for (i = 0; i < EMCMOT_MAX_AXIS; i++) {
-        AxisConfig[i].MaxVel = DEFAULT_AXIS_MAX_VELOCITY; 
-    }
-        
 }
