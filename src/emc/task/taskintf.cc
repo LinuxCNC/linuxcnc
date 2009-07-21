@@ -58,6 +58,7 @@ static emcmot_status_t emcmotStatus;
 
 static struct TrajConfig_t TrajConfig;
 static struct JointConfig_t JointConfig[EMCMOT_MAX_JOINTS];
+static struct AxisConfig_t AxisConfig[EMCMOT_MAX_AXIS];
 
 static emcmot_command_t emcmotCommand;
 
@@ -363,20 +364,6 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     return retval;
 }
 
-int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
-{
-    int axis_num;
-    
-    // check for valid range
-    if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
-	return -1;
-    }
-
-    for (axis_num = 0; axis_num < numAxes; axis_num++) {
-    }
-    return 0;
-}
-
 /**********************************************************************************************
 *   functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W)                                   *
 **********************************************************************************************/
@@ -495,6 +482,52 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     return 0;
 }
 
+int emcAxisSetHome(int axis, double home)
+{
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+	return 0;
+    }
+    
+    AxisConfig[axis].Home = home;
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, home);
+    }
+    return 0;
+}
+
+double emcAxisGetMaxVelocity(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxVel;
+}
+
+double emcAxisGetMaxAcceleration(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+
+    return AxisConfig[axis].MaxAccel;
+}
+
+int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
+{
+    int axis_num;
+    
+    // check for valid range
+    if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
+	return -1;
+    }
+
+    for (axis_num = 0; axis_num < numAxes; axis_num++) {
+    }
+    return 0;
+}
 
 /* This function checks to see if any joint or the traj has
    been inited already.  At startup, if none have been inited,
