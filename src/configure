@@ -9974,8 +9974,8 @@ echo "${ECHO_T}OK" >&6; }
     { echo "$as_me:$LINENO: checking match between tk and Tkinter versions" >&5
 echo $ECHO_N "checking match between tk and Tkinter versions... $ECHO_C" >&6; }
 
-    PYTHON_TK_VERSION="`python -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`python -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
     if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
 	{ echo "$as_me:$LINENO: result: TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION" >&5
