@@ -1247,6 +1247,8 @@ class App:
         return _("Other")
 
     def on_basicinfo_prepare(self, *args):
+        self.widgets.drivetime_expander.set_expanded(True)
+        self.widgets.parport_expander.set_expanded(True)
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
@@ -1272,6 +1274,8 @@ class App:
         
 
     def on_basicinfo_next(self, *args):
+        self.widgets.drivetime_expander.set_expanded(False)
+        self.widgets.parport_expander.set_expanded(False)
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
@@ -1698,7 +1702,7 @@ class App:
         self.widgets.label_floatin.set_sensitive(i)
         self.widgets.label_floatout.set_sensitive(i)
         self.widgets.ladderconnect.set_sensitive(i)
-        
+        self.widgets.clpins_expander.set_sensitive(i)
 
     def on_pyvcp_toggled(self,*args):
         i= self.widgets.pyvcp.get_active()

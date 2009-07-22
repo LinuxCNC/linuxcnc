@@ -2454,6 +2454,10 @@ rt pin below).
 
 \begin_layout Description
 .scale (Float, RW) Converts from "count" units to "position" units.
+ A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
+ encoder would be 400 counts per revolution.
+ In ".counter-mode" a 100 PPR encoder would have 100 counts per revelution
+ as it only uses the rising edge of A and direction is B.
 \end_layout
 
 \begin_layout Description

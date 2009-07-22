@@ -218,7 +218,7 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
     case EMC_SYSTEM_CMD_TYPE:
 	((EMC_SYSTEM_CMD *) buffer)->update(cms);
 	break;
-     case EMC_SET_DEBUG_TYPE:
+    case EMC_SET_DEBUG_TYPE:
 	((EMC_SET_DEBUG *) buffer)->update(cms);
 	break;
     case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
