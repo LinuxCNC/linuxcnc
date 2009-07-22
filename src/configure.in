@@ -1289,8 +1289,8 @@ if test "$BUILD_PYTHON" = "yes"; then
 
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 	
-    PYTHON_TK_VERSION="`python -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`python -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
     if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
 	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
