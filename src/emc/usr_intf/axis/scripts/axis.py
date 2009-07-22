@@ -1631,7 +1631,9 @@ class LivePlotter:
         if current_tool:
             tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
         if current_tool is None:
-            vupdate(vars.tool, _("Unknown tool which came from pocket %d") % self.stat.tool_in_spindle)
+            vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
+        elif tool_data['tool'] == 0:
+            vupdate(vars.tool, _("No tool"))
         elif current_tool.xoffset == 0 and not lathe:
             vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
         else:

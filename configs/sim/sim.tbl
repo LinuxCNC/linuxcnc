@@ -1,10 +1,8 @@
- POCKET TOOLNO     LENGTH   DIAMETER  COMMENT
+Note: The tool listed first is the tool currently in the spindle.
 
-      0      3  +3.333000   1.250000  
-      1      5  +0.000000   0.500000  
-      2  32222  +0.500000   0.000000  last tool
-      3      4  +0.700000   1.000000  
-      4      9  +0.100000   0.062500  
-      7      2  +0.700000   0.125000  first tool
-     12     99  +9.999900   0.062500  
-     55      1  +1.000000   0.062500  
+ TOOLNO     LENGTH   DIAMETER  COMMENT
+
+      0  +0.000000   0.000000  no tool
+      1  +0.100000   0.062500  1/16 end mill
+      2  +0.511000   0.125000  1/8 end mill
+      3  +1.273000   0.201000  #7 tap drill

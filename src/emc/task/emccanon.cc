@@ -2380,7 +2380,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
     CANON_TOOL_TABLE retval;
 
     if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
-	retval.toolno = 0;
+	retval.toolno = -1;
         retval.xoffset = 0.0;
 	retval.zoffset = 0.0;
         retval.frontangle = 0.0;
