@@ -1,7 +1,8 @@
-POC     FMS     LEN     DIAM    COMMENT
-1       1       17       5.0    first tool
-2       2       18       2.0
-3       3       13       25.0
-4       4       18       25.0
-5	5	0 	 10.0
-32      32      13       0.0    last tool
+Note: The tool listed first is the tool currently in the spindle.
+
+ TOOLNO     LENGTH    DIAMETER  COMMENT
+
+     0   +0.000000   0.000000  no tool
+     1  +11.000000   5.000000  5mm end mill
+     2  +10.511000   3.175000  1/8" end mill
+     3  +29.273000   7.000000  7mm drill
