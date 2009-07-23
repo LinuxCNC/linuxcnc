@@ -4334,7 +4334,6 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       settings->w_current = w_end;
   }
 
-  printf("CHANGE_TOOL %d\n", settings->selected_pocket);
   CHANGE_TOOL(settings->selected_pocket);
   
   settings->current_pocket = settings->selected_pocket;
@@ -4474,7 +4473,6 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 {
   int pocket;
   CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  printf("SELECT_POCKET %d\n", pocket);
   SELECT_POCKET(pocket);
   settings->selected_pocket = pocket;
   return INTERP_OK;
