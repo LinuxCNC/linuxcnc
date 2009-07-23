@@ -75,7 +75,7 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 static char *ttcomments[CANON_POCKETS_MAX];
-static char random_toolchanger = 0;
+static int random_toolchanger = 0;
 
 
 struct iocontrol_str {
@@ -238,7 +238,7 @@ static int iniLoad(const char *filename)
 	     filename, EMC_IO_CYCLE_TIME);
     }
 
-    inifile.Find("RANDOM_TOOLCHANGER", "EMCIO", random_toolchanger);
+    inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
 
     // close it
     inifile.Close();
@@ -470,13 +470,13 @@ static int saveToolTable(const char *filename,
 
     if(random_toolchanger) {
         if(lathe_style) {
-            fprintf(fp, "%7s%7s%12s%12s%11s%12s%12s%7s  %s\n\n",
+            fprintf(fp, "%6s %6s %12s %12s %10s %11s %11s %7s  %s\n\n",
                     "POCKET", "TOOLNO", "ZOFFSET", "XOFFSET",
                     "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
                     "COMMENT");
             for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
                 if (toolTable[pocket].toolno != -1)
-                    fprintf(fp, "%6d %6d %+11f %+11f %10f %+11f %+11f %6d  %s\n",
+                    fprintf(fp, "%6d %6d %+12f %+12f %10f %+11f %+11f %7d  %s\n",
                             pocket,
                             toolTable[pocket].toolno,
                             toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
@@ -484,11 +484,11 @@ static int saveToolTable(const char *filename,
                             toolTable[pocket].orientation, ttcomments[pocket]);
             }
         } else {
-            fprintf(fp, "%7s%7s%11s%11s  %s\n\n",
+            fprintf(fp, "%6s %6s %12s %11s  %s\n\n",
                     "POCKET", "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
             for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
                 if (toolTable[pocket].toolno != -1)
-                    fprintf(fp, "%6d %6d %+10f %10f  %s\n",
+                    fprintf(fp, "%6d %6d %+12f %11f  %s\n",
                             pocket,
                             toolTable[pocket].toolno,
                             toolTable[pocket].zoffset, toolTable[pocket].diameter,
@@ -498,24 +498,24 @@ static int saveToolTable(const char *filename,
     } else {
         fprintf(fp, "Note: The tool listed first is the tool currently in the spindle.\n\n");
         if(lathe_style) {
-            fprintf(fp, "%7s%12s%12s%11s%12s%12s%7s  %s\n\n",
+            fprintf(fp, "%6s %12s %12s %10s %11s %11s %7s  %s\n\n",
                     "TOOLNO", "ZOFFSET", "XOFFSET",
                     "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
                     "COMMENT");
             for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
                 if (toolTable[pocket].toolno != -1)
-                    fprintf(fp, "%6d %+11f %+11f %10f %+11f %+11f %6d  %s\n",
+                    fprintf(fp, "%6d %+12f %+12f %10f %+11f %+11f %7d  %s\n",
                             toolTable[pocket].toolno,
                             toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
                             toolTable[pocket].frontangle, toolTable[pocket].backangle, 
                             toolTable[pocket].orientation, ttcomments[pocket]);
             }
         } else {
-            fprintf(fp, "%7s%11s%12s  %s\n\n",
+            fprintf(fp, "%6s %12s %11s  %s\n\n",
                     "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
             for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket++) {
                 if (toolTable[pocket].toolno != -1)
-                    fprintf(fp, "%6d %+11f %10f  %s\n",
+                    fprintf(fp, "%6d %+12f %11f  %s\n",
                             toolTable[pocket].toolno,
                             toolTable[pocket].zoffset, toolTable[pocket].diameter,
                             ttcomments[pocket]);
