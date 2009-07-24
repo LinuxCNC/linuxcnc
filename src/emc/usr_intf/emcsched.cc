@@ -23,6 +23,7 @@
 #include <math.h>
 #include <sys/types.h>
 #include <list>
+#include <stdint.h>
 
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
