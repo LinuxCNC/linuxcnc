@@ -6,8 +6,10 @@ emc2 (1:2.3.3~pre) hardy; urgency=low
   * interpreter: show error instead of silently continuing for certain
     rejected forms of G76
   * documentation improvements
+  * hm2 bugfix: avoid occasionally filling the system log when
+    stepgen.maxvel is too high for the timings
 
- -- Jeff Epler <jepler@unpythonic.net>  Tue, 14 Jul 2009 21:35:59 -0500
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 24 Jul 2009 09:39:58 -0600
 
 emc2 (1:2.3.2) hardy; urgency=low
 
