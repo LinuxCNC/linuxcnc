@@ -1,4 +1,4 @@
-emc2 (1:2.3.3~pre) hardy; urgency=low
+emc2 (1:2.3.3) hardy; urgency=low
 
   * Stepconf: fix error "global name 'machinename' is not defined"
   * comp: fix building userspace .comps
