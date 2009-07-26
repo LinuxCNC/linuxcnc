@@ -1,6 +1,7 @@
 emc2 (1:2.3.4~pre) hardy; urgency=low
 
-  * 
+  * Fix two constant surface speed bugs
+  * Allow M66 timeout to be a fractional number
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 26 Jul 2009 08:58:13 -0500
 
