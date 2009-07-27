@@ -1142,10 +1142,8 @@ class App:
         self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
         self.widgets = Widgets(self.xml)
 
-        self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
         self.widgets.dialog1.hide()
-        self.widgets.druidpagestart1.set_watermark(self.watermark)
-        self.widgets.complete.set_watermark(self.watermark)
+
         self.widgets.druidpagestart1.show()
         self.widgets.complete.show()
         
