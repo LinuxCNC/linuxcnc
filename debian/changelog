@@ -4,6 +4,8 @@ emc2 (1:2.3.4~pre) hardy; urgency=low
   * Allow M66 timeout to be a fractional number
   * 'comp --print-modinc' prints the location of Makefile.modinc,
     which eases building components that use Makefiles
+  * stepconf: make the screen fit on 800x600; use expander widgets
+    to access some advanced items.
 
  -- Jeff Epler <jepler@unpythonic.net>  Sun, 26 Jul 2009 08:58:13 -0500
 
