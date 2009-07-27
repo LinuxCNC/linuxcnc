@@ -1,5 +1,6 @@
 emc2 (1:2.3.4~pre) hardy; urgency=low
 
+  [ Jeff Epler ]
   * Fix two constant surface speed bugs
   * Allow M66 timeout to be a fractional number
   * 'comp --print-modinc' prints the location of Makefile.modinc,
@@ -7,7 +8,10 @@ emc2 (1:2.3.4~pre) hardy; urgency=low
   * stepconf: make the screen fit on 800x600; use expander widgets
     to access some advanced items.
 
- -- Jeff Epler <jepler@unpythonic.net>  Sun, 26 Jul 2009 08:58:13 -0500
+  [ Alex Joni ]
+  * fix cooltool configs by adding missing emc.nml reference.
+
+ -- Alex Joni <juve@dapper-vm>  Mon, 27 Jul 2009 19:46:27 +0300
 
 emc2 (1:2.3.3) hardy; urgency=low
 
