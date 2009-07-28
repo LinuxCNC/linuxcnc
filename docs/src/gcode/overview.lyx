@@ -2245,6 +2245,19 @@ G0 (Rapid to start) X1 Y1
 G0 X1 Y1 (Rapid to start; but don't forget the coolant) 
 \newline 
 M2 ; End of program.
+\layout Section
+
+File Size
+\layout Standard
+
+The interpreter and task are carefully written so that the only limit on
+ part program size is disk capacity.
+ The Tkemc and Axis interface both load the program text to display it to
+ the user, though, so RAM becomes a limiting factor.
+ In Axis, because the preview plot is drawn by default, the redraw time
+ also becomes a practical limit on program size.
+ The preview can be turned off in Axis to speed up loading large part programs.
+ In Axis sections of the preview can be turned off using special comments.
 \layout Chapter
 
 Order of Execution
