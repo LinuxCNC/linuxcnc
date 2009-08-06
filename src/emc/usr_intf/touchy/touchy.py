@@ -99,7 +99,8 @@ class touchy:
                 self.status = emc_interface.emc_status(gtk, emc, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
-                                                       estops, machines)
+                                                       estops, machines,
+                                                       self.wTree.get_widget("override_limits"))
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
 
@@ -143,6 +144,7 @@ class touchy:
                         "on_wheelinc1_clicked" : self.wheelinc1,
                         "on_wheelinc2_clicked" : self.wheelinc2,
                         "on_wheelinc3_clicked" : self.wheelinc3,
+                        "on_override_limits_clicked" : self.emc.override_limits,
                         }
                 self.wTree.signal_autoconnect(dic)
 
@@ -222,7 +224,7 @@ class touchy:
                           "home_all", "unhome_all", "home_x", "unhome_x",
                           "home_y", "unhome_y", "home_z", "unhome_z",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
-                          "wheelx", "wheely", "wheelz"]:
+                          "wheelx", "wheely", "wheelz", "override_limits"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 

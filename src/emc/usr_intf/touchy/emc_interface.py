@@ -93,8 +93,14 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
 
+        def override_limits(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.override_limits()
+
 class emc_status:
-        def __init__(self, gtk, emc, dros, error, homes, unhomes, estops, machines):
+        def __init__(self, gtk, emc, dros, error, homes,
+                     unhomes, estops, machines, override_limit):
                 self.gtk = gtk
                 self.dros = dros
                 self.error = error
@@ -102,6 +108,7 @@ class emc_status:
                 self.unhomes = unhomes
                 self.estops = estops
                 self.machines = machines
+                self.override_limit = override_limit
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
@@ -130,7 +137,10 @@ class emc_status:
 
                 on = self.emcstat.task_state == self.emc.STATE_ON
                 self.machines['on'].set_active(on)
-                self.machines['off'].set_active(not on)                        
+                self.machines['off'].set_active(not on)              
+
+                ol = self.emcstat.axis[0]['override_limits']
+                self.override_limit.set_active(ol)
 
                 e = self.emcerror.poll()
                 if e:

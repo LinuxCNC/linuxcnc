@@ -1422,8 +1422,8 @@
 				  <property name="border_width">5</property>
 				  <property name="visible">True</property>
 				  <property name="n_rows">2</property>
-				  <property name="n_columns">2</property>
-				  <property name="homogeneous">False</property>
+				  <property name="n_columns">3</property>
+				  <property name="homogeneous">True</property>
 				  <property name="row_spacing">0</property>
 				  <property name="column_spacing">15</property>
 
@@ -1506,6 +1506,26 @@
 				      <property name="bottom_attach">2</property>
 				    </packing>
 				  </child>
+
+				  <child>
+				    <widget class="GtkToggleButton" id="override_limits">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Override Limits</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">True</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <signal name="clicked" handler="on_override_limits_clicked" last_modification_time="Thu, 06 Aug 2009 03:27:17 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">2</property>
+				      <property name="right_attach">3</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				    </packing>
+				  </child>
 				</widget>
 			      </child>
 			    </widget>
@@ -1536,7 +1556,7 @@
 			</widget>
 			<packing>
 			  <property name="left_attach">0</property>
-			  <property name="right_attach">2</property>
+			  <property name="right_attach">3</property>
 			  <property name="top_attach">0</property>
 			  <property name="bottom_attach">1</property>
 			</packing>
