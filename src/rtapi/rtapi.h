@@ -78,11 +78,14 @@
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
 #ifdef __cplusplus
-extern "C" {			/* Need this when the header is included in a
-				   C++ source. If we don't, the linker bitches 
-				   about undefined references to the rtapi
-				   functions. */
+#define RTAPI_BEGIN_DECLS extern "C" {
+#define RTAPI_END_DECLS }
+#else
+#define RTAPI_BEGIN_DECLS
+#define RTAPI_END_DECLS
 #endif
+
+RTAPI_BEGIN_DECLS
 
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
@@ -887,7 +890,6 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
 
-#ifdef __cplusplus
-}
-#endif
+RTAPI_END_DECLS
+
 #endif /* RTAPI_H */
