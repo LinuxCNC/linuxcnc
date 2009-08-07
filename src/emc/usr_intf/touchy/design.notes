@@ -1,0 +1,54 @@
+mdi: [pretty much done]
+	G/M, backspace, tab, cancel, ok/execute?
+	smartness about words, like BOSS8
+
+setup:
+	while stopped
+		home axis
+		home all
+		touch off (enter value)
+		tool touch off
+		view tools and set tlo (enter value)
+		block delete
+	while running
+		optional stop
+
+jogwheel:
+	while stopped
+		jogging (need jog increment)
+	anytime including while running
+		set FO
+		set SO
+		set maxvel
+running:
+	run, stop, pause, step
+	feed hold?
+	optional stop?
+	rfl?
+	gcode display?
+
+status: [only native units for now?]
+
+        [all the time?]        
+        	xyz rel
+                error messages
+        
+        [just sometimes?]
+        	xyz abs
+        	tlo
+        	rotation
+        	dtg
+        	dtg per axis
+        	current line
+        	current vel
+        	delay_left
+        	extents?
+        	estop/on
+        	loaded file
+        	which axes are homed?
+        	which axes are on limit?
+        	spindle on/speed
+        	loaded tool
+        	prepped tool?
+        	feed override / spindle override / maxvel?
+        	running gcode (how much? maybe only one line?)
