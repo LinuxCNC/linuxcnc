@@ -232,6 +232,9 @@ class touchy:
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_widget("mdi%d" % i)
                         w.modify_font(self.control_font)
+                for i in ["mdi", "startup", "manual", "preferences"]:
+                        w = self.wTree.get_widget(i)
+                        w.modify_font(self.control_font)
 
                 # dro
                 for i in ["xa", "ya", "za", "xr", "yr", "zr", "xd", "yd", "zd", "relative", "absolute", "dtg"]:
