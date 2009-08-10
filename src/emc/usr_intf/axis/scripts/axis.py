@@ -3723,17 +3723,14 @@ while s.axes == 0:
         raise SystemExit, "Invalid configuration of axes is preventing EMC from starting"
     s.poll()
 
-live_axis_count = 0
-for i,j in enumerate("XYZABCUVW"):
-    if s.axis_mask & (1<<i) == 0: continue
-    live_axis_count += 1
+num_joints = s.joints
+for i in range(num_joints):
     widgets.homemenu.add_command(command=lambda i=i: commands.home_axis_number(i))
     widgets.unhomemenu.add_command(command=lambda i=i: commands.unhome_axis_number(i))
     root_window.tk.call("setup_menu_accel", widgets.homemenu, "end",
-            _("Home Axis _%s") % j)
+            _("Home Joint _%s") % i)
     root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end",
-            _("Unhome Axis _%s") % j)
-num_joints = int(inifile.find("TRAJ", "JOINTS") or live_axis_count)
+            _("Unhome Joint _%s") % i)
 
 astep_size = step_size = 1
 for a in range(9):
