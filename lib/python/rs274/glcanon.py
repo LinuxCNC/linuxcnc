@@ -1242,21 +1242,21 @@ class GlCanonDraw:
 
     def posstrs(self):
         s = self.stat
+        homed = []
         limit = []
         for i,l in enumerate(s.limit):
             if s.axis_mask & (1<<i):
                 limit.append(l)
-
-        homed = []
-        for i,h in enumerate(s.homed):
-            if s.axis_mask & (1<<i):
-                homed.append(h)
 
         if self.is_lathe() and not s.axis_mask & 2:
             homed.insert(1, 0)
             limit.insert(1, 0)
 
         if not self.get_joints_mode():
+            for i,h in enumerate(s.homed):
+                if s.axis_mask & (1<<i):
+                    homed.append(h)
+
             if self.get_show_commanded():
                 positions = s.position
             else:
@@ -1305,6 +1305,9 @@ class GlCanonDraw:
             spd = spd * 60
             limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
         else:
+            for i in range(s.joints):
+                homed.append(s.joint[i]["homed"])
+
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(self.get_num_joints()), s.joint_actual_position)]
