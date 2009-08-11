@@ -199,7 +199,7 @@ RTAPI_BEGIN_DECLS
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *msg);
+    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap);
 #ifdef RTAPI
     extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
     extern rtapi_msg_handler_t rtapi_get_msg_handler(void);

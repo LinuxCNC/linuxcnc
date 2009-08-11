@@ -458,8 +458,10 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 
 #define BUFFERLEN 1024
 
-void default_rtapi_msg_handler(msg_level_t level, const char *buffer) {
-    rt_printk(buffer);
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
+    char buf[BUFFERLEN];
+    rtapi_vsnprintf(buf, BUFFERLEN, fmt, ap);
+    rt_printk(buf);
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
@@ -478,10 +480,7 @@ void rtapi_print(const char *fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    /* call our own vsn_printf(), which is #defined to vsnprintf() if the
-       kernel supplied one. */
-    vsn_printf(buffer, BUFFERLEN, fmt, args);
-    rtapi_msg_handler(RTAPI_MSG_ALL, buffer);
+    rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
     va_end(args);
 }
 
@@ -493,10 +492,7 @@ void rtapi_print_msg(int level, const char *fmt, ...)
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
-	/* call our own vsn_printf(), which is #defined to vsnprintf() if the 
-	   kernel supplied one. */
-	vsn_printf(buffer, BUFFERLEN, fmt, args);
-	rtapi_msg_handler(level, buffer);
+	rtapi_msg_handler(level, fmt, args);
 	va_end(args);
     }
 }

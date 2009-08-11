@@ -126,11 +126,11 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 #define BUFFERLEN 1024
 
-void default_rtapi_msg_handler(msg_level_t level, const char *buffer) {
+void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     if(level == RTAPI_MSG_ALL)
-	fputs(buffer, stdout);
+	vfprintf(stdout, fmt, ap);
     else
-	fputs(buffer, stderr);
+	vfprintf(stderr, fmt, ap);
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
 
@@ -146,27 +146,21 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 
 void rtapi_print(const char *fmt, ...)
 {
-    char buffer[BUFFERLEN + 1];
     va_list args;
 
     va_start(args, fmt);
-    /* call the normal library vnsprintf() */
-    vsnprintf(buffer, BUFFERLEN, fmt, args);
-    rtapi_msg_handler(RTAPI_MSG_ALL, buffer);
+    rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
     va_end(args);
 }
 
 
 void rtapi_print_msg(int level, const char *fmt, ...)
 {
-    char buffer[BUFFERLEN + 1];
     va_list args;
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
-	/* call the normal library vnsprintf() */
-	vsnprintf(buffer, BUFFERLEN, fmt, args);
-	rtapi_msg_handler(level, buffer);
+	rtapi_msg_handler(level, fmt, args);
 	va_end(args);
     }
 }

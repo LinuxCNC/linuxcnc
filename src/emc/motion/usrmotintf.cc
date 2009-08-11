@@ -35,6 +35,9 @@
 
 #include "rtapi.h"
 
+#include "dbuf.h"
+#include "stashf.h"
+
 static int inited = 0;		/* flag if inited */
 
 static emcmot_command_t *emcmotCommand = 0;
@@ -186,8 +189,20 @@ int usrmotReadEmcmotError(char *e)
 	return -1;
     }
 
+    char data[EMCMOT_ERROR_LEN];
+    struct dbuf d;
+    dbuf_init(&d, (unsigned char *)data, EMCMOT_ERROR_LEN);
+
     /* returns 0 if something, -1 if not */
-    return emcmotErrorGet(emcmotError, e);
+    int result = emcmotErrorGet(emcmotError, data);
+    if(result < 0) return result;
+
+    struct dbuf_iter di;
+    dbuf_iter_init(&di, &d);
+
+    result =  snprintdbuf(e, EMCMOT_ERROR_LEN, &di);
+    if(result < 0) return result;
+    return 0;
 }
 
 /*

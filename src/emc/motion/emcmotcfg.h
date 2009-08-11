@@ -32,7 +32,7 @@
 #define EMCMOT_MAX_AIO 16
 
 #define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */
-#define EMCMOT_ERROR_LEN 256	/* how long error string can be */
+#define EMCMOT_ERROR_LEN 1024	/* how long error string can be */
 
 /*
   Shared memory keys for simulated motion process. No base address
