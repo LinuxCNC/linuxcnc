@@ -70,6 +70,9 @@
 #include "rtapi_math.h"
 #include "motion_types.h"
 
+// Mark strings for translation, but defer translation to userspace
+#define _(s) (s)
+
 /* debugging functions */
 extern void print_pose ( EmcPose *pos );
 extern void check_stuff(const char *msg);
@@ -160,27 +163,27 @@ static int jog_ok(int joint_num, double vel)
 	return 1;
     }
     if (joint_num < 0 || joint_num >= num_joints) {
-	reportError("Can't jog invalid joint number %d.", joint_num);
+	reportError(_("Can't jog invalid joint number %d."), joint_num);
 	return 0;
     }
     if (vel > 0.0 && GET_JOINT_PHL_FLAG(joint)) {
-	reportError("Can't jog joint %d further past max hard limit.",
+	reportError(_("Can't jog joint %d further past max hard limit."),
 	    joint_num);
 	return 0;
     }
     if (vel < 0.0 && GET_JOINT_NHL_FLAG(joint)) {
-	reportError("Can't jog joint %d further past min hard limit.",
+	reportError(_("Can't jog joint %d further past min hard limit."),
 	    joint_num);
 	return 0;
     }
     refresh_jog_limits(joint);
     if ( vel > 0.0 && (joint->pos_cmd > joint->max_jog_limit) ) {
-	reportError("Can't jog joint %d further past max soft limit.",
+	reportError(_("Can't jog joint %d further past max soft limit."),
 	    joint_num);
 	return 0;
     }
     if ( vel < 0.0 && (joint->pos_cmd < joint->min_jog_limit) ) {
-	reportError("Can't jog joint %d further past min soft limit.",
+	reportError(_("Can't jog joint %d further past min soft limit."),
 	    joint_num);
 	return 0;
     }
@@ -238,20 +241,20 @@ static int inRange(EmcPose pos, int id, char *move_type)
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
             if (id > 0)
-                reportError("%s move on line %d would exceed joint %d's positive limit",
+                reportError(_("%s move on line %d would exceed joint %d's positive limit"),
                             move_type, id, joint_num);
             else
-                reportError("%s move in MDI would exceed joint %d's positive limit",
+                reportError(_("%s move in MDI would exceed joint %d's positive limit"),
                             move_type, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
             if (id > 0)
-                reportError("%s move on line %d would exceed joint %d's negative limit",
+                reportError(_("%s move on line %d would exceed joint %d's negative limit"),
                             move_type, id, joint_num);
             else
-                reportError("%s move in MDI would exceed joint %d's negative limit",
+                reportError(_("%s move in MDI would exceed joint %d's negative limit"),
                             move_type, joint_num);
 	}
     }
@@ -492,7 +495,7 @@ check_stuff ( "before command_handler()" );
 	    if (kinType != KINEMATICS_IDENTITY) {
 		if (!checkAllHomed()) {
 		    reportError
-			("all joints must be homed before going into coordinated mode");
+			(_("all joints must be homed before going into coordinated mode"));
 		    emcmotDebug->coordinating = 0;
 		    break;
 		}
@@ -513,7 +516,7 @@ check_stuff ( "before command_handler()" );
 		
 		if (!checkAllHomed()) {
 		    reportError
-			("all joints must be homed before going into teleop mode");
+			(_("all joints must be homed before going into teleop mode"));
 		    emcmotDebug->teleoperating = 0;
 		    break;
 		}
@@ -667,17 +670,17 @@ check_stuff ( "before command_handler()" );
 
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog joint in coordinated mode.");
+		reportError(_("Can't jog joint in coordinated mode."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog joint when not enabled.");
+		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any joints while homing.");
+		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -728,17 +731,17 @@ check_stuff ( "before command_handler()" );
 
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog joint in coordinated mode.");
+		reportError(_("Can't jog joint in coordinated mode."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog joint when not enabled.");
+		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any joint while homing.");
+		reportError(_("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -796,17 +799,17 @@ check_stuff ( "before command_handler()" );
 	    }
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
-		reportError("Can't jog joint in coordinated mode.");
+		reportError(_("Can't jog joint in coordinated mode."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
-		reportError("Can't jog joint when not enabled.");
+		reportError(_("Can't jog joint when not enabled."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
 	    if (emcmotStatus->homing_active) {
-		reportError("Can't jog any joints while homing.");
+		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
@@ -863,7 +866,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
-		    ("need to be enabled, in coord mode for linear move");
+		    (_("need to be enabled, in coord mode for linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -873,7 +876,7 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
-		reportError("can't do linear move with limits exceeded");
+		reportError(_("can't do linear move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -891,7 +894,7 @@ check_stuff ( "before command_handler()" );
 	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, 
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
-		reportError("can't add linear move");
+		reportError(_("can't add linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -911,7 +914,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
-		    ("need to be enabled, in coord mode for circular move");
+		    (_("need to be enabled, in coord mode for circular move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -921,7 +924,7 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
-		reportError("can't do circular move with limits exceeded");
+		reportError(_("can't do circular move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -939,7 +942,7 @@ check_stuff ( "before command_handler()" );
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
                             emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
-		reportError("can't add circular move");
+		reportError(_("can't add circular move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1029,7 +1032,7 @@ check_stuff ( "before command_handler()" );
                 tpResume(&emcmotDebug->queue);
                 emcmotStatus->paused = 1;
             } else {
-		reportError("MOTION: can't STEP while already executing");
+		reportError(_("MOTION: can't STEP while already executing"));
 	    }
 	    break;
 
@@ -1121,7 +1124,7 @@ check_stuff ( "before command_handler()" );
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE");
 	    if ( *(emcmot_hal_data->enable) == 0 ) {
-		reportError("can't enable motion, enable input is false");
+		reportError(_("can't enable motion, enable input is false"));
 	    } else {
 		emcmotDebug->enabling = 1;
 		if (kinType == KINEMATICS_INVERSE_ONLY) {
@@ -1194,7 +1197,7 @@ check_stuff ( "before command_handler()" );
 
 	    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
 		/* can't home unless in free mode */
-		reportError("must be in joint mode to home");
+		reportError(_("must be in joint mode to home"));
 		return;
 	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
@@ -1205,7 +1208,7 @@ check_stuff ( "before command_handler()" );
                 if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE)
                     emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
                 else
-                    reportError("homing sequence already in progress");
+                    reportError(_("homing sequence already in progress"));
 		break;
 	    }
 
@@ -1214,9 +1217,9 @@ check_stuff ( "before command_handler()" );
 	    }
 
             if(joint->home_state != HOME_IDLE) {
-                reportError("homing already in progress");
+                reportError(_("homing already in progress"));
             } else if(emcmotStatus->homingSequenceState != HOME_SEQUENCE_IDLE) {
-                reportError("homing sequence already in progress");
+                reportError(_("homing sequence already in progress"));
             } else {
                 /* abort any movement (jog, etc) that is in progress */
                 joint->free_tp_enable = 0;
@@ -1244,7 +1247,7 @@ check_stuff ( "before command_handler()" );
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
             
             if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-                reportError("must be in joint mode to unhome");
+                reportError(_("must be in joint mode to unhome"));
                 return;
             }
             if (!GET_MOTION_ENABLE_FLAG()) {
@@ -1259,11 +1262,11 @@ check_stuff ( "before command_handler()" );
                     joint = &joints[n];
                     if(GET_JOINT_ACTIVE_FLAG(joint)) {
                         if (GET_JOINT_HOMING_FLAG(joint)) {
-                            reportError("Cannot unhome while homing, joint %d", n);
+                            reportError(_("Cannot unhome while homing, joint %d"), n);
                             return;
                         }
                         if (!GET_JOINT_INPOS_FLAG(joint)) {
-                            reportError("Cannot unhome while moving, joint %d", n);
+                            reportError(_("Cannot unhome while moving, joint %d"), n);
                             return;
                         }
                     }
@@ -1282,20 +1285,20 @@ check_stuff ( "before command_handler()" );
                 /* request was for only one joint */
                 if(GET_JOINT_ACTIVE_FLAG(joint)) {
                     if (GET_JOINT_HOMING_FLAG(joint)) {
-                        reportError("Cannot unhome while homing, joint %d", joint_num);
+                        reportError(_("Cannot unhome while homing, joint %d"), joint_num);
                         return;
                     }
                     if (!GET_JOINT_INPOS_FLAG(joint)) {
-                        reportError("Cannot unhome while moving, joint %d", joint_num);
+                        reportError(_("Cannot unhome while moving, joint %d"), joint_num);
                         return;
                     }
                     SET_JOINT_HOMED_FLAG(joint, 0);
                 } else {
-                    reportError("Cannot unhome inactive joint %d", joint_num);
+                    reportError(_("Cannot unhome inactive joint %d"), joint_num);
                 }
             } else {
                 /* invalid joint number specified */
-                reportError("Cannot unhome invalid joint %d (max %d)", joint_num, (num_joints-1));
+                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (num_joints-1));
                 return;
             }
 
@@ -1322,7 +1325,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PROBE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
-		    ("need to be enabled, in coord mode for probe move");
+		    (_("need to be enabled, in coord mode for probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -1332,7 +1335,7 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
-		reportError("can't do probe move with limits exceeded");
+		reportError(_("can't do probe move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1346,9 +1349,9 @@ check_stuff ( "before command_handler()" );
                 if (probeval != probe_whenclears) {
                     // the probe is already in the state we're seeking.
                     if(probe_whenclears) 
-                        reportError("Probe is already clear when starting G38.4 or G38.5 move");
+                        reportError(_("Probe is already clear when starting G38.4 or G38.5 move"));
                     else
-                        reportError("Probe is already tripped when starting G38.2 or G38.3 move");
+                        reportError(_("Probe is already tripped when starting G38.2 or G38.3 move"));
 
                     emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
                     tpAbort(&emcmotDebug->queue);
@@ -1360,7 +1363,7 @@ check_stuff ( "before command_handler()" );
 	    /* append it to the emcmotDebug->queue */
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == tpAddLine(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0)) {
-		reportError("can't add probe move");
+		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1384,7 +1387,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
-		    ("need to be enabled, in coord mode for rigid tap move");
+		    (_("need to be enabled, in coord mode for rigid tap move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -1394,7 +1397,7 @@ check_stuff ( "before command_handler()" );
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
-		reportError("can't do rigid tap move with limits exceeded");
+		reportError(_("can't do rigid tap move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1405,7 +1408,7 @@ check_stuff ( "before command_handler()" );
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 == tpAddRigidTap(&emcmotDebug->queue, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
                 emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
-		reportError("can't add rigid tap move");
+		reportError(_("can't add rigid tap move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
 		tpAbort(&emcmotDebug->queue);
 		SET_MOTION_ERROR_FLAG(1);
@@ -1419,7 +1422,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TELEOP_VECTOR");
 	    if (!GET_MOTION_TELEOP_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
 		reportError
-		    ("need to be enabled, in teleop mode for teleop move");
+		    (_("need to be enabled, in teleop mode for teleop move"));
 	    } else {
 		double velmag;
 		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
@@ -1540,13 +1543,13 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    if (joint->comp.entries >= EMCMOT_COMP_SIZE) {
-		reportError("joint %d: too many compensation entries", joint_num);
+		reportError(_("joint %d: too many compensation entries"), joint_num);
 		break;
 	    }
 	    /* point to last entry */
 	    comp_entry = &(joint->comp.array[joint->comp.entries]);
 	    if (emcmotCommand->comp_nominal <= comp_entry[0].nominal) {
-		reportError("joint %d: compensation values must increase", joint_num);
+		reportError(_("joint %d: compensation values must increase"), joint_num);
 		break;
 	    }
 	    /* store data to new entry */
@@ -1577,7 +1580,7 @@ check_stuff ( "before command_handler()" );
 
 	default:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
-	    reportError("unrecognized command %d", emcmotCommand->command);
+	    reportError(_("unrecognized command %d"), emcmotCommand->command);
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
 	    break;
 
