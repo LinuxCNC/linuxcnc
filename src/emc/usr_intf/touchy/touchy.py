@@ -104,7 +104,8 @@ class touchy:
                          'onlimit' : self.wTree.get_widget("status_onlimit"),
                          'spindledir' : self.wTree.get_widget("status_spindledir"),
                          'spindlespeed' : self.wTree.get_widget("status_spindlespeed"),
-                         'loadedtool' : self.wTree.get_widget("status_loadedtool")}
+                         'loadedtool' : self.wTree.get_widget("status_loadedtool"),
+                         'preppedtool' : self.wTree.get_widget("status_preppedtool")}
                 self.status = emc_interface.emc_status(gtk, emc, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,

@@ -162,6 +162,7 @@ class emc_status:
 
                 self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
                 self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
+                self.status['preppedtool'].set_text("%d" % self.emcstat.tool_prepped)
 
                 m = self.emcstat.task_mode
                 if m != last_mode:
