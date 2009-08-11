@@ -17,7 +17,7 @@
 import rs274.OpenGLTk, Tkinter, signal
 from minigl import *
 from math import *
-
+import glnav
 
 class Collection(object):
     def __init__(self, parts):
@@ -756,8 +756,6 @@ class O(rs274.OpenGLTk.Opengl):
     def __init__(self, *args, **kw):
         rs274.OpenGLTk.Opengl.__init__(self, *args, **kw)
         self.r_back = self.g_back = self.b_back = 0
-        self.bind('<Button-4>', self.zoomin)
-        self.bind('<Button-5>', self.zoomout)
 	#self.q1 = gluNewQuadric()
 	#self.q2 = gluNewQuadric()
 	#self.q3 = gluNewQuadric()
@@ -766,20 +764,6 @@ class O(rs274.OpenGLTk.Opengl):
 	#does not show HUD by default
 	self.hud = Hud()
 
-    def set_viewangle(self, lat, lon):
-        self.lat = lat
-        self.lon = lon
-        rs274.OpenGLTk.glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
-        self.tkRedraw()
-
-    def zoomin(self, event):
-        self.distance = self.distance / 1.1
-        self.tkRedraw()
-  
-    def zoomout(self, event):
-        self.distance = self.distance * 1.1
-        self.tkRedraw()
-  
     def basic_lighting(self):
         self.activate()
         glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, .5, 0))

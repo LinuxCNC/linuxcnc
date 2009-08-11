@@ -64,6 +64,7 @@ import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
 from rs274 import ArcsToSegmentsMixin
 import emc
+from glnav import *
 
 if os.environ.has_key("AXIS_NO_HAL"):
     hal_present = 0;
@@ -352,20 +353,9 @@ class MyOpengl(Opengl):
         self.motion_after = None
         self.perspective = False
         Opengl.__init__(self, *args, **kw)
-        self.bind('<Button-4>', self.zoomin)
-        self.bind('<Button-5>', self.zoomout)
-        self.bind('<MouseWheel>', self.zoomwheel)
         self.bind('<Button-1>', self.select_prime, add=True)
         self.bind('<ButtonRelease-1>', self.select_fire, add=True)
-        self.bind('<Button1-Motion>', self.translate_or_rotate)
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
-        self.bind("<Control-Button-1>", self.start_zoom)
-        self.bind("<Control-B1-Motion>", self.continue_zoom)
-        self.bind("<Button-3>", self.start_zoom)
-        self.bind("<B3-Motion>", self.continue_zoom)
-        self.bind("<Shift-Button-1>", self.StartRotate)
-        self.bind("<Shift-B1-Motion>", self.rotate_or_translate)
-        self.bind("<B2-Motion>", self.rotate_or_translate)
         self.highlight_line = None
         self.select_event = None
         self.select_buffer_size = 100
@@ -379,17 +369,9 @@ class MyOpengl(Opengl):
         self.set_eyepoint(5.)
         self.get_resources()
 
-    def translate_or_rotate(self, event):
-        if vars.rotate_mode.get():
-            self.tkRotate(event)
-        else:
-            self.tkTranslate(event)
-
-    def rotate_or_translate(self, event):
-        if not vars.rotate_mode.get():
-            self.tkRotate(event)
-        else:
-            self.tkTranslate(event)
+    def getRotateMode(self):
+        print "getRotateMode", vars.rotate_mode.get()
+        return vars.rotate_mode.get()
 
     def basic_lighting(self):
         self.activate()
@@ -403,15 +385,6 @@ class MyOpengl(Opengl):
         glEnable(GL_DEPTH_TEST)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-
-    def start_zoom(self, event):
-        self.y0 = event.y
-        self.original_zoom = self.distance
-
-    def continue_zoom(self, event):
-        dy = event.y - self.y0
-        self.distance = self.original_zoom * pow(1.25, dy / 16.)
-        self.tkRedraw()
 
     def get_resources(self):
         self.colors = {}
@@ -542,18 +515,6 @@ class MyOpengl(Opengl):
             self.set_centerpoint(x, y, z)
         glEndList()
  
-    def zoomin(self, event):
-        self.distance = self.distance / 1.25
-        self.tkRedraw()
-
-    def zoomout(self, event):
-        self.distance = self.distance * 1.25
-        self.tkRedraw()
-
-    def zoomwheel(self, event):
-        if event.delta > 0: self.zoomin(event)
-        else: self.zoomout(event)
-
     def tkRedraw(self, *dummy):
         if self.after_id:
             # May need to upgrade to an instant redraw
@@ -2548,10 +2509,10 @@ class TclCommands(nf.TclCommands):
         commands.task_run()
 
     def zoomin(event=None):
-        o.zoomin(event)
+        o.zoomin()
 
     def zoomout(event=None):
-        o.zoomout(event)
+        o.zoomout()
 
     def set_view_x(event=None):
         widgets.view_z.configure(relief="link")
