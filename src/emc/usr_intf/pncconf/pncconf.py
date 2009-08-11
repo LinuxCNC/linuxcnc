@@ -347,6 +347,7 @@ class Widgets:
 class Intrnl_data:
     def __init__(self):
         self.mesa_configured = False
+        self.components_is_prepared = False
         #self.available_axes = []
     def __getitem__(self, item):
         return getattr(self, item)
@@ -525,7 +526,9 @@ class Data:
                 self[pinname] = ""
                 pinname ="threadspeed%s"% i
                 self[pinname] = 1
-        self.addcomp6 =""
+        self.loadcomp6 = ""
+        self.threadspeed6 = 1
+        self.addcomp6 = []
 
         self.xdrivertype = "custom"
         self.xsteprev = 200
@@ -744,6 +747,7 @@ class Data:
         self.spindleoutputoffset = 0
         self.spindlemaxoutput = 10
         self.spindlescale = 0
+        self.spidcontrol = False
 
         self.limitstype = 0
         self.homingtype = 0
@@ -1032,14 +1036,15 @@ class Data:
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
         if stepgen == "false":
-            print >>file, "P = %s" % get("P")
-            print >>file, "I = %s" % get("I") 
-            print >>file, "D = %s" % get("D")
-            print >>file, "FF0 = %s" % get("FF0")
-            print >>file, "FF1 = %s" % get("FF1")
-            print >>file, "FF2 = %s" % get("FF2")
-            print >>file, "BIAS = %s"% get("bias") 
-            print >>file, "DEADBAND = %s"% get("deadband")
+            if (self.spidcontrol == True and let == 's') or not let == 's':
+                print >>file, "P = %s" % get("P")
+                print >>file, "I = %s" % get("I") 
+                print >>file, "D = %s" % get("D")
+                print >>file, "FF0 = %s" % get("FF0")
+                print >>file, "FF1 = %s" % get("FF1")
+                print >>file, "FF2 = %s" % get("FF2")
+                print >>file, "BIAS = %s"% get("bias") 
+                print >>file, "DEADBAND = %s"% get("deadband")
             print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
@@ -1148,16 +1153,17 @@ class Data:
         print >>file
          
         if not pwmgen == "false":
-            print >>file, "    setp pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
-            print >>file, "    setp pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
-            print >>file, "    setp pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
-            print >>file, "    setp pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
-            print >>file, "    setp pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
-            print >>file, "    setp pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
-            print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
-            print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
-            print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
-            print >>file
+            if (self.spidcontrol == True and let == 's') or not let == 's':
+                print >>file, "    setp pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
+                print >>file, "    setp pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
+                print >>file, "    setp pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
+                print >>file, "    setp pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
+                print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
+                print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                print >>file
                
             if 'm5i20' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
@@ -1180,15 +1186,19 @@ class Data:
                     #print >>file, "    setp pwmgen.0.scale %s" % scale
                     #print >>file, "    setp pwmgen.0.offset %s" % offset
                     #print >>file, "    setp pwmgen.0.dither-pwm true"
-                    print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
-                    print >>file, "net spindle-output     pid.%s.output      => "% (let) +pinname+ ".value"
-                    print >>file, "net spindle-enable    => pid.%s.enable" % (let) 
-                    print >>file, "net spindle-enable    => " +pinname+".enable"
+                    if self.spidcontrol == True:
+                        print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
+                        print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
+                        print >>file, "net spindle-enable    => pid.%s.enable" % (let) 
+                        print >>file, "net spindle-enable    => " + pinname +".enable"
+                    else:
+                        print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
+                        print >>file, "net spindle-enable    => " + pinname +".enable"
                 else:
                     print >>file, "net %senable     => pid.%s.enable" % (let, let)                
-                    print >>file, "net %soutput     pid.%s.output      => "% (let, let) +pinname+ ".value" 
+                    print >>file, "net %soutput     pid.%s.output      => "% (let, let) + pinname + ".value" 
                     print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd     => pid.%s.command" % (let, axnum , let)
-                    print >>file, "net %senable     axis.%d.amp-enable-out     => "% (let,axnum) +pinname+".enable"
+                    print >>file, "net %senable     axis.%d.amp-enable-out     => "% (let,axnum) + pinname +".enable"
                 print >>file    
         if not stepgen == "false":
             pinname = self.make_pinname(stepgen)
@@ -1244,7 +1254,7 @@ class Data:
             print >>file
             print >>file, "net spindle-vel-cmd-rps    <= motion.spindle-speed-out-rps"
             print >>file, "net spindle-vel-cmd        <= motion.spindle-speed-out"
-            print >>file, "net spindle-enable          <= motion.spindle-on"
+            print >>file, "net spindle-enable         <= motion.spindle-on"
             #print >>file, "net spindle-on <= motion.spindle-on"
             print >>file, "net spindle-cw             <= motion.spindle-forward"
             print >>file, "net spindle-ccw            <= motion.spindle-reverse"
@@ -1466,12 +1476,10 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        for i in range(1,6):
+        for i in range(1,7):
                 compname = self["loadcomp%d"% i] 
                 if not compname == "":
                     print >>file, compname
-
-                
 
         if self.pyvcp and not self.frontend == 1:
             print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
@@ -1492,6 +1500,11 @@ class Data:
                     if compname == "": continue
                     print >>file, compname," base-thread"
                 else: continue
+        for i in self.addcomp6:
+            if  self["threadspeed6"] == 1: continue
+            if i == '': continue
+            else:              
+                print >>file, i +" base-thread"
         if self.number_pports > 0:
             print >>file, "addf parport.0.write base-thread"
             if self.doublestep():
@@ -1546,13 +1559,19 @@ class Data:
             print >>file, "addf abs.0 servo-thread"
             if spindle_enc:
                print >>file, "addf scale.0 servo-thread"
+
         for i in range(1,6):
                 compname = self["addcomp%d"% i] 
                 if  self["threadspeed%d"% i] == 1:
                     if compname.isspace() == True:continue
                     print >>file, compname," servo-thread"
                 else: continue
-        print >>file, self.addcomp6
+        for i in self.addcomp6:
+            if  self["threadspeed6"] == 0: continue
+            if i == '': continue
+            else:              
+                print >>file, i +" servo-thread"
+
         if self.mesa5i20>0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread" 
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread"
@@ -3407,7 +3426,7 @@ class App:
         set_text("maxferror")
         set_text("minferror")
         set_text("outputscale")
-        set_text("outputoffset")
+        set_value("outputoffset")
         set_active("invertmotor")
         set_active("invertencoder")  
         set_text("maxoutput")
@@ -3637,10 +3656,8 @@ class App:
         def get(n): return float(w[axis + n].get_text())
 
         try:
-            if not axis == 's':
-                pitch = get("leadscrew")
-                if d.units == 1 or axis =='a' : pitch = 1./pitch
-            else: pitch = 1
+            pitch = get("leadscrew")
+            if d.units == 1 or axis =='a' : pitch = 1./pitch
             pps = (pitch * 
                 (get("pulleynum") / get("pulleyden")) * (get("maxvel")/60))
             if pps == 0: raise ValueError
@@ -3797,6 +3814,13 @@ class App:
             model.append((i[1],))
         model.append((_("Custom"),))
         
+        if stepdriven:
+            w["sresolutionunits"].set_text(_("revolution / Step"))        
+            w["sscaleunits"].set_text(_("Steps / revolution"))
+        else:
+            w["sresolutionunits"].set_text(_("revolution / encoder pulse"))
+            w["sscaleunits"].set_text(_("Encoder pulses / revolution"))
+                
         #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
         w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
         w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
@@ -3814,6 +3838,7 @@ class App:
         w["soutputoffset"].set_sensitive(pwmdriven)
         w["smaxoutput"].set_sensitive(pwmdriven)
         w["sservo_info"].set_sensitive(pwmdriven)
+        self.on_spidcontrol_toggled()
         w["saxistest"].set_sensitive(pwmdriven)
         w["sstepper_info"].set_sensitive(stepdriven)    
         w["sdrivertype"].set_active(self.drivertype_toindex('s')) 
@@ -3896,6 +3921,21 @@ class App:
             if not has_spindle == "false":
                 return True
         return False
+
+    def on_spidcontrol_toggled(self, *args):
+        test = self.data.findsignal("s-pwm-pulse")
+        pwmdriven = 1
+        if test == "false":pwmdriven = 0
+        if self.widgets.spidcontrol.get_active() == False: pwmdriven = 0
+        self.widgets.sP.set_sensitive(pwmdriven)
+        self.widgets.sI.set_sensitive(pwmdriven)
+        self.widgets.sD.set_sensitive(pwmdriven)
+        self.widgets.sFF0.set_sensitive(pwmdriven)
+        self.widgets.sFF1.set_sensitive(pwmdriven)
+        self.widgets.sFF2.set_sensitive(pwmdriven)
+        self.widgets.sbias.set_sensitive(pwmdriven)
+        self.widgets.sdeadband.set_sensitive(pwmdriven)
+
 
     def on_advanced_prepare(self, *args):       
         
@@ -4025,17 +4065,28 @@ class App:
         self.testpanel(self)
 
     def on_realtime_components_prepare(self,*args):
-        for i in range(1,6):
-                pinname ="loadcomp%s"% i
-                self.widgets[pinname].set_text(self.data[pinname]) 
-                pinname ="addcomp%s"% i
-                self.widgets[pinname].set_text(self.data[pinname]) 
-                pinname ="threadspeed%s"% i
-                self.widgets[pinname].set_active(self.data[pinname]) 
-        textbuffer = self.widgets.addcomp6.get_buffer()
-        textbuffer.set_text(self.data.addcomp6 )
+        self.widgets.spidcontrol.set_active( self.data.spidcontrol )
+        if not self.intrnldata.components_is_prepared:
+            for i in range(1,6):
+                    pinname ="loadcomp%s"% i
+                    self.widgets[pinname].set_text(self.data[pinname]) 
+                    pinname ="addcomp%s"% i
+                    self.widgets[pinname].set_text(self.data[pinname]) 
+                    pinname ="threadspeed%s"% i
+                    self.widgets[pinname].set_active(self.data[pinname]) 
+            # for different style entrybox
+            pinname ="loadcomp6"
+            self.widgets[pinname].set_text(self.data[pinname]) 
+            pinname ="threadspeed6"
+            self.widgets[pinname].set_active(self.data[pinname]) 
+            textbuffer = self.widgets.addcomp6.get_buffer()
+            for i in self.data.addcomp6:
+                if i == '': continue
+                textbuffer.insert_at_cursor(i+"\n" )
+            self.intrnldata.components_is_prepared = True
 
     def on_realtime_components_next(self,*args):
+        self.data.spidcontrol = self.widgets.spidcontrol.get_active() 
         for i in range(1,6):
                 pinname ="loadcomp%s"% i
                 self.data[pinname] = self.widgets[pinname].get_text() 
@@ -4043,11 +4094,18 @@ class App:
                 self.data[pinname] = self.widgets[pinname].get_text() 
                 pinname ="threadspeed%s"% i
                 self.data[pinname] = self.widgets[pinname].get_active() 
+        # other style entrybox
+        pinname ="loadcomp6"
+        self.data[pinname] = self.widgets[pinname].get_text() 
+        pinname ="threadspeed6"
+        self.data[pinname] = self.widgets[pinname].get_active()
         textbuffer = self.widgets.addcomp6.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        print textbuffer.get_text(startiter,enditer)
-        self.data.addcomp6 = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer)
+        i = test.split('\n')
+        print i
+        self.data.addcomp6 = i
 
     def on_complete_back(self, *args):
         self.widgets.druid1.set_page(self.widgets.advanced)
@@ -4649,34 +4707,37 @@ class App:
        #TODO fix this to work with parport signals
         
         temp = self.data.findsignal( "enable")
-        amp = self.data.make_pinname(temp)
-        if not amp == "false":
-            if "HOSTMOT2" in amp:    
-                amp = amp.replace("[HOSTMOT2](BOARD)",boardname) 
-                halrun.write("setp %s true\n"% (amp + ".is_output"))             
-                halrun.write("setp %s true\n"% (amp + ".out"))
+        self.amp = self.data.make_pinname(temp)
+        if not self.amp == "false":
+            if "HOSTMOT2" in self.amp:    
+                self.amp = self.amp.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
+                halrun.write("setp %s false\n"% (self.amp + ".out"))
                 if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
+                    halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 100 \n"%  (self.amp +".out"))
 
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
-        if not estop =="false":        
+        if not estop == "false":        
             if "HOSTMOT2" in estop:
                 estop = estop.replace("[HOSTMOT2](BOARD)",boardname) 
                 halrun.write("setp %s true\n"%  (estop + ".is_output"))    
                 halrun.write("setp %s true\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
+                
             #if 'parport' in estop:
                 #set up parport signal
 
         pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if not pwm =="false":        
+        if not pwm == "false":        
             if "HOSTMOT2" in pwm:
                 pwm = pwm.replace("[HOSTMOT2](BOARD)",boardname)     
                 halrun.write("net dac %s \n"%  (pwm +".value"))
                 halrun.write("setp %s \n"%  (pwm +".enable true"))
                 halrun.write("setp %s \n"%  (pwm +".scale 10"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 150\n"%  (pwm +".value"))
             
         self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
         if not self.enc =="false":        
@@ -4686,23 +4747,27 @@ class App:
                 halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
                 halrun.write("setp %s 1\n"%  (self.enc +".scale"))
                 halrun.write("setp %s \n"%  (self.enc +".filter true"))
-                halrun.write("loadusr halmeter -s pin %s \n"%  (self.enc +".position"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 200\n"%  (self.enc +".position"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 250\n"%  (self.enc +".velocity"))
         
         widgets.openloopdialog.set_title(_("%s Axis Test") % axis.upper())
-        self.jogplus = self.jogminus = self.enc_reset =  0
+        self.jogplus = self.jogminus = self.enc_reset = self.enable_amp = 0
         self.enc_scale = 1
         self.axis_under_test = axis
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
+        widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
+        self.widgets.jogminus.set_sensitive(0)
+        self.widgets.jogplus.set_sensitive(0)
         widgets.openloopdialog.show_all()
         result = widgets.openloopdialog.run()
 
         widgets.openloopdialog.hide()
-        if not amp == "false":
-             halrun.write("setp %s false\n"% (amp + ".out"))
+        if not self.amp == "false":
+             halrun.write("setp %s false\n"% (self.amp + ".out"))
         if not estop == "false":
              halrun.write("setp %s false\n"% (estop + ".out"))
         time.sleep(.001)
@@ -4711,6 +4776,7 @@ class App:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
+            widgets[axis+"outputoffset"].set_value(widgets.testoutputoffset.get_value())
             #widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
         self.axis_under_test = None
         self.widgets['window1'].set_sensitive(1)
@@ -4724,6 +4790,9 @@ class App:
         if self.jogminus == 1:output = output * -1
         elif not self.jogplus == 1:output = 0
         if self.widgets.testinvertmotor.get_active() == True: output = output * -1
+        output += float(self.widgets.testoutputoffset.get_text())
+        if not self.amp == "false":
+            halrun.write("setp %s %d\n"% (self.amp + ".out", self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)d\n""" % { 'scalepin':self.enc, 'scale': self.enc_scale})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -4751,6 +4820,13 @@ class App:
         self.update_axis_params()
     def on_testinvertencoder_toggled(self, w):
         self.enc_scale = self.enc_scale * -1
+        self.update_axis_params()
+    def on_testoutputoffset_value_changed(self, w):
+        self.update_axis_params()
+    def on_enableamp_toggled(self, w):
+        self.enable_amp = self.enable_amp * -1 + 1
+        self.widgets.jogminus.set_sensitive(self.enable_amp)
+        self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
     def run(self, filename=None):
