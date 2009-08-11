@@ -13,7 +13,9 @@ USRMOTSRCS := \
 	emc/usr_intf/usrmot.c \
 	emc/motion/usrmotintf.cc \
 	emc/motion/emcmotglb.c \
-	emc/motion/emcmotutil.c
+	emc/motion/emcmotutil.c \
+	emc/motion/dbuf.c \
+	emc/motion/stashf.c
 
 HALUISRCS := emc/usr_intf/halui.cc
 ifeq "$(HAVE_NCURSES)" "yes"

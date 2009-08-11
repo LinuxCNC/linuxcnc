@@ -16,6 +16,8 @@ MILLTASKSRCS := \
 	emc/motion/emcmotutil.c \
 	emc/task/taskintf.cc \
 	emc/task/iotaskintf.cc \
+	emc/motion/dbuf.c \
+	emc/motion/stashf.c \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKSRCS)
 
@@ -34,6 +36,8 @@ MILLTASKCANONSRCS := \
 	emc/motion/emcmotutil.c \
 	emc/task/taskintf.cc \
 	emc/task/iotaskintf.cc \
+	emc/motion/dbuf.c \
+	emc/motion/stashf.c \
 	$(ULAPISRCS)
 USERSRCS += $(MILLTASKCANONSRCS)
 

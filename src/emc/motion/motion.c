@@ -149,23 +149,23 @@ extern int vsnprintf(char *, size_t size, const char *format, va_list ap);
 void reportError(const char *fmt, ...)
 {
     va_list args;
-    char error[EMCMOT_ERROR_LEN + 2];
 
     va_start(args, fmt);
-    /* Don't use the rtapi_snprintf... */
-    vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
+    emcmotErrorPutfv(emcmotError, fmt, args);
     va_end(args);
-/*! \todo FIXME - eventually should print _only_ to the RCS buffer, I think */
-/* print to the kernel buffer... */
-    rtapi_print("%d: ERROR: %s\n", emcmotStatus->heartbeat, error);
-/* print to the RCS buffer... */
-    emcmotErrorPut(emcmotError, error);
 }
 
+#ifndef va_copy
+#define va_copy(dest, src) ((dest)=(src))
+#endif
+
 rtapi_msg_handler_t old_handler = NULL;
-static void emc_message_handler(msg_level_t level, const char *message) {
-    if(level == RTAPI_MSG_ERR) emcmotErrorPut(emcmotError, message);
-    if(old_handler) old_handler(level, message);
+static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
+{
+    va_list apc;
+    va_copy(apc, ap);
+    if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
+    if(old_handler) old_handler(level, fmt, ap);
 }
 
 int rtapi_app_main(void)
