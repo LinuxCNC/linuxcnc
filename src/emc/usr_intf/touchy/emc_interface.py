@@ -117,9 +117,9 @@ class emc_status:
         def periodic(self):
                 self.emcstat.poll()
                 # XXX tlo?
-                self.dros['xr'].set_text("X:% 9.4f" % (self.emcstat.actual_position[0] - self.emcstat.origin[0]))
+                self.dros['xr'].set_text("X:% 9.4f" % (self.emcstat.actual_position[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
                 self.dros['yr'].set_text("Y:% 9.4f" % (self.emcstat.actual_position[1] - self.emcstat.origin[1]))
-                self.dros['zr'].set_text("Z:% 9.4f" % (self.emcstat.actual_position[2] - self.emcstat.origin[2]))
+                self.dros['zr'].set_text("Z:% 9.4f" % (self.emcstat.actual_position[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
                 self.dros['xa'].set_text("X:% 9.4f" % self.emcstat.actual_position[0])
                 self.dros['ya'].set_text("Y:% 9.4f" % self.emcstat.actual_position[1])
                 self.dros['za'].set_text("Z:% 9.4f" % self.emcstat.actual_position[2])
