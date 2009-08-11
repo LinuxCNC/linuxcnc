@@ -96,11 +96,21 @@ class touchy:
                           'estop' : self.wTree.get_widget("estop")}
                 machines = {'on' : self.wTree.get_widget("machine_on"),
                             'off' : self.wTree.get_widget("machine_off")}
+                stats = {'file' : self.wTree.get_widget("status_file"),
+                         'line' : self.wTree.get_widget("status_line"),
+                         'dtg' : self.wTree.get_widget("status_dtg"),
+                         'velocity' : self.wTree.get_widget("status_velocity"),
+                         'delay' : self.wTree.get_widget("status_delay"),
+                         'onlimit' : self.wTree.get_widget("status_onlimit"),
+                         'spindledir' : self.wTree.get_widget("status_spindledir"),
+                         'spindlespeed' : self.wTree.get_widget("status_spindlespeed"),
+                         'loadedtool' : self.wTree.get_widget("status_loadedtool")}
                 self.status = emc_interface.emc_status(gtk, emc, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
                                                        estops, machines,
-                                                       self.wTree.get_widget("override_limits"))
+                                                       self.wTree.get_widget("override_limits"),
+                                                       stats)
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
 
@@ -232,7 +242,7 @@ class touchy:
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_widget("mdi%d" % i)
                         w.modify_font(self.control_font)
-                for i in ["mdi", "startup", "manual", "preferences"]:
+                for i in ["mdi", "startup", "manual", "preferences", "status"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.control_font)
 

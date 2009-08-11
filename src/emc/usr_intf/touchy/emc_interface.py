@@ -100,7 +100,7 @@ class emc_control:
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,
-                     unhomes, estops, machines, override_limit):
+                     unhomes, estops, machines, override_limit, status):
                 self.gtk = gtk
                 self.dros = dros
                 self.error = error
@@ -109,12 +109,15 @@ class emc_status:
                 self.estops = estops
                 self.machines = machines
                 self.override_limit = override_limit
+                self.status = status
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
-                self.initted = 0
+                print dir(self.emcstat)
+                print self.emcstat.limit
 
         def periodic(self):
+                last_mode = self.emcstat.task_mode
                 self.emcstat.poll()
                 # XXX tlo?
                 self.dros['xr'].set_text("X:% 9.4f" % (self.emcstat.actual_position[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
@@ -139,8 +142,31 @@ class emc_status:
                 self.machines['on'].set_active(on)
                 self.machines['off'].set_active(not on)              
 
-                ol = self.emcstat.axis[0]['override_limits']
-                self.override_limit.set_active(ol)
+                ovl = self.emcstat.axis[0]['override_limits']
+                self.override_limit.set_active(ovl)
+
+                self.status['file'].set_text(self.emcstat.file)
+                self.status['line'].set_text("%d" % self.emcstat.current_line)
+                self.status['dtg'].set_text("%f" % self.emcstat.distance_to_go)
+                self.status['velocity'].set_text("%f" % self.emcstat.current_vel)
+                self.status['delay'].set_text("%f" % self.emcstat.delay_left)
+
+                ol = ""
+                for i in range(len(self.emcstat.limit)):
+                        if self.emcstat.limit[i]:
+                                ol += "%c " % "XYZABCUVW"[i]
+                self.status['onlimit'].set_text(ol)
+
+                sd = ("CCW", "Stopped", "CW")
+                self.status['spindledir'].set_text(sd[self.emcstat.spindle_direction+1])
+
+                self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
+                self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
+
+                m = self.emcstat.task_mode
+                if m != last_mode:
+                        self.error.set_text("")
+                last_mode = m
 
                 e = self.emcerror.poll()
                 if e:

@@ -34,21 +34,28 @@ status: [only native units for now?]
                 error messages
         
         [just sometimes?]
-        	xyz abs
+        	loaded file
+        	current line
+
         	tlo
         	rotation
+
         	dtg
-        	dtg per axis
-        	current line
         	current vel
         	delay_left
+
         	extents?
-        	estop/on
-        	loaded file
-        	which axes are homed?
         	which axes are on limit?
-        	spindle on/speed
+
+        	spindle direction
+                spindle speed
+
         	loaded tool
-        	prepped tool?
-        	feed override / spindle override / maxvel?
+        	prepped tool
+
         	running gcode (how much? maybe only one line?)
+/        	xyz abs
+/        	dtg per axis
+/        	estop/on
+/        	which axes are homed?
+/        	feed override / spindle override / maxvel?
