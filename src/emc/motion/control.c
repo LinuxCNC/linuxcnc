@@ -25,6 +25,9 @@
 #include "motion_debug.h"
 #include "config.h"
 
+// Mark strings for translation, but defer translation to userspace
+#define _(s) (s)
+
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
@@ -38,25 +41,6 @@ unsigned long last_period = 0;
 /* these variables have the servo cycle time and 1/cycle time */
 double servo_period;
 double servo_freq;
-
-
-/* debugging function - prints a cartesean pose (multplies the floating
-   point numbers by 1 million since kernel printf doesn't handle floats
-*/
-
-void print_pose ( EmcPose *pos )
-{
-    rtapi_print(" (%d, %d, %d):(%d, %d, %d),(%d, %d, %d) ",
-                (int)(pos->tran.x*1000000.0),
-                (int)(pos->tran.y*1000000.0),
-                (int)(pos->tran.z*1000000.0),
-                (int)(pos->a*1000000.0),
-                (int)(pos->b*1000000.0),
-                (int)(pos->c*1000000.0),
-                (int)(pos->u*1000000.0),
-                (int)(pos->v*1000000.0),
-                (int)(pos->w*1000000.0));
-}
 
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
@@ -274,17 +258,17 @@ void emcmotController(void *arg, long period)
                 if(emcmot_hal_data->overruns == 1) {
                     int saved_level = rtapi_get_msg_level();
                     rtapi_set_msg_level(RTAPI_MSG_ALL);
-                    reportError("Unexpected realtime delay: check dmesg for details.");
+                    reportError(_("Unexpected realtime delay: check dmesg for details."));
                     rtapi_print_msg(RTAPI_MSG_WARN,
-                        "\nIn recent history there were\n"
+                        _("\nIn recent history there were\n"
                         "%ld, %ld, %ld, %ld, and %ld\n"
-                        "elapsed clocks between calls to the motion controller.\n",
+                        "elapsed clocks between calls to the motion controller.\n"),
                         cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
                     rtapi_print_msg(RTAPI_MSG_WARN,
-                        "This time, there were %ld which is so anomalously\n"
+                        _("This time, there were %ld which is so anomalously\n"
                         "large that it probably signifies a problem with your\n"
                         "realtime configuration.  For the rest of this run of\n"
-                        "EMC, this message will be suppressed.\n\n",
+                        "EMC, this message will be suppressed.\n\n"),
                         this_run);
                     rtapi_set_msg_level(saved_level);
                 }
@@ -397,7 +381,7 @@ static void process_probe_inputs(void) {
             if (probe_suppress) {
                 emcmotStatus->probeTripped = 0;
             } else {
-                reportError("G38.2 probe move finished without tripping probe");
+                reportError(_("G38.2 probe move finished without tripping probe"));
                 SET_MOTION_ERROR_FLAG(1);
             }
         }
@@ -410,7 +394,7 @@ static void process_probe_inputs(void) {
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
            tpGetExecId(&emcmotDebug->queue) <= 0) {
             // running an MDI command
-            reportError("Probe tripped during non-probe MDI command.");
+            reportError(_("Probe tripped during non-probe MDI command."));
             tpAbort(&emcmotDebug->queue);
         }
 
@@ -438,11 +422,11 @@ static void process_probe_inputs(void) {
         }
 
         if(aborted == 1) {
-            reportError("Probe tripped during homing motion.");
+            reportError(_("Probe tripped during homing motion."));
         }
 
         if(aborted == 2) {
-            reportError("Probe tripped during a jog.");
+            reportError(_("Probe tripped during a jog."));
         }
     }
     old_probeVal = emcmotStatus->probeVal;
@@ -715,7 +699,7 @@ static void check_for_faults(void)
     /* only check enable input if running */
     if ( GET_MOTION_ENABLE_FLAG() != 0 ) {
 	if ( *(emcmot_hal_data->enable) == 0 ) {
-	    reportError("motion stopped by enable input");
+	    reportError(_("motion stopped by enable input"));
 	    emcmotDebug->enabling = 0;
 	}
     }
@@ -738,7 +722,7 @@ static void check_for_faults(void)
 		    /* trip on limits */
 		    if (!GET_JOINT_ERROR_FLAG(joint)) {
 			/* report the error just this once */
-			reportError("joint %d on limit switch error",
+			reportError(_("joint %d on limit switch error"),
 			    joint_num);
 		    }
 		    SET_JOINT_ERROR_FLAG(joint, 1);
@@ -750,7 +734,7 @@ static void check_for_faults(void)
 		/* joint is faulted, trip */
 		if (!GET_JOINT_ERROR_FLAG(joint)) {
 		    /* report the error just this once */
-		    reportError("joint %d amplifier fault", joint_num);
+		    reportError(_("joint %d amplifier fault"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		emcmotDebug->enabling = 0;
@@ -759,7 +743,7 @@ static void check_for_faults(void)
 	    if (GET_JOINT_FERROR_FLAG(joint)) {
 		if (!GET_JOINT_ERROR_FLAG(joint)) {
 		    /* report the error just this once */
-		    reportError("joint %d following error", joint_num);
+		    reportError(_("joint %d following error"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		emcmotDebug->enabling = 0;
@@ -1452,16 +1436,17 @@ static void get_pos_cmds(long period)
 	    /* check for soft limits */
 	    if (joint->pos_cmd > joint->max_pos_limit) {
 		onlimit = 1;
+                reportError(_("Exceeded positive soft limit on joint %d"));
 	    }
 	    if (joint->pos_cmd < joint->min_pos_limit) {
 		onlimit = 1;
+                reportError(_("Exceeded negative soft limit on joint %d"));
 	    }
 	}
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
 	    /* just hit the limit */
-	    reportError("Exceeded soft limit");
 	    SET_MOTION_ERROR_FLAG(1);
 	    emcmotStatus->on_soft_limit = 1;
 	}
