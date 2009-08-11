@@ -15,23 +15,27 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#include <string.h>
+#ifdef RTAPI
+#else
 #include <stdlib.h>
-#include <errno.h>
+#endif
+#include "rtapi_string.h"
+#include "rtapi_errno.h"
 #include "dbuf.h"
 
 typedef struct dbuf dbuf;
 typedef struct dbuf_iter dbuf_iter;
 
+#ifndef RTAPI
 dbuf *dbuf_new(unsigned sz) {
     dbuf *d = malloc(sizeof(dbuf) + sz);
     if(d) dbuf_init(d, (unsigned char*)(d+1), sz);
     return d;
 }
-
 void dbuf_delete(dbuf *d) {
     if(d) free(d);
 }
+#endif
 
 void dbuf_init(dbuf *d, unsigned char *data, unsigned sz) {
     if(!d) return;
@@ -40,6 +44,7 @@ void dbuf_init(dbuf *d, unsigned char *data, unsigned sz) {
     memset(data, 0, sz);
 }
 
+#ifndef RTAPI
 dbuf_iter *dbuf_iter_new(dbuf *d) {
     dbuf_iter *di = malloc(sizeof(dbuf_iter));
     if(di) dbuf_iter_init(di, d);
@@ -49,6 +54,7 @@ dbuf_iter *dbuf_iter_new(dbuf *d) {
 void dbuf_iter_delete(dbuf_iter *di) {
     if(di) free(di);
 }
+#endif
 
 
 void dbuf_iter_init(dbuf_iter *di, dbuf *d) {

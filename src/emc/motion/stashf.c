@@ -17,25 +17,31 @@
 
 #include "stashf.h"
 #include "dbuf.h"
-#include <errno.h>
-#include <stdio.h>
+#include "rtapi_errno.h"
+#include "rtapi_string.h"
 #include <stdarg.h>
-#include <string.h>
-#include <alloca.h>
 
 #ifdef RTAPI
+#include <linux/kernel.h>
 #define gettext(s) s
+#define alloca __builtin_alloca
 #else
+#include <stdio.h>
 #include <libintl.h>
+#include <alloca.h>
 #endif
 
 static int SET_ERRNO(int value) {
+#ifdef RTAPI
+    return value;
+#else
     if(value < 0) {    
         errno = value;
         return -1;
     } else {
         return value;
     }
+#endif
 }
 
 static int get_code(const char **fmt_io, int *modifier_l) {
@@ -114,6 +120,7 @@ int snprintdbuf(char *buf, int n, struct dbuf_iter *o) {
 #include "stashf_wrap.h"
 }
 
+#ifndef RTAPI
 #define PRINT(...) fprintf(f, ## __VA_ARGS__)
 int fprintdbuf(FILE *f, struct dbuf_iter *o) {
 #include "stashf_wrap.h"
@@ -123,4 +130,4 @@ int fprintdbuf(FILE *f, struct dbuf_iter *o) {
 int printdbuf(struct dbuf_iter *o) {
 #include "stashf_wrap.h"
 }
-
+#endif

@@ -17,7 +17,7 @@
 
 #ifndef DBUF_H
 #define DBUF_H
-#include <string.h>
+#include "rtapi_string.h"
 
 #ifdef __cplusplus
 extern "C" {

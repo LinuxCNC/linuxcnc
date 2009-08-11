@@ -18,7 +18,9 @@
 #ifndef STASHF_H
 #define STASHF_H
 #include <stdarg.h>
+#ifndef RTAPI
 #include <stdio.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +31,10 @@ struct dbuf_iter;
 int vstashf(struct dbuf_iter *o, const char *fmt, va_list ap);
 int stashf(struct dbuf_iter *o, const char *fmt, ...);
 int snprintdbuf(char *buf, int n, struct dbuf_iter *o);
+#ifndef RTAPI
 int printdbuf(struct dbuf_iter *o);
 int fprintdbuf(FILE *f, struct dbuf_iter *o);
+#endif
 
 #ifdef __cplusplus
 }

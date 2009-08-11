@@ -3,6 +3,7 @@
    To be sure, see what has been implemented by looking in linux/string.h
    and {linux_src_dir}/lib/string.c */
 #include <linux/string.h>
+#include <linux/version.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
 #ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
 #define __HAVE_ARCH_STRCMP	/* have strcmp */
