@@ -1717,7 +1717,7 @@ panel</property>
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">Click on each page tab to configure signal names for each connector port.
 
-The spin buttons below on this page allow you to select the amouns of 
+The spin buttons below on this page allow you to select the amounts of 
 different types of components. Press the button to make the tabbed pages
 accept the changes.
 </property>
@@ -19409,7 +19409,7 @@ program</property>
         <child>
           <widget class="GnomeDruidPageStandard" id="realtime_components">
             <property name="visible">True</property>
-            <property name="title" translatable="yes">Realtime Components</property>
+            <property name="title" translatable="yes">HAL Component Page</property>
             <signal name="next" handler="on_realtime_components_next"/>
             <signal name="back" handler="on_realtime_components_back"/>
             <signal name="prepare" handler="on_realtime_components_prepare"/>
@@ -19524,7 +19524,7 @@ program</property>
                         <child>
                           <widget class="GtkLabel" id="label177">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Add realtime components with this page.</property>
+                            <property name="label" translatable="yes">Add HAL components with this page.</property>
                           </widget>
                           <packing>
                             <property name="right_attach">3</property>
@@ -19779,7 +19779,7 @@ program</property>
                             <child>
                               <widget class="GtkLabel" id="label416">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Add to Thread Cmnd</property>
+                                <property name="label" translatable="yes">Thread Command</property>
                               </widget>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -19789,7 +19789,7 @@ program</property>
                             <child>
                               <widget class="GtkLabel" id="label415">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">Load Component Cmnd </property>
+                                <property name="label" translatable="yes">Load Command </property>
                               </widget>
                             </child>
                             <child>
@@ -24563,7 +24563,7 @@ Warning limits switches
   <widget class="GtkWindow" id="helpwindow">
     <property name="title" translatable="yes">Help Pages</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
-    <property name="default_width">300</property>
+    <property name="default_width">450</property>
     <property name="default_height">600</property>
     <property name="destroy_with_parent">True</property>
     <signal name="delete_event" handler="on_helpwindow_delete_event"/>

@@ -2217,7 +2217,7 @@ class App:
         self.data.createshortcut = self.widgets.createshortcut.get_active()
 
     def on_basicinfo_prepare(self, *args):
-        self.data.help = 2
+        self.data.help = "help-basic.txt"
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
@@ -2370,7 +2370,7 @@ class App:
             "~/emc2/configs/%s" % self.widgets.machinename.get_text())
 
     def on_GUI_config_prepare(self, *args):
-        self.data.help = 3
+        self.data.help = "help-gui.txt"
         self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
         if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
         elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
@@ -3938,7 +3938,7 @@ class App:
 
 
     def on_advanced_prepare(self, *args):       
-        
+        self.data.help = "help-advanced.txt"
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
         self.widgets.digitsin.set_value(self.data.digitsin)
@@ -4065,6 +4065,7 @@ class App:
         self.testpanel(self)
 
     def on_realtime_components_prepare(self,*args):
+        self.data.help = "help-realtime.txt"
         self.widgets.spidcontrol.set_active( self.data.spidcontrol )
         if not self.intrnldata.components_is_prepared:
             for i in range(1,6):

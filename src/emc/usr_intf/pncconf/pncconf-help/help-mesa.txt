@@ -23,7 +23,7 @@
     will display the signal names and the component type:
     If the type is:
 
-    GPIO (general purpose Input / output) 
+    GPIO   general purpose Input / output 
         then you may choose between input,output,and opendrain
 
     PWM GEN 
@@ -68,9 +68,9 @@
         You select the STEP signal and the direction and enable
          signals are automatically setup
 
-    * PWMGEN - a hardware base pulse width (or density) modulation 
-            generator
+    * PWMGEN - a hardware base pulse width (or density) 
+        modulation generator
 
         You can select PWM or PWD in the pintype combobox
-        you select the PULSE signal and the direction and enable signals 
-        are automatically setup
+        you select the PULSE signal and the direction and enable 
+        signals are automatically setup
