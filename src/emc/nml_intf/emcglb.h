@@ -71,9 +71,6 @@ extern "C" {
     extern struct EmcPose TOOL_HOLDER_CLEAR;
     extern unsigned char HAVE_TOOL_HOLDER_CLEAR;
 
-#define DEFAULT_EMCLOG_INCLUDE_HEADER (1)
-    extern int EMCLOG_INCLUDE_HEADER;
-
 /*just used to keep track of unneccessary debug printing. */
     extern int taskplanopen;
 

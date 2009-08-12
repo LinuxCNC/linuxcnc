@@ -52,6 +52,7 @@ parser Hal:
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
+      | "include" String ";"   {{ include(String) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
@@ -120,10 +121,10 @@ deprecated = ['s32', 'u32']
 
 def initialize():
     global functions, params, pins, options, comp_name, names, docs, variables
-    global modparams
+    global modparams, includes
 
     functions = []; params = []; pins = []; options = {}; variables = []
-    modparams = []; docs = []
+    modparams = []; docs = []; includes = [];
     comp_name = None
 
     names = {}
@@ -214,6 +215,9 @@ def modparam(type, name, default, doc):
     names[name] = None
     modparams.append((type, name, default, doc))
 
+def include(value):
+    includes.append((value))
+
 def removeprefix(s,p):
     if s.startswith(p): return s[len(p):]
     return s
@@ -240,6 +244,9 @@ def prologue(f):
 
 static int comp_id;
 """
+    for name in includes:
+        print >>f, "#include \"%s\"" % name
+
     names = {}
 
     def q(s):
@@ -330,7 +337,7 @@ static int comp_id;
 
     print >>f, "static int get_data_size(void);"
     if options.get("extra_setup"):
-        print >>f, "static int extra_setup(struct state *inst, long extra_arg);"
+        print >>f, "static int extra_setup(struct state *inst, char *prefix, long extra_arg);"
     if options.get("extra_cleanup"):
         print >>f, "static void extra_cleanup(void);"
 
@@ -359,7 +366,7 @@ static int comp_id;
     if has_personality:
         print >>f, "    inst->_personality = personality;"
     if options.get("extra_setup"):
-        print >>f, "    r = extra_setup(inst, extra_arg);"
+        print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
     if has_personality:
         print >>f, "    personality = inst->_personality;"
@@ -550,7 +557,7 @@ static int comp_id;
         print >>f, "#undef FUNCTION"
         print >>f, "#define FUNCTION(name) static void name(struct state *inst, long period)"
         print >>f, "#undef EXTRA_SETUP"
-        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, long extra_arg)"
+        print >>f, "#define EXTRA_SETUP() static int extra_setup(struct state *inst, char *prefix, long extra_arg)"
         print >>f, "#undef EXTRA_CLEANUP"
         print >>f, "#define EXTRA_CLEANUP() static void extra_cleanup(void)"
         print >>f, "#undef fperiod"
@@ -599,8 +606,8 @@ def epilogue(f):
     else:
         print >>f, "static int get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC = range(6)
-modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc")
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
+modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
 
 modinc = None
 def find_modinc():
@@ -910,6 +917,7 @@ Usage:
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
+           %(name)s --print-modinc
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
 
@@ -923,7 +931,7 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc', 'require-license'])
+                            'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
@@ -942,6 +950,8 @@ def main():
             mode = INSTALLDOC
         if k in ("-j", "--view-doc"):
             mode = VIEWDOC
+        if k in ("--print-modinc",):
+            mode = MODINC
         if k in ("-l", "--require-license"):
             require_license = True
         if k in ("-o", "--outfile"):
@@ -953,6 +963,13 @@ def main():
 
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit, "Can only specify -o when preprocessing or documenting"
+
+    if mode == MODINC:
+        if args:
+            raise SystemExit, \
+                "Can not specify input files when using --print-modinc"
+        print find_modinc()
+        return 0
 
     for f in args:
         try:
@@ -986,6 +1003,7 @@ def main():
                 open(outfile, "w").writelines(lines)
                 os.chmod(outfile, 0555)
             elif f.endswith(".c") and mode != PREPROCESS:
+                initialize()
                 tempdir = tempfile.mkdtemp()
                 try:
                     shutil.copy(f, tempdir)

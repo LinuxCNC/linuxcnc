@@ -25,7 +25,7 @@ def glVertex3fv(args): glVertex3f(*args)
 from math import sin, cos, pi
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
-    def __init__(self, widget, text=None):
+    def __init__(self, colors, geometry):
         self.traverse = []; self.traverse_append = self.traverse.append
         self.feed = []; self.feed_append = self.feed.append
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
@@ -35,22 +35,83 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.lo = (0,) * 9
         self.first_move = True
         self.offset_x = self.offset_y = self.offset_z = 0
-        self.text = text
+        self.geometry = geometry
         self.min_extents = [9e99,9e99,9e99]
         self.max_extents = [-9e99,-9e99,-9e99]
         self.min_extents_notool = [9e99,9e99,9e99]
         self.max_extents_notool = [-9e99,-9e99,-9e99]
-        self.colors = widget.colors
+        self.colors = colors
         self.in_arc = 0
         self.xo = self.zo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
 
+    def comment(self, arg):
+        if arg.startswith("AXIS,"):
+            parts = arg.split(",")
+            command = parts[1]
+            if command == "stop": self.aborted = True
+            if command == "hide": self.suppress += 1
+            if command == "show": self.suppress -= 1
+
     def message(self, message): pass
+
+    def check_abort(self): pass
 
     def next_line(self, st):
         self.state = st
         self.lineno = self.state.sequence_number
+
+    def draw_lines(self, lines, for_selection, j=0):
+        return emc.draw_lines(self.geometry, lines, for_selection)
+
+    def draw_dwells(self, dwells, for_selection, j0=0):
+        delta = .015625
+        if for_selection == 0:
+            glBegin(GL_LINES)
+        for j, (l,c,x,y,z,axis) in enumerate(dwells):
+            self.progress.update(j+j0)
+            glColor3f(*c)
+            if for_selection == 1:
+                glLoadName(l)
+                glBegin(GL_LINES)
+            if lathe: axis = 1
+            if axis == 0:
+                glVertex3f(x-delta,y-delta,z)
+                glVertex3f(x+delta,y+delta,z)
+                glVertex3f(x-delta,y+delta,z)
+                glVertex3f(x+delta,y-delta,z)
+
+                glVertex3f(x+delta,y+delta,z)
+                glVertex3f(x-delta,y-delta,z)
+                glVertex3f(x+delta,y-delta,z)
+                glVertex3f(x-delta,y+delta,z)
+            elif axis == 1:
+                glVertex3f(x-delta,y,z-delta)
+                glVertex3f(x+delta,y,z+delta)
+                glVertex3f(x-delta,y,z+delta)
+                glVertex3f(x+delta,y,z-delta)
+
+                glVertex3f(x+delta,y,z+delta)
+                glVertex3f(x-delta,y,z-delta)
+                glVertex3f(x+delta,y,z-delta)
+                glVertex3f(x-delta,y,z+delta)
+            else:
+                glVertex3f(x,y-delta,z-delta)
+                glVertex3f(x,y+delta,z+delta)
+                glVertex3f(x,y+delta,z-delta)
+                glVertex3f(x,y-delta,z+delta)
+
+                glVertex3f(x,y+delta,z+delta)
+                glVertex3f(x,y-delta,z-delta)
+                glVertex3f(x,y-delta,z+delta)
+                glVertex3f(x,y+delta,z-delta)
+            if for_selection == 1:
+                glEnd()
+        if for_selection == 0:
+            glEnd()
+
+
 
     def calc_extents(self):
         x = [f[1][0] for f in self.arcfeed] + [f[1][0] for f in self.feed] + [f[1][0] for f in self.traverse]
@@ -108,9 +169,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def change_tool(self, arg):
         self.first_move = True
         
-    def get_tool(self, tool):
-        return tool, .75, .0625
-
     def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u, offset_v, offset_w):
         self.offset_x = offset_x
         self.offset_y = offset_y
@@ -174,31 +232,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
 
 
-    def draw_lines(self, lines, for_selection):
-        if for_selection:
-            last_lineno = None
-            glBegin(GL_LINES)
-            for lineno, l1, l2 in lines:
-                if lineno != last_lineno:
-                    glEnd()
-                    glLoadName(lineno)
-                    last_lineno = lineno
-                    glBegin(GL_LINES)
-                glVertex3fv(l1)
-                glVertex3fv(l2)
-            glEnd()
-        else:
-            ol = None
-            glBegin(GL_LINE_STRIP)
-            for lineno, l1, l2 in lines:
-                if l1 != ol:
-                    glEnd()
-                    glBegin(GL_LINE_STRIP)
-                    glVertex3fv(l1)
-                glVertex3fv(l2)
-                ol = l2
-            glEnd()
-
     def highlight(self, lineno, geometry):
         glLineWidth(3)
         c = self.colors['selected']
@@ -252,48 +285,23 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.draw_dwells(self.dwells, for_selection)
         glLineWidth(1)
 
-    def draw_dwells(self, dwells, for_selection):
-        delta = .015625
-        if for_selection == 0:
-            glBegin(GL_LINES)
-        for l,c,x,y,z,axis in dwells:
-            glColor3fv(c)
-            if for_selection == 1:
-                glLoadName(l)
-                glBegin(GL_LINES)
-            if axis == 0:
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y+delta,z)
-                glVertex3f(x+delta,y-delta,z)
+    def draw(self, for_selection=0, include_traverse=True):
+        self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
 
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y-delta,z)
-                glVertex3f(x-delta,y+delta,z)
-            elif axis == 1:
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z+delta)
-                glVertex3f(x+delta,y,z-delta)
+        if include_traverse:
+            glEnable(GL_LINE_STIPPLE)
+            glColor3f(*self.colors['traverse'])
+            self.draw_lines(self.traverse, for_selection)
+            glDisable(GL_LINE_STIPPLE)
 
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z-delta)
-                glVertex3f(x-delta,y,z+delta)
-            else:
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
+        glColor3f(*self.colors['straight_feed'])
+        self.draw_lines(self.feed, for_selection, len(self.traverse))
 
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-            if for_selection == 1:
-                glEnd()
-        if for_selection == 0:
-            glEnd()
+        glColor3f(*self.colors['arc_feed'])
+        self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
+
+        glLineWidth(2)
+        self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
+        glLineWidth(1)
 
 # vim:ts=8:sts=4:et:
