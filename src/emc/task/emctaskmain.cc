@@ -315,58 +315,6 @@ int emcSystemCmd(char *s)
     return 0;
 }
 
-// shorthand typecasting ptrs
-static EMC_AXIS_HALT *axis_halt_msg;
-static EMC_AXIS_DISABLE *disable_msg;
-static EMC_AXIS_ENABLE *enable_msg;
-static EMC_AXIS_HOME *home_msg;
-static EMC_AXIS_UNHOME *unhome_msg;
-static EMC_AXIS_JOG *jog_msg;
-static EMC_AXIS_ABORT *axis_abort_msg;
-static EMC_AXIS_INCR_JOG *incr_jog_msg;
-static EMC_AXIS_ABS_JOG *abs_jog_msg;
-static EMC_AXIS_SET_BACKLASH *set_backlash_msg;
-static EMC_AXIS_SET_HOMING_PARAMS *set_homing_params_msg;
-static EMC_AXIS_SET_FERROR *set_ferror_msg;
-static EMC_AXIS_SET_MIN_FERROR *set_min_ferror_msg;
-static EMC_AXIS_SET_MAX_POSITION_LIMIT *set_max_limit_msg;
-static EMC_AXIS_SET_MIN_POSITION_LIMIT *set_min_limit_msg;
-static EMC_AXIS_OVERRIDE_LIMITS *axis_lim_msg;
-//static EMC_AXIS_SET_OUTPUT *axis_output_msg;
-static EMC_AXIS_LOAD_COMP *axis_load_comp_msg;
-//static EMC_AXIS_SET_STEP_PARAMS *set_step_params_msg;
-
-static EMC_TRAJ_SET_SCALE *emcTrajSetScaleMsg;
-static EMC_TRAJ_SET_MAX_VELOCITY *emcTrajSetMaxVelocityMsg;
-static EMC_TRAJ_SET_SPINDLE_SCALE *emcTrajSetSpindleScaleMsg;
-static EMC_TRAJ_SET_VELOCITY *emcTrajSetVelocityMsg;
-static EMC_TRAJ_SET_ACCELERATION *emcTrajSetAccelerationMsg;
-static EMC_TRAJ_LINEAR_MOVE *emcTrajLinearMoveMsg;
-static EMC_TRAJ_CIRCULAR_MOVE *emcTrajCircularMoveMsg;
-static EMC_TRAJ_DELAY *emcTrajDelayMsg;
-static EMC_TRAJ_SET_TERM_COND *emcTrajSetTermCondMsg;
-static EMC_TRAJ_SET_SPINDLESYNC *emcTrajSetSpindlesyncMsg;
-
-// These classes are commented out because the compiler
-// complains that they are "defined but not used".
-//static EMC_MOTION_SET_AOUT *emcMotionSetAoutMsg;
-//static EMC_MOTION_SET_DOUT *emcMotionSetDoutMsg;
-
-static EMC_SPINDLE_SPEED *spindle_speed_msg;
-static EMC_SPINDLE_ON *spindle_on_msg;
-static EMC_TOOL_PREPARE *tool_prepare_msg;
-static EMC_TOOL_LOAD_TOOL_TABLE *load_tool_table_msg;
-static EMC_TOOL_SET_OFFSET *emc_tool_set_offset_msg;
-static EMC_TOOL_SET_NUMBER *emc_tool_set_number_msg;
-static EMC_TASK_SET_MODE *mode_msg;
-static EMC_TASK_SET_STATE *state_msg;
-static EMC_TASK_PLAN_RUN *run_msg;
-static EMC_TASK_PLAN_EXECUTE *execute_msg;
-static EMC_TASK_PLAN_OPEN *open_msg;
-static EMC_TASK_PLAN_SET_OPTIONAL_STOP *os_msg;
-static EMC_TASK_PLAN_SET_BLOCK_DELETE *bd_msg;
-
-static EMC_AUX_INPUT_WAIT *emcAuxInputWaitMsg;
 static int emcAuxInputWaitType = 0;
 static int emcAuxInputWaitIndex = -1;
 
@@ -1425,8 +1373,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_OPERATOR_DISPLAY_TYPE:
 	retval = emcOperatorDisplay(((EMC_OPERATOR_DISPLAY *) cmd)->id,
-				    ((EMC_OPERATOR_DISPLAY *) cmd)->
-				    display);
+				    ((EMC_OPERATOR_DISPLAY *) cmd)->display);
 	break;
 
     case EMC_SYSTEM_CMD_TYPE:
@@ -1436,205 +1383,188 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// axis commands
 
     case EMC_AXIS_DISABLE_TYPE:
-	disable_msg = (EMC_AXIS_DISABLE *) cmd;
-	retval = emcAxisDisable(disable_msg->axis);
-	break;
+        retval = emcAxisDisable(((EMC_AXIS_DISABLE *) cmd)->axis);
+        break;
 
     case EMC_AXIS_ENABLE_TYPE:
-	enable_msg = (EMC_AXIS_ENABLE *) cmd;
-	retval = emcAxisEnable(enable_msg->axis);
-	break;
+        retval = emcAxisEnable(((EMC_AXIS_ENABLE *) cmd)->axis);
+        break;
 
     case EMC_AXIS_HOME_TYPE:
-	home_msg = (EMC_AXIS_HOME *) cmd;
-	retval = emcAxisHome(home_msg->axis);
-	break;
+        retval = emcAxisHome(((EMC_AXIS_HOME *) cmd)->axis);
+        break;
 
     case EMC_AXIS_UNHOME_TYPE:
-	unhome_msg = (EMC_AXIS_UNHOME *) cmd;
-	retval = emcAxisUnhome(unhome_msg->axis);
-	break;
+        retval = emcAxisUnhome(((EMC_AXIS_UNHOME *) cmd)->axis);
+        break;
 
     case EMC_AXIS_JOG_TYPE:
-	jog_msg = (EMC_AXIS_JOG *) cmd;
-	retval = emcAxisJog(jog_msg->axis, jog_msg->vel);
-	break;
+        retval = emcAxisJog(((EMC_AXIS_JOG *) cmd)->axis, 
+                            ((EMC_AXIS_JOG *) cmd)->vel);
+        break;
 
     case EMC_AXIS_ABORT_TYPE:
-	axis_abort_msg = (EMC_AXIS_ABORT *) cmd;
-	retval = emcAxisAbort(axis_abort_msg->axis);
-	break;
+        retval = emcAxisAbort(((EMC_AXIS_ABORT *) cmd)->axis);
+        break;
 
     case EMC_AXIS_INCR_JOG_TYPE:
-	incr_jog_msg = (EMC_AXIS_INCR_JOG *) cmd;
-	retval = emcAxisIncrJog(incr_jog_msg->axis,
-				incr_jog_msg->incr, incr_jog_msg->vel);
-	break;
+        retval = emcAxisIncrJog(((EMC_AXIS_INCR_JOG *) cmd)->axis,
+                                ((EMC_AXIS_INCR_JOG *) cmd)->incr,
+                                ((EMC_AXIS_INCR_JOG *) cmd)->vel);
+        break;
 
     case EMC_AXIS_ABS_JOG_TYPE:
-	abs_jog_msg = (EMC_AXIS_ABS_JOG *) cmd;
-	retval = emcAxisAbsJog(abs_jog_msg->axis,
-			       abs_jog_msg->pos, abs_jog_msg->vel);
-	break;
+        retval = emcAxisAbsJog(((EMC_AXIS_ABS_JOG *) cmd)->axis,
+                               ((EMC_AXIS_ABS_JOG *) cmd)->pos,
+                               ((EMC_AXIS_ABS_JOG *) cmd)->vel);
+        break;
 
     case EMC_AXIS_SET_BACKLASH_TYPE:
-	set_backlash_msg = (EMC_AXIS_SET_BACKLASH *) cmd;
-	retval =
-	    emcAxisSetBacklash(set_backlash_msg->axis,
-			       set_backlash_msg->backlash);
-	break;
+        retval = emcAxisSetBacklash(((EMC_AXIS_SET_BACKLASH *) cmd)->axis,
+                                    ((EMC_AXIS_SET_BACKLASH *) cmd)->backlash);
+        break;
 
     case EMC_AXIS_SET_HOMING_PARAMS_TYPE:
-	set_homing_params_msg = (EMC_AXIS_SET_HOMING_PARAMS *) cmd;
-	retval = emcAxisSetHomingParams(set_homing_params_msg->axis,
-					set_homing_params_msg->home,
-					set_homing_params_msg->offset,
-					set_homing_params_msg->home_final_vel,
-					set_homing_params_msg->search_vel,
-					set_homing_params_msg->latch_vel,
-					set_homing_params_msg->use_index,
-					set_homing_params_msg->ignore_limits,
-					set_homing_params_msg->is_shared,
-					set_homing_params_msg->home_sequence,
-					set_homing_params_msg->volatile_home);
-	break;
+        retval = emcAxisSetHomingParams(((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->axis,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->home,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->offset,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->home_final_vel,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->search_vel,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->latch_vel,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->use_index,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->ignore_limits,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->is_shared,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->home_sequence,
+                                        ((EMC_AXIS_SET_HOMING_PARAMS *) cmd)->volatile_home);
+        break;
 
     case EMC_AXIS_SET_FERROR_TYPE:
-	set_ferror_msg = (EMC_AXIS_SET_FERROR *) cmd;
-	retval = emcAxisSetFerror(set_ferror_msg->axis,
-				  set_ferror_msg->ferror);
-	break;
+        retval = emcAxisSetFerror(((EMC_AXIS_SET_FERROR *) cmd)->axis,
+                                  ((EMC_AXIS_SET_FERROR *) cmd)->ferror);
+        break;
 
     case EMC_AXIS_SET_MIN_FERROR_TYPE:
-	set_min_ferror_msg = (EMC_AXIS_SET_MIN_FERROR *) cmd;
-	retval = emcAxisSetMinFerror(set_min_ferror_msg->axis,
-				     set_min_ferror_msg->ferror);
-	break;
+        retval = emcAxisSetMinFerror(((EMC_AXIS_SET_MIN_FERROR *) cmd)->axis,
+                                     ((EMC_AXIS_SET_MIN_FERROR *) cmd)->ferror);
+        break;
 
     case EMC_AXIS_SET_MAX_POSITION_LIMIT_TYPE:
-	set_max_limit_msg = (EMC_AXIS_SET_MAX_POSITION_LIMIT *) cmd;
-	retval = emcAxisSetMaxPositionLimit(set_max_limit_msg->axis,
-					    set_max_limit_msg->limit);
-	break;
+        retval = emcAxisSetMaxPositionLimit(((EMC_AXIS_SET_MAX_POSITION_LIMIT *) cmd)->axis,
+                                            ((EMC_AXIS_SET_MAX_POSITION_LIMIT *) cmd)->limit);
+        break;
 
     case EMC_AXIS_SET_MIN_POSITION_LIMIT_TYPE:
-	set_min_limit_msg = (EMC_AXIS_SET_MIN_POSITION_LIMIT *) cmd;
-	retval = emcAxisSetMinPositionLimit(set_min_limit_msg->axis,
-					    set_min_limit_msg->limit);
-	break;
+        retval = emcAxisSetMinPositionLimit(((EMC_AXIS_SET_MIN_POSITION_LIMIT *) cmd)->axis,
+                                            ((EMC_AXIS_SET_MIN_POSITION_LIMIT *) cmd)->limit);
+        break;
 
     case EMC_AXIS_HALT_TYPE:
-	axis_halt_msg = (EMC_AXIS_HALT *) cmd;
-	retval = emcAxisHalt(axis_halt_msg->axis);
-	break;
+        retval = emcAxisHalt(((EMC_AXIS_HALT *) cmd)->axis);
+        break;
 
     case EMC_AXIS_OVERRIDE_LIMITS_TYPE:
-	axis_lim_msg = (EMC_AXIS_OVERRIDE_LIMITS *) cmd;
-	retval = emcAxisOverrideLimits(axis_lim_msg->axis);
-	break;
+        retval = emcAxisOverrideLimits(((EMC_AXIS_OVERRIDE_LIMITS *) cmd)->axis);
+        break;
 
     case EMC_AXIS_LOAD_COMP_TYPE:
-	axis_load_comp_msg = (EMC_AXIS_LOAD_COMP *) cmd;
-	retval = emcAxisLoadComp(axis_load_comp_msg->axis,
-				 axis_load_comp_msg->file,
-				 axis_load_comp_msg->type);
-	break;
+        retval = emcAxisLoadComp(((EMC_AXIS_LOAD_COMP *) cmd)->axis,
+                                 ((EMC_AXIS_LOAD_COMP *) cmd)->file,
+                                 ((EMC_AXIS_LOAD_COMP *) cmd)->type);
+        break;
 
-	// traj commands
+        // traj commands
 
     case EMC_TRAJ_SET_SCALE_TYPE:
-	emcTrajSetScaleMsg = (EMC_TRAJ_SET_SCALE *) cmd;
-	retval = emcTrajSetScale(emcTrajSetScaleMsg->scale);
-	break;
+        retval = emcTrajSetScale(((EMC_TRAJ_SET_SCALE *) cmd)->scale);
+        break;
 
     case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
-	emcTrajSetMaxVelocityMsg = (EMC_TRAJ_SET_MAX_VELOCITY *) cmd;
-	retval = emcTrajSetMaxVelocity(emcTrajSetMaxVelocityMsg->velocity);
-	break;
+        retval = emcTrajSetMaxVelocity(((EMC_TRAJ_SET_MAX_VELOCITY *) cmd)->velocity);
+        break;
 
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
-	emcTrajSetSpindleScaleMsg = (EMC_TRAJ_SET_SPINDLE_SCALE *) cmd;
-	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->scale);
-	break;
+        retval = emcTrajSetSpindleScale(((EMC_TRAJ_SET_SPINDLE_SCALE *) cmd)->scale);
+        break;
 
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	retval = emcTrajSetFOEnable(((EMC_TRAJ_SET_FO_ENABLE *) cmd)->mode);  // feed override enable/disable
-	break;
+        retval = emcTrajSetFOEnable(((EMC_TRAJ_SET_FO_ENABLE *) cmd)->mode);  // feed override enable/disable
+        break;
 
     case EMC_TRAJ_SET_FH_ENABLE_TYPE:
-	retval = emcTrajSetFHEnable(((EMC_TRAJ_SET_FH_ENABLE *) cmd)->mode); //feed hold enable/disable
-	break;
+        retval = emcTrajSetFHEnable(((EMC_TRAJ_SET_FH_ENABLE *) cmd)->mode); //feed hold enable/disable
+        break;
 
     case EMC_TRAJ_SET_SO_ENABLE_TYPE:
-	retval = emcTrajSetSOEnable(((EMC_TRAJ_SET_SO_ENABLE *) cmd)->mode); //spindle speed override enable/disable
-	break;
+        retval = emcTrajSetSOEnable(((EMC_TRAJ_SET_SO_ENABLE *) cmd)->mode); //spindle speed override enable/disable
+        break;
 
     case EMC_TRAJ_SET_VELOCITY_TYPE:
-	emcTrajSetVelocityMsg = (EMC_TRAJ_SET_VELOCITY *) cmd;
-	retval = emcTrajSetVelocity(emcTrajSetVelocityMsg->velocity,
-			emcTrajSetVelocityMsg->ini_maxvel);
-	break;
+        retval = emcTrajSetVelocity(((EMC_TRAJ_SET_VELOCITY *) cmd)->velocity,
+                                    ((EMC_TRAJ_SET_VELOCITY *) cmd)->ini_maxvel);
+        break;
 
     case EMC_TRAJ_SET_ACCELERATION_TYPE:
-	emcTrajSetAccelerationMsg = (EMC_TRAJ_SET_ACCELERATION *) cmd;
-	retval = emcTrajSetAcceleration(emcTrajSetAccelerationMsg->acceleration);
-	break;
+        retval = emcTrajSetAcceleration(((EMC_TRAJ_SET_ACCELERATION *) cmd)->acceleration);
+        break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
-	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
-        retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
-                emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc);
-	break;
+        retval = emcTrajLinearMove(((EMC_TRAJ_LINEAR_MOVE *) cmd)->end,
+                                   ((EMC_TRAJ_LINEAR_MOVE *) cmd)->type, 
+                                   ((EMC_TRAJ_LINEAR_MOVE *) cmd)->vel,
+                                   ((EMC_TRAJ_LINEAR_MOVE *) cmd)->ini_maxvel,
+                                   ((EMC_TRAJ_LINEAR_MOVE *) cmd)->acc);
+        break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
-	emcTrajCircularMoveMsg = (EMC_TRAJ_CIRCULAR_MOVE *) cmd;
-        retval = emcTrajCircularMove(emcTrajCircularMoveMsg->end,
-                emcTrajCircularMoveMsg->center, emcTrajCircularMoveMsg->normal,
-                emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
-                emcTrajCircularMoveMsg->vel,
-                emcTrajCircularMoveMsg->ini_maxvel,
-                emcTrajCircularMoveMsg->acc);
-	break;
+        retval = emcTrajCircularMove(((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->end,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->center,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->normal,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->turn,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->type,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->vel,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->ini_maxvel,
+                                     ((EMC_TRAJ_CIRCULAR_MOVE *) cmd)->acc);
+        break;
 
     case EMC_TRAJ_PAUSE_TYPE:
-	emcStatus->task.task_paused = 1;
-	retval = emcTrajPause();
-	break;
+        emcStatus->task.task_paused = 1;
+        retval = emcTrajPause();
+        break;
 
     case EMC_TRAJ_RESUME_TYPE:
-	emcStatus->task.task_paused = 0;
-	retval = emcTrajResume();
-	break;
+        emcStatus->task.task_paused = 0;
+        retval = emcTrajResume();
+        break;
 
     case EMC_TRAJ_ABORT_TYPE:
-	retval = emcTrajAbort();
-	break;
+        retval = emcTrajAbort();
+        break;
 
     case EMC_TRAJ_DELAY_TYPE:
-	emcTrajDelayMsg = (EMC_TRAJ_DELAY *) cmd;
-	// set the timeout clock to expire at 'now' + delay time
-	taskExecDelayTimeout = etime() + emcTrajDelayMsg->delay;
-	retval = 0;
-	break;
+        // set the timeout clock to expire at 'now' + delay time
+        taskExecDelayTimeout = etime() + ((EMC_TRAJ_DELAY *) cmd)->delay;
+        retval = 0;
+        break;
 
     case EMC_TRAJ_SET_TERM_COND_TYPE:
-	emcTrajSetTermCondMsg = (EMC_TRAJ_SET_TERM_COND *) cmd;
-	retval = emcTrajSetTermCond(emcTrajSetTermCondMsg->cond, emcTrajSetTermCondMsg->tolerance);
-	break;
+        retval = emcTrajSetTermCond(((EMC_TRAJ_SET_TERM_COND *) cmd)->cond,
+                                    ((EMC_TRAJ_SET_TERM_COND *) cmd)->tolerance);
+        break;
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
-        emcTrajSetSpindlesyncMsg = (EMC_TRAJ_SET_SPINDLESYNC *) cmd;
-        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode);
+        retval = emcTrajSetSpindleSync(((EMC_TRAJ_SET_SPINDLESYNC *) cmd)->feed_per_revolution,
+                                       ((EMC_TRAJ_SET_SPINDLESYNC *) cmd)->velocity_mode);
         break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
-	// update tool offset
-	emcStatus->task.toolOffset.tran.z = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
-	emcStatus->task.toolOffset.tran.x = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
+        // update tool offset
+        emcStatus->task.toolOffset.tran.z = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
+        emcStatus->task.toolOffset.tran.x = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
         emcStatus->task.toolOffset.w = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.w;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset.tran.z, emcStatus->task.toolOffset.tran.x, emcStatus->task.toolOffset.w);
-	break;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset.tran.z, 
+                                  emcStatus->task.toolOffset.tran.x,
+                                  emcStatus->task.toolOffset.w);
+        break;
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
         emcStatus->task.rotation_xy = ((EMC_TRAJ_SET_ROTATION *) cmd)->rotation;
@@ -1642,44 +1572,43 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         break;
 
     case EMC_TRAJ_SET_ORIGIN_TYPE:
-	// struct-copy program origin
-	emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
-	retval = 0;
-	break;
+        // struct-copy program origin
+        emcStatus->task.origin = ((EMC_TRAJ_SET_ORIGIN *) cmd)->origin;
+        retval = 0;
+        break;
+
     case EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE:
-	retval = emcTrajClearProbeTrippedFlag();
-	break;
+        retval = emcTrajClearProbeTrippedFlag();
+        break;
 
     case EMC_TRAJ_PROBE_TYPE:
-	retval = emcTrajProbe(
-	    ((EMC_TRAJ_PROBE *) cmd)->pos, 
-	    ((EMC_TRAJ_PROBE *) cmd)->type,
-	    ((EMC_TRAJ_PROBE *) cmd)->vel,
-            ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
-	    ((EMC_TRAJ_PROBE *) cmd)->acc,
-            ((EMC_TRAJ_PROBE *) cmd)->probe_type);
-	break;
+        retval = emcTrajProbe(((EMC_TRAJ_PROBE *) cmd)->pos, 
+                              ((EMC_TRAJ_PROBE *) cmd)->type,
+                              ((EMC_TRAJ_PROBE *) cmd)->vel,
+                              ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
+                              ((EMC_TRAJ_PROBE *) cmd)->acc,
+                              ((EMC_TRAJ_PROBE *) cmd)->probe_type);
+        break;
 
     case EMC_AUX_INPUT_WAIT_TYPE:
-	emcAuxInputWaitMsg = (EMC_AUX_INPUT_WAIT *) cmd;
-	if (emcAuxInputWaitMsg->timeout == WAIT_MODE_IMMEDIATE) { //nothing to do, CANON will get the needed value when asked by the interp
-	    emcStatus->task.input_timeout = 0; // no timeout can occur
-	    emcAuxInputWaitIndex = -1;
-	} else {
-	    emcAuxInputWaitType = emcAuxInputWaitMsg->wait_type; // remember what we are waiting for 
-	    emcAuxInputWaitIndex = emcAuxInputWaitMsg->index; // remember the input to look at
-	    emcStatus->task.input_timeout = 2; // set timeout flag, gets cleared if input changes before timeout happens
-	    // set the timeout clock to expire at 'now' + delay time
-	    taskExecDelayTimeout = etime() + emcAuxInputWaitMsg->timeout;
-	}
-	break;
+        if (((EMC_AUX_INPUT_WAIT *) cmd)->timeout == WAIT_MODE_IMMEDIATE) { //nothing to do, CANON will get the needed value when asked by the interp
+            emcStatus->task.input_timeout = 0; // no timeout can occur
+            emcAuxInputWaitIndex = -1;
+        } else {
+            emcAuxInputWaitType = ((EMC_AUX_INPUT_WAIT *) cmd)->wait_type; // remember what we are waiting for 
+            emcAuxInputWaitIndex = ((EMC_AUX_INPUT_WAIT *) cmd)->index; // remember the input to look at
+            emcStatus->task.input_timeout = 2; // set timeout flag, gets cleared if input changes before timeout happens
+            // set the timeout clock to expire at 'now' + delay time
+            taskExecDelayTimeout = etime() + ((EMC_AUX_INPUT_WAIT *) cmd)->timeout;
+        }
+        break;
 
     case EMC_TRAJ_RIGID_TAP_TYPE:
-	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
-	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
-        	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
-		((EMC_TRAJ_RIGID_TAP *) cmd)->acc);
-	break;
+        retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
+                                 ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
+                                 ((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
+                                 ((EMC_TRAJ_RIGID_TAP *) cmd)->acc);
+        break;
 
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	if (((EMC_TRAJ_SET_TELEOP_ENABLE *) cmd)->enable) {
@@ -1690,10 +1619,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_SET_TELEOP_VECTOR_TYPE:
-	retval =
-	    emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->
-				   vector);
-	break;
+        retval = emcTrajSetTeleopVector(((EMC_TRAJ_SET_TELEOP_VECTOR *) cmd)->vector);
+        break;
 
     case EMC_MOTION_SET_AOUT_TYPE:
 	retval = emcMotionSetAout(((EMC_MOTION_SET_AOUT *) cmd)->index,
@@ -1728,14 +1655,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// IO commands
 
     case EMC_SPINDLE_SPEED_TYPE:
-	spindle_speed_msg = (EMC_SPINDLE_SPEED *) cmd;
-	retval = emcSpindleSpeed(spindle_speed_msg->speed, spindle_speed_msg->factor, spindle_speed_msg->xoffset);
-	break;
+        retval = emcSpindleSpeed(((EMC_SPINDLE_SPEED *) cmd)->speed,
+                                 ((EMC_SPINDLE_SPEED *) cmd)->factor,
+                                 ((EMC_SPINDLE_SPEED *) cmd)->xoffset);
+        break;
 
     case EMC_SPINDLE_ON_TYPE:
-	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
-	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
-	break;
+        retval = emcSpindleOn(((EMC_SPINDLE_ON *) cmd)->speed,
+                              ((EMC_SPINDLE_ON *) cmd)->factor,
+                              ((EMC_SPINDLE_ON *) cmd)->xoffset);
+        break;
 
     case EMC_SPINDLE_OFF_TYPE:
 	retval = emcSpindleOff();
@@ -1786,8 +1715,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TOOL_PREPARE_TYPE:
-	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
-	retval = emcToolPrepare(tool_prepare_msg->tool);
+        retval = emcToolPrepare(((EMC_TOOL_PREPARE *) cmd)->tool);
 	break;
 
     case EMC_TOOL_LOAD_TYPE:
@@ -1799,24 +1727,21 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	load_tool_table_msg = (EMC_TOOL_LOAD_TOOL_TABLE *) cmd;
-	retval = emcToolLoadToolTable(load_tool_table_msg->file);
+        retval = emcToolLoadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) cmd)->file);
 	break;
 
     case EMC_TOOL_SET_OFFSET_TYPE:
-	emc_tool_set_offset_msg = (EMC_TOOL_SET_OFFSET *) cmd;
-	retval = emcToolSetOffset(emc_tool_set_offset_msg->id,
-                                  emc_tool_set_offset_msg->zoffset,
-                                  emc_tool_set_offset_msg->xoffset,
-                                  emc_tool_set_offset_msg->diameter,
-                                  emc_tool_set_offset_msg->frontangle,
-                                  emc_tool_set_offset_msg->backangle,
-                                  emc_tool_set_offset_msg->orientation);
-	break;
+        retval = emcToolSetOffset(((EMC_TOOL_SET_OFFSET *) cmd)->id,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->zoffset,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->xoffset,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->diameter,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->frontangle,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->backangle,
+                                  ((EMC_TOOL_SET_OFFSET *) cmd)->orientation);
+        break;
 
     case EMC_TOOL_SET_NUMBER_TYPE:
-	emc_tool_set_number_msg = (EMC_TOOL_SET_NUMBER *) cmd;
-	retval = emcToolSetNumber(emc_tool_set_number_msg->tool);
+        retval = emcToolSetNumber(((EMC_TOOL_SET_NUMBER *) cmd)->tool);
 	break;
 
 	// task commands
@@ -1836,13 +1761,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// mode and state commands
 
     case EMC_TASK_SET_MODE_TYPE:
-	mode_msg = (EMC_TASK_SET_MODE *) cmd;
 	if (emcStatus->task.mode == EMC_TASK_MODE_AUTO &&
 	    emcStatus->task.interpState != EMC_TASK_INTERP_IDLE &&
-	    mode_msg->mode != EMC_TASK_MODE_AUTO) {
+	    ((EMC_TASK_SET_MODE *) cmd)->mode != EMC_TASK_MODE_AUTO) {
 	    emcOperatorError(0, _("Can't switch mode while mode is AUTO and interpreter is not IDLE"));
 	} else { // we can honour the modeswitch
-	    if (mode_msg->mode == EMC_TASK_MODE_MANUAL &&
+	    if (((EMC_TASK_SET_MODE *) cmd)->mode == EMC_TASK_MODE_MANUAL &&
 		emcStatus->task.mode != EMC_TASK_MODE_MANUAL) {
 		// leaving auto or mdi mode for manual
 
@@ -1879,27 +1803,25 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		retval = 0;
 	    }
-	    retval = emcTaskSetMode(mode_msg->mode);
+	    retval = emcTaskSetMode(((EMC_TASK_SET_MODE *) cmd)->mode);
 	}
 	break;
 
     case EMC_TASK_SET_STATE_TYPE:
-	state_msg = (EMC_TASK_SET_STATE *) cmd;
-	retval = emcTaskSetState(state_msg->state);
+	retval = emcTaskSetState(((EMC_TASK_SET_STATE *) cmd)->state);
 	break;
 
 	// interpreter commands
 
     case EMC_TASK_PLAN_OPEN_TYPE:
-	open_msg = (EMC_TASK_PLAN_OPEN *) cmd;
-	retval = emcTaskPlanOpen(open_msg->file);
+	retval = emcTaskPlanOpen(((EMC_TASK_PLAN_OPEN *) cmd)->file);
 	if (retval > INTERP_MIN_ERROR) {
 	    retval = -1;
 	}
 	if (-1 == retval) {
-	    emcOperatorError(0, _("can't open %s"), open_msg->file);
+	    emcOperatorError(0, _("can't open %s"), ((EMC_TASK_PLAN_OPEN *) cmd)->file);
 	} else {
-	    strcpy(emcStatus->task.file, open_msg->file);
+	    strcpy(emcStatus->task.file, ((EMC_TASK_PLAN_OPEN *) cmd)->file);
 	    retval = 0;
 	}
 	break;
@@ -1907,7 +1829,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_PLAN_EXECUTE_TYPE:
 	stepping = 0;
 	steppingWait = 0;
-	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
         if (!all_homed() && !no_force_homing) { //!no_force_homing = force homing before MDI
             emcOperatorError(0, _("Can't issue MDI command when not homed"));
             retval = -1;
@@ -1918,11 +1839,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
-	if (execute_msg->command[0] != 0) {
+	if (((EMC_TASK_PLAN_EXECUTE *) cmd)->command[0] != 0) {
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
 		interp_list.set_line_number(--pseudoMdiLineNumber);
 	    }
-	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
+	    execRetval = emcTaskPlanExecute(((EMC_TASK_PLAN_EXECUTE *) cmd)->command, pseudoMdiLineNumber);
 	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {
 		// this is an end-of-file
 		// need to flush execution, so signify no more reading
@@ -1952,8 +1873,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (!taskplanopen && emcStatus->task.file[0] != 0) {
 	    emcTaskPlanOpen(emcStatus->task.file);
 	}
-	run_msg = (EMC_TASK_PLAN_RUN *) cmd;
-	programStartLine = run_msg->line;
+	programStartLine = ((EMC_TASK_PLAN_RUN *) cmd)->line;
 	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
 	emcStatus->task.task_paused = 0;
 	retval = 0;
@@ -2010,14 +1930,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
-	os_msg = (EMC_TASK_PLAN_SET_OPTIONAL_STOP *) cmd;
-	emcTaskPlanSetOptionalStop(os_msg->state);
+	emcTaskPlanSetOptionalStop(((EMC_TASK_PLAN_SET_OPTIONAL_STOP *) cmd)->state);
 	retval = 0;
 	break;
 
     case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
-	bd_msg = (EMC_TASK_PLAN_SET_BLOCK_DELETE *) cmd;
-	emcTaskPlanSetBlockDelete(bd_msg->state);
+	emcTaskPlanSetBlockDelete(((EMC_TASK_PLAN_SET_BLOCK_DELETE *) cmd)->state);
 	retval = 0;
 	break;
 
