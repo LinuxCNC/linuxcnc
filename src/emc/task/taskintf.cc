@@ -512,6 +512,19 @@ double emcAxisGetMaxAcceleration(int axis)
     return AxisConfig[axis].MaxAccel;
 }
 
+int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
+{
+    int axis_num;
+    
+    // check for valid range
+    if (numAxes <= 0 || numAxes > EMCMOT_MAX_AXIS) {
+	return -1;
+    }
+
+    for (axis_num = 0; axis_num < numAxes; axis_num++) {
+    }
+    return 0;
+}
 
 /* This function checks to see if any joint or the traj has
    been inited already.  At startup, if none have been inited,
@@ -1733,8 +1746,7 @@ int emcSpindleConstant()
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
-    int r1;
-    int r2;
+    int r1, r2, r3;
     int joint;
     int error;
     int exec;
@@ -1773,7 +1785,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     localMotionEchoSerialNumber = emcmotStatus.commandNumEcho;
 
     r1 = emcJointUpdate(&stat->joint[0], stat->traj.joints);
-    r2 = emcTrajUpdate(&stat->traj);
+    r2 = emcAxisUpdate(&stat->axis[0], stat->traj.axes);
+    r3 = emcTrajUpdate(&stat->traj);
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
@@ -1824,5 +1837,5 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     } else {
 	stat->status = RCS_DONE;
     }
-    return (r1 == 0 && r2 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
 }
