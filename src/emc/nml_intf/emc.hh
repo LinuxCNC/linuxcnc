@@ -389,6 +389,8 @@ extern int emcAxisSetHome(int axis, double home);
 extern double emcAxisGetMaxVelocity(int axis);
 extern double emcAxisGetMaxAcceleration(int axis);
 
+extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
+
 // implementation functions for EMC_JOINT types
 
 extern int emcJointSetJoint(int joint, unsigned char jointType);

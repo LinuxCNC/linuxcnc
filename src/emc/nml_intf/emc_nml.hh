@@ -145,6 +145,25 @@ class EMC_AXIS_CMD_MSG:public RCS_CMD_MSG {
     int axis;
 };
 
+// AIXS status base class
+class EMC_AXIS_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_AXIS_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    int axis;
+};
+
+class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
+  public:
+    EMC_AXIS_STAT();
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
 
 // declarations for EMC_JOINT classes
 
@@ -201,7 +220,6 @@ class EMC_JOINT_SET_UNITS:public EMC_JOINT_CMD_MSG {
     // units per mm, deg for linear, angular
     double units;
 };
-
 
 /**
  * Set the Axis backlash.
@@ -1148,6 +1166,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     // aggregate of motion-related status classes
     EMC_TRAJ_STAT traj;
     EMC_JOINT_STAT joint[EMCMOT_MAX_JOINTS];
+    EMC_AXIS_STAT axis[EMCMOT_MAX_AXIS];
     EMC_SPINDLE_STAT spindle;
 
     int synch_di[EMCMOT_MAX_DIO];  // motion inputs queried by interp
