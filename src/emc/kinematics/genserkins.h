@@ -1,4 +1,29 @@
-/*
+/********************************************************************
+* Description: genserkins.h
+*   Kinematics for a generalised serial kinematics machine
+*
+*   Derived from a work by Fred Proctor,
+*   changed to work with emc2 and HAL
+*
+* Adapting Author: Alex Joni
+* License: GPL Version 2
+* System: Linux
+*    
+*******************************************************************
+
+  These are the forward and inverse kinematic functions for a general
+  serial-link manipulator. Thanks to Herman Bruyninckx and John
+  Hallam at http://www.roble.info/ for this.
+
+  The functions are general enough to be configured for any serial
+  configuration.  
+  The kinematics use Denavit-Hartenberg definition for the joint and
+  links. The DH definitions are the ones used by John J Craig in
+  "Introduction to Robotics: Mechanics and Control"
+  The parameters for the manipulator are defined by hal pins.
+  Currently the type of the joints is hardcoded to ANGULAR, although 
+  the kins support both ANGULAR and LINEAR axes.
+  
   DISCLAIMER:
   This software was produced by the National Institute of Standards
   and Technology (NIST), an agency of the U.S. government, and by statute is
@@ -16,7 +41,6 @@
 #ifndef GENSERKINS_H
 #define GENSERKINS_H
 
-//#include "gotypes.h"		/* go_result, go_integer */
 #include "gomath.h"		/* go_pose */
 
 /*! 
@@ -27,25 +51,25 @@
 
 #define PI_2 GO_PI_2
 
-/* default DH parameters, these should be ok for a puma 560 */
+/* default DH parameters, these should be ok for a puma - at least according to Craig */
 #define DEFAULT_A1 0
-#define DEFAULT_ALPHA1 -PI_2
+#define DEFAULT_ALPHA1 0
 #define DEFAULT_D1 0
 
-#define DEFAULT_A2 0.300
-#define DEFAULT_ALPHA2 0
-#define DEFAULT_D2 0.07
+#define DEFAULT_A2 0
+#define DEFAULT_ALPHA2 -PI_2
+#define DEFAULT_D2 0
 
-#define DEFAULT_A3 0.050
-#define DEFAULT_ALPHA3 -PI_2
-#define DEFAULT_D3 0.400
+#define DEFAULT_A3 300
+#define DEFAULT_ALPHA3 0
+#define DEFAULT_D3 70
 
-#define DEFAULT_A4 0
+#define DEFAULT_A4 50
 #define DEFAULT_ALPHA4 -PI_2
-#define DEFAULT_D4 0
+#define DEFAULT_D4 400
 
 #define DEFAULT_A5 0
-#define DEFAULT_ALPHA5 0
+#define DEFAULT_ALPHA5 PI_2
 #define DEFAULT_D5 0
 
 #define DEFAULT_A6 0
@@ -74,8 +98,6 @@ extern int genser_kin_fwd(void * kins,
 extern int genser_kin_inv(void * kins,
 				const go_pose * world,
 				go_real *joint);
-
-//extern go_kin_type genser_kin_get_type(void * kins); 
 
 extern int genser_kin_set_parameters(void * kins, go_link * params, int num); 
 
