@@ -119,33 +119,29 @@ RTAPI_BEGIN_DECLS
     extern int rtapi_exit(int module_id);
 
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
-    C library, except that it doesn't handle floats or longlongs.
+    C library, except that it may not handle long longs.
     It is provided here because some RTOS kernels don't provide
-    a realtime safe version of the function.  On systems with a
+    a realtime safe version of the function, and those that do don't provide
+    support for printing doubles.  On systems with a
     good kernel snprintf(), or in user space, this function
-    simply calls the normal snprintf().  snprintf() is a very
-    usefull function when the normal string.h library functions
-    aren't available.  It can emulate strncpy(), strncat(), and
-    even strlen(), as well as doing it's normal formatting tricks.
-    May be called from user, init/cleanup, and realtime code.
+    simply calls the normal snprintf().  May be called from user,
+    init/cleanup, and realtime code.
 */
     extern int rtapi_snprintf(char *buf, unsigned long int size,
 	const char *fmt, ...)
 	    __attribute__((format(printf,3,4)));
 
 /** 'rtapi_vsnprintf()' works like 'vsnprintf()' from the normal
-    C library, except that it doesn't handle floats or longlongs.
+    C library, except that it doesn't handle long longs.
     It is provided here because some RTOS kernels don't provide
-    a realtime safe version of the function.  On systems with a
-    good kernel snprintf(), or in user space, this function
-    simply calls the normal snprintf().  snprintf() is a very
-    usefull function when the normal string.h library functions
-    aren't available.  It can emulate strncpy(), strncat(), and
-    even strlen(), as well as doing it's normal formatting tricks.
-    May be called from user, init/cleanup, and realtime code.
+    a realtime safe version of the function, and those that do don't provide
+    support for printing doubles.  On systems with a
+    good kernel vsnprintf(), or in user space, this function
+    simply calls the normal vsnrintf().  May be called from user,
+    init/cleanup, and realtime code.
 */
 #include <stdarg.h>
-    extern int rtapi_vsnprintf(char *buf, unsigned long int size,
+    extern int rtapi_vsnprintf(char *buf, unsigned long size,
 	const char *fmt, va_list ap);
 
 /** 'rtapi_print()' prints a printf style message.  Depending on the
