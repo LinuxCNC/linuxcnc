@@ -1,26 +1,19 @@
-/*
-  DISCLAIMER:
-  This software was produced by the National Institute of Standards
-  and Technology (NIST), an agency of the U.S. government, and by statute is
-  not subject to copyright in the United States.  Recipients of this software
-  assume all responsibility associated with its operation, modification,
-  maintenance, and subsequent redistribution.
-
-  See NIST Administration Manual 4.09.07 b and Appendix I. 
-*/
-
-/*!
-  \file gomath.c
-
-  \brief Definitions for pose math functions
-
-  \code CVS Status:
-  $Author: proctor $
-  $Revision: 1.43 $
-  $Date: 2009/05/19 18:00:34 $
-  \endcode
-
-  \author Fred Proctor
+/********************************************************************
+* Description: gomath.c
+*   Library file with various functions for working with matrices
+*
+*   Derived from a work by Fred Proctor,
+*   changed to work with emc2 and HAL
+*
+* Adapting Author: Alex Joni
+* License: GPL Version 2
+* System: Linux
+*    
+*******************************************************************
+    Similar to posemath, but using different functions.
+    
+    TODO: 
+	* find the new functions, add them to posemath, convert the rest
 */
 
 /* for debugging */
