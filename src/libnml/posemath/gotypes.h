@@ -1,3 +1,22 @@
+/********************************************************************
+* Description: gotypes.h
+*   Library file with various functions for working with matrices
+*
+*   Derived from a work by Fred Proctor,
+*   changed to work with emc2 and HAL
+*
+* Adapting Author: Alex Joni
+* License: LGPL Version 2
+* System: Linux
+*    
+*******************************************************************
+    Similar to posemath, but using different functions.
+    
+    TODO: 
+	* find the new functions, add them to posemath, convert the rest
+*/
+
+
 #ifndef GO_TYPES_H
 #define GO_TYPES_H
 

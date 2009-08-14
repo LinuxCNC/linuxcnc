@@ -6,7 +6,7 @@
 *   changed to work with emc2 and HAL
 *
 * Adapting Author: Alex Joni
-* License: GPL Version 2
+* License: LGPL Version 2
 * System: Linux
 *    
 *******************************************************************
