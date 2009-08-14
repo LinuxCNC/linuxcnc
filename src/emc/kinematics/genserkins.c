@@ -90,53 +90,6 @@ int genser_kin_init(void) {
     return GO_RESULT_OK;
 }
 
-/*
-int genser_kin_num_joints(void * kins)
-{
-  genser_struct * genser = (genser_struct *) kins;
-
-  return genser->link_num;
-}
-*/
-
-/*
-int genser_kin_set_parameters(void * kins, go_link * params, int num)
-{
-  genser_struct * genser = (genser_struct *) kins;
-  int t;
-
-  if (num > GENSER_MAX_JOINTS) return GO_RESULT_BAD_ARGS;
-
-  for (t = 0; t < num; t++) {
-    // we only handle serial-type link params 
-    if (params[t].type != GO_LINK_DH &&
-	params[t].type != GO_LINK_PP) return GO_RESULT_BAD_ARGS;
-    genser->links[t] = params[t];
-  }
-  genser->link_num = num;
-
-  return GO_RESULT_OK;
-}
-*/
-
-/*
-int genser_kin_get_parameters(void * kins, go_link * params, int num)
-{
-  genser_struct * genser = (genser_struct *) kins;
-  int t;
-
-  // check if they have enough space to hold the params 
-  if (num < genser->link_num) return GO_RESULT_BAD_ARGS;
-
-  for (t = 0; t < genser->link_num; t++) {
-    params[t] = genser->links[t];
-  }
-
-  return GO_RESULT_OK;
-}
-*/
-
-
 /* compute the forward jacobian function: 
    the jacobian is a linear aproximation of the kinematics function.
    It is calculated using derivation of the position transformation matrix, 
