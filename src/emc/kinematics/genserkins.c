@@ -55,6 +55,8 @@ struct haldata {
 				// only once in rtapi_app_main
 } *haldata = 0;
 
+double j[6];
+
 #define A(i) (*(haldata->a[i]))
 #define ALPHA(i) (*(haldata->alpha[i]))
 #define D(i) (*(haldata->d[i]))
@@ -83,8 +85,9 @@ int genser_kin_init(void) {
     }
 
     /* set a select few to make it PUMA-like */
+    // FIXME-AJ: make a hal pin, also set number of joints based on it
     genser->link_num = 6;
-    genser->iterations = 0;
+//    genser->iterations = 0;
     genser->max_iterations = GENSER_DEFAULT_MAX_ITERATIONS;
 
     return GO_RESULT_OK;
@@ -311,36 +314,56 @@ int kinematicsForward(const double *joint,
 		      KINEMATICS_INVERSE_FLAGS * iflags) {
 
     go_pose *pos;
-    go_zyx zyx;
+    go_rpy rpy;
+    go_real jcopy[GENSER_MAX_JOINTS]; // will hold the radian conversion of joints
     int ret = 0;
-    // AJ: convert from emc2 coords (zyxABC - which are actually ZYX euler
+    int i, changed=0;
+    
+    for (i=0; i< 6; i++)  {
+	// FIXME - debug hack
+	if (!GO_ROT_CLOSE(j[i],joint[i])) changed = 1;
+	// convert to radians to pass to genser_kin_fwd
+	jcopy[i] = joint[i] * PM_PI / 180;
+    }
+    
+    if (changed) {
+	for (i=0; i< 6; i++)
+	    j[i] = joint[i];
+//	rtapi_print("kinematicsForward(joints: %f %f %f %f %f %f)\n", joint[0],joint[1],joint[2],joint[3],joint[4],joint[5]);
+    }
+    // AJ: convert from emc2 coords (XYZABC - which are actually rpy euler
     // angles)
     // to go angles (quaternions)
     pos = haldata->pos;
-    zyx.z = world->c * PM_PI / 180;
-    zyx.y = world->b * PM_PI / 180;
-    zyx.x = world->a * PM_PI / 180;
+    rpy.y = world->c * PM_PI / 180;
+    rpy.p = world->b * PM_PI / 180;
+    rpy.r = world->a * PM_PI / 180;
 
-    go_zyx_quat_convert(&zyx, &pos->rot);
+    go_rpy_quat_convert(&rpy, &pos->rot);
     pos->tran.x = world->tran.x;
     pos->tran.y = world->tran.y;
     pos->tran.z = world->tran.z;
 
-    ret = genser_kin_fwd(KINS_PTR, joint, pos);
+    // pos will be the world location
+    // jcopy: joitn position in radians
+    ret = genser_kin_fwd(KINS_PTR, jcopy, pos);
     if (ret < 0)
 	return ret;
 
     // AJ: convert back to emc2 coords
-    ret = go_quat_zyx_convert(&pos->rot, &zyx);
+    ret = go_quat_rpy_convert(&pos->rot, &rpy);
     if (ret < 0)
 	return ret;
     world->tran.x = pos->tran.x;
     world->tran.y = pos->tran.y;
     world->tran.z = pos->tran.z;
-    world->a = zyx.x * 180 / PM_PI;
-    world->b = zyx.y * 180 / PM_PI;
-    world->c = zyx.z * 180 / PM_PI;
+    world->a = rpy.r * 180 / PM_PI;
+    world->b = rpy.p * 180 / PM_PI;
+    world->c = rpy.y * 180 / PM_PI;
 
+    if (changed) {
+//	rtapi_print("kinematicsForward(world: %f %f %f %f %f %f)\n", world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
+    }
     return 0;
 }
 
@@ -355,9 +378,7 @@ int genser_kin_fwd(void *kins, const go_real * joints, go_pose * pos)
     genser_kin_init();
 
     for (link = 0; link < genser->link_num; link++) {
-	retval =
-	    go_link_joint_set(&genser->links[link],
-	    joints[link] * PM_PI / 180, &linkout[link]);
+	retval = go_link_joint_set(&genser->links[link], joints[link], &linkout[link]);
 	if (GO_RESULT_OK != retval)
 	    return retval;
     }
@@ -391,8 +412,11 @@ int kinematicsInverse(const EmcPose * world,
     int smalls;
     int retval;
 
-    genser_kin_init();
+//    rtapi_print("kineInverse(joints: %f %f %f %f %f %f)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
+//    rtapi_print("kineInverse(world: %f %f %f %f %f %f)\n", world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
 
+//    genser_kin_init();
+    
     // FIXME-AJ: rpy or zyx ?
     rpy.y = world->c * PM_PI / 180;
     rpy.p = world->b * PM_PI / 180;
@@ -408,24 +432,29 @@ int kinematicsInverse(const EmcPose * world,
 
     /* jest[] is a copy of joints[], which is the joint estimate */
     for (link = 0; link < genser->link_num; link++) {
-	jest[link] = joints[link];
+	// jest, and the rest of joint related calcs are in radians
+	jest[link] = joints[link] * (PM_PI / 180);
     }
 
     for (genser->iterations = 0; genser->iterations < genser->max_iterations; genser->iterations++) {
 	/* update the Jacobians */
 	for (link = 0; link < genser->link_num; link++) {
-	    go_link_joint_set(&genser->links[link], jest[link],
-		&linkout[link]);
+	    go_link_joint_set(&genser->links[link], jest[link], &linkout[link]);
 	}
 	retval = compute_jfwd(linkout, genser->link_num, &Jfwd, &T_L_0);
-	if (GO_RESULT_OK != retval)
+	if (GO_RESULT_OK != retval) {
+	    rtapi_print("ERR kI - compute_jfwd (joints: %f %f %f %f %f %f), (iterations=%d)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
 	    return retval;
+	}
 	retval = compute_jinv(&Jfwd, &Jinv);
-	if (GO_RESULT_OK != retval)
+	if (GO_RESULT_OK != retval) {
+	    rtapi_print("ERR kI - compute_jinv (joints: %f %f %f %f %f %f), (iterations=%d)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
 	    return retval;
+	}
 
 	/* pest is the resulting pose estimate given joint estimate */
 	genser_kin_fwd(KINS_PTR, jest, &pest);
+//	printf("jest: %f %f %f %f %f %f\n",jest[0],jest[1],jest[2],jest[3],jest[4],jest[5]);
 	/* pestinv is its inverse */
 	go_pose_inv(&pest, &pestinv);
 	/*
@@ -480,16 +509,19 @@ int kinematicsInverse(const EmcPose * world,
 	if (smalls == genser->link_num) {
 	    /* converged, copy jest[] out */
 	    for (link = 0; link < genser->link_num; link++) {
-		joints[link] = jest[link];
+		// convert from radians back to angles
+		joints[link] = jest[link] * 180 / PM_PI;
 	    }
+//	    rtapi_print("DONEkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
 	    return GO_RESULT_OK;
 	}
 	/* else keep iterating */
 	for (link = 0; link < genser->link_num; link++) {
-	    jest[link] += dj[link];
+	    jest[link] += dj[link]; //still in radians
 	}
     }				/* for (iterations) */
 
+    rtapi_print("ERRkineInverse(joints: %f %f %f %f %f %f), (iterations=%d)\n", joints[0],joints[1],joints[2],joints[3],joints[4],joints[5], genser->iterations);
     return GO_RESULT_ERROR;
 }
 
