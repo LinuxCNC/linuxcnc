@@ -492,7 +492,7 @@ int rtapi_app_main(void) {
     }
 
 
-    snprintf(me->llio.name, HAL_NAME_LEN, "hm2_test.0");
+    rtapi_snprintf(me->llio.name, HAL_NAME_LEN, "hm2_test.0");
 
     me->llio.fpga_part_number = "none";
 
