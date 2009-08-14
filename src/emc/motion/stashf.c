@@ -114,7 +114,12 @@ int stashf(struct dbuf_iter *o, const char *fmt, ...) {
     return result;
 }
 
+#ifdef RTAPI
+extern int rtapi_snprintf(char *, unsigned long, const char *, ...);
+#define PRINT(...) rtapi_snprintf(buf, n, ## __VA_ARGS__)
+#else
 #define PRINT(...) snprintf(buf, n, ## __VA_ARGS__)
+#endif
 #define EXTRA buf += result; n -= result; if(n<0) n = 0;
 int snprintdbuf(char *buf, int n, struct dbuf_iter *o) {
 #include "stashf_wrap.h"
