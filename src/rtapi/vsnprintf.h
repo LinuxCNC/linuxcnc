@@ -61,6 +61,12 @@ static int skip_atoi(const char **s)
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
+static char *ch(char *buf, char *end, char ch)
+{
+    if(buf <= end) *buf = ch;
+    return buf+1;
+}
+
 static char *number(char *buf, char *end, long long numll, int base,
 		    int size, int precision, int type)
 {
