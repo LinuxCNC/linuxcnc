@@ -87,14 +87,7 @@
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,0)
-/* Kernel is 2.4 or higher, use it's vsnprintf() implementation */
-#define vsn_printf vsnprintf
-#else
-/* 2.2 and older kernels don't have vsnprintf() so we bring in
-   our own implementation (vsn_printf) of it here.*/
 #include "vsnprintf.h"
-#endif
 
 #include <rtai.h>
 #include <rtai_sched.h>
@@ -439,19 +432,13 @@ static int module_delete(int module_id)
     return 0;
 }
 
-int rtapi_vsnprintf(char *buf, unsigned long int size, const char *fmt, va_list ap) {
-    return vsn_printf(buf, size, fmt, ap);
-}
-
 int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
 {
     va_list args;
     int i;
 
     va_start(args, fmt);
-    /* call our own vsn_printf(), which is #defined to vsnprintf() if the
-       kernel supplies one. */
-    i = vsn_printf(buf, size, fmt, args);
+    i = rtapi_vsnprintf(buf, size, fmt, args);
     va_end(args);
     return i;
 }
