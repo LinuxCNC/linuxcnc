@@ -1842,7 +1842,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (((EMC_TASK_PLAN_EXECUTE *) cmd)->command[0] != 0) {
             interp_list.set_line_number(--pseudoMdiLineNumber);
 	    execRetval = emcTaskPlanExecute(((EMC_TASK_PLAN_EXECUTE *) cmd)->command, pseudoMdiLineNumber);
-	    if (execRetval == INTERP_ENDFILE) {
+	    if (execRetval == INTERP_EXECUTE_FINISH) {
 		// this is an end-of-file
 		// need to flush execution, so signify no more reading
 		// until all is done
