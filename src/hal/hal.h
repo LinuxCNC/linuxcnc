@@ -123,10 +123,8 @@
 
 */
 
-#ifdef __cplusplus 
-extern "C" {
-#endif
-
+#include <rtapi.h>
+RTAPI_BEGIN_DECLS
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error HAL needs RTAPI/ULAPI, check makefile and flags
@@ -712,7 +710,6 @@ typedef int(*constructor)(char *prefix, char *arg);
 */
 extern int hal_set_constructor(int comp_id, constructor make);
 
-#ifdef __cplusplus
-}
-#endif
+RTAPI_END_DECLS
+
 #endif /* HAL_H */

@@ -1,0 +1,21 @@
+Basic Machine Page
+
+Machine Basics:
+    Pick the name of the configuration- use no spaces.
+    Pick the available axis.
+    Pick metric or standard units for pncconf data entry.
+
+Computer Response Time:
+    Test latency of the computer. 
+
+I/O Ports / Boards:
+    Pick available I/O.
+    mesa board is currently required as the parallel port
+        can't currently be used for stepper / servo control. 
+    parallel boards must have the address specified and can
+        be specified as 'OUT' or 'IN' which changes the available
+        8 data pins between output or input.
+
+Limit And Homing Switches:
+    This narrows the available signal choices in the mesa and 
+        parport pages.

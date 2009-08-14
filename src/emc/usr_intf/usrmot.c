@@ -305,31 +305,13 @@ int main(int argc, char *argv[])
 		    ("cw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CW circle on queue\n");
 		printf
 		    ("ccw <x> <y> <z> <cx> <cy> <cz> <turn>\tput CCW circle on queue\n");
-/*! \todo FIXME old set command
-		printf
-		    ("set t <traj t> | s <servo t> | v <vel> | a <acc>\tset params\n");
-*/
 		printf("set v <vel> | a <acc>\tset params\n");
-/*! \todo FIXME
-		printf
-		    ("oscale <axis 0..n-1> <a> <b>\traw[n] = a(out[n]-b)\n");
-		printf("iscale <axis 0..n-1> <a> <b>\tin[n] = a(raw[n]-b)\n");
-		printf
-		    ("pol <axis 0..n-1> <enable nhl phl homedir homesw fault> <0 1>\n");
-		printf
-		    ("pid <axis 0..n-1> <ini file>\tset PID gains for motor n\n");
-*/
 		printf("limit <axis> <min> <max>\tset position limits\n");
-		printf("clamp <axis> <min> <max>\tset output limits\n");
 		printf("ferror <axis> <value>\tset max following error\n");
 		printf("live <axis 0..n-1>\tenable amp n\n");
 		printf("kill <axis 0..n-1>\tkill amp n\n");
 		printf("activate <axis 0..n-1>\tactivate axis n\n");
 		printf("deactivate <axis 0..n-1>\tdeactivate axis n\n");
-/*! \todo FIXME
-		printf
-		    ("dac <axis 0..n-1> <-10.0 .. 10.0>\toutput value to DAC\n");
-*/
 		printf("home <axis 0..n-1>\thome axis\n");
 		printf("nolim             \toverride hardware limits\n");
 		printf("wd on | off\tenable or disable watchdog toggle\n");

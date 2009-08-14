@@ -1929,7 +1929,7 @@ int hal_add_funct_to_thread(const char *funct_name, const char *thread_name, int
     if ((funct->users > 0) && (funct->reentrant == 0)) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: function '%s' is not reentrant\n", funct_name);
+	    "HAL: ERROR: function '%s' may only be added to one thread\n", funct_name);
 	return -EINVAL;
     }
     /* search thread list for thread_name */
