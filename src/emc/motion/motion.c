@@ -148,7 +148,6 @@ void emcmot_config_change(void)
     }
 }
 
-extern int vsnprintf(char *, size_t size, const char *format, va_list ap);
 void reportError(const char *fmt, ...)
 {
     va_list args;
