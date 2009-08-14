@@ -24,14 +24,11 @@
   Currently the type of the joints is hardcoded to ANGULAR, although 
   the kins support both ANGULAR and LINEAR axes.
   
-  DISCLAIMER:
-  This software was produced by the National Institute of Standards
-  and Technology (NIST), an agency of the U.S. government, and by statute is
-  not subject to copyright in the United States.  Recipients of this software
-  assume all responsibility associated with its operation, modification,
-  maintenance, and subsequent redistribution.
-
-  See NIST Administration Manual 4.09.07 b and Appendix I. 
+  TODO:
+    * make number of joints a loadtime parameter
+    * add HAL pins for all settable parameters, including joint type: ANGULAR / LINEAR
+    * add HAL pins for debug data (num_iterations)
+    * add HAL pins for ULAPI compiled version
 */
 
 #include <math.h>
