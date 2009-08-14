@@ -990,7 +990,7 @@ class AsciiOBJ:
             # OpenGL isn't ready yet in __init__ so the display list
             # is created during the first draw
             self.list = glGenLists(1)
-            glNewList(self.list, GL_COMPILE_AND_EXECUTE)
+            glNewList(self.list, GL_COMPILE)
             glDisable(GL_CULL_FACE)
             glBegin(GL_TRIANGLES)
             print "obj", len(self.f)
@@ -1004,8 +1004,7 @@ class AsciiOBJ:
             del self.v
             del self.vn
             del self.f
-        else:
-            glCallList(self.list)
+        glCallList(self.list)
 
 
 def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
