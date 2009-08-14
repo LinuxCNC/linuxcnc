@@ -422,7 +422,7 @@ int rtapi_app_main(void) {
     }
 
 
-    snprintf(me->llio.name, HAL_NAME_LEN, "hm2_test.0");
+    rtapi_snprintf(me->llio.name, HAL_NAME_LEN, "hm2_test.0");
 
     me->llio.num_ioport_connectors = 1;
     me->llio.ioport_connector_name[0] = "P99";
