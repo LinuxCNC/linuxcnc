@@ -41,8 +41,6 @@
 #define T_BOOL T_UBYTE
 #endif
 
-#define NUM_AXES (9)
-
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
 #define LOCAL_SPINDLE_OFF (0)
@@ -480,9 +478,8 @@ static PyObject *Stat_dout(pyStatChannel *s) {
 }
 
 static PyObject *Stat_limit(pyStatChannel *s) {
-    int sz = NUM_AXES;
-    PyObject *res = PyTuple_New(sz);
-    for(int i = 0; i < sz; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         int v = 0;
         if(s->status.motion.joint[i].minHardLimit) v |= 1;
         if(s->status.motion.joint[i].maxHardLimit) v |= 2;
@@ -494,9 +491,8 @@ static PyObject *Stat_limit(pyStatChannel *s) {
 }
 
 static PyObject *Stat_homed(pyStatChannel *s) {
-    int sz = NUM_AXES;
-    PyObject *res = PyTuple_New(sz);
-    for(int i = 0; i < sz; i++) {
+    PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
+    for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SET_ITEM(res, i, PyInt_FromLong(s->status.motion.joint[i].homed));
     }
     return res;
