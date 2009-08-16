@@ -25,7 +25,6 @@ extern int printf(const char * fmt, ...);
 
 #include "sincos.h"
 
-#include <math.h>		/* atan2(), sin(), cos(), etc. */
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -2492,7 +2491,7 @@ go_result go_line_plane_proj(const go_line * line, const go_plane * plane, go_li
 {
   go_result retval;
 
-  retval = go_cart_plane_proj(&line->direction, plane, &proj->direction);
+  retval = go_cart_plane_proj(&line->direction, &plane->normal, &proj->direction);
   if (GO_RESULT_OK != retval) return retval;
 
   return go_point_plane_proj(&line->point, plane, &proj->point);

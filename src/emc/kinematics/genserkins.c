@@ -31,7 +31,7 @@
     * add HAL pins for ULAPI compiled version
 */
 
-#include <math.h>
+#include "rtapi_math.h"
 #include "gotypes.h"		/* go_result, go_integer */
 #include "gomath.h"		/* go_pose */
 #include "genserkins.h"		/* these decls */
