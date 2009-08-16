@@ -1084,20 +1084,13 @@ class MyOpengl(Opengl):
 
 
     def posstrs(self):
-        homed = []
-        limit = []
-        for i,l in enumerate(s.limit):
-            if s.axis_mask & (1<<i):
-                limit.append(l)
-
-        if lathe and not s.axis_mask & 2:
-            homed.insert(1, 0)
-            limit.insert(1, 0)
-
         if not joints_mode():
-            for i,h in enumerate(s.homed):
-                if s.axis_mask & (1<<i):
-                    homed.append(h)
+            if s.kinematics_type == emc.KINEMATICS_IDENTITY:
+                homed = s.homed[:]
+                limit = s.limit[:]
+            else:
+                homed = [0]*9
+                limit = [0]*9
 
             if vars.display_type.get():
                 positions = s.position
@@ -1150,8 +1143,8 @@ class MyOpengl(Opengl):
                     dtg *= 25.4
                 posstrs.append(format % ("DTG", dtg))
         else:
-            for i in range(s.joints):
-                homed.append(s.joint[i]["homed"])
+            homed = s.homed[:]
+            limit = s.limit[:]
 
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
