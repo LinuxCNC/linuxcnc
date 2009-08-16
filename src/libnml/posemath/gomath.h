@@ -241,67 +241,67 @@ typedef struct {
 
 /*! Fills in \a line given \a point and \a direction. Returns GO_RESULT_OK
   if \a direction is non-zero, otherwise GO_RESULT_ERROR. */
-extern go_result go_line_from_point_direction(const go_cart * point, const go_cart * direction, go_line * line);
+extern int go_line_from_point_direction(const go_cart * point, const go_cart * direction, go_line * line);
 
 /*! Fills in \a line given two points. Returns GO_RESULT_OK if the points
   are different, otherwise GO_RESULT_ERROR. */
-extern go_result go_line_from_points(const go_cart * point1, const go_cart * point2, go_line * line);
+extern int go_line_from_points(const go_cart * point1, const go_cart * point2, go_line * line);
 
 /*! Fill in \a line with the intersection of the two planes. Returns GO_RESULT_OK if the planes are not parallel, otherwise GO_RESULT_ERROR. */
-extern go_result go_line_from_planes(const go_plane * plane1, const go_plane * plane2, go_line * line);
+extern int go_line_from_planes(const go_plane * plane1, const go_plane * plane2, go_line * line);
 
 /*! Returns non-zero if the lines are the same, otherwise zero. */
 extern go_flag go_line_line_compare(const go_line * line1, const go_line * line2);
 
 /*! Fills in \a point with the point located distance \a d along \a line */
-extern go_result go_line_evaluate(const go_line * line, go_real d, go_cart * point);
+extern int go_line_evaluate(const go_line * line, go_real d, go_cart * point);
 
 /*! Fills in \a distance with the distance from \a point to \a line */
-extern go_result go_point_line_distance(const go_cart * point, const go_line * line, go_real * distance);
+extern int go_point_line_distance(const go_cart * point, const go_line * line, go_real * distance);
 
 /*! Fills in \a pout with the nearest point on \a line to \a point */
-extern go_result go_point_line_proj(const go_cart * point, const go_line * line, go_cart * pout);
+extern int go_point_line_proj(const go_cart * point, const go_line * line, go_cart * pout);
 
 /*! Fills in \a proj with the projection of \a point onto \a plane */
-extern go_result go_point_plane_proj(const go_cart * point, const go_plane * plane, go_cart * proj);
+extern int go_point_plane_proj(const go_cart * point, const go_plane * plane, go_cart * proj);
 
 /*! Fills in \a proj with the projection of \a line onto \a plane */
-extern go_result go_line_plane_proj(const go_line * line, const go_plane * plane, go_line * proj);
+extern int go_line_plane_proj(const go_line * line, const go_plane * plane, go_line * proj);
 
 /*! Fills in \a plane give a \a point on the plane and the normal \a direction. */
-extern go_result go_plane_from_point_normal(const go_cart * point, const go_cart * normal, go_plane * plane);
+extern int go_plane_from_point_normal(const go_cart * point, const go_cart * normal, go_plane * plane);
 
 /*! Fills in \a plane given the A, B, C and D values in the canonical
   form Ax + By + Cz + D = 0. Returns GO_RESULT_OK
   if not all of A, B and C are zero, otherwise GO_RESULT_ERROR. */
-extern go_result go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plane * plane);
+extern int go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plane * plane);
 
 /*! Fills in \a plane given three points. Returns GO_RESULT_OK
   if the points are distinct, otherwise GO_RESULT_ERROR. */
-extern go_result go_plane_from_points(const go_cart * point1, const go_cart * point2, const go_cart * point3, go_plane * plane);
+extern int go_plane_from_points(const go_cart * point1, const go_cart * point2, const go_cart * point3, go_plane * plane);
 
 /*! Fills in \a plane given a \a point on the plane and a \a line
   in the plane. Returns GO_RESULT_OK if the point is not on the line,
   GO_RESULT_ERROR otherwise. */
-extern go_result go_plane_from_point_line(const go_cart * point, const go_line * line, go_plane * plane);
+extern int go_plane_from_point_line(const go_cart * point, const go_line * line, go_plane * plane);
 
 /*! Returns non-zero if the planes are coincident and have the same
   normal direction, otherwise zero. */
 extern go_flag go_plane_plane_compare(const go_plane * plane1, const go_plane * plane2);
 
 /*! Fills in the \a distance from the \a point to the \a plane.  */
-extern go_result go_point_plane_distance(const go_cart * point, const go_plane * plane, go_real * distance);
+extern int go_point_plane_distance(const go_cart * point, const go_plane * plane, go_real * distance);
 
 /*! Fills in \a point with the point located distances \a u and \a v along
   some othogonal planar coordinate system in \a plane */
-extern go_result go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_cart * point);
+extern int go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_cart * point);
 
 /*! Fills in \a point with the intersection point of
  \a line with \a plane, and \a distance with the distance along the
  line to the intersection point. Returns GO_RESULT_ERROR if the line
  is parallel to the plane and not lying in the plane, otherwise
  GO_RESULT_OK. */
-extern go_result go_line_plane_intersect(const go_line * line, const go_plane * plane, go_cart * point, go_real * distance);
+extern int go_line_plane_intersect(const go_line * line, const go_plane * plane, go_cart * point, go_real * distance);
 
 /*
   struct arguments are passed to functions as const pointers since the
@@ -310,55 +310,55 @@ extern go_result go_line_plane_intersect(const go_line * line, const go_plane * 
 
 /* translation rep conversion functions */
 
-extern go_result go_cart_sph_convert(const go_cart *, go_sph *);
-extern go_result go_cart_cyl_convert(const go_cart *, go_cyl *);
-extern go_result go_sph_cart_convert(const go_sph *, go_cart *);
-extern go_result go_sph_cyl_convert(const go_sph *, go_cyl *);
-extern go_result go_cyl_cart_convert(const go_cyl *, go_cart *);
-extern go_result go_cyl_sph_convert(const go_cyl *, go_sph *);
+extern int go_cart_sph_convert(const go_cart *, go_sph *);
+extern int go_cart_cyl_convert(const go_cart *, go_cyl *);
+extern int go_sph_cart_convert(const go_sph *, go_cart *);
+extern int go_sph_cyl_convert(const go_sph *, go_cyl *);
+extern int go_cyl_cart_convert(const go_cyl *, go_cart *);
+extern int go_cyl_sph_convert(const go_cyl *, go_sph *);
 
 /* rotation rep conversion functions */
 
-extern go_result go_rvec_quat_convert(const go_rvec *, go_quat *);
-extern go_result go_rvec_mat_convert(const go_rvec *, go_mat *);
-extern go_result go_rvec_zyz_convert(const go_rvec *, go_zyz *);
-extern go_result go_rvec_zyx_convert(const go_rvec *, go_zyx *);
-extern go_result go_rvec_rpy_convert(const go_rvec *, go_rpy *);
+extern int go_rvec_quat_convert(const go_rvec *, go_quat *);
+extern int go_rvec_mat_convert(const go_rvec *, go_mat *);
+extern int go_rvec_zyz_convert(const go_rvec *, go_zyz *);
+extern int go_rvec_zyx_convert(const go_rvec *, go_zyx *);
+extern int go_rvec_rpy_convert(const go_rvec *, go_rpy *);
 
-extern go_result go_quat_rvec_convert(const go_quat *, go_rvec *);
-extern go_result go_quat_mat_convert(const go_quat *, go_mat *);
-extern go_result go_quat_zyz_convert(const go_quat *, go_zyz *);
-extern go_result go_quat_zyx_convert(const go_quat *, go_zyx *);
-extern go_result go_quat_rpy_convert(const go_quat *, go_rpy *);
+extern int go_quat_rvec_convert(const go_quat *, go_rvec *);
+extern int go_quat_mat_convert(const go_quat *, go_mat *);
+extern int go_quat_zyz_convert(const go_quat *, go_zyz *);
+extern int go_quat_zyx_convert(const go_quat *, go_zyx *);
+extern int go_quat_rpy_convert(const go_quat *, go_rpy *);
 
-extern go_result go_mat_rvec_convert(const go_mat *, go_rvec *);
-extern go_result go_mat_quat_convert(const go_mat *, go_quat *);
-extern go_result go_mat_zyz_convert(const go_mat *, go_zyz *);
-extern go_result go_mat_zyx_convert(const go_mat *, go_zyx *);
-extern go_result go_mat_rpy_convert(const go_mat *, go_rpy *);
+extern int go_mat_rvec_convert(const go_mat *, go_rvec *);
+extern int go_mat_quat_convert(const go_mat *, go_quat *);
+extern int go_mat_zyz_convert(const go_mat *, go_zyz *);
+extern int go_mat_zyx_convert(const go_mat *, go_zyx *);
+extern int go_mat_rpy_convert(const go_mat *, go_rpy *);
 
-extern go_result go_zyz_rvec_convert(const go_zyz *, go_rvec *);
-extern go_result go_zyz_quat_convert(const go_zyz *, go_quat *);
-extern go_result go_zyz_mat_convert(const go_zyz *, go_mat *);
-extern go_result go_zyz_zyx_convert(const go_zyz *, go_zyx *);
-extern go_result go_zyz_rpy_convert(const go_zyz *, go_rpy *);
+extern int go_zyz_rvec_convert(const go_zyz *, go_rvec *);
+extern int go_zyz_quat_convert(const go_zyz *, go_quat *);
+extern int go_zyz_mat_convert(const go_zyz *, go_mat *);
+extern int go_zyz_zyx_convert(const go_zyz *, go_zyx *);
+extern int go_zyz_rpy_convert(const go_zyz *, go_rpy *);
 
-extern go_result go_zyx_rvec_convert(const go_zyx *, go_rvec *);
-extern go_result go_zyx_quat_convert(const go_zyx *, go_quat *);
-extern go_result go_zyx_mat_convert(const go_zyx *, go_mat *);
-extern go_result go_zyx_zyz_convert(const go_zyx *, go_zyz *);
-extern go_result go_zyx_rpy_convert(const go_zyx *, go_rpy *);
+extern int go_zyx_rvec_convert(const go_zyx *, go_rvec *);
+extern int go_zyx_quat_convert(const go_zyx *, go_quat *);
+extern int go_zyx_mat_convert(const go_zyx *, go_mat *);
+extern int go_zyx_zyz_convert(const go_zyx *, go_zyz *);
+extern int go_zyx_rpy_convert(const go_zyx *, go_rpy *);
 
-extern go_result go_rpy_rvec_convert(const go_rpy *, go_rvec *);
-extern go_result go_rpy_quat_convert(const go_rpy *, go_quat *);
-extern go_result go_rpy_mat_convert(const go_rpy *, go_mat *);
-extern go_result go_rpy_zyz_convert(const go_rpy *, go_zyz *);
-extern go_result go_rpy_zyx_convert(const go_rpy *, go_zyx *);
+extern int go_rpy_rvec_convert(const go_rpy *, go_rvec *);
+extern int go_rpy_quat_convert(const go_rpy *, go_quat *);
+extern int go_rpy_mat_convert(const go_rpy *, go_mat *);
+extern int go_rpy_zyz_convert(const go_rpy *, go_zyz *);
+extern int go_rpy_zyx_convert(const go_rpy *, go_zyx *);
 
 /* combined rep conversion functions */
 
-extern go_result go_pose_hom_convert(const go_pose *, go_hom *);
-extern go_result go_hom_pose_convert(const go_hom *, go_pose *);
+extern int go_pose_hom_convert(const go_pose *, go_hom *);
+extern int go_hom_pose_convert(const go_hom *, go_pose *);
 
 /* misc conversion functions */
 /*!
@@ -366,42 +366,42 @@ extern go_result go_hom_pose_convert(const go_hom *, go_pose *);
   Cartesian vectors and rotation vectors. The conversion is trivial
   but keeps types distinct.
 */
-extern go_result go_cart_rvec_convert(const go_cart * cart, go_rvec * rvec);
-extern go_result go_rvec_cart_convert(const go_rvec * rvec, go_cart * cart);
+extern int go_cart_rvec_convert(const go_cart * cart, go_rvec * rvec);
+extern int go_rvec_cart_convert(const go_rvec * rvec, go_cart * cart);
 
 /* translation functions, that work only with the preferred
    go_cart type. Other types must be converted to go_cart
    to use these, e.g., there's no go_sph_cyl_compare() */
 
 extern go_flag go_cart_cart_compare(const go_cart *, const go_cart *);
-extern go_result go_cart_cart_dot(const go_cart *, const go_cart *,
+extern int go_cart_cart_dot(const go_cart *, const go_cart *,
 				  go_real *);
-extern go_result go_cart_cart_cross(const go_cart *, const go_cart *,
+extern int go_cart_cart_cross(const go_cart *, const go_cart *,
 				    go_cart *);
-extern go_result go_cart_mag(const go_cart *, go_real *);
-extern go_result go_cart_magsq(const go_cart *, go_real *);
+extern int go_cart_mag(const go_cart *, go_real *);
+extern int go_cart_magsq(const go_cart *, go_real *);
 extern go_flag go_cart_cart_par(const go_cart *, const go_cart *);
 extern go_flag go_cart_cart_perp(const go_cart *, const go_cart *);
 
 /*! Places the Cartesian displacement between two vectors \a v1 and
  \a v2 in \a disp, returning \a GO_RESULT_OK. */
-extern go_result go_cart_cart_disp(const go_cart * v1,
+extern int go_cart_cart_disp(const go_cart * v1,
 				   const go_cart * v2,
 				   go_real * disp);
 
-extern go_result go_cart_cart_add(const go_cart *, const go_cart *,
+extern int go_cart_cart_add(const go_cart *, const go_cart *,
 				  go_cart *);
-extern go_result go_cart_cart_sub(const go_cart *, const go_cart *,
+extern int go_cart_cart_sub(const go_cart *, const go_cart *,
 				  go_cart *);
-extern go_result go_cart_scale_mult(const go_cart *, go_real, go_cart *);
-extern go_result go_cart_neg(const go_cart *, go_cart *);
-extern go_result go_cart_unit(const go_cart *, go_cart *);
+extern int go_cart_scale_mult(const go_cart *, go_real, go_cart *);
+extern int go_cart_neg(const go_cart *, go_cart *);
+extern int go_cart_unit(const go_cart *, go_cart *);
 
 /*!
   Given two non-zero vectors \a v1 and \a v2, fill in \a quat with
   the minimum rotation that brings \a v1 to \a v2.
  */
-extern go_result go_cart_cart_rot(const go_cart * v1,
+extern int go_cart_cart_rot(const go_cart * v1,
 				  const go_cart * v2,
 				  go_quat * quat);
 
@@ -410,25 +410,25 @@ extern go_result go_cart_cart_rot(const go_cart * v1,
   into \a vout. Returns GO_RESULT_OK if it can be done, otherwise
   something else.
 */
-extern go_result go_cart_cart_proj(const go_cart * v1, const go_cart * v2,
+extern int go_cart_cart_proj(const go_cart * v1, const go_cart * v2,
 				   go_cart * vout);
-extern go_result go_cart_plane_proj(const go_cart *, const go_cart *,
+extern int go_cart_plane_proj(const go_cart *, const go_cart *,
 				    go_cart *);
-extern go_result go_cart_cart_angle(const go_cart *, const go_cart *,
+extern int go_cart_cart_angle(const go_cart *, const go_cart *,
 				    go_real *);
 /*!
   go_cart_normal finds one of the infinite vectors perpendicular
   to \a v, putting the result in \a vout.
  */
-extern go_result go_cart_normal(const go_cart * v, go_cart * vout);
-extern go_result go_cart_centroid(const go_cart * varray,
+extern int go_cart_normal(const go_cart * v, go_cart * vout);
+extern int go_cart_centroid(const go_cart * varray,
 				  go_integer num,
 				  go_cart * centroid);
-extern go_result go_cart_centroidize(const go_cart * vinarray,
+extern int go_cart_centroidize(const go_cart * vinarray,
 				     go_integer num,
 				     go_cart * centroid,
 				     go_cart * voutarray);
-extern go_result go_cart_cart_pose(const go_cart *, const go_cart *,
+extern int go_cart_cart_pose(const go_cart *, const go_cart *,
 				   go_cart *, go_cart *,
 				   go_integer, go_pose *);
 
@@ -440,7 +440,7 @@ extern go_result go_cart_cart_pose(const go_cart *, const go_cart *,
   p1 and \a p2, which may be the same point.
 */
 
-go_result go_cart_trilaterate(const go_cart * c1, 
+int go_cart_trilaterate(const go_cart * c1, 
 			      const go_cart * c2,
 			      const go_cart * c3,
 			      go_real l1,
@@ -452,26 +452,26 @@ go_result go_cart_trilaterate(const go_cart * c1,
 /* quat functions */
 
 extern go_flag go_quat_quat_compare(const go_quat *, const go_quat *);
-extern go_result go_quat_mag(const go_quat *, go_real *);
+extern int go_quat_mag(const go_quat *, go_real *);
 
 /*!
   go_quat_unit takes a quaternion rotation \a q and converts it into
   a unit rotation about the same axis, \a qout.
 */
-extern go_result go_quat_unit(const go_quat * q, go_quat * qout);
-extern go_result go_quat_norm(const go_quat *, go_quat *);
-extern go_result go_quat_inv(const go_quat *, go_quat *);
+extern int go_quat_unit(const go_quat * q, go_quat * qout);
+extern int go_quat_norm(const go_quat *, go_quat *);
+extern int go_quat_inv(const go_quat *, go_quat *);
 extern go_flag go_quat_is_norm(const go_quat *);
-extern go_result go_quat_scale_mult(const go_quat *, go_real, go_quat *);
-extern go_result go_quat_quat_mult(const go_quat *, const go_quat *,
+extern int go_quat_scale_mult(const go_quat *, go_real, go_quat *);
+extern int go_quat_quat_mult(const go_quat *, const go_quat *,
 				   go_quat *);
-extern go_result go_quat_cart_mult(const go_quat *, const go_cart *,
+extern int go_quat_cart_mult(const go_quat *, const go_cart *,
 				   go_cart *);
 
 /* rotation vector functions */
 
 extern go_flag go_rvec_rvec_compare(const go_rvec * r1, const go_rvec * r2);
-extern go_result go_rvec_scale_mult(const go_rvec *, go_real, go_rvec *);
+extern int go_rvec_scale_mult(const go_rvec *, go_real, go_rvec *);
 
 /* rotation matrix functions */
 
@@ -483,27 +483,27 @@ extern go_result go_rvec_scale_mult(const go_rvec *, go_real, go_rvec *);
   Normalizes rotation matrix \a m so that all columns are mutually
   perpendicular unit vectors, placing the result in \a mout.
 */
-extern go_result go_mat_norm(const go_mat * m, go_mat * mout);
+extern int go_mat_norm(const go_mat * m, go_mat * mout);
 
 extern go_flag go_mat_is_norm(const go_mat *);
-extern go_result go_mat_inv(const go_mat *, go_mat *);
-extern go_result go_mat_cart_mult(const go_mat *, const go_cart *, go_cart *);
-extern go_result go_mat_mat_mult(const go_mat *, const go_mat *, go_mat *);
+extern int go_mat_inv(const go_mat *, go_mat *);
+extern int go_mat_cart_mult(const go_mat *, const go_cart *, go_cart *);
+extern int go_mat_mat_mult(const go_mat *, const go_mat *, go_mat *);
 
 /* pose functions*/
 
 extern go_flag go_pose_pose_compare(const go_pose *, const go_pose *);
-extern go_result go_pose_inv(const go_pose *, go_pose *);
-extern go_result go_pose_cart_mult(const go_pose *, const go_cart *, go_cart *);
-extern go_result go_pose_pose_mult(const go_pose *, const go_pose *, go_pose *);
-extern go_result go_pose_scale_mult(const go_pose *, go_real, go_pose *);
+extern int go_pose_inv(const go_pose *, go_pose *);
+extern int go_pose_cart_mult(const go_pose *, const go_cart *, go_cart *);
+extern int go_pose_pose_mult(const go_pose *, const go_pose *, go_pose *);
+extern int go_pose_scale_mult(const go_pose *, go_real, go_pose *);
 
 /*! Given two times \a t1 and \a t2, and associated poses \a p1 and \a
   p2, interpolates (or extrapolates) to find pose \a p3 at time \a
   t3. The result is stored in \a p3. Returns GO_RESULT_OK if \a t1 and
   \a t2 are distinct and \a p1 and \a p2 are valid poses, otherwise it
   can't interpolate and returns a relevant error. */
-extern go_result
+extern int
 go_pose_pose_interp(go_real t1,
 		    const go_pose * p1,
 		    go_real t2, 
@@ -513,13 +513,13 @@ go_pose_pose_interp(go_real t1,
 
 /* homogeneous transform functions */
 
-extern go_result go_hom_inv(const go_hom *, go_hom *);
+extern int go_hom_inv(const go_hom *, go_hom *);
 
 /* screw functions */
 
 /*! Given \a pose transformation from frame A to B, and a screw \a screw
   in frame A, transform the screw into frame B and place in \a out. */
-extern go_result go_pose_screw_mult(const go_pose * pose, const go_screw * screw, go_screw * out);
+extern int go_pose_screw_mult(const go_pose * pose, const go_screw * screw, go_screw * out);
 
 /* declarations for general MxN matrices */
 
@@ -565,17 +565,17 @@ M.index = Mspace.index
 extern go_real
 go_get_singular_epsilon(void);
 
-extern go_result
+extern int
 go_set_singular_epsilon(go_real epsilon);
 
-extern go_result
+extern int
 ludcmp(go_real ** a,
        go_real * scratchrow,
        go_integer n,
        go_integer * indx,
        go_real * d);
 
-extern go_result
+extern int
 lubksb(go_real ** a,
        go_integer n,
        go_integer * indx,
@@ -583,36 +583,36 @@ lubksb(go_real ** a,
 
 /* MxN matrix, Mx1 vector functions */
 
-extern go_result
+extern int
 go_cart_vector_convert(const go_cart * c,
 		       go_vector * v);
-extern go_result
+extern int
 go_vector_cart_convert(const go_real * v,
 		       go_cart * c);
 
-extern go_result
+extern int
 go_quat_matrix_convert(const go_quat * quat,
 		      go_matrix * matrix);
 
-extern go_result
+extern int
 go_mat_matrix_convert(const go_mat * mat,
 		      go_matrix * matrix);
 
-extern go_result
+extern int
 go_matrix_matrix_add(const go_matrix * a,
 		     const go_matrix * b,
 		     go_matrix * apb);
 
-extern go_result
+extern int
 go_matrix_matrix_copy(const go_matrix * src,
 		      go_matrix * dst);
 
-extern go_result
+extern int
 go_matrix_matrix_mult(const go_matrix * a,
 		      const go_matrix * b,
 		      go_matrix * ab);
 
-extern go_result
+extern int
 go_matrix_vector_mult(const go_matrix * a,
 		      const go_vector * v,
 		      go_vector * av);
@@ -622,16 +622,16 @@ go_matrix_vector_mult(const go_matrix * a,
   whose columns are the column-wise cross products of the matrix
   and the vector. The matrices must be 3xN, the vector 3x1.
 */
-extern go_result
+extern int
 go_matrix_vector_cross(const go_matrix * a,
 		       const go_vector * v,
 		       go_matrix * axv);
 
-extern go_result
+extern int
 go_matrix_transpose(const go_matrix * a,
 		    go_matrix * at);
 
-extern go_result
+extern int
 go_matrix_inv(const go_matrix * a,
 	      go_matrix * ainv);
 
@@ -639,22 +639,22 @@ go_matrix_inv(const go_matrix * a,
    is an Nx1 vector */
 
 /* Optimized 3x3 functions */
-extern go_result go_mat3_inv(const go_real a[3][3],
+extern int go_mat3_inv(const go_real a[3][3],
 			     go_real ainv[3][3]);
-extern go_result go_mat3_mat3_mult(const go_real a[3][3],
+extern int go_mat3_mat3_mult(const go_real a[3][3],
 				   const go_real b[3][3],
 				   go_real axb[3][3]);
-extern go_result go_mat3_vec3_mult(const go_real a[3][3],
+extern int go_mat3_vec3_mult(const go_real a[3][3],
 				   const go_real v[3],
 				   go_real axv[3]);
 
 /* Optimized 4x4 functions */
-extern go_result go_mat4_inv(const go_real a[4][4],
+extern int go_mat4_inv(const go_real a[4][4],
 			     go_real ainv[4][4]);
-extern go_result go_mat4_mat4_mult(const go_real a[4][4],
+extern int go_mat4_mat4_mult(const go_real a[4][4],
 				   const go_real b[4][4],
 				   go_real axb[4][4]);
-extern go_result go_mat4_vec4_mult(const go_real a[4][4],
+extern int go_mat4_vec4_mult(const go_real a[4][4],
 				   const go_real v[4],
 				   go_real axv[4]);
 
@@ -663,7 +663,7 @@ extern go_result go_mat4_vec4_mult(const go_real a[4][4],
   \a ainv. Leaves \a a untouched. Returns GO_RESULT_OK if there is an
   inverse, else GO_RESULT_SINGULAR if the matrix is singular.
 */
-extern go_result go_mat6_inv(const go_real a[6][6],
+extern int go_mat6_inv(const go_real a[6][6],
 			     go_real ainv[6][6]);
 
 /*!
@@ -671,7 +671,7 @@ extern go_result go_mat6_inv(const go_real a[6][6],
   the result in \a axb. Leaves \a a and \a b untouched.
   Returns GO_RESULT_OK.
 */
-extern go_result go_mat6_mat6_mult(const go_real a[6][6],
+extern int go_mat6_mat6_mult(const go_real a[6][6],
 				   const go_real b[6][6],
 				   go_real axb[6][6]);
 
@@ -680,7 +680,7 @@ extern go_result go_mat6_mat6_mult(const go_real a[6][6],
   and returns the result in \a axv. Leaves \a a and \a v untouched.
   Returns GO_RESULT_OK.
 */
-extern go_result go_mat6_vec6_mult(const go_real a[6][6],
+extern int go_mat6_vec6_mult(const go_real a[6][6],
 				   const go_real v[6],
 				   go_real axv[6]);
 
@@ -760,7 +760,7 @@ typedef struct {
   Converts DH parameters in \a dh to their pose equivalent, stored
   in \a pose.
  */
-extern go_result go_dh_pose_convert(const go_dh * dh, go_pose * pose);
+extern int go_dh_pose_convert(const go_dh * dh, go_pose * pose);
 
 /*!
   Converts \a pose to the equivalent DH parameters, stored in \a dh.
@@ -772,13 +772,13 @@ extern go_result go_dh_pose_convert(const go_dh * dh, go_pose * pose);
   choice of X-Y-Z axis directions. With poses, there is no such
   convention, and poses are thus freer than DH parameters.
  */
-extern go_result go_pose_dh_convert(const go_pose * pose, go_dh * dh);
+extern int go_pose_dh_convert(const go_pose * pose, go_dh * dh);
 
 /*!
   Fixes the link in \a link to its value when the joint
   variable is \a joint, storing the result in \a linkout.
 */
-extern go_result go_link_joint_set(const go_link * link, go_real joint, go_link * linkout);
+extern int go_link_joint_set(const go_link * link, go_real joint, go_link * linkout);
 
 /*!
   Takes the link description of the device in \a links, and the number
@@ -787,7 +787,7 @@ extern go_result go_link_joint_set(const go_link * link, go_real joint, go_link 
   filled in with the current joint value, e.g., with a prior call to
   go_link_joint_set.
 */
-extern go_result go_link_pose_build(const go_link * links, go_integer num, go_pose * pose);
+extern int go_link_pose_build(const go_link * links, go_integer num, go_pose * pose);
 
 typedef struct {
   go_real re;
@@ -797,7 +797,7 @@ typedef struct {
 extern go_complex go_complex_add(go_complex z1, go_complex z2);
 extern go_complex go_complex_sub(go_complex z1, go_complex z2);
 extern go_complex go_complex_mult(go_complex z1, go_complex z2);
-extern go_complex go_complex_div(go_complex z1, go_complex z2, go_result * result);
+extern go_complex go_complex_div(go_complex z1, go_complex z2, int * result);
 extern go_complex go_complex_scale(go_complex z, go_real scale);
 extern go_real go_complex_mag(go_complex z);
 extern go_real go_complex_arg(go_complex z);
@@ -825,27 +825,27 @@ typedef struct {
   go_real d;
 } go_quartic;
 
-extern go_result go_quadratic_solve(const go_quadratic * quad,
+extern int go_quadratic_solve(const go_quadratic * quad,
 				    go_complex * z1,
 				    go_complex * z2);
 
-extern go_result go_cubic_solve(const go_cubic * cub,
+extern int go_cubic_solve(const go_cubic * cub,
 				go_complex * z1,
 				go_complex * z2,
 				go_complex * z3);
 
-extern go_result go_quartic_solve(const go_quartic * quart,
+extern int go_quartic_solve(const go_quartic * quart,
 				  go_complex * z1,
 				  go_complex * z2,
 				  go_complex * z3,
 				  go_complex * z4);
 
-extern go_result go_tridiag_reduce(go_real ** a,
+extern int go_tridiag_reduce(go_real ** a,
 				   go_integer n,
 				   go_real * d,
 				   go_real * e);
 
-extern go_result go_tridiag_ql(go_real * d,
+extern int go_tridiag_ql(go_real * d,
 			       go_real * e,
 			       go_integer n,
 			       go_real ** z);

@@ -21,107 +21,6 @@
 #define GO_TYPES_H
 
 #include <float.h>		/* DBL_MAX, FLOAT_MAX */
-#include <limits.h>		/* INT_MAX */
-
-/*
-  Primitive types: go_result, go_real, go_integer, go_flag
-
-  These are intended to make smaller or faster versions of the Go
-  library, or to reflect processor architectures. The defaults are
-  usually fine and nothing should need to be overridden.
-
-  If you do override these when compiling your code, you run the
-  risk that the Go library you link with will have been compiled
-  with other choices. To detect this at link time, references to
-  global variables such as 'go_integer_int' will be compiled into
-  your code by the 'go_init()' macro. If they are not present in the
-  Go library, the linker will complain and your application will fail
-  to build. For example, if you override the definition for go_integer
-  to be a long int, and link with a precompiled default version of the
-  Go library, you will see something like this:
-
-  gcc yourapp.c -DGO_INTEGER_LONG -lgo -lm -o yourapp
-  ...
-  In function `main':
-  .../yourapp.c:10: undefined reference to `go_integer_long'
-
-  The fix is to recompile the entire Go library with your override
-  settings, e.g.,
-
-  cd .../go
-  make clean
-  make CFLAGS+=-DGO_INTEGER_LONG all
-
-  You should probably save the resulting non-default Go library
-  as something else and recompile Go with the defaults, e.g.,
-
-  mv libgo.a libgofast.a
-  make clean
-  make all
-
-  You'll then compile your application like this:
-
-  gcc yourapp.c -DGO_INTEGER_LONG -lgofast -lm -o yourapp
-
-  Type descriptions:
-
-  go_result is the type for error codes returned from functions,
-  one of the types in GO_RESULT_OK, ... as defined in the enum below.
-  The default value is 'int'. Override at compile time with one of:
-  
-  GO_RESULT_CHAR
-  GO_RESULT_SHORT
-  GO_RESULT_INT
-
-  e.g., -DGO_RESULT_CHAR
-
-  go_real is the type for real-valued numbers. The default value
-  is 'double'. Override at compile time with one of:
-
-  GO_REAL_FLOAT
-  GO_REAL_DOUBLE
-  GO_REAL_LONG_DOUBLE
-
-  e.g., -DGO_REAL_FLOAT
-
-  go_integer is the type for signed integers. The default value
-  is 'int'. Override at compile time with one of:
-
-  GO_INTEGER_SHORT
-  GO_INTEGER_INT
-  GO_INTEGER_LONG
-  GO_INTEGER_LONG_LONG
-
-  e.g., -DGO_INTEGER_LONG_LONG
-
-  go_flag is the type for small non-negative flags. The default
-  value is 'unsigned char'. Override at compile time with one of:
-
-  GO_FLAG_UCHAR
-  GO_FLAG_USHORT
-  GO_FLAG_UINT
-
-  e.g., -DGO_FLAG_UINT
-*/
-
-/* go_result: char, short, default int */
-
-#if defined(GO_RESULT_CHAR)
-typedef char go_result;
-#define GO_RESULT go_result_char
-extern int go_result_char;
-
-#elif defined(GO_RESULT_SHORT)
-typedef short int go_result;
-#define GO_RESULT go_result_short
-extern int go_result_short;
-
-#else
-#define GO_RESULT_INT
-typedef int go_result;
-#define GO_RESULT go_result_int
-extern int go_result_int;
-#endif
 
 /*!
   GO_RESULT symbols run through a small range of values, on the
@@ -218,26 +117,34 @@ extern int go_real_double;
 typedef short int go_integer;
 #define GO_INTEGER go_integer_short
 extern int go_integer_short;
+#if defined(SHRT_MAX)
 #define GO_INTEGER_MAX SHRT_MAX
+#endif
 
 #elif defined(GO_INTEGER_LONG)
 typedef long int go_integer;
 #define GO_INTEGER go_integer_long
 extern int go_integer_long;
+#if defined(LONG_MAX)
 #define GO_INTEGER_MAX LONG_MAX
+#endif
 
 #elif defined(GO_INTEGER_LONG_LONG)
 typedef long long int go_integer;
 #define GO_INTEGER go_integer_long_long
 extern int go_integer_long_long;
+#if defined(LONG_MAX)
 #define GO_INTEGER_MAX LONG_MAX
+#endif
 
 #else
 #define GO_INTEGER_INT
 typedef int go_integer;
 #define GO_INTEGER go_integer_int
 extern int go_integer_int;
+#if defined(INT_MAX)
 #define GO_INTEGER_MAX INT_MAX
+#endif
 #endif
 
 /* go_flag: unsigned short, unsigned int, default unsigned char */

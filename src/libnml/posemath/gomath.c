@@ -42,7 +42,7 @@ go_real go_cbrt(go_real x)
 
 /* Translation rep conversion functions */
 
-go_result go_cart_sph_convert(const go_cart * v, go_sph * s)
+int go_cart_sph_convert(const go_cart * v, go_sph * s)
 {
   go_real r;
 
@@ -58,7 +58,7 @@ go_result go_cart_sph_convert(const go_cart * v, go_sph * s)
   return GO_RESULT_OK;
 }
 
-go_result go_cart_cyl_convert(const go_cart * v, go_cyl * c)
+int go_cart_cyl_convert(const go_cart * v, go_cyl * c)
 {
   c->theta = atan2(v->y, v->x);
   c->r = sqrt(go_sq(v->x) + go_sq(v->y));
@@ -67,7 +67,7 @@ go_result go_cart_cyl_convert(const go_cart * v, go_cyl * c)
   return GO_RESULT_OK;
 }
 
-go_result go_sph_cart_convert(const go_sph * s, go_cart * v)
+int go_sph_cart_convert(const go_sph * s, go_cart * v)
 {
   go_real sth, cth, sph, cph;
 
@@ -81,7 +81,7 @@ go_result go_sph_cart_convert(const go_sph * s, go_cart * v)
   return GO_RESULT_OK;
 }
 
-go_result go_sph_cyl_convert(const go_sph * s, go_cyl * c)
+int go_sph_cyl_convert(const go_sph * s, go_cyl * c)
 {
   go_real sph, cph;
 
@@ -94,7 +94,7 @@ go_result go_sph_cyl_convert(const go_sph * s, go_cyl * c)
   return GO_RESULT_OK;
 }
 
-go_result go_cyl_cart_convert(const go_cyl * c, go_cart * v)
+int go_cyl_cart_convert(const go_cyl * c, go_cart * v)
 {
   v->x = c->r * cos(c->theta);
   v->y = c->r * sin(c->theta);
@@ -103,7 +103,7 @@ go_result go_cyl_cart_convert(const go_cyl * c, go_cart * v)
   return GO_RESULT_OK;
 }
 
-go_result go_cyl_sph_convert(const go_cyl * c, go_sph * s)
+int go_cyl_sph_convert(const go_cyl * c, go_sph * s)
 {
   s->theta = c->theta;
   s->r = sqrt(go_sq(c->r) + go_sq(c->z));
@@ -118,7 +118,7 @@ go_result go_cyl_sph_convert(const go_cyl * c, go_sph * s)
 
 /* rotation rep conversion functions */
 
-go_result go_rvec_quat_convert(const go_rvec * r, go_quat * q)
+int go_rvec_quat_convert(const go_rvec * r, go_quat * q)
 {
   go_cart vec;
   go_cart uvec;
@@ -154,7 +154,7 @@ go_result go_rvec_quat_convert(const go_rvec * r, go_quat * q)
   return GO_RESULT_OK;
 }
 
-go_result go_rvec_mat_convert(const go_rvec * r, go_mat * m)
+int go_rvec_mat_convert(const go_rvec * r, go_mat * m)
 {
   go_cart vec;
   go_cart uvec;
@@ -193,10 +193,10 @@ go_result go_rvec_mat_convert(const go_rvec * r, go_mat * m)
   return GO_RESULT_OK;
 }
 
-go_result go_rvec_zyz_convert(const go_rvec * rvec, go_zyz * zyz)
+int go_rvec_zyz_convert(const go_rvec * rvec, go_zyz * zyz)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_rvec_mat_convert(rvec, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -204,10 +204,10 @@ go_result go_rvec_zyz_convert(const go_rvec * rvec, go_zyz * zyz)
   return go_mat_zyz_convert(&mat, zyz);
 }
 
-go_result go_rvec_zyx_convert(const go_rvec * rvec, go_zyx * zyx)
+int go_rvec_zyx_convert(const go_rvec * rvec, go_zyx * zyx)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_rvec_mat_convert(rvec, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -215,10 +215,10 @@ go_result go_rvec_zyx_convert(const go_rvec * rvec, go_zyx * zyx)
   return go_mat_zyx_convert(&mat, zyx);
 }
 
-go_result go_rvec_rpy_convert(const go_rvec * r, go_rpy * rpy)
+int go_rvec_rpy_convert(const go_rvec * r, go_rpy * rpy)
 {
   go_quat q;
-  go_result retval;
+  int retval;
 
   retval = go_rvec_quat_convert(r, &q);
   if (GO_RESULT_OK != retval) return retval;
@@ -226,7 +226,7 @@ go_result go_rvec_rpy_convert(const go_rvec * r, go_rpy * rpy)
   return go_quat_rpy_convert(&q, rpy);
 }
 
-go_result go_quat_rvec_convert(const go_quat * q, go_rvec * r)
+int go_quat_rvec_convert(const go_quat * q, go_rvec * r)
 {
   go_real sh;
   go_real mag;
@@ -247,7 +247,7 @@ go_result go_quat_rvec_convert(const go_quat * q, go_rvec * r)
   return GO_RESULT_OK;
 }
 
-go_result go_quat_mat_convert(const go_quat * q, go_mat * m)
+int go_quat_mat_convert(const go_quat * q, go_mat * m)
 {
   /* from space book where e1=q->x e2=q->y e3=q->z e4=q->s */
   m->x.x = 1 - 2 * (go_sq(q->y) + go_sq(q->z));
@@ -265,40 +265,40 @@ go_result go_quat_mat_convert(const go_quat * q, go_mat * m)
   return GO_RESULT_OK;
 }
 
-go_result go_quat_zyz_convert(const go_quat * q, go_zyz * zyz)
+int go_quat_zyz_convert(const go_quat * q, go_zyz * zyz)
 {
   go_mat m;
-  go_result retval;
+  int retval;
 
   retval = go_quat_mat_convert(q, &m);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_zyz_convert(&m, zyz);
 }
 
-go_result go_quat_zyx_convert(const go_quat * q, go_zyx * zyx)
+int go_quat_zyx_convert(const go_quat * q, go_zyx * zyx)
 {
   go_mat m;
-  go_result retval;
+  int retval;
 
   retval = go_quat_mat_convert(q, &m);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_zyx_convert(&m, zyx);
 }
 
-go_result go_quat_rpy_convert(const go_quat * q, go_rpy * rpy)
+int go_quat_rpy_convert(const go_quat * q, go_rpy * rpy)
 {
   go_mat m;
-  go_result retval;
+  int retval;
 
   retval = go_quat_mat_convert(q, &m);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_rpy_convert(&m, rpy);
 }
 
-go_result go_mat_rvec_convert(const go_mat * m, go_rvec * r)
+int go_mat_rvec_convert(const go_mat * m, go_rvec * r)
 {
   go_quat q;
-  go_result retval;
+  int retval;
 
   retval = go_mat_quat_convert(m, &q);
   if (GO_RESULT_OK != retval) return retval;
@@ -335,7 +335,7 @@ go_result go_mat_rvec_convert(const go_mat * m, go_rvec * r)
 
   Note: c21 in the space book is m.x.y in this C code
 */
-go_result go_mat_quat_convert(const go_mat * m, go_quat * q)
+int go_mat_quat_convert(const go_mat * m, go_quat * q)
 {
   go_real discr;
   go_real a;
@@ -392,7 +392,7 @@ go_result go_mat_quat_convert(const go_mat * m, go_quat * q)
   return go_quat_norm(q, q);
 }
 
-go_result go_mat_zyz_convert(const go_mat * m, go_zyz * zyz)
+int go_mat_zyz_convert(const go_mat * m, go_zyz * zyz)
 {
   zyz->y = atan2(sqrt(go_sq(m->x.z) + go_sq(m->y.z)), m->z.z);
 
@@ -412,7 +412,7 @@ go_result go_mat_zyz_convert(const go_mat * m, go_zyz * zyz)
   return GO_RESULT_OK;
 }
 
-go_result go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
+int go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
 {
   zyx->y = atan2(-m->x.z, sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
 
@@ -432,7 +432,7 @@ go_result go_mat_zyx_convert(const go_mat * m, go_zyx * zyx)
   return GO_RESULT_OK;
 }
 
-go_result go_mat_rpy_convert(const go_mat * m, go_rpy * rpy)
+int go_mat_rpy_convert(const go_mat * m, go_rpy * rpy)
 {
   rpy->p = atan2(-m->x.z, sqrt(go_sq(m->x.x) + go_sq(m->x.y)));
 
@@ -452,27 +452,27 @@ go_result go_mat_rpy_convert(const go_mat * m, go_rpy * rpy)
   return GO_RESULT_OK;
 }
 
-go_result go_zyz_rvec_convert(const go_zyz * zyz, go_rvec * r)
+int go_zyz_rvec_convert(const go_zyz * zyz, go_rvec * r)
 {
   go_mat m;
-  go_result retval;
+  int retval;
 
   retval = go_zyz_mat_convert(zyz, &m);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_rvec_convert(&m, r);
 }
 
-go_result go_zyz_quat_convert(const go_zyz * zyz, go_quat * q)
+int go_zyz_quat_convert(const go_zyz * zyz, go_quat * q)
 {
   go_mat m;
-  go_result retval;
+  int retval;
 
   retval = go_zyz_mat_convert(zyz, &m);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_quat_convert(&m, q);
 }
 
-go_result go_zyz_mat_convert(const go_zyz * zyz, go_mat * m)
+int go_zyz_mat_convert(const go_zyz * zyz, go_mat * m)
 {
   go_real sa, sb, sg;
   go_real ca, cb, cg;
@@ -500,20 +500,20 @@ go_result go_zyz_mat_convert(const go_zyz * zyz, go_mat * m)
   return GO_RESULT_OK;
 }
 
-go_result go_zyz_zyx_convert(const go_zyz * zyz, go_zyx * zyx)
+int go_zyz_zyx_convert(const go_zyz * zyz, go_zyx * zyx)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_zyz_mat_convert(zyz, &mat);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_zyx_convert(&mat, zyx);
 }
 
-go_result go_zyz_rpy_convert(const go_zyz * zyz, go_rpy * rpy)
+int go_zyz_rpy_convert(const go_zyz * zyz, go_rpy * rpy)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_zyz_mat_convert(zyz, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -521,10 +521,10 @@ go_result go_zyz_rpy_convert(const go_zyz * zyz, go_rpy * rpy)
   return go_mat_rpy_convert(&mat, rpy);
 }
 
-go_result go_zyx_rvec_convert(const go_zyx * zyx, go_rvec * r)
+int go_zyx_rvec_convert(const go_zyx * zyx, go_rvec * r)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_zyx_mat_convert(zyx, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -533,10 +533,10 @@ go_result go_zyx_rvec_convert(const go_zyx * zyx, go_rvec * r)
 }
 
 
-go_result go_zyx_quat_convert(const go_zyx * zyx, go_quat * q)
+int go_zyx_quat_convert(const go_zyx * zyx, go_quat * q)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_zyx_mat_convert(zyx, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -544,7 +544,7 @@ go_result go_zyx_quat_convert(const go_zyx * zyx, go_quat * q)
   return go_mat_quat_convert(&mat, q);
 }
 
-go_result go_zyx_mat_convert(const go_zyx * zyx, go_mat * m)
+int go_zyx_mat_convert(const go_zyx * zyx, go_mat * m)
 {
   go_real sa, sb, sg;
   go_real ca, cb, cg;
@@ -572,47 +572,47 @@ go_result go_zyx_mat_convert(const go_zyx * zyx, go_mat * m)
   return GO_RESULT_OK;
 }
 
-go_result go_zyx_zyz_convert(const go_zyx * zyx, go_zyz * zyz)
+int go_zyx_zyz_convert(const go_zyx * zyx, go_zyz * zyz)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
   
   retval = go_zyx_mat_convert(zyx, &mat);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_zyz_convert(&mat, zyz);
 }
 
-go_result go_zyx_rpy_convert(const go_zyx * zyx, go_rpy * rpy)
+int go_zyx_rpy_convert(const go_zyx * zyx, go_rpy * rpy)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
   
   retval = go_zyx_mat_convert(zyx, &mat);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_rpy_convert(&mat, rpy);
 }
 
-go_result go_rpy_rvec_convert(const go_rpy * rpy, go_rvec * rvec)
+int go_rpy_rvec_convert(const go_rpy * rpy, go_rvec * rvec)
 {
   go_quat quat;
-  go_result retval;
+  int retval;
 
   retval = go_rpy_quat_convert(rpy, &quat);
   if (GO_RESULT_OK != retval) return retval;
   return go_quat_rvec_convert(&quat, rvec);
 }
 
-go_result go_rpy_quat_convert(const go_rpy * rpy, go_quat * quat)
+int go_rpy_quat_convert(const go_rpy * rpy, go_quat * quat)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_rpy_mat_convert(rpy, &mat);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_quat_convert(&mat, quat);
 }
 
-go_result go_rpy_mat_convert(const go_rpy * rpy, go_mat * m)
+int go_rpy_mat_convert(const go_rpy * rpy, go_mat * m)
 {
   go_real sa, sb, sg;
   go_real ca, cb, cg;
@@ -640,20 +640,20 @@ go_result go_rpy_mat_convert(const go_rpy * rpy, go_mat * m)
   return GO_RESULT_OK;
 }
 
-go_result go_rpy_zyz_convert(const go_rpy * rpy, go_zyz * zyz)
+int go_rpy_zyz_convert(const go_rpy * rpy, go_zyz * zyz)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_rpy_mat_convert(rpy, &mat);
   if (GO_RESULT_OK != retval) return retval;
   return go_mat_zyz_convert(&mat, zyz);
 }
 
-go_result go_rpy_zyx_convert(const go_rpy * rpy, go_zyx * zyx)
+int go_rpy_zyx_convert(const go_rpy * rpy, go_zyx * zyx)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   retval = go_rpy_mat_convert(rpy, &mat);
   if (GO_RESULT_OK != retval) return retval;
@@ -699,21 +699,21 @@ go_pose go_pose_identity(void)
   return pose;
 }
 
-go_result go_pose_hom_convert(const go_pose * p, go_hom * h)
+int go_pose_hom_convert(const go_pose * p, go_hom * h)
 {
   h->tran = p->tran;
 
   return go_quat_mat_convert(&p->rot, &h->rot);
 }
 
-go_result go_hom_pose_convert(const go_hom * h, go_pose * p)
+int go_hom_pose_convert(const go_hom * h, go_pose * p)
 {
   p->tran = h->tran;
 
   return go_mat_quat_convert(&h->rot, &p->rot);
 }
 
-go_result go_cart_rvec_convert(const go_cart * cart, go_rvec * rvec)
+int go_cart_rvec_convert(const go_cart * cart, go_rvec * rvec)
 {
   rvec->x = cart->x;
   rvec->y = cart->y;
@@ -722,7 +722,7 @@ go_result go_cart_rvec_convert(const go_cart * cart, go_rvec * rvec)
   return GO_RESULT_OK;
 }
 
-go_result go_rvec_cart_convert(const go_rvec * rvec, go_cart * cart)
+int go_rvec_cart_convert(const go_rvec * rvec, go_cart * cart)
 {
   cart->x = rvec->x;
   cart->y = rvec->y;
@@ -744,7 +744,7 @@ go_flag go_cart_cart_compare(const go_cart * v1, const go_cart * v2)
   return 0;
 }
 
-go_result go_cart_cart_dot(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_dot(const go_cart * v1, const go_cart * v2,
 			   go_real * d)
 {
   *d = v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
@@ -752,7 +752,7 @@ go_result go_cart_cart_dot(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_cart_cross(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_cross(const go_cart * v1, const go_cart * v2,
 			     go_cart * vout)
 {
   go_cart cp1, cp2;
@@ -767,14 +767,14 @@ go_result go_cart_cart_cross(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_mag(const go_cart * v, go_real * d)
+int go_cart_mag(const go_cart * v, go_real * d)
 {
   *d = sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
 
   return GO_RESULT_OK;
 }
 
-go_result go_cart_magsq(const go_cart * v, go_real * d)
+int go_cart_magsq(const go_cart * v, go_real * d)
 {
   *d = go_sq(v->x) + go_sq(v->y) + go_sq(v->z);
 
@@ -809,7 +809,7 @@ go_flag go_cart_cart_perp(const go_cart *v1, const go_cart *v2)
   return GO_TRAN_SMALL(dot);
 }
 
-go_result go_cart_cart_disp(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_disp(const go_cart * v1, const go_cart * v2,
 			    go_real * d)
 {
   *d = sqrt(go_sq(v2->x - v1->x) + 
@@ -819,7 +819,7 @@ go_result go_cart_cart_disp(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_cart_add(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_add(const go_cart * v1, const go_cart * v2,
 			   go_cart * vout)
 {
   vout->x = v1->x + v2->x;
@@ -829,7 +829,7 @@ go_result go_cart_cart_add(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_cart_sub(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_sub(const go_cart * v1, const go_cart * v2,
 			   go_cart * vout)
 {
   vout->x = v1->x - v2->x;
@@ -839,7 +839,7 @@ go_result go_cart_cart_sub(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_scale_mult(const go_cart * v1, go_real d, go_cart * vout)
+int go_cart_scale_mult(const go_cart * v1, go_real d, go_cart * vout)
 {
   vout->x = v1->x * d;
   vout->y = v1->y * d;
@@ -848,7 +848,7 @@ go_result go_cart_scale_mult(const go_cart * v1, go_real d, go_cart * vout)
   return GO_RESULT_OK;
 }
 
-go_result go_cart_neg(const go_cart * v1, go_cart * vout)
+int go_cart_neg(const go_cart * v1, go_cart * vout)
 {
   vout->x = -v1->x;
   vout->y = -v1->y;
@@ -857,7 +857,7 @@ go_result go_cart_neg(const go_cart * v1, go_cart * vout)
   return GO_RESULT_OK;
 }
 
-go_result go_cart_unit(const go_cart * v, go_cart * vout)
+int go_cart_unit(const go_cart * v, go_cart * vout)
 {
   go_real size = sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z));
 
@@ -878,16 +878,16 @@ go_result go_cart_unit(const go_cart * v, go_cart * vout)
   return GO_RESULT_OK;
 }
 
-go_result go_cart_is_norm(const go_cart * v)
+int go_cart_is_norm(const go_cart * v)
 {
   return GO_TRAN_CLOSE(sqrt(go_sq(v->x) + go_sq(v->y) + go_sq(v->z)), 1);
 }
 
-go_result go_cart_cart_rot(const go_cart * v1,
+int go_cart_cart_rot(const go_cart * v1,
 			   const go_cart * v2,
 			   go_quat * quat)
 {
-  go_result retval;
+  int retval;
   go_cart u1;
   go_cart u2;
   go_cart cross;
@@ -940,12 +940,12 @@ go_result go_cart_cart_rot(const go_cart * v1,
   return go_rvec_quat_convert(&rvec, quat);
 }
 
-go_result go_cart_cart_proj(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_proj(const go_cart * v1, const go_cart * v2,
 			    go_cart * vout)
 {
   go_cart v2u;
   go_real d;
-  go_result retval;
+  int retval;
 
   retval = go_cart_unit(v2, &v2u);
   if (GO_RESULT_OK != retval) return retval;
@@ -956,11 +956,11 @@ go_result go_cart_cart_proj(const go_cart * v1, const go_cart * v2,
   return go_cart_scale_mult(&v2u, d, vout);
 }
 
-go_result go_cart_plane_proj(const go_cart * v, const go_cart * normal,
+int go_cart_plane_proj(const go_cart * v, const go_cart * normal,
 			     go_cart * vout)
 {
   go_cart par;
-  go_result retval;
+  int retval;
 
   retval = go_cart_cart_proj(v, normal, &par);
   if (GO_RESULT_OK != retval) return retval;
@@ -968,7 +968,7 @@ go_result go_cart_plane_proj(const go_cart * v, const go_cart * normal,
   return go_cart_cart_sub(v, &par, vout);
 }
 
-go_result go_cart_cart_angle(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_angle(const go_cart * v1, const go_cart * v2,
 			     go_real * a)
 {
   go_real dot, m1, m2;
@@ -992,7 +992,7 @@ go_result go_cart_cart_angle(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_normal(const go_cart * v, go_cart * vout)
+int go_cart_normal(const go_cart * v, go_cart * vout)
 {
   go_cart cart;
   go_real min, ymin;
@@ -1016,7 +1016,7 @@ go_result go_cart_normal(const go_cart * v, go_cart * vout)
   return go_cart_unit(&cart, vout);
 }
 
-go_result go_cart_centroid(const go_cart * varray,
+int go_cart_centroid(const go_cart * varray,
 			   go_integer num,
 			   go_cart * centroid)
 {
@@ -1037,13 +1037,13 @@ go_result go_cart_centroid(const go_cart * varray,
   return go_cart_scale_mult(centroid, 1.0/((go_real) num), centroid);
 }
 
-go_result go_cart_centroidize(const go_cart * vinarray,
+int go_cart_centroidize(const go_cart * vinarray,
 			      go_integer num,
 			      go_cart * centroid,
 			      go_cart * voutarray)
 {
   go_integer i;
-  go_result retval;
+  int retval;
 
   retval = go_cart_centroid(vinarray, num, centroid);
   if (GO_RESULT_OK != retval) return retval;
@@ -1231,7 +1231,7 @@ go_complex go_complex_mult(go_complex z1, go_complex z2)
   return prod;
 }
 
-go_complex go_complex_div(go_complex z1, go_complex z2, go_result * result)
+go_complex go_complex_div(go_complex z1, go_complex z2, int * result)
 {
   go_complex z2c = {0, 0};
   go_real denom;
@@ -1312,7 +1312,7 @@ void go_complex_cbrt(go_complex z, go_complex * z1, go_complex * z2, go_complex 
   return;
 }
 
-go_result go_quadratic_solve(const go_quadratic * quad,
+int go_quadratic_solve(const go_quadratic * quad,
 			     go_complex * z1,
 			     go_complex * z2)
 {
@@ -1351,7 +1351,7 @@ go_result go_quadratic_solve(const go_quadratic * quad,
   "Cubic Equations in One Formula,"
   http://mathforum.org/library/drmath/view/52668.html
 */
-go_result go_cubic_solve(const go_cubic * cub,
+int go_cubic_solve(const go_cubic * cub,
 			 go_complex * z1,
 			 go_complex * z2,
 			 go_complex * z3)
@@ -1453,7 +1453,7 @@ go_result go_cubic_solve(const go_cubic * cub,
   roots y are found, the corresponding x's are gotten from x = y - a/4.
 */
 
-go_result go_quartic_solve(const go_quartic * quart,
+int go_quartic_solve(const go_quartic * quart,
 			   go_complex * z1,
 			   go_complex * z2,
 			   go_complex * z3,
@@ -1464,7 +1464,7 @@ go_result go_quartic_solve(const go_quartic * quart,
   go_real a2, a3, a4;
   go_real e, f, g;
   go_complex p, q, r, fc, a4c;
-  go_result retval;
+  int retval;
 
   /*
     There are several ways to solve quartic equations. They all start by
@@ -1605,7 +1605,7 @@ go_result go_quartic_solve(const go_quartic * quart,
   used by go_tridiag_ql to find the eigenvalues and eigenvectors of a
   real symmetric matrix.
  */
-go_result go_tridiag_reduce(go_real ** a, /*< the real symmetric matrix,
+int go_tridiag_reduce(go_real ** a, /*< the real symmetric matrix,
 					   overwritten with the diagonalizing
 					   matrix  */
 			    go_integer n, /*< how many rows and columns */
@@ -1695,7 +1695,7 @@ go_result go_tridiag_reduce(go_real ** a, /*< the real symmetric matrix,
   \a d will contain the eigenvalues of the original \a matrix, and
   the new \a matrix will contain the eigenvectors.
 */
-go_result go_tridiag_ql(go_real * d,
+int go_tridiag_ql(go_real * d,
 			go_real * e,
 			go_integer n,
 			go_real ** z)
@@ -1751,7 +1751,7 @@ go_result go_tridiag_ql(go_real * d,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_cart_pose(const go_cart * v1, const go_cart * v2,
+int go_cart_cart_pose(const go_cart * v1, const go_cart * v2,
 			    go_cart * v1c, go_cart * v2c,
 			    go_integer num, go_pose * p)
 {
@@ -1763,7 +1763,7 @@ go_result go_cart_cart_pose(const go_cart * v1, const go_cart * v2,
   GO_MATRIX_DECLARE(N, Nspace, 4, 4);
   go_real d[4], e[4];
   go_real eigenval;
-  go_result retval;
+  int retval;
 
   Sxx = Sxy = Sxz = 0.0;
   Syx = Syy = Syz = 0.0;
@@ -1830,7 +1830,7 @@ go_result go_cart_cart_pose(const go_cart * v1, const go_cart * v2,
   return GO_RESULT_OK;
 }
 
-static go_result trilaterate(go_real x2, go_real x3, go_real y3,
+static int trilaterate(go_real x2, go_real x3, go_real y3,
 			     go_real l1, go_real l2, go_real l3,
 			     go_cart * p)
 {
@@ -1855,7 +1855,7 @@ static go_result trilaterate(go_real x2, go_real x3, go_real y3,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_trilaterate(const go_cart * c1, 
+int go_cart_trilaterate(const go_cart * c1, 
 			      const go_cart * c2,
 			      const go_cart * c3,
 			      go_real l1,
@@ -1868,7 +1868,7 @@ go_result go_cart_trilaterate(const go_cart * c1,
   go_mat mat;
   go_cart diff, proj;
   go_cart p1, p2, p3, out1_in_P, out2_in_P;
-  go_result retval;
+  int retval;
 
   /* transform the points from their original base frame {B} into an
      easier frame {P}, with c1 at the {P}, origin, c2 along the {P} x
@@ -1920,7 +1920,7 @@ go_flag go_rvec_rvec_compare(const go_rvec * r1, const go_rvec * r2)
   return 0;
 }
 
-go_result go_rvec_scale_mult(const go_rvec * r, go_real s, go_rvec * rout)
+int go_rvec_scale_mult(const go_rvec * r, go_real s, go_rvec * rout)
 {
   rout->x = r->x * s;
   rout->y = r->y * s;
@@ -1931,10 +1931,10 @@ go_result go_rvec_scale_mult(const go_rvec * r, go_real s, go_rvec * rout)
 
 /* go_mat functions */
 
-go_result go_mat_norm(const go_mat * mat, go_mat * mout)
+int go_mat_norm(const go_mat * mat, go_mat * mout)
 {
   go_cart yprojx;
-  go_result retval;
+  int retval;
 
   /* unitize the X vector, which we must be able to do */
   retval = go_cart_unit(&mat->x, &mout->x);
@@ -1965,7 +1965,7 @@ go_flag go_mat_is_norm(const go_mat * m)
 #undef COL_IS_UNIT
 }
 
-go_result go_mat_inv(const go_mat * m, go_mat * mout)
+int go_mat_inv(const go_mat * m, go_mat * mout)
 {
   go_real cp;
 
@@ -1990,7 +1990,7 @@ go_result go_mat_inv(const go_mat * m, go_mat * mout)
   return GO_RESULT_OK;
 }
 
-go_result go_mat_cart_mult(const go_mat * m, const go_cart * v,
+int go_mat_cart_mult(const go_mat * m, const go_cart * v,
 			   go_cart * vout)
 {
   go_cart cp;
@@ -2004,7 +2004,7 @@ go_result go_mat_cart_mult(const go_mat * m, const go_cart * v,
   return GO_RESULT_OK;
 }
 
-go_result go_mat_mat_mult(const go_mat * m1, const go_mat * m2, go_mat * mout)
+int go_mat_mat_mult(const go_mat * m1, const go_mat * m2, go_mat * mout)
 {
   go_mat cp1, cp2;
 
@@ -2048,7 +2048,7 @@ go_flag go_quat_quat_compare(const go_quat * q1, const go_quat * q2)
   return 1;
 }
 
-go_result go_quat_mag(const go_quat * quat, go_real * d)
+int go_quat_mag(const go_quat * quat, go_real * d)
 {
   go_real sh;
 
@@ -2059,7 +2059,7 @@ go_result go_quat_mag(const go_quat * quat, go_real * d)
   return GO_RESULT_OK;
 }
 
-go_result go_quat_unit(const go_quat * q1, go_quat * qout)
+int go_quat_unit(const go_quat * q1, go_quat * qout)
 {
   go_real d;
 
@@ -2070,7 +2070,7 @@ go_result go_quat_unit(const go_quat * q1, go_quat * qout)
   return go_quat_scale_mult(q1, d, qout);
 }
 
-go_result go_quat_norm(const go_quat * q1, go_quat * qout)
+int go_quat_norm(const go_quat * q1, go_quat * qout)
 {
   go_real size;
 
@@ -2102,7 +2102,7 @@ go_result go_quat_norm(const go_quat * q1, go_quat * qout)
   }
 }
 
-go_result go_quat_inv(const go_quat * q1, go_quat * qout)
+int go_quat_inv(const go_quat * q1, go_quat * qout)
 {
   qout->s = q1->s;
   qout->x = -q1->x;
@@ -2124,7 +2124,7 @@ go_flag go_quat_is_norm(const go_quat * q1)
 		       go_sq(q1->z), 1);
 }
 
-go_result go_quat_scale_mult(const go_quat * q, go_real s, go_quat * qout)
+int go_quat_scale_mult(const go_quat * q, go_real s, go_quat * qout)
 {
   go_real sh;			/* sine of half angle */
   go_real ha;			/* half angle */
@@ -2149,7 +2149,7 @@ go_result go_quat_scale_mult(const go_quat * q, go_real s, go_quat * qout)
   return GO_RESULT_OK;
 }
 
-go_result go_quat_quat_mult(const go_quat * q1, const go_quat * q2,
+int go_quat_quat_mult(const go_quat * q1, const go_quat * q2,
 			    go_quat * qout)
 {
   go_quat cp1, cp2;
@@ -2177,7 +2177,7 @@ go_result go_quat_quat_mult(const go_quat * q1, const go_quat * q2,
   return GO_RESULT_OK;
 }
 
-go_result go_quat_cart_mult(const go_quat * q1, const go_cart * v2,
+int go_quat_cart_mult(const go_quat * q1, const go_cart * v2,
 			    go_cart * vout)
 {
   go_cart c;
@@ -2205,9 +2205,9 @@ go_flag go_pose_pose_compare(const go_pose * p1, const go_pose * p2)
 	  go_cart_cart_compare(&p1->tran, &p2->tran));
 }
 
-go_result go_pose_inv(const go_pose * p1, go_pose * p2)
+int go_pose_inv(const go_pose * p1, go_pose * p2)
 {
-  go_result retval;
+  int retval;
 
   retval = go_quat_inv(&p1->rot, &p2->rot);
   if (GO_RESULT_OK != retval) return retval;
@@ -2222,9 +2222,9 @@ go_result go_pose_inv(const go_pose * p1, go_pose * p2)
   return GO_RESULT_OK;
 }
 
-go_result go_pose_cart_mult(const go_pose * p1, const go_cart * v2, go_cart * vout)
+int go_pose_cart_mult(const go_pose * p1, const go_cart * v2, go_cart * vout)
 {
-  go_result retval;
+  int retval;
 
   /* first rotate the vector */
   retval = go_quat_cart_mult(&p1->rot, v2, vout);
@@ -2234,10 +2234,10 @@ go_result go_pose_cart_mult(const go_pose * p1, const go_cart * v2, go_cart * vo
   return go_cart_cart_add(&p1->tran, vout, vout);
 }
 
-go_result go_pose_pose_mult(const go_pose * p1, const go_pose * p2, go_pose * pout)
+int go_pose_pose_mult(const go_pose * p1, const go_pose * p2, go_pose * pout)
 {
   go_pose out;
-  go_result retval;
+  int retval;
 
   retval = go_quat_cart_mult(&p1->rot, &p2->tran, &out.tran);
   if (GO_RESULT_OK != retval) return retval;
@@ -2252,16 +2252,16 @@ go_result go_pose_pose_mult(const go_pose * p1, const go_pose * p2, go_pose * po
   return retval;
 }
 
-go_result go_pose_scale_mult(const go_pose * p1, go_real s, go_pose * pout)
+int go_pose_scale_mult(const go_pose * p1, go_real s, go_pose * pout)
 {
   (void) go_cart_scale_mult(&p1->tran, s, &pout->tran);
   return go_quat_scale_mult(&p1->rot, s, &pout->rot);
 }
 
-go_result go_pose_pose_interp(go_real t1, const go_pose * p1, go_real t2, const go_pose * p2, go_real t3, go_pose * p3)
+int go_pose_pose_interp(go_real t1, const go_pose * p1, go_real t2, const go_pose * p2, go_real t3, go_pose * p3)
 {
   go_pose pdiff;
-  go_result retval;
+  int retval;
 
   if (GO_CLOSE(t1, t2)) return GO_RESULT_ERROR;
 
@@ -2275,9 +2275,9 @@ go_result go_pose_pose_interp(go_real t1, const go_pose * p1, go_real t2, const 
 
 /* homogeneous transform functions */
 
-go_result go_hom_inv(const go_hom * h1, go_hom * h2)
+int go_hom_inv(const go_hom * h1, go_hom * h2)
 {
-  go_result retval;
+  int retval;
 
   retval = go_mat_inv(&h1->rot, &h2->rot);
   if (GO_RESULT_OK != retval) return retval;
@@ -2292,12 +2292,12 @@ go_result go_hom_inv(const go_hom * h1, go_hom * h2)
   return GO_RESULT_OK;
 }
 
-go_result go_pose_screw_mult(const go_pose * pose, const go_screw * screw, go_screw * out)
+int go_pose_screw_mult(const go_pose * pose, const go_screw * screw, go_screw * out)
 {
   go_pose poseinv;
   go_cart wxp;
   go_cart v;
-  go_result retval;
+  int retval;
 
   /*
     B    |B  . B  |
@@ -2326,9 +2326,9 @@ go_result go_pose_screw_mult(const go_pose * pose, const go_screw * screw, go_sc
 
 /* line and plane functions */
 
-go_result go_line_from_point_direction(const go_cart * point, const go_cart * direction, go_line * line)
+int go_line_from_poGO_RESULT_direction(const go_cart * point, const go_cart * direction, go_line * line)
 {
-  go_result retval;
+  int retval;
 
   retval = go_cart_unit(direction, &line->direction);
   if (GO_RESULT_OK != retval) return GO_RESULT_DIV_ERROR;
@@ -2338,10 +2338,10 @@ go_result go_line_from_point_direction(const go_cart * point, const go_cart * di
   return GO_RESULT_OK;
 }
 
-go_result go_line_from_points(const go_cart * point1, const go_cart * point2, go_line * line)
+int go_line_from_points(const go_cart * point1, const go_cart * point2, go_line * line)
 {
   go_cart direction;
-  go_result retval;
+  int retval;
 
   (void) go_cart_cart_sub(point2, point1, &direction);
   retval = go_cart_unit(&direction, &line->direction);
@@ -2352,7 +2352,7 @@ go_result go_line_from_points(const go_cart * point1, const go_cart * point2, go
   return GO_RESULT_OK;
 }
 
-go_result go_line_from_planes(const go_plane * plane1, const go_plane * plane2, go_line * line)
+int go_line_from_planes(const go_plane * plane1, const go_plane * plane2, go_line * line)
 {
   enum {X, Y, Z} which;
   go_real max, ymax, denominv;
@@ -2427,7 +2427,7 @@ go_flag go_line_line_compare(const go_line * line1, const go_line * line2)
   return 1;
 }
 
-go_result go_line_evaluate(const go_line * line, go_real d, go_cart * point)
+int go_line_evaluate(const go_line * line, go_real d, go_cart * point)
 {
   go_cart v;
 
@@ -2437,7 +2437,7 @@ go_result go_line_evaluate(const go_line * line, go_real d, go_cart * point)
   return GO_RESULT_OK;
 }
 
-go_result go_point_line_distance(const go_cart * point, const go_line * line, go_real * distance)
+int go_poGO_RESULT_line_distance(const go_cart * point, const go_line * line, go_real * distance)
 {
   *distance = sqrt(
 		   go_sq(line->direction.z * (point->y - line->point.y) -
@@ -2450,10 +2450,10 @@ go_result go_point_line_distance(const go_cart * point, const go_line * line, go
   return GO_RESULT_OK;
 }
 
-go_result go_point_line_proj(const go_cart * point, const go_line * line, go_cart * pout)
+int go_poGO_RESULT_line_proj(const go_cart * point, const go_line * line, go_cart * pout)
 {
   go_cart vp;
-  go_result retval;
+  int retval;
 
   go_cart_cart_sub(point, &line->point, &vp);
   retval = go_cart_cart_proj(&vp, &line->direction, &vp);
@@ -2463,7 +2463,7 @@ go_result go_point_line_proj(const go_cart * point, const go_line * line, go_car
   return GO_RESULT_OK;
 }
 
-go_result go_point_plane_proj(const go_cart * point, const go_plane * plane, go_cart * proj)
+int go_poGO_RESULT_plane_proj(const go_cart * point, const go_plane * plane, go_cart * proj)
 {
   go_real denom;
   go_real k;
@@ -2487,17 +2487,17 @@ go_result go_point_plane_proj(const go_cart * point, const go_plane * plane, go_
   return GO_RESULT_OK;
 }
 
-go_result go_line_plane_proj(const go_line * line, const go_plane * plane, go_line * proj)
+int go_line_plane_proj(const go_line * line, const go_plane * plane, go_line * proj)
 {
-  go_result retval;
+  int retval;
 
   retval = go_cart_plane_proj(&line->direction, &plane->normal, &proj->direction);
   if (GO_RESULT_OK != retval) return retval;
 
-  return go_point_plane_proj(&line->point, plane, &proj->point);
+  return go_poGO_RESULT_plane_proj(&line->point, plane, &proj->point);
 }
 
-go_result go_plane_from_point_normal(const go_cart * point, const go_cart * normal, go_plane * plane)
+int go_plane_from_poGO_RESULT_normal(const go_cart * point, const go_cart * normal, go_plane * plane)
 {
   if (GO_RESULT_OK != go_cart_unit(normal, &plane->normal)) return GO_RESULT_ERROR;
   /* D = -(Ax + By + Cz) */
@@ -2508,7 +2508,7 @@ go_result go_plane_from_point_normal(const go_cart * point, const go_cart * norm
   return GO_RESULT_OK;
 }
 
-go_result go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plane * plane)
+int go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plane * plane)
 {
   go_real mag;
 
@@ -2527,7 +2527,7 @@ go_result go_plane_from_abcd(go_real A, go_real B, go_real C, go_real D, go_plan
   return GO_RESULT_OK;
 }
 
-go_result go_plane_from_points(const go_cart * point1, const go_cart * point2, const go_cart * point3, go_plane * plane)
+int go_plane_from_points(const go_cart * point1, const go_cart * point2, const go_cart * point3, go_plane * plane)
 {
   go_cart v12, v23;
 
@@ -2544,7 +2544,7 @@ go_result go_plane_from_points(const go_cart * point1, const go_cart * point2, c
   return GO_RESULT_OK;
 }
 
-go_result go_plane_from_point_line(const go_cart * point, const go_line * line, go_plane * plane)
+int go_plane_from_poGO_RESULT_line(const go_cart * point, const go_line * line, go_plane * plane)
 {
   go_cart p0, p1;
 
@@ -2562,7 +2562,7 @@ go_flag go_plane_plane_compare(const go_plane * plane1, const go_plane * plane2)
   return GO_CLOSE(plane1->d, plane2->d);
 }
 
-go_result go_point_plane_distance(const go_cart * point, const go_plane * plane, go_real * distance)
+int go_poGO_RESULT_plane_distance(const go_cart * point, const go_plane * plane, go_real * distance)
 {
   *distance = plane->normal.x * point->x +
     plane->normal.y * point->y +
@@ -2572,7 +2572,7 @@ go_result go_point_plane_distance(const go_cart * point, const go_plane * plane,
   return GO_RESULT_OK;
 }
 
-go_result go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_cart * point)
+int go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_cart * point)
 {
   go_cart v1, v2;		/* othogonal vectors in plane */
   go_cart p;			/* point in plane closest to origin */
@@ -2611,7 +2611,7 @@ go_result go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_car
 
   Then plug d into px + d*vx, ... to get intersect x, y and z.
 */
-go_result go_line_plane_intersect(const go_line * line, const go_plane * plane, go_cart * point, go_real * distance)
+int go_line_plane_intersect(const go_line * line, const go_plane * plane, go_cart * point, go_real * distance)
 {
   go_real num, denom;
 
@@ -2625,7 +2625,7 @@ go_result go_line_plane_intersect(const go_line * line, const go_plane * plane, 
   if (GO_SMALL(num)) {
     *point = line->point;
     /* distance probably isn't exactly zero, so compute it */
-    return go_point_plane_distance(&line->point, plane, distance);
+    return go_poGO_RESULT_plane_distance(&line->point, plane, distance);
   }
 
   /* else plug in d to get intersect point */
@@ -2660,7 +2660,7 @@ go_real go_get_singular_epsilon(void)
   return go_singular_epsilon;
 }
 
-go_result go_set_singular_epsilon(go_real epsilon)
+int go_set_singular_epsilon(go_real epsilon)
 {
   if (epsilon <= 0.0) return GO_RESULT_ERROR;
 
@@ -2669,7 +2669,7 @@ go_result go_set_singular_epsilon(go_real epsilon)
   return GO_RESULT_OK;
 }
 
-go_result ludcmp(go_real ** a,
+int ludcmp(go_real ** a,
 		 go_real * scratchrow,
 		 go_integer n,
 		 go_integer * indx,
@@ -2745,7 +2745,7 @@ go_result ludcmp(go_real ** a,
   how to set up the 'a' matrix.
 */
 
-go_result lubksb(go_real ** a,
+int lubksb(go_real ** a,
 		 go_integer n,
 		 go_integer * indx,
 		 go_real * b)
@@ -2776,7 +2776,7 @@ go_result lubksb(go_real ** a,
   return GO_RESULT_OK;
 }
 
-go_result go_cart_vector_convert(const go_cart * c,
+int go_cart_vector_convert(const go_cart * c,
 				 go_real * v)
 {
   v[0] = c->x, v[1] = c->y, v[2] = c->z;
@@ -2784,7 +2784,7 @@ go_result go_cart_vector_convert(const go_cart * c,
   return GO_RESULT_OK;
 }
 
-go_result go_vector_cart_convert(const go_real * v,
+int go_vector_cart_convert(const go_real * v,
 				 go_cart * c)
 {
   c->x = v[0], c->y = v[1], c->z = v[2];
@@ -2792,11 +2792,11 @@ go_result go_vector_cart_convert(const go_real * v,
   return GO_RESULT_OK;
 }
 
-go_result go_quat_matrix_convert(const go_quat * quat,
+int go_quat_matrix_convert(const go_quat * quat,
 				 go_matrix * matrix)
 {
   go_mat mat;
-  go_result retval;
+  int retval;
 
   /* check for an initialized matrix */
   if (0 == matrix->el[0]) return GO_RESULT_ERROR;
@@ -2814,7 +2814,7 @@ go_result go_quat_matrix_convert(const go_quat * quat,
 /*            |  m.x.z   m.y.z   m.z.z  | */
 /* go_matrix mout[row][col]               */
 
-go_result go_mat_matrix_convert(const go_mat * mat,
+int go_mat_matrix_convert(const go_mat * mat,
 				go_matrix * matrix)
 {
   /* check for an initialized matrix */
@@ -2829,7 +2829,7 @@ go_result go_mat_matrix_convert(const go_mat * mat,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_matrix_add(const go_matrix * a,
+int go_matrix_matrix_add(const go_matrix * a,
 			       const go_matrix * b,
 			       go_matrix * apb)
 {
@@ -2850,7 +2850,7 @@ go_result go_matrix_matrix_add(const go_matrix * a,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_matrix_copy(const go_matrix * src,
+int go_matrix_matrix_copy(const go_matrix * src,
 				go_matrix * dst)
 {
   go_integer row, col;
@@ -2869,7 +2869,7 @@ go_result go_matrix_matrix_copy(const go_matrix * src,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_matrix_mult(const go_matrix * a,
+int go_matrix_matrix_mult(const go_matrix * a,
 				const go_matrix * b,
 				go_matrix * ab)
 {
@@ -2916,7 +2916,7 @@ go_result go_matrix_matrix_mult(const go_matrix * a,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_vector_mult(const go_matrix * a,
+int go_matrix_vector_mult(const go_matrix * a,
 				const go_vector * v,
 				go_vector * axv)
 {
@@ -2956,7 +2956,7 @@ go_result go_matrix_vector_mult(const go_matrix * a,
   whose columns are the column-wise cross products of the matrix
   and the vector. The matrices must be 3xN, the vector 3x1.
 */
-go_result go_matrix_vector_cross(const go_matrix * a,
+int go_matrix_vector_cross(const go_matrix * a,
 				 const go_vector * v,
 				 go_matrix * axv)
 {
@@ -3006,7 +3006,7 @@ go_result go_matrix_vector_cross(const go_matrix * a,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_transpose(const go_matrix * a,
+int go_matrix_transpose(const go_matrix * a,
 			      go_matrix * at)
 {
   go_real ** ptrin;
@@ -3041,12 +3041,12 @@ go_result go_matrix_transpose(const go_matrix * a,
   return GO_RESULT_OK;
 }
 
-go_result go_matrix_inv(const go_matrix * m, /* M x N */
+int go_matrix_inv(const go_matrix * m, /* M x N */
 			go_matrix * minv) /* N x M */
 {
   go_real d;
   go_integer N, row, col;
-  go_result retval;
+  int retval;
 
   /* check for fixed matrix */
   if (0 == m->el[0] || 0 == minv->el[0]) return GO_RESULT_ERROR;
@@ -3080,7 +3080,7 @@ go_result go_matrix_inv(const go_matrix * m, /* M x N */
   return GO_RESULT_OK;
 }
 
-extern go_result go_mat3_inv(const go_real a[3][3],
+extern int go_mat3_inv(const go_real a[3][3],
 			     go_real ainv[3][3])
 {
   go_real a11a22;
@@ -3162,7 +3162,7 @@ extern go_result go_mat3_inv(const go_real a[3][3],
   return GO_RESULT_OK;
 }
 
-go_result go_mat3_mat3_mult(const go_real a[3][3],
+int go_mat3_mat3_mult(const go_real a[3][3],
 			    const go_real b[3][3],
 			    go_real axb[3][3])
 {
@@ -3185,7 +3185,7 @@ go_result go_mat3_mat3_mult(const go_real a[3][3],
   return GO_RESULT_OK;
 }
 
-go_result go_mat3_vec3_mult(const go_real a[3][3],
+int go_mat3_vec3_mult(const go_real a[3][3],
 			    const go_real v[3],
 			    go_real axv[3])
 {
@@ -3205,7 +3205,7 @@ go_result go_mat3_vec3_mult(const go_real a[3][3],
   return GO_RESULT_OK;
 }
 
-extern go_result go_mat4_inv(const go_real a[4][4],
+extern int go_mat4_inv(const go_real a[4][4],
 			     go_real ainv[4][4])
 {
   go_real work[4][4];
@@ -3490,7 +3490,7 @@ extern go_result go_mat4_inv(const go_real a[4][4],
   return GO_RESULT_OK;
 }
 
-go_result go_mat4_mat4_mult(const go_real a[4][4],
+int go_mat4_mat4_mult(const go_real a[4][4],
 			    const go_real b[4][4],
 			    go_real axb[4][4])
 {
@@ -3513,7 +3513,7 @@ go_result go_mat4_mat4_mult(const go_real a[4][4],
   return GO_RESULT_OK;
 }
 
-go_result go_mat4_vec4_mult(const go_real a[4][4],
+int go_mat4_vec4_mult(const go_real a[4][4],
 			    const go_real v[4],
 			    go_real axv[4])
 {
@@ -3533,7 +3533,7 @@ go_result go_mat4_vec4_mult(const go_real a[4][4],
   return GO_RESULT_OK;
 }
 
-go_result go_mat6_inv(const go_real a[6][6],
+int go_mat6_inv(const go_real a[6][6],
 		      go_real ainv[6][6])
 {
   go_real cpy[6][6];
@@ -3543,7 +3543,7 @@ go_result go_mat6_inv(const go_real a[6][6],
   go_real d;
   go_integer index[6];
   go_integer row, col;
-  go_result retval;
+  int retval;
 
   /* create a copy of m[][] in cpy[][], since ludcmp destroys input matrix */
   for (row = 0; row < 6; row++) {
@@ -3574,7 +3574,7 @@ go_result go_mat6_inv(const go_real a[6][6],
   return GO_RESULT_OK;
 }
 
-go_result go_mat6_mat6_mult(const go_real a[6][6],
+int go_mat6_mat6_mult(const go_real a[6][6],
 			    const go_real b[6][6],
 			    go_real axb[6][6])
 {
@@ -3597,7 +3597,7 @@ go_result go_mat6_mat6_mult(const go_real a[6][6],
   return GO_RESULT_OK;
 }
 
-go_result go_mat6_vec6_mult(const go_real a[6][6],
+int go_mat6_vec6_mult(const go_real a[6][6],
 			    const go_real v[6],
 			    go_real axv[6])
 {
@@ -3622,7 +3622,7 @@ go_result go_mat6_vec6_mult(const go_real a[6][6],
 /* M =  |  m.x.y   m.y.y   m.z.y  | */
 /*      |  m.x.z   m.y.z   m.z.z  | */
 
-go_result go_dh_pose_convert(const go_dh * dh, go_pose * p)
+int go_dh_pose_convert(const go_dh * dh, go_pose * p)
 {
   go_hom h;
   go_real sth, cth;		/* sin, cos theta[i] */
@@ -3642,7 +3642,7 @@ go_result go_dh_pose_convert(const go_dh * dh, go_pose * p)
   return go_hom_pose_convert(&h, p);
 }
 
-go_result go_pose_dh_convert(const go_pose * ph, go_dh * dh)
+int go_pose_dh_convert(const go_pose * ph, go_dh * dh)
 {
   go_hom h;
 
@@ -3660,11 +3660,11 @@ go_result go_pose_dh_convert(const go_pose * ph, go_dh * dh)
   return GO_RESULT_OK;
 }
 
-go_result go_link_joint_set(const go_link * link, go_real joint, go_link * linkout)
+int go_link_joint_set(const go_link * link, go_real joint, go_link * linkout)
 {
   go_pose pose;
   go_rvec rvec;
-  go_result retval;
+  int retval;
 
   linkout->type = link->type;
   linkout->quantity = link->quantity;
@@ -3718,7 +3718,7 @@ go_result go_link_joint_set(const go_link * link, go_real joint, go_link * linko
 }
 
 /* this only works for serial-link manipulators */
-go_result go_link_pose_build(const go_link * link_params, go_integer num, go_pose * pose)
+int go_link_pose_build(const go_link * link_params, go_integer num, go_pose * pose)
 {
   go_pose p;
   go_integer link;
