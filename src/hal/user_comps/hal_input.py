@@ -44,7 +44,9 @@ class HalWrapper:
     def __setitem__(self, k, v):
 	if k in self._params:
 	    self._comp[k] = v; return
-	if k not in self._pins: raise KeyError, k
+	if k in self._pins:
+	    self._comp[k] = v; return
+	raise KeyError, k
 	self._drive[k] = v
 
 class HalInputDevice:
