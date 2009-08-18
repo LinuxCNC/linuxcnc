@@ -34,17 +34,12 @@ def show_mcodes(l):
 def show_gcodes(l):
     return " ".join(["G%g" % (i/10.) for i in l[1:] if i != -1])
     
-position = " ".join(["%-8.4f"] * s.axes)
 def show_position(p):
-    return position % p[:s.axes]
+    return " ".join(["%-8.4f" % n for i, n in enumerate(p) if s.axis_mask & (1<<i)])
 
 joint_position = " ".join(["%-8.4f"] * s.joints)
 def show_joint_position(p):
     return joint_position % p[:s.joints]
-    
-peraxis = " ".join(["%s"] * s.axes)
-def show_peraxis(p):
-    return peraxis % p[:s.axes]
 
 perjoint = " ".join(["%s"] * s.joints)
 def show_perjoint(p):
