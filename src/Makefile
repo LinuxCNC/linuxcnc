@@ -707,6 +707,9 @@ maxkins-objs := emc/kinematics/maxkins.o
 obj-m += gantrykins.o
 gantrykins-objs := emc/kinematics/gantrykins.o
 
+obj-m += gentrivkins.o
+gentrivkins-objs := emc/kinematics/gentrivkins.o
+
 obj-m += rotatekins.o
 rotatekins-objs := emc/kinematics/rotatekins.o
 
