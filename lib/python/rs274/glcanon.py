@@ -732,14 +732,17 @@ class GlCanonDraw:
         if self.get_show_live_plot() or self.get_show_program():
             glPushMatrix()
 
+            alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             if self.get_show_relative() and (s.origin[0] or s.origin[1] or
                                           s.origin[2]):
-                draw_small_origin()
+                olist = self.dlist('draw_small_origin',
+                                        gen=self.draw_small_origin)
+                glCallList(olist)
                 origin = self.to_internal_units(s.origin)[:3]
                 glTranslatef(*origin)
-                self.draw_axes()
+                glCallList(alist)
             else:
-                self.draw_axes()
+                glCallList(alist)
             glPopMatrix()
 
         if self.get_show_limits():
@@ -1027,7 +1030,8 @@ class GlCanonDraw:
         return limit, homed, posstrs, droposstrs
 
 
-    def draw_small_origin(self):
+    def draw_small_origin(self, n):
+        glNewList(n, GL_COMPILE)
         r = 2.0/25.4
         glColor3f(*self.colors['small_origin'])
 
@@ -1063,8 +1067,10 @@ class GlCanonDraw:
         glVertex3f(0.0, -r,  r)
         glVertex3f(0.0,  r, -r)
         glEnd()
+        glEndList()
 
-    def draw_axes(self):
+    def draw_axes(self, n):
+        glNewList(n, GL_COMPILE)
         x,y,z,p = 0,1,2,3
         s = self.s
         view = self.get_view()
@@ -1135,6 +1141,7 @@ class GlCanonDraw:
             glPopMatrix()
 
         glPopMatrix()
+        glEndList()
 
     def make_cone(self, n):
         q = gluNewQuadric()
