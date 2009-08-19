@@ -322,6 +322,7 @@ class GlCanonDraw:
         self._dlists = {}
         self.select_buffer_size = 100
         self.hershey = hershey.Hershey()
+        self.cached_tool = -1
 
     def set_canon(self, g):
         self.g = g
@@ -814,15 +815,6 @@ class GlCanonDraw:
         if self.get_show_tool():
             pos = self.lp.last(self.get_show_live_plot())
             if pos is None: pos = [0] * 6
-            if self.g:
-                g = self.g
-                x,y,z = 0,1,2
-                cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                               g.max_extents[y] - g.min_extents[y],
-                               g.max_extents[z] - g.min_extents[z],
-                               2 ) * .5
-            else:
-                cone_scale = 1
             rx, ry, rz = pos[3:6]
             pos = self.to_internal_units(pos[:3])
             glPushMatrix()
@@ -845,31 +837,25 @@ class GlCanonDraw:
             glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
 
             current_tool = self.get_current_tool()
-            if self.is_lathe() and current_tool and current_tool.orientation != 0:
-                glBlendColor(0,0,0,self.colors['lathetool_alpha'])
-                self.lathetool(current_tool)
-            else:
-                glBlendColor(0,0,0,self.colors['tool_alpha'])
+            if current_tool is None or current_tool.diameter == 0:
+                if self.g:
+                    g = self.g
+                    x,y,z = 0,1,2
+                    cone_scale = max(g.max_extents[x] - g.min_extents[x],
+                                   g.max_extents[y] - g.min_extents[y],
+                                   g.max_extents[z] - g.min_extents[z],
+                                   2 ) * .5
+                else:
+                    cone_scale = 1
                 if self.is_lathe():
                     glRotatef(90, 0, 1, 0)
-                if current_tool and current_tool.diameter != 0:
-                    dia = current_tool.diameter
-                    r = self.to_internal_linear_unit(dia) / 2.
-                    q = gluNewQuadric()
-                    glEnable(GL_LIGHTING)
-                    glColor3f(*self.colors['cone'])
-                    gluCylinder(q, r, r, 8*r, 32, 1)
-                    glPushMatrix()
-                    glRotatef(180, 1, 0, 0)
-                    gluDisk(q, 0, r, 32, 1)
-                    glPopMatrix()
-                    glTranslatef(0,0,8*r)
-                    gluDisk(q, 0, r, 32, 1)
-                    glDisable(GL_LIGHTING)
-                    gluDeleteQuadric(q)
-                else:
-                    glScalef(cone_scale, cone_scale, cone_scale)
-                    glCallList(self.dlist('cone', gen=self.make_cone))
+                cone = self.dlist("cone", gen=self.make_cone)
+                glScalef(cone_scale, cone_scale, cone_scale)
+                glCallList(cone)
+            else:
+                if current_tool != self.cached_tool:
+                    self.cache_tool(current_tool)
+                glCallList(self.dlist('tool'))
             glPopMatrix()
 
         glMatrixMode(GL_PROJECTION)
@@ -926,6 +912,32 @@ class GlCanonDraw:
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
+    def cache_tool(self, current_tool):
+        self.cached_tool = current_tool
+        glNewList(self.dlist('tool'), GL_COMPILE)
+        if self.is_lathe() and current_tool and current_tool.orientation != 0:
+            glBlendColor(0,0,0,self.colors['lathetool_alpha'])
+            self.lathetool(current_tool)
+        else:
+            glBlendColor(0,0,0,self.colors['tool_alpha'])
+            if self.is_lathe():
+                glRotatef(90, 0, 1, 0)
+            else:
+                dia = current_tool.diameter
+                r = self.to_internal_linear_unit(dia) / 2.
+                q = gluNewQuadric()
+                glEnable(GL_LIGHTING)
+                glColor3f(*self.colors['cone'])
+                gluCylinder(q, r, r, 8*r, 32, 1)
+                glPushMatrix()
+                glRotatef(180, 1, 0, 0)
+                gluDisk(q, 0, r, 32, 1)
+                glPopMatrix()
+                glTranslatef(0,0,8*r)
+                gluDisk(q, 0, r, 32, 1)
+                glDisable(GL_LIGHTING)
+                gluDeleteQuadric(q)
+        glEndList()
 
     def posstrs(self):
         s = self.s
