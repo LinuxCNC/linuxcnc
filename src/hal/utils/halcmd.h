@@ -60,6 +60,28 @@ const char *halcmd_get_filename(void);
 void halcmd_set_linenumber(int new_linenumber);
 int halcmd_get_linenumber(void);
 
+enum halcmd_argtype {
+    A_ZERO,  /* prototype: f(void) */
+    A_ONE,   /* prototype: f(char *arg) */
+    A_TWO,   /* prototype: f(char *arg1, char *arg2) */
+    A_THREE, /* prototype: f(char *arg1, char *arg2, char *arg3) */
+
+    A_PLUS = 0x100,          /* adds to prototype: char *args[] */
+    A_REMOVE_ARROWS = 0x200, /* removes any arrows from command */
+    A_OPTIONAL = 0x400       /* arguments may be NULL */
+};
+
+typedef int(*halcmd_func_t)(void);
+
+
+struct halcmd_command {
+    const char *name;
+    halcmd_func_t func;
+    enum halcmd_argtype type;
+};
+
+extern struct halcmd_command halcmd_commands[];
+extern int halcmd_ncommands;
 
 extern FILE *halcmd_inifile;
 
