@@ -7,7 +7,6 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
-# for the production 924 lathe use SVST2_4_7I47.BIT
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwmgens=1 num_stepgens=4"
 # set up the watchdog
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
@@ -40,6 +39,12 @@ sets soff 185
 net soff offset.0.offset
 setp hm2_5i20.0.pwmgen.00.scale 4000
 setp hm2_5i20.0.pwmgen.00.output-type 1
+
+# invert the step pulse polarity
+setp hm2_5i20.0.gpio.000.invert_output TRUE
+setp hm2_5i20.0.gpio.002.invert_output TRUE
+setp hm2_5i20.0.gpio.016.invert_output TRUE
+setp hm2_5i20.0.gpio.018.invert_output TRUE
 
 # configure the stepgen parameters
 setp hm2_5i20.0.stepgen.00.dirsetup        5000
