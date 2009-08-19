@@ -1080,6 +1080,7 @@ AC_SUBST([TK_CFLAGS])
 AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
+AC_SUBST([TCLSH])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #
