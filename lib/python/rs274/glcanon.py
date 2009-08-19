@@ -492,7 +492,6 @@ class GlCanonDraw:
         # Dimensions
         x,y,z,p = 0,1,2,3
         view = self.get_view()
-        metric = self.get_show_metric()
         is_metric = self.get_show_metric()
         dimscale = is_metric and 25.4 or 1.0
         fmt = is_metric and "%.1f" or "%.2f"
