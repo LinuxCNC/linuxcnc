@@ -1062,16 +1062,16 @@ static void get_pos_cmds(long period)
                     /* velocity limit = joint limit * global scale factor */
                     /* the global factor is used for feedrate override */
                     vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
+                    /* must not be greater than the joint physical limit */
+                    if (vel_lim > joint->vel_limit) {
+                        vel_lim = joint->vel_limit;
+                    }
+                    /* set vel limit in free TP */
+                    joint->free_tp.max_vel = vel_lim;
                 } else {
-                    /* except if homing, when we ignore FO */
-                    vel_lim = joint->vel_limit;
+                    /* except if homing, when we set free_tp max vel in do_homing */
                 }
-		/* must not be greater than the joint physical limit */
-		if (vel_lim > joint->vel_limit) {
-		    vel_lim = joint->vel_limit;
-		}
-		/* set limits in free TP */
-		joint->free_tp.max_vel = vel_lim;
+                /* set acc limit in free TP */
 		joint->free_tp.max_acc = joint->acc_limit;
 		/* execute free TP */
 		simple_tp_update(&(joint->free_tp), servo_period );
