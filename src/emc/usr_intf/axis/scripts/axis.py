@@ -1503,17 +1503,6 @@ def vupdate(var, val):
         pass
     var.set(val)
 
-def colinear(p1, p2, p3):
-    x, y, z = 0, 1, 2
-    p = p2[x] - p1[x], p2[y] - p1[y], p2[z] - p1[z]      
-    q = p3[x] - p2[x], p3[y] - p2[y], p3[z] - p2[z]     
-    dp = sqrt(p[x]**2 + p[y]**2 + p[z]**2)      
-    dq = sqrt(q[x]**2 + q[y]**2 + q[z]**2)      
-    if dp == 0 or dq == 0:
-        return True
-    dot = (p[x] * q[x] + p[y] * q[y] + p[z] * q[z]) / dp / dq   
-    return abs(1-dot) < 1e-8
-
 class LivePlotter:
     def __init__(self, window):
         self.win = window
