@@ -34,9 +34,6 @@ limiticon = array.array('B',
          255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
            0,   0,    0, 0])
 
-def glColor3fv(args): glColor3f(*args)
-def glVertex3fv(args): glVertex3f(*args)
-
 from math import sin, cos, pi
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
