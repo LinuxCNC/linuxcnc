@@ -2805,12 +2805,12 @@ class TclCommands(nf.TclCommands):
 
     def send_mdi(*event):
         if not manual_ok(): return "break"
-        global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
         commands.send_mdi_command(command)
         return "break"
 
     def send_mdi_command(command):
+        global mdi_history_index, mdi_history_save_filename
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")
