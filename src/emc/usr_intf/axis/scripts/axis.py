@@ -1723,17 +1723,7 @@ class TclCommands(nf.TclCommands):
         o.reset()
         glRotatef(-90, 0, 1, 0)
         glRotatef(-90, 1, 0, 0)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[1], size[2])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = -90
-        o.lon = 270
-        o.tkRedraw()
+        o.set_view_x()
 
     def set_view_y(event=None):
         widgets.view_z.configure(relief="link")
@@ -1742,21 +1732,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="sunken")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(4)
-        o.reset()
-        glRotatef(-90, 1, 0, 0)
-        if lathe:
-            glRotatef(90, 0, 1, 0)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[0], size[2])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = -90
-        o.lon = 0
-        o.tkRedraw()
+        o.set_view_y()
 
     def set_view_z(event=None):
         widgets.view_z.configure(relief="sunken")
@@ -1765,17 +1741,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(1)
-        o.reset()
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[0], size[1])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = o.lon = 0
-        o.tkRedraw()
+        o.set_view_z()
 
     def set_view_z2(event=None):
         widgets.view_z.configure(relief="link")
@@ -1784,19 +1750,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(2)
-        o.reset()
-        glRotatef(-90, 0, 0, 1)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[1], size[0])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = 0
-        o.lon = 270
-        o.tkRedraw()
+        o.set_view_z2()
 
 
     def set_view_p(event=None):
@@ -1806,32 +1760,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="sunken")
         vars.view_type.set(5)
-        o.reset()
-        o.perspective = True
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            size = sqrt(size[0] **2 + size[1] ** 2 + size[2] ** 2)
-            if size > 1e99: size = 5. # in case there are no moves in the preview
-            w = o.winfo_width()
-            h = o.winfo_height()
-            fovx = o.fovy * w / h
-            fov = min(fovx, o.fovy)
-            o.set_eyepoint((size * 1.1 + 1.0) / 2 / sin ( fov * pi / 180 / 2))
-            o.lat = -60
-            o.lon = 335
-            x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-            y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-            z = (o.g.min_extents[2] + o.g.max_extents[2])/2
-            glRotateScene(o, 1.0, x, y, z, 0, 0, 0, 0)
-        else:
-            o.set_eyepoint(5.)
-            o.lat = -60
-            o.lon = 335
-            glRotateScene(o, 1.0, o.xcenter, o.ycenter, o.zcenter, 0, 0, 0, 0)
-        o.tkRedraw()
+        o.set_view_p()
 
     def estop_clicked(event=None):
         s.poll()
