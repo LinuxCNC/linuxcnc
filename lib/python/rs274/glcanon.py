@@ -399,7 +399,7 @@ class GlCanonDraw:
         highlight = self.dlist('highlight')
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.g is not None:
-            x, y, z = self.g.highlight(line, geometry)
+            x, y, z = self.g.highlight(line, self.get_geometry())
             self.set_centerpoint(x, y, z)
         elif self.g is not None:
             x = (self.g.min_extents[0] + self.g.max_extents[0])/2

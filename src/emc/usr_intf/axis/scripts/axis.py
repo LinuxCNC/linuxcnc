@@ -444,7 +444,7 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def set_highlight_line(self, line):
         if line == self.get_highlight_line(): return
-        self.highlight_line = line
+        GlCanonDraw.set_highlight_line(self, line)
         t.tag_remove("sel", "0.0", "end")
         if line is not None and line > 0:
             t.see("%d.0" % (line+2))
@@ -453,7 +453,6 @@ class MyOpengl(GlCanonDraw, Opengl):
             vupdate(vars.highlight_line, line)
         else:
             vupdate(vars.highlight_line, -1)
-        GlCanonDraw.set_highlight_line(self, line)
 
     def tkRedraw(self, *dummy):
         if self.after_id:
