@@ -968,9 +968,9 @@ class AsciiOBJ:
             elif line.startswith("f"):
                 f.append(self.parse_face(line))
 
-        print v[:5]
-        print vn[:5]
-        print f[:5]
+#        print v[:5]
+#        print vn[:5]
+#        print f[:5]
 
         self.list = None
 
@@ -993,7 +993,7 @@ class AsciiOBJ:
             glNewList(self.list, GL_COMPILE)
             glDisable(GL_CULL_FACE)
             glBegin(GL_TRIANGLES)
-            print "obj", len(self.f)
+            #print "obj", len(self.f)
             for f in self.f:
                 for v, t, n in f:
                     if n:
