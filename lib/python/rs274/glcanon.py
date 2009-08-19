@@ -34,8 +34,6 @@ limiticon = array.array('B',
          255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
            0,   0,    0, 0])
 
-from math import sin, cos, pi
-
 class GLCanon(Translated, ArcsToSegmentsMixin):
     def __init__(self, colors, geometry):
         self.traverse = []; self.traverse_append = self.traverse.append
@@ -1024,17 +1022,17 @@ class GlCanonDraw:
         glBegin(GL_LINE_STRIP)
         for i in range(37):
             theta = (i*10)*math.pi/180.0
-            glVertex3f(r*cos(theta),r*sin(theta),0.0)
+            glVertex3f(r*math.cos(theta),r*math.sin(theta),0.0)
         glEnd()
         glBegin(GL_LINE_STRIP)
         for i in range(37):
             theta = (i*10)*math.pi/180.0
-            glVertex3f(0.0, r*cos(theta), r*sin(theta))
+            glVertex3f(0.0, r*math.cos(theta), r*math.sin(theta))
         glEnd()
         glBegin(GL_LINE_STRIP)
         for i in range(37):
             theta = (i*10)*math.pi/180.0
-            glVertex3f(r*cos(theta),0.0, r*sin(theta))
+            glVertex3f(r*math.cos(theta),0.0, r*math.sin(theta))
         glEnd()
 
         glBegin(GL_LINES)
@@ -1175,15 +1173,15 @@ class GlCanonDraw:
             min_angle = min(backangle, frontangle) * math.pi / 180
             max_angle = max(backangle, frontangle) * math.pi / 180
 
-            sinmax = sin(max_angle)
-            cosmax = cos(max_angle)
-            tanmax = cos(max_angle)
-            sinmin = sin(min_angle)
-            cosmin = cos(min_angle)
-            tanmin = cos(min_angle)
+            sinmax = math.sin(max_angle)
+            cosmax = math.cos(max_angle)
+            tanmax = math.cos(max_angle)
+            sinmin = math.sin(min_angle)
+            cosmin = math.cos(min_angle)
+            tanmin = math.cos(min_angle)
 
-            circleminangle = - pi/2 + min_angle
-            circlemaxangle = - 3*pi/2 + max_angle
+            circleminangle = - math.pi/2 + min_angle
+            circlemaxangle = - 3*math.pi/2 + max_angle
             d0 = 0
 
             x1 = (w - d0)
@@ -1279,7 +1277,7 @@ class GlCanonDraw:
             h = self.winfo_height()
             fovx = self.fovy * w / h
             fov = min(fovx, self.fovy)
-            self.set_eyepoint((size * 1.1 + 1.0) / 2 / sin ( fov * pi / 180 / 2))
+            self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
             self.lat = -60
             self.lon = 335
             x = (self.g.min_extents[0] + self.g.max_extents[0])/2
