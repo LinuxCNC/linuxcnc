@@ -1212,13 +1212,15 @@ class GlCanonDraw:
             glEnd()
         glDepthFunc(GL_LESS)
 
+    def extents_info(self):
+        mid = [(a+b)/2 for a, b in zip(self.g.max_extents, self.g.min_extents)]
+        size = [(a-b) for a, b in zip(self.g.max_extents, self.g.min_extents)]
+        return mid, size
+
     def set_view_x(self):
         if self.g:
-            mid = [(a+b)/2
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
+            mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b)
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
             self.set_eyepoint_from_extents(size[1], size[2])
         else:
             self.set_eyepoint(5.)
@@ -1233,11 +1235,8 @@ class GlCanonDraw:
         if self.is_lathe():
             glRotatef(90, 0, 1, 0)
         if self.g:
-            mid = [(a+b)/2
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
+            mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b)
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
             self.set_eyepoint_from_extents(size[0], size[2])
         else:
             self.set_eyepoint(5.)
@@ -1249,11 +1248,8 @@ class GlCanonDraw:
     def set_view_z(self):
         self.reset()
         if self.g:
-            mid = [(a+b)/2
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
+            mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b)
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
             self.set_eyepoint_from_extents(size[0], size[1])
         else:
             self.set_eyepoint(5.)
@@ -1265,11 +1261,8 @@ class GlCanonDraw:
         self.reset()
         glRotatef(-90, 0, 0, 1)
         if self.g:
-            mid = [(a+b)/2
-                for a, b in zip(self.g.max_extents, self.g.min_extents)]
+            mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b
-                in zip(self.g.max_extents, self.g.min_extents)]
             self.set_eyepoint_from_extents(size[1], size[0])
         else:
             self.set_eyepoint(5.)
@@ -1282,13 +1275,9 @@ class GlCanonDraw:
         self.reset()
         self.perspective = True
         if self.g:
-            mid = [(a+b)/2
-                    for a, b in zip(self.g.max_extents, self.g.min_extents)]
+            mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
-
-            size = [(a-b)
-                    for a, b in zip(self.g.max_extents, self.g.min_extents)]
-            size = (size[0] **2 + size[1] ** 2 + size[2] ** 2) ** .5
+            size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
             if size > 1e99: size = 5. # in case there are no moves in the preview
             w = self.winfo_width()
             h = self.winfo_height()
