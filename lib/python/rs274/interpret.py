@@ -144,4 +144,30 @@ class PrintCanon:
     def arc_feed(self, *args):
         print "arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args
 
+class StatMixin:
+    def __init__(self, s):
+        self.s = s
+
+    def get_tool(self, tool):
+        for t in self.s.tool_table:
+            if t[0] == tool:
+                return tuple(t)
+        return tool,0.,0.,0.,0.,0.,0
+
+    def get_external_angular_units(self):
+        return self.s.angular_units or 1.0
+
+    def get_external_length_units(self):
+        return self.s.linear_units or 1.0
+
+    def get_axis_mask(self):
+        return self.s.axis_mask
+
+    def get_tlo_is_along_w(self):
+        return self.s.tlo_is_along_w
+
+    def get_block_delete(self):
+        return self.s.block_delete
+
+
 # vim:ts=8:sts=4:et:

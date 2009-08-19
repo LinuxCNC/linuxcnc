@@ -110,6 +110,7 @@ proc ::rb::nicer_rb_configure {w} {
 # button is at [winfo width $w]-[winfo reqwidth $w]
 
 proc ::rb::install {} {
+    if {$::tk_version >= "8.5"} { return }
     rename ::radiobutton ::rb::real_radiobutton
     proc ::radiobutton { path args } {
         eval [concat ::rb::real_radiobutton $path $args]

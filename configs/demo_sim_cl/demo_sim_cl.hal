@@ -6,7 +6,6 @@
 # includes coolant and spindle forward, reverse
 
 # from standard pinout config file for 3-axis steppers
-loadusr -W halvcp demo_sim_cl.vcp
 
 # This configuration uses classicladder for machine logic
 # (load the realtime portion)
@@ -31,11 +30,9 @@ net gui-estop iocontrol.0.user-enable-out classicladder.0.in-00
 net estop-strobe iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
 newsig ext-estop bit
-linksp ext-estop vcp.button.estop
 linkps classicladder.0.in-01 ext-estop
 # This bit signal is comand to estop from CL to EMC
 net estop-all-ok iocontrol.0.emc-enable-in classicladder.0.out-00 
-linksp estop-all-ok vcp.led.estop
 
 # lube signals
 # lube run command from emc to CL 
@@ -43,12 +40,10 @@ net lube iocontrol.0.lube classicladder.0.in-03
 # for ease of reading we will make a new signal lube-run
 newsig lube-run bit
 linkps classicladder.0.out-01  lube-run
-linksp lube-run vcp.led.lube
 
 # The lube sense stuff runs from an external pin, through CL to iocontrol in 
 newsig lube-up  bit
 # lube-up is the signal between the parport and cl
-linkps vcp.button.lube-up lube-up
 linkps classicladder.0.in-04 lube-up
 net lube-level iocontrol.0.lube_level classicladder.0.out-02
 

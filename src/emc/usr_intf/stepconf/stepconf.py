@@ -105,6 +105,8 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "emc2", "examples", "sample-configs", "common")
+if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
@@ -1041,9 +1043,7 @@ class Data:
         self.write_readme(base)
         self.write_inifile(base)
         self.write_halfile(base)
-        self.copy(base, "emc.nml")
         self.copy(base, "tool.tbl")
-        self.copy(base, "emc.var")
 
         filename = "%s.stepconf" % base
 
@@ -1070,10 +1070,10 @@ class Data:
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
         desktop = commands.getoutput("""
-            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && source ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
+            test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
-            shortcut = os.path.join(desktop, machinename)
+            shortcut = os.path.join(desktop, self.machinename)
             if os.path.exists(desktop) and not os.path.exists(shortcut):
                 os.symlink(base,shortcut)
 
@@ -1247,6 +1247,8 @@ class App:
         return _("Other")
 
     def on_basicinfo_prepare(self, *args):
+        self.widgets.drivetime_expander.set_expanded(True)
+        self.widgets.parport_expander.set_expanded(True)
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
@@ -1272,6 +1274,8 @@ class App:
         
 
     def on_basicinfo_next(self, *args):
+        self.widgets.drivetime_expander.set_expanded(False)
+        self.widgets.parport_expander.set_expanded(False)
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
         self.data.units = self.widgets.units.get_active()
@@ -1698,7 +1702,7 @@ class App:
         self.widgets.label_floatin.set_sensitive(i)
         self.widgets.label_floatout.set_sensitive(i)
         self.widgets.ladderconnect.set_sensitive(i)
-        
+        self.widgets.clpins_expander.set_sensitive(i)
 
     def on_pyvcp_toggled(self,*args):
         i= self.widgets.pyvcp.get_active()

@@ -19,6 +19,7 @@
 ********************************************************************/
 
 #include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
 #include "rs274ngc_return.hh"
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name
@@ -205,6 +206,8 @@ int interpret_from_file( /* ARGUMENTS                  */
 {
   int status=0;
   char line[LINELEN];
+
+  SET_BLOCK_DELETE(block_delete);
 
   for(; ;)
     {

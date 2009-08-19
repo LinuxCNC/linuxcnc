@@ -95,10 +95,6 @@
     information, go to www.linuxcnc.org.
 */
 
-#if ( !defined RTAPI )
-#error parport needs RTAPI, check makefile and flags
-#endif
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */

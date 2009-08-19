@@ -1,8 +1,3 @@
-
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include <linux/pci.h>
 #include "rtapi.h"			// RTAPI realtime OS API.
 #include "rtapi_app.h"			// RTAPI realtime module decls.

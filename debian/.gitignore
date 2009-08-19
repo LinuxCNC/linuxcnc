@@ -8,6 +8,7 @@ control
 tmp
 emc2
 emc2-dev
+emc2-sim-dev
 emc2-python
 *.substvars
 emc2*.files

@@ -47,6 +47,7 @@ DOC_SRCS := \
 	common/Getting_EMC_fr.lyx \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
+	common/Integrator_Concepts.lyx \
 	common/integrator_intro.lyx \
 	common/integrator_intro_fr.lyx \
 	common/Linux_FAQ.lyx \
@@ -77,7 +78,6 @@ DOC_SRCS := \
 	drivers/AX5214H.lyx \
 	drivers/GS2.lyx \
 	drivers/hostmot2.lyx \
-	drivers/m5i20.lyx \
 	drivers/motenc.lyx \
 	drivers/opto22.lyx \
 	drivers/pico_ppmc.lyx \

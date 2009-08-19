@@ -291,9 +291,6 @@ static PyMemberDef Stat_members[] = {
 // stat 
     {"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
     {"state", T_INT, O(status), READONLY},
-    {"line", T_INT, O(line), READONLY},
-    {"source_line", T_INT, O(line), READONLY},
-    {"source_file", T_STRING_INPLACE, O(source_file), READONLY},
 
 // task
     {"task_mode", T_INT, O(task.mode), READONLY},
@@ -311,6 +308,9 @@ static PyMemberDef Stat_members[] = {
     {"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
     {"task_paused", T_INT, O(task.task_paused), READONLY},
     {"tlo_is_along_w", T_BOOL, O(task.tloIsAlongW), READONLY},
+    {"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
+    {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
+    {"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
 
 // motion
 //   EMC_TRAJ_STAT traj
@@ -320,11 +320,13 @@ static PyMemberDef Stat_members[] = {
     {"axes", T_INT, O(motion.traj.axes), READONLY},
     {"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
     {"motion_mode", T_INT, O(motion.traj.mode), READONLY},
-    {"enabled", T_INT, O(motion.traj.enabled), READONLY},
-    {"inpos", T_INT, O(motion.traj.inpos), READONLY},
+    {"enabled", T_BOOL, O(motion.traj.enabled), READONLY},
+    {"inpos", T_BOOL, O(motion.traj.inpos), READONLY},
     {"queue", T_INT, O(motion.traj.queue), READONLY},
+    {"active_queue", T_INT, O(motion.traj.activeQueue), READONLY},
+    {"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY},
     {"id", T_INT, O(motion.traj.id), READONLY},
-    {"paused", T_INT, O(motion.traj.paused), READONLY},
+    {"paused", T_BOOL, O(motion.traj.paused), READONLY},
     {"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
     {"spindlerate", T_DOUBLE, O(motion.traj.spindle_scale), READONLY},
     
@@ -332,20 +334,17 @@ static PyMemberDef Stat_members[] = {
     {"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
     {"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
     {"max_acceleration", T_DOUBLE, O(motion.traj.maxAcceleration), READONLY},
-    {"probe_tripped", T_INT, O(motion.traj.probe_tripped), READONLY},
-    {"probing", T_INT, O(motion.traj.probing), READONLY},
+    {"probe_tripped", T_BOOL, O(motion.traj.probe_tripped), READONLY},
+    {"probing", T_BOOL, O(motion.traj.probing), READONLY},
     {"probe_val", T_INT, O(motion.traj.probeval), READONLY},
     {"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY},
     {"motion_type", T_INT, O(motion.traj.motion_type), READONLY},
     {"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
     {"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
-    {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
-    {"delay_left", T_DOUBLE, O(motion.traj.delayLeft), READONLY},
-
-// io
-// EMC_TOOL_STAT io.tool
-    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
-    {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
+    {"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
+    {"spindle_override_enabled", T_BOOL, O(motion.traj.spindle_override_enabled), READONLY},
+    {"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
+    {"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
 
 // EMC_SPINDLE_STAT motion.spindle
     {"spindle_speed", T_DOUBLE, O(motion.spindle.speed), READONLY},
@@ -353,6 +352,11 @@ static PyMemberDef Stat_members[] = {
     {"spindle_brake", T_INT, O(motion.spindle.brake), READONLY},
     {"spindle_increasing", T_INT, O(motion.spindle.increasing), READONLY},
     {"spindle_enabled", T_INT, O(motion.spindle.enabled), READONLY},
+
+// io
+// EMC_TOOL_STAT io.tool
+    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
+    {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
 
 // EMC_COOLANT_STAT io.cooland
     {"mist", T_INT, O(io.coolant.mist), READONLY},
@@ -368,14 +372,6 @@ static PyMemberDef Stat_members[] = {
     {"debug", T_INT, O(debug), READONLY},
     {NULL}
 };
-
-static PyObject *uchar_array(unsigned char *arr, int sz) {
-    PyObject *res = PyTuple_New(sz);
-    for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(arr[i]));
-    }
-    return res;
-}
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
@@ -462,11 +458,11 @@ static PyObject *Stat_activesettings(pyStatChannel *s) {
 }
 
 static PyObject *Stat_din(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.din, EMC_AUX_MAX_DIN);
+    return int_array(s->status.motion.synch_di, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_dout(pyStatChannel *s) {
-    return uchar_array(s->status.io.aux.dout, EMC_AUX_MAX_DOUT);
+    return int_array(s->status.motion.synch_do, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_limit(pyStatChannel *s) {
@@ -493,11 +489,11 @@ static PyObject *Stat_homed(pyStatChannel *s) {
 }
 
 static PyObject *Stat_ain(pyStatChannel *s) {
-    return double_array(s->status.io.aux.ain, EMC_AUX_MAX_AIN);
+    return double_array(s->status.motion.analog_input, EMC_MAX_AIO);
 }
 
 static PyObject *Stat_aout(pyStatChannel *s) {
-    return double_array(s->status.io.aux.aout, EMC_AUX_MAX_AOUT);
+    return double_array(s->status.motion.analog_output, EMC_MAX_AIO);
 }
 
 static void dict_add(PyObject *d, char *name, unsigned char v) {
@@ -674,6 +670,7 @@ static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
     RCS_STAT_CHANNEL *s =
         new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
     if(!c) {
+	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
     }
@@ -1257,6 +1254,34 @@ static PyObject *set_adaptive_feed(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *set_digital_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_DOUT m;
+    if(!PyArg_ParseTuple(o, "ii", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *set_analog_output(pyCommandChannel *s, PyObject *o) {
+    EMC_MOTION_SET_AOUT m;
+    if(!PyArg_ParseTuple(o, "id", &m.index, &m.start))
+        return NULL;
+
+    m.now = 1;
+    m.serial_number = next_serial(s);
+    s->c->write(m);
+    emcWaitCommandReceived(s->serial, s->s);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     return PyInt_FromLong(emcWaitCommandComplete(s->serial, s->s));
 }
@@ -1300,6 +1325,8 @@ static PyMethodDef Command_methods[] = {
     {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS},
     {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS},
     {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
+    {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
+    {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
     {NULL}
 };
 
@@ -1684,6 +1711,7 @@ typedef struct {
 } pyPositionLogger;
 
 static const double epsilon = 1e-4; // 1-cos(1 deg) ~= 1e-4
+static const double tiny = 1e-10; 
 
 static inline bool colinear(float xa, float ya, float za, float xb, float yb, float zb, float xc, float yc, float zc) {
     double dx1 = xa-xb, dx2 = xb-xc;
@@ -1691,7 +1719,7 @@ static inline bool colinear(float xa, float ya, float za, float xb, float yb, fl
     double dz1 = za-zb, dz2 = zb-zc;
     double dp = sqrt(dx1*dx1 + dy1*dy1 + dz1*dz1);
     double dq = sqrt(dx2*dx2 + dy2*dy2 + dz2*dz2);
-    if( fabs(dp) < epsilon || fabs(dq) < epsilon ) return true;
+    if( fabs(dp) < tiny || fabs(dq) < tiny ) return true;
     double dot = (dx1*dx2 + dy1*dy2 + dz1*dz2) / dp / dq;
     if( fabs(1-dot) < epsilon) return true;
     return false;

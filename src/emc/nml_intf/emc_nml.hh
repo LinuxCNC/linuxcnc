@@ -958,15 +958,15 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     int axis_mask;		// mask of axes actually present
     enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
     // EMC_TRAJ_MODE_COORD
-    int enabled;		// non-zero means enabled
+    bool enabled;		// non-zero means enabled
 
-    int inpos;			// non-zero means in position
+    bool inpos;			// non-zero means in position
     int queue;			// number of pending motions, counting
     // current
     int activeQueue;		// number of motions blending
-    int queueFull;		// non-zero means can't accept another motion
+    bool queueFull;		// non-zero means can't accept another motion
     int id;			// id of the currently executing motion
-    int paused;			// non-zero means motion paused
+    bool paused;			// non-zero means motion paused
     double scale;		// velocity scale factor
     double spindle_scale;	// spindle velocity scale factor
 
@@ -979,9 +979,9 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double maxAcceleration;	// system acceleration
 
     EmcPose probedPosition;	// last position where probe was tripped.
-    int probe_tripped;		// Has the probe been tripped since the last
+    bool probe_tripped;		// Has the probe been tripped since the last
     // clear.
-    int probing;		// Are we currently looking for a probe
+    bool probing;		// Are we currently looking for a probe
     // signal.
     int probeval;		// Current value of probe input.
     int kinematics_type;	// identity=1,serial=2,parallel=3,custom=4
@@ -989,11 +989,10 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double distance_to_go;         // in current move
     EmcPose dtg;
     double current_vel;         // in current move
-    int feed_override_enabled;
-    int spindle_override_enabled;
-    int adaptive_feed_enabled;
-    int feed_hold_enabled;
-    double delayLeft;           // delay time left of G4, M66..
+    bool feed_override_enabled;
+    bool spindle_override_enabled;
+    bool adaptive_feed_enabled;
+    bool feed_hold_enabled;
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes
@@ -1131,7 +1130,9 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     EMC_SPINDLE_STAT spindle;
 
     int synch_di[EMC_MAX_DIO];  // motion inputs queried by interp
+    int synch_do[EMC_MAX_DIO];  // motion outputs queried by interp
     double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
+    double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
     int debug;			// copy of EMC_DEBUG global
 };
 
@@ -1400,6 +1401,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
+    double delayLeft;           // delay time left of G4, M66..
 };
 
 // declarations for EMC_TOOL classes
@@ -1553,19 +1555,6 @@ class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AUX_AIO_WRITE:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_AIO_WRITE():EMC_AUX_CMD_MSG(EMC_AUX_AIO_WRITE_TYPE,
-					sizeof(EMC_AUX_AIO_WRITE)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int index;
-    double value;
-};
-
 class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_ESTOP_ON():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_ON_TYPE,
@@ -1608,7 +1597,7 @@ class EMC_AUX_INPUT_WAIT:public EMC_AUX_CMD_MSG {
     int index;			// input channel to wait for
     int input_type;		// DIGITAL or ANALOG
     int wait_type;		// 0 - immediate, 1- rise, 2 - fall, 3 - be high, 4 - be low
-    int timeout;		// timeout for waiting
+    double timeout;		// timeout for waiting
 };
 
 
@@ -1622,26 +1611,14 @@ class EMC_AUX_STAT_MSG:public RCS_STAT_MSG {
     void update(CMS * cms);
 };
 
-#define EMC_AUX_MAX_DOUT 4	// digital out bytes
-#define EMC_AUX_MAX_DIN  4	// digital in bytes
-#define EMC_AUX_MAX_AOUT 32	// analog out points
-#define EMC_AUX_MAX_AIN  32	// analog in points
-
 class EMC_AUX_STAT:public EMC_AUX_STAT_MSG {
   public:
     EMC_AUX_STAT();
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    EMC_AUX_STAT operator =(EMC_AUX_STAT s);	// need this for [] members
 
     int estop;			// non-zero means estopped
-
-    unsigned char dout[EMC_AUX_MAX_DOUT];	// digital output readings
-    unsigned char din[EMC_AUX_MAX_DIN];	// digital input readings
-
-    double aout[EMC_AUX_MAX_AOUT];	// digital output readings
-    double ain[EMC_AUX_MAX_AIN];	// digital input readings
 };
 
 // EMC_SPINDLE type declarations
@@ -1882,35 +1859,6 @@ class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
     int on;			// 0 off, 1 on
     int level;			// 0 low, 1 okay
 };
-
-// EMC IO configuration classes
-
-class EMC_SET_DIO_INDEX:public RCS_CMD_MSG {
-  public:
-    EMC_SET_DIO_INDEX():RCS_CMD_MSG(EMC_SET_DIO_INDEX_TYPE,
-				    sizeof(EMC_SET_DIO_INDEX)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int value;			// one of enum EMC_SET_DIO_INDEX_XXX
-    int index;			// index, 0..max
-};
-
-class EMC_SET_AIO_INDEX:public RCS_CMD_MSG {
-  public:
-    EMC_SET_AIO_INDEX():RCS_CMD_MSG(EMC_SET_AIO_INDEX_TYPE,
-				    sizeof(EMC_SET_AIO_INDEX)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int value;			// one of enum EMC_SET_AIO_INDEX_XXX
-    int index;			// index, 0..max
-};
-
 
 // EMC_IO is aggregate of all EMC IO-related status classes
 

@@ -1094,7 +1094,7 @@ static double last_id_time;
 
 int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 {
-    int axis;
+    int axis, enables;
 
     stat->axes = localEmcTrajAxes;
     stat->axis_mask = localEmcTrajAxisMask;
@@ -1123,8 +1123,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	}
     }
 
-    stat->inpos =
-	emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0;
+    stat->inpos = emcmotStatus.motionFlag & EMCMOT_MOTION_INPOS_BIT;
     stat->queue = emcmotStatus.depth;
     stat->activeQueue = emcmotStatus.activeDepth;
     stat->queueFull = emcmotStatus.queueFull;
@@ -1178,11 +1177,18 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     stat->probedPosition = emcmotStatus.probedPos;
 
     stat->probeval = emcmotStatus.probeVal;
+    stat->probing = emcmotStatus.probing;
     stat->probe_tripped = emcmotStatus.probeTripped;
-    stat->feed_override_enabled = emcmotStatus.enables_new & FS_ENABLED;
-    stat->spindle_override_enabled = emcmotStatus.enables_new & SS_ENABLED;
-    stat->adaptive_feed_enabled = emcmotStatus.enables_new & AF_ENABLED;
-    stat->feed_hold_enabled = emcmotStatus.enables_new & FH_ENABLED;
+    
+    if (emcmotStatus.motionFlag & EMCMOT_MOTION_COORD_BIT)
+        enables = emcmotStatus.enables_queued;
+    else
+        enables = emcmotStatus.enables_new;
+    
+    stat->feed_override_enabled = enables & FS_ENABLED;
+    stat->spindle_override_enabled = enables & SS_ENABLED;
+    stat->adaptive_feed_enabled = enables & AF_ENABLED;
+    stat->feed_hold_enabled = enables & FH_ENABLED;
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
@@ -1487,17 +1493,19 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->spindle.brake = emcmotStatus.spindle.brake;
     stat->spindle.direction = emcmotStatus.spindle.direction;
 
-    // set the status flag
-    error = 0;
-    exec = 0;
-
     for (dio = 0; dio < EMC_MAX_DIO; dio++) {
 	stat->synch_di[dio] = emcmotStatus.synch_di[dio];
+	stat->synch_do[dio] = emcmotStatus.synch_do[dio];
     }
 
     for (aio = 0; aio < EMC_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
+	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
+
+    // set the status flag
+    error = 0;
+    exec = 0;
 
     for (axis = 0; axis < stat->traj.axes; axis++) {
 	if (stat->axis[axis].status == RCS_ERROR) {

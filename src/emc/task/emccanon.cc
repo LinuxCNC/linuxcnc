@@ -1087,24 +1087,9 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
     interp_list.append(setTermCondMsg);
 }
 
-CANON_MOTION_MODE GET_MOTION_CONTROL_MODE()
-{
-    return canonMotionMode;
-}
-
-double GET_MOTION_CONTROL_TOLERANCE()
-{
-    return canonMotionTolerance;
-}
-
 void SET_NAIVECAM_TOLERANCE(double tolerance)
 {
     canonNaivecamTolerance =  FROM_PROG_LEN(tolerance);
-}
-
-double GET_NAIVECAM_TOLERANCE()
-{
-    return canonNaivecamTolerance;
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
@@ -1147,11 +1132,6 @@ void STOP_SPEED_FEED_SYNCH()
     spindlesyncMsg.velocity_mode = false;
     interp_list.append(spindlesyncMsg);
     synched = 0;
-}
-
-void SELECT_MOTION_MODE(CANON_MOTION_MODE mode)
-{
-    // nothing need be done here
 }
 
 /* Machining Functions */
@@ -2295,17 +2275,6 @@ void PROGRAM_END()
     interp_list.append(endMsg);
 }
 
-/* returns the current active units */
-CANON_UNITS GET_LENGTH_UNITS()
-{
-    return lengthUnits;
-}
-
-CANON_PLANE GET_PLANE()
-{
-    return activePlane;
-}
-
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
     return TO_PROG_LEN(currentXToolOffset);
@@ -2313,10 +2282,6 @@ double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
     return TO_PROG_LEN(currentZToolOffset);
-}
-double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
-{
-    return TO_PROG_LEN(currentWToolOffset);
 }
 
 /*
@@ -2510,13 +2475,6 @@ double GET_EXTERNAL_PROBE_VALUE()
     return 0.0;
 }
 
-int IS_EXTERNAL_QUEUE_EMPTY()
-{
-    flush_segments();
-
-    return emcStatus->motion.traj.queue == 0 ? 1 : 0;
-}
-
 // feed rate wanted is in program units per minute
 double GET_EXTERNAL_FEED_RATE()
 {
@@ -2574,11 +2532,6 @@ double GET_EXTERNAL_ANGLE_UNITS(void)
     }
 }
 
-int GET_EXTERNAL_TOOL()
-{
-    return emcStatus->io.tool.toolInSpindle;
-}
-
 int GET_EXTERNAL_MIST()
 {
     return emcStatus->io.coolant.mist;
@@ -2587,11 +2540,6 @@ int GET_EXTERNAL_MIST()
 int GET_EXTERNAL_FLOOD()
 {
     return emcStatus->io.coolant.flood;
-}
-
-int GET_EXTERNAL_POCKET()
-{
-    return emcStatus->io.tool.toolPrepped;
 }
 
 double GET_EXTERNAL_SPEED()
@@ -3006,14 +2954,16 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 */
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-  EMC_AUX_AIO_WRITE aio_msg;
+  EMC_MOTION_SET_AOUT aout_msg;
 
   flush_segments();
 
-  aio_msg.index = index;
-  aio_msg.value = value;
+  aout_msg.index = index;	// which output
+  aout_msg.start = value;	// start value
+  aout_msg.end = value;		// end value
+  aout_msg.now = 1;		// immediate=1, or synched when motion start=0
 
-  interp_list.append(aio_msg);
+  interp_list.append(aout_msg);
 
   return;
 }
@@ -3026,7 +2976,7 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 int WAIT(int index, /* index of the motion exported input */
          int input_type, /*DIGITAL_INPUT or ANALOG_INPUT */
 	 int wait_type, /* 0 - rise, 1 - fall, 2 - be high, 3 - be low */
-	 int timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
+	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
   if (input_type == DIGITAL_INPUT) {
     if ((index < 0) || (index >= EMC_MAX_DIO))

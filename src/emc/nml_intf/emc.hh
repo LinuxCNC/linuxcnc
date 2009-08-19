@@ -197,7 +197,7 @@ class PM_CARTESIAN;
 /* removed #define EMC_AUX_HALT_TYPE                             ((NMLTYPE) 1202) */
 /* removed #define EMC_AUX_ABORT_TYPE                            ((NMLTYPE) 1203) */
 /* removed #define EMC_AUX_DIO_WRITE_TYPE                        ((NMLTYPE) 1204) */
-#define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205)
+/* removed #define EMC_AUX_AIO_WRITE_TYPE                        ((NMLTYPE) 1205) */
 #define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
 #define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_ESTOP_RESET_TYPE                      ((NMLTYPE) 1208)
@@ -250,34 +250,8 @@ class PM_CARTESIAN;
 
 // EMC IO point configuration declarations
 
-#define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001)
-#define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002)
-
-
-// digital IO point indices
-enum {
-    // spindle
-    EMC_SET_DIO_INDEX_SPINDLE_FORWARD = 5101,
-    EMC_SET_DIO_INDEX_SPINDLE_REVERSE,
-    EMC_SET_DIO_INDEX_SPINDLE_DECREASE,
-    EMC_SET_DIO_INDEX_SPINDLE_INCREASE,
-    EMC_SET_DIO_INDEX_SPINDLE_BRAKE,
-    EMC_SET_DIO_INDEX_SPINDLE_ENABLE,
-    // coolant
-    EMC_SET_DIO_INDEX_COOLANT_MIST,
-    EMC_SET_DIO_INDEX_COOLANT_FLOOD,
-    // lube
-    EMC_SET_DIO_INDEX_LUBE_SENSE,
-    // aux
-    EMC_SET_DIO_INDEX_ESTOP_SENSE,
-    EMC_SET_DIO_INDEX_ESTOP_WRITE
-};
-
-// analog IO point indices
-enum {
-    // spindle
-    EMC_SET_AIO_INDEX_SPINDLE_ON = 5201
-};
+/* removed #define EMC_SET_DIO_INDEX_TYPE                       ((NMLTYPE) 5001) */
+/* removed #define EMC_SET_AIO_INDEX_TYPE                       ((NMLTYPE) 5002) */
 
 // EMC_IO aggregate class type declaration
 
@@ -583,10 +557,6 @@ extern EMC_IO_STAT *emcIoStatus;
 
 // EMC MOTION status
 extern EMC_MOTION_STAT *emcMotionStatus;
-
-#define EMC_VERSION_MAJOR 2
-#define EMC_VERSION_MINOR 2
-#define EMC_VERSION_MICRO 0
 
 // values for EMC_AXIS_SET_AXIS, axisType
 enum EmcAxisType {

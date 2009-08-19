@@ -135,22 +135,12 @@
     information, go to www.linuxcnc.org.
 */
 
-
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
 #include <asm/io.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include "hal_stg.h"		/* STG related defines */
 
-#ifndef MODULE
-#define MODULE
-#endif
-
-#ifdef MODULE
 /* module information */
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Servo-to-Go Model I  & II for EMC HAL");
@@ -163,7 +153,6 @@ static int num_chan = MAX_CHANS;	/* number of channels - default = 8 */
 RTAPI_MP_INT(num_chan, "number of channels");
 static char *dio = "IIOO";		/* dio config - default = port A&B inputs, port C&D outputs */
 RTAPI_MP_STRING(dio, "dio config string - expects something like IIOO");
-#endif /* MODULE */
 
 #define	EPSILON		1e-20
 

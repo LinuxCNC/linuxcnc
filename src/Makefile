@@ -195,6 +195,12 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	@$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
+configure: configure.in
+	AUTOGEN_TARGET=configure ./autogen.sh
+
+config.h.in: configure.in
+	AUTOGEN_TARGET=config.h.in ./autogen.sh
+
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
 endif
@@ -225,6 +231,7 @@ HEADERS := \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
+    emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
@@ -283,6 +290,8 @@ HEADERS := \
     libnml/os_intf/_timer.h \
     libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
+    libnml/posemath/gotypes.h \
+    libnml/posemath/gomath.h \
     libnml/posemath/sincos.h \
     libnml/rcs/rcs.hh \
     libnml/rcs/rcs_exit.hh \
@@ -444,7 +453,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(sysconfdir)/emc2
+	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/emc
 
         # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
@@ -464,7 +473,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
-	$(FILE) Makefile.modinc $(DESTDIR)/etc/emc2
+	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/emc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(libdir)/emc/tcl
 	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)
@@ -711,6 +720,11 @@ genhexkins-objs := emc/kinematics/genhexkins.o
 genhexkins-objs += libnml/posemath/_posemath.o
 genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += genserkins.o
+genserkins-objs := emc/kinematics/genserkins.o
+genserkins-objs += libnml/posemath/gomath.o
+genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
 pumakins-objs += libnml/posemath/_posemath.o
@@ -829,6 +843,7 @@ endif
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
+../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 

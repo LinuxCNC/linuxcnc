@@ -27,6 +27,7 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     maxError = 0.0;
     minPositionLimit = -1.0;
     maxPositionLimit = 1.0;
+    minFerror = 1.0;
     maxFerror = 1.0;
     ferrorCurrent = 0.0;
     ferrorHighMark = 0.0;
@@ -53,13 +54,13 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
-    enabled = 0;
-    inpos = 1;
+    enabled = OFF;
+    inpos = ON;
     queue = 0;
     activeQueue = 0;
-    queueFull = 0;
+    queueFull = OFF;
     id = 0;
-    paused = 0;
+    paused = OFF;
     scale = 0.0;
     spindle_scale = 0.0;
 
@@ -72,8 +73,8 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     maxAcceleration = 1.0;
 
     ZERO_EMC_POSE(probedPosition);
-    probe_tripped = 0;
-    probing = 0;
+    probe_tripped = OFF;
+    probing = OFF;
     probeval = 0;
     
     ZERO_EMC_POSE(dtg);
@@ -81,11 +82,10 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     kinematics_type = 0;
     motion_type = 0;
     current_vel = 0.0;
-    feed_override_enabled = 0;
-    spindle_override_enabled = 0;
-    adaptive_feed_enabled = 0;
-    feed_hold_enabled = 0;
-    delayLeft = 0.0;
+    feed_override_enabled = OFF;
+    spindle_override_enabled = OFF;
+    adaptive_feed_enabled = OFF;
+    feed_hold_enabled = OFF;
 }
 
 EMC_MOTION_STAT::EMC_MOTION_STAT():
@@ -93,11 +93,15 @@ EMC_MOTION_STAT_MSG(EMC_MOTION_STAT_TYPE, sizeof(EMC_MOTION_STAT))
 {
     int i;
 
-    for (i = 0; i < EMC_MAX_DIO; i++)
+    for (i = 0; i < EMC_MAX_DIO; i++) {
 	synch_di[i] = 0;
+	synch_do[i] = 0;
+    }
 
-    for (i = 0; i < EMC_MAX_AIO; i++)
-	analog_input[i] = 0;
+    for (i = 0; i < EMC_MAX_AIO; i++) {
+	analog_input[i] = 0.0;
+	analog_output[i] = 0.0;
+    }
     
     debug = 0;
 };
@@ -136,6 +140,7 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     programUnits = CANON_UNITS_MM;
     interpreter_errcode = 0;
     task_paused = 0;
+    delayLeft = 0.0;
 }
 
 EMC_TOOL_STAT::EMC_TOOL_STAT():
@@ -160,25 +165,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 EMC_AUX_STAT::EMC_AUX_STAT():
 EMC_AUX_STAT_MSG(EMC_AUX_STAT_TYPE, sizeof(EMC_AUX_STAT))
 {
-    int t;
-
     estop = 1;
-
-    for (t = 0; t < EMC_AUX_MAX_DOUT; t++) {
-	dout[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_DIN; t++) {
-	din[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AOUT; t++) {
-	aout[t] = 0;
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AIN; t++) {
-	ain[t] = 0;
-    }
 }
 
 EMC_SPINDLE_STAT::EMC_SPINDLE_STAT():
@@ -222,32 +209,6 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 	toolTable[t].frontangle = s.toolTable[t].frontangle;
 	toolTable[t].backangle = s.toolTable[t].backangle;
 	toolTable[t].orientation = s.toolTable[t].orientation;
-    }
-
-    return s;
-}
-
-// overload = , since class has array elements
-EMC_AUX_STAT EMC_AUX_STAT::operator =(EMC_AUX_STAT s)
-{
-    int t;
-
-    estop = s.estop;
-
-    for (t = 0; t < EMC_AUX_MAX_DOUT; t++) {
-	dout[t] = s.dout[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_DIN; t++) {
-	din[t] = s.din[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AOUT; t++) {
-	aout[t] = s.aout[t];
-    }
-
-    for (t = 0; t < EMC_AUX_MAX_AIN; t++) {
-	ain[t] = s.ain[t];
     }
 
     return s;

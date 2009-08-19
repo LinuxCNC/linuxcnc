@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -56,6 +57,7 @@ When you set up a lathe using Lathe Mode you need to use a Lathe Tool Table
  so AXIS will display your tool properly.
  See the INI File section of the Integrators Manual for info on setting
  up AXIS for Lathe Mode.
+ Use the "DIA" column for the tool tip diameter.
 \end_layout
 
 \begin_layout Section

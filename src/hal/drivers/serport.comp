@@ -60,7 +60,7 @@ int get_count(void) {
 }
 
 EXTRA_SETUP() {
-    rtapi_print_msg(RTAPI_MSG_ERR, "requesting I/O region 0x%x\n",
+    rtapi_print_msg(RTAPI_MSG_INFO, "requesting I/O region 0x%x\n",
 			io[extra_arg]);
     if(!rtapi_request_region(io[extra_arg], 7, "serport")) {
 	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
@@ -75,7 +75,7 @@ EXTRA_SETUP() {
 EXTRA_CLEANUP() {
     int i;
     for(i=0; i < MAX && io[i]; i++) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "releasing I/O region 0x%x\n",
+        rtapi_print_msg(RTAPI_MSG_INFO, "releasing I/O region 0x%x\n",
 			io[i]);
         rtapi_release_region(io[i], 7);
     }

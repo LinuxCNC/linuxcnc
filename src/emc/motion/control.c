@@ -231,7 +231,6 @@ static void update_status(void);
 
 void emcmotController(void *arg, long period)
 {
-#ifdef RTAPI
     // - overrun detection -
     // maintain some records of how long it's been between calls.  The
     // first time we see a delay that's much longer than the records show
@@ -301,7 +300,6 @@ void emcmotController(void *arg, long period)
     last = now;
 
     // end of overrun detection
-#endif
 
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
@@ -1042,6 +1040,26 @@ static void get_pos_cmds(long period)
     double accell_mag;
     int onlimit;
 
+    /* copy joint position feedback to local array */
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	/* point to joint struct */
+	joint = &joints[joint_num];
+	/* copy coarse command */
+	positions[joint_num] = joint->coarse_pos;
+	/* check for homed */
+	if (!GET_JOINT_HOMED_FLAG(joint)) {
+	    all_homed = 0;
+	    all_at_home = 0;
+	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
+	    all_at_home = 0;
+	}
+    }
+    /* if less than a full complement of joints, zero out the rest */
+    while ( joint_num < EMCMOT_MAX_JOINTS ) {
+        positions[joint_num++] = 0.0;
+    }
+
+
     /* RUN MOTION CALCULATIONS: */
 
     /* run traj planner code depending on the state */
@@ -1164,24 +1182,6 @@ static void get_pos_cmds(long period)
 	/*! \todo FIXME - this should run at the traj rate */
 	all_homed = 1;
 	all_at_home = 1;
-	/* copy joint position feedback to local array */
-	for (joint_num = 0; joint_num < num_joints; joint_num++) {
-	    /* point to joint struct */
-	    joint = &joints[joint_num];
-	    /* copy coarse command */
-	    positions[joint_num] = joint->coarse_pos;
-	    /* check for homed */
-	    if (!GET_JOINT_HOMED_FLAG(joint)) {
-		all_homed = 0;
-		all_at_home = 0;
-	    } else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-		all_at_home = 0;
-	    }
-	}
-	/* if less than a full complement of joints, zero out the rest */
-	while ( joint_num < EMCMOT_MAX_JOINTS ) {
-	    positions[joint_num++] = 0.0;
-	}
 	switch (kinType) {
 
 	case KINEMATICS_IDENTITY:
@@ -1768,8 +1768,10 @@ static void output_to_hal(void)
             speed = emcmotStatus->spindle.speed;
 
 	*(emcmot_hal_data->spindle_speed_out) = speed;
+	*(emcmot_hal_data->spindle_speed_out_rps) = speed/60.;
     } else {
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
+	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;
@@ -1906,11 +1908,15 @@ static void update_status(void)
 	joint_status->home_offset = joint->home_offset;
     }
 
-    for (dio = 0; dio < num_dio; dio++)
+    for (dio = 0; dio < num_dio; dio++) {
 	emcmotStatus->synch_di[dio] = *(emcmot_hal_data->synch_di[dio]);
+	emcmotStatus->synch_do[dio] = *(emcmot_hal_data->synch_do[dio]);
+    }
 
-    for (aio = 0; aio < num_aio; aio++)
+    for (aio = 0; aio < num_aio; aio++) {
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
+	emcmotStatus->analog_output[aio] = *(emcmot_hal_data->analog_output[aio]);
+    }
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I

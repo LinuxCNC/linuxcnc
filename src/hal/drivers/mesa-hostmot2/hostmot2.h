@@ -17,11 +17,6 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#ifndef RTAPI
-#error This is a realtime component only!
-#endif
-
-
 // please God where do these live in real life?
 #define INT32_MIN (-2147483647-1)
 #define INT32_MAX (2147483647)

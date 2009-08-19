@@ -20,6 +20,7 @@
 #include <structmember.h>
 
 #include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
 #include "interp_return.hh"
 #include "canon.hh"
 #include "config.h"		// LINELEN
@@ -180,10 +181,6 @@ static double TO_PROG_LEN(double p) {
     if(metric) return p*25.4;
     return p;
 }
-static double FROM_PROG_LEN(double p) {
-    if(metric) return p/25.4;
-    return p;
-}
 
 void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
     double u = 0.0;
@@ -331,7 +328,6 @@ void SET_XY_ROTATION(double t) {
 };
 
 void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
-void SET_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 
 void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();   
@@ -412,15 +408,6 @@ void MESSAGE(char *comment) {
 void LOG(char *s) {}
 void LOGOPEN(char *f) {}
 void LOGCLOSE() {}
-
-void SYSTEM(char *comment) {
-    maybe_new_line();   
-    if(interp_error) return;
-    PyObject *result =
-        PyObject_CallMethod(callback, "system", "s", comment);
-    if(result == NULL) interp_error ++;
-    Py_XDECREF(result);
-}
 
 void COMMENT(char *comment) {
     maybe_new_line();   
@@ -591,7 +578,7 @@ int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
-int WAIT(int index, int input_type, int wait_type, int timeout) { return 0;}
+int WAIT(int index, int input_type, int wait_type, double timeout) { return 0;}
 
 void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
