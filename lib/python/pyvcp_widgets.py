@@ -277,7 +277,13 @@ class pyvcp_dial(Canvas):
                             self.mid+(self.r*1.1)*math.sin(self.alfa))  
 
     def update_dro(self):
-        valtext = str(self.out)
+        if self.funit > 1:
+            fmt = "%.0f"
+        if self.funit < 0.0001:
+            fmt = "%%.%df" % int(str(self.funit)[-2:])
+        else:
+            fmt = "%%.%df" % len(str(self.funit)[2:])
+        valtext = fmt % self.out
         self.itemconfig(self.dro,text=valtext)
 
     def update_scale(self):
