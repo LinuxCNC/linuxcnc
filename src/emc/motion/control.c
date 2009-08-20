@@ -1053,51 +1053,51 @@ static void get_pos_cmds(long period)
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
+	    if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+	        /* if joint is not active, skip it */
+	        continue;
+            }
+
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
-	    //AJ: only need to worry about free mode if joint is active
-	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
-		/* compute joint velocity limit */
-                if ( joint->home_state == HOME_IDLE ) {
-                    /* velocity limit = joint limit * global scale factor */
-                    /* the global factor is used for feedrate override */
-                    vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
-                    /* must not be greater than the joint physical limit */
-                    if (vel_lim > joint->vel_limit) {
-                        vel_lim = joint->vel_limit;
-                    }
-                    /* set vel limit in free TP */
-                    joint->free_tp.max_vel = vel_lim;
-                } else {
-                    /* except if homing, when we set free_tp max vel in do_homing */
+	    /* compute joint velocity limit */
+            if ( joint->home_state == HOME_IDLE ) {
+                /* velocity limit = joint limit * global scale factor */
+                /* the global factor is used for feedrate override */
+                vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
+                /* must not be greater than the joint physical limit */
+                if (vel_lim > joint->vel_limit) {
+                    vel_lim = joint->vel_limit;
                 }
-                /* set acc limit in free TP */
-		joint->free_tp.max_acc = joint->acc_limit;
-		/* execute free TP */
-		simple_tp_update(&(joint->free_tp), servo_period );
-		/* if we move at all, clear AT_HOME flag */
-		if (joint->free_tp.active) {
-		    SET_JOINT_AT_HOME_FLAG(joint, 0);
+                /* set vel limit in free TP */
+                joint->free_tp.max_vel = vel_lim;
+            } else {
+                /* except if homing, when we set free_tp max vel in do_homing */
+            }
+            /* set acc limit in free TP */
+            joint->free_tp.max_acc = joint->acc_limit;
+            /* execute free TP */
+            simple_tp_update(&(joint->free_tp), servo_period );
+            /* copy free TP output to pos_cmd and coarse_pos */
+            joint->pos_cmd = joint->free_tp.curr_pos;
+            joint->coarse_pos = joint->free_tp.curr_pos;
+            /* update joint status flag and overall status flag */
+            if ( joint->free_tp.active ) {
+		/* active TP means we're moving, so not in position */
+		SET_JOINT_INPOS_FLAG(joint, 0);
+		SET_MOTION_INPOS_FLAG(0);
+                /* if we move at all, clear AT_HOME flag */
+		SET_JOINT_AT_HOME_FLAG(joint, 0);
+		/* is any limit disabled for this move? */
+		if ( emcmotStatus->overrideLimitMask ) {
+                    emcmotDebug->overriding = 1;
 		}
-		/* copy free TP output to pos_cmd and coarse_pos */
-		joint->pos_cmd = joint->free_tp.curr_pos;
-		joint->coarse_pos = joint->free_tp.curr_pos;
-		/* update joint status flag and overall status flag */
-		if ( joint->free_tp.active ) {
-		    /* active TP means we're moving, so not in position */
-		    SET_JOINT_INPOS_FLAG(joint, 0);
-		    SET_MOTION_INPOS_FLAG(0);
-		    /* is any limit disabled for this move? */
-		    if ( emcmotStatus->overrideLimitMask ) {
-			emcmotDebug->overriding = 1;
-		    }
-		} else {
-		    SET_JOINT_INPOS_FLAG(joint, 1);
-		    /* joint has stopped, so any outstanding jogs are done */
-		    joint->kb_jog_active = 0;
-		    joint->wheel_jog_active = 0;
-		}
-	    }//if (GET_JOINT_ACTIVE_FLAG(join))
+            } else {
+		SET_JOINT_INPOS_FLAG(joint, 1);
+		/* joint has stopped, so any outstanding jogs are done */
+		joint->kb_jog_active = 0;
+		joint->wheel_jog_active = 0;
+            }
 	}//for loop for joints
 	/* if overriding is true and we're in position, the jog
 	   is complete, and the limits should be re-enabled */
