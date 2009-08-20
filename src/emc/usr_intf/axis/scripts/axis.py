@@ -1618,9 +1618,10 @@ class LivePlotter:
             root_window.tk.call("update_maxvel_slider")
         vupdate(vars.override_limits, self.stat.joint[0]['override_limits'])
         on_any_limit = 0
-        for i, l in enumerate(self.stat.limit):
-            if self.stat.axis_mask & (1<<i) and l:
+        for l in self.stat.limit:
+            if l:
                 on_any_limit = True
+                break
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
         current_tool = None
