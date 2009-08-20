@@ -1770,6 +1770,8 @@ class AxisCanon(GLCanon, StatMixin):
         self.aborted = False
         root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
 
+    def is_lathe(self): return lathe
+
     def do_cancel(self, event):
         self.aborted = True
 
