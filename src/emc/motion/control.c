@@ -1797,6 +1797,7 @@ static void output_to_hal(void)
 
 	*(joint_data->free_pos_cmd) = joint->free_tp.pos_cmd;
 	*(joint_data->free_vel_lim) = joint->free_tp.max_vel;
+	*(joint_data->free_curr_vel) = joint->free_tp.curr_vel;
 	*(joint_data->free_tp_enable) = joint->free_tp.enable;
 	*(joint_data->kb_jog_active) = joint->kb_jog_active;
 	*(joint_data->wheel_jog_active) = joint->wheel_jog_active;
