@@ -2410,7 +2410,7 @@ class TclCommands(nf.TclCommands):
     def toggle_override_limits(*args):
         s.poll()
         if s.interp_state != linuxcnc.INTERP_IDLE: return
-        if s.axis[0]['override_limits']:
+        if s.joint[0]['override_limits']:
             ensure_mode(linuxcnc.MODE_AUTO)
         else:
             ensure_mode(linuxcnc.MODE_MANUAL)
