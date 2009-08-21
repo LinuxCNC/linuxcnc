@@ -386,9 +386,14 @@ class GlCanonDraw:
 
     def dlist(self, name, n=1, gen=lambda n: None):
         if name not in self._dlists:
-            self._dlists[name] = glGenLists(n)
-            gen(self._dlists[name])
-        return self._dlists[name]
+            base = glGenLists(n)
+            self._dlists[name] = base, n
+            gen(base)
+        return self._dlists[name][0]
+
+    def __del__(self):
+        for base, count in self._dlists.values():
+            glDeleteLists(base, count)
 
     def set_current_line(self, line): pass
     def set_highlight_line(self, line):
