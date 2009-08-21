@@ -22,6 +22,7 @@ import glnav
 import hershey
 import emc
 import array
+import gcode
 
 homeicon = array.array('B',
         [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
@@ -1310,5 +1311,38 @@ class GlCanonDraw:
             glnav.glRotateScene(self, 1.0, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self._redraw()
 
+    def make_selection_list(self):
+        select_program = self.dlist('select_program')
+        select_norapids = self.dlist('select_norapids')
+        glNewList(select_program, GL_COMPILE)
+        self.g.draw(1)
+        glEndList()
+        glNewList(select_norapids, GL_COMPILE)
+        self.g.draw(1, False)
+        glEndList()
 
+    def make_main_list(self):
+        program = self.dlist('program')
+        norapids = self.dlist('norapids')
+        if program is None: program = glGenLists(1)
+        glNewList(program, GL_COMPILE)
+        self.g.draw(0, True)
+        glEndList()
+
+        if norapids is None: norapids = glGenLists(1)
+        glNewList(norapids, GL_COMPILE)
+        self.g.draw(0, False)
+        glEndList()
+
+    def load_preview(self, f, canon, unitcode, initcode):
+        self.set_canon(canon)
+        result, seq = gcode.parse(f, canon, unitcode, initcode)
+
+        if result < gcode.MIN_ERROR:
+            canon.calc_extents()
+            canon.calc_notool_extents()
+            self.make_main_list()
+            self.make_selection_list()
+
+        return result, seq
 # vim:ts=8:sts=4:et:

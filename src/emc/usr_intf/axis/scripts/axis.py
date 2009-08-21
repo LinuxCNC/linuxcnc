@@ -630,29 +630,6 @@ def scroll_down(event):
 
 current_tool = None
 
-def make_selection_list(g, o):
-    select_program = o.dlist('select_program')
-    select_norapids = o.dlist('select_norapids')
-    glNewList(select_program, GL_COMPILE)
-    g.draw(1)
-    glEndList()
-    glNewList(select_norapids, GL_COMPILE)
-    g.draw(1, False)
-    glEndList()
-
-def make_main_list(g, o):
-    program = o.dlist('program')
-    norapids = o.dlist('norapids')
-    if program is None: program = glGenLists(1)
-    glNewList(program, GL_COMPILE)
-    g.draw(0, True)
-    glEndList()
-
-    if norapids is None: norapids = glGenLists(1)
-    glNewList(norapids, GL_COMPILE)
-    g.draw(0, False)
-    glEndList()
-
 import array
 
 def vupdate(var, val):
@@ -1096,7 +1073,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         unitcode = "G%d" % (20 + (s.linear_units == 1))
         try:
-            result, seq = gcode.parse(f, canon, unitcode, initcode)
+            result, seq = o.load_preview(f, canon, unitcode, initcode)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1109,11 +1086,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
-
-        canon.calc_extents()
-        canon.calc_notool_extents()
-        make_main_list(canon, o)
-        make_selection_list(canon, o)
 
     finally:
         # Before unbusying, I update again, so that any keystroke events
