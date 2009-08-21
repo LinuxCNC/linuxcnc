@@ -38,7 +38,9 @@ loadrt pid num_chan=3
 loadrt probe_parport
 
 # hostmot2 driver
-loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+# if you have any firmware trouble, enable the debug flags here and see what's going on in the syslog
+#loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+loadrt hostmot2
 
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
