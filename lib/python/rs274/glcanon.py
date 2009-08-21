@@ -319,14 +319,14 @@ class GlCanonDraw:
     def __init__(self, s, lp, g=None):
         self.s = s
         self.lp = lp
-        self.g = g
+        self.canon = g
         self._dlists = {}
         self.select_buffer_size = 100
         self.hershey = hershey.Hershey()
         self.cached_tool = -1
 
-    def set_canon(self, g):
-        self.g = g
+    def set_canon(self, canon):
+        self.canon = canon
 
     def basic_lighting(self):
         self.activate()
@@ -342,7 +342,7 @@ class GlCanonDraw:
         glLoadIdentity()
 
     def select(self, x, y):
-        if self.g is None: return
+        if self.canon is None: return
         pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
@@ -395,13 +395,13 @@ class GlCanonDraw:
         if line == self.get_highlight_line(): return
         highlight = self.dlist('highlight')
         glNewList(highlight, GL_COMPILE)
-        if line is not None and self.g is not None:
-            x, y, z = self.g.highlight(line, self.get_geometry())
+        if line is not None and self.canon is not None:
+            x, y, z = self.canon.highlight(line, self.get_geometry())
             self.set_centerpoint(x, y, z)
-        elif self.g is not None:
-            x = (self.g.min_extents[0] + self.g.max_extents[0])/2
-            y = (self.g.min_extents[1] + self.g.max_extents[1])/2
-            z = (self.g.min_extents[2] + self.g.max_extents[2])/2
+        elif self.canon is not None:
+            x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
+            y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
+            z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
             self.set_centerpoint(x, y, z)
         glEndList()
 
@@ -482,7 +482,7 @@ class GlCanonDraw:
 
     def show_extents(self):
         s = self.s
-        g = self.g
+        g = self.canon
 
         if g is None: return
 
@@ -842,8 +842,8 @@ class GlCanonDraw:
 
             current_tool = self.get_current_tool()
             if current_tool is None or current_tool.diameter == 0:
-                if self.g:
-                    g = self.g
+                if self.canon:
+                    g = self.canon
                     x,y,z = 0,1,2
                     cone_scale = max(g.max_extents[x] - g.min_extents[x],
                                    g.max_extents[y] - g.min_extents[y],
@@ -1227,12 +1227,12 @@ class GlCanonDraw:
         glDepthFunc(GL_LESS)
 
     def extents_info(self):
-        mid = [(a+b)/2 for a, b in zip(self.g.max_extents, self.g.min_extents)]
-        size = [(a-b) for a, b in zip(self.g.max_extents, self.g.min_extents)]
+        mid = [(a+b)/2 for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
+        size = [(a-b) for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
         return mid, size
 
     def set_view_x(self):
-        if self.g:
+        if self.canon:
             mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
             self.set_eyepoint_from_extents(size[1], size[2])
@@ -1248,7 +1248,7 @@ class GlCanonDraw:
         glRotatef(-90, 1, 0, 0)
         if self.is_lathe():
             glRotatef(90, 0, 1, 0)
-        if self.g:
+        if self.canon:
             mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
             self.set_eyepoint_from_extents(size[0], size[2])
@@ -1261,7 +1261,7 @@ class GlCanonDraw:
 
     def set_view_z(self):
         self.reset()
-        if self.g:
+        if self.canon:
             mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
             self.set_eyepoint_from_extents(size[0], size[1])
@@ -1274,7 +1274,7 @@ class GlCanonDraw:
     def set_view_z2(self):
         self.reset()
         glRotatef(-90, 0, 0, 1)
-        if self.g:
+        if self.canon:
             mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
             self.set_eyepoint_from_extents(size[1], size[0])
@@ -1288,7 +1288,7 @@ class GlCanonDraw:
     def set_view_p(self):
         self.reset()
         self.perspective = True
-        if self.g:
+        if self.canon:
             mid, size = self.extents_info()
             glTranslatef(-mid[0], -mid[1], -mid[2])
             size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
@@ -1300,9 +1300,9 @@ class GlCanonDraw:
             self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
             self.lat = -60
             self.lon = 335
-            x = (self.g.min_extents[0] + self.g.max_extents[0])/2
-            y = (self.g.min_extents[1] + self.g.max_extents[1])/2
-            z = (self.g.min_extents[2] + self.g.max_extents[2])/2
+            x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
+            y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
+            z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
             glnav.glRotateScene(self, 1.0, x, y, z, 0, 0, 0, 0)
         else:
             self.set_eyepoint(5.)
@@ -1315,10 +1315,10 @@ class GlCanonDraw:
         select_program = self.dlist('select_program')
         select_norapids = self.dlist('select_norapids')
         glNewList(select_program, GL_COMPILE)
-        self.g.draw(1)
+        self.canon.draw(1)
         glEndList()
         glNewList(select_norapids, GL_COMPILE)
-        self.g.draw(1, False)
+        self.canon.draw(1, False)
         glEndList()
 
     def make_main_list(self):
@@ -1326,12 +1326,12 @@ class GlCanonDraw:
         norapids = self.dlist('norapids')
         if program is None: program = glGenLists(1)
         glNewList(program, GL_COMPILE)
-        self.g.draw(0, True)
+        self.canon.draw(0, True)
         glEndList()
 
         if norapids is None: norapids = glGenLists(1)
         glNewList(norapids, GL_COMPILE)
-        self.g.draw(0, False)
+        self.canon.draw(0, False)
         glEndList()
 
     def load_preview(self, f, canon, unitcode, initcode):

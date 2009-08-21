@@ -354,7 +354,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_origin = None
         self.last_tool = None
         self.last_limits = None
-        self.g = None
+        self.canon = None
         self.set_eyepoint(5.)
         self.get_resources()
 
@@ -1061,7 +1061,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
             t.insert("end", *code)
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
-        o.g = canon = AxisCanon(o, widgets.text, i, progress)
+        o.canon = canon = AxisCanon(o, widgets.text, i, progress)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
@@ -1508,14 +1508,14 @@ def get_max_jog_speed(a):
 
 def run_warn():
     warnings = []
-    if o.g:
+    if o.canon:
         machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.g.min_extents_notool[i] < machine_limit_min[i]:
+            if o.canon.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.g.max_extents_notool[i] > machine_limit_max[i]:
+            if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:
@@ -1602,15 +1602,15 @@ class TclCommands(nf.TclCommands):
                 fmt = "%.4f"
 
             mf = vars.max_speed.get()
-            #print o.g.traverse[0]
+            #print o.canon.traverse[0]
 
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.g.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.g.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in o.g.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.g.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.g.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.g.traverse) +
-                o.g.dwell_time
+            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.canon.traverse)
+            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.canon.feed) +
+                sum(dist(l[1][:3], l[2][:3]) for l in o.canon.arcfeed))
+            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.canon.feed) +
+                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.canon.arcfeed) +
+                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
+                o.canon.dwell_time
                 )
  
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
@@ -1620,8 +1620,8 @@ class TclCommands(nf.TclCommands):
             else:
                 props['run'] = _("%d seconds") % (int(gt))
 
-            min_extents = from_internal_units(o.g.min_extents, conv)
-            max_extents = from_internal_units(o.g.max_extents, conv)
+            min_extents = from_internal_units(o.canon.min_extents, conv)
+            max_extents = from_internal_units(o.canon.max_extents, conv)
             for (i, c) in enumerate("xyz"):
                 a = min_extents[i]
                 b = max_extents[i]
@@ -1777,10 +1777,10 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z2()
         else:
             commands.set_view_p()
-        if o.g is not None:
-            x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-            y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-            z = (o.g.min_extents[2] + o.g.max_extents[2])/2
+        if o.canon is not None:
+            x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+            y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+            z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
             o.set_centerpoint(x, y, z)
 
     def open_pipe(f, c):
@@ -2944,10 +2944,10 @@ if lathe:
     commands.set_view_y()
 else:
     commands.set_view_p()
-if o.g:
-    x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-    y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-    z = (o.g.min_extents[2] + o.g.max_extents[2])/2
+if o.canon:
+    x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+    y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+    z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
     o.set_centerpoint(x, y, z)
 
 try:
