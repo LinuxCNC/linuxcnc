@@ -61,7 +61,7 @@ static int loadKins(EmcIniFile *trajInifile)
 
   Loads ini file params for traj
 
-  AXES <int>                      number of axes in system
+  COORDINATES <char[]>            axes in system
   LINEAR_UNITS <float>            units per mm
   ANGULAR_UNITS <float>           units per degree
   DEFAULT_LINEAR_VELOCITY <float> default linear velocity
@@ -71,7 +71,7 @@ static int loadKins(EmcIniFile *trajInifile)
 
   calls:
 
-  emcTrajSetJoints(int joints);
+  emcTrajSetAxes(int axes, int axismask);
   emcTrajSetUnits(double linearUnits, double angularUnits);
   emcTrajSetVelocity(double vel, double ini_maxvel);
   emcTrajSetAcceleration(double acc);
@@ -93,19 +93,46 @@ static int loadTraj(EmcIniFile *trajInifile)
 	int axismask = 0;
 	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
 	if(coord) {
-	    if(strchr(coord, 'x') || strchr(coord, 'X')) axismask |= 1;
-	    if(strchr(coord, 'y') || strchr(coord, 'Y')) axismask |= 2;
-	    if(strchr(coord, 'z') || strchr(coord, 'Z')) axismask |= 4;
-	    if(strchr(coord, 'a') || strchr(coord, 'A')) axismask |= 8;
-	    if(strchr(coord, 'b') || strchr(coord, 'B')) axismask |= 16;
-	    if(strchr(coord, 'c') || strchr(coord, 'C')) axismask |= 32;
-	    if(strchr(coord, 'u') || strchr(coord, 'U')) axismask |= 64;
-	    if(strchr(coord, 'v') || strchr(coord, 'V')) axismask |= 128;
-	    if(strchr(coord, 'w') || strchr(coord, 'W')) axismask |= 256;
+	    if(strchr(coord, 'x') || strchr(coord, 'X')) {
+	         axismask |= 1;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'y') || strchr(coord, 'Y')) {
+	         axismask |= 2;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'z') || strchr(coord, 'Z')) {
+	         axismask |= 4;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'a') || strchr(coord, 'A')) {
+	         axismask |= 8;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'b') || strchr(coord, 'B')) {
+	         axismask |= 16;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'c') || strchr(coord, 'C')) {
+	         axismask |= 32;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'u') || strchr(coord, 'U')) {
+	         axismask |= 64;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'v') || strchr(coord, 'V')) {
+	         axismask |= 128;
+	         axes += 1;
+            }
+	    if(strchr(coord, 'w') || strchr(coord, 'W')) {
+	         axismask |= 256;
+	         axes += 1;
+            }
 	} else {
 	    axismask = 1 | 2 | 4;		// default: XYZ machine
+	    axes = 3;
 	}
-	trajInifile->Find(&axes, "AXES", "TRAJ");
         if (0 != emcTrajSetAxes(axes, axismask)) {
              return -1;
         }
