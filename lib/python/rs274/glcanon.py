@@ -317,7 +317,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
 class GlCanonDraw:
     def __init__(self, s, lp, g=None):
-        self.s = s
+        self.stat = s
         self.lp = lp
         self.canon = g
         self._dlists = {}
@@ -481,7 +481,7 @@ class GlCanonDraw:
 
 
     def show_extents(self):
-        s = self.s
+        s = self.stat
         g = self.canon
 
         if g is None: return
@@ -685,14 +685,14 @@ class GlCanonDraw:
 
     def to_internal_linear_unit(self, v, unit=None):
         if unit is None:
-            unit = self.s.linear_units
+            unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
         return v/lu
 
 
     def to_internal_units(self, pos, unit=None):
         if unit is None:
-            unit = self.s.linear_units
+            unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
 
         lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
@@ -703,7 +703,7 @@ class GlCanonDraw:
             if abs(x) > 1e30: return 0
             return x
 
-        ax = self.s.axis
+        ax = self.stat.axis
         return (
             self.to_internal_units([fudge(ax[i]['min_position_limit'])
                 for i in range(3)]),
@@ -712,7 +712,7 @@ class GlCanonDraw:
 
 
     def redraw(self):
-        s = self.s
+        s = self.stat
         s.poll()
 
         machine_limit_min, machine_limit_max = self.soft_limits()
@@ -944,7 +944,7 @@ class GlCanonDraw:
         glEndList()
 
     def posstrs(self):
-        s = self.s
+        s = self.stat
         limit = []
         for i,l in enumerate(s.limit):
             if s.axis_mask & (1<<i):
@@ -1073,7 +1073,7 @@ class GlCanonDraw:
     def draw_axes(self, n):
         glNewList(n, GL_COMPILE)
         x,y,z,p = 0,1,2,3
-        s = self.s
+        s = self.stat
         view = self.get_view()
 
         glPushMatrix()
