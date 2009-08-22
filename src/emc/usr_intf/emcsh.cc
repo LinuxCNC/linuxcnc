@@ -583,12 +583,7 @@ static int emc_time(ClientData clientdata,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     if (objc == 1) {
-#if defined(LINUX_KERNEL_2_2)
-	/*! \todo FIXME-- Linux 2.2 has gettimeofday() bug, so return 0 */
-	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(0.0));
-#else
 	Tcl_SetObjResult(interp, Tcl_NewDoubleObj(etime()));
-#endif
 	return TCL_OK;
     }
 

@@ -1042,6 +1042,26 @@ static void get_pos_cmds(long period)
     double accell_mag;
     int onlimit;
 
+    /* copy joint position feedback to local array */
+    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	/* point to joint struct */
+	joint = &joints[joint_num];
+	/* copy coarse command */
+	positions[joint_num] = joint->coarse_pos;
+	/* check for homed */
+	if (!GET_JOINT_HOMED_FLAG(joint)) {
+	    all_homed = 0;
+	    all_at_home = 0;
+	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
+	    all_at_home = 0;
+	}
+    }
+    /* if less than a full complement of joints, zero out the rest */
+    while ( joint_num < EMCMOT_MAX_JOINTS ) {
+        positions[joint_num++] = 0.0;
+    }
+
+
     /* RUN MOTION CALCULATIONS: */
 
     /* run traj planner code depending on the state */
@@ -1108,24 +1128,6 @@ static void get_pos_cmds(long period)
 	/*! \todo FIXME - this should run at the traj rate */
 	all_homed = 1;
 	all_at_home = 1;
-	/* copy joint position feedback to local array */
-	for (joint_num = 0; joint_num < num_joints; joint_num++) {
-	    /* point to joint struct */
-	    joint = &joints[joint_num];
-	    /* copy coarse command */
-	    positions[joint_num] = joint->coarse_pos;
-	    /* check for homed */
-	    if (!GET_JOINT_HOMED_FLAG(joint)) {
-		all_homed = 0;
-		all_at_home = 0;
-	    } else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-		all_at_home = 0;
-	    }
-	}
-	/* if less than a full complement of joints, zero out the rest */
-	while ( joint_num < EMCMOT_MAX_JOINTS ) {
-	    positions[joint_num++] = 0.0;
-	}
 	switch (kinType) {
 
 	case KINEMATICS_IDENTITY:

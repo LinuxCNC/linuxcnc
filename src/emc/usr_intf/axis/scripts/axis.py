@@ -52,6 +52,7 @@ Tkinter.Tk = Tk
 from Tkinter import *
 from minigl import *
 from rs274.OpenGLTk import *
+from rs274.interpret import StatMixin
 from rs274.glcanon import GLCanon
 from hershey import Hershey
 from propertywindow import properties
@@ -1756,21 +1757,17 @@ class Progress:
             root_window.tk.call(".info.progress", "itemconfigure", text,
                 "-text", text)
 
-class AxisCanon(GLCanon):
+class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress):
-        GLCanon.__init__(self, widget, text)
+        GLCanon.__init__(self, widget.colors, geometry)
+        StatMixin.__init__(self, s)
+        self.text = text
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
         root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
 
-    def comment(self, arg):
-        if arg.startswith("AXIS,"):
-            parts = arg.split(",")
-            command = parts[1]
-            if command == "stop": self.aborted = True
-            if command == "hide": self.suppress += 1
-            if command == "show": self.suppress -= 1
+    def is_lathe(self): return lathe
 
     def do_cancel(self, event):
         self.aborted = True
@@ -1779,101 +1776,9 @@ class AxisCanon(GLCanon):
         root_window.update()
         if self.aborted: raise KeyboardInterrupt
 
-    def draw_lines(self, lines, for_selection, j=0):
-        return emc.draw_lines(geometry, lines, for_selection)
-
-    def draw_dwells(self, dwells, for_selection, j0=0):
-        delta = .015625
-        if for_selection == 0:
-            glBegin(GL_LINES)
-        for j, (l,c,x,y,z,axis) in enumerate(dwells):
-            self.progress.update(j+j0)
-            glColor3f(*c)
-            if for_selection == 1:
-                glLoadName(l)
-                glBegin(GL_LINES)
-            if lathe: axis = 1
-            if axis == 0:
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y+delta,z)
-                glVertex3f(x+delta,y-delta,z)
-
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y-delta,z)
-                glVertex3f(x-delta,y+delta,z)
-            elif axis == 1:
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z+delta)
-                glVertex3f(x+delta,y,z-delta)
-
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z-delta)
-                glVertex3f(x-delta,y,z+delta)
-            else:
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
-
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-            if for_selection == 1:
-                glEnd()
-        if for_selection == 0:
-            glEnd()
-
-
-    def draw(self, for_selection=0, include_traverse=True):
-        self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
-
-        if include_traverse:
-            glEnable(GL_LINE_STIPPLE)
-            glColor3f(*self.colors['traverse'])
-            self.draw_lines(self.traverse, for_selection)
-            glDisable(GL_LINE_STIPPLE)
-
-        glColor3f(*self.colors['straight_feed'])
-        self.draw_lines(self.feed, for_selection, len(self.traverse))
-
-        glColor3f(*self.colors['arc_feed'])
-        self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
-
-        glLineWidth(2)
-        self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
-        glLineWidth(1)
-
-
     def next_line(self, st):
-        self.state = st
-        lineno = self.lineno = st.sequence_number
-        self.progress.update(lineno)
-
-    def get_tool(self, tool):
-        for t in s.tool_table:
-            if t[0] == tool:
-                return tuple(t)
-        return tool,0.,0.,0.,0.,0.,0
-
-    def get_external_angular_units(self):
-        return s.angular_units or 1.0
-
-    def get_external_length_units(self):
-        return s.linear_units or 1.0
-
-    def get_axis_mask(self):
-        return s.axis_mask
-
-    def get_tlo_is_along_w(self):
-        return s.tlo_is_along_w
-
-    def get_block_delete(self):
-        return s.block_delete
+        GLCanon.next_line(self, st)
+        self.progress.update(self.lineno)
 
 progress_re = re.compile("^FILTER_PROGRESS=(\\d*)$")
 def filter_program(program_filter, infilename, outfilename):
@@ -2899,12 +2804,12 @@ class TclCommands(nf.TclCommands):
 
     def send_mdi(*event):
         if not manual_ok(): return "break"
-        global mdi_history_index, mdi_history_save_filename
         command = vars.mdi_command.get()
         commands.send_mdi_command(command)
         return "break"
 
     def send_mdi_command(command):
+        global mdi_history_index, mdi_history_save_filename
         if command != "":
             command= command.lstrip().rstrip()
             vars.mdi_command.set("")

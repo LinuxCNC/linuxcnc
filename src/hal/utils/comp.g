@@ -606,8 +606,8 @@ def epilogue(f):
     else:
         print >>f, "static int get_data_size(void) { return 0; }"
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC = range(6)
-modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc")
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
+modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
 
 modinc = None
 def find_modinc():
@@ -917,6 +917,7 @@ Usage:
            %(name)s --compile --userspace cfile...
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
+           %(name)s --print-modinc
 """ % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit, exitval
 
@@ -930,7 +931,7 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "luijcpdo:h?",
                            ['install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc', 'require-license'])
+                            'view-doc', 'require-license', 'print-modinc'])
     except getopt.GetoptError:
         usage(1)
 
@@ -949,6 +950,8 @@ def main():
             mode = INSTALLDOC
         if k in ("-j", "--view-doc"):
             mode = VIEWDOC
+        if k in ("--print-modinc",):
+            mode = MODINC
         if k in ("-l", "--require-license"):
             require_license = True
         if k in ("-o", "--outfile"):
@@ -960,6 +963,13 @@ def main():
 
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit, "Can only specify -o when preprocessing or documenting"
+
+    if mode == MODINC:
+        if args:
+            raise SystemExit, \
+                "Can not specify input files when using --print-modinc"
+        print find_modinc()
+        return 0
 
     for f in args:
         try:
@@ -993,6 +1003,7 @@ def main():
                 open(outfile, "w").writelines(lines)
                 os.chmod(outfile, 0555)
             elif f.endswith(".c") and mode != PREPROCESS:
+                initialize()
                 tempdir = tempfile.mkdtemp()
                 try:
                     shutil.copy(f, tempdir)

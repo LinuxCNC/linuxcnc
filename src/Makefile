@@ -210,7 +210,7 @@ config.h: config.h.in config.status
 
 INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
-	../scripts/rtapi.conf Makefile.inc Makefile.modinc \
+	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
 	../scripts/emcmkdesktop ../lib/python/nf.py
 $(INFILES): %: %.in config.status
@@ -232,6 +232,7 @@ HEADERS := \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
+    emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
@@ -290,6 +291,8 @@ HEADERS := \
     libnml/os_intf/_timer.h \
     libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
+    libnml/posemath/gotypes.h \
+    libnml/posemath/gomath.h \
     libnml/posemath/sincos.h \
     libnml/rcs/rcs.hh \
     libnml/rcs/rcs_exit.hh \
@@ -721,6 +724,11 @@ genhexkins-objs := emc/kinematics/genhexkins.o
 genhexkins-objs += libnml/posemath/_posemath.o
 genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += genserkins.o
+genserkins-objs := emc/kinematics/genserkins.o
+genserkins-objs += libnml/posemath/gomath.o
+genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
 pumakins-objs += libnml/posemath/_posemath.o
@@ -841,6 +849,7 @@ endif
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
+../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 

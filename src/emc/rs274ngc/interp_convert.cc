@@ -3239,7 +3239,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
                        w + settings->w_axis_offset);
 
     // current_xy are relative to this sytem's origin, so we can rotate directly
-    rotate(&settings->current_x, &settings->current_y, r - settings->rotation_xy);
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy - r);
     settings->rotation_xy = r;
     SET_XY_ROTATION(settings->rotation_xy);
 

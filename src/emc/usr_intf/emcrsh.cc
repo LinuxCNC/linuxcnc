@@ -1411,11 +1411,7 @@ static cmdResponseType getTime(char *s, connectionRecType *context)
 {
   char *pTimeStr = "TIME %f";
   
-#if defined(LINUX_KERNEL_2_2)
-  sprintf(context->outBuf, pTimeStr, 0.0);
-#else  
   sprintf(context->outBuf, pTimeStr, etime());
-#endif
   return rtNoError;
 }
 

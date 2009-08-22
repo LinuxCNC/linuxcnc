@@ -38,7 +38,9 @@ loadrt pid num_chan=3
 loadrt probe_parport
 
 # hostmot2 driver
-loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+# if you have any firmware trouble, enable the debug flags here and see what's going on in the syslog
+#loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+loadrt hostmot2
 
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
@@ -101,7 +103,7 @@ setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
 setp pid.0.FF2 [AXIS_0]FF2
 setp pid.0.deadband [AXIS_0]DEADBAND
-setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
@@ -141,7 +143,7 @@ setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
 setp pid.1.FF2 [AXIS_1]FF2
 setp pid.1.deadband [AXIS_1]DEADBAND
-setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
@@ -181,7 +183,7 @@ setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
 setp pid.2.FF2 [AXIS_2]FF2
 setp pid.2.deadband [AXIS_2]DEADBAND
-setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2

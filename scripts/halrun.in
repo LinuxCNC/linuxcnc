@@ -19,13 +19,19 @@ if $REALTIME status > /dev/null; then
     exit 1
 fi
 
+IS_HALTCL=false
 case $1 in
-*.hal) set -- -f $1
+*.tcl) IS_HALTCL=true ;;
+*.hal) set -- -f $1 ;;
 esac
 
 $REALTIME start
 
-halcmd $@; result=$?
+if $IS_HALTCL; then
+    haltcl $@; result=$?
+else
+    halcmd $@; result=$?
+fi
 
 if [ $INTERACTIVE -eq 1 ]; then halcmd -kf; fi
 
