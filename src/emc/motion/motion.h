@@ -95,15 +95,10 @@ extern "C" {
 
     typedef enum {
 	EMCMOT_ABORT = 1,	/* abort all motion */
-	EMCMOT_JOINT_ABORT,	/* abort one axis */
 	EMCMOT_ENABLE,		/* enable servos for active joints */
 	EMCMOT_DISABLE,		/* disable servos for active joints */
-	EMCMOT_ENABLE_AMPLIFIER,	/* enable amp outputs */
-	EMCMOT_DISABLE_AMPLIFIER,	/* disable amp outputs */
 	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
 	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_ACTIVATE_JOINT,	/* make joint active */
-	EMCMOT_DEACTIVATE_JOINT,	/* make joint inactive */
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -120,11 +115,6 @@ extern "C" {
 	EMCMOT_AF_ENABLE,	/* enable/disable adaptive feedrate */
 	EMCMOT_OVERRIDE_LIMITS,	/* temporarily ignore limits until jog done */
 
-	EMCMOT_HOME,		/* home a joint or all joints */
-	EMCMOT_UNHOME,		/* unhome a joint or all joints*/
-	EMCMOT_JOG_CONT,	/* continuous jog */
-	EMCMOT_JOG_INCR,	/* incremental jog */
-	EMCMOT_JOG_ABS,		/* absolute jog */
 	EMCMOT_SET_LINE,	/* queue up a linear move */
 	EMCMOT_SET_CIRCLE,	/* queue up a circular move */
 	EMCMOT_CLEAR_PROBE_FLAGS,	/* clears probeTripped flag */
@@ -133,24 +123,18 @@ extern "C" {
 	EMCMOT_RIGID_TAP,	/* go to pos, with sync to spindle speed, 
 				   then return to initial pos */
 
-	EMCMOT_SET_POSITION_LIMITS,	/* set the joint position +/- limits */
-	EMCMOT_SET_BACKLASH,	/* set the joint backlash */
-	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
-	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
-	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max joint vel */
-	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
-	EMCMOT_SET_HOMING_PARAMS,	/* sets joint homing parameters */
+
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
 	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
 	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
         EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
-	
+
 	EMCMOT_SET_SPINDLE_VEL,	/* set the spindle vel (>0 means forward, <0 means backward) */
 	EMCMOT_SPINDLE_ON,	/* start the spindle */
 	EMCMOT_SPINDLE_OFF,	/* stop the spindle */
@@ -158,9 +142,28 @@ extern "C" {
 	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
 	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
-	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
-	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
         EMCMOT_SET_OFFSET, /* set tool offsets */
+
+	EMCMOT_JOG_CONT,	/* continuous jog */
+	EMCMOT_JOG_INCR,	/* incremental jog */
+	EMCMOT_JOG_ABS,		/* absolute jog */
+
+	EMCMOT_JOINT_ABORT,             /* abort one joint */
+	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
+	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
+	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
+	EMCMOT_JOINT_DISABLE_AMPLIFIER, /* disable amp outputs */
+	EMCMOT_JOINT_HOME,              /* home a joint or all joints */
+	EMCMOT_JOINT_UNHOME,            /* unhome a joint or all joints*/
+	EMCMOT_SET_JOINT_POSITION_LIMITS, /* set the joint position +/- limits */
+	EMCMOT_SET_JOINT_BACKLASH,      /* set the joint backlash */
+	EMCMOT_SET_JOINT_MIN_FERROR,    /* minimum following error, input units */
+	EMCMOT_SET_JOINT_MAX_FERROR,    /* maximum following error, input units */
+	EMCMOT_SET_JOINT_VEL_LIMIT,     /* set the max joint vel */
+	EMCMOT_SET_JOINT_ACC_LIMIT,     /* set the max joint accel */
+	EMCMOT_SET_JOINT_HOMING_PARAMS, /* sets joint homing parameters */
+	EMCMOT_SET_JOINT_MOTOR_OFFSET,  /* set the offset between joint and motor */
+	EMCMOT_SET_JOINT_COMP,          /* set a compensation triplet for a joint (nominal, forw., rev.) */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */

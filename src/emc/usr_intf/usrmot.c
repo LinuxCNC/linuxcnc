@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
 				&emcmotCommand.maxLimit)) {
 		    printf("syntax: limit <joint> <min> <max>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
+		    emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -788,7 +788,7 @@ int main(int argc, char *argv[])
 				&emcmotCommand.maxFerror)) {
 		    printf("syntax: ferror <joint> <ferror>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_SET_MAX_FERROR;
+		    emcmotCommand.command = EMCMOT_SET_JOINT_MAX_FERROR;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -800,7 +800,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.joint >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: live <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_ENABLE_AMPLIFIER;
+		    emcmotCommand.command = EMCMOT_JOINT_ENABLE_AMPLIFIER;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -812,7 +812,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.joint >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: kill <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_DISABLE_AMPLIFIER;
+		    emcmotCommand.command = EMCMOT_JOINT_DISABLE_AMPLIFIER;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -824,7 +824,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.joint >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: activate <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
+		    emcmotCommand.command = EMCMOT_JOINT_ACTIVATE;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -836,7 +836,7 @@ int main(int argc, char *argv[])
 		    emcmotCommand.joint >= EMCMOT_MAX_JOINTS) {
 		    printf("syntax: deactivate <n>\n");
 		} else {
-		    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;
+		    emcmotCommand.command = EMCMOT_JOINT_DEACTIVATE;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");
@@ -859,7 +859,7 @@ int main(int argc, char *argv[])
 #endif
 	    } else if (!strcmp(cmd, "home")) {
 		if (1 == sscanf(input, "%*s %d", &emcmotCommand.joint)) {
-		    emcmotCommand.command = EMCMOT_HOME;
+		    emcmotCommand.command = EMCMOT_JOINT_HOME;
 		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 			fprintf(stderr,
 				"Can't send a command to RT-task\n");

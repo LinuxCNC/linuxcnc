@@ -123,7 +123,7 @@ int emcJointSetBacklash(int joint, double backlash)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_BACKLASH;
+    emcmotCommand.command = EMCMOT_SET_JOINT_BACKLASH;
     emcmotCommand.joint = joint;
     emcmotCommand.backlash = backlash;
 
@@ -150,7 +150,7 @@ int emcJointSetMinPositionLimit(int joint, double limit)
 
     JointConfig[joint].MinLimit = limit;
 
-    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
+    emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
     emcmotCommand.joint = joint;
     emcmotCommand.maxLimit = JointConfig[joint].MinLimit;
     emcmotCommand.minLimit = JointConfig[joint].MaxLimit;
@@ -178,7 +178,7 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
 
     JointConfig[joint].MaxLimit = limit;
 
-    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
+    emcmotCommand.command = EMCMOT_SET_JOINT_POSITION_LIMITS;
     emcmotCommand.joint = joint;
     emcmotCommand.minLimit = JointConfig[joint].MinLimit;
     emcmotCommand.maxLimit = JointConfig[joint].MaxLimit;
@@ -203,7 +203,7 @@ int emcJointSetMotorOffset(int joint, double offset)
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_SET_MOTOR_OFFSET;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MOTOR_OFFSET;
     emcmotCommand.joint = joint;
     emcmotCommand.motor_offset = offset;
     
@@ -228,7 +228,7 @@ int emcJointSetFerror(int joint, double ferror)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_MAX_FERROR;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MAX_FERROR;
     emcmotCommand.joint = joint;
     emcmotCommand.maxFerror = ferror;
 
@@ -252,7 +252,7 @@ int emcJointSetMinFerror(int joint, double ferror)
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_SET_MIN_FERROR;
+    emcmotCommand.command = EMCMOT_SET_JOINT_MIN_FERROR;
     emcmotCommand.joint = joint;
     emcmotCommand.minFerror = ferror;
 
@@ -281,7 +281,7 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_SET_HOMING_PARAMS;
+    emcmotCommand.command = EMCMOT_SET_JOINT_HOMING_PARAMS;
     emcmotCommand.joint = joint;
     emcmotCommand.home = home;
     emcmotCommand.offset = offset;
@@ -621,7 +621,7 @@ int emcJointActivate(int joint)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_ACTIVATE_JOINT;
+    emcmotCommand.command = EMCMOT_JOINT_ACTIVATE;
     emcmotCommand.joint = joint;
 
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -638,7 +638,7 @@ int emcJointDeactivate(int joint)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_DEACTIVATE_JOINT;
+    emcmotCommand.command = EMCMOT_JOINT_DEACTIVATE;
     emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -663,7 +663,7 @@ int emcJointEnable(int joint)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_ENABLE_AMPLIFIER;
+    emcmotCommand.command = EMCMOT_JOINT_ENABLE_AMPLIFIER;
     emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -675,7 +675,7 @@ int emcJointDisable(int joint)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_DISABLE_AMPLIFIER;
+    emcmotCommand.command = EMCMOT_JOINT_DISABLE_AMPLIFIER;
     emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -687,7 +687,7 @@ int emcJointHome(int joint)
 	return 0;
     }
 
-    emcmotCommand.command = EMCMOT_HOME;
+    emcmotCommand.command = EMCMOT_JOINT_HOME;
     emcmotCommand.joint = joint;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
@@ -699,7 +699,7 @@ int emcJointUnhome(int joint)
 		return 0;
 	}
 
-	emcmotCommand.command = EMCMOT_UNHOME;
+	emcmotCommand.command = EMCMOT_JOINT_UNHOME;
 	emcmotCommand.joint = joint;
 
 	return usrmotWriteEmcmotCommand(&emcmotCommand);
