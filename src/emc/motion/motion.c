@@ -742,12 +742,6 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.free-curr-vel", num);
-    retval =
-	hal_pin_float_new(buf, HAL_OUT, &(addr->free_curr_vel), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "joint.%d.free-tp-enable", num);
     retval =
 	hal_pin_bit_new(buf, HAL_OUT, &(addr->free_tp_enable), mot_comp_id);

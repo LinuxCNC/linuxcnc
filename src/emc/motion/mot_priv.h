@@ -46,7 +46,6 @@ typedef struct {
 
     hal_float_t *free_pos_cmd;	/* RPI: free traj planner pos cmd */
     hal_float_t *free_vel_lim;	/* RPI: free traj planner vel limit */
-    hal_float_t *free_curr_vel;	/* RPI: free traj planner current vel */
     hal_bit_t *free_tp_enable;	/* RPI: free traj planner is running */
     hal_bit_t *kb_jog_active;   /* RPI: executing keyboard jog */
     hal_bit_t *wheel_jog_active;/* RPI: executing handwheel jog */
