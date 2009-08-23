@@ -309,7 +309,7 @@ int emcSystemCmd(char *s)
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print("emcSystemCmd: can't execute ``%s''\n", s);
 	}
-	return -1;
+	exit(-1);
     }
     // else we're the parent
     return 0;
