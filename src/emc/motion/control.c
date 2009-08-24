@@ -891,8 +891,8 @@ static void set_operating_mode(void)
 		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint data */
 		    joint = &joints[joint_num];
-		    /* set joint planner pos cmd to current location */
-		    joint->free_tp.pos_cmd = joint->pos_cmd;
+		    /* set joint planner curr_pos to current location */
+		    joint->free_tp.curr_pos = joint->pos_cmd;
 		    /* but it can stay disabled until a move is required */
 		    joint->free_tp.enable = 0;
 		}
