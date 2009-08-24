@@ -251,6 +251,7 @@ echo "Machine configuration file is '$INI_NAME'"
 
 if [ ! -f "$INIFILE" ] ; then
     echo "Could not find ini file '$INIFILE'"
+    trap '' EXIT
     exit -1
 fi
 echo INIFILE=$INIFILE >>$PRINT_FILE
