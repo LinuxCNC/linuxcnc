@@ -807,7 +807,7 @@ static void set_operating_mode(void)
 	    joint_data = &(emcmot_hal_data->joint[joint_num]);
 	    joint = &joints[joint_num];
 
-	    joint->free_tp.pos_cmd = joint->pos_cmd;
+	    joint->free_tp.curr_pos = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
 		SET_JOINT_HOMING_FLAG(joint, 0);
