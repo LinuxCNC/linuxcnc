@@ -1062,6 +1062,7 @@ static void get_pos_cmds(long period)
     /* used in teleop mode to compute the max accell requested */
     double accell_mag;
     int onlimit = 0;
+    int joint_limit[EMCMOT_MAX_JOINTS][2];
 
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -1401,19 +1402,24 @@ static void get_pos_cmds(long period)
 
 	/* check for soft limits */
 	if (joint->pos_cmd > joint->max_pos_limit) {
+	    joint_limit[joint_num][1] = 1;
             onlimit = 1;
-            if (!emcmotStatus->on_soft_limit)
-                reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
         }
         else if (joint->pos_cmd < joint->min_pos_limit) {
+	    joint_limit[joint_num][0] = 1;
             onlimit = 1;
-            if (!emcmotStatus->on_soft_limit)
-                reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
         }
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
 	    /* just hit the limit */
+	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	        if (joint_limit[joint_num][0]) {
+                    reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
+                } else if (joint_limit[joint_num][1]) {
+                    reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
+                }
+	    }
 	    SET_MOTION_ERROR_FLAG(1);
 	    emcmotStatus->on_soft_limit = 1;
 	}
