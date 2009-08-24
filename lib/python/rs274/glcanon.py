@@ -316,6 +316,42 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         glLineWidth(1)
 
 class GlCanonDraw:
+    colors = {
+        'traverse': (0.30, 0.50, 0.50),
+        'backplotprobing_alpha': 0.75,
+        'backplotprobing': (0.63, 0.13, 0.94),
+        'backplottraverse': (0.30, 0.50, 0.50),
+        'label_ok': (1.00, 0.51, 0.53),
+        'backplotjog_alpha': 0.75,
+        'tool_diffuse': (0.60, 0.60, 0.60),
+        'backplotfeed': (0.75, 0.25, 0.25),
+        'back': (0.00, 0.00, 0.00),
+        'lathetool_alpha': 0.10,
+        'axis_x': (0.20, 1.00, 0.20),
+        'cone': (1.00, 0.00, 0.00),
+        'axis_z': (0.20, 0.20, 1.00),
+        'label_limit': (1.00, 0.21, 0.23),
+        'backplotjog': (1.00, 1.00, 0.00),
+        'selected': (0.00, 1.00, 1.00),
+        'lathetool': (0.80, 0.80, 0.80),
+        'dwell': (1.00, 0.50, 0.50),
+        'overlay_foreground': (1.00, 1.00, 1.00),
+        'overlay_background': (0.00, 0.00, 0.00),
+        'straight_feed': (1.00, 1.00, 1.00),
+        'small_origin': (0.00, 1.00, 1.00),
+        'backplottoolchange_alpha': 0.25,
+        'backplottraverse_alpha': 0.25,
+        'overlay_alpha': 0.75,
+        'tool_ambient': (0.40, 0.40, 0.40),
+        'tool_alpha': 0.20,
+        'backplottoolchange': (1.00, 0.65, 0.00),
+        'backplotarc': (0.75, 0.25, 0.50),
+        'm1xx': (0.50, 0.50, 1.00),
+        'backplotfeed_alpha': 0.75,
+        'backplotarc_alpha': 0.75,
+        'arc_feed': (1.00, 1.00, 1.00),
+        'axis_y': (1.00, 0.20, 0.20),
+    }
     def __init__(self, s, lp, g=None):
         self.stat = s
         self.lp = lp
