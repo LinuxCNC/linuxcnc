@@ -1061,7 +1061,7 @@ static void get_pos_cmds(long period)
 
     /* used in teleop mode to compute the max accell requested */
     double accell_mag;
-    int onlimit;
+    int onlimit = 0;
 
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -1386,28 +1386,30 @@ static void get_pos_cmds(long period)
     /* check command against soft limits */
     /* This is a backup check, it should be impossible to command
 	a move outside the soft limits.  However there is at least
-	one case that isn't caught upstream: if an arc has both
-	endpoints inside the limits, but the curve extends outside,
+	two cases that isn't caught upstream: 
+	1) if an arc has both endpoints inside the limits, but the curve extends outside,
+	2) if homing params are wrong then after homing joint pos_cmd are outside,
 	the upstream checks will pass it.
     */
-    onlimit = 0;
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* skip inactive or unhomed axes */
-	if (GET_JOINT_ACTIVE_FLAG(joint) && GET_JOINT_HOMED_FLAG(joint)) {
-	    /* check for soft limits */
-	    if (joint->pos_cmd > joint->max_pos_limit) {
-		onlimit = 1;
-                if (!emcmotStatus->on_soft_limit)
-                    reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
-	    }
-	    if (joint->pos_cmd < joint->min_pos_limit) {
-		onlimit = 1;
-                if (!emcmotStatus->on_soft_limit)
-                    reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
-	    }
-	}
+	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!GET_JOINT_HOMED_FLAG(joint))) {
+	    continue;
+        }
+
+	/* check for soft limits */
+	if (joint->pos_cmd > joint->max_pos_limit) {
+            onlimit = 1;
+            if (!emcmotStatus->on_soft_limit)
+                reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
+        }
+        else if (joint->pos_cmd < joint->min_pos_limit) {
+            onlimit = 1;
+            if (!emcmotStatus->on_soft_limit)
+                reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
+        }
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
