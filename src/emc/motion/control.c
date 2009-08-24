@@ -775,6 +775,7 @@ static void set_operating_mode(void)
 	    joint = &joints[joint_num];
 	    /* disable free mode planner */
 	    joint->free_tp.enable = 0;
+	    joint->free_tp.curr_vel = 0.0;
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
