@@ -55,6 +55,8 @@ def v3distsq(a,b):
     return d[0]*d[0] + d[1]*d[1] + d[2]*d[2]
 
 class GlNavBase:
+    rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
+
     def __init__(self):
         # Current coordinates of the mouse.
         self.xmouse = 0
@@ -80,6 +82,9 @@ class GlNavBase:
         self.near = 0.1
         self.far = 1000.0
 
+        self.lat = 0
+        self.minlat = -90
+        self.maxlat = 90
 
     # This should almost certainly be part of some derived class.
     # But I have put it here for convenience.
