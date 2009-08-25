@@ -315,6 +315,26 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
         glLineWidth(1)
 
+def with_context(f):
+    def inner(self, *args, **kw):
+        self.activate()
+        try:
+            return f(self, *args, **kw)
+        finally:
+            self.deactivate()
+    return inner
+
+def with_context_swap(f):
+    def inner(self, *args, **kw):
+        self.activate()
+        try:
+            return f(self, *args, **kw)
+        finally:
+            self.swapbuffers()
+            self.deactivate()
+    return inner
+
+
 class GlCanonDraw:
     colors = {
         'traverse': (0.30, 0.50, 0.50),
