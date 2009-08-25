@@ -384,8 +384,8 @@ class GlCanonDraw:
     def set_canon(self, canon):
         self.canon = canon
 
+    @with_context
     def basic_lighting(self):
-        self.activate()
         glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, self.colors['tool_ambient'] + (0,))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
@@ -466,8 +466,8 @@ class GlCanonDraw:
             self.set_centerpoint(x, y, z)
         glEndList()
 
+    @with_context_swap
     def redraw_perspective(self):
-        self.activate()
 
         w = self.winfo_width()
         h = self.winfo_height()
@@ -492,11 +492,9 @@ class GlCanonDraw:
             glFlush()                               # Tidy up
             glPopMatrix()                   # Restore the matrix
 
-            self.swapbuffers()
-
+    @with_context_swap
     def redraw_ortho(self):
         if not self.initialised: return
-        self.activate()
 
         w = self.winfo_width()
         h = self.winfo_height()
@@ -523,8 +521,6 @@ class GlCanonDraw:
         finally:
             glFlush()                               # Tidy up
             glPopMatrix()                   # Restore the matrix
-
-            self.swapbuffers()
 
     def set_eyepoint_from_extents(self, e1, e2):
         w = self.winfo_width()
