@@ -279,17 +279,25 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.select_primed = None
         self.select(x, y)
 
-    def select_cancel(self, widget, event):
+    def select_cancel(self, widget=None, event=None):
         self.select_primed = None
 
     def pressed(self, widget, event):
-        button1 = event.state & gtk.gdk.BUTTON1_MASK
+        button1 = event.button == 1
+        button2 = event.button == 2
+        button3 = event.button == 3
         if button1:
             self.select_prime(event.x, event.y)
-        self.recordMouse(event.x, event.y)
+            self.recordMouse(event.x, event.y)
+        elif button2:
+            self.recordMouse(event.x, event.y)
+        elif button3:
+            self.startZoom(event.y)
 
     def motion(self, widget, event):
         button1 = event.state & gtk.gdk.BUTTON1_MASK
+        button2 = event.state & gtk.gdk.BUTTON2_MASK
+        button3 = event.state & gtk.gdk.BUTTON3_MASK
         shift = event.state & gtk.gdk.SHIFT_MASK
         if button1 and self.select_primed:
             x, y = self.select_primed
@@ -300,7 +308,10 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
                 self.translateOrRotate(event.x, event.y)
             else:
                 self.rotateOrTranslate(event.x, event.y)
-
+        elif button2:
+            self.translateOrRotate(event.x, event.y)
+        elif button3:
+            self.continueZoom(event.y)
 class GremlinApp(gtk.Window):
     def __init__(self, inifile):
         inifile = emc.ini(inifile)
