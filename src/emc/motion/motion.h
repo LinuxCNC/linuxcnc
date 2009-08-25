@@ -718,7 +718,6 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef struct emcmot_internal_t {
 	unsigned char head;	/* flag count for mutex detect */
 
-	int probe_debounce_cntr;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
 

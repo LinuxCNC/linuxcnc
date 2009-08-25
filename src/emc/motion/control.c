@@ -617,29 +617,15 @@ static void do_forward_kins(void)
    at the traj rate */
 
     double joint_pos[EMCMOT_MAX_JOINTS] = {0,};
-    int joint_num, all_homed, all_at_home, result;
+    int joint_num, result;
     emcmot_joint_t *joint;
 
-    all_homed = 1;
-    all_at_home = 1;
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint struct */
 	joint = &joints[joint_num];
 	/* copy feedback */
 	joint_pos[joint_num] = joint->pos_fb;
-	/* check for homed, only if the current joint is active */
-	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-	    /* if joint is not active, don't even look at its limits */
-	    continue;
-	}
-
-	if (!GET_JOINT_HOMED_FLAG(joint)) {
-	    all_homed = 0;
-	    all_at_home = 0;
-	} else if (!GET_JOINT_AT_HOME_FLAG(joint)) {
-	    all_at_home = 0;
-	}
     }
     switch (kinType) {
 
@@ -786,15 +772,6 @@ static void set_operating_mode(void)
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
 	}
-	/* reset the trajectory interpolation counter, so that the kinematics
-	   functions called during the disabled state run at the nominal
-	   trajectory rate rather than the servo rate. It's loaded with
-	   emcmotConfig->interpolationRate when it goes to zero. */
-/*! \todo FIXME - interpolation is still under construction */
-/*! \todo Another #if 0 */
-#if 0
-	interpolationCounter = 0;
-#endif
 	SET_MOTION_ENABLE_FLAG(0);
 	/* don't clear the motion error flag, since that may signify why we
 	   just went into disabled state */
@@ -1032,10 +1009,6 @@ static void get_pos_cmds(long period)
     int joint_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_JOINTS];
-/*! \todo Another #if 0 */
-#if 0
-    static int interpolationCounter = 0;
-#endif
     double old_pos_cmd;
     double vel_lim;
 
