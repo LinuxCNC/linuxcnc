@@ -354,7 +354,6 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_origin = None
         self.last_tool = None
         self.last_limits = None
-        self.canon = None
         self.set_eyepoint(5.)
         self.get_resources()
 
