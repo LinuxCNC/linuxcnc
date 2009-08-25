@@ -223,6 +223,15 @@ class GlNavBase:
         self.distance = self.distance * 1.1
         self._redraw()
 
+    def startZoom(self, y):
+        self.y0 = y
+        self.original_zoom = self.distance
+
+    def continueZoom(self, y):
+        dy = y - self.y0
+        self.distance = self.original_zoom * pow(1.25, dy / 16.)
+        self._redraw()
+
     def getRotateMode(self): return False
 
     def translateOrRotate(self, x, y):
