@@ -356,6 +356,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_limits = None
         self.set_eyepoint(5.)
         self.get_resources()
+        self.realize()
 
     def getRotateMode(self):
         return vars.rotate_mode.get()
