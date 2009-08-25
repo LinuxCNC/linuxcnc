@@ -36,6 +36,7 @@ import emc
 import emc_interface
 import mdi
 import hal_interface
+import filechooser
 
 class touchy:
 	def __init__(self):
@@ -74,16 +75,18 @@ class touchy:
                         mdi_eventboxes.append(self.wTree.get_widget("eventbox_mdi%d" % i))
                 self.mdi_control = mdi.mdi_control(gtk, emc, mdi_labels, mdi_eventboxes)
 
+                # emc interface
+                self.emc = emc_interface.emc_control(emc)
+                self.hal = hal_interface.hal_interface()
+
                 # silly file chooser
                 filechooser_labels = []
                 filechooser_eventboxes = []
                 for i in range(self.num_filechooser_labels):
                         filechooser_labels.append(self.wTree.get_widget("filechooser%d" % i))
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
+                self.filechooser = filechooser.filechooser(gtk, self.emc, filechooser_labels, filechooser_eventboxes)
 
-                # emc interface
-                self.emc = emc_interface.emc_control(emc)
-                self.hal = hal_interface.hal_interface()
 
                 status_labels = {'xr' : self.wTree.get_widget("xr"),
                                  'yr' : self.wTree.get_widget("yr"),
@@ -151,6 +154,9 @@ class touchy:
                         "on_mdi_g_clicked" : self.mdi_control.g,
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_select" : self.mdi_control.select,
+                        "on_filechooser_select" : self.filechooser.select,
+                        "on_filechooser_up_clicked" : self.filechooser.up,
+                        "on_filechooser_down_clicked" : self.filechooser.down,
                         "on_mist_on_clicked" : self.emc.mist_on,
                         "on_mist_off_clicked" : self.emc.mist_off,
                         "on_flood_on_clicked" : self.emc.flood_on,

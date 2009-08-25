@@ -2377,6 +2377,7 @@
 				      <property name="use_stock">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 				      <property name="focus_on_click">True</property>
+				      <signal name="clicked" handler="on_filechooser_up_clicked" last_modification_time="Tue, 25 Aug 2009 19:43:09 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="left_attach">1</property>
@@ -2395,6 +2396,7 @@
 				      <property name="use_stock">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
 				      <property name="focus_on_click">True</property>
+				      <signal name="clicked" handler="on_filechooser_down_clicked" last_modification_time="Tue, 25 Aug 2009 19:43:14 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="left_attach">1</property>
