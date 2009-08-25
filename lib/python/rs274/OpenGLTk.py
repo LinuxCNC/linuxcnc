@@ -183,10 +183,10 @@ http://www.yorvic.york.ac.uk/~mjh/
         self.bind("<Shift-Button-1>", self.tkStartRotate)
         self.bind("<Shift-B1-Motion>", self.tkRotateOrTranslate)
 
-        self.bind("<Control-Button-1>", self.start_zoom)
-        self.bind("<Control-B1-Motion>", self.continue_zoom)
-        self.bind("<Button-3>", self.start_zoom)
-        self.bind("<B3-Motion>", self.continue_zoom)
+        self.bind("<Control-Button-1>", self.tkStartZoom)
+        self.bind("<Control-B1-Motion>", self.tkContinueZoom)
+        self.bind("<Button-3>", self.tkStartZoom)
+        self.bind("<B3-Motion>", self.tkContinueZoom)
 
         self.lat = 0
         self.minlat = -90
@@ -380,14 +380,11 @@ http://www.yorvic.york.ac.uk/~mjh/
         if event.delta > 0: self.zoomin(event)
         else: self.zoomout(event)
 
-    def start_zoom(self, event):
-        self.y0 = event.y
-        self.original_zoom = self.distance
+    def tkStartZoom(self, event):
+        self.startZoom(event.y)
 
-    def continue_zoom(self, event):
-        dy = event.y - self.y0
-        self.distance = self.original_zoom * pow(1.25, dy / 16.)
-        self.tkRedraw()
+    def tkContinueZoom(self, event):
+        self.continueZoom(event.y)
 
     def tkZoomin(self, event):
         self.zoomin()
