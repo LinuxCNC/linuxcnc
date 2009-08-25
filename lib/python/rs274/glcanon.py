@@ -378,8 +378,14 @@ class GlCanonDraw:
         self.canon = g
         self._dlists = {}
         self.select_buffer_size = 100
-        self.hershey = hershey.Hershey()
         self.cached_tool = -1
+        self.initialised = 0
+
+    def realize(self):
+        self.hershey = hershey.Hershey()
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        self.basic_lighting()
+        self.initialised = 1
 
     def set_canon(self, canon):
         self.canon = canon
