@@ -85,7 +85,8 @@ class touchy:
                 for i in range(self.num_filechooser_labels):
                         filechooser_labels.append(self.wTree.get_widget("filechooser%d" % i))
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
-                self.filechooser = filechooser.filechooser(gtk, self.emc, filechooser_labels, filechooser_eventboxes)
+                self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes,
+                                                           self.wTree.get_widget("program"))
 
 
                 status_labels = {'xr' : self.wTree.get_widget("xr"),
