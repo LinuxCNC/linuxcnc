@@ -1402,4 +1402,14 @@ class GlCanonDraw:
             self.make_selection_list()
 
         return result, seq
+
+    def from_internal_units(self, pos, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+
+        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+        return [a*b for a, b in zip(pos, lus)]
+
+
 # vim:ts=8:sts=4:et:
