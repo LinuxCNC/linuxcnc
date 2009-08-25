@@ -164,7 +164,6 @@ http://www.yorvic.york.ac.uk/~mjh/
         apply(RawOpengl.__init__, (self, master, cnf), kw)
         glnav.GlNavBase.__init__(self)
 
-        self.initialised = 0
         # Basic bindings for the virtual trackball
         self.bind('<Map>', self.tkMap)
         self.bind('<Expose>', self.tkExpose)
