@@ -23,6 +23,9 @@ import thread
 
 from minigl import *
 
+def use_font(fontDesc, start, count, base):
+    return gtk.gdkgl.font_use_pango_font(fontDesc, start, count, base)
+
 class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
@@ -164,11 +167,13 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
 
         fontDesc = pango.FontDescription('courier bold 16')
         self.font_base = glGenLists(128)
-        font = gtk.gdkgl.font_use_pango_font(fontDesc, 0, 128, self.font_base)
+        font = use_font(fontDesc, 0, 128, self.font_base)
         metrics = font.get_metrics()
         linespace = metrics.get_ascent() + metrics.get_descent()
+        print 'line', linespace, pango.PIXELS(linespace)
         self.font_linespace = pango.PIXELS(linespace)
         width = metrics.get_approximate_char_width()
+        print 'width', width, pango.PIXELS(width)
         self.font_charwidth = pango.PIXELS(width)
         rs274.glcanon.GlCanonDraw.realize(self)
 
