@@ -138,6 +138,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.connect('motion-notify-event', self.motion)
         self.connect('button-press-event', self.pressed)
         self.connect('button-release-event', self.select_fire)
+        self.connect('scroll-event', self.scroll)
 
         self.add_events(gtk.gdk.POINTER_MOTION_MASK)
         self.add_events(gtk.gdk.POINTER_MOTION_HINT_MASK)
@@ -312,6 +313,11 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
             self.translateOrRotate(event.x, event.y)
         elif button3:
             self.continueZoom(event.y)
+
+    def scroll(self, widget, event):
+        if event.direction == gtk.gdk.SCROLL_UP: self.zoomin()
+        elif event.direction == gtk.gdk.SCROLL_DOWN: self.zoomout()
+
 class GremlinApp(gtk.Window):
     def __init__(self, inifile):
         inifile = emc.ini(inifile)
