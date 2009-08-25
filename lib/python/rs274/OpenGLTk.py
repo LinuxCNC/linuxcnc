@@ -214,6 +214,9 @@ http://www.yorvic.york.ac.uk/~mjh/
                      'strings': ('Done', 'Ok')})
 
 
+    def deactivate(self):
+        pass
+
     def activate(self):
         """Cause this Opengl widget to be the current destination for drawing."""
 
