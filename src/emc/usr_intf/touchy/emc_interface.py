@@ -33,6 +33,14 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.mist(0)
 
+        def flood_on(self, b):
+                if self.masked: return
+                self.emccommand.flood(1)
+
+        def flood_off(self, b):
+                if self.masked: return
+                self.emccommand.flood(0)
+
         def estop(self, b):
                 if self.masked: return
                 self.emccommand.state(self.emc.STATE_ESTOP)
@@ -98,9 +106,35 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.override_limits()
 
+        def spindle_forward(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.spindle(1);
+
+        def spindle_off(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.spindle(0);
+
+        def spindle_reverse(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.spindle(-1);
+
+        def spindle_faster(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.spindle(self.emc.SPINDLE_INCREASE)
+
+        def spindle_slower(self, b):
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
+
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,
-                     unhomes, estops, machines, override_limit, status):
+                     unhomes, estops, machines, override_limit, status,
+                     floods, mists, spindles):
                 self.gtk = gtk
                 self.dros = dros
                 self.error = error
@@ -110,11 +144,12 @@ class emc_status:
                 self.machines = machines
                 self.override_limit = override_limit
                 self.status = status
+                self.floods = floods
+                self.mists = mists
+                self.spindles = spindles
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
-                print dir(self.emcstat)
-                print self.emcstat.limit
 
         def periodic(self):
                 last_mode = self.emcstat.task_mode
@@ -150,6 +185,19 @@ class emc_status:
                 self.status['dtg'].set_text("%f" % self.emcstat.distance_to_go)
                 self.status['velocity'].set_text("%f" % self.emcstat.current_vel)
                 self.status['delay'].set_text("%f" % self.emcstat.delay_left)
+
+                flood = self.emcstat.flood
+                self.floods['on'].set_active(flood)
+                self.floods['off'].set_active(not flood)
+
+                mist = self.emcstat.mist
+                self.mists['on'].set_active(mist)
+                self.mists['off'].set_active(not mist)
+
+                spin = self.emcstat.spindle_direction
+                self.spindles['forward'].set_active(spin == 1)
+                self.spindles['off'].set_active(spin == 0)
+                self.spindles['reverse'].set_active(spin == -1)
 
                 ol = ""
                 for i in range(len(self.emcstat.limit)):

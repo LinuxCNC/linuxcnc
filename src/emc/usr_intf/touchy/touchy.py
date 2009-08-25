@@ -96,6 +96,13 @@ class touchy:
                           'estop' : self.wTree.get_widget("estop")}
                 machines = {'on' : self.wTree.get_widget("machine_on"),
                             'off' : self.wTree.get_widget("machine_off")}
+                floods = {'on' : self.wTree.get_widget("flood_on"),
+                            'off' : self.wTree.get_widget("flood_off")}
+                mists = {'on' : self.wTree.get_widget("mist_on"),
+                            'off' : self.wTree.get_widget("mist_off")}
+                spindles = {'forward' : self.wTree.get_widget("spindle_forward"),
+                            'off' : self.wTree.get_widget("spindle_off"),
+                            'reverse' : self.wTree.get_widget("spindle_reverse")}
                 stats = {'file' : self.wTree.get_widget("status_file"),
                          'line' : self.wTree.get_widget("status_line"),
                          'dtg' : self.wTree.get_widget("status_dtg"),
@@ -111,7 +118,8 @@ class touchy:
                                                        homes, unhomes,
                                                        estops, machines,
                                                        self.wTree.get_widget("override_limits"),
-                                                       stats)
+                                                       stats,
+                                                       floods, mists, spindles)
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
 
@@ -135,8 +143,10 @@ class touchy:
                         "on_mdi_g_clicked" : self.mdi_control.g,
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_select" : self.mdi_control.select,
-                        "on_miston_clicked" : self.emc.mist_on,
-                        "on_mistoff_clicked" : self.emc.mist_off,
+                        "on_mist_on_clicked" : self.emc.mist_on,
+                        "on_mist_off_clicked" : self.emc.mist_off,
+                        "on_flood_on_clicked" : self.emc.flood_on,
+                        "on_flood_off_clicked" : self.emc.flood_off,
                         "on_home_all_clicked" : self.emc.home_all,
                         "on_unhome_all_clicked" : self.emc.unhome_all,
                         "on_home_x_clicked" : self.emc.home_x,
@@ -156,6 +166,11 @@ class touchy:
                         "on_wheelinc2_clicked" : self.wheelinc2,
                         "on_wheelinc3_clicked" : self.wheelinc3,
                         "on_override_limits_clicked" : self.emc.override_limits,
+                        "on_spindle_forward_clicked" : self.emc.spindle_forward,
+                        "on_spindle_off_clicked" : self.emc.spindle_off,
+                        "on_spindle_reverse_clicked" : self.emc.spindle_reverse,
+                        "on_spindle_slower_clicked" : self.emc.spindle_slower,
+                        "on_spindle_faster_clicked" : self.emc.spindle_faster,
                         }
                 self.wTree.signal_autoconnect(dic)
 
@@ -229,13 +244,15 @@ class touchy:
                 # buttons
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
-                          "flood", "miston", "mistoff",
+                          "flood_on", "flood_off", "mist_on", "mist_off",
                           "g", "m",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_x", "unhome_x",
                           "home_y", "unhome_y", "home_z", "unhome_z",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
-                          "wheelx", "wheely", "wheelz", "override_limits"]:
+                          "wheelx", "wheely", "wheelz", "override_limits",
+                          "spindle_forward", "spindle_off", "spindle_reverse",
+                          "spindle_faster", "spindle_slower"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 

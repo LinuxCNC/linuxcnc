@@ -20,6 +20,13 @@ jogwheel:
 		set FO
 		set SO
 		set maxvel
+
+hard controls:
+        continuous jog, momentary bidirectional toggles, one for each axis, center off
+        cycle start button that lights up
+        feedhold button that lights up
+        run/block mode toggle switch (sends task-pause when appropriate)
+        
 running:
 	run, stop, pause, step
 	feed hold?
