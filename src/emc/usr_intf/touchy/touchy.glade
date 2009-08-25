@@ -65,33 +65,6 @@
 		  <property name="column_spacing">0</property>
 
 		  <child>
-		    <widget class="GtkLabel" id="xr">
-		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">xr</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_LEFT</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0.5</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		      <property name="width_chars">-1</property>
-		      <property name="single_line_mode">False</property>
-		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="left_attach">0</property>
-		      <property name="right_attach">1</property>
-		      <property name="top_attach">1</property>
-		      <property name="bottom_attach">2</property>
-		      <property name="y_options"></property>
-		    </packing>
-		  </child>
-
-		  <child>
 		    <widget class="GtkLabel" id="xa">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">xa</property>
@@ -384,6 +357,33 @@
 		      <property name="right_attach">1</property>
 		      <property name="top_attach">0</property>
 		      <property name="bottom_attach">1</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="xr">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">xr</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
 		      <property name="y_options"></property>
 		    </packing>
 		  </child>
@@ -1946,13 +1946,526 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkTable" id="table11">
+		    <widget class="GtkFrame" id="frame5">
+		      <property name="border_width">5</property>
 		      <property name="visible">True</property>
-		      <property name="n_rows">2</property>
-		      <property name="n_columns">2</property>
-		      <property name="homogeneous">False</property>
-		      <property name="row_spacing">0</property>
-		      <property name="column_spacing">0</property>
+		      <property name="label_xalign">0</property>
+		      <property name="label_yalign">0.5</property>
+		      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+		      <child>
+			<widget class="GtkAlignment" id="alignment6">
+			  <property name="visible">True</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xscale">1</property>
+			  <property name="yscale">1</property>
+			  <property name="top_padding">0</property>
+			  <property name="bottom_padding">0</property>
+			  <property name="left_padding">12</property>
+			  <property name="right_padding">0</property>
+
+			  <child>
+			    <widget class="GtkHBox" id="hbox6">
+			      <property name="visible">True</property>
+			      <property name="homogeneous">True</property>
+			      <property name="spacing">10</property>
+
+			      <child>
+				<widget class="GtkTable" id="table11">
+				  <property name="visible">True</property>
+				  <property name="n_rows">2</property>
+				  <property name="n_columns">2</property>
+				  <property name="homogeneous">False</property>
+				  <property name="row_spacing">0</property>
+				  <property name="column_spacing">10</property>
+
+				  <child>
+				    <widget class="GtkVBox" id="vbox9">
+				      <property name="border_width">3</property>
+				      <property name="visible">True</property>
+				      <property name="homogeneous">True</property>
+				      <property name="spacing">0</property>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser0">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser0">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">file.ngc</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser1">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser1">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser2">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser2">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser3">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser3">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser4">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser4">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser5">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser5">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser6">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser6">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser7">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser7">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser8">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser8">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser9">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser9">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser10">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser10">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="padding">0</property>
+					  <property name="expand">True</property>
+					  <property name="fill">True</property>
+					</packing>
+				      </child>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">2</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="filechooser_up">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label">gtk-go-up</property>
+				      <property name="use_stock">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">True</property>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				      <property name="x_options">fill</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="filechooser_down">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label">gtk-go-down</property>
+				      <property name="use_stock">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">True</property>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
+				      <property name="x_options">fill</property>
+				    </packing>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkTextView" id="program">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="editable">False</property>
+				  <property name="overwrite">False</property>
+				  <property name="accepts_tab">False</property>
+				  <property name="justification">GTK_JUSTIFY_LEFT</property>
+				  <property name="wrap_mode">GTK_WRAP_NONE</property>
+				  <property name="cursor_visible">False</property>
+				  <property name="pixels_above_lines">0</property>
+				  <property name="pixels_below_lines">0</property>
+				  <property name="pixels_inside_wrap">0</property>
+				  <property name="left_margin">0</property>
+				  <property name="right_margin">0</property>
+				  <property name="indent">0</property>
+				  <property name="text" translatable="yes">N01 G20
+N02 G0 X0
+M2
+</property>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+			    </widget>
+			  </child>
+			</widget>
+		      </child>
+
+		      <child>
+			<widget class="GtkLabel" id="loaded_file">
+			  <property name="visible">True</property>
+			  <property name="label" translatable="yes">&lt;b&gt;Loaded File&lt;/b&gt;</property>
+			  <property name="use_underline">False</property>
+			  <property name="use_markup">True</property>
+			  <property name="justify">GTK_JUSTIFY_LEFT</property>
+			  <property name="wrap">False</property>
+			  <property name="selectable">False</property>
+			  <property name="xalign">0.5</property>
+			  <property name="yalign">0.5</property>
+			  <property name="xpad">0</property>
+			  <property name="ypad">0</property>
+			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			  <property name="width_chars">-1</property>
+			  <property name="single_line_mode">False</property>
+			  <property name="angle">0</property>
+			</widget>
+			<packing>
+			  <property name="type">label_item</property>
+			</packing>
+		      </child>
 		    </widget>
 		    <packing>
 		      <property name="tab_expand">False</property>
@@ -1961,7 +2474,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkLabel" id="label31">
+		    <widget class="GtkLabel" id="auto">
 		      <property name="visible">True</property>
 		      <property name="label" translatable="yes">Auto</property>
 		      <property name="use_underline">False</property>

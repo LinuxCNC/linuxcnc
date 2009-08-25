@@ -46,6 +46,7 @@ class touchy:
                 #self.style = gtk.Style().copy()
 
                 self.num_mdi_labels = 11
+                self.num_filechooser_labels = 11
 
                 self.wheelxyz = 0
                 self.wheelinc = 0
@@ -72,6 +73,13 @@ class touchy:
                         mdi_labels.append(self.wTree.get_widget("mdi%d" % i))
                         mdi_eventboxes.append(self.wTree.get_widget("eventbox_mdi%d" % i))
                 self.mdi_control = mdi.mdi_control(gtk, emc, mdi_labels, mdi_eventboxes)
+
+                # silly file chooser
+                filechooser_labels = []
+                filechooser_eventboxes = []
+                for i in range(self.num_filechooser_labels):
+                        filechooser_labels.append(self.wTree.get_widget("filechooser%d" % i))
+                        filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc)
@@ -260,7 +268,10 @@ class touchy:
                 for i in range(self.num_mdi_labels):
                         w = self.wTree.get_widget("mdi%d" % i)
                         w.modify_font(self.control_font)
-                for i in ["mdi", "startup", "manual", "preferences", "status"]:
+                for i in range(self.num_filechooser_labels):
+                        w = self.wTree.get_widget("filechooser%d" % i)
+                        w.modify_font(self.control_font)
+                for i in ["mdi", "startup", "manual", "auto", "preferences", "status"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.control_font)
 
