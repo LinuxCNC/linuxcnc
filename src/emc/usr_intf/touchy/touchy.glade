@@ -1978,7 +1978,7 @@
 				  <property name="n_columns">2</property>
 				  <property name="homogeneous">False</property>
 				  <property name="row_spacing">0</property>
-				  <property name="column_spacing">10</property>
+				  <property name="column_spacing">0</property>
 
 				  <child>
 				    <widget class="GtkVBox" id="vbox9">
