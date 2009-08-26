@@ -1,11 +1,11 @@
 mdi: [pretty much done]
-	G/M, backspace, tab, cancel, ok/execute?
-	smartness about words, like BOSS8
+/	G/M, backspace, tab, cancel, ok/execute?
+/	smartness about words, like BOSS8
 
 setup:
 	while stopped
-		home axis
-		home all
+/		home axis
+/		home all
 		touch off (enter value)
 		tool touch off
 		view tools and set tlo (enter value)
@@ -14,12 +14,12 @@ setup:
 		optional stop
 
 jogwheel:
-	while stopped
-		jogging (need jog increment)
-	anytime including while running
-		set FO
-		set SO
-		set maxvel
+/	while stopped
+/		jogging (need jog increment)
+/	anytime including while running
+/		set FO
+/		set SO
+/		set maxvel
 
 hard controls:
         continuous jog, momentary bidirectional toggles, one for each axis, center off
@@ -37,28 +37,28 @@ running:
 status: [only native units for now?]
 
         [all the time?]        
-        	xyz rel
-                error messages
+/        	xyz rel
+/               error messages
         
         [just sometimes?]
-        	loaded file
+/        	loaded file
         	current line
 
         	tlo
         	rotation
 
-        	dtg
-        	current vel
-        	delay_left
+/        	dtg
+/        	current vel
+/        	delay_left
 
         	extents?
         	which axes are on limit?
 
-        	spindle direction
-                spindle speed
+/        	spindle direction
+/               spindle speed
 
-        	loaded tool
-        	prepped tool
+/        	loaded tool
+/       	prepped tool
 
         	running gcode (how much? maybe only one line?)
 /        	xyz abs
