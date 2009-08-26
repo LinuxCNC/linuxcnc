@@ -461,23 +461,6 @@ int emcTaskPlanRead()
     return retval;
 }
 
-int emcTaskPlanRun()
-{
-    int retval = 0;
-    if (0 != RS274NGC_RUN_CODE[0]) {
-        retval = interp.execute(RS274NGC_RUN_CODE);
-        if (retval > INTERP_MIN_ERROR) {
-            print_interp_error(retval);
-        }
-    }
-
-    if (EMC_DEBUG & EMC_DEBUG_INTERP) {
-        rcs_print("emcTaskPlanRun(%s) returned %d\n", RS274NGC_RUN_CODE, retval);
-    }
-
-    return retval;
-}
-
 int emcTaskPlanExecute(const char *command)
 {
     int inpos = emcStatus->motion.traj.inpos;	// 1 if in position, 0 if not.

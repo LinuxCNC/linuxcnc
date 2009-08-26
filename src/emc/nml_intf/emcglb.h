@@ -35,9 +35,6 @@ extern "C" {
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
     extern char RS274NGC_STARTUP_CODE[LINELEN];
 
-#define DEFAULT_RS274NGC_RUN_CODE ""
-    extern char RS274NGC_RUN_CODE[LINELEN];
-
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).
    If you change the assignments here, make sure and reflect that in
