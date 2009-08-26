@@ -960,17 +960,6 @@ G90 A string of NC codes that the interpreter is initialized with.
  by g-code interpreted earlier in the session.
 \end_layout
 
-\begin_layout Description
-RS274NGC_RUN_CODE\InsetSpace ~
-=\InsetSpace ~
-G4\InsetSpace ~
-P10 A string of NC codes that is executed after the
- start button is pressed but before any NC codes in the currently loaded
- program.
- The string must be a valid single line of NC code.
- 
-\end_layout
-
 \begin_layout Subsection
 [EMCMOT] Section
 \color none
