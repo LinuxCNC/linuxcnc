@@ -32,19 +32,23 @@ class filechooser:
     def populate(self):
         files = self.files[self.fileoffset:]
         for i in range(self.numlabels):
+            l = self.labels[i]
+            e = self.eventboxes[i]
             if i < len(files):
-                self.labels[i].set_text(files[i])
+                l.set_text(files[i])
             else:
-                self.labels[i].set_text('')
+                l.set_text('')
+            if self.selected == self.fileoffset + i:
+                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+            else:
+                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
 
     def select(self, eventbox, event):
         n = int(eventbox.get_name()[20:])
-        for i in self.eventboxes:
-            i.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
-        e = self.eventboxes[n]
-        e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+        self.selected = self.fileoffset + n
         self.emccommand.mode(self.emc.MODE_MDI)
         self.emccommand.program_open(os.path.join(self.dir, self.labels[n].get_text()))
+        self.populate()
 
     def up(self, b):
         self.fileoffset -= self.numlabels
