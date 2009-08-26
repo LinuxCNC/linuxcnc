@@ -1988,6 +1988,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (!taskplanopen && emcStatus->task.file[0] != 0) {
 	    emcTaskPlanOpen(emcStatus->task.file);
 	}
+	emcTaskPlanRun();
 	run_msg = (EMC_TASK_PLAN_RUN *) cmd;
 	programStartLine = run_msg->line;
 	emcStatus->task.interpState = EMC_TASK_INTERP_READING;
@@ -2836,6 +2837,12 @@ static int iniLoad(const char *filename)
 	// not found, use default
 	}
     }
+
+    if (NULL != (inistring = inifile.Find("RS274NGC_RUN_CODE", "RS274NGC"))) {
+	// copy to global
+	strcpy(RS274NGC_RUN_CODE, inistring);
+    }
+
     saveDouble = EMC_TASK_CYCLE_TIME;
     EMC_TASK_CYCLE_TIME_ORIG = EMC_TASK_CYCLE_TIME;
     emcTaskNoDelay = 0;
