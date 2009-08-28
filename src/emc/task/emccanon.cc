@@ -2306,15 +2306,7 @@ void INIT_CANON()
     programOrigin.w = 0.0;
     xy_rotation = 0.;
     activePlane = CANON_PLANE_XY;
-    canonEndPoint.x = 0.0;
-    canonEndPoint.y = 0.0;
-    canonEndPoint.z = 0.0;
-    canonEndPoint.a = 0.0;
-    canonEndPoint.b = 0.0;
-    canonEndPoint.c = 0.0;
-    canonEndPoint.u = 0.0;
-    canonEndPoint.v = 0.0;
-    canonEndPoint.w = 0.0;
+    canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     spindleSpeed = 0.0;
     preppedTool = 0;
@@ -2405,17 +2397,9 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     pos = emcStatus->motion.traj.position;
 
     // first update internal record of last position
-    canonEndPoint.x = FROM_EXT_LEN(pos.tran.x);
-    canonEndPoint.y = FROM_EXT_LEN(pos.tran.y);
-    canonEndPoint.z = FROM_EXT_LEN(pos.tran.z);
-
-    canonEndPoint.a = FROM_EXT_ANG(pos.a);
-    canonEndPoint.b = FROM_EXT_ANG(pos.b);
-    canonEndPoint.c = FROM_EXT_ANG(pos.c);
-
-    canonEndPoint.u = FROM_EXT_LEN(pos.u);
-    canonEndPoint.v = FROM_EXT_LEN(pos.v);
-    canonEndPoint.w = FROM_EXT_LEN(pos.w);
+    canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
+                        FROM_EXT_ANG(pos.a), FROM_EXT_ANG(pos.b), FROM_EXT_ANG(pos.c),
+                        FROM_EXT_LEN(pos.u), FROM_EXT_LEN(pos.v), FROM_EXT_LEN(pos.w));
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(canonEndPoint);
