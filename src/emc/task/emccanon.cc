@@ -1940,14 +1940,6 @@ static char *addString(char *dst, const char *src, int maxlen)
     return dst;
 }
 
-/*
-  The probe file is opened with a hot-comment (PROBEOPEN <filename>),
-  and the results of each probed point are written to that file.
-  The file is closed with a (PROBECLOSE) comment.
-*/
-
-static FILE *probefile = NULL;
-
 void COMMENT(char *comment)
 {
     // nothing need be done here, but you can play tricks with hot comments
@@ -1982,20 +1974,20 @@ void COMMENT(char *comment)
 	    ptr++;
 	}
 	setString(probefilename, ptr, LINELEN);
-	if (NULL == (probefile = fopen(probefilename, "wt"))) {
+	if (NULL == (canon.probefile = fopen(probefilename, "wt"))) {
 	    // pop up a warning message
 	    setString(msg, "can't open probe file ", LINELEN);
 	    addString(msg, probefilename, LINELEN);
 	    MESSAGE(msg);
-	    probefile = NULL;
+	    canon.probefile = NULL;
 	}
 	return;
     }
     // close probe output file
     if (!strncmp(comment, "PROBECLOSE", strlen("PROBECLOSE"))) {
-	if (probefile != NULL) {
-	    fclose(probefile);
-	    probefile = NULL;
+	if (canon.probefile != NULL) {
+	    fclose(canon.probefile);
+	    canon.probefile = NULL;
 	}
 	return;
     }
@@ -2110,24 +2102,22 @@ void MESSAGE(char *s)
     interp_list.append(operator_display_msg);
 }
 
-static FILE *logfile = NULL;
-
 void LOG(char *s) {
     flush_segments();
-    if(logfile) { fprintf(logfile, "%s\n", s); fflush(logfile); }
+    if(canon.logfile) { fprintf(canon.logfile, "%s\n", s); fflush(canon.logfile); }
     fprintf(stderr, "LOG(%s)\n", s);
 
 }
 
 void LOGOPEN(char *name) {
-    if(logfile) fclose(logfile);
-    logfile = fopen(name, "wt");
-    fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, logfile);
+    if(canon.logfile) fclose(canon.logfile);
+    canon.logfile = fopen(name, "wt");
+    fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, canon.logfile);
 }
 
 void LOGCLOSE() {
-    if(logfile) fclose(logfile);
-    logfile = NULL;
+    if(canon.logfile) fclose(canon.logfile);
+    canon.logfile = NULL;
     fprintf(stderr, "LOGCLOSE()\n");
 }
 
@@ -2280,6 +2270,17 @@ void INIT_CANON()
     canon.angular_move = 0;
     canon.linearFeedRate = 0.0;
     canon.angularFeedRate = 0.0;
+    canon.probefile = NULL;
+    canon.logfile = NULL;
+    canon.last_probed_position.x = 0.0;
+    canon.last_probed_position.y = 0.0;
+    canon.last_probed_position.z = 0.0;
+    canon.last_probed_position.a = 0.0;
+    canon.last_probed_position.b = 0.0;
+    canon.last_probed_position.c = 0.0;
+    canon.last_probed_position.u = 0.0;
+    canon.last_probed_position.v = 0.0;
+    canon.last_probed_position.w = 0.0;
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
        traj->linearUnits, which is already set from the .ini file in
@@ -2383,7 +2384,6 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
 {
     CANON_POSITION position;
     EmcPose pos;
-    static CANON_POSITION last_probed_position;
 
     flush_segments();
 
@@ -2406,13 +2406,13 @@ CANON_POSITION GET_EXTERNAL_PROBE_POSITION()
     position = unoffset_and_unrotate_pos(pos);
     to_prog(position);
 
-    if (probefile != NULL) {
-	if (last_probed_position != position) {
-	    fprintf(probefile, "%f %f %f %f %f %f %f %f %f\n",
+    if (canon.probefile != NULL) {
+	if (canon.last_probed_position != position) {
+	    fprintf(canon.probefile, "%f %f %f %f %f %f %f %f %f\n",
                     position.x, position.y, position.z,
                     position.a, position.b, position.c,
                     position.u, position.v, position.w);
-	    last_probed_position = position;
+	    canon.last_probed_position = position;
 	}
     }
 

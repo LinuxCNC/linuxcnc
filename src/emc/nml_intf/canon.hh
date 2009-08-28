@@ -219,6 +219,14 @@ typedef struct CanonConfig_t {
    //         angular means axes ABC move
     int cartesian_move;
     int angular_move;
+/*
+  The probe file is opened with a hot-comment (PROBEOPEN <filename>),
+  and the results of each probed point are written to that file.
+  The file is closed with a (PROBECLOSE) comment. */
+    FILE *probefile;
+    
+    FILE *logfile;
+    CANON_POSITION last_probed_position;
 } CanonConfig_t;
 
 /* Initialization */
