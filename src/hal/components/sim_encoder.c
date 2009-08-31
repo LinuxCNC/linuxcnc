@@ -282,7 +282,7 @@ static void update_speed(void *arg, long period)
 {
     sim_enc_t *sim_enc;
     int n;
-    float rev_sec, freq;
+    double rev_sec, freq;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the
