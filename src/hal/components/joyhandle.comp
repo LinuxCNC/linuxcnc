@@ -49,7 +49,7 @@ license "GPL";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-float p,a,b,alin,clin,xm,ym,xinv,yinv;
+double p,a,b,alin,clin,xm,ym,xinv,yinv;
 
 if (power < 1.0) power =1.0;
 
