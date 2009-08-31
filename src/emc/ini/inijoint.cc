@@ -51,7 +51,7 @@
 
   calls:
 
-  emcJointSetJoint(int joint, unsigned char jointType);
+  emcJointSetType(int joint, unsigned char jointType);
   emcJointSetUnits(int joint, double units);
   emcJointSetBacklash(int joint, double backlash);
   emcJointSetMinPositionLimit(int joint, double limit);
@@ -99,7 +99,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         // set joint type
         jointType = EMC_LINEAR;	// default
         jointIniFile->Find(&jointType, "TYPE", jointString);
-        if (0 != emcJointSetJoint(joint, jointType)) {
+        if (0 != emcJointSetType(joint, jointType)) {
             return -1;
         }
 

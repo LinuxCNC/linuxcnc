@@ -82,7 +82,7 @@ static int localMotionEchoSerialNumber = 0;
   rate, in any order, but both need to be done. 
  */
 
-int emcJointSetJoint(int joint, unsigned char jointType)
+int emcJointSetType(int joint, unsigned char jointType)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;

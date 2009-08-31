@@ -393,7 +393,7 @@ extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
 // implementation functions for EMC_JOINT types
 
-extern int emcJointSetJoint(int joint, unsigned char jointType);
+extern int emcJointSetType(int joint, unsigned char jointType);
 extern int emcJointSetUnits(int joint, double units);
 extern int emcJointSetBacklash(int joint, double backlash);
 extern int emcJointSetMinPositionLimit(int joint, double limit);
