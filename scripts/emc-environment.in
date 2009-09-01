@@ -92,4 +92,4 @@ if [ -f $EMC2_HOME/src/Makefile ]; then
     build () { make -C $EMC2_HOME/src "$@"; }
 fi
 
-export PYTHONPATH MANPATH
+export PYTHONPATH MANPATH LD_LIBRARY_PATH
