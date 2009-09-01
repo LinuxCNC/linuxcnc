@@ -89,4 +89,4 @@ else
     complete -C "halcmd -C" halcmd
 fi
 
-export PYTHONPATH MANPATH
+export PYTHONPATH MANPATH LD_LIBRARY_PATH
