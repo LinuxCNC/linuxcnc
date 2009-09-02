@@ -158,6 +158,7 @@ class touchy:
                         "on_filechooser_select" : self.filechooser.select,
                         "on_filechooser_up_clicked" : self.filechooser.up,
                         "on_filechooser_down_clicked" : self.filechooser.down,
+                        "on_filechooser_reload_clicked" : self.filechooser.reload,
                         "on_mist_on_clicked" : self.emc.mist_on,
                         "on_mist_off_clicked" : self.emc.mist_off,
                         "on_flood_on_clicked" : self.emc.flood_on,

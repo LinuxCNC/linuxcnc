@@ -64,3 +64,7 @@ class filechooser:
         self.fileoffset += self.numlabels
         self.populate()
 
+    def reload(self, b):
+        self.files = dircache.listdir(self.dir)
+        self.selected = -1
+        self.populate()
