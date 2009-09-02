@@ -47,7 +47,11 @@ class filechooser:
         n = int(eventbox.get_name()[20:])
         self.selected = self.fileoffset + n
         self.emccommand.mode(self.emc.MODE_MDI)
-        self.emccommand.program_open(os.path.join(self.dir, self.labels[n].get_text()))
+        fn = os.path.join(self.dir, self.labels[n].get_text())
+        f = file(fn, 'r')
+        self.lines = f.readlines()
+        f.close()
+        self.emccommand.program_open(fn)
         self.populate()
 
     def up(self, b):
