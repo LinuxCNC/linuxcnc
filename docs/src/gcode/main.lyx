@@ -7216,6 +7216,10 @@ M- P-
  a default value of 3 in EMC2.
  If needed the value can be increased by using the num_dio parameter when
  loading the motion controller.
+\layout Itemize
+
+The P- word specifies the digital output number.
+ 
 \layout Description
 
 M62 Turn on digital output synched with motion
