@@ -8541,6 +8541,10 @@ M- P-
  loading the motion controller.
 \end_layout
 
+\begin_layout Itemize
+The P- word specifies the digital output number.
+\end_layout
+
 \begin_layout Description
 M62 Turn on digital output synched with motion
 \end_layout
