@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -110,15 +111,6 @@ When G28 or G30 is programmed with only some axis words present, EMC2 only
 \begin_layout Standard
 G0 X- Y- (axes to move to intermediate point) G28 (move all axes to predefined
  point)
-\end_layout
-
-\begin_layout Subsection*
-M62, M63 not implemented
-\end_layout
-
-\begin_layout Standard
-M62 and M63 are not currently implemented, but may be added to a future
- release of EMC2.
 \end_layout
 
 \begin_layout Section*
