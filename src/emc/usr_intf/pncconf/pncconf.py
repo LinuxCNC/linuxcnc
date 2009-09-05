@@ -89,7 +89,7 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
-
+axisdiagram = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help/axisdiagram1.png")
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
     ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -419,7 +419,19 @@ class Data:
         self.homeindex = False
         self.homeboth = False
         self.limitstype = 0
-        self.homingtype = 0    
+        self.homingtype = 0
+        self.nojogbuttons = True
+        self.singlejogbuttons = False
+        self.multijogbuttons = False
+        self.jogscalerapid = 1.0
+        self.guimpg = True    
+        self.multimpg = False
+        self.simglempg = False
+        self.jogscalea = .1
+        self.jogscaleb = .01
+        self.jogscalec = .001
+
+        
 
         # GUI frontend defaults
         self.position_offset = 1 # relative
@@ -2208,6 +2220,7 @@ class App:
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
+        self.widgets.helppic.set_from_file(axisdiagram)
         self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
         self.widgets.complete.set_watermark(self.watermark)
@@ -2222,14 +2235,10 @@ class App:
        
         self.intrnldata = Intrnl_data()
         self.data = Data()
-        
-   
+         
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
-           os.remove(tempfile)
-
-    def test_callback(self,widget,data):
-        print "pin designation-",data
+           os.remove(tempfile) 
 
     def gtk_main_quit(self, *args):
         gtk.main_quit()
