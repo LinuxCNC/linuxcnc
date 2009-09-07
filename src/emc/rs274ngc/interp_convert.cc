@@ -4390,7 +4390,11 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   } else if (g_code == G_43) {
     if(block->h_flag == ON) {
         CHP((find_tool_pocket(settings, block->h_number, &index)));
+    } else if (settings->toolchange_flag) {
+        // we haven't loaded the tool and swapped pockets quite yet
+        index = settings->current_pocket;
     } else {
+        // tool change is done so pockets are swapped
         index = 0;
     }
 
