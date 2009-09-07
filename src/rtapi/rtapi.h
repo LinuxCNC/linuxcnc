@@ -78,11 +78,14 @@
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
 #ifdef __cplusplus
-extern "C" {			/* Need this when the header is included in a
-				   C++ source. If we don't, the linker bitches 
-				   about undefined references to the rtapi
-				   functions. */
+#define RTAPI_BEGIN_DECLS extern "C" {
+#define RTAPI_END_DECLS }
+#else
+#define RTAPI_BEGIN_DECLS
+#define RTAPI_END_DECLS
 #endif
+
+RTAPI_BEGIN_DECLS
 
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
@@ -161,15 +164,10 @@ extern "C" {			/* Need this when the header is included in a
     extern void rtapi_print(const char *fmt, ...)
 	    __attribute__((format(printf,1,2)));
 
-/** 'rtapi_print_msg()' prints debug messages.  Works like rtapi_print
-    but only prints if 'level' is less than or equal to the current
-    message level. The default message level is RTAPI_MSG_ERR, but it may
-    be changed. The defines below are used for RTAPI messages, and are
-    recommended for user messages as well.  May be called from user, 
-    init/cleanup, and realtime code.
-    
-    N.B. New values should not be added before RTAPI_MSG_NONE or after
-    RTAPI_MSG_ALL.
+/** 'rtapi_print_msg()' prints a printf-style message when the level
+    is less than or equal to the current message level set by
+    rtapi_set_msg_level().  May be called from user, init/cleanup,
+    and realtime code.
 */
     typedef enum {
 	RTAPI_MSG_NONE = 0,
@@ -183,13 +181,13 @@ extern "C" {			/* Need this when the header is included in a
     extern void rtapi_print_msg(int level, const char *fmt, ...)
 	    __attribute__((format(printf,2,3)));
 
-/** 'rtapi_set_msg_level()' and rtapi_get_msg_level() access the message
-    level used by rtapi_print_msg().  The default is RTAPI_MSG_ERR, and
-    the legal range is defined in the enumerate msg_level_t.
-    rtapi_set_msg_level() returns a status code, and rtapi_get_msg_level()
-    returns the current level.
-*/
+
+/** Set the maximum level of message to print.  In userspace code,
+    each component has its own independent message level.  In realtime
+    code, all components share a single message level.  Returns 0 for
+    success or -EINVAL if the level is out of range. */
     extern int rtapi_set_msg_level(int level);
+/** Retrieve the message level set by the last call to rtapi_set_msg_level */
     extern int rtapi_get_msg_level(void);
 
 /** 'rtapi_get_msg_handler' and 'rtapi_set_msg_handler' access the function
@@ -388,8 +386,8 @@ extern "C" {			/* Need this when the header is included in a
        for each task of the next highest priority, set their priorities
        to 'rtapi_prio_next_lower(previous)'.
 
-    N.B. A high priority task will pre-empt or interrupt a lower priority
-         task. Linux is always the lowest priority !
+    A high priority task will preempt a lower priority task.  The linux kernel
+    and userspace are always a lower priority than all rtapi tasks.
 
     Call these functions only from within init/cleanup code, not from
     realtime tasks.
@@ -887,7 +885,6 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
 
-#ifdef __cplusplus
-}
-#endif
+RTAPI_END_DECLS
+
 #endif /* RTAPI_H */

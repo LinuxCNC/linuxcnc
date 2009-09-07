@@ -6,10 +6,22 @@ puma.ini
 -------------
 
 
+  Config file for a PUMA type robot.
+
+  You need to specify what kinematics should get used (loadrt pumakins in your hal file)
+  
+  If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES 
+  aswell, and make sure the position match (when run through the kinematics).
+
+puma560.ini
+
+-------------
+
+
   Config file for a PUMA 560 type robot.
 
 
-  You need to specify what kinematics should get used (loadrt pumakins in your hal file)
+  You need to specify what kinematics should get used (loadrt genserkins in your hal file)
   
   If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES 
   aswell, and make sure the position match (when run through the kinematics).

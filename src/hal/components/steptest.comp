@@ -14,12 +14,20 @@ pin out float run-target;
 pin out float run-start;
 pin out float run-low;
 pin out float run-high;
+pin in s32 pause = 0 "pause time for each end of run in seconds";
 param rw float epsilon = .001;
+variable double timer;
+param r float elapsed "Current value of the internal timer";
+variable int timer_on;
 function _;
 license "GPL";
 ;;
 extern double fabs(double);
 
+if (timer_on) {
+    timer += fperiod;
+}
+elapsed = timer;
 if(run) {
     if(!running) {
         running = 1;
@@ -35,16 +43,25 @@ if(run) {
     }
 
     if(fabs(position_fb - position_cmd) < epsilon) {
-        if(position_cmd == run_low) {
-            position_cmd = run_high;
-        } else {
-            position_cmd = run_low;
+        if ((position_cmd == run_low) || (position_cmd ==run_high)) {
+            if (!timer_on) {
+                timer = 0;
+                timer_on = true;
+            } else if (timer >= pause) {
+                timer_on = false; 
+                if(position_cmd == run_low) {
+                    position_cmd = run_high;
+                } else {
+                    position_cmd = run_low;
+                }
+            }
         }
     }
 } else if(running) {
     position_cmd = run_start;
     if(fabs(position_fb - run_start) < epsilon) {
         running = 0;
+        timer_on = false;
     }
 } else {
     if(jog_minus) {

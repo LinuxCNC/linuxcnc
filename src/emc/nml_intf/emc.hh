@@ -463,7 +463,6 @@ extern int emcTaskPlanSetBlockDelete(bool state);
 extern int emcTaskPlanExit();
 extern int emcTaskPlanOpen(const char *file);
 extern int emcTaskPlanRead();
-extern int emcTaskPlanRun(int line);
 extern int emcTaskPlanExecute(const char *command);
 extern int emcTaskPlanExecute(const char *command, int line_number); //used in case of MDI to pass the pseudo line number to interp
 extern int emcTaskPlanPause();

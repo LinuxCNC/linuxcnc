@@ -1080,6 +1080,7 @@ AC_SUBST([TK_CFLAGS])
 AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
+AC_SUBST([TCLSH])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #
@@ -1289,8 +1290,8 @@ if test "$BUILD_PYTHON" = "yes"; then
 
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 	
-    PYTHON_TK_VERSION="`python -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`python -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
 
     if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
 	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
@@ -1344,6 +1345,7 @@ AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
+AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)

@@ -89,7 +89,7 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
-
+axisdiagram = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help/axisdiagram1.png")
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
     ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -116,38 +116,43 @@ _("HDW Step Gen-A"),_("HDW Step Gen-B"),
 _("HDW PWM Gen-P"),_("HDW PWM Gen-D"),_("HDW PWM Gen-E"),
 _("HDW PDM Gen-P"),_("HDW PDM Gen-D"),_("HDW PDM Gen-E") ]
 
-#   boardname, firmwarename, max encoders, max pwm gens, max step gens, # of pins / encoder,# of pins / step gen, 
-#   watchdog, max GPIOI + available connector numbers,  then list of component type and logical number
+# boardname, firmwarename,
+# max encoders, max pwm gens, 
+# max step gens, number of pins per encoder,
+# number of pins per step gen, 
+# has watchdog, max GPIOI, 
+# low frequency rate , hi frequency rate, 
+# available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "SV12", 12, 12, 0, 3, 0, 1, 72 , [2,3,4],
+    ["5i20", "SV12", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i20", "SVST8_4", 8, 8, 4, 3, 6, 1, 72, [2,3,4],
+    ["5i20", "SVST8_4", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "SVST2_8", 2, 2, 8, 3, 6, 1, 72, [2,3,4],
+    ["5i20", "SVST2_8", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "SVST8_4IM2", 8, 8, 4, 4, 2, 1, 72, [2,3,4],
+    ["5i20", "SVST8_4IM2", 8, 8, 4, 4, 2, 1, 72, 33, 100, 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22", "SV16", 16, 16, 0, 3, 0, 1, 96, [2,3,4,5],
+    ["5i22", "SV16", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -156,7 +161,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22", "SVST8_8", 8, 8, 8, 3, 6, 1, 96, [2,3,4,5],
+    ["5i22", "SVST8_8", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -165,7 +170,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22", "SVS8_24", 8, 8, 24, 3, 2, 1, 96, [2,3,4,5],
+    ["5i22", "SVS8_24", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -174,29 +179,50 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["7i43", "SV8", 8, 8, 0, 3, 0, 1, 48, [3,4],
+    ["5i23", "SV12", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
+        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
+                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
+        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
+                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
+        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
+                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
+    ["5i23", "SVST8_4", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
+        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
+                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
+        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
+                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
+        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
+                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
+    ["5i23", "SVST4_8", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
+       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
+                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
+       [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
+                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
+       [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
+                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
+    ["7i43", "SV8", 8, 8, 0, 3, 0, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43", "SV4_4", 4, 4, 4, 3, 6, 1, 48, [3,4],
+    ["7i43", "SV4_4", 4, 4, 4, 3, 6, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],[GPIOI,3] ],      
-    ["7i43", "SV4_6", 4, 4, 6, 3, 4, 1, 48, [3,4],
+    ["7i43", "SV4_6", 4, 4, 6, 3, 4, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                 [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43", "SV4_12", 4, 4, 12, 3, 2, 1, 48, [3,4],
+    ["7i43", "SV4_12", 4, 4, 12, 3, 2, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11] ],
 ]
 
-mesaboardnames = [ "5i20", "5i22", "7i43" ]
+mesaboardnames = [ "5i20", "5i22", "5i23", "7i43" ]
 
 
 
@@ -205,7 +231,7 @@ ON, CW, CCW, BRAKE,
 MIST, FLOOD, ESTOP, AMP,
 PUMP, DOUT0, DOUT1, DOUT2, DOUT3) = hal_output_names = [
 "unused-output", 
-"spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
+"spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
 "coolant-mist", "coolant-flood", "estop-out", "enable",
 "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03"
 ]
@@ -220,7 +246,9 @@ MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
 ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
-JOGA, JOGB, JOGC, SELECT_A, SELCT_B, SELECT_C, SELECT_D ) = hal_input_names = ["unused-input",
+JOGA, JOGB, JOGC, SELECT_A, SELECT_B, SELECT_C, SELECT_D,
+JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,
+JOGSLCT_P, JOGSLCT_N, SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP   ) = hal_input_names = ["unused-input",
 "estop-ext", "probe-in",
 "home-x", "home-y", "home-z", "home-a",
 "min-home-x", "min-home-y", "min-home-z", "min-home-a",
@@ -230,8 +258,12 @@ JOGA, JOGB, JOGC, SELECT_A, SELCT_B, SELECT_C, SELECT_D ) = hal_input_names = ["
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
-"jog-select-a","jog-select-b","jog-select-c",
-"axis-select-a","axis-select-b","axis-select-c","axis-select-d"]
+"jog-incr-a","jog-incr-b","jog-incr-c",
+"axis-select-a","axis-select-b","axis-select-c","axis-select-d",
+"jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
+"jog-z-pos","jog-z-neg","jog-a-pos","jog-a-neg",
+"jog-selected-pos","jog-selected-neg","spindle-manual-cw",
+"spindle-manual-ccw","spindle-manual-stop"]
 
 human_output_names = [ _("Unused Output"),
 _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake"),
@@ -249,8 +281,11 @@ _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum L
 _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
 _("All limits"), _("All home"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-_("Jog select input A"),_("Jog select input B"),_("Jog select input C"),
-_("Axis select input A"),_("Axis select input B"),_("Axis select input C"), _("Axis select input D")]
+_("Jog incr input A"),_("Jog incr input B"),_("Jog incr input C"),
+_("Axis select input A"),_("Axis select input B"),_("Axis select input C"), _("Axis select input D"),
+_("Jog button X +"),_("Jog button X -"),_("Jog button Y +"),_("Jog button Y -"),_("Jog button Z +"),_("Jog button Z -"),
+_("Jog button A +"),_("Jog button A -"),_("Jog button selectable +"),_("Jog button selectable -"),_("Manual Spindle CW"),
+_("Manual Spindle CCW"),_("Manual Spindle Stop")]
 
 human_names_shared_home = [_("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
 _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
@@ -272,7 +307,7 @@ Z_PWM_PULSE, Z_PWM_DIR, Z_PWM_ENABLE, A_PWM_PULSE, A_PWM_DIR, A_PWM_ENABLE,
 SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_names = ["unused-pwm",
 "x-pwm-pulse", "x-pwm-dir", "x-pwm-enable", "y-pwm-pulse", "y-pwm-dir", "y-pwm-enable",
 "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
-"spindle-pwm-pulse", "spindle-pwm-dir", "spindle-pwm-enable"]
+"s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
 human_pwm_output_names =[ _("Unused PWM Gen"), _("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), _("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), _("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"), _("A PWM Pulse Stream"),
 _("A PWM Direction"), _("A PWM Enable"), _("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
@@ -290,7 +325,7 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
 "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
 "a-encoder-a", "a-encoder-b", "a-encoder-i", "a-encoder-m",
-"spindle-encoder-a","spindle-encoder-b","spindle-encoder-i", "spindle-encoder-m",
+"s-encoder-a","s-encoder-b","s-encoder-i", "s-encoder-m",
 "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
@@ -309,20 +344,20 @@ X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_ST
 Y_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
 Z_STEPGEN_STEP, Z_STEPGEN_DIR, Z_STEPGEN_PHC, Z_STEPGEN_PHD, Z_STEPGEN_PHE, Z_STEPGEN_PHF,
 A_STEPGEN_STEP, A_STEPGEN_DIR, A_STEPGEN_PHC, A_STEPGEN_PHD, A_STEPGEN_PHE, A_STEPGEN_PHF,
-spindle_STEPGEN_STEP, spindle_STEPGEN_DIR, spindle_STEPGEN_PHC, spindle_STEPGEN_PHD, spindle_STEPGEN_PHE, spindle_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
+SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_PHD, SPINDLE_STEPGEN_PHE, SPINDLE_STEPGEN_PHF) = hal_stepper_names = ["unused-stepgen", 
 "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c", "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f", 
 "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c", "y-stepgen-phase-d", "y-stepgen-phase-e", "y-stepgen-phase-f",
 "z-stepgen-step", "z-stepgen-dir", "z-stepgen-phase-c", "z-stepgen-phase-d", "z-stepgen-phase-e", "z-stepgen-phase-f",
 "a-stepgen-step", "a-stepgen-dir", "a-stepgen-phase-c", "a-stepgen-phase-d", "a-stepgen-phase-e", "a-stepgen-phase-f",
-"spindle-stepgen-step", "spindle-stepgen-dir", "spindle-stepgen-phase-c", "spindle-stepgen-phase-d", "spindle-stepgen-phase-e", 
-"spindle-stepgen-phase-f",]
+"s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
+"s-stepgen-phase-f",]
 
 human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved c"), _("X reserved d"), 
 _("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
 _("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
 _("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
-_("spindle StepGen-Step"), _("spindle StepGen-Direction"), _("spindle reserved c"), _("spindle reserved d"), _("spindle reserved e"), 
-_("spindle reserved f"), ]
+_("Spindle StepGen-Step"), _("Spindle StepGen-Direction"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
+_("Spindle reserved f"), ]
 
 def md5sum(filename):
     try:
@@ -344,14 +379,111 @@ class Widgets:
         if r is None: raise IndexError, "No widget %r" % attr
         return r
 
+class Intrnl_data:
+    def __init__(self):
+        self.mesa_configured = False
+        self.components_is_prepared = False
+        #self.available_axes = []
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 class Data:
     def __init__(self):
         pw = pwd.getpwuid(os.getuid())
+        # custom signal name lists
+        self.halencoderinputsignames = []
+        self.halpwmoutputsignames = []
+        self.halinputsignames = []
+        self.haloutputsignames = []
+        self.halsteppersignames = []
+
+        # pncconf default options
+        self.createsymlink = 1
+        self.createshortcut = 0  
+
+        # basic machine data
         self.help = "help-welcome.txt"
         self.machinename = _("my_EMC_machine")
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
+        self.available_axes = []
+        self.servoperiod = 1000000
         self.units = 0 # inch
+        self.limitsnone = True
+        self.limitswitch = False
+        self.limitshared = False
+        self.homenone = True
+        self.homeswitch = False
+        self.homeindex = False
+        self.homeboth = False
+        self.limitstype = 0
+        self.homingtype = 0
+        self.nojogbuttons = True
+        self.singlejogbuttons = False
+        self.multijogbuttons = False
+        self.jogscalerapid = 1.0
+        self.guimpg = True    
+        self.multimpg = False
+        self.simglempg = False
+        self.jogscalea = .1
+        self.jogscaleb = .01
+        self.jogscalec = .001
+
+        
+
+        # GUI frontend defaults
+        self.position_offset = 1 # relative
+        self.position_feedback = 1 # actual
+        self.max_feed_override = 2.0 # percentage
+        self.min_spindle_override = .5
+        self.max_spindle_override = 1.0
+        # These are for AXIS gui only
+        self.default_linear_velocity = .25 # units per second
+        self.min_linear_velocity = .01
+        self.max_linear_velocity = 1.0
+        self.default_angular_velocity = .25
+        self.min_angular_velocity = .01
+        self.max_angular_velocity = 1.0
+        self.increments_metric = "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
+        self.increments_imperial= ".1in .05in .01in .005in .001in .0005in .0001in"
+        self.editor = "gedit"
+        self.geometry = "xyz"
+
+        # EMC assorted defults and options
+        self.manualtoolchange = True
+        self.multimpg = False
+        self.require_homing = True
+        self.restore_joint_position = False
+        self.tooloffset_on_w = False
+        self.restore_toolnumber = False
+        self.raise_z_on_toolchange = False
+        self.allow_spindle_on_toolchange = False
+        self.customhal = 1 # include custom hal file
+        self.userneededpid = 0
+
+        # pyvcp data
+        self.pyvcp = 0 # not included
+        self.pyvcpname = "custom.xml"
+        self.pyvcphaltype = 0 # no HAL connections specified
+        self.pyvcpconnect = 1 # HAL connections allowed
+
+        # classicladder data
+        self.classicladder = 0 # not included
+        self.digitsin = 15 # default number of pins
+        self.digitsout = 15
+        self.s32in = 10
+        self.s32out = 10
+        self.floatsin = 10
+        self.floatsout = 10
+        self.tempexists = 0 # not present
+        self.laddername = "custom.clp"
+        self.modbus = 0 # not included
+        self.ladderhaltype = 0 # no HAL connections specified
+        self.ladderconnect = 1 # HAL connections allowed
+
+        # stepper timing data
         self.drivertype = "other"
         self.steptime = 5000
         self.stepspace = 5000
@@ -360,19 +492,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
-        self.mesa5i20 = 1
-        self.mesa_currentfirmwaredata = mesafirmwaredata[1]
-        self.mesa_boardname = "5i20"
-        self.mesa_firmware = "SVST8_4"
-        self.mesa_maxgpio = 72
-        self.mesa_isawatchdog = 1
-        self.mesa_pwm_frequency = 100000
-        self.mesa_pdm_frequency = 100000
-        self.mesa_watchdog_timeout = 10000000
-        self.numof_mesa_encodergens = 4
-        self.numof_mesa_pwmgens = 4
-        self.numof_mesa_stepgens = 0
-        self.numof_mesa_gpio = 48
+        # For parallel port 
         self.pp1_direction = 1 # output
         self.ioaddr = "0x378"
         self.ioaddr2 = _("Enter Address")
@@ -380,38 +500,7 @@ class Data:
         self.ioaddr3 = _("Enter Address")
         self.pp3_direction = 0 # input
         self.number_pports = 0
-        self.limitsnone = True
-        self.limitswitch = False
-        self.limitshared = False
-        self.homenone = True
-        self.homeswitch = False
-        self.homeindex = False
-        self.homeboth = False
 
-        self.manualtoolchange = 1
-        self.customhal = 1 # include custom hal file
-        self.pyvcp = 0 # not included
-        self.pyvcpname = "custom.xml"
-        self.pyvcphaltype = 0 # no HAL connections specified
-        self.pyvcpconnect = 1 # HAL connections allowed
-
-        self.classicladder = 0 # not included
-        self.tempexists = 0 # not present
-        self.laddername = "custom.clp"
-        self.modbus = 0
-        self.ladderhaltype = 0 # no HAL connections specified
-        self.ladderconnect = 1 # HAL connections allowed
-
-        self.halencoderinputsignames = []
-        self.halpwmoutputsignames = []
-        self.halinputsignames = []
-        self.haloutputsignames = []
-        self.halsteppersignames = []
-
-        # pp1Ipin0
-        # pp1Opin0inv
-        # pp1Ipin0
-        # For parport one two and three
         for connector in("pp1","pp2","pp3"):
             # initialize parport input / inv pins
             for i in (2,3,4,5,6,7,8,9,10,11,12,13,15):
@@ -427,6 +516,20 @@ class Data:
                 self[pinname] = False
 
         # for mesa cards
+        self.mesa5i20 = 1 # number of cards
+        self.mesa_currentfirmwaredata = mesafirmwaredata[1]
+        self.mesa_boardname = "5i20"
+        self.mesa_firmware = "SVST8_4"
+        self.mesa_maxgpio = 72
+        self.mesa_isawatchdog = 1
+        self.mesa_pwm_frequency = 100000
+        self.mesa_pdm_frequency = 100000
+        self.mesa_watchdog_timeout = 10000000
+        self.numof_mesa_encodergens = 4
+        self.numof_mesa_pwmgens = 4
+        self.numof_mesa_stepgens = 0
+        self.numof_mesa_gpio = 48
+
         connector = 2
         pinname ="m5i20c%dpin"% (connector)
         self[pinname+"0"] = UNUSED_ENCODER
@@ -496,12 +599,14 @@ class Data:
                 pinname ="m5i20c%dpin%dinv"% (connector,i)
                 self[pinname] = False
 
-        # halui command list
+        # halui data
+        self.halui = 0 # not included
+        # Command list
         for i in range(1,16):
                 pinname ="halui_cmd%s"% i
                 self[pinname] = ""
 
-        #loadcomp command list
+        #HAL component command list
         for i in range(1,6):
                 pinname ="loadcomp%s"% i
                 self[pinname] = ""
@@ -509,8 +614,11 @@ class Data:
                 self[pinname] = ""
                 pinname ="threadspeed%s"% i
                 self[pinname] = 1
-        self.addcomp6 =""
+        self.loadcomp6 = []
+        self.threadspeed6 = 1
+        self.addcomp6 = []
 
+        # axis x data
         self.xdrivertype = "custom"
         self.xsteprev = 200
         self.xmicrostep = 2
@@ -556,6 +664,7 @@ class Data:
         self.xencodercounts =4000
         self.xscale = 0
 
+        # axis y data
         self.ydrivertype = "custom"
         self.ysteprev = 200
         self.ymicrostep = 2
@@ -600,6 +709,7 @@ class Data:
         self.yencodercounts =4000
         self.yscale = 0
    
+        # axis z data
         self.zdrivertype = "custom"     
         self.zsteprev = 200
         self.zmicrostep = 2
@@ -645,6 +755,7 @@ class Data:
         self.zscale = 0
 
 
+        # axis a data
         self.adrivertype = "custom"
         self.asteprev = 200
         self.amicrostep = 2
@@ -689,6 +800,34 @@ class Data:
         self.aencodercounts = 1000
         self.ascale = 0
 
+        # axis s (spindle) data
+        self.sdrivertype = "custom"
+        self.ssteprev = 200
+        self.smicrostep = 2
+        self.spulleynum = 1
+        self.spulleyden = 1
+        self.sleadscrew = 5
+        self.smaxvel = .0167
+        self.smaxacc = 2
+        self.sinvertmotor = 0
+        self.sinvertencoder = 0
+        self.sscale = 0
+        self.soutputscale = 1
+        self.soutputoffset = 0
+        self.smaxoutput = 10
+        self.sP = 1.0
+        self.sI = 0
+        self.sD = 0
+        self.sFF0 = 0
+        self.sFF1 = 0
+        self.sFF2 = 0
+        self.sbias = 0
+        self.sdeadband = 0
+        self.ssteptime = 0
+        self.sstepspace = 0
+        self.sdirhold = 0
+        self.sdirsetup = 0
+        self.sencodercounts = 1000
         self.spindlecarrier = 100
         self.spindlecpr = 100
         self.spindlespeed1 = 100
@@ -701,19 +840,7 @@ class Data:
         self.spindleoutputoffset = 0
         self.spindlemaxoutput = 10
         self.spindlescale = 0
-
-        self.limitstype = 0
-        self.homingtype = 0
-
-        self.digitsin = 15
-        self.digitsout = 15
-        self.s32in = 10
-        self.s32out = 10
-        self.floatsin = 10
-        self.floatsout = 10
-        self.halui = 0
-        self.createsymlink = 1
-        self.createshortcut = 0
+        self.spidcontrol = False
 
     def load(self, filename, app=None, force=False):
         def str2bool(s):
@@ -728,7 +855,7 @@ class Data:
             text = n.getAttribute('value')
             setattr(self, name, conv(text))
         
-        # this loads signal names created by the user
+        # this loads custom signal names created by the user
         for i in  self.halencoderinputsignames:
             hal_encoder_input_names.append(i)
             human_encoder_input_names.append(i)
@@ -795,23 +922,36 @@ class Data:
             print >>file, "DISPLAY = tkemc"
         else:
             print >>file, "DISPLAY = mini"
-        print >>file, "EDITOR = gedit"
-        print >>file, "POSITION_OFFSET = RELATIVE"
-        print >>file, "POSITION_FEEDBACK = ACTUAL"
-        print >>file, "MAX_FEED_OVERRIDE = 1.2"
+        if self.position_offset == 1: temp ="RELATIVE"
+        else: temp = "MACHINE"
+        print >>file, "POSITION_OFFSET = %s"% temp
+        if self.position_feedback == 1: temp ="ACTUAL"
+        else: temp = "COMMANDED"
+        print >>file, "POSITION_FEEDBACK = %s"% temp
+        print >>file, "MAX_FEED_OVERRIDE = %f"% self.max_feed_override
+        print >>file, "MAX_SPINDLE_OVERRIDE = %f"% self.max_spindle_override
+        print >>file, "MIN_SPINDLE_OVERRIDE = %f"% self.min_spindle_override
         print >>file, "INTRO_GRAPHIC = emc2.gif"
         print >>file, "INTRO_TIME = 5"
         print >>file, "PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/emc2/nc_files")
-        if self.units:
-            print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
-        else:
-            print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
         if self.pyvcp:
             print >>file, "PYVCP = custompanel.xml"
-
+        # these are for AXIS GUI only
+        if self.units:
+            print >>file, "INCREMENTS = %s"% self.increments_metric
+        else:
+            print >>file, "INCREMENTS = %s"% self.increments_imperial
         if self.axes == 2:
             print >>file, "LATHE = 1"
+        print >>file, "DEFAULT_LINEAR_VELOCITY = %f"% self.default_linear_velocity
+        print >>file, "MAX_LINEAR_VELOCITY = %f"% self.max_linear_velocity
+        print >>file, "MIN_LINEAR_VELOCITY = %f"% self.min_linear_velocity
+        print >>file, "DEFAULT_ANGULAR_VELOCITY = %f"% self.default_angular_velocity
+        print >>file, "MAX_ANGULAR_VELOCITY = %f"% self.max_angular_velocity
+        print >>file, "MIN_ANGULAR_VELOCITY = %f"% self.min_angular_velocity
+        print >>file, "EDITOR = %s"% self.editor
+        print >>file, "GEOMETRY = %s"% self.geometry 
 
         print >>file
         print >>file, "[FILTER]"
@@ -844,7 +984,7 @@ class Data:
         print >>file, "[HOSTMOT2]"
         print >>file, "DRIVER=hm2_pci"
         print >>file, "BOARD=%s"% self.mesa_boardname
-        print >>file, """CONFIG="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+        print >>file, """CONFIG="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
         self.mesa_boardname, self.mesa_firmware, self.numof_mesa_encodergens, self.numof_mesa_pwmgens, self.numof_mesa_stepgens )
         print >>file
         print >>file, "[HAL]"
@@ -889,23 +1029,37 @@ class Data:
         defvel = min(maxvel, max(.1, maxvel/10.))
         print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
         print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
+        if self.restore_joint_position:
+            print >>file, "POSITION_FILE = position.txt"
+        if not self.require_homing:
+            print >>file, "NO_FORCE_HOMING = 1"
+        if self.tooloffset_on_w:
+            print >>file, "TLO_IS_ALONG_W = 1"
+        #if self.restore_toolnumber:
+        #    print >>file, "TLO_IS-ALONG_W = 1"
 
         print >>file
         print >>file, "[EMCIO]"
         print >>file, "EMCIO = io"
         print >>file, "CYCLE_TIME = 0.100"
         print >>file, "TOOL_TABLE = tool.tbl"
+        if self.allow_spindle_on_toolchange:
+            print >>file, "TOOLCHANGE_WITH_SPINDLE_ON = 1"
+        if self.raise_z_on_toolchange:
+            print >>file, "TOOLCHANGE_QUILL_UP = 1"
+        
 
         all_homes = self.home_sig("x") and self.home_sig("z")
         if self.axes != 2: all_homes = all_homes and self.home_sig("y")
         if self.axes == 4: all_homes = all_homes and self.home_sig("a")
 
         self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
+        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
         if self.axes != 2:
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
         if self.axes == 1:
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
+        self.write_one_axis(file, 9, "s", "null", all_homes)
 
         file.close()
         self.add_md5sum(filename)
@@ -955,34 +1109,35 @@ class Data:
 
     def write_one_axis(self, file, num, letter, type, all_homes):
         order = "1203"
-        def get(s): return self[letter + s]
+        def get(s): return self[letter + s]       
         pwmgen = self.pwmgen_sig(letter)
         stepgen = self.stepgen_sig(letter)
         print >>file
         print >>file, "#********************"
-        print >>file, "# Axis %s" % letter.upper()
-        print >>file, "#********************"
-        print >>file, "[AXIS_%d]" % num
-        print >>file, "TYPE = %s" % type
-        print >>file, "HOME = %s" % get("homepos")
+        if letter == 's':
+            print >>file, "# Spindle "
+            print >>file, "#********************"
+            print >>file, "[SPINDLE_%d]" % num
+        else:
+            print >>file, "# Axis %s" % letter.upper()
+            print >>file, "#********************"
+            print >>file, "[AXIS_%d]" % num
+            print >>file, "TYPE = %s" % type
+            print >>file, "HOME = %s" % get("homepos")
+            print >>file, "FERROR = %s"% get("maxferror")
+            print >>file, "MIN_FERROR = %s" % get("minferror")
         print >>file, "MAX_VELOCITY = %s" % get("maxvel")
         print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        if self[letter + "usecomp"]:
-            print >>file, "COMP_FILE = %s" % get("compfilename")
-            print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
-        if self[letter + "usebacklash"]:
-            print >>file, "BACKLASH = %s" % get("backlash")
-        print >>file, "FERROR = %s"% get("maxferror")
-        print >>file, "MIN_FERROR = %s" % get("minferror")
         if stepgen == "false":
-            print >>file, "P = %s" % get("P")
-            print >>file, "I = %s" % get("I") 
-            print >>file, "D = %s" % get("D")
-            print >>file, "FF0 = %s" % get("FF0")
-            print >>file, "FF1 = %s" % get("FF1")
-            print >>file, "FF2 = %s" % get("FF2")
-            print >>file, "BIAS = %s"% get("bias") 
-            print >>file, "DEADBAND = %s"% get("deadband")
+            if (self.spidcontrol == True and letter == 's') or not letter == 's':
+                print >>file, "P = %s" % get("P")
+                print >>file, "I = %s" % get("I") 
+                print >>file, "D = %s" % get("D")
+                print >>file, "FF0 = %s" % get("FF0")
+                print >>file, "FF1 = %s" % get("FF1")
+                print >>file, "FF2 = %s" % get("FF2")
+                print >>file, "BIAS = %s"% get("bias") 
+                print >>file, "DEADBAND = %s"% get("deadband")
             print >>file, "OUTPUT_SCALE = %s" % get("outputscale")
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
@@ -993,7 +1148,14 @@ class Data:
             print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
             print >>file, "STEPSPACE  = %d"% int(get("stepspace"))            
-            print >>file, "SCALE = %s"% get("scale")     
+            print >>file, "SCALE = %s"% get("scale") 
+            print >>file, "INPUT_SCALE = %s" % get("scale")  
+        if letter == 's':return  
+        if self[letter + "usecomp"]:
+            print >>file, "COMP_FILE = %s" % get("compfilename")
+            print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
+        if self[letter + "usebacklash"]:
+            print >>file, "BACKLASH = %s" % get("backlash")
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
         minlim = get("minlim")
@@ -1067,90 +1229,153 @@ class Data:
            else:return "false"
 
     def connect_axis(self, file, num, let):
-        axnum = "xyza".index(let)
+        axnum = "xyzabcuvws".index(let)
+        title = 'AXIS'
+        if let == 's':
+            title = 'SPINDLE'
         jogwheel = False
         pwmgen = self.pwmgen_sig(let)
         stepgen = self.stepgen_sig(let)
         encoder = self.encoder_sig(let)
-        homesig = self.home_sig(let)
         if not self.findsignal(let+"-mpg-a") =="false":
             jogwheel = True
-        max_limsig = self.max_lim_sig(let)
-        min_limsig = self.min_lim_sig(let)
         lat = self.latency
-        print >>file, "#**************"
-        print >>file, "#  Axis %s" % let.upper()
-        print >>file, "#**************"
+        print >>file, "#*******************"
+        print >>file, "#  %s %s" % (title, let.upper())
+        print >>file, "#*******************"
         print >>file
          
-        if stepgen == "false":
-            print >>file, "    setp pid.%d.Pgain [AXIS_%d]P" % (num, axnum)
-            print >>file, "    setp pid.%d.Igain [AXIS_%d]I" % (num, axnum)
-            print >>file, "    setp pid.%d.Dgain [AXIS_%d]D" % (num, axnum)
-            print >>file, "    setp pid.%d.bias [AXIS_%d]BIAS" % (num, axnum)
-            print >>file, "    setp pid.%d.FF0 [AXIS_%d]FF0" % (num, axnum)
-            print >>file, "    setp pid.%d.FF1 [AXIS_%d]FF1" % (num, axnum)
-            print >>file, "    setp pid.%d.FF2 [AXIS_%d]FF2" % (num, axnum)
-            print >>file, "    setp pid.%d.deadband [AXIS_%d]DEADBAND" % (num, axnum)
-            print >>file, "    setp pid.%d.maxoutput [AXIS_%d]MAX_OUTPUT" % (num, axnum)
-            print >>file
-            if 'm5i20' in encoder:
-                pinname = self.make_pinname(encoder)
-                #TODO do a check to see if encoder sig is from parport or mesa
-                #also the encoder # needs to reflect pin number not axis number
-                print >>file, "# Encoder feedback signals/setup"
+        if not pwmgen == "false":
+            if (self.spidcontrol == True and let == 's') or not let == 's':
+                print >>file, "    setp pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
+                print >>file, "    setp pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
+                print >>file, "    setp pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
+                print >>file, "    setp pid.%s.bias      [%s_%d]BIAS" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF0       [%s_%d]FF0" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF1       [%s_%d]FF1" % (let, title, axnum)
+                print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
+                print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
+                print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
                 print >>file
-                print >>file, "    setp "+pinname+".counter-mode 0"
-                print >>file, "    setp "+pinname+".filter 1" 
-                print >>file, "    setp "+pinname+".index-invert 0"
-                print >>file, "    setp "+pinname+".index-mask 0" 
-                print >>file, "    setp "+pinname+".index-mask-invert 0"              
-                print >>file, "    setp "+pinname+".scale  [AXIS_%d]INPUT_SCALE"% (axnum)
-                print >>file, "net %spos-fb <= "% (let) +pinname+".position"
-                print >>file, "net %spos-fb => pid.%d.feedback"% (let,axnum) 
-                print >>file, "net %spos-fb => axis.%d.motor-pos-fb" % (let, axnum)   
-                print >>file        
+               
             if 'm5i20' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 print >>file, "# PWM Generator signals/setup"
                 print >>file
                 print >>file, "    setp "+pinname+".output-type 1" 
-                print >>file, "    setp "+pinname+".scale  1.0" 
-                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let,axnum) +pinname+".enable"
-                print >>file, "net %senable     pid.%d.enable" % (let, axnum) 
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => pid.%d.command" % (let, axnum , axnum)
-                print >>file, "net %soutput     pid.%d.output  => "% (let, axnum) +pinname+ ".value"  
+                print >>file, "    setp "+pinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, axnum)  
+                if let == 's':  
+                    
+                    x1 = self.spindlepwm1
+                    x2 = self.spindlepwm2
+                    y1 = self.spindlespeed1
+                    y2 = self.spindlespeed2
+                    scale = (y2-y1) / (x2-x1)
+                    offset = x1 - y1 / scale
+                    print >>file
+                    
+                    #print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
+                    #print >>file, "    setp pwmgen.0.scale %s" % scale
+                    #print >>file, "    setp pwmgen.0.offset %s" % offset
+                    #print >>file, "    setp pwmgen.0.dither-pwm true"
+                    if self.spidcontrol == True:
+                        print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
+                        print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
+                        print >>file, "net spindle-enable    => pid.%s.enable" % (let) 
+                        print >>file, "net spindle-enable    => " + pinname +".enable"
+                    else:
+                        print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
+                        print >>file, "net spindle-enable    => " + pinname +".enable"
+                else:
+                    print >>file, "net %senable     => pid.%s.enable" % (let, let)                
+                    print >>file, "net %soutput     pid.%s.output      => "% (let, let) + pinname + ".value" 
+                    print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd     => pid.%s.command" % (let, axnum , let)
+                    print >>file, "net %senable     axis.%d.amp-enable-out     => "% (let,axnum) + pinname +".enable"
                 print >>file    
         if not stepgen == "false":
             pinname = self.make_pinname(stepgen)
             print >>file, "# Step Gen signals/setup"
             print >>file
-            print >>file, "    setp " + pinname + ".dirsetup        [AXIS_%d]DIRSETUP"% axnum
-            print >>file, "    setp " + pinname + ".dirhold         [AXIS_%d]DIRHOLD"% axnum
-            print >>file, "    setp " + pinname + ".steplen         [AXIS_%d]STEPLEN"% axnum
-            print >>file, "    setp " + pinname + ".stepspace       [AXIS_%d]STEPSPACE"% axnum
-            print >>file, "    setp " + pinname + ".position-scale  [AXIS_%d]SCALE"% axnum
-            print >>file, "    setp " + pinname + ".maxaccel        [AXIS_%d]MAX_ACCELERATION"% axnum
-            print >>file, "    setp " + pinname + ".maxvel          [AXIS_%d]MAX_VELOCITY"% axnum
-            print >>file, "    setp " + pinname + ".step_type       0"
-            print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
-            print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
-            print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"  
+            print >>file, "    setp " + pinname + ".dirsetup        [%s_%d]DIRSETUP"% (title, axnum)
+            print >>file, "    setp " + pinname + ".dirhold         [%s_%d]DIRHOLD"% (title, axnum)
+            print >>file, "    setp " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
+            print >>file, "    setp " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
+            print >>file, "    setp " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
+            print >>file, "    setp " + pinname + ".maxaccel        [%s_%d]MAX_ACCELERATION"% (title, axnum)
+            print >>file, "    setp " + pinname + ".maxvel          [%s_%d]MAX_VELOCITY"% (title, axnum)
+            print >>file, "    setp " + pinname + ".step_type       0"        
+            if let == 's':  
+                print >>file, "    setp " + pinname + ".control-type    1"
+                print >>file
+                print >>file, "net spindle-enable          => " + pinname + ".enable" 
+                print >>file, "net spindle-vel-cmd-rps    => "+ pinname + ".velocity-cmd"
+                if encoder == "false":
+                    print >>file, "net spindle-vel-fb         <= "+ pinname + ".velocity-fb"     
+            else:
+                print >>file
+                print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
+                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"  
             print >>file
-        print >>file, "# setup home / limit switche signal"       
-        if not homesig =="false":
-            print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)       
-        if not min_limsig =="false":
-            print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
-        if not max_limsig =="false":
-            print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
+
+        if 'm5i20' in encoder:
+                pinname = self.make_pinname(encoder)              
+                countmode = 0
+                # TODO do a check to see if encoder sig is from parport or mesa
+                # support for encoder count mode 
+                print >>file, "# ---Encoder feedback signals/setup---"
+                print >>file             
+                print >>file, "    setp "+pinname+".counter-mode %d"% countmode
+                print >>file, "    setp "+pinname+".filter 1" 
+                print >>file, "    setp "+pinname+".index-invert 0"
+                print >>file, "    setp "+pinname+".index-mask 0" 
+                print >>file, "    setp "+pinname+".index-mask-invert 0"              
+                print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
+                if let == 's':
+                    print >>file, "net spindle-vel-fb     <= " +pinname+".velocity"
+                    print >>file, "net spindle-index-enable     <=> "+ pinname + ".index-enable"       
+                    #print >>file, "net spindle-vel-cmd => pid.%d.feedback"% (axnum)                   
+                else: 
+                    print >>file, "net %spos-fb     <= "% (let) +pinname+".position"
+                    print >>file, "net %spos-fb     => pid.%s.feedback"% (let,let) 
+                    print >>file, "net %spos-fb     => axis.%d.motor-pos-fb" % (let, axnum)  
+                print >>file  
+
+        if let =='s':
+            print >>file, "# ---setup spindle control signals---" 
+            print >>file
+            print >>file, "net spindle-vel-cmd-rps    <= motion.spindle-speed-out-rps"
+            print >>file, "net spindle-vel-cmd        <= motion.spindle-speed-out"
+            print >>file, "net spindle-enable         <= motion.spindle-on"
+            #print >>file, "net spindle-on <= motion.spindle-on"
+            print >>file, "net spindle-cw             <= motion.spindle-forward"
+            print >>file, "net spindle-ccw            <= motion.spindle-reverse"
+            print >>file, "net spindle-brake          <= motion.spindle-brake"            
+
+            print >>file, "net spindle-revs           => motion.spindle-revs"
+            print >>file, "net spindle-atspeed        => motion.spindle-at-speed"
+            print >>file, "net spindle-vel-fb         => motion.spindle-speed-in"
+            print >>file, "net spindle-index-enable  <=> motion.spindle-index-enable"
+            return
+        
+        min_limsig = self.min_lim_sig(let)
+        if  min_limsig == "false": min_limsig = "%s-neg-limit" % let
+        max_limsig = self.max_lim_sig(let)  
+        if  max_limsig == "false": max_limsig = "%s-pos-limit" % let 
+        homesig = self.home_sig(let)
+        if homesig == "false": homesig = "%s-home-sw" % let
+        print >>file, "# ---setup home / limit switch signals---"       
+        print >>file       
+        print >>file, "net %s        => axis.%d.home-sw-in" % (homesig, axnum)       
+        print >>file, "net %s     => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
+        print >>file, "net %s     => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
         print >>file
-        print >>file, "# Setup jogwheel mpg signals"
+        print >>file, "# ---Setup jogwheel mpg signals---"
         print >>file
-        print >>file, "net %s-jog-count => axis.%d.jog-counts" % (let,axnum)
-        print >>file, "net %s-jog-enable => axis.%d.jog-enable" % (let,axnum)
-        print >>file, "net %s-jog-scale => axis.%d.jog-scale" % (let,axnum)
+        print >>file, "net %s-jog-count     => axis.%d.jog-counts" % (let,axnum)
+        print >>file, "net %s-jog-enable    => axis.%d.jog-enable" % (let,axnum)
+        print >>file, "net %s-jog-scale     => axis.%d.jog-scale" % (let,axnum)
         print >>file
         if not jogwheel =="false":
             pinname = self.make_pinname(self.findsignal(let+"-mpg-a"))
@@ -1161,7 +1386,7 @@ class Data:
                 print >>file, "    sets %s-jog-scale .010" % let
                 print >>file, "    setp %s.filter true" % pinname
                 print >>file, "    setp %s.counter-mode true" % pinname
-                print >>file, "net %s-jog-count <= %s.count"% (let, pinname)
+                print >>file, "net %s-jog-count     <= %s.count"% (let, pinname)
                 print >>file
                 
                 
@@ -1173,8 +1398,8 @@ class Data:
             p = self['pp1Ipin%d' % q]
             i = self['pp1Ipin%dinv' % q]
             if p == UNUSED_INPUT: continue
-            if i: print >>file, "net %s <= parport.0.pin-%02d-in-not" % (p, q)
-            else: print >>file, "net %s <= parport.0.pin-%02d-in" % (p, q)
+            if i: print >>file, "net %s     <= parport.0.pin-%02d-in-not" % (p, q)
+            else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, q)
         print >>file
         for connector in (2,3,4):
             board = self.mesa_boardname
@@ -1187,19 +1412,21 @@ class Data:
                 if t == GPIOI:
                     if p == "unused-input":continue 
                     pinname = self.make_pinname(self.findsignal( p )) 
-                    if i: print >>file, "net %s <= "% (p)+pinname +".in_not"
-                    else: print >>file, "net %s <= "% (p)+pinname +".in"
+                    print >>file, "# ---",p.upper(),"---"
+                    if i: print >>file, "net %s     <= "% (p)+pinname +".in_not"
+                    else: print >>file, "net %s     <= "% (p)+pinname +".in"
                 # for encoder pins
                 elif t in (ENCA):
                     if p == "unused-encoder":continue
                     if p in (self.halencoderinputsignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-a","")
-                        print >>file, "net %s <= "% (sig+"-position")+pinname +".position"   
-                        print >>file, "net %s <= "% (sig+"-count")+pinname +".count"     
-                        print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity"
-                        print >>file, "net %s <= "% (sig+"-reset")+pinname +".reset"      
-                        print >>file, "net %s <= "% (sig+"-index-enable")+pinname +".index-enable"      
+                        sig = p.rstrip("-a")
+                        print >>file, "# ---",sig.upper(),"---"
+                        print >>file, "net %s         <= "% (sig+"-position")+pinname +".position"   
+                        print >>file, "net %s            <= "% (sig+"-count")+pinname +".count"     
+                        print >>file, "net %s         <= "% (sig+"-velocity")+pinname +".velocity"
+                        print >>file, "net %s            <= "% (sig+"-reset")+pinname +".reset"      
+                        print >>file, "net %s     <= "% (sig+"-index-enable")+pinname +".index-enable"      
                 else: continue
 
     def connect_output(self, file):
@@ -1209,7 +1436,7 @@ class Data:
             p = self['pp1Opin%d' % q]
             i = self['pp1Opin%dinv' % q]
             if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s => parport.0.pin-%02d-out" % (p, q)
+            print >>file, "net %s     => parport.0.pin-%02d-out" % (p, q)
             if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for connector in (2,3,4):
@@ -1222,33 +1449,36 @@ class Data:
                 if t in (GPIOO,GPIOD):
                     if p == "unused-output":continue
                     pinname = self.make_pinname(self.findsignal( p ))
+                    print >>file, "# ---",p.upper(),"---"
                     print >>file, "    setp "+pinname +".is_output true"
-                    print >>file, "net %s => "% (p)+pinname +".out"
                     if i: print >>file, "    setp "+pinname+".invert_output true"
-                    if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"                 
+                    if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"   
+                    print >>file, "net %s     => "% (p)+pinname +".out"              
                 # for pwm pins
                 elif t in (PWMP,PDMP):
                     if p == "unused-pwm":continue
                     if p in (self.halpwmoutputsignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-pulse","")
+                        sig = p.rstrip("-pulse")
+                        print >>file, "# ---",sig.upper(),"---"
                         if t == PWMP:
                             print >>file, "    setp "+pinname +".output-type 1"
                         elif t == PDMP:
                             print >>file, "    setp "+pinname +".output-type 3"
-                        print >>file, "net %s <= "% (sig+"-enable")+pinname +".enable"  
-                        print >>file, "net %s <= "% (sig+"-value")+pinname +".value" 
+                        print >>file, "net %s     <= "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s      <= "% (sig+"-value")+pinname +".value" 
                 # for stepper pins
                 elif t == (STEPA):
                     if p == "unused-stepgen":continue
                     if p in (self.halsteppersignames): 
                         pinname = self.make_pinname(self.findsignal( p )) 
-                        sig = p.replace("-pulse","")
-                        print >>file, "net %s <= "% (sig+"-enable")+pinname +".enable"  
-                        print >>file, "net %s <= "% (sig+"-count")+pinname +".counts" 
-                        print >>file, "net %s <= "% (sig+"-cmd-position")+pinname +".position-cmd"  
-                        print >>file, "net %s <= "% (sig+"-act-position")+pinname +".position-fb" 
-                        print >>file, "net %s <= "% (sig+"-velocity")+pinname +".velocity-fb"
+                        sig = p.rstrip("-step")
+                        print >>file, "# ---",sig.upper(),"---"
+                        print >>file, "net %s           <= "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s            <= "% (sig+"-count")+pinname +".counts" 
+                        print >>file, "net %s     <= "% (sig+"-cmd-position")+pinname +".position-cmd"  
+                        print >>file, "net %s     <= "% (sig+"-act-position")+pinname +".position-fb" 
+                        print >>file, "net %s         <= "% (sig+"-velocity")+pinname +".velocity-fb"
                 else:continue
 
     def write_halfile(self, base):
@@ -1298,8 +1528,6 @@ class Data:
 
         if not self.findsignal("spindle-phase-a") == "false":
             spindle_enc = True        
-        if self.findsignal("spindle-phase-b") =="false":
-            counter = True
         if not self.findsignal("probe") =="false":
             probe = True
         if not self.findsignal("spindle-pwm") =="false":
@@ -1322,17 +1550,6 @@ class Data:
             flood = True
         if not self.findsignal("spindle-brake") =="false":
             brake = True
-        
-
-        if self.axes == 2:
-            #print >>file, "loadrt stepgen step_type=0,0"
-            print >>file, "loadrt pid num_chan=2"
-        elif self.axes == 1:
-            #print >>file, "loadrt stepgen step_type=0,0,0,0"
-            print >>file, "loadrt pid num_chan=4"
-        else:
-            #print >>file, "loadrt stepgen step_type=0,0,0"
-            print >>file, "loadrt pid num_chan=3"
 
         if spindle_enc:
             print >>file, "loadrt encoder num_chan=1"
@@ -1343,8 +1560,6 @@ class Data:
 
         if pump:
             print >>file, "loadrt charge_pump"
-            print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
-            print >>file, "net charge-pump <= charge-pump.out"
 
         if pwm:
             print >>file, "loadrt pwmgen output_type=0"
@@ -1356,8 +1571,10 @@ class Data:
                 compname = self["loadcomp%d"% i] 
                 if not compname == "":
                     print >>file, compname
-
-                
+        for i in self.loadcomp6:
+            if i == '': continue
+            else:              
+                print >>file, i 
 
         if self.pyvcp and not self.frontend == 1:
             print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
@@ -1369,15 +1586,20 @@ class Data:
         if self.number_pports > 2:
             print >>file, "addf parport.2.read base-thread"
         #print >>file, "addf stepgen.make-pulses base-thread"
-        if spindle_enc: print >>file, "addf encoder.update-counters base-thread"
+        #if spindle_enc: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
-        if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
+        #if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
         for i in range(1,6):
                 compname = self["addcomp%d"% i] 
                 if  self["threadspeed%d"% i] == 0:
                     if compname == "": continue
                     print >>file, compname," base-thread"
                 else: continue
+        for i in self.addcomp6:
+            if  self["threadspeed6"] == 1: continue
+            if i == '': continue
+            else:              
+                print >>file, i +" base-thread"
         if self.number_pports > 0:
             print >>file, "addf parport.0.write base-thread"
             if self.doublestep():
@@ -1386,24 +1608,47 @@ class Data:
             print >>file, "addf parport.1.write base-thread"
         if self.number_pports > 2:
             print >>file, "addf parport.2.write base-thread"
-        if self.mesa5i20>0:
+        if self.mesa5i20 > 0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.read servo-thread" 
         #print >>file, "addf stepgen.capture-position servo-thread"
-        if spindle_enc: print >>file, "addf encoder.capture-position servo-thread"
+        #if spindle_enc: print >>file, "addf encoder.capture-position servo-thread"
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
-        if self.axes == 2:
-            print >>file, "addf pid.0.do-pid-calcs servo-thread"
-            print >>file, "addf pid.1.do-pid-calcs servo-thread"
-        elif self.axes == 1:
-            print >>file, "addf pid.0.do-pid-calcs servo-thread"
-            print >>file, "addf pid.1.do-pid-calcs servo-thread"
-            print >>file, "addf pid.2.do-pid-calcs servo-thread"
-            print >>file, "addf pid.3.do-pid-calcs servo-thread"
-        else:
-            print >>file, "addf pid.0.do-pid-calcs servo-thread"
-            print >>file, "addf pid.1.do-pid-calcs servo-thread"
-            print >>file, "addf pid.2.do-pid-calcs servo-thread"
+        temp = 0
+        axislet = []
+        for i in self.available_axes:
+            #if axis needs pid- (has pwm)
+            print "looking at available axis : ",i
+            if self.findsignal(i+"-encoder-a") == "false": continue 
+            if (self.spidcontrol == False and i == 's') : continue
+
+            print "adding " ,i
+            temp = temp +1 
+            axislet.append(i)
+            print axislet, temp
+            # add axis letter to 'need pid' string
+            #if axis is needed
+        temp = temp + self.userneededpid
+        if temp <> 0 : 
+            print >>file, "loadrt pid num_chan=%d"% temp          
+            #use 'need pid string' to add calcs and make aliases 
+            for i in range(0,temp ):
+                print >>file, "addf pid.%d.do-pid-calcs servo-thread"% i
+            for axnum,i in enumerate(axislet):
+                print >>file, "alias pin    pid.%d.Pgain     pid.%s.Pgain" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.Igain     pid.%s.Igain" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.Dgain     pid.%s.Dgain" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.bias      pid.%s.bias" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.FF0       pid.%s.FF0" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.FF1       pid.%s.FF1" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.FF2       pid.%s.FF2" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.deadband  pid.%s.deadband" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.maxoutput pid.%s.maxoutput" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.enable    pid.%s.enable" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.command   pid.%s.command" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.feedback  pid.%s.feedback" % (axnum + self.userneededpid, i)
+                print >>file, "alias pin    pid.%d.output    pid.%s.output" % (axnum + self.userneededpid, i)
+                print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
         #print >>file, "addf stepgen.update-freq servo-thread"
@@ -1412,81 +1657,22 @@ class Data:
             print >>file, "addf abs.0 servo-thread"
             if spindle_enc:
                print >>file, "addf scale.0 servo-thread"
+
         for i in range(1,6):
                 compname = self["addcomp%d"% i] 
                 if  self["threadspeed%d"% i] == 1:
                     if compname.isspace() == True:continue
                     print >>file, compname," servo-thread"
                 else: continue
-        print >>file, self.addcomp6
+        for i in self.addcomp6:
+            if  self["threadspeed6"] == 0: continue
+            if i == '': continue
+            else:              
+                print >>file, i +" servo-thread"
+
         if self.mesa5i20>0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread" 
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread"
-        print >>file
-        if pwm:
-            x1 = self.spindlepwm1
-            x2 = self.spindlepwm2
-            y1 = self.spindlespeed1
-            y2 = self.spindlespeed2
-            scale = (y2-y1) / (x2-x1)
-            offset = x1 - y1 / scale
-            print >>file
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
-            print >>file, "net spindle-enable <= motion.spindle-on => pwmgen.0.enable"
-            print >>file, "net spindle-pwm <= pwmgen.0.pwm"
-            print >>file, "    setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
-            print >>file, "    setp pwmgen.0.scale %s" % scale
-            print >>file, "    setp pwmgen.0.offset %s" % offset
-            print >>file, "    setp pwmgen.0.dither-pwm true"
-        else: 
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
-
-        if spindle_on:
-            print >>file, "net spindle-on <= motion.spindle-on"
-        if spindle_cw:
-            print >>file, "net spindle-cw <= motion.spindle-forward"
-        if spindle_ccw:
-            print >>file, "net spindle-ccw <= motion.spindle-reverse"
-        if brake:
-            print >>file, "net spindle-brake <= motion.spindle-brake"
-
-        if mist:
-            print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
-
-        if flood:
-            print >>file, "net coolant-flood <= iocontrol.0.coolant-flood"
-
-        if spindle_enc:
-            print >>file
-            if counter:
-                print >>file, "    setp encoder.0.position-scale %f"\
-                     % self.spindlecpr
-                print >>file, "    setp encoder.0.counter-mode 1"
-            else:
-                print >>file, "    setp encoder.0.position-scale %f" \
-                    % ( 4.0 * int(self.spindlecpr))
-            print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
-            print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
-            print >>file, "net spindle-phase-a encoder.0.phase-A"
-            print >>file, "net spindle-phase-b encoder.0.phase-B"
-            print >>file, "net spindle-index encoder.0.phase-Z"
-
-        
-        if probe:
-            print >>file
-            print >>file, "net probe-in => motion.probe-input"
-
-        for i in range(4):
-            dout = "dout-%02d" % i
-            if not self.findsignal(dout) =="false":
-                print >>file, "net %s <= motion.digital-out-%02d" % (dout, i)
-
-        for i in range(4):
-            din = "din-%02d" % i
-            if not self.findsignal(din) =="false":
-                print >>file, "net %s => motion.digital-in-%02d" % (din, i)
-
         print >>file
         self.connect_output(file)              
         print >>file
@@ -1496,47 +1682,87 @@ class Data:
         if self.axes == 2:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'z')
+            self.connect_axis(file, 2, 's')
         elif self.axes == 0:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
             self.connect_axis(file, 2, 'z')
+            self.connect_axis(file, 3, 's')
         elif self.axes == 1:
             self.connect_axis(file, 0, 'x')
             self.connect_axis(file, 1, 'y')
             self.connect_axis(file, 2, 'z')
             self.connect_axis(file, 3, 'a')
+            self.connect_axis(file, 4, 's')
 
         print >>file
-        print >>file, _("#  estop signals")
-        print >>file, "net estop-out <= iocontrol.0.user-enable-out"
+        print >>file, "#******************************"
+        print >>file, _("# connect miscellaneous signals") 
+        print >>file, "#******************************"
+        print >>file    
+        if pump:    
+            print >>file, _("#  ---charge pump signals---")
+            print >>file, "net estop-out       => charge-pump.enable"
+            print >>file, "net charge-pump     <= charge-pump.out"
+        print >>file, _("#  ---coolant signals---")
+        print >>file, "net coolant-mist      <= iocontrol.0.coolant-mist"
+        print >>file, "net coolant-flood     <= iocontrol.0.coolant-flood"
+        print >>file, _("#  ---probe signal---")
+        print >>file, "net probe-in     => motion.probe-input"
+        print >>file, _("# ---jog button signals---")
+        print >>file, "# setp halui.jog-speed 1"
+        print >>file, "# net jog-x-plus             halui.jog.0.plus"
+        print >>file, "# net jog-x-minus            halui.jog.0.minus"
+        print >>file, "# net jog-y-plus             halui.jog.1.plus"
+        print >>file, "# net jog-y-minus            halui.jog.1.minus"
+        print >>file, "# net jog-z-plus             halui.jog.2.plus"
+        print >>file, "# net jog-z-minus            halui.jog.2.minus"
+        print >>file, "# net jog-a-plus             halui.jog.3.plus"
+        print >>file, "# net jog-a-minus            halui.jog.3.minus"
+        print >>file, "# net jog-selected-plus      halui.jog.selected.plus"
+        print >>file, "# net jog-selected-minus     halui.jog.selected.minus"
+        print >>file, _("#  ---digital in / out signals---")
+        for i in range(4):
+            dout = "dout-%02d" % i
+            if not self.findsignal(dout) =="false":
+                print >>file, "net %s     <= motion.digital-out-%02d" % (dout, i)
+
+        for i in range(4):
+            din = "din-%02d" % i
+            if not self.findsignal(din) =="false":
+                print >>file, "net %s     => motion.digital-in-%02d" % (din, i)
+        print >>file, _("#  ---estop signals---")
+        print >>file, "net estop-out     <= iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
             print >>file 
             print >>file, _("# **** Setup for external estop ladder program -START ****")
             print >>file
-            print >>file, "net estop-out => classicladder.0.in-00"
-            print >>file, "net estop-ext => classicladder.0.in-01"
-            print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
-            print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-out     => classicladder.0.in-00"
+            print >>file, "net estop-ext     => classicladder.0.in-01"
+            print >>file, "net estop-strobe     classicladder.0.in-02 <= iocontrol.0.user-request-enable"
+            print >>file, "net estop-outcl     classicladder.0.out-00 => iocontrol.0.emc-enable-in"
             print >>file
             print >>file, _("# **** Setup for external estop ladder program -END ****")
         elif estop:
-            print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-ext     => iocontrol.0.emc-enable-in"
         else:
-            print >>file, "net estop-out => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-out     => iocontrol.0.emc-enable-in"
         if enable:
-             print >>file, "net enable => motion.motion-enabled"
+            print >>file, "net enable     => motion.motion-enabled"
 
         print >>file
         if self.manualtoolchange:
             print >>file, "loadusr -W hal_manualtoolchange"
-            print >>file, "net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change"
-            print >>file, "net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed"
-            print >>file, "net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number"
-
+            print >>file, "net tool-change-request     iocontrol.0.tool-change => hal_manualtoolchange.change"
+            print >>file, "net tool-change-confirmed     iocontrol.0.tool-changed <= hal_manualtoolchange.changed"
+            print >>file, "net tool-number     iocontrol.0.tool-prep-number => hal_manualtoolchange.number"
+            print >>file, "net tool-prepare-loopback     iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
         else:
-            print >>file, "net tool-number <= iocontrol.0.tool-prep-number"
-            print >>file, "net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed"
-        print >>file, "net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
+            print >>file, "net tool-number     <= iocontrol.0.tool-prep-number"
+            print >>file, "net tool-change-request     <= iocontrol.0.tool-change"
+            print >>file, "net tool-change-confirmed     => iocontrol.0.tool-changed" 
+            print >>file, "net tool-prepare-request     <= iocontrol.0.tool-prepare"
+            print >>file, "net tool-prepare-confirmed     => iocontrol.0.tool-prepared" 
         if self.classicladder:
             print >>file
             if self.modbus:
@@ -1895,7 +2121,7 @@ class Data:
             pinnum = int(test[7:])
             connum = int(test[2:3])-1
             if pintype == 'I': ending = "-in"
-            return "parport."+str(connum)+".pin-"+str(pinnum)+ending
+            return "parport."+str(connum)+".pin-%02d"%(pinnum)+ending
         else: return "false"
 
 class App:
@@ -1994,6 +2220,7 @@ class App:
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
+        self.widgets.helppic.set_from_file(axisdiagram)
         self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
         self.widgets.complete.set_watermark(self.watermark)
@@ -2006,15 +2233,12 @@ class App:
         self.axis_under_test = False
         self.jogminus = self.jogplus = 0
        
+        self.intrnldata = Intrnl_data()
         self.data = Data()
-        
-   
+         
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
-           os.remove(tempfile)
-
-    def test_callback(self,widget,data):
-        print "pin designation-",data
+           os.remove(tempfile) 
 
     def gtk_main_quit(self, *args):
         gtk.main_quit()
@@ -2049,7 +2273,6 @@ class App:
                 return False
 
     def on_helpwindow_delete_event(self, *args):
-        print "got here"
         self.widgets.helpwindow.hide()
         return True
 
@@ -2062,6 +2285,7 @@ class App:
                 string = infile.read()
                 infile.close()
                 textbuffer.set_text(string)
+                self.widgets.helpwindow.set_title(_("Help Pages") )
                 self.widgets.helpwindow.show_all()
         except:
             text = _("Help page is unavailable\n")
@@ -2099,11 +2323,12 @@ class App:
         self.data.createshortcut = self.widgets.createshortcut.get_active()
 
     def on_basicinfo_prepare(self, *args):
-        self.data.help = 2
+        self.data.help = "help-basic.txt"
         self.widgets.machinename.set_text(self.data.machinename)
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
         self.widgets.latency.set_value(self.data.latency)
+        self.widgets.servoperiod.set_value(self.data.servoperiod)
         self.widgets.machinename.grab_focus()
         self.widgets.mesa5i20_checkbutton.set_active(self.data.mesa5i20)
         self.widgets.ioaddr.set_text(self.data.ioaddr)
@@ -2134,6 +2359,14 @@ class App:
              self.widgets.home_switch.set_active(1)
         if self.data.homeboth :
              self.widgets.home_both.set_active(1)
+        if self.data.manualtoolchange :
+            self.widgets.manualtoolchange.set_active(1)
+        else:
+            self.widgets.tool_custom.set_active(1)
+        if self.data.multimpg :
+            self.widgets.multimpg.set_active(1)
+        else:
+            self.widgets.singlempg.set_active(1)
     
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
@@ -2172,8 +2405,12 @@ class App:
 
         self.data.machinename = self.widgets.machinename.get_text()
         self.data.axes = self.widgets.axes.get_active()
+        if self.data.axes == 0: self.data.available_axes = ['x','y','z','s']
+        elif self.data.axes == 1: self.data.available_axes = ['x','y','z','a','s']
+        elif self.data.axes == 2: self.data.available_axes = ['x','z','s']
         self.data.units = self.widgets.units.get_active()
         self.data.latency = self.widgets.latency.get_value()
+        self.data.servoperiod = self.widgets.servoperiod.get_value()
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
         self.data.ioaddr = self.widgets.ioaddr.get_text()
         self.data.ioaddr2 = self.widgets.ioaddr2.get_text()
@@ -2202,17 +2439,27 @@ class App:
         self.data.homeindex = self.widgets.home_index.get_active()
         self.data.homeswitch = self.widgets.home_switch.get_active()
         self.data.homeboth = self.widgets.home_both.get_active()
+        if self.widgets.multimpg.get_active():
+            self.data.multimpg == True            
+        else:
+            self.data.multimpg == False
         
         # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
-        # do it here to speed up showing of Mesa page -need to speed this up.
-        if not self.data.mesa5i20 == 0: 
+        # record the signal ID numbers so we can block the signals later in the mesa routines
+        # have to do it hear manually (instead of autoconnect) because glade doesn't handle added
+        # user info (pin number designations) and doesn't record the signal ID numbers
+        # none of this is done if mesa is not checked off in pncconf
+
+        if (self.data.mesa5i20 ): 
             for connector in (2,3,4,5):
                 for pin in range(0,24):
                     cb = "m5i20c%ipin%i"% (connector,pin)
                     i = "mesasignalhandlerc%ipin%i"% (connector,pin)
-                    self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
+                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
                     cb = "m5i20c%ipin%itype"% (connector,pin)
-                    self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin)
+                    i = "mesaptypesignalhandlerc%ipin%i"% (connector,pin)
+                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin))
+
             model = self.widgets.mesa_boardname.get_model()
             model.clear()
             for i in mesaboardnames:
@@ -2236,22 +2483,14 @@ class App:
             self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
             self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
             self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
-            self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)
-
-            numofpwmgens = self.data.numof_mesa_pwmgens
-            numofstepgens = self.data.numof_mesa_stepgens
-            numofencoders = self.data.numof_mesa_encodergens 
-            board = self.data.mesa_boardname 
-            firmware = self.data.mesa_firmware 
-            self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
+            self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)          
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
             "~/emc2/configs/%s" % self.widgets.machinename.get_text())
 
     def on_GUI_config_prepare(self, *args):
-        self.data.help = 3
-        self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
+        self.data.help = "help-gui.txt"
         if self.data.frontend == 1 : self.widgets.GUIAXIS.set_active(True)
         elif self.data.frontend == 2: self.widgets.GUITKEMC.set_active(True)
         else:   self.widgets.GUIMINI.set_active(True)
@@ -2260,7 +2499,24 @@ class App:
         if  not self.widgets.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
                 self.widgets.pyvcpexist.set_active(True)
+        self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity)
+        self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity)
+        self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity)
+        self.widgets.default_angular_velocity.set_value( self.data.default_angular_velocity)
+        self.widgets.max_angular_velocity.set_value( self.data.max_angular_velocity)
+        self.widgets.min_angular_velocity.set_value( self.data.min_angular_velocity)
+        self.widgets.editor.set_text(self.data.editor)
+        if self.data.units == 0 :temp = self.data.increments_imperial
+        else:temp = self.data.increments_metric
+        self.widgets.increments.set_text(temp)
+        self.widgets.geometry.set_text(self.data.geometry)
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
+        self.widgets.require_homing.set_active(self.data.require_homing)
+        self.widgets.restore_joint_position.set_active(self.data.restore_joint_position) 
+        self.widgets.tooloffset_on_w.set_active(self.data.tooloffset_on_w) 
+        self.widgets.restore_toolnumber.set_active(self.data.restore_toolnumber) 
+        self.widgets.raise_z_on_toolchange.set_active(self.data.raise_z_on_toolchange) 
+        self.widgets.allow_spindle_on_toolchange.set_active(self.data.allow_spindle_on_toolchange)
 
     def on_GUI_config_next(self, *args):
         if self.widgets.GUIAXIS.get_active():
@@ -2269,7 +2525,22 @@ class App:
            self.data.frontend = 2
         else:
             self.data.frontend = 3
-        self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
+        self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()
+        self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()
+        self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()
+        self.data.default_angular_velocity = self.widgets.default_angular_velocity.get_value()
+        self.data.max_angular_velocity = self.widgets.max_angular_velocity.get_value()
+        self.data.min_angular_velocity = self.widgets.min_angular_velocity.get_value()
+        self.data.editor = self.widgets.editor.get_text()
+        if self.data.units == 0 :self.data.increments_imperial = self.widgets.increments.get_text()
+        else:self.data.increments_metric = self.widgets.increments.get_text()
+        self.data.geometry = self.widgets.geometry.get_text()
+        self.data.require_homing = self.widgets.require_homing.get_active()
+        self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
+        self.data.tooloffset_on_w = self.widgets.tooloffset_on_w.get_active() 
+        self.data.restore_toolnumber = self.widgets.restore_toolnumber.get_active() 
+        self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
+        self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
         if not self.data.mesa5i20:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
@@ -2292,8 +2563,7 @@ class App:
               self.data.halui_cmd3="G92 X0"
               self.data.halui_cmd4="G92 Y0"
               self.data.halui_cmd5="G92 Z0"
-              self.data.halui_cmd6="G92.1"
-                
+              self.data.halui_cmd6="G92.1"               
            if self.widgets.pyvcpexist.get_active() == True:
               self.data.pyvcpname = "custompanel.xml"
            else:
@@ -2415,11 +2685,25 @@ class App:
 
 
     def on_mesa5i20_prepare(self, *args):
-        self.data.help = 4
-        #self.in_mesa_prepare = True      
-        #self.in_mesa_prepare = False
+        self.data.help = "help-mesa.txt"
+        # If we just reloaded a config then update the page right now
+        # as we already know what board /firmware /components are wanted.
+        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa_configured  :
+            self.set_mesa_options(self.data.mesa_boardname,self.data.mesa_firmware,self.data.numof_mesa_pwmgens,
+                    self.data.numof_mesa_stepgens,self.data.numof_mesa_encodergens)
+        elif not self.intrnldata.mesa_configured:
+            self.widgets.con2tab.set_sensitive(0)
+            self.widgets.con2table.set_sensitive(0)
+            self.widgets.con3table.set_sensitive(0)
+            self.widgets.con3tab.set_sensitive(0)
+            self.widgets.con4tab.set_sensitive(0)
+            self.widgets.con4table.set_sensitive(0)
+            self.widgets.con5table.set_sensitive(0)
+            self.widgets.con5tab.set_sensitive(0)
+            
+        
   
-    # This method converts data from the GUI to signal names for mesa data
+    # This method converts data from the GUI page to signal names for pncconf's mesa data variables
     # It starts by checking pin type to set up the proper lists to search
     # then depending on the pin type widget data is converted to signal names.
     # if the signal name is not in the list add it to Human_names, signal_names
@@ -2428,7 +2712,11 @@ class App:
     # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
     # pin 4 to [encoder-C]   
     def on_mesa5i20_next(self,*args):
-        for connector in self.data.mesa_currentfirmwaredata[9] :
+        if not self.intrnldata.mesa_configured:
+            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa5i20)
+            return True
+        for connector in self.data.mesa_currentfirmwaredata[11] :
             for pin in range(0,24):
                 foundit = 0
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -2574,7 +2862,7 @@ class App:
     def on_mesa_pintype_changed(self, widget,connector,pin):
          
                # if self.in_mesa_prepare == True: return
-                print "got to pintype change method ",connector,pin,"\n"
+               #print "got to pintype change method ",connector,pin,"\n"
          
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
@@ -2585,10 +2873,10 @@ class App:
                     print "switch GPIO input ",p," to output",new
                     model = self.widgets[p].get_model()
                     blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                    self.widgets[p].handler_block(self.data[blocksignal])
+                    self.widgets[p].handler_block(self.intrnldata[blocksignal])
                     model.clear()
                     for name in human_output_names: model.append((name,))
-                    self.widgets[p].handler_unblock(self.data[blocksignal])  
+                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_OUTPUT
                     self.data[ptype] = new
@@ -2597,7 +2885,7 @@ class App:
                     model = self.widgets[p].get_model()
                     model.clear()
                     blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                    self.widgets[p].handler_block(self.data[blocksignal])              
+                    self.widgets[p].handler_block(self.intrnldata[blocksignal])              
                     for name in human_input_names:
                         if self.data.limitshared or self.data.limitsnone:
                             if name in human_names_limit_only: continue 
@@ -2606,7 +2894,7 @@ class App:
                         if self.data.homenone or self.data.limitshared:
                             if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
                         model.append((name,))
-                    self.widgets[p].handler_unblock(self.data[blocksignal])  
+                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
                     self.data[ptype] = new
@@ -2637,53 +2925,75 @@ class App:
         self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
 
 
+    # This method sets up the mesa GUI page.
+    # it changes the component comboboxes according to the firmware max and user requested amounts
+    # it adds signal names to the signal name combo boxes according to component type and in the
+    # case of GPIO options selected on the basic page such as limit/homing types.
+    # it will grey out I/O tabs according to the selected board type. 
+    # it uses GTK signal blocking to block on_mesa_pin_change and on_mesa_pintype_changed methods.
+    # Since this method is for intialization, there is no need to check for changes and this speeds up
+    # the update.  
+    # 'mesafirmwaredata' holds all the firmware data.
+    # 'self.data.mesa_currentfirmwaredata' hold the current selected firmware data
     def set_mesa_options(self,board,firmware,numofpwmgens,numofstepgens,numofencoders):
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
             if d[1] == firmware:
                 self.data.mesa_currentfirmwaredata = mesafirmwaredata[search]
-            if self.data.mesa_currentfirmwaredata[0] == "5i22":
-                self.widgets.con5tab.set_sensitive(1)
-                self.widgets.con5table.set_sensitive(1)
-            else:
-                self.widgets.con5tab.set_sensitive(0)
-                self.widgets.con5table.set_sensitive(0)
-            if self.data.mesa_currentfirmwaredata[0] == "7i43":
-                self.widgets.con2table.set_sensitive(0)
-                self.widgets.con2tab.set_sensitive(0)
-            else:
-                self.widgets.con2table.set_sensitive(1) 
-                self.widgets.con2tab.set_sensitive(1)
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
+                break
+        self.widgets.con3table.set_sensitive(1) 
+        self.widgets.con3tab.set_sensitive(1)
+        self.widgets.con4table.set_sensitive(1) 
+        self.widgets.con4tab.set_sensitive(1)
+        if self.data.mesa_currentfirmwaredata[0] == "5i22":
+            self.widgets.con5tab.set_sensitive(1)
+            self.widgets.con5table.set_sensitive(1)
+        else:
+            self.widgets.con5tab.set_sensitive(0)
+            self.widgets.con5table.set_sensitive(0)
+        if self.data.mesa_currentfirmwaredata[0] == "7i43":
+            self.widgets.con2table.set_sensitive(0)
+            self.widgets.con2tab.set_sensitive(0)
+        else:
+            self.widgets.con2table.set_sensitive(1) 
+            self.widgets.con2tab.set_sensitive(1)
+        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
-                print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"
-                
+                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
+#                if connector == 2:
+#                    print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"               
                 p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)                
-                # convert widget[ptype] to component specified in firmwaredata                      
-                # add human names to widget removing signalnames specified in homing limit and spindle
-                # signal names for encoder 
+                blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)    
+                ptypeblocksignal  = "mesaptypesignalhandlerc%ipin%i" % (connector,pin)               
+                # convert widget[ptype] to component specified in firmwaredata   
+                   
+                # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
+                # check that we are not converting more encoders that user requested
+                # if we are we will change the variable 'firmtype' to ask for GPIO
                 if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
-                    #print numofencoders,compnum+1,"pinnnum ",pin,"\n"
                     if numofencoders >= (compnum+1):
-                        if not self.widgets[ptype].get_active_text() == firmptype: 
-                            #print "converting to encoder \n"
+                        # if the combobox is not already displaying the right component:
+                        # then we need to set up the comboboxes for this pin, otherwise skip it
+                        if not self.widgets[ptype].get_active_text() in ( ENCA,ENCB,ENCI,ENCM ):  
+                            self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(0)                      
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                             self.widgets[ptype].set_active(0)
                             model = self.widgets[p].get_model()
                             model.clear()
-                            self.widgets[pinv].set_sensitive(0)
-                            # This sets up the 'controlling' combobox (signal phase A) 
+                            # we only add every 4th human name so the user can only select
+                            # the encoder's 'A' signal name. If its the other signals
+                            # we can add them all because pncconf controls what the user sees
                             if firmptype == ENCA: 
-                                #print " encoder phase A \n"
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal]) 
+                                temp = -1                               
                                 for name in human_encoder_input_names:                      
                                     temp = temp +1
                                     if temp in (2,3): continue
@@ -2691,53 +3001,54 @@ class App:
                                         temp = 0
                                         continue
                                     model.append((name,))
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                 self.widgets[p].set_active(0)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
-                            # This sets up the 'following' combobox (signal phase B and I)
-                            if firmptype in(ENCB,ENCI,ENCM):
-                                #print " encoder phase B or I or M\n"                            
-                                self.widgets[p].handler_block(self.data[blocksignal]) 
+                            elif firmptype in(ENCB,ENCI,ENCM):                           
                                 for name in human_encoder_input_names:model.append((name,)) 
-                                self.widgets[p].handler_unblock(self.data[blocksignal])  
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[ptype].set_sensitive(0)
                                 self.widgets[p].set_active(0)  
-                        if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): 
-                            #print self.data[p]
-                            model = self.widgets[p].get_model()
-                            for search,item in enumerate(model):
-                                if model[search][0]  == human_encoder_input_names[hal_encoder_input_names.index(self.data[p])]:
-                                    self.widgets[p].set_active(search)
-                                else:print "unknown type in component_changed method -encoder\n"   
-                        else:
-                            self.data[p] =  UNUSED_ENCODER
-                            self.data[ptype] = firmptype
-                            self.widgets[p].set_active(0)  
-                            #print "changed",p," to Encoder"    
-                        continue                
-                        #self.data[p] =  UNUSED_INPUT
+                            # if the data stored ptype is the encoder family then use the data stored signal name
+                            # else set to unused_encoder signal name 
+                            if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): 
+                                #print self.data[p]
+                                self.widgets[p].set_active(0) 
+                                model = self.widgets[p].get_model()
+                                for search,item in enumerate(model):
+                                    if model[search][0]  == human_encoder_input_names[hal_encoder_input_names.index(self.data[p])]:
+                                        self.widgets[p].set_active(search)
+                                        break                                          
+                            else:
+                                self.data[p] =  UNUSED_ENCODER
+                                self.data[ptype] = firmptype
+                                self.widgets[p].set_active(0)  
+                            continue                
                     else:   
-                        #print "asking for GPIO instead of ENCODER\n"
+                        # user requested this encoder component to be GPIO instead
+                        # We cheat a little and tell the rest of the method that the firmware says
+                        # it should be GPIO
                         firmptype = GPIOI
-                # signal names for PWM
+                # ---SETUP GUI FOR PWM FAMILY COMPONENT---
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
-                    #print numofpwmgens,compnum+1,"pinnnum ",pin,"\n"
                     if numofpwmgens >= (compnum+1):
-                        if not self.widgets[ptype].get_active_text() == firmptype:
-                            print "converting to pwm \n"
+                        if not self.widgets[ptype].get_active_text() in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
+                            self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(0)
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
                             temp = pintype_names[12]
                             model.append((temp,))
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
                             model = self.widgets[p].get_model()
                             model.clear()
-                            self.widgets[pinv].set_sensitive(0)
                             if firmptype in(PWMP,PDMP):
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal])
+                                temp = -1                               
                                 for name in human_pwm_output_names:                       
                                     temp = temp +1
                                     if temp == 2: continue
@@ -2748,48 +3059,53 @@ class App:
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[p].set_active(0)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
-                            if firmptype in (PWMD,PWME,PDMD,PDME):                             
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                            elif firmptype in (PWMD,PWME,PDMD,PDME):                             
                                 self.widgets[p].set_sensitive(0)
-                                self.widgets[p].handler_block(self.data[blocksignal])
                                 for name in human_pwm_output_names: model.append((name,))
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                 self.widgets[p].set_active(0) 
                                 self.widgets[ptype].set_sensitive(0)
-                        if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
-                            if self.data[ptype] in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
-                            else:self.widgets[ptype].set_active(1)
-                            #print self.data[p]
-                            model = self.widgets[p].get_model()
-                            for search,item in enumerate(model):
-                                if model[search][0]  == human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]:
-                                    self.widgets[p].set_active(search)
-                                else:print "unknown type in component_changed method -pwm\n"   
-                        else:
-                            self.data[p] =  UNUSED_PWM
-                            self.data[ptype] = firmptype
-                            self.widgets[p].set_active(0) 
-                            if firmptype in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
-                            else:self.widgets[ptype].set_active(1) 
-                            #print "changed",p," to PWM "
-                        continue
+                # This is for GPIO to PWM conversion
+                # check to see data is already set to PWM family
+                # if in PWM family - set to data signal name
+                # if in GPIO family - changed to unused_PWM signal name 
+                            if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
+                                if self.data[ptype] in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
+                                else:self.widgets[ptype].set_active(1)
+                                self.widgets[p].set_active(0)
+                                model = self.widgets[p].get_model()
+                                for search,item in enumerate(model):
+                                    if model[search][0]  == human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]:
+                                        self.widgets[p].set_active(search)
+                                        break    
+                            else:
+                                self.data[p] =  UNUSED_PWM
+                                self.data[ptype] = firmptype
+                                self.widgets[p].set_active(0) 
+                                if firmptype in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
+                                else:self.widgets[ptype].set_active(1) 
+                            continue
                     else:
-                        #print "asking for GPIO instead of PWM\n"
                         firmptype = GPIOI
-                # signal names for stepper
+                # ---SETUP FOR STEPPER FAMILY COMPONENT---
                 elif firmptype in (STEPA,STEPB):  
-                    if numofstepgens >= (compnum+1): 
-                        if not self.widgets[ptype].get_active_text() == firmptype:
+                    if numofstepgens >= (compnum+1):               
+                        if not self.widgets[ptype].get_active_text() in (STEPA,STEPB):
+                            self.widgets[pinv].set_sensitive(0)
+                            self.widgets[pinv].set_active(0)
+                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
-                            self.widgets[ptype].set_active(0)
+                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])                  
+                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
                             model = self.widgets[p].get_model()
-                            model.clear()
-                            self.widgets[pinv].set_sensitive(0) 
+                            model.clear() 
+                            # We have to step over some extra signalnames that hostmot2 currently
+                            # doesn't support yet. support missing for direct coil control stepping
                             if firmptype == STEPA:
-                                temp = -1
-                                self.widgets[p].handler_block(self.data[blocksignal])
+                                temp = -1                              
                                 for name in (human_stepper_names):
                                     temp = temp + 1
                                     if temp in(2,3,4,5): continue
@@ -2799,155 +3115,105 @@ class App:
                                     model.append((name,))
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].handler_unblock(self.data[blocksignal])
-                            if firmptype == STEPB:                               
-                                    self.widgets[p].handler_block(self.data[blocksignal])
+                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                            elif firmptype == STEPB:                               
                                     for name in human_stepper_names: model.append((name,))
-                                    self.widgets[p].handler_unblock(self.data[blocksignal])
+                                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                     self.widgets[p].set_sensitive(0)
                                     self.widgets[p].set_active(0)
                                     self.widgets[ptype].set_sensitive(0) 
-                        if self.data[ptype] in (STEPA,STEPB): 
-                            model = self.widgets[p].get_model()
-                            for search,item in enumerate(model):
-                                if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
-                                    self.widgets[p].set_active(search)
-                                    break
-                        else:
-                            self.data[p] =  UNUSED_STEPGEN
-                            self.data[ptype] = firmptype
-                            self.widgets[p].set_active(0)
-                            print "changed ",p," to stepgen"
-                        
-                        continue
+                            self.widgets[p].set_wrap_width(1)
+                            if self.data[ptype] in (STEPA,STEPB): 
+                                self.widgets[ptype].set_active(0)  
+                                self.widgets[p].set_active(0)
+                                model = self.widgets[p].get_model()
+                                for search,item in enumerate(model):
+                                    if model[search][0]  == human_stepper_names[hal_stepper_names.index(self.data[p])]:
+                                        self.widgets[p].set_active(search)
+                                        break
+                            else:
+                                self.data[p] =  UNUSED_STEPGEN
+                                self.data[pinv] = 0
+                                self.data[ptype] = firmptype
+                                self.widgets[p].set_active(0)
+                                self.widgets[ptype].set_active(0)                     
+                            continue
                     else:firmptype = GPIOI
-                # if GPIO combobox then only 'input, output, and open drain' in it  
-                # else has only one pintype in it               
-                if firmptype in (GPIOI,GPIOO,GPIOD):
-                    #if self.widgets[ptype].get_active_text()  in (GPIOI,GPIOO,GPIOD): continue
-                    print "converting to GPIO\n"
-                    model = self.widgets[ptype].get_model()
-                    model.clear()
-                    # if GPIO combobox then 'input, output, and open drain' in it
-                    for j in (0,1,2):
-                        temp = pintype_names[j]
-                        model.append((temp,))
-                    self.widgets[ptype].set_sensitive(1)
-                    model = self.widgets[p].get_model()
-                    model.clear()
-                    # signal names for GPIO INPUT
-                    if not self.data[ptype] in (GPIOO,GPIOD):  
-                        self.widgets[ptype].set_active(0)
-                        blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                        self.widgets[p].handler_block(self.data[blocksignal])                
-                        for name in human_input_names:
-                            if self.data.limitshared or self.data.limitsnone:
-                                if name in human_names_limit_only: continue 
-                            if self.data.limitswitch or self.data.limitsnone:
-                                if name in human_names_shared_home: continue                          
-                            if self.data.homenone or self.data.limitshared:
-                                if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
-                            model.append((name,))  
-                        self.widgets[p].set_wrap_width(3)
-                        self.widgets[p].handler_unblock(self.data[blocksignal])  
-                        self.widgets[p].set_active(0)
+                # ---SETUP FOR GPIO FAMILY COMPONENT---
+                # first check to see if firmware says it should be in GPIO family
+                # note this can be because firmware says it should be some other 
+                # type but the user wants to deselect it so as to use it as GPIO
+                # this is done in the firmtype checks before this check. 
+                # They will change firmtype variable to GPIOI       
+                # check if firmtype is in GPIO family
+                # check if widget is already configured
+                # check to see if data says it is in GPIO family
+                # if not change datatype to GPIOI and signal to unused input
+                # block GTK signals from widget pintype and add names to ptype combobox
+                # block GTK signals from widget pin 
+                # if GPIOI then add input signal names to pin combobox exclude unselected signal names
+                # if not then add output signal names 
+                if firmptype in (GPIOI,GPIOO,GPIOD): 
+                    if not self.widgets[ptype].get_active_text() in (GPIOI,GPIOO,GPIOD):                 
+                        if not self.data[ptype] in (GPIOI,GPIOO,GPIOD): 
+                            self.data[p] =  UNUSED_INPUT
+                            self.data[pinv] = 0
+                            self.data[ptype] = GPIOI
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
-                        if self.data[ptype] == GPIOI: 
+                        self.widgets[ptype].set_sensitive(1)
+                        self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
+                        model = self.widgets[ptype].get_model()
+                        model.clear()
+                        #  add 'input, output, and open drain' names to GPIO combobox
+                        for j in (0,1,2):
+                            temp = pintype_names[j]
+                            model.append((temp,))
+                        self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                        self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
+                        model = self.widgets[p].get_model()
+                        model.clear()
+                        # signal names for GPIO INPUT
+                        # add human names to widget excluding signalnames specified in homing limit and spindle
+                        if self.data[ptype] == GPIOI:  
+                            self.widgets[ptype].set_active(0)                                     
+                            for name in human_input_names:
+                                if self.data.limitshared or self.data.limitsnone:
+                                    if name in human_names_limit_only: continue 
+                                if self.data.limitswitch or self.data.limitsnone:
+                                    if name in human_names_shared_home: continue                          
+                                if self.data.homenone or self.data.limitshared:
+                                    if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                                model.append((name,))  
+                            self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
+                            #self.widgets[p].set_active(0)
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
                                     self.widgets[p].set_active(search)
                                     break
+                            self.widgets[p].set_wrap_width(3)
                             self.widgets[pinv].set_active(self.data[pinv])
-                        else: 
-                            self.data[p] =  UNUSED_INPUT
-                            self.data[ptype] = GPIOI
-                            self.widgets[pinv].set_active(0)
-                        continue
-                    # signal names for GPIO OUTPUT and OPEN DRAIN OUTPUT
-                    elif self.data[ptype] in (GPIOO,GPIOD):     
-                        if firmptype == GPIOO:self.widgets[ptype].set_active(2)
-                        else:self.widgets[ptype].set_active(1)  
-                        blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
-                        self.widgets[p].handler_block(self.data[blocksignal]) 
-                        for name in human_output_names: model.append((name,))
-                        self.widgets[p].handler_unblock(self.data[blocksignal])  
-                        self.widgets[p].set_active(0)  
-                        self.widgets[p].set_sensitive(1)
-                        self.widgets[pinv].set_sensitive(1)
-                        model = self.widgets[p].get_model()
-                        for search,item in enumerate(model):
-                            if model[search][0]  == human_output_names[hal_output_names.index(self.data[p])]:
-                                self.widgets[p].set_active(search)
-                                break   
-                        self.widgets[pinv].set_active(self.data[pinv])
-                        self.widgets[p].set_wrap_width(3)
-                        continue                              
-                # This is for Stepgen / GPIO conversion
-                if firmptype in (STEPA,STEPB):
-                    if numofstepgens >= (compnum+1):
-                        if self.data[ptype] in (STEPA,STEPB): 
-                            for i in range(0,1000):
-                                print hal_stepper_names.index(self.data[p]),"\n"
-                            
                             continue
-                        else:
-                            self.data[p] =  UNUSED_STEPGEN
-                            self.data[ptype] = firmptype
-                            print "changed ",p," to stepgen"
-                    else:   
-                        if self.data[ptype] in (GPIOI,GPIOO,GPIOD) : continue
-                        else:
-                            self.data[p] =  UNUSED_INPUT
-                            self.data[ptype] = GPIOI
-                            self.widgets[p].set_sensitive(1)
-                            print"changed",p," to GPIO"
-                    self.data.numof_mesa_stepgens = numofstepgens
-
-                # This is for Encoder / GPIO conversion
-                if firmptype in (ENCA,ENCB,ENCI,ENCM):                
-                    if numofencoders >= (compnum+1):
-                        if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): continue
-                        else:
-                            self.data[p] =  UNUSED_ENCODER
-                            self.data[ptype] = firmptype
-                            print "changed",p," to Encoder"   
-                    else: 
-                        if self.data[ptype] in (GPIOI,GPIOO,GPIOD): continue
-                        else:
-                            self.data[p] =  UNUSED_INPUT
-                            self.data[ptype] = GPIOI
-                            self.widgets[p].set_sensitive(1)
-                            print"changed",p,"to GPIO"
-                self.data.numof_mesa_encodergens = numofencoders
-
-                # This is for PWM / GPIO conversion               
-                if firmptype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                    if numofpwmgens >= (compnum+1):
-                        if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): continue
-                        else:
-                            self.data[p] =  UNUSED_PWM
-                            self.data[ptype] = firmptype
-                            print "changed",p," to pwm"   
-                    else: 
-                        if self.data[ptype] in (GPIOI,GPIOO,GPIOD): continue
-                        else:
-                            self.data[p] =  UNUSED_INPUT
-                            self.data[ptype] = GPIOI
-                            self.widgets[p].set_sensitive(1)
-                            print"changed",p,"to GPIO"
-                self.data.numof_mesa_pwmgens = numofpwmgens
-
-                # This is for GPIO only conversion
-                if firmptype in (GPIOI,GPIOO,GPIOD):
-                    if self.data[ptype] in (GPIOI,GPIOO,GPIOD): continue
-                    else:
-                        self.data[p] =  UNUSED_INPUT
-                        self.data[ptype] = firmptype
-                        self.widgets[p].set_sensitive(1)
-                        print"changed",p,"to GPIO"
-
+                        # signal names for GPIO OUTPUT and OPEN DRAIN OUTPUT
+                        elif self.data[ptype] in (GPIOO,GPIOD):     
+                            if firmptype == GPIOO:self.widgets[ptype].set_active(2)
+                            else:self.widgets[ptype].set_active(1)  
+                            for name in human_output_names: model.append((name,))
+                            self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
+                            self.widgets[p].set_active(0)  
+                            model = self.widgets[p].get_model()
+                            for search,item in enumerate(model):
+                                if model[search][0]  == human_output_names[hal_output_names.index(self.data[p])]:
+                                    self.widgets[p].set_active(search)
+                                    break   
+                            self.widgets[p].set_wrap_width(3)
+                            self.widgets[pinv].set_active(self.data[pinv])
+                            continue  
+   
+        self.data.numof_mesa_stepgens = numofstepgens
+        self.data.numof_mesa_pwmgens = numofpwmgens
+        self.data.numof_mesa_encodergens = numofencoders
         temp = (numofstepgens * self.data.mesa_currentfirmwaredata[6])
         temp1 = (numofencoders * self.data.mesa_currentfirmwaredata[5])
         temp2 = (numofpwmgens * 3)
@@ -2957,7 +3223,7 @@ class App:
         self.widgets.numof_mesa_encodergens.set_value(numofencoders)      
         self.widgets.numof_mesa_pwmgens.set_value(numofpwmgens)
         self.in_mesa_prepare = False   
-        self.on_mesa5i20_prepare()
+        self.intrnldata.mesa_configured = True
        
 
     def on_mesa_pin_changed(self, widget, connector, pin):
@@ -3162,8 +3428,35 @@ class App:
     def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
     def on_xaxismotor_prepare(self, *args):
-        self.data.help = 6
+        self.data.help = "help-axismotor"
+        self.signal_sanity_check()
         self.axis_prepare('x')
+
+    def signal_sanity_check(self, *args):
+        warnings = []
+        do_warning = False
+        for i in self.data.available_axes:
+            if i == 's': continue
+            step = self.data.findsignal(i+"-stepgen-step")
+            enc = self.data.findsignal(i+"-encoder-a")
+            pwm = self.data.findsignal(i+"-pwm-pulse")
+
+            if step == "false" and pwm == "false" and enc =="false":  
+                warnings.append(_("You forgot to designate a stepper or pwm signal for axis %s\n")% i)
+                do_warning = True
+            if not pwm == "false" and enc == "false": 
+                warnings.append(_("You forgot to designate a servo encoder signal for axis %s\n")% i)
+                do_warning = True
+            if pwm == "false" and not enc == "false": 
+                warnings.append(_("You forgot to designate a servo pwm signal for axis %s\n")% i)
+                do_warning = True
+            if not step == "false" and not enc == "false": 
+                warnings.append(_("You can not have encoders with steppers for axis %s\n")% i)
+                do_warning = True
+            if not step == "false" and not pwm == "false": 
+                warnings.append(_("You can not have both steppers and pwm signals for axis %s\n")% i)
+                do_warning = True
+        if do_warning: self.warning_dialog("\n".join(warnings),True)
 
     def on_xaxismotor_next(self, *args):     
         self.axis_done('x')
@@ -3256,7 +3549,7 @@ class App:
         set_text("maxferror")
         set_text("minferror")
         set_text("outputscale")
-        set_text("outputoffset")
+        set_value("outputoffset")
         set_active("invertmotor")
         set_active("invertencoder")  
         set_text("maxoutput")
@@ -3374,6 +3667,7 @@ class App:
     def on_ydrivertype_changed(self, *args): self.driver_changed('y')
     def on_zdrivertype_changed(self, *args): self.driver_changed('z')
     def on_adrivertype_changed(self, *args): self.driver_changed('a')
+    def on_sdrivertype_changed(self, *args): self.driver_changed('s')
 
     def driver_changed(self, axis):
         d = self.data
@@ -3491,11 +3785,13 @@ class App:
                 (get("pulleynum") / get("pulleyden")) * (get("maxvel")/60))
             if pps == 0: raise ValueError
             pps = abs(pps)
+            w[axis + "hz"].set_text("%.1f" % pps)
             acctime = (get("maxvel")/60) / get("maxacc")
             accdist = acctime * .5 * (get("maxvel")/60)
             w[axis + "acctime"].set_text("%.4f" % acctime)
-            w[axis + "accdist"].set_text("%.4f" % accdist)
-            w[axis + "hz"].set_text("%.1f" % pps)
+            if not axis == 's':
+                w[axis + "accdist"].set_text("%.4f" % accdist)
+           
             w[axis + "encodercounts"].set_text( "%d" % ( 4 * float(w[axis+"encoderlines"].get_text())))
             test = self.data.findsignal(axis+"-stepgen-step")
             if test == "false":
@@ -3511,11 +3807,14 @@ class App:
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
             w[axis + "chartresolution"].set_text("")
             w[axis + "acctime"].set_text("")
-            w[axis + "accdist"].set_text("")
+            if not axis == 's':
+                w[axis + "accdist"].set_text("")
             w[axis + "hz"].set_text("")
             w[axis + "scale"].set_text("")
             self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
             w[axis + "axistune"].set_sensitive(0)
+
+    def on_spindle_info_changed(self, *args): self.update_pps('s')
 
     def on_xsteprev_changed(self, *args): self.update_pps('x')
     def on_ysteprev_changed(self, *args): self.update_pps('y')
@@ -3613,6 +3912,7 @@ class App:
     def on_yaxistest_clicked(self, *args): self.test_axis('y')
     def on_zaxistest_clicked(self, *args): self.test_axis('z')
     def on_aaxistest_clicked(self, *args): self.test_axis('a')
+    def on_saxistest_clicked(self, *args): self.test_axis('s')
 
     def on_xaxistune_clicked(self, *args): self.tune_axis('x')
     def on_yaxistune_clicked(self, *args): self.tune_axis('y')
@@ -3620,23 +3920,115 @@ class App:
     def on_aaxistune_clicked(self, *args): self.tune_axis('a')
 
     def on_spindle_prepare(self, *args):
+        d = self.data
+        w = self.widgets
+        test = self.data.findsignal("s-stepgen-step")
+        stepdriven = 1
+        if test == "false":stepdriven = 0
+        test = self.data.findsignal("s-pwm-pulse")
+        pwmdriven = 1
+        if test == "false":pwmdriven = 0
+        def set_text(n): w[n].set_text("%s" % d[n])
+        def set_value(n): w[n].set_value(d[n])
+        def set_active(n): w[n].set_active(d[n])
+        model = w["sdrivertype"].get_model()
+        model.clear()
+        for i in drivertypes:
+            model.append((i[1],))
+        model.append((_("Custom"),))
+        
+        if stepdriven:
+            w["sresolutionunits"].set_text(_("revolution / Step"))        
+            w["sscaleunits"].set_text(_("Steps / revolution"))
+        else:
+            w["sresolutionunits"].set_text(_("revolution / encoder pulse"))
+            w["sscaleunits"].set_text(_("Encoder pulses / revolution"))
+                
         #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
-        self.widgets['spindlespeed1'].set_text("%s" % self.data.spindlespeed1)
-        self.widgets['spindlespeed2'].set_text("%s" % self.data.spindlespeed2)
-        self.widgets['spindlepwm1'].set_text("%s" % self.data.spindlepwm1)
-        self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
+        w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
+        w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
+        w['spindlepwm1'].set_text("%s" % d.spindlepwm1)
+        w['spindlepwm2'].set_text("%s" % d.spindlepwm2)
         #self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
-        has_spindle_pha = self.data.findsignal("spindle-phase-a")
+        has_spindle_pha = self.data.findsignal("s-encoder-a")
         if has_spindle_pha == "false":
-            self.widgets.spindlecpr.set_sensitive(0)
-        else: self.widgets.spindlecpr.set_sensitive(1)        
+            w.sencoderlines.set_sensitive(0)
+            w.sencodercounts.set_sensitive(0)
+        else: 
+            w.sencoderlines.set_sensitive(1) 
+            w.sencodercounts.set_sensitive(1) 
+        w["soutputscale"].set_sensitive(pwmdriven)
+        w["soutputoffset"].set_sensitive(pwmdriven)
+        w["smaxoutput"].set_sensitive(pwmdriven)
+        w["sservo_info"].set_sensitive(pwmdriven)
+        self.on_spidcontrol_toggled()
+        w["saxistest"].set_sensitive(pwmdriven)
+        w["sstepper_info"].set_sensitive(stepdriven)    
+        w["sdrivertype"].set_active(self.drivertype_toindex('s')) 
+        set_text("ssteprev")
+        set_text("smicrostep")
+        set_value("sP")
+        set_value("sI")
+        set_value("sD")
+        set_value("sFF0")
+        set_value("sFF1")
+        set_value("sFF2")
+        set_text("sbias")
+        set_text("sdeadband")
+        set_text("ssteptime")
+        set_text("sstepspace")
+        set_text("sdirhold")
+        set_text("sdirsetup")
+        set_text("soutputscale")
+        set_text("soutputoffset")
+        set_active("sinvertmotor")
+        set_active("sinvertencoder")  
+        set_text("smaxoutput")
+        set_text("spulleynum")
+        set_text("spulleyden")
+        w["sencoderlines"].set_text("%d" % (d["sencodercounts"]/4))
+        set_text("sencodercounts")
+        w["smaxvel"].set_text("%d" % (d["smaxvel"]*60))
+        set_text("smaxacc")
+             
 
     def on_spindle_next(self, *args):
+        d = self.data
+        w = self.widgets
+        def get_text(n): d["s" + n] = float(w["s" + n].get_text())
+        def get_active(n): d["s" + n] = w["s" + n].get_active()
+        get_text("steprev")
+        get_text("microstep")
+        get_text("P")
+        get_text("I")
+        get_text("D")
+        get_text("FF0")
+        get_text("FF1")
+        get_text("FF2")
+        get_text("bias")
+        get_text("deadband")
+        get_text("steptime")
+        get_text("stepspace")
+        get_text("dirhold")
+        get_text("dirsetup")        
+        get_text("outputscale")
+        get_text("outputoffset")
+        get_text("maxoutput")
+        get_text("encodercounts")
+        get_active("invertmotor")
+        get_active("invertencoder") 
+        get_text("pulleynum")
+        get_text("pulleyden")
+        d["smaxvel"] = (float(w["smaxvel"].get_text())/60)
+        get_text("maxacc")
+        
+        d["sdrivertype"] = self.drivertype_toid('s', w["sdrivertype"].get_active())
         #self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
         self.data.spindlespeed1 = float(self.widgets.spindlespeed1.get_text())
         self.data.spindlespeed2 = float(self.widgets.spindlespeed2.get_text())
         self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
         self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
+        d.spidcontrol = w.spidcontrol.get_active()
         #self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
         
     def on_spindle_back(self, *args):
@@ -3648,14 +4040,30 @@ class App:
         return True
 
     def has_spindle_speed_control(self):
-        for test in ("spindle-pwm", "spindle-pwm-pulse", "spindle-phase-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake"):
+        for test in ("s-pwm", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake"):
             has_spindle = self.data.findsignal(test)
             if not has_spindle == "false":
                 return True
         return False
 
+    def on_spidcontrol_toggled(self, *args):
+        test = self.data.findsignal("s-pwm-pulse")
+        pwmdriven = 1
+        if test == "false":pwmdriven = 0
+        if self.widgets.spidcontrol.get_active() == False: pwmdriven = 0
+        self.widgets.sP.set_sensitive(pwmdriven)
+        self.widgets.sI.set_sensitive(pwmdriven)
+        self.widgets.sD.set_sensitive(pwmdriven)
+        self.widgets.sFF0.set_sensitive(pwmdriven)
+        self.widgets.sFF1.set_sensitive(pwmdriven)
+        self.widgets.sFF2.set_sensitive(pwmdriven)
+        self.widgets.sbias.set_sensitive(pwmdriven)
+        self.widgets.sdeadband.set_sensitive(pwmdriven)
+       
+
+
     def on_advanced_prepare(self, *args):       
-        
+        self.data.help = "help-advanced.txt"
         self.widgets.classicladder.set_active(self.data.classicladder)
         self.widgets.modbus.set_active(self.data.modbus)
         self.widgets.digitsin.set_value(self.data.digitsin)
@@ -3782,17 +4190,34 @@ class App:
         self.testpanel(self)
 
     def on_realtime_components_prepare(self,*args):
-        for i in range(1,6):
-                pinname ="loadcomp%s"% i
-                self.widgets[pinname].set_text(self.data[pinname]) 
-                pinname ="addcomp%s"% i
-                self.widgets[pinname].set_text(self.data[pinname]) 
-                pinname ="threadspeed%s"% i
-                self.widgets[pinname].set_active(self.data[pinname]) 
-        textbuffer = self.widgets.addcomp6.get_buffer()
-        textbuffer.set_text(self.data.addcomp6 )
+        self.data.help = "help-realtime.txt"
+        self.widgets.spidcontrol.set_active( self.data.spidcontrol )
+        self.widgets.userneededpid.set_value(self.data.userneededpid)
+        if not self.intrnldata.components_is_prepared:
+            for i in range(1,6):
+                    pinname ="loadcomp%s"% i
+                    self.widgets[pinname].set_text(self.data[pinname]) 
+                    pinname ="addcomp%s"% i
+                    self.widgets[pinname].set_text(self.data[pinname]) 
+                    pinname ="threadspeed%s"% i
+                    self.widgets[pinname].set_active(self.data[pinname]) 
+            # for different style entrybox
+
+            textbuffer = self.widgets.loadcomp6.get_buffer()
+            for i in self.data.loadcomp6:
+                if i == '': continue
+                textbuffer.insert_at_cursor(i+"\n" )
+            textbuffer = self.widgets.addcomp6.get_buffer()
+            for i in self.data.addcomp6:
+                if i == '': continue
+                textbuffer.insert_at_cursor(i+"\n" )
+            pinname ="threadspeed6"
+            self.widgets[pinname].set_active(self.data[pinname]) 
+            self.intrnldata.components_is_prepared = True
 
     def on_realtime_components_next(self,*args):
+        self.data.spidcontrol = self.widgets.spidcontrol.get_active() 
+        self.data.userneededpid = self.widgets.userneededpid.get_value()
         for i in range(1,6):
                 pinname ="loadcomp%s"% i
                 self.data[pinname] = self.widgets[pinname].get_text() 
@@ -3800,11 +4225,23 @@ class App:
                 self.data[pinname] = self.widgets[pinname].get_text() 
                 pinname ="threadspeed%s"% i
                 self.data[pinname] = self.widgets[pinname].get_active() 
+        # other style entrybox
+        textbuffer = self.widgets.loadcomp6.get_buffer()
+        startiter = textbuffer.get_start_iter()
+        enditer = textbuffer.get_end_iter()
+        test = textbuffer.get_text(startiter,enditer)
+        i = test.split('\n')
+        print "loadcomp ",i
+        self.data.loadcomp6 = i
         textbuffer = self.widgets.addcomp6.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
-        print textbuffer.get_text(startiter,enditer)
-        self.data.addcomp6 = textbuffer.get_text(startiter,enditer)
+        test = textbuffer.get_text(startiter,enditer)
+        i = test.split('\n')
+        print "addcomp ",i
+        self.data.addcomp6 = i
+        pinname ="threadspeed6"
+        self.data[pinname] = self.widgets[pinname].get_active()
 
     def on_complete_back(self, *args):
         self.widgets.druid1.set_page(self.widgets.advanced)
@@ -3893,7 +4330,7 @@ class App:
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
         self.widgets['window1'].set_sensitive(0)
-        gobject.timeout_add(15, self.latency_running_callback)
+        gobject.timeout_add(1, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -3904,7 +4341,8 @@ class App:
 
     def m5i20test(self,w):
         board = self.data.mesa_currentfirmwaredata[0]
-        firmware = self.data.mesa_currentfirmwaredata[1]         
+        firmware = self.data.mesa_currentfirmwaredata[1]   
+        print "-%s-%s-"% (firmware,  self.data.mesa_firmware)      
         if board in( "5i22", "7i43"):
             self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
 
@@ -3915,7 +4353,7 @@ class App:
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (board, self.data.mesa_firmware, self.data.numof_mesa_encodergens,
+         % (board, firmware, self.data.numof_mesa_encodergens,
             self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
         halrun.write("loadrt or2 count=72\n")
         halrun.write("addf hm2_%s.0.read slow\n"% board)
@@ -3928,9 +4366,9 @@ class App:
         halrun.write("loadusr halmeter -g 0 500\n")
         halrun.write("loadusr halmeter -g 0 620\n")
         
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
+        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
+                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
@@ -3999,11 +4437,21 @@ class App:
         #terminal.close()
         self.widgets['window1'].set_sensitive(1)
 
+    def on_address_search_clicked(self,w):   
+        match =  os.popen('lspci -v').read()
+        self.widgets.helpwindow.set_title(_("PCI Board Info Search"))
+        textbuffer = self.widgets.helpview.get_buffer()
+        try :         
+            textbuffer.set_text(match)
+            self.widgets.helpwindow.show_all()
+        except:
+            text = _("PCI search page is unavailable\n")
+            self.warning_dialog(text,True)
+
     def parporttest(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
-        halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
         halrun.write("loadrt probe_parport\n")
         if self.data.number_pports>0:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
@@ -4157,12 +4605,13 @@ class App:
         firmware = self.data.mesa_currentfirmwaredata[1]
         w.notebook2.set_current_page(axnum)
         stepgen = self.data.stepgen_sig(axis)
+        print axis,stepgen
         if not stepgen == "false":
             w.notebook3.set_current_page(1)
-            w.pid.set_sensitive(0)
+            w[axis+"pid"].set_sensitive(0)
         else:
             w.notebook3.set_current_page(0)
-            w.step.set_sensitive(0)
+            w[axis+"step"].set_sensitive(0)
 
         if axis == "a":
             w[axis + "tunedistunits"].set_text(_("degrees"))
@@ -4199,28 +4648,28 @@ class App:
         w[axis+"tunecurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
         w[axis+"tuneorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
         self.tunejogplus = self.tunejogminus = 0
-
-        
+        w[axis+"tunedir"].set_active(0)
+        w[axis+"tunerun"].set_active(0)
+     
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
-        loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
+        loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
         loadrt steptest
         loadrt probe_parport
         loadrt hostmot2
-        """ % {'period': 30000 })    
+        """ % {'period':100000, 'period2':self.data.servoperiod })    
         halrun.write("""
         loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" 
         addf hm2_%s.0.read slow
         addf steptest.0 slow
         addf hm2_%s.0.write slow
         addf hm2_%s.0.pet_watchdog fast
-        loadusr halmeter -g 0 500
         """ % (board, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens, board,board,board))
         
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[9]) :
+        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[10+pin+(concount*24)]
+                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
                 pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
@@ -4251,18 +4700,22 @@ class App:
                     if not pintype == STEPA : continue    
                     if "m5i20" in stepgen:      
                         # check current component number to signal's component number  
-                        if compnum == int(stepgen[10:]):
+                        if pin == int(stepgen[10:]):
+                            self.currentstepgen = compnum
+                            self.boardname = board
                             halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (board,compnum))
                             halrun.write("net cmd steptest.0.position-cmd => hm2_%s.0.stepgen.%02d.position-cmd \n"% (board,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                            halrun.write("net feedback steptest.0.position-fb <= hm2_%s.0.stepgen.%02d.position-fb \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.steplen %d \n"% (board,compnum,w[axis+"steptime"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.stepspace %d \n"% (board,compnum,w[axis+"stepspace"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirhold %d \n"% (board,compnum,w[axis+"dirhold"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirsetup %d \n"% (board,compnum,w[axis+"dirsetup"].get_value()))
                             halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / float(w[axis + "scale"].get_text()))  )
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                            halrun.write("loadusr halmeter pin hm2_%s.0.stepgen.%02d.velocity-fb -g 0 500\n"% (board,compnum))
                 else: 
                     print "pintype error in mesa test panel method pintype:%s connector %d pin %d\n"% (pintype, connector,pin)
 
@@ -4285,6 +4738,7 @@ class App:
                 halrun.write("setp %s true\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
+
         halrun.write("start\n"); halrun.flush()
         w.servotunedialog.set_title(_("%s Axis Tune") % axis.upper())
         w.servotunedialog.show_all()
@@ -4314,25 +4768,41 @@ class App:
 
     def update_tune_axis_params(self, *args):
         axis = self.axis_under_tune
+        compnum = self.currentstepgen
+        board = self.boardname
         if axis is None: return
         halrun = self.halrun
         halrun.write("""
-            setp stepgen.0.maxaccel %(accel)f
-            setp stepgen.0.maxvel %(vel)f
+            setp hm2_%(board)s.0.stepgen.%(num)02d.steplen %(len)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.stepspace %(space)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.dirhold %(hold)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.dirsetup %(setup)d
+            setp hm2_%(board)s.0.stepgen.%(num)02d.maxaccel %(accel)f
+            setp hm2_%(board)s.0.stepgen.%(num)02d.maxvel %(velps)f
             setp steptest.0.jog-minus %(jogminus)s
             setp steptest.0.jog-plus %(jogplus)s
             setp steptest.0.run %(run)s
             setp steptest.0.amplitude %(amplitude)f
             setp steptest.0.maxvel %(vel)f
+            setp steptest.0.maxaccel %(accel)f
             setp steptest.0.dir %(dir)s
+            setp steptest.0.pause %(pause)d
         """ % {
+            'len':self.widgets[axis+"steptime"].get_value(),
+            'space':self.widgets[axis+"stepspace"].get_value(),
+            'hold':self.widgets[axis+"dirhold"].get_value(),
+            'setup':self.widgets[axis+"dirsetup"].get_value(),
+            'board': board,
+            'num': compnum,
             'jogminus': self.tunejogminus,
             'jogplus': self.tunejogplus,
-            'run': self.widgets.tunerun.get_active(),
-            'amplitude': self.widgets.tuneamplitude.get_value(),
-            'accel': self.widgets.tuneacc.get_value(),
-            'vel': self.widgets.tunevel.get_value(),
-            'dir': self.widgets.tunedir.get_active(),
+            'run': self.widgets[axis+"tunerun"].get_active(),
+            'amplitude': self.widgets[axis+"tuneamplitude"].get_value(),
+            'accel': self.widgets[axis+"tuneacc"].get_value(),
+            'vel': self.widgets[axis+"tunevel"].get_value(),
+            'velps': (self.widgets[axis+"tunevel"].get_value()/60),
+            'dir': self.widgets[axis+"tunedir"].get_active(),
+            'pause':int(self.widgets[axis+"tunepause"].get_value()),
         })
         halrun.flush()
 
@@ -4352,9 +4822,10 @@ class App:
     def test_axis(self, axis):
         data = self.data
         widgets = self.widgets
-        axnum = "xyza".index(axis)
-        step = axis + "step"
-        dir = axis + "dir"
+        axnum = "xyzas".index(axis)
+        pump = False
+        #step = axis + "step"
+        #dir = axis + "dir"
         boardname = self.data.mesa_currentfirmwaredata[0]
         firmware = self.data.mesa_currentfirmwaredata[1]  
         fastdac = float(widgets["fastdac"].get_text())
@@ -4364,53 +4835,107 @@ class App:
         if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
              self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
              return
+        if not self.data.findsignal("charge-pump") =="false": pump = True
    
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")       
-        halrun.write("""loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n""" % {'period': 30000   })
+        halrun.write("""loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow \n""" % {'period': 100000,'period2': self.data.servoperiod  })
         halrun.write("loadrt probe_parport\n")
-        #halrun.write("loadrt hal_parport cfg=%(ioaddr)s"% data.ioaddr)
+        if self.data.number_pports>0:
+            port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
+            if self.data.number_pports>2:
+                 port3name = " " + self.data.ioaddr3
+                 if self.data.pp3_direction:
+                    port3dir =" out"
+                 else: 
+                    port3dir =" in"
+            if self.data.number_pports>1:
+                 port2name = " " + self.data.ioaddr2
+                 if self.data.pp2_direction:
+                    port2dir =" out"
+                 else: 
+                    port2dir =" in"
+            port1name = self.data.ioaddr
+            if self.data.pp1_direction:
+               port1dir =" out"
+            else: 
+               port1dir =" in"
+            halrun.write("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-trunk/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
          % (boardname, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
         halrun.write("loadrt steptest\n")
         halrun.write("loadusr halmeter -g 0 500\n")
-        halrun.write("addf hm2_%s.0.read slow\n"% boardname)
-        halrun.write("addf steptest.0 slow\n")
-        halrun.write("addf hm2_%s.0.write slow\n"% boardname)
+        halrun.write("loadusr halscope\n")
         halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% boardname)
+        halrun.write("addf hm2_%s.0.read slow\n"% boardname) 
+        if pump:
+            halrun.write( "loadrt charge_pump\n")
+            halrun.write( "setp charge-pump.enable true\n")
+            halrun.write( "net charge-pump <= charge-pump.out\n")
+            halrun.write( "addf charge-pump slow\n")                 
+        halrun.write("addf steptest.0 slow\n")
+        halrun.write("addf hm2_%s.0.write slow\n"% boardname)     
         #halrun.write("addf parport.0.write fast")
 
        #TODO fix this to work with parport signals
         
         temp = self.data.findsignal( "enable")
-        amp = self.data.make_pinname(temp)
-        if not amp == "false":
-            if "HOSTMOT2" in amp:    
-                amp = amp.replace("[HOSTMOT2](BOARD)",boardname) 
-                halrun.write("setp %s true\n"% (amp + ".is_output"))             
-                halrun.write("setp %s true\n"% (amp + ".out"))
+        self.amp = self.data.make_pinname(temp)
+        if not self.amp == "false":
+            if "HOSTMOT2" in self.amp:    
+                self.amp = self.amp.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"% (self.amp + ".is_output"))             
+                halrun.write("setp %s false\n"% (self.amp + ".out"))
                 if self.data[temp+"inv"] == True:
-                    halrun.write("setp %s true\n"%  (amp + ".invert_output"))
+                    halrun.write("setp %s true\n"%  (self.amp + ".invert_output"))
+                self.amp = self.amp + ".out"             
+            if "parport" in self.amp:
+                halrun.write("    setp %s true\n" % (self.amp ))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (self.amp + "-invert"))  
+            halrun.write("loadusr halmeter -s pin %s -g 300 100 \n"%  (self.amp))         
 
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
-        if not estop =="false":        
+        if not estop == "false":        
             if "HOSTMOT2" in estop:
                 estop = estop.replace("[HOSTMOT2](BOARD)",boardname) 
                 halrun.write("setp %s true\n"%  (estop + ".is_output"))    
                 halrun.write("setp %s true\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-            #if 'parport' in estop:
-                #set up parport signal
+                estop = estop + ".out"
+            if "parport" in estop:
+                halrun.write("    setp %s true\n" % (estop))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (estop + "-invert"))  
+            halrun.write("loadusr halmeter -s pin %s -g 300 50 \n"%  (estop)) 
+    
+        temp = self.data.findsignal( "charge-pump")
+        pump = self.data.make_pinname(temp)
+        if not pump == "false":        
+            if "HOSTMOT2" in pump:
+                pump = pump.replace("[HOSTMOT2](BOARD)",boardname) 
+                halrun.write("setp %s true\n"%  (pump + ".is_output"))    
+                #halrun.write("setp %s true\n"%  (pump + ".out"))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("setp %s true\n"%  (pump + ".invert_output"))
+                pump = pump + ".out"              
+            if "parport" in pump:
+                halrun.write("    setp %s true\n" % (pump))
+                if self.data[temp+"inv"] == True:
+                    halrun.write("    setp %s true\n" % (pump + "-invert"))  
+            halrun.write( "net charge-pump %s\n"%(pump))
+            halrun.write("loadusr halmeter -s pin %s -g 300 0 \n"%  (pump))             
 
         pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
-        if not pwm =="false":        
+        if not pwm == "false":        
             if "HOSTMOT2" in pwm:
                 pwm = pwm.replace("[HOSTMOT2](BOARD)",boardname)     
                 halrun.write("net dac %s \n"%  (pwm +".value"))
                 halrun.write("setp %s \n"%  (pwm +".enable true"))
                 halrun.write("setp %s \n"%  (pwm +".scale 10"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 150\n"%  (pwm +".value"))
             
         self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
         if not self.enc =="false":        
@@ -4420,31 +4945,36 @@ class App:
                 halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
                 halrun.write("setp %s 1\n"%  (self.enc +".scale"))
                 halrun.write("setp %s \n"%  (self.enc +".filter true"))
-                halrun.write("loadusr halmeter -s pin %s \n"%  (self.enc +".position"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 200\n"%  (self.enc +".position"))
+                halrun.write("loadusr halmeter -s pin %s -g 300 250\n"%  (self.enc +".velocity"))
         
         widgets.openloopdialog.set_title(_("%s Axis Test") % axis.upper())
-        self.jogplus = self.jogminus = self.enc_reset =  0
+        self.jogplus = self.jogminus = self.enc_reset = self.enable_amp = 0
         self.enc_scale = 1
         self.axis_under_test = axis
         widgets.testinvertmotor.set_active(widgets[axis+"invertmotor"].get_active())
         widgets.testinvertencoder.set_active(widgets[axis+"invertencoder"].get_active())
+        widgets.testoutputoffset.set_value(widgets[axis+"outputoffset"].get_value())
         self.update_axis_params()      
         halrun.write("start\n"); halrun.flush()
         self.widgets['window1'].set_sensitive(0)
+        self.widgets.jogminus.set_sensitive(0)
+        self.widgets.jogplus.set_sensitive(0)
         widgets.openloopdialog.show_all()
         result = widgets.openloopdialog.run()
 
         widgets.openloopdialog.hide()
-        if not amp == "false":
-             halrun.write("setp %s false\n"% (amp + ".out"))
+        if not self.amp == "false":
+             halrun.write("setp %s false\n"% (self.amp))
         if not estop == "false":
-             halrun.write("setp %s false\n"% (estop + ".out"))
+             halrun.write("setp %s false\n"% (estop))
         time.sleep(.001)
         halrun.close()        
         if result == gtk.RESPONSE_OK:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
+            widgets[axis+"outputoffset"].set_value(widgets.testoutputoffset.get_value())
             #widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
         self.axis_under_test = None
         self.widgets['window1'].set_sensitive(1)
@@ -4458,6 +4988,9 @@ class App:
         if self.jogminus == 1:output = output * -1
         elif not self.jogplus == 1:output = 0
         if self.widgets.testinvertmotor.get_active() == True: output = output * -1
+        output += float(self.widgets.testoutputoffset.get_text())
+        if not self.amp == "false":
+            halrun.write("setp %s %d\n"% (self.amp, self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)d\n""" % { 'scalepin':self.enc, 'scale': self.enc_scale})
         halrun.write("""sets dac %(output)f\n""" % { 'output': output})
         halrun.write("""sets enc-reset %(reset)d\n""" % { 'reset': self.enc_reset})
@@ -4485,6 +5018,13 @@ class App:
         self.update_axis_params()
     def on_testinvertencoder_toggled(self, w):
         self.enc_scale = self.enc_scale * -1
+        self.update_axis_params()
+    def on_testoutputoffset_value_changed(self, w):
+        self.update_axis_params()
+    def on_enableamp_toggled(self, w):
+        self.enable_amp = self.enable_amp * -1 + 1
+        self.widgets.jogminus.set_sensitive(self.enable_amp)
+        self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
     def run(self, filename=None):

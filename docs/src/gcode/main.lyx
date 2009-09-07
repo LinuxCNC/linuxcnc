@@ -8541,6 +8541,10 @@ M- P-
  loading the motion controller.
 \end_layout
 
+\begin_layout Itemize
+The P- word specifies the digital output number.
+\end_layout
+
 \begin_layout Description
 M62 Turn on digital output synched with motion
 \end_layout
@@ -8721,19 +8725,19 @@ For example to open and close a collet closer that is controlled by a paraport
 M101
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 #!/bin/bash
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 # file to turn on paraport pin 14 to open the collet closer
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 halcmd setp parport.0.pin-14-out True
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 exit 0
 \end_layout
 
@@ -8741,19 +8745,55 @@ exit 0
 M102
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 #!/bin/bash
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 # file to turn off paraport pin 14 to open the collet closer
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 halcmd setp parport.0.pin-14-out False
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
+exit 0
+\end_layout
+
+\begin_layout Standard
+To pass a variable to a M1nn file you use the P and Q option like this
+\end_layout
+
+\begin_layout LyX-Code
+M100 P123.456 Q321.654
+\end_layout
+
+\begin_layout Standard
+In your M100 file it might look like this:
+\end_layout
+
+\begin_layout LyX-Code
+#!/bin/bash
+\end_layout
+
+\begin_layout LyX-Code
+voltage=$1
+\end_layout
+
+\begin_layout LyX-Code
+feedrate=$2
+\end_layout
+
+\begin_layout LyX-Code
+halcmd setp thc.voltage $voltage
+\end_layout
+
+\begin_layout LyX-Code
+halcmd setp thc.feedrate $feedrate
+\end_layout
+
+\begin_layout LyX-Code
 exit 0
 \end_layout
 
@@ -8825,16 +8865,23 @@ body
 O- call.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 O100 sub (subroutine to move to machine home)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 G0 X0 Y0 Z0
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 O100 endsub
-\newline
-(many
- intervening lines)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
+(many intervening lines)
+\end_layout
+
+\begin_layout LyX-Code
 O100 call
 \end_layout
 
@@ -8873,24 +8920,16 @@ O- call
 \end_layout
 
 \begin_layout Standard
-Because 
-\begin_inset Quotes eld
-\end_inset
-
-
+Because "
 \family typewriter
 1 2 3
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
- is parsed as the number 123, the parameters must be enclosed in square
+" is parsed as the number 123, the parameters must be enclosed in square
  brackets.
  The following calls a subroutine with 3 arguments:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 O200 call [1] [2] [3]
 \end_layout
 
@@ -8903,16 +8942,8 @@ Subroutine bodies may not be nested.
 \end_layout
 
 \begin_layout Standard
-Subroutines do not have 
-\begin_inset Quotes eld
-\end_inset
-
-return values
-\begin_inset Quotes erd
-\end_inset
-
-, but they may change the value of parameters above #30 and those changes
- will be visible to the calling code.
+Subroutines do not have "return values", but they may change the value of
+ parameters above #30 and those changes will be visible to the calling code.
  Subroutines may also change the value of global named parameters.
 \end_layout
 
@@ -8932,22 +8963,35 @@ The "while loop" has two structures: while/endwhile, and do/while.
  false.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 (draw a sawtooth shape)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 F100
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 #1 = 0
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 O101 while [#1 lt 10]
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 G1 X0
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 G1 Y[#1/10] X1
-\newline
-#1
- = [#1+1]
-\newline
+\end_layout
+
+\begin_layout LyX-Code
+#1 = [#1+1]
+\end_layout
+
+\begin_layout LyX-Code
 O101 endwhile
 \end_layout
 
@@ -8984,19 +9028,28 @@ The "if" conditional executes one group of statements if a condition is
  true and another if it is false.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 (Set feed rate depending on a variable)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 O102 if [#2 GT 5]
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 F100
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 O102 else
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 F200
-\newline
-O102
- endif
+\end_layout
+
+\begin_layout LyX-Code
+O102 endif
 \end_layout
 
 \begin_layout Section
@@ -9016,21 +9069,32 @@ The "repeat" will execute the statements inside of the repeat/endrepeat
  at the present position.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 (Mill 5 diagonal shapes)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 G91 (Incremental mode)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 O103 repeat [5]
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 ...
  (insert milling code here)
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 G0 X1 Y1 (diagonal move to next position)
-\newline
-O103
- endrepeat
-\newline
+\end_layout
+
+\begin_layout LyX-Code
+O103 endrepeat
+\end_layout
+
+\begin_layout LyX-Code
 G90 (Absolute mode)
 \end_layout
 
@@ -9056,7 +9120,7 @@ name "Indirection"
 The O-number may be given by a parameter or calculation.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 O[#101+2] call
 \end_layout
 
@@ -9108,7 +9172,7 @@ To call a file name the file the same as your call and include a sub and
  The file must be in the directory pointed to by PROGRAM_PREFIX 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 o<myfile> call (a named file)
 \end_layout
 
@@ -9116,7 +9180,7 @@ o<myfile> call (a named file)
 or
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 o123 call (a number file)
 \end_layout
 
@@ -9125,15 +9189,23 @@ In the called file include the oxxx sub and endsub and the file must be
  a valid file
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 myfile.ngc
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 o<myfile> sub
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 ...
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 o<myfile> endsub
-\newline
+\end_layout
+
+\begin_layout LyX-Code
 M2
 \end_layout
 
