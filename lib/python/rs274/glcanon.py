@@ -464,13 +464,12 @@ class GlCanonDraw:
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.canon is not None:
             x, y, z = self.canon.highlight(line, self.get_geometry())
-            self.set_centerpoint(x, y, z)
         elif self.canon is not None:
             x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
             y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
             z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
-            self.set_centerpoint(x, y, z)
         glEndList()
+        self.set_centerpoint(x, y, z)
 
     @with_context_swap
     def redraw_perspective(self):
