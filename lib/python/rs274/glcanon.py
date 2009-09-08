@@ -434,10 +434,8 @@ class GlCanonDraw:
                 raise
             break
 
-        buffer.sort()
-
         if buffer:
-            min_depth, max_depth, names = buffer[0]
+            min_depth, max_depth, names = min(buffer)
             self.set_highlight_line(names[0])
         else:
             self.set_highlight_line(None)
