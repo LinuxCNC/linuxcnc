@@ -152,9 +152,12 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         self.minlat = -90
         self.maxlat = 90
 
+        self.highlight_line = None
+
 	self.a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
 	self.b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
 	self.c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
+
 	live_axis_count = 0
 	for i,j in enumerate("XYZABCUVW"):
 	    if self.stat.axis_mask & (1<<i) == 0: continue
@@ -267,6 +270,11 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
         for i in self.stat.tool_table:
             if i[0] == self.stat.tool_in_spindle:
                 return i
+    def get_highlight_line(self): return self.highlight_line
+
+    def get_a_axis_wrapped(self): return self.a_axis_wrapped
+    def get_b_axis_wrapped(self): return self.b_axis_wrapped
+    def get_c_axis_wrapped(self): return self.c_axis_wrapped
 
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
@@ -274,6 +282,7 @@ class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
     def select_prime(self, x, y):
         self.select_primed = x, y
 
+    @rs274.glcanon.with_context
     def select_fire(self, widget, event):
         if not self.select_primed: return
         x, y = self.select_primed
