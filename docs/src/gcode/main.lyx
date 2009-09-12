@@ -2744,9 +2744,16 @@ G10
  If it is currently active, the new coordinates take effect immediately.
 \layout Standard
 
-Example: 
+Examples:
+\layout Description
+
+
 \family typewriter 
-G10 L2 P1 x 3.5 y 17.2
+G10\SpecialChar ~
+L2\SpecialChar ~
+P1\SpecialChar ~
+X3.5\SpecialChar ~
+Y17.2
 \family default 
  sets the origin of the first coordinate system (the one selected by 
 \family typewriter 
@@ -2755,6 +2762,14 @@ G54
 ) to be X=3.5 and Y=17.2.
  Because only X and Y are specified, the origin point is only moved in X
  and Y; the other coordinates are not changed.
+\layout Description
+
+G10\SpecialChar ~
+L2\SpecialChar ~
+P1\SpecialChar ~
+X0\SpecialChar ~
+Y0\SpecialChar ~
+Z0 sets the G54 coordiante system back to the origin.
 \layout Standard
 
 
