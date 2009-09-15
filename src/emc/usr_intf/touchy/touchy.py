@@ -56,14 +56,14 @@ class touchy:
 
                 # initial screen setup
                 # XXX read these fonts from preferences
-                self.wTree.get_widget("controlfontbutton").set_font_name("Sans 22")
-                self.control_font = pango.FontDescription("Sans 22")
+                self.wTree.get_widget("controlfontbutton").set_font_name("Sans 12")
+                self.control_font = pango.FontDescription("Sans 12")
 
-                self.wTree.get_widget("drofontbutton").set_font_name("Courier 10 Pitch Bold 22")
-                self.dro_font = pango.FontDescription("Courier 10 Pitch Bold 22")
+                self.wTree.get_widget("drofontbutton").set_font_name("Courier 10 Pitch Bold 12")
+                self.dro_font = pango.FontDescription("Courier 10 Pitch Bold 12")
 
-                self.wTree.get_widget("errorfontbutton").set_font_name("Sans Bold ")
-                self.error_font = pango.FontDescription("Sans Bold 12")
+                self.wTree.get_widget("errorfontbutton").set_font_name("Sans Bold 8")
+                self.error_font = pango.FontDescription("Sans Bold 8")
 
                 self.setfont()
 
@@ -324,4 +324,6 @@ class touchy:
 
 if __name__ == "__main__":
 	hwg = touchy()
+	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
+	if res: raise SystemExit, res
 	gtk.main()
