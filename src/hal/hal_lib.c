@@ -453,6 +453,17 @@ int hal_ready(int comp_id) {
     return 0;
 }
 
+char *hal_comp_name(int comp_id)
+{
+    hal_comp_t *comp;
+    char *result = NULL;
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_id(comp_id);
+    if(comp) result = comp->name;
+    rtapi_mutex_give(&(hal_data->mutex));
+    return result;
+}
+
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -3312,6 +3323,7 @@ EXPORT_SYMBOL(hal_init);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
+EXPORT_SYMBOL(hal_comp_name);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);

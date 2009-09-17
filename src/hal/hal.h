@@ -212,6 +212,11 @@ extern void *hal_malloc(long int size);
 */
 extern int hal_ready(int comp_id);
 
+/** hal_comp_name() returns the name of the given component, or NULL
+    if comp_id is not a loaded component
+*/
+extern char* hal_comp_name(int comp_id);
+
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
     can access it.  To prevent contention, functions that may
