@@ -17,19 +17,24 @@ import hal
 class hal_interface:
     def __init__(self):
         self.c = hal.component("touchy")
+        self.c.newpin("jog.active", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.x", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.y", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.z", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
         self.c.ready()
+        self.active = 0
         self.jogaxis(0)
 
     def jogaxis(self, n):
-        self.c["jog.x"] = n == 0
-        self.c["jog.y"] = n == 1
-        self.c["jog.z"] = n == 2
+        self.c["jog.x"] = n == 0 and self.active
+        self.c["jog.y"] = n == 1 and self.active
+        self.c["jog.z"] = n == 2 and self.active
 
     def jogincrement(self, inc):
         incs = [0.01, 0.001, 0.0001]
         self.c["jog.increment"] = incs[inc]
-        
+
+    def jogactive(self, active):
+        self.active = active
+        self.c["jog.active"] = active;

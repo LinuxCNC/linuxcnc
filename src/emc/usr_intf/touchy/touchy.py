@@ -148,14 +148,14 @@ class touchy:
                         "on_mdi_clear_clicked" : self.mdi_control.clear,
                         "on_mdi_back_clicked" : self.mdi_control.back,
                         "on_mdi_next_clicked" : self.mdi_control.next,
-                        "on_mdi_ok_clicked" : self.mdi_control.ok,
+                        "on_mdi_ok_clicked" : self.mdi_ok,
                         "on_mdi_decimal_clicked" : self.mdi_control.decimal,
                         "on_mdi_minus_clicked" : self.mdi_control.minus,
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
                         "on_mdi_g_clicked" : self.mdi_control.g,
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_select" : self.mdi_control.select,
-                        "on_filechooser_select" : self.filechooser.select,
+                        "on_filechooser_select" : self.fileselect,
                         "on_filechooser_up_clicked" : self.filechooser.up,
                         "on_filechooser_down_clicked" : self.filechooser.down,
                         "on_filechooser_reload_clicked" : self.filechooser.reload,
@@ -243,6 +243,7 @@ class touchy:
                           "wheelinc1", "wheelinc2", "wheelinc3"]:
                         w = self.wTree.get_widget(i)
                         w.set_sensitive(active)
+                self.hal.jogactive(active)
         
         def change_control_font(self, fontbutton):
                 self.control_font = pango.FontDescription(fontbutton.get_font_name())
@@ -294,6 +295,16 @@ class touchy:
                         w.modify_font(self.error_font)
 
                 # XXX save font preferences
+
+        def mdi_ok(self, b):
+                if self.wheel == "jogging": self.wheel = "mv"
+                self.jogsettings_activate(0)
+                self.mdi_control.ok(b)
+
+        def fileselect(self, eb, e):
+                if self.wheel == "jogging": self.wheel = "mv"
+                self.jogsettings_activate(0)
+                self.filechooser.select(eb, e)
 
         def periodic_status(self):
                 self.emc.mask()
