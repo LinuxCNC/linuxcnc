@@ -56,15 +56,15 @@ static inline long extend(long old, int newlow, int nbits) {
 
 static inline void EPP_DIR_WRITE(void) { }
 static inline void EPP_DIR_READ(void) { }
-static inline void ADDR(int w) {
+static inline void EPP_ADDR(int w) {
     outb(w, ioaddr+3);
 }
 
-static inline void WRITE(int w) {
+static inline void EPP_WRITE(int w) {
     outb(w, ioaddr+4);
 }
 
-static inline int READ(void) {
+static inline int EPP_READ(void) {
     return inb(ioaddr+4);
 }
 
@@ -75,10 +75,10 @@ static inline __u32 read32(void) {
     if(epp_wide)
 	return inl(ioaddr+4);
 
-    a = READ();
-    b = READ();
-    c = READ();
-    d = READ();
+    a = EPP_READ();
+    b = EPP_READ();
+    c = EPP_READ();
+    d = EPP_READ();
 
     return a + (b<<8) + (c<<16) + (d<<24);
 }
@@ -89,10 +89,10 @@ static inline void write32(long w) {
 	return;
     }
 
-    WRITE(w);
-    WRITE(w >> 8);
-    WRITE(w >> 16);
-    WRITE(w >> 24);
+    EPP_WRITE(w);
+    EPP_WRITE(w >> 8);
+    EPP_WRITE(w >> 16);
+    EPP_WRITE(w >> 24);
 }
 
 static inline void write16(int w) {
@@ -101,8 +101,8 @@ static inline void write16(int w) {
 	return;
     }
 
-    WRITE(w & 0xff);
-    WRITE(w >> 8);
+    EPP_WRITE(w & 0xff);
+    EPP_WRITE(w >> 8);
 }
 
 
@@ -189,9 +189,9 @@ static int pluto_setup(unsigned char *firmware) {
 
     // Check for presence of working EPP hardware
     pluto_clear_error_register();
-    ADDR(0);
+    EPP_ADDR(0);
     EPP_DIR_READ();
-    READ();
+    EPP_READ();
     status = inb(ioaddr+1) & 1;
     if(status) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");
