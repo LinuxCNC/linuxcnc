@@ -3363,9 +3363,19 @@ G10
 \end_layout
 
 \begin_layout Standard
-Example: 
+Examples:
+\end_layout
+
+\begin_layout Description
+
 \family typewriter
-G10 L2 P1 x 3.5 y 17.2
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X\InsetSpace ~
+3.5\InsetSpace ~
+Y\InsetSpace ~
+17.2
 \family default
  sets the origin of the first coordinate system (the one selected by 
 \family typewriter
@@ -3374,6 +3384,15 @@ G54
 ) to be X=3.5 and Y=17.2.
  Because only X and Y are specified, the origin point is only moved in X
  and Y; the other coordinates are not changed.
+\end_layout
+
+\begin_layout Description
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X0\InsetSpace ~
+Y0\InsetSpace ~
+Z0 sets the G54 coordinate back to the origin.
 \end_layout
 
 \begin_layout Standard
