@@ -214,6 +214,9 @@ class mdi_control:
     def m(self, b):
         self.g(b, "M")
 
+    def t(self, b):
+        self.g(b, "T")
+
     def select(self, eventbox, event):
         n = int(eventbox.get_name()[12:])
         if self.selected == 0:

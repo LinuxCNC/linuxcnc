@@ -125,13 +125,17 @@ class touchy:
                          'spindlespeed' : self.wTree.get_widget("status_spindlespeed"),
                          'loadedtool' : self.wTree.get_widget("status_loadedtool"),
                          'preppedtool' : self.wTree.get_widget("status_preppedtool")}
+                prefs = {'actual' : self.wTree.get_widget("dro_actual"),
+                         'commanded' : self.wTree.get_widget("dro_commanded"),
+                         'inch' : self.wTree.get_widget("dro_inch"),
+                         'mm' : self.wTree.get_widget("dro_mm")}
                 self.status = emc_interface.emc_status(gtk, emc, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
                                                        estops, machines,
                                                        self.wTree.get_widget("override_limits"),
                                                        stats,
-                                                       floods, mists, spindles)
+                                                       floods, mists, spindles, prefs)
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
 
@@ -140,6 +144,10 @@ class touchy:
                         "quit" : self.quit,
                         "on_controlfontbutton_font_set" : self.change_control_font,
                         "on_drofontbutton_font_set" : self.change_dro_font,
+                        "on_dro_actual_clicked" : self.status.dro_actual,
+                        "on_dro_commanded_clicked" : self.status.dro_commanded,
+                        "on_dro_inch_clicked" : self.status.dro_inch,
+                        "on_dro_mm_clicked" : self.status.dro_mm,
                         "on_errorfontbutton_font_set" : self.change_error_font,
                         "on_estop_clicked" : self.emc.estop,
                         "on_estop_reset_clicked" : self.emc.estop_reset,
@@ -154,6 +162,7 @@ class touchy:
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
                         "on_mdi_g_clicked" : self.mdi_control.g,
                         "on_mdi_m_clicked" : self.mdi_control.m,
+                        "on_mdi_t_clicked" : self.mdi_control.t,
                         "on_mdi_select" : self.mdi_control.select,
                         "on_filechooser_select" : self.fileselect,
                         "on_filechooser_up_clicked" : self.filechooser.up,
@@ -262,14 +271,15 @@ class touchy:
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
                           "flood_on", "flood_off", "mist_on", "mist_off",
-                          "g", "m",
+                          "g", "m", "t",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_x", "unhome_x",
                           "home_y", "unhome_y", "home_z", "unhome_z",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
                           "wheelx", "wheely", "wheelz", "override_limits",
                           "spindle_forward", "spindle_off", "spindle_reverse",
-                          "spindle_faster", "spindle_slower"]:
+                          "spindle_faster", "spindle_slower",
+                          "dro_commanded", "dro_actual", "dro_inch", "dro_mm"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 

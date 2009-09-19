@@ -449,7 +449,7 @@
 				      <property name="label" translatable="yes">Estop Reset</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_estop_reset_clicked" last_modification_time="Fri, 31 Jul 2009 15:45:19 GMT"/>
@@ -469,7 +469,7 @@
 				      <property name="label" translatable="yes">Estop</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_estop_clicked" last_modification_time="Fri, 31 Jul 2009 15:45:15 GMT"/>
@@ -489,7 +489,7 @@
 				      <property name="label" translatable="yes">Machine On</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_machine_on_clicked" last_modification_time="Fri, 31 Jul 2009 15:45:10 GMT"/>
@@ -509,7 +509,7 @@
 				      <property name="label" translatable="yes">Machine Off</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_machine_off_clicked" last_modification_time="Fri, 31 Jul 2009 15:45:05 GMT"/>
@@ -529,7 +529,7 @@
 				      <property name="label" translatable="yes">Override Limits</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_override_limits_clicked" last_modification_time="Thu, 06 Aug 2009 03:27:17 GMT"/>
@@ -613,7 +613,7 @@
 				      <property name="label" translatable="yes">Home X</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_home_x_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:19 GMT"/>
@@ -633,7 +633,7 @@
 				      <property name="label" translatable="yes">Unhome X</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_unhome_x_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:11 GMT"/>
@@ -653,7 +653,7 @@
 				      <property name="label" translatable="yes">Home Y</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_home_y_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:26 GMT"/>
@@ -673,7 +673,7 @@
 				      <property name="label" translatable="yes">Unhome Y</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_unhome_y_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:38 GMT"/>
@@ -693,7 +693,7 @@
 				      <property name="label" translatable="yes">Home Z</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_home_z_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:45 GMT"/>
@@ -713,7 +713,7 @@
 				      <property name="label" translatable="yes">Unhome Z</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_unhome_z_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:49 GMT"/>
@@ -733,7 +733,7 @@
 				      <property name="label" translatable="yes">Unhome All</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <signal name="clicked" handler="on_unhome_all_clicked" last_modification_time="Fri, 31 Jul 2009 15:36:56 GMT"/>
 				    </widget>
 				    <packing>
@@ -751,7 +751,7 @@
 				      <property name="label" translatable="yes">Home All</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <signal name="clicked" handler="on_home_all_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:21 GMT"/>
 				    </widget>
 				    <packing>
@@ -1519,42 +1519,69 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkButton" id="g">
+			    <widget class="GtkVBox" id="vbox11">
 			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">G</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_g_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:24 GMT"/>
+			      <property name="homogeneous">True</property>
+			      <property name="spacing">0</property>
+
+			      <child>
+				<widget class="GtkButton" id="g">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">G</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_g_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:24 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="m">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">M</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_m_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:36 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="t">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">T</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_t_clicked" last_modification_time="Sat, 19 Sep 2009 17:18:35 GMT"/>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
 			    </widget>
 			    <packing>
 			      <property name="left_attach">0</property>
 			      <property name="right_attach">1</property>
 			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">2</property>
-			      <property name="x_padding">8</property>
-			      <property name="x_options">fill</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="m">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">M</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_m_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:36 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">2</property>
 			      <property name="bottom_attach">4</property>
 			      <property name="x_padding">8</property>
-			      <property name="x_options">fill</property>
+			      <property name="y_options">fill</property>
 			    </packing>
 			  </child>
 			</widget>
@@ -1637,7 +1664,7 @@
 				      <property name="label" translatable="yes">Flood On</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_flood_on_clicked" last_modification_time="Tue, 25 Aug 2009 16:40:45 GMT"/>
@@ -1657,7 +1684,7 @@
 				      <property name="label" translatable="yes">Flood Off</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_flood_off_clicked" last_modification_time="Tue, 25 Aug 2009 16:40:53 GMT"/>
@@ -1677,7 +1704,7 @@
 				      <property name="label" translatable="yes">Mist On</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_mist_on_clicked" last_modification_time="Tue, 25 Aug 2009 16:40:24 GMT"/>
@@ -1697,7 +1724,7 @@
 				      <property name="label" translatable="yes">Mist Off</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_mist_off_clicked" last_modification_time="Tue, 25 Aug 2009 16:40:14 GMT"/>
@@ -1781,7 +1808,7 @@
 				      <property name="label" translatable="yes">Spindle Forward</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_spindle_forward_clicked" last_modification_time="Tue, 25 Aug 2009 16:57:15 GMT"/>
@@ -1801,7 +1828,7 @@
 				      <property name="label" translatable="yes">Spindle Reverse</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">False</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_spindle_reverse_clicked" last_modification_time="Tue, 25 Aug 2009 16:57:34 GMT"/>
@@ -1821,7 +1848,7 @@
 				      <property name="label" translatable="yes">Spindle Off</property>
 				      <property name="use_underline">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <property name="active">True</property>
 				      <property name="inconsistent">False</property>
 				      <signal name="clicked" handler="on_spindle_off_clicked" last_modification_time="Tue, 25 Aug 2009 16:57:25 GMT"/>
@@ -1847,7 +1874,7 @@
 					  <property name="label" translatable="yes">Spindle Faster</property>
 					  <property name="use_underline">True</property>
 					  <property name="relief">GTK_RELIEF_NORMAL</property>
-					  <property name="focus_on_click">True</property>
+					  <property name="focus_on_click">False</property>
 					  <signal name="clicked" handler="on_spindle_faster_clicked" last_modification_time="Tue, 25 Aug 2009 16:56:47 GMT"/>
 					</widget>
 					<packing>
@@ -1864,7 +1891,7 @@
 					  <property name="label" translatable="yes">Spindle Slower</property>
 					  <property name="use_underline">True</property>
 					  <property name="relief">GTK_RELIEF_NORMAL</property>
-					  <property name="focus_on_click">True</property>
+					  <property name="focus_on_click">False</property>
 					  <signal name="clicked" handler="on_spindle_slower_clicked" last_modification_time="Tue, 25 Aug 2009 16:57:01 GMT"/>
 					</widget>
 					<packing>
@@ -1987,7 +2014,7 @@
 				      <property name="label">gtk-go-up</property>
 				      <property name="use_stock">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <signal name="clicked" handler="on_filechooser_up_clicked" last_modification_time="Tue, 25 Aug 2009 19:43:09 GMT"/>
 				    </widget>
 				    <packing>
@@ -2006,7 +2033,7 @@
 				      <property name="label">gtk-go-down</property>
 				      <property name="use_stock">True</property>
 				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">True</property>
+				      <property name="focus_on_click">False</property>
 				      <signal name="clicked" handler="on_filechooser_down_clicked" last_modification_time="Tue, 25 Aug 2009 19:43:14 GMT"/>
 				    </widget>
 				    <packing>
@@ -3178,164 +3205,321 @@ M2
 		  </child>
 
 		  <child>
-		    <widget class="GtkTable" id="table3">
+		    <widget class="GtkVBox" id="vbox10">
 		      <property name="visible">True</property>
-		      <property name="n_rows">4</property>
-		      <property name="n_columns">3</property>
 		      <property name="homogeneous">False</property>
-		      <property name="row_spacing">0</property>
-		      <property name="column_spacing">0</property>
+		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkLabel" id="controlfont">
+			<widget class="GtkTable" id="table3">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Control Font:</property>
-			  <property name="use_underline">False</property>
-			  <property name="use_markup">False</property>
-			  <property name="justify">GTK_JUSTIFY_RIGHT</property>
-			  <property name="wrap">False</property>
-			  <property name="selectable">False</property>
-			  <property name="xalign">0.899999976158</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			  <property name="width_chars">-1</property>
-			  <property name="single_line_mode">False</property>
-			  <property name="angle">0</property>
+			  <property name="n_rows">3</property>
+			  <property name="n_columns">2</property>
+			  <property name="homogeneous">False</property>
+			  <property name="row_spacing">0</property>
+			  <property name="column_spacing">0</property>
+
+			  <child>
+			    <widget class="GtkLabel" id="controlfont">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">Control Font:</property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_RIGHT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.899999976158</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">0</property>
+			      <property name="bottom_attach">1</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="drofont">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">DRO Font:</property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_RIGHT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.899999976158</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="errorfont">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">Error Font:</property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">False</property>
+			      <property name="justify">GTK_JUSTIFY_RIGHT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.899999976158</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">0</property>
+			      <property name="right_attach">1</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkFontButton" id="controlfontbutton">
+			      <property name="border_width">10</property>
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="title" translatable="yes">ControlFont</property>
+			      <property name="show_style">True</property>
+			      <property name="show_size">True</property>
+			      <property name="use_font">True</property>
+			      <property name="use_size">True</property>
+			      <property name="focus_on_click">False</property>
+			      <signal name="font_set" handler="on_controlfontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:50:26 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">0</property>
+			      <property name="bottom_attach">1</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkFontButton" id="drofontbutton">
+			      <property name="border_width">10</property>
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="title" translatable="yes">DRO Font</property>
+			      <property name="show_style">True</property>
+			      <property name="show_size">True</property>
+			      <property name="use_font">True</property>
+			      <property name="use_size">True</property>
+			      <property name="focus_on_click">False</property>
+			      <signal name="font_set" handler="on_drofontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:51:50 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">1</property>
+			      <property name="bottom_attach">2</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkFontButton" id="errorfontbutton">
+			      <property name="border_width">10</property>
+			      <property name="visible">True</property>
+			      <property name="can_focus">True</property>
+			      <property name="title" translatable="yes">Error Font</property>
+			      <property name="show_style">True</property>
+			      <property name="show_size">True</property>
+			      <property name="use_font">True</property>
+			      <property name="use_size">True</property>
+			      <property name="focus_on_click">False</property>
+			      <signal name="font_set" handler="on_errorfontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:52:01 GMT"/>
+			    </widget>
+			    <packing>
+			      <property name="left_attach">1</property>
+			      <property name="right_attach">2</property>
+			      <property name="top_attach">2</property>
+			      <property name="bottom_attach">3</property>
+			      <property name="x_options">fill</property>
+			      <property name="y_options"></property>
+			    </packing>
+			  </child>
 			</widget>
 			<packing>
-			  <property name="left_attach">0</property>
-			  <property name="right_attach">1</property>
-			  <property name="top_attach">0</property>
-			  <property name="bottom_attach">1</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
+			  <property name="padding">0</property>
+			  <property name="expand">True</property>
+			  <property name="fill">True</property>
 			</packing>
 		      </child>
 
 		      <child>
-			<widget class="GtkLabel" id="drofont">
+			<widget class="GtkFrame" id="frame6">
+			  <property name="border_width">5</property>
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">DRO Font:</property>
-			  <property name="use_underline">False</property>
-			  <property name="use_markup">False</property>
-			  <property name="justify">GTK_JUSTIFY_RIGHT</property>
-			  <property name="wrap">False</property>
-			  <property name="selectable">False</property>
-			  <property name="xalign">0.899999976158</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			  <property name="width_chars">-1</property>
-			  <property name="single_line_mode">False</property>
-			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="left_attach">0</property>
-			  <property name="right_attach">1</property>
-			  <property name="top_attach">1</property>
-			  <property name="bottom_attach">2</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
-			</packing>
-		      </child>
+			  <property name="label_xalign">0</property>
+			  <property name="label_yalign">0.5</property>
+			  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
-		      <child>
-			<widget class="GtkLabel" id="errorfont">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Error Font:</property>
-			  <property name="use_underline">False</property>
-			  <property name="use_markup">False</property>
-			  <property name="justify">GTK_JUSTIFY_RIGHT</property>
-			  <property name="wrap">False</property>
-			  <property name="selectable">False</property>
-			  <property name="xalign">0.899999976158</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			  <property name="width_chars">-1</property>
-			  <property name="single_line_mode">False</property>
-			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="left_attach">0</property>
-			  <property name="right_attach">1</property>
-			  <property name="top_attach">2</property>
-			  <property name="bottom_attach">3</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
-			</packing>
-		      </child>
+			  <child>
+			    <widget class="GtkAlignment" id="alignment8">
+			      <property name="visible">True</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xscale">1</property>
+			      <property name="yscale">1</property>
+			      <property name="top_padding">0</property>
+			      <property name="bottom_padding">0</property>
+			      <property name="left_padding">12</property>
+			      <property name="right_padding">0</property>
 
-		      <child>
-			<widget class="GtkFontButton" id="controlfontbutton">
-			  <property name="border_width">10</property>
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="title" translatable="yes">ControlFont</property>
-			  <property name="show_style">True</property>
-			  <property name="show_size">True</property>
-			  <property name="use_font">True</property>
-			  <property name="use_size">True</property>
-			  <property name="focus_on_click">True</property>
-			  <signal name="font_set" handler="on_controlfontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:50:26 GMT"/>
-			</widget>
-			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">0</property>
-			  <property name="bottom_attach">1</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
-			</packing>
-		      </child>
+			      <child>
+				<widget class="GtkTable" id="table12">
+				  <property name="border_width">5</property>
+				  <property name="visible">True</property>
+				  <property name="n_rows">2</property>
+				  <property name="n_columns">2</property>
+				  <property name="homogeneous">True</property>
+				  <property name="row_spacing">0</property>
+				  <property name="column_spacing">15</property>
 
-		      <child>
-			<widget class="GtkFontButton" id="drofontbutton">
-			  <property name="border_width">10</property>
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="title" translatable="yes">DRO Font</property>
-			  <property name="show_style">True</property>
-			  <property name="show_size">True</property>
-			  <property name="use_font">True</property>
-			  <property name="use_size">True</property>
-			  <property name="focus_on_click">True</property>
-			  <signal name="font_set" handler="on_drofontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:51:50 GMT"/>
-			</widget>
-			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">1</property>
-			  <property name="bottom_attach">2</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
-			</packing>
-		      </child>
+				  <child>
+				    <widget class="GtkToggleButton" id="dro_inch">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Inch</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <signal name="clicked" handler="on_dro_inch_clicked" last_modification_time="Sat, 19 Sep 2009 17:05:31 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				    </packing>
+				  </child>
 
-		      <child>
-			<widget class="GtkFontButton" id="errorfontbutton">
-			  <property name="border_width">10</property>
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="title" translatable="yes">Error Font</property>
-			  <property name="show_style">True</property>
-			  <property name="show_size">True</property>
-			  <property name="use_font">True</property>
-			  <property name="use_size">True</property>
-			  <property name="focus_on_click">True</property>
-			  <signal name="font_set" handler="on_errorfontbutton_font_set" last_modification_time="Thu, 30 Jul 2009 02:52:01 GMT"/>
+				  <child>
+				    <widget class="GtkToggleButton" id="dro_mm">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">mm</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <signal name="clicked" handler="on_dro_mm_clicked" last_modification_time="Sat, 19 Sep 2009 17:05:42 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkToggleButton" id="dro_commanded">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Commanded</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <signal name="clicked" handler="on_dro_commanded_clicked" last_modification_time="Sat, 19 Sep 2009 17:09:10 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkToggleButton" id="dro_actual">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Actual</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <property name="active">False</property>
+				      <property name="inconsistent">False</property>
+				      <signal name="clicked" handler="on_dro_actual_clicked" last_modification_time="Sat, 19 Sep 2009 17:09:03 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
+				    </packing>
+				  </child>
+				</widget>
+			      </child>
+			    </widget>
+			  </child>
+
+			  <child>
+			    <widget class="GtkLabel" id="label32">
+			      <property name="visible">True</property>
+			      <property name="label" translatable="yes">&lt;b&gt;Position Display&lt;/b&gt;</property>
+			      <property name="use_underline">False</property>
+			      <property name="use_markup">True</property>
+			      <property name="justify">GTK_JUSTIFY_LEFT</property>
+			      <property name="wrap">False</property>
+			      <property name="selectable">False</property>
+			      <property name="xalign">0.5</property>
+			      <property name="yalign">0.5</property>
+			      <property name="xpad">0</property>
+			      <property name="ypad">0</property>
+			      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+			      <property name="width_chars">-1</property>
+			      <property name="single_line_mode">False</property>
+			      <property name="angle">0</property>
+			    </widget>
+			    <packing>
+			      <property name="type">label_item</property>
+			    </packing>
+			  </child>
 			</widget>
 			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">2</property>
-			  <property name="bottom_attach">3</property>
-			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
+			  <property name="padding">0</property>
+			  <property name="expand">True</property>
+			  <property name="fill">True</property>
 			</packing>
 		      </child>
 		    </widget>
@@ -3422,7 +3606,7 @@ M2
 			      <property name="label" translatable="yes">FO: 100%</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">True</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_fo_clicked" last_modification_time="Fri, 31 Jul 2009 17:32:39 GMT"/>
@@ -3441,7 +3625,7 @@ M2
 			      <property name="label" translatable="yes">SO: 100%</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_so_clicked" last_modification_time="Fri, 31 Jul 2009 17:32:44 GMT"/>
@@ -3460,7 +3644,7 @@ M2
 			      <property name="label" translatable="yes">MV: 100</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_mv_clicked" last_modification_time="Fri, 31 Jul 2009 17:32:48 GMT"/>
@@ -3479,7 +3663,7 @@ M2
 			      <property name="label" translatable="yes">Jogging</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_jogging_clicked" last_modification_time="Fri, 31 Jul 2009 17:32:52 GMT"/>
@@ -3516,7 +3700,7 @@ M2
 			      <property name="label" translatable="yes">.01</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">True</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheelinc1_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:16 GMT"/>
@@ -3537,7 +3721,7 @@ M2
 			      <property name="label" translatable="yes">X</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">True</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheelx_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:28 GMT"/>
@@ -3558,7 +3742,7 @@ M2
 			      <property name="label" translatable="yes">.001</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheelinc2_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:19 GMT"/>
@@ -3579,7 +3763,7 @@ M2
 			      <property name="label" translatable="yes">Y</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheely_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:32 GMT"/>
@@ -3600,7 +3784,7 @@ M2
 			      <property name="label" translatable="yes">.0001</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheelinc3_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:23 GMT"/>
@@ -3621,7 +3805,7 @@ M2
 			      <property name="label" translatable="yes">Z</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">True</property>
+			      <property name="focus_on_click">False</property>
 			      <property name="active">False</property>
 			      <property name="inconsistent">False</property>
 			      <signal name="clicked" handler="on_wheelz_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:36 GMT"/>

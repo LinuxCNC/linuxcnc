@@ -134,7 +134,7 @@ class emc_control:
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,
                      unhomes, estops, machines, override_limit, status,
-                     floods, mists, spindles):
+                     floods, mists, spindles, prefs):
                 self.gtk = gtk
                 self.dros = dros
                 self.error = error
@@ -147,20 +147,40 @@ class emc_status:
                 self.floods = floods
                 self.mists = mists
                 self.spindles = spindles
+                self.prefs = prefs
                 self.emc = emc
+                self.mm = 0
+                self.actual = 0
                 self.emcstat = emc.stat()
                 self.emcerror = emc.error_channel()
+
+        def dro_inch(self, b):
+                self.mm = 0
+
+        def dro_mm(self, b):
+                self.mm = 1
+
+        def dro_commanded(self, b):
+                self.actual = 0
+
+        def dro_actual(self, b):
+                self.actual = 1
 
         def periodic(self):
                 last_mode = self.emcstat.task_mode
                 self.emcstat.poll()
-                # XXX tlo?
-                self.dros['xr'].set_text("X:% 9.4f" % (self.emcstat.actual_position[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
-                self.dros['yr'].set_text("Y:% 9.4f" % (self.emcstat.actual_position[1] - self.emcstat.origin[1]))
-                self.dros['zr'].set_text("Z:% 9.4f" % (self.emcstat.actual_position[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
-                self.dros['xa'].set_text("X:% 9.4f" % self.emcstat.actual_position[0])
-                self.dros['ya'].set_text("Y:% 9.4f" % self.emcstat.actual_position[1])
-                self.dros['za'].set_text("Z:% 9.4f" % self.emcstat.actual_position[2])
+
+                if self.actual:
+                        p = self.emcstat.actual_position
+                else:
+                        p = self.emcstat.position
+
+                self.dros['xr'].set_text("X:% 9.4f" % (p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
+                self.dros['yr'].set_text("Y:% 9.4f" % (p[1] - self.emcstat.origin[1]))
+                self.dros['zr'].set_text("Z:% 9.4f" % (p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
+                self.dros['xa'].set_text("X:% 9.4f" % p[0])
+                self.dros['ya'].set_text("Y:% 9.4f" % p[1])
+                self.dros['za'].set_text("Z:% 9.4f" % p[2])
                 self.dros['xd'].set_text("X:% 9.4f" % self.emcstat.dtg[0])
                 self.dros['yd'].set_text("Y:% 9.4f" % self.emcstat.dtg[1])
                 self.dros['zd'].set_text("Z:% 9.4f" % self.emcstat.dtg[2])
@@ -211,6 +231,11 @@ class emc_status:
                 self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
                 self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
                 self.status['preppedtool'].set_text("%d" % self.emcstat.tool_prepped)
+
+                self.prefs['inch'].set_active(self.mm == 0)
+                self.prefs['mm'].set_active(self.mm == 1)
+                self.prefs['actual'].set_active(self.actual == 1)
+                self.prefs['commanded'].set_active(self.actual == 0)
 
                 m = self.emcstat.task_mode
                 if m != last_mode:
