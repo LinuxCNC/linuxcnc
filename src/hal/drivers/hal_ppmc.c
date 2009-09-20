@@ -698,25 +698,8 @@ int rtapi_app_main(void)
     /* final check for errors */
     if ( rv != 0 ) {
 	/* something went wrong, cleanup and exit */
-	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: shutting down\n");
-	for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
-	    /* check to see if memory was allocated for bus */
-	    if ( bus_array[busnum] != NULL ) {
-		/* save ptr to memory block */
-		bus = bus_array[busnum];
-		/* mark it invalid so RT code won't access */
-		bus_array[busnum] = NULL;
-		/* and free the block */
-		kfree(bus);
-	    }
-            /* if ioports were requested, release them */
-	    if(port_registration[busnum])
-                rtapi_release_region(port_addr[busnum], 8);
-            port_registration[busnum] = 0;
-	}
-	/* disconnect from HAL */
-	hal_exit(comp_id);
-	return -1;
+        rtapi_app_exit();
+	return rv;
     }    
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: driver installed\n");
     hal_ready(comp_id);
