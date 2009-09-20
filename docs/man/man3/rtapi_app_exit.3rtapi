@@ -12,7 +12,7 @@ None
 .SH DESCRIPTION
 The body of \fBrtapi_app_exit\fR, which is provided by the component author,
 generally consists of a call to rtapi_exit or hal_exit, preceded by other
-:omponent-specific shutdown code.
+component-specific shutdown code.
 
 .SH RETURN CODE
 None.
