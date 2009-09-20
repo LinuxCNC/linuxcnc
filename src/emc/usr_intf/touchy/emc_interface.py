@@ -142,6 +142,12 @@ class emc_control:
                 else:
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
                 
+	def quill_up(self):
+		if self.masked: return
+		self.emccommand.mode(self.emc.MODE_MDI)
+		self.emccommand.mdi("G0 G53 Z0")
+		self.emccommand.wait_complete()
+		self.emccommand.mode(self.emc.MODE_MANUAL)
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,

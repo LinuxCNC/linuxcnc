@@ -35,6 +35,8 @@ class hal_interface:
         self.zp = 0
         self.c.newpin("jog.continuous.z.negative", hal.HAL_BIT, hal.HAL_IN)
         self.zn = 0
+        self.c.newpin("quill-up", hal.HAL_BIT, hal.HAL_IN)
+        self.quillup = 0
         self.jog_velocity = 1
         self.c.ready()
         self.active = 0
@@ -78,3 +80,8 @@ class hal_interface:
         zn = self.c["jog.continuous.z.negative"]
         if zn ^ self.zn: self.emc_control.continuous_jog(2, -zn)
         self.zn = zn
+
+        quillup = self.c["quill-up"]
+        if quillup and not self.quillup: 
+		self.emc_control.quill_up()
+        self.quillup = quillup
