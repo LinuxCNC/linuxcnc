@@ -17,6 +17,7 @@ class emc_control:
                 self.emc = emc
                 self.emccommand = emc.command()
                 self.masked = 0;
+                self.jog_velocity = 1.0
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -130,6 +131,17 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
+
+        def continuous_jog_velocity(self, velocity):
+                self.jog_velocity = velocity
+        
+        def continuous_jog(self, axis, direction):
+                if self.masked: return
+                if direction == 0:
+                        self.emccommand.jog(self.emc.JOG_STOP, axis)
+                else:
+                        self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
+                
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,

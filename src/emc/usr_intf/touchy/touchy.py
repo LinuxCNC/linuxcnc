@@ -77,7 +77,7 @@ class touchy:
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc)
-                self.hal = hal_interface.hal_interface()
+                self.hal = hal_interface.hal_interface(self.emc)
 
                 # silly file chooser
                 filechooser_labels = []
@@ -320,6 +320,7 @@ class touchy:
                 self.emc.mask()
                 self.status.periodic()
                 self.emc.unmask()
+                self.hal.periodic()
                 return True
 
         def periodic_radiobuttons(self):
