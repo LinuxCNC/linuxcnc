@@ -63,6 +63,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
+#include "parport_common.h"
 
 #define MAX_BUS 3	/* max number of parports (EPP busses) */
 
@@ -72,8 +73,9 @@
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
 MODULE_LICENSE("GPL");
-int port_addr[MAX_BUS] = { 0x0378, 0, 0 };  /* default, 1 bus at 0x0378 */
-void *port_registration[MAX_BUS] = {0,};
+int port_addr[MAX_BUS] = { 0x378, [1 ... MAX_BUS-1] = -1 };
+    /* default, 1 bus at 0x0378 */
+hal_parport_t port_registration[MAX_BUS];
 RTAPI_MP_ARRAY_INT(port_addr, MAX_BUS, "port address(es) for EPP bus(es)");
 int extradac[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
@@ -414,40 +416,21 @@ int rtapi_app_main(void)
 	/* init pointer to bus data */
 	bus_array[busnum] = NULL;
 	/* check to see if a port address was specified */
-	if ( port_addr[busnum] == 0 ) {
+	if ( port_addr[busnum] == -1 ) {
 	    /* nope, skip it */
 	    continue;
 	}
-	/* is it legal? */
-	if ( port_addr[busnum] > 65535 ) {
-	    /* nope, complain and skip it */
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                 "PARPORT: ERROR: request_region(%x) failed\n"
-                 , port_addr[busnum]);
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                 "(make sure the kernel module 'parport' is unloaded)\n");
-	    rv = -1;
-	    continue;
-	}
-        port_registration[busnum] =
-            rtapi_request_region(port_addr[busnum], 8, "hal_ppmc");
-        if(port_registration[busnum] == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, 
-		"PPMC: ERROR: invalid port_addr: %0X\n", port_addr[busnum]);
-            rv = -1;
-            continue;
-        }
-	/* got a good one */
-	n++;
-    }
-    if ( rv != 0 ) {
-        for(busnum = 0; busnum < MAX_BUS; busnum++) {
-            if(port_registration[busnum])
-                rtapi_release_region(port_addr[busnum], 8);
-            port_registration[busnum] = 0;
-        }
-	/* one or more invalid addresses, already printed msg */
-	return -1;
+
+        rv = hal_parport_get(comp_id, &port_registration[busnum],
+                port_addr[busnum], 0, PARPORT_MODE_EPP);
+
+        if(rv < 0)
+            return rv;
+
+        port_addr[busnum] = port_registration[busnum].base;
+
+        /* got a good one */
+        n++;
     }
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
@@ -463,7 +446,7 @@ int rtapi_app_main(void)
     /* begin init - loop thru all busses */
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
 	/* check to see if a port address was specified */
-	if ( port_addr[busnum] == 0 ) {
+	if ( port_addr[busnum] == -1 ) {
 	    /* nope, skip to next bus */
 	    continue;
 	}
@@ -734,9 +717,8 @@ void rtapi_app_exit(void)
     }
 
     for(busnum = 0; busnum < MAX_BUS; busnum++) {
-        if(port_registration[busnum])
-            rtapi_release_region(port_addr[busnum], 8);
-        port_registration[busnum] = 0;
+        /* if ioports were requested, release them */
+        hal_parport_release(&port_registration[busnum]);
     }
 
     /* disconnect from HAL */
