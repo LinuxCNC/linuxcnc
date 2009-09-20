@@ -74,11 +74,11 @@ proc ::tooledit::isnumber {v} {
 
 proc ::tooledit::qid {} {
    # generate unique id
-   if { ![info exists ::qid_private]} {
-      set ::qid_private 0
+   if { ![info exists ::te(qid)]} {
+      set ::te(qid) 0
    }
-   incr ::qid_private
-   return q$::qid_private
+   incr ::te(qid)
+   return q$::te(qid)
 } ;# qid
 
 proc ::tooledit::ventry {f validatenumber tvar \
@@ -208,12 +208,12 @@ proc ::tooledit::readfile {filename} {
 proc ::tooledit::tooledit {filename} {
   set ::te(filename) $filename
   set ::te(types)        {mill lathe}
-  set ::te(mill,header)  {poc fms length diameter comment}
+  set ::te(mill,header)  {poc fms tlo diameter comment}
   set ::te(lathe,header) {poc fms zoffset xoffset diameter \
                          frontangle backangle orient comment}
   set ::te(poc,width)         4
   set ::te(fms,width)         4
-  set ::te(length,width)     10
+  set ::te(tlo,width)        10
   set ::te(diameter,width)   10
   set ::te(comment,width)    20
   set ::te(zoffset,width)    10
@@ -426,7 +426,7 @@ proc ::tooledit::makeline {type ay_name} {
       lappend ::te(mill,items) $i
       set ::te(mill,$i,poc)      $ay(0)
       set ::te(mill,$i,fms)      $ay(1)
-      set ::te(mill,$i,length)   $ay(2)
+      set ::te(mill,$i,tlo)      $ay(2)
       set ::te(mill,$i,diameter) $ay(3)
       set ::te(mill,$i,comment)  [string trim $ay(4)]
       pack [checkbutton $f.b -variable ::te(mill,$i,deleteme) \
