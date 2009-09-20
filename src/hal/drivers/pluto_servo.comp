@@ -186,9 +186,10 @@ modparam int test_encoder = 0
     "Internally connect dout0..2 to QA0, QB0, QZ0 to test quadrature counting";
 
 license "GPL";
+
+include "hal/drivers/pluto_common.h";
 ;;
 
-#include "hal/drivers/pluto_common.h"
 
 typedef struct {
     int64_t last_index[4];

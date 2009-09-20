@@ -142,8 +142,8 @@ function write "Write all the outputs on the pluto-step board";
 see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
 license "GPL";
+include "hal/drivers/pluto_common.h";
 ;;
-#include "hal/drivers/pluto_common.h"
 
 static int speedrange=0;
 RTAPI_MP_INT(speedrange, "Speed range 0..3");
