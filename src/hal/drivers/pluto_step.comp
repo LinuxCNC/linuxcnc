@@ -160,8 +160,8 @@ RTAPI_MP_INT(speedrange, "Speed range 0..3");
 #define MAXDELTA (MASK/2)
 
 typedef struct {
-    long last_count[4];
-    long reset_count[4];
+    int64_t last_count[4];
+    int64_t reset_count[4];
     double old_position_cmd[4];
     double old_velocity_cmd[4];
 } internal;
@@ -274,7 +274,7 @@ FUNCTION(read) {
     EPP_DIR_READ();
 
     for(i=0; i<4; i++) {
-        long long count;
+        int64_t count;
         double fcount;
 	int newlow;
         int reset;

@@ -33,22 +33,22 @@ RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
 RTAPI_MP_INT(watchdog,
 	"Enable hardware watchdog to tristate outputs if EMC crashes");
 
-#ifndef labs // linux/kernel.h may provide labs for realtime systems
-static long labs(long l) { if(l < 0) return -l; return l; }
+#ifndef llabs // linux/kernel.h may provide labs for realtime systems
+static int64_t llabs(int64_t l) { if(l < 0) return -l; return l; }
 #endif
 
-static inline long extend(long old, int newlow, int nbits) {
-    long mask = (1<<nbits) - 1;
-    long maxdelta = mask / 2;
-    long oldhigh = old & ~mask;
-    long oldlow = old & mask;
-    long candidate1, candidate2;
+static inline int64_t extend(int64_t old, int newlow, int nbits) {
+    int64_t mask = (1<<nbits) - 1;
+    int64_t maxdelta = mask / 2;
+    int64_t oldhigh = old & ~mask;
+    int64_t oldlow = old & mask;
+    int64_t candidate1, candidate2;
 
     candidate1 = oldhigh | newlow;
     if(oldlow < newlow) candidate2 = candidate1 - (1<<nbits);
     else                candidate2 = candidate1 + (1<<nbits);
 
-    if (labs(old-candidate1) > maxdelta)
+    if (llabs(old-candidate1) > maxdelta)
 	return candidate2;
     else
 	return candidate1;
