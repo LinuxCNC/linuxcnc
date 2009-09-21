@@ -81,24 +81,24 @@ static int num_boards;
 // 
 
 static inline void hm2_7i43_epp_addr8(u8 addr, hm2_7i43_t *board) {
-    outb(addr, board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
+    outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
 static inline void hm2_7i43_epp_addr16(u16 addr, hm2_7i43_t *board) {
-    outb((addr & 0x00FF), board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
-    outb((addr >> 8),     board->ioaddr + HM2_7I43_EPP_ADDRESS_OFFSET);
+    outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
+    outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
 static inline void hm2_7i43_epp_write(int w, hm2_7i43_t *board) {
-    outb(w, board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
+    outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
 static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
     int val;
-    val = inb(board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
+    val = inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
     return val;
 }
@@ -107,7 +107,7 @@ static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
     uint32_t data;
 
     if (board->epp_wide) {
-	data = inl(board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
+	data = inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
     } else {
         uint8_t a, b, c, d;
@@ -123,7 +123,7 @@ static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
 
 static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
     if (board->epp_wide) {
-	outl(w, board->ioaddr + HM2_7I43_EPP_DATA_OFFSET);
+	outl(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
     } else {
         hm2_7i43_epp_write((w) & 0xFF, board);
@@ -135,18 +135,18 @@ static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
 
 static inline uint8_t hm2_7i43_epp_read_status(hm2_7i43_t *board) {
     uint8_t val;
-    val = inb(board->ioaddr + HM2_7I43_EPP_STATUS_OFFSET);
+    val = inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
     return val;
 }
 
 static inline void hm2_7i43_epp_write_status(uint8_t status_byte, hm2_7i43_t *board) {
-    outb(status_byte, board->ioaddr + HM2_7I43_EPP_STATUS_OFFSET);
+    outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
 static inline void hm2_7i43_epp_write_control(uint8_t control_byte, hm2_7i43_t *board) {
-    outb(control_byte, board->ioaddr + HM2_7I43_EPP_CONTROL_OFFSET);
+    outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }
 
@@ -384,14 +384,7 @@ static void hm2_7i43_cleanup(void) {
         hm2_lowlevel_io_t *this = &board[i].llio;
         THIS_PRINT("releasing board\n");
         hm2_unregister(this);
-
-        if (board[i].io_region1) {
-            rtapi_release_region(board[i].ioaddr, 8);
-        }
-
-        if (board[i].io_region2) {
-            rtapi_release_region(board[i].ioaddr_hi, 4);
-        }
+        hal_parport_release(&board[i].port);
     }
 }
 
@@ -409,39 +402,20 @@ static int hm2_7i43_setup(void) {
         hm2_lowlevel_io_t *this;
         int r;
 
-        board[i].ioaddr = ioaddr[i];
-        board[i].ioaddr_hi = ioaddr_hi[i];
-        if (board[i].ioaddr_hi == 0) {
-            board[i].ioaddr_hi = board[i].ioaddr + 0x400;
-        }
         board[i].epp_wide = epp_wide[i];
-
 
         //
         // claim the I/O regions for the parport
         // 
 
-        board[i].io_region1 = rtapi_request_region(board[i].ioaddr, 8, "hm2_7i43");
-        if (!board[i].io_region1) {
-            LL_ERR("request_region(%x) (for ioaddr) failed\n", board[i].ioaddr);
-            LL_ERR("make sure the kernel module 'parport' is unloaded)\n");
-            return -EBUSY;
-        }
+        r = hal_parport_get(comp_id, &board[i].port,
+                ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
+        if(r < 0)
+            return r;
 
-        if (board[i].ioaddr_hi < 0) {
-            board[i].io_region2 = NULL;  // The LAVA PCI EPP board does this, it's stuck in EPP mode
-        } else {
-            board[i].io_region2 = rtapi_request_region(board[i].ioaddr_hi, 4, "hm2_7i43");
-            if (!board[i].io_region2) {
-                rtapi_release_region(board[i].ioaddr, 8);
-                board[i].io_region1 = NULL;
-                LL_ERR("request_region(%x) (for ioaddr_hi) failed\n", board[i].ioaddr);
-                LL_ERR("make sure the kernel module 'parport' is unloaded)\n");
-                return -EBUSY;
-            }
-
-            // set up the parport for EPP
-            outb(0x94, board[i].ioaddr_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+        // set up the parport for EPP
+	if(board[i].port.base_hi) {
+	    outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
         //
@@ -493,26 +467,19 @@ static int hm2_7i43_setup(void) {
         if (r != 0) {
             THIS_ERR(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
-                board[i].ioaddr,
-                board[i].ioaddr_hi,
+                board[i].port.base,
+                board[i].port.base_hi,
                 (board[i].epp_wide ? "ON" : "OFF")
             );
 
-            rtapi_release_region(board[i].ioaddr, 8);
-            board[i].io_region1 = NULL;
-
-            if (board[i].io_region2) {
-                rtapi_release_region(board[i].ioaddr_hi, 4);
-            }
-            board[i].io_region2 = NULL;
-
+            hal_parport_release(&board[i].port);
             return r;
         }
 
         THIS_PRINT(
             "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
-            board[i].ioaddr,
-            board[i].ioaddr_hi,
+            board[i].port.base,
+            board[i].port.base_hi,
             (board[i].epp_wide ? "ON" : "OFF")
         );
 

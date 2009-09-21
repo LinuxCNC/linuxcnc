@@ -1505,6 +1505,7 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
+        self.set_manual_mode = False
 
     def start(self):
         if self.running.get(): return
@@ -1600,6 +1601,11 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        set_manual_mode = comp["set-manual-mode"]
+        if self.set_manual_mode != set_manual_mode:
+             self.set_manual_mode = set_manual_mode
+             if self.set_manual_mode:
+                 root_window.tk.eval(pane_top + ".tabs raise manual")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -3805,6 +3811,7 @@ if hal_present == 1 :
     comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+    comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:

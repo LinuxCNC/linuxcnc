@@ -35,6 +35,7 @@ parser Hal:
     token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
+    token HEADER: "<.*?>"
     token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<|<=|>|>="
     token TSTRING: "\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
@@ -52,8 +53,10 @@ parser Hal:
       | "description" String ";"   {{ description(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
-      | "include" String ";"   {{ include(String) }}
+      | "include" Header ";"   {{ include(Header) }}
       | "modparam" NAME {{ NAME1=NAME; }} NAME OptSAssign OptString ";" {{ modparam(NAME1, NAME, OptSAssign, OptString) }}
+
+    rule Header: STRING {{ return STRING }} | HEADER {{ return HEADER }}
 
     rule String: TSTRING {{ return eval(TSTRING) }} 
             | STRING {{ return eval(STRING) }}
@@ -245,7 +248,7 @@ def prologue(f):
 static int comp_id;
 """
     for name in includes:
-        print >>f, "#include \"%s\"" % name
+        print >>f, "#include %s" % name
 
     names = {}
 

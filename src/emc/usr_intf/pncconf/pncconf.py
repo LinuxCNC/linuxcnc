@@ -145,7 +145,7 @@ mesafirmwaredata = [
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],[GPIOI,3],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "SVST8_4IM2", 8, 8, 4, 4, 2, 1, 72, 33, 100, 48, 96, [2,3,4],
+    ["5i20", "SVST8_4IM2", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -2737,20 +2737,16 @@ class App:
                     addsignalto = self.data.haloutputsignames
                 #type encoder
                 elif pintype == ENCA:
-                    if not pin in (1,3,13,15):
-                        continue
                     nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
                 # type PWM gen
                 elif pintype in( PWMP,PDMP):
-                    if not pin in (6,7,18,19):continue
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
                 # type step gen
                 elif pintype == STEPA:
-                    if not pin in (0,6,12,18):continue
                     nametocheck = human_stepper_names
                     signaltocheck = hal_stepper_names
                     addsignalto = self.data.halsteppersignames
@@ -2762,7 +2758,7 @@ class App:
                 for index , i in enumerate(nametocheck):
                     if selection == i : 
                         foundit = True
-                        print "found it",nametocheck[index],"in ",p,"\n"
+                        #print "found it",nametocheck[index],"in ",p,"\n"
                         break         
                 # **Start widget to data Convertion**                    
                 # for encoder pins
@@ -3428,7 +3424,7 @@ class App:
     def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
     def on_xaxismotor_prepare(self, *args):
-        self.data.help = "help-axismotor"
+        self.data.help = "help-axismotor.txt"
         self.signal_sanity_check()
         self.axis_prepare('x')
 
@@ -3458,7 +3454,8 @@ class App:
                 do_warning = True
         if do_warning: self.warning_dialog("\n".join(warnings),True)
 
-    def on_xaxismotor_next(self, *args):     
+    def on_xaxismotor_next(self, *args):  
+        self.data.help = "help-axisconfig.txt"   
         self.axis_done('x')
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
@@ -3478,22 +3475,22 @@ class App:
                 return True    
 
     def on_yaxismotor_prepare(self, *args):
-        self.data.help = 6
+        self.data.help = "help-axismotor.txt"
         self.axis_prepare('y')
-
     def on_yaxismotor_next(self, *args):
+        self.data.help = "help-axisconfig.txt"
         self.axis_done('y')
         self.widgets.druid1.set_page(self.widgets.yaxis)
         return True
-
     def on_yaxismotor_back(self, *args):        
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
     
     def on_zaxismotor_prepare(self, *args):
-        self.data.help = 6
+        self.data.help = "help-axismotor.txt"
         self.axis_prepare('z')
     def on_zaxismotor_next(self, *args):
+        self.data.help = "help-axisconfig.txt"
         self.axis_done('z')
         self.widgets.druid1.set_page(self.widgets.zaxis)
         return True
@@ -3506,9 +3503,10 @@ class App:
             return True
 
     def on_aaxismotor_prepare(self, *args):
-        self.data.help = 7
+        self.data.help = "help-axismotor.txt"
         self.axis_prepare('a')
     def on_aaxismotor_next(self, *args):
+        self.data.help = "help-axisconfig.txt"
         self.axis_done('a')
         self.widgets.druid1.set_page(self.widgets.aaxis)
         return True
@@ -3517,7 +3515,6 @@ class App:
         return True
 
     def axis_prepare(self, axis):
-
         test = self.data.findsignal(axis+"-stepgen-step")
         stepdriven = 1
         if test == "false":stepdriven = 0
