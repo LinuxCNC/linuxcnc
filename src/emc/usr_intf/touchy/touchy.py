@@ -167,6 +167,8 @@ class touchy:
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_t_clicked" : self.mdi_control.t,
                         "on_mdi_select" : self.mdi_control.select,
+                        "on_mdi_set_tool_clicked" : self.mdi_set_tool,
+                        "on_mdi_set_origin_clicked" : self.mdi_set_origin,
                         "on_filechooser_select" : self.fileselect,
                         "on_filechooser_up_clicked" : self.filechooser.up,
                         "on_filechooser_down_clicked" : self.filechooser.down,
@@ -274,7 +276,7 @@ class touchy:
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
                           "flood_on", "flood_off", "mist_on", "mist_off",
-                          "g", "m", "t",
+                          "g", "m", "t", "set_tool", "set_origin",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_x", "unhome_x",
                           "home_y", "unhome_y", "home_z", "unhome_z",
@@ -313,6 +315,12 @@ class touchy:
                 if self.wheel == "jogging": self.wheel = "mv"
                 self.jogsettings_activate(0)
                 self.mdi_control.ok(b)
+
+        def mdi_set_tool(self, b):
+                self.mdi_control.set_tool(self.status.get_current_tool())
+
+        def mdi_set_origin(self, b):
+                self.mdi_control.set_origin(b)
 
         def fileselect(self, eb, e):
                 if self.wheel == "jogging": self.wheel = "mv"

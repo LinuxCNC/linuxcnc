@@ -196,6 +196,10 @@ class emc_status:
         def dro_actual(self, b):
                 self.actual = 1
 
+        def get_current_tool(self):
+                self.emcstat.poll()
+                return self.emcstat.tool_in_spindle
+
         def periodic(self):
                 last_mode = self.emcstat.task_mode
                 self.emcstat.poll()

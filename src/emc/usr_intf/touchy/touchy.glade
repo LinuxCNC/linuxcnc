@@ -826,45 +826,26 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkHBox" id="hbox1">
-		      <property name="border_width">10</property>
+		    <widget class="GtkVBox" id="vbox12">
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
 		      <property name="spacing">0</property>
 
 		      <child>
-			<widget class="GtkVBox" id="vbox3">
-			  <property name="border_width">3</property>
+			<widget class="GtkHBox" id="hbox9">
 			  <property name="visible">True</property>
 			  <property name="homogeneous">True</property>
 			  <property name="spacing">0</property>
 
 			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi0">
+			    <widget class="GtkButton" id="set_tool">
+			      <property name="border_width">11</property>
 			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi0">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">G</property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
+			      <property name="label">Set Tool</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">False</property>
+			      <signal name="clicked" handler="on_mdi_set_tool_clicked" last_modification_time="Mon, 21 Sep 2009 19:54:17 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -874,337 +855,14 @@
 			  </child>
 
 			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi1">
+			    <widget class="GtkButton" id="set_origin">
+			      <property name="border_width">11</property>
 			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi1">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi2">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi2">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi3">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi3">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi4">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi4">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi5">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi5">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi6">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi6">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi7">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi7">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi8">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi8">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi9">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi9">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
-			    </widget>
-			    <packing>
-			      <property name="padding">0</property>
-			      <property name="expand">True</property>
-			      <property name="fill">True</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkEventBox" id="eventbox_mdi10">
-			      <property name="visible">True</property>
-			      <property name="visible_window">True</property>
-			      <property name="above_child">False</property>
-			      <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-			      <child>
-				<widget class="GtkLabel" id="mdi10">
-				  <property name="visible">True</property>
-				  <property name="label" translatable="yes"></property>
-				  <property name="use_underline">False</property>
-				  <property name="use_markup">False</property>
-				  <property name="justify">GTK_JUSTIFY_LEFT</property>
-				  <property name="wrap">False</property>
-				  <property name="selectable">False</property>
-				  <property name="xalign">0</property>
-				  <property name="yalign">0.5</property>
-				  <property name="xpad">0</property>
-				  <property name="ypad">0</property>
-				  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				  <property name="width_chars">8</property>
-				  <property name="single_line_mode">True</property>
-				  <property name="angle">0</property>
-				</widget>
-			      </child>
+			      <property name="label">Set Origin</property>
+			      <property name="use_underline">True</property>
+			      <property name="relief">GTK_RELIEF_NORMAL</property>
+			      <property name="focus_on_click">False</property>
+			      <signal name="clicked" handler="on_mdi_set_origin_clicked" last_modification_time="Mon, 21 Sep 2009 19:54:26 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -1215,308 +873,17 @@
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
-			  <property name="expand">True</property>
+			  <property name="expand">False</property>
 			  <property name="fill">True</property>
 			</packing>
 		      </child>
 
 		      <child>
-			<widget class="GtkTable" id="table1">
+			<widget class="GtkHBox" id="hbox8">
+			  <property name="border_width">10</property>
 			  <property name="visible">True</property>
-			  <property name="n_rows">4</property>
-			  <property name="n_columns">5</property>
-			  <property name="homogeneous">True</property>
-			  <property name="row_spacing">0</property>
-			  <property name="column_spacing">0</property>
-
-			  <child>
-			    <widget class="GtkButton" id="decimal">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">.</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_decimal_clicked" last_modification_time="Fri, 17 Jul 2009 02:50:32 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">3</property>
-			      <property name="right_attach">4</property>
-			      <property name="top_attach">3</property>
-			      <property name="bottom_attach">4</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="minus">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">-</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_minus_clicked" last_modification_time="Fri, 17 Jul 2009 02:50:43 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">3</property>
-			      <property name="bottom_attach">4</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="0">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">0</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:48:09 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">2</property>
-			      <property name="right_attach">3</property>
-			      <property name="top_attach">3</property>
-			      <property name="bottom_attach">4</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="3">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">3</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:04 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">3</property>
-			      <property name="right_attach">4</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="2">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">2</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:12 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">2</property>
-			      <property name="right_attach">3</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="1">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">1</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:20 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="6">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">6</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:26 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">3</property>
-			      <property name="right_attach">4</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="5">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">5</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:32 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">2</property>
-			      <property name="right_attach">3</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="4">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">4</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:39 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="9">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">9</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:46 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">3</property>
-			      <property name="right_attach">4</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="8">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">8</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:51 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">2</property>
-			      <property name="right_attach">3</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="7">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">7</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:59 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="next">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">gtk-media-next</property>
-			      <property name="use_stock">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_next_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:48 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">4</property>
-			      <property name="right_attach">5</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
-			      <property name="x_padding">8</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="ok">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">gtk-ok</property>
-			      <property name="use_stock">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_ok_clicked" last_modification_time="Fri, 17 Jul 2009 02:42:02 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">4</property>
-			      <property name="right_attach">5</property>
-			      <property name="top_attach">3</property>
-			      <property name="bottom_attach">4</property>
-			      <property name="x_padding">8</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="back">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">gtk-go-back</property>
-			      <property name="use_stock">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_back_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:35 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">4</property>
-			      <property name="right_attach">5</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			      <property name="x_padding">8</property>
-			    </packing>
-			  </child>
-
-			  <child>
-			    <widget class="GtkButton" id="clear">
-			      <property name="visible">True</property>
-			      <property name="can_focus">True</property>
-			      <property name="label">gtk-clear</property>
-			      <property name="use_stock">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <signal name="clicked" handler="on_mdi_clear_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:23 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">4</property>
-			      <property name="right_attach">5</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
-			      <property name="x_padding">8</property>
-			    </packing>
-			  </child>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
 
 			  <child>
 			    <widget class="GtkVBox" id="vbox11">
@@ -1525,14 +892,31 @@
 			      <property name="spacing">0</property>
 
 			      <child>
-				<widget class="GtkButton" id="g">
+				<widget class="GtkEventBox" id="eventbox_mdi0">
 				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="label">G</property>
-				  <property name="use_underline">True</property>
-				  <property name="relief">GTK_RELIEF_NORMAL</property>
-				  <property name="focus_on_click">False</property>
-				  <signal name="clicked" handler="on_mdi_g_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:24 GMT"/>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi0">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes">G</property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -1542,14 +926,31 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkButton" id="m">
+				<widget class="GtkEventBox" id="eventbox_mdi1">
 				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="label">M</property>
-				  <property name="use_underline">True</property>
-				  <property name="relief">GTK_RELIEF_NORMAL</property>
-				  <property name="focus_on_click">False</property>
-				  <signal name="clicked" handler="on_mdi_m_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:36 GMT"/>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi1">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -1559,14 +960,303 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkButton" id="t">
+				<widget class="GtkEventBox" id="eventbox_mdi2">
 				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="label">T</property>
-				  <property name="use_underline">True</property>
-				  <property name="relief">GTK_RELIEF_NORMAL</property>
-				  <property name="focus_on_click">False</property>
-				  <signal name="clicked" handler="on_mdi_t_clicked" last_modification_time="Sat, 19 Sep 2009 17:18:35 GMT"/>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi2">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi3">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi3">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi4">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi4">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi5">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi5">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi6">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi6">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi7">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi7">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi8">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi8">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi9">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi9">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="padding">0</property>
+				  <property name="expand">True</property>
+				  <property name="fill">True</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkEventBox" id="eventbox_mdi10">
+				  <property name="visible">True</property>
+				  <property name="visible_window">True</property>
+				  <property name="above_child">False</property>
+				  <signal name="button_release_event" handler="on_mdi_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+				  <child>
+				    <widget class="GtkLabel" id="mdi10">
+				      <property name="visible">True</property>
+				      <property name="label" translatable="yes"></property>
+				      <property name="use_underline">False</property>
+				      <property name="use_markup">False</property>
+				      <property name="justify">GTK_JUSTIFY_LEFT</property>
+				      <property name="wrap">False</property>
+				      <property name="selectable">False</property>
+				      <property name="xalign">0</property>
+				      <property name="yalign">0.5</property>
+				      <property name="xpad">0</property>
+				      <property name="ypad">0</property>
+				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+				      <property name="width_chars">8</property>
+				      <property name="single_line_mode">True</property>
+				      <property name="angle">0</property>
+				    </widget>
+				  </child>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -1576,12 +1266,381 @@
 			      </child>
 			    </widget>
 			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">4</property>
-			      <property name="x_padding">8</property>
-			      <property name="y_options">fill</property>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
+			    </packing>
+			  </child>
+
+			  <child>
+			    <widget class="GtkTable" id="table14">
+			      <property name="visible">True</property>
+			      <property name="n_rows">4</property>
+			      <property name="n_columns">5</property>
+			      <property name="homogeneous">True</property>
+			      <property name="row_spacing">0</property>
+			      <property name="column_spacing">0</property>
+
+			      <child>
+				<widget class="GtkButton" id="decimal">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">.</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_decimal_clicked" last_modification_time="Fri, 17 Jul 2009 02:50:32 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">3</property>
+				  <property name="right_attach">4</property>
+				  <property name="top_attach">3</property>
+				  <property name="bottom_attach">4</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="minus">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">-</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_minus_clicked" last_modification_time="Fri, 17 Jul 2009 02:50:43 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">3</property>
+				  <property name="bottom_attach">4</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="0">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">0</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:48:09 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">3</property>
+				  <property name="bottom_attach">4</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="3">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">3</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:04 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">3</property>
+				  <property name="right_attach">4</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="2">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">2</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:12 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="1">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">1</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:20 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="6">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">6</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:26 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">3</property>
+				  <property name="right_attach">4</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="5">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">5</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:32 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="4">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">4</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:39 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="9">
+				  <property name="visible">True</property>
+				  <property name="label" translatable="yes">9</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:46 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">3</property>
+				  <property name="right_attach">4</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="8">
+				  <property name="visible">True</property>
+				  <property name="label" translatable="yes">8</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:51 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="7">
+				  <property name="visible">True</property>
+				  <property name="label" translatable="yes">7</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_keypad_clicked" last_modification_time="Fri, 17 Jul 2009 02:49:59 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="button13">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">gtk-media-next</property>
+				  <property name="use_stock">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_next_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:48 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">4</property>
+				  <property name="right_attach">5</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				  <property name="x_padding">8</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="button14">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">gtk-ok</property>
+				  <property name="use_stock">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_ok_clicked" last_modification_time="Fri, 17 Jul 2009 02:42:02 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">4</property>
+				  <property name="right_attach">5</property>
+				  <property name="top_attach">3</property>
+				  <property name="bottom_attach">4</property>
+				  <property name="x_padding">8</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="button15">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">gtk-go-back</property>
+				  <property name="use_stock">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_back_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:35 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">4</property>
+				  <property name="right_attach">5</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				  <property name="x_padding">8</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="button16">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">gtk-clear</property>
+				  <property name="use_stock">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_clear_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:23 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">4</property>
+				  <property name="right_attach">5</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				  <property name="x_padding">8</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkVBox" id="vbox12">
+				  <property name="visible">True</property>
+				  <property name="homogeneous">True</property>
+				  <property name="spacing">0</property>
+
+				  <child>
+				    <widget class="GtkButton" id="g">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label">G</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <signal name="clicked" handler="on_mdi_g_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:24 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">True</property>
+				      <property name="fill">True</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="m">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label">M</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <signal name="clicked" handler="on_mdi_m_clicked" last_modification_time="Fri, 17 Jul 2009 16:08:36 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">True</property>
+				      <property name="fill">True</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="t">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label">T</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <signal name="clicked" handler="on_mdi_t_clicked" last_modification_time="Sat, 19 Sep 2009 17:18:35 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="padding">0</property>
+				      <property name="expand">True</property>
+				      <property name="fill">True</property>
+				    </packing>
+				  </child>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">4</property>
+				  <property name="x_padding">8</property>
+				  <property name="y_options">fill</property>
+				</packing>
+			      </child>
+			    </widget>
+			    <packing>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 			</widget>
