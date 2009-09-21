@@ -15,6 +15,7 @@
 class emc_control:
         def __init__(self, emc):
                 self.emc = emc
+                self.emcstat = emc.stat()
                 self.emccommand = emc.command()
                 self.masked = 0;
                 self.jog_velocity = 100.0/60.0
@@ -160,6 +161,31 @@ class emc_control:
         def max_velocity(self, m):
                 if self.masked: return
                 self.emccommand.maxvel(m/60.0)
+
+        def cycle_start(self):
+                pass
+
+        def abort(self):
+                self.emccommand.abort()
+
+        def single_block(self, s):
+                self.emcstat.poll()
+                if self.emcstat.interp_state != self.emc.INTERP_IDLE:
+                        # program is running
+                        if s:
+                                self.emccommand.auto(self.emc.AUTO_PAUSE)
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RESUME)
+
+        def cycle_start(self):
+                self.emcstat.poll()
+                if self.emcstat.interp_state == self.emc.INTERP_PAUSED:
+                        self.emccommand.auto(self.emc.AUTO_STEP)
+
+                if self.emcstat.interp_state == self.emc.INTERP_IDLE:
+                        self.emccommand.mode(self.emc.MODE_AUTO)
+                        self.emccommand.wait_complete()
+                        self.emccommand.auto(self.emc.AUTO_RUN, 0)
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,

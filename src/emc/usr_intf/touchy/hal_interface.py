@@ -37,6 +37,12 @@ class hal_interface:
         self.zn = 0
         self.c.newpin("quill-up", hal.HAL_BIT, hal.HAL_IN)
         self.quillup = 0
+        self.c.newpin("cycle-start", hal.HAL_BIT, hal.HAL_IN)
+        self.cyclestart = 0
+        self.c.newpin("abort", hal.HAL_BIT, hal.HAL_IN)
+        self.abort = 0
+        self.c.newpin("single-block", hal.HAL_BIT, hal.HAL_IN)
+        self.singleblock = 0
         self.c.newpin("wheel-counts", hal.HAL_S32, hal.HAL_IN)
         self.counts = 0
         self.jog_velocity = 1
@@ -93,3 +99,17 @@ class hal_interface:
         if quillup and not self.quillup: 
             self.emc_control.quill_up()
         self.quillup = quillup
+
+        cyclestart = self.c["cycle-start"]
+        if cyclestart and not self.cyclestart: self.emc_control.cycle_start()
+        self.cyclestart = cyclestart
+
+        abort = self.c["abort"]
+        if abort and not self.abort: self.emc_control.abort()
+        self.abort = abort
+
+        singleblock = self.c["single-block"]
+        if singleblock ^ self.singleblock: self.emc_control.single_block(singleblock)
+        self.singleblock = singleblock
+
+        
