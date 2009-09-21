@@ -3051,7 +3051,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     is_near_int(&toolno, block->p_number);
 
     CHP((find_tool_pocket(settings, toolno, &pocket)));
-    printf("setting up tool %d which is in pocket %d\n", toolno, pocket);
 
     CHKS((block->y_flag || block->a_flag || block->b_flag || block->c_flag ||
           block->u_flag || block->v_flag), "Invalid axis specified for G10 L1");
@@ -3071,11 +3070,21 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
 
-    if(block->z_flag) settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
-    else
-    if(block->w_flag) settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(block->w_number);
+    if(block->z_flag) {
+        double z = block->z_number;
+        if (block->l_number == 10) z = settings->current_z + settings->tool_zoffset - z;
+        settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(z);
+    } else if(block->w_flag) {
+        double w = block->w_number;
+        if (block->l_number == 10) w = settings->w_current + settings->tool_woffset - w;
+        settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(w);
+    }
 
-    if(block->x_flag) settings->tool_table[pocket].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
+    if(block->x_flag) {
+        double x = block->x_number;
+        if (block->l_number == 10) x = settings->current_x + settings->tool_xoffset - x;
+        settings->tool_table[pocket].xoffset = PROGRAM_TO_USER_LEN(x);
+    }
 
     if(settings->tool_table[pocket].orientation) 
         SET_TOOL_TABLE_ENTRY(pocket,
@@ -3092,12 +3101,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].zoffset,
                              settings->tool_table[pocket].diameter);
 
-    printf("SET_TOOL_TABLE_ENTRY(pocket=%d toolno=%d zoffset=%f diameter=%f\n", 
-           pocket,
-           settings->tool_table[pocket].toolno,
-           settings->tool_table[pocket].zoffset,
-           settings->tool_table[pocket].diameter);
-        
     return INTERP_OK;
 }
 
