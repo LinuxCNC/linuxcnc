@@ -17,7 +17,7 @@ class emc_control:
                 self.emc = emc
                 self.emccommand = emc.command()
                 self.masked = 0;
-                self.jog_velocity = 1.0
+                self.jog_velocity = 100.0/60.0
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
