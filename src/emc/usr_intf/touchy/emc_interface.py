@@ -133,7 +133,7 @@ class emc_control:
                 self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
 
         def continuous_jog_velocity(self, velocity):
-                self.jog_velocity = velocity
+                self.jog_velocity = velocity / 60.0
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
@@ -148,6 +148,18 @@ class emc_control:
 		self.emccommand.mdi("G0 G53 Z0")
 		self.emccommand.wait_complete()
 		self.emccommand.mode(self.emc.MODE_MANUAL)
+
+        def feed_override(self, f):
+		if self.masked: return
+                self.emccommand.feedrate(f/100.0)
+
+        def spindle_override(self, s):
+                if self.masked: return
+                self.emccommand.spindleoverride(s/100.0)
+
+        def max_velocity(self, m):
+                if self.masked: return
+                self.emccommand.maxvel(m/60.0)
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,

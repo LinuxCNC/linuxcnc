@@ -37,10 +37,18 @@ class hal_interface:
         self.zn = 0
         self.c.newpin("quill-up", hal.HAL_BIT, hal.HAL_IN)
         self.quillup = 0
+        self.c.newpin("wheel-counts", hal.HAL_S32, hal.HAL_IN)
+        self.counts = 0
         self.jog_velocity = 1
         self.c.ready()
         self.active = 0
         self.jogaxis(0)
+
+    def wheel(self):
+        counts = self.c["wheel-counts"]/4
+        ret = counts - self.counts
+        self.counts = counts
+        return ret
 
     def jogaxis(self, n):
         self.c["jog.wheel.x"] = n == 0 and self.active
@@ -83,5 +91,5 @@ class hal_interface:
 
         quillup = self.c["quill-up"]
         if quillup and not self.quillup: 
-		self.emc_control.quill_up()
+            self.emc_control.quill_up()
         self.quillup = quillup

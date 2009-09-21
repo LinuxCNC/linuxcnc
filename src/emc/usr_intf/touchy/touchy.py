@@ -54,6 +54,10 @@ class touchy:
                 self.wheel = "fo"
                 self.radiobutton_mask = 0
 
+                self.fo_val = 100
+                self.so_val = 100
+                self.mv_val = 100
+
                 # initial screen setup
                 # XXX read these fonts from preferences
                 self.wTree.get_widget("controlfontbutton").set_font_name("Sans 12")
@@ -87,7 +91,6 @@ class touchy:
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
                 self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes,
                                                            self.wTree.get_widget("program"))
-
 
                 status_labels = {'xr' : self.wTree.get_widget("xr"),
                                  'yr' : self.wTree.get_widget("yr"),
@@ -336,12 +339,38 @@ class touchy:
                 self.wTree.get_widget("mv").set_active(self.wheel == "mv")
                 self.wTree.get_widget("jogging").set_active(self.wheel == "jogging")
                 self.radiobutton_mask = 0
+
                 if self.wheel == "jogging":
                         self.hal.jogaxis(self.wheelxyz)
                 else:
                         # disable all
                         self.hal.jogaxis(-1)
                 self.hal.jogincrement(self.wheelinc)
+
+                d = self.hal.wheel()
+                if self.wheel == "fo":
+                        self.fo_val += d
+                        if self.fo_val < 0: self.fo_val = 0
+                        if d != 0: self.emc.feed_override(self.fo_val)
+
+                if self.wheel == "so":
+                        self.so_val += d
+                        if self.so_val < 0: self.so_val = 0
+                        if d != 0: self.emc.spindle_override(self.so_val)
+
+                if self.wheel == "mv":
+                        self.mv_val += d
+                        if self.mv_val < 0: self.mv_val = 0
+                        if d != 0:
+                                self.emc.max_velocity(self.mv_val)
+                                self.emc.continuous_jog_velocity(self.mv_val)
+                        
+
+                self.wTree.get_widget("fo").set_label("FO: %d%%" % self.fo_val)
+                self.wTree.get_widget("so").set_label("SO: %d%%" % self.so_val)
+                self.wTree.get_widget("mv").set_label("MV: %d" % self.mv_val)
+
+                        
                 return True
 
 if __name__ == "__main__":
