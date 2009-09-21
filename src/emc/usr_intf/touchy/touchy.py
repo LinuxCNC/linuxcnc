@@ -366,9 +366,9 @@ class touchy:
                                 self.emc.continuous_jog_velocity(self.mv_val)
                         
 
-                self.wTree.get_widget("fo").set_label("FO: %d%%" % self.fo_val)
-                self.wTree.get_widget("so").set_label("SO: %d%%" % self.so_val)
-                self.wTree.get_widget("mv").set_label("MV: %d" % self.mv_val)
+                self.wTree.get_widget("fo").child.set_label("FO: %d%%" % self.fo_val)
+                self.wTree.get_widget("so").child.set_label("SO: %d%%" % self.so_val)
+                self.wTree.get_widget("mv").child.set_label("MV: %d" % self.mv_val)
 
                         
                 return True
