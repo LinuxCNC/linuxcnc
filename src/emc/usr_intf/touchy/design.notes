@@ -6,8 +6,8 @@ setup:
 	while stopped
 /		home axis
 /		home all
-		touch off (enter value)
-		tool touch off
+/		touch off (enter value)
+/		tool touch off
 		view tools and set tlo (enter value)
 		block delete
 	while running
@@ -22,13 +22,13 @@ jogwheel:
 /		set maxvel
 
 hard controls:
-        continuous jog, momentary bidirectional toggles, one for each axis, center off
-        cycle start button that lights up
-        feedhold button that lights up
-        run/block mode toggle switch (sends task-pause when appropriate)
+/        continuous jog, momentary bidirectional toggles, one for each axis, center off
+/        cycle start button that lights up
+/        feedhold button that lights up
+/        run/block mode toggle switch (sends task-pause when appropriate)
         
 running:
-	run, stop, pause, step
+/	run, stop, pause, step
 	feed hold?
 	optional stop?
 	rfl?
@@ -52,7 +52,7 @@ status: [only native units for now?]
 /        	delay_left
 
         	extents?
-        	which axes are on limit?
+/        	which axes are on limit?
 
 /        	spindle direction
 /               spindle speed
