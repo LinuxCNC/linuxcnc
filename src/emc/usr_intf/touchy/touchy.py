@@ -120,6 +120,7 @@ class touchy:
                             'reverse' : self.wTree.get_widget("spindle_reverse")}
                 stats = {'file' : self.wTree.get_widget("status_file"),
                          'line' : self.wTree.get_widget("status_line"),
+                         'id' : self.wTree.get_widget("status_id"),
                          'dtg' : self.wTree.get_widget("status_dtg"),
                          'velocity' : self.wTree.get_widget("status_velocity"),
                          'delay' : self.wTree.get_widget("status_delay"),

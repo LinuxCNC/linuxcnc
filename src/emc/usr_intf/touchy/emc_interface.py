@@ -18,6 +18,7 @@ class emc_control:
                 self.emcstat = emc.stat()
                 self.emccommand = emc.command()
                 self.masked = 0;
+                self.sb = 0;
                 self.jog_velocity = 100.0/60.0
 
         def mask(self):
@@ -174,6 +175,7 @@ class emc_control:
                 self.emccommand.abort()
 
         def single_block(self, s):
+                self.sb = s
                 self.emcstat.poll()
                 if self.emcstat.interp_state != self.emc.INTERP_IDLE:
                         # program is running
@@ -184,13 +186,16 @@ class emc_control:
 
         def cycle_start(self):
                 self.emcstat.poll()
-                if self.emcstat.interp_state == self.emc.INTERP_PAUSED:
+                if self.emcstat.paused:
                         self.emccommand.auto(self.emc.AUTO_STEP)
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)
                         self.emccommand.wait_complete()
-                        self.emccommand.auto(self.emc.AUTO_RUN, 0)
+                        if self.sb:
+                                self.emccommand.auto(self.emc.AUTO_STEP)
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RUN, 0)
 
 class emc_status:
         def __init__(self, gtk, emc, dros, error, homes,
@@ -267,6 +272,7 @@ class emc_status:
 
                 self.status['file'].set_text(self.emcstat.file)
                 self.status['line'].set_text("%d" % self.emcstat.current_line)
+                self.status['id'].set_text("%d" % self.emcstat.id)
                 self.status['dtg'].set_text("%f" % self.emcstat.distance_to_go)
                 self.status['velocity'].set_text("%f" % self.emcstat.current_vel)
                 self.status['delay'].set_text("%f" % self.emcstat.delay_left)
