@@ -254,17 +254,8 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
         HM2_PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type); 
     }
 
-    if (hm2->idrom.offset_to_modules == 0x40) {
-        HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
-    } else {
-        HM2_PRINT("    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", hm2->idrom.offset_to_modules); 
-    }
-
-    if (hm2->idrom.offset_to_pin_desc == 0x200) {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
-    } else {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", hm2->idrom.offset_to_pin_desc); 
-    }
+    HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules);
+    HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc);
 
     HM2_PRINT(
         "    Board Name: %c%c%c%c%c%c%c%c\n",
