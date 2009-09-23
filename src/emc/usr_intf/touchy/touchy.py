@@ -37,6 +37,7 @@ import emc_interface
 import mdi
 import hal_interface
 import filechooser
+import listing
 
 class touchy:
 	def __init__(self):
@@ -48,6 +49,7 @@ class touchy:
 
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
+                self.num_listing_labels = 11
 
                 self.wheelxyz = 0
                 self.wheelinc = 0
@@ -83,14 +85,20 @@ class touchy:
                 self.emc = emc_interface.emc_control(emc)
                 self.hal = hal_interface.hal_interface(self.emc)
 
+                listing_labels = []
+                listing_eventboxes = []
+                for i in range(self.num_listing_labels):
+                        listing_labels.append(self.wTree.get_widget("listing%d" % i))
+                        listing_eventboxes.append(self.wTree.get_widget("eventbox_listing%d" % i))
+                self.listing = listing.listing(gtk, emc, listing_labels, listing_eventboxes)
+
                 # silly file chooser
                 filechooser_labels = []
                 filechooser_eventboxes = []
                 for i in range(self.num_filechooser_labels):
                         filechooser_labels.append(self.wTree.get_widget("filechooser%d" % i))
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
-                self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes,
-                                                           self.wTree.get_widget("program"))
+                self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes, self.listing)
 
                 status_labels = {'xr' : self.wTree.get_widget("xr"),
                                  'yr' : self.wTree.get_widget("yr"),
@@ -174,6 +182,8 @@ class touchy:
                         "on_filechooser_up_clicked" : self.filechooser.up,
                         "on_filechooser_down_clicked" : self.filechooser.down,
                         "on_filechooser_reload_clicked" : self.filechooser.reload,
+                        "on_listing_up_clicked" : self.listing.up,
+                        "on_listing_down_clicked" : self.listing.down,
                         "on_mist_on_clicked" : self.emc.mist_on,
                         "on_mist_off_clicked" : self.emc.mist_off,
                         "on_flood_on_clicked" : self.emc.flood_on,
@@ -295,6 +305,9 @@ class touchy:
                         w.modify_font(self.control_font)
                 for i in range(self.num_filechooser_labels):
                         w = self.wTree.get_widget("filechooser%d" % i)
+                        w.modify_font(self.control_font)
+                for i in range(self.num_listing_labels):
+                        w = self.wTree.get_widget("listing%d" % i)
                         w.modify_font(self.control_font)
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status"]:
                         w = self.wTree.get_widget(i)

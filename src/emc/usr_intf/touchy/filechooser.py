@@ -15,11 +15,11 @@ import dircache
 import os
 
 class filechooser:
-    def __init__(self, gtk, emc, labels, eventboxes, program):
+    def __init__(self, gtk, emc, labels, eventboxes, listing):
         self.labels = labels
         self.eventboxes = eventboxes
         self.numlabels = len(labels)
-        self.program = program
+        self.listing = listing
         self.gtk = gtk
         self.emc = emc
         self.emccommand = emc.command()
@@ -48,10 +48,8 @@ class filechooser:
         self.selected = self.fileoffset + n
         self.emccommand.mode(self.emc.MODE_MDI)
         fn = os.path.join(self.dir, self.labels[n].get_text())
-        f = file(fn, 'r')
-        self.lines = f.readlines()
-        f.close()
         self.emccommand.program_open(fn)
+        self.listing.readfile(fn)
         self.populate()
 
     def up(self, b):
