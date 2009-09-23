@@ -145,16 +145,10 @@ class emc_control:
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS, axis, direction * self.jog_velocity)
                 
 	def quill_up(self):
-		if self.masked: return
-		self.emcstat.poll()
-		mv = self.emcstat.max_velocity
-		self.emccommand.maxvel(100)
-		self.emccommand.mode(self.emc.MODE_MDI)
-		self.emccommand.wait_complete()
-		self.emccommand.mdi("G0 G53 Z0")
-		self.emccommand.wait_complete()
-		self.emccommand.mode(self.emc.MODE_MANUAL)
-		self.emccommand.maxvel(mv)
+                if self.masked: return
+                self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.wait_complete()
+                self.emccommand.jog(self.emc.JOG_CONTINUOUS, 2, 100)
 
         def feed_override(self, f):
 		if self.masked: return
