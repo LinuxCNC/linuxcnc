@@ -1722,7 +1722,6 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(axisType);
     cms->update(units);
     cms->update(backlash);
-    cms->update(maxError);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
     cms->update(maxFerror);

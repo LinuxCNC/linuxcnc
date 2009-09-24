@@ -24,7 +24,6 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     axisType = EMC_AXIS_LINEAR;
     units = 1.0;
     backlash = 0.0;
-    maxError = 0.0;
     minPositionLimit = -1.0;
     maxPositionLimit = 1.0;
     minFerror = 1.0;

@@ -513,7 +513,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F(axisType);
     F(units);
     F(backlash);
-    F2("max_error", maxError);
     F2("min_position_limit", minPositionLimit);
     F2("max_position_limit", maxPositionLimit);
     F2("max_ferror", maxFerror);

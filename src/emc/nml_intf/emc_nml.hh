@@ -458,7 +458,6 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char axisType;	// EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
     double units;		// units per mm, deg for linear, angular
     double backlash;
-    double maxError;
     double minPositionLimit;
     double maxPositionLimit;
     double maxFerror;
