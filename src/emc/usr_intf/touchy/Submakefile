@@ -1,4 +1,4 @@
-TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing
+TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing preferences
 
 PYTARGETS += ../bin/touchy $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
 	../lib/python/touchy/touchy.glade

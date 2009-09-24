@@ -38,6 +38,7 @@ import mdi
 import hal_interface
 import filechooser
 import listing
+import preferences
 
 class touchy:
 	def __init__(self):
@@ -62,19 +63,25 @@ class touchy:
                 self.so_val = 100
                 self.mv_val = 100
 
+                self.prefs = preferences.preferences()
+                self.control_font_name = self.prefs.getpref('control_font', 'Sans 18', str)
+                self.dro_font_name = self.prefs.getpref('dro_font', 'Courier 10 Pitch Bold 16', str)
+                self.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
+                self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
+
                 # initial screen setup
                 # XXX read these fonts from preferences
-                self.wTree.get_widget("controlfontbutton").set_font_name("Sans 13")
-                self.control_font = pango.FontDescription("Sans 13")
+                self.wTree.get_widget("controlfontbutton").set_font_name(self.control_font_name)
+                self.control_font = pango.FontDescription(self.control_font_name)
 
-                self.wTree.get_widget("drofontbutton").set_font_name("Courier 10 Pitch Bold 14")
-                self.dro_font = pango.FontDescription("Courier 10 Pitch Bold 14")
+                self.wTree.get_widget("drofontbutton").set_font_name(self.dro_font_name)
+                self.dro_font = pango.FontDescription(self.dro_font_name)
 
-                self.wTree.get_widget("errorfontbutton").set_font_name("Sans Bold 8")
-                self.error_font = pango.FontDescription("Sans Bold 8")
+                self.wTree.get_widget("errorfontbutton").set_font_name(self.error_font_name)
+                self.error_font = pango.FontDescription(self.error_font_name)
 
-                self.wTree.get_widget("listingfontbutton").set_font_name("Sans 8")
-                self.listing_font = pango.FontDescription("Sans 8")
+                self.wTree.get_widget("listingfontbutton").set_font_name(self.listing_font_name)
+                self.listing_font = pango.FontDescription(self.listing_font_name)
 
                 self.setfont()
 
@@ -261,19 +268,27 @@ class touchy:
                 self.hal.jogactive(active)
         
         def change_control_font(self, fontbutton):
-                self.control_font = pango.FontDescription(fontbutton.get_font_name())
+                self.control_font_name = fontbutton.get_font_name()
+                self.prefs.putpref('control_font', self.control_font_name, str)
+                self.control_font = pango.FontDescription(self.control_font_name)
                 self.setfont()
 
         def change_dro_font(self, fontbutton):
-                self.dro_font = pango.FontDescription(fontbutton.get_font_name())
+                self.dro_font_name = fontbutton.get_font_name()
+                self.prefs.putpref('dro_font', self.dro_font_name, str)
+                self.dro_font = pango.FontDescription(self.dro_font_name)
                 self.setfont()
 
         def change_error_font(self, fontbutton):
-                self.error_font = pango.FontDescription(fontbutton.get_font_name())
+                self.error_font_name = fontbutton.get_font_name()
+                self.prefs.putpref('error_font', self.error_font_name, str)
+                self.error_font = pango.FontDescription(self.error_font_name)
                 self.setfont()
 
         def change_listing_font(self, fontbutton):
-                self.listing_font = pango.FontDescription(fontbutton.get_font_name())
+                self.listing_font_name = fontbutton.get_font_name()
+                self.prefs.putpref('listing_font', self.listing_font_name, str)
+                self.listing_font = pango.FontDescription(self.listing_font_name)
                 self.setfont()
 
         def setfont(self):
