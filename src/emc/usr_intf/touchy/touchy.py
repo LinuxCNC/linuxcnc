@@ -105,47 +105,28 @@ class touchy:
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
                 self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes, self.listing)
 
-                status_labels = {'xr' : self.wTree.get_widget("xr"),
-                                 'yr' : self.wTree.get_widget("yr"),
-                                 'zr' : self.wTree.get_widget("zr"),
-                                 'xa' : self.wTree.get_widget("xa"),
-                                 'ya' : self.wTree.get_widget("ya"),
-                                 'za' : self.wTree.get_widget("za"),
-                                 'xd' : self.wTree.get_widget("xd"),
-                                 'yd' : self.wTree.get_widget("yd"),
-                                 'zd' : self.wTree.get_widget("zd")}
-                homes = {'x' : self.wTree.get_widget("home_x"),
-                         'y' : self.wTree.get_widget("home_y"),
-                         'z' : self.wTree.get_widget("home_z")}
-                unhomes = {'x' : self.wTree.get_widget("unhome_x"),
-                           'y' : self.wTree.get_widget("unhome_y"),
-                           'z' : self.wTree.get_widget("unhome_z")}
-                estops = {'estop_reset' : self.wTree.get_widget("estop_reset"),
-                          'estop' : self.wTree.get_widget("estop")}
-                machines = {'on' : self.wTree.get_widget("machine_on"),
-                            'off' : self.wTree.get_widget("machine_off")}
-                floods = {'on' : self.wTree.get_widget("flood_on"),
-                            'off' : self.wTree.get_widget("flood_off")}
-                mists = {'on' : self.wTree.get_widget("mist_on"),
-                            'off' : self.wTree.get_widget("mist_off")}
-                spindles = {'forward' : self.wTree.get_widget("spindle_forward"),
-                            'off' : self.wTree.get_widget("spindle_off"),
-                            'reverse' : self.wTree.get_widget("spindle_reverse")}
-                stats = {'file' : self.wTree.get_widget("status_file"),
-                         'line' : self.wTree.get_widget("status_line"),
-                         'id' : self.wTree.get_widget("status_id"),
-                         'dtg' : self.wTree.get_widget("status_dtg"),
-                         'velocity' : self.wTree.get_widget("status_velocity"),
-                         'delay' : self.wTree.get_widget("status_delay"),
-                         'onlimit' : self.wTree.get_widget("status_onlimit"),
-                         'spindledir' : self.wTree.get_widget("status_spindledir"),
-                         'spindlespeed' : self.wTree.get_widget("status_spindlespeed"),
-                         'loadedtool' : self.wTree.get_widget("status_loadedtool"),
-                         'preppedtool' : self.wTree.get_widget("status_preppedtool")}
-                prefs = {'actual' : self.wTree.get_widget("dro_actual"),
-                         'commanded' : self.wTree.get_widget("dro_commanded"),
-                         'inch' : self.wTree.get_widget("dro_inch"),
-                         'mm' : self.wTree.get_widget("dro_mm")}
+                status_labels = ['xr', 'yr', 'zr', 'xa', 'ya', 'za', 'xd', 'yd', 'zd']
+                status_labels = dict((i, self.wTree.get_widget(i)) for i in status_labels)
+                homes = ['x', 'y', 'z']
+                homes = dict((i, self.wTree.get_widget("home_" + i)) for i in homes)
+                unhomes = ['x', 'y', 'z']
+                unhomes = dict((i, self.wTree.get_widget("unhome_" + i)) for i in unhomes)
+                estops = ['estop_reset', 'estop']
+                estops = dict((i, self.wTree.get_widget(i)) for i in estops)
+                machines = ['on', 'off']
+                machines = dict((i, self.wTree.get_widget("machine_" + i)) for i in machines)
+                floods = ['on', 'off']
+                floods = dict((i, self.wTree.get_widget("flood_" + i)) for i in floods)
+                mists = ['on', 'off']
+                mists = dict((i, self.wTree.get_widget("mist_" + i)) for i in mists)
+                spindles = ['forward', 'off', 'reverse']
+                spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
+                stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
+                         'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool']
+                stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
+                prefs = ['actual', 'commanded', 'inch', 'mm']
+                prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
+
                 self.status = emc_interface.emc_status(gtk, emc, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
