@@ -134,7 +134,7 @@ class touchy:
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
 
-                self.status = emc_interface.emc_status(gtk, emc, status_labels,
+                self.status = emc_interface.emc_status(gtk, emc, self.listing, status_labels,
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
                                                        estops, machines,

@@ -193,10 +193,12 @@ class emc_control:
                                 self.emccommand.auto(self.emc.AUTO_RUN, 0)
 
 class emc_status:
-        def __init__(self, gtk, emc, dros, error, homes,
+        def __init__(self, gtk, emc, listing, dros, error, homes,
                      unhomes, estops, machines, override_limit, status,
                      floods, mists, spindles, prefs):
                 self.gtk = gtk
+                self.emc = emc
+                self.listing = listing
                 self.dros = dros
                 self.error = error
                 self.homes = homes
@@ -209,7 +211,6 @@ class emc_status:
                 self.mists = mists
                 self.spindles = spindles
                 self.prefs = prefs
-                self.emc = emc
                 self.mm = 0
                 self.actual = 0
                 self.emcstat = emc.stat()
@@ -302,6 +303,8 @@ class emc_status:
                 self.prefs['mm'].set_active(self.mm == 1)
                 self.prefs['actual'].set_active(self.actual == 1)
                 self.prefs['commanded'].set_active(self.actual == 0)
+
+                if self.emcstat.id > 0: self.listing.select(self.emcstat.id or self.emcstat.motion_line)
 
                 m = self.emcstat.task_mode
                 if m != last_mode:
