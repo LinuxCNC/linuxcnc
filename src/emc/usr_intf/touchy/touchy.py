@@ -49,7 +49,7 @@ class touchy:
 
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
-                self.num_listing_labels = 11
+                self.num_listing_labels = 20
 
                 self.wheelxyz = 0
                 self.wheelinc = 0
@@ -70,6 +70,9 @@ class touchy:
 
                 self.wTree.get_widget("errorfontbutton").set_font_name("Sans Bold 8")
                 self.error_font = pango.FontDescription("Sans Bold 8")
+
+                self.wTree.get_widget("listingfontbutton").set_font_name("Sans 8")
+                self.listing_font = pango.FontDescription("Sans 8")
 
                 self.setfont()
 
@@ -161,6 +164,7 @@ class touchy:
                         "on_dro_inch_clicked" : self.status.dro_inch,
                         "on_dro_mm_clicked" : self.status.dro_mm,
                         "on_errorfontbutton_font_set" : self.change_error_font,
+                        "on_listingfontbutton_font_set" : self.change_listing_font,
                         "on_estop_clicked" : self.emc.estop,
                         "on_estop_reset_clicked" : self.emc.estop_reset,
                         "on_machine_off_clicked" : self.emc.machine_off,
@@ -282,6 +286,10 @@ class touchy:
                 self.error_font = pango.FontDescription(fontbutton.get_font_name())
                 self.setfont()
 
+        def change_listing_font(self, fontbutton):
+                self.listing_font = pango.FontDescription(fontbutton.get_font_name())
+                self.setfont()
+
         def setfont(self):
                 # buttons
                 for i in ["1", "2", "3", "4", "5", "6", "7",
@@ -308,7 +316,7 @@ class touchy:
                         w.modify_font(self.control_font)
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_widget("listing%d" % i)
-                        w.modify_font(self.control_font)
+                        w.modify_font(self.listing_font)
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.control_font)
