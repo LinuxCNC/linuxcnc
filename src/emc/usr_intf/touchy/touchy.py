@@ -303,12 +303,13 @@ class touchy:
                 for i in range(self.num_listing_labels):
                         w = self.wTree.get_widget("listing%d" % i)
                         w.modify_font(self.listing_font)
-                for i in ["mdi", "startup", "manual", "auto", "preferences", "status"]:
+                for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
+                          "relative", "absolute", "dtg"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.control_font)
 
                 # dro
-                for i in ["xa", "ya", "za", "xr", "yr", "zr", "xd", "yd", "zd", "relative", "absolute", "dtg"]:
+                for i in ["xa", "ya", "za", "xr", "yr", "zr", "xd", "yd", "zd"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.dro_font)
 
