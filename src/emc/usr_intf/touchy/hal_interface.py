@@ -15,8 +15,9 @@
 import hal
 
 class hal_interface:
-    def __init__(self, emc_control):
+    def __init__(self, emc_control, mdi_control):
         self.emc_control = emc_control
+        self.mdi_control = mdi_control
         self.c = hal.component("touchy")
         self.c.newpin("jog.active", hal.HAL_BIT, hal.HAL_OUT)
         self.c.newpin("jog.wheel.x", hal.HAL_BIT, hal.HAL_OUT)
@@ -69,7 +70,7 @@ class hal_interface:
         self.active = active
         self.c["jog.active"] = active;
 
-    def periodic(self):
+    def periodic(self, mdi_mode):
         # edge detection
         xp = self.c["jog.continuous.x.positive"]
         if xp ^ self.xp: self.emc_control.continuous_jog(0, xp)
@@ -101,7 +102,11 @@ class hal_interface:
         self.quillup = quillup
 
         cyclestart = self.c["cycle-start"]
-        if cyclestart and not self.cyclestart: self.emc_control.cycle_start()
+        if cyclestart and not self.cyclestart:
+            if mdi_mode:
+                self.mdi_control.ok(0)
+            else:
+                self.emc_control.cycle_start()
         self.cyclestart = cyclestart
 
         abort = self.c["abort"]

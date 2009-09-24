@@ -56,6 +56,8 @@ class touchy:
                 self.wheel = "fo"
                 self.radiobutton_mask = 0
 
+                self.tab = 0
+
                 self.fo_val = 100
                 self.so_val = 100
                 self.mv_val = 100
@@ -86,7 +88,7 @@ class touchy:
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc)
-                self.hal = hal_interface.hal_interface(self.emc)
+                self.hal = hal_interface.hal_interface(self.emc, self.mdi_control)
 
                 listing_labels = []
                 listing_eventboxes = []
@@ -157,6 +159,7 @@ class touchy:
                 # event bindings
                 dic = {
                         "quit" : self.quit,
+                        "on_notebook1_switch_page" : self.tabselect,
                         "on_controlfontbutton_font_set" : self.change_control_font,
                         "on_drofontbutton_font_set" : self.change_dro_font,
                         "on_dro_actual_clicked" : self.status.dro_actual,
@@ -172,7 +175,6 @@ class touchy:
                         "on_mdi_clear_clicked" : self.mdi_control.clear,
                         "on_mdi_back_clicked" : self.mdi_control.back,
                         "on_mdi_next_clicked" : self.mdi_control.next,
-                        "on_mdi_ok_clicked" : self.mdi_ok,
                         "on_mdi_decimal_clicked" : self.mdi_control.decimal,
                         "on_mdi_minus_clicked" : self.mdi_control.minus,
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
@@ -221,6 +223,9 @@ class touchy:
 
         def quit(self, unused):
                 gtk.main_quit()
+
+        def tabselect(self, notebook, b, tab):
+                self.tab = tab
 
         def wheelx(self, b):
                 if self.radiobutton_mask: return
@@ -333,11 +338,6 @@ class touchy:
 
                 # XXX save font preferences
 
-        def mdi_ok(self, b):
-                if self.wheel == "jogging": self.wheel = "mv"
-                self.jogsettings_activate(0)
-                self.mdi_control.ok(b)
-
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool())
 
@@ -353,7 +353,7 @@ class touchy:
                 self.emc.mask()
                 self.status.periodic()
                 self.emc.unmask()
-                self.hal.periodic()
+                self.hal.periodic(self.tab == 1) # MDI tab?
                 return True
 
         def periodic_radiobuttons(self):

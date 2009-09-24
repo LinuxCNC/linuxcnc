@@ -405,6 +405,7 @@
 		  <property name="tab_pos">GTK_POS_BOTTOM</property>
 		  <property name="scrollable">False</property>
 		  <property name="enable_popup">False</property>
+		  <signal name="switch_page" handler="on_notebook1_switch_page" last_modification_time="Thu, 24 Sep 2009 02:12:20 GMT"/>
 
 		  <child>
 		    <widget class="GtkVBox" id="vbox6">
@@ -1495,44 +1496,6 @@
 			      </child>
 
 			      <child>
-				<widget class="GtkButton" id="button13">
-				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="label">gtk-media-next</property>
-				  <property name="use_stock">True</property>
-				  <property name="relief">GTK_RELIEF_NORMAL</property>
-				  <property name="focus_on_click">False</property>
-				  <signal name="clicked" handler="on_mdi_next_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:48 GMT"/>
-				</widget>
-				<packing>
-				  <property name="left_attach">4</property>
-				  <property name="right_attach">5</property>
-				  <property name="top_attach">2</property>
-				  <property name="bottom_attach">3</property>
-				  <property name="x_padding">8</property>
-				</packing>
-			      </child>
-
-			      <child>
-				<widget class="GtkButton" id="button14">
-				  <property name="visible">True</property>
-				  <property name="can_focus">True</property>
-				  <property name="label">gtk-ok</property>
-				  <property name="use_stock">True</property>
-				  <property name="relief">GTK_RELIEF_NORMAL</property>
-				  <property name="focus_on_click">False</property>
-				  <signal name="clicked" handler="on_mdi_ok_clicked" last_modification_time="Fri, 17 Jul 2009 02:42:02 GMT"/>
-				</widget>
-				<packing>
-				  <property name="left_attach">4</property>
-				  <property name="right_attach">5</property>
-				  <property name="top_attach">3</property>
-				  <property name="bottom_attach">4</property>
-				  <property name="x_padding">8</property>
-				</packing>
-			      </child>
-
-			      <child>
 				<widget class="GtkButton" id="button15">
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>
@@ -1634,6 +1597,25 @@
 				  <property name="bottom_attach">4</property>
 				  <property name="x_padding">8</property>
 				  <property name="y_options">fill</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkButton" id="button13">
+				  <property name="visible">True</property>
+				  <property name="can_focus">True</property>
+				  <property name="label">gtk-media-next</property>
+				  <property name="use_stock">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <signal name="clicked" handler="on_mdi_next_clicked" last_modification_time="Fri, 17 Jul 2009 02:41:48 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">4</property>
+				  <property name="right_attach">5</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">4</property>
+				  <property name="x_padding">8</property>
 				</packing>
 			      </child>
 			    </widget>

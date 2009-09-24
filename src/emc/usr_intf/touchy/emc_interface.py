@@ -20,10 +20,14 @@ class emc_control:
                 self.masked = 0;
                 self.sb = 0;
                 self.jog_velocity = 100.0/60.0
+                self.mdi = 0
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
                 self.masked = 1
+
+        def mdi_active(self, m):
+                self.mdi = m
 
         def unmask(self):
                 self.masked = 0
@@ -161,9 +165,6 @@ class emc_control:
         def max_velocity(self, m):
                 if self.masked: return
                 self.emccommand.maxvel(m/60.0)
-
-        def cycle_start(self):
-                pass
 
         def abort(self):
                 self.emccommand.abort()
