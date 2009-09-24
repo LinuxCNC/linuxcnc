@@ -2087,395 +2087,6 @@
 				  </child>
 
 				  <child>
-				    <widget class="GtkVBox" id="vbox9">
-				      <property name="border_width">3</property>
-				      <property name="visible">True</property>
-				      <property name="homogeneous">True</property>
-				      <property name="spacing">0</property>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser0">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser0">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">file.ngc</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser1">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser1">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser2">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser2">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser3">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser3">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser4">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser4">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser5">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser5">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser6">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser6">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser7">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser7">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser8">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser8">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser9">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser9">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_filechooser10">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="filechooser10">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">0</property>
-				      <property name="right_attach">1</property>
-				      <property name="top_attach">0</property>
-				      <property name="bottom_attach">3</property>
-				    </packing>
-				  </child>
-
-				  <child>
 				    <widget class="GtkButton" id="filechooser_reload">
 				      <property name="visible">True</property>
 				      <property name="can_focus">True</property>
@@ -2555,6 +2166,419 @@
 				      <property name="x_options">fill</property>
 				    </packing>
 				  </child>
+
+				  <child>
+				    <widget class="GtkTable" id="table17">
+				      <property name="visible">True</property>
+				      <property name="n_rows">11</property>
+				      <property name="n_columns">1</property>
+				      <property name="homogeneous">False</property>
+				      <property name="row_spacing">0</property>
+				      <property name="column_spacing">0</property>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser0">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser0">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">file.ngc</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">0</property>
+					  <property name="bottom_attach">1</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser1">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser1">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">1</property>
+					  <property name="bottom_attach">2</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser2">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser2">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">2</property>
+					  <property name="bottom_attach">3</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser3">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser3">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">3</property>
+					  <property name="bottom_attach">4</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser4">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser4">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">4</property>
+					  <property name="bottom_attach">5</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser5">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser5">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">5</property>
+					  <property name="bottom_attach">6</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser6">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser6">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">6</property>
+					  <property name="bottom_attach">7</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser7">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser7">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">7</property>
+					  <property name="bottom_attach">8</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser8">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser8">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">8</property>
+					  <property name="bottom_attach">9</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser9">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser9">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">9</property>
+					  <property name="bottom_attach">10</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_filechooser10">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_filechooser_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="filechooser10">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">10</property>
+					  <property name="bottom_attach">11</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">3</property>
+				      <property name="y_options">fill</property>
+				    </packing>
+				  </child>
 				</widget>
 				<packing>
 				  <property name="padding">0</property>
@@ -2607,701 +2631,6 @@
 				      <property name="top_attach">1</property>
 				      <property name="bottom_attach">2</property>
 				      <property name="x_options">fill</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkVBox" id="vbox13">
-				      <property name="border_width">3</property>
-				      <property name="visible">True</property>
-				      <property name="homogeneous">True</property>
-				      <property name="spacing">0</property>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing0">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing0">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing1">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing1">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing2">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing2">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing3">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing3">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing4">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing4">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing5">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing5">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing6">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing6">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing7">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing7">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing8">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing8">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing9">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing9">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing10">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing10">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes"></property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing11">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing11">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing12">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing12">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing13">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing13">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing14">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing14">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing15">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing15">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing16">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing16">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing17">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing17">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing18">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing18">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-
-				      <child>
-					<widget class="GtkEventBox" id="eventbox_listing19">
-					  <property name="visible">True</property>
-					  <property name="visible_window">True</property>
-					  <property name="above_child">False</property>
-					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
-
-					  <child>
-					    <widget class="GtkLabel" id="listing19">
-					      <property name="visible">True</property>
-					      <property name="label" translatable="yes">M2</property>
-					      <property name="use_underline">False</property>
-					      <property name="use_markup">False</property>
-					      <property name="justify">GTK_JUSTIFY_LEFT</property>
-					      <property name="wrap">False</property>
-					      <property name="selectable">False</property>
-					      <property name="xalign">0</property>
-					      <property name="yalign">0.5</property>
-					      <property name="xpad">0</property>
-					      <property name="ypad">0</property>
-					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-					      <property name="width_chars">8</property>
-					      <property name="single_line_mode">True</property>
-					      <property name="angle">0</property>
-					    </widget>
-					  </child>
-					</widget>
-					<packing>
-					  <property name="padding">0</property>
-					  <property name="expand">True</property>
-					  <property name="fill">True</property>
-					</packing>
-				      </child>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">0</property>
-				      <property name="right_attach">1</property>
-				      <property name="top_attach">0</property>
-				      <property name="bottom_attach">3</property>
 				    </packing>
 				  </child>
 
@@ -3383,6 +2712,743 @@
 				      <property name="top_attach">2</property>
 				      <property name="bottom_attach">3</property>
 				      <property name="x_options">fill</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkTable" id="table16">
+				      <property name="visible">True</property>
+				      <property name="n_rows">20</property>
+				      <property name="n_columns">1</property>
+				      <property name="homogeneous">True</property>
+				      <property name="row_spacing">0</property>
+				      <property name="column_spacing">0</property>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing0">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing0">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">0</property>
+					  <property name="bottom_attach">1</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing1">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:22:24 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing1">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">1</property>
+					  <property name="bottom_attach">2</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing2">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:44 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing2">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">2</property>
+					  <property name="bottom_attach">3</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing3">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:51 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing3">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">3</property>
+					  <property name="bottom_attach">4</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing4">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:29:57 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing4">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">4</property>
+					  <property name="bottom_attach">5</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing5">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:03 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing5">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">5</property>
+					  <property name="bottom_attach">6</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing6">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:10 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing6">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">6</property>
+					  <property name="bottom_attach">7</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing7">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:17 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing7">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">7</property>
+					  <property name="bottom_attach">8</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing8">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:23 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing8">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">8</property>
+					  <property name="bottom_attach">9</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing9">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:28 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing9">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">9</property>
+					  <property name="bottom_attach">10</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing10">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:30:34 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing10">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes"></property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">10</property>
+					  <property name="bottom_attach">11</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing11">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing11">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">11</property>
+					  <property name="bottom_attach">12</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing12">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing12">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">12</property>
+					  <property name="bottom_attach">13</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing13">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing13">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">13</property>
+					  <property name="bottom_attach">14</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing14">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing14">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">14</property>
+					  <property name="bottom_attach">15</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing15">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing15">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">15</property>
+					  <property name="bottom_attach">16</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing16">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing16">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">16</property>
+					  <property name="bottom_attach">17</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing17">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing17">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">17</property>
+					  <property name="bottom_attach">18</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing18">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing18">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">18</property>
+					  <property name="bottom_attach">19</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+
+				      <child>
+					<widget class="GtkEventBox" id="eventbox_listing19">
+					  <property name="visible">True</property>
+					  <property name="visible_window">True</property>
+					  <property name="above_child">False</property>
+					  <signal name="button_release_event" handler="on_listing_select" last_modification_time="Fri, 17 Jul 2009 20:32:25 GMT"/>
+
+					  <child>
+					    <widget class="GtkLabel" id="listing19">
+					      <property name="visible">True</property>
+					      <property name="label" translatable="yes">M2</property>
+					      <property name="use_underline">False</property>
+					      <property name="use_markup">False</property>
+					      <property name="justify">GTK_JUSTIFY_LEFT</property>
+					      <property name="wrap">False</property>
+					      <property name="selectable">False</property>
+					      <property name="xalign">0</property>
+					      <property name="yalign">0.5</property>
+					      <property name="xpad">0</property>
+					      <property name="ypad">0</property>
+					      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+					      <property name="width_chars">8</property>
+					      <property name="single_line_mode">True</property>
+					      <property name="angle">0</property>
+					    </widget>
+					  </child>
+					</widget>
+					<packing>
+					  <property name="left_attach">0</property>
+					  <property name="right_attach">1</property>
+					  <property name="top_attach">19</property>
+					  <property name="bottom_attach">20</property>
+					  <property name="x_options">fill</property>
+					</packing>
+				      </child>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">0</property>
+				      <property name="right_attach">1</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">3</property>
+				      <property name="y_options">fill</property>
 				    </packing>
 				  </child>
 				</widget>
