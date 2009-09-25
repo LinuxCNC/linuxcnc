@@ -70,7 +70,6 @@ class touchy:
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
 
                 # initial screen setup
-                # XXX read these fonts from preferences
                 self.wTree.get_widget("controlfontbutton").set_font_name(self.control_font_name)
                 self.control_font = pango.FontDescription(self.control_font_name)
 
@@ -141,6 +140,16 @@ class touchy:
                                                        self.wTree.get_widget("override_limits"),
                                                        stats,
                                                        floods, mists, spindles, prefs)
+                if self.prefs.getpref('dro_mm', 0):
+                        self.status.dro_mm(0)
+                else:
+                        self.status.dro_inch(0)
+
+                if self.prefs.getpref('dro_actual'):
+                        self.status.dro_actual(0)
+                else:
+                        self.status.dro_commanded(0)
+                                
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
 
@@ -150,10 +159,10 @@ class touchy:
                         "on_notebook1_switch_page" : self.tabselect,
                         "on_controlfontbutton_font_set" : self.change_control_font,
                         "on_drofontbutton_font_set" : self.change_dro_font,
-                        "on_dro_actual_clicked" : self.status.dro_actual,
-                        "on_dro_commanded_clicked" : self.status.dro_commanded,
-                        "on_dro_inch_clicked" : self.status.dro_inch,
-                        "on_dro_mm_clicked" : self.status.dro_mm,
+                        "on_dro_actual_clicked" : self.dro_actual,
+                        "on_dro_commanded_clicked" : self.dro_commanded,
+                        "on_dro_inch_clicked" : self.dro_inch,
+                        "on_dro_mm_clicked" : self.dro_mm,
                         "on_errorfontbutton_font_set" : self.change_error_font,
                         "on_listingfontbutton_font_set" : self.change_listing_font,
                         "on_estop_clicked" : self.emc.estop,
@@ -214,6 +223,22 @@ class touchy:
 
         def tabselect(self, notebook, b, tab):
                 self.tab = tab
+
+        def dro_commanded(self, b):
+                self.prefs.putpref('dro_actual', 0)
+                self.status.dro_commanded(b)
+
+        def dro_actual(self, b):
+                self.prefs.putpref('dro_actual', 1)
+                self.status.dro_actual(b)
+
+        def dro_inch(self, b):
+                self.prefs.putpref('dro_mm', 0)
+                self.status.dro_inch(b)
+
+        def dro_mm(self, b):
+                self.prefs.putpref('dro_mm', 1)
+                self.status.dro_mm(b)
 
         def wheelx(self, b):
                 if self.radiobutton_mask: return
@@ -332,8 +357,6 @@ class touchy:
                 for i in ["error"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
-
-                # XXX save font preferences
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool())

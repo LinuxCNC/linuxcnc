@@ -236,20 +236,29 @@ class emc_status:
                 last_mode = self.emcstat.task_mode
                 self.emcstat.poll()
 
+                dtg = self.emcstat.dtg
+                
                 if self.actual:
                         p = self.emcstat.actual_position
                 else:
                         p = self.emcstat.position
 
-                self.dros['xr'].set_text("X:% 9.4f" % (p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
-                self.dros['yr'].set_text("Y:% 9.4f" % (p[1] - self.emcstat.origin[1]))
-                self.dros['zr'].set_text("Z:% 9.4f" % (p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
-                self.dros['xa'].set_text("X:% 9.4f" % p[0])
-                self.dros['ya'].set_text("Y:% 9.4f" % p[1])
-                self.dros['za'].set_text("Z:% 9.4f" % p[2])
-                self.dros['xd'].set_text("X:% 9.4f" % self.emcstat.dtg[0])
-                self.dros['yd'].set_text("Y:% 9.4f" % self.emcstat.dtg[1])
-                self.dros['zd'].set_text("Z:% 9.4f" % self.emcstat.dtg[2])
+                if self.mm:
+                        p = [i*25.4 for i in p]
+                        dtg = [i*25.4 for i in dtg]
+                        fmt = "%c:% 10.3f"
+                else:
+                        fmt = "%c:% 9.4f"
+
+                self.dros['xr'].set_text(fmt % ('X', p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
+                self.dros['yr'].set_text(fmt % ('Y', p[1] - self.emcstat.origin[1]))
+                self.dros['zr'].set_text(fmt % ('Z', p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
+                self.dros['xa'].set_text(fmt % ('X', p[0]))
+                self.dros['ya'].set_text(fmt % ('Y', p[1]))
+                self.dros['za'].set_text(fmt % ('Z', p[2]))
+                self.dros['xd'].set_text(fmt % ('X', dtg[0]))
+                self.dros['yd'].set_text(fmt % ('Y', dtg[1]))
+                self.dros['zd'].set_text(fmt % ('Z', dtg[2]))
 
                 for j,name in [(0,'x'), (1,'y'), (2,'z')]:
                         self.homes[name].set_active(self.emcstat.homed[j])
