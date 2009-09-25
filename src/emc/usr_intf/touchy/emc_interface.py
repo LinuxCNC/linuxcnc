@@ -176,13 +176,15 @@ class emc_control:
                         # program is running
                         if s:
                                 self.emccommand.auto(self.emc.AUTO_PAUSE)
-                        else:
-                                self.emccommand.auto(self.emc.AUTO_RESUME)
+                        # else do nothing and wait for cycle start to be pressed
 
         def cycle_start(self):
                 self.emcstat.poll()
                 if self.emcstat.paused:
-                        self.emccommand.auto(self.emc.AUTO_STEP)
+                        if self.sb:
+                                self.emccommand.auto(self.emc.AUTO_STEP)
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RESUME)
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)
@@ -313,7 +315,12 @@ class emc_status:
                 self.prefs['actual'].set_active(self.actual == 1)
                 self.prefs['commanded'].set_active(self.actual == 0)
 
-                if self.emcstat.id > 0: self.listing.select(self.emcstat.id or self.emcstat.motion_line)
+                if self.emcstat.id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
+                        self.listing.highlight_line(self.emcstat.current_line)
+                elif self.emcstat.id == 0:
+                        self.listing.highlight_line(self.emcstat.motion_line)
+                else:
+                        self.listing.highlight_line(self.emcstat.id or self.emcstat.motion_line)
 
                 m = self.emcstat.task_mode
                 if m != last_mode:

@@ -40,7 +40,7 @@ class listing:
             else:
                 e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
 
-    def select(self, n):
+    def highlight_line(self, n):
         n -= 1                          # program[] is zero-based, emc line numbers are one-based
         if self.selected == n: return
         self.selected = n
@@ -64,7 +64,7 @@ class listing:
         f.close()
         self.lines = len(self.program)
         self.lineoffset = 0
-        self.select(-1)
+        self.selected = -1
         self.populate()
 
     def reload(self, b):
