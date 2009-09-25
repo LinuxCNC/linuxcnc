@@ -580,6 +580,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
 	stat[axis].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
 	stat[axis].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
 	stat[axis].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
+	stat[axis].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);
 
 /* FIXME - soft limits are now applied to the command, and should never
    happen */
