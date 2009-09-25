@@ -1898,6 +1898,7 @@ static void update_status(void)
 	joint_status->flag = joint->flag;
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
+	joint_status->vel_cmd = joint->vel_cmd;
 	joint_status->ferror = joint->ferror;
 	joint_status->ferror_high_mark = joint->ferror_high_mark;
 	joint_status->backlash = joint->backlash;

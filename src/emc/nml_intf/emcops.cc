@@ -32,6 +32,7 @@ EMC_AXIS_STAT_MSG(EMC_AXIS_STAT_TYPE, sizeof(EMC_AXIS_STAT))
     ferrorHighMark = 0.0;
     output = 0.0;
     input = 0.0;
+    velocity = 0.0;
     inpos = 1;
     homing = 0;
     homed = 0;

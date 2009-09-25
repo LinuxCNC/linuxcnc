@@ -1731,6 +1731,7 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(ferrorHighMark);
     cms->update(output);
     cms->update(input);
+    cms->update(velocity);
     cms->update(inpos);
     cms->update(homing);
     cms->update(homed);

@@ -521,6 +521,7 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F2("ferror_highmark", ferrorHighMark);
     F(output);
     F(input);
+    F(velocity);
     F(inpos);
     F(homing);
     F(homed);
