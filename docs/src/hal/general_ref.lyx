@@ -556,4 +556,557 @@ ppmc.0.write
 \family default 
  -- writes all outputs (step generators, pwm, DACs, and digital) on the
  first ppmc board
+\layout Chapter
+
+
+\begin_inset LatexCommand \label{cha:Canonical-Device-Interfaces}
+
+\end_inset 
+
+Canonical Device Interfaces
+\begin_inset Foot
+collapsed true
+
+\layout Standard
+
+As of version 2.0, most of the HAL drivers don't quite match up to the canonical
+ interfaces defined here.
+ In version 2.1, the drivers will be changed to match these specs.
+\end_inset 
+
+ 
+\layout Standard
+
+The following sections show the pins, parameters, and functions that are
+ supplied by 
+\begin_inset Quotes eld
+\end_inset 
+
+canonical devices
+\begin_inset Quotes erd
+\end_inset 
+
+.
+ All HAL device drivers should supply the same pins and parameters, and
+ implement the same behavior.
+\layout Standard
+
+Note that the only the 
+\family typewriter 
+<io-type>
+\family default 
+ and 
+\family typewriter 
+<specific-name>
+\family default 
+ fields are defined for a canonical device.
+ The 
+\family typewriter 
+<device-name>
+\family default 
+, 
+\family typewriter 
+<device-num>
+\family default 
+, and 
+\family typewriter 
+<chan-num>
+\family default 
+ fields are set based on the characteristics of the real device.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:CanonDigIn}
+
+\end_inset 
+
+Digital Input
+\layout Standard
+
+The canonical digital input (I/O type field: 
+\family typewriter 
+\series bold 
+digin
+\family default 
+\series default 
+) is quite simple.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+in
+\family default 
+\series default 
+ -- State of the hardware input.
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+in-not
+\family default 
+\series default 
+ -- Inverted state of the input.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+None
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\shape smallcaps 
+(funct)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+read
+\family default 
+\series default 
+ -- Read hardware and set 
+\family typewriter 
+\series bold 
+in
+\family default 
+\series default 
+ and 
+\family typewriter 
+\series bold 
+in-not
+\family default 
+\series default 
+ HAL pins.
+\layout Section
+
+
+\begin_inset LatexCommand \label{sec:CanonDigOut}
+
+\end_inset 
+
+Digital Output
+\layout Standard
+
+The canonical digital output (I/O type field: 
+\family typewriter 
+\series bold 
+digout
+\family default 
+\series default 
+) is also very simple.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ -- Value to be written (possibly inverted) to the hardware output.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+
+\shape smallcaps 
+(bit)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+invert
+\family default 
+\series default 
+ -- If TRUE, 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ is inverted before writing to the hardware.
+\layout Subsection
+
+Functions
+\layout Itemize
+
+
+\shape smallcaps 
+(funct)
+\shape default 
+ 
+\family typewriter 
+\series bold 
+write
+\family default 
+\series default 
+ -- Read 
+\family typewriter 
+\series bold 
+out
+\family default 
+\series default 
+ and 
+\family typewriter 
+\series bold 
+invert
+\family default 
+\series default 
+, and set hardware output accordingly.
+\layout Section
+
+Analog Input
+\layout Standard
+
+The canonical analog input (I/O type: 
+\family typewriter 
+\series bold 
+adcin
+\family default 
+\series default 
+).
+ This is expected to be used for analog to digital converters, which convert
+ e.g.
+ voltage to a continuous range of values.
+\layout Subsection
+
+Pins
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+value
+\series default 
+ -- The hardware reading, scaled according to the 
+\series bold 
+scale
+\series default 
+ and 
+\series bold 
+offset
+\series default 
+ parameters.
+ 
+\series bold 
+Value
+\series default 
+ = ((input reading, in hardware-dependent units) * 
+\series bold 
+scale
+\series default 
+) - 
+\series bold 
+offset
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+scale
+\series default 
+ -- The input voltage (or current) will be multiplied by 
+\series bold 
+scale
+\series default 
+ before being output to 
+\series bold 
+value
+\series default 
+.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+offset
+\series default 
+ -- This will be subtracted from the hardware input voltage (or current)
+ after the scale multiplier has been applied.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+bit_weight
+\series default 
+ -- The value of one least significant bit (LSB).
+ This is effectively the granularity of the input reading.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+hw_offset
+\series default 
+ -- The value present on the input when 0 volts is applied to the input
+ pin(s).
+\layout Subsection
+
+Functions
+\layout Itemize
+
+(
+\shape smallcaps 
+funct
+\shape default 
+) 
+\series bold 
+read
+\series default 
+ -- Read the values of this analog input channel.
+ This may be used for individual channel reads, or it may cause all channels
+ to be read
+\layout Section
+
+Analog Output
+\layout Standard
+
+The canonical analog output (I/O Type: 
+\family typewriter 
+\series bold 
+adcout
+\family default 
+\series default 
+).
+ This is intended for any kind of hardware that can output a more-or-less
+ continuous range of values.
+ Examples are digital to analog converters or PWM generators.
+\layout Subsection*
+
+Pins
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+value
+\series default 
+ -- The value to be written.
+ The actual value output to the hardware will depend on the scale and offset
+ parameters.
+\layout Itemize
+
+(
+\shape smallcaps 
+bit
+\shape default 
+) 
+\series bold 
+enable
+\series default 
+ -- If false, then output 0 to the hardware, regardless of the 
+\series bold 
+value
+\series default 
+ pin.
+\layout Subsection
+
+Parameters
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+offset
+\series default 
+ -- This will be added to the 
+\series bold 
+value
+\series default 
+ before the hardware is updated
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+scale
+\series default 
+ -- This should be set so that an input of 1 on the 
+\series bold 
+value
+\series default 
+ pin will cause 1V 
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+high_limit
+\series default 
+ (optional) -- When calculating the value to output to the hardware, if
+ 
+\series bold 
+value
+\series default 
+ + 
+\series bold 
+offset
+\series default 
+ is greater than 
+\series bold 
+high_limit
+\series default 
+, then 
+\series bold 
+high_limit
+\series default 
+ will be used instead.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+low_limit
+\series default 
+ (optional) -- When calculating the value to output to the hardware, if
+ 
+\series bold 
+value
+\series default 
+ + 
+\series bold 
+offset
+\series default 
+ is less than 
+\series bold 
+low_limit
+\series default 
+, then 
+\series bold 
+low_limit
+\series default 
+ will be used instead.
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+bit_weight
+\series default 
+ (optional) -- The value of one least significant bit (LSB), in volts (or
+ mA, for current outputs)
+\layout Itemize
+
+(
+\shape smallcaps 
+float
+\shape default 
+) 
+\series bold 
+hw_offset
+\series default 
+ (optional) -- The actual voltage (or current) that will be output if 0
+ is written to the hardware.
+\layout Subsection
+
+Functions
+\layout Standard
+
+(
+\shape smallcaps 
+funct
+\shape default 
+) 
+\series bold 
+write
+\series default 
+ -- This causes the calculated value to be output to the hardware.
+ If enable is false, then the output will be 0, regardles of 
+\series bold 
+value
+\series default 
+, 
+\series bold 
+scale
+\series default 
+, and 
+\series bold 
+offset
+\series default 
+.
+ The meaning of 
+\begin_inset Quotes eld
+\end_inset 
+
+0
+\begin_inset Quotes erd
+\end_inset 
+
+ is dependent on the hardware.
+ For example, a bipolar 12-bit A/D may need to write 0x1FF (mid scale) to
+ the D/A get 0 volts from the hardware pin.
+ If enable is true, read scale, offset and value and output to the adc (
+\series bold 
+scale
+\series default 
+ * 
+\series bold 
+value
+\series default 
+) + 
+\series bold 
+offset
+\series default 
+.
+ If enable is false, then output 0.
 \the_end
