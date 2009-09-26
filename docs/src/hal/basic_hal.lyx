@@ -238,7 +238,7 @@ To do this on multiple lines just use the signal with the readers on subsequent
 
 net xStep stepgen.0.out => parport.0.pin-02-out
 \newline 
-net xStep => parport.0.pin-02-out
+net xStep => parport.0.pin-08-out
 \layout Standard
 
 The so called I/O pins like index-enable do not follow this rule.
