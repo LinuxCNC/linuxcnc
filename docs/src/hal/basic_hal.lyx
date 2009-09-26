@@ -494,6 +494,11 @@ Hal contains several real time logic components.
  for any given input.
  Typically these are bit manipulators and follow electrical logic gate truth
  tables.
+\layout Standard
+
+If a component has a name option and you want to use that then you can not
+ use the count.
+ If you name them then you have to name all of them you want.
 \layout Subsection
 
 and2
@@ -506,7 +511,7 @@ The "and2" component is a two input "and" gate.
 Syntax
 \layout Quote
 
-and2 [count=N|names=name1[,name2...]]
+and2 [count=N] or [names=name1[,name2...]]
 \layout Standard
 
 Functions
@@ -682,7 +687,7 @@ The "not" component is a bit inverter.
 Syntax
 \layout Quote
 
-not [count=n|names=name1[,name2...]]
+not [count=n] or [names=name1[,name2...]]
 \layout Standard
 
 Functions
@@ -780,7 +785,7 @@ The "or2" component is a two input OR gate.
 Syntax
 \layout Quote
 
-or2[count=,|names=name1[,name2...]]
+or2[count=n] or [names=name1[,name2...]]
 \layout Standard
 
 Functions
@@ -955,7 +960,7 @@ The "xor2" component is a two input XOR (exclusive OR)gate.
 Syntax
 \layout Quote
 
-xor2[count=,|names=name1[,name2...]]
+xor2[count=n] or [names=name1[,name2...]]
 \layout Standard
 
 Functions
