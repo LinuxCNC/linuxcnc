@@ -27,6 +27,11 @@
 \layout Chapter
 
 Spindle Control
+\begin_inset LatexCommand \label{cha:Spindle-Control}
+
+\end_inset 
+
+
 \layout Section
 
 0-10v Spindle Speed
@@ -120,9 +125,96 @@ To link these pins to a parallel port pin put something like the following
 net spindle-fwd motion.spindle-forward -> parport.0.pin-16-out
 \newline 
 net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+\layout Section
+
+Spindle Soft Start
+\layout Standard
+
+If you need to ramp your spindle speed command and your control does not
+ have that feature it can be done in HAL.
+ Basically you need to hijack the output of motion.spindle-speed-out and
+ run it through a limit2 component with the scale set so it will ramp the
+ rpm from motion.spindle-speed-out to your device that receives the rpm.
+ The second part is to let EMC know when the spindle is at speed so motion
+ can begin.
+\layout Standard
+
+In the 0-10 volt example the line "net spindle-speed-scale motion.spindle-speed-o
+ut => scale.0.in" is changed as shown in the following example.
+\layout LyX-Code
+
+# load real time a limit2 and a near with names so it is easier to follow
+\layout LyX-Code
+
+loadrt limit2 names=spindle-ramp
+\layout LyX-Code
+
+loadrt near names=spindle-at-speed
+\layout LyX-Code
+
+# add the functions to a thread
+\layout LyX-Code
+
+addf spindle-ramp servo-thread
+\layout LyX-Code
+
+addf spindle-at-speed servo-thread
+\layout LyX-Code
+
+# set the parameter for max velocity
+\layout LyX-Code
+
+setp spindle-ramp.maxv 60
+\layout LyX-Code
+
+# hijack the spindle speed out and send it to spindle ramp in
+\layout LyX-Code
+
+net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
+\layout LyX-Code
+
+# the output of spindle ramp is sent to the scale in
+\layout LyX-Code
+
+net spindle-ramped <= spindle-ramp.out => scale.0.in
+\layout LyX-Code
+
+# to know when to start the motion we send the near component 
+\layout LyX-Code
+
+# (named spindle-at-speed) to the spindle commanded speed from
+\layout LyX-Code
+
+# the signal spindle-cmd and the actual spindle speed 
+\layout LyX-Code
+
+# provided your spindle can accelerate at the maxv setting.
+ 
+\layout LyX-Code
+
+net spindle-cmd => spindle-at-speed.in1
+\layout LyX-Code
+
+net spindle-ramped => spindle-at-speed.in2
+\layout LyX-Code
+
+# the output from spindle-at-speed is sent to motion.spindle-at-speed
+\layout LyX-Code
+
+ # and when this is true motion will start
+\layout LyX-Code
+
+net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
+\layout LyX-Code
+
 \layout Chapter
 
 Spindle Feedback
+\begin_inset LatexCommand \label{cha:Spindle-Feedback}
+
+\end_inset 
+
+
 \layout Standard
 
 Spindle feedback is needed by EMC to perform any spindle coordinated motions
