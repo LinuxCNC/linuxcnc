@@ -144,66 +144,50 @@ ut => scale.0.in" is changed as shown in the following example.
 \layout LyX-Code
 
 # load real time a limit2 and a near with names so it is easier to follow
-\layout LyX-Code
-
+\newline 
 loadrt limit2 names=spindle-ramp
-\layout LyX-Code
-
+\newline 
 loadrt near names=spindle-at-speed
 \layout LyX-Code
 
 # add the functions to a thread
-\layout LyX-Code
-
+\newline 
 addf spindle-ramp servo-thread
-\layout LyX-Code
-
+\newline 
 addf spindle-at-speed servo-thread
 \layout LyX-Code
 
 # set the parameter for max velocity
-\layout LyX-Code
-
+\newline 
 setp spindle-ramp.maxv 60
 \layout LyX-Code
 
 # hijack the spindle speed out and send it to spindle ramp in
-\layout LyX-Code
-
+\newline 
 net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
 \layout LyX-Code
 
 # the output of spindle ramp is sent to the scale in
-\layout LyX-Code
-
+\newline 
 net spindle-ramped <= spindle-ramp.out => scale.0.in
 \layout LyX-Code
 
 # to know when to start the motion we send the near component 
-\layout LyX-Code
-
+\newline 
 # (named spindle-at-speed) to the spindle commanded speed from
-\layout LyX-Code
-
-# the signal spindle-cmd and the actual spindle speed 
-\layout LyX-Code
-
+\newline 
+# the signal spindle-cmd and the actual spindle speed
+\newline 
 # provided your spindle can accelerate at the maxv setting.
- 
-\layout LyX-Code
-
+\newline 
 net spindle-cmd => spindle-at-speed.in1
-\layout LyX-Code
-
+\newline 
 net spindle-ramped => spindle-at-speed.in2
-\layout LyX-Code
-
+\newline 
 # the output from spindle-at-speed is sent to motion.spindle-at-speed
-\layout LyX-Code
-
- # and when this is true motion will start
-\layout LyX-Code
-
+\newline 
+# and when this is true motion will start
+\newline 
 net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 \layout LyX-Code
 
