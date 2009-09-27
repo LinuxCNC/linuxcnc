@@ -4772,15 +4772,23 @@ G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
 \end_layout
 
 \begin_layout Subsubsection
-G43: Offsets from tool table
+G43: Use current tool loaded
+\end_layout
+
+\begin_layout Standard
+To use the currently loaded tool from the last Tn M6 program a G43
+\end_layout
+
+\begin_layout Subsubsection
+G43 Hn: Offsets from tool table
 \end_layout
 
 \begin_layout Standard
 To use a tool length offset from the tool table, program 
 \family typewriter
-G43 H-
+G43 H
 \family default
-, where the H number is the desired index in the tool table.
+n, where the n number is the desired index in the tool table.
  The H number will typically be, but does not have to be, the same as the
  slot number of the tool currently in the spindle.
  It is OK for the H number to be zero; an offset value of zero will be used.
