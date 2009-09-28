@@ -2840,7 +2840,7 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
 {
 
   if (code == G_10) {
-      if(block->l_number == 1)
+      if(block->l_number == 1 || block->l_number == 10)
           CHP(convert_setup_tool(block, settings));
       else
           CHP(convert_setup(block, settings));
@@ -3069,11 +3069,21 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
 
-    if(block->z_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->z_number);
-    else
-    if(block->w_flag) settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(block->w_number);
+    if(block->z_flag) {
+        double z = block->z_number;
+        if (block->l_number == 10) z = settings->current_z + settings->tool_zoffset - z;
+        settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(z);
+    } else if(block->w_flag) {
+        double w = block->w_number;
+        if (block->l_number == 10) w = settings->w_current + settings->tool_woffset - w;
+        settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(w);
+    }
 
-    if(block->x_flag) settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(block->x_number);
+    if(block->x_flag) {
+        double x = block->x_number;
+        if (block->l_number == 10) x = settings->current_x + settings->tool_xoffset - x;
+        settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(x);
+    }
 
     if(settings->tool_table[toolnum].orientation) 
         SET_TOOL_TABLE_ENTRY(settings->tool_table[toolnum].id,
@@ -3115,6 +3125,11 @@ Being in incremental distance mode has no effect on the action of G10
 in this implementation. The manual is not explicit about what is
 intended.
 
+If L is 20 instead of 2, the coordinates are relative to the current
+position instead of the origin.  Like how G92 offsets are programmed,
+the meaning is "set the coordinate system origin such that my current
+position becomes the specified value".
+
 See documentation of convert_coordinate_system for more information.
 
 */
@@ -3138,60 +3153,70 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   if (block->x_flag == ON) {
     x = block->x_number;
+    if (block->l_number == 20) x = settings->current_x + settings->origin_offset_x - x;
     parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
   } else
     x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
 
   if (block->y_flag == ON) {
     y = block->y_number;
+    if (block->l_number == 20) y = settings->current_y + settings->origin_offset_y - y;
     parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
   } else
     y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
 
   if (block->z_flag == ON) {
     z = block->z_number;
+    if (block->l_number == 20) z = settings->current_z + settings->origin_offset_z - z;
     parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
   } else
     z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
   if (block->a_flag == ON) {
     a = block->a_number;
+    if (block->l_number == 20) a = settings->AA_current + settings->AA_origin_offset - a;
     parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_ANG(a);
   } else
     a = USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]);
 
   if (block->b_flag == ON) {
     b = block->b_number;
+    if (block->l_number == 20) b = settings->BB_current + settings->BB_origin_offset - b;
     parameters[5205 + (p_int * 20)] = PROGRAM_TO_USER_ANG(b);
   } else
     b = USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]);
 
   if (block->c_flag == ON) {
     c = block->c_number;
+    if (block->l_number == 20) c = settings->CC_current + settings->CC_origin_offset - c;
     parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_ANG(c);
   } else
     c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
 
   if (block->u_flag == ON) {
     u = block->u_number;
+    if (block->l_number == 20) u = settings->u_current + settings->u_origin_offset - u;
     parameters[5207 + (p_int * 20)] = PROGRAM_TO_USER_LEN(u);
   } else
     u = USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]);
 
   if (block->v_flag == ON) {
     v = block->v_number;
+    if (block->l_number == 20) v = settings->v_current + settings->v_origin_offset - v;
     parameters[5208 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
   } else
     v = USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]);
 
   if (block->w_flag == ON) {
     w = block->w_number;
+    if (block->l_number == 20) w = settings->w_current + settings->w_origin_offset - w;
     parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(w);
   } else
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
   if (block->r_flag == ON) {
     r = block->r_number;
+    CHKS((block->l_number == 20), "R not allowed in G10 L20");
     parameters[5210 + (p_int * 20)] = r;
   } else
     r = parameters[5210 + (p_int * 20)];

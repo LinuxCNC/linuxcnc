@@ -1505,6 +1505,7 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
+        self.set_manual_mode = False
 
     def start(self):
         if self.running.get(): return
@@ -1600,6 +1601,11 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        set_manual_mode = comp["set-manual-mode"]
+        if self.set_manual_mode != set_manual_mode:
+             self.set_manual_mode = set_manual_mode
+             if self.set_manual_mode:
+                 root_window.tk.eval(pane_top + ".tabs raise manual")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -3059,42 +3065,21 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
-        to = list(s.tool_offset)
-        if vars.current_axis.get() == "x" and 70 in s.gcodes: # diameter mode
-            # so scale tool offset to diameters
-            to[0] *= 2
-
-        if system.split()[0] == "T":
-            pos = [(a-b-origin) for a, b, origin in zip(s.position, to, s.origin)]
-        else:
-            pos = [(a-b) for a, b in zip(s.position, to)]
-
-        pos = to_internal_units(pos)
-        p0 = pos[offset_axis]
-
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
-        old_tool = to_internal_linear_unit(to[offset_axis])
-
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
-            p0 *= 25.4
-            old_tool *= 25.4
-
-        if vars.current_axis.get() == "x" and 70 in s.gcodes:
-            old_tool *= 2
-            p0 *= 2
 
         if system.split()[0] == "T":
-            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_in_spindle, vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
             c.wait_complete()
         else:
-            offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+            offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
 
@@ -3808,6 +3793,7 @@ if hal_present == 1 :
     comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+    comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:

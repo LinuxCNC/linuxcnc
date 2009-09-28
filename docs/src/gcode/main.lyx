@@ -3363,9 +3363,19 @@ G10
 \end_layout
 
 \begin_layout Standard
-Example: 
+Examples:
+\end_layout
+
+\begin_layout Description
+
 \family typewriter
-G10 L2 P1 x 3.5 y 17.2
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X\InsetSpace ~
+3.5\InsetSpace ~
+Y\InsetSpace ~
+17.2
 \family default
  sets the origin of the first coordinate system (the one selected by 
 \family typewriter
@@ -3374,6 +3384,15 @@ G54
 ) to be X=3.5 and Y=17.2.
  Because only X and Y are specified, the origin point is only moved in X
  and Y; the other coordinates are not changed.
+\end_layout
+
+\begin_layout Description
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X0\InsetSpace ~
+Y0\InsetSpace ~
+Z0 sets the G54 coordinate back to the origin.
 \end_layout
 
 \begin_layout Standard
@@ -4753,15 +4772,23 @@ G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
 \end_layout
 
 \begin_layout Subsubsection
-G43: Offsets from tool table
+G43: Use current tool loaded
+\end_layout
+
+\begin_layout Standard
+To use the currently loaded tool from the last Tn M6 program a G43
+\end_layout
+
+\begin_layout Subsubsection
+G43 Hn: Offsets from tool table
 \end_layout
 
 \begin_layout Standard
 To use a tool length offset from the tool table, program 
 \family typewriter
-G43 H-
+G43 H
 \family default
-, where the H number is the desired index in the tool table.
+n, where the n number is the desired index in the tool table.
  The H number will typically be, but does not have to be, the same as the
  slot number of the tool currently in the spindle.
  It is OK for the H number to be zero; an offset value of zero will be used.
@@ -8539,6 +8566,10 @@ M- P-
  a default value of 3 in EMC2.
  If needed the value can be increased by using the num_dio parameter when
  loading the motion controller.
+\end_layout
+
+\begin_layout Itemize
+The P- word specifies the digital output number.
 \end_layout
 
 \begin_layout Description

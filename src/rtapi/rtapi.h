@@ -727,7 +727,7 @@ RTAPI_BEGIN_DECLS
 
 #if defined(RTAPI) && !defined(SIM)
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
-    going for 'n' bytes, for component 'name'.
+    going for 'size' bytes, for component 'name'.
 
     Note that on kernels before 2.4.0, this function always succeeds.
 
@@ -737,24 +737,24 @@ RTAPI_BEGIN_DECLS
 #include <linux/version.h>
 #include <linux/ioport.h>
 
-    static __inline__ void *rtapi_request_region(unsigned long size,
-            unsigned long n, const char *name) {
+    static __inline__ void *rtapi_request_region(unsigned long base,
+            unsigned long size, const char *name) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-        return (void*)request_region(size, n, name);
+        return (void*)request_region(base, size, name);
 #else
         return (void*)-1;
 #endif
     }
 
 /** 'rtapi_release_region() releases I/O memory reserved by 
-    'rtapi_request_region', starting at 'base' and going for 'n' bytes.
-    'base' and 'n' must exactly match an earlier successful call to
+    'rtapi_request_region', starting at 'base' and going for 'size' bytes.
+    'base' and 'size' must exactly match an earlier successful call to
     rtapi_request_region or the result is undefined.
 */
-    static __inline__ void rtapi_release_region(unsigned long size,
-            unsigned long int n) {
+    static __inline__ void rtapi_release_region(unsigned long base,
+            unsigned long int size) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-        release_region(size, n);
+        release_region(base, size);
 #endif
     }
 #endif

@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -315,7 +316,7 @@ To do this on multiple lines just use the signal with the readers on subsequent
 \begin_layout Quote
 net xStep stepgen.0.out => parport.0.pin-02-out
 \newline
-net xStep => parport.0.pin-02-out
+net xStep => parport.0.pin-08-out
 \end_layout
 
 \begin_layout Standard
@@ -654,7 +655,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-and2 [count=N|names=name1[,name2...]]
+and2 [count=N] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -856,7 +857,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-not [count=n|names=name1[,name2...]]
+not [count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -971,7 +972,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-or2[count=,|names=name1[,name2...]]
+or2[count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -1172,7 +1173,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-xor2[count=,|names=name1[,name2...]]
+xor2[count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
