@@ -1115,9 +1115,11 @@ class MyOpengl(Opengl):
                 y = positions[1]
                 positions[0] = x * math.cos(t) - y * math.sin(t)
                 positions[1] = x * math.sin(t) + y * math.cos(t)
+            else:
+                positions = list(positions)
 
-                positions[3] = math.fmod(positions[3], 360.0)
-                if positions[3] < 0: positions[3] += 360.0
+            positions[3] = math.fmod(positions[3], 360.0)
+            if positions[3] < 0: positions[3] += 360.0
 
             positions = to_internal_units(positions)
             axisdtg = to_internal_units(s.dtg)
