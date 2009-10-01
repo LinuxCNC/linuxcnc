@@ -123,6 +123,19 @@ radius compensation is in progress, or (2) the actual current position.
 
 */
 
+double Interp::unwrap_rotary(double commanded, double current) {
+    double result;
+    int neg = copysign(1.0, commanded) < 0.0;
+    
+    int d = (int)(current/360.0);
+    result = fabs(commanded) + (d*360.0);
+    if(!neg && result < current) result += 360.0;
+    if(neg && result > current) result -= 360.0;
+
+    return result;
+}
+    
+
 int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                       setup_pointer s,    //!< pointer to machine settings                 
                       double *px,        //!< pointer to end_x                            
@@ -220,8 +233,12 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             // and only XZ affects Z.
             *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z : s->current_z;
         }
-    
-        *AA_p = (block->a_flag == ON) ? block->a_number : s->AA_current;
+
+        if(block->a_flag == ON) {
+            *AA_p = unwrap_rotary(block->a_number, s->AA_current);
+        } else {
+            *AA_p = s->AA_current;
+        }
         *BB_p = (block->b_flag == ON) ? block->b_number : s->BB_current;
         *CC_p = (block->c_flag == ON) ? block->c_number : s->CC_current;
         *u_p = (block->u_flag == ON) ? block->u_number : s->u_current;

@@ -398,6 +398,7 @@ private:
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ double unwrap_rotary(double, double);
 
   // O_word stuff
 
