@@ -123,9 +123,9 @@ radius compensation is in progress, or (2) the actual current position.
 
 */
 
-double Interp::unwrap_rotary(double commanded, double current) {
+double Interp::unwrap_rotary(double sign_of, double commanded, double current) {
     double result;
-    int neg = copysign(1.0, commanded) < 0.0;
+    int neg = copysign(1.0, sign_of) < 0.0;
     
     int d = (int)(current/360.0);
     result = fabs(commanded) + (d*360.0);
@@ -177,7 +177,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag == ON) {
-            *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+            *AA_p = unwrap_rotary(block->a_number, 
+                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
+                                  s->AA_current);
         } else {
             *AA_p = s->AA_current;
         }
@@ -235,7 +237,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag == ON) {
-            *AA_p = unwrap_rotary(block->a_number, s->AA_current);
+            *AA_p = unwrap_rotary(block->a_number, block->a_number, s->AA_current);
         } else {
             *AA_p = s->AA_current;
         }
