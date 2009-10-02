@@ -46,7 +46,7 @@
 static int debug_velacc = 0;
 static double css_maximum, css_numerator;
 
-static const double tiny = 1e-10;
+static const double tiny = 1e-7;
 static double xy_rotation = 0.;
 
 #ifndef MIN
