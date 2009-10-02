@@ -400,11 +400,17 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
+  double a;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
-  settings->parameters[5064] = GET_EXTERNAL_PROBE_POSITION_A();
+
+  a = GET_EXTERNAL_PROBE_POSITION_A();
+  a = fmod(a, 360.0);
+  if(a<0) a += 360.0;
+  settings->parameters[5064] = a;
+
   settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
   settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
   settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();

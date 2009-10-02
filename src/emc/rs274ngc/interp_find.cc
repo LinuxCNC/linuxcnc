@@ -328,7 +328,11 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y;
   rotate(x2, y2, -settings->rotation_xy);
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
-  *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+
+  *AA_2 = unwrap_rotary(AA_1,
+                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
+                        settings->AA_current);
+
   *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
   *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
   *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset;

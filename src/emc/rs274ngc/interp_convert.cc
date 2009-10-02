@@ -2214,26 +2214,39 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
         ERS("Cannot set reference point with cutter compensation in effect");
     }
 
+    double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
+    double y = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
+    double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
+    double a = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
+    double b = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
+    double c = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
+    double u = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
+    double v = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
+    double w = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+
+    a = fmod(a, 360.0);
+    if(a<0) a += 360.0;
+
     if(code == G_28_1) {
-        p[5161] = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
-        p[5162] = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
-        p[5163] = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
-        p[5164] = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
-        p[5165] = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
-        p[5166] = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
-        p[5167] = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
-        p[5168] = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
-        p[5169] = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+        p[5161] = x;
+        p[5162] = y;
+        p[5163] = z;
+        p[5164] = a;
+        p[5165] = b;
+        p[5166] = c;
+        p[5167] = u;
+        p[5168] = v;
+        p[5169] = w;
     } else if(code == G_30_1) {
-        p[5181] = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
-        p[5182] = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
-        p[5183] = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
-        p[5184] = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
-        p[5185] = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
-        p[5186] = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
-        p[5187] = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
-        p[5188] = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
-        p[5189] = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+        p[5181] = x;
+        p[5182] = y;
+        p[5183] = z;
+        p[5184] = a;
+        p[5185] = b;
+        p[5186] = c;
+        p[5187] = u;
+        p[5188] = v;
+        p[5189] = w;
     } else {
         ERS("BUG: Code not G28.1 or G38.1");
     }
