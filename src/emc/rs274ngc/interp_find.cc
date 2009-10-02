@@ -127,7 +127,7 @@ double Interp::unwrap_rotary(double sign_of, double commanded, double current) {
     double result;
     int neg = copysign(1.0, sign_of) < 0.0;
     
-    int d = (int)(current/360.0);
+    double d = floor(current/360.0);
     result = fabs(commanded) + (d*360.0);
     if(!neg && result < current) result += 360.0;
     if(neg && result > current) result -= 360.0;
