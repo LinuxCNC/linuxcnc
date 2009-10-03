@@ -27,11 +27,16 @@
 \layout Chapter
 
 HAL Examples
+\begin_inset LatexCommand \label{cha:HAL-Examples}
+
+\end_inset 
+
+
 \layout Standard
 
-Most of these examples assume you are starting with a stepconf based configurati
+Most of these examples assume you are starting with a Stepconf based configurati
 on and have two threads base-thread and servo-thread.
- The stepconf wizard will create an empty custom.hal and a custom_postgui.hal
+ The Stepconf wizard will create an empty custom.hal and a custom_postgui.hal
  file.
  The custom.hal file will be loaded after the configuration hal file and
  the custom_postgui.hal file is loaded after the GUI has been loaded.
@@ -39,6 +44,11 @@ on and have two threads base-thread and servo-thread.
 \layout Section
 
 Manual Toolchange
+\begin_inset LatexCommand \label{sec:Manual-Toolchange}
+
+\end_inset 
+
+
 \layout Standard
 
 In this example it is assumed that your "rolling your own" configuration
@@ -57,7 +67,7 @@ This is an example of
 \series bold 
 with
 \series default 
- the HAL Manual Toolchange from the stepconf wizard
+ the HAL Manual Toolchange from the Stepconf wizard
 \layout LyX-Code
 
 loadusr -W hal_manualtoolchange
@@ -81,7 +91,7 @@ This is an example of
 \series bold 
 without
 \series default 
- the HAL Manual Toolchange from the stepconf wizard
+ the HAL Manual Toolchange from the Stepconf wizard
 \layout LyX-Code
 
 net tool-number <= iocontrol.0.tool-prep-number
@@ -96,6 +106,11 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 \layout Section
 
 Compute Velocity
+\begin_inset LatexCommand \label{sec:Compute-Velocity}
+
+\end_inset 
+
+
 \layout Standard
 
 This example uses "ddt", "mult2" and "abs" to compute the velocity of a
@@ -159,12 +174,12 @@ In this last section we are setting the mult2.0.in1 to 60 to convert the inch
  
 \layout Standard
 
-The xpos-cmd sends the comanded position to the ddt.0.in.
+The xpos-cmd sends the commanded position to the ddt.0.in.
  The ddt computes the derivative of the change of the input.
  
 \layout Standard
 
-The ddt2.0.out is multiplyed by 60 to give IPM.
+The ddt2.0.out is multiplied by 60 to give IPM.
  
 \layout Standard
 
@@ -208,6 +223,11 @@ Velocity Example
 \layout Section
 \pagebreak_top 
 Soft Start
+\begin_inset LatexCommand \label{sec:Soft-Start}
+
+\end_inset 
+
+
 \layout Standard
 
 This example shows how the HAL components "lowpass", "limit2" or "limit3"
@@ -369,4 +389,129 @@ When your finished type "exit" in the terminal window to shut down halrun
 \layout Standard
 
 For more information on HalScope see the HAL manual.
+\layout Section
+
+Debounce
+\layout Standard
+
+The debounce component is used to filter a noisy digital input.
+ 
+\layout Standard
+
+The debounce filter works by incrementing a counter whenever the input is
+ true, and decrementing the counter when it is false.
+ If the counter decrements to zero, the output is set false and the counter
+ ignores further decrements.
+ If the counter increments up to a threshold, the output is set true and
+ the counter ignores further increments.
+ If the counter is between zero and the threshold, the output retains its
+ previous state.
+ The threshold determines the amount of filtering: a threshold of 1 does
+ no filtering at all, and a threshold of N requires a signal to be present
+ for N samples before the output changes state.
+\layout Standard
+
+The debounce components are created in groups with the size of the group
+ determined by the configuration when loaded.
+ This allows the integrator to set the parameters of a group with one line
+ in the HAL file and to add the group to a thread with one line.
+ In the following example 2 groups are created with 2 filters to show how
+ the addressing works.
+ If your using a Stepconf Wizard generated configuration put the following
+ in your custom.hal file.
+\layout LyX-Code
+
+# load the debounce component
+\newline 
+loadrt debounce cfg=2,2
+\layout LyX-Code
+
+# add each debounce group to different threads just for an example
+\newline 
+addf debounce.0 servo-thread
+\newline 
+addf debounce.1 base-thread
+\layout LyX-Code
+
+# set the debounce delay for group 0 to two cycles of the servo-thread
+\newline 
+setp debounce.0.delay 2
+\layout LyX-Code
+
+# set the debounce delay for group 1 to three cycles of the base-thread
+\newline 
+setp debounce.1.delay 3
+\layout Standard
+
+Now when you run EMC and look in the HAL Configuration window you will see
+ the two debounce groups.
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+Debounce Groups
+\begin_inset LatexCommand \label{cap:Debounce-Groups}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/debounce.png
+	scale 70
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout LyX-Code
+
+\layout Standard
+
+Now lets say we want to debounce an encoder signal from phase Z that is
+ coming into EMC via the parallel port pin 13.
+ First we have to remove the link to the pins then run them through the
+ debounce then out to the component.
+ If your using a Stepconf Wizard generated configuration put the following
+ in your custom.hal file.
+\layout LyX-Code
+
+# unlink the encoder and parallel port pins
+\newline 
+unlinkp encoder.0.phase-Z
+\newline 
+unlinkp parport.0.pin-13-in
+\layout LyX-Code
+
+# create a new signal and link the parallel port to the debounce component
+\newline 
+net filter-p-13 <= parport.0.pin-13-in => debounce.1.0.in
+\layout LyX-Code
+
+# create a new signal and send the filtered output to the encoder input
+\newline 
+net filtered-p-13 <= debounce.1.0.out => encoder.0.phase-Z
+\layout Standard
+
+Now if you have more pins to filter it is lather rinse repeat.
+ If your encoder is on the base-thread then you want to put the debounce
+ on the same thread usually so the timings are the same.
+ You can look in the main hal file to see where a component is added to
+ a function with addf.
+\layout LyX-Code
+
+\layout LyX-Code
+
+\layout LyX-Code
+
 \the_end
