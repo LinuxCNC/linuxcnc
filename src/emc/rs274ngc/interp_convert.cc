@@ -2224,8 +2224,20 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double v = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
     double w = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
 
-    a = fmod(a, 360.0);
-    if(a<0) a += 360.0;
+    if(s->a_axis_wrapped) {
+        a = fmod(a, 360.0);
+        if(a<0) a += 360.0;
+    }
+
+    if(s->b_axis_wrapped) {
+        b = fmod(a, 360.0);
+        if(b<0) b += 360.0;
+    }
+
+    if(s->c_axis_wrapped) {
+        c = fmod(c, 360.0);
+        if(c<0) c += 360.0;
+    }
 
     if(code == G_28_1) {
         p[5161] = x;

@@ -1118,8 +1118,17 @@ class MyOpengl(Opengl):
             else:
                 positions = list(positions)
 
-            positions[3] = math.fmod(positions[3], 360.0)
-            if positions[3] < 0: positions[3] += 360.0
+            if a_axis_wrapped:
+                positions[3] = math.fmod(positions[3], 360.0)
+                if positions[3] < 0: positions[3] += 360.0
+
+            if b_axis_wrapped:
+                positions[4] = math.fmod(positions[4], 360.0)
+                if positions[4] < 0: positions[4] += 360.0
+
+            if c_axis_wrapped:
+                positions[5] = math.fmod(positions[5], 360.0)
+                if positions[5] < 0: positions[5] += 360.0
 
             positions = to_internal_units(positions)
             axisdtg = to_internal_units(s.dtg)
@@ -3573,6 +3582,9 @@ vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
 lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
+b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
+c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)

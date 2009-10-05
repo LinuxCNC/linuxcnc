@@ -83,6 +83,26 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
     return hypot((radius * theta), (z2 - z1));
 }
 
+
+/* Find the real destination, given the axis's current position, the
+   commanded destination, and the direction to turn (which comes from
+   the sign of the commanded value in the gcode).  Modulo 360 positions
+   of the axis are considered equivalent and we just need to find the
+   nearest one. */
+
+double Interp::unwrap_rotary(double sign_of, double commanded, double current) {
+    double result;
+    int neg = copysign(1.0, sign_of) < 0.0;
+    
+    double d = floor(current/360.0);
+    result = fabs(commanded) + (d*360.0);
+    if(!neg && result < current) result += 360.0;
+    if(neg && result > current) result -= 360.0;
+
+    return result;
+}
+    
+
 /****************************************************************************/
 
 /*! find_ends
@@ -123,18 +143,6 @@ radius compensation is in progress, or (2) the actual current position.
 
 */
 
-double Interp::unwrap_rotary(double sign_of, double commanded, double current) {
-    double result;
-    int neg = copysign(1.0, sign_of) < 0.0;
-    
-    double d = floor(current/360.0);
-    result = fabs(commanded) + (d*360.0);
-    if(!neg && result < current) result += 360.0;
-    if(neg && result > current) result -= 360.0;
-
-    return result;
-}
-    
 
 int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                       setup_pointer s,    //!< pointer to machine settings                 
@@ -177,21 +185,37 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag == ON) {
-            *AA_p = unwrap_rotary(block->a_number, 
-                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
-                                  s->AA_current);
+            if(s->a_axis_wrapped) {
+                *AA_p = unwrap_rotary(block->a_number, 
+                                      block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
+                                      s->AA_current);
+            } else {
+                *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+            }
         } else {
             *AA_p = s->AA_current;
         }
 
         if(block->b_flag == ON) {
-            *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+            if(s->b_axis_wrapped) {
+                *BB_p = unwrap_rotary(block->b_number, 
+                                      block->b_number - s->BB_origin_offset - s->BB_axis_offset, 
+                                      s->BB_current);
+            } else {
+                *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+            }
         } else {
             *BB_p = s->BB_current;
         }
 
         if(block->c_flag == ON) {
-            *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+            if(s->c_axis_wrapped) {
+                *CC_p = unwrap_rotary(block->c_number, 
+                                      block->c_number - s->CC_origin_offset - s->CC_axis_offset, 
+                                      s->CC_current);
+            } else {
+                *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+            }
         } else {
             *CC_p = s->CC_current;
         }
@@ -237,12 +261,35 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag == ON) {
-            *AA_p = unwrap_rotary(block->a_number, block->a_number, s->AA_current);
+            if(s->a_axis_wrapped) {
+                *AA_p = unwrap_rotary(block->a_number, block->a_number, s->AA_current);
+            } else {
+                *AA_p = block->a_number;
+            }
         } else {
             *AA_p = s->AA_current;
         }
-        *BB_p = (block->b_flag == ON) ? block->b_number : s->BB_current;
-        *CC_p = (block->c_flag == ON) ? block->c_number : s->CC_current;
+
+        if(block->b_flag == ON) {
+            if(s->b_axis_wrapped) {
+                *BB_p = unwrap_rotary(block->b_number, block->b_number, s->BB_current);
+            } else {
+                *BB_p = block->b_number;
+            }
+        } else {
+            *BB_p = s->BB_current;
+        }
+
+        if(block->c_flag == ON) {
+            if(s->c_axis_wrapped) {
+                *CC_p = unwrap_rotary(block->c_number, block->c_number, s->CC_current);
+            } else {
+                *CC_p = block->c_number;
+            }
+        } else {
+            *CC_p = s->CC_current;
+        }
+
         *u_p = (block->u_flag == ON) ? block->u_number : s->u_current;
         *v_p = (block->v_flag == ON) ? block->v_number : s->v_current;
         *w_p = (block->w_flag == ON) ? block->w_number : s->w_current;
@@ -329,12 +376,30 @@ int Interp::find_relative(double x1,     //!< absolute x position
   rotate(x2, y2, -settings->rotation_xy);
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
 
-  *AA_2 = unwrap_rotary(AA_1,
-                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
-                        settings->AA_current);
+  if(settings->a_axis_wrapped) {
+      *AA_2 = unwrap_rotary(AA_1,
+                            AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
+                            settings->AA_current);
+  } else {
+      *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+  }
 
-  *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
-  *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+  if(settings->b_axis_wrapped) {
+      *BB_2 = unwrap_rotary(BB_1,
+                            BB_1 - settings->BB_origin_offset - settings->BB_axis_offset, 
+                            settings->BB_current);
+  } else {
+      *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
+  }
+
+  if(settings->c_axis_wrapped) {
+      *CC_2 = unwrap_rotary(CC_1,
+                            CC_1 - settings->CC_origin_offset - settings->CC_axis_offset, 
+                            settings->CC_current);
+  } else {
+      *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+  }
+
   *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset;
   *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset;
   *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_woffset;

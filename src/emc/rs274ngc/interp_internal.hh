@@ -461,6 +461,9 @@ typedef struct setup_struct
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
+  int a_axis_wrapped;
+  int b_axis_wrapped;
+  int c_axis_wrapped;
 
   ON_OFF lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
 }
