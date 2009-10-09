@@ -3151,19 +3151,58 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
 
-  if (block->x_flag == ON) {
-    x = block->x_number;
-    if (block->l_number == 20) x = settings->current_x + settings->origin_offset_x - x;
-    parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
+  if (block->r_flag == ON) {
+    CHKS((block->l_number == 20), "R not allowed in G10 L20");
+    r = block->r_number;
+    parameters[5210 + (p_int * 20)] = r;
   } else
-    x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
+    r = parameters[5210 + (p_int * 20)];
 
-  if (block->y_flag == ON) {
-    y = block->y_number;
-    if (block->l_number == 20) y = settings->current_y + settings->origin_offset_y - y;
-    parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
-  } else
-    y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
+  if (block->l_number == 20) {
+      // old position in rotated system
+      double oldx = settings->current_x, oldy = settings->current_y;
+
+      // find new desired position in rotated system
+      x = settings->current_x;
+      y = settings->current_y;
+
+      if (block->x_flag == ON) {
+          x = block->x_number;
+      }      
+      if (block->y_flag == ON) {
+          y = block->y_number;
+      }
+
+      // move old current position into the unrotated system
+      rotate(&oldx, &oldy, settings->rotation_xy);
+      // move desired position into the unrotated system
+      rotate(&x, &y, settings->rotation_xy);
+
+      // find new offset
+      x = oldx + settings->origin_offset_x - x;
+      y = oldy + settings->origin_offset_y - y;
+
+      // parameters are not rotated
+      parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
+      parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
+
+      // let the code below fix up the current coordinates correctly
+      rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
+      settings->rotation_xy = 0;
+  } else {
+      if (block->x_flag == ON) {
+          x = block->x_number;
+          parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
+      } else {
+          x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
+      }
+      if (block->y_flag == ON) {
+          y = block->y_number;
+          parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
+      } else {
+          y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
+      }
+  }
 
   if (block->z_flag == ON) {
     z = block->z_number;
@@ -3214,13 +3253,6 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   } else
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
-  if (block->r_flag == ON) {
-    r = block->r_number;
-    CHKS((block->l_number == 20), "R not allowed in G10 L20");
-    parameters[5210 + (p_int * 20)] = r;
-  } else
-    r = parameters[5210 + (p_int * 20)];
-      
   if (p_int == settings->origin_index) {        /* system is currently used */
       
     settings->current_x += settings->origin_offset_x;
