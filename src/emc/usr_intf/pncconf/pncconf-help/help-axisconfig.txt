@@ -48,15 +48,18 @@ many different ways to set homming and limits.
 
 * Home Search Velocity:
     Course home search velocity in units per minute.
-    If the axis must move in the positive direction
-    to find the home switch use a positive number.
+   
+* Home Search Direction:
+    Sets the home switch search direction
+    either towards negative limit switch
+    or towards positive limit switch
 
 * Home Latch Velocity:
     Fine Home search velocity in units per minute
 
 * Home Final Velocity:
     Velocity used from latch position to home position
-    in units per minute. Usually max rapid speed 
+    in units per minute. Set to 0 for max rapid speed 
 
 * Home latch Direction:
     Allows setting of the latch direction to the same
