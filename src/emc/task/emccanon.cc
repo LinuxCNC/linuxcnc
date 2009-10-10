@@ -1144,7 +1144,13 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
 
     if(rotation < 0) {
         if(dth >= -1e-5) th2 -= 2*M_PI;
+        // in the edge case where atan2 gives you -pi and pi, a second iteration is needed
+        // to get these in the right order
+        dth = th2 - th1;
+        if(dth >= -1e-5) th2 -= 2*M_PI;
     } else {
+        if(dth <= 1e-5) th2 += 2*M_PI;
+        dth = th2 - th1;
         if(dth <= 1e-5) th2 += 2*M_PI;
     }
 
