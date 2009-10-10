@@ -272,6 +272,9 @@ private:
  double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
                               double x2, double y2, double z2);
+ int find_current_in_system(setup_pointer s, int system, double *x, double *y, double *z,
+                            double *a, double *b, double *c,
+                            double *u, double *v, double *w);
  int find_ends(block_pointer block, setup_pointer settings, 
                double *px, double *py, double *pz, 
                double *AA_p, double *BB_p, double *CC_p,
