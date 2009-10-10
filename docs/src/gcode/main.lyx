@@ -3867,7 +3867,7 @@ name "sec:G10-L20"
 \end_layout
 
 \begin_layout LyX-Code
-G10 L22 P[coordinate system] R[rotation about Z] 
+G10 L20 P[coordinate system] R[rotation about Z] 
 \family typewriter
 \emph on
 axes...
