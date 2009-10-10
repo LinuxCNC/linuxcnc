@@ -17,7 +17,7 @@
         <label>
             <text>"Input pin 2"</text>
             <halpin>"pp1_led_text.2"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -28,7 +28,7 @@
         <label>
             <text>"Input pin 3"</text>
             <halpin>"pp1_led_text.3"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -39,7 +39,7 @@
         <label>
             <text>"Input pin 4"</text>
             <halpin>"pp1_led_text.4"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -50,7 +50,7 @@
         <label>
             <text>"Input pin 5"</text>
             <halpin>"pp1_led_text.5"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -61,7 +61,7 @@
         <label>
             <text>"Input pin 6"</text>
             <halpin>"pp1_led_text.6"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -72,7 +72,7 @@
         <label>
             <text>"Input pin 7"</text>
             <halpin>"pp1_led_text.7"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -83,7 +83,7 @@
         <label>
             <text>"Input pin 8"</text>
             <halpin>"pp1_led_text.8"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
@@ -94,7 +94,7 @@
         <label>
             <text>"Input pin 9"</text>
             <halpin>"pp1_led_text.9"</halpin>
-            <disablepin>true</disablepin>
+            <disablepin>True</disablepin>
         </label>
     </hbox>
     <hbox>
