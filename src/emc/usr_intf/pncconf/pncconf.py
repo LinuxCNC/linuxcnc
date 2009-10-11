@@ -1148,7 +1148,6 @@ class Data:
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
             print >>file, "STEPSPACE  = %d"% int(get("stepspace"))            
             print >>file, "SCALE = %s"% get("scale") 
-            print >>file, "INPUT_SCALE = %s" % get("scale")  
         if letter == 's':return  
         if self[letter + "usecomp"]:
             print >>file, "COMP_FILE = %s" % get("compfilename")
@@ -1310,21 +1309,21 @@ class Data:
             print >>file, "    setp " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
             print >>file, "    setp " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
             print >>file, "    setp " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
-            print >>file, "    setp " + pinname + ".maxaccel        [%s_%d]MAX_ACCELERATION"% (title, axnum)
-            print >>file, "    setp " + pinname + ".maxvel          [%s_%d]MAX_VELOCITY"% (title, axnum)
-            print >>file, "    setp " + pinname + ".step_type       0"        
+            print >>file, "    setp " + pinname + ".maxaccel         0"
+            print >>file, "    setp " + pinname + ".maxvel           0"
+            print >>file, "    setp " + pinname + ".step_type        0"        
             if let == 's':  
                 print >>file, "    setp " + pinname + ".control-type    1"
                 print >>file
-                print >>file, "net spindle-enable          => " + pinname + ".enable" 
-                print >>file, "net spindle-vel-cmd-rps    => "+ pinname + ".velocity-cmd"
+                print >>file, "net spindle-enable          =>  " + pinname + ".enable" 
+                print >>file, "net spindle-vel-cmd-rps     =>  "+ pinname + ".velocity-cmd"
                 if encoder == "false":
-                    print >>file, "net spindle-vel-fb         <= "+ pinname + ".velocity-fb"     
+                    print >>file, "net spindle-vel-fb         <=  "+ pinname + ".velocity-fb"     
             else:
                 print >>file
-                print >>file, "net %spos-fb     "% let  + pinname + ".position-fb => axis.%d.motor-pos-fb" %  axnum
-                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd => "% (let, axnum) + pinname + ".position-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out => "% (let, axnum) + pinname + ".enable"  
+                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"  
+                print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + pinname + ".position-cmd"
+                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"  
             print >>file
 
         if 'm5i20' in encoder:
@@ -1341,30 +1340,30 @@ class Data:
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
                 if let == 's':
-                    print >>file, "net spindle-vel-fb     <= " +pinname+".velocity"
-                    print >>file, "net spindle-index-enable     <=> "+ pinname + ".index-enable"       
+                    print >>file, "net spindle-vel-fb            <=  " +pinname+".velocity"
+                    print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"       
                     #print >>file, "net spindle-vel-cmd => pid.%d.feedback"% (axnum)                   
                 else: 
-                    print >>file, "net %spos-fb     <= "% (let) +pinname+".position"
-                    print >>file, "net %spos-fb     => pid.%s.feedback"% (let,let) 
-                    print >>file, "net %spos-fb     => axis.%d.motor-pos-fb" % (let, axnum)  
+                    print >>file, "net %spos-fb     <=  "% (let) +pinname+".position"
+                    print >>file, "net %spos-fb     =>  pid.%s.feedback"% (let,let) 
+                    print >>file, "net %spos-fb     =>  axis.%d.motor-pos-fb" % (let, axnum)  
                 print >>file  
 
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
             print >>file
-            print >>file, "net spindle-vel-cmd-rps    <= motion.spindle-speed-out-rps"
-            print >>file, "net spindle-vel-cmd        <= motion.spindle-speed-out"
-            print >>file, "net spindle-enable         <= motion.spindle-on"
+            print >>file, "net spindle-vel-cmd-rps    <=  motion.spindle-speed-out-rps"
+            print >>file, "net spindle-vel-cmd        <=  motion.spindle-speed-out"
+            print >>file, "net spindle-enable         <=  motion.spindle-on"
             #print >>file, "net spindle-on <= motion.spindle-on"
-            print >>file, "net spindle-cw             <= motion.spindle-forward"
-            print >>file, "net spindle-ccw            <= motion.spindle-reverse"
-            print >>file, "net spindle-brake          <= motion.spindle-brake"            
+            print >>file, "net spindle-cw             <=  motion.spindle-forward"
+            print >>file, "net spindle-ccw            <=  motion.spindle-reverse"
+            print >>file, "net spindle-brake          <=  motion.spindle-brake"            
 
-            print >>file, "net spindle-revs           => motion.spindle-revs"
-            print >>file, "net spindle-atspeed        => motion.spindle-at-speed"
-            print >>file, "net spindle-vel-fb         => motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable  <=> motion.spindle-index-enable"
+            print >>file, "net spindle-revs           =>  motion.spindle-revs"
+            print >>file, "net spindle-atspeed        =>  motion.spindle-at-speed"
+            print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
+            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
             return
         
         min_limsig = self.min_lim_sig(let)
@@ -1375,15 +1374,15 @@ class Data:
         if homesig == "false": homesig = "%s-home-sw" % let
         print >>file, "# ---setup home / limit switch signals---"       
         print >>file       
-        print >>file, "net %s        => axis.%d.home-sw-in" % (homesig, axnum)       
-        print >>file, "net %s     => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
-        print >>file, "net %s     => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
+        print >>file, "net %s     =>  axis.%d.home-sw-in" % (homesig, axnum)       
+        print >>file, "net %s     =>  axis.%d.neg-lim-sw-in" % (min_limsig, axnum)       
+        print >>file, "net %s     =>  axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
         print >>file
         print >>file, "# ---Setup jogwheel mpg signals---"
         print >>file
-        print >>file, "net %s-jog-count     => axis.%d.jog-counts" % (let,axnum)
-        print >>file, "net %s-jog-enable    => axis.%d.jog-enable" % (let,axnum)
-        print >>file, "net %s-jog-scale     => axis.%d.jog-scale" % (let,axnum)
+        print >>file, "net %s-jog-count     =>  axis.%d.jog-counts" % (let,axnum)
+        print >>file, "net %s-jog-enable    =>  axis.%d.jog-enable" % (let,axnum)
+        print >>file, "net %s-jog-scale     =>  axis.%d.jog-scale" % (let,axnum)
         print >>file
         if not jogwheel =="false":
             pinname = self.make_pinname(self.findsignal(let+"-mpg-a"))
@@ -1394,7 +1393,7 @@ class Data:
                 print >>file, "    sets %s-jog-scale .010" % let
                 print >>file, "    setp %s.filter true" % pinname
                 print >>file, "    setp %s.counter-mode true" % pinname
-                print >>file, "net %s-jog-count     <= %s.count"% (let, pinname)
+                print >>file, "net %s-jog-count     <=  %s.count"% (let, pinname)
                 print >>file
                 
                 
@@ -1421,8 +1420,8 @@ class Data:
                     if p == "unused-input":continue 
                     pinname = self.make_pinname(self.findsignal( p )) 
                     print >>file, "# ---",p.upper(),"---"
-                    if i: print >>file, "net %s     <= "% (p)+pinname +".in_not"
-                    else: print >>file, "net %s     <= "% (p)+pinname +".in"
+                    if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
+                    else: print >>file, "net %s     <=  "% (p)+pinname +".in"
                 # for encoder pins
                 elif t in (ENCA):
                     if p == "unused-encoder":continue
@@ -1430,11 +1429,11 @@ class Data:
                         pinname = self.make_pinname(self.findsignal( p )) 
                         sig = p.rstrip("-a")
                         print >>file, "# ---",sig.upper(),"---"
-                        print >>file, "net %s         <= "% (sig+"-position")+pinname +".position"   
-                        print >>file, "net %s            <= "% (sig+"-count")+pinname +".count"     
-                        print >>file, "net %s         <= "% (sig+"-velocity")+pinname +".velocity"
-                        print >>file, "net %s            <= "% (sig+"-reset")+pinname +".reset"      
-                        print >>file, "net %s     <= "% (sig+"-index-enable")+pinname +".index-enable"      
+                        print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"   
+                        print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"     
+                        print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity"
+                        print >>file, "net %s            <=  "% (sig+"-reset")+pinname +".reset"      
+                        print >>file, "net %s     <=  "% (sig+"-index-enable")+pinname +".index-enable"      
                 else: continue
 
     def connect_output(self, file):
@@ -1444,7 +1443,7 @@ class Data:
             p = self['pp1Opin%d' % q]
             i = self['pp1Opin%dinv' % q]
             if p == UNUSED_OUTPUT: continue
-            print >>file, "net %s     => parport.0.pin-%02d-out" % (p, q)
+            print >>file, "net %s     =>  parport.0.pin-%02d-out" % (p, q)
             if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for connector in (2,3,4):
@@ -1461,7 +1460,7 @@ class Data:
                     print >>file, "    setp "+pinname +".is_output true"
                     if i: print >>file, "    setp "+pinname+".invert_output true"
                     if t == 2: print >>file, "    setp "+pinname+".is_opendrain  true"   
-                    print >>file, "net %s     => "% (p)+pinname +".out"              
+                    print >>file, "net %s     =>  "% (p)+pinname +".out"              
                 # for pwm pins
                 elif t in (PWMP,PDMP):
                     if p == "unused-pwm":continue
@@ -1473,8 +1472,8 @@ class Data:
                             print >>file, "    setp "+pinname +".output-type 1"
                         elif t == PDMP:
                             print >>file, "    setp "+pinname +".output-type 3"
-                        print >>file, "net %s     <= "% (sig+"-enable")+pinname +".enable"  
-                        print >>file, "net %s      <= "% (sig+"-value")+pinname +".value" 
+                        print >>file, "net %s     <=  "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s      <=  "% (sig+"-value")+pinname +".value" 
                 # for stepper pins
                 elif t == (STEPA):
                     if p == "unused-stepgen":continue
@@ -1482,11 +1481,11 @@ class Data:
                         pinname = self.make_pinname(self.findsignal( p )) 
                         sig = p.rstrip("-step")
                         print >>file, "# ---",sig.upper(),"---"
-                        print >>file, "net %s           <= "% (sig+"-enable")+pinname +".enable"  
-                        print >>file, "net %s            <= "% (sig+"-count")+pinname +".counts" 
-                        print >>file, "net %s     <= "% (sig+"-cmd-position")+pinname +".position-cmd"  
-                        print >>file, "net %s     <= "% (sig+"-act-position")+pinname +".position-fb" 
-                        print >>file, "net %s         <= "% (sig+"-velocity")+pinname +".velocity-fb"
+                        print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
+                        print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
+                        print >>file, "net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd"  
+                        print >>file, "net %s     <=  "% (sig+"-act-position")+pinname +".position-fb" 
+                        print >>file, "net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb"
                 else:continue
 
     def write_halfile(self, base):
@@ -1696,14 +1695,20 @@ class Data:
         print >>file    
         if pump:    
             print >>file, _("#  ---charge pump signals---")
-            print >>file, "net estop-out       => charge-pump.enable"
-            print >>file, "net charge-pump     <= charge-pump.out"
+            print >>file, "net estop-out       =>  charge-pump.enable"
+            print >>file, "net charge-pump     <=  charge-pump.out"
+            print >>file
         print >>file, _("#  ---coolant signals---")
-        print >>file, "net coolant-mist      <= iocontrol.0.coolant-mist"
-        print >>file, "net coolant-flood     <= iocontrol.0.coolant-flood"
+        print >>file
+        print >>file, "net coolant-mist      <=  iocontrol.0.coolant-mist"
+        print >>file, "net coolant-flood     <=  iocontrol.0.coolant-flood"
+        print >>file
         print >>file, _("#  ---probe signal---")
-        print >>file, "net probe-in     => motion.probe-input"
+        print >>file
+        print >>file, "net probe-in     =>  motion.probe-input"
+        print >>file
         print >>file, _("# ---jog button signals---")
+        print >>file
         print >>file, "# setp halui.jog-speed 1"
         print >>file, "# net jog-x-plus             halui.jog.0.plus"
         print >>file, "# net jog-x-minus            halui.jog.0.minus"
@@ -1715,56 +1720,68 @@ class Data:
         print >>file, "# net jog-a-minus            halui.jog.3.minus"
         print >>file, "# net jog-selected-plus      halui.jog.selected.plus"
         print >>file, "# net jog-selected-minus     halui.jog.selected.minus"
+        print >>file
         print >>file, _("#  ---digital in / out signals---")
+        print >>file
         for i in range(4):
             dout = "dout-%02d" % i
             if not self.findsignal(dout) =="false":
-                print >>file, "net %s     <= motion.digital-out-%02d" % (dout, i)
-
+                print >>file, "net %s     <=  motion.digital-out-%02d" % (dout, i)
         for i in range(4):
             din = "din-%02d" % i
             if not self.findsignal(din) =="false":
-                print >>file, "net %s     => motion.digital-in-%02d" % (din, i)
+                print >>file, "net %s     =>  motion.digital-in-%02d" % (din, i)
         print >>file, _("#  ---estop signals---")
-        print >>file, "net estop-out     <= iocontrol.0.user-enable-out"
+        print >>file
+        print >>file, "net estop-out     <=  iocontrol.0.user-enable-out"
         if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
-            print >>file 
+            print >>file
             print >>file, _("# **** Setup for external estop ladder program -START ****")
             print >>file
             print >>file, "net estop-out     => classicladder.0.in-00"
             print >>file, "net estop-ext     => classicladder.0.in-01"
-            print >>file, "net estop-strobe     classicladder.0.in-02 <= iocontrol.0.user-request-enable"
-            print >>file, "net estop-outcl     classicladder.0.out-00 => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-strobe     classicladder.0.in-02  <=  iocontrol.0.user-request-enable"
+            print >>file, "net estop-outcl     classicladder.0.out-00  =>  iocontrol.0.emc-enable-in"
             print >>file
             print >>file, _("# **** Setup for external estop ladder program -END ****")
         elif estop:
-            print >>file, "net estop-ext     => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-ext     =>  iocontrol.0.emc-enable-in"
         else:
-            print >>file, "net estop-out     => iocontrol.0.emc-enable-in"
+            print >>file, "net estop-out     =>  iocontrol.0.emc-enable-in"
         if enable:
-            print >>file, "net enable     => motion.motion-enabled"
+            print >>file, "net enable        =>  motion.motion-enabled"
 
         print >>file
         if self.manualtoolchange:
+            print >>file, _("#  ---manual tool change signals---")
+            print >>file
             print >>file, "loadusr -W hal_manualtoolchange"
-            print >>file, "net tool-change-request     iocontrol.0.tool-change => hal_manualtoolchange.change"
-            print >>file, "net tool-change-confirmed     iocontrol.0.tool-changed <= hal_manualtoolchange.changed"
-            print >>file, "net tool-number     iocontrol.0.tool-prep-number => hal_manualtoolchange.number"
-            print >>file, "net tool-prepare-loopback     iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
+            print >>file, "net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change"
+            print >>file, "net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed"
+            print >>file, "net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number"
+            print >>file, "net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared"
+            print >>file
         else:
-            print >>file, "net tool-number     <= iocontrol.0.tool-prep-number"
-            print >>file, "net tool-change-request     <= iocontrol.0.tool-change"
-            print >>file, "net tool-change-confirmed     => iocontrol.0.tool-changed" 
-            print >>file, "net tool-prepare-request     <= iocontrol.0.tool-prepare"
-            print >>file, "net tool-prepare-confirmed     => iocontrol.0.tool-prepared" 
+            print >>file, _("#  ---toolchange signals for custom tool changer---")
+            print >>file
+            print >>file, "net tool-number             <=  iocontrol.0.tool-prep-number"
+            print >>file, "net tool-change-request     <=  iocontrol.0.tool-change"
+            print >>file, "net tool-change-confirmed   =>  iocontrol.0.tool-changed" 
+            print >>file, "net tool-prepare-request    <=  iocontrol.0.tool-prepare"
+            print >>file, "net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared" 
+            print >>file
         if self.classicladder:
             print >>file
             if self.modbus:
                 print >>file, _("# Load Classicladder with modbus master included (GUI must run for Modbus)")
+                print >>file
                 print >>file, "loadusr classicladder --modmaster custom.clp"
+                print >>file
             else:
                 print >>file, _("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI")
+                print >>file
                 print >>file, "loadusr classicladder --nogui custom.clp"
+                print >>file
         if self.pyvcp:
             vcp = os.path.join(base, "custompanel.xml")
             if not os.path.exists(vcp):
@@ -1788,10 +1805,12 @@ class Data:
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+                  print >>f1
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
                       print >>f1, _("# **** spindle-velocity is signed so we use absolute compoent to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
+                      print >>f1
                       print >>f1
                       print >>f1, ("setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
@@ -1801,27 +1820,28 @@ class Data:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")                     
-                  print >>f1, ("net tool-number => pyvcp.toolnumber")
+                      print >>f1, ("net spindle-cmd                       =>  abs.0.in")
+                      print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
+                  print >>f1, ("net tool-number                        => pyvcp.toolnumber")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
+                  print >>f1
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
                       print >>f1
-                      print >>f1, ("net jog-X+ <= pyvcp.jog-x+ => halui.jog.0.plus")
-                      print >>f1, ("net jog-X- <= pyvcp.jog-x- => halui.jog.0.minus")
-                      print >>f1, ("net jog-Y+ <= pyvcp.jog-y+ => halui.jog.1.plus")
-                      print >>f1, ("net jog-Y- <= pyvcp.jog-y- => halui.jog.1.minus")
-                      print >>f1, ("net jog-Z+ <= pyvcp.jog-z+ => halui.jog.2.plus")
-                      print >>f1, ("net jog-Z- <= pyvcp.jog-z- => halui.jog.2.minus")
-                      print >>f1, ("net jog-speed <= pyvcp.jog-speed => halui.jog-speed")
-                      print >>f1, ("net optional-stp-on <= pyvcp.ostop-on => halui.program.optional-stop.on")
-                      print >>f1, ("net optional-stp-off <= pyvcp.ostop-off => halui.program.optional-stop.off")
-                      print >>f1, ("net optional-stp-is-on <= pyvcp.ostop-is-on => halui.program.optional-stop.is-on")
-                      print >>f1, ("net program-pause <= pyvcp.pause => halui.program.pause")
-                      print >>f1, ("net program-resume <= pyvcp.resume => halui.program.resume")
-                      print >>f1, ("net program-single-step <= pyvcp.step => halui.program.step")
+                      print >>f1, ("net jog-X+      pyvcp.jog-x+  =>  halui.jog.0.plus")
+                      print >>f1, ("net jog-X-      pyvcp.jog-x-  =>  halui.jog.0.minus")
+                      print >>f1, ("net jog-Y+      pyvcp.jog-y+  =>  halui.jog.1.plus")
+                      print >>f1, ("net jog-Y-      pyvcp.jog-y-  =>  halui.jog.1.minus")
+                      print >>f1, ("net jog-Z+      pyvcp.jog-z+  =>  halui.jog.2.plus")
+                      print >>f1, ("net jog-Z-      pyvcp.jog-z-  =>  halui.jog.2.minus")
+                      print >>f1, ("net jog-speed           pyvcp.jog-speed    =>  halui.jog-speed")
+                      print >>f1, ("net optional-stp-on     pyvcp.ostop-on     =>  halui.program.optional-stop.on")
+                      print >>f1, ("net optional-stp-off    pyvcp.ostop-off    =>  halui.program.optional-stop.off")
+                      print >>f1, ("net optional-stp-is-on  pyvcp.ostop-is-on  =>  halui.program.optional-stop.is-on")
+                      print >>f1, ("net program-pause       pyvcp.pause        =>  halui.program.pause")
+                      print >>f1, ("net program-resume      pyvcp.resume       =>  halui.program.resume")
+                      print >>f1, ("net program-single-step pyvcp.step         =>  halui.program.step")
                       print >>f1
                       print >>f1, _("# **** The following mdi-comands are specified in the machine named INI file under [HALUI] heading")
                       print >>f1, ("# **** command 00 - rapid to Z 0 ( G0 Z0 )")
@@ -1830,12 +1850,12 @@ class Data:
                       print >>f1, ("# **** command 03 - zero Y axis in G54 cordinate system")
                       print >>f1, ("# **** command 04 - zero Z axis in G54 cordinate system")
                       print >>f1
-                      print >>f1, ("net MDI-Z-up <= pyvcp.MDI-z_up => halui.mdi-command-00")
-                      print >>f1, ("net MDI-reference-pos <= pyvcp.MDI-reference => halui.mdi-command-01")
-                      print >>f1, ("net MDI-zero_X <= pyvcp.MDI-zerox => halui.mdi-command-02")
-                      print >>f1, ("net MDI-zero_Y <= pyvcp.MDI-zeroy => halui.mdi-command-03")
-                      print >>f1, ("net MDI-zero_Z <= pyvcp.MDI-zeroz => halui.mdi-command-04")
-                      print >>f1, ("net MDI-clear-offset <= pyvcp.MDI-clear-offset => halui.mdi-command-05")
+                      print >>f1, ("net MDI-Z-up            pyvcp.MDI-z_up          =>  halui.mdi-command-00")
+                      print >>f1, ("net MDI-reference-pos   pyvcp.MDI-reference     =>  halui.mdi-command-01")
+                      print >>f1, ("net MDI-zero_X          pyvcp.MDI-zerox         =>  halui.mdi-command-02")
+                      print >>f1, ("net MDI-zero_Y          pyvcp.MDI-zeroy         =>  halui.mdi-command-03")
+                      print >>f1, ("net MDI-zero_Z          pyvcp.MDI-zeroz         =>  halui.mdi-command-04")
+                      print >>f1, ("net MDI-clear-offset    pyvcp.MDI-clear-offset  =>  halui.mdi-command-05")
                       print >>f1
                       print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END ****")
 
@@ -3138,10 +3158,10 @@ class App:
                     else:firmptype = GPIOI
                 # ---SETUP FOR GPIO FAMILY COMPONENT---
                 # first check to see if firmware says it should be in GPIO family
-                # note this can be because firmware says it should be some other 
+                # (note this can be because firmware says it should be some other 
                 # type but the user wants to deselect it so as to use it as GPIO
                 # this is done in the firmtype checks before this check. 
-                # They will change firmtype variable to GPIOI       
+                # They will change firmtype variable to GPIOI)       
                 # check if firmtype is in GPIO family
                 # check if widget is already configured
                 # check to see if data says it is in GPIO family
@@ -4881,8 +4901,6 @@ class App:
         halrun.write("addf steptest.0 slow\n")
         halrun.write("addf hm2_%s.0.write slow\n"% boardname)     
         #halrun.write("addf parport.0.write fast")
-
-       #TODO fix this to work with parport signals
         
         temp = self.data.findsignal( "enable")
         self.amp = self.data.make_pinname(temp)
@@ -4946,7 +4964,6 @@ class App:
         if not self.enc =="false":        
             if "HOSTMOT2" in self.enc:
                 self.enc = self.enc.replace("[HOSTMOT2](BOARD)",boardname)     
-           # if 'parport' in enc:
                 halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
                 halrun.write("setp %s 1\n"%  (self.enc +".scale"))
                 halrun.write("setp %s \n"%  (self.enc +".filter true"))
