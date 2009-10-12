@@ -661,7 +661,7 @@ Coordinate System Origin Setting Calculated
 \begin_inset Text
 
 \begin_layout Standard
-P R X Y Z A B C
+P X Y Z A B C
 \end_layout
 
 \end_inset
@@ -3867,14 +3867,14 @@ name "sec:G10-L20"
 \end_layout
 
 \begin_layout LyX-Code
-G10 L20 P[coordinate system] R[rotation about Z] 
+G10 L20 P[coordinate system] 
 \family typewriter
 \emph on
 axes...
 \end_layout
 
 \begin_layout Standard
-G10 L20 is just like G10 L2 except that instead of setting the offset/entry
+G10 L20 is similar to G10 L2 except that instead of setting the offset/entry
  to the given value, it is set to a calculated value that makes the current
  coordinates become the given value.
 \end_layout
