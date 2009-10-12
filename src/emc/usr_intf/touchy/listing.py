@@ -44,15 +44,18 @@ class listing:
             else:
                 e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
 
-    def highlight_line(self, n):
-        n -= 1                          # program[] is zero-based, emc line numbers are one-based
-        if self.selected == n: return
-        self.selected = n
+    def show_line(self, n):
         if len(self.program) <= self.numlabels:
             self.lineoffset = 0
         else:
             self.lineoffset = min(max(0, n - self.numlabels/2),self.lines - self.numlabels)
         self.populate()
+
+    def highlight_line(self, n):
+        n -= 1                          # program[] is zero-based, emc line numbers are one-based
+        if self.selected == n: return
+        self.selected = n
+        self.show_line(n)
 
     def up(self, b):
         self.lineoffset -= self.numlabels
@@ -78,12 +81,24 @@ class listing:
         pass
 
     def previous(self, b):
-        self.start_line -= 1
-        self.populate()
+        while True:
+            if self.start_line <= 0:
+                break
+            self.start_line -= 1
+            if (self.program[self.start_line][0] == 'N' or
+                self.program[self.start_line][0] == 'n' ):
+                break
+        self.show_line(self.start_line)
 
     def next(self,b):
-        self.start_line += 1
-        self.populate()
+        while True:
+            if self.start_line >= len(self.program)-1:
+                break
+            self.start_line += 1
+            if (self.program[self.start_line][0] == 'N' or
+                self.program[self.start_line][0] == 'n' ):
+                break
+        self.show_line(self.start_line)
 
     def clear_startline(self):
         self.start_line = -1
