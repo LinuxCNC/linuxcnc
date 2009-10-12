@@ -48,7 +48,10 @@ class listing:
         n -= 1                          # program[] is zero-based, emc line numbers are one-based
         if self.selected == n: return
         self.selected = n
-        self.lineoffset = min(max(0, n - self.numlabels/2),self.lines - self.numlabels)
+        if len(self.program) <= self.numlabels:
+            self.lineoffset = 0
+        else:
+            self.lineoffset = min(max(0, n - self.numlabels/2),self.lines - self.numlabels)
         self.populate()
 
     def up(self, b):
