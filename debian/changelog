@@ -10,6 +10,7 @@ emc2 (1:2.3.4~pre) hardy; urgency=low
   * serport: don't print errors at startup
   * fix hang for M1xx code that cannot be executed (SF#2836077)
   * rotatekins: Fix forward kinematics (SF#2870683)
+  * fix saving the direction setup time (SF#2870131)
 
  -- Jeff Epler <jepler@unpythonic.net>  Mon, 24 Aug 2009 07:57:10 -0500
 
