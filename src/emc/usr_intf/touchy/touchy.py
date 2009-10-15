@@ -156,6 +156,7 @@ class touchy:
                 # event bindings
                 dic = {
                         "quit" : self.quit,
+                        "on_reload_tooltable_clicked" : self.emc.reload_tooltable,
                         "on_notebook1_switch_page" : self.tabselect,
                         "on_controlfontbutton_font_set" : self.change_control_font,
                         "on_drofontbutton_font_set" : self.change_dro_font,
@@ -331,7 +332,8 @@ class touchy:
                           "wheelx", "wheely", "wheelz", "override_limits",
                           "spindle_forward", "spindle_off", "spindle_reverse",
                           "spindle_faster", "spindle_slower",
-                          "dro_commanded", "dro_actual", "dro_inch", "dro_mm"]:
+                          "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
+                          "reload_tooltable"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 

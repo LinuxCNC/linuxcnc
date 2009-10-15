@@ -168,6 +168,10 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.maxvel(m/60.0)
 
+        def reload_tooltable(self, b):
+                if self.masked: return
+                self.emccommand.load_tool_table()                
+
         def abort(self):
                 self.emccommand.abort()
 
