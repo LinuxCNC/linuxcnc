@@ -132,6 +132,13 @@ static void process_inputs(void);
 */
 static void do_forward_kins(void);
 
+/* probe inputs need to be handled after forward kins are run, since
+   cartesian feedback position is latched when the probe fires, and it
+   should be based on the feedback read in on this servo cycle.
+*/
+
+static void process_probe_inputs(void);
+
 /* 'check_for_faults()' is responsible for detecting fault conditions
    such as limit switches, amp faults, following error, etc.  It only
    checks active axes.  It is also responsible for generating an error
@@ -321,6 +328,8 @@ check_stuff ( "before process_inputs()" );
 check_stuff ( "after process_inputs()" );
     do_forward_kins();
 check_stuff ( "after do_forward_kins()" );
+    process_probe_inputs();
+check_stuff ( "after process_probe_inputs()" );
     check_for_faults();
 check_stuff ( "after check_for_faults()" );
     set_operating_mode();
@@ -358,13 +367,7 @@ check_stuff ( "after update_status()" );
    prototypes"
 */
 
-static void process_inputs(void)
-{
-    int joint_num;
-    double abs_ferror, tmp, scale;
-    joint_hal_t *joint_data;
-    emcmot_joint_t *joint;
-    unsigned char enables;
+static void process_probe_inputs(void) {
     static int old_probeVal = 0;
     unsigned char probe_type = emcmotStatus->probe_type;
 
@@ -443,6 +446,15 @@ static void process_inputs(void)
         }
     }
     old_probeVal = emcmotStatus->probeVal;
+}
+
+static void process_inputs(void)
+{
+    int joint_num;
+    double abs_ferror, tmp, scale;
+    joint_hal_t *joint_data;
+    emcmot_joint_t *joint;
+    unsigned char enables;
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
     emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
