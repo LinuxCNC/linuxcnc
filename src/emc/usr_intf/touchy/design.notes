@@ -29,10 +29,10 @@ hard controls:
         
 running:
 /	run, stop, pause, step
-	feed hold?
+/	feed hold?
 	optional stop?
-	rfl?
-	gcode display?
+/	rfl?
+/	gcode display?
 
 status: [only native units for now?]
 
@@ -42,10 +42,10 @@ status: [only native units for now?]
         
         [just sometimes?]
 /        	loaded file
-        	current line
+/        	current line
 
         	tlo
-        	rotation
+/        	rotation
 
 /        	dtg
 /        	current vel
@@ -60,7 +60,7 @@ status: [only native units for now?]
 /        	loaded tool
 /       	prepped tool
 
-        	running gcode (how much? maybe only one line?)
+/        	running gcode (how much? maybe only one line?)
 /        	xyz abs
 /        	dtg per axis
 /        	estop/on
