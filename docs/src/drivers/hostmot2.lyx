@@ -2100,7 +2100,7 @@ The stepgen representation is modeled on the stepgen software component.
  step space).
  To invert a StepGen output pin you invert the corresponding GPIO pin that
  is being used by StepGen.
- To find the GPIO pin being used for the StepGen output run dmesg as show
+ To find the GPIO pin being used for the StepGen output run dmesg as shown
  above.
 \end_layout
 
