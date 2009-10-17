@@ -2243,7 +2243,7 @@ PWMgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>.".
 In HM2, each pwmgen uses three output IO pins: Not-Enable, Out0, and Out1.
  To invert a PWMGen output pin you invert the corresponding GPIO pin that
  is being used by PWMGen.
- To find the GPIO pin being used for the PWMGen output run dmesg as show
+ To find the GPIO pin being used for the PWMGen output run dmesg as shown
  above.
 \end_layout
 
