@@ -366,7 +366,7 @@ class touchy:
                 self.mdi_control.set_tool(self.status.get_current_tool())
 
         def mdi_set_origin(self, b):
-                self.mdi_control.set_origin(b)
+                self.mdi_control.set_origin(self.status.get_current_system())
 
         def fileselect(self, eb, e):
                 if self.wheel == "jogging": self.wheel = "mv"

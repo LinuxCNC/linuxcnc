@@ -235,11 +235,11 @@ class mdi_control:
         self.next(0)
         self.next(0)
 
-    def set_origin(self, b):
+    def set_origin(self, system):
         self.g(0)
         self.set_text("G10", 0)
         self.next(0)
         self.set_text("L20", 1)
         self.next(0)
-        self.set_text("P1", 2)
+        self.set_text("P%d" % system, 2)
         self.next(0)

@@ -241,6 +241,16 @@ class emc_status:
                 self.emcstat.poll()
                 return self.emcstat.tool_in_spindle
 
+        def get_current_system(self):
+                self.emcstat.poll()
+                g = self.emcstat.gcodes
+                for i in g:
+                        if i >= 540 and i <= 590:
+                                return i/10 - 53
+                        elif i >= 590 and i <= 593:
+                                return i - 584
+                return 1
+
         def periodic(self):
                 last_mode = self.emcstat.task_mode
                 self.emcstat.poll()
