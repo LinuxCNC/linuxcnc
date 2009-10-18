@@ -335,6 +335,7 @@ class emc_status:
                 self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
                 self.status['preppedtool'].set_text("%d" % self.emcstat.tool_prepped)
                 self.status['xyrotation'].set_text("%d" % self.emcstat.rotation_xy)
+                self.status['tlo'].set_text("%f" % self.emcstat.tool_offset[2])
 
                 self.prefs['inch'].set_active(self.mm == 0)
                 self.prefs['mm'].set_active(self.mm == 1)
