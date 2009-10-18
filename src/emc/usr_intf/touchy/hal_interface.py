@@ -15,7 +15,8 @@
 import hal
 
 class hal_interface:
-    def __init__(self, emc_control, mdi_control):
+    def __init__(self, gui, emc_control, mdi_control):
+        self.gui = gui
         self.emc_control = emc_control
         self.mdi_control = mdi_control
         self.c = hal.component("touchy")
@@ -103,6 +104,8 @@ class hal_interface:
 
         cyclestart = self.c["cycle-start"]
         if cyclestart and not self.cyclestart:
+            if self.gui.wheel == "jogging": self.gui.wheel = "mv"
+            self.gui.jogsettings_activate(0)
             if mdi_mode:
                 self.mdi_control.ok(0)
             else:
