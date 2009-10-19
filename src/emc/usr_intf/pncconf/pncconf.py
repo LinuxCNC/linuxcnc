@@ -455,12 +455,13 @@ class Data:
         self.manualtoolchange = True
         self.multimpg = False
         self.require_homing = True
+        self.individual_homing = False
         self.restore_joint_position = False
         self.tooloffset_on_w = False
         self.restore_toolnumber = False
         self.raise_z_on_toolchange = False
         self.allow_spindle_on_toolchange = False
-        self.customhal = 1 # include custom hal file
+        self.customhal = False # include custom hal file
         self.userneededpid = 0
 
         # pyvcp data
@@ -607,16 +608,10 @@ class Data:
                 self[pinname] = ""
 
         #HAL component command list
-        for i in range(1,6):
-                pinname ="loadcomp%s"% i
-                self[pinname] = ""
-                pinname ="addcomp%s"% i
-                self[pinname] = ""
-                pinname ="threadspeed%s"% i
-                self[pinname] = 1
-        self.loadcomp6 = []
-        self.threadspeed6 = 1
-        self.addcomp6 = []
+        self.loadcompservo = []
+        self.addcompservo = []
+        self.loadcompbase = []
+        self.addcompbase = []
 
         # axis x data
         self.xdrivertype = "custom"
@@ -645,20 +640,21 @@ class Data:
         self.xFF2 = 0
         self.xbias = 0
         self.xdeadband = 0
-        self.xsteptime = 0
-        self.xstepspace = 0
-        self.xdirhold = 0
-        self.xdirsetup = 0
+        self.xsteptime = 1000
+        self.xstepspace = 1000
+        self.xdirhold = 1000
+        self.xdirsetup = 1000
         self.xminferror = .0005
         self.xmaxferror = .005
         self.xhomepos = 0
         self.xminlim =  0
         self.xmaxlim =  8
         self.xhomesw =  0
-        self.xhomevel = .05
+        self.xhomesearchvel = .05
         self.xhomelatchvel = .025
         self.xhomefinalvel = 0
         self.xlatchdir = 0
+        self.xsearchdir = 0
         self.xusehomeindex = 1
         self.xhomesequence = 1203
         self.xencodercounts =4000
@@ -691,19 +687,20 @@ class Data:
         self.yFF2 = 0
         self.ybias = 0
         self.ydeadband = 0
-        self.ysteptime = 0
-        self.ystepspace = 0
-        self.ydirhold = 0
-        self.ydirsetup = 0
+        self.ysteptime = 1000
+        self.ystepspace = 1000
+        self.ydirhold = 1000
+        self.ydirsetup = 1000
         self.yminferror = 0.125
         self.ymaxferror = 0.250
         self.yhomepos = 0
         self.yminlim =  0
         self.ymaxlim =  8
         self.yhomesw =  0
-        self.yhomevel = .05
+        self.yhomesearchvel = .05
         self.yhomelatchvel = .025
         self.yhomefinalvel = 0
+        self.ysearchdir = 0
         self.ylatchdir = 0
         self.yusehomeindex = 0
         self.yencodercounts =4000
@@ -736,19 +733,20 @@ class Data:
         self.zFF2 = 0
         self.zbias = 0
         self.zdeadband = 0
-        self.zsteptime = 0
-        self.zstepspace = 0
-        self.zdirhold = 0
-        self.zdirsetup = 0
+        self.zsteptime = 1000
+        self.zstepspace = 1000
+        self.zdirhold = 1000
+        self.zdirsetup = 1000
         self.zminferror = 0.0005
         self.zmaxferror = 0.005
         self.zhomepos = 0
         self.zminlim = -4
         self.zmaxlim =  0
         self.zhomesw = 0
-        self.zhomevel = .05
+        self.zhomesearchvel = .05
         self.zhomelatchvel = .025
         self.zhomefinalvel = 0
+        self.zsearchdir = 0
         self.zlatchdir = 0
         self.zusehomeindex = 0
         self.zencodercounts =1000
@@ -782,19 +780,20 @@ class Data:
         self.aFF2 = 0
         self.abias = 0
         self.adeadband = 0
-        self.asteptime = 0
-        self.astepspace = 0
-        self.adirhold = 0
-        self.adirsetup = 0
+        self.asteptime = 1000
+        self.astepspace = 1000
+        self.adirhold = 1000
+        self.adirsetup = 1000
         self.aminferror = 0.0005
         self.amaxferror = 0.005
         self.ahomepos = 0
         self.aminlim = -9999
         self.amaxlim =  9999
         self.ahomesw =  0
-        self.ahomevel = .05
+        self.ahomesearchvel = .05
         self.ahomelatchvel = .025
         self.ahomefinalvel = 0
+        self.asearchdir = 0
         self.alatchdir = 0
         self.ausehomeindex = 0
         self.aencodercounts = 1000
@@ -823,10 +822,10 @@ class Data:
         self.sFF2 = 0
         self.sbias = 0
         self.sdeadband = 0
-        self.ssteptime = 0
-        self.sstepspace = 0
-        self.sdirhold = 0
-        self.sdirsetup = 0
+        self.ssteptime = 1000
+        self.sstepspace = 1000
+        self.sdirhold = 1000
+        self.sdirsetup = 1000
         self.sencodercounts = 1000
         self.spindlecarrier = 100
         self.spindlecpr = 100
@@ -1054,9 +1053,9 @@ class Data:
         if self.axes == 4: all_homes = all_homes and self.home_sig("a")
 
         self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
         if self.axes != 2:
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
         if self.axes == 1:
             self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
         self.write_one_axis(file, 9, "s", "null", all_homes)
@@ -1158,7 +1157,7 @@ class Data:
             print >>file, "BACKLASH = %s" % get("backlash")
         # emc2 doesn't like having home right on an end of travel,
         # so extend the travel limit by up to .01in or .1mm
-        minlim = get("minlim")
+        minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
         home = get("homepos")
         if self.units: extend = .001
@@ -1174,10 +1173,19 @@ class Data:
         for i in thisaxishome:
             if not self.findsignal(i) == "false": homes = True
         if homes:
-            print >>file, "HOME_OFFSET = %f" % get("homesw")
-            print >>file, "HOME_SEARCH_VEL = %f" % get("homevel")
+            searchvel = abs(get("homesearchvel"))
             latchvel = abs(get("homelatchvel"))
-            if get("latchdir"): latchvel = -latchvel            
+            if not get("searchdir"):
+                 searchvel = -searchvel
+                 if not get("latchdir"): 
+                    latchvel = -latchvel 
+            else:
+                if get("latchdir"): 
+                    latchvel = -latchvel
+            print >>file, "HOME_OFFSET = %f" % get("homesw")
+            print >>file, "HOME_SEARCH_VEL = %f" % searchvel
+            
+                       
             print >>file, "HOME_LATCH_VEL = %f" % latchvel
             print >>file, "HOME_FINAL_VEL = %f" % get("homefinalvel")
             if get("usehomeindex"):useindex = "YES"
@@ -1187,7 +1195,7 @@ class Data:
                 if not self.findsignal(i) == "false":
                     print >>file, "HOME_IGNORE_LIMITS = YES"
                     break
-            if all_homes:
+            if all_homes and not self.individual_homing:
                 print >>file, "HOME_SEQUENCE = %s" % order[num]
         else:
             print >>file, "HOME_OFFSET = %s" % get("homepos")
@@ -1196,7 +1204,7 @@ class Data:
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
         for i in thisaxishome:
             if not self.findsignal(i) == "false": return i
-        return "false"
+        return False
 
     def min_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
@@ -1567,11 +1575,12 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        for i in range(1,6):
-                compname = self["loadcomp%d"% i] 
-                if not compname == "":
-                    print >>file, compname
-        for i in self.loadcomp6:
+        # load user custom components
+        for i in self.loadcompbase:
+            if i == '': continue
+            else:              
+                print >>file, i 
+        for i in self.loadcompservo:
             if i == '': continue
             else:              
                 print >>file, i 
@@ -1589,17 +1598,11 @@ class Data:
         #if spindle_enc: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
         #if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
-        for i in range(1,6):
-                compname = self["addcomp%d"% i] 
-                if  self["threadspeed%d"% i] == 0:
-                    if compname == "": continue
-                    print >>file, compname," base-thread"
-                else: continue
-        for i in self.addcomp6:
-            if  self["threadspeed6"] == 1: continue
-            if i == '': continue
-            else:              
+         
+        for i in self.addcompbase:
+            if not i == '':
                 print >>file, i +" base-thread"
+
         if self.number_pports > 0:
             print >>file, "addf parport.0.write base-thread"
             if self.doublestep():
@@ -1619,13 +1622,12 @@ class Data:
         for i in self.available_axes:
             #if axis needs pid- (has pwm)
             print "looking at available axis : ",i
-            if self.findsignal(i+"-encoder-a") == "false": continue 
-            if (self.spidcontrol == False and i == 's') : continue
-
-            print "adding " ,i
+            if self.findsignal(i+"-encoder-a") == "false": 
+                continue 
+            if (self.spidcontrol == False and i == 's') :   
+                continue
             temp = temp +1 
             axislet.append(i)
-            print axislet, temp
             # add axis letter to 'need pid' string
             #if axis is needed
         temp = temp + self.userneededpid
@@ -1658,16 +1660,8 @@ class Data:
             if spindle_enc:
                print >>file, "addf scale.0 servo-thread"
 
-        for i in range(1,6):
-                compname = self["addcomp%d"% i] 
-                if  self["threadspeed%d"% i] == 1:
-                    if compname.isspace() == True:continue
-                    print >>file, compname," servo-thread"
-                else: continue
-        for i in self.addcomp6:
-            if  self["threadspeed6"] == 0: continue
-            if i == '': continue
-            else:              
+        for i in self.addcompservo:
+            if not i == '':
                 print >>file, i +" servo-thread"
 
         if self.mesa5i20>0:
@@ -1958,7 +1952,6 @@ class Data:
         self.write_readme(base)
         self.write_inifile(base)
         self.write_halfile(base)
-        self.copy(base, "emc.nml")
         self.copy(base, "tool.tbl")
         self.copy(base, "emc.var")
 
@@ -2499,19 +2492,26 @@ class App:
         if  not self.widgets.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custompanel.xml" % self.data.machinename)):
                 self.widgets.pyvcpexist.set_active(True)
-        self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity)
-        self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity)
-        self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity)
-        self.widgets.default_angular_velocity.set_value( self.data.default_angular_velocity)
-        self.widgets.max_angular_velocity.set_value( self.data.max_angular_velocity)
-        self.widgets.min_angular_velocity.set_value( self.data.min_angular_velocity)
+        self.widgets.default_linear_velocity.set_value( self.data.default_linear_velocity*60)
+        self.widgets.max_linear_velocity.set_value( self.data.max_linear_velocity*60)
+        self.widgets.min_linear_velocity.set_value( self.data.min_linear_velocity*60)
+        self.widgets.default_angular_velocity.set_value( self.data.default_angular_velocity*60)
+        self.widgets.max_angular_velocity.set_value( self.data.max_angular_velocity*60)
+        self.widgets.min_angular_velocity.set_value( self.data.min_angular_velocity*60)
         self.widgets.editor.set_text(self.data.editor)
-        if self.data.units == 0 :temp = self.data.increments_imperial
-        else:temp = self.data.increments_metric
+        if self.data.units == 0 :
+            temp = self.data.increments_imperial
+            tempunits = "in / min"
+        else:
+            temp = self.data.increments_metric
+            tempunits = "mm / min"
         self.widgets.increments.set_text(temp)
+        for i in (0,1,2):
+            self.widgets["velunits"+str(i)].set_text(tempunits)
         self.widgets.geometry.set_text(self.data.geometry)
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
         self.widgets.require_homing.set_active(self.data.require_homing)
+        self.widgets.individual_homing.set_active(self.data.individual_homing)
         self.widgets.restore_joint_position.set_active(self.data.restore_joint_position) 
         self.widgets.tooloffset_on_w.set_active(self.data.tooloffset_on_w) 
         self.widgets.restore_toolnumber.set_active(self.data.restore_toolnumber) 
@@ -2525,17 +2525,18 @@ class App:
            self.data.frontend = 2
         else:
             self.data.frontend = 3
-        self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()
-        self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()
-        self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()
-        self.data.default_angular_velocity = self.widgets.default_angular_velocity.get_value()
-        self.data.max_angular_velocity = self.widgets.max_angular_velocity.get_value()
-        self.data.min_angular_velocity = self.widgets.min_angular_velocity.get_value()
+        self.data.default_linear_velocity = self.widgets.default_linear_velocity.get_value()/60
+        self.data.max_linear_velocity = self.widgets.max_linear_velocity.get_value()/60
+        self.data.min_linear_velocity = self.widgets.min_linear_velocity.get_value()/60
+        self.data.default_angular_velocity = self.widgets.default_angular_velocity.get_value()/60
+        self.data.max_angular_velocity = self.widgets.max_angular_velocity.get_value()/60
+        self.data.min_angular_velocity = self.widgets.min_angular_velocity.get_value()/60
         self.data.editor = self.widgets.editor.get_text()
         if self.data.units == 0 :self.data.increments_imperial = self.widgets.increments.get_text()
         else:self.data.increments_metric = self.widgets.increments.get_text()
         self.data.geometry = self.widgets.geometry.get_text()
         self.data.require_homing = self.widgets.require_homing.get_active()
+        self.data.individual_homing = self.widgets.individual_homing.get_active()
         self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
         self.data.tooloffset_on_w = self.widgets.tooloffset_on_w.get_active() 
         self.data.restore_toolnumber = self.widgets.restore_toolnumber.get_active() 
@@ -3565,9 +3566,10 @@ class App:
         set_text("minlim")
         set_text("maxlim")
         set_text("homesw")
-        w[axis+"homevel"].set_text("%d" % (d[axis+"homevel"]*60))
+        w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
         w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
         w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
+        set_active("searchdir")
         set_active("latchdir")
         set_active("usehomeindex")
 
@@ -3630,6 +3632,11 @@ class App:
         w[axis + "servo_info"].set_sensitive(not stepdriven)
         w[axis + "stepper_info"].set_sensitive(stepdriven)    
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
+        if w[axis + "drivertype"].get_active_text()  == _("Custom"):
+            w[axis + "steptime"].set_value(d[axis + "steptime"])
+            w[axis + "stepspace"].set_value(d[axis + "stepspace"])
+            w[axis + "dirhold"].set_value(d[axis + "dirhold"])
+            w[axis + "dirsetup"].set_value(d[axis + "dirsetup"])
  
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
         homes = False
@@ -3637,7 +3644,8 @@ class App:
             test = self.data.findsignal(i)
             if not test == "false": homes = True
         w[axis + "homesw"].set_sensitive(homes)
-        w[axis + "homevel"].set_sensitive(homes)
+        w[axis + "homesearchvel"].set_sensitive(homes)
+        w[axis + "searchdir"].set_sensitive(homes)
         w[axis + "latchdir"].set_sensitive(homes)
         w[axis + "usehomeindex"].set_sensitive(homes)
         w[axis + "homefinalvel"].set_sensitive(homes)
@@ -3762,9 +3770,10 @@ class App:
         get_text("minlim")
         get_text("maxlim")
         get_text("homesw")
-        d[axis + "homevel"] = (float(w[axis + "homevel"].get_text())/60)
+        d[axis + "homesearchvel"] = (float(w[axis + "homesearchvel"].get_text())/60)
         d[axis + "homelatchvel"] = (float(w[axis + "homelatchvel"].get_text())/60)
         d[axis + "homefinalvel"] = (float(w[axis + "homefinalvel"].get_text())/60)
+        get_active("searchdir")
         get_active("latchdir")
         get_active("usehomeindex")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
@@ -3879,6 +3888,7 @@ class App:
         self.widgets.druid1.set_page(self.widgets.yaxismotor)
         return True
     def on_zaxis_next(self, *args):
+        self.axis_done('z')
         if self.data.axes != 1 :
             if self.has_spindle_speed_control():
                 self.widgets.druid1.set_page(self.widgets.spindle)
@@ -3919,6 +3929,7 @@ class App:
     def on_spindle_prepare(self, *args):
         d = self.data
         w = self.widgets
+        self.widgets.spidcontrol.set_active( self.data.spidcontrol )
         test = self.data.findsignal("s-stepgen-step")
         stepdriven = 1
         if test == "false":stepdriven = 0
@@ -3987,11 +3998,10 @@ class App:
         set_text("sencodercounts")
         w["smaxvel"].set_text("%d" % (d["smaxvel"]*60))
         set_text("smaxacc")
-             
-
+        
     def on_spindle_next(self, *args):
         d = self.data
-        w = self.widgets
+        w = self.widgets 
         def get_text(n): d["s" + n] = float(w["s" + n].get_text())
         def get_active(n): d["s" + n] = w["s" + n].get_active()
         get_text("steprev")
@@ -4013,7 +4023,8 @@ class App:
         get_text("maxoutput")
         get_text("encodercounts")
         get_active("invertmotor")
-        get_active("invertencoder") 
+        get_active("invertencoder")
+        get_active("pidcontrol")  
         get_text("pulleynum")
         get_text("pulleyden")
         d["smaxvel"] = (float(w["smaxvel"].get_text())/60)
@@ -4025,7 +4036,6 @@ class App:
         self.data.spindlespeed2 = float(self.widgets.spindlespeed2.get_text())
         self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
         self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
-        d.spidcontrol = w.spidcontrol.get_active()
         #self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
         
     def on_spindle_back(self, *args):
@@ -4188,57 +4198,43 @@ class App:
 
     def on_realtime_components_prepare(self,*args):
         self.data.help = "help-realtime.txt"
-        self.widgets.spidcontrol.set_active( self.data.spidcontrol )
         self.widgets.userneededpid.set_value(self.data.userneededpid)
         if not self.intrnldata.components_is_prepared:
-            for i in range(1,6):
-                    pinname ="loadcomp%s"% i
-                    self.widgets[pinname].set_text(self.data[pinname]) 
-                    pinname ="addcomp%s"% i
-                    self.widgets[pinname].set_text(self.data[pinname]) 
-                    pinname ="threadspeed%s"% i
-                    self.widgets[pinname].set_active(self.data[pinname]) 
-            # for different style entrybox
-
-            textbuffer = self.widgets.loadcomp6.get_buffer()
-            for i in self.data.loadcomp6:
+            textbuffer = self.widgets.loadcompservo.get_buffer()
+            for i in self.data.loadcompservo:
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
-            textbuffer = self.widgets.addcomp6.get_buffer()
-            for i in self.data.addcomp6:
+            textbuffer = self.widgets.addcompservo.get_buffer()
+            for i in self.data.addcompservo:
                 if i == '': continue
                 textbuffer.insert_at_cursor(i+"\n" )
-            pinname ="threadspeed6"
-            self.widgets[pinname].set_active(self.data[pinname]) 
+            textbuffer = self.widgets.loadcompbase.get_buffer()
+            for i in self.data.loadcompbase:
+               textbuffer.insert_at_cursor(i+"\n" )
+            textbuffer = self.widgets.addcompbase.get_buffer()
+            for i in self.data.addcompbase:
+                if i == '': continue
+                textbuffer.insert_at_cursor(i+"\n" )
             self.intrnldata.components_is_prepared = True
 
     def on_realtime_components_next(self,*args):
-        self.data.spidcontrol = self.widgets.spidcontrol.get_active() 
         self.data.userneededpid = self.widgets.userneededpid.get_value()
-        for i in range(1,6):
-                pinname ="loadcomp%s"% i
-                self.data[pinname] = self.widgets[pinname].get_text() 
-                pinname ="addcomp%s"% i
-                self.data[pinname] = self.widgets[pinname].get_text() 
-                pinname ="threadspeed%s"% i
-                self.data[pinname] = self.widgets[pinname].get_active() 
-        # other style entrybox
-        textbuffer = self.widgets.loadcomp6.get_buffer()
+        
+        textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
         test = textbuffer.get_text(startiter,enditer)
         i = test.split('\n')
-        print "loadcomp ",i
-        self.data.loadcomp6 = i
-        textbuffer = self.widgets.addcomp6.get_buffer()
+        print "loadcompservo ",i
+        self.data.loadcompservo = i
+        textbuffer = self.widgets.addcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
         test = textbuffer.get_text(startiter,enditer)
         i = test.split('\n')
-        print "addcomp ",i
-        self.data.addcomp6 = i
-        pinname ="threadspeed6"
-        self.data[pinname] = self.widgets[pinname].get_active()
+        print "addcompservo ",i
+        self.data.addcompservo = i
+       
 
     def on_complete_back(self, *args):
         self.widgets.druid1.set_page(self.widgets.advanced)
@@ -4647,7 +4643,9 @@ class App:
         self.tunejogplus = self.tunejogminus = 0
         w[axis+"tunedir"].set_active(0)
         w[axis+"tunerun"].set_active(0)
-     
+        w[axis+"tuneinvertmotor"].set_active(w[axis+"invertmotor"].get_active())
+        w[axis+"tuneinvertencoder"].set_active(w[axis+"invertencoder"].get_active())
+             
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
@@ -4694,12 +4692,15 @@ class App:
                     halrun.write("setp hm2_%s.0.pwmgen.%02d.scale 10\n"% (board,encpinnum)) 
                 # for Stepgen pins
                 elif pintype in (STEPA,STEPB):
-                    if not pintype == STEPA : continue    
+                    if not pintype == STEPA : 
+                        continue    
                     if "m5i20" in stepgen:      
                         # check current component number to signal's component number  
                         if pin == int(stepgen[10:]):
                             self.currentstepgen = compnum
                             self.boardname = board
+                            self.stepinvert = concount*24+1
+                            halrun.write("setp hm2_%s.0.gpio.%03d.invert_output %d \n"% (board,self.stepinvert,w[axis+"invertmotor"].get_active()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (board,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (board,compnum,float(w[axis + "scale"].get_text()) ))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (board,compnum))
@@ -4755,6 +4756,8 @@ class App:
             w[axis+"stepspace"].set_value(float(w[axis+"tunecurrentstepspace"].get_text()))
             w[axis+"dirhold"].set_value(float(w[axis+"tunecurrentdirhold"].get_text()))
             w[axis+"dirsetup"].set_value(float(w[axis+"tunecurrentdirsetup"].get_text()))
+            w[axis+"invertmotor"].set_active(w[axis+"tuneinvertmotor"].get_active())
+            w[axis+"invertencoder"].set_active(w[axis+"tuneinvertencoder"].get_active())
         if not amp == "false":
              halrun.write("setp %s false\n"% (amp + ".out"))
         if not estop == "false":
@@ -4770,6 +4773,7 @@ class App:
         if axis is None: return
         halrun = self.halrun
         halrun.write("""
+            setp hm2_%(board)s.0.gpio.%(gpio)03d.invert_output %(invert)d 
             setp hm2_%(board)s.0.stepgen.%(num)02d.steplen %(len)d
             setp hm2_%(board)s.0.stepgen.%(num)02d.stepspace %(space)d
             setp hm2_%(board)s.0.stepgen.%(num)02d.dirhold %(hold)d
@@ -4780,15 +4784,17 @@ class App:
             setp steptest.0.jog-plus %(jogplus)s
             setp steptest.0.run %(run)s
             setp steptest.0.amplitude %(amplitude)f
-            setp steptest.0.maxvel %(vel)f
+            setp steptest.0.maxvel %(velps)f
             setp steptest.0.maxaccel %(accel)f
             setp steptest.0.dir %(dir)s
             setp steptest.0.pause %(pause)d
         """ % {
-            'len':self.widgets[axis+"steptime"].get_value(),
-            'space':self.widgets[axis+"stepspace"].get_value(),
-            'hold':self.widgets[axis+"dirhold"].get_value(),
-            'setup':self.widgets[axis+"dirsetup"].get_value(),
+            'gpio':self.stepinvert,
+            'invert':self.widgets[axis+"tuneinvertmotor"].get_active(),
+            'len':self.widgets[axis+"tunecurrentsteptime"].get_value(),
+            'space':self.widgets[axis+"tunecurrentstepspace"].get_value(),
+            'hold':self.widgets[axis+"tunecurrentdirhold"].get_value(),
+            'setup':self.widgets[axis+"tunecurrentdirsetup"].get_value(),
             'board': board,
             'num': compnum,
             'jogminus': self.tunejogminus,
@@ -4814,6 +4820,8 @@ class App:
         self.update_tune_axis_params()
     def on_tunejogplus_released(self, w):
         self.tunejogplus = 0
+        self.update_tune_axis_params()
+    def on_tuneinvertmotor_toggled(self, w):
         self.update_tune_axis_params()
 
     def test_axis(self, axis):

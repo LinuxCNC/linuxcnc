@@ -2517,15 +2517,7 @@ Installing
 \begin_layout Quote
 emc2$ 
 \series bold
-halcmd loadrt debounce cfg=
-\begin_inset Quotes erd
-\end_inset
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset
-
-
+halcmd loadrt debounce cfg=<config-string>
 \end_layout
 
 \begin_layout Standard
@@ -2533,7 +2525,7 @@ halcmd loadrt debounce cfg=
 \family typewriter
 <config-string>
 \family default
- is a series of space separated decimal integers.
+ is a series of comma separated decimal integers.
  Each number installs a group of identical debounce filters, the number
  determines how many filters are in the group.
  For example:
@@ -2542,15 +2534,7 @@ halcmd loadrt debounce cfg=
 \begin_layout Quote
 emc2$ 
 \series bold
-halcmd loadrt debounce cfg=
-\begin_inset Quotes erd
-\end_inset
-
-1 4 2
-\begin_inset Quotes erd
-\end_inset
-
-
+halcmd loadrt debounce cfg=1,4,2
 \end_layout
 
 \begin_layout Standard
@@ -2563,15 +2547,7 @@ will install three groups of filters.
 \family default
  is 
 \family typewriter
-
-\begin_inset Quotes eld
-\end_inset
-
-1
-\begin_inset Quotes erd
-\end_inset
-
-
+"1"
 \family default
  which will install a single group containing a single filter.
  The maximum number of groups 8 (as defined by MAX_GROUPS in debounce.c).

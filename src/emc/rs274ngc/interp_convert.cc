@@ -1599,21 +1599,15 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
     return INTERP_OK;
   }
 
+  // move the current point into the new system
+  find_current_in_system(settings, origin,
+                         &settings->current_x, &settings->current_y, &settings->current_z,
+                         &settings->AA_current, &settings->BB_current, &settings->CC_current,
+                         &settings->u_current, &settings->v_current, &settings->w_current);
+
   // remember that this is new system
   settings->origin_index = origin;
   parameters[5220] = (double) origin;
-
-  // move the current point back to unoffset coordinates
-  rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-  settings->current_x += settings->origin_offset_x;
-  settings->current_y += settings->origin_offset_y;
-  settings->current_z += settings->origin_offset_z;
-  settings->AA_current += settings->AA_origin_offset;
-  settings->BB_current += settings->BB_origin_offset;
-  settings->CC_current += settings->CC_origin_offset;
-  settings->u_current += settings->u_origin_offset;
-  settings->v_current += settings->v_origin_offset;
-  settings->w_current += settings->w_origin_offset;
 
   // load the origin of the newly-selected system
   settings->origin_offset_x = USER_TO_PROGRAM_LEN(parameters[5201 + (origin * 20)]);
@@ -1626,18 +1620,6 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->v_origin_offset = USER_TO_PROGRAM_LEN(parameters[5208 + (origin * 20)]);
   settings->w_origin_offset = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
   settings->rotation_xy = parameters[5210 + (origin * 20)];
-
-  // now move the current point into the new system
-  settings->current_x -= settings->origin_offset_x;
-  settings->current_y -= settings->origin_offset_y;
-  settings->current_z -= settings->origin_offset_z;
-  settings->AA_current -= settings->AA_origin_offset;
-  settings->BB_current -= settings->BB_origin_offset;
-  settings->CC_current -= settings->CC_origin_offset;
-  settings->u_current -= settings->u_origin_offset;
-  settings->v_current -= settings->v_origin_offset;
-  settings->w_current -= settings->w_origin_offset;
-  rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
 
   SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
                      settings->origin_offset_y + settings->axis_offset_y,
@@ -3148,79 +3130,120 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   double *parameters;
   int p_int;
 
+  double cx, cy, cz, ca, cb, cc, cu, cv, cw;
+
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
 
-  if (block->x_flag == ON) {
-    x = block->x_number;
-    if (block->l_number == 20) x = settings->current_x + settings->origin_offset_x - x;
-    parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
-  } else
-    x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
+  find_current_in_system(settings, p_int,
+                         &cx, &cy, &cz,
+                         &ca, &cb, &cc,
+                         &cu, &cv, &cw);
 
-  if (block->y_flag == ON) {
-    y = block->y_number;
-    if (block->l_number == 20) y = settings->current_y + settings->origin_offset_y - y;
-    parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
+  if (block->r_flag == ON) {
+    CHKS((block->l_number == 20), "R not allowed in G10 L20");
+    r = block->r_number;
+    parameters[5210 + (p_int * 20)] = r;
   } else
-    y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
+    r = parameters[5210 + (p_int * 20)];
+
+  if (block->l_number == 20) {
+      // old position in rotated system
+      double oldx = cx, oldy = cy;
+
+      // find new desired position in rotated system
+      x = cx;
+      y = cy;
+
+      if (block->x_flag == ON) {
+          x = block->x_number;
+      }      
+      if (block->y_flag == ON) {
+          y = block->y_number;
+      }
+
+      // move old current position into the unrotated system
+      rotate(&oldx, &oldy, r);
+      // move desired position into the unrotated system
+      rotate(&x, &y, r);
+
+      // find new offset
+      x = oldx + USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]) - x;
+      y = oldy + USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]) - y;
+
+      // parameters are not rotated
+      parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
+      parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
+
+      if (p_int == settings->origin_index) {
+          // let the code below fix up the current coordinates correctly
+          rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
+          settings->rotation_xy = 0;
+      }
+  } else {
+      if (block->x_flag == ON) {
+          x = block->x_number;
+          parameters[5201 + (p_int * 20)] = PROGRAM_TO_USER_LEN(x);
+      } else {
+          x = USER_TO_PROGRAM_LEN(parameters[5201 + (p_int * 20)]);
+      }
+      if (block->y_flag == ON) {
+          y = block->y_number;
+          parameters[5202 + (p_int * 20)] = PROGRAM_TO_USER_LEN(y);
+      } else {
+          y = USER_TO_PROGRAM_LEN(parameters[5202 + (p_int * 20)]);
+      }
+  }
 
   if (block->z_flag == ON) {
     z = block->z_number;
-    if (block->l_number == 20) z = settings->current_z + settings->origin_offset_z - z;
+    if (block->l_number == 20) z = cz + USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]) - z;
     parameters[5203 + (p_int * 20)] = PROGRAM_TO_USER_LEN(z);
   } else
     z = USER_TO_PROGRAM_LEN(parameters[5203 + (p_int * 20)]);
 
   if (block->a_flag == ON) {
     a = block->a_number;
-    if (block->l_number == 20) a = settings->AA_current + settings->AA_origin_offset - a;
+    if (block->l_number == 20) a = ca + USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]) - a;
     parameters[5204 + (p_int * 20)] = PROGRAM_TO_USER_ANG(a);
   } else
     a = USER_TO_PROGRAM_ANG(parameters[5204 + (p_int * 20)]);
 
   if (block->b_flag == ON) {
     b = block->b_number;
-    if (block->l_number == 20) b = settings->BB_current + settings->BB_origin_offset - b;
+    if (block->l_number == 20) b = cb + USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]) - b;
     parameters[5205 + (p_int * 20)] = PROGRAM_TO_USER_ANG(b);
   } else
     b = USER_TO_PROGRAM_ANG(parameters[5205 + (p_int * 20)]);
 
   if (block->c_flag == ON) {
     c = block->c_number;
-    if (block->l_number == 20) c = settings->CC_current + settings->CC_origin_offset - c;
+    if (block->l_number == 20) c = cc + USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]) - c;
     parameters[5206 + (p_int * 20)] = PROGRAM_TO_USER_ANG(c);
   } else
     c = USER_TO_PROGRAM_ANG(parameters[5206 + (p_int * 20)]);
 
   if (block->u_flag == ON) {
     u = block->u_number;
-    if (block->l_number == 20) u = settings->u_current + settings->u_origin_offset - u;
+    if (block->l_number == 20) u = cu + USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]) - u;
     parameters[5207 + (p_int * 20)] = PROGRAM_TO_USER_LEN(u);
   } else
     u = USER_TO_PROGRAM_LEN(parameters[5207 + (p_int * 20)]);
 
   if (block->v_flag == ON) {
     v = block->v_number;
-    if (block->l_number == 20) v = settings->v_current + settings->v_origin_offset - v;
+    if (block->l_number == 20) v = cv + USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]) - v;
     parameters[5208 + (p_int * 20)] = PROGRAM_TO_USER_LEN(v);
   } else
     v = USER_TO_PROGRAM_LEN(parameters[5208 + (p_int * 20)]);
 
   if (block->w_flag == ON) {
     w = block->w_number;
-    if (block->l_number == 20) w = settings->w_current + settings->w_origin_offset - w;
+    if (block->l_number == 20) w = cw + USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]) - w;
     parameters[5209 + (p_int * 20)] = PROGRAM_TO_USER_LEN(w);
   } else
     w = USER_TO_PROGRAM_LEN(parameters[5209 + (p_int * 20)]);
 
-  if (block->r_flag == ON) {
-    r = block->r_number;
-    CHKS((block->l_number == 20), "R not allowed in G10 L20");
-    parameters[5210 + (p_int * 20)] = r;
-  } else
-    r = parameters[5210 + (p_int * 20)];
-      
   if (p_int == settings->origin_index) {        /* system is currently used */
       
     settings->current_x += settings->origin_offset_x;

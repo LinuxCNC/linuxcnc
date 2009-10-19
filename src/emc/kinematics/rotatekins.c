@@ -20,7 +20,7 @@ int kinematicsForward(const double *joints,
 		      const KINEMATICS_FORWARD_FLAGS * fflags,
 		      KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    double c_rad = joints[5]*M_PI/180;
+    double c_rad = -joints[5]*M_PI/180;
     pos->tran.x = joints[0] * cos(c_rad) - joints[1] * sin(c_rad);
     pos->tran.y = joints[0] * sin(c_rad) + joints[1] * cos(c_rad);
     pos->tran.z = joints[2];
