@@ -1,0 +1,10 @@
+loadusr -W hal_manualtoolchange
+
+# in case they were linked already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+net tool-change hal_manualtoolchange.change iocontrol.0.tool-change 
+net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
+
