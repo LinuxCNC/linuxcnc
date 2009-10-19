@@ -9,9 +9,9 @@ setup:
 /		touch off (enter value)
 /		tool touch off
 		view tools and set tlo (enter value)
-		block delete
+/		block delete
 	while running
-		optional stop
+/		optional stop
 
 jogwheel:
 /	while stopped
@@ -30,7 +30,7 @@ hard controls:
 running:
 /	run, stop, pause, step
 /	feed hold?
-	optional stop?
+/	optional stop?
 /	rfl?
 /	gcode display?
 

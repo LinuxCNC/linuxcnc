@@ -133,6 +133,10 @@ class touchy:
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
+                opstop = ['on', 'off']
+                opstop = dict((i, self.wTree.get_widget("opstop_" + i)) for i in opstop)
+                blockdel = ['on', 'off']
+                blockdel = dict((i, self.wTree.get_widget("blockdel_" + i)) for i in blockdel)
 
                 self.status = emc_interface.emc_status(gtk, emc, self.listing, status_labels,
                                                        self.wTree.get_widget("error"),
@@ -140,16 +144,27 @@ class touchy:
                                                        estops, machines,
                                                        self.wTree.get_widget("override_limits"),
                                                        stats,
-                                                       floods, mists, spindles, prefs)
+                                                       floods, mists, spindles, prefs,
+                                                       opstop, blockdel)
                 if self.prefs.getpref('dro_mm', 0):
                         self.status.dro_mm(0)
                 else:
                         self.status.dro_inch(0)
 
-                if self.prefs.getpref('dro_actual'):
+                if self.prefs.getpref('dro_actual', 0):
                         self.status.dro_actual(0)
                 else:
                         self.status.dro_commanded(0)
+
+                if self.prefs.getpref('blockdel', 0):
+                        self.emc.blockdel_on(0)
+                else:
+                        self.emc.blockdel_off(0)
+
+                if self.prefs.getpref('opstop', 1):
+                        self.emc.opstop_on(0)
+                else:
+                        self.emc.opstop_off(0)                        
                                 
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
@@ -157,6 +172,10 @@ class touchy:
                 # event bindings
                 dic = {
                         "quit" : self.quit,
+                        "on_opstop_on_clicked" : self.opstop_on,
+                        "on_opstop_off_clicked" : self.opstop_off,
+                        "on_blockdel_on_clicked" : self.blockdel_on,
+                        "on_blockdel_off_clicked" : self.blockdel_off,
                         "on_reload_tooltable_clicked" : self.emc.reload_tooltable,
                         "on_notebook1_switch_page" : self.tabselect,
                         "on_controlfontbutton_font_set" : self.change_control_font,
@@ -229,20 +248,44 @@ class touchy:
                 self.tab = tab
 
         def dro_commanded(self, b):
+                if self.radiobutton_mask: return
                 self.prefs.putpref('dro_actual', 0)
                 self.status.dro_commanded(b)
 
         def dro_actual(self, b):
+                if self.radiobutton_mask: return
                 self.prefs.putpref('dro_actual', 1)
                 self.status.dro_actual(b)
 
         def dro_inch(self, b):
+                if self.radiobutton_mask: return
                 self.prefs.putpref('dro_mm', 0)
                 self.status.dro_inch(b)
 
         def dro_mm(self, b):
+                if self.radiobutton_mask: return
                 self.prefs.putpref('dro_mm', 1)
                 self.status.dro_mm(b)
+
+        def opstop_on(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('opstop', 1)
+                self.emc.opstop_on(b)
+
+        def opstop_off(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('opstop', 0)
+                self.emc.opstop_off(b)
+
+        def blockdel_on(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('blockdel', 1)
+                self.emc.blockdel_on(b)
+
+        def blockdel_off(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('blockdel', 0)
+                self.emc.blockdel_off(b)
 
         def wheelx(self, b):
                 if self.radiobutton_mask: return
@@ -334,7 +377,8 @@ class touchy:
                           "spindle_forward", "spindle_off", "spindle_reverse",
                           "spindle_faster", "spindle_slower",
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
-                          "reload_tooltable"]:
+                          "reload_tooltable", "opstop_on", "opstop_off",
+                          "blockdel_on", "blockdel_off"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 
@@ -377,7 +421,9 @@ class touchy:
 
         def periodic_status(self):
                 self.emc.mask()
+                self.radiobutton_mask = 1
                 self.status.periodic()
+                self.radiobutton_mask = 0
                 self.emc.unmask()
                 self.hal.periodic(self.tab == 1) # MDI tab?
                 return True

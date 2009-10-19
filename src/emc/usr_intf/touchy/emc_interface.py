@@ -172,6 +172,22 @@ class emc_control:
                 if self.masked: return
                 self.emccommand.load_tool_table()                
 
+        def opstop_on(self, b):
+                if self.masked: return
+                self.emccommand.set_optional_stop(1)
+
+        def opstop_off(self, b):
+                if self.masked: return
+                self.emccommand.set_optional_stop(0)
+
+        def blockdel_on(self, b):
+                if self.masked: return
+                self.emccommand.set_block_delete(1)
+
+        def blockdel_off(self, b):
+                if self.masked: return
+                self.emccommand.set_block_delete(0)
+
         def abort(self):
                 self.emccommand.abort()
 
@@ -204,7 +220,7 @@ class emc_control:
 class emc_status:
         def __init__(self, gtk, emc, listing, dros, error, homes,
                      unhomes, estops, machines, override_limit, status,
-                     floods, mists, spindles, prefs):
+                     floods, mists, spindles, prefs, opstop, blockdel):
                 self.gtk = gtk
                 self.emc = emc
                 self.listing = listing
@@ -220,6 +236,9 @@ class emc_status:
                 self.mists = mists
                 self.spindles = spindles
                 self.prefs = prefs
+                self.opstop = opstop
+                self.blockdel = blockdel
+                
                 self.mm = 0
                 self.actual = 0
                 self.emcstat = emc.stat()
@@ -341,6 +360,13 @@ class emc_status:
                 self.prefs['mm'].set_active(self.mm == 1)
                 self.prefs['actual'].set_active(self.actual == 1)
                 self.prefs['commanded'].set_active(self.actual == 0)
+
+                self.opstop['on'].set_active(self.emcstat.optional_stop)
+                self.opstop['off'].set_active(not self.emcstat.optional_stop)
+                
+                self.blockdel['on'].set_active(self.emcstat.block_delete)
+                self.blockdel['off'].set_active(not self.emcstat.block_delete)
+                
 
                 if self.emcstat.id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
                         self.listing.highlight_line(self.emcstat.current_line)
