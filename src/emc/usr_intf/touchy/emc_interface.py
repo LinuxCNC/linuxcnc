@@ -14,7 +14,7 @@
 import math
 
 class emc_control:
-        def __init__(self, emc, listing):
+        def __init__(self, emc, listing, error):
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emccommand = emc.command()
@@ -23,6 +23,7 @@ class emc_control:
                 self.jog_velocity = 100.0/60.0
                 self.mdi = 0
                 self.listing = listing
+                self.error = error
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -190,6 +191,7 @@ class emc_control:
 
         def abort(self):
                 self.emccommand.abort()
+                self.error.set_text("")
 
         def single_block(self, s):
                 self.sb = s

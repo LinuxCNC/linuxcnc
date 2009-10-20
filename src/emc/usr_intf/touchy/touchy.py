@@ -100,7 +100,7 @@ class touchy:
                 self.listing = listing.listing(gtk, emc, listing_labels, listing_eventboxes)
 
                 # emc interface
-                self.emc = emc_interface.emc_control(emc, self.listing)
+                self.emc = emc_interface.emc_control(emc, self.listing, self.wTree.get_widget("error"))
                 self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control)
 
                 # silly file chooser
