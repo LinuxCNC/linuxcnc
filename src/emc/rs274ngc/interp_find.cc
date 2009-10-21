@@ -26,6 +26,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "units.h"
 
 /****************************************************************************/
 
@@ -316,6 +317,50 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset;
   *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_woffset;
   return INTERP_OK;
+}
+
+// find what the current coordinates would be if we were in a different system
+
+int Interp::find_current_in_system(setup_pointer s, int system,
+                                   double *x, double *y, double *z,
+                                   double *a, double *b, double *c,
+                                   double *u, double *v, double *w) {
+    double *p = s->parameters;
+
+    *x = s->current_x;
+    *y = s->current_y;
+    *z = s->current_z;
+    *a = s->AA_current;
+    *b = s->BB_current;
+    *c = s->CC_current;
+    *u = s->u_current;
+    *v = s->v_current;
+    *w = s->w_current;
+
+    rotate(x, y, s->rotation_xy);
+
+    *x += s->origin_offset_x;
+    *y += s->origin_offset_y;
+    *z += s->origin_offset_z;
+    *a += s->AA_origin_offset;
+    *b += s->BB_origin_offset;
+    *c += s->CC_origin_offset;
+    *u += s->u_origin_offset;
+    *v += s->v_origin_offset;
+    *w += s->w_origin_offset;
+
+    *x -= USER_TO_PROGRAM_LEN(p[5201 + system * 20]);
+    *y -= USER_TO_PROGRAM_LEN(p[5202 + system * 20]);
+    *z -= USER_TO_PROGRAM_LEN(p[5203 + system * 20]);
+    *a -= USER_TO_PROGRAM_LEN(p[5204 + system * 20]);
+    *b -= USER_TO_PROGRAM_LEN(p[5205 + system * 20]);
+    *c -= USER_TO_PROGRAM_LEN(p[5206 + system * 20]);
+    *u -= USER_TO_PROGRAM_LEN(p[5207 + system * 20]);
+    *v -= USER_TO_PROGRAM_LEN(p[5208 + system * 20]);
+    *w -= USER_TO_PROGRAM_LEN(p[5209 + system * 20]);
+
+    rotate(x, y, -p[5210 + system * 20]);
+    return INTERP_OK;
 }
 
 /****************************************************************************/

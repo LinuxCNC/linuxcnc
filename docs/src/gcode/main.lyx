@@ -207,7 +207,7 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="51" columns="4">
+<lyxtabular version="3" rows="53" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -557,6 +557,49 @@ reference "sec:G10-L1-Set-Tool-Table"
 \begin_inset Text
 
 \begin_layout Standard
+G10 L10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Set Tool Table Entry Calculated
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+P R X Z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G10-L10"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
 G10 L2
 \end_layout
 
@@ -586,6 +629,49 @@ P R X Y Z A B C
 \begin_layout Standard
 \begin_inset LatexCommand ref
 reference "sub:G10:-Set-Coordinate"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+G10 L20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Coordinate System Origin Setting Calculated
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+P X Y Z A B C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G10-L20"
 
 \end_inset
 
@@ -3212,7 +3298,7 @@ name "sec:G10-L1-Set-Tool-Table"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
 \end_layout
 
@@ -3256,11 +3342,11 @@ name "sub:G10:-Set-Coordinate"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G10 L2 P[coordinate system] R[rotation about Z] 
 \family typewriter
 \emph on
-axes
+axes...
 \end_layout
 
 \begin_layout Standard
@@ -3315,8 +3401,8 @@ Important Concepts:
 \end_layout
 
 \begin_layout Itemize
-G10 Pn does not change from the current coordinate system to the one specified
- by P, you have to use G54-59.3 to select a coordinate system.
+G10 L2 Pn does not change from the current coordinate system to the one
+ specified by P, you have to use G54-59.3 to select a coordinate system.
 \end_layout
 
 \begin_layout Itemize
@@ -3728,6 +3814,81 @@ G Code
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+G10 L10 Set Tool Table
+\begin_inset LatexCommand index
+name "G10 L10 Set Tool Table"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G10-L10"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G10 L10 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+\end_layout
+
+\begin_layout Standard
+G10 L10 is just like G10 L1 except that instead of setting the offset/entry
+ to the given value, it is set to a calculated value that makes the current
+ coordinates become the given value.
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+Cutter Compensation is on
+\end_layout
+
+\begin_layout Section
+G10 L20 Set Coordinate System
+\begin_inset LatexCommand index
+name "G10 L20 Set Coordinate System"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G10-L20"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G10 L20 P[coordinate system] 
+\family typewriter
+\emph on
+axes...
+\end_layout
+
+\begin_layout Standard
+G10 L20 is similar to G10 L2 except that instead of setting the offset/entry
+ to the given value, it is set to a calculated value that makes the current
+ coordinates become the given value.
+\end_layout
+
+\begin_layout Standard
+It is an error if: 
+\end_layout
+
+\begin_layout Itemize
+The P number does not evaluate to an integer in the range 1 to 9.
+\end_layout
+
+\begin_layout Itemize
+An axis is programmed that is not defined in the configuration.
 \end_layout
 
 \begin_layout Section
@@ -4772,15 +4933,23 @@ G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
 \end_layout
 
 \begin_layout Subsubsection
-G43: Offsets from tool table
+G43: Use current tool loaded
+\end_layout
+
+\begin_layout Standard
+To use the currently loaded tool from the last Tn M6 program a G43
+\end_layout
+
+\begin_layout Subsubsection
+G43 Hn: Offsets from tool table
 \end_layout
 
 \begin_layout Standard
 To use a tool length offset from the tool table, program 
 \family typewriter
-G43 H-
+G43 H
 \family default
-, where the H number is the desired index in the tool table.
+n, where the n number is the desired index in the tool table.
  The H number will typically be, but does not have to be, the same as the
  slot number of the tool currently in the spindle.
  It is OK for the H number to be zero; an offset value of zero will be used.

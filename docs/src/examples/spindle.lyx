@@ -197,6 +197,91 @@ net spindle-rev
  motion.spindle-reverse => parport.0.pin-17-out
 \end_layout
 
+\begin_layout Section
+Spindle Soft Start
+\end_layout
+
+\begin_layout Standard
+If you need to ramp your spindle speed command and your control does not
+ have that feature it can be done in HAL.
+ Basically you need to hijack the output of motion.spindle-speed-out and
+ run it through a limit2 component with the scale set so it will ramp the
+ rpm from motion.spindle-speed-out to your device that receives the rpm.
+ The second part is to let EMC know when the spindle is at speed so motion
+ can begin.
+\end_layout
+
+\begin_layout Standard
+In the 0-10 volt example the line "net spindle-speed-scale motion.spindle-speed-o
+ut => scale.0.in" is changed as shown in the following example.
+\end_layout
+
+\begin_layout LyX-Code
+# load real time a limit2 and a near with names so it is easier to follow
+\newline
+loadrt
+ limit2 names=spindle-ramp
+\newline
+loadrt near names=spindle-at-speed
+\end_layout
+
+\begin_layout LyX-Code
+# add the functions to a thread
+\newline
+addf spindle-ramp servo-thread
+\newline
+addf spindle-at-spe
+ed servo-thread
+\end_layout
+
+\begin_layout LyX-Code
+# set the parameter for max velocity
+\newline
+setp spindle-ramp.maxv 60
+\end_layout
+
+\begin_layout LyX-Code
+# hijack the spindle speed out and send it to spindle ramp in
+\newline
+net spindle-cmd
+ <= motion.spindle-speed-out => spindle-ramp.in
+\end_layout
+
+\begin_layout LyX-Code
+# the output of spindle ramp is sent to the scale in
+\newline
+net spindle-ramped <=
+ spindle-ramp.out => scale.0.in
+\end_layout
+
+\begin_layout LyX-Code
+# to know when to start the motion we send the near component 
+\newline
+# (named spindle-a
+t-speed) to the spindle commanded speed from
+\newline
+# the signal spindle-cmd and
+ the actual spindle speed
+\newline
+# provided your spindle can accelerate at the maxv
+ setting.
+\newline
+net spindle-cmd => spindle-at-speed.in1
+\newline
+net spindle-ramped => spindle-at-s
+peed.in2
+\end_layout
+
+\begin_layout LyX-Code
+# the output from spindle-at-speed is sent to motion.spindle-at-speed
+\newline
+# and
+ when this is true motion will start
+\newline
+net spindle-ready <= spindle-at-speed.out
+ => motion.spindle-at-speed
+\end_layout
+
 \begin_layout Chapter
 Spindle Feedback
 \begin_inset LatexCommand index

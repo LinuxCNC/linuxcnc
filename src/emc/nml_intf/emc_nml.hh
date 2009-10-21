@@ -458,7 +458,6 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     unsigned char axisType;	// EMC_AXIS_LINEAR, EMC_AXIS_ANGULAR
     double units;		// units per mm, deg for linear, angular
     double backlash;
-    double maxError;
     double minPositionLimit;
     double maxPositionLimit;
     double maxFerror;
@@ -470,6 +469,7 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     /*! \todo FIXME - is this really position, or the DAC output? */
     double output;		// commanded output position
     double input;		// current input position
+    double velocity;		// current velocity
     unsigned char inpos;	// non-zero means in position
     unsigned char homing;	// non-zero means homing
     unsigned char homed;	// non-zero means has been homed

@@ -799,16 +799,19 @@ XYZABCUVW Controls the preview and backplot of rotary motion.
 \family default
  should be used.
  This sequence specifies the order in which the effect of each axis is applied,
- with a "-" inverting the sense of the rotation or translation.
+ with a "-" inverting the sense of the rotation.
 \newline
-The proper
- GEOMETRY string depends on the machine configuration and the kinematics
- used to control it.
+The proper GEOMETRY string
+ depends on the machine configuration and the kinematics used to control
+ it.
  The example string GEOMETRY=XYZBCUVW is for a 5-axis machine where kinematics
  causes UVW to move in the coordinate system of the tool and XYZ to move
  in the coordinate system of the material.
  The order of the letters is important, because it expresses the order in
- which the different transformations are applied
+ which the different transformations are applied.
+ For example rotating around C then B is different than rotating around
+ B then C.
+ Geometry has no effect without a rotary axis.
 \end_layout
 
 \begin_layout Subsection
@@ -839,7 +842,7 @@ AXIS has the ability to send loaded files through a filter program.
  This program is given the name of the input file as its first argument,
  and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
- display area, and executed by emc when Run.
+ display area, and executed by EMC when Run.
  
 \end_layout
 

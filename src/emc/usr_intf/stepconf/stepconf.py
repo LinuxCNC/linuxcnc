@@ -1282,6 +1282,7 @@ class App:
         self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
         self.data.steptime = self.widgets.steptime.get_value()
         self.data.stepspace = self.widgets.stepspace.get_value()
+        self.data.dirsetup = self.widgets.dirsetup.get_value()
         self.data.dirhold = self.widgets.dirhold.get_value()
         self.data.latency = self.widgets.latency.get_value()
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()

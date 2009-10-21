@@ -2045,6 +2045,8 @@ Parameters
  of the value on the "out" HAL pin.
  Only full GPIO pins and IO pins used as outputs by active module instances
  have this parameter.
+ To invert an active module pin you have to invert the GPIO pin not the
+ module pin.
 \end_layout
 
 \begin_layout Description
@@ -2096,7 +2098,10 @@ Each stepgen allocates 2-6 IO pins (selected at firmware compile time),
 The stepgen representation is modeled on the stepgen software component.
  Stepgen default is active high step output (high during step time low during
  step space).
- 
+ To invert a StepGen output pin you invert the corresponding GPIO pin that
+ is being used by StepGen.
+ To find the GPIO pin being used for the StepGen output run dmesg as shown
+ above.
 \end_layout
 
 \begin_layout Standard
@@ -2236,6 +2241,10 @@ PWMgens have names like "hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>.".
 
 \begin_layout Standard
 In HM2, each pwmgen uses three output IO pins: Not-Enable, Out0, and Out1.
+ To invert a PWMGen output pin you invert the corresponding GPIO pin that
+ is being used by PWMGen.
+ To find the GPIO pin being used for the PWMGen output run dmesg as shown
+ above.
 \end_layout
 
 \begin_layout Standard

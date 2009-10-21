@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -117,11 +118,11 @@ The command "loadrt" loads a real time HAL component.
 The syntax and an example:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt <component> <options>
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt mux4 count=1
 \end_layout
 
@@ -157,11 +158,11 @@ servo-thread (the slow speed thread) this thread handles items that don't
 The syntax and an example:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 addf <component> <thread>
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 addf mux4 servo-thread
 \end_layout
 
@@ -203,23 +204,24 @@ Flags may be one or more of the following:
 The syntax and examples:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadusr <component> <options>
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadusr halui
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadusr -Wn spindle gs2_vfd -n spindle
 \end_layout
 
-\begin_layout Quote
-in English is "loadusr wait for name spindle component gs2_vfd name spindle."
+\begin_layout LyX-Code
+in English it means "loadusr wait for name spindle component gs2_vfd name
+ spindle."
 \newline
-the
- -n spindle is part of the gs2_vfd component not the loadusr command.
+the -n spindle is part of the gs2_vfd component not the loadusr
+ command.
 \end_layout
 
 \begin_layout Subsection
@@ -229,8 +231,10 @@ net
 \begin_layout Standard
 The command "net" creates a "connection" between a signal and and one or
  more pins.
- The direction indicator "<= and =>" is only to make it easier to read for
- humans and is not used by net.
+ If the signal does not exist net creates the new signal.
+ This replaces the need to use the command newsig.
+ The direction indicators "<= and =>" are only to make it easier for humans
+ to follow the logic and are not used by the net command.
  
 \end_layout
 
@@ -238,23 +242,24 @@ The command "net" creates a "connection" between a signal and and one or
 The syntax and an example:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 net both-home-y <= paraport.0.pin-11-in
 \end_layout
 
 \begin_layout Standard
-Each signal can only have one source (a HAL "out
+Each signal can only have one source (a HAL "Dir out
 \begin_inset Quotes erd
 \end_inset
 
- pin) and as many readers (a HAL "in" pin) as you like.
+ pin) and as many readers (a HAL "Dir in" pin) as you like.
  In the Dir column of the HAL Configuration window you can see which pins
  are "in" and which are "out".
- The following figure shows the "direction" for a clearer understanding.
+ The following figure shows the "direction" of the signal from the source
+ to the signal and then to the reader.
  
 \end_layout
 
@@ -300,22 +305,30 @@ name "cap:Signal-Direction"
 \end_layout
 
 \begin_layout Standard
-To do this on one line:
+This example shows the signal xStep with the source being stepgen.0.out and
+ with two readers parport.0.pin-02-out and parport.0.pin-08-out.
+ Basically the value of stepgen.0.out is send to the signal xStep and that
+ value is then sent to parport.0.pin-02-out and parport.0.pin-08-out.
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
+   signal    source            destination          destination
+\end_layout
+
+\begin_layout LyX-Code
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 \end_layout
 
 \begin_layout Standard
-To do this on multiple lines just use the signal with the readers on subsequent
- lines:
+Since the signal xStep contains the value of stepgen.0.out (the source) you
+ can use the same signal again to send the value to another reader.
+ To do this just use the signal with the readers on another line.
 \end_layout
 
-\begin_layout Quote
-net xStep stepgen.0.out => parport.0.pin-02-out
+\begin_layout LyX-Code
+net xStep <= stepgen.0.out => parport.0.pin-02-out
 \newline
-net xStep => parport.0.pin-02-out
+net xStep => parport.0.pin-08-out
 \end_layout
 
 \begin_layout Standard
@@ -354,11 +367,11 @@ Some components have parameters that need to be set before use.
 The syntax and an example:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 setp <pin/parameter-name> <value>
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 setp paraport.0.pin-08-out TRUE
 \end_layout
 
@@ -654,7 +667,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-and2 [count=N|names=name1[,name2...]]
+and2 [count=N] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -856,7 +869,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-not [count=n|names=name1[,name2...]]
+not [count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -971,7 +984,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-or2[count=,|names=name1[,name2...]]
+or2[count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard
@@ -1172,7 +1185,7 @@ Syntax
 \end_layout
 
 \begin_layout Quote
-xor2[count=,|names=name1[,name2...]]
+xor2[count=n] or [names=name1[,name2...]]
 \end_layout
 
 \begin_layout Standard

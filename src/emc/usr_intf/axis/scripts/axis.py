@@ -3070,7 +3070,7 @@ class TclCommands(nf.TclCommands):
             scale *= 25.4
 
         if system.split()[0] == "T":
-            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_table[0][0], vars.current_axis.get(), new_axis_value, scale)
+            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")

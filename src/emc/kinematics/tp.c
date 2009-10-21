@@ -921,7 +921,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             if(tc->sync_accel) {
                 // detect when velocities match, and move the target accordingly.
                 // acceleration will abruptly stop and we will be on our new target.
-                spindle_vel = (revs - oldrevs)/tc->cycle_time;
+                spindle_vel = revs/(tc->cycle_time * tc->sync_accel++);
                 target_vel = spindle_vel * tc->uu_per_rev;
                 if(tc->currentvel >= target_vel) {
                     // move target so as to drive pos_error to 0 next cycle
