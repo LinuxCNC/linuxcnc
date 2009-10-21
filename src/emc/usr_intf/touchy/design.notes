@@ -1,68 +1,104 @@
-mdi: [pretty much done]
-/	G/M, backspace, tab, cancel, ok/execute?
-/	smartness about words, like BOSS8
+The design of "touchy"[1] is as follows:
 
-setup:
-	while stopped
-/		home axis
-/		home all
-/		touch off (enter value)
-/		tool touch off
-		view tools and set tlo (enter value)
-/		block delete
-	while running
-/		optional stop
+No keyboard is required.
 
-jogwheel:
-/	while stopped
-/		jogging (need jog increment)
-/	anytime including while running
-/		set FO
-/		set SO
-/		set maxvel
+No mouse is required.  It is meant to be used with a touch screen.
 
-hard controls:
-/        continuous jog, momentary bidirectional toggles, one for each axis, center off
-/        cycle start button that lights up
-/        feedhold button that lights up
-/        run/block mode toggle switch (sends task-pause when appropriate)
-        
-running:
-/	run, stop, pause, step
-/	feed hold?
-/	optional stop?
-/	rfl?
-/	gcode display?
+Configurability of font sizes makes it work with any screen
+resolution.
 
-status: [only native units for now?]
+Some hard controls are required.  The absolute minimum set of
+controls is:
 
-        [all the time?]        
-/        	xyz rel
-/               error messages
-        
-        [just sometimes?]
-/        	loaded file
-/        	current line
+* A momentary abort button, connected to the hal pin touchy.abort
 
-/        	tlo
-/        	rotation
+* A momentary cycle start button, connected to touchy.cycle-start
 
-/        	dtg
-/        	current vel
-/        	delay_left
+* A wheel/mpg, connected to touchy.wheel-counts
 
-        	extents?
-/        	which axes are on limit?
+* A single block toggle switch, connected to touchy.single-block
 
-/        	spindle direction
-/               spindle speed
+Additionally, there are some optional controls:
 
-/        	loaded tool
-/       	prepped tool
+* If continuous jog is wanted: Three center-off bidirectional
+  momentary toggles (or worse, six buttons), hooked to 
+  touchy.jog.continuous.x.negative, ....x.positive,
+  ... y ...,
+  ... z ...
 
-/        	running gcode (how much? maybe only one line?)
-/        	xyz abs
-/        	dtg per axis
-/        	estop/on
-/        	which axes are homed?
-/        	feed override / spindle override / maxvel?
+* If a quill up button is wanted (to jog Z to the top of travel at
+  top speed), a momentary button connected to touchy.quill-up
+
+There is currently one optional indicator output:
+
+* touchy.jog.active can be connected to a panel lamp to show when
+  the panel jogging controls are live
+
+Touchy has several output pins that are meant to be connected to
+the motion controller to control wheel jogging.  They are:
+
+touchy.jog.wheel.increment => axis.N.jog-scale (for all relevant N)
+touchy.jog.wheel.x => axis.0.jog-enable
+... y ... => ... 1 ...,
+... z ...
+
+Also be sure to connect the wheel/mpg to axis.N.jog-counts as well as
+to touchy.wheel-counts.  If you use ilowpass to smooth wheel jogging,
+be sure to smooth only axis.N.jog-counts and not touchy.wheel-counts.
+
+Touchy requires you to write a file named "touchy.hal" to make
+these connections.  Touchy executes the hal commands in this file
+after it has made its pins available for connection.
+
+
+These things are not done, and should be done:
+
+* Configurable axes for 5 axis machines, etc.
+
+* Lathe support which shows radius/diameter instead of X
+
+* i18n
+
+
+These things are not done, and may or may not ever be done:
+
+* direct viewing and editing of tool table.  
+
+  I currently use a network connection for this, just like I use
+  network to edit/replace the gcode programs.  G10 L1/L10 is good
+  enough for the normal tasks.
+
+* Calculation and display of the extents of the loaded program
+
+  This requires interpreting the entire program, and is a bit hard
+  to get right because of tool lengths and other considerations
+  like probing.
+
+
+These things will never be done, don't ask:
+
+* Add onscreen controls for jogging and cycle start, etc, so
+  touchy can be used without real controls on a real panel
+
+  The reason for this is the unreliability of touch screens and
+  the safety that comes from having actual buttons/switches/wheel
+  to do dangerous and critical operations such as executing gcode
+  or jogging.  Even with MDI you must use the real button, after
+  confirming the command displayed onscreen is what you want.
+  This is a feature.
+
+  (It is possible that homing and spindle fwd/rev should also
+  require a press of the cycle start button for safety's sake.
+  They currently do not.)
+
+  I have seen two controls that attempt to allow you to jog using
+  a mouse or touchscreen.  On one you drag your finger/pointer in
+  a circle.  On the other, you drag it from side to side.  These
+  work very badly and touchy will not have a scheme like this.
+
+* adding a full onscreen keyboard for any reason
+
+  These suck.
+
+
+[1] Like "git", "touchy" is named after its author.
