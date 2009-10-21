@@ -212,12 +212,13 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 #
 
 #
-# GPIO 25 is connected to my shared home switch (hostmot2 boards generally
-# have enough GPIO pins to put each axis' home switch on its own pin).
+# In this example, each of the three axes have their own home switch.  All
+# home switches are connected to GPIO 25, though hostmot2 boards generally
+# have enough GPIO pins to put each axis' home switch on its own pin.
 #
-# The home switch is a normally open, momentary closed button.  When the
-# switch is open, GPIO 25 floats high (because that is the hostmot2 way).
-# When the switch is closed, it shorts GPIO 25 to ground.
+# Each switch is normally open, momentarily closed.  When the switch is open,
+# GPIO 25 floats high (because that is the hostmot2 way).  When the switch is
+# closed, it shorts GPIO 25 to ground.
 #
 # EMC expects the value on the .home-sw-in HAL pin to be active high, ie
 # True when the switch is closed and False when the switch is open.
@@ -230,6 +231,6 @@ net home-switch => axis.0.home-sw-in
 net home-switch => axis.1.home-sw-in
 net home-switch => axis.2.home-sw-in
 
-# only the Y servo has an index
+# only the Y servo has an index, X and Z home without using the index
 net y-index-enable hm2_[HOSTMOT2](BOARD).0.encoder.01.index-enable <=> axis.1.index-enable
 
