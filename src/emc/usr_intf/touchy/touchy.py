@@ -92,16 +92,16 @@ class touchy:
                         mdi_eventboxes.append(self.wTree.get_widget("eventbox_mdi%d" % i))
                 self.mdi_control = mdi.mdi_control(gtk, emc, mdi_labels, mdi_eventboxes)
 
-                # emc interface
-                self.emc = emc_interface.emc_control(emc)
-                self.hal = hal_interface.hal_interface(self.emc, self.mdi_control)
-
                 listing_labels = []
                 listing_eventboxes = []
                 for i in range(self.num_listing_labels):
                         listing_labels.append(self.wTree.get_widget("listing%d" % i))
                         listing_eventboxes.append(self.wTree.get_widget("eventbox_listing%d" % i))
                 self.listing = listing.listing(gtk, emc, listing_labels, listing_eventboxes)
+
+                # emc interface
+                self.emc = emc_interface.emc_control(emc, self.listing)
+                self.hal = hal_interface.hal_interface(self.emc, self.mdi_control)
 
                 # silly file chooser
                 filechooser_labels = []
@@ -128,7 +128,7 @@ class touchy:
                 spindles = ['forward', 'off', 'reverse']
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
                 stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
-                         'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool']
+                         'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool', 'xyrotation']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
@@ -187,6 +187,8 @@ class touchy:
                         "on_filechooser_reload_clicked" : self.filechooser.reload,
                         "on_listing_up_clicked" : self.listing.up,
                         "on_listing_down_clicked" : self.listing.down,
+                        "on_listing_previous_clicked" : self.listing.previous,
+                        "on_listing_next_clicked" : self.listing.next,
                         "on_mist_on_clicked" : self.emc.mist_on,
                         "on_mist_off_clicked" : self.emc.mist_off,
                         "on_flood_on_clicked" : self.emc.flood_on,
@@ -368,6 +370,7 @@ class touchy:
                 if self.wheel == "jogging": self.wheel = "mv"
                 self.jogsettings_activate(0)
                 self.filechooser.select(eb, e)
+                self.listing.clear_startline()
 
         def periodic_status(self):
                 self.emc.mask()

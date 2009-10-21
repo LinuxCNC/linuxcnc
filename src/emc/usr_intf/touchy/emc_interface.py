@@ -11,9 +11,10 @@
 # GNU General Public License for more details.
 
 
+import math
 
 class emc_control:
-        def __init__(self, emc):
+        def __init__(self, emc, listing):
                 self.emc = emc
                 self.emcstat = emc.stat()
                 self.emccommand = emc.command()
@@ -21,6 +22,7 @@ class emc_control:
                 self.sb = 0;
                 self.jog_velocity = 100.0/60.0
                 self.mdi = 0
+                self.listing = listing
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -192,7 +194,8 @@ class emc_control:
                         if self.sb:
                                 self.emccommand.auto(self.emc.AUTO_STEP)
                         else:
-                                self.emccommand.auto(self.emc.AUTO_RUN, 0)
+                                self.emccommand.auto(self.emc.AUTO_RUN, self.listing.get_startline())
+                                self.listing.clear_startline()
 
 class emc_status:
         def __init__(self, gtk, emc, listing, dros, error, homes,
@@ -245,16 +248,24 @@ class emc_status:
                 else:
                         p = self.emcstat.position
 
+                x = p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]
+                y = p[1] - self.emcstat.origin[1]
+                z = p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]
+                t = math.radians(-self.emcstat.rotation_xy)
+                relp = [x * math.cos(t) - y * math.sin(t), x * math.sin(t) + y * math.cos(t), z]
+
                 if self.mm:
                         p = [i*25.4 for i in p]
+                        relp = [i*25.4 for i in relp]
                         dtg = [i*25.4 for i in dtg]
                         fmt = "%c:% 10.3f"
                 else:
                         fmt = "%c:% 9.4f"
 
-                self.dros['xr'].set_text(fmt % ('X', p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]))
-                self.dros['yr'].set_text(fmt % ('Y', p[1] - self.emcstat.origin[1]))
-                self.dros['zr'].set_text(fmt % ('Z', p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]))
+
+                self.dros['xr'].set_text(fmt % ('X', relp[0]))
+                self.dros['yr'].set_text(fmt % ('Y', relp[1]))
+                self.dros['zr'].set_text(fmt % ('Z', relp[2]))
                 self.dros['xa'].set_text(fmt % ('X', p[0]))
                 self.dros['ya'].set_text(fmt % ('Y', p[1]))
                 self.dros['za'].set_text(fmt % ('Z', p[2]))
@@ -309,6 +320,7 @@ class emc_status:
                 self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
                 self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
                 self.status['preppedtool'].set_text("%d" % self.emcstat.tool_prepped)
+                self.status['xyrotation'].set_text("%d" % self.emcstat.rotation_xy)
 
                 self.prefs['inch'].set_active(self.mm == 0)
                 self.prefs['mm'].set_active(self.mm == 1)

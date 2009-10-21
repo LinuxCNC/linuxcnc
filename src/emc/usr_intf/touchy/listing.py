@@ -21,6 +21,7 @@ class listing:
         self.emc = emc
         self.lineoffset = 0
         self.selected = -1
+        self.start_line = -1
         self.filename = ""
         self.program = []
         self.lines = 0
@@ -35,7 +36,10 @@ class listing:
                 l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
-            if self.selected == self.lineoffset + i:
+            
+            if self.start_line == self.lineoffset + i:
+                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#66f'))
+            elif self.selected == self.lineoffset + i:
                 e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
             else:
                 e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
@@ -69,3 +73,18 @@ class listing:
 
     def reload(self, b):
         pass
+
+    def previous(self, b):
+        self.start_line -= 1
+        self.populate()
+
+    def next(self,b):
+        self.start_line += 1
+        self.populate()
+
+    def clear_startline(self):
+        self.start_line = -1
+        self.populate()
+
+    def get_startline(self):
+        return self.start_line + 1
