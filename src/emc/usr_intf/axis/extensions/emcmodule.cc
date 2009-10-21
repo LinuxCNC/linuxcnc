@@ -201,7 +201,7 @@ static PyTypeObject Ini_Type = {
     0,                      /*tp_is_gc*/
 };
 
-#define EMC_COMMAND_TIMEOUT 2.0  // how long to wait until timeout
+#define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
 static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {
