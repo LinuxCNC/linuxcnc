@@ -258,8 +258,8 @@ JOGSLCT_P, JOGSLCT_N, SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP   ) = hal_input_name
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
-"jog-incr-a","jog-incr-b","jog-incr-c",
-"axis-select-a","axis-select-b","axis-select-c","axis-select-d",
+"jog-incr-0","jog-incr-1","jog-incr-2",
+"joint-select-0","joint-select-1","joint-select-2","joint-select-3",
 "jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
 "jog-z-pos","jog-z-neg","jog-a-pos","jog-a-neg",
 "jog-selected-pos","jog-selected-neg","spindle-manual-cw",
@@ -279,27 +279,32 @@ _("X Both Limit + Home"), _("Y Both Limit + Home"), _("Y Both Limit + Home"), _(
 _("X Minimum Limit"), _("Y Minimum Limit"), _("Z Minimum Limit"), _("A Minimum Limit"),
 _("X Maximum Limit"), _("Y Maximum Limit"), _("Z Maximum Limit"), _("A Maximum Limit"),
 _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
-_("All limits"), _("All home"),
+_("All Limits"), _("All Home"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-_("Jog incr input A"),_("Jog incr input B"),_("Jog incr input C"),
-_("Axis select input A"),_("Axis select input B"),_("Axis select input C"), _("Axis select input D"),
-_("Jog button X +"),_("Jog button X -"),_("Jog button Y +"),_("Jog button Y -"),_("Jog button Z +"),_("Jog button Z -"),
-_("Jog button A +"),_("Jog button A -"),_("Jog button selectable +"),_("Jog button selectable -"),_("Manual Spindle CW"),
+_("Jog incr 0"),_("Jog incr 1"),_("Jog incr 2"),
+_("Joint select 0"),_("Joint select 1"),_("Joint select 2"), _("Joint select 3"),
+_("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),
+_("Jog A +"),_("Jog A -"),_("Jog button selected +"),_("Jog button selected -"),_("Manual Spindle CW"),
 _("Manual Spindle CCW"),_("Manual Spindle Stop")]
 
-human_names_shared_home = [_("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-_("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
-_("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-_("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
-_("Both Limit + Home X"), _("Both Limit + Home Y"),
-_("Both Limit + Home Z"), _("Both Limit + Home A")]
+human_names_multi_jog_buttons = [_("Jog X +"),_("Jog X -"),
+_("Jog Y +"),_("Jog Y -"),
+_("Jog Z +"),_("Jog Z -"),
+_("Jog A +"),_("Jog A -")]
 
-human_names_limit_only = [ _("Minimum Limit X"), _("Minimum Limit Y"),
-_("Minimum Limit Z"), _("Minimum Limit A"),
-_("Maximum Limit X"), _("Maximum Limit Y"),
-_("Maximum Limit Z"), _("Maximum Limit A"),
-_("Both Limit X"), _("Both Limit Y"),
-_("Both Limit Z"), _("Both Limit A"),_("All limits"),("All home")]
+human_names_shared_home = [_("X Minimum Limit + Home"), _("Y Minimum Limit + Home"),
+_("Z Minimum Limit + Home"), _("A Minimum Limit + Home"),
+_("X Maximum Limit + Home"), _("Y Maximum Limit + Home"),
+_("Z Maximum Limit + Home"), _("A Maximum Limit + Home"),
+_("X Both Limit + Home"), _("Y Both Limit + Home"),
+_("Z Both Limit + Home"), _("A Both Limit + Home")]
+
+human_names_limit_only = [ _("X Minimum Limit"), _("Y Minimum Limit"),
+_("Z Minimum Limit"), _("A Minimum Limit"),
+_("X Maximum Limit"), _("Y Maximum Limit"),
+_("Z Maximum Limit"), _("A Maximum Limit"),
+_("X Both Limit"), _("Y Both Limit"),
+_("Z Both Limit"), _("A Both Limit"), _("All Limits")]
 
 (UNUSED_PWM,
 X_PWM_PULSE, X_PWM_DIR, X_PWM_ENABLE, Y_PWM_PULSE, Y_PWM_DIR, Y_PWM_ENABLE, 
@@ -309,8 +314,12 @@ SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_nam
 "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
 "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
-human_pwm_output_names =[ _("Unused PWM Gen"), _("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), _("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), _("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"), _("A PWM Pulse Stream"),
-_("A PWM Direction"), _("A PWM Enable"), _("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
+human_pwm_output_names =[ _("Unused PWM Gen"), 
+_("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), 
+_("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), 
+_("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"),
+_("A PWM Pulse Stream"), _("A PWM Direction"), _("A PWM Enable"), 
+_("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
 
 (UNUSED_ENCODER, 
 X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, X_ENCODER_M,
@@ -330,13 +339,16 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
 
-human_encoder_input_names = [ _("Unused Encoder"), _("X Encoder-A Phase"), _("X Encoder-B Phase"), _("X Encoder-I Phase"),  _("X Encoder-M Phase"),
-_("Y Encoder-A Phase"), _("Y Encoder-B Phase"), _("Y Encoder-I Phase"), _("Y Encoder-M Phase"), _("Z Encoder-A Phase"), _("Z Encoder-B Phase"), 
-_("Z Encoder-I Phase"), _("Z Encoder-M Phase"), _("A Encoder-A Phase"), _("A Encoder-B Phase"), _("A Encoder-I Phase"), _("A Encoder-M Phase"),
-_("Spindle Encoder-A Phase"), _("Spindle  Encoder-B Phase"), _("Spindle Encoder-I Phase"), _("Spindle Encoder-M Phase"), _("X Hand Wheel-A Phase"), 
-_("X Hand Wheel-B Phase"), _("X Hand Wheel-I Phase"), _("X Hand Wheel-M Phase"), _("Y Hand wheel-A Phase"), _("Y Hand Wheel-B Phase"), 
-_("Y Hand Wheel-I Phase"), _("Y Hand Wheel-M Phase"), _("Z Hand Wheel-A Phase"), _("Z Hand Wheel-B Phase"), _("Z Hand Wheel-I Phase"), 
-_("Z Hand Wheel-M Phase"), _("A Hand Wheel-A Phase"), _("A Hand Wheel-B Phase"), _("A Hand Wheel-I Phase"), _("A Hand Wheel-M Phase"), 
+human_encoder_input_names = [ _("Unused Encoder"), 
+_("X Encoder-A Phase"), _("X Encoder-B Phase"), _("X Encoder-I Phase"), _("X Encoder-M Phase"),
+_("Y Encoder-A Phase"), _("Y Encoder-B Phase"), _("Y Encoder-I Phase"), _("Y Encoder-M Phase"), 
+_("Z Encoder-A Phase"), _("Z Encoder-B Phase"), _("Z Encoder-I Phase"), _("Z Encoder-M Phase"),
+_("A Encoder-A Phase"), _("A Encoder-B Phase"), _("A Encoder-I Phase"), _("A Encoder-M Phase"),
+_("Spindle Encoder-A Phase"), _("Spindle  Encoder-B Phase"), _("Spindle Encoder-I Phase"), _("Spindle Encoder-M Phase"), 
+_("X Hand Wheel-A Phase"), _("X Hand Wheel-B Phase"), _("X Hand Wheel-I Phase"), _("X Hand Wheel-M Phase"), 
+_("Y Hand wheel-A Phase"), _("Y Hand Wheel-B Phase"), _("Y Hand Wheel-I Phase"), _("Y Hand Wheel-M Phase"), 
+_("Z Hand Wheel-A Phase"), _("Z Hand Wheel-B Phase"), _("Z Hand Wheel-I Phase"), _("Z Hand Wheel-M Phase"), 
+_("A Hand Wheel-A Phase"), _("A Hand Wheel-B Phase"), _("A Hand Wheel-I Phase"), _("A Hand Wheel-M Phase"), 
 _("Multi Hand Wheel-A Phase"), _("Multi Hand Wheel-B Phase"), _("Multi Hand Wheel-I Phase"), _("Multi Hand Wheel-M Phase")]
 
 (UNUSED_STEPGEN, 
@@ -409,6 +421,7 @@ class Data:
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
         self.available_axes = []
+        self.baseperiod = 200000
         self.servoperiod = 1000000
         self.units = 0 # inch
         self.limitsnone = True
@@ -423,10 +436,10 @@ class Data:
         self.nojogbuttons = True
         self.singlejogbuttons = False
         self.multijogbuttons = False
-        self.jogscalerapid = 1.0
+        self.jograpidrate = 1.0
         self.guimpg = True    
         self.multimpg = False
-        self.simglempg = False
+        self.singlempg = False
         self.jogscalea = .1
         self.jogscaleb = .01
         self.jogscalec = .001
@@ -943,6 +956,16 @@ class Data:
             print >>file, "INCREMENTS = %s"% self.increments_imperial
         if self.axes == 2:
             print >>file, "LATHE = 1"
+        if self.position_offset:
+            temp = "RELATIVE"
+        else:
+            temp = "MACHINE"
+        print >>file, "POSITION_OFFSET = %s"% temp
+        if self.position_feedback:
+            temp = "ACTUAL"
+        else:
+            temp = "COMMANDED"
+        print >>file, "POSITION_FEEDBACK = %s"% temp
         print >>file, "DEFAULT_LINEAR_VELOCITY = %f"% self.default_linear_velocity
         print >>file, "MAX_LINEAR_VELOCITY = %f"% self.max_linear_velocity
         print >>file, "MIN_LINEAR_VELOCITY = %f"% self.min_linear_velocity
@@ -977,8 +1000,8 @@ class Data:
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
         print >>file, "COMM_WAIT = 0.010"
-        print >>file, "BASE_PERIOD = %d" % base_period
-        print >>file, "SERVO_PERIOD = 1000000" 
+        print >>file, "BASE_PERIOD = %d" % self.baseperiod
+        print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
         print >>file, "[HOSTMOT2]"
         print >>file, "DRIVER=hm2_pci"
@@ -1558,8 +1581,8 @@ class Data:
         if not self.findsignal("spindle-brake") =="false":
             brake = True
 
-        if spindle_enc:
-            print >>file, "loadrt encoder num_chan=1"
+        #if spindle_enc:
+           # print >>file, "loadrt encoder num_chan=1"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "loadrt abs count=1"
             if spindle_enc:
@@ -1568,8 +1591,8 @@ class Data:
         if pump:
             print >>file, "loadrt charge_pump"
 
-        if pwm:
-            print >>file, "loadrt pwmgen output_type=0"
+       # if pwm:
+           # print >>file, "loadrt pwmgen output_type=0"
 
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
@@ -1707,20 +1730,38 @@ class Data:
         print >>file
         print >>file, "net probe-in     =>  motion.probe-input"
         print >>file
-        print >>file, _("# ---jog button signals---")
-        print >>file
-        print >>file, "# setp halui.jog-speed 1"
-        print >>file, "# net jog-x-plus             halui.jog.0.plus"
-        print >>file, "# net jog-x-minus            halui.jog.0.minus"
-        print >>file, "# net jog-y-plus             halui.jog.1.plus"
-        print >>file, "# net jog-y-minus            halui.jog.1.minus"
-        print >>file, "# net jog-z-plus             halui.jog.2.plus"
-        print >>file, "# net jog-z-minus            halui.jog.2.minus"
-        print >>file, "# net jog-a-plus             halui.jog.3.plus"
-        print >>file, "# net jog-a-minus            halui.jog.3.minus"
-        print >>file, "# net jog-selected-plus      halui.jog.selected.plus"
-        print >>file, "# net jog-selected-minus     halui.jog.selected.minus"
-        print >>file
+        if not self.nojogbuttons :
+            print >>file, _("# ---jog button signals---")
+            print >>file
+            print >>file, "net jog-speed            halui.jog-speed "
+            print >>file, "     sets jog-speed %f"% self.jograpidrate
+            if self.multijogbuttons:
+                for axnum,axletter in enumerate(self.available_axes):
+                    if not axletter == "s":
+                        print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
+                        print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
+                    if axletter == "s":
+                        print >>file, "net spindle-manual-cw     halui.spindle.forward"
+                        print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
+                        print >>file, "net spindle-manual-stop   halui.spindle.stop"
+            else:
+                for axnum,axletter in enumerate(self.available_axes):
+                    if not axletter == "s":
+                        print >>file, "net joint-select-%d         halui.joint.%d.select"% (axnum,axnum)
+                print >>file, "net jog-selected-pos     halui.jog.selected.plus"
+                print >>file, "net jog-selected-neg     halui.jog.selected.minus"
+            print >>file
+        if not self.guimpg:
+            print >>file, _("#  ---mpg signals---")
+            print >>file
+            if self.multimpg:
+                for axnum,axletter in enumerate(self.available_axes):
+                    if not axletter == "s":
+                        print >>file, "net joint-select-%d            axis.%d.jog.enable"% (axnum,axnum)
+                        print >>file, "net joint-select-%d            axis.%d.jog.counts"% (axnum,axnum)
+                        print >>file, "net joint-select-%d            axis.%d.jog.scale"% (axnum,axnum)
+                        print >>file, "net joint-select-%d            axis.%d.jog.vel-mode"% (axnum,axnum)
+
         print >>file, _("#  ---digital in / out signals---")
         print >>file
         for i in range(4):
@@ -1812,7 +1853,7 @@ class Data:
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("setp scale.0.gain .01667")
+                      print >>f1, ("    setp scale.0.gain .01667")
                       print >>f1, ("net spindle-velocity => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
@@ -1829,13 +1870,13 @@ class Data:
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
                       print >>f1
-                      print >>f1, ("net jog-X+      pyvcp.jog-x+  =>  halui.jog.0.plus")
-                      print >>f1, ("net jog-X-      pyvcp.jog-x-  =>  halui.jog.0.minus")
-                      print >>f1, ("net jog-Y+      pyvcp.jog-y+  =>  halui.jog.1.plus")
-                      print >>f1, ("net jog-Y-      pyvcp.jog-y-  =>  halui.jog.1.minus")
-                      print >>f1, ("net jog-Z+      pyvcp.jog-z+  =>  halui.jog.2.plus")
-                      print >>f1, ("net jog-Z-      pyvcp.jog-z-  =>  halui.jog.2.minus")
-                      print >>f1, ("net jog-speed           pyvcp.jog-speed    =>  halui.jog-speed")
+                      print >>f1, ("net jog-x-pos  <=    pyvcp.jog-x+")
+                      print >>f1, ("net jog-x-neg  <=    pyvcp.jog-x-")
+                      print >>f1, ("net jog-y-pos  <=    pyvcp.jog-y+")
+                      print >>f1, ("net jog-y-neg  <=    pyvcp.jog-y-")
+                      print >>f1, ("net jog-z-pos  <=    pyvcp.jog-z+")
+                      print >>f1, ("net jog-z-neg  <=    pyvcp.jog-z-")
+                      print >>f1, ("net jog-speed  <=    pyvcp.jog-speed")
                       print >>f1, ("net optional-stp-on     pyvcp.ostop-on     =>  halui.program.optional-stop.on")
                       print >>f1, ("net optional-stp-off    pyvcp.ostop-off    =>  halui.program.optional-stop.off")
                       print >>f1, ("net optional-stp-is-on  pyvcp.ostop-is-on  =>  halui.program.optional-stop.is-on")
@@ -2341,6 +2382,7 @@ class App:
         self.widgets.axes.set_active(self.data.axes)
         self.widgets.units.set_active(self.data.units)
         self.widgets.latency.set_value(self.data.latency)
+        self.widgets.baseperiod.set_value(self.data.baseperiod)
         self.widgets.servoperiod.set_value(self.data.servoperiod)
         self.widgets.machinename.grab_focus()
         self.widgets.mesa5i20_checkbutton.set_active(self.data.mesa5i20)
@@ -2380,7 +2422,21 @@ class App:
             self.widgets.multimpg.set_active(1)
         else:
             self.widgets.singlempg.set_active(1)
-    
+        self.widgets.jograpidrate.set_value(self.data.jograpidrate)
+        self.widgets.nojogbuttons.set_active(self.data.nojogbuttons)
+        self.widgets.singlejogbuttons.set_active(self.data.singlejogbuttons)
+        self.widgets.multijogbuttons.set_active(self.data.multijogbuttons)
+        self.widgets.guimpg.set_active(self.data.guimpg)
+        self.widgets.singlempg.set_active(self.data.singlempg)
+        self.widgets.multimpg.set_active(self.data.multimpg)
+        if self.data.units == 0 :
+            tempunits = "in"
+        else:
+            tempunits = "mm"      
+        for i in (0,1,2):
+            self.widgets["mpgincr"+str(i)].set_text(tempunits)
+        self.widgets.jograpidunits.set_text(tempunits+" / min")
+
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
         self.widgets.nbr5i20.set_sensitive(i)
@@ -2423,6 +2479,7 @@ class App:
         elif self.data.axes == 2: self.data.available_axes = ['x','z','s']
         self.data.units = self.widgets.units.get_active()
         self.data.latency = self.widgets.latency.get_value()
+        self.data.baseperiod = self.widgets.baseperiod.get_value()
         self.data.servoperiod = self.widgets.servoperiod.get_value()
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
         self.data.ioaddr = self.widgets.ioaddr.get_text()
@@ -2456,7 +2513,16 @@ class App:
             self.data.multimpg == True            
         else:
             self.data.multimpg == False
-        
+        self.data.jograpidrate = self.widgets.jograpidrate.get_value()
+        self.data.nojogbuttons = self.widgets.nojogbuttons.get_active()
+        self.data.singlejogbuttons = self.widgets.singlejogbuttons.get_active()
+        self.data.multijogbuttons = self.widgets.multijogbuttons.get_active()
+        if not self.data.nojogbuttons:
+            self.data.halui = True
+        self.data.guimpg = self.widgets.guimpg.get_active()
+        self.data.singlempg = self.widgets.singlempg.get_active()
+        self.data.multimpg = self.widgets.multimpg.get_active()
+
         # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
         # record the signal ID numbers so we can block the signals later in the mesa routines
         # have to do it hear manually (instead of autoconnect) because glade doesn't handle added
@@ -2528,6 +2594,8 @@ class App:
         self.widgets.increments.set_text(temp)
         for i in (0,1,2):
             self.widgets["velunits"+str(i)].set_text(tempunits)
+        self.widgets.position_offset.set_active(self.data.position_offset)
+        self.widgets.position_feedback.set_active(self.data.position_feedback)
         self.widgets.geometry.set_text(self.data.geometry)
         self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
         self.widgets.require_homing.set_active(self.data.require_homing)
@@ -2555,6 +2623,8 @@ class App:
         if self.data.units == 0 :self.data.increments_imperial = self.widgets.increments.get_text()
         else:self.data.increments_metric = self.widgets.increments.get_text()
         self.data.geometry = self.widgets.geometry.get_text()
+        self.data.position_offset = self.widgets.position_offset.get_active()
+        self.data.position_feedback = self.widgets.position_feedback.get_active()
         self.data.require_homing = self.widgets.require_homing.get_active()
         self.data.individual_homing = self.widgets.individual_homing.get_active()
         self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
@@ -2909,7 +2979,7 @@ class App:
                         if self.data.limitswitch or self.data.limitsnone:
                             if name in human_names_shared_home: continue                          
                         if self.data.homenone or self.data.limitshared:
-                            if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                            if name in (_("X Home"), _("Y Home"), _("Z Home"), _("A Home"), _("All Home")): continue
                         model.append((name,))
                     self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                     self.widgets[p].set_active(0)
@@ -3200,7 +3270,7 @@ class App:
                                 if self.data.limitswitch or self.data.limitsnone:
                                     if name in human_names_shared_home: continue                          
                                 if self.data.homenone or self.data.limitshared:
-                                    if name in (_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),_("All home")): continue
+                                    if name in (_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All home")): continue
                                 model.append((name,))  
                             self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                             #self.widgets[p].set_active(0)
@@ -3367,6 +3437,7 @@ class App:
             model.clear()
             for name in human_output_names: model.append((name,))
             self.widgets[p].set_active(hal_output_names.index(self.data[p]))
+            self.widgets[p].set_wrap_width(3)
             p = '%sOpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
@@ -3384,6 +3455,7 @@ class App:
             for search,item in enumerate(model):
                 if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
                     self.widgets[p].set_active(search)
+            self.widgets[p].set_wrap_width(3)
             p = '%sIpin%dinv' % (portname, pin)
             self.widgets[p].set_active(self.data[p])
         self.in_pport_prepare = False
@@ -4170,8 +4242,13 @@ class App:
     def on_loadladder_clicked(self, *args):self.load_ladder(self)
  
     def on_halui_toggled(self, *args):
-        i= self.widgets.halui.get_active()
-        self.widgets.haluitable.set_sensitive(i)
+        if not self.data.nojogbuttons:
+            self.widgets.halui.set_active(1)
+            self.widgets.halui.set_sensitive(0)
+            self.widgets.haluitable.set_sensitive(1)
+        else:
+            i= self.widgets.halui.get_active()
+            self.widgets.haluitable.set_sensitive(i)
 
     def on_classicladder_toggled(self, *args):
 
@@ -4254,7 +4331,20 @@ class App:
         i = test.split('\n')
         print "addcompservo ",i
         self.data.addcompservo = i
-       
+        textbuffer = self.widgets.loadcompbase.get_buffer()
+        startiter = textbuffer.get_start_iter()
+        enditer = textbuffer.get_end_iter()
+        test = textbuffer.get_text(startiter,enditer)
+        i = test.split('\n')
+        print "loadcompbase ",i
+        self.data.loadcompbase = i
+        textbuffer = self.widgets.addcompbase.get_buffer()
+        startiter = textbuffer.get_start_iter()
+        enditer = textbuffer.get_end_iter()
+        test = textbuffer.get_text(startiter,enditer)
+        i = test.split('\n')
+        print "addcompbase ",i
+        self.data.addcompbase = i
 
     def on_complete_back(self, *args):
         self.widgets.druid1.set_page(self.widgets.advanced)
