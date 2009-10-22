@@ -90,11 +90,11 @@ class mdi:
     
     def get_words(self, gcode):
         self.gcode = gcode
-        # strip description
         if gcode[0] == 'M' and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
             return ['P', 'Q']
         if not self.codes.has_key(gcode):
             return []
+        # strip description
         words = self.codes[gcode][1:]
         # replace A with the real axis names
         if 'A' in words:
