@@ -477,7 +477,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double backlash_vel;	/* backlash velocity variable */
 	double motor_pos_cmd;	/* commanded position, with comp */
 	double motor_pos_fb;	/* position feedback, with comp */
+	double motor_pos_probed; /* position latch feedback, with comp */
 	double pos_fb;		/* position feedback, comp removed */
+	double pos_probed;	/* position latch feedback, comp removed */
 	double ferror;		/* following error */
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */

@@ -46,6 +46,7 @@ class mdi:
             'M3' : ['Spindle CW', 'S'],
             'M4' : ['Spindle CCW', 'S'],
             'M6' : ['Tool change', 'T'],
+            'M66' : ['Input control', 'P', 'E', 'L', 'Q'],
 
             # 'A' means 'the axes'
             'G0' : ['Straight rapid', 'A'],
@@ -89,9 +90,11 @@ class mdi:
     
     def get_words(self, gcode):
         self.gcode = gcode
-        # strip description
+        if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
+            return ['P', 'Q']
         if not self.codes.has_key(gcode):
             return []
+        # strip description
         words = self.codes[gcode][1:]
         # replace A with the real axis names
         if 'A' in words:
@@ -110,7 +113,10 @@ class mdi:
         for i in self.words:
             if len(self.words.get(i)) > 0:
                 m += i + self.words.get(i)
-        self.emccommand.mode(self.emc.MODE_MDI)
+        self.emcstat.poll()
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
 
