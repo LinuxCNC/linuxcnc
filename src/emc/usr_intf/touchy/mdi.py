@@ -113,7 +113,10 @@ class mdi:
         for i in self.words:
             if len(self.words.get(i)) > 0:
                 m += i + self.words.get(i)
-        self.emccommand.mode(self.emc.MODE_MDI)
+        self.emcstat.poll()
+        if self.emcstat.task_mode != self.emc.MODE_MDI:
+            self.emccommand.mode(self.emc.MODE_MDI)
+            self.emccommand.wait_complete()
         self.emccommand.mdi(m)
 
 
