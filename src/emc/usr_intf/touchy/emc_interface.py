@@ -327,7 +327,7 @@ class emc_status:
                 self.status['line'].set_text("%d" % self.emcstat.current_line)
                 self.status['id'].set_text("%d" % self.emcstat.id)
                 self.status['dtg'].set_text("%f" % self.emcstat.distance_to_go)
-                self.status['velocity'].set_text("%f" % self.emcstat.current_vel)
+                self.status['velocity'].set_text("%f" % (self.emcstat.current_vel * 60.0))
                 self.status['delay'].set_text("%f" % self.emcstat.delay_left)
 
                 flood = self.emcstat.flood
