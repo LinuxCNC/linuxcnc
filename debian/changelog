@@ -11,9 +11,13 @@ emc2 (1:2.3.4~pre) hardy; urgency=low
   * fix hang for M1xx code that cannot be executed (SF#2836077)
   * rotatekins: Fix forward kinematics (SF#2870683)
   * fix saving the direction setup time (SF#2870131)
-  * improve initial threading synchronization 
+  * improve initial threading synchronization
+  * hostmot2: sample configuration improvements: the line required
+    for home-to-index is now shown in the samples
+  * smithy: include sample configuration files for a number of 
+    smithy cnc systems (1240, 6130, 622, 924)
 
- -- Jeff Epler <jepler@unpythonic.net>  Mon, 19 Oct 2009 11:37:39 -0500
+ -- Jeff Epler <jepler@unpythonic.net>  Thu, 22 Oct 2009 07:10:44 -0500
 
 emc2 (1:2.3.3) hardy; urgency=low
 
