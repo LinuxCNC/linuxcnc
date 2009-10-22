@@ -166,7 +166,8 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     // some standard sanity checks
     //
 
-    if (!hm2_md_is_consistent_or_complain(hm2, md_index, 2, 5, 4, 0x0003)) {
+    if (!hm2_md_is_consistent(hm2, md_index, 2, 5, 4, 0x0003)
+            && !hm2_md_is_consistent_or_complain(hm2, md_index, 3, 5, 4, 0x0003)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
