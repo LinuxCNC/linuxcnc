@@ -453,7 +453,6 @@ static void capture(void *arg, long period)
 static int export_counter(int num, counter_t * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -463,85 +462,85 @@ static int export_counter(int num, counter_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.phase-A", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->phaseA), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseA), comp_id,
+            "encoder.%d.phase-A", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.phase-B", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->phaseB), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseB), comp_id,
+            "encoder.%d.phase-B", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.phase-Z", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->phaseZ), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->phaseZ), comp_id,
+            "encoder.%d.phase-Z", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the index enable input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.index-enable", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->index_ena), comp_id);
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->index_ena), comp_id,
+            "encoder.%d.index-enable", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the reset input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.reset", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->reset), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id,
+            "encoder.%d.reset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for raw counts */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.rawcounts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->raw_counts), comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->raw_counts), comp_id,
+            "encoder.%d.rawcounts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counts captured by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+            "encoder.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for minimum speed estimated by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.min-speed-estimate", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->min_speed), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->min_speed), comp_id,
+            "encoder.%d.min-speed-estimate", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
+            "encoder.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled and interpolated position captured by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-interpolated", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos_interp), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos_interp), comp_id,
+            "encoder.%d.position-interpolated", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled velocity captured by capture() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.velocity", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->vel), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->vel), comp_id,
+            "encoder.%d.velocity", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.position-scale", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->pos_scale), comp_id);
+    retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id,
+            "encoder.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for x4 mode */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.x4-mode", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->x4_mode), comp_id);
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->x4_mode), comp_id,
+            "encoder.%d.x4-mode", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for counter mode */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder.%d.counter-mode", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->counter_mode), comp_id);
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->counter_mode), comp_id,
+            "encoder.%d.counter-mode", num);
     if (retval != 0) {
 	return retval;
     }
