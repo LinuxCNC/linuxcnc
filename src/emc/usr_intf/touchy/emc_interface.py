@@ -358,6 +358,25 @@ class emc_status:
                 self.status['xyrotation'].set_text("%d" % self.emcstat.rotation_xy)
                 self.status['tlo'].set_text("%f" % self.emcstat.tool_offset[2])
 
+                active_codes = []
+                for i in self.emcstat.gcodes[1:]:
+                        if i == -1: continue
+                        if i % 10 == 0:
+                                active_codes.append("G%d" % (i/10))
+                        else:
+                                active_codes.append("G%d.%d" % (i/10, 1%10))
+
+                for i in self.emcstat.mcodes[1:]:
+                        if i == -1: continue
+                        active_codes.append("M%d" % i)
+
+                feed_str = "F%.1f" % self.emcstat.settings[1]
+                if feed_str.endswith(".0"): feed_str = feed_str[:-2]
+                active_codes.append(feed_str)
+                active_codes.append("S%.0f" % self.emcstat.settings[2])
+
+                self.status['activecodes'].set_text(" ".join(active_codes))
+
                 self.prefs['inch'].set_active(self.mm == 0)
                 self.prefs['mm'].set_active(self.mm == 1)
                 self.prefs['actual'].set_active(self.actual == 1)
