@@ -284,3 +284,7 @@ setp encoder.1.latch-rising 1
 setp encoder.1.latch-falling 1
 setp encoder.2.latch-rising 1
 setp encoder.2.latch-falling 1
+
+net lx encoder.0.position-latched => axis.0.motor-pos-probed
+net ly encoder.1.position-latched => axis.1.motor-pos-probed
+net lz encoder.2.position-latched => axis.2.motor-pos-probed
