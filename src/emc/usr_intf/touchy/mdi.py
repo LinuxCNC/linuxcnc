@@ -46,6 +46,7 @@ class mdi:
             'M3' : ['Spindle CW', 'S'],
             'M4' : ['Spindle CCW', 'S'],
             'M6' : ['Tool change', 'T'],
+            'M66' : ['Input control', 'P', 'E', 'L', 'Q'],
 
             # 'A' means 'the axes'
             'G0' : ['Straight rapid', 'A'],
@@ -90,6 +91,8 @@ class mdi:
     def get_words(self, gcode):
         self.gcode = gcode
         # strip description
+        if gcode[0] == 'M' and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
+            return ['P', 'Q']
         if not self.codes.has_key(gcode):
             return []
         words = self.codes[gcode][1:]
