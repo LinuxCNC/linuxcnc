@@ -5,16 +5,11 @@ loadrt stepgen step_type=2
 loadrt encoder num_chan=3
 loadrt threads name1=fast period1=100000
 
-linkpp stepgen.0.phase-A encoder.0.phase-A
-linkpp stepgen.0.phase-B encoder.0.phase-B
-linkpp encoder.0.counts sampler.0.pin.0
-
-linksp stepgen.0.phase-A encoder.1.phase-A
-linksp stepgen.0.phase-B encoder.1.phase-B
-linkpp encoder.1.counts sampler.0.pin.1
-
-linksp stepgen.0.phase-A encoder.2.phase-A
-linkpp encoder.2.counts sampler.0.pin.2
+net A stepgen.0.phase-A => encoder.0.phase-A encoder.1.phase-A encoder.2.phase-A
+net B stepgen.0.phase-B => encoder.0.phase-B encoder.1.phase-B
+net C0 encoder.0.counts => sampler.0.pin.0
+net C1 encoder.1.counts => sampler.0.pin.1
+net C2 encoder.2.counts => sampler.0.pin.2
 
 addf stepgen.update-freq fast
 addf stepgen.make-pulses fast
