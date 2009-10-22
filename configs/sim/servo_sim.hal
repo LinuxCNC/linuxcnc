@@ -22,8 +22,8 @@ loadrt sim_encoder num_chan=3
 loadrt encoder num_chan=6
 
 # add encoder counter and simulator functions to high speed thread
-addf encoder.update-counters base-thread
 addf sim-encoder.make-pulses base-thread
+addf encoder.update-counters base-thread
 
 # add all required functions to servo thread
 addf encoder.capture-position servo-thread
