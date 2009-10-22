@@ -1,7 +1,7 @@
-net Xmax eztrol.x-negative-limit
-net Xmin eztrol.x-positive-limit
-net Zmax eztrol.z-negative-limit
-net Zmin eztrol.z-positive-limit
+net Xmax eztrol.x-positive-limit
+net Xmin eztrol.x-negative-limit
+net Zmax eztrol.z-positive-limit
+net Zmin eztrol.z-negative-limit
 loadrt mux2
 unlinkp motion.spindle-speed-out
 unlinkp lowpass.0.in
