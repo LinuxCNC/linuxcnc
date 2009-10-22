@@ -90,7 +90,7 @@ class mdi:
     
     def get_words(self, gcode):
         self.gcode = gcode
-        if gcode[0] == 'M' and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
+        if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
             return ['P', 'Q']
         if not self.codes.has_key(gcode):
             return []
