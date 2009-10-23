@@ -201,9 +201,9 @@ index-mask-invert pin below).
 for Index to have an effect.  If set to False, the Index-Mask pin must
 be True.
 
-(bit r/w) counter-mode: Set to False (the default) for Quadrature.
-Set to True for Step/Dir (in which case Step is on the A pin and Dir is
-on the B pin).
+(bit r/w) counter-mode: Set to False (the default) for x4 quadrature
+counting.  Set to True for x1 quadrature counting, aka Step/Dir mode
+(in which case Step is on the A pin and Dir is on the B pin).
 
 (bit r/w) filter: If set to True (the default), the quadrature counter
 needs 15 clocks to register a change on any of the three input lines
