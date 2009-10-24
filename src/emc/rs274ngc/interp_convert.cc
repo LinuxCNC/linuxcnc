@@ -1703,6 +1703,9 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
   enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
   if(settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0) {
+      double cx, cy, cz;
+      comp_get_current(settings, &cx, &cy, &cz);
+      CHP(move_endpoint_and_flush(settings, cx, cy));
       dequeue_canons(settings);
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
@@ -3459,6 +3462,9 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   char *line;
   int length;
 
+  double cx, cy, cz;
+  comp_get_current(settings, &cx, &cy, &cz);
+  CHP(move_endpoint_and_flush(settings, cx, cy));
   dequeue_canons(settings);
 
   if (block->m_modes[4] == 0) {
