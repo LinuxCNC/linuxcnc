@@ -1656,22 +1656,22 @@ class Data:
         if temp <> 0 : 
             print >>file, "loadrt pid num_chan=%d"% temp          
             #use 'need pid string' to add calcs and make aliases 
-            for i in range(0,temp ):
-                print >>file, "addf pid.%d.do-pid-calcs servo-thread"% i
-            for axnum,i in enumerate(axislet):
-                print >>file, "alias pin    pid.%d.Pgain     pid.%s.Pgain" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.Igain     pid.%s.Igain" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.Dgain     pid.%s.Dgain" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.bias      pid.%s.bias" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.FF0       pid.%s.FF0" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.FF1       pid.%s.FF1" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.FF2       pid.%s.FF2" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.deadband  pid.%s.deadband" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.maxoutput pid.%s.maxoutput" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.enable    pid.%s.enable" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.command   pid.%s.command" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.feedback  pid.%s.feedback" % (axnum + self.userneededpid, i)
-                print >>file, "alias pin    pid.%d.output    pid.%s.output" % (axnum + self.userneededpid, i)
+            for j in range(0,temp ):
+                print >>file, "addf pid.%d.do-pid-calcs servo-thread"% j
+            for axnum,j in enumerate(axislet):
+                print >>file, "alias pin    pid.%d.Pgain     pid.%s.Pgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Igain     pid.%s.Igain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Dgain     pid.%s.Dgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.bias      pid.%s.bias" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF0       pid.%s.FF0" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF1       pid.%s.FF1" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF2       pid.%s.FF2" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.deadband  pid.%s.deadband" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.maxoutput pid.%s.maxoutput" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.enable    pid.%s.enable" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.command   pid.%s.command" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.feedback  pid.%s.feedback" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.output    pid.%s.output" % (axnum + self.userneededpid, j)
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
@@ -2014,7 +2014,6 @@ class Data:
         self.write_inifile(base)
         self.write_halfile(base)
         self.copy(base, "tool.tbl")
-        self.copy(base, "emc.var")
 
         filename = "%s.pncconf" % base
 
@@ -3516,11 +3515,6 @@ class App:
     
     def on_parportpanel_clicked(self, *args):self.parporttest(self)
         
-    def on_xaxismotor_prepare(self, *args):
-        self.data.help = "help-axismotor.txt"
-        self.signal_sanity_check()
-        self.axis_prepare('x')
-
     def signal_sanity_check(self, *args):
         warnings = []
         do_warning = False
@@ -3547,13 +3541,17 @@ class App:
                 do_warning = True
         if do_warning: self.warning_dialog("\n".join(warnings),True)
 
+    def on_xaxismotor_prepare(self, *args):
+        self.data.help = "help-axismotor.txt"
+        self.signal_sanity_check()
+        self.axis_prepare('x')
     def on_xaxismotor_next(self, *args):  
         self.data.help = "help-axisconfig.txt"   
         self.axis_done('x')
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
-
     def on_xaxismotor_back(self, *args):
+        self.axis_done('x')  
         if self.data.number_pports==1:
                 self.widgets.druid1.set_page(self.widgets.pp1pport)
                 return True
@@ -3566,7 +3564,7 @@ class App:
         elif self.data.mesa5i20 :
                 self.widgets.druid1.set_page(self.widgets.mesa5i20)
                 return True    
-
+ 
     def on_yaxismotor_prepare(self, *args):
         self.data.help = "help-axismotor.txt"
         self.axis_prepare('y')
@@ -3575,7 +3573,8 @@ class App:
         self.axis_done('y')
         self.widgets.druid1.set_page(self.widgets.yaxis)
         return True
-    def on_yaxismotor_back(self, *args):        
+    def on_yaxismotor_back(self, *args):      
+        self.axis_done('y')  
         self.widgets.druid1.set_page(self.widgets.xaxis)
         return True
     
@@ -3587,7 +3586,8 @@ class App:
         self.axis_done('z')
         self.widgets.druid1.set_page(self.widgets.zaxis)
         return True
-    def on_zaxismotor_back(self, *args):    
+    def on_zaxismotor_back(self, *args):   
+        self.axis_done('z')  
         if self.data.axes == 2:
             self.widgets.druid1.set_page(self.widgets.xaxis)
             return True    
@@ -3603,7 +3603,8 @@ class App:
         self.axis_done('a')
         self.widgets.druid1.set_page(self.widgets.aaxis)
         return True
-    def on_aaxismotor_back(self, *args):        
+    def on_aaxismotor_back(self, *args):   
+        self.axis_done('a')      
         self.widgets.druid1.set_page(self.widgets.zaxis)
         return True
 
@@ -4710,11 +4711,13 @@ class App:
         stepgen = self.data.stepgen_sig(axis)
         print axis,stepgen
         if not stepgen == "false":
-            w.notebook3.set_current_page(1)
+            w[axis+"tuningnotebook"].set_current_page(1)
             w[axis+"pid"].set_sensitive(0)
         else:
-            w.notebook3.set_current_page(0)
+            w[axis+"tuningnotebook"].set_current_page(0)
             w[axis+"step"].set_sensitive(0)
+            text = _("Servo tuning is not finished / working\n")
+            self.warning_dialog(text,True)
 
         if axis == "a":
             w[axis + "tunedistunits"].set_text(_("degrees"))
