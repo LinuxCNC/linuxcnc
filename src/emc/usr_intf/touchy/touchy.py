@@ -70,11 +70,21 @@ else:
 	class "GtkWidget" style "touchy-default-style"
     """)
 
+pix_data = """/* XPM */
+static char * invisible_xpm[] = {
+"1 1 1 1",
+"	c None",
+" "};"""
+color = gtk.gdk.Color()
+pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+
 class touchy:
 	def __init__(self):
 		#Set the Glade file
 		self.gladefile = os.path.join(libdir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
+		self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
 		#self.window = self.wTree.get_widget("MainWindow")
                 #self.style = gtk.Style().copy()
 
