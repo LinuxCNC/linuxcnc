@@ -1578,6 +1578,8 @@ Called by: convert_cutter_compensation
 
 int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< pointer to machine settings
 {
+  int status;
+  static char name[] = "convert_cutter_compensation_off";
 #ifdef DEBUG_EMC
   enqueue_COMMENT("interpreter: cutter radius compensation off");
 #endif
@@ -3262,6 +3264,7 @@ settings. They occur on M2 or M30.
 int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS274/NGC instructions
                         setup_pointer settings) //!< pointer to machine settings                 
 {
+  int status;
   static char name[] = "convert_stop";
   int index;
   char *line;
