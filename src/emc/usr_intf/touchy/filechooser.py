@@ -60,7 +60,8 @@ class filechooser:
 
     def reload(self, b):
         self.files = os.listdir(self.dir)
-        self.files = [i for i in self.files if i.endswith('.ngc')]
+        self.files = [i for i in self.files if i.endswith('.ngc') and
+                      os.path.isfile(os.path.join(self.dir, i))]
         self.files.sort()
         self.selected = -1
         self.populate()
