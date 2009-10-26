@@ -40,6 +40,36 @@ import filechooser
 import listing
 import preferences
 
+if gtk.gtk_version >= (2, 10, 0):
+    gtk.rc_parse_string("""
+	gtk_color_scheme = "bg_color:#dcdad5\nfg_color:#000"
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = @bg_color
+	    bg[NORMAL] = @bg_color
+	    bg[ACTIVE] = @bg_color
+	    bg[INSENSITIVE] = @bg_color
+	    fg[PRELIGHT] = @fg_color
+	    fg[NORMAL] = @fg_color
+	    fg[ACTIVE] = @fg_color
+	    fg[INSENSITIVE] = darker (@bg_color)
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+else:
+    gtk.rc_parse_string("""
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = "#dcdad5"
+	    bg[NORMAL] = "#dcdad5"
+	    bg[ACTIVE] = "#dcdad5"
+	    bg[INSENSITIVE] = "#dcdad5"
+	    fg[PRELIGHT] = "#000"
+	    fg[NORMAL] = "#000"
+	    fg[ACTIVE] = "#000"
+	    fg[INSENSITIVE] = "#9a9895"
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+
 class touchy:
 	def __init__(self):
 		#Set the Glade file
