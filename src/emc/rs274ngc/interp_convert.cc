@@ -1282,7 +1282,11 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             // we have the value
             if(found)
             {
-                sprintf(valbuf, "%lf", value);
+                int n = snprintf(valbuf, sizeof(valbuf), "%lf", value);
+                bool fail = (n >= sizeof(valbuf) || n < 0);
+                if(fail)
+                    strcpy(valbuf, "######");
+
             }
             else
             {
