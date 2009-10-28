@@ -201,6 +201,10 @@ typedef struct {
 // encoders
 //
 
+#define HM2_ENCODER_QUADRATURE_ERROR    (1<<15)
+#define HM2_ENCODER_AB_MASK_POLARITY    (1<<14)
+#define HM2_ENCODER_LATCH_ON_PROBE      (1<<13)
+#define HM2_ENCODER_PROBE_POLARITY      (1<<12)
 #define HM2_ENCODER_FILTER              (1<<11)
 #define HM2_ENCODER_COUNTER_MODE        (1<<10)
 #define HM2_ENCODER_INDEX_MASK          (1<<9)
