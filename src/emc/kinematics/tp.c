@@ -917,7 +917,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
             if(nexttc) pos_error -= nexttc->progress;
 
-            tc->reqvel = pos_error/tc->cycle_time;
             if(tc->sync_accel) {
                 // detect when velocities match, and move the target accordingly.
                 // acceleration will abruptly stop and we will be on our new target.
@@ -925,16 +924,29 @@ int tpRunCycle(TP_STRUCT * tp, long period)
                 target_vel = spindle_vel * tc->uu_per_rev;
                 if(tc->currentvel >= target_vel) {
                     // move target so as to drive pos_error to 0 next cycle
-                    spindleoffset = oldrevs - tc->progress/tc->uu_per_rev;
+                    spindleoffset = revs - tc->progress/tc->uu_per_rev;
                     tc->sync_accel = 0;
+                    tc->reqvel = target_vel;
+                } else {
+                    // beginning of move and we are behind: accel as fast as we can
+                    tc->reqvel = tc->maxvel;
                 }
+            } else {
+                // we have synced the beginning of the move as best we can -
+                // track position (minimize pos_error).
+                double errorvel;
+                spindle_vel = (revs - oldrevs) / tc->cycle_time;
+                target_vel = spindle_vel * tc->uu_per_rev;
+                errorvel = pmSqrt(fabs(pos_error) * tc->maxaccel);
+                if(pos_error<0) errorvel = -errorvel;
+                tc->reqvel = target_vel + errorvel;
             }
             tc->feed_override = 1.0;
         }
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
         if(nexttc) {
 	    if (nexttc->synchronized) {
-		nexttc->reqvel = pos_error/nexttc->cycle_time;
+		nexttc->reqvel = tc->reqvel;
 		nexttc->feed_override = 1.0;
 		if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
 	    } else {

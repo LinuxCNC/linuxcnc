@@ -40,11 +40,51 @@ import filechooser
 import listing
 import preferences
 
+if gtk.gtk_version >= (2, 10, 0):
+    gtk.rc_parse_string("""
+	gtk_color_scheme = "bg_color:#dcdad5\nfg_color:#000"
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = @bg_color
+	    bg[NORMAL] = @bg_color
+	    bg[ACTIVE] = @bg_color
+	    bg[INSENSITIVE] = @bg_color
+	    fg[PRELIGHT] = @fg_color
+	    fg[NORMAL] = @fg_color
+	    fg[ACTIVE] = @fg_color
+	    fg[INSENSITIVE] = darker (@bg_color)
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+else:
+    gtk.rc_parse_string("""
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = "#dcdad5"
+	    bg[NORMAL] = "#dcdad5"
+	    bg[ACTIVE] = "#dcdad5"
+	    bg[INSENSITIVE] = "#dcdad5"
+	    fg[PRELIGHT] = "#000"
+	    fg[NORMAL] = "#000"
+	    fg[ACTIVE] = "#000"
+	    fg[INSENSITIVE] = "#9a9895"
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+
+pix_data = """/* XPM */
+static char * invisible_xpm[] = {
+"1 1 1 1",
+"	c None",
+" "};"""
+color = gtk.gdk.Color()
+pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+
 class touchy:
 	def __init__(self):
 		#Set the Glade file
 		self.gladefile = os.path.join(libdir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
+		self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
 		#self.window = self.wTree.get_widget("MainWindow")
                 #self.style = gtk.Style().copy()
 
