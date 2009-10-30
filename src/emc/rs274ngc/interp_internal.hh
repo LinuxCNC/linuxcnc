@@ -419,6 +419,7 @@ typedef struct setup_struct
   double program_y;             // program y, used when cutter comp on
   double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
+  int random_toolchanger;       // tool changer swaps pockets, and pocket 0 is the spindle instead of "no tool"
   int selected_pocket;          // tool slot selected but not active
   int sequence_number;          // sequence number of line last read
   double speed;                 // current spindle speed in rpm or SxM
