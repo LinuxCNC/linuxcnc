@@ -6925,7 +6925,10 @@ If the selected tool was not in the spindle before the tool change, the
  
 \layout Itemize
 
-The axis positions may be modified
+If configured in the .ini file some axis positions may move when a M6 is
+ issued.
+ See the EMCIO section of the Integrators Manual for more information on
+ tool change options.
 \layout Itemize
 
 No other changes will be made.
@@ -6935,6 +6938,8 @@ No other changes will be made.
 M9
 \family default 
 .
+ Tool length offsets are not changed, use G43 to change the tool length
+ offset.
 \layout Standard
 
 The tool change may include axis motion.
@@ -7178,7 +7183,7 @@ M53 P0
 \family default 
 .
  Enabling the feed stop switch will allow motion to be interrupted by means
- of the feedstop control.
+ of the feed stop control.
  In EMC2, the HAL pin 
 \family typewriter 
 motion.feed-hold
