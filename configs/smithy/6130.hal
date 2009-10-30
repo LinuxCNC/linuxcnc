@@ -1,6 +1,6 @@
 # 5i20 config file for Smithy 924 Lathe
 
-# load the hostmot2 driver, this doesnt do anything by itself, 
+# load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
@@ -99,7 +99,7 @@ net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 net machine-on hm2_5i20.0.gpio.039.in => halui.machine.off
 net machine-off hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
-#connect limit switches to limit inputs 
+#connect limit switches to limit inputs
 net pos_lim hm2_5i20.0.gpio.028.in_not axis.0.pos-lim-sw-in axis.2.pos-lim-sw-in
 net neg_lim hm2_5i20.0.gpio.030.in_not axis.0.neg-lim-sw-in axis.2.neg-lim-sw-in
 
