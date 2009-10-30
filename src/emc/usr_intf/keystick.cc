@@ -491,17 +491,17 @@ static void printStatus()
       mvwaddstr(window, 0, 34, "Tool Table");
 
       wattrset(window, 0);
-      mvwaddstr(window, 2, 1, "Pocket        ID    Length  Diameter");
+      mvwaddstr(window, 2, 1, "Pocket    ToolNo    Length  Diameter");
 
       wattrset(window, A_UNDERLINE);
       line = 4;
-      for (t = 0; t < CANON_TOOL_MAX; t++)
+      for (t = 0; t < CANON_POCKETS_MAX; t++)
         {
-          if (emcStatus->io.tool.toolTable[t].id)
+          if (emcStatus->io.tool.toolTable[t].toolno)
             {
               sprintf(scratch_string, "%4d%10d%10.4f%10.4f",
                       t,
-                      emcStatus->io.tool.toolTable[t].id,
+                      emcStatus->io.tool.toolTable[t].toolno,
                       emcStatus->io.tool.toolTable[t].zoffset,
                       emcStatus->io.tool.toolTable[t].diameter);
               mvwaddstr(window, line++, 3, scratch_string);

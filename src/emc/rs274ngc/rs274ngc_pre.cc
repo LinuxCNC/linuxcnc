@@ -405,6 +405,7 @@ int Interp::init()
           inifile.Find(&_setup.a_axis_wrapped, "WRAPPED_ROTARY", "AXIS_3");
           inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_4");
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_5");
+          inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
 
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
@@ -624,12 +625,12 @@ int Interp::load_tool_table()
 {
   int n;
 
-  CHKS((_setup.tool_max > CANON_TOOL_MAX), NCE_TOOL_MAX_TOO_LARGE);
-  for (n = 0; n <= _setup.tool_max; n++) {
+  CHKS((_setup.pockets_max > CANON_POCKETS_MAX), NCE_POCKET_MAX_TOO_LARGE);
+  for (n = 0; n < _setup.pockets_max; n++) {
     _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
   }
-  for (; n <= CANON_TOOL_MAX; n++) {
-    _setup.tool_table[n].id = 0;
+  for (; n < CANON_POCKETS_MAX; n++) {
+    _setup.tool_table[n].toolno = 0;
     _setup.tool_table[n].xoffset = 0;
     _setup.tool_table[n].zoffset = 0;
     _setup.tool_table[n].diameter = 0;
@@ -1127,7 +1128,7 @@ int Interp::synch()
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
-  _setup.current_slot = GET_EXTERNAL_TOOL_SLOT();
+  _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
   _setup.current_x = GET_EXTERNAL_POSITION_X();
   _setup.current_y = GET_EXTERNAL_POSITION_Y();
   _setup.current_z = GET_EXTERNAL_POSITION_Z();
@@ -1139,10 +1140,10 @@ int Interp::synch()
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = (GET_EXTERNAL_MIST() != 0) ? ON : OFF;
   _setup.plane = GET_EXTERNAL_PLANE();
-  _setup.selected_tool_slot = GET_EXTERNAL_SELECTED_TOOL_SLOT();
+  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.speed = GET_EXTERNAL_SPEED();
   _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
-  _setup.tool_max = GET_EXTERNAL_TOOL_MAX();
+  _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.speed_override = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();

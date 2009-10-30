@@ -354,7 +354,10 @@ class emc_status:
 
                 self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
                 self.status['loadedtool'].set_text("%d" % self.emcstat.tool_in_spindle)
-                self.status['preppedtool'].set_text("%d" % self.emcstat.tool_prepped)
+		if self.emcstat.pocket_prepped == -1:
+			self.status['preppedtool'].set_text("None")
+		else:
+			self.status['preppedtool'].set_text("%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
                 self.status['xyrotation'].set_text("%d" % self.emcstat.rotation_xy)
                 self.status['tlo'].set_text("%f" % self.emcstat.tool_offset[2])
 

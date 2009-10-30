@@ -277,7 +277,7 @@ Returned Value: int
   1. The file named by the user cannot be opened.
   2. No blank line is found.
   3. A line of data cannot be read.
-  4. A tool slot number is less than 1 or >= _tool_max
+  4. A tool slot number is less than 1 or >= _pockets_max
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
@@ -340,9 +340,9 @@ int read_tool_file(  /* ARGUMENTS         */
         break;
     }
 
-  for (slot = 0; slot < _tool_max; slot++) /* initialize */
+  for (slot = 0; slot < _pockets_max; slot++) /* initialize */
     {
-      _tools[slot].id = -1;
+      _tools[slot].toolno = -1;
       _tools[slot].zoffset = 0.;
       _tools[slot].diameter = 0.;
       _tools[slot].xoffset = 0.;
@@ -355,9 +355,9 @@ int read_tool_file(  /* ARGUMENTS         */
       if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d",
                  &slot, &tool_id, &zoffset, &xoffset, &diameter,
                  &frontangle, &backangle, &orientation) == 8 &&
-          slot >= 0 && slot < _tool_max)
+          slot >= 0 && slot < _pockets_max)
         {
-          _tools[slot].id = tool_id;
+          _tools[slot].toolno = tool_id;
           _tools[slot].zoffset = zoffset;
           _tools[slot].diameter = diameter;
           _tools[slot].xoffset = xoffset;
@@ -367,16 +367,16 @@ int read_tool_file(  /* ARGUMENTS         */
         } 
       else if (sscanf(buffer, "%d %d %lf %lf", &slot,
                       &tool_id, &zoffset, &diameter) == 4 
-               && slot >= 0 && slot < _tool_max)
+               && slot >= 0 && slot < _pockets_max)
         {
-          _tools[slot].id = tool_id;
+          _tools[slot].toolno = tool_id;
           _tools[slot].zoffset = zoffset;
           _tools[slot].diameter = diameter;
           _tools[slot].orientation = 0;  //mill tool
         }
       else 
         {
-          if (slot < 0 || slot >= _tool_max) 
+          if (slot < 0 || slot >= _pockets_max) 
             fprintf(stderr, "Out of range tool slot number %d\n", slot);  
           else
             fprintf(stderr, "Bad input line \"%s\" in tool file\n", buffer);

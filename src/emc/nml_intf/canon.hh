@@ -152,11 +152,11 @@ struct CANON_POSITION {
 };
 
 /* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
-#define CANON_TOOL_MAX 56	// max size of carousel handled
+#define CANON_POCKETS_MAX 56	// max size of carousel handled
 #define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
 
 struct CANON_TOOL_TABLE {
-    int id;
+    int toolno;
     double zoffset;
     double xoffset;
     double diameter;
@@ -517,8 +517,8 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter);
-extern void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter);
+extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
 
@@ -555,7 +555,7 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_TOOL(int i);	/* i is slot number */
+extern void SELECT_POCKET(int i);	/* i is slot number */
 
 extern void CHANGE_TOOL_NUMBER(int number);
 
@@ -860,7 +860,7 @@ extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
 
 // Returns number of slots in carousel
-extern int GET_EXTERNAL_TOOL_MAX();
+extern int GET_EXTERNAL_POCKETS_MAX();
 
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
@@ -903,7 +903,7 @@ extern int GET_EXTERNAL_AXIS_MASK();
 
 extern FILE *_outfile;		/* where to print, set in main */
 extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
-extern int _tool_max;		/* in canon.cc */
+extern int _pockets_max;		/* in canon.cc */
 extern char _parameter_file_name[];	/* in canon.cc */
 #define PARAMETER_FILE_NAME_LENGTH 100
 

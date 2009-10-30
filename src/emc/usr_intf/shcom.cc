@@ -1185,11 +1185,11 @@ int sendLoadToolTable(const char *file)
     return 0;
 }
 
-int sendToolSetOffset(int id, double zoffset, double diameter)
+int sendToolSetOffset(int toolno, double zoffset, double diameter)
 {
     EMC_TOOL_SET_OFFSET emc_tool_set_offset_msg;
 
-    emc_tool_set_offset_msg.id = id;
+    emc_tool_set_offset_msg.toolno = toolno;
     emc_tool_set_offset_msg.zoffset = zoffset;
     emc_tool_set_offset_msg.diameter = diameter;
     emc_tool_set_offset_msg.orientation = 0; // mill style tool table
@@ -1205,13 +1205,13 @@ int sendToolSetOffset(int id, double zoffset, double diameter)
     return 0;
 }
 
-int sendToolSetOffset(int id, double zoffset, double xoffset, 
+int sendToolSetOffset(int toolno, double zoffset, double xoffset, 
                       double diameter, double frontangle, double backangle,
                       int orientation)
 {
     EMC_TOOL_SET_OFFSET emc_tool_set_offset_msg;
 
-    emc_tool_set_offset_msg.id = id;                  
+    emc_tool_set_offset_msg.toolno = toolno;
     emc_tool_set_offset_msg.zoffset = zoffset;        
     emc_tool_set_offset_msg.xoffset = xoffset;        
     emc_tool_set_offset_msg.diameter = diameter;      

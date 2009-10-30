@@ -556,3 +556,19 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   }
   return (theta);
 }
+
+int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
+{
+    if(!settings->random_toolchanger && toolno == 0) {
+        *pocket = 0;
+        return INTERP_OK;
+    }
+    *pocket = -1;
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+        if(settings->tool_table[i].toolno == toolno)
+            *pocket = i;
+    }
+
+    CHKS((*pocket == -1), "Specified tool not found in the tool table");
+    return INTERP_OK;
+}

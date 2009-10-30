@@ -1807,15 +1807,14 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
   } else {
       if(block->d_flag == OFF) {
-          index = settings->current_slot;
+          index = 0;
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[7]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHKS((tool > _setup.tool_max), NCE_TOOL_RADIUS_INDEX_TOO_BIG);
-          index = tool;
+          CHP((find_tool_pocket(settings, tool, &index)));
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[index].diameter) / 2.0;
       orientation = settings->tool_table[index].orientation;
@@ -2668,7 +2667,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     // when we have M61 we only change the number of the loaded tool (for example on startup)
     if (block->m_modes[6] == 61) {
 	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));
-	settings->current_slot = round_to_int(block->q_number);
+	settings->current_pocket = round_to_int(block->q_number);
 	CHANGE_TOOL_NUMBER(round_to_int(block->q_number));
     }    
 #ifdef DEBATABLE
@@ -3063,10 +3062,12 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 // G10 L1 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
-    int toolnum;
+    int pocket = -1, toolno;
     int q;
 
-    is_near_int(&toolnum, block->p_number);
+    is_near_int(&toolno, block->p_number);
+
+    CHP((find_tool_pocket(settings, toolno, &pocket)));
 
     CHKS((block->y_flag || block->a_flag || block->b_flag || block->c_flag ||
           block->u_flag || block->v_flag), "Invalid axis specified for G10 L1");
@@ -3078,43 +3079,45 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
         CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
         CHKS((block->x_flag && q == 0), "Cannot have an X tool offset with orientation 0");
         CHKS((q > 9), "Invalid tool orientation");
-        settings->tool_table[toolnum].orientation = q;
+        settings->tool_table[pocket].orientation = q;
     }
-    CHKS((block->x_flag && !settings->tool_table[toolnum].orientation), "Cannot have an X tool offset with orientation 0");
+    CHKS((block->x_flag && !settings->tool_table[pocket].orientation), "Cannot have an X tool offset with orientation 0");
 
-    settings->tool_table[toolnum].id = toolnum;
+    settings->tool_table[pocket].toolno = toolno;
 
-    if(block->r_flag) settings->tool_table[toolnum].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
 
     if(block->z_flag) {
         double z = block->z_number;
         if (block->l_number == 10) z = settings->current_z + settings->tool_zoffset - z;
-        settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(z);
+        settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(z);
     } else if(block->w_flag) {
         double w = block->w_number;
         if (block->l_number == 10) w = settings->w_current + settings->tool_woffset - w;
-        settings->tool_table[toolnum].zoffset = PROGRAM_TO_USER_LEN(w);
+        settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(w);
     }
 
     if(block->x_flag) {
         double x = block->x_number;
         if (block->l_number == 10) x = settings->current_x + settings->tool_xoffset - x;
-        settings->tool_table[toolnum].xoffset = PROGRAM_TO_USER_LEN(x);
+        settings->tool_table[pocket].xoffset = PROGRAM_TO_USER_LEN(x);
     }
 
-    if(settings->tool_table[toolnum].orientation) 
-        SET_TOOL_TABLE_ENTRY(settings->tool_table[toolnum].id,
-                             settings->tool_table[toolnum].zoffset,
-                             settings->tool_table[toolnum].xoffset,
-                             settings->tool_table[toolnum].diameter,
-                             settings->tool_table[toolnum].frontangle,
-                             settings->tool_table[toolnum].backangle,
-                             settings->tool_table[toolnum].orientation);
+    if(settings->tool_table[pocket].orientation) 
+        SET_TOOL_TABLE_ENTRY(pocket,
+                             settings->tool_table[pocket].toolno,
+                             settings->tool_table[pocket].zoffset,
+                             settings->tool_table[pocket].xoffset,
+                             settings->tool_table[pocket].diameter,
+                             settings->tool_table[pocket].frontangle,
+                             settings->tool_table[pocket].backangle,
+                             settings->tool_table[pocket].orientation);
     else
-        SET_TOOL_TABLE_ENTRY(settings->tool_table[toolnum].id,
-                             settings->tool_table[toolnum].zoffset,
-                             settings->tool_table[toolnum].diameter);
-        
+        SET_TOOL_TABLE_ENTRY(pocket,
+                             settings->tool_table[pocket].toolno,
+                             settings->tool_table[pocket].zoffset,
+                             settings->tool_table[pocket].diameter);
+
     return INTERP_OK;
 }
 
@@ -4353,7 +4356,7 @@ spindle and make new entry moves if necessary.
 int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine settings
 {
 
-  if (settings->selected_tool_slot < 0) {
+  if (settings->selected_pocket < 0) {
     ERS(NCE_TXX_MISSING_FOR_M6);
   }
 
@@ -4420,9 +4423,9 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
       settings->w_current = w_end;
   }
 
-  CHANGE_TOOL(settings->selected_tool_slot);
+  CHANGE_TOOL(settings->selected_pocket);
   
-  settings->current_slot = settings->selected_tool_slot;
+  settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = ON; 
   return INTERP_OK;
@@ -4474,9 +4477,16 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     woffset = 0.;
     index = 0;
   } else if (g_code == G_43) {
-    CHKS((block->h_flag == OFF && !settings->current_slot), 
-        NCE_OFFSET_INDEX_MISSING);
-    index = block->h_flag == ON? block->h_number: settings->current_slot;
+    if(block->h_flag == ON) {
+        CHP((find_tool_pocket(settings, block->h_number, &index)));
+    } else if (settings->toolchange_flag) {
+        // we haven't loaded the tool and swapped pockets quite yet
+        index = settings->current_pocket;
+    } else {
+        // tool change is done so pockets are swapped
+        index = 0;
+    }
+
     xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
     if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
         woffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
@@ -4554,9 +4564,9 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             
 {
-  CHKS((block->t_number > settings->tool_max),
-      NCE_SELECTED_TOOL_SLOT_NUMBER_TOO_LARGE);
-  SELECT_TOOL(block->t_number);
-  settings->selected_tool_slot = block->t_number;
+  int pocket;
+  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
+  SELECT_POCKET(pocket);
+  settings->selected_pocket = pocket;
   return INTERP_OK;
 }

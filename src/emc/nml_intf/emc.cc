@@ -871,9 +871,9 @@ void EMC_TOOL_STAT::update(CMS * cms)
 {
 
     EMC_TOOL_STAT_MSG::update(cms);
-    cms->update(toolPrepped);
+    cms->update(pocketPrepped);
     cms->update(toolInSpindle);
-    for (int i_toolTable = 0; i_toolTable < 33; i_toolTable++)
+    for (int i_toolTable = 0; i_toolTable < CANON_POCKETS_MAX; i_toolTable++)
 	CANON_TOOL_TABLE_update(cms, &(toolTable[i_toolTable]));
 
 }
@@ -1393,7 +1393,8 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
 
     EMC_TOOL_CMD_MSG::update(cms);
-    cms->update(id);
+    cms->update(pocket);
+    cms->update(toolno);
     cms->update(zoffset);
     cms->update(xoffset);
     cms->update(diameter);
@@ -1668,7 +1669,7 @@ void EMC_SPINDLE_DECREASE::update(CMS * cms)
 */
 void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x)
 {
-    cms->update(x->id);
+    cms->update(x->toolno);
     cms->update(x->zoffset);
     cms->update(x->diameter);
     cms->update(x->xoffset);

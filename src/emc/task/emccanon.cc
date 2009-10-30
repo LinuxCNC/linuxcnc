@@ -1818,11 +1818,12 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                           double frontangle, double backangle, int orientation) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
-    o.id = id;
+    o.pocket = pocket;
+    o.toolno = toolno;
     o.zoffset = zoffset;
     o.xoffset = xoffset;
     o.diameter = diameter;
@@ -1833,10 +1834,11 @@ void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diamete
 }
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
-    o.id = id;
+    o.pocket = pocket;
+    o.toolno = toolno;
     o.zoffset = zoffset;
     o.diameter = diameter;
     o.orientation = 0;
@@ -1939,8 +1941,8 @@ void CHANGE_TOOL(int slot)
     interp_list.append(load_tool_msg);
 }
 
-/* SELECT_TOOL results from T1, for example */
-void SELECT_TOOL(int slot)
+/* SELECT_POCKET results from T1, for example */
+void SELECT_POCKET(int slot)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
@@ -2365,7 +2367,7 @@ void CANON_ERROR(const char *fmt, ...)
   GET_EXTERNAL_TOOL_TABLE(int pocket)
 
   Returns the tool table structure associated with pocket. Note that
-  pocket can run from 0 (by definition, no tool), to pocket CANON_TOOL_MAX - 1.
+  pocket can run from 0 (by definition, the spindle), to pocket CANON_POCKETS_MAX - 1.
 
   Tool table is always in machine units.
 
@@ -2374,8 +2376,8 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 {
     CANON_TOOL_TABLE retval;
 
-    if (pocket < 1 || pocket >= CANON_TOOL_MAX) {
-	retval.id = 0;
+    if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
+	retval.toolno = -1;
         retval.xoffset = 0.0;
 	retval.zoffset = 0.0;
         retval.frontangle = 0.0;
@@ -2551,9 +2553,9 @@ CANON_DIRECTION GET_EXTERNAL_SPINDLE()
     return CANON_COUNTERCLOCKWISE;
 }
 
-int GET_EXTERNAL_TOOL_MAX()
+int GET_EXTERNAL_POCKETS_MAX()
 {
-    return CANON_TOOL_MAX;
+    return CANON_POCKETS_MAX;
 }
 
 char _parameter_file_name[LINELEN];	/* Not static.Driver
@@ -2732,7 +2734,7 @@ int GET_EXTERNAL_TOOL_SLOT()
 
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
-    return emcStatus->io.tool.toolPrepped;
+    return emcStatus->io.tool.pocketPrepped;
 }
 
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()

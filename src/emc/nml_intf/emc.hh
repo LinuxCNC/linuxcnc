@@ -483,7 +483,7 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int id, double zoffset, double xoffset,
+extern int emcToolSetOffset(int pocket, int toolno, double zoffset, double xoffset,
                             double diameter, double frontangle,
                             double backangle, int orientation);
 extern int emcToolSetNumber(int number);
