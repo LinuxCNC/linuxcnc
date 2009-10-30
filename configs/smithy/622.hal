@@ -34,7 +34,10 @@ sets Enable TRUE
 #configure the spindle speed lowpass filter & PWM generator
 net Scmd motion.spindle-speed-out => lowpass.0.in
 net Sflt lowpass.0.out => hm2_5i20.0.pwmgen.00.value
-setp lowpass.0.gain 1.0000
+#early production machines
+#setp lowpass.0.gain 0.0001
+#later production machines
+setp lowpass.0.gain 1.0
 setp hm2_5i20.0.pwmgen.00.scale 5000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 
