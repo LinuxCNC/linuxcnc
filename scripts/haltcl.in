@@ -16,11 +16,12 @@ proc parse_ini {filename} {
     close $f
 }
 
-if {[lindex $argv 0] == "-ini"} {
+if {[llength $argv] > 0 && [lindex $argv 0] == "-ini"} {
     parse_ini [lindex $argv 1]
     set argv [lrange $argv 2 end]
 }
 
+    
 proc setp {p v} {
     set v [uplevel [list expr $v]]
     hal setp $p $v
@@ -38,6 +39,10 @@ foreach c [hal --commands] {
     }
 }
 
+if {[llength $argv] == 0} {
+    package require tclreadline
+    ::tclreadline::Loop
+}
 
 set filename [lindex $argv 0]
 set argv [lindex $argv 1 end]
