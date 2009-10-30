@@ -47,6 +47,7 @@ Interp interp_new;
 #define interp_exit      interp_new.exit
 #define interp_open      interp_new.open
 #define interp_read	 interp_new.read
+#define interp_load_tool_table interp_new.load_tool_table
 
 /*
 
@@ -211,6 +212,7 @@ int interpret_from_file( /* ARGUMENTS                  */
 
   for(; ;)
     {
+      interp_load_tool_table();
       status = interp_read(NULL);
       if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
         continue;
@@ -312,6 +314,7 @@ int read_tool_file(  /* ARGUMENTS         */
   double zoffset, xoffset, frontangle, backangle;
   double diameter;
   int orientation;
+  int i=0;
 
   if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
     {
@@ -354,25 +357,25 @@ int read_tool_file(  /* ARGUMENTS         */
     {
       if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d",
                  &slot, &tool_id, &zoffset, &xoffset, &diameter,
-                 &frontangle, &backangle, &orientation) == 8 &&
-          slot >= 0 && slot < _pockets_max)
+                 &frontangle, &backangle, &orientation) == 8 && 
+              ++i < _pockets_max)
         {
-          _tools[slot].toolno = tool_id;
-          _tools[slot].zoffset = zoffset;
-          _tools[slot].diameter = diameter;
-          _tools[slot].xoffset = xoffset;
-          _tools[slot].frontangle = frontangle;
-          _tools[slot].backangle = backangle;
-          _tools[slot].orientation = orientation;
+          _tools[i].toolno = tool_id;
+          _tools[i].zoffset = zoffset;
+          _tools[i].diameter = diameter;
+          _tools[i].xoffset = xoffset;
+          _tools[i].frontangle = frontangle;
+          _tools[i].backangle = backangle;
+          _tools[i].orientation = orientation;
         } 
       else if (sscanf(buffer, "%d %d %lf %lf", &slot,
-                      &tool_id, &zoffset, &diameter) == 4 
-               && slot >= 0 && slot < _pockets_max)
+                      &tool_id, &zoffset, &diameter) == 4 && 
+              ++i < _pockets_max)
         {
-          _tools[slot].toolno = tool_id;
-          _tools[slot].zoffset = zoffset;
-          _tools[slot].diameter = diameter;
-          _tools[slot].orientation = 0;  //mill tool
+          _tools[i].toolno = tool_id;
+          _tools[i].zoffset = zoffset;
+          _tools[i].diameter = diameter;
+          _tools[i].orientation = 0;  //mill tool
         }
       else 
         {

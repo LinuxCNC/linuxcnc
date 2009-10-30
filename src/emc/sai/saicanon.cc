@@ -623,6 +623,7 @@ void CHANGE_TOOL(int slot)
 {
   PRINT1("CHANGE_TOOL(%d)\n", slot);
   _active_slot = slot;
+  _tools[0] = _tools[slot];
 }
 
 void SELECT_POCKET(int slot)
