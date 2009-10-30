@@ -2813,7 +2813,8 @@ TOOL_CHANGE_WITH_SPINDLE_ON\InsetSpace ~
 =\InsetSpace ~
 1 The spindle will be left on during the tool
  change when the value is 1.
- Useful for lathes mostly.
+ Useful for lathes or machines where the material is in the spindle not
+ the tool.
 \end_layout
 
 \begin_layout Description
@@ -2830,6 +2831,14 @@ TOOL_CHANGE_AT_G30\InsetSpace ~
 1 The machine is moved to reference point defined by
  parameters 5181-5186 for G30 if the value is 1.
  For more information on G30 and Parameters see the G Code Manual.
+\end_layout
+
+\begin_layout Description
+RANDOM_TOOLCHANGER\InsetSpace ~
+=\InsetSpace ~
+1 This is for machines that can not place the tool back
+ into the pocket it came from.
+ Machines that swap the tool in the pocket with the tool in the spindle.
 \end_layout
 
 \end_body
