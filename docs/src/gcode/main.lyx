@@ -8370,7 +8370,10 @@ If the selected tool was not in the spindle before the tool change, the
 \end_layout
 
 \begin_layout Itemize
-The axis positions may be modified
+If configured in the .ini file some axis positions may move when a M6 is
+ issued.
+ See the EMCIO section of the Integrators Manual for more information on
+ tool change options.
 \end_layout
 
 \begin_layout Itemize
@@ -8381,6 +8384,8 @@ No other changes will be made.
 M9
 \family default
 .
+ The tool length offset is not changed, use G43 to change the tool length
+ offset.
 \end_layout
 
 \begin_layout Standard
