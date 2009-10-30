@@ -6,7 +6,7 @@
  addf encoder.update-counters servo-thread
  addf mux8.0 servo-thread
 
- # "times 4 mode" one count per full quadrature cycle, instead of the usual one count per edge.  
+ # "times 4 mode" one count per full quadrature cycle, instead of the usual one count per edge.
  # mpg jog wheels often have a full quadrature cycle per "click". 0 for off and 1 for on.
  setp encoder.0.x4-mode 1
 
