@@ -90,16 +90,18 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
    of the axis are considered equivalent and we just need to find the
    nearest one. */
 
-double Interp::unwrap_rotary(double sign_of, double commanded, double current) {
+int Interp::unwrap_rotary(double *r, double sign_of, double commanded, double current, char axis) {
     double result;
     int neg = copysign(1.0, sign_of) < 0.0;
+    CHKS((sign_of <= -360.0 || sign_of >= 360.0), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), sign_of, axis);
     
     double d = floor(current/360.0);
     result = fabs(commanded) + (d*360.0);
     if(!neg && result < current) result += 360.0;
     if(neg && result > current) result -= 360.0;
+    *r = result;
 
-    return result;
+    return INTERP_OK;
 }
     
 
@@ -186,9 +188,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->a_flag == ON) {
             if(s->a_axis_wrapped) {
-                *AA_p = unwrap_rotary(block->a_number, 
-                                      block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
-                                      s->AA_current);
+                CHP(unwrap_rotary(AA_p, block->a_number, 
+                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
+                                  s->AA_current, 'A'));
             } else {
                 *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
             }
@@ -198,9 +200,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->b_flag == ON) {
             if(s->b_axis_wrapped) {
-                *BB_p = unwrap_rotary(block->b_number, 
-                                      block->b_number - s->BB_origin_offset - s->BB_axis_offset, 
-                                      s->BB_current);
+                CHP(unwrap_rotary(BB_p, block->b_number, 
+                                  block->b_number - s->BB_origin_offset - s->BB_axis_offset, 
+                                  s->BB_current, 'B'));
             } else {
                 *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
             }
@@ -210,9 +212,9 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->c_flag == ON) {
             if(s->c_axis_wrapped) {
-                *CC_p = unwrap_rotary(block->c_number, 
-                                      block->c_number - s->CC_origin_offset - s->CC_axis_offset, 
-                                      s->CC_current);
+                CHP(unwrap_rotary(CC_p, block->c_number, 
+                                  block->c_number - s->CC_origin_offset - s->CC_axis_offset, 
+                                  s->CC_current, 'C'));
             } else {
                 *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
             }
@@ -262,7 +264,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->a_flag == ON) {
             if(s->a_axis_wrapped) {
-                *AA_p = unwrap_rotary(block->a_number, block->a_number, s->AA_current);
+                CHP(unwrap_rotary(AA_p, block->a_number, block->a_number, s->AA_current, 'A'));
             } else {
                 *AA_p = block->a_number;
             }
@@ -272,7 +274,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->b_flag == ON) {
             if(s->b_axis_wrapped) {
-                *BB_p = unwrap_rotary(block->b_number, block->b_number, s->BB_current);
+                CHP(unwrap_rotary(BB_p, block->b_number, block->b_number, s->BB_current, 'B'));
             } else {
                 *BB_p = block->b_number;
             }
@@ -282,7 +284,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 
         if(block->c_flag == ON) {
             if(s->c_axis_wrapped) {
-                *CC_p = unwrap_rotary(block->c_number, block->c_number, s->CC_current);
+                CHP(unwrap_rotary(CC_p, block->c_number, block->c_number, s->CC_current, 'C'));
             } else {
                 *CC_p = block->c_number;
             }
@@ -377,25 +379,25 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
 
   if(settings->a_axis_wrapped) {
-      *AA_2 = unwrap_rotary(AA_1,
-                            AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
-                            settings->AA_current);
+      CHP(unwrap_rotary(AA_2, AA_1,
+                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
+                        settings->AA_current, 'A'));
   } else {
       *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
   }
 
   if(settings->b_axis_wrapped) {
-      *BB_2 = unwrap_rotary(BB_1,
-                            BB_1 - settings->BB_origin_offset - settings->BB_axis_offset, 
-                            settings->BB_current);
+      CHP(unwrap_rotary(BB_2, BB_1,
+                        BB_1 - settings->BB_origin_offset - settings->BB_axis_offset, 
+                        settings->BB_current, 'B'));
   } else {
       *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
   }
 
   if(settings->c_axis_wrapped) {
-      *CC_2 = unwrap_rotary(CC_1,
-                            CC_1 - settings->CC_origin_offset - settings->CC_axis_offset, 
-                            settings->CC_current);
+      CHP(unwrap_rotary(CC_2, CC_1,
+                        CC_1 - settings->CC_origin_offset - settings->CC_axis_offset, 
+                        settings->CC_current, 'C'));
   } else {
       *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
   }

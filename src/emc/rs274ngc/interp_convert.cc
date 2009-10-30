@@ -170,8 +170,8 @@ int Interp::convert_nurbs(int mode,
             nurbs_order = block->l_number;  
         } 
         if ((block->x_flag) && (block->y_flag)) {
-            find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,
-            &u_end, &v_end, &w_end);
+            CHP(find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,
+                          &u_end, &v_end, &w_end));
             CP.W = block->p_number;
             nurbs_control_points.push_back(CP);
             }
@@ -240,8 +240,8 @@ int Interp::convert_spline(int mode,
                   ("Must specify both I and J with G5.1"));
       x1 = settings->current_x + block->i_number;
       y1 = settings->current_y + block->j_number;
-      find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
-      &u_end, &v_end, &w_end);
+      CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
+                    &u_end, &v_end, &w_end));
       SPLINE_FEED(x1,y1,x2,y2);
       settings->current_x = x2;
       settings->current_y = y2;
@@ -255,8 +255,8 @@ int Interp::convert_spline(int mode,
           x1 = settings->current_x + block->i_number;
           y1 = settings->current_y + block->j_number;
       }
-      find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
-      &u_end, &v_end, &w_end);
+      CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
+                    &u_end, &v_end, &w_end));
 
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
@@ -434,9 +434,9 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   }
 
 
-  find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end, 
-            &u_end, &v_end, &w_end);
+  CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
+                &AA_end, &BB_end, &CC_end, 
+                &u_end, &v_end, &w_end));
 
   settings->motion_mode = move;
 
@@ -1016,6 +1016,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
   CHKS((settings->cutter_comp_side != OFF),      /* not "== ON" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
+  CHKS((block->a_flag && settings->a_axis_wrapped && (block->a_number <= -360.0 || block->a_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
+  CHKS((block->b_flag && settings->b_axis_wrapped && (block->b_number <= -360.0 || block->b_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
+  CHKS((block->c_flag && settings->c_axis_wrapped && (block->c_number <= -360.0 || block->c_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
   pars = settings->parameters;
   if (g_code == G_92) {
     if (block->x_flag == ON) {
@@ -2322,9 +2325,9 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   double *parameters;
 
   parameters = settings->parameters;
-  find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end, 
-            &u_end, &v_end, &w_end);
+  CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
+                &AA_end, &BB_end, &CC_end, 
+                &u_end, &v_end, &w_end));
 
   CHKS((settings->cutter_comp_side != OFF),
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP);
@@ -3005,9 +3008,9 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
 	  "Cannot probe with feed per rev mode");
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
-  find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end,
-            &u_end, &v_end, &w_end);
+  CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
+                &AA_end, &BB_end, &CC_end,
+                &u_end, &v_end, &w_end));
   CHKS(((!(probe_type & 1)) && 
         settings->current_x == end_x && settings->current_y == end_y &&
         settings->current_z == end_z && settings->AA_current == AA_end &&
@@ -3175,6 +3178,16 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
+
+  CHKS((block->l_number == 20 && block->a_flag && settings->a_axis_wrapped && 
+        (block->a_number <= -360.0 || block->a_number >= 360.0)), 
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
+  CHKS((block->l_number == 20 && block->b_flag && settings->b_axis_wrapped && 
+        (block->b_number <= -360.0 || block->b_number >= 360.0)), 
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
+  CHKS((block->l_number == 20 && block->c_flag && settings->c_axis_wrapped && 
+        (block->c_number <= -360.0 || block->c_number >= 360.0)), 
+       (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
 
   if (block->x_flag == ON) {
     x = block->x_number;
@@ -3672,8 +3685,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   }
 
   settings->motion_mode = move;
-  find_ends(block, settings, &end_x, &end_y, &end_z,
-            &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end);
+  CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
+                &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
 
   if (move == G_1) {
       inverse_time_rate_straight(end_x, end_y, end_z,
