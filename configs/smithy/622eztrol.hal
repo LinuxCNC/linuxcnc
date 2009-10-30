@@ -1,6 +1,6 @@
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
-net tool-change eztrol.tool-change iocontrol.0.tool-change 
+net tool-change eztrol.tool-change iocontrol.0.tool-change
 net tool-changed eztrol.tool-changed iocontrol.0.tool-changed
 net tool-prep-number eztrol.tool-prep-number iocontrol.0.tool-prep-number
 net Xmax eztrol.x-negative-limit
