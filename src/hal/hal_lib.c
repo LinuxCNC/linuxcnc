@@ -594,6 +594,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	return -EINVAL;
     }
 
+    if(*data_ptr_addr) 
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
+            name);
+    }
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");

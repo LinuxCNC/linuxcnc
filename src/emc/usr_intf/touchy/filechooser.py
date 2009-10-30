@@ -10,8 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-
-import dircache
 import os
 
 class filechooser:
@@ -25,9 +23,7 @@ class filechooser:
         self.emccommand = emc.command()
         self.fileoffset = 0
         self.dir = os.path.join(os.getenv('HOME'), 'emc2', 'nc_files')
-        self.files = dircache.listdir(self.dir)
-        self.selected = -1
-        self.populate()
+        self.reload(0)
 
     def populate(self):
         files = self.files[self.fileoffset:]
@@ -63,6 +59,9 @@ class filechooser:
         self.populate()
 
     def reload(self, b):
-        self.files = dircache.listdir(self.dir)
+        self.files = os.listdir(self.dir)
+        self.files = [i for i in self.files if i.endswith('.ngc') and
+                      os.path.isfile(os.path.join(self.dir, i))]
+        self.files.sort()
         self.selected = -1
         self.populate()

@@ -18,6 +18,9 @@ controls is:
 
 * A single block toggle switch, connected to touchy.single-block
 
+* Of course, a real estop button hardwired in the estop chain
+  as usual (not strictly related to touchy)
+
 Additionally, there are some optional controls:
 
 * If continuous jog is wanted: Three center-off bidirectional

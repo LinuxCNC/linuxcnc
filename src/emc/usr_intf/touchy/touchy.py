@@ -40,14 +40,52 @@ import filechooser
 import listing
 import preferences
 
+if gtk.gtk_version >= (2, 10, 0):
+    gtk.rc_parse_string("""
+	gtk_color_scheme = "bg_color:#dcdad5\nfg_color:#000"
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = @bg_color
+	    bg[NORMAL] = @bg_color
+	    bg[ACTIVE] = @bg_color
+	    bg[INSENSITIVE] = @bg_color
+	    fg[PRELIGHT] = @fg_color
+	    fg[NORMAL] = @fg_color
+	    fg[ACTIVE] = @fg_color
+	    fg[INSENSITIVE] = darker (@bg_color)
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+else:
+    gtk.rc_parse_string("""
+	style "touchy-default-style" {
+	    bg[PRELIGHT] = "#dcdad5"
+	    bg[NORMAL] = "#dcdad5"
+	    bg[ACTIVE] = "#dcdad5"
+	    bg[INSENSITIVE] = "#dcdad5"
+	    fg[PRELIGHT] = "#000"
+	    fg[NORMAL] = "#000"
+	    fg[ACTIVE] = "#000"
+	    fg[INSENSITIVE] = "#9a9895"
+	}
+	class "GtkWidget" style "touchy-default-style"
+    """)
+
+pix_data = """/* XPM */
+static char * invisible_xpm[] = {
+"1 1 1 1",
+"	c None",
+" "};"""
+
+color = gtk.gdk.Color()
+pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+
 class touchy:
 	def __init__(self):
 		#Set the Glade file
 		self.gladefile = os.path.join(libdir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
-		#self.window = self.wTree.get_widget("MainWindow")
-                #self.style = gtk.Style().copy()
-
+                
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
                 self.num_listing_labels = 20
@@ -70,6 +108,11 @@ class touchy:
                 self.listing_font_name = self.prefs.getpref('listing_font', 'Sans 10', str)
 
                 # initial screen setup
+                self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
+                if self.invisible_cursor:
+                        self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
+                else:
+                        self.wTree.get_widget("MainWindow").window.set_cursor(None)
                 self.wTree.get_widget("controlfontbutton").set_font_name(self.control_font_name)
                 self.control_font = pango.FontDescription(self.control_font_name)
 
@@ -129,7 +172,7 @@ class touchy:
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
                 stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
-                         'xyrotation', 'tlo']
+                         'xyrotation', 'tlo', 'activecodes']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
@@ -172,6 +215,8 @@ class touchy:
                 # event bindings
                 dic = {
                         "quit" : self.quit,
+                        "on_pointer_show_clicked" : self.pointer_show,
+                        "on_pointer_hide_clicked" : self.pointer_hide,
                         "on_opstop_on_clicked" : self.opstop_on,
                         "on_opstop_off_clicked" : self.opstop_off,
                         "on_blockdel_on_clicked" : self.blockdel_on,
@@ -246,6 +291,18 @@ class touchy:
 
         def tabselect(self, notebook, b, tab):
                 self.tab = tab
+
+        def pointer_hide(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('invisible_cursor', 1)
+                self.invisible_cursor = 1
+                self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
+
+        def pointer_show(self, b):
+                if self.radiobutton_mask: return
+                self.prefs.putpref('invisible_cursor', 0)
+                self.invisible_cursor = 0
+                self.wTree.get_widget("MainWindow").window.set_cursor(None)
 
         def dro_commanded(self, b):
                 if self.radiobutton_mask: return
@@ -378,7 +435,7 @@ class touchy:
                           "spindle_faster", "spindle_slower",
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                           "reload_tooltable", "opstop_on", "opstop_off",
-                          "blockdel_on", "blockdel_off"]:
+                          "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show"]:
                         w = self.wTree.get_widget(i).child
                         w.modify_font(self.control_font)
 
@@ -440,6 +497,8 @@ class touchy:
                 self.wTree.get_widget("so").set_active(self.wheel == "so")
                 self.wTree.get_widget("mv").set_active(self.wheel == "mv")
                 self.wTree.get_widget("jogging").set_active(self.wheel == "jogging")
+                self.wTree.get_widget("pointer_show").set_active(not self.invisible_cursor)
+                self.wTree.get_widget("pointer_hide").set_active(self.invisible_cursor)
                 self.radiobutton_mask = 0
 
                 if self.wheel == "jogging":

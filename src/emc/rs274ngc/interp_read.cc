@@ -2856,6 +2856,11 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
   else
     CHP(read_real_number(line, counter, double_ptr));
 
+  CHKS(isnan(*double_ptr),
+          "Calculation resulted in 'not a number'");
+  CHKS(isinf(*double_ptr),
+          "Calculation resulted in 'infinity'");
+
   return INTERP_OK;
 }
 
