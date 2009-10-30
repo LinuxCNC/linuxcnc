@@ -400,13 +400,33 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
+  double a, b, c;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
-  settings->parameters[5064] = GET_EXTERNAL_PROBE_POSITION_A();
-  settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
-  settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
+
+  a = GET_EXTERNAL_PROBE_POSITION_A();
+  if(settings->a_axis_wrapped) {
+      a = fmod(a, 360.0);
+      if(a<0) a += 360.0;
+  }
+  settings->parameters[5064] = a;
+
+  b = GET_EXTERNAL_PROBE_POSITION_B();
+  if(settings->b_axis_wrapped) {
+      b = fmod(b, 360.0);
+      if(b<0) b += 360.0;
+  }
+  settings->parameters[5065] = b;
+
+  c = GET_EXTERNAL_PROBE_POSITION_C();
+  if(settings->c_axis_wrapped) {
+      c = fmod(c, 360.0);
+      if(c<0) c += 360.0;
+  }
+  settings->parameters[5066] = c;
+
   settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
   settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
   settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
