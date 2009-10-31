@@ -75,6 +75,7 @@ Touchy
 \align center
 \begin_inset Graphics
 	filename images/touchy.png
+	scale 70
 
 \end_inset
 
