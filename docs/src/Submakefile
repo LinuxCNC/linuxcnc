@@ -34,6 +34,7 @@ DOC_SRCS := \
 	gui/mini_fr.lyx \
 	gui/tkemc.lyx \
 	gui/tkemc_fr.lyx \
+	gui/touchy.lyx \
 	gui/image-to-gcode.lyx \
 	gui/image-to-gcode_fr.lyx \
 	Master_Developer.lyx \
