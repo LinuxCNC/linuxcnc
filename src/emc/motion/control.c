@@ -377,8 +377,6 @@ static void process_probe_inputs(void) {
     // trigger when the probe clears, instead of the usual case of triggering when it trips
     char probe_whenclears = !!(probe_type & 2);
     
-    /* read probe input */
-    emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
     if (emcmotStatus->probing) {
         /* check if the probe has been tripped */
         if (emcmotStatus->probeVal ^ probe_whenclears) {
@@ -469,6 +467,9 @@ static void process_inputs(void)
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
+    int do_probe;
+    int probe_whenclears;
+
     /* read spindle angle (for threading, etc) */
     emcmotStatus->spindleRevs = *emcmot_hal_data->spindle_revs;
     emcmotStatus->spindleSpeedIn = *emcmot_hal_data->spindle_speed_in;
@@ -513,6 +514,12 @@ static void process_inputs(void)
     /* save the resulting combined scale factor */
     emcmotStatus->net_spindle_scale = scale;
 
+    /* read probe input */
+    emcmotStatus->probeVal = *(emcmot_hal_data->probe_input);
+    probe_whenclears= !!(emcmotStatus->probe_type & 2);
+    do_probe = emcmotStatus->probing
+        && (emcmotStatus->probeVal ^ probe_whenclears);
+
     /* read and process per-joint inputs */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	/* point to joint HAL data */
@@ -526,7 +533,10 @@ static void process_inputs(void)
 	/* copy data from HAL to joint structure */
 	joint->index_enable = *(joint_data->index_enable);
 	joint->motor_pos_fb = *(joint_data->motor_pos_fb);
-        joint->motor_pos_probed = *(joint_data->motor_pos_probed);
+	if(do_probe)
+	{
+	    joint->motor_pos_probed = *(joint_data->motor_pos_probed);
+	}
 	/* calculate pos_fb */
 	if (( joint->home_state == HOME_INDEX_SEARCH_WAIT ) &&
 	    ( joint->index_enable == 0 )) {
@@ -540,8 +550,9 @@ static void process_inputs(void)
 	    /* normal case: subtract backlash comp and motor offset */
 	    joint->pos_fb = joint->motor_pos_fb -
 		(joint->backlash_filt + joint->motor_offset);
-	    joint->pos_probed = joint->motor_pos_probed -
-		(joint->backlash_filt + joint->motor_offset);
+	    if(do_probe)
+		joint->pos_probed = joint->motor_pos_probed -
+		    (joint->backlash_filt + joint->motor_offset);
 	}
 	/* calculate following error */
 	joint->ferror = joint->pos_cmd - joint->pos_fb;
