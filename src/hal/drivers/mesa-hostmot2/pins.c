@@ -40,7 +40,7 @@ RTAPI_MP_INT(debug_pin_descriptors, "Developer/debug use only!  Enable debug log
 // FIXME: the static automatic string makes this function non-reentrant
 static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     static char unknown[100];
-    int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
+    int sec_pin = pin->sec_pin & 0x3F;  // turn off the "pin is an output" bit and "applies to all instances" bit
 
     switch (pin->sec_tag) {
 
@@ -231,16 +231,27 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
         int port_pin = ((i % 24) * 2) + 1;
 
         if (hm2->pin[i].gtag == hm2->pin[i].sec_tag) {
-            HM2_PRINT(
-                "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
-                i,
-                hm2->llio->ioport_connector_name[port],
-                port_pin,
-                hm2_get_general_function_name(hm2->pin[i].gtag),
-                hm2->pin[i].sec_unit,
-                hm2_get_pin_secondary_name(&hm2->pin[i]),
-                ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
-            );
+            if(hm2->pin[i].sec_unit & 0x80)
+                HM2_PRINT(
+                    "    IO Pin %03d (%s-%02d): %s (all), pin %s (%s)\n",
+                    i,
+                    hm2->llio->ioport_connector_name[port],
+                    port_pin,
+                    hm2_get_general_function_name(hm2->pin[i].gtag),
+                    hm2_get_pin_secondary_name(&hm2->pin[i]),
+                    ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+                );
+            else
+                HM2_PRINT(
+                    "    IO Pin %03d (%s-%02d): %s #%d, pin %s (%s)\n",
+                    i,
+                    hm2->llio->ioport_connector_name[port],
+                    port_pin,
+                    hm2_get_general_function_name(hm2->pin[i].gtag),
+                    hm2->pin[i].sec_unit,
+                    hm2_get_pin_secondary_name(&hm2->pin[i]),
+                    ((hm2->pin[i].sec_pin & 0x80) ? "Output" : "Input")
+                );
         } else {
             HM2_PRINT(
                 "    IO Pin %03d (%s-%02d): %s\n",
@@ -263,9 +274,9 @@ static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances) 
     int i;
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        if (
-            (hm2->pin[i].sec_tag == gtag)
-            && (hm2->pin[i].sec_unit < num_instances)
+        if ((hm2->pin[i].sec_tag == gtag)
+            && ((hm2->pin[i].sec_unit < num_instances)
+                || ((hm2->pin[i].sec_unit & 0x80) && (num_instances > 0)))
         ) {
             hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
             if (hm2->pin[i].sec_pin & 0x80){
