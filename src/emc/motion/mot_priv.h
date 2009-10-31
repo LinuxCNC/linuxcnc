@@ -154,6 +154,10 @@ typedef struct {
     hal_float_t *tooloffset_z;
     hal_float_t *tooloffset_w;
 
+    hal_bit_t *probing;		/* WPI: probe in progress? */
+    hal_bit_t *probe_toward;	/* WPI: probe direction output */
+    hal_bit_t *probe_away;	/* WPI: probe direction output */
+
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
 } emcmot_hal_data_t;

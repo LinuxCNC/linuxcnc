@@ -530,6 +530,19 @@ static int init_hal_io(void)
         return retval;
     }
 
+    retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->probing), mot_comp_id, "motion.probing");
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->probe_toward), mot_comp_id, "motion.probe-toward");
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->probe_away), mot_comp_id, "motion.probe-away");
+    if (retval != 0) {
+        return retval;
+    }
+
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->probe_input) = 0;
     /* default value of enable is TRUE, so simple machines
