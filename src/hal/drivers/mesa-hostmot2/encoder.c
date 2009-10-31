@@ -54,13 +54,32 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
-
+        int index_enable = *e->hal.pin.index_enable;
+        int latch_enable = *e->hal.pin.latch_enable;
         hm2->encoder.control_reg[i] = 0;
 
         do_flag(
             &hm2->encoder.control_reg[i],
-            *e->hal.pin.index_enable,
-            HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_INDEX_JUSTONCE
+            index_enable,
+            HM2_ENCODER_LATCH_ON_INDEX
+        );
+
+        do_flag(
+            &hm2->encoder.control_reg[i],
+            !index_enable && latch_enable,
+            HM2_ENCODER_LATCH_ON_PROBE
+        );
+
+        do_flag(
+            &hm2->encoder.control_reg[i],
+            index_enable || latch_enable,
+	    HM2_ENCODER_INDEX_JUSTONCE
+	);
+
+        do_flag(
+            &hm2->encoder.control_reg[i],
+            *e->hal.pin.latch_polarity,
+            HM2_ENCODER_PROBE_POLARITY
         );
 
         do_flag(
@@ -261,6 +280,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.rawlatch", hm2->llio->name, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.rawlatch), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.count", hm2->llio->name, i);
             r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count), hm2->llio->comp_id);
             if (r < 0) {
@@ -268,8 +294,22 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.count-latched", hm2->llio->name, i);
+            r = hal_pin_s32_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.count_latch), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.position", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.position-latched", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.position_latch), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
@@ -291,6 +331,20 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.index-enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IO, &(hm2->encoder.instance[i].hal.pin.index_enable), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.latch-enable", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_enable), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, HAL_NAME_LEN, "%s.encoder.%02d.latch-polarity", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.latch_polarity), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
@@ -440,9 +494,12 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         count = hm2_encoder_get_reg_count(hm2, i);
 
         *hm2->encoder.instance[i].hal.pin.rawcounts = count;
+        *hm2->encoder.instance[i].hal.pin.rawlatch = count;
 
         *hm2->encoder.instance[i].hal.pin.count = 0;
+        *hm2->encoder.instance[i].hal.pin.count_latch = 0;
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
+        *hm2->encoder.instance[i].hal.pin.position_latch = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
 
         hm2->encoder.instance[i].zero_offset = count;
@@ -533,6 +590,30 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
             e->zero_offset = prev_rawcounts + reg_count_diff;
             *e->hal.pin.index_enable = 0;
         }
+    } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
+        u32 latch_ctrl;
+
+        hm2->llio->read(
+            hm2->llio,
+            hm2->encoder.latch_control_addr + (instance * sizeof(u32)),
+            &latch_ctrl,
+            sizeof(u32)
+        );
+
+        if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_PROBE)) {
+            // hm2 reports probe event occurred
+
+            u16 latched_count;
+
+            latched_count = (latch_ctrl >> 16) & 0xffff;
+
+            reg_count_diff = (s32)latched_count - (s32)e->prev_reg_count;
+            if (reg_count_diff > 32768) reg_count_diff -= 65536;
+            if (reg_count_diff < -32768) reg_count_diff += 65536;
+
+            *(e->hal.pin.rawlatch) = prev_rawcounts + reg_count_diff;
+            // *e->hal.pin.latch_enable = 0;
+        }
     }
 
     e->prev_reg_count = reg_count;
@@ -588,6 +669,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     //
 
     *e->hal.pin.count = *e->hal.pin.rawcounts - e->zero_offset;
+    *e->hal.pin.count_latch = *e->hal.pin.rawlatch - e->zero_offset;
 
 
     //
@@ -596,6 +678,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     //
 
     *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
+    *e->hal.pin.position_latch = *e->hal.pin.count_latch / e->hal.param.scale;
 }
 
 
@@ -625,14 +708,15 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
-            if (reg_count == e->prev_reg_count) {
+            if (reg_count == e->prev_reg_count
+			&& !(e->prev_control & (HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_LATCH_ON_PROBE))) {
                 // still not moving, but .reset can change the position
                 hm2_encoder_instance_update_position(hm2, instance);
                 return;
             }
 
             // if we get here, we *were* stopped but now we're moving
-
+	    // or we are looking for index or probe
             hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
             hm2_encoder_instance_update_position(hm2, instance);
 
@@ -700,6 +784,12 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                 if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
                     *e->hal.pin.velocity = vel;
                 }
+
+		// if waiting for index or latch, we can't shirk our duty just
+		// because no pulses arrived
+		if(e->prev_control & (HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_LATCH_ON_PROBE)) {
+			hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
+		}
 
                 e->prev_time_of_interest = time_of_interest;
 
