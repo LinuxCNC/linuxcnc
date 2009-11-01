@@ -1389,6 +1389,7 @@ int Interp::convert_comment(char *comment)       //!< string with comment
       convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
                             EX_SIZE);
       fprintf(stdout, "%s\n", expanded);
+      fflush(stdout);
       return INTERP_OK;
   }
   else if (startswith(lc, LOG_STR))
