@@ -22,12 +22,14 @@
 #define INT32_MAX (2147483647)
 #define UINT32_MAX (4294967295U)
 
-
 #include "rtapi.h"
 #include "hal.h"
 
 #include "hostmot2-lowlevel.h"
 
+#ifndef FIRMWARE_NAME_MAX
+    #define FIRMWARE_NAME_MAX  30
+#endif
 
 #define HM2_VERSION "0.15"
 #define HM2_NAME    "hm2"
