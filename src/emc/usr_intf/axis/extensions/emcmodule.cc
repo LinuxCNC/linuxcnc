@@ -1567,8 +1567,7 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
             double t = i * 1.0 / st;
             double v = 1.0 - t;
             double pt[9];
-            int i;
-            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
             glvertex9(pt, geometry);
         }
     } else {
@@ -1590,8 +1589,7 @@ static void line9b(const double p1[9], const double p2[9], const char *geometry)
             double t = i * 1.0 / st;
             double v = 1.0 - t;
             double pt[9];
-            int i;
-            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
             glvertex9(pt, geometry);
             if(i != st)
                 glvertex9(pt, geometry);
