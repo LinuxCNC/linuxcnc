@@ -39,6 +39,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -58,7 +59,7 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-ClassicLadder is a free implementation of a ladder interpreter, released
+Classic Ladder is a free implementation of a ladder interpreter, released
  under the LGPL.
  It has been written by Marc Le Douarain.
 \end_layout
@@ -80,7 +81,7 @@ I decided to program a ladder language only for test purposes at the start,
  be a nice option to considerate.
  And so I started to code the first lines for calculating a rung with minimal
  elements and displaying dynamically it under Gtk, to see if my first idea
- to realise all this works.
+ to realize all this works.
 \end_layout
 
 \begin_layout Quote
@@ -98,7 +99,7 @@ Voila, here is this work...
 \end_layout
 
 \begin_layout Standard
-ClassicLadder has been adapted to work with EMC2's HAL, and is currently
+Classic Ladder has been adapted to work with EMC2's HAL, and is currently
  being distributed along with EMC2.
  If there are issues/problems/bugs please report them to the Enhanced Machine
  Controller project.
@@ -109,8 +110,8 @@ Ladder Concepts
 \end_layout
 
 \begin_layout Standard
-ClassicLadder is a type of programming language originally implemented on
- industrial PLC's (it's called Ladder Programming).
+Classic Ladder is a type of programming language originally implemented
+ on industrial PLC's (it's called Ladder Programming).
  It is based on the concept of relay contacts and coils, and can be used
  to construct logic checks and functions in a manner that is familiar to
  many systems integrators.
@@ -131,7 +132,7 @@ It seems natural that each line would be evaluated left to right then the
 \end_layout
 
 \begin_layout Standard
-ClassicLadder version 7.124 has been adapted for EMC 2.3 This document describes
+Classic Ladder version 7.124 has been adapted for EMC 2.3 This document describes
  that version.
  
 \end_layout
@@ -141,8 +142,8 @@ Languages
 \end_layout
 
 \begin_layout Standard
-The most common language used when working with ClassicLadder is 'ladder'.
- ClassicLadder also supports Sequential Function Chart (Grafcet).
+The most common language used when working with Classic Ladder is 'ladder'.
+ Classic Ladder also supports Sequential Function Chart (Grafcet).
 \end_layout
 
 \begin_layout Section
@@ -150,7 +151,7 @@ Components
 \end_layout
 
 \begin_layout Standard
-There are 2 components to ClassicLadder.
+There are 2 components to Classic Ladder.
  
 \end_layout
 
@@ -167,8 +168,8 @@ Files
 \end_layout
 
 \begin_layout Standard
-Typically classicladder components are placed in the custom.hal file if your
- working from a Stepconf generated configuration.
+Typically classic ladder components are placed in the custom.hal file if
+ your working from a Stepconf generated configuration.
  These must not be placed in the custom_postgui.hal file or the Ladder Editor
  menu will be grayed out.
  
@@ -183,11 +184,11 @@ Realtime Module
 \end_layout
 
 \begin_layout Standard
-Loading the ClassicLadder real time module (classicladder_rt) is possible
+Loading the Classic Ladder real time module (classicladder_rt) is possible
  from a hal file, or directly using a halcmd instruction.
- The first line loads real time the ClassicLadder module.
+ The first line loads real time the Classic Ladder module.
  The second line adds the function classicladder.0.refresh to the servo thread.
- This line makes ClassicLadder update at the servo thread rate.
+ This line makes Classic Ladder update at the servo thread rate.
  
 \end_layout
 
@@ -198,13 +199,13 @@ addf classicladder.0.refresh servo-thread
 \end_layout
 
 \begin_layout Standard
-The speed of the thread that ClassicLadder is running in directly effects
+The speed of the thread that Classic Ladder is running in directly effects
  the responsiveness to inputs and outputs.
- If you can turn a switch on and off faster than ClassicLadder can notice
+ If you can turn a switch on and off faster than Classic Ladder can notice
  it then you may need to speed up the thread.
- The fastest that ClassicLadder can update the rungs is one millisecond.
+ The fastest that Classic Ladder can update the rungs is one millisecond.
  You can put it in a faster thread but it will not update any faster.
- If you put it in a slower then one microsecond thread then ClassicLadder
+ If you put it in a slower then one microsecond thread then Classic Ladder
  will update the rungs slower.
  The current scan time will be displayed on the section display, it is rounded
  to microseconds.
@@ -218,8 +219,8 @@ Variables
 
 \begin_layout Standard
 It is possible to configure the number of each type of ladder object while
- loading the ClassicLadder real time module.
- If you do not configure the number of ladder objects ClassicLadder will
+ loading the Classic Ladder real time module.
+ If you do not configure the number of ladder objects Classic Ladder will
  use the default values.
 \end_layout
 
@@ -531,7 +532,7 @@ Number of hal output bit pins
 \begin_inset Text
 
 \begin_layout Standard
-(numPhysOuputs)
+(numPhysOutputs)
 \end_layout
 
 \end_inset
@@ -793,13 +794,13 @@ loadrt classicladder_rt
 \end_layout
 
 \begin_layout Section
-Loading the ClassicLadder user module
+Loading the Classic Ladder user module
 \end_layout
 
 \begin_layout Standard
-Classicladder hal commands must executed before the GUI loads or the menu
+Classic Ladder hal commands must executed before the GUI loads or the menu
  item Ladder Editor will not function.
- If you used the Stepper Config Wizard place any Classicladder hal commands
+ If you used the Stepper Config Wizard place any Classic Ladder hal commands
  in the custom.hal file.
 \end_layout
 
@@ -820,7 +821,7 @@ loadusr classicladder myladder.clp
 \end_layout
 
 \begin_layout Standard
-Classicladder Loading Options
+Classic Ladder Loading Options
 \end_layout
 
 \begin_layout Itemize
@@ -842,8 +843,8 @@ Classicladder Loading Options
 \end_layout
 
 \begin_layout Standard
-To use ClassicLadder with HAL without EMC.
- The -w tells HAL not to close down the HAL invironment until ClassicLadder
+To use Classic Ladder with HAL without EMC.
+ The -w tells HAL not to close down the HAL environment until Classic Ladder
  is finished.
 \end_layout
 
@@ -852,8 +853,9 @@ loadusr -w classicladder
 \end_layout
 
 \begin_layout Standard
-If you first load ladder program with the --nogui option then load ClassicLadder
- again with no options the GUI will display the last loaded ladder program.
+If you first load ladder program with the --nogui option then load Classic
+ Ladder again with no options the GUI will display the last loaded ladder
+ program.
 \end_layout
 
 \begin_layout Standard
@@ -861,11 +863,11 @@ In AXIS you can load the GUI from File/Ladder Editor...
 \end_layout
 
 \begin_layout Section
-ClassicLadder GUI
+Classic Ladder GUI
 \end_layout
 
 \begin_layout Standard
-If you load ClassicLadder with the GUI it will display two windows: section
+If you load Classic Ladder with the GUI it will display two windows: section
  display, and section manager.
 \end_layout
 
@@ -874,7 +876,7 @@ Sections Manager
 \end_layout
 
 \begin_layout Standard
-When you first start up ClassicLadder you get an empty Sections Manager
+When you first start up Classic Ladder you get an empty Sections Manager
  window.
 \end_layout
 
@@ -930,7 +932,8 @@ Section Display
 \end_layout
 
 \begin_layout Standard
-When you first start up ClassicLadder you get an empty Section Display window.
+When you first start up Classic Ladder you get an empty Section Display
+ window.
 \end_layout
 
 \begin_layout Standard
@@ -1092,8 +1095,8 @@ The Bool window displays some of all the bool (on/off) variable data .
  of the column, variable %B5 to %B19 would be displayed.
  The check boxes allow you to set and unset %B variables manually as long
  as the ladder program isn't setting them as outputs.
- Any Bits that are set as outputs by the program when ClassicLadder is running
- can not be changed and will be displayed as checked if on and unchecked
+ Any Bits that are set as outputs by the program when Classic Ladder is
+ running can not be changed and will be displayed as checked if on and unchecked
  if off.
  
 \end_layout
@@ -1470,7 +1473,7 @@ g number.
  If %B7 coil is 'energized' (on, true, etc) then %B7 N.O.
  contact would be on.
  If %Q1 coil is 'energized' then %Q1 N.O.
- contact would be on (and HAL pin ClassicLadder.0.out-01 would be true.)
+ contact would be on (and HAL pin classicladder.0.out-01 would be true.)
 \end_layout
 
 \begin_layout Itemize
@@ -1927,7 +1930,7 @@ The variable letter can be B or Q and the number can be up to a three digit
  number eg.
  %Q3, or %B123.
  Q coils control HAL out pins.
- eg if &Q15 is 'energized' then HAL pin ClassicLadder.0.out-15 will be true.
+ eg if &Q15 is 'energized' then HAL pin classicladder.0.out-15 will be true.
  B coils are internal coils used to control program flow.
 \end_layout
 
@@ -2039,7 +2042,7 @@ Remember to change the label to the subroutine number you choose before.
 \end_layout
 
 \begin_layout Section
-ClassicLadder Variables
+Classic Ladder Variables
 \end_layout
 
 \begin_layout Standard
@@ -2070,11 +2073,11 @@ List of variables :
 \end_layout
 
 \begin_layout Itemize
-%IFxx : Word memory xx (Float in pin) (converted to S32 in ClassicLadder)
+%IFxx : Word memory xx (Float in pin) (converted to S32 in Classic Ladder)
 \end_layout
 
 \begin_layout Itemize
-%QFxx : Word memory xx (Float out pin) (converted to S32 in ClassicLadder)
+%QFxx : Word memory xx (Float out pin) (converted to S32 in Classic Ladder)
 \end_layout
 
 \begin_layout Itemize
@@ -2168,7 +2171,8 @@ GRAFCET Programming
 \end_layout
 
 \begin_layout Standard
-* WARNING -These is probably the least used/known about feature of ClassicLadder.
+* WARNING -These is probably the least used/known about feature of Classic
+ Ladder.
  Sequential programming is used to make sure a series of ladder events always
  happen in a prescribed order.
  Sequential programs do not work alone-there is always a ladder program
@@ -2304,7 +2308,7 @@ Modbus is not really suited to Hard real time events such as position control
 \end_layout
 
 \begin_layout Itemize
-The classicladder GUI must be running for Modbus to be running.
+The Classic Ladder GUI must be running for Modbus to be running.
 \end_layout
 
 \begin_layout Itemize
@@ -2312,13 +2316,13 @@ Modbus is not fully finished so it does not do all modbus functions.
 \end_layout
 
 \begin_layout Standard
-To get MODBUS to initialize you must specify that when loading the classicladder
- userspace program eg.
+To get MODBUS to initialize you must specify that when loading the Classic
+ Ladder userspace program eg.
  loadusr -w classicladder --modmaster myprogram.clp (assuming myprogram.clp
- is present -w makes HAL wait till you close classicladder before closing
+ is present -w makes HAL wait till you close Classic Ladder before closing
  realtime session) my idea behind this is to get a working modbus solution
  out there then we can decide how it should be done in the best way.
- As it stands now classicladder also loads a TCP modbus slave (if you add
+ As it stands now Classic Ladder also loads a TCP modbus slave (if you add
  --modserver on command line) - I have not tested this nor have I tested
  the TCP modbus master.
  I have done some testing with the serial port and had to add some functions
@@ -2327,7 +2331,7 @@ To get MODBUS to initialize you must specify that when loading the classicladder
  registers, read input registers, write single coils, write single register,
  echo test, write multiple coils, write multiply registers) are currently
  available.
- If you do not specify a --modmaster when loading the classicladder user
+ If you do not specify a --modmaster when loading the Classic Ladder user
  program this (next) page will not be displayed.
 \end_layout
 
@@ -2557,20 +2561,20 @@ Slave address is set to 12 ( on my VFD I can set this from 1-31, meaning
 
 \begin_layout Standard
 The first line is set up for 8 input bits starting at the first register
- number (register 1) so register numbers 1-8 and maps them on to Classicladder's
- %B variables starting at %B1 ending at %B8.
+ number (register 1) so register numbers 1-8 and maps them on to Classic
+ Ladder's %B variables starting at %B1 ending at %B8.
 \end_layout
 
 \begin_layout Standard
 The second line is set for 2 output bits starting at the ninth register
- number (register 9) so register numbers 9-10 and maps them on to ClassicLadder'
-s %Q variables starting at %Q9 ending at %Q10.
+ number (register 9) so register numbers 9-10 and maps them on to Classic
+ Ladder's %Q variables starting at %Q9 ending at %Q10.
 \end_layout
 
 \begin_layout Standard
 The third line is set to write 2 registers (16 bit each) starting at the
  0th register number (register 0) so register numbers 0-1 and maps them
- on to ClassicLadder's %W variables starting at %W0 ending at %W1
+ on to Classic Ladder's %W variables starting at %W0 ending at %W1
 \end_layout
 
 \begin_layout Standard
@@ -2600,7 +2604,7 @@ To use the echo function select the echo function and add the slave number
 \begin_layout Standard
 The number 257 will be sent to the slave number you specified and the slave
  should send it back.
- you will need to have classicladder running in a terminal to see the message.
+ you will need to have Classic Ladder running in a terminal to see the message.
 \end_layout
 
 \begin_layout Subsection
@@ -2612,7 +2616,7 @@ Serial:
 \end_layout
 
 \begin_layout Itemize
-Classicladder uses RTU protocol (not ASCII)
+Classic Ladder uses RTU protocol (not ASCII)
 \end_layout
 
 \begin_layout Itemize
@@ -2621,7 +2625,7 @@ Classicladder uses RTU protocol (not ASCII)
 
 \begin_layout Itemize
 Baud rate must be the same for slave and master.
- Classicladder can only have one baud rate so all the slaves must be set
+ Classic Ladder can only have one baud rate so all the slaves must be set
  to the same rate.
 \end_layout
 
@@ -2640,7 +2644,7 @@ MODBUS Info
 \end_layout
 
 \begin_layout Itemize
-ClassicLadder can use distributed inputs/outputs on modules using the modbus
+Classic Ladder can use distributed inputs/outputs on modules using the modbus
  protocol ("master": polling slaves).
 \end_layout
 
@@ -2689,7 +2693,7 @@ MODBUS TCP SERVER INCLUDED
 \end_layout
 
 \begin_layout Itemize
-ClassicLadder has a Modbus/TCP server integrated.
+Classic Ladder has a Modbus/TCP server integrated.
  Default port is 9502.
  (the previous standard 502 requires that the application must be launched
  with root privileges).
@@ -2759,7 +2763,7 @@ In compare blocks the function %W=ABS(%W1-%W2) is accepted but does not
 
 \begin_layout Itemize
 When loading a ladder program it will load Modbus info but will not tell
- ClassicLadder to initialize Modbus.
+ Classic Ladder to initialize Modbus.
  You must initialize Modbus when you first load the GUI by adding --modmaster
 \end_layout
 
@@ -2778,14 +2782,14 @@ reading/writing multiply registers in Modbus has checksum errors
 \end_layout
 
 \begin_layout Section
-Setting up ClassicLadder
+Setting up Classic Ladder
 \end_layout
 
 \begin_layout Standard
-In this section we will cover the steps needed to add ClassicLadder to a
- Stepconf Wizard generated config.
+In this section we will cover the steps needed to add Classic Ladder to
+ a Stepconf Wizard generated config.
  On the advanced Configuration Options page of Stepconf Wizard check off
- "Include ClassicLadder PLC" 
+ "Include Classic Ladder PLC" 
 \end_layout
 
 \begin_layout Standard
@@ -2799,7 +2803,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Standard
-Stepconf Classicladder
+Stepconf Classic Ladder
 \begin_inset LatexCommand label
 name "cap:Stepconf-Classicladder"
 
@@ -2834,12 +2838,13 @@ Add the Modules
 \end_layout
 
 \begin_layout Standard
-If you used the Stepconf Wizard to add ClassicLadder you can skip this step.
+If you used the Stepconf Wizard to add Classic Ladder you can skip this
+ step.
  
 \end_layout
 
 \begin_layout Standard
-To manually add ClassicLadder you must first add the modules.
+To manually add Classic Ladder you must first add the modules.
  This is done by adding a couple of lines to the custom.hal file.
  
 \end_layout
@@ -2853,7 +2858,7 @@ loadrt classicladder_rt
 \end_layout
 
 \begin_layout Standard
-This line adds the ClassicLadder function to the servo thread:
+This line adds the Classic Ladder function to the servo thread:
 \end_layout
 
 \begin_layout Quote
@@ -2866,7 +2871,7 @@ Adding Ladder Logic
 
 \begin_layout Standard
 Now start up your config and select File/Ladder Editor...
- to open up the ClassicLadder GUI.
+ to open up the Classic Ladder GUI.
  You should see a blank Section Display and Sections Manager window as shown
  above.
  In the Section Display window open the Editor.
@@ -3154,7 +3159,7 @@ name "cap:Save-As-Dialog"
 \end_layout
 
 \begin_layout Standard
-Again if you used the Stepconf Wizard to add ClassicLadder you can skip
+Again if you used the Stepconf Wizard to add Classic Ladder you can skip
  this step.
 \end_layout
 
