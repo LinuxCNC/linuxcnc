@@ -455,7 +455,7 @@ Number of hal output bit pins
 
 \layout Standard
 
-(numPhysOuputs)
+(numPhysOutputs)
 \end_inset 
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -723,7 +723,7 @@ Classicladder Loading Options
 \layout Standard
 
 To use ClassicLadder with HAL without EMC.
- The -w tells HAL not to close down the HAL invironment until ClassicLadder
+ The -w tells HAL not to close down the HAL environment until ClassicLadder
  is finished.
 \layout Quote
 
@@ -2159,7 +2159,7 @@ ClassicLadder can use distributed inputs/outputs on modules using the modbus
 The slaves and theirs I/O can be configured in the config window.
 \layout Itemize
 
-2 exclusive modes are available : ethernet using Modbus/TCP and serial using
+2 exclusive modes are available : Ethernet using Modbus/TCP and serial using
  Modbus/RTU.
 \layout Itemize
 
