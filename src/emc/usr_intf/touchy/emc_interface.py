@@ -273,7 +273,6 @@ class emc_status:
                 return 1
 
         def periodic(self):
-                last_mode = self.emcstat.task_mode
                 self.emcstat.poll()
 
                 dtg = self.emcstat.dtg
@@ -398,11 +397,6 @@ class emc_status:
                         self.listing.highlight_line(self.emcstat.motion_line)
                 else:
                         self.listing.highlight_line(self.emcstat.id or self.emcstat.motion_line)
-
-                m = self.emcstat.task_mode
-                if m != last_mode:
-                        self.error.set_text("")
-                last_mode = m
 
                 e = self.emcerror.poll()
                 if e:
