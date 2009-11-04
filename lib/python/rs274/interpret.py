@@ -35,15 +35,15 @@ class Translated:
     def straight_feed(self, *args):
         self.straight_feed_translated(*self.rotate_and_translate(*args))
     def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u=None, offset_v=None, offset_w=None):
-        self.offset_x = offset_x #- (self.ox - self.offset_x)
-        self.offset_y = offset_y #- (self.oy - self.offset_y)
-        self.offset_z = offset_z #- (self.oz - self.offset_z)
-        self.offset_a = offset_a #- (self.ox - self.offset_x)
-        self.offset_b = offset_b #- (self.oy - self.offset_y)
-        self.offset_c = offset_c #- (self.oz - self.offset_z)
-        self.offset_u = offset_u #- (self.ox - self.offset_x)
-        self.offset_v = offset_v #- (self.oy - self.offset_y)
-        self.offset_w = offset_w #- (self.oz - self.offset_z)
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.offset_z = offset_z
+        self.offset_a = offset_a
+        self.offset_b = offset_b
+        self.offset_c = offset_c
+        self.offset_u = offset_u
+        self.offset_v = offset_v
+        self.offset_w = offset_w
     def set_xy_rotation(self, theta):
         self.rotation_xy = theta
 
