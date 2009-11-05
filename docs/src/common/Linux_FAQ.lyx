@@ -59,6 +59,12 @@ These are some basic Linux commands and techniques for new to Linux users.
 
 \begin_layout Section
 Automatic Login
+\begin_inset LatexCommand index
+name "Automatic Login"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -72,6 +78,32 @@ When you install EMC2 with the Ubuntu LiveCD the default is to have to log
  In the Security tab check off Enable Automatic Login and pick a user name
  from the list (that would be you).
  
+\end_layout
+
+\begin_layout Section
+Automatic Startup
+\begin_inset LatexCommand index
+name "Automatic Startup"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To have EMC start automatically with your config after turning on the computer
+ go to System/Preferences/Sessions Startup Programs , add new.
+ Navigate to your config and select the .ini file.
+ When the file picker dialog closes add emc and a space in front of the
+ path to your .ini file.
+\end_layout
+
+\begin_layout Standard
+Example:
+\end_layout
+
+\begin_layout LyX-Code
+emc /home/mill/emc2/config/mill/mill.ini
 \end_layout
 
 \begin_layout Section
@@ -220,15 +252,7 @@ Type a name in like sudo edit
 Type 
 \family typewriter
 \series bold
-gksudo 
-\begin_inset Quotes eld
-\end_inset
-
-gnome-open %u
-\begin_inset Quotes erd
-\end_inset
-
-
+gksudo "gnome-open %u"
 \family default
 \series default
  as the command and save the launcher to your desktop
