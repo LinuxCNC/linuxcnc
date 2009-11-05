@@ -286,9 +286,16 @@ class Notification(Tkinter.Frame):
         self.cache = []
         Tkinter.Frame.__init__(self, master)
 
-    def clear(self):
-        while self.widgets:
-            self.remove(self.widgets[0])
+    def clear(self,iconname=None):
+        if iconname:
+            cpy = self.widgets[:]
+            for i, item in enumerate(cpy):
+                frame,icon,text,button,iname = item
+                if iname == "icon_std_" + iconname:
+                    self.remove(cpy[i])
+        else:
+            while self.widgets:
+                self.remove(self.widgets[0])
 
     def clear_one(self):
         if self.widgets:
@@ -302,16 +309,17 @@ class Notification(Tkinter.Frame):
         if len(self.widgets) > 10:
             self.remove(self.widgets[0])
         if self.cache:
-            frame, icon, text, button = widgets = self.cache.pop()
+            frame, icon, text, button, discard = widgets = self.cache.pop()
             icon.configure(image=iconname)
             text.configure(text=message)
+            widgets = frame, icon, text, button, iconname
         else:
             frame = Tkinter.Frame(self)
             icon = Tkinter.Label(frame, image=iconname)
             text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
             button = Tkinter.Button(frame, image=close,
                 command=lambda: self.remove(widgets))
-            widgets = frame, icon, text, button
+            widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
             button.pack(side="left")
@@ -1521,6 +1529,8 @@ class LivePlotter:
         self.last_joint_position = None
         self.set_manual_mode = False
         self.notifications_clear = False
+        self.notifications_clear_info = False
+        self.notifications_clear_error = False
 
     def start(self):
         if self.running.get(): return
@@ -1626,6 +1636,16 @@ class LivePlotter:
              self.notifications_clear = notifications_clear
              if self.notifications_clear:
                  notifications.clear()
+        notifications_clear_info = comp["notifications-clear-info"]
+        if self.notifications_clear_info != notifications_clear_info:
+             self.notifications_clear_info = notifications_clear_info
+             if self.notifications_clear_info:
+                 notifications.clear("info")
+        notifications_clear_error = comp["notifications-clear-error"]
+        if self.notifications_clear_error != notifications_clear_error:
+             self.notifications_clear_error = notifications_clear_error
+             if self.notifications_clear_error:
+                 notifications.clear("error")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -3815,6 +3835,8 @@ if hal_present == 1 :
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
     comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:
