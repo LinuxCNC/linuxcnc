@@ -2905,8 +2905,160 @@ It is an error if:
 J and K are both omitted.
 \end_layout
 
+\begin_layout Subsection*
+Examples
+\end_layout
+
 \begin_layout Standard
-Here is an example of a center format command to mill an arc: 
+Calculating arcs by hand can be difficult at times.
+ One option is to draw the arc with a cad program to get the coordinates
+ and offsets.
+ Keep in mind the tolerance mentioned above, you may have to change the
+ precision of your cad program to get the desired results.
+ Another option is to calculate the coordinates and offset using formulas.
+ As you can see in the following figures a triangle can be formed from the
+ current position the end position and the arc center.
+\end_layout
+
+\begin_layout Standard
+In the following figure you can see the start position is X0 Y0, the end
+ position is X1 Y1.
+ The arc center position is at X1 Y0.
+ This gives us an offset from the start position of 1 in the X axis and
+ 0 in the Y axis.
+ In this case only an I offset is needed.
+\end_layout
+
+\begin_layout Standard
+The code for the example:
+\end_layout
+
+\begin_layout LyX-Code
+G2 X1 Y1 I1 F10
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:G2-Example"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g2.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the next example we see the difference between the offsets for Y if we
+ are doing a G2 or a G3 move.
+ For the G2 move the start position is X0 Y0, for the G3 move it is X0 Y1.
+ The arc center is at X1 Y0.5 for both moves.
+ The G2 move the J offset is 0.5 and the G3 move the J offset is -0.5.
+\end_layout
+
+\begin_layout Standard
+The g code for the following example:
+\end_layout
+
+\begin_layout LyX-Code
+G2 X0 Y1 I1 J0.5 F25
+\end_layout
+
+\begin_layout LyX-Code
+G3 X0 Y0 I1 J-0.5 F25
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:G2/3-Example"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g2-3.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here is an example of a center format command to mill a spiral arc: 
+\end_layout
+
+\begin_layout LyX-Code
+
 \family typewriter
 G17 G2 X10 Y16 I3 J4 Z9
 \family default
