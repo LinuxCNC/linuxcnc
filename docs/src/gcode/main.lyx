@@ -2359,8 +2359,8 @@ I- J-
 
 The axis words are all optional except that at least one of X and Y must
  be used to program an arc of less than 360 degrees.
- I and J are the offsets from the current location (in the X and Y directions,
- respectively) of the center of the circle.
+ I (X offset) and J (Y offset) are the offsets from the current location
+ of the center of the circle.
  I and J are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
  If you include the Z word it will spiral.
@@ -2387,8 +2387,8 @@ I- K-
 
 The axis words are all optional except that at least one of X and Z must
  be used to program an arc of less than 360 degrees.
- I and K are the offsets from the current location (in the X and Z directions,
- respectively) of the center of the circle.
+ I (X offset) and K (Z offset) are the offsets from the current location
+ of the center of the circle.
  I and K are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
  
@@ -2416,8 +2416,8 @@ J- K-
 
 The axis words are all optional except that at least one of Y and Z must
  be used to program an arc of less than 360 degrees.
- J and K are the offsets from the current location (in the Y and Z directions,
- respectively) of the center of the circle.
+ J (Y offset) and K (Z offset) are the offsets from the current location
+ of the center of the circle.
  J and K are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
  
@@ -2427,13 +2427,117 @@ It is an error if:
 \layout Itemize
 
 J and K are both omitted.
+\layout Subsection*
+
+Examples
 \layout Standard
 
-Here is an example of a center format command to mill an arc: 
-\family typewriter 
-G17 G2 X10 Y16 I3 J4 Z9
-\family default 
-.
+Calculating arcs by hand can be difficult at times.
+ One option is to draw the arc with a cad program to get the coordinates
+ and offsets.
+ Keep in mind the tolerance mentioned above, you may have to change the
+ precision of your cad program to get the desired results.
+ Another option is to calculate the coordinates and offset using formulas.
+ As you can see in the following figures a triangle can be formed from the
+ current position the end position and the arc center.
+\layout Standard
+
+In the following figure you can see the start position is X0 Y0, the end
+ position is X1 Y1.
+ The arc center position is at X1 Y0.
+ This give us an offset from the start position of 1 in the X axis and 0
+ in the Y axis from the start position.
+ In this case only an I offset is needed.
+ 
+\layout Standard
+
+The code for the example:
+\layout LyX-Code
+
+G2 X1 Y1 I1 F10
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+G2 Example
+\begin_inset LatexCommand \label{cap:G2-Example}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/g2.png
+	scale 60
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+In the next example we see the difference between the offsets for Y if we
+ are doing a G2 or a G3 move.
+ For the G2 move the start position is X0 Y0, for the G3 move it is X0 Y1.
+ The arc center is at X1 Y0.5 for both moves.
+ The G2 move the J offset is 0.5 and the G3 move the J offset is -0.5.
+ 
+\layout Standard
+
+The g code for the following example:
+\layout LyX-Code
+
+G2 X0 Y1 I1 J0.5 F25
+\layout LyX-Code
+
+G3 X0 Y0 I1 J-0.5 F25
+\layout Standard
+
+
+\begin_inset Float figure
+placement H
+wide false
+collapsed false
+
+\layout Caption
+
+G2/3 Example
+\begin_inset LatexCommand \label{cap:G2/3-Example}
+
+\end_inset 
+
+
+\layout Standard
+\align center 
+
+\begin_inset Graphics
+	filename images/g2-3.png
+	scale 60
+	keepAspectRatio
+
+\end_inset 
+
+
+\end_inset 
+
+
+\layout Standard
+
+Here is an example of a center format command to mill a spiral arc: 
+\layout LyX-Code
+
+G17 G2 X10 Y16 I3 J4 Z9.
 \layout Standard
 
 That means to make a clockwise (as viewed from the positive z-axis) circular
