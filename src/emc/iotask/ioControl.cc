@@ -75,6 +75,7 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 static char *ttcomments[CANON_POCKETS_MAX];
+static int fms[CANON_POCKETS_MAX];
 static int random_toolchanger = 0;
 
 
@@ -295,6 +296,7 @@ static int loadToolTable(const char *filename,
         toolTable[t].frontangle = 0.0;
         toolTable[t].backangle = 0.0;
         toolTable[t].orientation = 0;
+        fms[t] = 0;
         ttcomments[t][0] = '\0';
     }
 
@@ -335,12 +337,20 @@ static int loadToolTable(const char *filename,
 	    break;
 	}
         if((scanned = sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d %[^\n]",
-                             &pocket, &toolno, &zoffset, &xoffset, &diameter,
+                             &toolno, &pocket, &zoffset, &xoffset, &diameter,
                              &frontangle, &backangle, &orientation, comment)) &&
            (scanned == 8 || scanned == 9)) {
-            if(!random_toolchanger) pocket = ++fakepocket;
+            if(!random_toolchanger) {
+                fakepocket++;
+                if(fakepocket >= CANON_POCKETS_MAX) {
+                    printf("too many tools. skipping tool %d\n", toolno);
+                    continue;
+                }
+                fms[fakepocket] = pocket;
+                pocket = fakepocket;
+            }
             if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
-                printf("skipping tool: bad pocket number %d\n", pocket);
+                printf("max pocket number is %d. skipping tool %d\n", CANON_POCKETS_MAX-1, toolno);
                 continue;
             } else {
                 /* lathe tool */
@@ -355,11 +365,19 @@ static int loadToolTable(const char *filename,
                 if(scanned == 9) strcpy(ttcomments[pocket], comment);
             }
         } else if ((scanned = sscanf(buffer, "%d %d %lf %lf %[^\n]",
-                                     &pocket, &toolno, &zoffset, &diameter, comment)) &&
+                                     &toolno, &pocket, &zoffset, &diameter, comment)) &&
                    (scanned == 4 || scanned == 5)) {
-            if(!random_toolchanger) pocket = ++fakepocket;
+            if(!random_toolchanger) {
+                fakepocket++;
+                if(fakepocket >= CANON_POCKETS_MAX) {
+                    printf("too many tools. skipping tool %d\n", toolno);
+                    continue;
+                }
+                fms[fakepocket] = pocket;
+                pocket = fakepocket;
+            }
             if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
-                printf("skipping tool: bad pocket number %d\n", pocket);
+                printf("max pocket number is %d. skipping tool %d\n", CANON_POCKETS_MAX-1, toolno);
                 continue;
             } else {
                 /* mill tool */
@@ -436,26 +454,26 @@ static int saveToolTable(const char *filename,
     }
     if(lathe_style) {
         fprintf(fp, "%6s %6s %12s %12s %10s %11s %11s %7s  %s\n\n",
-                "POCKET", "TOOLNO", "ZOFFSET", "XOFFSET",
+                "TOOLNO", "POCKET", "ZOFFSET", "XOFFSET",
                 "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
                 "COMMENT");
         for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno != -1)
                 fprintf(fp, "%6d %6d %+12f %+12f %10f %+11f %+11f %7d  %s\n",
-                        random_toolchanger? pocket: toolTable[pocket].toolno,
                         toolTable[pocket].toolno,
+                        random_toolchanger? pocket: fms[pocket],
                         toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
                         toolTable[pocket].frontangle, toolTable[pocket].backangle, 
                         toolTable[pocket].orientation, ttcomments[pocket]);
         }
     } else {
         fprintf(fp, "%6s %6s %12s %11s  %s\n\n",
-                "POCKET", "TOOLNO", "LENGTH", "DIAMETER", "COMMENT");
+                "TOOLNO", "POCKET", "LENGTH", "DIAMETER", "COMMENT");
         for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
             if (toolTable[pocket].toolno != -1)
                 fprintf(fp, "%6d %6d %+12f %11f  %s\n",
-                        random_toolchanger? pocket: toolTable[pocket].toolno,
                         toolTable[pocket].toolno,
+                        random_toolchanger? pocket: fms[pocket],
                         toolTable[pocket].zoffset, toolTable[pocket].diameter,
                         ttcomments[pocket]);
         }
@@ -891,6 +909,7 @@ int main(int argc, char *argv[])
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
         emcioStatus.tool.toolTable[0].backangle = 0.0;
         emcioStatus.tool.toolTable[0].orientation = 0;
+        fms[0] = 0;
         ttcomments[0][0] = '\0';
     }
 
