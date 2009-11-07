@@ -2445,8 +2445,8 @@ Calculating arcs by hand can be difficult at times.
 In the following figure you can see the start position is X0 Y0, the end
  position is X1 Y1.
  The arc center position is at X1 Y0.
- This give us an offset from the start position of 1 in the X axis and 0
- in the Y axis from the start position.
+ This gives us an offset from the start position of 1 in the X axis and
+ 0 in the Y axis from the start position.
  In this case only an I offset is needed.
  
 \layout Standard
