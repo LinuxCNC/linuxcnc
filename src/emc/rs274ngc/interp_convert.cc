@@ -4378,7 +4378,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &discard, &discard, &discard,
                     settings);
       COMMENT("AXIS,hide");
-      STRAIGHT_TRAVERSE(0, settings->current_x, settings->current_y, up_z,
+      STRAIGHT_TRAVERSE(-1, settings->current_x, settings->current_y, up_z,
                         settings->AA_current, settings->BB_current, settings->CC_current,
                         settings->u_current, settings->v_current, settings->w_current);
       COMMENT("AXIS,show");
@@ -4409,7 +4409,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     &AA_end, &BB_end, &CC_end, 
                     &u_end, &v_end, &w_end, settings);
       COMMENT("AXIS,hide");
-      STRAIGHT_TRAVERSE(0, end_x, end_y, end_z,
+      STRAIGHT_TRAVERSE(-1, end_x, end_y, end_z,
                         AA_end, BB_end, CC_end,
                         u_end, v_end, w_end);
       COMMENT("AXIS,show");
