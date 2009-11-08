@@ -155,6 +155,7 @@ proc ::tooledit::readfile {filename} {
   if [info exists new] {return    0}
 
   set fd [open $filename r]
+
   set bct 0
   while {1} {
     gets $fd newline
@@ -204,6 +205,23 @@ proc ::tooledit::readfile {filename} {
   }
   return 1 ;# ok
 } ;# readfile
+
+proc ::tooledit::watch {args} {
+  catch {after cancel $::te(afterid)}
+
+  set mtime [file mtime $::te(filename)]
+  switch $args {
+    start {set ::te(mtime) $mtime}
+    stop  {return; # no reschedule}
+    default {
+      if {$mtime > $::te(mtime)} {
+        set ::te(mtime) $mtime
+        ::tooledit::message changed
+      }
+    }
+  }
+  set ::te(afterid) [after 2000 ::tooledit::watch]
+} ;# watch
 
 proc ::tooledit::tooledit {filename} {
   set ::te(filename) $filename
@@ -264,6 +282,8 @@ proc ::tooledit::tooledit {filename} {
     }
   }
 
+  watch start
+
   # button frame (pack from bottom)
   set f [frame $::te(top).[qid]]
   pack $f -side bottom -expand 1 -fill x
@@ -304,8 +324,8 @@ proc ::tooledit::message {type} {
     checkok  {$w conf -text "$dt: File checked"                -fg darkgreen}
     delete   {$w conf -text "$dt: File items deleted"          -fg cyan4}
     bogus    {$w conf -text "$dt: Bogus lines in file ignored" -fg darkorange}
-    verror   {$w conf -text "$dt: File errors"                 -fg red
-    }
+    verror   {$w conf -text "$dt: File errors"                 -fg red}
+    changed  {$w conf -text "$dt: Warning: File changed by another process" -fg red}
   }
 } ;# message
 
@@ -593,7 +613,9 @@ proc ::tooledit::writefile {filename} {
       }
     }
   }
+  watch stop
   close $fd
+  watch start
   message write
 } ;# writefile
 
