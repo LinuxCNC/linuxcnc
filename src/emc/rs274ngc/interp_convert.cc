@@ -3119,6 +3119,10 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].zoffset,
                              settings->tool_table[pocket].diameter);
 
+    if(settings->current_pocket == pocket) {
+        settings->tool_table[0] = settings->tool_table[pocket];
+    }
+
     return INTERP_OK;
 }
 

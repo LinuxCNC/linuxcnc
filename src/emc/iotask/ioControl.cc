@@ -1075,6 +1075,10 @@ int main(int argc, char *argv[])
                 emcioStatus.tool.toolTable[p].frontangle = f;
                 emcioStatus.tool.toolTable[p].backangle = b;
                 emcioStatus.tool.toolTable[p].orientation = o;
+
+                if (emcioStatus.tool.toolInSpindle == t) {
+                    emcioStatus.tool.toolTable[0] = emcioStatus.tool.toolTable[p];
+                }                    
             }
 	    if (0 != saveToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable))
 		emcioStatus.status = RCS_ERROR;
