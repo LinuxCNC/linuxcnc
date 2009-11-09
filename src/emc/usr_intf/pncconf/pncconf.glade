@@ -21575,7 +21575,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -21610,7 +21610,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="xtunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -22650,7 +22650,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -22685,7 +22685,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ytunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -23729,7 +23729,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -23764,7 +23764,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="ztunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -24808,7 +24808,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atuneacc">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
@@ -24843,7 +24843,7 @@ Warning limits switches
                           <widget class="GtkSpinButton" id="atunevel">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="adjustment">1 0 5000 1 10 10</property>
+                            <property name="adjustment">1 0 50000 1 10 10</property>
                             <property name="climb_rate">1</property>
                           </widget>
                           <packing>
