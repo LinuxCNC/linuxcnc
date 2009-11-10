@@ -621,12 +621,6 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.joint-pos-probed", num);
-    retval =
-	hal_pin_float_new(buf, HAL_OUT, &(addr->joint_pos_probed), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-cmd", num);
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(addr->motor_pos_cmd), mot_comp_id);
@@ -636,12 +630,6 @@ static int export_joint(int num, joint_hal_t * addr)
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-fb", num);
     retval =
 	hal_pin_float_new(buf, HAL_IN, &(addr->motor_pos_fb), mot_comp_id);
-    if (retval != 0) {
-	return retval;
-    }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-pos-probed", num);
-    retval =
-	hal_pin_float_new(buf, HAL_IN, &(addr->motor_pos_probed), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }

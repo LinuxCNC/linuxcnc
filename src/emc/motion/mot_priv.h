@@ -39,10 +39,8 @@ typedef struct {
     hal_float_t *backlash_vel;	/* RPI: backlash speed variable */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
-    hal_float_t *motor_pos_probed; /* RPI: position latch, with comp */
     hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, mot ofs */
     hal_float_t *joint_pos_fb;	/* RPI: position feedback, w/o comp */
-    hal_float_t *joint_pos_probed; /* RPI: position latch, w/o comp */
     hal_float_t *f_error;	/* RPI: following error */
     hal_float_t *f_error_lim;	/* RPI: following error limit */
 
