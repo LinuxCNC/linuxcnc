@@ -66,7 +66,7 @@ The joint (as opposed to motor) commanded position. There may be several offsets
 The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
 
 .TP
-\fBaxis.\fIN\fB.joint-pos-probed\fR OUT float 
+\fBaxis.\fIN\fB.motor-pos-probed\fR IN float 
 The joint position for this joint when the probe input last changed.
 
 .TP
@@ -129,20 +129,8 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 TRUE if the machine is in position.
 
 .TP
-\fBmotion.probing\fR IN bit 
-TRUE when the current move is a probing move
-
-.TP
 \fBmotion.probe-input\fR IN bit 
 G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
-
-.TP
-\fBmotion.probe-toward\fR IN bit 
-TRUE when probing toward the work, FALSE otherwise.
-
-.TP
-\fBmotion.probe-away\fR IN bit 
-TRUE when probing away from the work, FALSE otherwise.
 
 .TP
 \fBmotion.spindle-brake\fR OUT bit 

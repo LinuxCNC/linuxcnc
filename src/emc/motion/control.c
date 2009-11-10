@@ -1774,7 +1774,6 @@ static void output_to_hal(void)
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
     static int old_motion_index=0, old_hal_index=0;
-    int probing, probe_direction;
 
     /* output machine info to HAL for scoping, etc */
     *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
@@ -1856,12 +1855,6 @@ static void output_to_hal(void)
     *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tooloffset_x;
     *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tooloffset_z;
     *(emcmot_hal_data->tooloffset_w) = emcmotStatus->tooloffset_w;
-
-    probing = !!(emcmotStatus->probing);
-    probe_direction = (emcmotStatus->probe_type & 2);
-    *(emcmot_hal_data->probing) = probing;
-    *(emcmot_hal_data->probe_toward) = probing && !probe_direction;
-    *(emcmot_hal_data->probe_away) = probing && probe_direction;
 
     /* output joint info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
