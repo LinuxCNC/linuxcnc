@@ -1183,6 +1183,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   return INTERP_OK;
 }
 
+#define VAL_LEN 30
 
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
@@ -1191,7 +1192,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
     int paramNumber;
     int stat;
     double value;
-    char valbuf[30]; // max double length + room
+    char valbuf[VAL_LEN]; // max double length + room
     char *v;
     int found;
 
@@ -1285,8 +1286,8 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             // we have the value
             if(found)
             {
-                int n = snprintf(valbuf, sizeof(valbuf), "%lf", value);
-                bool fail = (n >= sizeof(valbuf) || n < 0);
+                int n = snprintf(valbuf, VAL_LEN, "%lf", value);
+                bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
                     strcpy(valbuf, "######");
 
