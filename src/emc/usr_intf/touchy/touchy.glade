@@ -48,7 +48,7 @@
 		  <property name="visible">True</property>
 		  <property name="n_rows">10</property>
 		  <property name="n_columns">3</property>
-		  <property name="homogeneous">True</property>
+		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">0</property>
 		  <property name="column_spacing">0</property>
 
@@ -5789,138 +5789,294 @@ F1 S1</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkTable" id="table7">
-			  <property name="border_width">5</property>
+			<widget class="GtkHBox" id="hbox12">
 			  <property name="visible">True</property>
-			  <property name="n_rows">3</property>
-			  <property name="n_columns">2</property>
-			  <property name="homogeneous">True</property>
-			  <property name="row_spacing">0</property>
-			  <property name="column_spacing">15</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
 
 			  <child>
-			    <widget class="GtkToggleButton" id="wheelinc1">
+			    <widget class="GtkTable" id="table24">
+			      <property name="border_width">5</property>
 			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">.01</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">True</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheelinc1_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:16 GMT"/>
+			      <property name="n_rows">3</property>
+			      <property name="n_columns">1</property>
+			      <property name="homogeneous">False</property>
+			      <property name="row_spacing">0</property>
+			      <property name="column_spacing">0</property>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelinc1">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">.01</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelinc1_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:16 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelinc2">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">.001</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelinc2_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:19 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelinc3">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">.0001</property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelinc3_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:23 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
 			    </widget>
 			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 
 			  <child>
-			    <widget class="GtkToggleButton" id="wheelx">
+			    <widget class="GtkTable" id="axis_table">
+			      <property name="border_width">5</property>
 			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">X</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">True</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheelx_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:28 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">0</property>
-			      <property name="bottom_attach">1</property>
-			    </packing>
-			  </child>
+			      <property name="n_rows">3</property>
+			      <property name="n_columns">3</property>
+			      <property name="homogeneous">True</property>
+			      <property name="row_spacing">0</property>
+			      <property name="column_spacing">0</property>
 
-			  <child>
-			    <widget class="GtkToggleButton" id="wheelinc2">
-			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">.001</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheelinc2_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:19 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			    </packing>
-			  </child>
+			      <child>
+				<widget class="GtkToggleButton" id="wheelx">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  X  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelx_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:28 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
 
-			  <child>
-			    <widget class="GtkToggleButton" id="wheely">
-			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Y</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheely_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:32 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">1</property>
-			      <property name="bottom_attach">2</property>
-			    </packing>
-			  </child>
+			      <child>
+				<widget class="GtkToggleButton" id="wheely">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  Y  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheely_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:32 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
 
-			  <child>
-			    <widget class="GtkToggleButton" id="wheelinc3">
-			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">.0001</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheelinc3_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:23 GMT"/>
-			    </widget>
-			    <packing>
-			      <property name="left_attach">0</property>
-			      <property name="right_attach">1</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
-			    </packing>
-			  </child>
+			      <child>
+				<widget class="GtkToggleButton" id="wheelz">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  Z  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">False</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelz_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:36 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">0</property>
+				  <property name="right_attach">1</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
 
-			  <child>
-			    <widget class="GtkToggleButton" id="wheelz">
-			      <property name="visible">True</property>
-			      <property name="sensitive">False</property>
-			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Z</property>
-			      <property name="use_underline">True</property>
-			      <property name="relief">GTK_RELIEF_NORMAL</property>
-			      <property name="focus_on_click">False</property>
-			      <property name="active">False</property>
-			      <property name="inconsistent">False</property>
-			      <signal name="clicked" handler="on_wheelz_clicked" last_modification_time="Fri, 31 Jul 2009 17:43:36 GMT"/>
+			      <child>
+				<widget class="GtkToggleButton" id="wheela">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  A  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheela_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:18 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelb">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  B  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelb_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:24 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelc">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  C  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelc_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:29 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">1</property>
+				  <property name="right_attach">2</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelu">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  U  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelu_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:36 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">0</property>
+				  <property name="bottom_attach">1</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelv">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  V  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelv_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:41 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">1</property>
+				  <property name="bottom_attach">2</property>
+				</packing>
+			      </child>
+
+			      <child>
+				<widget class="GtkToggleButton" id="wheelw">
+				  <property name="visible">True</property>
+				  <property name="sensitive">False</property>
+				  <property name="can_focus">True</property>
+				  <property name="label" translatable="yes">  W  </property>
+				  <property name="use_underline">True</property>
+				  <property name="relief">GTK_RELIEF_NORMAL</property>
+				  <property name="focus_on_click">False</property>
+				  <property name="active">True</property>
+				  <property name="inconsistent">False</property>
+				  <signal name="clicked" handler="on_wheelw_clicked" last_modification_time="Wed, 11 Nov 2009 20:20:46 GMT"/>
+				</widget>
+				<packing>
+				  <property name="left_attach">2</property>
+				  <property name="right_attach">3</property>
+				  <property name="top_attach">2</property>
+				  <property name="bottom_attach">3</property>
+				</packing>
+			      </child>
 			    </widget>
 			    <packing>
-			      <property name="left_attach">1</property>
-			      <property name="right_attach">2</property>
-			      <property name="top_attach">2</property>
-			      <property name="bottom_attach">3</property>
+			      <property name="padding">0</property>
+			      <property name="expand">True</property>
+			      <property name="fill">True</property>
 			    </packing>
 			  </child>
 			</widget>

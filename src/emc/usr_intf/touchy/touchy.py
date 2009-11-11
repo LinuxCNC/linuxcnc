@@ -280,6 +280,12 @@ class touchy:
                         "on_wheelx_clicked" : self.wheelx,
                         "on_wheely_clicked" : self.wheely,
                         "on_wheelz_clicked" : self.wheelz,
+                        "on_wheela_clicked" : self.wheela,
+                        "on_wheelb_clicked" : self.wheelb,
+                        "on_wheelc_clicked" : self.wheelc,
+                        "on_wheelu_clicked" : self.wheelu,
+                        "on_wheelv_clicked" : self.wheelv,
+                        "on_wheelw_clicked" : self.wheelw,
                         "on_wheelinc1_clicked" : self.wheelinc1,
                         "on_wheelinc2_clicked" : self.wheelinc2,
                         "on_wheelinc3_clicked" : self.wheelinc3,
@@ -362,6 +368,30 @@ class touchy:
                 if self.radiobutton_mask: return
                 self.wheelxyz = 2
 
+        def wheela(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 3
+
+        def wheelb(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 4
+
+        def wheelc(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 5
+
+        def wheelu(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 6
+
+        def wheelv(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 7
+
+        def wheelw(self, b):
+                if self.radiobutton_mask: return
+                self.wheelxyz = 8
+
         def wheelinc1(self, b):
                 if self.radiobutton_mask: return
                 self.wheelinc = 0
@@ -397,6 +427,8 @@ class touchy:
 
         def jogsettings_activate(self, active):
                 for i in ["wheelx", "wheely", "wheelz",
+                          "wheela", "wheelb", "wheelc",
+                          "wheelu", "wheelv", "wheelw",
                           "wheelinc1", "wheelinc2", "wheelinc3"]:
                         w = self.wTree.get_widget(i)
                         w.set_sensitive(active)
@@ -436,7 +468,10 @@ class touchy:
                           "home_all", "unhome_all", "home_x", "unhome_x",
                           "home_y", "unhome_y", "home_z", "unhome_z",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
-                          "wheelx", "wheely", "wheelz", "override_limits",
+                          "wheelx", "wheely", "wheelz",
+                          "wheela", "wheelb", "wheelc",
+                          "wheelu", "wheelv", "wheelw",
+                          "override_limits",
                           "spindle_forward", "spindle_off", "spindle_reverse",
                           "spindle_faster", "spindle_slower",
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
@@ -498,6 +533,12 @@ class touchy:
                 self.wTree.get_widget("wheelx").set_active(self.wheelxyz == 0)
                 self.wTree.get_widget("wheely").set_active(self.wheelxyz == 1)
                 self.wTree.get_widget("wheelz").set_active(self.wheelxyz == 2)
+                self.wTree.get_widget("wheela").set_active(self.wheelxyz == 3)
+                self.wTree.get_widget("wheelb").set_active(self.wheelxyz == 4)
+                self.wTree.get_widget("wheelc").set_active(self.wheelxyz == 5)
+                self.wTree.get_widget("wheelu").set_active(self.wheelxyz == 6)
+                self.wTree.get_widget("wheelv").set_active(self.wheelxyz == 7)
+                self.wTree.get_widget("wheelw").set_active(self.wheelxyz == 8)
                 self.wTree.get_widget("wheelinc1").set_active(self.wheelinc == 0)
                 self.wTree.get_widget("wheelinc2").set_active(self.wheelinc == 1)
                 self.wTree.get_widget("wheelinc3").set_active(self.wheelinc == 2)
