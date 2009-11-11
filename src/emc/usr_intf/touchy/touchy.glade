@@ -44,7 +44,7 @@
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkTable" id="table2">
+		<widget class="GtkTable" id="dro_table">
 		  <property name="visible">True</property>
 		  <property name="n_rows">10</property>
 		  <property name="n_columns">3</property>

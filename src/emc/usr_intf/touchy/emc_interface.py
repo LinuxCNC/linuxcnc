@@ -220,13 +220,18 @@ class emc_control:
                                 self.listing.clear_startline()
 
 class emc_status:
-        def __init__(self, gtk, emc, listing, dros, error, homes,
+        def __init__(self, gtk, emc, listing, relative, absolute, distance,
+                     dro_table,
+                     error, homes,
                      unhomes, estops, machines, override_limit, status,
                      floods, mists, spindles, prefs, opstop, blockdel):
                 self.gtk = gtk
                 self.emc = emc
                 self.listing = listing
-                self.dros = dros
+                self.relative = relative
+                self.absolute = absolute
+                self.distance = distance
+                self.dro_table = dro_table
                 self.error = error
                 self.homes = homes
                 self.unhomes = unhomes
@@ -240,6 +245,7 @@ class emc_status:
                 self.prefs = prefs
                 self.opstop = opstop
                 self.blockdel = blockdel
+                self.resized_dro = 0
                 
                 self.mm = 0
                 self.actual = 0
@@ -274,9 +280,24 @@ class emc_status:
 
         def periodic(self):
                 self.emcstat.poll()
-
+                am = self.emcstat.axis_mask
+                lathe = not (self.emcstat.axis_mask & 2)
                 dtg = self.emcstat.dtg
-                
+
+                if not self.resized_dro:
+                        height = 9
+                        for i in range(9):
+                                if i == 1 and lathe:
+                                        continue
+                                if not (am & (1<<i)):
+                                        height -= 1
+                                        self.dro_table.remove(self.relative[height])
+                                        self.dro_table.remove(self.absolute[height])
+                                        self.dro_table.remove(self.distance[height])
+                                        
+                        self.dro_table.resize(height, 3)
+                        self.resized_dro = 1
+                                        
                 if self.actual:
                         p = self.emcstat.actual_position
                 else:
@@ -302,34 +323,30 @@ class emc_status:
                 else:
                         fmt = "%c:% 9.4f"
 
+                d = 0
+                if (am & 1):
+                        if lathe:
+                                self.relative[d].set_text(fmt % ('R', relp[0]))
+                                self.absolute[d].set_text(fmt % ('R', p[0]))
+                                self.distance[d].set_text(fmt % ('R', dtg[0]))
+                                d += 1
+                                self.relative[d].set_text(fmt % ('D', relp[0] * 2.0))
+                                self.absolute[d].set_text(fmt % ('D', p[0] * 2.0))
+                                self.distance[d].set_text(fmt % ('D', dtg[0] * 2.0))
+                        else:
+                                self.relative[d].set_text(fmt % ('X', relp[0]))
+                                self.absolute[d].set_text(fmt % ('X', p[0]))
+                                self.distance[d].set_text(fmt % ('X', dtg[0]))
 
-                self.dros['xr'].set_text(fmt % ('X', relp[0]))
-                self.dros['yr'].set_text(fmt % ('Y', relp[1]))
-                self.dros['zr'].set_text(fmt % ('Z', relp[2]))
-                self.dros['ar'].set_text(fmt % ('A', relp[3]))
-                self.dros['br'].set_text(fmt % ('B', relp[4]))
-                self.dros['cr'].set_text(fmt % ('C', relp[5]))
-                self.dros['ur'].set_text(fmt % ('U', relp[6]))
-                self.dros['vr'].set_text(fmt % ('V', relp[7]))
-                self.dros['wr'].set_text(fmt % ('W', relp[8]))
-                self.dros['xa'].set_text(fmt % ('X', p[0]))
-                self.dros['ya'].set_text(fmt % ('Y', p[1]))
-                self.dros['za'].set_text(fmt % ('Z', p[2]))
-                self.dros['aa'].set_text(fmt % ('A', p[3]))
-                self.dros['ba'].set_text(fmt % ('B', p[4]))
-                self.dros['ca'].set_text(fmt % ('C', p[5]))
-                self.dros['ua'].set_text(fmt % ('U', p[6]))
-                self.dros['va'].set_text(fmt % ('V', p[7]))
-                self.dros['wa'].set_text(fmt % ('W', p[8]))
-                self.dros['xd'].set_text(fmt % ('X', dtg[0]))
-                self.dros['yd'].set_text(fmt % ('Y', dtg[1]))
-                self.dros['zd'].set_text(fmt % ('Z', dtg[2]))
-                self.dros['ad'].set_text(fmt % ('A', dtg[0]))
-                self.dros['bd'].set_text(fmt % ('B', dtg[1]))
-                self.dros['cd'].set_text(fmt % ('C', dtg[2]))
-                self.dros['ud'].set_text(fmt % ('U', dtg[0]))
-                self.dros['vd'].set_text(fmt % ('V', dtg[1]))
-                self.dros['wd'].set_text(fmt % ('W', dtg[2]))
+                        d += 1
+                        
+                for i in range(1, 9):
+                        if am & (1<<i):
+                                letter = 'XYZABCUVW'[i]
+                                self.relative[d].set_text(fmt % (letter, relp[i]))
+                                self.absolute[d].set_text(fmt % (letter, p[i]))
+                                self.distance[d].set_text(fmt % (letter, dtg[i]))
+                                d += 1
 
                 for j,name in [(0,'x'), (1,'y'), (2,'z')]:
                         self.homes[name].set_active(self.emcstat.homed[j])

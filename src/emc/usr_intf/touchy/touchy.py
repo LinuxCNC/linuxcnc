@@ -154,10 +154,13 @@ class touchy:
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
                 self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes, self.listing)
 
-                status_labels = ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
-                                 'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
-                                 'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']
-                status_labels = dict((i, self.wTree.get_widget(i)) for i in status_labels)
+                relative = ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr']
+                absolute = ['xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa']
+                distance = ['xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']
+                relative = [self.wTree.get_widget(i) for i in relative]
+                absolute = [self.wTree.get_widget(i) for i in absolute]
+                distance = [self.wTree.get_widget(i) for i in distance]
+                
                 homes = ['x', 'y', 'z']
                 homes = dict((i, self.wTree.get_widget("home_" + i)) for i in homes)
                 unhomes = ['x', 'y', 'z']
@@ -183,7 +186,8 @@ class touchy:
                 blockdel = ['on', 'off']
                 blockdel = dict((i, self.wTree.get_widget("blockdel_" + i)) for i in blockdel)
 
-                self.status = emc_interface.emc_status(gtk, emc, self.listing, status_labels,
+                self.status = emc_interface.emc_status(gtk, emc, self.listing, relative, absolute, distance,
+                                                       self.wTree.get_widget("dro_table"),
                                                        self.wTree.get_widget("error"),
                                                        homes, unhomes,
                                                        estops, machines,
