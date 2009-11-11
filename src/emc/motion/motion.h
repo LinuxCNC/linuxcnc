@@ -645,6 +645,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         double distance_to_go;  /* in this move */
         EmcPose dtg;
         double current_vel;
+        double requested_vel;
 
         unsigned int tcqlen;
         double tooloffset_x;

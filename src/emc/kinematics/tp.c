@@ -92,6 +92,7 @@ int tpClear(TP_STRUCT * tp)
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
     emcmotStatus->current_vel = 0.0;
+    emcmotStatus->requested_vel = 0.0;
     emcmotStatus->distance_to_go = 0.0;
     ZERO_EMC_POSE(emcmotStatus->dtg);
 
@@ -654,6 +655,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     EmcPose target;
 
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
+    emcmotStatus->requested_vel = 0.0;
     tc = tcqItem(&tp->queue, 0, period);
     if(!tc) {
         // this means the motion queue is empty.  This can represent
@@ -1044,6 +1046,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    emcmotStatus->enables_queued = tc->enables;
 	    // report our line number to the guis
 	    tp->execId = tc->id;
+            emcmotStatus->requested_vel = tc->reqvel;
         } else {
 	    tpToggleDIOs(nexttc); //check and do DIO changes
             target = tcGetEndpoint(nexttc);
@@ -1052,6 +1055,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    emcmotStatus->enables_queued = nexttc->enables;
 	    // report our line number to the guis
 	    tp->execId = nexttc->id;
+            emcmotStatus->requested_vel = nexttc->reqvel;
         }
 
         emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
@@ -1093,6 +1097,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
         emcmotStatus->current_vel = tc->currentvel;
+        emcmotStatus->requested_vel = tc->reqvel;
 	emcmotStatus->enables_queued = tc->enables;
 	// report our line number to the guis
 	tp->execId = tc->id;

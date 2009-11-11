@@ -1794,8 +1794,10 @@ static void output_to_hal(void)
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
     if(GET_MOTION_COORD_FLAG()) {
         *(emcmot_hal_data->current_vel) = emcmotStatus->current_vel;
+        *(emcmot_hal_data->requested_vel) = emcmotStatus->requested_vel;
     } else if(GET_MOTION_TELEOP_FLAG()) {
         PmCartesian t = emcmotDebug->teleop_data.currentVel.tran;
+        *(emcmot_hal_data->requested_vel) = 0.0;
         emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(t.x * t.x + t.y * t.y + t.z * t.z);
     } else {
         int i;
@@ -1807,6 +1809,7 @@ static void output_to_hal(void)
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
         else
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = 0.0;
+        *(emcmot_hal_data->requested_vel) = 0.0;
     }
 
     /* These params can be used to examine any internal variable. */
