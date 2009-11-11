@@ -767,15 +767,15 @@ class Data:
         if self.number_pports>2:
              port3name = self.ioaddr3
              if self.pp3_direction:
-                port3dir =" in"
-             else: 
                 port3dir =" out"
+             else: 
+                port3dir =" in"
         if self.number_pports>1:
              port2name = self.ioaddr2
              if self.pp2_direction:
-                port2dir =" in"
-             else: 
                 port2dir =" out"
+             else: 
+                port2dir =" in"
         print >>file, "loadrt hal_parport cfg=\"%s out %s%s %s%s\"" % (self.ioaddr, port2name, port2dir, port3name, port3dir)
         if self.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.steptime
