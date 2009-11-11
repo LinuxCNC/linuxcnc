@@ -154,7 +154,9 @@ class touchy:
                         filechooser_eventboxes.append(self.wTree.get_widget("eventbox_filechooser%d" % i))
                 self.filechooser = filechooser.filechooser(gtk, emc, filechooser_labels, filechooser_eventboxes, self.listing)
 
-                status_labels = ['xr', 'yr', 'zr', 'xa', 'ya', 'za', 'xd', 'yd', 'zd']
+                status_labels = ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
+                                 'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
+                                 'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']
                 status_labels = dict((i, self.wTree.get_widget(i)) for i in status_labels)
                 homes = ['x', 'y', 'z']
                 homes = dict((i, self.wTree.get_widget("home_" + i)) for i in homes)
@@ -455,7 +457,9 @@ class touchy:
                         w.modify_font(self.control_font)
 
                 # dro
-                for i in ["xa", "ya", "za", "xr", "yr", "zr", "xd", "yd", "zd"]:
+                for i in ['xr', 'yr', 'zr', 'ar', 'br', 'cr', 'ur', 'vr', 'wr',
+                          'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
+                          'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.dro_font)
 

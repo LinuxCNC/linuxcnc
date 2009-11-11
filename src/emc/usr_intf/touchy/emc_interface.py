@@ -285,8 +285,14 @@ class emc_status:
                 x = p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]
                 y = p[1] - self.emcstat.origin[1]
                 z = p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]
+                a = p[3] - self.emcstat.origin[3]
+                b = p[4] - self.emcstat.origin[4]
+                c = p[5] - self.emcstat.origin[5]
+                u = p[6] - self.emcstat.origin[6]
+                v = p[7] - self.emcstat.origin[7]
+                w = p[8] - self.emcstat.origin[8] - self.emcstat.tool_offset[8]
                 t = math.radians(-self.emcstat.rotation_xy)
-                relp = [x * math.cos(t) - y * math.sin(t), x * math.sin(t) + y * math.cos(t), z]
+                relp = [x * math.cos(t) - y * math.sin(t), x * math.sin(t) + y * math.cos(t), z, a, b, c, u, v, w]
 
                 if self.mm:
                         p = [i*25.4 for i in p]
@@ -300,12 +306,30 @@ class emc_status:
                 self.dros['xr'].set_text(fmt % ('X', relp[0]))
                 self.dros['yr'].set_text(fmt % ('Y', relp[1]))
                 self.dros['zr'].set_text(fmt % ('Z', relp[2]))
+                self.dros['ar'].set_text(fmt % ('A', relp[3]))
+                self.dros['br'].set_text(fmt % ('B', relp[4]))
+                self.dros['cr'].set_text(fmt % ('C', relp[5]))
+                self.dros['ur'].set_text(fmt % ('U', relp[6]))
+                self.dros['vr'].set_text(fmt % ('V', relp[7]))
+                self.dros['wr'].set_text(fmt % ('W', relp[8]))
                 self.dros['xa'].set_text(fmt % ('X', p[0]))
                 self.dros['ya'].set_text(fmt % ('Y', p[1]))
                 self.dros['za'].set_text(fmt % ('Z', p[2]))
+                self.dros['aa'].set_text(fmt % ('A', p[3]))
+                self.dros['ba'].set_text(fmt % ('B', p[4]))
+                self.dros['ca'].set_text(fmt % ('C', p[5]))
+                self.dros['ua'].set_text(fmt % ('U', p[6]))
+                self.dros['va'].set_text(fmt % ('V', p[7]))
+                self.dros['wa'].set_text(fmt % ('W', p[8]))
                 self.dros['xd'].set_text(fmt % ('X', dtg[0]))
                 self.dros['yd'].set_text(fmt % ('Y', dtg[1]))
                 self.dros['zd'].set_text(fmt % ('Z', dtg[2]))
+                self.dros['ad'].set_text(fmt % ('A', dtg[0]))
+                self.dros['bd'].set_text(fmt % ('B', dtg[1]))
+                self.dros['cd'].set_text(fmt % ('C', dtg[2]))
+                self.dros['ud'].set_text(fmt % ('U', dtg[0]))
+                self.dros['vd'].set_text(fmt % ('V', dtg[1]))
+                self.dros['wd'].set_text(fmt % ('W', dtg[2]))
 
                 for j,name in [(0,'x'), (1,'y'), (2,'z')]:
                         self.homes[name].set_active(self.emcstat.homed[j])
