@@ -41,7 +41,7 @@ import listing
 import preferences
 
 if gtk.gtk_version >= (2, 10, 0):
-    gtk.rc_parse_string("""
+    gtk.rc_parse_string('''
 	gtk_color_scheme = "bg_color:#dcdad5\nfg_color:#000"
 	style "touchy-default-style" {
 	    bg[PRELIGHT] = @bg_color
@@ -54,9 +54,9 @@ if gtk.gtk_version >= (2, 10, 0):
 	    fg[INSENSITIVE] = darker (@bg_color)
 	}
 	class "GtkWidget" style "touchy-default-style"
-    """)
+    ''') #"
 else:
-    gtk.rc_parse_string("""
+    gtk.rc_parse_string('''
 	style "touchy-default-style" {
 	    bg[PRELIGHT] = "#dcdad5"
 	    bg[NORMAL] = "#dcdad5"
@@ -68,13 +68,14 @@ else:
 	    fg[INSENSITIVE] = "#9a9895"
 	}
 	class "GtkWidget" style "touchy-default-style"
-    """)
+    ''')
 
-pix_data = """/* XPM */
+pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
 "1 1 1 1",
 "	c None",
-" "};"""
+" "};'''
+
 
 color = gtk.gdk.Color()
 pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
