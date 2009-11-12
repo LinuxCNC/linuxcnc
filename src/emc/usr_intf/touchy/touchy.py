@@ -163,10 +163,6 @@ class touchy:
                 absolute = [self.wTree.get_widget(i) for i in absolute]
                 distance = [self.wTree.get_widget(i) for i in distance]
                 
-                homes = ['x', 'y', 'z']
-                homes = dict((i, self.wTree.get_widget("home_" + i)) for i in homes)
-                unhomes = ['x', 'y', 'z']
-                unhomes = dict((i, self.wTree.get_widget("unhome_" + i)) for i in unhomes)
                 estops = ['estop_reset', 'estop']
                 estops = dict((i, self.wTree.get_widget(i)) for i in estops)
                 machines = ['on', 'off']
@@ -191,7 +187,6 @@ class touchy:
                 self.status = emc_interface.emc_status(gtk, emc, self.listing, relative, absolute, distance,
                                                        self.wTree.get_widget("dro_table"),
                                                        self.wTree.get_widget("error"),
-                                                       homes, unhomes,
                                                        estops, machines,
                                                        self.wTree.get_widget("override_limits"),
                                                        stats,
@@ -269,12 +264,8 @@ class touchy:
                         "on_flood_off_clicked" : self.emc.flood_off,
                         "on_home_all_clicked" : self.emc.home_all,
                         "on_unhome_all_clicked" : self.emc.unhome_all,
-                        "on_home_x_clicked" : self.emc.home_x,
-                        "on_home_y_clicked" : self.emc.home_y,
-                        "on_home_z_clicked" : self.emc.home_z,
-                        "on_unhome_x_clicked" : self.emc.unhome_x,
-                        "on_unhome_y_clicked" : self.emc.unhome_y,
-                        "on_unhome_z_clicked" : self.emc.unhome_z,
+                        "on_home_selected_clicked" : self.home_selected,
+                        "on_unhome_selected_clicked" : self.unhome_selected,
                         "on_fo_clicked" : self.fo,
                         "on_so_clicked" : self.so,
                         "on_mv_clicked" : self.mv,
@@ -398,6 +389,12 @@ class touchy:
                 if self.radiobutton_mask: return
                 self.wheelinc = 0
 
+        def home_selected(self, b):
+                self.emc.home_selected(self.wheelxyz)
+
+        def unhome_selected(self, b):
+                self.emc.unhome_selected(self.wheelxyz)
+
         def wheelinc2(self, b):
                 if self.radiobutton_mask: return
                 self.wheelinc = 1
@@ -428,10 +425,7 @@ class touchy:
                 self.jogsettings_activate(1)
 
         def jogsettings_activate(self, active):
-                for i in ["wheelx", "wheely", "wheelz",
-                          "wheela", "wheelb", "wheelc",
-                          "wheelu", "wheelv", "wheelw",
-                          "wheelinc1", "wheelinc2", "wheelinc3"]:
+                for i in ["wheelinc1", "wheelinc2", "wheelinc3"]:
                         w = self.wTree.get_widget(i)
                         w.set_sensitive(active)
                 self.hal.jogactive(active)
@@ -467,8 +461,7 @@ class touchy:
                           "flood_on", "flood_off", "mist_on", "mist_off",
                           "g", "m", "t", "set_tool", "set_origin",
                           "estop", "estop_reset", "machine_off", "machine_on",
-                          "home_all", "unhome_all", "home_x", "unhome_x",
-                          "home_y", "unhome_y", "home_z", "unhome_z",
+                          "home_all", "unhome_all", "home_selected", "unhome_selected",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
                           "wheelx", "wheely", "wheelz",
                           "wheela", "wheelb", "wheelc",

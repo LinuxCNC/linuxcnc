@@ -77,35 +77,15 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.unhome(-1)
 
-        def home_x(self, b):
+        def home_selected(self, axis):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.home(0)
+                self.emccommand.home(axis)
 
-        def home_y(self, b):
+        def unhome_selected(self, axis):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.home(1)
-
-        def home_z(self, b):
-                if self.masked: return
-                self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.home(2)
-
-        def unhome_x(self, b):
-                if self.masked: return
-                self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.unhome(0)
-
-        def unhome_y(self, b):
-                if self.masked: return
-                self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.unhome(1)
-
-        def unhome_z(self, b):
-                if self.masked: return
-                self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.unhome(2)
+                self.emccommand.unhome(axis)
 
         def jogging(self, b):
                 if self.masked: return
@@ -222,8 +202,8 @@ class emc_control:
 class emc_status:
         def __init__(self, gtk, emc, listing, relative, absolute, distance,
                      dro_table,
-                     error, homes,
-                     unhomes, estops, machines, override_limit, status,
+                     error,
+                     estops, machines, override_limit, status,
                      floods, mists, spindles, prefs, opstop, blockdel):
                 self.gtk = gtk
                 self.emc = emc
@@ -233,8 +213,6 @@ class emc_status:
                 self.distance = distance
                 self.dro_table = dro_table
                 self.error = error
-                self.homes = homes
-                self.unhomes = unhomes
                 self.estops = estops
                 self.machines = machines
                 self.override_limit = override_limit
@@ -325,9 +303,12 @@ class emc_status:
 
                 d = 0
                 if (am & 1):
+                        h = " "
+                        if self.emcstat.homed[0]: h = "*"
+                        
                         if lathe:
                                 self.relative[d].set_text(fmt % ('R', relp[0]))
-                                self.absolute[d].set_text(fmt % ('R', p[0]))
+                                self.absolute[d].set_text(h + fmt % ('R', p[0]))
                                 self.distance[d].set_text(fmt % ('R', dtg[0]))
                                 d += 1
                                 self.relative[d].set_text(fmt % ('D', relp[0] * 2.0))
@@ -335,22 +316,20 @@ class emc_status:
                                 self.distance[d].set_text(fmt % ('D', dtg[0] * 2.0))
                         else:
                                 self.relative[d].set_text(fmt % ('X', relp[0]))
-                                self.absolute[d].set_text(fmt % ('X', p[0]))
+                                self.absolute[d].set_text(h + fmt % ('X', p[0]))
                                 self.distance[d].set_text(fmt % ('X', dtg[0]))
 
                         d += 1
                         
                 for i in range(1, 9):
+                        h = " "
+                        if self.emcstat.homed[i]: h = "*"
                         if am & (1<<i):
                                 letter = 'XYZABCUVW'[i]
                                 self.relative[d].set_text(fmt % (letter, relp[i]))
-                                self.absolute[d].set_text(fmt % (letter, p[i]))
+                                self.absolute[d].set_text(h + fmt % (letter, p[i]))
                                 self.distance[d].set_text(fmt % (letter, dtg[i]))
                                 d += 1
-
-                for j,name in [(0,'x'), (1,'y'), (2,'z')]:
-                        self.homes[name].set_active(self.emcstat.homed[j])
-                        self.unhomes[name].set_active(not self.emcstat.homed[j])
 
                 estopped = self.emcstat.task_state == self.emc.STATE_ESTOP
                 self.estops['estop'].set_active(estopped)

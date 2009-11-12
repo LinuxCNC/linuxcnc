@@ -1094,130 +1094,10 @@
 				  <property name="border_width">5</property>
 				  <property name="visible">True</property>
 				  <property name="n_rows">2</property>
-				  <property name="n_columns">4</property>
+				  <property name="n_columns">2</property>
 				  <property name="homogeneous">True</property>
 				  <property name="row_spacing">0</property>
 				  <property name="column_spacing">15</property>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="home_x">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Home X</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">False</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_home_x_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:19 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">1</property>
-				      <property name="right_attach">2</property>
-				      <property name="top_attach">0</property>
-				      <property name="bottom_attach">1</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="unhome_x">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Unhome X</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">True</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_unhome_x_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:11 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">1</property>
-				      <property name="right_attach">2</property>
-				      <property name="top_attach">1</property>
-				      <property name="bottom_attach">2</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="home_y">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Home Y</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">False</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_home_y_clicked" last_modification_time="Fri, 31 Jul 2009 15:10:26 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">2</property>
-				      <property name="right_attach">3</property>
-				      <property name="top_attach">0</property>
-				      <property name="bottom_attach">1</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="unhome_y">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Unhome Y</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">True</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_unhome_y_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:38 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">2</property>
-				      <property name="right_attach">3</property>
-				      <property name="top_attach">1</property>
-				      <property name="bottom_attach">2</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="home_z">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Home Z</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">False</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_home_z_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:45 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">3</property>
-				      <property name="right_attach">4</property>
-				      <property name="top_attach">0</property>
-				      <property name="bottom_attach">1</property>
-				    </packing>
-				  </child>
-
-				  <child>
-				    <widget class="GtkToggleButton" id="unhome_z">
-				      <property name="visible">True</property>
-				      <property name="can_focus">True</property>
-				      <property name="label" translatable="yes">Unhome Z</property>
-				      <property name="use_underline">True</property>
-				      <property name="relief">GTK_RELIEF_NORMAL</property>
-				      <property name="focus_on_click">False</property>
-				      <property name="active">True</property>
-				      <property name="inconsistent">False</property>
-				      <signal name="clicked" handler="on_unhome_z_clicked" last_modification_time="Fri, 31 Jul 2009 14:50:49 GMT"/>
-				    </widget>
-				    <packing>
-				      <property name="left_attach">3</property>
-				      <property name="right_attach">4</property>
-				      <property name="top_attach">1</property>
-				      <property name="bottom_attach">2</property>
-				    </packing>
-				  </child>
 
 				  <child>
 				    <widget class="GtkButton" id="unhome_all">
@@ -1252,6 +1132,42 @@
 				      <property name="right_attach">1</property>
 				      <property name="top_attach">0</property>
 				      <property name="bottom_attach">1</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="home_selected">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Home Selected</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <signal name="clicked" handler="on_home_selected_clicked" last_modification_time="Thu, 12 Nov 2009 19:31:31 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">0</property>
+				      <property name="bottom_attach">1</property>
+				    </packing>
+				  </child>
+
+				  <child>
+				    <widget class="GtkButton" id="unhome_selected">
+				      <property name="visible">True</property>
+				      <property name="can_focus">True</property>
+				      <property name="label" translatable="yes">Unhome Selected</property>
+				      <property name="use_underline">True</property>
+				      <property name="relief">GTK_RELIEF_NORMAL</property>
+				      <property name="focus_on_click">False</property>
+				      <signal name="clicked" handler="on_unhome_selected_clicked" last_modification_time="Thu, 12 Nov 2009 19:31:40 GMT"/>
+				    </widget>
+				    <packing>
+				      <property name="left_attach">1</property>
+				      <property name="right_attach">2</property>
+				      <property name="top_attach">1</property>
+				      <property name="bottom_attach">2</property>
 				    </packing>
 				  </child>
 				</widget>
@@ -5887,7 +5803,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelx">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  X  </property>
 				  <property name="use_underline">True</property>
@@ -5908,7 +5823,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheely">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  Y  </property>
 				  <property name="use_underline">True</property>
@@ -5929,7 +5843,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelz">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  Z  </property>
 				  <property name="use_underline">True</property>
@@ -5950,7 +5863,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheela">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  A  </property>
 				  <property name="use_underline">True</property>
@@ -5971,7 +5883,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelb">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  B  </property>
 				  <property name="use_underline">True</property>
@@ -5992,7 +5903,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelc">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  C  </property>
 				  <property name="use_underline">True</property>
@@ -6013,7 +5923,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelu">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  U  </property>
 				  <property name="use_underline">True</property>
@@ -6034,7 +5943,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelv">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  V  </property>
 				  <property name="use_underline">True</property>
@@ -6055,7 +5963,6 @@ F1 S1</property>
 			      <child>
 				<widget class="GtkToggleButton" id="wheelw">
 				  <property name="visible">True</property>
-				  <property name="sensitive">False</property>
 				  <property name="can_focus">True</property>
 				  <property name="label" translatable="yes">  W  </property>
 				  <property name="use_underline">True</property>
