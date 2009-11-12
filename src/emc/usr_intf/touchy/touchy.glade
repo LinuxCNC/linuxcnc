@@ -5789,7 +5789,7 @@ F1 S1</property>
 		      </child>
 
 		      <child>
-			<widget class="GtkHBox" id="hbox12">
+			<widget class="GtkHBox" id="wheel_hbox">
 			  <property name="visible">True</property>
 			  <property name="homogeneous">False</property>
 			  <property name="spacing">0</property>

@@ -95,6 +95,7 @@ class touchy:
                 self.wheelinc = 0
                 self.wheel = "fo"
                 self.radiobutton_mask = 0
+                self.resized_wheelbuttons = 0
 
                 self.tab = 0
 
@@ -531,6 +532,25 @@ class touchy:
 
         def periodic_radiobuttons(self):
                 self.radiobutton_mask = 1
+                if not self.resized_wheelbuttons:
+                        s = emc.stat()
+                        s.poll()
+                        am = s.axis_mask
+                        at = self.wTree.get_widget("axis_table")
+                        for i in range(9):
+                                b = ["wheelx", "wheely", "wheelz",
+                                     "wheela", "wheelb", "wheelc",
+                                     "wheelu", "wheelv", "wheelw"][i]
+                                w = self.wTree.get_widget(b)
+                                if not (am & (1<<i)):
+                                        at.remove(w)
+                        if (am & 0700) == 0:
+                                at.resize(3, 2)
+                                if (am & 070) == 0:
+                                        at.resize(3, 1)
+                                        self.wTree.get_widget("wheel_hbox").set_homogeneous(1)
+                        self.resized_wheelbuttons = 1
+                
                 self.wTree.get_widget("wheelx").set_active(self.wheelxyz == 0)
                 self.wTree.get_widget("wheely").set_active(self.wheelxyz == 1)
                 self.wTree.get_widget("wheelz").set_active(self.wheelxyz == 2)
