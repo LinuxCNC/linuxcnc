@@ -525,10 +525,10 @@ class touchy:
 
         def periodic_radiobuttons(self):
                 self.radiobutton_mask = 1
+                s = emc.stat()
+                s.poll()
+                am = s.axis_mask
                 if not self.resized_wheelbuttons:
-                        s = emc.stat()
-                        s.poll()
-                        am = s.axis_mask
                         at = self.wTree.get_widget("axis_table")
                         for i in range(9):
                                 b = ["wheelx", "wheely", "wheelz",
@@ -544,15 +544,15 @@ class touchy:
                                         self.wTree.get_widget("wheel_hbox").set_homogeneous(1)
                         self.resized_wheelbuttons = 1
                 
-                self.wTree.get_widget("wheelx").set_active(self.wheelxyz == 0)
-                self.wTree.get_widget("wheely").set_active(self.wheelxyz == 1)
-                self.wTree.get_widget("wheelz").set_active(self.wheelxyz == 2)
-                self.wTree.get_widget("wheela").set_active(self.wheelxyz == 3)
-                self.wTree.get_widget("wheelb").set_active(self.wheelxyz == 4)
-                self.wTree.get_widget("wheelc").set_active(self.wheelxyz == 5)
-                self.wTree.get_widget("wheelu").set_active(self.wheelxyz == 6)
-                self.wTree.get_widget("wheelv").set_active(self.wheelxyz == 7)
-                self.wTree.get_widget("wheelw").set_active(self.wheelxyz == 8)
+                if am & 1: self.wTree.get_widget("wheelx").set_active(self.wheelxyz == 0)
+                if am & 2: self.wTree.get_widget("wheely").set_active(self.wheelxyz == 1)
+                if am & 4: self.wTree.get_widget("wheelz").set_active(self.wheelxyz == 2)
+                if am & 8: self.wTree.get_widget("wheela").set_active(self.wheelxyz == 3)
+                if am & 0x10: self.wTree.get_widget("wheelb").set_active(self.wheelxyz == 4)
+                if am & 0x20: self.wTree.get_widget("wheelc").set_active(self.wheelxyz == 5)
+                if am & 0x40: self.wTree.get_widget("wheelu").set_active(self.wheelxyz == 6)
+                if am & 0x80: self.wTree.get_widget("wheelv").set_active(self.wheelxyz == 7)
+                if am & 0x100: self.wTree.get_widget("wheelw").set_active(self.wheelxyz == 8)
                 self.wTree.get_widget("wheelinc1").set_active(self.wheelinc == 0)
                 self.wTree.get_widget("wheelinc2").set_active(self.wheelinc == 1)
                 self.wTree.get_widget("wheelinc3").set_active(self.wheelinc == 2)
