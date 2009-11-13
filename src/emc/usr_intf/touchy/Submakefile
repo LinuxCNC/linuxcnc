@@ -2,6 +2,8 @@ TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing preferences
 
 PYTARGETS += ../bin/touchy $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
 	../lib/python/touchy/touchy.glade
+PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.py,$(TOUCHY_MODULES)) \
+	emc/usr_intf/touchy/touchy.glade
 
 ../lib/python/touchy/%: emc/usr_intf/touchy/%
 	@$(ECHO) Syntax checking python script $(notdir $@)
