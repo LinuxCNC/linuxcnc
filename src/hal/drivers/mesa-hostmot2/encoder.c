@@ -808,19 +808,31 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     e->tsc_num_rollovers ++;
                 }
 
-                dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
-                dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+                // If we reversed direction and moved exactly one edge,
+                // we can't reliably estimate velocity.  The encoder might
+                // be "balancing on an edge", which may lead to a very
+                // small dT between adjacent edges, leading to misleadingly
+                // large velocity estimates.  So we just call it 0.
+                if (
+                    (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == 1) && (*e->hal.pin.velocity < 0))
+                    || (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == -1) && (*e->hal.pin.velocity > 0))
+                ) {
+                    *e->hal.pin.velocity = 0.0;
+                } else {
+                    dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
+                    dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
+
+                    dS_counts = *e->hal.pin.rawcounts - e->prev_event_rawcounts;
+                    dS_pos_units = dS_counts / e->hal.param.scale;
+
+                    // finally time to do Relative-Time Velocity Estimation
+                    *e->hal.pin.velocity = dS_pos_units / dT_s;
+                }
 
                 e->tsc_num_rollovers = 0;  // we're "using up" the rollovers now
 
-                dS_counts = *e->hal.pin.rawcounts - e->prev_event_rawcounts;
-                dS_pos_units = dS_counts / e->hal.param.scale;
-
-                // finally time to do Relative-Time Velocity Estimation
-                *e->hal.pin.velocity = dS_pos_units / dT_s;
-
                 e->prev_event_rawcounts = *e->hal.pin.rawcounts;
-                e->prev_event_reg_timestamp = hm2_encoder_get_reg_timestamp(hm2, instance);
+                e->prev_event_reg_timestamp = time_of_interest;
 
                 e->prev_time_of_interest = time_of_interest;
             }
