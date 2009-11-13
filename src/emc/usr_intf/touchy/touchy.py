@@ -38,6 +38,21 @@ gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("emc2", LOCALEDIR)
 gtk.glade.textdomain("emc2")
 
+def set_active(w, s):
+	if not w: return
+	os = w.get_active()
+	if os != s: w.set_active(s)
+
+def set_label(w, l):
+	if not w: return
+	ol = w.get_label()
+	if ol != l: w.set_label(l)
+
+def set_text(w, t):
+	if not w: return
+	ot = w.get_label()
+	if ot != t: w.set_label(t)
+
 import emc
 import emc_interface
 import mdi
@@ -553,24 +568,24 @@ class touchy:
                                         self.wTree.get_widget("wheel_hbox").set_homogeneous(1)
                         self.resized_wheelbuttons = 1
                 
-                if am & 1: self.wTree.get_widget("wheelx").set_active(self.wheelxyz == 0)
-                if am & 2: self.wTree.get_widget("wheely").set_active(self.wheelxyz == 1)
-                if am & 4: self.wTree.get_widget("wheelz").set_active(self.wheelxyz == 2)
-                if am & 8: self.wTree.get_widget("wheela").set_active(self.wheelxyz == 3)
-                if am & 0x10: self.wTree.get_widget("wheelb").set_active(self.wheelxyz == 4)
-                if am & 0x20: self.wTree.get_widget("wheelc").set_active(self.wheelxyz == 5)
-                if am & 0x40: self.wTree.get_widget("wheelu").set_active(self.wheelxyz == 6)
-                if am & 0x80: self.wTree.get_widget("wheelv").set_active(self.wheelxyz == 7)
-                if am & 0x100: self.wTree.get_widget("wheelw").set_active(self.wheelxyz == 8)
-                self.wTree.get_widget("wheelinc1").set_active(self.wheelinc == 0)
-                self.wTree.get_widget("wheelinc2").set_active(self.wheelinc == 1)
-                self.wTree.get_widget("wheelinc3").set_active(self.wheelinc == 2)
-                self.wTree.get_widget("fo").set_active(self.wheel == "fo")
-                self.wTree.get_widget("so").set_active(self.wheel == "so")
-                self.wTree.get_widget("mv").set_active(self.wheel == "mv")
-                self.wTree.get_widget("jogging").set_active(self.wheel == "jogging")
-                self.wTree.get_widget("pointer_show").set_active(not self.invisible_cursor)
-                self.wTree.get_widget("pointer_hide").set_active(self.invisible_cursor)
+                if am & 1: set_active(self.wTree.get_widget("wheelx"), self.wheelxyz == 0)
+                if am & 2: set_active(self.wTree.get_widget("wheely"), self.wheelxyz == 1)
+                if am & 4: set_active(self.wTree.get_widget("wheelz"), self.wheelxyz == 2)
+                if am & 8: set_active(self.wTree.get_widget("wheela"), self.wheelxyz == 3)
+                if am & 0x10: set_active(self.wTree.get_widget("wheelb"), self.wheelxyz == 4)
+                if am & 0x20: set_active(self.wTree.get_widget("wheelc"), self.wheelxyz == 5)
+                if am & 0x40: set_active(self.wTree.get_widget("wheelu"), self.wheelxyz == 6)
+                if am & 0x80: set_active(self.wTree.get_widget("wheelv"), self.wheelxyz == 7)
+                if am & 0x100: set_active(self.wTree.get_widget("wheelw"), self.wheelxyz == 8)
+                set_active(self.wTree.get_widget("wheelinc1"), self.wheelinc == 0)
+                set_active(self.wTree.get_widget("wheelinc2"), self.wheelinc == 1)
+                set_active(self.wTree.get_widget("wheelinc3"), self.wheelinc == 2)
+                set_active(self.wTree.get_widget("fo"), self.wheel == "fo")
+                set_active(self.wTree.get_widget("so"), self.wheel == "so")
+                set_active(self.wTree.get_widget("mv"), self.wheel == "mv")
+                set_active(self.wTree.get_widget("jogging"), self.wheel == "jogging")
+                set_active(self.wTree.get_widget("pointer_show"), not self.invisible_cursor)
+                set_active(self.wTree.get_widget("pointer_hide"), self.invisible_cursor)
                 self.radiobutton_mask = 0
 
                 if self.wheel == "jogging":
@@ -599,9 +614,9 @@ class touchy:
                                 self.emc.continuous_jog_velocity(self.mv_val)
                         
 
-                self.wTree.get_widget("fo").child.set_label("FO: %d%%" % self.fo_val)
-                self.wTree.get_widget("so").child.set_label("SO: %d%%" % self.so_val)
-                self.wTree.get_widget("mv").child.set_label("MV: %d" % self.mv_val)
+                set_label(self.wTree.get_widget("fo").child, "FO: %d%%" % self.fo_val)
+                set_label(self.wTree.get_widget("so").child, "SO: %d%%" % self.so_val)
+                set_label(self.wTree.get_widget("mv").child, "MV: %d" % self.mv_val)
 
                         
                 return True
