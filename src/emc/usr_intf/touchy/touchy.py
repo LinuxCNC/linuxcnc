@@ -472,8 +472,10 @@ class touchy:
                           "dro_commanded", "dro_actual", "dro_inch", "dro_mm",
                           "reload_tooltable", "opstop_on", "opstop_off",
                           "blockdel_on", "blockdel_off", "pointer_hide", "pointer_show"]:
-                        w = self.wTree.get_widget(i).child
-                        w.modify_font(self.control_font)
+                        w = self.wTree.get_widget(i)
+                        if w:
+                                w = w.child
+                                w.modify_font(self.control_font)
 
                 # labels
                 for i in range(self.num_mdi_labels):
@@ -495,7 +497,7 @@ class touchy:
                           'xa', 'ya', 'za', 'aa', 'ba', 'ca', 'ua', 'va', 'wa',
                           'xd', 'yd', 'zd', 'ad', 'bd', 'cd', 'ud', 'vd', 'wd']:
                         w = self.wTree.get_widget(i)
-                        w.modify_font(self.dro_font)
+                        if w: w.modify_font(self.dro_font)
 
                 # status bar
                 for i in ["error"]:
