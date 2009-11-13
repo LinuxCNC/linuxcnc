@@ -368,7 +368,7 @@ class emc_status:
                                 ol += "%c " % "XYZABCUVW"[i]
                 self.status['onlimit'].set_text(ol)
 
-                sd = ("CCW", "Stopped", "CW")
+                sd = (_("CCW"), _("Stopped"), _("CW"))
                 self.status['spindledir'].set_text(sd[self.emcstat.spindle_direction+1])
 
                 self.status['spindlespeed'].set_text("%d" % self.emcstat.spindle_speed)
