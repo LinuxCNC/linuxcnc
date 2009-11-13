@@ -60,8 +60,7 @@ sys.excepthook = excepthook
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-import gettext;
-#def _(x): return x
+import gettext
 gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("emc2", LOCALEDIR)
 gtk.glade.textdomain("emc2")
