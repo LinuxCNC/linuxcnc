@@ -32,6 +32,12 @@ try:
 except:
 	sys.exit(1)
 
+import gettext
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
+gtk.glade.bindtextdomain("emc2", LOCALEDIR)
+gtk.glade.textdomain("emc2")
+
 import emc
 import emc_interface
 import mdi
