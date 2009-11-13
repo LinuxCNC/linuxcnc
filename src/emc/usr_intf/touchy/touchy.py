@@ -52,6 +52,7 @@ if gtk.gtk_version >= (2, 10, 0):
 	    fg[NORMAL] = @fg_color
 	    fg[ACTIVE] = @fg_color
 	    fg[INSENSITIVE] = darker (@bg_color)
+	    GtkWidget::focus-line-width = 0
 	}
 	class "GtkWidget" style "touchy-default-style"
     ''') #"
