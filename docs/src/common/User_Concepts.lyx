@@ -274,7 +274,7 @@ Feed Rate
 
 \begin_layout Standard
 How the feed rate is applied depends on if an axis involved with the move
- is a rotory axis.
+ is a rotary axis.
  Read and understand the Feed Rate section (
 \begin_inset LatexCommand ref
 reference "sub:Feed-Rate"
