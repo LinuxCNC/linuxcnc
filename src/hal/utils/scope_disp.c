@@ -890,12 +890,21 @@ void draw_waveform(int chan_num, int highlight)
     }
     if(pn) {
         PangoLayout *p;
+        int y = points[0].y;
         char scale[HAL_NAME_LEN];
         char buffer[2 * HAL_NAME_LEN];
+
+        if(y < 0 || y > disp->height)
+            // if the first-sample isn't visible, try the zero value
+            y = (0-yfoffset) * yscale + ypoffset;
+        if(y < 0 || y > disp->height)
+            // if that's not visible either, try the offset value
+            y = ypoffset;
+
         lines(chan_num, points, pn);
         format_scale_value(scale, sizeof(scale), chan->scale);
         snprintf(buffer, sizeof(buffer), "%s\n%s", chan->name, scale);
-        gdk_draw_layout(disp->win, disp->context, 5, points[0].y, 
+        gdk_draw_layout(disp->win, disp->context, 5, y,
                         p=gtk_widget_create_pango_layout(disp->drawing, buffer));
         g_object_unref(p);
     }
