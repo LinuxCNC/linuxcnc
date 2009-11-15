@@ -69,7 +69,7 @@ setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
 setp encoder.2.position-scale [AXIS_2]INPUT_SCALE
 
 # connect encoder index-enables for homing on index
-net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable
+net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable pid.0.index-enable
 net Yindex-enable encoder.1.index-enable <=> axis.1.index-enable
 net Zindex-enable encoder.2.index-enable <=> axis.2.index-enable
 
