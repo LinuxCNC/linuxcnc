@@ -526,6 +526,8 @@ class touchy:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
 
+		self.wTree.get_widget("MainWindow").window.maximize()
+
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool())
 
