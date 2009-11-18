@@ -54,15 +54,6 @@ these connections.  Touchy executes the hal commands in this file
 after it has made its pins available for connection.
 
 
-These things are not done, and should be done:
-
-* Configurable axes for 5 axis machines, etc.
-
-* Lathe support which shows radius/diameter instead of X
-
-* i18n
-
-
 These things are not done, and may or may not ever be done:
 
 * direct viewing and editing of tool table.  
