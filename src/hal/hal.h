@@ -284,7 +284,7 @@ typedef volatile __u32 hal_u32_t;
 typedef volatile __s32 hal_s32_t;
 typedef double real_t __attribute__((aligned(8)));
 typedef __u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
-typedef volatile double hal_float_t __attribute__((aligned(8)));
+#define hal_float_t volatile real_t
 
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
