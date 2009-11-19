@@ -218,8 +218,8 @@ typedef struct {
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
-    int oldname;		/* old name if aliased, else zero */
     hal_data_u dummysig;	/* if unlinked, data_ptr points here */
+    int oldname;		/* old name if aliased, else zero */
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
