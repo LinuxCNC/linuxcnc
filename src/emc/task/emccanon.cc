@@ -41,7 +41,6 @@
 #include "canon.hh"		// these decls
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
-#include "emcpos.h"
 
 static int debug_velacc = 0;
 static double css_maximum, css_numerator;
@@ -133,80 +132,78 @@ static int feed_mode = 0;
 static int synched = 0;
 
 /* Tool length offset is saved here */
-static double currentXToolOffset = 0.0;
-static double currentZToolOffset = 0.0;
-static double currentWToolOffset = 0.0;
+static EmcPose currentToolOffset;
 
 static double offset_x(double x) {
-    return x + programOrigin.x + currentXToolOffset;
+    return x + programOrigin.x + currentToolOffset.tran.x;
 }
 
 static double offset_y(double y) {
-    return y + programOrigin.y;
+    return y + programOrigin.y + currentToolOffset.tran.y;
 }
 
 static double offset_z(double z) {
-    return z + programOrigin.z + currentZToolOffset;
+    return z + programOrigin.z + currentToolOffset.tran.z;
 }
 
 static double offset_a(double a) {
-    return a + programOrigin.a;
+    return a + programOrigin.a + currentToolOffset.a;
 }
 
 static double offset_b(double b) {
-    return b + programOrigin.b;
+    return b + programOrigin.b + currentToolOffset.b;
 }
 
 static double offset_c(double c) {
-    return c + programOrigin.c;
+    return c + programOrigin.c + currentToolOffset.c;
 }
 
 static double offset_u(double u) {
-    return u + programOrigin.u;
+    return u + programOrigin.u + currentToolOffset.u;
 }
 
 static double offset_v(double v) {
-    return v + programOrigin.v;
+    return v + programOrigin.v + currentToolOffset.v;
 }
 
 static double offset_w(double w) {
-    return w + programOrigin.w + currentWToolOffset;
+    return w + programOrigin.w + currentToolOffset.w;
 }
 
 static double unoffset_x(double x) {
-    return x - programOrigin.x - currentXToolOffset;
+    return x - programOrigin.x - currentToolOffset.tran.x;
 }
 
 static double unoffset_y(double y) {
-    return y - programOrigin.y ;
+    return y - programOrigin.y - currentToolOffset.tran.y;
 }
 
 static double unoffset_z(double z) {
-    return z - programOrigin.z  - currentZToolOffset;
+    return z - programOrigin.z - currentToolOffset.tran.z;
 }
 
 static double unoffset_a(double a) {
-    return a - programOrigin.a ;
+    return a - programOrigin.a - currentToolOffset.a;
 }
 
 static double unoffset_b(double b) {
-    return b - programOrigin.b ;
+    return b - programOrigin.b - currentToolOffset.b;
 }
 
 static double unoffset_c(double c) {
-    return c - programOrigin.c ;
+    return c - programOrigin.c - currentToolOffset.c;
 }
 
 static double unoffset_u(double u) {
-    return u - programOrigin.u ;
+    return u - programOrigin.u - currentToolOffset.u;
 }
 
 static double unoffset_v(double v) {
-    return v - programOrigin.v ;
+    return v - programOrigin.v - currentToolOffset.v;
 }
 
 static double unoffset_w(double w) {
-    return w - programOrigin.w  - currentWToolOffset;
+    return w - programOrigin.w - currentToolOffset.w;
 }
 
 #ifndef D2R
@@ -436,7 +433,7 @@ static void send_origin_msg(void) {
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_origin_msg);
@@ -1725,7 +1722,7 @@ void START_SPINDLE_CLOCKWISE()
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1746,7 +1743,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = -spindleSpeed;
 	css_numerator = 0;
@@ -1772,7 +1769,7 @@ void SET_SPINDLE_SPEED(double r)
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_speed_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1849,34 +1846,40 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diamete
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset)
+void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 {
     EMC_TRAJ_SET_OFFSET set_offset_msg;
 
     flush_segments();
 
     /* convert to mm units for internal canonical use */
-    currentXToolOffset = FROM_PROG_LEN(xoffset);
-    currentZToolOffset = FROM_PROG_LEN(zoffset);
-    currentWToolOffset = FROM_PROG_LEN(woffset);
+    currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.x);
+    currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.y);
+    currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.z);
+    currentToolOffset.a = FROM_PROG_ANG(offset.a);
+    currentToolOffset.b = FROM_PROG_ANG(offset.b);
+    currentToolOffset.c = FROM_PROG_ANG(offset.c);
+    currentToolOffset.u = FROM_PROG_LEN(offset.u);
+    currentToolOffset.v = FROM_PROG_LEN(offset.v);
+    currentToolOffset.w = FROM_PROG_LEN(offset.w);
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    set_offset_msg.offset.tran.x = TO_EXT_LEN(currentXToolOffset);
-    set_offset_msg.offset.tran.y = 0.0;
-    set_offset_msg.offset.tran.z = TO_EXT_LEN(currentZToolOffset);
-    set_offset_msg.offset.a = 0.0;
-    set_offset_msg.offset.b = 0.0;
-    set_offset_msg.offset.c = 0.0;
-    set_offset_msg.offset.u = 0.0;
-    set_offset_msg.offset.v = 0.0;
-    set_offset_msg.offset.w = TO_EXT_LEN(currentWToolOffset);
+    set_offset_msg.offset.tran.x = TO_EXT_LEN(currentToolOffset.tran.x);
+    set_offset_msg.offset.tran.y = TO_EXT_LEN(currentToolOffset.tran.y);
+    set_offset_msg.offset.tran.z = TO_EXT_LEN(currentToolOffset.tran.z);
+    set_offset_msg.offset.a = TO_EXT_ANG(currentToolOffset.a);
+    set_offset_msg.offset.b = TO_EXT_ANG(currentToolOffset.b);
+    set_offset_msg.offset.c = TO_EXT_ANG(currentToolOffset.c);
+    set_offset_msg.offset.u = TO_EXT_LEN(currentToolOffset.u);
+    set_offset_msg.offset.v = TO_EXT_LEN(currentToolOffset.v);
+    set_offset_msg.offset.w = TO_EXT_LEN(currentToolOffset.w);
 
     if(css_maximum) {
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentXToolOffset);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(programOrigin.x + currentToolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_offset_msg);
@@ -2285,11 +2288,11 @@ void PROGRAM_END()
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
-    return TO_PROG_LEN(currentXToolOffset);
+    return TO_PROG_LEN(currentToolOffset.tran.x);
 }
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
-    return TO_PROG_LEN(currentZToolOffset);
+    return TO_PROG_LEN(currentToolOffset.tran.z);
 }
 
 /*
@@ -2322,9 +2325,7 @@ void INIT_CANON()
     angular_move = 0;
     currentLinearFeedRate = 0.0;
     currentAngularFeedRate = 0.0;
-    currentXToolOffset = 0.0;
-    currentZToolOffset = 0.0;
-    currentWToolOffset = 0.0;
+    ZERO_EMC_POSE(currentToolOffset);
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
        traj->linearUnits, which is already set from the .ini file in

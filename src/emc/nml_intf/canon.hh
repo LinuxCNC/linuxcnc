@@ -16,6 +16,8 @@
 #include <stdio.h>		// FILE
 #include <vector>
 
+#include "emcpos.h"
+
 /*
   This is the header file that all applications that use the
   canonical commands for three- to nine-axis machining should include.
@@ -520,7 +522,7 @@ extern void USE_NO_SPINDLE_FORCE();
 extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter);
 extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                                  double frontangle, double backangle, int orientation);
-extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
+extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 

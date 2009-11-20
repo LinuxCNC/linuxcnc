@@ -4474,11 +4474,11 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
 {
   int index;
   EmcPose tool_offset;
+  ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side != OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    ZERO_EMC_POSE(tool_offset);
     index = 0;
   } else if (g_code == G_43) {
     if(block->h_flag == ON) {
@@ -4518,7 +4518,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   } else {
     ERS("BUG: Code not G43, G43.1, or G49");
   }
-  USE_TOOL_LENGTH_OFFSET(tool_offset.tran.x, tool_offset.tran.z, tool_offset.w);
+  USE_TOOL_LENGTH_OFFSET(tool_offset);
 
   settings->current_x += settings->tool_offset.tran.x - tool_offset.tran.x;
   settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;

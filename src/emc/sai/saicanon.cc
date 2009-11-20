@@ -86,7 +86,7 @@ static double naivecam_tolerance = 0.;
 /* Dummy status variables */
 static double            _traverse_rate;
 
-static double _tool_xoffset, _tool_zoffset, _tool_woffset;
+static EmcPose _tool_offset;
 
 
 /************************************************************************/
@@ -179,6 +179,13 @@ void print_nc_line_number()
            print_nc_line_number();                                       \
            {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control,                                    \
                            arg1, arg2, arg3, arg4, arg5, arg6, arg7);    \
+          } else
+#define PRINT9(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
+          if (1)                                                            \
+          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                       \
+           print_nc_line_number();                                          \
+           fprintf(_outfile, control,                                       \
+                   arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);           \
           } else
 #define PRINT10(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10) \
           if (1)                                                            \
@@ -611,12 +618,11 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) 
+void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 {
-    _tool_xoffset = xoffset;
-    _tool_zoffset = zoffset;
-    _tool_woffset = woffset;
-    PRINT3("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f)\n", xoffset, zoffset, woffset);
+    _tool_offset = offset;
+    PRINT9("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f)\n",
+         offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
 void CHANGE_TOOL(int slot)
@@ -1062,12 +1068,12 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
 
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
-    return _tool_zoffset;
+    return _tool_offset.tran.z;
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
-    return _tool_xoffset;
+    return _tool_offset.tran.x;
 }
 
 void FINISH(void) {
