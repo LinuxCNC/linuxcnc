@@ -2207,15 +2207,15 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
         ERS("Cannot set reference point with cutter compensation in effect");
     }
 
-    double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_xoffset + s->origin_offset_x + s->axis_offset_x);
-    double y = PROGRAM_TO_USER_LEN(s->current_y +                   s->origin_offset_y + s->axis_offset_y);
-    double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_zoffset + s->origin_offset_z + s->axis_offset_z);
-    double a = PROGRAM_TO_USER_ANG(s->AA_current + s->AA_origin_offset + s->AA_axis_offset);
-    double b = PROGRAM_TO_USER_ANG(s->BB_current + s->BB_origin_offset + s->BB_axis_offset);
-    double c = PROGRAM_TO_USER_ANG(s->CC_current + s->CC_origin_offset + s->CC_axis_offset);
-    double u = PROGRAM_TO_USER_LEN(s->u_current + s->u_origin_offset + s->u_axis_offset);
-    double v = PROGRAM_TO_USER_LEN(s->v_current + s->v_origin_offset + s->v_axis_offset);
-    double w = PROGRAM_TO_USER_LEN(s->w_current + s->w_origin_offset + s->w_axis_offset);
+    double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_offset.tran.x + s->origin_offset_x + s->axis_offset_x);
+    double y = PROGRAM_TO_USER_LEN(s->current_y + s->tool_offset.tran.y + s->origin_offset_y + s->axis_offset_y);
+    double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
+    double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
+    double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
+    double c = PROGRAM_TO_USER_ANG(s->CC_current + s->tool_offset.c + s->CC_origin_offset + s->CC_axis_offset);
+    double u = PROGRAM_TO_USER_LEN(s->u_current + s->tool_offset.u + s->u_origin_offset + s->u_axis_offset);
+    double v = PROGRAM_TO_USER_LEN(s->v_current + s->tool_offset.v + s->v_origin_offset + s->v_axis_offset);
+    double w = PROGRAM_TO_USER_LEN(s->w_current + s->tool_offset.w + s->w_origin_offset + s->w_axis_offset);
 
     if(s->a_axis_wrapped) {
         a = fmod(a, 360.0);
@@ -2471,8 +2471,8 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->v_origin_offset = (settings->v_origin_offset * INCH_PER_MM);
       settings->w_origin_offset = (settings->w_origin_offset * INCH_PER_MM);
 
-      settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else if (g_code == G_21) {
@@ -2504,8 +2504,8 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->v_origin_offset = (settings->v_origin_offset * MM_PER_INCH);
       settings->w_origin_offset = (settings->w_origin_offset * MM_PER_INCH);
 
-      settings->tool_zoffset = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
-      settings->tool_xoffset = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else
@@ -3091,17 +3091,17 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     if(block->z_flag) {
         double z = block->z_number;
-        if (block->l_number == 10) z = settings->current_z + settings->tool_zoffset - z;
+        if (block->l_number == 10) z = settings->current_z + settings->tool_offset.tran.z - z;
         settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(z);
     } else if(block->w_flag) {
         double w = block->w_number;
-        if (block->l_number == 10) w = settings->w_current + settings->tool_woffset - w;
+        if (block->l_number == 10) w = settings->w_current + settings->tool_offset.w - w;
         settings->tool_table[pocket].zoffset = PROGRAM_TO_USER_LEN(w);
     }
 
     if(block->x_flag) {
         double x = block->x_number;
-        if (block->l_number == 10) x = settings->current_x + settings->tool_xoffset - x;
+        if (block->l_number == 10) x = settings->current_x + settings->tool_offset.tran.x - x;
         settings->tool_table[pocket].xoffset = PROGRAM_TO_USER_LEN(x);
     }
 
@@ -4473,14 +4473,12 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
   int index;
-  double xoffset, zoffset, woffset;
+  EmcPose tool_offset;
 
   CHKS((settings->cutter_comp_side != OFF),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    xoffset = 0.;
-    zoffset = 0.;
-    woffset = 0.;
+    ZERO_EMC_POSE(tool_offset);
     index = 0;
   } else if (g_code == G_43) {
     if(block->h_flag == ON) {
@@ -4493,43 +4491,41 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         index = 0;
     }
 
-    xoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
+    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
     if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
-        woffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
-        zoffset = 0.;
+        tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
+        tool_offset.tran.z = 0.0;
     } else {
-        zoffset = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
-        woffset = 0.;
+        tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
+        tool_offset.w = 0.0;
     }
   } else if (g_code == G_43_1) {
     CHKS((block->i_flag == ON) ||
         (block->k_flag == ON),
         _("I K words not allowed with G43.1"));
-    xoffset = settings->tool_xoffset;
-    zoffset = settings->tool_zoffset;
-    woffset = settings->tool_woffset;
+    tool_offset = settings->tool_offset;
     index = -1;
-    if(block->x_flag == ON) xoffset = block->x_number;
+    if(block->x_flag == ON) tool_offset.tran.x = block->x_number;
     if(block->z_flag == ON) {
         if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
-            woffset = block->z_number;
-            zoffset = 0.;
+            tool_offset.w = block->z_number;
+            tool_offset.tran.z = 0.0;
         } else {
-            zoffset = block->z_number;
-            woffset = 0.;
+            tool_offset.tran.z = block->z_number;
+            tool_offset.w = 0.0;
         }
     }
   } else {
     ERS("BUG: Code not G43, G43.1, or G49");
   }
-  USE_TOOL_LENGTH_OFFSET(xoffset, zoffset, woffset);
+  USE_TOOL_LENGTH_OFFSET(tool_offset.tran.x, tool_offset.tran.z, tool_offset.w);
 
-  settings->current_x += settings->tool_xoffset - xoffset;
-  settings->current_z += settings->tool_zoffset - zoffset;
-  settings->w_current += settings->tool_woffset - woffset;
-  settings->tool_xoffset = xoffset;
-  settings->tool_zoffset = zoffset;
-  settings->tool_woffset = woffset;
+  settings->current_x += settings->tool_offset.tran.x - tool_offset.tran.x;
+  settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
+  settings->w_current += settings->tool_offset.w - tool_offset.w;
+  settings->tool_offset.tran.x = tool_offset.tran.x;
+  settings->tool_offset.tran.z = tool_offset.tran.z;
+  settings->tool_offset.w = tool_offset.w;
   settings->tool_offset_index = index;
   return INTERP_OK;
 }

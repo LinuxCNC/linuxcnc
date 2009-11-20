@@ -110,7 +110,9 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->origin_index <
      7) ? (530 + (10 * settings->origin_index)) : (584 +
                                                    settings->origin_index);
-  gez[9] = (settings->tool_xoffset || settings->tool_zoffset) ? G_43 : G_49;
+  gez[9] = (settings->tool_offset.tran.x || settings->tool_offset.tran.y || settings->tool_offset.tran.z ||
+            settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
+            settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
   gez[10] = (settings->retract_mode == OLD_Z) ? G_98 : G_99;
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
