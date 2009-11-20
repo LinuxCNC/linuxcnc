@@ -431,7 +431,6 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     if(interp_error) return;
     if(metric) {
         offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
-        offset.a /= 25.4; offset.b /= 25.4; offset.c /= 25.4;
         offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
     PyObject *result = PyObject_CallMethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z, 
         offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
