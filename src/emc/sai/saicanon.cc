@@ -1013,10 +1013,6 @@ extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
   return _tools[pocket];
 }
 
-extern int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
-    return 0;
-}
-
 /* Returns the system traverse rate */
 double GET_EXTERNAL_TRAVERSE_RATE()
 {

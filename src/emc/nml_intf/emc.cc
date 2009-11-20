@@ -1855,7 +1855,6 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(command, 256);
     EmcPose_update(cms, &origin);
     EmcPose_update(cms, &toolOffset);
-    cms->update(tloIsAlongW);
     cms->update(activeGCodes, 12);
     cms->update(activeMCodes, 7);
     cms->update(activeSettings, 3);

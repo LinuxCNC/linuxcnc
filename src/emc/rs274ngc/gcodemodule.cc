@@ -564,20 +564,6 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
     return t;
 }
 
-int GET_EXTERNAL_TLO_IS_ALONG_W(void) { 
-    int is_along_w = 0;
-    if(interp_error) return 0;
-    PyObject *result =
-        PyObject_CallMethod(callback, "get_tlo_is_along_w", "");
-    if(result == NULL) {
-        interp_error++;
-    } else {
-        is_along_w = PyObject_IsTrue(result);
-    }
-    Py_XDECREF(result);
-    return is_along_w;
-}
-
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, double timeout) { return 0;}

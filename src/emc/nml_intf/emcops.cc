@@ -128,7 +128,6 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     ZERO_EMC_POSE(toolOffset);
 
     rotation_xy = 0.0;
-    tloIsAlongW = OFF;
 
     for (t = 0; t < ACTIVE_G_CODES; t++)
 	activeGCodes[t] = -1;

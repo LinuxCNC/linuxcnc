@@ -307,7 +307,6 @@ static PyMemberDef Stat_members[] = {
     {"optional_stop", T_BOOL, O(task.optional_stop_state), READONLY},
     {"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
     {"task_paused", T_INT, O(task.task_paused), READONLY},
-    {"tlo_is_along_w", T_BOOL, O(task.tloIsAlongW), READONLY},
     {"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
     {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
     {"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},

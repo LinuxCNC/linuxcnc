@@ -2428,10 +2428,6 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
     return retval;
 }
 
-int GET_EXTERNAL_TLO_IS_ALONG_W(void) {
-    return emcStatus->task.tloIsAlongW;
-}
-
 CANON_POSITION GET_EXTERNAL_POSITION()
 {
     CANON_POSITION position;

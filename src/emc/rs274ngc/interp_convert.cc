@@ -3088,9 +3088,6 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     CHKS((block->y_flag || block->a_flag || block->b_flag || block->c_flag ||
           block->u_flag || block->v_flag), "Invalid axis specified for G10 L1");
 
-    CHKS((GET_EXTERNAL_TLO_IS_ALONG_W() && block->z_flag), "Found Z but expected W in G10 L1");
-    CHKS((!GET_EXTERNAL_TLO_IS_ALONG_W() && block->w_flag), "Found W but expected Z in G10 L1");
-
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
         CHKS((block->x_flag && q == 0), "Cannot have an X tool offset with orientation 0");

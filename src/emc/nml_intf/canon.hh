@@ -885,9 +885,6 @@ extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
 
-// the Z component of the tool offset should actually be put along W instead
-extern int GET_EXTERNAL_TLO_IS_ALONG_W(void);
-
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();
 
