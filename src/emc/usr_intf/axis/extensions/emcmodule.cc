@@ -572,8 +572,8 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         if(t.toolno == -1 && i!=0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
         PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.zoffset));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.xoffset));
+        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.z));
+        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.offset.tran.x));
         PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.diameter));
         PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.backangle));
@@ -856,7 +856,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.zoffset, &m.xoffset, &m.diameter, 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter, 
                          &m.frontangle, &m.backangle, &m.orientation)) 
         return NULL;
     m.serial_number = next_serial(s);

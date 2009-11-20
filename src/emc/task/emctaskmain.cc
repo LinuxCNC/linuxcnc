@@ -1844,8 +1844,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emc_tool_set_offset_msg = (EMC_TOOL_SET_OFFSET *) cmd;
 	retval = emcToolSetOffset(emc_tool_set_offset_msg->pocket,
                                   emc_tool_set_offset_msg->toolno,
-                                  emc_tool_set_offset_msg->zoffset,
-                                  emc_tool_set_offset_msg->xoffset,
+                                  emc_tool_set_offset_msg->offset,
                                   emc_tool_set_offset_msg->diameter,
                                   emc_tool_set_offset_msg->frontangle,
                                   emc_tool_set_offset_msg->backangle,

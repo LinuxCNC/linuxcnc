@@ -611,11 +611,8 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-}
-
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset)

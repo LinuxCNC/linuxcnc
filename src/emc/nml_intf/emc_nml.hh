@@ -1500,8 +1500,7 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
 
     int pocket;
     int toolno;
-    double zoffset;
-    double xoffset;
+    EmcPose offset;
     double diameter;
     double frontangle;
     double backangle;

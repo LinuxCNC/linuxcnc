@@ -629,8 +629,7 @@ int Interp::load_tool_table()
   }
   for (; n < CANON_POCKETS_MAX; n++) {
     _setup.tool_table[n].toolno = -1;
-    _setup.tool_table[n].xoffset = 0;
-    _setup.tool_table[n].zoffset = 0;
+    ZERO_EMC_POSE(_setup.tool_table[n].offset);
     _setup.tool_table[n].diameter = 0;
     _setup.tool_table[n].orientation = 0;
     _setup.tool_table[n].frontangle = 0;

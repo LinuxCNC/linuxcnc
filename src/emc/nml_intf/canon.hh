@@ -159,8 +159,7 @@ struct CANON_POSITION {
 
 struct CANON_TOOL_TABLE {
     int toolno;
-    double zoffset;
-    double xoffset;
+    EmcPose offset;
     double diameter;
     double frontangle;
     double backangle;
@@ -519,8 +518,7 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter);
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 

@@ -289,10 +289,9 @@ static int loadToolTable(const char *filename,
     }
     // clear out tool table
     for (t = random_toolchanger? 0: 1; t < CANON_POCKETS_MAX; t++) {
-	toolTable[t].toolno = -1;
-	toolTable[t].zoffset = 0.0;
-	toolTable[t].diameter = 0.0;
-        toolTable[t].xoffset = 0.0;
+        toolTable[t].toolno = -1;
+        ZERO_EMC_POSE(toolTable[t].offset);
+        toolTable[t].diameter = 0.0;
         toolTable[t].frontangle = 0.0;
         toolTable[t].backangle = 0.0;
         toolTable[t].orientation = 0;
@@ -355,8 +354,8 @@ static int loadToolTable(const char *filename,
             } else {
                 /* lathe tool */
                 toolTable[pocket].toolno = toolno;
-                toolTable[pocket].zoffset = zoffset;
-                toolTable[pocket].xoffset = xoffset;
+                toolTable[pocket].offset.tran.z = zoffset;
+                toolTable[pocket].offset.tran.x = xoffset;
                 toolTable[pocket].diameter = diameter;
 
                 toolTable[pocket].frontangle = frontangle;
@@ -381,13 +380,13 @@ static int loadToolTable(const char *filename,
                 continue;
             } else {
                 /* mill tool */
+                ZERO_EMC_POSE(toolTable[pocket].offset);
                 toolTable[pocket].toolno = toolno;
-                toolTable[pocket].zoffset = zoffset;
+                toolTable[pocket].offset.tran.z = zoffset;
                 toolTable[pocket].diameter = diameter;
 
                 // these aren't used on a mill
                 toolTable[pocket].frontangle = toolTable[pocket].backangle = 0.0;
-                toolTable[pocket].xoffset = 0.0;
                 toolTable[pocket].orientation = 0;
                 if(scanned == 5) strcpy(ttcomments[pocket], comment);
             }
@@ -462,7 +461,7 @@ static int saveToolTable(const char *filename,
                 fprintf(fp, "%6d %6d %+12f %+12f %10f %+11f %+11f %7d  %s\n",
                         toolTable[pocket].toolno,
                         random_toolchanger? pocket: fms[pocket],
-                        toolTable[pocket].zoffset, toolTable[pocket].xoffset, toolTable[pocket].diameter,
+                        toolTable[pocket].offset.tran.z, toolTable[pocket].offset.tran.x, toolTable[pocket].diameter,
                         toolTable[pocket].frontangle, toolTable[pocket].backangle, 
                         toolTable[pocket].orientation, ttcomments[pocket]);
         }
@@ -474,7 +473,7 @@ static int saveToolTable(const char *filename,
                 fprintf(fp, "%6d %6d %+12f %11f  %s\n",
                         toolTable[pocket].toolno,
                         random_toolchanger? pocket: fms[pocket],
-                        toolTable[pocket].zoffset, toolTable[pocket].diameter,
+                        toolTable[pocket].offset.tran.z, toolTable[pocket].diameter,
                         ttcomments[pocket]);
         }
     }
@@ -777,9 +776,7 @@ void load_tool(int pocket) {
     } else if(pocket == 0) {
         // magic T0 = pocket 0 = no tool
 	emcioStatus.tool.toolTable[0].toolno = -1;
-	emcioStatus.tool.toolTable[0].zoffset = 0.0;
-	emcioStatus.tool.toolTable[0].diameter = 0.0;
-        emcioStatus.tool.toolTable[0].xoffset = 0.0;
+        ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
         emcioStatus.tool.toolTable[0].backangle = 0.0;
         emcioStatus.tool.toolTable[0].orientation = 0;
@@ -903,9 +900,8 @@ int main(int argc, char *argv[])
     // on nonrandom machines, always start by assuming the spindle is empty
     if(!random_toolchanger) {
 	emcioStatus.tool.toolTable[0].toolno = -1;
-	emcioStatus.tool.toolTable[0].zoffset = 0.0;
+        ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
 	emcioStatus.tool.toolTable[0].diameter = 0.0;
-        emcioStatus.tool.toolTable[0].xoffset = 0.0;
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
         emcioStatus.tool.toolTable[0].backangle = 0.0;
         emcioStatus.tool.toolTable[0].orientation = 0;
@@ -1052,12 +1048,12 @@ int main(int argc, char *argv[])
 	case EMC_TOOL_SET_OFFSET_TYPE: 
             {
                 int p, t, o;
-                double z, x, d, f, b;
+                double d, f, b;
+                EmcPose offs;
 
                 p = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->pocket;
                 t = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->toolno;
-                z = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->zoffset;
-                x = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->xoffset;
+                offs = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->offset;
                 d = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->diameter;
                 f = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->frontangle;
                 b = ((EMC_TOOL_SET_OFFSET *) emcioCommand)->backangle;
@@ -1066,11 +1062,10 @@ int main(int argc, char *argv[])
                 rtapi_print_msg(RTAPI_MSG_DBG,
                                 "EMC_TOOL_SET_OFFSET pocket=%d toolno=%d zoffset=%lf, xoffset=%lf, diameter=%lf,"
                                 " frontangle=%lf, backangle=%lf, orientation=%d\n",
-                                p, t, z, x, d, f, b, o);
+                                p, t, offs.tran.z, offs.tran.x, d, f, b, o);
 
                 emcioStatus.tool.toolTable[p].toolno = t;
-                emcioStatus.tool.toolTable[p].zoffset = z;
-                emcioStatus.tool.toolTable[p].xoffset = x;
+                emcioStatus.tool.toolTable[p].offset = offs;
                 emcioStatus.tool.toolTable[p].diameter = d;
                 emcioStatus.tool.toolTable[p].frontangle = f;
                 emcioStatus.tool.toolTable[p].backangle = b;

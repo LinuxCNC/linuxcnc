@@ -418,11 +418,8 @@ void COMMENT(char *comment) {
     Py_XDECREF(result);
 }
 
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-}
-
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
@@ -550,12 +547,12 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
 }
 int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
-    CANON_TOOL_TABLE t = {-1,0,0,0,0,0,0};
+    CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
         PyObject_CallMethod(callback, "get_tool", "i", tool);
     if(result == NULL ||
-       !PyArg_ParseTuple(result, "idddddi", &t.toolno, &t.zoffset, &t.xoffset, 
+       !PyArg_ParseTuple(result, "idddddi", &t.toolno, &t.offset.tran.z, &t.offset.tran.x,
                           &t.diameter, &t.frontangle, &t.backangle, 
                           &t.orientation))
             interp_error ++;

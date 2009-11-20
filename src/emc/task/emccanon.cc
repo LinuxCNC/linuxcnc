@@ -1815,30 +1815,17 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
     o.pocket = pocket;
     o.toolno = toolno;
-    o.zoffset = zoffset;
-    o.xoffset = xoffset;
+    o.offset = offset;
     o.diameter = diameter;
     o.frontangle = frontangle;
     o.backangle = backangle;
     o.orientation = orientation;
-    interp_list.append(o);
-}
-
-/* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
-    EMC_TOOL_SET_OFFSET o;
-    flush_segments();
-    o.pocket = pocket;
-    o.toolno = toolno;
-    o.zoffset = zoffset;
-    o.diameter = diameter;
-    o.orientation = 0;
     interp_list.append(o);
 }
 
@@ -2415,8 +2402,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 
     if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
 	retval.toolno = -1;
-        retval.xoffset = 0.0;
-	retval.zoffset = 0.0;
+        ZERO_EMC_POSE(retval.offset);
         retval.frontangle = 0.0;
         retval.backangle = 0.0;
 	retval.diameter = 0.0;
