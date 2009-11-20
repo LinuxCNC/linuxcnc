@@ -152,7 +152,7 @@ int last_sequence_number;
 int plane;
 bool metric;
 double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
-double tool_xoffset, tool_zoffset, tool_woffset;
+EmcPose tool_offset;
 
 Interp interp_new;
 
@@ -425,13 +425,16 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
-void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) {
-    tool_zoffset = zoffset; tool_xoffset = xoffset; tool_woffset = woffset;
+void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
+    tool_offset = offset;
     maybe_new_line();
     if(interp_error) return;
-    if(metric) { xoffset /= 25.4; zoffset /= 25.4; woffset /= 25.4; }
-    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "ddd",
-                                           zoffset, xoffset, woffset);
+    if(metric) {
+        offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
+        offset.a /= 25.4; offset.b /= 25.4; offset.c /= 25.4;
+        offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
+    PyObject *result = PyObject_CallMethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z, 
+        offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -622,10 +625,31 @@ int GET_EXTERNAL_AXIS_MASK() {
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {
-    return tool_xoffset;
+    return tool_offset.tran.x;
+}
+double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() {
+    return tool_offset.tran.y;
 }
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {
-    return tool_zoffset;
+    return tool_offset.tran.z;
+}
+double GET_EXTERNAL_TOOL_LENGTH_AOFFSET() {
+    return tool_offset.a;
+}
+double GET_EXTERNAL_TOOL_LENGTH_BOFFSET() {
+    return tool_offset.b;
+}
+double GET_EXTERNAL_TOOL_LENGTH_COFFSET() {
+    return tool_offset.c;
+}
+double GET_EXTERNAL_TOOL_LENGTH_UOFFSET() {
+    return tool_offset.u;
+}
+double GET_EXTERNAL_TOOL_LENGTH_VOFFSET() {
+    return tool_offset.v;
+}
+double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
+    return tool_offset.w;
 }
 
 bool PyFloat_CheckAndError(const char *func, PyObject *p)  {

@@ -859,7 +859,14 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
 
 // returns current tool length offset
 extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_COFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
 // Returns number of slots in carousel
 extern int GET_EXTERNAL_POCKETS_MAX();

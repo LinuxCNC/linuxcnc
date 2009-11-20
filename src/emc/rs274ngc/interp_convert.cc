@@ -2472,7 +2472,14 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->w_origin_offset = (settings->w_origin_offset * INCH_PER_MM);
 
       settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
       settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
+      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
+      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
+      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
+      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
+      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else if (g_code == G_21) {
@@ -2505,7 +2512,14 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->w_origin_offset = (settings->w_origin_offset * MM_PER_INCH);
 
       settings->tool_offset.tran.x = GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+      settings->tool_offset.tran.y = GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
       settings->tool_offset.tran.z = GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+      settings->tool_offset.a = GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
+      settings->tool_offset.b = GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
+      settings->tool_offset.c = GET_EXTERNAL_TOOL_LENGTH_COFFSET();
+      settings->tool_offset.u = GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
+      settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
+      settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
     }
   } else
@@ -4492,13 +4506,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     }
 
     tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[index].xoffset);
-    if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
-        tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
-        tool_offset.tran.z = 0.0;
-    } else {
-        tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
-        tool_offset.w = 0.0;
-    }
+    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[index].zoffset);
   } else if (g_code == G_43_1) {
     CHKS((block->i_flag == ON) ||
         (block->k_flag == ON),
@@ -4506,25 +4514,37 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset = settings->tool_offset;
     index = -1;
     if(block->x_flag == ON) tool_offset.tran.x = block->x_number;
-    if(block->z_flag == ON) {
-        if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
-            tool_offset.w = block->z_number;
-            tool_offset.tran.z = 0.0;
-        } else {
-            tool_offset.tran.z = block->z_number;
-            tool_offset.w = 0.0;
-        }
-    }
+    if(block->y_flag == ON) tool_offset.tran.y = block->y_number;
+    if(block->z_flag == ON) tool_offset.tran.z = block->z_number;
+    if(block->a_flag == ON) tool_offset.a = block->a_number;
+    if(block->b_flag == ON) tool_offset.b = block->b_number;
+    if(block->c_flag == ON) tool_offset.c = block->c_number;
+    if(block->u_flag == ON) tool_offset.u = block->u_number;
+    if(block->v_flag == ON) tool_offset.v = block->v_number;
+    if(block->w_flag == ON) tool_offset.w = block->w_number;
   } else {
     ERS("BUG: Code not G43, G43.1, or G49");
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
   settings->current_x += settings->tool_offset.tran.x - tool_offset.tran.x;
+  settings->current_y += settings->tool_offset.tran.y - tool_offset.tran.y;
   settings->current_z += settings->tool_offset.tran.z - tool_offset.tran.z;
+  settings->AA_current += settings->tool_offset.a - tool_offset.a;
+  settings->BB_current += settings->tool_offset.b - tool_offset.b;
+  settings->CC_current += settings->tool_offset.c - tool_offset.c;
+  settings->u_current += settings->tool_offset.u - tool_offset.u;
+  settings->v_current += settings->tool_offset.v - tool_offset.v;
   settings->w_current += settings->tool_offset.w - tool_offset.w;
+
   settings->tool_offset.tran.x = tool_offset.tran.x;
+  settings->tool_offset.tran.y = tool_offset.tran.y;
   settings->tool_offset.tran.z = tool_offset.tran.z;
+  settings->tool_offset.a = tool_offset.a;
+  settings->tool_offset.b = tool_offset.b;
+  settings->tool_offset.c = tool_offset.c;
+  settings->tool_offset.u = tool_offset.u;
+  settings->tool_offset.v = tool_offset.v;
   settings->tool_offset.w = tool_offset.w;
   settings->tool_offset_index = index;
   return INTERP_OK;

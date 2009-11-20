@@ -1854,8 +1854,8 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 
     /* convert to mm units for internal canonical use */
     currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.x);
-    currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.y);
-    currentToolOffset.tran.x = FROM_PROG_LEN(offset.tran.z);
+    currentToolOffset.tran.y = FROM_PROG_LEN(offset.tran.y);
+    currentToolOffset.tran.z = FROM_PROG_LEN(offset.tran.z);
     currentToolOffset.a = FROM_PROG_ANG(offset.a);
     currentToolOffset.b = FROM_PROG_ANG(offset.b);
     currentToolOffset.c = FROM_PROG_ANG(offset.c);
@@ -2290,9 +2290,45 @@ double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
 {
     return TO_PROG_LEN(currentToolOffset.tran.x);
 }
+
+double GET_EXTERNAL_TOOL_LENGTH_YOFFSET()
+{
+    return TO_PROG_LEN(currentToolOffset.tran.y);
+}
+
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
     return TO_PROG_LEN(currentToolOffset.tran.z);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
+{
+    return TO_PROG_ANG(currentToolOffset.a);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
+{
+    return TO_PROG_ANG(currentToolOffset.b);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
+{
+    return TO_PROG_ANG(currentToolOffset.c);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
+{
+    return TO_PROG_LEN(currentToolOffset.u);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
+{
+    return TO_PROG_LEN(currentToolOffset.v);
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
+{
+    return TO_PROG_LEN(currentToolOffset.w);
 }
 
 /*

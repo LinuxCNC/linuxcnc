@@ -1066,14 +1066,49 @@ void SET_AUX_OUTPUT_VALUE(int index, double value)
   return;
 }
 
+double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
+{
+    return _tool_offset.tran.x;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_YOFFSET()
+{
+    return _tool_offset.tran.y;
+}
+
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET()
 {
     return _tool_offset.tran.z;
 }
 
-double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
+double GET_EXTERNAL_TOOL_LENGTH_AOFFSET()
 {
-    return _tool_offset.tran.x;
+    return _tool_offset.a;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_BOFFSET()
+{
+    return _tool_offset.b;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_COFFSET()
+{
+    return _tool_offset.c;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_UOFFSET()
+{
+    return _tool_offset.u;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_VOFFSET()
+{
+    return _tool_offset.v;
+}
+
+double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
+{
+    return _tool_offset.w;
 }
 
 void FINISH(void) {
