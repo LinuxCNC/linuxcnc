@@ -4534,15 +4534,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
   settings->v_current += settings->tool_offset.v - tool_offset.v;
   settings->w_current += settings->tool_offset.w - tool_offset.w;
 
-  settings->tool_offset.tran.x = tool_offset.tran.x;
-  settings->tool_offset.tran.y = tool_offset.tran.y;
-  settings->tool_offset.tran.z = tool_offset.tran.z;
-  settings->tool_offset.a = tool_offset.a;
-  settings->tool_offset.b = tool_offset.b;
-  settings->tool_offset.c = tool_offset.c;
-  settings->tool_offset.u = tool_offset.u;
-  settings->tool_offset.v = tool_offset.v;
-  settings->tool_offset.w = tool_offset.w;
+  settings->tool_offset = tool_offset;
   settings->tool_offset_index = index;
   return INTERP_OK;
 }
