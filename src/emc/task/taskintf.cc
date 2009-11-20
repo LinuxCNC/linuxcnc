@@ -943,12 +943,10 @@ double emcTrajGetAngularUnits()
     return localEmcTrajAngularUnits;
 }
 
-int emcTrajSetOffset(double z, double x, double w) 
+int emcTrajSetOffset(EmcPose tool_offset)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
-    emcmotCommand.tooloffset_z = z;
-    emcmotCommand.tooloffset_x = x;
-    emcmotCommand.tooloffset_w = w;
+    emcmotCommand.tool_offset = tool_offset;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

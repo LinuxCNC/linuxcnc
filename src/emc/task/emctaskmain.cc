@@ -1669,10 +1669,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	// update tool offset
-	emcStatus->task.toolOffset.tran.z = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
-	emcStatus->task.toolOffset.tran.x = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
-        emcStatus->task.toolOffset.w = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.w;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset.tran.z, emcStatus->task.toolOffset.tran.x, emcStatus->task.toolOffset.w);
+	emcStatus->task.toolOffset = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
 	break;
 
     case EMC_TRAJ_SET_ROTATION_TYPE:

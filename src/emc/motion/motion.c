@@ -528,7 +528,31 @@ static int init_hal_io(void)
     if (retval != 0) {
         return retval;
     }
+    retval = hal_pin_float_new("motion.tooloffset.y", HAL_OUT, &(emcmot_hal_data->tooloffset_y), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
     retval = hal_pin_float_new("motion.tooloffset.z", HAL_OUT, &(emcmot_hal_data->tooloffset_z), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.a", HAL_OUT, &(emcmot_hal_data->tooloffset_a), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.b", HAL_OUT, &(emcmot_hal_data->tooloffset_b), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.c", HAL_OUT, &(emcmot_hal_data->tooloffset_c), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.u", HAL_OUT, &(emcmot_hal_data->tooloffset_u), mot_comp_id);
+    if (retval != 0) {
+        return retval;
+    }
+    retval = hal_pin_float_new("motion.tooloffset.v", HAL_OUT, &(emcmot_hal_data->tooloffset_v), mot_comp_id);
     if (retval != 0) {
         return retval;
     }

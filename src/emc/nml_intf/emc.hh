@@ -420,7 +420,7 @@ extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(double feed_per_revolution, bool wait_for_index);
-extern int emcTrajSetOffset(double z, double x, double w);
+extern int emcTrajSetOffset(EmcPose tool_offset);
 extern int emcTrajSetOrigin(EmcPose origin);
 extern int emcTrajSetRotation(double rotation);
 extern int emcTrajSetHome(EmcPose home);
