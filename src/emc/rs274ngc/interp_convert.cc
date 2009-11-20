@@ -4502,25 +4502,20 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
         woffset = 0.;
     }
   } else if (g_code == G_43_1) {
-    CHKS((block->x_flag == ON) ||
-        (block->y_flag == ON) ||
-        (block->z_flag == ON) ||
-        (block->a_flag == ON) ||
-        (block->b_flag == ON) ||
-        (block->c_flag == ON) ||
-        (block->j_flag == ON),
-        NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1_G41R_OR_G42R);
+    CHKS((block->i_flag == ON) ||
+        (block->k_flag == ON),
+        _("I K words not allowed with G43.1"));
     xoffset = settings->tool_xoffset;
     zoffset = settings->tool_zoffset;
     woffset = settings->tool_woffset;
     index = -1;
-    if(block->i_flag == ON) xoffset = block->i_number;
-    if(block->k_flag == ON) {
+    if(block->x_flag == ON) xoffset = block->x_number;
+    if(block->z_flag == ON) {
         if(GET_EXTERNAL_TLO_IS_ALONG_W()) {
-            woffset = block->k_number;
+            woffset = block->z_number;
             zoffset = 0.;
         } else {
-            zoffset = block->k_number;
+            zoffset = block->z_number;
             woffset = 0.;
         }
     }
