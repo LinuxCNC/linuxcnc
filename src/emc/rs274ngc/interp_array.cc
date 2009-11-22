@@ -227,6 +227,24 @@ const int Interp::_required_parameters[] = {
  RS274NGC_MAX_PARAMETERS
 };
 
+const int Interp::_readonly_parameters[] = {
+ 5400, // tool toolno
+ 5401, // tool x offset
+ 5402, // tool y offset
+ 5403, // tool z offset
+ 5404, // tool a offset
+ 5405, // tool b offset
+ 5406, // tool c offset
+ 5407, // tool u offset
+ 5408, // tool v offset
+ 5409, // tool w offset
+ 5410, // tool diameter
+ 5411, // tool frontangle
+ 5412, // tool backangle
+ 5413, // tool orientation
+};
+const int Interp::_n_readonly_parameters = sizeof(_readonly_parameters)/sizeof(int);
+
 /* _readers is an array of pointers to functions that read.
    It is used by read_one_item.
 

@@ -3113,7 +3113,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].diameter,
                              settings->tool_table[pocket].frontangle,
                              settings->tool_table[pocket].backangle,
-                             settings->tool_table[pocket].orientation);
+                             (int)settings->tool_table[pocket].orientation);
     else
         SET_TOOL_TABLE_ENTRY(pocket,
                              settings->tool_table[pocket].toolno,
@@ -3121,7 +3121,45 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].diameter);
 
     if(settings->current_pocket == pocket) {
-        settings->tool_table[0] = settings->tool_table[pocket];
+       settings->tool_table[0] = settings->tool_table[pocket];
+    }
+
+    if (settings->tool_table[0].toolno < 0) {
+      settings->parameters[5400] = 0; // -1 ==> notool
+    } else {
+      settings->parameters[5400] = settings->tool_table[0].toolno;
+    }
+    settings->parameters[5401] = settings->tool_table[0].xoffset;
+    if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
+      settings->parameters[5403] = settings->tool_table[0].zoffset;
+      settings->parameters[5409] = 0;
+    } else {
+      settings->parameters[5403] = 0;
+      settings->parameters[5409] = settings->tool_table[0].zoffset;
+    }
+    settings->parameters[5410] = settings->tool_table[0].diameter;
+    settings->parameters[5411] = settings->tool_table[0].frontangle;
+    settings->parameters[5412] = settings->tool_table[0].backangle;
+    settings->parameters[5413] = settings->tool_table[0].orientation;
+
+    //persuade axis-gui to update parameters widget for current tool:
+    if (   !_setup.random_toolchanger
+        && toolno == settings->current_pocket) {
+      if(settings->tool_table[pocket].orientation) {
+        SET_TOOL_TABLE_ENTRY(0,
+                             settings->tool_table[pocket].toolno,
+                             settings->tool_table[pocket].zoffset,
+                             settings->tool_table[pocket].xoffset,
+                             settings->tool_table[pocket].diameter,
+                             settings->tool_table[pocket].frontangle,
+                             settings->tool_table[pocket].backangle,
+                             (int)settings->tool_table[pocket].orientation);
+      } else {
+        SET_TOOL_TABLE_ENTRY(0,
+                             settings->tool_table[pocket].toolno,
+                             settings->tool_table[pocket].zoffset,
+                             settings->tool_table[pocket].diameter);
+      }
     }
 
     return INTERP_OK;
@@ -4430,10 +4468,11 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   }
 
   CHANGE_TOOL(settings->selected_pocket);
-  
+
   settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
   settings->toolchange_flag = ON; 
+  set_tool_parameters();
   return INTERP_OK;
 }
 

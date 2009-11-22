@@ -103,6 +103,10 @@ public:
 
  char *file(char *buf, int len) { file_name(buf, len); return buf; }
 
+ int init_tool_parameters();
+ int default_tool_parameters();
+ int set_tool_parameters();
+
 private:
 
 /* Function prototypes for all  functions */
@@ -403,6 +407,7 @@ private:
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
+ bool isreadonly(int index);
 
   // O_word stuff
 
@@ -437,6 +442,8 @@ private:
  static const int _gees[];
  static const int _ems[];
  static const int _required_parameters[];
+ static const int _readonly_parameters[];
+ static const int _n_readonly_parameters;
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 
