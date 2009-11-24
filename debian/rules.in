@@ -105,7 +105,7 @@ endif
 	dh_makeshlibs
 	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
-	dh_python
+	dh_python /usr/lib/python@PYTHON_VERSION@/site-packages /usr/lib/python@PYTHON_VERSION@/dist-packages
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
