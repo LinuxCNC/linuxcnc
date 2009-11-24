@@ -74,7 +74,19 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-DOC_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+case $DISTRIB_NAME in
+Ubuntu-9.10)
+	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	;;
+Ubuntu-8.04)
+	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	;;
+*)
+	EXTRA_BUILD=lyx-qt
+	;;
+esac
+
+DOC_BUILD=
 EMC2_PACKAGE_NAME=emc2
 case $TARGET in
     sim)
@@ -84,28 +96,20 @@ case $TARGET in
 	KERNEL_HEADERS=libpth-dev
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
-	EXTRA_BUILD=lyx-qt
-	if test "$DISTRIB_NAME" = "Ubuntu-8.04" ; then 
-	    EXTRA_BUILD=$DOC_BUILD
-	fi
 	DISTRIB_NAME=sim-$DISTRIB_NAME
 	EMC2_PACKAGE_NAME=emc2-sim
     ;;
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
-	EXTRA_BUILD=lyx-qt
     ;;
     2.6.15-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
-	EXTRA_BUILD=lyx-qt
     ;;
     2.6.22.6-magma|2.6.24-16-rtai)
         KERNEL_HEADERS="$KERNEL_HEADERS"
-        EXTRA_BUILD=$DOC_BUILD
     ;;
     2.6.24-16-rtai)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
-	EXTRA_BUILD=lyx
     ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
