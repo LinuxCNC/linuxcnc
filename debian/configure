@@ -74,6 +74,12 @@ if [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
+if [ -d extras-$DISTRIB_NAME/emc2.files ]; then
+	EXTRAS=extras-$DISTRIB_NAME/emc2-files
+else
+	EXTRAS=extras
+fi
+
 case $DISTRIB_NAME in
 Ubuntu-9.10)
 	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
@@ -126,6 +132,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
     -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
     -e "s|@EMC2_PACKAGE_NAME@|$EMC2_PACKAGE_NAME|g" \
+    -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
     -e "s|@TARGET@|$TARGET|g" \
@@ -140,8 +147,8 @@ if [ "$TARGET" != "sim" ]; then subst control.firmware >> control; fi
 if [ "$TARGET" == "sim" ]; then cp emc2-dev.files emc2-sim-dev.files; fi
 
 subst rules.in > rules; chmod +x rules
-if [ -f extras-$DISTRIB_NAME/emc2.files ]; then
-    subst emc2.files.in $DRIVERS extras-$DISTRIB_NAME/emc2.files > $EMC2_PACKAGE_NAME.files
+if [ -f $EXTRAS/emc2.files ]; then
+    subst emc2.files.in $DRIVERS $EXTRAS/emc2.files > $EMC2_PACKAGE_NAME.files
 else
     subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
 fi

@@ -61,8 +61,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
-	-(cd debian/extras-@DISTRIB_NAME@ && find . | cpio -pdmuv ../tmp)
+	-(cd debian/@EXTRAS@ && find . | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	python@PYTHON_VERSION@ /usr/lib/python@PYTHON_VERSION@/compileall.py debian/tmp/usr/lib/python@PYTHON_VERSION@
 	find debian/tmp/usr/lib/python@PYTHON_VERSION@ -name \*.py -exec rm {} \;
