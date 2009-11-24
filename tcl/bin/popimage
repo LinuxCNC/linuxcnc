@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using wish \
-exec wish "$0" "$@"
+exec ${EMC2_EMCSH-wish} "$0" "$@"
 
 ###############################################################
 # Description:  popimage
