@@ -18,6 +18,7 @@ Architecture: any
 Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends},
     @EMC2_PACKAGE_NAME@ (= ${Source-Version}),
     yapps2-runtime
 Section: libs
