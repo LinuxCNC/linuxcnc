@@ -17,7 +17,7 @@
 
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-libdir = os.path.join(BASE, "lib", "python", "touchy")
+libdir = os.path.join(BASE, "lib", "python")
 sys.path.insert(0, libdir)
 try:
         import pygtk
@@ -54,12 +54,12 @@ def set_text(w, t):
 	if ot != t: w.set_label(t)
 
 import emc
-import emc_interface
-import mdi
-import hal_interface
-import filechooser
-import listing
-import preferences
+from touchy import emc_interface
+from touchy import mdi
+from touchy import hal_interface
+from touchy import filechooser
+from touchy import listing
+from touchy import preferences
 
 gtk.rc_parse_string('''
 style "touchy-default-style" {
