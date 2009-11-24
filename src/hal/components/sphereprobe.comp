@@ -4,7 +4,7 @@ license "GPL";
 
 pin in signed px;
 pin in signed py;
-pin in signed pz "'rawcounts' position from software encoder";
+pin in signed pz "\\fBrawcounts\\fR position from software encoder";
 
 pin in signed cx;
 pin in signed cy;
