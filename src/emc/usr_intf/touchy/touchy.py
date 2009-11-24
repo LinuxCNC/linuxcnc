@@ -18,6 +18,7 @@
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
+datadir = os.path.join(BASE, "share", "emc")
 sys.path.insert(0, libdir)
 try:
         import pygtk
@@ -90,7 +91,7 @@ invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 class touchy:
 	def __init__(self):
 		#Set the Glade file
-		self.gladefile = os.path.join(libdir, "touchy.glade")
+		self.gladefile = os.path.join(datadir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
                 
                 self.num_mdi_labels = 11
