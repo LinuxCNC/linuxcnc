@@ -62,21 +62,6 @@ from touchy import filechooser
 from touchy import listing
 from touchy import preferences
 
-gtk.rc_parse_string('''
-style "touchy-default-style" {
-    bg[PRELIGHT] = "#dcdad5"
-    bg[NORMAL] = "#dcdad5"
-    bg[ACTIVE] = "#dcdad5"
-    bg[INSENSITIVE] = "#dcdad5"
-    fg[PRELIGHT] = "#000"
-    fg[NORMAL] = "#000"
-    fg[ACTIVE] = "#000"
-    fg[INSENSITIVE] = "#9a9895"
-    GtkWidget::focus-line-width = 0
-}
-class "GtkWidget" style "touchy-default-style"
-''')
-
 pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
 "1 1 1 1",
@@ -94,6 +79,11 @@ class touchy:
 		self.gladefile = os.path.join(datadir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
                 
+		for widget in self.wTree.get_widget_prefix(''):
+			widget.unset_flags(gtk.CAN_FOCUS)
+		self.wTree.get_widget('MainWindow').set_flags(gtk.CAN_FOCUS)
+		self.wTree.get_widget('MainWindow').grab_focus()
+
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
                 self.num_listing_labels = 20
