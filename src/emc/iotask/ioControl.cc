@@ -422,15 +422,7 @@ static int saveToolTable(const char *filename,
     int pocket;
     FILE *fp;
     const char *name;
-    int lathe_style = 0;
     int start_pocket;
-
-    for(pocket=0; pocket < CANON_POCKETS_MAX; pocket++) {
-        if(toolTable[pocket].orientation != 0) {
-            lathe_style = 1;
-            break;
-        }
-    }
 
     // check filename
     if (filename[0] == 0) {
@@ -451,30 +443,23 @@ static int saveToolTable(const char *filename,
     } else {
         start_pocket = 1;
     }
-    if(lathe_style) {
-        fprintf(fp, "%6s %6s %12s %12s %10s %11s %11s %7s  %s\n\n",
-                "TOOLNO", "POCKET", "ZOFFSET", "XOFFSET",
-                "DIAMETER", "FRONTANGLE", "BACKANGLE", "ORIENT", 
-                "COMMENT");
-        for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
-            if (toolTable[pocket].toolno != -1)
-                fprintf(fp, "%6d %6d %+12f %+12f %10f %+11f %+11f %7d  %s\n",
-                        toolTable[pocket].toolno,
-                        random_toolchanger? pocket: fms[pocket],
-                        toolTable[pocket].offset.tran.z, toolTable[pocket].offset.tran.x, toolTable[pocket].diameter,
-                        toolTable[pocket].frontangle, toolTable[pocket].backangle, 
-                        toolTable[pocket].orientation, ttcomments[pocket]);
-        }
-    } else {
-        fprintf(fp, "%6s %6s %12s %11s  %s\n\n",
-                "TOOLNO", "POCKET", "LENGTH", "DIAMETER", "COMMENT");
-        for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
-            if (toolTable[pocket].toolno != -1)
-                fprintf(fp, "%6d %6d %+12f %11f  %s\n",
-                        toolTable[pocket].toolno,
-                        random_toolchanger? pocket: fms[pocket],
-                        toolTable[pocket].offset.tran.z, toolTable[pocket].diameter,
-                        ttcomments[pocket]);
+    for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
+        if (toolTable[pocket].toolno != -1) {
+            fprintf(fp, "T%d P%d", toolTable[pocket].toolno, random_toolchanger? pocket: fms[pocket]);
+            if (toolTable[pocket].diameter) fprintf(fp, " D%f", toolTable[pocket].diameter);
+            if (toolTable[pocket].offset.tran.x) fprintf(fp, " X%+f", toolTable[pocket].offset.tran.x);
+            if (toolTable[pocket].offset.tran.y) fprintf(fp, " Y%+f", toolTable[pocket].offset.tran.y);
+            if (toolTable[pocket].offset.tran.z) fprintf(fp, " Z%+f", toolTable[pocket].offset.tran.z);
+            if (toolTable[pocket].offset.a) fprintf(fp, " A%+f", toolTable[pocket].offset.a);
+            if (toolTable[pocket].offset.b) fprintf(fp, " B%+f", toolTable[pocket].offset.b);
+            if (toolTable[pocket].offset.c) fprintf(fp, " C%+f", toolTable[pocket].offset.c);
+            if (toolTable[pocket].offset.u) fprintf(fp, " U%+f", toolTable[pocket].offset.u);
+            if (toolTable[pocket].offset.v) fprintf(fp, " V%+f", toolTable[pocket].offset.v);
+            if (toolTable[pocket].offset.w) fprintf(fp, " W%+f", toolTable[pocket].offset.w);
+            if (toolTable[pocket].frontangle) fprintf(fp, " F%+f", toolTable[pocket].frontangle);
+            if (toolTable[pocket].backangle) fprintf(fp, " B%+f", toolTable[pocket].backangle);
+            if (toolTable[pocket].orientation) fprintf(fp, " Q%d", toolTable[pocket].orientation);
+            fprintf(fp, " ;%s\n", ttcomments[pocket]);
         }
     }
 
