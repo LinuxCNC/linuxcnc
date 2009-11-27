@@ -3085,54 +3085,59 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     CHP((find_tool_pocket(settings, toolno, &pocket)));
 
-    if(block->q_number != -1.0) {
-        CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
-        CHKS((q > 9), "Invalid tool orientation");
-        settings->tool_table[pocket].orientation = q;
-    }
-
     settings->tool_table[pocket].toolno = toolno;
-
-    if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
 
     if(block->x_flag) {
         double x = block->x_number;
         if (block->l_number == 10) x = settings->current_x + settings->tool_offset.tran.x - x;
         settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(x);
-    } else if(block->y_flag) {
+    }
+    if(block->y_flag) {
         double y = block->y_number;
         if (block->l_number == 10) y = settings->current_y + settings->tool_offset.tran.y - y;
         settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(y);
-    } else if(block->z_flag) {
+    }
+    if(block->z_flag) {
         double z = block->z_number;
         if (block->l_number == 10) z = settings->current_z + settings->tool_offset.tran.z - z;
         settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(z);
     }
-    else if(block->a_flag) {
+    if(block->a_flag) {
         double a = block->a_number;
         if (block->l_number == 10) a = settings->AA_current + settings->tool_offset.a - a;
         settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(a);
-    } else if(block->b_flag) {
+    }
+    if(block->b_flag) {
         double b = block->b_number;
         if (block->l_number == 10) b = settings->BB_current + settings->tool_offset.b - b;
         settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(b);
-    } else if(block->c_flag) {
+    }
+    if(block->c_flag) {
         double c = block->c_number;
         if (block->l_number == 10) c = settings->CC_current + settings->tool_offset.c - c;
         settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(c);
     }
-    else if(block->u_flag) {
+    if(block->u_flag) {
         double u = block->u_number;
         if (block->l_number == 10) u = settings->u_current + settings->tool_offset.u - u;
         settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(u);
-    } else if(block->v_flag) {
+    }
+    if(block->v_flag) {
         double v = block->v_number;
         if (block->l_number == 10) v = settings->v_current + settings->tool_offset.v - v;
         settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(v);
-    } else if(block->w_flag) {
+    }
+    if(block->w_flag) {
         double w = block->w_number;
         if (block->l_number == 10) w = settings->w_current + settings->tool_offset.w - w;
         settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(w);
+    }
+
+    if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->q_number != -1.0) {
+        CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
+        CHKS((q > 9), "Invalid tool orientation");
+        settings->tool_table[pocket].orientation = q;
     }
 
     SET_TOOL_TABLE_ENTRY(pocket,
