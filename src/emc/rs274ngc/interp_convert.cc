@@ -3134,6 +3134,8 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     }
 
     if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->i_flag) settings->tool_table[pocket].frontangle = block->i_number;
+    if(block->j_flag) settings->tool_table[pocket].backangle = block->j_number;
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), "Q number in G10 is not an integer");
         CHKS((q > 9), "Invalid tool orientation");
@@ -3203,6 +3205,8 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   int p_int;
 
   double cx, cy, cz, ca, cb, cc, cu, cv, cw;
+
+  CHKS((block->i_flag || block->j_flag), _("I J words not allowed with G10 L2"));
 
   parameters = settings->parameters;
   p_int = (int) (block->p_number + 0.0001);
