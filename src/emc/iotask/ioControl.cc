@@ -55,6 +55,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <ctype.h>
 
 #include "hal.h"		/* access to HAL functions/definitions */
 #include "rtapi.h"		/* rtapi_print_msg */
