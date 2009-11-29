@@ -258,6 +258,8 @@ typedef struct {
 
     u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
+    s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
+
     u32 prev_control;
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
