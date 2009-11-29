@@ -291,6 +291,10 @@ class touchy:
                         }
                 self.wTree.signal_autoconnect(dic)
 
+		for widget in self.wTree.get_widget_prefix(''):
+			if isinstance(widget, gtk.Button):
+				widget.connect_after('released',self.hack_leave)
+
         def quit(self, unused):
                 gtk.main_quit()
 
@@ -600,6 +604,15 @@ class touchy:
 
                         
                 return True
+
+	def hack_leave(self,w):
+		if not self.invisible_cursor: return
+		w = self.wTree.get_widget("MainWindow").window
+		d = w.get_display()
+		s = w.get_screen()
+		x, y = w.get_origin()
+		d.warp_pointer(s, x, y)
+
 
 if __name__ == "__main__":
 	hwg = touchy()
