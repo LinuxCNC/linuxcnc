@@ -3113,7 +3113,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].diameter,
                              settings->tool_table[pocket].frontangle,
                              settings->tool_table[pocket].backangle,
-                             (int)settings->tool_table[pocket].orientation);
+                             settings->tool_table[pocket].orientation);
     else
         SET_TOOL_TABLE_ENTRY(pocket,
                              settings->tool_table[pocket].toolno,
@@ -3153,7 +3153,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
                              settings->tool_table[pocket].diameter,
                              settings->tool_table[pocket].frontangle,
                              settings->tool_table[pocket].backangle,
-                             (int)settings->tool_table[pocket].orientation);
+                             settings->tool_table[pocket].orientation);
       } else {
         SET_TOOL_TABLE_ENTRY(0,
                              settings->tool_table[pocket].toolno,
