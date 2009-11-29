@@ -264,14 +264,13 @@ static int iniLoad(const char *filename)
 static int loadToolTable(const char *filename,
 			 CANON_TOOL_TABLE toolTable[])
 {
-    static int fakepocket = 0;
+    int fakepocket = 0;
     int t;
     FILE *fp;
     char buffer[CANON_TOOL_ENTRY_LEN];
     char comment[CANON_TOOL_ENTRY_LEN];
     const char *name;
     int pocket = 0;
-    int nr_loaded_toolno,nrpocket;
 
     // check filename
     if (filename[0] == 0) {
@@ -290,7 +289,6 @@ static int loadToolTable(const char *filename,
 	return -1;
     }
     // clear out tool table
-    nr_loaded_toolno = tooltable[0].toolno; //save this
     for (t = random_toolchanger? 0: 1; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = -1;
 	toolTable[t].zoffset = 0.0;
@@ -397,16 +395,13 @@ static int loadToolTable(const char *filename,
             /* invalid line. skip it silently */
             continue;
         }
-        if (nr_loaded_toolno == toolTable[pocket].toolno) {
-            nrpocket = pocket;
+        if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
+            toolTable[0] = toolTable[pocket];
         }
     }
 
     // close the file
     fclose(fp);
-    if (!random_toolchanger && nr_loaded_toolno >0 && nrpocket >0) {
-        toolTable[0] = toolTable[nrpocket];
-    }
 
     return 0;
 }
