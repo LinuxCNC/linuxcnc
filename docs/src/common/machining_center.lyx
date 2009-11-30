@@ -1853,8 +1853,10 @@ name "sub:Parameters"
 
 \begin_layout Standard
 In the RS274/NGC language view, a machining center maintains an array of
- 5400 numerical parameters.
- Many of them have specific uses.
+ over 5400 numerical parameters defined by a system definition (RS274NGC_MAX_PARAMETERS).
+ Many of them have specific uses especially in defining coordinate systems.
+ The number of numerical parameters can increase as development adds support for
+ new parameters.
  The parameter array persists over time, even if the machining center is
  powered down.
  EMC2 uses a parameter file to ensure persistence and gives the Interpreter

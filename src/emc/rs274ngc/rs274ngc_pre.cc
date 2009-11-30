@@ -638,6 +638,7 @@ int Interp::load_tool_table()
     _setup.tool_table[n].frontangle = 0;
     _setup.tool_table[n].backangle = 0;
   }
+  set_tool_parameters();
   return INTERP_OK;
 }
 
