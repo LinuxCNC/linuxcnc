@@ -410,6 +410,7 @@ static int loadToolTable(const char *filename,
                     valid = 0;
                 break;
             default:
+                value = 0;
                 break;
             }
             token = strtok(NULL, " ");
