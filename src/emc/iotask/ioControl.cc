@@ -265,6 +265,7 @@ static int iniLoad(const char *filename)
 static int loadToolTable(const char *filename,
 			 CANON_TOOL_TABLE toolTable[])
 {
+    int fakepocket = 0;
     int t;
     FILE *fp;
     char buffer[CANON_TOOL_ENTRY_LEN];
@@ -316,7 +317,6 @@ static int loadToolTable(const char *filename,
         // for nonrandom machines, just read the tools into pockets 1..n
         // no matter their tool numbers.  NB leave the spindle pocket 0
         // unchanged/empty.
-        static int fakepocket = 0;
 
         if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
             break;
@@ -424,6 +424,9 @@ static int loadToolTable(const char *filename,
             toolTable[pocket].orientation = orientation;
 
             strcpy(ttcomments[pocket], comment);
+        }
+        if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
+            toolTable[0] = toolTable[pocket];
         }
     }
 

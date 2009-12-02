@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
 Build-Depends: debhelper (>> 4.0.0),
     @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@, g++, make, libc6-dev,
-    tcl8.4-dev, tk8.4-dev, bwidget,
+    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
     libxaw7-dev, libncurses-dev, libreadline5-dev,
     lyx-qt | lyx, xsltproc, groff,
     python, python-dev, python-tk,
@@ -18,6 +18,7 @@ Architecture: any
 Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends},
     @EMC2_PACKAGE_NAME@ (= ${Source-Version}),
     yapps2-runtime
 Section: libs
@@ -37,12 +38,12 @@ Architecture: any
 Suggests: pdf-viewer
 Recommends: emc2-firmware
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
-    tcl8.4, tk8.4, bwidget (>= 1.7),
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7),
     libreadline5,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends},
-    python@PYTHON_VERSION@-tk, python@PYTHON_VERSION@-xml,
-    python@PYTHON_VERSION@-gnome2, python@PYTHON_VERSION@-glade2
+    python@PYTHON_VERSION@-tk,
+    python@PYTHON_VERSION@-gnome2, python@PYTHON_VERSION@-glade2,
     python@PYTHON_VERSION@-numarray | python-numarray,
     python@PYTHON_VERSION@-imaging,
     python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,

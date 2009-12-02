@@ -481,6 +481,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
+	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
 
@@ -496,9 +497,11 @@ ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
+	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/emc/emc2-wizard.gif $(DESTDIR)$(prefix)/share/emc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)

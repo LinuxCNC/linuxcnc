@@ -2229,7 +2229,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "    %08lX", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "  0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:

@@ -1,9 +1,13 @@
 TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing preferences
 
-PYTARGETS += ../bin/touchy $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
-	../lib/python/touchy/touchy.glade
+PYTARGETS += ../bin/touchy ../lib/python/touchy/__init__.py $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
+	../share/emc/touchy.glade
 PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.py,$(TOUCHY_MODULES)) \
 	emc/usr_intf/touchy/touchy.glade
+
+../lib/python/touchy/__init__.py:
+	@mkdir -p ../lib/python/touchy
+	@touch $@
 
 ../lib/python/touchy/%: emc/usr_intf/touchy/%
 	@$(ECHO) Syntax checking python script $(notdir $@)
@@ -12,10 +16,10 @@ PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.p
 	@mkdir -p ../lib/python/touchy
 	@cp $< $@
 
-../lib/python/touchy/touchy.glade: emc/usr_intf/touchy/touchy.glade
+../share/emc/touchy.glade: emc/usr_intf/touchy/touchy.glade
 	$(ECHO) Copying glade file $(notdir $@)
-	@mkdir -p ../lib/python/touchy
-	@cp $< $@
+	mkdir -p $(dir $@)
+	cp -f $< $@
 
 ../bin/touchy: emc/usr_intf/touchy/touchy.py
 	@$(ECHO) Syntax checking python script $(notdir $@)

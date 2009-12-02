@@ -53,6 +53,12 @@ Touchy requires you to write a file named "touchy.hal" to make
 these connections.  Touchy executes the hal commands in this file
 after it has made its pins available for connection.
 
+These things should be done some day:
+
+* continuous jog inputs, from two buttons or a center-off
+  bidirectional momentary toggle switch, that jog the currently 
+  selected axis.  On a many-axis machine, separate controls could 
+  get unwieldy, and this would be a good compromise.
 
 These things are not done, and may or may not ever be done:
 

@@ -220,6 +220,14 @@ echo INIVAR=$INIVAR >>$PRINT_FILE
 echo HALCMD=$HALCMD >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 
+#export some common directories, used by some of the GUI's
+export EMC2_TCL_DIR
+export EMC2_EMCSH
+export EMC2_HELP_DIR
+export EMC2_LANG_DIR
+export REALTIME
+export HALCMD
+
 echo "EMC2 - $EMC2VERSION" 
 
 # was an inifile specified on the command line?
@@ -316,6 +324,7 @@ EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 GetFromIni NML_FILE EMC
 NMLFILE=$retval
 if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
+export NMLFILE
 
 ################################################################################
 # 3. Done gathering information, define a few functions
@@ -629,15 +638,6 @@ if ! program_available $EMCTASK ; then
     exit 1
 fi
 $EMCTASK -ini "$INIFILE" &
-
-#export some common directories, used by some of the GUI's
-export EMC2_TCL_DIR
-export EMC2_EMCSH
-export EMC2_HELP_DIR
-export EMC2_LANG_DIR
-export REALTIME
-export HALCMD
-export NMLFILE
 
 # 4.3.10. Run display in foreground
 echo "Starting EMC2 DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

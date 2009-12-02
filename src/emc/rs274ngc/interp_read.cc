@@ -2090,10 +2090,12 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHKS(isreadonly(index),NCE_PARAMETER_NUMBER_READONLY);
       *double_ptr = parameters[index];
   }
   return INTERP_OK;
 }
+
 
 int Interp::free_named_parameters( // ARGUMENTS
     int level,      // level to free
@@ -2227,6 +2229,7 @@ int Interp::read_parameter_setting(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHKS((isreadonly(index)), NCE_PARAMETER_NUMBER_READONLY);
       CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
@@ -3456,4 +3459,13 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
   block->z_flag = ON;
   block->z_number = value;
   return INTERP_OK;
+}
+
+bool Interp::isreadonly(int index)
+{
+  int i;
+  for (i=0; i< _n_readonly_parameters; i++) {
+    if (_readonly_parameters[i] == index) return 1;
+  }
+  return 0;
 }
