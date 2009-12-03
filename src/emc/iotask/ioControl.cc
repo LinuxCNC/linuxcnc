@@ -410,7 +410,8 @@ static int loadToolTable(const char *filename,
                     valid = 0;
                 break;
             default:
-                valid = 0;
+                if (strncmp(token, "\n", 1) != 0)
+                    valid = 0;
                 break;
             }
             token = strtok(NULL, " ");
@@ -423,7 +424,8 @@ static int loadToolTable(const char *filename,
             toolTable[pocket].backangle = backangle;
             toolTable[pocket].orientation = orientation;
 
-            strcpy(ttcomments[pocket], comment);
+            if (comment != NULL)
+                strcpy(ttcomments[pocket], comment);
         }
         if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
             toolTable[0] = toolTable[pocket];
