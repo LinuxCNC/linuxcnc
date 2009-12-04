@@ -70,7 +70,16 @@ MPBitmap(1)	(Double) = bit map of which registers are multiple
 0 GTag marks end of module descriptors
 
 
-0x600 Pin descriptors 0 through 143. 
+
+
+0x600 Pin Descriptors
+
+    This IO region contains the Pin Descriptors, starting at 0 and going
+    up to (IDROM.IOWidth-1) or 143, whichever is less.  (144 is the max
+    number of IO pins currently supported by HostMot2.)  Unlike the Module
+    Descriptor array (described above), there is no sentinel at the end
+    of the PD array, instead the array size is determined by the IDRom.
+
 There is one Pin Descriptor for each I/O pin.
 Each pin descriptor is a doubleword with the following record structure:
 
@@ -94,7 +103,8 @@ PrimaryTag(1)	(byte) = Primary function tag (normally I/O port)
 
 ...
 
-0 primary function tag marks end of pins
+
+
 
 0x0800  1 bit IDROM write enable bit: high=Enable writes
 
