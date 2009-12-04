@@ -17,7 +17,7 @@ First ID stuff
 0x010C	Offset to IDROM location (normally 0x00000400)
 
 0x0400	Normal IDROM location
-[6~
+
 0x400	IDROMType		2 for this type
 0x404	OffsetToModules		64 for this type
 0x408	OffsetToPindesc		512 for this type
