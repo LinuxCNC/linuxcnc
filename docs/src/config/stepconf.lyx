@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -76,6 +77,11 @@ Stepconf places a file in the emc2/config directory to store the choices
  When you change something you need to pick the file that matches your configura
 tion name.
  The file extension is .stepconf.
+\end_layout
+
+\begin_layout Standard
+The Stepconf Wizard needs at least 800 x 600 screen resolution to see the
+ buttons on the bottom of the pages.
 \end_layout
 
 \begin_layout Section*
@@ -265,12 +271,19 @@ name "Driver Type"
 \newline
 If the data sheet gives a value in microseconds, multiply by 1000.
  For example, enter 4.5us as 4500.
- A list is on the wiki site of most popular drives with the timing values
- is in the Stepper Drive Timing Page.
+ A list is on the 
+\begin_inset LatexCommand url
+name "Linuxcnc Wiki"
+target "http://wiki.linuxcnc.org"
+
+\end_inset
+
+ site of most popular drives with the timing values is in the Stepper Drive
+ Timing Page.
 \newline
-Additional signal conditioning or isolation
- such as optocouplers and RC filters on break out boards can impose timing
- constraints of their own, in addition to those of the driver.
+Additional signal conditioning or isolation such as optocouplers
+ and RC filters on break out boards can impose timing constraints of their
+ own, in addition to those of the driver.
  You may find it necessary to add some time to the drive requirements to
  allow for this.
  The EMC Configuration Selector has configs for Sherline all ready configured.
