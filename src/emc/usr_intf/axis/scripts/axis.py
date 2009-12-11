@@ -1676,7 +1676,7 @@ class LivePlotter:
         global current_tool
         current_tool = self.stat.tool_table[0]
         if current_tool:
-            tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
+            tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
         if current_tool is None:
             vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
         elif tool_data['tool'] == 0 or tool_data['tool'] == -1:
@@ -2191,7 +2191,7 @@ class DummyCanon:
     def set_plane(*args): pass
     def get_axis_mask(self): return 7
     def get_tool(self, tool):
-        return tool,0.,0.,0.,0.,0.,0
+        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
     def set_feed_rate(self, rate): pass
 
     def user_defined_function(self, m, p, q):

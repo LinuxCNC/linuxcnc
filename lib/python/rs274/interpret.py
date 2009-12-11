@@ -152,7 +152,7 @@ class StatMixin:
         for t in self.s.tool_table:
             if t[0] == tool:
                 return tuple(t)
-        return tool,0.,0.,0.,0.,0.,0
+        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0
