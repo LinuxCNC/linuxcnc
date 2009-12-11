@@ -426,7 +426,7 @@ int Interp::init()
 	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    printf("inistring:%s:\n", inistring);
+	    logDebug("[WIZARD]WIZARD_ROOT:%s\n", inistring);
             if (realpath(inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
         	logDebug("realpath failed to find wizard_root:%s:\n", inistring);
