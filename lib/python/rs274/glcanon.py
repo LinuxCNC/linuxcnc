@@ -42,7 +42,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.max_extents_notool = [-9e99,-9e99,-9e99]
         self.colors = colors
         self.in_arc = 0
-        self.tlo = [0]*9
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
