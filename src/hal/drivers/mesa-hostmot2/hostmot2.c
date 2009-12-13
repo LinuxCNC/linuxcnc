@@ -246,13 +246,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 // 
 
 static void hm2_print_idrom(hostmot2_t *hm2) {
-    HM2_PRINT("IDRom:\n"); 
+    HM2_PRINT("IDRom:\n");
 
-    if (hm2->idrom.idrom_type == 2) {
-        HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type); 
-    } else {
-        HM2_PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type); 
-    }
+    HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type);
 
     HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules);
     HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc);
@@ -323,8 +319,11 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         HM2_ERR("error reading IDROM type\n"); 
         return -EIO;
     }
-    if (hm2->idrom.idrom_type != 2) {
-        HM2_ERR("invalid IDROM type %d, expected 2, aborting load\n", hm2->idrom.idrom_type); 
+    if (
+        (hm2->idrom.idrom_type != 2)
+        && (hm2->idrom.idrom_type != 3)
+    ) {
+        HM2_ERR("invalid IDROM type %d, expected 2 or 3, aborting load\n", hm2->idrom.idrom_type);
         return -EINVAL;
     }
 
