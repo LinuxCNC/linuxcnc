@@ -2223,7 +2223,7 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     }
 
     if(s->b_axis_wrapped) {
-        b = fmod(a, 360.0);
+        b = fmod(b, 360.0);
         if(b<0) b += 360.0;
     }
 
