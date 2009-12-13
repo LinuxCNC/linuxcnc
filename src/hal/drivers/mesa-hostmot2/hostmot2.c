@@ -369,6 +369,15 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         return -EINVAL;
     }
 
+    if (hm2->idrom.io_width > HM2_MAX_PIN_DESCRIPTORS) {
+        HM2_ERR(
+            "IDROM IOWidth is %d but max is %d, aborting driver load\n",
+            hm2->idrom.io_width,
+            HM2_MAX_PIN_DESCRIPTORS
+        );
+        return -EINVAL;
+    }
+
     if (hm2->idrom.clock_low < 1e6) {
         HM2_ERR(
             "IDROM ClockLow is %d, that's too low, aborting driver load\n",
@@ -643,6 +652,9 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 //
 
 static void hm2_cleanup(hostmot2_t *hm2) {
+    // clean up the Pins, if they're initialized
+    if (hm2->pin != NULL) kfree(hm2->pin);
+
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);
