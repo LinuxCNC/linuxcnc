@@ -509,7 +509,6 @@ class EMC_JOINT_STAT:public EMC_JOINT_STAT_MSG {
     unsigned char jointType;	// EMC_JOINT_LINEAR, EMC_JOINT_ANGULAR
     double units;		// units per mm, deg for linear, angular
     double backlash;
-    double maxError;
     double minPositionLimit;
     double maxPositionLimit;
     double maxFerror;
@@ -521,6 +520,7 @@ class EMC_JOINT_STAT:public EMC_JOINT_STAT_MSG {
     /*! \todo FIXME - is this really position, or the DAC output? */
     double output;		// commanded output position
     double input;		// current input position
+    double velocity;		// current velocity
     unsigned char inpos;	// non-zero means in position
     unsigned char homing;	// non-zero means homing
     unsigned char homed;	// non-zero means has been homed
@@ -1539,7 +1539,8 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int    id;
+    int pocket;
+    int toolno;
     double zoffset;
     double xoffset;
     double diameter;
@@ -1578,9 +1579,9 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT operator =(EMC_TOOL_STAT s);	// need this for [] members
 
-    int toolPrepped;		// tool ready for loading, 0 is no tool
+    int pocketPrepped;		// pocket ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool
-    CANON_TOOL_TABLE toolTable[CANON_TOOL_MAX + 1];
+    CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
 };
 
 // EMC_AUX type declarations

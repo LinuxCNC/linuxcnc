@@ -380,6 +380,7 @@ void qc_scale(double scale) {
 
 void dequeue_canons(setup_pointer settings) {
 
+    if(debug_qc) printf("dequeueing: endpoint is now invalid\n");
     endpoint_valid = 0;
 
     if(qc().empty()) return;
@@ -536,7 +537,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
             
             dot = x1 * x2 + y1 * y2; // not normalized; we only care about the angle
-            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
+            if(debug_qc) printf("moving endpoint of traverse old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the
@@ -575,7 +576,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             }
 
             dot = x1 * x2 + y1 * y2;
-            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f\n", atan2(y1,x1), atan2(y2,x2), dot);
+            if(debug_qc) printf("moving endpoint of feed old dir %f new dir %f dot %f endpoint_valid %d\n", atan2(y1,x1), atan2(y2,x2), dot, endpoint_valid);
 
             if(endpoint_valid && dot<0) {
                 // oops, the move is the wrong way.  this means the

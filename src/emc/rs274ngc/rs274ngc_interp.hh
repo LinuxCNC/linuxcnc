@@ -103,6 +103,10 @@ public:
 
  char *file(char *buf, int len) { file_name(buf, len); return buf; }
 
+ int init_tool_parameters();
+ int default_tool_parameters();
+ int set_tool_parameters();
+
 private:
 
 /* Function prototypes for all  functions */
@@ -272,6 +276,9 @@ private:
  double find_arc_length(double x1, double y1, double z1,
                               double center_x, double center_y, int turn,
                               double x2, double y2, double z2);
+ int find_current_in_system(setup_pointer s, int system, double *x, double *y, double *z,
+                            double *a, double *b, double *c,
+                            double *u, double *v, double *w);
  int find_ends(block_pointer block, setup_pointer settings, 
                double *px, double *py, double *pz, 
                double *AA_p, double *BB_p, double *CC_p,
@@ -289,6 +296,7 @@ private:
                              double x1, double y1, double z1,
                              double AA_1, double BB_1, double CC_1,
                              double u_1, double v_1, double w_1);
+ int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  double find_turn(double x1, double y1, double center_x,
                         double center_y, int turn, double x2, double y2);
  int init_block(block_pointer block);
@@ -398,6 +406,8 @@ private:
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ int unwrap_rotary(double *, double, double, double, char);
+ bool isreadonly(int index);
 
   // O_word stuff
 
@@ -432,6 +442,8 @@ private:
  static const int _gees[];
  static const int _ems[];
  static const int _required_parameters[];
+ static const int _readonly_parameters[];
+ static const int _n_readonly_parameters;
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 

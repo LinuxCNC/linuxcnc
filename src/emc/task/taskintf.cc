@@ -830,14 +830,15 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 	}
 	stat[joint_num].output = joint->pos_cmd;
 	stat[joint_num].input = joint->pos_fb;
+	stat[joint_num].velocity = joint->vel_cmd;
 	stat[joint_num].ferrorCurrent = joint->ferror;
 	stat[joint_num].ferrorHighMark = joint->ferror_high_mark;
 
 	stat[joint_num].homing = (joint->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
 	stat[joint_num].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
 	stat[joint_num].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
-	stat[joint_num].enabled =
-	    (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
+	stat[joint_num].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
+	stat[joint_num].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);
 
 /* FIXME - soft limits are now applied to the command, and should never
    happen */

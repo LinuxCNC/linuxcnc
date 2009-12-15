@@ -92,6 +92,7 @@ int tpClear(TP_STRUCT * tp)
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
     emcmotStatus->current_vel = 0.0;
+    emcmotStatus->requested_vel = 0.0;
     emcmotStatus->distance_to_go = 0.0;
     ZERO_EMC_POSE(emcmotStatus->dtg);
 
@@ -654,6 +655,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     EmcPose target;
 
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
+    emcmotStatus->requested_vel = 0.0;
     tc = tcqItem(&tp->queue, 0, period);
     if(!tc) {
         // this means the motion queue is empty.  This can represent
@@ -917,24 +919,36 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
             if(nexttc) pos_error -= nexttc->progress;
 
-            tc->reqvel = pos_error/tc->cycle_time;
             if(tc->sync_accel) {
                 // detect when velocities match, and move the target accordingly.
                 // acceleration will abruptly stop and we will be on our new target.
-                spindle_vel = (revs - oldrevs)/tc->cycle_time;
+                spindle_vel = revs/(tc->cycle_time * tc->sync_accel++);
                 target_vel = spindle_vel * tc->uu_per_rev;
                 if(tc->currentvel >= target_vel) {
                     // move target so as to drive pos_error to 0 next cycle
-                    spindleoffset = oldrevs - tc->progress/tc->uu_per_rev;
+                    spindleoffset = revs - tc->progress/tc->uu_per_rev;
                     tc->sync_accel = 0;
+                    tc->reqvel = target_vel;
+                } else {
+                    // beginning of move and we are behind: accel as fast as we can
+                    tc->reqvel = tc->maxvel;
                 }
+            } else {
+                // we have synced the beginning of the move as best we can -
+                // track position (minimize pos_error).
+                double errorvel;
+                spindle_vel = (revs - oldrevs) / tc->cycle_time;
+                target_vel = spindle_vel * tc->uu_per_rev;
+                errorvel = pmSqrt(fabs(pos_error) * tc->maxaccel);
+                if(pos_error<0) errorvel = -errorvel;
+                tc->reqvel = target_vel + errorvel;
             }
             tc->feed_override = 1.0;
         }
         if(tc->reqvel < 0.0) tc->reqvel = 0.0;
         if(nexttc) {
 	    if (nexttc->synchronized) {
-		nexttc->reqvel = pos_error/nexttc->cycle_time;
+		nexttc->reqvel = tc->reqvel;
 		nexttc->feed_override = 1.0;
 		if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
 	    } else {
@@ -1032,6 +1046,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    emcmotStatus->enables_queued = tc->enables;
 	    // report our line number to the guis
 	    tp->execId = tc->id;
+            emcmotStatus->requested_vel = tc->reqvel;
         } else {
 	    tpToggleDIOs(nexttc); //check and do DIO changes
             target = tcGetEndpoint(nexttc);
@@ -1040,6 +1055,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    emcmotStatus->enables_queued = nexttc->enables;
 	    // report our line number to the guis
 	    tp->execId = nexttc->id;
+            emcmotStatus->requested_vel = nexttc->reqvel;
         }
 
         emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
@@ -1081,6 +1097,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	emcmotStatus->distance_to_go = tc->target - tc->progress;
         tp->currentPos = primary_after;
         emcmotStatus->current_vel = tc->currentvel;
+        emcmotStatus->requested_vel = tc->reqvel;
 	emcmotStatus->enables_queued = tc->enables;
 	// report our line number to the guis
 	tp->execId = tc->id;

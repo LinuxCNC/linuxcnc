@@ -1,0 +1,78 @@
+            ---Axis Configuration---
+
+Also refer to the diagram tab for an example of
+home and limit switches. This is one example of
+many different ways to set homming and limits.
+
+  Origin:
+    The Origin is the machine zero point. EMC2
+    uses this point to reference everything else
+    from. It should be inside the software limits.
+    On a lathe, the X axis Origin must be at the 
+    centerline of the spindle for constant surface 
+    speed to work correctly.
+
+* Positive Travel Distance:
+    This is the distance the Axis travels from 
+    the Origin to the positive limit switch. This
+    will always be zero or a positive number.
+
+* Negative Travel Distance:
+    This is the distance the Axis travels from 
+    the Origin to the negative limit switch. This
+    will always be zero or a negative number.
+
+* Home position:
+    This is the position the home sequence will
+    finish at. It is referenced from the Origin
+    so can be negative or positive depending on
+    what side of the Origin it is located.
+    When at the home position position if
+    you must move in the Positive direction to
+    get to the Origin, then the number will be 
+    negative.
+
+* Home switch Location:
+    This is the distance from the home switch to 
+    the Origin. It could be negative or positive
+    depending on what side of the Origin it is
+    located. When at the home switch position if
+    you must move in the Positive direction to
+    get to the Origin, then the number will be 
+    negative. If you use home switches combined 
+    with limit switches then the home switch 
+    location will be the same as either the
+    Negative travel distance or the Positve 
+    travel distance (with negative-combined or 
+    positve-combined switches respecfully)
+
+* Home Search Velocity:
+    Course home search velocity in units per minute.
+   
+* Home Search Direction:
+    Sets the home switch search direction
+    either towards negative limit switch
+    or towards positive limit switch
+
+* Home Latch Velocity:
+    Fine Home search velocity in units per minute
+
+* Home Final Velocity:
+    Velocity used from latch position to home position
+    in units per minute. Set to 0 for max rapid speed 
+
+* Home latch Direction:
+    Allows setting of the latch direction to the same
+    or opposite of the search direction.
+
+* Use Encoder Index For Home:
+    EMC2 wil search for an encoder index pulse while in
+    the latch stage of homing.
+
+* Use Compensation File:
+    Allows specifing a Comp filename and type.
+    Allows sophisticated compensation. See Manual.
+
+* Use Backlash Compensaton:
+    Allows setting of simple backlash compensation. Can 
+    not be used with Compenation File. See Manual. 

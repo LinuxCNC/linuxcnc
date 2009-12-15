@@ -11,6 +11,7 @@ Error[7]="hm2/hm2_test\.0: IDROM IOWidth is \d+, but IDROM IOPorts is \d+ and ID
 Error[8]="hm2/hm2_test\.0: IDROM IOPorts is \d+ but llio num_ioport_connectors is \d+"
 Error[9]="hm2/hm2_test\.0: IDROM ClockLow is \d+, that's too low"
 Error[10]="hm2/hm2_test\.0: IDROM ClockHigh is \d+, that's too low"
+Error[11]="hm2/hm2_test\.0: there are 0 Pin Descriptors but IDROM IO_Width is 144!"
 
 TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do

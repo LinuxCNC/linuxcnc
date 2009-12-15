@@ -59,7 +59,7 @@
 static CanonConfig_t canon;
 
 static int debug_velacc = 0;
-static const double tiny = 1e-10;
+static const double tiny = 1e-7;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -1078,7 +1078,13 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
 
     if(rotation < 0) {
         if(dth >= -1e-5) th2 -= 2*M_PI;
+        // in the edge case where atan2 gives you -pi and pi, a second iteration is needed
+        // to get these in the right order
+        dth = th2 - th1;
+        if(dth >= -1e-5) th2 -= 2*M_PI;
     } else {
+        if(dth <= 1e-5) th2 += 2*M_PI;
+        dth = th2 - th1;
         if(dth <= 1e-5) th2 += 2*M_PI;
     }
 
@@ -1760,11 +1766,12 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                           double frontangle, double backangle, int orientation) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
-    o.id = id;
+    o.pocket = pocket;
+    o.toolno = toolno;
     o.zoffset = zoffset;
     o.xoffset = xoffset;
     o.diameter = diameter;
@@ -1775,10 +1782,11 @@ void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diamete
 }
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
-    o.id = id;
+    o.pocket = pocket;
+    o.toolno = toolno;
     o.zoffset = zoffset;
     o.diameter = diameter;
     o.orientation = 0;
@@ -1881,8 +1889,8 @@ void CHANGE_TOOL(int slot)
     interp_list.append(load_tool_msg);
 }
 
-/* SELECT_TOOL results from T1, for example */
-void SELECT_TOOL(int slot)
+/* SELECT_POCKET results from T1, for example */
+void SELECT_POCKET(int slot)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
@@ -2258,15 +2266,7 @@ void INIT_CANON()
     canon.programOrigin.v = 0.0;
     canon.programOrigin.w = 0.0;
     SELECT_PLANE(CANON_PLANE_XY);
-    canon.endPoint.x = 0.0;
-    canon.endPoint.y = 0.0;
-    canon.endPoint.z = 0.0;
-    canon.endPoint.a = 0.0;
-    canon.endPoint.b = 0.0;
-    canon.endPoint.c = 0.0;
-    canon.endPoint.u = 0.0;
-    canon.endPoint.v = 0.0;
-    canon.endPoint.w = 0.0;
+    canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
     SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     SET_NAIVECAM_TOLERANCE(0);
     canon.toolOffset.x = 0.0;
@@ -2323,7 +2323,7 @@ void CANON_ERROR(const char *fmt, ...)
   GET_EXTERNAL_TOOL_TABLE(int pocket)
 
   Returns the tool table structure associated with pocket. Note that
-  pocket can run from 0 (by definition, no tool), to pocket CANON_TOOL_MAX - 1.
+  pocket can run from 0 (by definition, the spindle), to pocket CANON_POCKETS_MAX - 1.
 
   Tool table is always in machine units.
 
@@ -2332,8 +2332,8 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket)
 {
     CANON_TOOL_TABLE retval;
 
-    if (pocket < 1 || pocket >= CANON_TOOL_MAX) {
-	retval.id = 0;
+    if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
+	retval.toolno = -1;
         retval.xoffset = 0.0;
 	retval.zoffset = 0.0;
         retval.frontangle = 0.0;
@@ -2361,17 +2361,9 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     pos = emcStatus->motion.traj.position;
 
     // first update internal record of last position
-    canon.endPoint.x = FROM_EXT_LEN(pos.tran.x);
-    canon.endPoint.y = FROM_EXT_LEN(pos.tran.y);
-    canon.endPoint.z = FROM_EXT_LEN(pos.tran.z);
-
-    canon.endPoint.a = FROM_EXT_ANG(pos.a);
-    canon.endPoint.b = FROM_EXT_ANG(pos.b);
-    canon.endPoint.c = FROM_EXT_ANG(pos.c);
-
-    canon.endPoint.u = FROM_EXT_LEN(pos.u);
-    canon.endPoint.v = FROM_EXT_LEN(pos.v);
-    canon.endPoint.w = FROM_EXT_LEN(pos.w);
+    canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
+                        FROM_EXT_ANG(pos.a), FROM_EXT_ANG(pos.b), FROM_EXT_ANG(pos.c),
+                        FROM_EXT_LEN(pos.u), FROM_EXT_LEN(pos.v), FROM_EXT_LEN(pos.w));
 
     // now calculate position in program units, for interpreter
     position = unoffset_and_unrotate_pos(canon.endPoint);
@@ -2517,9 +2509,9 @@ CANON_DIRECTION GET_EXTERNAL_SPINDLE()
     return CANON_COUNTERCLOCKWISE;
 }
 
-int GET_EXTERNAL_TOOL_MAX()
+int GET_EXTERNAL_POCKETS_MAX()
 {
-    return CANON_TOOL_MAX;
+    return CANON_POCKETS_MAX;
 }
 
 char _parameter_file_name[LINELEN];	/* Not static.Driver
@@ -2698,7 +2690,7 @@ int GET_EXTERNAL_TOOL_SLOT()
 
 int GET_EXTERNAL_SELECTED_TOOL_SLOT()
 {
-    return emcStatus->io.tool.toolPrepped;
+    return emcStatus->io.tool.pocketPrepped;
 }
 
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE()

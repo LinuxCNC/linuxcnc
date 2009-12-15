@@ -23,7 +23,7 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    float tmp = in;
+    double tmp = in;
     if ( tmp >= 0.0 ) {
 	sign = 0;
 	out = tmp;

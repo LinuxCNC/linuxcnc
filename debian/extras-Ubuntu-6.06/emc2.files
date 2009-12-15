@@ -1,7 +1,0 @@
-usr/share/applications/*.desktop
-usr/share/pixmaps/emc2icon.png
-etc/udev/rules.d/emc2.rules
-etc/udev/scripts/rtai_fifos.sh
-etc/modprobe.d/emc2
-etc/xdg/menus/applications-merged/cnc.menu
-usr/share/desktop-directories/cnc.directory

@@ -582,8 +582,6 @@ int Interp::read_h(char *line,   //!< string: line of RS274/NGC code being proce
   CHKS((block->h_flag == ON), NCE_MULTIPLE_H_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < -1), NCE_NEGATIVE_H_WORD_USED);
-  CHKS((block->g_modes[_gees[G_43]] == G_43 && value > _setup.tool_max), 
-          NCE_TOOL_LENGTH_OFFSET_INDEX_TOO_BIG);
   block->h_flag = ON;
   block->h_number = value;
   return INTERP_OK;
@@ -2092,10 +2090,12 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHKS(isreadonly(index),NCE_PARAMETER_NUMBER_READONLY);
       *double_ptr = parameters[index];
   }
   return INTERP_OK;
 }
+
 
 int Interp::free_named_parameters( // ARGUMENTS
     int level,      // level to free
@@ -2229,6 +2229,7 @@ int Interp::read_parameter_setting(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
+      CHKS((isreadonly(index)), NCE_PARAMETER_NUMBER_READONLY);
       CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
@@ -2856,6 +2857,11 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
   else
     CHP(read_real_number(line, counter, double_ptr));
 
+  CHKS(isnan(*double_ptr),
+          "Calculation resulted in 'not a number'");
+  CHKS(isinf(*double_ptr),
+          "Calculation resulted in 'infinity'");
+
   return INTERP_OK;
 }
 
@@ -3453,4 +3459,13 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
   block->z_flag = ON;
   block->z_number = value;
   return INTERP_OK;
+}
+
+bool Interp::isreadonly(int index)
+{
+  int i;
+  for (i=0; i< _n_readonly_parameters; i++) {
+    if (_readonly_parameters[i] == index) return 1;
+  }
+  return 0;
 }

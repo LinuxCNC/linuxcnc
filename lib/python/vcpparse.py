@@ -19,9 +19,7 @@
     Parses a pyVCP XML file and creates widgets by calling pyvcp_widgets.py
 """
 
-import sys; sys.path.append('/usr/lib/python%s/site-packages/oldxml' % sys.version[:3]) # python-xml 0.8.4-10ubuntu1 / hardy requires this
 import xml.dom.minidom
-import xml.dom.ext
 from Tkinter import *
 import sys, os
 import emc

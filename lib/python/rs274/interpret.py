@@ -35,15 +35,15 @@ class Translated:
     def straight_feed(self, *args):
         self.straight_feed_translated(*self.rotate_and_translate(*args))
     def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u=None, offset_v=None, offset_w=None):
-        self.offset_x = offset_x #- (self.ox - self.offset_x)
-        self.offset_y = offset_y #- (self.oy - self.offset_y)
-        self.offset_z = offset_z #- (self.oz - self.offset_z)
-        self.offset_a = offset_a #- (self.ox - self.offset_x)
-        self.offset_b = offset_b #- (self.oy - self.offset_y)
-        self.offset_c = offset_c #- (self.oz - self.offset_z)
-        self.offset_u = offset_u #- (self.ox - self.offset_x)
-        self.offset_v = offset_v #- (self.oy - self.offset_y)
-        self.offset_w = offset_w #- (self.oz - self.offset_z)
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.offset_z = offset_z
+        self.offset_a = offset_a
+        self.offset_b = offset_b
+        self.offset_c = offset_c
+        self.offset_u = offset_u
+        self.offset_v = offset_v
+        self.offset_w = offset_w
     def set_xy_rotation(self, theta):
         self.rotation_xy = theta
 
@@ -61,7 +61,7 @@ class ArcsToSegmentsMixin:
             roty = x1 * math.sin(t) + y1 * math.cos(t)
             x1 = rotx
             y1 = roty
-            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a, b, c, u, v, w]
+            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
             rotcx = cx * math.cos(t) - cy * math.sin(t)
             rotcy = cx * math.sin(t) + cy * math.cos(t)
             cx = rotcx
@@ -70,12 +70,12 @@ class ArcsToSegmentsMixin:
             cy += self.offset_y
             xyz = [0,1,2]
         elif self.plane == 3:
-            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a, b, c, u, v, w]
+            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
             cx=cx+self.offset_z
             cy=cy+self.offset_x
             xyz = [2,0,1]
         else:
-            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a, b, c, u, v, w]
+            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
             cx=cx+self.offset_y
             cy=cy+self.offset_z
             xyz = [1,2,0]

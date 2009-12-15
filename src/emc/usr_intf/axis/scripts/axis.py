@@ -286,9 +286,16 @@ class Notification(Tkinter.Frame):
         self.cache = []
         Tkinter.Frame.__init__(self, master)
 
-    def clear(self):
-        while self.widgets:
-            self.remove(self.widgets[0])
+    def clear(self,iconname=None):
+        if iconname:
+            cpy = self.widgets[:]
+            for i, item in enumerate(cpy):
+                frame,icon,text,button,iname = item
+                if iname == "icon_std_" + iconname:
+                    self.remove(cpy[i])
+        else:
+            while self.widgets:
+                self.remove(self.widgets[0])
 
     def clear_one(self):
         if self.widgets:
@@ -302,16 +309,17 @@ class Notification(Tkinter.Frame):
         if len(self.widgets) > 10:
             self.remove(self.widgets[0])
         if self.cache:
-            frame, icon, text, button = widgets = self.cache.pop()
+            frame, icon, text, button, discard = widgets = self.cache.pop()
             icon.configure(image=iconname)
             text.configure(text=message)
+            widgets = frame, icon, text, button, iconname
         else:
             frame = Tkinter.Frame(self)
             icon = Tkinter.Label(frame, image=iconname)
             text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
             button = Tkinter.Button(frame, image=close,
                 command=lambda: self.remove(widgets))
-            widgets = frame, icon, text, button
+            widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
             button.pack(side="left")
@@ -1108,6 +1116,20 @@ class MyOpengl(Opengl):
                 y = positions[1]
                 positions[0] = x * math.cos(t) - y * math.sin(t)
                 positions[1] = x * math.sin(t) + y * math.cos(t)
+            else:
+                positions = list(positions)
+
+            if a_axis_wrapped:
+                positions[3] = math.fmod(positions[3], 360.0)
+                if positions[3] < 0: positions[3] += 360.0
+
+            if b_axis_wrapped:
+                positions[4] = math.fmod(positions[4], 360.0)
+                if positions[4] < 0: positions[4] += 360.0
+
+            if c_axis_wrapped:
+                positions[5] = math.fmod(positions[5], 360.0)
+                if positions[5] < 0: positions[5] += 360.0
 
             positions = to_internal_units(positions)
             axisdtg = to_internal_units(s.dtg)
@@ -1501,6 +1523,10 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
+        self.set_manual_mode = False
+        self.notifications_clear = False
+        self.notifications_clear_info = False
+        self.notifications_clear_error = False
 
     def start(self):
         if self.running.get(): return
@@ -1596,6 +1622,26 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
+        set_manual_mode = comp["set-manual-mode"]
+        if self.set_manual_mode != set_manual_mode:
+             self.set_manual_mode = set_manual_mode
+             if self.set_manual_mode:
+                 root_window.tk.eval(pane_top + ".tabs raise manual")
+        notifications_clear = comp["notifications-clear"]
+        if self.notifications_clear != notifications_clear:
+             self.notifications_clear = notifications_clear
+             if self.notifications_clear:
+                 notifications.clear()
+        notifications_clear_info = comp["notifications-clear-info"]
+        if self.notifications_clear_info != notifications_clear_info:
+             self.notifications_clear_info = notifications_clear_info
+             if self.notifications_clear_info:
+                 notifications.clear("info")
+        notifications_clear_error = comp["notifications-clear-error"]
+        if self.notifications_clear_error != notifications_clear_error:
+             self.notifications_clear_error = notifications_clear_error
+             if self.notifications_clear_error:
+                 notifications.clear("error")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
@@ -1625,16 +1671,13 @@ class LivePlotter:
                 break
         vupdate(vars.on_any_limit, on_any_limit)
         global current_tool
-        current_tool = None
-        for i in self.stat.tool_table:
-            if i[0] == self.stat.tool_in_spindle:
-                current_tool = i
+        current_tool = self.stat.tool_table[0]
         if current_tool:
             tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
-        if self.stat.tool_in_spindle == 0:
-            vupdate(vars.tool, _("No tool"))
-        elif current_tool is None:
+        if current_tool is None:
             vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
+        elif tool_data['tool'] == 0 or tool_data['tool'] == -1:
+            vupdate(vars.tool, _("No tool"))
         elif current_tool.xoffset == 0 and not lathe:
             vupdate(vars.tool, _("Tool %(tool)d, offset %(zo)g, diameter %(dia)g") % tool_data)
         else:
@@ -2276,7 +2319,7 @@ class _prompt_touchoff(_prompt_float):
             tool_offset_axes = "xz"
         else:
             tool_offset_axes = "z"
-        if s.tool_in_spindle == 0 or vars.current_axis.get() not in tool_offset_axes:
+        if vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
         linear_axis = vars.current_axis.get() in "xyzuvw"
@@ -3056,42 +3099,21 @@ class TclCommands(nf.TclCommands):
         ensure_mode(emc.MODE_MDI)
         s.poll()
 
-        to = list(s.tool_offset)
-        if vars.current_axis.get() == "x" and 70 in s.gcodes: # diameter mode
-            # so scale tool offset to diameters
-            to[0] *= 2
-
-        if system.split()[0] == "T":
-            pos = [(a-b-origin) for a, b, origin in zip(s.position, to, s.origin)]
-        else:
-            pos = [(a-b) for a, b in zip(s.position, to)]
-
-        pos = to_internal_units(pos)
-        p0 = pos[offset_axis]
-
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
-        old_tool = to_internal_linear_unit(to[offset_axis])
-
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
-            p0 *= 25.4
-            old_tool *= 25.4
-
-        if vars.current_axis.get() == "x" and 70 in s.gcodes:
-            old_tool *= 2
-            p0 *= 2
 
         if system.split()[0] == "T":
-            offset_command = "G10 L1 P%d %c[%.12f+[%.12f-[%f*[%s]]]]" % (s.tool_in_spindle, vars.current_axis.get(), p0, old_tool, scale, new_axis_value)
+            offset_command = "G10 L10 P%d %c[%s*%.12f]" % (s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
             c.mdi("G43")
             c.wait_complete()
         else:
-            offset_command = "G10 L2 %s %c[%.12f-[%f*[%s]]]" % (system.split()[0], vars.current_axis.get(), p0, scale, new_axis_value)
+            offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.current_axis.get(), new_axis_value, scale)
             c.mdi(offset_command)
             c.wait_complete()
 
@@ -3582,6 +3604,9 @@ vars.has_editor.set(editor is not None)
 tooleditor = inifile.find("DISPLAY", "TOOL_EDITOR") or "tooledit"
 tooltable = inifile.find("EMCIO", "TOOL_TABLE")
 lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+a_axis_wrapped = inifile.find("AXIS_3", "WRAPPED_ROTARY")
+b_axis_wrapped = inifile.find("AXIS_4", "WRAPPED_ROTARY")
+c_axis_wrapped = inifile.find("AXIS_5", "WRAPPED_ROTARY")
 if coordinate_display:
     if coordinate_display.lower() in ("mm", "metric"): vars.metric.set(1)
     else: vars.metric.set(0)
@@ -3804,6 +3829,10 @@ if hal_present == 1 :
     comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
+    comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
+    comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
     if vcp:

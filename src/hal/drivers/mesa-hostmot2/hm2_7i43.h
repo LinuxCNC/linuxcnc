@@ -21,6 +21,7 @@
 
 #define HM2_LLIO_NAME "hm2_7i43"
 
+#include "../parport_common.h"
 
 
 
@@ -50,12 +51,7 @@
 //
 
 typedef struct {
-    int ioaddr;
-    void *io_region1;
-
-    int ioaddr_hi;
-    void *io_region2;
-
+    hal_parport_t port;
     int epp_wide;
 
     hm2_lowlevel_io_t llio;

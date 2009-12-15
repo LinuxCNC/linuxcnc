@@ -58,6 +58,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -207,6 +208,15 @@ Interfaces
 
 \begin_layout Standard
 \begin_inset Include \include{gui/axis.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Include \include{gui/touchy.lyx}
 preview false
 
 \end_inset

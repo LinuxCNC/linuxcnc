@@ -1,1 +1,0 @@
-KERNEL=="RTAI_SHM" SYMLINK=="rtai_shm" MODE="0666"

@@ -75,8 +75,8 @@ static double            _program_position_y = 0;
 static double            _program_position_z = 0;
 static double            _spindle_speed;
 static CANON_DIRECTION   _spindle_turning;
-int                      _tool_max = CANON_TOOL_MAX; /*Not static. Driver reads  */
-CANON_TOOL_TABLE         _tools[CANON_TOOL_MAX]; /*Not static. Driver writes */
+int                      _pockets_max = CANON_POCKETS_MAX; /*Not static. Driver reads  */
+CANON_TOOL_TABLE         _tools[CANON_POCKETS_MAX]; /*Not static. Driver writes */
 /* optional program stop */
 static bool optional_program_stop = ON; //set enabled by default (previous EMC behaviour)
 /* optional block delete */
@@ -604,11 +604,11 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                           double frontangle, double backangle, int orientation) {
 }
 
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) 
@@ -623,10 +623,11 @@ void CHANGE_TOOL(int slot)
 {
   PRINT1("CHANGE_TOOL(%d)\n", slot);
   _active_slot = slot;
+  _tools[0] = _tools[slot];
 }
 
-void SELECT_TOOL(int slot)
-{PRINT1("SELECT_TOOL(%d)\n", slot);}
+void SELECT_POCKET(int slot)
+{PRINT1("SELECT_POCKET(%d)\n", slot);}
 
 void CHANGE_TOOL_NUMBER(int slot)
 {
@@ -993,10 +994,10 @@ extern int GET_EXTERNAL_TOOL_SLOT()
   return _active_slot;
 }
 
-/* Returns maximum number of tools */
-int GET_EXTERNAL_TOOL_MAX()
+/* Returns maximum number of pockets */
+int GET_EXTERNAL_POCKETS_MAX()
 {
-  return _tool_max;
+  return _pockets_max;
 }
 
 /* Returns the CANON_TOOL_TABLE structure associated with the tool

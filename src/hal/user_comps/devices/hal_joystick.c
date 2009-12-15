@@ -148,6 +148,7 @@ int main(int argc, char * argv[])
     comp_id = hal_init(comp_name);
     if (comp_id < 0) {
 	printf( "ERROR: hal_init() failed\n");
+	close(jsfd);
 	return -1;
     }
     /* Register the routine that catches the SIGINT signal */
@@ -159,6 +160,7 @@ int main(int argc, char * argv[])
     if (js_data == 0) {
 	printf( "ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
+	close(jsfd);
 	return -1;
     }
     /* clear the exported flags */

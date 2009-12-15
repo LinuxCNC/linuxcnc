@@ -21,10 +21,13 @@
 #include <asm/io.h>
 #endif
 
+#include "parport_common.h"
+
 int ioaddr = 0x378;
 int ioaddr_hi = 0;
 int epp_wide = 1;
 int watchdog = 1;
+struct hal_parport_t portdata;
 
 RTAPI_MP_INT(ioaddr, "Address of parallel port where pluto-p is attached");
 RTAPI_MP_INT(ioaddr_hi,
@@ -33,22 +36,22 @@ RTAPI_MP_INT(epp_wide, "Use 16- and 32-bit EPP transfers with hardware EPP");
 RTAPI_MP_INT(watchdog,
 	"Enable hardware watchdog to tristate outputs if EMC crashes");
 
-#ifndef labs // linux/kernel.h may provide labs for realtime systems
-static long labs(long l) { if(l < 0) return -l; return l; }
+#ifndef llabs // linux/kernel.h may provide labs for realtime systems
+static int64_t llabs(int64_t l) { if(l < 0) return -l; return l; }
 #endif
 
-static inline long extend(long old, int newlow, int nbits) {
-    long mask = (1<<nbits) - 1;
-    long maxdelta = mask / 2;
-    long oldhigh = old & ~mask;
-    long oldlow = old & mask;
-    long candidate1, candidate2;
+static inline int64_t extend(int64_t old, int newlow, int nbits) {
+    int64_t mask = (1<<nbits) - 1;
+    int64_t maxdelta = mask / 2;
+    int64_t oldhigh = old & ~mask;
+    int64_t oldlow = old & mask;
+    int64_t candidate1, candidate2;
 
     candidate1 = oldhigh | newlow;
     if(oldlow < newlow) candidate2 = candidate1 - (1<<nbits);
     else                candidate2 = candidate1 + (1<<nbits);
 
-    if (labs(old-candidate1) > maxdelta)
+    if (llabs(old-candidate1) > maxdelta)
 	return candidate2;
     else
 	return candidate1;
@@ -56,15 +59,15 @@ static inline long extend(long old, int newlow, int nbits) {
 
 static inline void EPP_DIR_WRITE(void) { }
 static inline void EPP_DIR_READ(void) { }
-static inline void ADDR(int w) {
+static inline void EPP_ADDR(int w) {
     outb(w, ioaddr+3);
 }
 
-static inline void WRITE(int w) {
+static inline void EPP_WRITE(int w) {
     outb(w, ioaddr+4);
 }
 
-static inline int READ(void) {
+static inline int EPP_READ(void) {
     return inb(ioaddr+4);
 }
 
@@ -75,10 +78,10 @@ static inline __u32 read32(void) {
     if(epp_wide)
 	return inl(ioaddr+4);
 
-    a = READ();
-    b = READ();
-    c = READ();
-    d = READ();
+    a = EPP_READ();
+    b = EPP_READ();
+    c = EPP_READ();
+    d = EPP_READ();
 
     return a + (b<<8) + (c<<16) + (d<<24);
 }
@@ -89,10 +92,10 @@ static inline void write32(long w) {
 	return;
     }
 
-    WRITE(w);
-    WRITE(w >> 8);
-    WRITE(w >> 16);
-    WRITE(w >> 24);
+    EPP_WRITE(w);
+    EPP_WRITE(w >> 8);
+    EPP_WRITE(w >> 16);
+    EPP_WRITE(w >> 24);
 }
 
 static inline void write16(int w) {
@@ -101,8 +104,8 @@ static inline void write16(int w) {
 	return;
     }
 
-    WRITE(w & 0xff);
-    WRITE(w >> 8);
+    EPP_WRITE(w & 0xff);
+    EPP_WRITE(w >> 8);
 }
 
 
@@ -133,7 +136,6 @@ static void pluto_program(unsigned char firmware[FIRMWARE_SIZE]) {
     rtapi_print_msg(RTAPI_MSG_INFO, "done\n");
 }
 
-static void *region1=0, *region2=0;
 static void pluto_clear_error_register(void) {
     /* To clear timeout some chips require double read */
     int r = inb(ioaddr+1);
@@ -142,41 +144,16 @@ static void pluto_clear_error_register(void) {
 }
 
 static void pluto_cleanup(void) {
-    if(region1)
-	outb(0, ioaddr+2); // set nInitialize low and reset the FPGA
-    if(region1)
-	    rtapi_release_region(ioaddr, 8);
-    if(region2)
-	rtapi_release_region(ioaddr_hi, 4);
+    hal_parport_release(&portdata);
 }
 
 static int pluto_setup(unsigned char *firmware) {
-
+    int retval = hal_parport_get(comp_id, &portdata, ioaddr, ioaddr_hi,
+        PARPORT_MODE_EPP);
     int status;
-    if(ioaddr_hi == 0) ioaddr_hi = ioaddr + 0x400;
 
-    region1 = rtapi_request_region(ioaddr, 8, "pluto");
-    if(!region1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	     "PLUTO: ERROR: request_region(%x) failed\n", ioaddr);
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	     "(make sure the kernel module 'parport' is unloaded)\n");
-	hal_exit(comp_id);
-	return -EBUSY;
-    }
-
-    if(ioaddr_hi != -1) {
-	region2 = rtapi_request_region(ioaddr_hi, 4, "pluto");
-	if(!region2) {
-	    rtapi_release_region(ioaddr, 8);
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		 "PLUTO: ERROR: request_region(%x) failed\n", ioaddr);
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		 "(make sure the kernel module 'parport' is unloaded)\n");
-	    hal_exit(comp_id);
-	    return -EBUSY;
-	}
-    }
+    if(retval < 0)
+        return retval;
 
     outb(4, ioaddr + 2);        // set control lines and input mode
     if(ioaddr_hi != -1)
@@ -189,9 +166,9 @@ static int pluto_setup(unsigned char *firmware) {
 
     // Check for presence of working EPP hardware
     pluto_clear_error_register();
-    ADDR(0);
+    EPP_ADDR(0);
     EPP_DIR_READ();
-    READ();
+    EPP_READ();
     status = inb(ioaddr+1) & 1;
     if(status) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Failed to communicate with pluto-servo board after programming firmware.\n");

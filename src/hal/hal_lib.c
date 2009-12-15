@@ -453,6 +453,17 @@ int hal_ready(int comp_id) {
     return 0;
 }
 
+char *hal_comp_name(int comp_id)
+{
+    hal_comp_t *comp;
+    char *result = NULL;
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_id(comp_id);
+    if(comp) result = comp->name;
+    rtapi_mutex_give(&(hal_data->mutex));
+    return result;
+}
+
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -583,6 +594,12 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	return -EINVAL;
     }
 
+    if(*data_ptr_addr) 
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
+            name);
+    }
     if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
@@ -3312,6 +3329,7 @@ EXPORT_SYMBOL(hal_init);
 EXPORT_SYMBOL(hal_ready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
+EXPORT_SYMBOL(hal_comp_name);
 
 EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);

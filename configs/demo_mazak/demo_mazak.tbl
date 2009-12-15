@@ -1,9 +1,6 @@
-POC     FMS     LEN     DIAM    COMMENT
+TOOLNO POCKET       LENGTH    DIAMETER  COMMENT
 
-1       1       -1.1901     0.250   3/4 center drill
-2       2       -0.2875     0.209   #4 tap drill
-3       3       0.0     0.1406  9/64 clearance drill
-4       4       -1.6630     0.25    1/4 end mill
-5	5	-1.5042	0.5     1/2 end mill
-15	15	-1.5042	0.55    same 1/2 end mill oversize roughing
-6	6	-0.1833	0.25	1/4-20 pulley tap
+     1      1    +0.511000    0.125000  1/8 end mill
+     2      2    +0.100000    0.062500  1/16 end mill
+     3      3    +1.273000    0.201000  #7 tap drill
+ 99999  99999    +0.100000    0.000000  big tool number

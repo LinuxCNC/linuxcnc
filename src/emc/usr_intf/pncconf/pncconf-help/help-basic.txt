@@ -10,12 +10,30 @@ Computer Response Time:
 
 I/O Ports / Boards:
     Pick available I/O.
-    mesa board is currently required as the parallel port
-        can't currently be used for stepper / servo control. 
-    parallel boards must have the address specified and can
-        be specified as 'OUT' or 'IN' which changes the available
-        8 data pins between output or input.
+    Mesa board is required as the parallel port
+    can't currently be used for stepper / servo control. 
+    Parallel ports must have the address specified and can
+    be specified as 'OUT' or 'IN' which changes the available
+    8 data pins between output or input.
+    Press the Parport Address Search button to display info on 
+    all PCI cards installed. Look for One that mentions Parallel
+    port, It should have addresses specified. Choose one and try it. 
 
 Limit And Homing Switches:
     This narrows the available signal choices in the mesa and 
         parport pages.
+
+Tool Changing:
+    Choose between an on screen prompt for tool changes or export
+    standard signal names for a User supplied custom tool changer 
+    Hal file
+
+Rapid Jog Buttons:
+    Choose between none, A single set of buttons with axis selected 
+    by switches, or seperate switches for each axis.
+    You can set the maximum jog rate.
+
+Mpg Jogging:
+    Choose between GUI only, a single MPG with axis selected by
+    switches or seperate MPGs for each axis
+    Choose the three selectable jog rates 

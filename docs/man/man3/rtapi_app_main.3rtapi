@@ -13,7 +13,7 @@ None
 .SH DESCRIPTION
 The body of \fBrtapi_app_main\fR, which is provided by the component author,
 generally consists of a call to rtapi_init or hal_init, followed by other
-:omponent-specific initialization code.
+component-specific initialization code.
 
 .SH RETURN VALUE
 Return 0 for success.  Return a negative errno value (e.g., -EINVAL) on

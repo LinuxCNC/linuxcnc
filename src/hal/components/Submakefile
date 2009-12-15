@@ -13,6 +13,7 @@ COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
+.PHONY: manpages
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))

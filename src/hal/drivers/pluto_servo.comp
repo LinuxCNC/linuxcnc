@@ -186,14 +186,15 @@ modparam int test_encoder = 0
     "Internally connect dout0..2 to QA0, QB0, QZ0 to test quadrature counting";
 
 license "GPL";
+
+include "hal/drivers/pluto_common.h";
 ;;
 
-#include "hal/drivers/pluto_common.h"
 
 typedef struct {
-    long last_index[4];
-    long last_count[4];
-    long reset_count[4];
+    int64_t last_index[4];
+    int64_t last_count[4];
+    int64_t reset_count[4];
 } internal;
 
 #define W 14
@@ -232,7 +233,7 @@ FUNCTION(write) {
     int i;
     if(communication_error) return;
 
-    ADDR(0);
+    EPP_ADDR(0);
 
     for(i=0; i<4; i++) {
         if(pwm_max_dc(i) > 1) pwm_max_dc(i) = 1;
@@ -260,11 +261,11 @@ FUNCTION(read) {
     int i;
     __u32 ppdata;
 
-    ADDR(0);
+    EPP_ADDR(0);
     EPP_DIR_READ();
 
     for(i=0; i<4; i++) {
-        long count, index;
+        int64_t count, index;
 	int newlow, indlow, indexed;
         int reset;
         ppdata = read32();

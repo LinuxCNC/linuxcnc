@@ -418,11 +418,11 @@ void COMMENT(char *comment) {
     Py_XDECREF(result);
 }
 
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double xoffset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
                           double frontangle, double backangle, int orientation) {
 }
 
-void SET_TOOL_TABLE_ENTRY(int id, double zoffset, double diameter) {
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter) {
 }
 
 void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset) {
@@ -453,7 +453,7 @@ void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
-void SELECT_TOOL(int tool) {}
+void SELECT_POCKET(int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
 
 extern bool GET_BLOCK_DELETE(void) { 
@@ -548,12 +548,12 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
 }
 int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
-    CANON_TOOL_TABLE t = {0,0,0,0,0,0,0};
+    CANON_TOOL_TABLE t = {-1,0,0,0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
         PyObject_CallMethod(callback, "get_tool", "i", tool);
     if(result == NULL ||
-        !PyArg_ParseTuple(result, "idddddi", &t.id, &t.zoffset, &t.xoffset, 
+       !PyArg_ParseTuple(result, "idddddi", &t.toolno, &t.zoffset, &t.xoffset, 
                           &t.diameter, &t.frontangle, &t.backangle, 
                           &t.orientation))
             interp_error ++;
@@ -601,7 +601,7 @@ int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
 CANON_PLANE GET_EXTERNAL_PLANE() { return 1; }
 double GET_EXTERNAL_SPEED() { return 0; }
-int GET_EXTERNAL_TOOL_MAX() { return CANON_TOOL_MAX; }
+int GET_EXTERNAL_POCKETS_MAX() { return CANON_POCKETS_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 
 

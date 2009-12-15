@@ -308,7 +308,7 @@ int emcSystemCmd(char *s)
 	if (EMC_DEBUG & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print("emcSystemCmd: can't execute ``%s''\n", s);
 	}
-	return -1;
+	exit(-1);
     }
     // else we're the parent
     return 0;
@@ -711,6 +711,7 @@ static int emcTaskPlan(void)
 	    case EMC_TRAJ_PROBE_TYPE:
 	    case EMC_AUX_INPUT_WAIT_TYPE:
 	    case EMC_MOTION_SET_DOUT_TYPE:
+	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_MOTION_SET_AOUT_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -828,6 +829,7 @@ static int emcTaskPlan(void)
 	    case EMC_AUX_INPUT_WAIT_TYPE:
 	    case EMC_MOTION_SET_DOUT_TYPE:
 	    case EMC_MOTION_SET_AOUT_TYPE:
+	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
@@ -1246,6 +1248,7 @@ static int emcTaskPlan(void)
 	    case EMC_AUX_INPUT_WAIT_TYPE:
 	    case EMC_MOTION_SET_DOUT_TYPE:
 	    case EMC_MOTION_SET_AOUT_TYPE:
+	    case EMC_MOTION_ADAPTIVE_TYPE:
 	    case EMC_TRAJ_RIGID_TAP_TYPE:
 	    case EMC_SET_DEBUG_TYPE:
 		retval = emcTaskIssueCommand(emcCommand);
@@ -1835,7 +1838,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_SET_OFFSET_TYPE:
 	emc_tool_set_offset_msg = (EMC_TOOL_SET_OFFSET *) cmd;
-	retval = emcToolSetOffset(emc_tool_set_offset_msg->id,
+	retval = emcToolSetOffset(emc_tool_set_offset_msg->pocket,
+                                  emc_tool_set_offset_msg->toolno,
                                   emc_tool_set_offset_msg->zoffset,
                                   emc_tool_set_offset_msg->xoffset,
                                   emc_tool_set_offset_msg->diameter,

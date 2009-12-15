@@ -26,6 +26,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "units.h"
 
 /****************************************************************************/
 
@@ -83,6 +84,28 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
     return hypot((radius * theta), (z2 - z1));
 }
 
+
+/* Find the real destination, given the axis's current position, the
+   commanded destination, and the direction to turn (which comes from
+   the sign of the commanded value in the gcode).  Modulo 360 positions
+   of the axis are considered equivalent and we just need to find the
+   nearest one. */
+
+int Interp::unwrap_rotary(double *r, double sign_of, double commanded, double current, char axis) {
+    double result;
+    int neg = copysign(1.0, sign_of) < 0.0;
+    CHKS((sign_of <= -360.0 || sign_of >= 360.0), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), sign_of, axis);
+    
+    double d = floor(current/360.0);
+    result = fabs(commanded) + (d*360.0);
+    if(!neg && result < current) result += 360.0;
+    if(neg && result > current) result -= 360.0;
+    *r = result;
+
+    return INTERP_OK;
+}
+    
+
 /****************************************************************************/
 
 /*! find_ends
@@ -122,6 +145,7 @@ block plus either (i) the programmed current position - when cutter
 radius compensation is in progress, or (2) the actual current position.
 
 */
+
 
 int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
                       setup_pointer s,    //!< pointer to machine settings                 
@@ -164,19 +188,37 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->a_flag == ON) {
-            *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+            if(s->a_axis_wrapped) {
+                CHP(unwrap_rotary(AA_p, block->a_number, 
+                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
+                                  s->AA_current, 'A'));
+            } else {
+                *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+            }
         } else {
             *AA_p = s->AA_current;
         }
 
         if(block->b_flag == ON) {
-            *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+            if(s->b_axis_wrapped) {
+                CHP(unwrap_rotary(BB_p, block->b_number, 
+                                  block->b_number - s->BB_origin_offset - s->BB_axis_offset, 
+                                  s->BB_current, 'B'));
+            } else {
+                *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+            }
         } else {
             *BB_p = s->BB_current;
         }
 
         if(block->c_flag == ON) {
-            *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+            if(s->c_axis_wrapped) {
+                CHP(unwrap_rotary(CC_p, block->c_number, 
+                                  block->c_number - s->CC_origin_offset - s->CC_axis_offset, 
+                                  s->CC_current, 'C'));
+            } else {
+                *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+            }
         } else {
             *CC_p = s->CC_current;
         }
@@ -220,10 +262,37 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             // and only XZ affects Z.
             *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z : s->current_z;
         }
-    
-        *AA_p = (block->a_flag == ON) ? block->a_number : s->AA_current;
-        *BB_p = (block->b_flag == ON) ? block->b_number : s->BB_current;
-        *CC_p = (block->c_flag == ON) ? block->c_number : s->CC_current;
+
+        if(block->a_flag == ON) {
+            if(s->a_axis_wrapped) {
+                CHP(unwrap_rotary(AA_p, block->a_number, block->a_number, s->AA_current, 'A'));
+            } else {
+                *AA_p = block->a_number;
+            }
+        } else {
+            *AA_p = s->AA_current;
+        }
+
+        if(block->b_flag == ON) {
+            if(s->b_axis_wrapped) {
+                CHP(unwrap_rotary(BB_p, block->b_number, block->b_number, s->BB_current, 'B'));
+            } else {
+                *BB_p = block->b_number;
+            }
+        } else {
+            *BB_p = s->BB_current;
+        }
+
+        if(block->c_flag == ON) {
+            if(s->c_axis_wrapped) {
+                CHP(unwrap_rotary(CC_p, block->c_number, block->c_number, s->CC_current, 'C'));
+            } else {
+                *CC_p = block->c_number;
+            }
+        } else {
+            *CC_p = s->CC_current;
+        }
+
         *u_p = (block->u_flag == ON) ? block->u_number : s->u_current;
         *v_p = (block->v_flag == ON) ? block->v_number : s->v_current;
         *w_p = (block->w_flag == ON) ? block->w_number : s->w_current;
@@ -309,13 +378,79 @@ int Interp::find_relative(double x1,     //!< absolute x position
   *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y;
   rotate(x2, y2, -settings->rotation_xy);
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
-  *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
-  *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
-  *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+
+  if(settings->a_axis_wrapped) {
+      CHP(unwrap_rotary(AA_2, AA_1,
+                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
+                        settings->AA_current, 'A'));
+  } else {
+      *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+  }
+
+  if(settings->b_axis_wrapped) {
+      CHP(unwrap_rotary(BB_2, BB_1,
+                        BB_1 - settings->BB_origin_offset - settings->BB_axis_offset, 
+                        settings->BB_current, 'B'));
+  } else {
+      *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
+  }
+
+  if(settings->c_axis_wrapped) {
+      CHP(unwrap_rotary(CC_2, CC_1,
+                        CC_1 - settings->CC_origin_offset - settings->CC_axis_offset, 
+                        settings->CC_current, 'C'));
+  } else {
+      *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+  }
+
   *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset;
   *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset;
   *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_woffset;
   return INTERP_OK;
+}
+
+// find what the current coordinates would be if we were in a different system
+
+int Interp::find_current_in_system(setup_pointer s, int system,
+                                   double *x, double *y, double *z,
+                                   double *a, double *b, double *c,
+                                   double *u, double *v, double *w) {
+    double *p = s->parameters;
+
+    *x = s->current_x;
+    *y = s->current_y;
+    *z = s->current_z;
+    *a = s->AA_current;
+    *b = s->BB_current;
+    *c = s->CC_current;
+    *u = s->u_current;
+    *v = s->v_current;
+    *w = s->w_current;
+
+    rotate(x, y, s->rotation_xy);
+
+    *x += s->origin_offset_x;
+    *y += s->origin_offset_y;
+    *z += s->origin_offset_z;
+    *a += s->AA_origin_offset;
+    *b += s->BB_origin_offset;
+    *c += s->CC_origin_offset;
+    *u += s->u_origin_offset;
+    *v += s->v_origin_offset;
+    *w += s->w_origin_offset;
+
+    *x -= USER_TO_PROGRAM_LEN(p[5201 + system * 20]);
+    *y -= USER_TO_PROGRAM_LEN(p[5202 + system * 20]);
+    *z -= USER_TO_PROGRAM_LEN(p[5203 + system * 20]);
+    *a -= USER_TO_PROGRAM_LEN(p[5204 + system * 20]);
+    *b -= USER_TO_PROGRAM_LEN(p[5205 + system * 20]);
+    *c -= USER_TO_PROGRAM_LEN(p[5206 + system * 20]);
+    *u -= USER_TO_PROGRAM_LEN(p[5207 + system * 20]);
+    *v -= USER_TO_PROGRAM_LEN(p[5208 + system * 20]);
+    *w -= USER_TO_PROGRAM_LEN(p[5209 + system * 20]);
+
+    rotate(x, y, -p[5210 + system * 20]);
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -420,4 +555,20 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
     theta = ((beta - alpha) + ((turn + 1) * (2 * M_PIl)));
   }
   return (theta);
+}
+
+int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
+{
+    if(!settings->random_toolchanger && toolno == 0) {
+        *pocket = 0;
+        return INTERP_OK;
+    }
+    *pocket = -1;
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+        if(settings->tool_table[i].toolno == toolno)
+            *pocket = i;
+    }
+
+    CHKS((*pocket == -1), "Specified tool not found in the tool table");
+    return INTERP_OK;
 }

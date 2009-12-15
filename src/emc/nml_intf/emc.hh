@@ -505,7 +505,6 @@ extern int emcTaskPlanSetBlockDelete(bool state);
 extern int emcTaskPlanExit();
 extern int emcTaskPlanOpen(const char *file);
 extern int emcTaskPlanRead();
-extern int emcTaskPlanRun(int line);
 extern int emcTaskPlanExecute(const char *command);
 extern int emcTaskPlanExecute(const char *command, int line_number); //used in case of MDI to pass the pseudo line number to interp
 extern int emcTaskPlanPause();
@@ -526,7 +525,7 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int id, double zoffset, double xoffset,
+extern int emcToolSetOffset(int pocket, int toolno, double zoffset, double xoffset,
                             double diameter, double frontangle,
                             double backangle, int orientation);
 extern int emcToolSetNumber(int number);

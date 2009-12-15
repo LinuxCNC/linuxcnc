@@ -1,14 +1,14 @@
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
-net tool-change eztrol.tool-change iocontrol.0.tool-change 
+net tool-change eztrol.tool-change iocontrol.0.tool-change
 net tool-changed eztrol.tool-changed iocontrol.0.tool-changed
 net tool-prep-number eztrol.tool-prep-number iocontrol.0.tool-prep-number
-net Xmax eztrol.x-negative-limit
-net Xmin eztrol.x-positive-limit
-net Ymax eztrol.y-negative-limit
-net Ymin eztrol.y-positive-limit
-net Zmax eztrol.z-negative-limit
-net Zmin eztrol.z-positive-limit
+net Xmax eztrol.x-positive-limit
+net Xmin eztrol.x-negative-limit
+net Ymax eztrol.y-positive-limit
+net Ymin eztrol.y-negative-limit
+net Zmax eztrol.z-positive-limit
+net Zmin eztrol.z-negative-limit
 loadrt mux2
 unlinkp motion.spindle-speed-out
 unlinkp offset.0.in

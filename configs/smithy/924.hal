@@ -1,6 +1,6 @@
 # 5i20 config file for Smithy 924 Lathe
 
-# load the hostmot2 driver, this doesnt do anything by itself, 
+# load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
@@ -41,7 +41,10 @@ net Sidx hm2_5i20.0.encoder.00.index-enable => motion.spindle-index-enable
 #configure the spindle speed lowpass filter & PWM generator
 net Scmd motion.spindle-speed-out => lowpass.0.in
 net Sflt lowpass.0.out => hm2_5i20.0.pwmgen.00.value
-setp lowpass.0.gain 0.0001
+#early production machines
+#setp lowpass.0.gain 0.0001
+#later production machines
+setp lowpass.0.gain 1.0
 setp hm2_5i20.0.pwmgen.00.scale 3000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 

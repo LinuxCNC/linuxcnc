@@ -799,16 +799,19 @@ XYZABCUVW Controls the preview and backplot of rotary motion.
 \family default
  should be used.
  This sequence specifies the order in which the effect of each axis is applied,
- with a "-" inverting the sense of the rotation or translation.
+ with a "-" inverting the sense of the rotation.
 \newline
-The proper
- GEOMETRY string depends on the machine configuration and the kinematics
- used to control it.
+The proper GEOMETRY string
+ depends on the machine configuration and the kinematics used to control
+ it.
  The example string GEOMETRY=XYZBCUVW is for a 5-axis machine where kinematics
  causes UVW to move in the coordinate system of the tool and XYZ to move
  in the coordinate system of the material.
  The order of the letters is important, because it expresses the order in
- which the different transformations are applied
+ which the different transformations are applied.
+ For example rotating around C then B is different than rotating around
+ B then C.
+ Geometry has no effect without a rotary axis.
 \end_layout
 
 \begin_layout Subsection
@@ -839,7 +842,7 @@ AXIS has the ability to send loaded files through a filter program.
  This program is given the name of the input file as its first argument,
  and must write rs274ngc code to standard output.
  This output is what will be displayed in the text area, previewed in the
- display area, and executed by emc when Run.
+ display area, and executed by EMC when Run.
  
 \end_layout
 
@@ -2810,7 +2813,8 @@ TOOL_CHANGE_WITH_SPINDLE_ON\InsetSpace ~
 =\InsetSpace ~
 1 The spindle will be left on during the tool
  change when the value is 1.
- Useful for lathes mostly.
+ Useful for lathes or machines where the material is in the spindle not
+ the tool.
 \end_layout
 
 \begin_layout Description
@@ -2827,6 +2831,14 @@ TOOL_CHANGE_AT_G30\InsetSpace ~
 1 The machine is moved to reference point defined by
  parameters 5181-5186 for G30 if the value is 1.
  For more information on G30 and Parameters see the G Code Manual.
+\end_layout
+
+\begin_layout Description
+RANDOM_TOOLCHANGER\InsetSpace ~
+=\InsetSpace ~
+1 This is for machines that can not place the tool back
+ into the pocket it came from.
+ Machines that swap the tool in the pocket with the tool in the spindle.
 \end_layout
 
 \end_body

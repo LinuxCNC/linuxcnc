@@ -317,6 +317,7 @@ struct halui_str {
     hal_bit_t  *so_increase;	// pin for increasing the SO (+=scale)
     hal_bit_t  *so_decrease;	// pin for decreasing the SO (-=scale)
 
+    hal_bit_t *home_all;        //pin for homing all joints in sequence
     hal_bit_t *abort;            //pin for aborting
     hal_bit_t *mdi_commands[MDI_MAX];
 } * halui_data; 
@@ -385,12 +386,14 @@ struct local_halui_str {
     hal_bit_t  so_increase;	// pin for increasing the SO (+=scale)
     hal_bit_t  so_decrease;	// pin for decreasing the SO (-=scale)
 
+    hal_bit_t home_all;         //pin for homing all joints in sequence
     hal_bit_t abort;            //pin for aborting
     hal_bit_t mdi_commands[MDI_MAX];
 } old_halui_data; //pointer to the HAL-struct
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
+static int have_home_all = 0;
 
 static int comp_id, done;				/* component ID, main while loop */
 
@@ -932,6 +935,11 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->so_decrease), "halui.spindle-override.decrease");
     if (retval < 0) return retval;
 
+    if (have_home_all) {
+        retval = halui_export_pin_IN_bit(&(halui_data->home_all), "halui.home-all");
+        if (retval < 0) return retval;
+    }
+
     retval = halui_export_pin_IN_bit(&(halui_data->abort), "halui.abort"); 
     if (retval < 0) return retval;
 
@@ -1466,6 +1474,10 @@ static int iniLoad(const char *filename)
 	}
     }
 
+    if (NULL != inifile.Find("HOME_SEQUENCE", "AXIS_0")) {
+        have_home_all = 1;
+    }
+
     if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
 	if (!strcmp(inistring, "AUTO")) {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -1708,6 +1720,9 @@ static void check_hal_changes()
     if (check_bit_changed(halui_data->abort, &(old_halui_data.abort)) != 0)
 	sendAbort();
     
+    if (check_bit_changed(halui_data->home_all, &(old_halui_data.home_all)) != 0)
+	sendHome(-1);
+
 // joint stuff (selection, homing..)
     select_changed = -1; // flag to see if the selected joint changed
     

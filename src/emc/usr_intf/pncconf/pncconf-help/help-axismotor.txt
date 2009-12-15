@@ -1,0 +1,68 @@
+    ---Axis Motor Configuration Page---
+
+* Servo Info:
+    This is for setting up the servo control loop.
+        P - proportional term
+        I - integral term
+        D - derivative term
+        FF0 - zero order feed forward
+        FF1 - first order feed forward
+        FF2 - second order feed forward
+        Bias - 
+        Deadband - if the actual position is in this band
+            of the commanded proportional control will not be 
+            added.
+        Dac scale      - scales the output nominal is +-1 volt
+        Dac Max output - clamps the output to +- this value
+        Dac offset     - used to offset dac range. 
+        Encoder Lines  - Will be multiplied by four to get
+            quadrature pulses per revolution.
+        
+* Open loop servo test:
+    Use this test to confirm proper Dac output.
+    It is important to confirm the motor turns in the positive
+    direction when the positive jog button is pressed.
+    It is important to confirm the encoder counts in the positive 
+    direction when the motor turns in the positive direction.
+    If this is not true expect a SERVO MOTOR RUN AWAY when using
+    PID control!
+    You can also confirm the encoder scaling is correct, by moving
+    the axis a known distance and noting the encoder count.
+    The limit switches are not functional during this test.
+
+* Stepper Info:
+    This is for setting up the Stepper control loop:
+        step on time    - minimum time in nanoseconds for the step pulse.
+        Step Space      - minimum time between steps.
+        Direction Hold  - minimum time between last step and direction change.
+        Direction Setup - minimum time for direction signal.
+        Driver type     - choose a pre determined driver timing
+        motor steps     - number of electrical steps for motor usually 200
+        microstepping   - microstepping multiplication factor.
+        motor steps times microstepping = number of steps per revolution.
+
+* Axis info:
+    Pulley Ratio     - use this if using a pulley or gear drive.
+                       or 1:1 for direct drive.
+    Leadscrew        - pitch (metric) or TPI of leadscrew.
+    Max velocity     - in units per MINUTE.
+    Max Acceleration - in units per SECOND squared.  
+    Rapid speed following error - amount actual can deviate from commanded.
+    Feed speed following error  - amount actual can deviate from commanded.
+    Invert motor direction      - check to reverse motor direction
+    Invert encoder direction    - check to reverse encoder direction
+
+* Test / Tune Axis:
+    Use this to test and tune the current axis.
+    set the velocity, acceleration and control loop settings.
+    jog to a safe zone close to the middle of axis.
+    set the test distance and choose a movement type:
+        +- for moving both sides of start point.
+        - for moving between zero and negative side.
+        + for moving between zero and positive side.
+    choose a pause time.
+    press run and the test will move back and forth pausing 
+    at each end of travel.
+    pressing OK will transfer the settings to the axis page.
+    pressing cancel will keep the existing settings.
+

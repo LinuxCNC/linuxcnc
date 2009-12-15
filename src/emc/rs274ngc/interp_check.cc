@@ -88,10 +88,10 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((block->p_number == -1.0), NCE_DWELL_TIME_MISSING_WITH_G4);
   } else if (mode0 == G_10) {
     p_int = (int) (block->p_number + 0.0001);
-    CHKS((block->l_number != 2 && block->l_number != 1), "Line with G10 does not have L1 or L2");
+    CHKS((block->l_number != 2 && block->l_number != 1 && block->l_number != 20 && block->l_number != 10), "Line with G10 does not have L1, L10, L2, or L20");
     CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  "P value not an integer with G10");
-    CHKS(((block->l_number == 2 && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2");
-    CHKS(((block->l_number == 1 && ((p_int < 1) || (p_int > CANON_TOOL_MAX)))), "P value out of range with G10 L1");
+    CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 1) || (p_int > 9)))), "P value out of range with G10 L2 or G10 L20");
+    CHKS((((block->l_number == 1 || block->l_number == 10) && p_int < 1)), "P value out of range with G10 L1 or G10 L10");
   } else if (mode0 == G_28) {
   } else if (mode0 == G_30) {
   } else if (mode0 == G_5_3) { 

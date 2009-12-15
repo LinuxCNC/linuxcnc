@@ -5,10 +5,11 @@ REALTIME=@REALTIME@
 
 if [ $# -eq 0 ]; then set -- -kf; fi
 
-INTERACTIVE=0
+INTERACTIVE=
 while true; do
 	case $1 in
-		-I) INTERACTIVE=1; shift;;
+		-I) INTERACTIVE="halcmd -kf"; shift;;
+		-T) INTERACTIVE="haltcl"; shift;;
 		-U) halcmd -R; halcmd stop; halcmd unload all; $REALTIME stop; exit;;
 		*) break
 	esac
@@ -33,7 +34,7 @@ else
     halcmd $@; result=$?
 fi
 
-if [ $INTERACTIVE -eq 1 ]; then halcmd -kf; fi
+if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
 
 halcmd stop || result=$?
 halcmd unload all || result=$?

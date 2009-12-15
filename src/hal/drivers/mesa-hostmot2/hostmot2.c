@@ -66,9 +66,9 @@ static int comp_id;
 
 
 
-// 
+//
 // functions exported to EMC
-// 
+//
 
 static void hm2_read(void *void_hm2, long period) {
     hostmot2_t *hm2 = void_hm2;
@@ -108,9 +108,9 @@ static void hm2_write(void *void_hm2, long period) {
     // they only write to the FPGA if certain pins & params have changed
     hm2_ioport_write(hm2);    // handles gpio.is_output but not gpio.out (that's done in tram_write() above)
     hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
-    hm2_pwmgen_write(hm2);    // update pwmgen registers if needed 
-    hm2_stepgen_write(hm2);   // update stepgen registers if needed 
-    hm2_encoder_write(hm2);   // update ctrl register if needed 
+    hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
+    hm2_stepgen_write(hm2);   // update stepgen registers if needed
+    hm2_encoder_write(hm2);   // update ctrl register if needed
 
     hm2_raw_write(hm2);
 }
@@ -144,7 +144,7 @@ static void hm2_write_gpio(void *void_hm2, long period) {
 
 
 
-// 
+//
 // misc little helper functions
 //
 
@@ -164,7 +164,7 @@ const char *hm2_hz_to_mhz(u32 freq_hz) {
 
 // FIXME: the static automatic string makes this function non-reentrant
 const char *hm2_get_general_function_name(int gtag) {
-    switch (gtag) { 
+    switch (gtag) {
         case HM2_GTAG_WATCHDOG:        return "Watchdog";
         case HM2_GTAG_IOPORT:          return "IOPort";
         case HM2_GTAG_ENCODER:         return "Encoder";
@@ -241,30 +241,17 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
 
 
-// 
+//
 // functions for dealing with the idrom
-// 
+//
 
 static void hm2_print_idrom(hostmot2_t *hm2) {
-    HM2_PRINT("IDRom:\n"); 
+    HM2_PRINT("IDRom:\n");
 
-    if (hm2->idrom.idrom_type == 2) {
-        HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type); 
-    } else {
-        HM2_PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type); 
-    }
+    HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type);
 
-    if (hm2->idrom.offset_to_modules == 0x40) {
-        HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
-    } else {
-        HM2_PRINT("    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", hm2->idrom.offset_to_modules); 
-    }
-
-    if (hm2->idrom.offset_to_pin_desc == 0x200) {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
-    } else {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", hm2->idrom.offset_to_pin_desc); 
-    }
+    HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
+    HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
 
     HM2_PRINT(
         "    Board Name: %c%c%c%c%c%c%c%c\n",
@@ -276,17 +263,17 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
         hm2->idrom.board_name[5],
         hm2->idrom.board_name[6],
         hm2->idrom.board_name[7]
-    ); 
+    );
 
-    HM2_PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size); 
-    HM2_PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins); 
+    HM2_PRINT("    FPGA Size: %u\n", hm2->idrom.fpga_size);
+    HM2_PRINT("    FPGA Pins: %u\n", hm2->idrom.fpga_pins);
 
-    HM2_PRINT("    IO Ports: %u\n", hm2->idrom.io_ports); 
-    HM2_PRINT("    IO Width: %u\n", hm2->idrom.io_width); 
+    HM2_PRINT("    IO Ports: %u\n", hm2->idrom.io_ports);
+    HM2_PRINT("    IO Width: %u\n", hm2->idrom.io_width);
     if (hm2->idrom.port_width == 24) {
-        HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width); 
+        HM2_PRINT("    Port Width: %u\n", hm2->idrom.port_width);
     } else {
-        HM2_PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width); 
+        HM2_PRINT("    Port Width: %u ***** Expected 24!  Continuing anyway! *****\n", hm2->idrom.port_width);
     }
 
     HM2_PRINT(
@@ -294,28 +281,30 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
         hm2->idrom.clock_low,
         (hm2->idrom.clock_low / 1000),
         (hm2->idrom.clock_low / (1000 * 1000))
-    ); 
+    );
 
     HM2_PRINT(
         "    Clock High: %d Hz (%d KHz, %d MHz)\n",
         hm2->idrom.clock_high,
         (hm2->idrom.clock_high / 1000),
         (hm2->idrom.clock_high / (1000 * 1000))
-    ); 
+    );
 
-    HM2_PRINT("    Instance Stride 0: 0x%08X\n", hm2->idrom.instance_stride_0); 
-    HM2_PRINT("    Instance Stride 1: 0x%08X\n", hm2->idrom.instance_stride_1); 
+    HM2_PRINT("    Instance Stride 0: 0x%08X\n", hm2->idrom.instance_stride_0);
+    HM2_PRINT("    Instance Stride 1: 0x%08X\n", hm2->idrom.instance_stride_1);
 
-    HM2_PRINT("    Register Stride 0: 0x%08X\n", hm2->idrom.register_stride_0); 
-    HM2_PRINT("    Register Stride 1: 0x%08X\n", hm2->idrom.register_stride_1); 
+    HM2_PRINT("    Register Stride 0: 0x%08X\n", hm2->idrom.register_stride_0);
+    HM2_PRINT("    Register Stride 1: 0x%08X\n", hm2->idrom.register_stride_1);
 }
+
+
 
 
 static int hm2_read_idrom(hostmot2_t *hm2) {
 
-    // 
+    //
     // find the idrom offset
-    // 
+    //
 
     if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &hm2->idrom_offset, 2)) {
         HM2_ERR("error reading IDROM Offset\n");
@@ -323,28 +312,31 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     }
 
 
-    // 
+    //
     // first read in the idrom type to make sure we know how to deal with it
     //
 
-    
+
     if (!hm2->llio->read(hm2->llio, hm2->idrom_offset, &hm2->idrom.idrom_type, sizeof(hm2->idrom.idrom_type))) {
-        HM2_ERR("error reading IDROM type\n"); 
+        HM2_ERR("error reading IDROM type\n");
         return -EIO;
     }
-    if (hm2->idrom.idrom_type != 2) {
-        HM2_ERR("invalid IDROM type %d, expected 2, aborting load\n", hm2->idrom.idrom_type); 
+    if (
+        (hm2->idrom.idrom_type != 2) 
+        && (hm2->idrom.idrom_type != 3)
+    ) {
+        HM2_ERR("invalid IDROM type %d, expected 2 or 3, aborting load\n", hm2->idrom.idrom_type);
         return -EINVAL;
     }
 
 
-    // 
+    //
     // ok, read in the whole thing
     //
 
-    
+
     if (!hm2->llio->read(hm2->llio, hm2->idrom_offset, &hm2->idrom, sizeof(hm2->idrom))) {
-        HM2_ERR("error reading IDROM\n"); 
+        HM2_ERR("error reading IDROM\n");
         return -EIO;
     }
 
@@ -354,7 +346,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
     //
 
     if (hm2->idrom.port_width != 24) {
-        HM2_ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width); 
+        HM2_ERR("invalid IDROM PortWidth %d, expected 24, aborting load\n", hm2->idrom.port_width);
         hm2_print_idrom(hm2);
         return -EINVAL;
     }
@@ -374,6 +366,15 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
             "IDROM IOPorts is %d but llio num_ioport_connectors is %d, driver and firmware are inconsistent, aborting driver load\n",
             hm2->idrom.io_ports,
             hm2->llio->num_ioport_connectors
+        );
+        return -EINVAL;
+    }
+
+    if (hm2->idrom.io_width > HM2_MAX_PIN_DESCRIPTORS) {
+        HM2_ERR(
+            "IDROM IOWidth is %d but max is %d, aborting driver load\n",
+            hm2->idrom.io_width,
+            HM2_MAX_PIN_DESCRIPTORS
         );
         return -EINVAL;
     }
@@ -418,7 +419,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         hm2_module_descriptor_t *md = &hm2->md[hm2->num_mds];
 
         if (!hm2->llio->read(hm2->llio, addr, d, 12)) {
-            HM2_ERR("error reading Module Descriptor %d (at 0x%04x)\n", hm2->num_mds, addr); 
+            HM2_ERR("error reading Module Descriptor %d (at 0x%04x)\n", hm2->num_mds, addr);
             return -EIO;
         }
 
@@ -437,7 +438,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->clock_tag == 2) {
             md->clock_freq = hm2->idrom.clock_high;
         } else {
-            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid ClockTag %d\n", hm2->num_mds, addr, md->clock_tag); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid ClockTag %d\n", hm2->num_mds, addr, md->clock_tag);
             return -EINVAL;
         }
 
@@ -450,7 +451,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->register_stride == 1) {
             md->register_stride = hm2->idrom.register_stride_1;
         } else {
-            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid RegisterStride %d\n", hm2->num_mds, addr, md->register_stride); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid RegisterStride %d\n", hm2->num_mds, addr, md->register_stride);
             return -EINVAL;
         }
 
@@ -460,7 +461,7 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
         } else if (md->instance_stride == 1) {
             md->instance_stride = hm2->idrom.instance_stride_1;
         } else {
-            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid InstanceStride %d\n", hm2->num_mds, addr, md->instance_stride); 
+            HM2_ERR("Module Descriptor %d (at 0x%04x) has invalid InstanceStride %d\n", hm2->num_mds, addr, md->instance_stride);
             return -EINVAL;
         }
 
@@ -479,27 +480,27 @@ static int hm2_read_module_descriptors(hostmot2_t *hm2) {
             HM2_PRINT("    -- Multiple Registers: 0x%08X\n", md->multiple_registers);
         }
     }
-    
+
     return 0;
 }
 
 
 
 
-// 
+//
 // Here comes the code to "parse" the Module Descriptors, turn them into
 // internal-to-the-driver representations, and export those internal
 // representations to the HAL.
-// 
+//
 // There's a general function that walks the MD list and tries to parse
 // each MD in turn, and there's a special function to parse each GTag
 // (aka Function)
-// 
+//
 // The per-Module parsers return the number of instances accepted, which
 // may be less than the number of instances available, or even 0, if the
 // user has disabled some instances using modparams.  The per-Module
 // parsers return -1 on error, which causes the module load to fail.
-// 
+//
 
 
 int hm2_md_is_consistent_or_complain(
@@ -652,6 +653,9 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 //
 
 static void hm2_cleanup(hostmot2_t *hm2) {
+    // clean up the Pins, if they're initialized
+    if (hm2->pin != NULL) kfree(hm2->pin);
+
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);
@@ -676,7 +680,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
 
 
 
-// 
+//
 // register and unregister, for the low-level I/O drivers to add and remove boards to this hostmot2 driver
 //
 
@@ -693,7 +697,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hostmot2_t *hm2;
 
 
-    // 
+    //
     // first a pile of sanity checks
     //
 
@@ -730,7 +734,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     //
     // verify llio ioport connector names
-    // 
+    //
 
     if ((llio->num_ioport_connectors < 1) || (llio->num_ioport_connectors > ANYIO_MAX_IOPORT_CONNECTORS)) {
         HM2_ERR_NO_LL("llio reports invalid number of I/O connectors (%d)\n", llio->num_ioport_connectors);
@@ -767,9 +771,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // verify llio functions
-    // 
+    //
 
     if (llio->read == NULL) {
         HM2_ERR_NO_LL("NULL llio->read passed in\n");
@@ -789,7 +793,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // make a hostmot2_t struct to represent this device
     //
 
@@ -810,9 +814,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     list_add_tail(&hm2->list, &hm2_list);
 
 
-    // 
+    //
     // parse the config string
-    // 
+    //
 
     r = hm2_parse_config_string(hm2, config_string);
     if (r != 0) {
@@ -839,8 +843,12 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         }
 
         memset(&dev, '\0', sizeof(dev));
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
         strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
         dev.bus_id[BUS_ID_SIZE - 1] = '\0';
+#else
+        dev_set_name(&dev, hm2->llio->name);
+#endif
         dev.release = hm2_release_device;
         r = device_register(&dev);
         if (r != 0) {
@@ -908,7 +916,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // export a parameter to deal with communication errors
     // NOTE: this is really only useful for EPP boards, PCI doesnt use it
     //
@@ -936,31 +944,31 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // read & verify FPGA firmware IOCookie
-    // 
+    //
 
     {
         uint32_t cookie;
 
         if (!llio->read(llio, HM2_ADDR_IOCOOKIE, &cookie, 4)) {
-            HM2_ERR("error reading hm2 cookie\n"); 
+            HM2_ERR("error reading hm2 cookie\n");
             r = -EIO;
             goto fail0;
         }
 
         if (cookie != HM2_IOCOOKIE) {
-            HM2_ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, HM2_IOCOOKIE); 
-            HM2_ERR("FPGA failed to initialize, or unexpected firmware?\n"); 
+            HM2_ERR("invalid cookie, got 0x%08X, expected 0x%08X\n", cookie, HM2_IOCOOKIE);
+            HM2_ERR("FPGA failed to initialize, or unexpected firmware?\n");
             r = -EINVAL;
             goto fail0;
         }
     }
 
 
-    // 
+    //
     // read & verify FPGA firmware ConfigName
-    // 
+    //
 
     {
         char name[9];  // read 8, plus 1 for the NULL
@@ -973,21 +981,21 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         name[8] = '\0';
 
         if (strncmp(name, HM2_CONFIGNAME, 9) != 0) {
-            HM2_ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME); 
+            HM2_ERR("invalid config name, got '%s', expected '%s'\n", name, HM2_CONFIGNAME);
             r = -EINVAL;
             goto fail0;
         }
     }
 
 
-    // 
+    //
     // Looks like HostMot2 alright, go ahead an initialize it
-    // 
+    //
 
 
-    // 
+    //
     // read the IDROM Header, the Pin Descriptors, and the Module Descriptors
-    // 
+    //
 
     r = hm2_read_idrom(hm2);
     if (r != 0) {
@@ -1005,9 +1013,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // process the Module Descriptors and initialize the HostMot2 Modules found
-    // 
+    //
 
     r = hm2_parse_module_descriptors(hm2);
     if (r != 0) {
@@ -1015,7 +1023,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // allocate memory for the PC's copy of the HostMot2's registers
     //
 
@@ -1034,10 +1042,10 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
 
-    // 
+    //
     // set IOPorts based on detected, enabled Modules
     // all in-use module instances get all their pins, the unused pins are left as GPIOs
-    // 
+    //
 
     hm2_configure_pins(hm2);
 
@@ -1047,7 +1055,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
-    // 
+    //
     // the "raw" interface lets you peek and poke the HostMot2 registers from HAL
     //
 
@@ -1063,9 +1071,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
 
-    // 
+    //
     // Write out all the non-TRAM register buffers to the FPGA.
-    // 
+    //
     // This initializes the FPGA to the default load-time state chosen by
     // the hostmot2 driver.  Users can change the state later via HAL.
     //
@@ -1073,7 +1081,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hm2_force_write(hm2);
 
 
-    // 
+    //
     // read the TRAM one first time
     //
 
@@ -1094,7 +1102,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     hm2_stepgen_process_tram_read(hm2, 1000);
 
 
-    // 
+    //
     // write the TRAM one first time
     //
 

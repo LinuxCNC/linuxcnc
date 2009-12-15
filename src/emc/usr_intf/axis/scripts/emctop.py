@@ -111,7 +111,7 @@ def gui():
     fixed_font = t.tk.call("set", "FIXED_FONT")
     t.tag_configure("key", foreground="blue", font=base_font)
     t.tag_configure("value", foreground="black", font=fixed_font)
-    t.tag_configure("changedvalue", foreground="black", background="red", font="fixed")
+    t.tag_configure("changedvalue", foreground="black", background="red", font=fixed_font)
     t.tag_configure("sel", foreground="white")
     t.tag_raise("sel")
     t.bind("<KeyPress>", "break")

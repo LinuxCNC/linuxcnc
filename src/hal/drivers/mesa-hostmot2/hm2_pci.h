@@ -34,6 +34,7 @@
 
 #define HM2_PCI_DEV_PLX9030    (0x9030)
 #define HM2_PCI_DEV_PLX9054    (0x9054)
+#define HM2_PCI_DEV_PLX9056    (0x9056)
 
 
 #define HM2_PCI_SSDEV_5I20     (0x3131)
@@ -47,6 +48,10 @@
 
 #define HM2_PCI_SSDEV_4I68     (0x3311)
 #define HM2_PCI_SSDEV_4I68_OLD (0x3133)
+
+#define HM2_PCI_SSDEV_3X20_10  (0x3427)
+#define HM2_PCI_SSDEV_3X20_15  (0x3428)
+#define HM2_PCI_SSDEV_3X20_20  (0x3429)
 
 
 
@@ -90,6 +95,8 @@
 
 //
 // PLX 9054 (5i22, 5i23, 4i68)
+//
+// Note: also used for the PLX 9056 (3x20)
 //
 
 /* I/O register indices.

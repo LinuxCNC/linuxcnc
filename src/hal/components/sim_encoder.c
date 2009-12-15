@@ -89,6 +89,7 @@ typedef struct {
     hal_u32_t *ppr;		/* pin: pulses per revolution */
     hal_float_t *scale;		/* pin: pulses per revolution */
     hal_float_t *speed;		/* pin: speed in revs/second */
+    hal_s32_t *rawcounts;       /* pin: raw counts */
     double old_scale;		/* internal, used to detect changes */
     double scale_mult;		/* internal, reciprocal of scale */
 } sim_enc_t;
@@ -222,6 +223,7 @@ static void make_pulses(void *arg, long period)
 	    /* get direction bit, 1 if negative, 0 if positive */
 	    dir = sim_enc->addval >> 31;
 	    if ( dir ) {
+		(*sim_enc->rawcounts) --;
 		/* negative rotation, decrement state, detect underflow */
 		if (--(sim_enc->state) < 0) {
 		    /* state underflow, roll over */
@@ -233,6 +235,7 @@ static void make_pulses(void *arg, long period)
 		    }
 		}
 	    } else {
+		(*sim_enc->rawcounts) ++;
 		/* positive rotation, increment state, detect overflow */
 		if (++(sim_enc->state) > 3) {
 		    /* state overflow, roll over */
@@ -282,7 +285,7 @@ static void update_speed(void *arg, long period)
 {
     sim_enc_t *sim_enc;
     int n;
-    float rev_sec, freq;
+    double rev_sec, freq;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the
@@ -373,6 +376,12 @@ static int export_sim_enc(int num, sim_enc_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.phase-Z", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->phaseZ), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for rawcounts */
+    rtapi_snprintf(buf, HAL_NAME_LEN, "sim-encoder.%d.rawcounts", num);
+    retval = hal_pin_s32_new(buf, HAL_IN, &(addr->rawcounts), comp_id);
     if (retval != 0) {
 	return retval;
     }

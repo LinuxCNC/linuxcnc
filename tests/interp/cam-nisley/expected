@@ -46,7 +46,7 @@
  N..... COMMENT("set milling feed")
  N..... SET_FEED_RATE(119.3022)
  N..... COMMENT("set up the tool")
- N..... SELECT_TOOL(1)
+ N..... SELECT_POCKET(1)
  N..... STOP_SPINDLE_TURNING()
  N..... CHANGE_TOOL(1)
  N..... COMMENT("-----------------")

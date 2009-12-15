@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -64,13 +65,15 @@ Some of these will have expanded descriptions from the man pages.
  All of the components have man pages.
  From this list you know what components exist and can use man n name to
  get additional information.
- For example in a terminal window type 
-\family typewriter
-\series bold
-man 1 axis
-\family default
-\series default
- to view the information in the man page.
+ For example in a terminal window type
+\end_layout
+
+\begin_layout LyX-Code
+man 1 axis 
+\end_layout
+
+\begin_layout Standard
+to view the information in the man page.
 \end_layout
 
 \begin_layout List
