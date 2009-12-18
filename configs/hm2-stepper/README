@@ -14,3 +14,5 @@ These configs have 0 Encoders, 0 PWMs, and 3 StepGens
 7i43-big   For the 400k gate version
 
 7i43-small For the 200k gate version
+
+3x20-small For the 1.0M gate version
