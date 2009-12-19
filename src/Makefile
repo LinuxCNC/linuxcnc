@@ -879,6 +879,7 @@ swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
 		$(dir $(BASEPWD))tcl \
 		$(dir $(BASEPWD))share/axis/tcl \
+		$(dir $(BASEPWD))lib/python \
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs \
 		$(dir $(BASEPWD))docs/src \
