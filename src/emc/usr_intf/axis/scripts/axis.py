@@ -2813,16 +2813,15 @@ def get_coordinate_font(large):
     global fontbase
 
     if large:
-        coordinate_font = "-*-lucidatypewriter-medium-r-*-*-20-*-*-*-*-*-*-1"
+        coordinate_font = "courier bold 20"
     else:
-        coordinate_font = "9x15"
-    coordinate_charwidth, coordinate_linespace = map(int,
-        o.tk.call(o, "measurebitmapfont", coordinate_font).split())
+        coordinate_font = "courier bold 11"
     
     if coordinate_font not in font_cache:
-        font_cache[coordinate_font] = fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
-    else:
-        fontbase = font_cache[coordinate_font]
+        font_cache[coordinate_font] = \
+            glnav.use_pango_font(coordinate_font, 0, 128)
+    fontbase, coordinate_charwidth, coordinate_linespace = \
+            font_cache[coordinate_font]
 
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
