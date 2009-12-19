@@ -2316,12 +2316,7 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
 class _prompt_touchoff(_prompt_float):
     def __init__(self, title, text, default, defaultsystem):
         systems = all_systems[:]
-        if s.tlo_is_along_w:
-            tool_offset_axes = "w"
-        elif lathe:
-            tool_offset_axes = "xz"
-        else:
-            tool_offset_axes = "z"
+        tool_offset_axes = "xyzabcuvw"
         if vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
