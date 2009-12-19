@@ -208,13 +208,14 @@ help2 = [
 
 def install_help(app):
     keys = nf.makewidget(app, Frame, '.keys.text')
+    fixed = app.tk.call("emc::standard_fixed_font")
     for i in range(len(help1)):
         a, b = help1[i]
-        Label(keys, text=a, font="fixed", padx=4, pady=0, highlightthickness=0).grid(row=i, column=0, sticky="w")
+        Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=0, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=1, sticky="w")
     for i in range(len(help2)):
         a, b = help2[i]
-        Label(keys, text=a, font="fixed", padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
+        Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=4, sticky="w")
     Label(keys, text="    ").grid(row=0, column=2)
 
