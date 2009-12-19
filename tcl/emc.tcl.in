@@ -74,7 +74,7 @@ if {$emc::_langinit && [info exists env(LANG)]} {
 }
 
 proc emc::standard_font_size {} {
-    if {[info exists ::emc::standard_font]} { return $::emc::standard_font }
+    if {[info exists ::emc::standard_font_size]} { return $::emc::standard_font_size }
     set res1 [catch {exec gconftool -g /desktop/gnome/font_rendering/dpi} gnome_dpi]
     set res2 [catch {exec xlsfonts -fn -adobe-helvetica-medium-r-normal--*-*-*-*-p-*-iso10646-1} fonts]
     if {$res1 == 0 && $res2 == 0} {
