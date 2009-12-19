@@ -1,6 +1,63 @@
 from minigl import *
 import math
 
+def use_pango_font(font, start, count):
+    import pango, cairo, pangocairo
+    fontDesc = pango.FontDescription(font)
+    surface = cairo.ImageSurface(cairo.FORMAT_A8, 256, 256)
+    context = pangocairo.CairoContext(cairo.Context(surface))
+    layout = context.create_layout()
+    fontmap = pangocairo.cairo_font_map_get_default()
+    font = fontmap.load_font(fontmap.create_context(), fontDesc)
+    layout.set_font_description(fontDesc)
+    metrics = font.get_metrics()
+    descent = metrics.get_descent()
+    d = pango.PIXELS(descent)
+    linespace = metrics.get_ascent() + metrics.get_descent()
+    width = metrics.get_approximate_char_width()
+
+    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT)
+    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0)
+    glPixelStorei(GL_UNPACK_LSB_FIRST, 1)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 256)
+    glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 256)
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
+    glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0)
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+    glPixelZoom(1, -1)
+
+    base = glGenLists(count)
+    for i in range(count):
+        ch = unichr(start+i)
+        layout.set_text(ch)
+        w, h = layout.get_size()
+        context.save()
+        context.new_path()
+        context.rectangle(0, 0, 256, 256)
+        context.set_source_rgba(0., 0., 0., 0.)
+        context.set_operator (cairo.OPERATOR_SOURCE);
+        context.paint()
+        context.restore()
+
+        context.save()
+        context.set_source_rgba(1., 1., 1., 1.)
+        context.set_operator (cairo.OPERATOR_SOURCE);
+        context.move_to(0, 0)
+        context.update_layout(layout)
+        context.show_layout(layout)
+        context.restore()
+
+        w, h = pango.PIXELS(w), pango.PIXELS(h)
+        glNewList(base+i, GL_COMPILE)
+        glBitmap(0, 0, 0, 0, 0, h-d, '');
+        if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, surface.get_data())
+        glBitmap(0, 0, 0, 0, w, -h+d, '');
+        glEndList()
+
+    glPopClientAttrib()
+    return base, pango.PIXELS(width), pango.PIXELS(linespace)
+
 def glTranslateScene(w, s, x, y, mousex, mousey):
     glMatrixMode(GL_MODELVIEW)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
