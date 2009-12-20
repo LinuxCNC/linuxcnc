@@ -163,9 +163,6 @@ class StatMixin:
     def get_axis_mask(self):
         return self.s.axis_mask
 
-    def get_tlo_is_along_w(self):
-        return self.s.tlo_is_along_w
-
     def get_block_delete(self):
         return self.s.block_delete
 
