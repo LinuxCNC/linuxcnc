@@ -4,12 +4,12 @@ pin in bit in;
 pin out bit out """Follows the value of \\fBin\\fR after applying the delays
 \\fBon-delay\\fR and \\fBoff-delay\\fR.""";
 
-param rw float on-delay = 0.5 """The time, in seconds, for which \\fBin\\fR must be
+pin in float on-delay = 0.5 """The time, in seconds, for which \\fBin\\fR must be
 \\fBtrue\\fR before \\fBout\\fR becomes \\fBtrue\\fR""";
-param rw float off-delay = 0.5 """The time, in seconds, for which \\fBin\\fR must be
+pin in float off-delay = 0.5 """The time, in seconds, for which \\fBin\\fR must be
 \\fBfalse\\fR before \\fBout\\fR becomes \\fBfalse\\fR""";
 
-param r float elapsed "Current value of the internal timer";
+pin out float elapsed "Current value of the internal timer";
 variable double timer;
 
 function _;

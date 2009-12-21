@@ -2322,6 +2322,8 @@ class _prompt_touchoff(_prompt_float):
         if vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
+        if s.tool_in_spindle == 0:
+            del systems[-1]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
@@ -2347,7 +2349,7 @@ class _prompt_touchoff(_prompt_float):
         self.buttons.tkraise()
         for i in [1,2,3,4,5,6,7,8,9]:
             t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
-        if not (current_tool is None or vars.current_axis.get() not in tool_offset_axes):
+        if not ((s.tool_in_spindle == 0) or vars.current_axis.get() not in tool_offset_axes):
             t.bind("<Alt-t>", lambda event: c.set(systems[9]))
             t.bind("<Alt-0>", lambda event: c.set(systems[9]))
 
