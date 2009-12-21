@@ -1172,6 +1172,15 @@ class MyOpengl(Opengl):
             # N.B. no conversion here because joint positions are unitless
             posstrs = ["  %s:% 9.4f" % i for i in
                 zip(range(num_joints), s.joint_actual_position)]
+
+            if vars.show_machine_speed.get():
+                spd = to_internal_linear_unit(s.current_vel)
+                if vars.metric.get():
+                    spd = spd * 25.4 * 60
+                else:
+                    spd = spd * 60
+                posstrs.append("%s:% 9.4f" % ("Vel", spd))
+
             droposstrs = posstrs
 
         return limit, homed, posstrs, droposstrs
