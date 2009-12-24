@@ -1243,12 +1243,9 @@ check_stuff ( "before command_handler()" );
             rtapi_print_msg(RTAPI_MSG_DBG, "UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
             
-            if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-                reportError("must be in joint mode to unhome");
+            if ((emcmotStatus->motion_state != EMCMOT_MOTION_FREE) && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+                reportError("must be in joint mode or disabled to unhome");
                 return;
-            }
-            if (!GET_MOTION_ENABLE_FLAG()) {
-                break;
             }
 
             if (joint_num < 0) {
