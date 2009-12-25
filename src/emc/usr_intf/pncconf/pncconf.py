@@ -437,11 +437,12 @@ class Data:
         self.singlejogbuttons = False
         self.multijogbuttons = False
         self.jograpidrate = 1.0
+        self.externalmpg = False
         self.guimpg = True    
         self.multimpg = False
         self.sharedmpg = False
         self.mpgincrvalue0 = 0     # all incr-select low
-        self.mpgincrvalue1 = .0001 # a incr-select high
+        self.mpgincrvalue1 = .0001 # incr-select-a  high
         self.mpgincrvalue2 = .0005 # b
         self.mpgincrvalue3 = .001  # ab
         self.mpgincrvalue4 = .005  # c
@@ -1580,7 +1581,7 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if not self.guimpg:
+        if self.externalmpg:
             print >>file, "loadrt mux8 count=%d"% (self.userneededmux8+1)
         # load user custom components
         for i in self.loadcompbase:
@@ -1662,7 +1663,7 @@ class Data:
             print >>file,"addf classicladder.0.refresh servo-thread"
         if pwm: 
             print >>file, "addf pwmgen.update servo-thread"
-        if not self.guimpg: 
+        if self.externalmpg: 
             for j in range(0,self.userneededmux8+1):
                 print >>file, "addf mux8.%d servo-thread"% j
             print >>file, "alias pin mux8.%d.sel0 mux8.jogincr.sel0"% (self.userneededmux8)
@@ -1748,7 +1749,7 @@ class Data:
             print >>file
 
         
-        if not self.guimpg:
+        if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
             print >>file
             if self.multimpg:  
@@ -1761,8 +1762,8 @@ class Data:
                             print >>file, "    setp  axis.%d.jog-enable true"% (axnum)
                             print >>file, "    setp  %s.filter true" % pinname
                             print >>file, "    setp  %s.counter-mode true" % pinname
-                            print >>file, "net %s-jog-count         <=  %s.count"% (axletter, pinname)                  
-                            print >>file, "net %s-jog-count         =>  axis.%d.jog-counts" % (axletter,axnum)
+                            print >>file, "net %s-jog-count          <=  %s.count"% (axletter, pinname)                  
+                            print >>file, "net %s-jog-count          =>  axis.%d.jog-counts" % (axletter,axnum)
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
                             print >>file                    
             else:
@@ -1776,7 +1777,7 @@ class Data:
                         if not axletter == "s":
                             print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "net selected-jog-incr    =>  axis.%d.jog-scale" % (axnum)
-                            print >>file, "net joint-select-%d      =>  axis.%d.jog-enable"% (axnum,axnum)
+                            print >>file, "net joint-select-%d       =>  axis.%d.jog-enable"% (axnum,axnum)
                             print >>file, "net joint-selected-count =>  axis.%d.jog-counts"% (axnum)
                             
                             #print >>file, "net joint-jog-mode-%d         axis.%d.jog-vel-mode"% (axnum,axnum)
@@ -2437,44 +2438,7 @@ class App:
              self.widgets.pp2_checkbutton.set_active(1)
         if self.data.number_pports>2:
              self.widgets.pp3_checkbutton.set_active(1)
-        if self.data.limitsnone :
-             self.widgets.limittype_none.set_active(1)
-        if self.data.limitswitch :
-             self.widgets.limittype_switch.set_active(1)
-        if self.data.limitshared :
-             self.widgets.limittype_shared.set_active(1)
-        if self.data.homenone :
-             self.widgets.home_none.set_active(1)
-        if self.data.homeindex :
-             self.widgets.home_index.set_active(1)
-        if self.data.homeswitch :
-             self.widgets.home_switch.set_active(1)
-        if self.data.homeboth :
-             self.widgets.home_both.set_active(1)
-        if self.data.manualtoolchange :
-            self.widgets.manualtoolchange.set_active(1)
-        else:
-            self.widgets.tool_custom.set_active(1)
-        if self.data.multimpg :
-            self.widgets.multimpg.set_active(1)
-        else:
-            self.widgets.sharedmpg.set_active(1)
-        self.widgets.jograpidrate.set_value(self.data.jograpidrate)
-        self.widgets.nojogbuttons.set_active(self.data.nojogbuttons)
-        self.widgets.singlejogbuttons.set_active(self.data.singlejogbuttons)
-        self.widgets.multijogbuttons.set_active(self.data.multijogbuttons)
-        self.widgets.guimpg.set_active(self.data.guimpg)
-        self.widgets.sharedmpg.set_active(self.data.sharedmpg)
-        self.widgets.multimpg.set_active(self.data.multimpg)
-        if self.data.units == 0 :
-            tempunits = "in"
-        else:
-            tempunits = "mm"      
-        for i in (0,1,2):
-            self.widgets["mpgincr"+str(i)].set_text(tempunits)
-        self.widgets.jograpidunits.set_text(tempunits+" / min")
-        for i in range(0,8):
-            self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
+        
 
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
@@ -2540,30 +2504,7 @@ class App:
         self.data.pp1_direction = self.widgets.pp1_direction.get_active()
         self.data.pp2_direction = self.widgets.pp2_direction.get_active()
         self.data.pp3_direction = self.widgets.pp3_direction.get_active()
-        self.data.limitshared = self.widgets.limittype_shared.get_active()
-        self.data.limitsnone = self.widgets.limittype_none.get_active()
-        self.data.limitswitch = self.widgets.limittype_switch.get_active()
-        self.data.limitshared = self.widgets.limittype_shared.get_active()
-        self.data.homenone = self.widgets.home_none.get_active()
-        self.data.homeindex = self.widgets.home_index.get_active()
-        self.data.homeswitch = self.widgets.home_switch.get_active()
-        self.data.homeboth = self.widgets.home_both.get_active()
-        if self.widgets.multimpg.get_active():
-            self.data.multimpg == True            
-        else:
-            self.data.multimpg == False
-        self.data.jograpidrate = self.widgets.jograpidrate.get_value()
-        self.data.nojogbuttons = self.widgets.nojogbuttons.get_active()
-        self.data.singlejogbuttons = self.widgets.singlejogbuttons.get_active()
-        self.data.multijogbuttons = self.widgets.multijogbuttons.get_active()
-        if not self.data.nojogbuttons:
-            self.data.halui = True
-        self.data.guimpg = self.widgets.guimpg.get_active()
-        self.data.sharedmpg = self.widgets.sharedmpg.get_active()
-        self.data.multimpg = self.widgets.multimpg.get_active()
-        for i in range (0,8):
-            self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
-
+        
         # connect signals with pin designation data to mesa signal comboboxes and pintype comboboxes
         # record the signal ID numbers so we can block the signals later in the mesa routines
         # have to do it here manually (instead of autoconnect) because glade doesn't handle added
@@ -2608,6 +2549,69 @@ class App:
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
             "~/emc2/configs/%s" % self.widgets.machinename.get_text())
+
+    def on_external_cntrl_prepare(self, *args):
+        if self.data.limitsnone :
+             self.widgets.limittype_none.set_active(1)
+        if self.data.limitswitch :
+             self.widgets.limittype_switch.set_active(1)
+        if self.data.limitshared :
+             self.widgets.limittype_shared.set_active(1)
+        if self.data.homenone :
+             self.widgets.home_none.set_active(1)
+        if self.data.homeindex :
+             self.widgets.home_index.set_active(1)
+        if self.data.homeswitch :
+             self.widgets.home_switch.set_active(1)
+        if self.data.homeboth :
+             self.widgets.home_both.set_active(1)
+        if self.data.manualtoolchange :
+            self.widgets.manualtoolchange.set_active(1)
+        else:
+            self.widgets.tool_custom.set_active(1)
+        if self.data.multimpg :
+            self.widgets.multimpg.set_active(1)
+        else:
+            self.widgets.sharedmpg.set_active(1)
+        self.widgets.jograpidrate.set_value(self.data.jograpidrate)
+        self.widgets.singlejogbuttons.set_active(self.data.singlejogbuttons)
+        self.widgets.multijogbuttons.set_active(self.data.multijogbuttons)
+        self.widgets.externalmpg.set_active(self.data.externalmpg)
+        self.widgets.sharedmpg.set_active(self.data.sharedmpg)
+        self.widgets.multimpg.set_active(self.data.multimpg)
+        if self.data.units == 0 :
+            tempunits = "in"
+        else:
+            tempunits = "mm"      
+        for i in (0,1,2):
+            self.widgets["mpgincr"+str(i)].set_text(tempunits)
+        self.widgets.jograpidunits.set_text(tempunits+" / min")
+        for i in range(0,8):
+            self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
+
+    def on_external_cntrl_next(self, *args):
+        self.data.limitshared = self.widgets.limittype_shared.get_active()
+        self.data.limitsnone = self.widgets.limittype_none.get_active()
+        self.data.limitswitch = self.widgets.limittype_switch.get_active()
+        self.data.limitshared = self.widgets.limittype_shared.get_active()
+        self.data.homenone = self.widgets.home_none.get_active()
+        self.data.homeindex = self.widgets.home_index.get_active()
+        self.data.homeswitch = self.widgets.home_switch.get_active()
+        self.data.homeboth = self.widgets.home_both.get_active()
+        if self.widgets.multimpg.get_active():
+            self.data.multimpg == True            
+        else:
+            self.data.multimpg == False
+        self.data.jograpidrate = self.widgets.jograpidrate.get_value()
+        self.data.singlejogbuttons = self.widgets.singlejogbuttons.get_active()
+        self.data.multijogbuttons = self.widgets.multijogbuttons.get_active()
+        if not self.data.nojogbuttons:
+            self.data.halui = True
+        self.data.externalmpg = self.widgets.externalmpg.get_active()
+        self.data.sharedmpg = self.widgets.sharedmpg.get_active()
+        self.data.multimpg = self.widgets.multimpg.get_active()
+        for i in range (0,8):
+            self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
 
     def on_GUI_config_prepare(self, *args):
         self.data.help = "help-gui.txt"
