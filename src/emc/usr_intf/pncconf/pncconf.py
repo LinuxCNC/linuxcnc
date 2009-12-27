@@ -1869,8 +1869,7 @@ class Data:
                 shutil.copy( custom,os.path.join(base,"postgui_backup.hal") ) 
             f1 = open(custom, "w")
             print >>f1, _("# Include your customized HAL commands here")
-            print >>f1, _("""\
-# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
+            print >>f1, _("""\# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
             if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
@@ -2637,7 +2636,6 @@ class App:
         self.widgets.require_homing.set_active(self.data.require_homing)
         self.widgets.individual_homing.set_active(self.data.individual_homing)
         self.widgets.restore_joint_position.set_active(self.data.restore_joint_position) 
-        self.widgets.tooloffset_on_w.set_active(self.data.tooloffset_on_w) 
         self.widgets.restore_toolnumber.set_active(self.data.restore_toolnumber) 
         self.widgets.raise_z_on_toolchange.set_active(self.data.raise_z_on_toolchange) 
         self.widgets.allow_spindle_on_toolchange.set_active(self.data.allow_spindle_on_toolchange)
@@ -2665,7 +2663,6 @@ class App:
         self.data.require_homing = self.widgets.require_homing.get_active()
         self.data.individual_homing = self.widgets.individual_homing.get_active()
         self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
-        self.data.tooloffset_on_w = self.widgets.tooloffset_on_w.get_active() 
         self.data.restore_toolnumber = self.widgets.restore_toolnumber.get_active() 
         self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
         self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
