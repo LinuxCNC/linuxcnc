@@ -2322,11 +2322,9 @@ class _prompt_touchoff(_prompt_float):
             tool_offset_axes = "xz"
         else:
             tool_offset_axes = "z"
-        if vars.current_axis.get() not in tool_offset_axes:
+        if (vars.current_axis.get() not in tool_offset_axes) or (s.tool_in_spindle == 0):
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
-        elif s.tool_in_spindle == 0:
-            del systems[-1]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
