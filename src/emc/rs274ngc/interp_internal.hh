@@ -24,6 +24,16 @@
 /*   COMPILER MACROS  */
 /**********************/
 
+#ifndef R2D
+#define R2D(r) ((r)*180.0/M_PI)
+#endif
+#ifndef D2R
+#define D2R(r) ((r)*M_PI/180.0)
+#endif
+#ifndef SQ
+#define SQ(a) ((a)*(a))
+#endif
+
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
 
 #define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
@@ -282,6 +292,10 @@ typedef struct block_struct
   double y_number;
   ON_OFF z_flag;
   double z_number;
+
+  int polar_flag; //polar coordinate was specified
+  double radius;
+  double theta;
 
   // control (o-word) stuff
   long     offset;   // start of line in file

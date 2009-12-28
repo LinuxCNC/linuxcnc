@@ -145,6 +145,17 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   int mode0;
   int mode1;
 
+  if(block->polar_flag) {
+      // someday, tediously add polar support for other planes here:
+      CHKS((!_readers['x'] || !_readers['y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
+      CHKS(((settings->plane != CANON_PLANE_XY)), _("Cannot use polar coordinate except in G17 plane"));
+      CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
+      CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
+      block->x_flag = block->y_flag = ON;
+      block->x_number = block->radius * cos(D2R(block->theta));
+      block->y_number = block->radius * sin(D2R(block->theta));
+  }
+
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
                (block->z_flag == ON) || (block->a_flag == ON) ||
                (block->b_flag == ON) || (block->c_flag == ON) ||
@@ -264,6 +275,8 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->x_flag = OFF;
   block->y_flag = OFF;
   block->z_flag = OFF;
+
+  block->polar_flag = OFF;
 
   block->o_type = O_none;
   block->o_number = 0;

@@ -317,6 +317,8 @@ private:
                   double *parameters);
  int read_atan(char *line, int *counter, double *double_ptr,
                      double *parameters);
+ int read_atsign(char *line, int *counter, block_pointer block,
+                  double *parameters);
  int read_b(char *line, int *counter, block_pointer block,
                   double *parameters);
  int read_c(char *line, int *counter, block_pointer block,

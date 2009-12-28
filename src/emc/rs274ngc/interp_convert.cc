@@ -28,15 +28,6 @@
 #include "interp_queue.hh"
 
 #include "units.h"
-#ifndef R2D
-#define R2D(r) ((r)*180.0/M_PI)
-#endif
-#ifndef D2R
-#define D2R(r) ((r)*M_PI/180.0)
-#endif
-#ifndef SQ
-#define SQ(a) ((a)*(a))
-#endif
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)==1)||((side)==RIGHT&&(turn)==-1))
 #define DEBUG_EMC
 

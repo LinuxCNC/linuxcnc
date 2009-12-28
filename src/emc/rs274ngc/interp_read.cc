@@ -3363,6 +3363,19 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
   return INTERP_OK;
 }
 
+int Interp::read_atsign(char *line, int *counter, block_pointer block,
+                        double *parameters) {
+    CHKS((line[*counter] != '@'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter)++;
+    CHP(read_real_value(line, counter, &block->radius, parameters));
+    CHKS((line[*counter] != '^'), _("Missing ^ in polar coordinate"));
+    (*counter)++;
+    CHP(read_real_value(line, counter, &block->theta, parameters));
+    block->polar_flag = ON;
+    return INTERP_OK;
+}
+    
+
 /****************************************************************************/
 
 /*! read_y
