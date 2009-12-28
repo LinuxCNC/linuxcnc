@@ -2325,7 +2325,7 @@ class _prompt_touchoff(_prompt_float):
         if vars.current_axis.get() not in tool_offset_axes:
             del systems[-1]
             if defaultsystem.startswith("T"): defaultsystem = systems[0]
-        if s.tool_in_spindle == 0:
+        elif s.tool_in_spindle == 0:
             del systems[-1]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
