@@ -535,7 +535,7 @@ class Data:
                 self[pinname] = False
 
         # for mesa cards
-        self.mesa5i20 = 1 # number of cards
+        self.number_mesa = 1 # number of cards
         self.mesa_currentfirmwaredata = mesafirmwaredata[1]
         self.mesa_boardname = "5i20"
         self.mesa_firmware = "SVST8_4"
@@ -548,75 +548,77 @@ class Data:
         self.numof_mesa_pwmgens = 4
         self.numof_mesa_stepgens = 0
         self.numof_mesa_gpio = 48
-
-        connector = 2
-        pinname ="m5i20c%dpin"% (connector)
-        self[pinname+"0"] = UNUSED_ENCODER
-        self[pinname+"0type"] = ENCB
-        self[pinname+"1"] = UNUSED_ENCODER
-        self[pinname+"1type"] = ENCA
-        self[pinname+"2"] = UNUSED_ENCODER
-        self[pinname+"2type"] = ENCB
-        self[pinname+"3"] = UNUSED_ENCODER
-        self[pinname+"3type"] = ENCA
-        self[pinname+"4"] = UNUSED_ENCODER
-        self[pinname+"4type"] = ENCI
-        self[pinname+"5"] = UNUSED_ENCODER
-        self[pinname+"5type"] = ENCI
-        self[pinname+"6"] = UNUSED_PWM
-        self[pinname+"6type"] = PWMP
-        self[pinname+"7"] = UNUSED_PWM
-        self[pinname+"7type"] = PWMP
-        self[pinname+"8"] = UNUSED_PWM
-        self[pinname+"8type"] = PWMD
-        self[pinname+"9"] = UNUSED_PWM
-        self[pinname+"9type"] = PWMD
-        self[pinname+"10"] = UNUSED_PWM
-        self[pinname+"10type"] = PWME
-        self[pinname+"11"] = UNUSED_PWM
-        self[pinname+"11type"] = PWME
-        self[pinname+"12"] = UNUSED_ENCODER
-        self[pinname+"12type"] = ENCB
-        self[pinname+"13"] = UNUSED_ENCODER
-        self[pinname+"13type"] = ENCA
-        self[pinname+"14"] = UNUSED_ENCODER
-        self[pinname+"14type"] = ENCB
-        self[pinname+"15"] = UNUSED_ENCODER
-        self[pinname+"15type"] = ENCA
-        self[pinname+"16"] = UNUSED_ENCODER
-        self[pinname+"16type"] = ENCI
-        self[pinname+"17"] = UNUSED_ENCODER
-        self[pinname+"17type"] = ENCI
-        self[pinname+"18"] = UNUSED_PWM
-        self[pinname+"18type"] = PWMP
-        self[pinname+"19"] = UNUSED_PWM
-        self[pinname+"19type"] = PWMP
-        self[pinname+"20"] = UNUSED_PWM
-        self[pinname+"20type"] = PWMD
-        self[pinname+"21"] = UNUSED_PWM
-        self[pinname+"21type"] = PWMD
-        self[pinname+"22"] = UNUSED_PWM
-        self[pinname+"22type"] = PWME
-        self[pinname+"23"] = UNUSED_PWM
-        self[pinname+"23type"] = PWME
-        for connector in(3,4,5):
-            # This initializes GPIO input pins
-            for i in range(0,16):
-                pinname ="m5i20c%dpin%d"% (connector,i)
-                self[pinname] = UNUSED_INPUT
-                pinname ="m5i20c%dpin%dtype"% (connector,i)
-                self[pinname] = GPIOI
-            # This initializes GPIO output pins
-            for i in range(16,24):
-                pinname ="m5i20c%dpin%d"% (connector,i)
-                self[pinname] = UNUSED_OUTPUT
-                pinname ="m5i20c%dpin%dtype"% (connector,i)
-                self[pinname] = GPIOO
-        for connector in(2,3,4,5):
-            # This initializes the mesa inverse pins
-            for i in range(0,24):
-                pinname ="m5i20c%dpin%dinv"% (connector,i)
-                self[pinname] = False
+        
+        for boardnum in(0,1):
+            connector = 2
+            pinname ="mesa%dc%dpin"% (boardnum,connector)
+            self[pinname+"0"] = UNUSED_ENCODER
+            self[pinname+"0type"] = ENCB
+            self[pinname+"1"] = UNUSED_ENCODER
+            self[pinname+"1type"] = ENCA
+            self[pinname+"2"] = UNUSED_ENCODER
+            self[pinname+"2type"] = ENCB
+            self[pinname+"3"] = UNUSED_ENCODER
+            self[pinname+"3type"] = ENCA
+            self[pinname+"4"] = UNUSED_ENCODER
+            self[pinname+"4type"] = ENCI
+            self[pinname+"5"] = UNUSED_ENCODER
+            self[pinname+"5type"] = ENCI
+            self[pinname+"6"] = UNUSED_PWM
+            self[pinname+"6type"] = PWMP
+            self[pinname+"7"] = UNUSED_PWM
+            self[pinname+"7type"] = PWMP
+            self[pinname+"8"] = UNUSED_PWM
+            self[pinname+"8type"] = PWMD
+            self[pinname+"9"] = UNUSED_PWM
+            self[pinname+"9type"] = PWMD
+            self[pinname+"10"] = UNUSED_PWM
+            self[pinname+"10type"] = PWME
+            self[pinname+"11"] = UNUSED_PWM
+            self[pinname+"11type"] = PWME
+            self[pinname+"12"] = UNUSED_ENCODER
+            self[pinname+"12type"] = ENCB
+            self[pinname+"13"] = UNUSED_ENCODER
+            self[pinname+"13type"] = ENCA
+            self[pinname+"14"] = UNUSED_ENCODER
+            self[pinname+"14type"] = ENCB
+            self[pinname+"15"] = UNUSED_ENCODER
+            self[pinname+"15type"] = ENCA
+            self[pinname+"16"] = UNUSED_ENCODER
+            self[pinname+"16type"] = ENCI
+            self[pinname+"17"] = UNUSED_ENCODER
+            self[pinname+"17type"] = ENCI
+            self[pinname+"18"] = UNUSED_PWM
+            self[pinname+"18type"] = PWMP
+            self[pinname+"19"] = UNUSED_PWM
+            self[pinname+"19type"] = PWMP
+            self[pinname+"20"] = UNUSED_PWM
+            self[pinname+"20type"] = PWMD
+            self[pinname+"21"] = UNUSED_PWM
+            self[pinname+"21type"] = PWMD
+            self[pinname+"22"] = UNUSED_PWM
+            self[pinname+"22type"] = PWME
+            self[pinname+"23"] = UNUSED_PWM
+            self[pinname+"23type"] = PWME
+        for boardnum in(0,1):
+            for connector in(3,4,5):
+                # This initializes GPIO input pins
+                for i in range(0,16):
+                    pinname ="mesa%dc%dpin%d"% (boardnum,connector,i)
+                    self[pinname] = UNUSED_INPUT
+                    pinname ="mesa%dc%dpin%dtype"% (boardnum,connector,i)
+                    self[pinname] = GPIOI
+                # This initializes GPIO output pins
+                for i in range(16,24):
+                    pinname ="mesa%dc%dpin%d"% (boardnum,connector,i)
+                    self[pinname] = UNUSED_OUTPUT
+                    pinname ="mesa%dc%dpin%dtype"% (boardnum,connector,i)
+                    self[pinname] = GPIOO
+            for connector in(2,3,4,5):
+                # This initializes the mesa inverse pins
+                for i in range(0,24):
+                    pinname ="mesa%dc%dpin%dinv"% (boardnum,connector,i)
+                    self[pinname] = False
 
         # halui data
         self.halui = 0 # not included
@@ -1286,7 +1288,7 @@ class Data:
                 print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
                 print >>file
                
-            if 'm5i20' in pwmgen:
+            if 'mesa0' in pwmgen:
                 pinname = self.make_pinname(pwmgen)
                 #TODO do a check to see if encoder sig is from parport or mesa
                 print >>file, "# PWM Generator signals/setup"
@@ -1347,7 +1349,7 @@ class Data:
                 print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"  
             print >>file
 
-        if 'm5i20' in encoder:
+        if 'mesa0' in encoder:
                 pinname = self.make_pinname(encoder)              
                 countmode = 0
                 # TODO do a check to see if encoder sig is from parport or mesa
@@ -1413,9 +1415,9 @@ class Data:
         for connector in (2,3,4):
             board = self.mesa_boardname
             for q in range(0,24):
-                p = self['m5i20c%dpin%d' % (connector, q)]
-                i = self['m5i20c%dpin%dinv' % (connector, q)]
-                t = self['m5i20c%dpin%dtype' % (connector, q)]
+                p = self['mesa0c%dpin%d' % (connector, q)]
+                i = self['mesa0c%dpin%dinv' % (connector, q)]
+                t = self['mesa0c%dpin%dtype' % (connector, q)]
                 truepinnum = q + ((connector-2)*24)
                 # for input pins
                 if t == GPIOI:
@@ -1450,9 +1452,9 @@ class Data:
         print >>file
         for connector in (2,3,4):
             for q in range(0,24):
-                p = self['m5i20c%dpin%d' % (connector, q)]
-                i = self['m5i20c%dpin%dinv' % (connector, q)]
-                t = self['m5i20c%dpin%dtype' % (connector, q)]
+                p = self['mesa0c%dpin%d' % (connector, q)]
+                i = self['mesa0c%dpin%dinv' % (connector, q)]
+                t = self['mesa0c%dpin%dtype' % (connector, q)]
                 truepinnum = q + ((connector-2)*24)
                 # for output /open drain pins
                 if t in (GPIOO,GPIOD):
@@ -1614,7 +1616,7 @@ class Data:
             print >>file, "addf parport.1.write base-thread"
         if self.number_pports > 2:
             print >>file, "addf parport.2.write base-thread"
-        if self.mesa5i20 > 0:
+        if self.number_mesa> 0:
             print >>file, "addf hm2_[HOSTMOT2](BOARD).0.read servo-thread" 
         #print >>file, "addf stepgen.capture-position servo-thread"
         #if spindle_enc: print >>file, "addf encoder.capture-position servo-thread"
@@ -1956,16 +1958,16 @@ class Data:
         print >>file
         print >>file, display,_("will be used as the frontend display")
         print >>file
-        if self.mesa5i20 == True:
+        if self.number_mesa== True:
             print >>file, "The Mesa", self.mesa_boardname, "hardware I/O card"
             print >>file, "will be loaded with firmware designation:", self.mesa_firmware
             print >>file, "and has", self.mesa_maxgpio, "I/O pins"
         print >>file
         print >>file,_("Mesa 5i20 connector 2 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["m5i20c2pin%d" % x]
-            tempinv = self["m5i20c2pin%dinv" %  x]
-            temptype = self["m5i20c2pin%dtype" %  x]
+            temp = self["mesa0c2pin%d" % x]
+            tempinv = self["mesa0c2pin%dinv" %  x]
+            temptype = self["mesa0c2pin%dtype" %  x]
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
@@ -1974,9 +1976,9 @@ class Data:
         print >>file
         print >>file,_("Mesa 5i20 connector 3 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["m5i20c3pin%d" % x]
-            tempinv = self["m5i20c3pin%dinv" %  x]
-            temptype = self["m5i20c3pin%dtype" %  x]
+            temp = self["mesa0c3pin%d" % x]
+            tempinv = self["mesa0c3pin%dinv" %  x]
+            temptype = self["mesa0c3pin%dtype" %  x]
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
@@ -1985,9 +1987,9 @@ class Data:
         print >>file
         print >>file,_("Mesa 5i20 connector 4 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["m5i20c4pin%d" % x]
-            tempinv = self["m5i20c4pin%dinv" %  x]
-            temptype = self["m5i20c4pin%dtype" %  x]
+            temp = self["mesa0c4pin%d" % x]
+            tempinv = self["mesa0c4pin%dinv" %  x]
+            temptype = self["mesa0c4pin%dtype" %  x]
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
@@ -2107,10 +2109,10 @@ class Data:
                 key = self["pp%dOpin%d" %(i,s)]
                 ppoutput[key] = "pp%dOpin%d" %(i,s) 
 
-        mesa2=dict([(self["m5i20c2pin%d" %s],"m5i20c2pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa3=dict([(self["m5i20c3pin%d" %s],"m5i20c3pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa4=dict([(self["m5i20c4pin%d" %s],"m5i20c4pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa5=dict([(self["m5i20c5pin%d" %s],"m5i20c5pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
+        mesa2=dict([(self["mesa0c2pin%d" %s],"mesa0c2pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
+        mesa3=dict([(self["mesa0c3pin%d" %s],"mesa0c3pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
+        mesa4=dict([(self["mesa0c4pin%d" %s],"mesa0c4pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
+        mesa5=dict([(self["mesa0c5pin%d" %s],"mesa0c5pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
         try:
             return ppinput[sig]
         except :
@@ -2131,14 +2133,14 @@ class Data:
                             except :
                                 return "false"
 
-    # This method takes a signalname data pin (eg m5i20c3pin1)
+    # This method takes a signalname data pin (eg mesa0c3pin1)
     # and converts it to a HAL pin names (eg hm2_[HOSTMOT2](BOARD).0.gpio.01)
     # The adj variable is for adjustment of position of pins related to the
     # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
     # (related pins) 
     def make_pinname(self, pin):
         test = str(pin)       
-        if 'm5i20' in test:
+        if 'mesa0' in test:
             ptype = self[pin+"type"] 
             signalname = self[pin]
             pinnum = int(test[10:])
@@ -2416,7 +2418,11 @@ class App:
         self.widgets.baseperiod.set_value(self.data.baseperiod)
         self.widgets.servoperiod.set_value(self.data.servoperiod)
         self.widgets.machinename.grab_focus()
-        self.widgets.mesa5i20_checkbutton.set_active(self.data.mesa5i20)
+        if self.data.number_mesa:
+            self.widgets.mesa5i20_checkbutton.set_active(True)
+        else:
+            self.widgets.mesa5i20_checkbutton.set_active(False)
+        self.widgets.number_mesa.set_value(self.data.number_mesa)
         self.widgets.ioaddr.set_text(self.data.ioaddr)
         self.widgets.ioaddr2.set_text(self.data.ioaddr2) 
         self.widgets.ioaddr3.set_text(self.data.ioaddr3)
@@ -2435,7 +2441,7 @@ class App:
 
     def on_mesa5i20_checkbutton_toggled(self, *args): 
         i = self.widgets.mesa5i20_checkbutton.get_active()   
-        self.widgets.nbr5i20.set_sensitive(i)
+        self.widgets.number_mesa.set_sensitive(i)
         
     def on_pp1_checkbutton_toggled(self, *args): 
         i = self.widgets.pp1_checkbutton.get_active()   
@@ -2481,7 +2487,10 @@ class App:
         self.data.ioaddr = self.widgets.ioaddr.get_text()
         self.data.ioaddr2 = self.widgets.ioaddr2.get_text()
         self.data.ioaddr3 = self.widgets.ioaddr3.get_text()
-        self.data.mesa5i20 = self.widgets.mesa5i20_checkbutton.get_active()
+        if self.widgets.mesa5i20_checkbutton.get_active():
+            self.data.number_mesa = self.widgets.number_mesa.get_value()
+        else:
+            self.data.number_mesa = 0
         if self.widgets.pp3_checkbutton.get_active() and self.widgets.pp2_checkbutton.get_active():
             self.data.number_pports = 3
         elif self.widgets.pp2_checkbutton.get_active() and self.widgets.pp1_checkbutton.get_active():
@@ -2490,7 +2499,7 @@ class App:
             self.data.number_pports = 1
         else :
             self.data.number_pports = 0
-        if self.data.number_pports == 0 and self.data.mesa5i20 == 0 :
+        if self.data.number_pports == 0 and self.data.number_mesa== 0 :
            self.warning_dialog(_("You need to designate a parport and/or mesa I/O device before continuing."),True)
            self.widgets.druid1.set_page(self.widgets.basicinfo)
            return True 
@@ -2504,13 +2513,13 @@ class App:
         # user info (pin number designations) and doesn't record the signal ID numbers
         # none of this is done if mesa is not checked off in pncconf
 
-        if (self.data.mesa5i20 ): 
+        if (self.data.number_mesa): 
             for connector in (2,3,4,5):
                 for pin in range(0,24):
-                    cb = "m5i20c%ipin%i"% (connector,pin)
+                    cb = "mesa0c%ipin%i"% (connector,pin)
                     i = "mesasignalhandlerc%ipin%i"% (connector,pin)
                     self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
-                    cb = "m5i20c%ipin%itype"% (connector,pin)
+                    cb = "mesa0c%ipin%itype"% (connector,pin)
                     i = "mesaptypesignalhandlerc%ipin%i"% (connector,pin)
                     self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin))
 
@@ -2574,7 +2583,7 @@ class App:
             tempunits = "in"
         else:
             tempunits = "mm"      
-        for i in (0,1,2):
+        for i in range(0,8):
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
         self.widgets.jograpidunits.set_text(tempunits+" / min")
         for i in range(0,8):
@@ -2667,7 +2676,7 @@ class App:
         self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
         self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
         self.data.toolchangeprompt = self.widgets.toolchangeprompt.get_active()
-        if not self.data.mesa5i20:
+        if not self.data.number_mesa:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
         self.data.pyvcp = self.widgets.pyvcp.get_active()
@@ -2810,7 +2819,7 @@ class App:
                 self.widgets.numof_mesa_gpio.set_text("%d" % total)
 
 
-    def on_mesa5i20_prepare(self, *args):
+    def on_mesa0_prepare(self, *args):
         self.data.help = "help-mesa.txt"
         # If we just reloaded a config then update the page right now
         # as we already know what board /firmware /components are wanted.
@@ -2837,7 +2846,7 @@ class App:
     # if encoder, pwm, or stepper pins the related pin are also set properly
     # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
     # pin 4 to [encoder-C]   
-    def on_mesa5i20_next(self,*args):
+    def on_mesa0_next(self,*args):
         if not self.intrnldata.mesa_configured:
             self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
             self.widgets.druid1.set_page(self.widgets.mesa5i20)
@@ -2845,9 +2854,9 @@ class App:
         for connector in self.data.mesa_currentfirmwaredata[11] :
             for pin in range(0,24):
                 foundit = 0
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
                 if pintype in (ENCB,ENCI,ENCM,PWMD,PWME,STEPB): continue
@@ -2903,14 +2912,14 @@ class App:
                     flag = 1
                     if selection == "Unused Encoder":flag = 0
                     if pin in (1,13):
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
                         self.data[d] = signaltocheck[(index+2)*flag]
                     elif pin in (3,15):
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                         self.data[d] = signaltocheck[(index+2)*flag]  
                     else:
                         print"Encoder pin config error"
@@ -2919,7 +2928,7 @@ class App:
                             for count, name in enumerate((1,3,13,15)):
                                 if name == pin:
                                     if connector == 3: count=count+4
-                                    d = 'm5i20c%(con)dpin%(num)d' % {'con':4 ,'num': count}
+                                    d = 'mesa0c%(con)dpin%(num)d' % {'con':4 ,'num': count}
                                     self.data[d] = signaltocheck[(index+3)*flag]
                 # for PWM pins
                 elif pintype in (PWMP,PDMP) :
@@ -2935,9 +2944,9 @@ class App:
                     flag = 1
                     if selection == "Unused PWM Gen":flag = 0
                     if pin in (6,7,18,19):
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
                         self.data[d] = signaltocheck[(index+2)*flag]
                     else:
                         print "PWM pin config error"
@@ -2955,7 +2964,7 @@ class App:
                     # set related stepgen pins
                     flag = 1
                     if selection == "Unused StepGen":flag = 0
-                    d = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                    d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
                     self.data[d] = signaltocheck[(index+1)*flag]
                     
                 # for input and output
@@ -2975,19 +2984,36 @@ class App:
         self.data.mesa_pwm_frequency = self.widgets.mesa_pwm_frequency.get_value()
         self.data.mesa_pdm_frequency = self.widgets.mesa_pdm_frequency.get_value()
         self.data.mesa_watchdog_timeout = self.widgets.mesa_watchdog_timeout.get_value()
+        if self.data.number_mesa > 1:
+           self.widgets.druid1.set_page(self.widgets.mesa1)
+           return True
+        if self.data.number_pports<1:
+           self.widgets.druid1.set_page(self.widgets.xaxismotor)
+           return True
+        else:
+           self.widgets.druid1.set_page(self.widgets.pp1pport)
+           return True
+
+    def on_mesa1_prepare(self,*args):
+        print "mesa1 prepare"
+
+    def on_mesa1_next(self,*args):
         if self.data.number_pports<1:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
 
-    def on_m5i20panel_clicked(self, *args):self.m5i20test(self)
+    def on_mesa1_back(self,*args):
+        print "mesa1 back"
+
+    def on_mesapanel_clicked(self, *args):self.m5i20test(self)
     
     def on_mesa_pintype_changed(self, widget,connector,pin):
          
                # if self.in_mesa_prepare == True: return
                #print "got to pintype change method ",connector,pin,"\n"
          
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
+                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
                 old = self.data[ptype]
                 new = self.widgets[ptype].get_active_text()    
                 if (new == None or new == old): return 
@@ -3085,9 +3111,9 @@ class App:
                 firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
 #                if connector == 2:
 #                    print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"               
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
-                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)    
                 ptypeblocksignal  = "mesaptypesignalhandlerc%ipin%i" % (connector,pin)               
                 # convert widget[ptype] to component specified in firmwaredata   
@@ -3350,8 +3376,8 @@ class App:
 
     def on_mesa_pin_changed(self, widget, connector, pin):
                 #if self.in_mesa_prepare == True: return       
-                p = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pinchanged =  self.widgets[p].get_active_text() 
                 dataptype = self.data[ptype]
                 used = 0
@@ -3363,7 +3389,7 @@ class App:
                     for index, name in enumerate(human_stepper_names):
                         if name == pinchanged:
                             if not pinchanged == "Unused StepGen":used = 1
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
                             self.widgets[tochange].set_active((index+1)*used) 
                     return 
                 # for encoder pins
@@ -3390,29 +3416,29 @@ class App:
                         # for encoder 0 amd 2 pins
                         if pin in (1,13):
                            # print"changing encoder b"
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
                             self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
                             self.widgets[tochange].set_active((index+2)*used)
                         # for encoder 1 and 3 pins
                         elif pin in (3,15):
                             #print"changing encoder i"
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
                             self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                             self.widgets[tochange].set_active((index+2)*used) 
                         # for encoder mask pins
                         if self.data.mesa_currentfirmwaredata[5] == 4:                           
                             for count, name in enumerate((1,3,13,15)):
                                 if name == pin:
                                     if connector == 3: count=count+4
-                                    tochange = 'm5i20c%(con)dpin%(num)d' % {'con':4 ,'num': count}
+                                    tochange = 'mesa0c%(con)dpin%(num)d' % {'con':4 ,'num': count}
                                     self.widgets[tochange].set_active((index+3)*used) 
                         # for pwm pins d and e
                         if pin in (6,7,18,19):
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
                             self.widgets[tochange].set_active((index+1)*used)
-                            tochange = 'm5i20c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
                             self.widgets[tochange].set_active((index+2)*used)
 
     def on_pp1pport_prepare(self, *args):
@@ -3421,29 +3447,35 @@ class App:
         self.prepare_parport("pp1")
         c = self.data.pp1_direction
         if c:
-                self.widgets.pp1pport.set_title(_("First Parallel Port set for OUTPUT"))
+            self.widgets.pp1pport.set_title(_("First Parallel Port set for OUTPUT"))
         else:
-                self.widgets.pp1pport.set_title(_("First Parallel Port set for INPUT"))   
+            self.widgets.pp1pport.set_title(_("First Parallel Port set for INPUT"))   
 
     def on_pp1pport_next(self, *args):
         self.next_parport("pp1")
         if self.data.number_pports<2:
-                self.widgets.druid1.set_page(self.widgets.xaxismotor)
-                return True
+            self.widgets.druid1.set_page(self.widgets.xaxismotor)
+            return True
 
     def on_pp1pport_back(self, *args):
-         if not self.data.mesa5i20 :
-                self.widgets.druid1.set_page(self.widgets.GUIconfig)
-                return True
+        if self.data.number_mesa == 2:
+            self.widgets.druid1.set_page(self.widgets.mesa1)
+            return True
+        elif self.data.number_mesa == 1:
+            self.widgets.druid1.set_page(self.widgets.mesa0)
+            return True
+        elif not self.data.number_mesa:
+            self.widgets.druid1.set_page(self.widgets.GUIconfig)
+            return True
 
     def on_pp2pport_prepare(self, *args):
          self.data.help = 5
          self.prepare_parport("pp2")
          c = self.data.pp2_direction
          if c:
-                self.widgets.pp2pport.set_title(_("Second Parallel Port set for OUTPUT"))
+            self.widgets.pp2pport.set_title(_("Second Parallel Port set for OUTPUT"))
          else:
-                self.widgets.pp2pport.set_title(_("Second Parallel Port set for INPUT"))
+            self.widgets.pp2pport.set_title(_("Second Parallel Port set for INPUT"))
 
     def on_pp2pport_next(self, *args):
         self.next_parport("pp2")
@@ -3595,9 +3627,12 @@ class App:
         elif self.data.number_pports==3:
                 self.widgets.druid1.set_page(self.widgets.pp3pport)
                 return True
-        elif self.data.mesa5i20 :
-                self.widgets.druid1.set_page(self.widgets.mesa5i20)
-                return True    
+        elif self.data.number_mesa == 2:
+                self.widgets.druid1.set_page(self.widgets.mesa1)
+                return True   
+        elif self.data.number_mesa == 2:
+                self.widgets.druid1.set_page(self.widgets.mesa0)
+                return True 
  
     def on_yaxismotor_prepare(self, *args):
         self.data.help = "help-axismotor.txt"
@@ -4453,23 +4488,23 @@ class App:
                 self.data[pinname] = False
           
         # if mesa card not used clear all signals
-        if self.data.mesa5i20 == 0:
+        if self.data.number_mesa== 0:
             for connector in(2,3,4,5):
                 # This initializes GPIO input pins
                 for i in range(0,16):
-                    pinname ="m5i20c%dpin%d"% (connector,i)
+                    pinname ="mesa0c%dpin%d"% (connector,i)
                     self.data[pinname] = UNUSED_INPUT
-                    pinname ="m5i20c%dpin%dtype"% (connector,i)
+                    pinname ="mesa0c%dpin%dtype"% (connector,i)
                     self.data[pinname] = GPIOI
                 # This initializes GPIO output pins
                 for i in range(16,24):
-                    pinname ="m5i20c%dpin%d"% (connector,i)
+                    pinname ="mesa0c%dpin%d"% (connector,i)
                     self.data[pinname] = UNUSED_OUTPUT
-                    pinname ="m5i20c%dpin%dtype"% (connector,i)
+                    pinname ="mesa0c%dpin%dtype"% (connector,i)
                     self.data[pinname] = GPIOO
                 # This initializes the mesa inverse pins
                 for i in range(0,24):
-                    pinname ="m5i20c%dpin%dinv"% (connector,i)
+                    pinname ="mesa0c%dpin%dinv"% (connector,i)
                     self.data[pinname] = False
 
         self.data.save()        
@@ -4556,8 +4591,8 @@ class App:
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
             for pin in range (0,24):
                 firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
-                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
                 pininv = self.widgets[pinv].get_active()
                 truepinnum = (concount*24) + pin
@@ -4873,8 +4908,8 @@ class App:
         for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
             for pin in range (0,24):
                 firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
-                pinv = 'm5i20c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'm5i20c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
+                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
                 pininv = self.widgets[pinv].get_active()
                 truepinnum = (concount*24) + pin
@@ -4882,7 +4917,7 @@ class App:
                 # for encoder pins
                 if pintype in (ENCA,ENCB,ENCI,ENCM):                                    
                     if not pintype == ENCA: continue   
-                    if "m5i20" in self.encoder: print "m5i20 encoder"
+                    if "mesa0" in self.encoder: print "mesa0 encoder"
                     if pin == int(self.encoder[10:]) and connector == int(self.encoder[6:7]) : 
                         print "encoder pin # = %d connector # %d" % (pin,compnum) 
                         enc_signalname = self.data.make_pinname(self.encoder)             
@@ -4910,7 +4945,7 @@ class App:
                 elif pintype in (STEPA,STEPB):
                     if not pintype == STEPA : 
                         continue    
-                    if "m5i20" in self.stepgen:      
+                    if "mesa0" in self.stepgen:      
                         # check current component number to signal's component number  
                         if pin == int(self.stepgen[10:]):
                             self.currentstepgen = compnum
