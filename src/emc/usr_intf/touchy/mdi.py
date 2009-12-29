@@ -101,9 +101,9 @@ class mdi:
         if 'A' in words:
             i = words.index('A')
             words = words[:i] + self.axes + words[i+1:]
-        if self.polar and 'X' in self.axes and 'Y' in self.axes:
-            words[self.axes.index('X')] = '@'
-            words[self.axes.index('Y')] = '^'
+            if self.polar and 'X' in self.axes and 'Y' in self.axes:
+                words[self.axes.index('X')] = '@'
+                words[self.axes.index('Y')] = '^'
         return words
 
     def clear(self):
