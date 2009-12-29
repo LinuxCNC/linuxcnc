@@ -1309,6 +1309,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi0">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes">G</property>
 				      <property name="use_underline">False</property>
@@ -1318,10 +1319,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1343,6 +1344,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi1">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1352,10 +1354,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1377,6 +1379,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi2">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1386,10 +1389,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1411,6 +1414,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi3">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1420,10 +1424,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1445,6 +1449,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi4">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1454,10 +1459,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1479,6 +1484,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi5">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1488,10 +1494,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1513,6 +1519,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi6">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1522,10 +1529,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1547,6 +1554,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi7">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1556,10 +1564,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1581,6 +1589,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi8">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1590,10 +1599,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1615,6 +1624,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi9">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1624,10 +1634,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>
@@ -1649,6 +1659,7 @@
 
 				  <child>
 				    <widget class="GtkLabel" id="mdi10">
+				      <property name="width_request">60</property>
 				      <property name="visible">True</property>
 				      <property name="label" translatable="yes"></property>
 				      <property name="use_underline">False</property>
@@ -1658,10 +1669,10 @@
 				      <property name="selectable">False</property>
 				      <property name="xalign">0</property>
 				      <property name="yalign">0.5</property>
-				      <property name="xpad">0</property>
+				      <property name="xpad">6</property>
 				      <property name="ypad">0</property>
 				      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-				      <property name="width_chars">8</property>
+				      <property name="width_chars">-1</property>
 				      <property name="single_line_mode">True</property>
 				      <property name="angle">0</property>
 				    </widget>

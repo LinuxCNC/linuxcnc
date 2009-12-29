@@ -174,9 +174,9 @@ class mdi_control:
             if len(t) == 1:
                 self.mdi.set_word(t, "")
         if len(t) < 2:
-            w.modify_fg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse("#888"))
+            w.set_alignment(1.0, 0.5)
         else:
-            w.modify_fg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse("#000"))
+            w.set_alignment(0.0, 0.5)
             
     def clear(self, b):
         t = self.get_text()
