@@ -59,7 +59,7 @@ endif
 
 
 # list of supported hostmot2 boards
-HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
+HM2_BOARDS = 3x20 4i65 4i68 5i20 5i22 5i23 7i43
 
 # Print 'entering' all the time
 MAKEFLAGS += w
