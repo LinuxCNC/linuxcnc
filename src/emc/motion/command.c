@@ -74,13 +74,6 @@
 extern void print_pose ( EmcPose *pos );
 extern void check_stuff(const char *msg);
 
-
-/* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0},
-                      0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0
-};
-
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
