@@ -36,6 +36,18 @@
    problem testing */
 #define ISNAN_TRAP
 
+#ifdef ISNAN_TRAP
+#define CATCH_NAN(cond) do {                           \
+    if (cond) {                                        \
+        printf("isnan error in %s()\n", __FUNCTION__); \
+        return -1;                                     \
+    }                                                  \
+} while(0)
+#else
+#define CATCH_NAN
+#endif
+
+
 // MOTION INTERFACE
 
 /*! \todo FIXME - this decl was originally much later in the file, moved
@@ -112,12 +124,7 @@ int emcJointSetUnits(int joint, double units)
 
 int emcJointSetBacklash(int joint, double backlash)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(backlash)) {
-	printf("isnan error in emcJointSetBacklash()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(backlash));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -137,12 +144,7 @@ int emcJointSetBacklash(int joint, double backlash)
 
 int emcJointSetMinPositionLimit(int joint, double limit)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(limit)) {
-	printf("isnan error in emcJointSetMinPosition()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(limit));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -165,12 +167,7 @@ int emcJointSetMinPositionLimit(int joint, double limit)
 
 int emcJointSetMaxPositionLimit(int joint, double limit)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(limit)) {
-	printf("isnan error in emcAxisSetMaxPosition()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(limit));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -193,12 +190,7 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
 
 int emcJointSetMotorOffset(int joint, double offset) 
 {
-#ifdef ISNAN_TRAP
-    if (isnan(offset)) {
-	printf("isnan error in emcJointSetMotorOffset()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(offset));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -217,12 +209,7 @@ int emcJointSetMotorOffset(int joint, double offset)
 
 int emcJointSetFerror(int joint, double ferror)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
-	printf("isnan error in emcJointSetFerror()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(ferror));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -242,12 +229,7 @@ int emcJointSetFerror(int joint, double ferror)
 
 int emcJointSetMinFerror(int joint, double ferror)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(ferror)) {
-	printf("isnan error in emcJointSetMinFerror()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(ferror));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -269,13 +251,7 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 			   int use_index, int ignore_limits, int is_shared,
 			   int sequence,int volatile_home)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(home) || isnan(offset) || isnan(home_final_vel) ||
-	isnan(search_vel) || isnan(latch_vel)) {
-	printf("isnan error in emcJointSetHomingParams()\n");
-	return -1;
-    }
-#endif
+    CATCH_NAN(isnan(home) || isnan(offset) || isnan(home_final_vel) || isnan(search_vel) || isnan(latch_vel));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -313,6 +289,8 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 
 int emcJointSetMaxVelocity(int joint, double vel)
 {
+    CATCH_NAN(isnan(vel));
+
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
@@ -337,6 +315,7 @@ int emcJointSetMaxVelocity(int joint, double vel)
 
 int emcJointSetMaxAcceleration(int joint, double acc)
 {
+    CATCH_NAN(isnan(acc));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -364,6 +343,8 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
+    CATCH_NAN(isnan(limit));
+
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -376,13 +357,6 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
     emcmotCommand.minLimit = limit;
     saveMinLimit[axis] = limit;
 
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMinPosition\n");
-	return -1;
-    }
-#endif
-
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
 
@@ -394,6 +368,8 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
+    CATCH_NAN(isnan(limit));
+
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -405,13 +381,6 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     emcmotCommand.minLimit = saveMinLimit[axis];
     emcmotCommand.maxLimit = limit;
     saveMaxLimit[axis] = limit;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMaxPosition\n");
-	return -1;
-    }
-#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
@@ -1035,14 +1004,9 @@ int emcTrajSetMaxAcceleration(double acc)
 
 int emcTrajSetHome(EmcPose home)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(home.tran.x) || isnan(home.tran.y) || isnan(home.tran.z) ||
-	isnan(home.a) || isnan(home.b) || isnan(home.c) ||
-	isnan(home.u) || isnan(home.v) || isnan(home.w)) {
-	printf("isnan error in emcTrajSetHome()\n");
-	return 0;		// ignore it for now, just don't send it
-    }
-#endif
+    CATCH_NAN(isnan(home.tran.x) || isnan(home.tran.y) || isnan(home.tran.z) ||
+        isnan(home.a) || isnan(home.b) || isnan(home.c) ||
+        isnan(home.u) || isnan(home.v) || isnan(home.w));
 
     emcmotCommand.command = EMCMOT_SET_WORLD_HOME;
     emcmotCommand.pos = home;
@@ -1266,14 +1230,9 @@ int emcTrajSetTloAxis(bool use_w_axis) {
 
 int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
+    CATCH_NAN(isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
         isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-        isnan(end.u) || isnan(end.v) || isnan(end.w)) {
-	printf("isnan error in emcTrajLinearMove()\n");
-	return 0;		// ignore it for now, just don't send it
-    }
-#endif
+        isnan(end.u) || isnan(end.v) || isnan(end.w));
 
     emcmotCommand.command = EMCMOT_SET_LINE;
 
@@ -1291,16 +1250,11 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
 int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center,
 			PM_CARTESIAN normal, int turn, int type, double vel, double ini_maxvel, double acc)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
-	isnan(end.a) || isnan(end.b) || isnan(end.c) ||
-	isnan(end.u) || isnan(end.v) || isnan(end.w) ||
-	isnan(center.x) || isnan(center.y) || isnan(center.z) ||
-	isnan(normal.x) || isnan(normal.y) || isnan(normal.z)) {
-	printf("isnan error in emcTrajCircularMove()\n");
-	return 0;		// ignore it for now, just don't send it
-    }
-#endif
+    CATCH_NAN(isnan(end.tran.x) || isnan(end.tran.y) || isnan(end.tran.z) ||
+        isnan(end.a) || isnan(end.b) || isnan(end.c) ||
+        isnan(end.u) || isnan(end.v) || isnan(end.w) ||
+        isnan(center.x) || isnan(center.y) || isnan(center.z) ||
+        isnan(normal.x) || isnan(normal.y) || isnan(normal.z));
 
     emcmotCommand.command = EMCMOT_SET_CIRCLE;
 
@@ -1334,14 +1288,9 @@ int emcTrajClearProbeTrippedFlag()
 
 int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double acc, unsigned char probe_type)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z) ||
+    CATCH_NAN(isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z) ||
         isnan(pos.a) || isnan(pos.b) || isnan(pos.c) ||
-        isnan(pos.u) || isnan(pos.v) || isnan(pos.w)) {
-	printf("isnan error in emcTrajProbe()\n");
-	return 0;		// ignore it for now, just don't send it
-    }
-#endif
+        isnan(pos.u) || isnan(pos.v) || isnan(pos.w));
 
     emcmotCommand.command = EMCMOT_PROBE;
     emcmotCommand.pos = pos;
@@ -1357,12 +1306,7 @@ int emcTrajProbe(EmcPose pos, int type, double vel, double ini_maxvel, double ac
 
 int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc)
 {
-#ifdef ISNAN_TRAP
-    if (isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z)) {
-	printf("isnan error in emcTrajRigidTap()\n");
-	return 0;		// ignore it for now, just don't send it
-    }
-#endif
+    CATCH_NAN(isnan(pos.tran.x) || isnan(pos.tran.y) || isnan(pos.tran.z));
 
     emcmotCommand.command = EMCMOT_RIGID_TAP;
     emcmotCommand.pos.tran = pos.tran;
