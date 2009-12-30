@@ -39,6 +39,18 @@ value_inihal_data old_inihal_data;
    problem testing */
 #define ISNAN_TRAP
 
+#ifdef ISNAN_TRAP
+#define CATCH_NAN(cond) do {                           \
+    if (cond) {                                        \
+        printf("isnan error in %s()\n", __FUNCTION__); \
+        return -1;                                     \
+    }                                                  \
+} while(0)
+#else
+#define CATCH_NAN
+#endif
+
+
 // MOTION INTERFACE
 
 /*! \todo FIXME - this decl was originally much later in the file, moved
@@ -170,7 +182,7 @@ int emcJointSetMaxPositionLimit(int joint, double limit)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(limit)) {
-	printf("std::isnan error in emcAxisSetMaxPosition()\n");
+	printf("std::isnan error in emcJointSetMaxPosition()\n");
 	return -1;
     }
 #endif
@@ -319,6 +331,8 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
 
 int emcJointSetMaxVelocity(int joint, double vel)
 {
+    CATCH_NAN(isnan(vel));
+
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
@@ -343,6 +357,7 @@ int emcJointSetMaxVelocity(int joint, double vel)
 
 int emcJointSetMaxAcceleration(int joint, double acc)
 {
+    CATCH_NAN(isnan(acc));
 
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
@@ -370,6 +385,8 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
+    CATCH_NAN(isnan(limit));
+
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -382,13 +399,6 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
     emcmotCommand.minLimit = limit;
     saveMinLimit[axis] = limit;
 
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMinPosition\n");
-	return -1;
-    }
-#endif
-
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
 
@@ -400,6 +410,8 @@ int emcAxisSetMinPositionLimit(int axis, double limit)
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
+    CATCH_NAN(isnan(limit));
+
     if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
 	return 0;
     }
@@ -411,13 +423,6 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     emcmotCommand.minLimit = saveMinLimit[axis];
     emcmotCommand.maxLimit = limit;
     saveMaxLimit[axis] = limit;
-
-#ifdef ISNAN_TRAP
-    if (isnan(emcmotCommand.maxLimit) || isnan(emcmotCommand.minLimit)) {
-	printf("isnan error in emcAxisSetMaxPosition\n");
-	return -1;
-    }
-#endif
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 #endif
