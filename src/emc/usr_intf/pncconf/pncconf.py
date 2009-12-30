@@ -393,7 +393,8 @@ class Widgets:
 
 class Intrnl_data:
     def __init__(self):
-        self.mesa_configured = False
+        self.mesa0_configured = False
+        self.mesa1_configured = False
         self.components_is_prepared = False
         #self.available_axes = []
     def __getitem__(self, item):
@@ -534,21 +535,34 @@ class Data:
                 pinname ="%sOpin%dinv"% (connector,i)
                 self[pinname] = False
 
-        # for mesa cards
         self.number_mesa = 1 # number of cards
-        self.mesa_currentfirmwaredata = mesafirmwaredata[1]
-        self.mesa_boardname = "5i20"
-        self.mesa_firmware = "SVST8_4"
-        self.mesa_maxgpio = 72
-        self.mesa_isawatchdog = 1
-        self.mesa_pwm_frequency = 100000
-        self.mesa_pdm_frequency = 100000
-        self.mesa_watchdog_timeout = 10000000
-        self.numof_mesa_encodergens = 4
-        self.numof_mesa_pwmgens = 4
-        self.numof_mesa_stepgens = 0
-        self.numof_mesa_gpio = 48
-        
+        # for first mesa card
+        self.mesa0_currentfirmwaredata = mesafirmwaredata[1]       
+        self.mesa0_boardname = "5i20"        
+        self.mesa0_firmware = "SVST8_4"
+        self.mesa0_maxgpio = 72
+        self.mesa0_isawatchdog = 1
+        self.mesa0_pwm_frequency = 100000
+        self.mesa0_pdm_frequency = 100000
+        self.mesa0_watchdog_timeout = 10000000
+        self.mesa0_numof_encodergens = 4
+        self.mesa0_numof_pwmgens = 4
+        self.mesa0_numof_stepgens = 0
+        self.mesa0_numof_gpio = 48
+        # second mesa card
+        self.mesa1_currentfirmwaredata = mesafirmwaredata[1]
+        self.mesa1_boardname = "5i20"
+        self.mesa1_firmware = "SVST8_4"
+        self.mesa1_maxgpio = 72
+        self.mesa1_isawatchdog = 1
+        self.mesa1_pwm_frequency = 100000
+        self.mesa1_pdm_frequency = 100000
+        self.mesa1_watchdog_timeout = 10000000
+        self.mesa1_numof_encodergens = 4
+        self.mesa1_numof_pwmgens = 4
+        self.mesa1_numof_stepgens = 0
+        self.mesa1_numof_gpio = 48
+
         for boardnum in(0,1):
             connector = 2
             pinname ="mesa%dc%dpin"% (boardnum,connector)
@@ -1012,9 +1026,9 @@ class Data:
         print >>file
         print >>file, "[HOSTMOT2]"
         print >>file, "DRIVER=hm2_pci"
-        print >>file, "BOARD=%s"% self.mesa_boardname
+        print >>file, "BOARD=%s"% self.mesa0_boardname
         print >>file, """CONFIG="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-        self.mesa_boardname, self.mesa_firmware, self.numof_mesa_encodergens, self.numof_mesa_pwmgens, self.numof_mesa_stepgens )
+        self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         print >>file
         print >>file, "[HAL]"
         print >>file, "HALUI = halui"          
@@ -1413,7 +1427,7 @@ class Data:
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, q)
         print >>file
         for connector in (2,3,4):
-            board = self.mesa_boardname
+            board = self.mesa0_boardname
             for q in range(0,24):
                 p = self['mesa0c%dpin%d' % (connector, q)]
                 i = self['mesa0c%dpin%dinv' % (connector, q)]
@@ -1505,10 +1519,10 @@ class Data:
         if self.mesa5i20>0:
             print >>file, "loadrt hostmot2"
             print >>file, "loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)"
-            if self.numof_mesa_pwmgens > 0:
-                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa_pwm_frequency
-                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pdm_frequency %d"% self.mesa_pdm_frequency
-            print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa_watchdog_timeout
+            if self.mesa0_numof_pwmgens > 0:
+                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pwm_frequency %d"% self.mesa0_pwm_frequency
+                print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.pwmgen.pdm_frequency %d"% self.mesa0_pdm_frequency
+            print >>file, "    setp hm2_[HOSTMOT2](BOARD).0.watchdog.timeout_ns %d"% self.mesa0_watchdog_timeout
 
         if self.number_pports>0:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
@@ -1959,9 +1973,9 @@ class Data:
         print >>file, display,_("will be used as the frontend display")
         print >>file
         if self.number_mesa== True:
-            print >>file, "The Mesa", self.mesa_boardname, "hardware I/O card"
-            print >>file, "will be loaded with firmware designation:", self.mesa_firmware
-            print >>file, "and has", self.mesa_maxgpio, "I/O pins"
+            print >>file, "The Mesa", self.mesa0_boardname, "hardware I/O card"
+            print >>file, "will be loaded with firmware designation:", self.mesa0_firmware
+            print >>file, "and has", self.mesa0_maxgpio, "I/O pins"
         print >>file
         print >>file,_("Mesa 5i20 connector 2 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
@@ -2140,9 +2154,10 @@ class Data:
     # (related pins) 
     def make_pinname(self, pin):
         test = str(pin)       
-        if 'mesa0' in test:
+        if 'mesa' in test:
             ptype = self[pin+"type"] 
             signalname = self[pin]
+            boardnum = int(test[4:5])
             pinnum = int(test[10:])
             connum = int(test[6:7])
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", PWMP:"pwmgen", PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
@@ -2155,7 +2170,7 @@ class Data:
             # GPIO pins truenumber can be any number between 0 and 72 for 5i20 ( 96 in 5i22)
             if ptype in(GPIOI,GPIOO,GPIOD):
                 truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_[HOSTMOT2](BOARD).0."+comptype+".%03d"% truepinnum 
+                return "hm2_[HOSTMOT2](BOARD).%d."+comptype+".%03d"% (boardnum,truepinnum) 
             
             # Encoder 
             elif ptype in (ENCA,ENCB,ENCI,ENCM):
@@ -2193,7 +2208,7 @@ class Data:
                 elif pinnum == 18 + adj:truepinnum = 3
                 else:print "(step) pin number error pinnum = %d"% pinnum
             else: print "pintype error"
-            return "hm2_[HOSTMOT2](BOARD).0."+comptype+".%02d"% (truepinnum)
+            return "hm2_[HOSTMOT2](BOARD).%d."+comptype+".%02d"% (boardnum,truepinnum)
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -2398,7 +2413,8 @@ class App:
                 filename = dialog.get_filename()
                 dialog.destroy()
                 self.data.load(filename, self)
-                self.intrnldata.mesa_configured = False
+                self.intrnldata.mesa0_configured = False
+                self.intrnldata.mesa1_configured = False
             else:
                 dialog.destroy()
                 return True
@@ -2514,39 +2530,49 @@ class App:
         # none of this is done if mesa is not checked off in pncconf
 
         if (self.data.number_mesa): 
-            for connector in (2,3,4,5):
-                for pin in range(0,24):
-                    cb = "mesa0c%ipin%i"% (connector,pin)
-                    i = "mesasignalhandlerc%ipin%i"% (connector,pin)
-                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,connector,pin))
-                    cb = "mesa0c%ipin%itype"% (connector,pin)
-                    i = "mesaptypesignalhandlerc%ipin%i"% (connector,pin)
-                    self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,connector,pin))
-
-            model = self.widgets.mesa_boardname.get_model()
-            model.clear()
-            for i in mesaboardnames:
-                model.append((i,))      
-            for search,item in enumerate(mesaboardnames):
-                if mesaboardnames[search]  == self.data.mesa_boardname:
-                    self.widgets.mesa_boardname.set_active(search)  
-            model = self.widgets.mesa_firmware.get_model()
-            model.clear()
-            for search, item in enumerate(mesafirmwaredata):
-                d = mesafirmwaredata[search]
-                if not d[0] == self.data.mesa_boardname:continue
-                model.append((d[1],))        
-            for search,item in enumerate(model):           
-                if model[search][0]  == self.data.mesa_firmware:
-                    self.widgets.mesa_firmware.set_active(search)   
-  
-            self.widgets.mesa_pwm_frequency.set_value(self.data.mesa_pwm_frequency)
-            self.widgets.mesa_pdm_frequency.set_value(self.data.mesa_pdm_frequency)
-            self.widgets.mesa_watchdog_timeout.set_value(self.data.mesa_watchdog_timeout)
-            self.widgets.numof_mesa_encodergens.set_value(self.data.numof_mesa_encodergens)
-            self.widgets.numof_mesa_pwmgens.set_value(self.data.numof_mesa_pwmgens)
-            self.widgets.numof_mesa_stepgens.set_value(self.data.numof_mesa_stepgens)
-            self.widgets.numof_mesa_gpio.set_text("%d" % self.data.numof_mesa_gpio)          
+            for boardnum in (0,1):
+                cb = "mesa%d_comp_update"% (boardnum)
+                i = "mesa%dsignalhandler_comp_update"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
+                cb = "mesa%d_boardname"% (boardnum)
+                i = "mesa%dsignalhandler_boardname_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
+                cb = "mesa%d_firmware"% (boardnum)
+                i = "mesa%dsignalhandler_firmware_change"% (boardnum)
+                self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
+                for connector in (2,3,4,5):
+                    for pin in range(0,24):
+                      cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
+                      i = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin))
+                      cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
+                      i = "mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
+            for boardnum in(0,1):
+                model = self.widgets["mesa%d_boardname"% boardnum].get_model()
+                model.clear()
+                for i in mesaboardnames:
+                    model.append((i,))      
+                for search,item in enumerate(mesaboardnames):
+                    if mesaboardnames[search]  == self.data["mesa%d_boardname"% boardnum]:
+                        self.widgets["mesa%d_boardname"% boardnum].set_active(search)  
+                model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+                model.clear()
+                for search, item in enumerate(mesafirmwaredata):
+                    d = mesafirmwaredata[search]
+                    if not d[0] == self.data["mesa%d_boardname"% boardnum]:continue
+                    model.append((d[1],))        
+                for search,item in enumerate(model):           
+                    if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
+                        self.widgets["mesa%d_firmware"% boardnum].set_active(search)   
+    
+                self.widgets["mesa%d_pwm_frequency"% boardnum].set_value(self.data["mesa%d_pwm_frequency"% boardnum])
+                self.widgets["mesa%d_pdm_frequency"% boardnum].set_value(self.data["mesa%d_pdm_frequency"% boardnum])
+                self.widgets["mesa%d_watchdog_timeout"% boardnum].set_value(self.data["mesa%d_watchdog_timeout"% boardnum])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(self.data["mesa%d_numof_encodergens"% boardnum])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(self.data["mesa%d_numof_pwmgens"% boardnum])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(self.data["mesa%d_numof_stepgens"% boardnum])
+                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % self.data["mesa%d_numof_gpio"% boardnum])          
 
     def on_machinename_changed(self, *args):
         self.widgets.confdir.set_text(
@@ -2778,63 +2804,66 @@ class App:
     def on_pin15_changed(self, *args):
         self.do_exclusive_inputs(15)
 
-    def on_mesa_boardname_changed(self, *args):
-        board = self.widgets.mesa_boardname.get_active_text()
-        model = self.widgets.mesa_firmware.get_model()
+    def on_mesa_boardname_changed(self, widget,boardnum=None):
+        if boardnum == None:return
+        board = self.widgets["mesa%d_boardname"%boardnum].get_active_text()
+        model = self.widgets["mesa%d_firmware"% boardnum].get_model()
         model.clear()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
-            model.append((d[1],))
-        
-        self.widgets.mesa_firmware.set_active(0)  
-        self.on_mesa_firmware_changed()
+            model.append((d[1],))       
+        self.widgets["mesa%d_firmware"% boardnum].set_active(0)  
+        self.on_mesa_firmware_changed(self,boardnum)
 
-    def on_mesa_firmware_changed(self, *args):
-        board = self.widgets.mesa_boardname.get_active_text()
-        firmware = self.widgets.mesa_firmware.get_active_text()
+    def on_mesa_firmware_changed(self, widget,boardnum=None):
+        if boardnum == None:return
+        board = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+        firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
             if d[1] == firmware:
-                self.widgets.numof_mesa_encodergens.set_range(0,d[2])
-                self.widgets.numof_mesa_encodergens.set_value(d[2])
-                self.widgets.numof_mesa_pwmgens.set_range(0,d[3])
-                self.widgets.numof_mesa_pwmgens.set_value(d[3])
-                self.widgets.numof_mesa_stepgens.set_range(0,d[4])
-                self.widgets.numof_mesa_stepgens.set_value(d[4])
-            self.on_gpio_update()
+                self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[2])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[2])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[3])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[3])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[4])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[4])
+            self.on_gpio_update(self,boardnum)
 
-    def on_gpio_update(self, *args):
-        board = self.widgets.mesa_boardname.get_active_text()
-        firmware = self.widgets.mesa_firmware.get_active_text()
+    def on_gpio_update(self, widgets,boardnum = None):
+        if boardnum == None:return
+        board = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+        firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
             if d[1] == firmware:      
-                i = (int(self.widgets.numof_mesa_pwmgens.get_value()) * 3)
-                j = (int(self.widgets.numof_mesa_stepgens.get_value()) * d[6])
-                k = (int(self.widgets.numof_mesa_encodergens.get_value()) * d[5])
+                i = (int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value()) * 3)
+                j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[6])
+                k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[5])
                 total = (d[8]-i-j-k)
-                self.widgets.numof_mesa_gpio.set_text("%d" % total)
+                self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
 
 
     def on_mesa0_prepare(self, *args):
         self.data.help = "help-mesa.txt"
+        boardnum = 0
         # If we just reloaded a config then update the page right now
         # as we already know what board /firmware /components are wanted.
-        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa_configured  :
-            self.set_mesa_options(self.data.mesa_boardname,self.data.mesa_firmware,self.data.numof_mesa_pwmgens,
-                    self.data.numof_mesa_stepgens,self.data.numof_mesa_encodergens)
-        elif not self.intrnldata.mesa_configured:
-            self.widgets.con2tab.set_sensitive(0)
-            self.widgets.con2table.set_sensitive(0)
-            self.widgets.con3table.set_sensitive(0)
-            self.widgets.con3tab.set_sensitive(0)
-            self.widgets.con4tab.set_sensitive(0)
-            self.widgets.con4table.set_sensitive(0)
-            self.widgets.con5table.set_sensitive(0)
-            self.widgets.con5tab.set_sensitive(0)
+        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
+            self.set_mesa_options(boardnum,self.data.mesa0_boardname,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
+                    self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
+        elif not self.intrnldata.mesa0_configured:
+            self.widgets.mesa0con2tab.set_sensitive(0)
+            self.widgets.mesa0con2table.set_sensitive(0)
+            self.widgets.mesa0con3table.set_sensitive(0)
+            self.widgets.mesa0con3tab.set_sensitive(0)
+            self.widgets.mesa0con4tab.set_sensitive(0)
+            self.widgets.mesa0con4table.set_sensitive(0)
+            self.widgets.mesa0con5table.set_sensitive(0)
+            self.widgets.mesa0con5tab.set_sensitive(0)
             
         
   
@@ -2847,11 +2876,11 @@ class App:
     # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
     # pin 4 to [encoder-C]   
     def on_mesa0_next(self,*args):
-        if not self.intrnldata.mesa_configured:
+        if not self.intrnldata.mesa0_configured:
             self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
-            self.widgets.druid1.set_page(self.widgets.mesa5i20)
+            self.widgets.druid1.set_page(self.widgets.mesa0)
             return True
-        for connector in self.data.mesa_currentfirmwaredata[11] :
+        for connector in self.data.mesa0_currentfirmwaredata[11] :
             for pin in range(0,24):
                 foundit = 0
                 p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
@@ -2924,7 +2953,7 @@ class App:
                     else:
                         print"Encoder pin config error"
                         continue
-                    if self.data.mesa_currentfirmwaredata[5] == 4:                           
+                    if self.data.mesa0_currentfirmwaredata[5] == 4:                           
                             for count, name in enumerate((1,3,13,15)):
                                 if name == pin:
                                     if connector == 3: count=count+4
@@ -2981,9 +3010,9 @@ class App:
                 #  set data from widget for current pin
                 self.data[p] = signaltocheck[index]
                 self.data[pinv] = self.widgets[pinv].get_active()
-        self.data.mesa_pwm_frequency = self.widgets.mesa_pwm_frequency.get_value()
-        self.data.mesa_pdm_frequency = self.widgets.mesa_pdm_frequency.get_value()
-        self.data.mesa_watchdog_timeout = self.widgets.mesa_watchdog_timeout.get_value()
+        self.data.mesa0_pwm_frequency = self.widgets.mesa0_pwm_frequency.get_value()
+        self.data.mesa0_pdm_frequency = self.widgets.mesa0_pdm_frequency.get_value()
+        self.data.mesa0_watchdog_timeout = self.widgets.mesa0_watchdog_timeout.get_value()
         if self.data.number_mesa > 1:
            self.widgets.druid1.set_page(self.widgets.mesa1)
            return True
@@ -2996,6 +3025,22 @@ class App:
 
     def on_mesa1_prepare(self,*args):
         print "mesa1 prepare"
+        self.data.help = "help-mesa.txt"
+        boarnum = 0
+        # If we just reloaded a config then update the page right now
+        # as we already know what board /firmware /components are wanted.
+        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa1_configured  :
+            self.set_mesa_options(boardnum,self.data.mesa1_boardname,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
+                    self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
+        elif not self.intrnldata.mesa1_configured:
+            self.widgets.mesa1con2tab.set_sensitive(0)
+            self.widgets.mesa1con2table.set_sensitive(0)
+            self.widgets.mesa1con3table.set_sensitive(0)
+            self.widgets.mesa1con3tab.set_sensitive(0)
+            self.widgets.mesa1con4tab.set_sensitive(0)
+            self.widgets.mesa1con4table.set_sensitive(0)
+            self.widgets.mesa1con5table.set_sensitive(0)
+            self.widgets.mesa1con5tab.set_sensitive(0)
 
     def on_mesa1_next(self,*args):
         if self.data.number_pports<1:
@@ -3007,20 +3052,20 @@ class App:
 
     def on_mesapanel_clicked(self, *args):self.m5i20test(self)
     
-    def on_mesa_pintype_changed(self, widget,connector,pin):
+    def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
          
                # if self.in_mesa_prepare == True: return
                #print "got to pintype change method ",connector,pin,"\n"
          
-                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}    
+                p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
+                ptype = 'mesa%dc%dpin%dtype' %  (boardnum,connector,pin)    
                 old = self.data[ptype]
                 new = self.widgets[ptype].get_active_text()    
                 if (new == None or new == old): return 
                 if old == GPIOI and new in (GPIOO,GPIOD):
                     print "switch GPIO input ",p," to output",new
                     model = self.widgets[p].get_model()
-                    blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
+                    blocksignal = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])
                     model.clear()
                     for name in human_output_names: model.append((name,))
@@ -3032,7 +3077,7 @@ class App:
                     print "switch GPIO output ",p,"to input"
                     model = self.widgets[p].get_model()
                     model.clear()
-                    blocksignal = "mesasignalhandlerc%ipin%i"% (connector,pin)  
+                    blocksignal = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)  
                     self.widgets[p].handler_block(self.intrnldata[blocksignal])              
                     for name in human_input_names:
                         if self.data.limitshared or self.data.limitsnone:
@@ -3060,18 +3105,19 @@ class App:
                     self.data[ptype] = new
                 else: print "pintype error in pinchanged method old,new ",old,new,"\n"
 
-    def on_mesa_component_value_changed(self, *args):
+    def on_mesa_component_value_changed(self, widget,boardnum=None):
+        if boardnum == None: return
         self.in_mesa_prepare = True
-        self.data.mesa_pwm_frequency = self.widgets.mesa_pwm_frequency.get_value()
-        self.data.mesa_pdm_frequency = self.widgets.mesa_pdm_frequency.get_value()
-        self.data.mesa_watchdog_timeout = self.widgets.mesa_watchdog_timeout.get_value()
-        numofpwmgens = self.data.numof_mesa_pwmgens = int(self.widgets.numof_mesa_pwmgens.get_value())
-        numofstepgens = self.data.numof_mesa_stepgens = int(self.widgets.numof_mesa_stepgens.get_value())
-        numofencoders = self.data.numof_mesa_encodergens = int(self.widgets.numof_mesa_encodergens.get_value())
-        board = self.data.mesa_boardname = self.widgets.mesa_boardname.get_active_text()
-        firmware = self.data.mesa_firmware = self.widgets.mesa_firmware.get_active_text()
-        self.set_mesa_options(board,firmware,numofpwmgens,numofstepgens,numofencoders)
-
+        self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
+        self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
+        self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
+        numofpwmgens = self.data["mesa%d_numof_pwmgens"% boardnum] = int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value())
+        numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
+        numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
+        board = self.data["mesa%d_boardname"% boardnum] = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+        firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
+        self.set_mesa_options(boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders)
+        return True
 
     # This method sets up the mesa GUI page.
     # it changes the component comboboxes according to the firmware max and user requested amounts
@@ -3082,40 +3128,40 @@ class App:
     # Since this method is for intialization, there is no need to check for changes and this speeds up
     # the update.  
     # 'mesafirmwaredata' holds all the firmware data.
-    # 'self.data.mesa_currentfirmwaredata' hold the current selected firmware data
-    def set_mesa_options(self,board,firmware,numofpwmgens,numofstepgens,numofencoders):
+    # 'self.data.mesa0_currentfirmwaredata' hold the current selected firmware data
+    def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders):
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
             if d[1] == firmware:
-                self.data.mesa_currentfirmwaredata = mesafirmwaredata[search]
+                self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
-        self.widgets.con3table.set_sensitive(1) 
-        self.widgets.con3tab.set_sensitive(1)
-        self.widgets.con4table.set_sensitive(1) 
-        self.widgets.con4tab.set_sensitive(1)
-        if self.data.mesa_currentfirmwaredata[0] == "5i22":
-            self.widgets.con5tab.set_sensitive(1)
-            self.widgets.con5table.set_sensitive(1)
+        self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
+        self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
+        self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
+        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1)
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i22":
+            self.widgets["mesa%dcon5table"% boardnum].set_sensitive(1)
+            self.widgets["mesa%dcon5tab"% boardnum].set_sensitive(1)
         else:
-            self.widgets.con5tab.set_sensitive(0)
-            self.widgets.con5table.set_sensitive(0)
-        if self.data.mesa_currentfirmwaredata[0] == "7i43":
-            self.widgets.con2table.set_sensitive(0)
-            self.widgets.con2tab.set_sensitive(0)
+            self.widgets["mesa%dcon5table"% boardnum].set_sensitive(0)
+            self.widgets["mesa%dcon5tab"% boardnum].set_sensitive(0)
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "7i43":
+            self.widgets["mesa%dcon2table"% boardnum].set_sensitive(0)
+            self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(0)
         else:
-            self.widgets.con2table.set_sensitive(1) 
-            self.widgets.con2tab.set_sensitive(1)
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
+            self.widgets["mesa%dcon2table"% boardnum].set_sensitive(1) 
+            self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(1)
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
+                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][12+pin+(concount*24)]
 #                if connector == 2:
 #                    print firmptype,"firmtype\n",compnum,"pinnum ",pin,",concount ",concount,"\n"               
-                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
-                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                blocksignal = "mesasignalhandlerc%ipin%i" % (connector,pin)    
-                ptypeblocksignal  = "mesaptypesignalhandlerc%ipin%i" % (connector,pin)               
+                p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
+                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
+                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)               
                 # convert widget[ptype] to component specified in firmwaredata   
                    
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
@@ -3358,26 +3404,26 @@ class App:
                             self.widgets[p].set_wrap_width(3)
                             self.widgets[pinv].set_active(self.data[pinv])
                             continue  
-   
-        self.data.numof_mesa_stepgens = numofstepgens
-        self.data.numof_mesa_pwmgens = numofpwmgens
-        self.data.numof_mesa_encodergens = numofencoders
-        temp = (numofstepgens * self.data.mesa_currentfirmwaredata[6])
-        temp1 = (numofencoders * self.data.mesa_currentfirmwaredata[5])
+        
+        self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
+        self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
+        self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
+        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][6])
+        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][5])
         temp2 = (numofpwmgens * 3)
-        total = (self.data.mesa_currentfirmwaredata[8]-temp-temp1-temp2)
-        self.data.numof_mesa_gpio = total     
-        self.widgets.numof_mesa_stepgens.set_value(numofstepgens)
-        self.widgets.numof_mesa_encodergens.set_value(numofencoders)      
-        self.widgets.numof_mesa_pwmgens.set_value(numofpwmgens)
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][8]-temp-temp1-temp2)
+        self.data["mesa%d_numof_gpio"% boardnum] = total     
+        self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
+        self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
+        self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
         self.in_mesa_prepare = False   
-        self.intrnldata.mesa_configured = True
+        self.intrnldata["mesa%d_configured"% boardnum] = True
        
 
-    def on_mesa_pin_changed(self, widget, connector, pin):
+    def on_mesa_pin_changed(self, widget, boardnum, connector, pin):
                 #if self.in_mesa_prepare == True: return       
-                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                 pinchanged =  self.widgets[p].get_active_text() 
                 dataptype = self.data[ptype]
                 used = 0
@@ -3389,7 +3435,7 @@ class App:
                     for index, name in enumerate(human_stepper_names):
                         if name == pinchanged:
                             if not pinchanged == "Unused StepGen":used = 1
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+1)
                             self.widgets[tochange].set_active((index+1)*used) 
                     return 
                 # for encoder pins
@@ -3416,29 +3462,29 @@ class App:
                         # for encoder 0 amd 2 pins
                         if pin in (1,13):
                            # print"changing encoder b"
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
                             self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+3)
                             self.widgets[tochange].set_active((index+2)*used)
                         # for encoder 1 and 3 pins
                         elif pin in (3,15):
                             #print"changing encoder i"
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
                             self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
                             self.widgets[tochange].set_active((index+2)*used) 
                         # for encoder mask pins
-                        if self.data.mesa_currentfirmwaredata[5] == 4:                           
+                        if self.data["mesa%d_currentfirmwaredata"% boardnum][5] == 4:                           
                             for count, name in enumerate((1,3,13,15)):
                                 if name == pin:
                                     if connector == 3: count=count+4
-                                    tochange = 'mesa0c%(con)dpin%(num)d' % {'con':4 ,'num': count}
+                                    tochange = 'mesa%dc%dpin%d' % (boardnum,4,count)
                                     self.widgets[tochange].set_active((index+3)*used) 
                         # for pwm pins d and e
                         if pin in (6,7,18,19):
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
                             self.widgets[tochange].set_active((index+1)*used)
-                            tochange = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+4)
                             self.widgets[tochange].set_active((index+2)*used)
 
     def on_pp1pport_prepare(self, *args):
@@ -3630,7 +3676,7 @@ class App:
         elif self.data.number_mesa == 2:
                 self.widgets.druid1.set_page(self.widgets.mesa1)
                 return True   
-        elif self.data.number_mesa == 2:
+        elif self.data.number_mesa == 1:
                 self.widgets.druid1.set_page(self.widgets.mesa0)
                 return True 
  
@@ -4562,9 +4608,9 @@ class App:
         return True
 
     def m5i20test(self,w):
-        board = self.data.mesa_currentfirmwaredata[0]
-        firmware = self.data.mesa_currentfirmwaredata[1]   
-        print "-%s-%s-"% (firmware,  self.data.mesa_firmware)      
+        board = self.data.mesa0_currentfirmwaredata[0]
+        firmware = self.data.mesa0_currentfirmwaredata[1]   
+        print "-%s-%s-"% (firmware,  self.data.mesa0_firmware)      
         if board in( "5i22", "7i43"):
             self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
 
@@ -4575,8 +4621,8 @@ class App:
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (board, firmware, self.data.numof_mesa_encodergens,
-            self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
+         % (board, firmware, self.data.mesa0_numof_encodergens,
+            self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
         halrun.write("loadrt or2 count=72\n")
         halrun.write("addf hm2_%s.0.read slow\n"% board)
         for i in range(0,72):
@@ -4588,9 +4634,9 @@ class App:
         halrun.write("loadusr halmeter -g 0 500\n")
         halrun.write("loadusr halmeter -g 0 620\n")
         
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
+        for concount,connector in enumerate(self.data.mesa0_currentfirmwaredata[11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
+                firmptype,compnum = self.data.mesa0_currentfirmwaredata[12+pin+(concount*24)]
                 pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
@@ -4824,8 +4870,8 @@ class App:
         self.updaterunning = False
         axnum = "xyza".index(axis)
         self.axis_under_tune = axis
-        self.boardname = self.data.mesa_currentfirmwaredata[0]
-        firmware = self.data.mesa_currentfirmwaredata[1]
+        self.boardname = self.data.mesa0_currentfirmwaredata[0]
+        firmware = self.data.mesa0_currentfirmwaredata[1]
         self.stepgen = self.data.stepgen_sig(axis)
         print self.stepgen
         self.encoder = self.data.encoder_sig(axis)
@@ -4903,11 +4949,11 @@ class App:
         addf hm2_%s.0.write slow
         addf hm2_%s.0.pet_watchdog fast
         loadusr halmeter -g 700 300
-        """ % (self.boardname, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens, self.boardname,self.boardname,self.boardname))
+        """ % (self.boardname, firmware, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens, self.boardname,self.boardname,self.boardname))
         
-        for concount,connector in enumerate(self.data.mesa_currentfirmwaredata[11]) :
+        for concount,connector in enumerate(self.data.mesa0_currentfirmwaredata[11]) :
             for pin in range (0,24):
-                firmptype,compnum = self.data.mesa_currentfirmwaredata[12+pin+(concount*24)]
+                firmptype,compnum = self.data.mesa0_currentfirmwaredata[12+pin+(concount*24)]
                 pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
                 ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
                 pintype = self.widgets[ptype].get_active_text()
@@ -5114,8 +5160,8 @@ class App:
         pump = False
         #step = axis + "step"
         #dir = axis + "dir"
-        boardname = self.data.mesa_currentfirmwaredata[0]
-        firmware = self.data.mesa_currentfirmwaredata[1]  
+        boardname = self.data.mesa0_currentfirmwaredata[0]
+        firmware = self.data.mesa0_currentfirmwaredata[1]  
         fastdac = float(widgets["fastdac"].get_text())
         slowdac = float(widgets["slowdac"].get_text())
         dacspeed = widgets.Dac_speed_fast.get_active()
@@ -5150,7 +5196,7 @@ class App:
             halrun.write("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
         halrun.write("loadrt hostmot2\n")
         halrun.write("""loadrt hm2_pci config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (boardname, firmware, self.data.numof_mesa_encodergens, self.data.numof_mesa_pwmgens, self.data.numof_mesa_stepgens ))
+         % (boardname, firmware, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
         halrun.write("loadrt steptest\n")
         halrun.write("loadusr halmeter -g 0 500\n")
         halrun.write("loadusr halscope\n")

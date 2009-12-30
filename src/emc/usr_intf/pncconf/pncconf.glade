@@ -3118,7 +3118,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label12">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">htz</property>
+                                    <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -3128,10 +3128,10 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_pdm_frequency">
+                                  <widget class="GtkSpinButton" id="mesa0_pdm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">100000 5 195309 1000 10 10</property>
+                                    <property name="adjustment">105000 5 195309 1000 10 10</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3219,10 +3219,10 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_watchdog_timeout">
+                                  <widget class="GtkSpinButton" id="mesa0_watchdog_timeout">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">1000000 1000000 500000000 1000 10 10</property>
+                                    <property name="adjustment">1007000 1000000 500000000 1000 10 10</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3232,7 +3232,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_encodergens">
+                                  <widget class="GtkSpinButton" id="mesa0_numof_encodergens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">7 0 8 1 10 10</property>
@@ -3246,7 +3246,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_pwmgens">
+                                  <widget class="GtkSpinButton" id="mesa0_numof_pwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">8 0 8 1 10 10</property>
@@ -3260,7 +3260,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_stepgens">
+                                  <widget class="GtkSpinButton" id="mesa0_numof_stepgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">4 0 4 1 10 10</property>
@@ -3274,7 +3274,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="numof_mesa_gpio">
+                                  <widget class="GtkLabel" id="mesa0_numof_gpio">
                                     <property name="visible">True</property>
                                     <property name="xalign">0.070000000298023224</property>
                                     <property name="label" translatable="yes">0</property>
@@ -3287,7 +3287,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkButton" id="m5i20panel">
+                                  <widget class="GtkButton" id="mesa0_comp_update">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -3306,7 +3306,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label15">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">htz</property>
+                                    <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -3323,12 +3323,12 @@ accept the changes.
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="mesa_boardname">
+                                  <widget class="GtkComboBox" id="mesa0_boardname">
                                     <property name="visible">True</property>
                                     <property name="items" translatable="yes">5i20
 5i23
 5i22</property>
-                                    <signal name="changed" handler="on_mesa_boardname_changed"/>
+                                    <signal name="changed" handler="on_mesa0_boardname_changed"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3347,10 +3347,10 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="mesa_firmware">
+                                  <widget class="GtkComboBox" id="mesa0_firmware">
                                     <property name="visible">True</property>
                                     <property name="items" translatable="yes">SVST8_4</property>
-                                    <signal name="changed" handler="on_mesa_firmware_changed"/>
+                                    <signal name="changed" handler="on_mesa0_firmware_changed"/>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3371,7 +3371,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_pwm_frequency">
+                                  <widget class="GtkSpinButton" id="mesa0_pwm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">100000 5 195309 1000 10 10</property>
@@ -3407,7 +3407,7 @@ accept the changes.
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con2table">
+                      <widget class="GtkTable" id="mesa0con2table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -6032,7 +6032,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con2tab">
+                      <widget class="GtkLabel" id="mesa0con2tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 2</property>
@@ -6044,7 +6044,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con3table">
+                      <widget class="GtkTable" id="mesa0con3table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -8668,7 +8668,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con3tab">
+                      <widget class="GtkLabel" id="mesa0con3tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output 
  Connector 3</property>
@@ -8680,7 +8680,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con4table">
+                      <widget class="GtkTable" id="mesa0con4table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -11304,7 +11304,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con4tab">
+                      <widget class="GtkLabel" id="mesa0con4tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 4</property>
@@ -11316,7 +11316,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con5table">
+                      <widget class="GtkTable" id="mesa0con5table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -13941,7 +13941,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con5tab">
+                      <widget class="GtkLabel" id="mesa0con5tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 5</property>
@@ -14102,7 +14102,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">htz</property>
+                                    <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -14112,7 +14112,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_pdm_frequency1">
+                                  <widget class="GtkSpinButton" id="mesa1_pdm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">100000 5 195309 1000 10 10</property>
@@ -14203,7 +14203,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_watchdog_timeout1">
+                                  <widget class="GtkSpinButton" id="mesa1_watchdog_timeout">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">1000000 1000000 500000000 1000 10 10</property>
@@ -14216,7 +14216,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_encodergens1">
+                                  <widget class="GtkSpinButton" id="mesa1_numof_encodergens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">7 0 8 1 10 10</property>
@@ -14230,10 +14230,10 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_pwmgens1">
+                                  <widget class="GtkSpinButton" id="mesa1_numof_pwmgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment">8 0 8 1 10 10</property>
+                                    <property name="adjustment">7 0 8 1 10 10</property>
                                     <signal name="value_changed" handler="on_gpio_update"/>
                                   </widget>
                                   <packing>
@@ -14244,7 +14244,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="numof_mesa_stepgens1">
+                                  <widget class="GtkSpinButton" id="mesa1_numof_stepgens">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">4 0 4 1 10 10</property>
@@ -14258,7 +14258,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="numof_mesa_gpio1">
+                                  <widget class="GtkLabel" id="mesa1_numof_gpio">
                                     <property name="visible">True</property>
                                     <property name="xalign">0.070000000298023224</property>
                                     <property name="label" translatable="yes">0</property>
@@ -14271,7 +14271,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkButton" id="m5i20panel5">
+                                  <widget class="GtkButton" id="mesa1_comp_update">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
@@ -14290,7 +14290,7 @@ accept the changes.
                                 <child>
                                   <widget class="GtkLabel" id="label29">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">htz</property>
+                                    <property name="label" translatable="yes">Hz</property>
                                   </widget>
                                   <packing>
                                     <property name="left_attach">2</property>
@@ -14307,7 +14307,7 @@ accept the changes.
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="mesa_boardname1">
+                                  <widget class="GtkComboBox" id="mesa1_boardname">
                                     <property name="visible">True</property>
                                     <property name="items" translatable="yes">5i20
 5i23
@@ -14331,7 +14331,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkComboBox" id="mesa_firmware1">
+                                  <widget class="GtkComboBox" id="mesa1_firmware">
                                     <property name="visible">True</property>
                                     <property name="items" translatable="yes">SVST8_4</property>
                                     <signal name="changed" handler="on_mesa_firmware_changed"/>
@@ -14355,7 +14355,7 @@ accept the changes.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkSpinButton" id="mesa_pwm_frequency1">
+                                  <widget class="GtkSpinButton" id="mesa1_pwm_frequency">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="adjustment">100000 5 195309 1000 10 10</property>
@@ -14391,7 +14391,7 @@ accept the changes.
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con2table1">
+                      <widget class="GtkTable" id="mesa1con2table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -17016,7 +17016,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con2tab1">
+                      <widget class="GtkLabel" id="mesa1con2tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 2</property>
@@ -17028,7 +17028,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con3table1">
+                      <widget class="GtkTable" id="mesa1con3table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -19652,7 +19652,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con3tab1">
+                      <widget class="GtkLabel" id="mesa1con3tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output 
  Connector 3</property>
@@ -19664,7 +19664,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con4table1">
+                      <widget class="GtkTable" id="mesa1con4table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -22288,7 +22288,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con4tab1">
+                      <widget class="GtkLabel" id="mesa1con4tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 4</property>
@@ -22300,7 +22300,7 @@ StepGen
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTable" id="con5table1">
+                      <widget class="GtkTable" id="mesa1con5table">
                         <property name="visible">True</property>
                         <property name="n_rows">17</property>
                         <property name="n_columns">9</property>
@@ -24925,7 +24925,7 @@ Unused</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkLabel" id="con5tab1">
+                      <widget class="GtkLabel" id="mesa1con5tab">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Input / Output
  Connector 5</property>
