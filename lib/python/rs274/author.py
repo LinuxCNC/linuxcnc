@@ -296,8 +296,8 @@ values, turns the spindle on at 1000RPM, and waits for it to come up to
 speed."""
 	self.write(self.units)
         self.write("G0 Z%.4f" % (self.safetyheight))
-	self.write("G17 G40 G49")
-	self.write("G54 G80 G90 G94")
+	self.write("G17 G40")
+	self.write("G80 G90 G94")
         self.write("S%d M3" % (self.spindle_speed))
 	self.write("G04 P3")
 
