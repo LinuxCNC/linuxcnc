@@ -2113,41 +2113,37 @@ class Data:
     # This method returns I/O pin designation (name and number) of a given HAL signalname.
     # It does not check to see if the signalname is in the list more then once.
     def findsignal(self, sig):
-        ppinput = {}
-        ppoutput = {}
-        for i in (1,2,3):
-            for s in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-                key = self["pp%dIpin%d" %(i,s)]
-                ppinput[key] = "pp%dIpin%d" %(i,s) 
-            for s in (1,2,3,4,5,6,7,8,9,14,16,17):
-                key = self["pp%dOpin%d" %(i,s)]
-                ppoutput[key] = "pp%dOpin%d" %(i,s) 
-
-        mesa2=dict([(self["mesa0c2pin%d" %s],"mesa0c2pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa3=dict([(self["mesa0c3pin%d" %s],"mesa0c3pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa4=dict([(self["mesa0c4pin%d" %s],"mesa0c4pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
-        mesa5=dict([(self["mesa0c5pin%d" %s],"mesa0c5pin%d" %s) for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23)])
+        if self.number_pports:
+            ppinput = {}
+            ppoutput = {}
+            for i in (1,2,3):
+                for s in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                    key = self["pp%dIpin%d" %(i,s)]
+                    ppinput[key] = "pp%dIpin%d" %(i,s) 
+                for s in (1,2,3,4,5,6,7,8,9,14,16,17):
+                    key = self["pp%dOpin%d" %(i,s)]
+                    ppoutput[key] = "pp%dOpin%d" %(i,s) 
+        mesa = {}
+        for boardnum in range(0,int(self.number_mesa)):
+            for connector in (2,3,4,5):
+                for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
+                    key =   self["mesa%dc%dpin%d"% (boardnum,connector,s)]
+                    mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)    
+    
         try:
-            return ppinput[sig]
-        except :
-            try:
-                return ppoutput[sig]
-            except :
+            return mesa[sig]
+        except :   
+            if self.number_pports:             
                 try:
-                    return mesa2[sig]
+                    return ppinput[sig]
                 except :
-                    try:
-                        return mesa3[sig]
+                    try: 
+                        return ppoutput[sig]
                     except :
-                        try:
-                            return mesa4[sig]
-                        except :
-                            try:
-                                return mesa5[sig]
-                            except :
-                                return "false"
+                        return "false"    
+            else: return "false"            
 
-    # This method takes a signalname data pin (eg mesa0c3pin1)
+     # This method takes a signalname data pin (eg mesa0c3pin1)
     # and converts it to a HAL pin names (eg hm2_[HOSTMOT2](BOARD).0.gpio.01)
     # The adj variable is for adjustment of position of pins related to the
     # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
@@ -2845,27 +2841,6 @@ class App:
                 k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[5])
                 total = (d[8]-i-j-k)
                 self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
-
-
-    def on_mesa0_prepare(self, *args):
-        self.data.help = "help-mesa.txt"
-        boardnum = 0
-        # If we just reloaded a config then update the page right now
-        # as we already know what board /firmware /components are wanted.
-        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
-            self.set_mesa_options(boardnum,self.data.mesa0_boardname,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
-                    self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
-        elif not self.intrnldata.mesa0_configured:
-            self.widgets.mesa0con2tab.set_sensitive(0)
-            self.widgets.mesa0con2table.set_sensitive(0)
-            self.widgets.mesa0con3table.set_sensitive(0)
-            self.widgets.mesa0con3tab.set_sensitive(0)
-            self.widgets.mesa0con4tab.set_sensitive(0)
-            self.widgets.mesa0con4table.set_sensitive(0)
-            self.widgets.mesa0con5table.set_sensitive(0)
-            self.widgets.mesa0con5tab.set_sensitive(0)
-            
-        
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
     # It starts by checking pin type to set up the proper lists to search
@@ -2875,17 +2850,13 @@ class App:
     # if encoder, pwm, or stepper pins the related pin are also set properly
     # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
     # pin 4 to [encoder-C]   
-    def on_mesa0_next(self,*args):
-        if not self.intrnldata.mesa0_configured:
-            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
-            self.widgets.druid1.set_page(self.widgets.mesa0)
-            return True
-        for connector in self.data.mesa0_currentfirmwaredata[11] :
+    def mesa_data_transfer(self,boardnum):
+        for connector in self.data["mesa%d_currentfirmwaredata"% boardnum][11] :
             for pin in range(0,24):
                 foundit = 0
-                p = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin}
-                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
+                p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
+                pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
                 if pintype in (ENCB,ENCI,ENCM,PWMD,PWME,STEPB): continue
@@ -2941,14 +2912,14 @@ class App:
                     flag = 1
                     if selection == "Unused Encoder":flag = 0
                     if pin in (1,13):
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+3}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+3)
                         self.data[d] = signaltocheck[(index+2)*flag]
                     elif pin in (3,15):
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin-1}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
                         self.data[d] = signaltocheck[(index+2)*flag]  
                     else:
                         print"Encoder pin config error"
@@ -2957,7 +2928,7 @@ class App:
                             for count, name in enumerate((1,3,13,15)):
                                 if name == pin:
                                     if connector == 3: count=count+4
-                                    d = 'mesa0c%(con)dpin%(num)d' % {'con':4 ,'num': count}
+                                    d = 'mesa%dc%dpin%d' % (boardnum,4,count)
                                     self.data[d] = signaltocheck[(index+3)*flag]
                 # for PWM pins
                 elif pintype in (PWMP,PDMP) :
@@ -2973,9 +2944,9 @@ class App:
                     flag = 1
                     if selection == "Unused PWM Gen":flag = 0
                     if pin in (6,7,18,19):
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+2}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
                         self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+4}
+                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+4)
                         self.data[d] = signaltocheck[(index+2)*flag]
                     else:
                         print "PWM pin config error"
@@ -2993,7 +2964,7 @@ class App:
                     # set related stepgen pins
                     flag = 1
                     if selection == "Unused StepGen":flag = 0
-                    d = 'mesa0c%(con)dpin%(num)d' % {'con':connector ,'num': pin+1}
+                    d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+1)
                     self.data[d] = signaltocheck[(index+1)*flag]
                     
                 # for input and output
@@ -3010,9 +2981,34 @@ class App:
                 #  set data from widget for current pin
                 self.data[p] = signaltocheck[index]
                 self.data[pinv] = self.widgets[pinv].get_active()
-        self.data.mesa0_pwm_frequency = self.widgets.mesa0_pwm_frequency.get_value()
-        self.data.mesa0_pdm_frequency = self.widgets.mesa0_pdm_frequency.get_value()
-        self.data.mesa0_watchdog_timeout = self.widgets.mesa0_watchdog_timeout.get_value()
+        self.data["mesa%d_pwm_frequency"% boardnum] = self.widgets["mesa%d_pwm_frequency"% boardnum].get_value()
+        self.data["mesa%d_pdm_frequency"% boardnum] = self.widgets["mesa%d_pdm_frequency"% boardnum].get_value()
+        self.data["mesa%d_watchdog_timeout"% boardnum] = self.widgets["mesa%d_watchdog_timeout"% boardnum].get_value()
+  
+    def on_mesa0_prepare(self, *args):
+        self.data.help = "help-mesa.txt"
+        boardnum = 0
+        # If we just reloaded a config then update the page right now
+        # as we already know what board /firmware /components are wanted.
+        if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
+            self.set_mesa_options(boardnum,self.data.mesa0_boardname,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
+                    self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
+        elif not self.intrnldata.mesa0_configured:
+            self.widgets.mesa0con2tab.set_sensitive(0)
+            self.widgets.mesa0con2table.set_sensitive(0)
+            self.widgets.mesa0con3table.set_sensitive(0)
+            self.widgets.mesa0con3tab.set_sensitive(0)
+            self.widgets.mesa0con4tab.set_sensitive(0)
+            self.widgets.mesa0con4table.set_sensitive(0)
+            self.widgets.mesa0con5table.set_sensitive(0)
+            self.widgets.mesa0con5tab.set_sensitive(0)
+            
+    def on_mesa0_next(self,*args):
+        if not self.intrnldata.mesa0_configured:
+            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa0)
+            return True
+        self.mesa_data_transfer(0) 
         if self.data.number_mesa > 1:
            self.widgets.druid1.set_page(self.widgets.mesa1)
            return True
@@ -3022,9 +3018,8 @@ class App:
         else:
            self.widgets.druid1.set_page(self.widgets.pp1pport)
            return True
-
+      
     def on_mesa1_prepare(self,*args):
-        print "mesa1 prepare"
         self.data.help = "help-mesa.txt"
         boarnum = 0
         # If we just reloaded a config then update the page right now
@@ -3043,12 +3038,15 @@ class App:
             self.widgets.mesa1con5tab.set_sensitive(0)
 
     def on_mesa1_next(self,*args):
+        if not self.intrnldata.mesa1_configured:
+            self.warning_dialog(_("You need to configure the mesa page.\n Choose the board type, firmware, component amounts and press 'Accept component changes' button'"),True)
+            self.widgets.druid1.set_page(self.widgets.mesa1)
+            return True
+        self.mesa_data_transfer(1) 
         if self.data.number_pports<1:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
 
-    def on_mesa1_back(self,*args):
-        print "mesa1 back"
 
     def on_mesapanel_clicked(self, *args):self.m5i20test(self)
     
