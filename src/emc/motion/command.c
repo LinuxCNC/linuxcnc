@@ -74,16 +74,11 @@
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
-/* debugging functions */
-extern void print_pose ( EmcPose *pos );
-extern void check_stuff(const char *msg);
-
-/* kinematics flags */
-KINEMATICS_FORWARD_FLAGS fflags = 0;
-KINEMATICS_INVERSE_FLAGS iflags = 0;
+static int rehomeAll;
 
 /* loops through the active joints and checks if any are not homed */
-int checkAllHomed(void) {
+int checkAllHomed(void)
+{
     int joint_num;
     emcmot_joint_t *joint;
 
@@ -111,7 +106,6 @@ int checkAllHomed(void) {
     /* return true if all active joints are homed*/
     return 1;
 }
-
 
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
@@ -278,7 +272,6 @@ void clearHomes(int joint_num)
 	emcmotDebug->allHomed = 0;
     }
 }
-
 
 void emcmotSetRotaryUnlock(int axis, int unlock) {
     *(emcmot_hal_data->joint[axis].unlock) = unlock;
@@ -996,7 +989,6 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    joint->vel_limit = emcmotCommand->vel;
-	    joint->big_vel = 10 * emcmotCommand->vel;
 	    break;
 
 	case EMCMOT_SET_JOINT_ACC_LIMIT:
@@ -1252,18 +1244,6 @@ check_stuff ( "before command_handler()" );
             }
 	    break;
 
-	case EMCMOT_ENABLE_WATCHDOG:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE_WATCHDOG");
-/*! \todo Another #if 0 */
-#if 0
-	    emcmotDebug->wdEnabling = 1;
-	    emcmotDebug->wdWait = emcmotCommand->wdWait;
-	    if (emcmotDebug->wdWait < 0) {
-		emcmotDebug->wdWait = 0;
-	    }
-#endif
-	    break;
-
 	case EMCMOT_JOINT_UNHOME:
             /* unhome the specified joint, or all joints if -1 */
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
@@ -1323,14 +1303,6 @@ check_stuff ( "before command_handler()" );
             }
 
             break;
-
-	case EMCMOT_DISABLE_WATCHDOG:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE_WATCHDOG");
-/*! \todo Another #if 0 */
-#if 0
-	    emcmotDebug->wdEnabling = 0;
-#endif
-	    break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "CLEAR_PROBE_FLAGS");
@@ -1634,6 +1606,4 @@ check_stuff ( "before command_handler()" );
     }
     /* end of: if-new-command */
 check_stuff ( "after command_handler()" );
-
-    return;
 }

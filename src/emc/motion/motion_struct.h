@@ -20,8 +20,6 @@
 					   to the RT module from usr space */
 	struct emcmot_status_t status;	/* Struct used to store RT status */
 	struct emcmot_config_t config;	/* Struct used to store RT config */
-	struct emcmot_internal_t internal;	/*! \todo FIXME - doesn't need to be in
-					   shared memory */
 	struct emcmot_error_t error;	/* ring buffer for error messages */
 	struct emcmot_debug_t debug;	/* Struct used to store RT status and debug
 				   data - 2nd largest block */
