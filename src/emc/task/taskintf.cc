@@ -1424,7 +1424,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     if (new_config) {
 	stat->cycleTime = emcmotConfig.trajCycleTime;
-	stat->kinematics_type = emcmotConfig.kinematics_type;
+	stat->kinematics_type = emcmotConfig.kinType;
 	stat->maxVelocity = emcmotConfig.limitVel;
     }
 
