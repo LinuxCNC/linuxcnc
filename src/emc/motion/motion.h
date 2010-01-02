@@ -671,15 +671,20 @@ Suggestion: Split this in to an Error and a Status flag register..
     typedef struct emcmot_config_t {
 	unsigned char head;	/* flag count for mutex detect */
 
-/*! \todo FIXME - all structure members beyond this point are in limbo */
-
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
 	int numJoints;		/* The number of joints in the system (which
 				   must be between 1 and EMCMOT_MAX_JOINTS,
-				   inclusive). Allegedly, holds a copy of the
-				   global num_joints - seems daft to maintain
-				   duplicates ! */
+				   inclusive). Can be changed at insmod time */
+	KINEMATICS_TYPE kinType;
+
+        int numDIO;             /* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 
+                                   but can be altered at motmod insmod time */
+
+        int numAIO;             /* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
+                                   but can be altered at motmod insmod time */
+
+/*! \todo FIXME - all structure members beyond this point are in limbo */
 
 	double trajCycleTime;	/* the rate at which the trajectory loop
 				   runs.... (maybe) */
@@ -690,7 +695,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   approx line 50 */
 
 	double limitVel;	/* scalar upper limit on vel */
-	KINEMATICS_TYPE kinematics_type;
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;

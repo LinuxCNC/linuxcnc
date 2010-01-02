@@ -56,7 +56,7 @@ int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
 int tpClearDIOs() {
     int i;
     syncdio.anychanged = 0;
-    for (i = 0; i < num_dio; i++)
+    for (i = 0; i < emcmotConfig->numDIO; i++)
 	syncdio.dios[i] = 0;
 
     return 0;
@@ -617,7 +617,7 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
 void tpToggleDIOs(TC_STRUCT * tc) {
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
-	for (i=0; i < num_dio; i++) {
+	for (i=0; i < emcmotConfig->numDIO; i++) {
 	    if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
 	    if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
 	}

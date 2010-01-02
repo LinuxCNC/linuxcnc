@@ -160,18 +160,6 @@ typedef struct {
 *                   GLOBAL VARIABLE DECLARATIONS                       *
 ************************************************************************/
 
-/* userdefined number of joints. default is EMCMOT_MAX_JOINTS(=9), 
-   but can be altered at motmod insmod time */
-extern int num_joints;
-
-/* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 
-   but can be altered at motmod insmod time */
-extern int num_dio;
-
-/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=16), 
-   but can be altered at motmod insmod time */
-extern int num_aio;
-
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 extern emcmot_hal_data_t *emcmot_hal_data;
 
@@ -186,8 +174,6 @@ extern emcmot_joint_t *joints;
 extern int first_pass;
 
 /* Variable defs */
-extern int kinType;
-extern int DEBUG_MOTION;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 /* these variable have the 1/servo cycle time */

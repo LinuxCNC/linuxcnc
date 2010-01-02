@@ -42,11 +42,11 @@ static long servo_period_nsec = 1000000;/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
-int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
+static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
 RTAPI_MP_INT(num_joints, "number of joints");
-int num_dio = DEFAULT_DIO;		/* default number of motion synched DIO */
+static int num_dio = DEFAULT_DIO;	/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
-int num_aio = DEFAULT_AIO;		/* default number of motion synched AIO */
+static int num_aio = DEFAULT_AIO;	/* default number of motion synched AIO */
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
 
 /***********************************************************************
@@ -65,7 +65,6 @@ emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
 #endif
 
 int first_pass = 1;	/* used to set initial conditions */
-int kinType = 0;
 
 /*
   Principles of communication:
@@ -536,7 +535,6 @@ static int init_comm_buffers(void)
     emcmotStatus->commandStatus = 0;
 
     /* init more stuff */
-
     emcmotDebug->head = 0;
     emcmotConfig->head = 0;
 
@@ -547,6 +545,8 @@ static int init_comm_buffers(void)
     emcmotDebug->split = 0;
     emcmotStatus->heartbeat = 0;
     emcmotConfig->numJoints = num_joints;
+    emcmotConfig->numDIO = num_dio;
+    emcmotConfig->numAIO = num_aio;
 
     ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
@@ -569,8 +569,7 @@ static int init_comm_buffers(void)
     SET_MOTION_INPOS_FLAG(1);
     SET_MOTION_ENABLE_FLAG(0);
     /* record the kinematics type of the machine */
-    kinType = kinematicsType();
-    emcmotConfig->kinematics_type = kinType;
+    emcmotConfig->kinType = kinematicsType();
 
     emcmot_config_change();
 
@@ -582,7 +581,7 @@ static int init_comm_buffers(void)
 #endif
 
     /* init per-joint stuff */
-    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to structure for this joint */
 	joint = &joints[joint_num];
 
@@ -810,7 +809,7 @@ static int setTrajCycleTime(double secs)
     tpSetCycleTime(&emcmotDebug->queue, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
-    for (t = 0; t < num_joints; t++) {
+    for (t = 0; t < emcmotConfig->numJoints; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
@@ -841,7 +840,7 @@ static int setServoCycleTime(double secs)
 	(int) (emcmotConfig->trajCycleTime / secs + 0.5);
 
     /* set the cubic interpolation rate and PID cycle time */
-    for (t = 0; t < num_joints; t++) {
+    for (t = 0; t < emcmotConfig->numJoints; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&(joints[t].cubic), secs);
