@@ -57,12 +57,6 @@
 
 	EMC_TELEOP_DATA teleop_data;
 	int split;		/* number of split command reads */
-	/* flag for enabling, disabling watchdog; multiple for down-stepping */
-	int wdEnabling;
-	int wdEnabled;
-	int wdWait;
-	int wdCount;
-	unsigned char wdToggle;
 
 	/* flag that all active axes are homed */
 	unsigned char allHomed;
@@ -73,21 +67,9 @@
 /*! \todo FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
 
-	EmcPose oldPos;		/* last position, used for vel differencing */
-	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */
-	EmcPose newAcc;		/* differenced acc */
-
 	int enabling;		/* starts up disabled */
 	int coordinating;	/* starts up in free mode */
 	int teleoperating;	/* starts up in free mode */
-#if 0
-	int wasOnLimit;		/* non-zero means we already aborted
-				   everything due to a soft limit, and need
-				   not re-abort. It's cleared only when all
-				   limits are cleared. */
-	int onLimit;		/* non-zero means at least one axis is on a
-				   soft limit */
-#endif
 
 	int overriding;		/* non-zero means we've initiated an joint
 				   move while overriding limits */
