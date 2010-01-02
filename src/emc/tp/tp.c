@@ -333,10 +333,10 @@ int tpClearDIOs(TP_STRUCT * const tp) {
     tp->syncdio.anychanged = 0;
     tp->syncdio.dio_mask = 0;
     tp->syncdio.aio_mask = 0;
-    for (i = 0; i < num_dio; i++) {
+    for (i = 0; i < emcmotConfig->numDIO; i++) {
         tp->syncdio.dios[i] = 0;
     }
-    for (i = 0; i < num_aio; i++) {
+    for (i = 0; i < emcmotConfig->numAIO; i++) {
         tp->syncdio.aios[i] = 0;
     }
 
@@ -2068,12 +2068,12 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
 
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
-        for (i=0; i < num_dio; i++) {
+        for (i=0; i < emcmotConfig->numDIO; i++) {
             if (!(tc->syncdio.dio_mask & (1 << i))) continue;
             if (tc->syncdio.dios[i] > 0) emcmotDioWrite(i, 1); // turn DIO[i] on
             if (tc->syncdio.dios[i] < 0) emcmotDioWrite(i, 0); // turn DIO[i] off
         }
-        for (i=0; i < num_aio; i++) {
+        for (i=0; i < emcmotConfig->numAIO; i++) {
             if (!(tc->syncdio.aio_mask & (1 << i))) continue;
             emcmotAioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
         }

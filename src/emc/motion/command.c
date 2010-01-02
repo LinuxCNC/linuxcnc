@@ -87,7 +87,7 @@ int checkAllHomed(void)
 	if (emcmotDebug->allHomed) return 1;
     }
 
-    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -114,7 +114,7 @@ STATIC int limits_ok(void)
     int joint_num;
     emcmot_joint_t *joint;
 
-    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -150,7 +150,7 @@ STATIC int jog_ok(int joint_num, double vel)
 	   we skip the following tests... */
 	return 1;
     }
-    if (joint_num < 0 || joint_num >= num_joints) {
+    if (joint_num < 0 || joint_num >= emcmotConfig->numJoints) {
 	reportError(_("Can't jog invalid joint number %d."), joint_num);
 	return 0;
     }
@@ -211,14 +211,14 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
     int in_range = 1;
 
     /* fill in all joints with 0 */
-    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	joint_pos[joint_num] = 0.0;
     }
 
     /* now fill in with real values, for joints that are used */
     kinematicsInverse(&pos, joint_pos, &iflags, &fflags);
 
-    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 
@@ -253,9 +253,9 @@ void clearHomes(int joint_num)
     int n;
     emcmot_joint_t *joint;
 
-    if (kinType == KINEMATICS_INVERSE_ONLY) {
+    if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
-	    for (n = 0; n < num_joints; n++) {
+	    for (n = 0; n < emcmotConfig->numJoints; n++) {
 		/* point at joint data */
 		joint = &(joints[n]);
 		/* clear flag */
@@ -291,8 +291,8 @@ int emcmotGetRotaryIsUnlocked(int axis) {
 */
 void emcmotDioWrite(int index, char value)
 {
-    if ((index >= num_dio) || (index < 0)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_dio/EMCMOT_MAX_DIO=%d)\n", index,num_dio, EMCMOT_MAX_DIO);
+    if ((index >= emcmotConfig->numDIO) || (index < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_dio/EMCMOT_MAX_DIO=%d)\n", index, emcmotConfig->numDIO, EMCMOT_MAX_DIO);
     } else {
 	if (value != 0) {
 	    *(emcmot_hal_data->synch_do[index])=1;
@@ -313,8 +313,8 @@ void emcmotDioWrite(int index, char value)
 */
 void emcmotAioWrite(int index, double value)
 {
-    if ((index >= num_aio) || (index < 0)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, num_aio, EMCMOT_MAX_AIO);
+    if ((index >= emcmotConfig->numAIO) || (index < 0)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: index out of range, %d not in [0..%d] (increase num_aio/EMCMOT_MAX_AIO=%d)\n", index, emcmotConfig->numAIO, EMCMOT_MAX_AIO);
     } else {
         *(emcmot_hal_data->analog_output[index]) = value;
     }
@@ -376,7 +376,7 @@ check_stuff ( "before command_handler()" );
 	   to point to the joint data.  All the individual commands need to do
 	   is verify that "joint" is non-zero. */
 	joint_num = emcmotCommand->joint;
-	if (joint_num >= 0 && joint_num < num_joints) {
+	if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
 	    /* valid joint, point to it's data */
 	    joint = &joints[joint_num];
 	} else {
@@ -406,7 +406,7 @@ check_stuff ( "before command_handler()" );
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotDebug->tp);
 	    } else {
-		for (joint_num = 0; joint_num < num_joints; joint_num++) {
+		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
@@ -419,7 +419,7 @@ check_stuff ( "before command_handler()" );
 	    }
             SET_MOTION_ERROR_FLAG(0);
 	    /* clear joint errors (regardless of mode */	    
-	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
 		/* update status flags */
@@ -480,7 +480,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
-	    if (kinType != KINEMATICS_IDENTITY) {
+	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
 		if (!checkAllHomed()) {
 		    reportError
 			(_("all joints must be homed before going into coordinated mode"));
@@ -500,7 +500,7 @@ check_stuff ( "before command_handler()" );
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
-	    if (kinType != KINEMATICS_IDENTITY) {
+	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
 		
 		if (!checkAllHomed()) {
 		    reportError
@@ -523,8 +523,7 @@ check_stuff ( "before command_handler()" );
 		( emcmotCommand->joint > EMCMOT_MAX_JOINTS )) {
 		break;
 	    }
-	    num_joints = emcmotCommand->joint;
-	    emcmotConfig->numJoints = num_joints;
+	    emcmotConfig->numJoints = emcmotCommand->joint;
 	    break;
 
 	case EMCMOT_SET_WORLD_HOME:
@@ -562,7 +561,7 @@ check_stuff ( "before command_handler()" );
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "override on");
 		emcmotStatus->overrideLimitMask = 0;
-		for (joint_num = 0; joint_num < num_joints; joint_num++) {
+		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		    /* point at joint data */
 		    joint = &joints[joint_num];
 		    /* only override limits that are currently tripped */
@@ -575,7 +574,7 @@ check_stuff ( "before command_handler()" );
 		}
 	    }
 	    emcmotDebug->overriding = 0;
-	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
+	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		/* point at joint data */
 		joint = &joints[joint_num];
 		/* clear joint errors */
@@ -1126,7 +1125,7 @@ check_stuff ( "before command_handler()" );
 	       controller cycle (it *will* be honored) */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE");
 	    emcmotDebug->enabling = 0;
-	    if (kinType == KINEMATICS_INVERSE_ONLY) {
+	    if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
 		emcmotDebug->teleoperating = 0;
 		emcmotDebug->coordinating = 0;
 	    }
@@ -1142,7 +1141,7 @@ check_stuff ( "before command_handler()" );
 		reportError(_("can't enable motion, enable input is false"));
 	    } else {
 		emcmotDebug->enabling = 1;
-		if (kinType == KINEMATICS_INVERSE_ONLY) {
+		if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
 		    emcmotDebug->teleoperating = 0;
 		    emcmotDebug->coordinating = 0;
 		}
@@ -1258,7 +1257,7 @@ check_stuff ( "before command_handler()" );
                 /* we want all or none, so these checks need to all be done first.
                  * but, let's only report the first error.  There might be several,
                  * for instance if a homing sequence is running. */
-                for (n = 0; n < num_joints; n++) {
+                for (n = 0; n < emcmotConfig->numJoints; n++) {
                     joint = &joints[n];
                     if(GET_JOINT_ACTIVE_FLAG(joint)) {
                         if (GET_JOINT_HOMING_FLAG(joint)) {
@@ -1272,7 +1271,7 @@ check_stuff ( "before command_handler()" );
                     }
                 }
                 /* we made it through the checks, so unhome them all */
-                for (n = 0; n < num_joints; n++) {
+                for (n = 0; n < emcmotConfig->numJoints; n++) {
                     joint = &joints[n];
                     if(GET_JOINT_ACTIVE_FLAG(joint)) {
                         /* if -2, only unhome the volatile_home joints */
@@ -1281,7 +1280,7 @@ check_stuff ( "before command_handler()" );
                         }
                     }
                 }
-            } else if (joint_num < num_joints) {
+            } else if (joint_num < emcmotConfig->numJoints) {
                 /* request was for only one joint */
                 if(GET_JOINT_ACTIVE_FLAG(joint)) {
                     if (GET_JOINT_HOMING_FLAG(joint)) {
@@ -1298,7 +1297,7 @@ check_stuff ( "before command_handler()" );
                 }
             } else {
                 /* invalid joint number specified */
-                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (num_joints-1));
+                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (emcmotConfig->numJoints-1));
                 return;
             }
 
