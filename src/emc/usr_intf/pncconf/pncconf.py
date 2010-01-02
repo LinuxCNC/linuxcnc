@@ -29,6 +29,7 @@ import shutil
 import math
 import getopt
 import textwrap
+import locale
 
 import gobject
 import gtk
@@ -38,6 +39,18 @@ import gnome.ui
 import xml.dom.minidom
 
 import traceback
+
+def get_value(w):
+    try:
+        return w.get_value()
+    except AttributeError:
+        pass
+    oldlocale = locale.getlocale(locale.LC_NUMERIC)
+    try:
+        locale.setlocale(locale.LC_NUMERIC, "")
+        return locale.atof(w.get_text())
+    finally:
+        locale.setlocale(locale.LC_NUMERIC, oldlocale)
 
 # otherwise, on hardy the user is shown spurious "[application] closed
 # unexpectedly" messages but denied the ability to actually "report [the]
@@ -3731,7 +3744,7 @@ class App:
         print axis
         w = self.widgets
         stepdriven = rotaryaxis = encoder = 1
-        def get(n): return float(w[n].get_text())
+        def get(n): return get_value(w[n])
         test = self.data.findsignal(axis+"-stepgen-step")    
         if test == "false":stepdriven = 0
         test = self.data.findsignal(axis+"-encoder-a")    
@@ -3749,7 +3762,7 @@ class App:
         #self.widgets['window1'].set_sensitive(0)
         self.widgets.scaledialog.hide()
         try:
-            w[axis + "encodercounts"].set_text( "%d" % ( 4 * float(w["encoderline"].get_text())))   
+            w[axis + "encodercounts"].set_text( "%d" % ( 4 * get_value(w["encoderline"])))
             pitch = get("leadscrew")
             #if self.data.units == 1 or axis =='a' : pitch = 1./pitch
             if axis == 'a': factor =  ((get("wormnum") / get("wormden")))
@@ -3758,7 +3771,7 @@ class App:
             if stepdriven :
                 scale = (factor * get("steprev") * get("microstep") * ((get("pulleynum") / get("pulleyden")))) 
             else:
-                scale =  ( factor * float(w[("encoderline")].get_text()) * 4 * (get("pulleynum") / get("pulleyden")))
+                scale =  ( factor * get_value(w[("encoderline")]) * 4 * (get("pulleynum") / get("pulleyden")))
             if axis == 'a': scale = scale / 360
             w[axis + "calscale"].set_text("%.1f" % scale)
             w[axis + "scale"].set_text( "%.1f" % scale)
@@ -3984,10 +3997,10 @@ class App:
     def axis_done(self, axis):
         d = self.data
         w = self.widgets
-        def get_text(n): d[axis + n] = float(w[axis + n].get_text())
+        def get_text(n): d[axis + n] = get_value(w[axis + n])
         def get_active(n): d[axis + n] = w[axis + n].get_active()
-        d[axis + "steprev"] = int(float(w["steprev"].get_text()))
-        d[axis + "microstep"] = int(float(w["microstep"].get_text()))
+        d[axis + "steprev"] = int(get_value(w["steprev"]))
+        d[axis + "microstep"] = int(get_value(w["microstep"]))
         get_text("P")
         get_text("I")
         get_text("D")
@@ -4005,27 +4018,27 @@ class App:
         get_text("outputscale")
         get_text("outputoffset")
         get_text("maxoutput")
-        d[axis + "encodercounts"] = int(float(w["encoderline"].get_text())*4)
+        d[axis + "encodercounts"] = int(get_value(w["encoderline"])*4)
         get_text("scale")
         get_active("invertmotor")
         get_active("invertencoder") 
-        d[axis + "pulleynum"] = int(float(w["pulleynum"].get_text()))
-        d[axis + "pulleyden"] = int(float(w["pulleyden"].get_text()))
-        d[axis + "leadscrew"] = int(float(w["leadscrew"].get_text()))
+        d[axis + "pulleynum"] = int(get_value(w["pulleynum"]))
+        d[axis + "pulleyden"] = int(get_value(w["pulleyden"]))
+        d[axis + "leadscrew"] = int(get_value(w["leadscrew"]))
         d[axis + "compfilename"] = w[axis + "compfilename"].get_text()
         get_active("comptype")
         d[axis + "backlash"]= w[axis + "backlash"].get_value()
         get_active("usecomp")
         get_active("usebacklash")
-        d[axis + "maxvel"] = (float(w[axis + "maxvel"].get_text())/60)
+        d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
         get_text("maxacc")
         get_text("homepos")
         get_text("minlim")
         get_text("maxlim")
         get_text("homesw")
-        d[axis + "homesearchvel"] = (float(w[axis + "homesearchvel"].get_text())/60)
-        d[axis + "homelatchvel"] = (float(w[axis + "homelatchvel"].get_text())/60)
-        d[axis + "homefinalvel"] = (float(w[axis + "homefinalvel"].get_text())/60)
+        d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
+        d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
+        d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
         get_active("searchdir")
         get_active("latchdir")
         get_active("usehomeindex")
@@ -4034,23 +4047,23 @@ class App:
     def update_pps(self, axis):
         w = self.widgets
         d = self.data
-        def get(n): return float(w[axis + n].get_text())
+        def get(n): return get_value(w[axis + n])
 
         try:
-            #pitch = float(w["leadscrew"].get_text())
+            #pitch = get_value(w["leadscrew"])
             #if d.units == 1 or axis =='a' : pitch = 1./pitch
             maxvps = get("maxvel")/60
-            pps = (float(w[axis+"scale"].get_text()) * (maxvps))/1000
+            pps = (get_value(w[axis+"scale"]) * (maxvps))/1000
             if pps == 0: raise ValueError
             pps = abs(pps)
             w[axis + "khz"].set_text("%.1f" % pps)
             acctime = (maxvps) / get("maxacc")
             accdist = acctime * .5 * (maxvps)
-            maxrpm = int( (maxvps * 60) * ( float(w[axis+"scale"].get_text())/ ( float(w[(axis +"encodercounts")].get_text())  ) ) )
+            maxrpm = int( (maxvps * 60) * ( get_value(w[axis+"scale"])/ ( get_value(w[(axis +"encodercounts")])  ) ) )
             w[axis + "acctime"].set_text("%.4f" % acctime)
             if not axis == 's':
                 w[axis + "accdist"].set_text("%.4f" % accdist)                 
-            w[axis + "chartresolution"].set_text("%.7f" % (1.0 / float(w[axis+"scale"].get_text())))
+            w[axis + "chartresolution"].set_text("%.7f" % (1.0 / get_value(w[axis+"scale"])))
             w[axis + "calscale"].set_text(w[axis+"scale"].get_text())
             w[axis + "maxrpm"].set_text("%d" % maxrpm)
             self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
@@ -4255,7 +4268,7 @@ class App:
     def on_spindle_next(self, *args):
         d = self.data
         w = self.widgets 
-        def get_text(n): d["s" + n] = float(w["s" + n].get_text())
+        def get_text(n): d["s" + n] = get_value(w["s" + n])
         def get_active(n): d["s" + n] = w["s" + n].get_active()
         d["ssteprev"] = int(w["steprev"].get_text())
         d["smicrostep"] = int(w["microstep"].get_text())
@@ -4282,16 +4295,16 @@ class App:
         d["spulleynum"] = int(w["pulleynum"].get_text())
         d["spulleyden"] = int(w["pulleyden"].get_text())
         d["sleadscrew"] = int(w["leadscrew"].get_text())
-        d["smaxvel"] = (float(w["smaxvel"].get_text())/60)
+        d["smaxvel"] = (get_value(w["smaxvel"])/60)
         get_text("maxacc")
         
         d["sdrivertype"] = self.drivertype_toid('s', w["sdrivertype"].get_active())
-        #self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
-        self.data.spindlespeed1 = float(self.widgets.spindlespeed1.get_text())
-        self.data.spindlespeed2 = float(self.widgets.spindlespeed2.get_text())
-        self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
-        self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
-        #self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
+        #self.data.spindlecarrier = get_value(self.widgets.spindlecarrier)
+        self.data.spindlespeed1 = get_value(self.widgets.spindlespeed1)
+        self.data.spindlespeed2 = get_value(self.widgets.spindlespeed2)
+        self.data.spindlepwm1 = get_value(self.widgets.spindlepwm1)
+        self.data.spindlepwm2 = get_value(self.widgets.spindlepwm2)
+        #self.data.spindlecpr = get_value(self.widgets.spindlecpr)
         
     def on_spindle_back(self, *args):
         self.on_spindle_next()
@@ -4900,8 +4913,8 @@ class App:
             w[axis + "tunedistunits"].set_text(_("inches"))
             w[axis + "tunevelunits"].set_text(_("inches / minute"))
             w[axis + "tuneaccunits"].set_text(_("inches / second²"))
-        w[axis+"tunevel"].set_value(float(w[axis+"maxvel"].get_text()))
-        w[axis+"tuneacc"].set_value(float(w[axis+"maxacc"].get_text()))
+        w[axis+"tunevel"].set_value(get_value(w[axis+"maxvel"]))
+        w[axis+"tuneacc"].set_value(get_value(w[axis+"maxacc"]))
         w[axis+"tunecurrentP"].set_value(w[axis+"P"].get_value())
         w[axis+"tuneorigP"].set_text("%s" % w[axis+"P"].get_value())
         w[axis+"tunecurrentI"].set_value(w[axis+"I"].get_value())
@@ -4920,11 +4933,11 @@ class App:
         w[axis+"tuneorigdeadband"].set_text("%s" % w[axis+"deadband"].get_value())
         w[axis+"tunecurrentsteptime"].set_value(w[axis+"steptime"].get_value())
         w[axis+"tuneorigsteptime"].set_text("%s" % w[axis+"steptime"].get_value())
-        w[axis+"tunecurrentstepspace"].set_value(float(w[axis+"stepspace"].get_text()))
+        w[axis+"tunecurrentstepspace"].set_value(get_value(w[axis+"stepspace"]))
         w[axis+"tuneorigstepspace"].set_text("%s" % w[axis+"stepspace"].get_value())
-        w[axis+"tunecurrentdirhold"].set_value(float(w[axis+"dirhold"].get_text()))
+        w[axis+"tunecurrentdirhold"].set_value(get_value(w[axis+"dirhold"]))
         w[axis+"tuneorigdirhold"].set_text("%s" % w[axis+"dirhold"].get_value())
-        w[axis+"tunecurrentdirsetup"].set_value(float(w[axis+"dirsetup"].get_text()))
+        w[axis+"tunecurrentdirsetup"].set_value(get_value(w[axis+"dirsetup"]))
         w[axis+"tuneorigdirsetup"].set_text("%s" % w[axis+"dirsetup"].get_value())
         self.tunejogplus = self.tunejogminus = 0
         w[axis+"tunedir"].set_active(0)
@@ -4996,7 +5009,7 @@ class App:
                             self.stepinvert = concount*24+1
                             halrun.write("setp hm2_%s.0.gpio.%03d.invert_output %d \n"% (self.boardname,self.stepinvert,w[axis+"invertmotor"].get_active()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.step_type 0 \n"% (self.boardname,compnum))
-                            halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (self.boardname,compnum,float(w[axis + "scale"].get_text()) ))
+                            halrun.write("setp hm2_%s.0.stepgen.%02d.position-scale %f \n"% (self.boardname,compnum,get_value(w[axis + "scale"]) ))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.enable true \n"% (self.boardname,compnum))
                             halrun.write("net cmd steptest.0.position-cmd => hm2_%s.0.stepgen.%02d.position-cmd \n"% (self.boardname,compnum))
                             halrun.write("net feedback steptest.0.position-fb <= hm2_%s.0.stepgen.%02d.position-fb \n"% (self.boardname,compnum))
@@ -5004,7 +5017,7 @@ class App:
                             halrun.write("setp hm2_%s.0.stepgen.%02d.stepspace %d \n"% (self.boardname,compnum,w[axis+"stepspace"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirhold %d \n"% (self.boardname,compnum,w[axis+"dirhold"].get_value()))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.dirsetup %d \n"% (self.boardname,compnum,w[axis+"dirsetup"].get_value()))
-                            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / float(w[axis + "scale"].get_text()))  )
+                            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "scale"]))  )
                             halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (self.boardname,compnum))
                             halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (self.boardname,compnum))
                             halrun.write("loadusr halmeter -s pin hm2_%s.0.stepgen.%02d.velocity-fb -g 0 500 330\n"% (self.boardname,compnum))
@@ -5042,19 +5055,19 @@ class App:
         if result == gtk.RESPONSE_OK:
             w[axis+"maxvel"].set_text("%s" % w[axis+"tunevel"].get_value())
             w[axis+"maxacc"].set_text("%s" % w[axis+"tuneacc"].get_value())
-            w[axis+"P"].set_value( float(w[axis+"tunecurrentP"].get_text()))
-            w[axis+"I"].set_value( float(w[axis+"tunecurrentI"].get_text()))
-            w[axis+"D"].set_value( float(w[axis+"tunecurrentD"].get_text()))
-            w[axis+"FF0"].set_value( float(w[axis+"tunecurrentFF0"].get_text()))
-            w[axis+"FF1"].set_value( float(w[axis+"tunecurrentFF1"].get_text()))
-            w[axis+"FF2"].set_value( float(w[axis+"tunecurrentFF2"].get_text()))
-            w[axis+"bias"].set_value( float(w[axis+"tunecurrentbias"].get_text()))
-            w[axis+"deadband"].set_value( float(w[axis+"tunecurrentdeadband"].get_text()))
+            w[axis+"P"].set_value( get_value(w[axis+"tunecurrentP"]))
+            w[axis+"I"].set_value( get_value(w[axis+"tunecurrentI"]))
+            w[axis+"D"].set_value( get_value(w[axis+"tunecurrentD"]))
+            w[axis+"FF0"].set_value( get_value(w[axis+"tunecurrentFF0"]))
+            w[axis+"FF1"].set_value( get_value(w[axis+"tunecurrentFF1"]))
+            w[axis+"FF2"].set_value( get_value(w[axis+"tunecurrentFF2"]))
+            w[axis+"bias"].set_value( get_value(w[axis+"tunecurrentbias"]))
+            w[axis+"deadband"].set_value( get_value(w[axis+"tunecurrentdeadband"]))
             w[axis+"tunecurrentbias"].set_value(w[axis+"bias"].get_value())
-            w[axis+"steptime"].set_value(float(w[axis+"tunecurrentsteptime"].get_text()))
-            w[axis+"stepspace"].set_value(float(w[axis+"tunecurrentstepspace"].get_text()))
-            w[axis+"dirhold"].set_value(float(w[axis+"tunecurrentdirhold"].get_text()))
-            w[axis+"dirsetup"].set_value(float(w[axis+"tunecurrentdirsetup"].get_text()))
+            w[axis+"steptime"].set_value(get_value(w[axis+"tunecurrentsteptime"]))
+            w[axis+"stepspace"].set_value(get_value(w[axis+"tunecurrentstepspace"]))
+            w[axis+"dirhold"].set_value(get_value(w[axis+"tunecurrentdirhold"]))
+            w[axis+"dirsetup"].set_value(get_value(w[axis+"tunecurrentdirsetup"]))
             w[axis+"invertmotor"].set_active(w[axis+"tuneinvertmotor"].get_active())
             w[axis+"invertencoder"].set_active(w[axis+"tuneinvertencoder"].get_active())
         if not amp == "false":
@@ -5160,8 +5173,8 @@ class App:
         #dir = axis + "dir"
         boardname = self.data.mesa0_currentfirmwaredata[0]
         firmware = self.data.mesa0_currentfirmwaredata[1]  
-        fastdac = float(widgets["fastdac"].get_text())
-        slowdac = float(widgets["slowdac"].get_text())
+        fastdac = get_value(widgets["fastdac"])
+        slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
         
         if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
@@ -5312,12 +5325,12 @@ class App:
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun
-        if self.widgets.Dac_speed_fast.get_active() == True:output = float(self.widgets.fastdac.get_text())
-        else: output = float(self.widgets.slowdac.get_text())
+        if self.widgets.Dac_speed_fast.get_active() == True:output = get_value(self.widgets.fastdac)
+        else: output = get_value(self.widgets.slowdac)
         if self.jogminus == 1:output = output * -1
         elif not self.jogplus == 1:output = 0
         if self.widgets.testinvertmotor.get_active() == True: output = output * -1
-        output += float(self.widgets.testoutputoffset.get_text())
+        output += get_value(self.widgets.testoutputoffset)
         if not self.amp == "false":
             halrun.write("setp %s %d\n"% (self.amp, self.enable_amp))
         halrun.write("""setp %(scalepin)s.scale %(scale)d\n""" % { 'scalepin':self.enc, 'scale': self.enc_scale})
