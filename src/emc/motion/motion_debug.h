@@ -57,7 +57,6 @@ typedef struct emcmot_debug_t {
 	double fyMin, fyMax, fyAvg;	/* min, max, avg times frequency
 					   cycle times rather than compute */
 
-	EMC_TELEOP_DATA teleop_data;
 	int split;		/* number of split command reads */
 
 	/* flag that all active axes are homed */
