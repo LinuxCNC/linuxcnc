@@ -456,7 +456,6 @@ void usrmotPrintEmcmotStatus(emcmot_status_t s, int which)
 	printf("cmd:          \t%d\n", s.commandEcho);
 	printf("cmd num:      \t%d\n", s.commandNumEcho);
 	printf("heartbeat:    \t%u\n", s.heartbeat);
-	printf("compute time: \t%f\n", s.computeTime);
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */

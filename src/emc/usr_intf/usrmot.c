@@ -188,12 +188,11 @@ int main(int argc, char *argv[])
     printf("sizeof(emcmot_command_t) = %lu\n", (unsigned long)sizeof(emcmot_command_t));
     printf("sizeof(emcmot_status_t) = %lu\n", (unsigned long)sizeof(emcmot_status_t));
     printf("sizeof(emcmot_config_t) = %lu\n", (unsigned long)sizeof(emcmot_config_t));
-    printf("sizeof(emcmot_internal_t) = %lu\n", (unsigned long)sizeof(emcmot_internal_t));
     printf("sizeof(emcmot_debug_t) = %lu\n", (unsigned long)sizeof(emcmot_debug_t));
     printf("sizeof(emcmot_error_t) = %lu\n", (unsigned long)sizeof(emcmot_error_t));
     printf("sizeof(emcmot_comp_t) = %lu\n", (unsigned long)sizeof(emcmot_comp_t));
     printf("sizeof(emcmot_joint_t) = %lu\n", (unsigned long)sizeof(emcmot_joint_t));
-     printf("sizeof(emcmot_struct_t) = %lu\n", (unsigned long)sizeof(emcmot_struct_t));
+    printf("sizeof(emcmot_struct_t) = %lu\n", (unsigned long)sizeof(emcmot_struct_t));
     printf("sizeof(TC_STRUCT) = %lu\n", (unsigned long)sizeof(TC_STRUCT));
 
     /* process command line args */
@@ -919,34 +918,7 @@ int main(int argc, char *argv[])
 		}
 	    }
 #endif				/* ENABLE_PROBING */
-	    else if (!strcmp(cmd, "wd")) {
-		valid = 0;
-
-		if (1 == sscanf(input, "%*s %s", cmd)) {
-		    if (!strcmp(cmd, "on")) {
-			if (1 != sscanf(input, "%*s %*s %d",
-					&emcmotCommand.wdWait) ||
-			    emcmotCommand.wdWait < 0) {
-			    /* no or bad submultiple arg-- use 1 */
-			    emcmotCommand.wdWait = 0;
-			}
-			emcmotCommand.command = EMCMOT_ENABLE_WATCHDOG;
-			valid = 1;
-		    } else if (!strcmp(cmd, "off")) {
-			emcmotCommand.command = EMCMOT_DISABLE_WATCHDOG;
-			valid = 1;
-		    }
-		}
-
-		if (valid) {
-		    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
-			fprintf(stderr,
-				"Can't send a command to RT-task\n");
-		    }
-		} else {
-		    printf("syntax: wd on {<waits>} | off\n");
-		}
-	    } else if (!strcmp(cmd, "comp")) {
+	    else if (!strcmp(cmd, "comp")) {
 		if (1 != sscanf(input, "%*s %d", &joint)) {
 		    fprintf(stderr, "syntax: comp <joint> {<file> <type>}\n");
 		} else {

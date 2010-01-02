@@ -53,6 +53,10 @@
 #define DEFAULT_MAX_LIMIT 1000
 #define DEFAULT_MIN_LIMIT -1000
 
+/* default number of motion io pins */
+#define DEFAULT_DIO 4
+#define DEFAULT_AIO 4
+
 /* size of motion queue
  * a TC_STRUCT is about 512 bytes so this queue is
  * about a megabyte.  */

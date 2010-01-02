@@ -97,8 +97,6 @@ extern "C" {
 	EMCMOT_ABORT = 1,	/* abort all motion */
 	EMCMOT_ENABLE,		/* enable servos for active joints */
 	EMCMOT_DISABLE,		/* disable servos for active joints */
-	EMCMOT_ENABLE_WATCHDOG,	/* enable watchdog sound, parport */
-	EMCMOT_DISABLE_WATCHDOG,	/* enable watchdog sound, parport */
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -499,10 +497,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double motor_offset;	/* diff between internal and motor pos, used
 				   to set position to zero during homing */
 	int old_jog_counts;	/* prior value, used for deltas */
-
-	/* stuff moved from the other structs that might be needed (or might
-	   not!) */
-	double big_vel;		/* used for "debouncing" velocity */
     } emcmot_joint_t;
 
 /* This structure contains only the "status" data associated with
@@ -518,7 +512,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 */
     typedef struct {
-
 	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double pos_cmd;		/* commanded joint position */
 	double pos_fb;		/* position feedback, comp removed */
@@ -622,7 +615,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned int heartbeat;
 	int config_num;		/* incremented whenever configuration
 				   changed. */
-	double computeTime;
 	int id;			/* id for executing motion */
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
@@ -637,7 +629,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
-	int level;
         int motionType;
         double distance_to_go;  /* in this move */
         EmcPose dtg;
@@ -703,25 +694,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_config_t;
-
-/*********************************
-      INTERNAL STRUCTURE
-*********************************/
-
-/* This is the internal structure.  It contains stuff that is used
-   internally by the motion controller that does not need to be in
-   shared memory.  It will wind up with a lot of the stuff that got
-   tossed into the debug structure.
-
-   FIXME - so far most if the stuff that was tossed in here got
-   moved back out, maybe don't need it after all?
-*/
-
-    typedef struct emcmot_internal_t {
-	unsigned char head;	/* flag count for mutex detect */
-
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_internal_t;
 
 /* error structure - A ring buffer used to pass formatted printf stings to usr space */
     typedef struct emcmot_error_t {
