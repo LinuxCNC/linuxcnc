@@ -397,7 +397,7 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
-                ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredVel);
+
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotDebug->queue);
 	    } else {
