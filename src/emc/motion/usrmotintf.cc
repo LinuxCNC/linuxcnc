@@ -275,33 +275,6 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t *d, int which)
 
     printf("running time: \t%f\n", d->running_time);
     switch (which) {
-    case 0:
-	printf("split:        \t%d\n", d->split);
-	printf("teleop desiredVel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.desiredVel.tran.x,
-	    d->teleop_data.desiredVel.tran.y,
-	    d->teleop_data.desiredVel.tran.z,
-	    d->teleop_data.desiredVel.a,
-	    d->teleop_data.desiredVel.b, d->teleop_data.desiredVel.c);
-	printf("teleop currentVel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.currentVel.tran.x,
-	    d->teleop_data.currentVel.tran.y,
-	    d->teleop_data.currentVel.tran.z,
-	    d->teleop_data.currentVel.a,
-	    d->teleop_data.currentVel.b, d->teleop_data.currentVel.c);
-	printf("teleop desiredAccel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.desiredAccel.tran.x,
-	    d->teleop_data.desiredAccel.tran.y,
-	    d->teleop_data.desiredAccel.tran.z,
-	    d->teleop_data.desiredAccel.a,
-	    d->teleop_data.desiredAccel.b, d->teleop_data.desiredAccel.c);
-	printf("teleop currentAccel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.currentAccel.tran.x,
-	    d->teleop_data.currentAccel.tran.y,
-	    d->teleop_data.currentAccel.tran.z,
-	    d->teleop_data.currentAccel.a,
-	    d->teleop_data.currentAccel.b, d->teleop_data.currentAccel.c);
-	break;
 /*! \todo Another #if 0 */
 #if 0
 	printf("\nferror:        ");
