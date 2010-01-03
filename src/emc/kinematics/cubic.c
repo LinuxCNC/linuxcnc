@@ -12,8 +12,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 #include "posemath.h"
 #include "cubic.h"
