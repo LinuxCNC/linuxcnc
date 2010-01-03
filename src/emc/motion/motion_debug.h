@@ -7,8 +7,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved
-*
-* Last change:
 ********************************************************************/
 
 #ifndef MOTION_DEBUG_H
