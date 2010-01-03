@@ -287,7 +287,7 @@ int emcmotGetRotaryIsUnlocked(int axis) {
   sets or clears a HAL DIO pin, 
   pins get exported at runtime
   
-  index is valid from 0 to num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
+  index is valid from 0 to emcmotConfig->num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
   
 */
 void emcmotDioWrite(int index, char value)
@@ -308,8 +308,7 @@ void emcmotDioWrite(int index, char value)
   sets or clears a HAL AIO pin, 
   pins get exported at runtime
   
-  \todo Implement function, it doesn't do anything right now
-  RS274NGC doesn't support it now, only defined/used in emccanon.cc
+  index is valid from 0 to emcmotConfig->num_aio <= EMCMOT_MAX_AIO, defined in emcmotcfg.h
   
 */
 void emcmotAioWrite(int index, double value)
@@ -419,7 +418,7 @@ check_stuff ( "before command_handler()" );
 		}
 	    }
             SET_MOTION_ERROR_FLAG(0);
-	    /* clear joint errors (regardless of mode */	    
+	    /* clear joint errors (regardless of mode) */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
@@ -502,22 +501,17 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "TELEOP");
 	    emcmotDebug->teleoperating = 1;
 	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
-		
 		if (!checkAllHomed()) {
-		    reportError
-			(_("all joints must be homed before going into teleop mode"));
+		    reportError(_("all joints must be homed before going into teleop mode"));
 		    emcmotDebug->teleoperating = 0;
 		    break;
 		}
-
 	    }
 	    break;
 
 	case EMCMOT_SET_NUM_JOINTS:
 	    /* set the global NUM_JOINTS, which must be between 1 and
 	       EMCMOT_MAX_JOINTS, inclusive */
-	    /* this sets a global - I hate globals - hopefully this can be
-	       moved into the config structure, or dispensed with completely */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->joint);
 	    if (( emcmotCommand->joint <= 0 ) ||
@@ -550,7 +544,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
-	    /* this command can be issued with axix < 0 to re-enable
+	    /* this command can be issued with joint < 0 to re-enable
 	       limits, but they are automatically re-enabled at the
 	       end of the next jog */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "OVERRIDE_LIMITS");
@@ -593,12 +587,11 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_POSITION_LIMITS:
-	    /* sets soft limits for a joint */
+	    /* set the position limits for the joint */
+	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_POSITION_LIMITS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* set the position limits for the joint */
-	    /* can be done at any time */
 	    if (joint == 0) {
 		break;
 	    }
@@ -607,12 +600,11 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_BACKLASH:
-	    /* sets backlash for a joint */
+	    /* set the backlash for the joint */
+	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_BACKLASH");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
-	    /* set the backlash for the joint */
-	    /* can be done at any time */
 	    if (joint == 0) {
 		break;
 	    }
@@ -651,11 +643,9 @@ check_stuff ( "before command_handler()" );
 	       stop the jog. */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_CONT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    /* check joint range */
 	    if (joint == 0) {
 		break;
 	    }
-	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -676,7 +666,7 @@ check_stuff ( "before command_handler()" );
 		/* can't do two kinds of jog at once */
 		break;
 	    }
-	    if (emcmotStatus->net_feed_scale < 0.0001 ) {
+	    if (emcmotStatus->net_feed_scale < 0.0001) {
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
@@ -716,14 +706,11 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_JOG_INCR:
 	    /* do an incremental jog */
-
-	    /* check joints range */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_INCR");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
 		break;
 	    }
-	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -792,14 +779,11 @@ check_stuff ( "before command_handler()" );
 
 	case EMCMOT_JOG_ABS:
 	    /* do an absolute jog */
-
-	    /* check joint range */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOG_ABS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (joint == 0) {
 		break;
 	    }
-	    //FIXME-AJ: this command is used for teleop too, check for TELEOP mode, etc..
 	    /* must be in free mode and enabled */
 	    if (GET_MOTION_COORD_FLAG()) {
 		reportError(_("Can't jog joint in coordinated mode."));
@@ -870,8 +854,7 @@ check_stuff ( "before command_handler()" );
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in coord mode for linear move"));
+		reportError(_("need to be enabled, in coord mode for linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -919,8 +902,7 @@ check_stuff ( "before command_handler()" );
 	    /* requires coordinated mode, enable on, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in coord mode for circular move"));
+		reportError(_("need to be enabled, in coord mode for circular move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -967,8 +949,7 @@ check_stuff ( "before command_handler()" );
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
-	    tpSetVmax(&emcmotDebug->tp, emcmotStatus->vel, 
-			    emcmotCommand->ini_maxvel);
+	    tpSetVmax(&emcmotDebug->tp, emcmotStatus->vel, emcmotCommand->ini_maxvel);
 	    break;
 
 	case EMCMOT_SET_VEL_LIMIT:
@@ -981,6 +962,8 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
+	    /* set joint max velocity */
+	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_VEL_LIMIT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
@@ -992,6 +975,8 @@ check_stuff ( "before command_handler()" );
 	    break;
 
 	case EMCMOT_SET_JOINT_ACC_LIMIT:
+	    /* set joint max acceleration */
+	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_ACC_LIMIT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    emcmot_config_change();
@@ -1196,7 +1181,7 @@ check_stuff ( "before command_handler()" );
 	    /* home the specified joint */
 	    /* need to be in free mode, enable on */
 	    /* this just sets the initial state, then the state machine in
-	       control.c does the rest */
+	       homing.c does the rest */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_HOME");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
@@ -1306,8 +1291,7 @@ check_stuff ( "before command_handler()" );
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PROBE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in coord mode for probe move"));
+		reportError(_("need to be enabled, in coord mode for probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
@@ -1361,15 +1345,13 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
-
 	case EMCMOT_RIGID_TAP:
 	    /* most of this is taken from EMCMOT_SET_LINE */
 	    /* emcmotDebug->tp up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
-		reportError
-		    (_("need to be enabled, in coord mode for rigid tap move"));
+		reportError(_("need to be enabled, in coord mode for rigid tap move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
 		SET_MOTION_ERROR_FLAG(1);
 		break;
