@@ -9,7 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
 ********************************************************************/
 #ifndef TP_H
 #define TP_H

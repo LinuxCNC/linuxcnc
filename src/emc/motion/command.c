@@ -52,9 +52,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-*
 ********************************************************************/
 
 #include <linux/types.h>
