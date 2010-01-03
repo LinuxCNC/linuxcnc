@@ -7,9 +7,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
-*
 ********************************************************************/
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H

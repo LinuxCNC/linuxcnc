@@ -9,8 +9,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */

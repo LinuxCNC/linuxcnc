@@ -11,8 +11,6 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
-*
-* Last change:
 ********************************************************************/
 
 #include "config.h"     	/* LINELEN definition */
