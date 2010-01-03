@@ -7,8 +7,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved
-*
-* Last change:
 ********************************************************************/
 
 /*  simple_tp.c and simple_tp.h define a simple, single axis trajectory
