@@ -66,51 +66,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return emc.draw_lines(self.geometry, lines, for_selection)
 
     def draw_dwells(self, dwells, for_selection, j0=0):
-        delta = .015625
-        if for_selection == 0:
-            glBegin(GL_LINES)
-        for j, (l,c,x,y,z,axis) in enumerate(dwells):
-            self.progress.update(j+j0)
-            glColor3f(*c)
-            if for_selection == 1:
-                glLoadName(l)
-                glBegin(GL_LINES)
-            if self.is_lathe(): axis = 1
-            if axis == 0:
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y+delta,z)
-                glVertex3f(x+delta,y-delta,z)
-
-                glVertex3f(x+delta,y+delta,z)
-                glVertex3f(x-delta,y-delta,z)
-                glVertex3f(x+delta,y-delta,z)
-                glVertex3f(x-delta,y+delta,z)
-            elif axis == 1:
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z+delta)
-                glVertex3f(x+delta,y,z-delta)
-
-                glVertex3f(x+delta,y,z+delta)
-                glVertex3f(x-delta,y,z-delta)
-                glVertex3f(x+delta,y,z-delta)
-                glVertex3f(x-delta,y,z+delta)
-            else:
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
-
-                glVertex3f(x,y+delta,z+delta)
-                glVertex3f(x,y-delta,z-delta)
-                glVertex3f(x,y-delta,z+delta)
-                glVertex3f(x,y+delta,z-delta)
-            if for_selection == 1:
-                glEnd()
-        if for_selection == 0:
-            glEnd()
-
+        return emc.draw_dwells(self.geometry, dwells, for_selection, self.is_lathe())
 
 
     def calc_extents(self):

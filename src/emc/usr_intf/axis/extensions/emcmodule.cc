@@ -1680,6 +1680,75 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *pydraw_dwells(PyObject *s, PyObject *o) {
+    PyListObject *li;
+    int for_selection = 0, is_lathe = 0, i, n;
+    char *geometry;
+    double delta = 0.015625;
+
+    if(!PyArg_ParseTuple(o, "sO!ii:draw_dwells", &geometry, &PyList_Type, &li, &for_selection, &is_lathe))
+        return NULL;
+
+    if (for_selection == 0)
+        glBegin(GL_LINES);
+
+    for(i=0; i<PyList_GET_SIZE(li); i++) {
+        PyObject *it = PyList_GET_ITEM(li, i);
+        double red, green, blue, x, y, z;
+        int axis;
+        if(!PyArg_ParseTuple(it, "i(ddd)dddi", &n, &red, &green, &blue, &x, &y, &z, &axis)) {
+            return NULL;
+        }
+        glColor3f(red, green, blue);
+        if (for_selection == 1) {
+            glLoadName(n);
+            glBegin(GL_LINES);
+        }
+        if (is_lathe == 1)
+            axis = 1;
+
+        if (axis == 0) {
+            glVertex3f(x-delta,y-delta,z);
+            glVertex3f(x+delta,y+delta,z);
+            glVertex3f(x-delta,y+delta,z);
+            glVertex3f(x+delta,y-delta,z);
+
+            glVertex3f(x+delta,y+delta,z);
+            glVertex3f(x-delta,y-delta,z);
+            glVertex3f(x+delta,y-delta,z);
+            glVertex3f(x-delta,y+delta,z);
+        } else if (axis == 1) {
+            glVertex3f(x-delta,y,z-delta);
+            glVertex3f(x+delta,y,z+delta);
+            glVertex3f(x-delta,y,z+delta);
+            glVertex3f(x+delta,y,z-delta);
+
+            glVertex3f(x+delta,y,z+delta);
+            glVertex3f(x-delta,y,z-delta);
+            glVertex3f(x+delta,y,z-delta);
+            glVertex3f(x-delta,y,z+delta);
+        } else {
+            glVertex3f(x,y-delta,z-delta);
+            glVertex3f(x,y+delta,z+delta);
+            glVertex3f(x,y+delta,z-delta);
+            glVertex3f(x,y-delta,z+delta);
+
+            glVertex3f(x,y+delta,z+delta);
+            glVertex3f(x,y-delta,z-delta);
+            glVertex3f(x,y-delta,z+delta);
+            glVertex3f(x,y+delta,z-delta);
+        }
+        if (for_selection == 1)
+            glEnd();
+    }
+
+    if (for_selection == 0)
+        glEnd();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 struct color {
     unsigned char r, g, b, a;
     bool operator==(const color &o) const {
@@ -1986,6 +2055,7 @@ static PyTypeObject PositionLoggerType = {
 static PyMethodDef emc_methods[] = {
 #define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }
 METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
+METH(draw_dwells, "Draw a bunch of dwell positions in the 'rs274.glcanon' format"),
 METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
 METH(vertex9, "Get the 3d location for a 9d point"),
     {NULL}
