@@ -218,6 +218,8 @@ class touchy:
                         self.emc.opstop_on(0)
                 else:
                         self.emc.opstop_off(0)                        
+
+                self.emc.max_velocity(self.mv_val)
                                 
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
