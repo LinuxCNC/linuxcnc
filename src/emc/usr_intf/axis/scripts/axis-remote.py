@@ -34,7 +34,7 @@ def usage(exitval=0):
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
-                        ['help','ping', 'reload', 'quit', 'clear'])
+                        ['help','ping', 'reload', 'quit', 'clear', 'mdi'])
 except getopt.GetoptError, detail:
     print detail
     usage(99)
