@@ -2716,6 +2716,22 @@ class TclCommands(nf.TclCommands):
         open_directory = os.path.dirname(f)
         commands.open_file_name(f)
 
+    def remote (cmd,arg=""):
+        if cmd == "clear_live_plot":
+            commands.clear_live_plot()
+            return ""
+        if running():
+            return _("axis cannot accept remote command while running")
+        if cmd == "open_file_name":
+            commands.open_file_name(arg)
+        elif cmd == "send_mdi_command":
+            commands.send_mdi_command(arg)
+        elif cmd == "reload_file":
+            commands.reload_file()
+        elif cmd == "destroy":
+            root_window.tk.call("destroy", ".")
+        return ""
+
     def open_file_name(f):
         open_file_guts(f)
         if str(widgets.view_x['relief']) == "sunken":
