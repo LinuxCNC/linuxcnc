@@ -1,3 +1,9 @@
+emc2 (1:2.3.5~pre) hardy; urgency=low
+
+  * fix jog increments for mini
+
+ -- Alex Joni <juve@hardy>  Fri, 08 Jan 2010 00:03:09 +0200
+
 emc2 (1:2.3.4-1) hardy; urgency=low
 
   * Rebuild packages to get rid of spurious python2.4 dependency
