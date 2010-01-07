@@ -185,8 +185,8 @@ static void handle_jogwheels(void);
 /* 'get_pos_cmds()' generates the position setpoints.  This includes
    calling the trajectory planner and interpolating its outputs.
 */
-
 static void get_pos_cmds(long period);
+
 /* 'compute_screw_comp()' is responsible for calculating backlash and
    lead screw error compensation.  (Leadscrew error compensation is
    a more sophisticated version that includes backlash comp.)  It uses
@@ -1009,8 +1009,9 @@ static void handle_jogwheels(void)
 
 static void get_pos_cmds(long period)
 {
-    int joint_num, all_homed, all_at_home, result;
+    int joint_num, axis_num, all_homed, all_at_home, result;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     double positions[EMCMOT_MAX_JOINTS];
     double old_pos_cmd;
     double vel_lim;
@@ -1037,7 +1038,6 @@ static void get_pos_cmds(long period)
     while ( joint_num < EMCMOT_MAX_JOINTS ) {
         positions[joint_num++] = 0.0;
     }
-
 
     /* RUN MOTION CALCULATIONS: */
 
@@ -1150,6 +1150,7 @@ static void get_pos_cmds(long period)
 	}
         /* end of FREE mode */
 	break;
+
     case EMCMOT_MOTION_COORD:
 	/* check joint 0 to see if the interpolators are empty */
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
@@ -1190,14 +1191,28 @@ static void get_pos_cmds(long period)
 	    SET_MOTION_INPOS_FLAG(1);
 	}
 	break;
+
     case EMCMOT_MOTION_TELEOP:
-#if 0
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+            axis = &axes[axis_num];
+            axis->teleop_tp.max_vel = axis->vel_limit;
+            simple_tp_update(&(axis->teleop_tp), servo_period);
+            axis->vel_cmd = axis->teleop_tp.curr_vel;
+            axis->pos_cmd = axis->teleop_tp.curr_pos;
+        }
+
+        emcmotStatus->carte_pos_cmd.tran.x = (&axes[0])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.tran.y = (&axes[1])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.tran.z = (&axes[2])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.a = (&axes[3])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.b = (&axes[4])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.c = (&axes[5])->teleop_tp.curr_pos;
+
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
 
 	/* OUTPUT KINEMATICS - convert to joints in local array */
-	kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
-	    &iflags, &fflags);
+	kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions, &iflags, &fflags);
 	/* copy to joint structures and spline them up */
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint struct */
@@ -1207,21 +1222,13 @@ static void get_pos_cmds(long period)
 		   that fail soft limits, but we'll abort at the end of
 		   this cycle so it doesn't really matter */
 	    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-	}
-	/* END OF OUTPUT KINS */
-
-	/* there is data in the interpolators */
-	/* run interpolation */
-	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-	    /* point to joint struct */
-	    joint = &joints[joint_num];
-	    /* save old command */
 	    old_pos_cmd = joint->pos_cmd;
 	    /* interpolate to get new one */
 	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
 	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
 	}
-#endif
+	/* END OF OUTPUT KINS */
+
 	/* end of teleop mode */
 	break;
 
@@ -1569,9 +1576,11 @@ static void compute_screw_comp(void)
 
 static void output_to_hal(void)
 {
-    int joint_num;
+    int joint_num, axis_num;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     joint_hal_t *joint_data;
+    axis_hal_t *axis_data;
     static int old_motion_index=0, old_hal_index=0;
 
     /* output machine info to HAL for scoping, etc */
@@ -1611,7 +1620,28 @@ static void output_to_hal(void)
     if(GET_MOTION_COORD_FLAG()) {
         *(emcmot_hal_data->current_vel) = emcmotStatus->current_vel;
         *(emcmot_hal_data->requested_vel) = emcmotStatus->requested_vel;
-    } else if(GET_MOTION_TELEOP_FLAG()) {
+    } else if (GET_MOTION_TELEOP_FLAG()) {
+        int i;
+        double v2 = 0.0;
+        for(i=0; i < EMCMOT_MAX_AXIS; i++)
+            if(axes[i].teleop_tp.active)
+                v2 += axes[i].vel_cmd * axes[i].vel_cmd;
+        if(v2 > 0.0)
+            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
+        else
+            emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = 0.0;
+        *(emcmot_hal_data->requested_vel) = 0.0;
+
+        /* output axis info to HAL for scoping, etc */
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+            /* point to axis struct */
+            axis = &axes[axis_num];
+                /* point to HAL data */
+                axis_data = &(emcmot_hal_data->axis[axis_num]);
+                /* write to HAL pins */
+                *(axis_data->pos_cmd) = axis->pos_cmd;
+                *(axis_data->vel_cmd) = axis->vel_cmd;
+        }
     } else {
         int i;
         double v2 = 0.0;

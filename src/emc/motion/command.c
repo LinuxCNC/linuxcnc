@@ -333,9 +333,10 @@ static int is_feed_type(int motion_type)
   */
 void emcmotCommandHandler(void *arg, long period)
 {
-    int joint_num;
+    int joint_num, axis_num;
     int n;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
@@ -375,6 +376,16 @@ check_stuff ( "before command_handler()" );
 	    joint = 0;
 	}
 
+        /* same for axes */
+	axis_num = emcmotCommand->axis;
+	if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
+	    /* valid joint, point to it's data */
+	    axis = &axes[axis_num];
+	} else {
+	    /* bad axis number */
+	    axis = 0;
+	}
+
 /* printing of commands for troubleshooting */
 	rtapi_print_msg(RTAPI_MSG_DBG, "%d: CMD %d, code %3d ", emcmotStatus->heartbeat,
 	    emcmotCommand->commandNum, emcmotCommand->command);
@@ -393,7 +404,12 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
-
+		for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+		    /* point to joint struct */
+		    axis = &axes[axis_num];
+		    /* tell teleop planner to stop */
+		    axis->teleop_tp.enable = 0;
+                }
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotDebug->queue);
 	    } else {
@@ -429,6 +445,9 @@ check_stuff ( "before command_handler()" );
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
+		axis = &axes[joint_num];
+		/* tell teleop planner to stop */
+		axis->teleop_tp.enable = 0;
 		/* do nothing in teleop mode */
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		/* do nothing in coord mode */
@@ -653,41 +672,61 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (joint->wheel_jog_active) {
-		/* can't do two kinds of jog at once */
-		break;
-	    }
 	    if (emcmotStatus->net_feed_scale < 0.0001) {
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-	    /* don't jog further onto limits */
-	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-	    /* set destination of jog */
-	    refresh_jog_limits(joint);
-	    if (emcmotCommand->vel > 0.0) {
-		joint->free_tp.pos_cmd = joint->max_jog_limit;
-	    } else {
-		joint->free_tp.pos_cmd = joint->min_jog_limit;
-	    }
-	    /* set velocity of jog */
-	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
-	    /* use max joint accel */
-	    joint->free_tp.max_acc = joint->acc_limit;
-	    /* lock out other jog sources */
-	    joint->kb_jog_active = 1;
-	    /* and let it go */
-	    joint->free_tp.enable = 1;
-	    /*! \todo FIXME - should we really be clearing errors here? */
-	    SET_JOINT_ERROR_FLAG(joint, 0);
-	    /* clear joints homed flag(s) if we don't have forward kins.
-	       Otherwise, a transition into coordinated mode will incorrectly
-	       assume the homed position. Do all if they've all been moved
-	       since homing, otherwise just do this one */
-	    clearHomes(joint_num);
+
+            if (!GET_MOTION_TELEOP_FLAG()) {
+	        if (joint->wheel_jog_active) {
+		    /* can't do two kinds of jog at once */
+		    break;
+	        }
+	        /* don't jog further onto limits */
+	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
+		    SET_JOINT_ERROR_FLAG(joint, 1);
+		    break;
+	        }
+	        /* set destination of jog */
+	        refresh_jog_limits(joint);
+	        if (emcmotCommand->vel > 0.0) {
+		    joint->free_tp.pos_cmd = joint->max_jog_limit;
+	        } else {
+		    joint->free_tp.pos_cmd = joint->min_jog_limit;
+	        }
+	        /* set velocity of jog */
+	        joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	        /* use max joint accel */
+	        joint->free_tp.max_acc = joint->acc_limit;
+	        /* lock out other jog sources */
+	        joint->kb_jog_active = 1;
+	        /* and let it go */
+	        joint->free_tp.enable = 1;
+	        /*! \todo FIXME - should we really be clearing errors here? */
+	        SET_JOINT_ERROR_FLAG(joint, 0);
+	        /* clear joints homed flag(s) if we don't have forward kins.
+	           Otherwise, a transition into coordinated mode will incorrectly
+	           assume the homed position. Do all if they've all been moved
+	           since homing, otherwise just do this one */
+	        clearHomes(joint_num);
+            } else {
+                axis_num = emcmotCommand->joint;
+                if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
+                    /* valid axis, point to it's data */
+                    axis = &axes[axis_num];
+                }
+	        if (emcmotCommand->vel > 0.0) {
+		    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+	        } else {
+		    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+	        }
+                /* set velocity of jog */
+	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
+	        /* use max axis accel */
+	        axis->teleop_tp.max_acc = axis->acc_limit;
+	        /* and let it go */
+	        axis->teleop_tp.enable = 1;
+            }
 	    break;
 
 	case EMCMOT_JOG_INCR:
@@ -1488,6 +1527,43 @@ check_stuff ( "before command_handler()" );
             emcmotStatus->tooloffset_x = emcmotCommand->tooloffset_x;
             emcmotStatus->tooloffset_z = emcmotCommand->tooloffset_z;
             emcmotStatus->tooloffset_w = emcmotCommand->tooloffset_w;
+            break;
+
+	case EMCMOT_SET_AXIS_POSITION_LIMITS:
+	    /* set the position limits for axis */
+	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_POSITION_LIMITS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    emcmot_config_change();
+	    if (axis == 0) {
+		break;
+	    }
+	    axis->min_pos_limit = emcmotCommand->minLimit;
+	    axis->max_pos_limit = emcmotCommand->maxLimit;
+	    break;
+
+        case EMCMOT_SET_AXIS_VEL_LIMIT:
+	    /* set the max axis vel */
+	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_VEL_LIMITS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    emcmot_config_change();
+	    if (axis == 0) {
+		break;
+	    }
+	    axis->vel_limit = emcmotCommand->vel;
+            break;
+
+        case EMCMOT_SET_AXIS_ACC_LIMIT:
+ 	    /* set the max axis acc */
+	    /* can be done at any time */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LIMITS");
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    emcmot_config_change();
+	    if (axis == 0) {
+		break;
+	    }
+	    axis->acc_limit = emcmotCommand->acc;
             break;
 
 	default:

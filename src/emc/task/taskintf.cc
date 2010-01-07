@@ -81,9 +81,6 @@ static unsigned long localMotionHeartbeat = 0;
 static int localMotionCommandType = 0;
 static int localMotionEchoSerialNumber = 0;
 
-//things referring to joints
-
-//things referring to axes
 //FIXME-AJ: see if needed
 //static double localEmcAxisUnits[EMCMOT_MAX_AXIS];
 
@@ -93,6 +90,8 @@ static int localMotionEchoSerialNumber = 0;
   In emcmot, we need to set the cycle time for traj, and the interpolation
   rate, in any order, but both need to be done. 
  */
+
+/*! functions involving joints */
 
 int emcJointSetType(int joint, unsigned char jointType)
 {
@@ -337,64 +336,59 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     return retval;
 }
 
-/**********************************************************************************************
-*   functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W)                                   *
-**********************************************************************************************/
+/*! functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W) */
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
     CATCH_NAN(isnan(limit));
 
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
     }
 
-//FIXME-AJ: doing nothing atm, figure out where these should go (motion? TP?, canon only?)
-#if 0
-    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
-    emcmotCommand.joint = axis;
-    emcmotCommand.maxLimit = saveMaxLimit[axis];
-    emcmotCommand.minLimit = limit;
-    saveMinLimit[axis] = limit;
+    AxisConfig[axis].MinLimit = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-#endif
+    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
+    emcmotCommand.axis = axis;
+    emcmotCommand.minLimit = AxisConfig[axis].MinLimit;
+    emcmotCommand.maxLimit = AxisConfig[axis].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, limit);
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, limit, retval);
     }
-    return 0;
+    return retval;
 }
 
 int emcAxisSetMaxPositionLimit(int axis, double limit)
 {
     CATCH_NAN(isnan(limit));
 
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
     }
 
-//FIXME-AJ: doing nothing atm, figure out where these should go (motion? TP?, canon only?)
-#if 0
-    emcmotCommand.command = EMCMOT_SET_POSITION_LIMITS;
-    emcmotCommand.joint = axis;
-    emcmotCommand.minLimit = saveMinLimit[axis];
-    emcmotCommand.maxLimit = limit;
-    saveMaxLimit[axis] = limit;
+    AxisConfig[axis].MaxLimit = limit;
 
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-#endif
+    emcmotCommand.command = EMCMOT_SET_AXIS_POSITION_LIMITS;
+    emcmotCommand.axis = axis;
+    emcmotCommand.minLimit = AxisConfig[axis].MinLimit;
+    emcmotCommand.maxLimit = AxisConfig[axis].MaxLimit;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, limit);
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, limit, retval);
     }
-    return 0;
+    return retval;
 }
-
 
 int emcAxisSetMaxVelocity(int axis, double vel)
 {
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    CATCH_NAN(isnan(vel));
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
     }
 
@@ -404,45 +398,40 @@ int emcAxisSetMaxVelocity(int axis, double vel)
 
     AxisConfig[axis].MaxVel = vel;
 
-    //FIXME-AJ: need to see if we want to send these to motion
-    // disabled for now
-#if 0
     emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
-    emcmotCommand.joint = axis;
+    emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-#endif
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, vel);
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, vel, retval);
     }
-    return 0;
+    return retval;
 }
 
 int emcAxisSetMaxAcceleration(int axis, double acc)
 {
+    CATCH_NAN(isnan(acc));
 
-    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS || !(TrajConfig.AxisMask & (1 << axis))) {
 	return 0;
     }
+
     if (acc < 0.0) {
 	acc = 0.0;
     }
     
     AxisConfig[axis].MaxAccel = acc;    
-    //FIXME-AJ: need to see if we want to send these to motion
-    // disabled for now
-#if 0
-    emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
-    emcmotCommand.joint = joint;
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_ACC_LIMIT;
+    emcmotCommand.axis = axis;
     emcmotCommand.acc = acc;
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-#endif
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, acc);
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, axis, acc, retval);
     }
-    return 0;
+    return retval;
 }
 
 int emcAxisSetHome(int axis, double home)

@@ -59,9 +59,14 @@ emcmot_hal_data_t *emcmot_hal_data = 0;
 /* pointer to joint data */
 emcmot_joint_t *joints = 0;
 
+/* pointer to axis data */
+emcmot_axis_t *axes = 0;
+
 #ifndef STRUCTS_IN_SHMEM
 /* allocate array for joint data */
 emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
+/* allocate array for axis data */
+emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
 #endif
 
 int first_pass = 1;	/* used to set initial conditions */
@@ -413,6 +418,13 @@ static int init_hal_io(void)
 	*(joint_data->amp_enable) = 0;
 	joint_data->home_state = 0;
     }
+
+    /* export axis pins and parameters */
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd), mot_comp_id, "axis.%c.pos-cmd", "xyzabcuvw"[n])) != 0) goto error;
+        if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].vel_cmd), mot_comp_id, "axis.%c.vel-cmd", "xyzabcuvw"[n])) != 0) goto error;
+    }
+
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"MOTION: init_hal_io() complete, %d axes.\n", n);
@@ -576,8 +588,10 @@ static int init_comm_buffers(void)
     /* init pointer to joint structs */
 #ifdef STRUCTS_IN_SHMEM
     joints = &(emcmotDebug->joints[0]);
+    axes = &(emcmotDebug->axes[0]);
 #else
     joints = &(joint_array[0]);
+    axes = &(axis_array[0]);
 #endif
 
     /* init per-joint stuff */

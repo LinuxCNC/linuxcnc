@@ -160,6 +160,10 @@ extern "C" {
 	EMCMOT_SET_JOINT_HOMING_PARAMS, /* sets joint homing parameters */
 	EMCMOT_SET_JOINT_MOTOR_OFFSET,  /* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,          /* set a compensation triplet for a joint (nominal, forw., rev.) */
+
+        EMCMOT_SET_AXIS_POSITION_LIMITS, /* set the axis position +/- limits */
+        EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
+        EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -204,7 +208,8 @@ extern "C" {
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
-	int joint;		/* which index to use for below */
+	int joint;		/* which joint index to use for below */
+	int axis;		/* which axis index to use for below */
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
@@ -539,6 +544,15 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int brake;		// 0 released, 1 engaged
     } spindle_status;
     
+    typedef struct {
+	double pos_cmd;		/* commanded axis position */
+	double vel_cmd;		/* comanded axis velocity */
+	double max_pos_limit;	/* upper soft limit on axis pos */
+	double min_pos_limit;	/* lower soft limit on axis pos */
+	double vel_limit;	/* upper limit of axis speed */
+	double acc_limit;	/* upper limit of axis accel */
+	simple_tp_t teleop_tp;	/* planner for teleop mode motion */
+    } emcmot_axis_t;
 
 /*********************************
         STATUS STRUCTURE

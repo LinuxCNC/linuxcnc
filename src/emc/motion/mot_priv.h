@@ -72,6 +72,11 @@ typedef struct {
 
 } joint_hal_t;
 
+typedef struct {
+    hal_float_t *pos_cmd;       /* RPI: commanded position */
+    hal_float_t *vel_cmd;       /* RPI: commanded velocity */
+} axis_hal_t;
+
 /* machine data */
 
 typedef struct {
@@ -150,6 +155,7 @@ typedef struct {
     hal_float_t *tooloffset_w;
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
+    axis_hal_t axis[EMCMOT_MAX_AXIS];	        /* data for each axis */
 
 } emcmot_hal_data_t;
 
@@ -164,6 +170,9 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 /* the actual array may be in shared memory or in kernel space, as
    determined by the init code in motion.c */
 extern emcmot_joint_t *joints;
+
+/* pointer to array of axis structs with all axis data */
+extern emcmot_axis_t *axes;
 
 /* flag used to indicate that this is the very first pass thru the
    code.  Various places in the code use this to set initial conditions
