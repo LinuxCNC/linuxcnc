@@ -1547,8 +1547,11 @@ grid $jogcontinuous -column 3 -row 4 -sticky nsew -padx 4
 grid $jogposbutton -column 4 -row 2 -sticky nsew
 grid configure $jogposbutton -columnspan 2 -rowspan 3
 
-grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
-grid configure $immframe -column 6 -row 0 -rowspan 5 -sticky nsew
+if { $unitsetting == "(mm)" } {
+    grid configure $immframe -column 6 -row 0 -rowspan 5 -sticky nsew
+} else {
+    grid configure $iframe -column 6 -row 0 -rowspan 5 -sticky nsew
+}
 
 # grid $manframe.r5 -column 6 -row 0 -sticky nsew
 # grid $manframe.r4 -column 6 -row 1 -sticky nsew
