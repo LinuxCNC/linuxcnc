@@ -2090,7 +2090,6 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHKS(isreadonly(index),NCE_PARAMETER_NUMBER_READONLY);
       *double_ptr = parameters[index];
   }
   return INTERP_OK;
