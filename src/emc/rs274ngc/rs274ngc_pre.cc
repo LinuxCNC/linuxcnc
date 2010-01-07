@@ -1530,33 +1530,20 @@ int Interp::default_tool_parameters()
 
 int Interp::set_tool_parameters()
 {
-  // invoke for CHANGE_TOOL_NUMBER() to set tool parameters for current tool
-  // when a tool is removed, set default (zero offset) tool parameters
-  int toolno = _setup.tool_table[_setup.current_pocket].toolno;
-  int pocket;
+  // invoke to set tool parameters for current tool (pocket==0)
+  // when a tool is absent, set default (zero offset) tool parameters
 
-  if (   toolno <= 0
-      || (! _setup.random_toolchanger && _setup.current_pocket ==0) ) {
+  if ((! _setup.random_toolchanger) && (_setup.tool_table[0].toolno <= 0)) {
     default_tool_parameters();
     return 0;
   }
 
-  find_tool_pocket(&_setup,toolno,&pocket);
-  if (pocket < 0) {
-    fprintf(stderr,"set_tool_parameters: no such tool:%d\n",toolno);
-    return 0;
-  }
-  if (toolno != _setup.tool_table[pocket].toolno) {
-    fprintf(stderr,"set_tool_parameters: toolno=%d disagrees %d\n"
-           ,toolno, _setup.tool_table[pocket].toolno); //not seen
-  }
-
   // RESERVED items are for possible future implementation
-  _setup.parameters[5400] = _setup.tool_table[pocket].toolno;
-  _setup.parameters[5401] = _setup.tool_table[pocket].xoffset;
+  _setup.parameters[5400] = _setup.tool_table[0].toolno;
+  _setup.parameters[5401] = _setup.tool_table[0].xoffset;
   _setup.parameters[5402] =  0; // y offset   RESERVED
   if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-    _setup.parameters[5403] = _setup.tool_table[pocket].zoffset;
+    _setup.parameters[5403] = _setup.tool_table[0].zoffset;
   } else {
     _setup.parameters[5403] = 0.0;
   }
@@ -1568,12 +1555,12 @@ int Interp::set_tool_parameters()
   if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
     _setup.parameters[5409] =  0.0; // w offset
   } else {
-    _setup.parameters[5409] =  _setup.tool_table[pocket].zoffset;
+    _setup.parameters[5409] =  _setup.tool_table[0].zoffset;
   }
-  _setup.parameters[5410] = _setup.tool_table[pocket].diameter;
-  _setup.parameters[5411] = _setup.tool_table[pocket].frontangle;
-  _setup.parameters[5412] = _setup.tool_table[pocket].backangle;
-  _setup.parameters[5413] = _setup.tool_table[pocket].orientation;
+  _setup.parameters[5410] = _setup.tool_table[0].diameter;
+  _setup.parameters[5411] = _setup.tool_table[0].frontangle;
+  _setup.parameters[5412] = _setup.tool_table[0].backangle;
+  _setup.parameters[5413] = _setup.tool_table[0].orientation;
 
 
   return 0;
