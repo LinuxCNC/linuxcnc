@@ -47,7 +47,7 @@ value_inihal_data old_inihal_data;
     }                                                  \
 } while(0)
 #else
-#define CATCH_NAN
+#define CATCH_NAN(cond) do {} while(0)
 #endif
 
 
