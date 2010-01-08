@@ -2,8 +2,8 @@
 
 # load RT modules
 loadrt [KINS]KINEMATICS
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD traj_period_nsec=[EMCMOT]TRAJ_PERIOD num_joints=[KINS]JOINTS
-loadrt ddt count=12
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+loadrt ddt count=8
 
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
@@ -16,7 +16,6 @@ addf ddt.4 servo-thread
 addf ddt.5 servo-thread
 addf ddt.6 servo-thread
 addf ddt.7 servo-thread
-addf ddt.8 servo-thread
 
 # create HAL signals for position commands from motion module
 net J0pos <= joint.0.motor-pos-cmd
