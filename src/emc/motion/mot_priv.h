@@ -73,8 +73,11 @@ typedef struct {
 } joint_hal_t;
 
 typedef struct {
-    hal_float_t *pos_cmd;       /* RPI: commanded position */
-    hal_float_t *vel_cmd;       /* RPI: commanded velocity */
+    hal_float_t *pos_cmd;        /* RPI: commanded position */
+    hal_float_t *vel_cmd;        /* RPI: commanded velocity */
+    hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
+    hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
+    hal_bit_t *teleop_tp_enable; /* RPI: teleop traj planner is running */
 } axis_hal_t;
 
 /* machine data */

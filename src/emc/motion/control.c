@@ -758,6 +758,7 @@ static void set_operating_mode(void)
     int joint_num;
     emcmot_joint_t *joint;
     joint_hal_t *joint_data;
+    double positions[EMCMOT_MAX_JOINTS];
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
@@ -819,10 +820,20 @@ static void set_operating_mode(void)
 		/* point to joint data */
 		joint = &joints[joint_num];
 		cubicDrain(&(joint->cubic));
+		positions[joint_num] = joint->coarse_pos;
 	    }
 	    /* Initialize things to do when starting teleop mode. */
 	    SET_MOTION_TELEOP_FLAG(1);
 	    SET_MOTION_ERROR_FLAG(0);
+
+            kinematicsForward(positions, &emcmotStatus->carte_pos_cmd, &fflags, &iflags);
+
+            (&axes[0])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.x;
+            (&axes[1])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.y;
+            (&axes[2])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.tran.z;
+            (&axes[3])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.a;
+            (&axes[4])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.b;
+            (&axes[5])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.c;
 	} else {
 	    /* not in position-- don't honor mode change */
 	    emcmotDebug->teleoperating = 0;
@@ -836,7 +847,7 @@ static void set_operating_mode(void)
 			/* point to joint data */
 			joint = &joints[joint_num];
 			/* update free planner positions */
-			joint->free_tp.pos_cmd = joint->pos_cmd;
+			joint->free_tp.curr_pos = joint->pos_cmd;
 		    }
 		}
 	    }
@@ -1631,17 +1642,6 @@ static void output_to_hal(void)
         else
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = 0.0;
         *(emcmot_hal_data->requested_vel) = 0.0;
-
-        /* output axis info to HAL for scoping, etc */
-        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-            /* point to axis struct */
-            axis = &axes[axis_num];
-                /* point to HAL data */
-                axis_data = &(emcmot_hal_data->axis[axis_num]);
-                /* write to HAL pins */
-                *(axis_data->pos_cmd) = axis->pos_cmd;
-                *(axis_data->vel_cmd) = axis->vel_cmd;
-        }
     } else {
         int i;
         double v2 = 0.0;
@@ -1724,6 +1724,20 @@ static void output_to_hal(void)
 	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
 	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
 	joint_data->home_state = joint->home_state;
+    }
+
+    /* output axis info to HAL for scoping, etc */
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+        /* point to axis struct */
+        axis = &axes[axis_num];
+        /* point to HAL data */
+        axis_data = &(emcmot_hal_data->axis[axis_num]);
+        /* write to HAL pins */
+        *(axis_data->pos_cmd) = axis->pos_cmd;
+        *(axis_data->vel_cmd) = axis->vel_cmd;
+	*(axis_data->teleop_pos_cmd) = axis->teleop_tp.pos_cmd;
+	*(axis_data->teleop_vel_lim) = axis->teleop_tp.max_vel;
+	*(axis_data->teleop_tp_enable) = axis->teleop_tp.enable;
     }
 }
 
