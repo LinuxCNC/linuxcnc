@@ -426,7 +426,7 @@ int Interp::init()
 	  _setup.wizard_root[0] = 0;
           if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    printf("inistring:%s:\n", inistring);
+	    logDebug("[WIZARD]WIZARD_ROOT:%s\n", inistring);
             if (realpath(inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
         	logDebug("realpath failed to find wizard_root:%s:\n", inistring);
@@ -1118,10 +1118,13 @@ the controller.
 
 int Interp::synch()
 {
-
+  double tolerance;
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  SET_MOTION_CONTROL_MODE(_setup.control_mode, tolerance);
+
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
@@ -1516,42 +1519,27 @@ int Interp::default_tool_parameters()
 
 int Interp::set_tool_parameters()
 {
-  // invoke for CHANGE_TOOL_NUMBER() to set tool parameters for current tool
-  // when a tool is removed, set default (zero offset) tool parameters
-  int toolno = _setup.tool_table[_setup.current_pocket].toolno;
-  int pocket;
+  // invoke to set tool parameters for current tool (pocket==0)
+  // when a tool is absent, set default (zero offset) tool parameters
 
-  if (   toolno <= 0
-      || (! _setup.random_toolchanger && _setup.current_pocket ==0) ) {
+  if ((! _setup.random_toolchanger) && (_setup.tool_table[0].toolno <= 0)) {
     default_tool_parameters();
     return 0;
   }
-
-  find_tool_pocket(&_setup,toolno,&pocket);
-  if (pocket < 0) {
-    fprintf(stderr,"set_tool_parameters: no such tool:%d\n",toolno);
-    return 0;
-  }
-  if (toolno != _setup.tool_table[pocket].toolno) {
-    fprintf(stderr,"set_tool_parameters: toolno=%d disagrees %d\n"
-           ,toolno, _setup.tool_table[pocket].toolno); //not seen
-  }
-
-  _setup.parameters[5400] = _setup.tool_table[pocket].toolno;
-  _setup.parameters[5401] = _setup.tool_table[pocket].offset.tran.x;
-  _setup.parameters[5402] = _setup.tool_table[pocket].offset.tran.y;
-  _setup.parameters[5403] = _setup.tool_table[pocket].offset.tran.z;
-  _setup.parameters[5404] = _setup.tool_table[pocket].offset.a;
-  _setup.parameters[5405] = _setup.tool_table[pocket].offset.b;
-  _setup.parameters[5406] = _setup.tool_table[pocket].offset.c;
-  _setup.parameters[5407] = _setup.tool_table[pocket].offset.u;
-  _setup.parameters[5408] = _setup.tool_table[pocket].offset.v;
-  _setup.parameters[5409] = _setup.tool_table[pocket].offset.w;
-  _setup.parameters[5410] = _setup.tool_table[pocket].diameter;
-  _setup.parameters[5411] = _setup.tool_table[pocket].frontangle;
-  _setup.parameters[5412] = _setup.tool_table[pocket].backangle;
-  _setup.parameters[5413] = _setup.tool_table[pocket].orientation;
-
+  _setup.parameters[5400] = _setup.tool_table[0].toolno;
+  _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
+  _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
+  _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
+  _setup.parameters[5404] = _setup.tool_table[0].offset.a;
+  _setup.parameters[5405] = _setup.tool_table[0].offset.b;
+  _setup.parameters[5406] = _setup.tool_table[0].offset.c;
+  _setup.parameters[5407] = _setup.tool_table[0].offset.u;
+  _setup.parameters[5408] = _setup.tool_table[0].offset.v;
+  _setup.parameters[5409] = _setup.tool_table[0].offset.w;
+  _setup.parameters[5410] = _setup.tool_table[0].diameter;
+  _setup.parameters[5411] = _setup.tool_table[0].frontangle;
+  _setup.parameters[5412] = _setup.tool_table[0].backangle;
+  _setup.parameters[5413] = _setup.tool_table[0].orientation;
 
   return 0;
 }

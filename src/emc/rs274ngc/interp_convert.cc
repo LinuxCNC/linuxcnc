@@ -28,15 +28,6 @@
 #include "interp_queue.hh"
 
 #include "units.h"
-#ifndef R2D
-#define R2D(r) ((r)*180.0/M_PI)
-#endif
-#ifndef D2R
-#define D2R(r) ((r)*M_PI/180.0)
-#endif
-#ifndef SQ
-#define SQ(a) ((a)*(a))
-#endif
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)==1)||((side)==RIGHT&&(turn)==-1))
 #define DEBUG_EMC
 
@@ -2223,7 +2214,7 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     }
 
     if(s->b_axis_wrapped) {
-        b = fmod(a, 360.0);
+        b = fmod(b, 360.0);
         if(b<0) b += 360.0;
     }
 
@@ -2828,15 +2819,10 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   /* user-defined M codes */
   if (block->m_modes[10] != -1) {
     int index = block->m_modes[10];
-    CHKS((settings->cutter_comp_side != OFF),
-         (_("Cannot call user-defined M code with cutter radius compensation on")));  // XXX
-    if (USER_DEFINED_FUNCTION[index - 100] != 0) {
-      (*(USER_DEFINED_FUNCTION[index - 100])) (index - 100,
-                                               block->p_number,
-                                               block->q_number);
-    } else {
+    if (USER_DEFINED_FUNCTION[index - 100] == 0) {
       CHKS(1, NCE_UNKNOWN_M_CODE_USED);
     }
+    enqueue_M_USER_COMMAND(index,block->p_number,block->q_number);
   }
   return INTERP_OK;
 }

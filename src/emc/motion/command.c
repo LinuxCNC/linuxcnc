@@ -74,13 +74,6 @@
 extern void print_pose ( EmcPose *pos );
 extern void check_stuff(const char *msg);
 
-
-/* value for world home position */
-EmcPose worldHome = { {0.0, 0.0, 0.0},
-                      0.0, 0.0, 0.0,
-                      0.0, 0.0, 0.0
-};
-
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -1243,12 +1236,9 @@ check_stuff ( "before command_handler()" );
             rtapi_print_msg(RTAPI_MSG_DBG, "UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
             
-            if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-                reportError("must be in joint mode to unhome");
+            if ((emcmotStatus->motion_state != EMCMOT_MOTION_FREE) && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+                reportError("must be in joint mode or disabled to unhome");
                 return;
-            }
-            if (!GET_MOTION_ENABLE_FLAG()) {
-                break;
             }
 
             if (joint_num < 0) {

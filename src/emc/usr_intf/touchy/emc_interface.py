@@ -314,7 +314,7 @@ class emc_status:
                                 set_text(self.distance[d], fmt % ('R', dtg[0]))
                                 d += 1
                                 set_text(self.relative[d], fmt % ('D', relp[0] * 2.0))
-                                set_text(self.absolute[d], fmt % ('D', p[0] * 2.0))
+                                set_text(self.absolute[d], " " + fmt % ('D', p[0] * 2.0))
                                 set_text(self.distance[d], fmt % ('D', dtg[0] * 2.0))
                         else:
                                 set_text(self.relative[d], fmt % ('X', relp[0]))

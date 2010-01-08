@@ -34,7 +34,7 @@ def usage(exitval=0):
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
-                        ['help','ping', 'reload', 'quit', 'clear'])
+                        ['help','ping', 'reload', 'quit', 'clear', 'mdi'])
 except getopt.GetoptError, detail:
     print detail
     usage(99)
@@ -77,20 +77,25 @@ else:
 
 t = Tkinter.Tk(); t.wm_withdraw()
 
-if mode == OPEN:
-    t.tk.call("send", "axis", ("open_file_name", os.path.abspath(args[0])))
-elif mode == MDI:
-    t.tk.call("send", "axis", ("send_mdi_command", args[0]))
-elif mode == PING:
-    try:
+msg = ""
+try:
+    if mode == PING:
         t.tk.call("send", "axis", "expr", "1")
-    except Tkinter.TclError, detail:
-        raise SystemExit, 1
-    raise SystemExit, 0
-elif mode == RELOAD:
-    t.tk.call("send", "axis", "reload_file")
-elif mode == CLEAR:
-    t.tk.call("send", "axis", "clear_live_plot")
-elif mode == QUIT:
-    t.tk.call("send", "axis", "destroy", ".")
+    # cmds below are checked for suitability by axis remote() function
+    #      return "" if ok
+    elif mode == OPEN:
+        msg = t.tk.call("send", "axis", ("remote","open_file_name", os.path.abspath(args[0])))
+    elif mode == MDI:
+        msg = t.tk.call("send", "axis", ("remote","send_mdi_command", args[0]))
+    elif mode == RELOAD:
+        msg = t.tk.call("send", "axis", ("remote","reload_file"))
+    elif mode == CLEAR:
+        msg = t.tk.call("send", "axis", ("remote","clear_live_plot"))
+    elif mode == QUIT:
+        msg = t.tk.call("send", "axis", ("remote","destroy"))
+except Tkinter.TclError,detail:
+    raise SystemExit,detail
+
+if msg:
+    raise SystemExit,msg
 # vim:sw=4:sts=4:et:

@@ -218,6 +218,8 @@ class touchy:
                         self.emc.opstop_on(0)
                 else:
                         self.emc.opstop_off(0)                        
+
+                self.emc.max_velocity(self.mv_val)
                                 
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
@@ -252,6 +254,7 @@ class touchy:
                         "on_mdi_minus_clicked" : self.mdi_control.minus,
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
                         "on_mdi_g_clicked" : self.mdi_control.g,
+                        "on_mdi_gp_clicked" : self.mdi_control.gp,
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_t_clicked" : self.mdi_control.t,
                         "on_mdi_select" : self.mdi_control.select,
@@ -466,7 +469,7 @@ class touchy:
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
                           "flood_on", "flood_off", "mist_on", "mist_off",
-                          "g", "m", "t", "set_tool", "set_origin",
+                          "g", "gp", "m", "t", "set_tool", "set_origin",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_selected", "unhome_selected",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",

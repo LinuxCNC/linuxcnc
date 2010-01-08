@@ -28,7 +28,7 @@
 halmeter \- observe HAL pins, signals, and parameters
 .SH SYNOPSIS
 .B halmeter
-[\fB-s\fR] [\fBpin\fR|\fBsig\fR|\fBparam\fR \fIname\fR] [\fB-g\fR \fIX-positon Y-position\fR] 
+[\fB-s\fR] [\fBpin\fR|\fBsig\fR|\fBparam\fR \fIname\fR] [\fB-g\fR \fIX-positon Y-position [Width]\fR] 
 .SH DESCRIPTION
 \fBhalmeter\fR is used to observe HAL (Hardware Abstraction
 Layer) pins, signals, or parameters.  It serves the same
@@ -55,7 +55,8 @@ buttons.  Handy when you want a lot of meters in a small space.
 .TP
 \fB\-g\fR
 geometry position.  allows one to specify the intial starting position
-of the meter. Referenced form top left of screen in pixel units.
+and optionally the width of the meter. Referenced from top left of screen 
+in pixel units.
 Handy when you want to load a lot of meters in a script with out them
 displaying on top of each other.
 .SH USAGE
@@ -94,6 +95,13 @@ The displayed item cannot be changed.  Runs in background.
 \fBhalmeter -s pin\fR \fIparport.0.pin-03-out\fR \fB-g\fR \fI100 500\fR \fB&\fR 
 Open a small meter window, displaying HAL pin \fIparport.0.pin-03-out\fR.
 places it 100 pixels to the left and 500 pixels down from top of screen.
+The displayed item cannot be changed.  Runs in background.
+
+.TP
+\fBhalmeter -s pin\fR \fIparport.0.pin-03-out\fR \fB-g\fR \fI100 500 400\fR \fB&\fR 
+Open a small meter window, displaying HAL pin \fIparport.0.pin-03-out\fR.
+places it 100 pixels to the left and 500 pixels down from top of screen.
+The width will be 400 pixels (270 is default)
 The displayed item cannot be changed.  Runs in background.
 
 .SH "SEE ALSO"

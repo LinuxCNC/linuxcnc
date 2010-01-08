@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -211,18 +212,18 @@ Make sure moves are "long enough" to suit your machine/material.
 \end_layout
 
 \begin_layout Standard
-The acceleration and deceleration phase each use half the inifile MAX_ACCELERATI
-ON.
+The acceleration and deceleration phase each use half the ini file MAX_ACCELERAT
+ION.
  In a blend that is an exact reversal, this causes the total axis acceleration
- to equal the inifile MAX_ACCELERATION.
+ to equal the ini file MAX_ACCELERATION.
  In other cases, the actual machine acceleration is somewhat less than the
- inifile acceleration 
+ ini file acceleration 
 \end_layout
 
 \begin_layout Standard
 To keep up feed rate, the move must be longer than the distance it takes
  to accelerate from 0 to the desired feed rate and then stop again.
- Using A as 1/2 the inifile MAX_ACCELERATION and F as the feed rate *in
+ Using A as 1/2 the ini file MAX_ACCELERATION and F as the feed rate *in
  units per second*, the acceleration time is ta = F/A and the acceleration
  distance is 
 \begin_inset Formula $da=(1/2)*F*ta$
@@ -316,9 +317,10 @@ After starting EMC2 each axis must be homed prior to running a program or
 \end_layout
 
 \begin_layout Standard
-If you want to deviate from the default behaviour, or want to use the Mini
+If you want to deviate from the default behavior, or want to use the Mini
  interface you will need to set the option NO_FORCE_HOMING = 1 in the [TRAJ]
  section of your ini file.
+ More information on homing can be found in the Integrators Manual.
 \end_layout
 
 \begin_layout Section
@@ -330,6 +332,70 @@ There are several options when doing manual tool changes.
  See the [EMCIO] section of the Integrators Manual for information on configurat
 ion of these options.
  Also see the G28 and G30 section of the User Manual.
+\end_layout
+
+\begin_layout Section
+Coordinate Systems
+\end_layout
+
+\begin_layout Standard
+The Coordinate Systems can be confusing at first.
+ Before running a CNC machine you must understand the basics of the coordinate
+ systems used by EMC.
+ In depth information on the EMC Coordinate Systems is in the section 
+\begin_inset LatexCommand ref
+reference "cha:Coordinate-System"
+
+\end_inset
+
+ of this chapter.
+\end_layout
+
+\begin_layout Subsection
+G53 Machine Coordinate
+\end_layout
+
+\begin_layout Standard
+When you home EMC you set the G53 Machine Coordinate System to 0 for each
+ axis homed.
+ 
+\end_layout
+
+\begin_layout Itemize
+No other coordinate systems or tool offsets are changed by homing.
+ 
+\end_layout
+
+\begin_layout Standard
+The only time you move in the G53 machine coordinate system is when you
+ program a G53 on the same line as a move.
+ Normally you are in the G54 coordinate system.
+\end_layout
+
+\begin_layout Subsection
+G54-59.3 User Coordinates
+\end_layout
+
+\begin_layout Standard
+Normally you use the G54 Coordinate System.
+ When an offset is applied to a current user coordinate system a small blue
+ ball with lines will be at the machine origin when your DRO is displaying
+ "Position: Relative Actual" in Axis.
+ If your offsets are temporary use the Zero Coordinate System from the Machine
+ menu or program G10 L2 P1 X0 Y0 Z0 at the end of your G Code file.
+ Change the "P" number to suit the coordinate system you wish to clear the
+ offset in.
+ 
+\end_layout
+
+\begin_layout Itemize
+Offsets stored in a user coordinate system are retained when EMC is shut
+ down.
+\end_layout
+
+\begin_layout Itemize
+Using the "Touch Off" button in Axis sets an offset for the chosen User
+ Coordinate System.
 \end_layout
 
 \end_body

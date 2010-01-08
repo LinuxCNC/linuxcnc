@@ -248,23 +248,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 static void hm2_print_idrom(hostmot2_t *hm2) {
     HM2_PRINT("IDRom:\n");
 
-    if (hm2->idrom.idrom_type == 2) {
-        HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type);
-    } else {
-        HM2_PRINT("    IDRom Type: 0x%08X ***** Expected 2!  Continuing anyway! *****\n", hm2->idrom.idrom_type);
-    }
+    HM2_PRINT("    IDRom Type: 0x%08X\n", hm2->idrom.idrom_type);
 
-    if (hm2->idrom.offset_to_modules == 0x40) {
-        HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules);
-    } else {
-        HM2_PRINT("    Offset to Modules: 0x%08X ***** Expected 0x40!  Continuing anyway *****\n", hm2->idrom.offset_to_modules);
-    }
-
-    if (hm2->idrom.offset_to_pin_desc == 0x200) {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc);
-    } else {
-        HM2_PRINT("    Offset to Pin Description: 0x%08X ***** Expected 0x200!  Continuing anyway! *****\n", hm2->idrom.offset_to_pin_desc);
-    }
+    HM2_PRINT("    Offset to Modules: 0x%08X\n", hm2->idrom.offset_to_modules); 
+    HM2_PRINT("    Offset to Pin Description: 0x%08X\n", hm2->idrom.offset_to_pin_desc); 
 
     HM2_PRINT(
         "    Board Name: %c%c%c%c%c%c%c%c\n",
@@ -311,6 +298,8 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 }
 
 
+
+
 static int hm2_read_idrom(hostmot2_t *hm2) {
 
     //
@@ -332,8 +321,11 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
         HM2_ERR("error reading IDROM type\n");
         return -EIO;
     }
-    if (hm2->idrom.idrom_type != 2) {
-        HM2_ERR("invalid IDROM type %d, expected 2, aborting load\n", hm2->idrom.idrom_type);
+    if (
+        (hm2->idrom.idrom_type != 2) 
+        && (hm2->idrom.idrom_type != 3)
+    ) {
+        HM2_ERR("invalid IDROM type %d, expected 2 or 3, aborting load\n", hm2->idrom.idrom_type);
         return -EINVAL;
     }
 
@@ -374,6 +366,15 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
             "IDROM IOPorts is %d but llio num_ioport_connectors is %d, driver and firmware are inconsistent, aborting driver load\n",
             hm2->idrom.io_ports,
             hm2->llio->num_ioport_connectors
+        );
+        return -EINVAL;
+    }
+
+    if (hm2->idrom.io_width > HM2_MAX_PIN_DESCRIPTORS) {
+        HM2_ERR(
+            "IDROM IOWidth is %d but max is %d, aborting driver load\n",
+            hm2->idrom.io_width,
+            HM2_MAX_PIN_DESCRIPTORS
         );
         return -EINVAL;
     }
@@ -652,6 +653,9 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 //
 
 static void hm2_cleanup(hostmot2_t *hm2) {
+    // clean up the Pins, if they're initialized
+    if (hm2->pin != NULL) kfree(hm2->pin);
+
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);

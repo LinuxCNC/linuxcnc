@@ -119,11 +119,17 @@ static void hm2_print_pin_descriptors(hostmot2_t *hm2) {
 
 int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     int i;
-    int addr = hm2->idrom_offset + hm2->idrom.offset_to_pin_desc;
+    int addr;
 
-    i = 0;
+    hm2->num_pins = hm2->idrom.io_width;
+    hm2->pin = kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, GFP_KERNEL);
+    if (hm2->pin == NULL) {
+        HM2_ERR("out of memory!\n");
+        return -ENOMEM;
+    }
 
-    do {
+    addr = hm2->idrom_offset + hm2->idrom.offset_to_pin_desc;
+    for (i = 0; i < hm2->num_pins; i ++) {
         u32 d;
 
         if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
@@ -137,8 +143,13 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         hm2->pin[i].primary_tag = (d >> 24) & 0x000000FF;
 
         if (hm2->pin[i].primary_tag == 0) {
-            hm2->num_pins = i;
-            break;
+            // oops, found the Zero sentinel before the promised number of pins
+            HM2_ERR(
+                "pin %d primary tag is 0 (end-of-list sentinel), expected %d!\n",
+                i,
+                hm2->num_pins
+            );
+            return -EINVAL;
         }
 
         if (hm2->pin[i].primary_tag != HM2_GTAG_IOPORT) {
@@ -153,14 +164,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
         hm2->pin[i].gtag = hm2->pin[i].primary_tag;
 
-        i++;
         addr += 4;
-    } while (i < HM2_MAX_PIN_DESCRIPTORS);
-
-
-    if (hm2->num_pins != hm2->idrom.io_width) {
-        HM2_ERR("there are %d Pin Descriptors but IDROM IO_Width is %d!\n", hm2->num_pins, hm2->idrom.io_width);
-        return -EINVAL;
     }
 
     if (debug_pin_descriptors) {

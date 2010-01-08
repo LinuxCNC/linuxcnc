@@ -122,12 +122,14 @@ DONE: - spindle:
 
 DONE: - joint:
    halui.joint.0.home                  bit  // pin for homing the specific joint
+   halui.joint.0.unhome                bit  // pin for unhoming the specific joint
    halui.joint.0.is-homed              bit  // status pin telling that the joint is homed
    ..
    halui.joint.8.home                  bit 
    halui.joint.8.is-homed              bit 
 
    halui.joint.selected.home           bit  // pin for homing the selected joint
+   halui.joint.selected.unhome         bit  // pin for unhoming the selected joint
    halui.joint.selected.is-homed       bit  // status pin telling that the selected joint is homed
 
    halui.joint.x.on-soft-min-limit     bit
@@ -179,6 +181,7 @@ DONE: - program:
    halui.program.stop                  bit
 
 DONE: - general:
+   halui.home-all                      bit // pin to send a sequenced home all joints message
    halui.abort                         bit // pin to send an abort message (clears out most errors, stops running programs, etc)
 
 DONE: - max-velocity-override
@@ -281,6 +284,7 @@ struct halui_str {
     hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
 
     hal_bit_t *joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
+    hal_bit_t *joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
     hal_bit_t *joint_is_homed[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is homed
     hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software min limit
     hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software max limit
@@ -323,6 +327,7 @@ struct halui_str {
     hal_bit_t  *so_increase;	// pin for increasing the SO (+=scale)
     hal_bit_t  *so_decrease;	// pin for decreasing the SO (-=scale)
 
+    hal_bit_t *home_all;        //pin for homing all joints in sequence
     hal_bit_t *abort;            //pin for aborting
     hal_bit_t *mdi_commands[MDI_MAX];
 } * halui_data; 
@@ -368,6 +373,7 @@ struct local_halui_str {
     hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
 
     hal_bit_t joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
+    hal_bit_t joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
     hal_u32_t joint_selected;
     hal_bit_t joint_nr_select[EMCMOT_MAX_JOINTS];
     hal_bit_t joint_is_selected[EMCMOT_MAX_JOINTS];
@@ -391,12 +397,14 @@ struct local_halui_str {
     hal_bit_t  so_increase;	// pin for increasing the SO (+=scale)
     hal_bit_t  so_decrease;	// pin for decreasing the SO (-=scale)
 
+    hal_bit_t home_all;         //pin for homing all joints in sequence
     hal_bit_t abort;            //pin for aborting
     hal_bit_t mdi_commands[MDI_MAX];
 } old_halui_data; //pointer to the HAL-struct
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
+static int have_home_all = 0;
 
 static int comp_id, done;				/* component ID, main while loop */
 
@@ -950,11 +958,18 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->so_decrease), "halui.spindle-override.decrease");
     if (retval < 0) return retval;
 
+    if (have_home_all) {
+        retval = halui_export_pin_IN_bit(&(halui_data->home_all), "halui.home-all");
+        if (retval < 0) return retval;
+    }
+
     retval = halui_export_pin_IN_bit(&(halui_data->abort), "halui.abort"); 
     if (retval < 0) return retval;
 
     for (joint=0; joint < num_axes ; joint++) {
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
+	if (retval < 0) return retval;
+	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[joint]), comp_id, "halui.joint.%d.unhome", joint);
 	if (retval < 0) return retval;
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
 	if (retval < 0) return retval;
@@ -967,6 +982,8 @@ int halui_hal_init(void)
     }
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_axes]), comp_id, "halui.joint.selected.home"); 
+    if (retval < 0) return retval;
+    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[num_axes]), comp_id, "halui.joint.selected.unhome");
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_plus[num_axes]), comp_id, "halui.jog.selected.plus"); 
     if (retval < 0) return retval;
@@ -1317,6 +1334,16 @@ static int sendHome(int axis)
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
+static int sendUnhome(int axis)
+{
+    EMC_AXIS_UNHOME emc_axis_unhome_msg;
+
+    emc_axis_unhome_msg.serial_number = ++emcCommandSerialNumber;
+    emc_axis_unhome_msg.axis = axis;
+    emcCommandBuffer->write(emc_axis_unhome_msg);
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
 static int sendAbort()
 {
     EMC_TASK_ABORT task_abort_msg;
@@ -1517,6 +1544,10 @@ static int iniLoad(const char *filename)
 	}
     }
 
+    if (NULL != inifile.Find("HOME_SEQUENCE", "AXIS_0")) {
+        have_home_all = 1;
+    }
+
     if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
 	if (!strcmp(inistring, "AUTO")) {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -1565,6 +1596,7 @@ static void hal_init_pins()
     
     for (joint=0; joint < num_axes; joint++) {
 	*(halui_data->joint_home[joint]) = old_halui_data.joint_home[joint] = 0;
+	*(halui_data->joint_unhome[joint]) = old_halui_data.joint_unhome[joint] = 0;
 	*(halui_data->joint_nr_select[joint]) = old_halui_data.joint_nr_select[joint] = 0;
 	*(halui_data->jog_minus[joint]) = old_halui_data.jog_minus[joint] = 0;
 	*(halui_data->jog_plus[joint]) = old_halui_data.jog_plus[joint] = 0;
@@ -1759,12 +1791,18 @@ static void check_hal_changes()
     if (check_bit_changed(halui_data->abort, &(old_halui_data.abort)) != 0)
 	sendAbort();
     
+    if (check_bit_changed(halui_data->home_all, &(old_halui_data.home_all)) != 0)
+	sendHome(-1);
+
 // joint stuff (selection, homing..)
     select_changed = -1; // flag to see if the selected joint changed
     
     for (joint=0; joint < num_axes; joint++) {
 	if (check_bit_changed(halui_data->joint_home[joint], &(old_halui_data.joint_home[joint])) != 0)
 	    sendHome(joint);
+
+	if (check_bit_changed(halui_data->joint_unhome[joint], &(old_halui_data.joint_unhome[joint])) != 0)
+	    sendUnhome(joint);
 
 	bit = *(halui_data->jog_minus[joint]);
 	if (bit != old_halui_data.jog_minus[joint]) {
@@ -1816,6 +1854,9 @@ static void check_hal_changes()
 
     if (check_bit_changed(halui_data->joint_home[num_axes], &(old_halui_data.joint_home[num_axes])) != 0)
 	sendHome(*(halui_data->joint_selected));
+
+    if (check_bit_changed(halui_data->joint_unhome[num_axes], &(old_halui_data.joint_unhome[num_axes])) != 0)
+	sendUnhome(*(halui_data->joint_selected));
 
     bit = *(halui_data->jog_minus[num_axes]);
     js = *(halui_data->joint_selected);
