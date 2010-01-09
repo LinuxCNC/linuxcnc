@@ -42,7 +42,6 @@ char _parameter_file_name[LINELEN];
 #undef offsetof
 #define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
 
-#define iserror(x) ((x) < 0 || (x) >= RS274NGC_MIN_ERROR)
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
