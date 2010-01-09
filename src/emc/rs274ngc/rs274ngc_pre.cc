@@ -812,6 +812,11 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     read_text(command, _setup.file_pointer, _setup.linetext,
               _setup.blocktext, &_setup.line_length);
 
+  if (read_status == INTERP_ERROR && _setup.skipping_to_sub) {
+    free(_setup.skipping_to_sub);
+    _setup.skipping_to_sub = 0;
+  }
+
   if(command)logDebug("%s:[cmd]:|%s|", name, command);
   else logDebug("%s:|%s|", name, _setup.linetext);
 
