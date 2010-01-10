@@ -225,11 +225,12 @@ A comment line is started with a ; or a # mark.
  
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 ; This is my little mill configuration file.
-\newline
-; I set it up on January 12,
- 2006
+\end_layout
+
+\begin_layout LyX-Code
+; I set it up on January 12, 2006
 \end_layout
 
 \begin_layout Standard
@@ -237,74 +238,35 @@ Comments can also be used to select between several values of a single variable.
  
 \end_layout
 
-\begin_layout Quote
-# DISPLAY = tkemc
-\begin_inset LatexCommand index
-name "tkemc"
-
-\end_inset
-
-
-\newline
+\begin_layout LyX-Code
 DISPLAY = axis
-\begin_inset LatexCommand index
-name "AXIS"
+\end_layout
 
-\end_inset
-
-
-\newline
-# DISPLAY = mini
-\begin_inset LatexCommand index
-name "mini"
-
-\end_inset
-
-
-\newline
-# DISPLAY = keystick
-\begin_inset LatexCommand index
-name "keystick"
-
-\end_inset
-
-
+\begin_layout LyX-Code
+# DISPLAY = touchy
 \end_layout
 
 \begin_layout Standard
-In this list, the DISPLAY
-\begin_inset LatexCommand index
-name "DISPLAY"
-
-\end_inset
-
- variable will be set to axis because all of the others are commented out.
+In this list, the DISPLAY variable will be set to axis because the other
+ one is commented out.
  If someone carelessly edits a list like this and leaves two of the lines
  uncommented, the first one encountered will be used.
 \end_layout
 
 \begin_layout Standard
-Note that inside a variable, the 
-\begin_inset Quotes eld
-\end_inset
-
-#
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
-;
-\begin_inset Quotes erd
-\end_inset
-
- characters do not denote comments:
+Note that inside a variable, the "#" and ";" characters do not denote comments:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 INCORRECT = value     # and a comment
+\end_layout
+
+\begin_layout LyX-Code
+# Correct Comment
+\end_layout
+
+\begin_layout LyX-Code
+CORRECT = value
 \end_layout
 
 \begin_layout Subsection
@@ -580,6 +542,11 @@ name "DISPLAY (inifile section)"
 \begin_layout Standard
 Different user interface programs use different options, and not every option
  is supported by every user interface.
+ The main two interfaces for EMC are AXIS and Touchy.
+ Axis is an interface for use with normal computer and monitor, Touchy is
+ for use with touch screens.
+ Descriptions of the interfaces are in the Interfaces section of the User
+ Manual.
 \end_layout
 
 \begin_layout Standard
@@ -588,7 +555,7 @@ Different user interface programs use different options, and not every option
 \color black
 DISPLAY\InsetSpace ~
 =\InsetSpace ~
-tkemc
+axis
 \series default
 \color none
  
@@ -599,28 +566,68 @@ The name of the user interface to use.
 
 \begin_layout Itemize
 axis
+\begin_inset LatexCommand index
+name "axis"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+touchy
+\begin_inset LatexCommand index
+name "touchy"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
 
 \color black
 keystick
+\begin_inset LatexCommand index
+name "keystick"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
 mini
+\begin_inset LatexCommand index
+name "mini"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
 
 \color black
 tkemc
+\begin_inset LatexCommand index
+name "tkemc"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
 
 \color black
 xemc
+\begin_inset LatexCommand index
+name "xemc"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Description
@@ -699,7 +706,7 @@ DEFAULT_LINEAR_VELOCITY\InsetSpace ~
 \begin_layout Description
 MIN_VELOCITY\InsetSpace ~
 =\InsetSpace ~
-.01 The aproximate lowest value the jog slider.
+.01 The approximate lowest value the jog slider.
  
 \end_layout
 
@@ -714,7 +721,7 @@ MAX_LINEAR_VELOCITY\InsetSpace ~
 \begin_layout Description
 MIN_LINEAR_VELOCITY\InsetSpace ~
 =\InsetSpace ~
-.01 The aproximate lowest value the jog slider.
+.01 The approximate lowest value the jog slider.
 \end_layout
 
 \begin_layout Description
@@ -728,7 +735,7 @@ DEFAULT_ANGULAR_VELOCITY\InsetSpace ~
 \begin_layout Description
 MIN_ANGULAR_VELOCITY\InsetSpace ~
 =\InsetSpace ~
-.01 The aproximate lowest value the jog slider.
+.01 The approximate lowest value the jog slider.
 \end_layout
 
 \begin_layout Description
@@ -761,7 +768,7 @@ OPEN_FILE\InsetSpace ~
 =\InsetSpace ~
 /full/path/to/file.ngc The file to show in the preview plot when
  AXIS starts.
- Use a blank string "" and no file will be loaded at startup.
+ Use a blank string "" and no file will be loaded at start up.
 \end_layout
 
 \begin_layout Description
@@ -858,7 +865,7 @@ If your post processor outputs files in all caps you might want to add the
  following line:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 PROGRAM_EXTENSION = .NGC XYZ Post Processor
 \end_layout
 
@@ -867,7 +874,7 @@ The following lines add support for the image-to-gcode converter included
  with EMC2:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
 \newline
 png = image-to-gcode
@@ -880,7 +887,7 @@ gif
 It is also possible to specify an interpreter:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 PROGRAM_EXTENSION = .py Python Script
 \newline
 py = python
@@ -906,7 +913,7 @@ If the environment variable AXIS_PROGRESS_BAR is set, then lines written
  to stderr of the form
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 FILTER_PROGRESS=%d
 \end_layout
 
@@ -1002,18 +1009,10 @@ name "BASE PERIOD"
 (hal)
 \series default
 \noun default
- 
-\begin_inset Quotes eld
-\end_inset
-
-Base
-\begin_inset Quotes erd
-\end_inset
-
- task period, in nanoseconds - this is the fastest thread in the machine.
+ "Base" task period, in nanoseconds - this is the fastest thread in the
+ machine.
 \newline
-On
- servo-based systems, there is generally no reason for 
+On servo-based systems, there is generally no reason for 
 \series bold
 BASE_PERIOD
 \series default
@@ -1045,15 +1044,8 @@ BASE_PERIOD
  step length, and the processor speed.
 \newline
 Choosing a BASE_PERIOD that is too
- low can lead to the 
-\begin_inset Quotes eld
-\end_inset
-
-Unexpected real time delay
-\begin_inset Quotes erd
-\end_inset
-
- message, lockups, or spontaneous reboots.
+ low can lead to the "Unexpected real time delay" message, lockups, or spontaneo
+us reboots.
 \end_layout
 
 \begin_layout Description
@@ -1071,15 +1063,7 @@ name "SERVO PERIOD"
 (hal)
 \series default
 \noun default
- 
-\begin_inset Quotes eld
-\end_inset
-
-Servo
-\begin_inset Quotes erd
-\end_inset
-
- task period is also in nanoseconds.
+ "Servo" task period is also in nanoseconds.
  This value will be rounded to an integer multiple of 
 \series bold
 BASE_PERIOD
@@ -1112,12 +1096,8 @@ name "TRAJ PERIOD"
 (hal)
 \series default
 \noun default
- 
-\series bold
-Traj
-\series default
-ectory Planner task period in nanoseconds This value will be rounded to
- an integer multiple of 
+ Trajectory Planner task period in nanoseconds This value will be rounded
+ to an integer multiple of 
 \series bold
 SERVO_PERIOD
 \series default
@@ -1319,16 +1299,8 @@ COORDINATES
 \color black
 are accepted in g-code.
  This has no effect on the mapping from G-code axis names (X- Y- Z-) to
- joint numbers--for 
-\begin_inset Quotes eld
-\end_inset
-
-trivial kinematics
-\begin_inset Quotes erd
-\end_inset
-
-, X is always joint 0, A is always joint 4, and U is always joint 7, and
- so on.
+ joint numbers--for "trivial kinematics", X is always joint 0, A is always
+ joint 4, and U is always joint 7, and so on.
  It is permitted to write an axis name twice (e.g., X Y Y Z for a gantry machine)
  but this has no effect.
 \end_layout
@@ -1344,15 +1316,8 @@ AXES\InsetSpace ~
  One more than the number of the highest joint number in the system.
  For an XYZ machine, the joints are numbered 0, 1 and 2; in this case AXES
  should be 3.
- For an XYUV machine using 
-\begin_inset Quotes eld
-\end_inset
-
-trivial kinematics
-\begin_inset Quotes erd
-\end_inset
-
-, the V joint is numbered 7 and therefore AXES should be 8.
+ For an XYUV machine using "trivial kinematics", the V joint is numbered
+ 7 and therefore AXES should be 8.
  For a machine with nontrivial kinematics (e.g., scarakins) this will generally
  be the number of controlled joints.
 \end_layout
@@ -1469,14 +1434,7 @@ DEFAULT_ACCELERATION\InsetSpace ~
 \color none
  
 \color black
-In machines with nontrivial kinematics, the acceleration used for 
-\begin_inset Quotes eld
-\end_inset
-
-teleop
-\begin_inset Quotes erd
-\end_inset
-
+In machines with nontrivial kinematics, the acceleration used for "teleop"
  (Cartesian space) jogs, in machine units per second per second.
  
 \end_layout
@@ -1668,8 +1626,8 @@ file.extension A file holding a compensation structure for the
  specific axis.
  The values inside are triplets of nominal, forward and reverse positions
  which correspond to the nominal position (where it should be), forward
- (where the axis is while travelling forward) and reverse (where the axis
- is while travelling back).
+ (where the axis is while traveling forward) and reverse (where the axis
+ is while traveling back).
  One set of triplets per line.
  Currently the limit inside EMC2 is for 256 triplets / axis.
  If COMP_FILE is specified, BACKLASH is ignored.
