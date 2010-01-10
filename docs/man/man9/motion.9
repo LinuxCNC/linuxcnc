@@ -11,10 +11,13 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [key=\fISHMEM_KEY\fB] [num_joints=\fI[0-9]\fB]
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
 
 .SH DESCRIPTION
-These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for EMC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives.
+These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for EMC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
+
+.P
+Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
 
 .P
 Pin names starting with "\fBaxis\fR" are actually joint values, but the pins and parameters are still called "\fBaxis.\fIN\fR". They are read and updated by the motion-controller function.
@@ -101,6 +104,18 @@ When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied 
 These pins are used by M66 Enn wait-for-input mode.
 
 .TP
+\fBmotion.analog-out-\fINN\fR OUT float 
+These pins are used by M67-68.
+
+.TP
+\fBmotion.coord-error\fR OUT bit 
+TRUE when motion has encountered an error, such as exceeding a soft limit
+
+.TP
+\fBmotion.coord-mode\fR OUT bit 
+TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
+
+.TP
 \fBmotion.current-vel\fR
 Current cartesian velocity
 
@@ -129,8 +144,28 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 TRUE if the machine is in position.
 
 .TP
+\fBmotion.motion-enabled\fR IN bit 
+TRUE when motion is enabled
+
+.TP
+\fBmotion.on-soft-limit\fR OUT bit 
+
+.TP
 \fBmotion.probe-input\fR IN bit 
 G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
+
+.TP
+\fBmotion.program-line\fR OUT S32 
+
+.TP
+\fBmotion.requested-vel\fR OUT float 
+The requested velocity with no adjustments for feed override
+
+.TP
+\fBmotion.spindle-at-speed\fR IN bit 
+Motion will pause until this pin is TRUE, under the following conditions: before the
+first feed move after each spindle start or speed change; before the start of every
+chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
 
 .TP
 \fBmotion.spindle-brake\fR OUT bit 
@@ -141,7 +176,7 @@ TRUE when the spindle brake should be applied
 TRUE when the spindle should rotate forward
 
 .TP
-\fBmotion.spindle-index-enable I/O bit 
+\fBmotion.spindle-index-enable\fR I/O bit 
 For correct operation of spindle synchronized moves, this signal must be hooked to the index-enable pin of the spindle encoder.
 
 .TP
@@ -169,10 +204,17 @@ Desired spindle speed in rotations per minute
 Desired spindle speed in rotations per second
 
 .TP
-\fBmotion.spindle-at-speed\fR IN bit 
-Motion will pause until this pin is TRUE, under the following conditions: before the
-first feed move after each spindle start or speed change; before the start of every
-chain of spindle-synchronized moves; and if in CSS mode, at every rapid->feed transition.
+\fBmotion.teleop-mode\fR OUT bit
+
+.TP
+\fBmotion.tooloffset.w\fR OUT float
+
+.TP
+\fBmotion.tooloffset.x\fR OUT float
+
+.TP
+\fBmotion.tooloffset.z\fR OUT float
+
 
 .SH DEBUGGING PINS
 
@@ -197,7 +239,6 @@ Backlash or screw compensation velocity
 .TP
 \fBaxis.\fIN\fB.coarse-pos-cmd\fR
 
-
 .TP
 \fBaxis.\fIN\fB.error\fR 
 TRUE when this joint has encountered an error, such as a limit switch closing
@@ -216,7 +257,6 @@ TRUE when this joint has exceeded the following error limit
 
 .TP
 \fBaxis.\fIN\fB.faulted\fR
-
 
 .TP
 \fBaxis.\fIN\fB.free-pos-cmd\fR 
@@ -262,24 +302,14 @@ The positive hard limit for the joint
 \fBaxis.\fIN\fB.wheel-jog-active\fR
 
 .TP
-\fBmotion.coord-error\fR 
-TRUE when motion has encountered an error, such as exceeding a soft limit
-
-.TP
-\fBmotion.coord-mode\fR 
-TRUE when motion is in "coordinated mode", as opposed to "teleop mode"
-
-.TP
 \fBmotion.in-position\fR 
 Same as the pin motion.motion-inpos
 
 .TP
 \fBmotion.motion-enabled\fR 
-TRUE when motion is enabled
 
 .TP
 \fBmotion.on-soft-limit\fR
-
 
 .TP
 \fBmotion.program-line\fR
@@ -294,23 +324,18 @@ TRUE when motion is in "teleop mode", as opposed to "coordinated mode"
 
 Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
-
 .TP
 \fBmotion-command-handler.time\fR
-
 
 .TQ
 \fBmotion-command-handler.tmax\fR
 
-
 .TQ
 \fBmotion-controller.time\fR
-
 
 .TQ
 \fBmotion-controller.tmax\fR
 Show information about the execution time of these HAL functions in CPU cycles
-
 
 .TP
 \fBmotion.debug-\fI*\fR 
