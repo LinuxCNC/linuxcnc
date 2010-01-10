@@ -50,6 +50,7 @@ Touchy is a GUI for touch screens.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -172,9 +173,16 @@ Configuration
 \end_layout
 
 \begin_layout Standard
-Touchy requires you to write a file named "touchy.hal" to make these connections.
+Touchy requires you to create a file named "touchy.hal" in the same folder
+ as your ini file to make these connections.
  Touchy executes the hal commands in this file after it has made its pins
  available for connection.
+ 
+\end_layout
+
+\begin_layout Standard
+To use Touchy in the [DISPLAY] section of your ini file change the DISPLAY
+ = touchy
 \end_layout
 
 \begin_layout Standard
