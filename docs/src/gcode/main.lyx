@@ -8881,9 +8881,11 @@ To control a digital output bit, program
 M- P-
 \family default
 , where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
- a default value of 3 in EMC2.
- If needed the value can be increased by using the num_dio parameter when
- loading the motion controller.
+ a default value of 3.
+ If needed the the number of I/O can be increased by using the num_dio parameter
+ when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.
 \end_layout
 
 \begin_layout Itemize
@@ -8949,9 +8951,11 @@ To read the value of an analog or digital input pin, program
 \family typewriter
 M66 P- E- L- Q-
 \family default
- , where the P-word and the E-word ranges from 0 to an implementation-defined
- maximum.
- Only one of the P or E words must be present.
+ , where the P-word and the E-word ranges from 0 to 3.
+ If needed the the number of I/O can be increased by using the num_dio or
+ num_aio parameter when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.Only one of the P or E words must be present.
  It is an error if they are both missing.
 \end_layout
 
@@ -9017,6 +9021,62 @@ M66 wait on an input stops further execution of the program, until the selected
 It is an error to program M66 with both a P-word and an E-word (thus selecting
  both an analog and a digital input).In EMC2 these inputs are not monitored
  in realtime and thus should not be used for timing-critical applications.
+\end_layout
+
+\begin_layout Section
+M67 Analog Motion Output Control
+\begin_inset LatexCommand index
+name "M67 Analog Motion Output Control"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:M67-Analog-Motion"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To control an analog output bit synched with motion, program 
+\family typewriter
+M67 P-
+\family default
+ 0 to a default value of 3.
+ If needed the number of I/O can be increased by using the num_dia parameter
+ when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.
+\end_layout
+
+\begin_layout Section
+M68 Analog Aux Output Control
+\begin_inset LatexCommand index
+name "M68 Analog Aux Output Control"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:M68-Analog-Aux"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To control an analog output bit, program 
+\family typewriter
+M8 P-
+\family default
+from 0 to a default value of 32.
+ If needed the the number of I/O can be increased by using the num_dia parameter
+ when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.
 \end_layout
 
 \begin_layout Section
