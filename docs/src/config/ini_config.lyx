@@ -1897,6 +1897,15 @@ HOME_SEQUENCE\InsetSpace ~
  More than one axis can be homed at the same time.
 \end_layout
 
+\begin_layout Description
+VOLATILE_HOME\InsetSpace ~
+=\InsetSpace ~
+0 When enabled (set to 1) this joint will be unhomed if the
+ Machine Power is off or if E-Stop is on.
+ This is useful if your machine has home switches and does not have position
+ feedback such as a step and direction driven machine.
+\end_layout
+
 \begin_layout Subsubsection
 Servo
 \begin_inset LatexCommand label
