@@ -6554,7 +6554,8 @@ reference "sub:Path-Control-Mode"
 \end_inset
 
  for a discussion of these modes.
- 
+ If Q is not specified then it will have the same behavior as before and
+ use the value of P-.
 \end_layout
 
 \begin_layout Section
