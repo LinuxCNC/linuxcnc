@@ -4520,99 +4520,97 @@ class App:
             return False
         return True
 
-    def m5i20test(self,w):
-        board = self.data.mesa0_currentfirmwaredata[0]
-        firmware = self.data.mesa0_currentfirmwaredata[1]   
-        if board in( "5i22", "7i43"):
-            self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
-
+    def m5i20test(self,w): 
+        for i in range(0,int(self.data.number_mesa)): 
+            if self.data["mesa%d_currentfirmwaredata"% (i)][0] in( "5i22", "7i43"):
+                self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but\
+                     maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
         #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )   
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
-        halrun.write("loadrt hostmot2\n")
-        halrun.write("""loadrt hm2_pci config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n"""
-         % (board, firmware, self.data.mesa0_numof_encodergens,
-            self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
+        self.hal_cmnds("LOAD")
         halrun.write("loadrt or2 count=72\n")
-        halrun.write("addf hm2_%s.0.read slow\n"% board)
+        self.hal_cmnds("READ")
         for i in range(0,72):
             halrun.write("addf or2.%d slow\n"% i)
-        halrun.write("addf hm2_%s.0.write slow\n"% board)
-        halrun.write("addf hm2_%s.0.pet_watchdog fast\n"% board)
+        self.hal_cmnds("WRITE")
         halrun.write("start\n")
-        halrun.write("loadusr -Wn m5i20test pyvcp -g +700+0 -c m5i20test %(panel)s\n" %{'panel':"m5i20panel.xml",})
+        halrun.write("loadusr -Wn mesa0test pyvcp -g +700+0 -c mesa0test %(panel)s\n" %{'panel':"m5i20panel.xml",})
+        halrun.write("loadusr -Wn mesa1test pyvcp -g +700+200 -c mesa1test %(panel)s\n" %{'panel':"m5i20panel.xml",})
         halrun.write("loadusr halmeter -g 0 500\n")
         halrun.write("loadusr halmeter -g 0 620\n")
-        
-        for concount,connector in enumerate(self.data.mesa0_currentfirmwaredata[12]) :
-            for pin in range (0,24):
-                firmptype,compnum = self.data.mesa0_currentfirmwaredata[13+pin+(concount*24)]
-                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
-                pintype = self.widgets[ptype].get_active_text()
-                pininv = self.widgets[pinv].get_active()
-                truepinnum = (concount*24) + pin
-                # for output / open drain pins
-                if  pintype in (GPIOO,GPIOD):                
-                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.button.%d.disable false\n"% truepinnum )
-                    halrun.write("setp hm2_%s.0.gpio.%03d.is_output true\n"% (board,truepinnum ))
-                    if pininv:  halrun.write("setp hm2_%s.0.gpio.%03d.invert_output true\n"% (board,truepinnum ))
-                    halrun.write("net signal_out%d or2.%d.out hm2_%s.0.gpio.%03d.out\n"% (truepinnum,truepinnum,board,truepinnum))
-                    halrun.write("net pushbutton.%d or2.%d.in1 m5i20test.button.%d\n"% (truepinnum,truepinnum,truepinnum))
-                    halrun.write("net latchbutton.%d or2.%d.in0 m5i20test.checkbutton.%d\n"% (truepinnum,truepinnum,truepinnum))
-                # for input pins
-                elif pintype == GPIOI:                                    
-                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.led.%d.disable false\n"% truepinnum )
-                    if pininv:  halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in_not m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
-                    else:   halrun.write("net blue_in%d hm2_%s.0.gpio.%03d.in m5i20test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
-                # for encoder pins
-                elif pintype in (ENCA,ENCB,ENCI,ENCM):
-                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )                   
-                    if not pintype == ENCA: continue                 
-                    if pin == 3 :encpinnum = (connector-2)*4 
-                    elif pin == 1 :encpinnum = 1+((connector-2)*4) 
-                    elif pin == 15 :encpinnum = 2+((connector-2)*4) 
-                    elif pin == 13 :encpinnum = 3+((connector-2)*4) 
-                    halrun.write("setp m5i20test.enc.%d.reset.disable false\n"% encpinnum )
-                    halrun.write("net yellow_reset%d hm2_%s.0.encoder.%02d.reset m5i20test.enc.%d.reset\n"% (encpinnum,board,encpinnum,encpinnum))
-                    halrun.write("net yellow_count%d hm2_%s.0.encoder.%02d.count m5i20test.number.%d\n"% (encpinnum,board,encpinnum,encpinnum))
-                # for PWM pins
-                elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
-                    if not pintype in (PWMP,PDMP): continue    
-                    if pin == 7 :encpinnum = (connector-2)*4 
-                    elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
-                    elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
-                    elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
-                    halrun.write("net green_enable%d hm2_%s.0.pwmgen.%02d.enable m5i20test.dac.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum)) 
-                    halrun.write("net green_value%d hm2_%s.0.pwmgen.%02d.value m5i20test.dac.%d-f\n"% (encpinnum,board,encpinnum,encpinnum)) 
-                    halrun.write("setp hm2_%s.0.pwmgen.%02d.scale 10\n"% (board,encpinnum)) 
-                # for Stepgen pins
-                elif pintype in (STEPA,STEPB):
-                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum ) 
-                    if not pintype == STEPA : continue 
-                    
-                    halrun.write("net brown_enable%d hm2_%s.0.stepgen.%02d.enable m5i20test.step.%d.enbl\n"% (compnum,board,compnum,compnum))
-                    halrun.write("net brown_value%d hm2_%s.0.stepgen.%02d.position-cmd m5i20test.anaout.%d\n"% (compnum,board,compnum,compnum))
-                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
-                    halrun.write("setp hm2_%s.0.stepgen.%02d.maxvel 0 \n"% (board,compnum))
-                else: 
-                    print "pintype error IN mesa test panel method %s"% pintype
-        if not board == "5i22":
+        for boardnum in range(0,int(self.data.number_mesa)):
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                for pin in range (0,24):
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
+                    ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
+                    pintype = self.widgets[ptype].get_active_text()
+                    pininv = self.widgets[pinv].get_active()
+                    truepinnum = (concount*24) + pin
+                    # for output / open drain pins
+                    if  pintype in (GPIOO,GPIOD):                
+                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
+                        halrun.write("setp mesa0test.button.%d.disable false\n"% truepinnum )
+                        halrun.write("setp hm2_%s.gpio.%03d.is_output true\n"% (board,truepinnum ))
+                        if pininv:  halrun.write("setp hm2_%s.gpio.%03d.invert_output true\n"% (board,truepinnum ))
+                        halrun.write("net signal_out%d or2.%d.out hm2_%s.gpio.%03d.out\n"% (truepinnum,truepinnum,board,truepinnum))
+                        halrun.write("net pushbutton.%d or2.%d.in1 mesa0test.button.%d\n"% (truepinnum,truepinnum,truepinnum))
+                        halrun.write("net latchbutton.%d or2.%d.in0 mesa0test.checkbutton.%d\n"% (truepinnum,truepinnum,truepinnum))
+                    # for input pins
+                    elif pintype == GPIOI:                                    
+                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
+                        halrun.write("setp mesa0test.led.%d.disable false\n"% truepinnum )
+                        if pininv: halrun.write("net blue_in%d hm2_%s.gpio.%03d.in_not mesa0test.led.%d\n"%(truepinnum,board,truepinnum,truepinnum))
+                        else:   halrun.write("net blue_in%d hm2_%s.gpio.%03d.in mesa0test.led.%d\n"% (truepinnum,board,truepinnum,truepinnum))
+                    # for encoder pins
+                    elif pintype in (ENCA,ENCB,ENCI,ENCM):
+                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
+                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )                   
+                        if not pintype == ENCA: continue                 
+                        if pin == 3 :encpinnum = (connector-2)*4 
+                        elif pin == 1 :encpinnum = 1+((connector-2)*4) 
+                        elif pin == 15 :encpinnum = 2+((connector-2)*4) 
+                        elif pin == 13 :encpinnum = 3+((connector-2)*4) 
+                        halrun.write("setp mesa0test.enc.%d.reset.disable false\n"% encpinnum )
+                        halrun.write("net yellow_reset%d hm2_%s.encoder.%02d.reset mesa0test.enc.%d.reset\
+                        \n"% (encpinnum,board,encpinnum,encpinnum))
+                        halrun.write("net yellow_count%d hm2_%s.encoder.%02d.count mesa0test.number.%d\n"% (encpinnum,board,encpinnum,encpinnum))
+                    # for PWM pins
+                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
+                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
+                        if not pintype in (PWMP,PDMP): continue    
+                        if pin == 7 :encpinnum = (connector-2)*4 
+                        elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
+                        elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
+                        elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
+                        halrun.write("net green_enable%d hm2_%s.pwmgen.%02d.enable mesa0test.dac.%d.enbl\n"% (encpinnum,board,encpinnum,encpinnum)) 
+                        halrun.write("net green_value%d hm2_%s.pwmgen.%02d.value mesa0test.dac.%d-f\n"% (encpinnum,board,encpinnum,encpinnum)) 
+                        halrun.write("setp hm2_%s.pwmgen.%02d.scale 10\n"% (board,encpinnum)) 
+                    # for Stepgen pins
+                    elif pintype in (STEPA,STEPB):
+                        halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
+                        halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum ) 
+                        if not pintype == STEPA : continue 
+                        
+                        halrun.write("net brown_enable%d hm2_%s.stepgen.%02d.enable mesa0test.step.%d.enbl\n"% (compnum,board,compnum,compnum))
+                        halrun.write("net brown_value%d hm2_%s.stepgen.%02d.position-cmd mesa0test.anaout.%d\n"% (compnum,board,compnum,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                    else: 
+                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
+            if not board == "5i22":
                 for pin in range (0,24):
                     truepinnum = (72) + pin
-                    halrun.write("setp m5i20test.led.%d.disable true\n"% truepinnum )
-                    halrun.write("setp m5i20test.button.%d.disable true\n"% truepinnum )
+                    halrun.write("setp mesa0test.led.%d.disable true\n"% truepinnum )
+                    halrun.write("setp mesa0test.button.%d.disable true\n"% truepinnum )
                 for pin in range (8,12):
-                    halrun.write("setp m5i20test.enc.%d.reset.disable true\n"% pin )
-        halrun.write("waitusr m5i20test\n"); halrun.flush()
+                    halrun.write("setp mesa0test.enc.%d.reset.disable true\n"% pin )
+        halrun.write("waitusr mesa0test\n"); halrun.flush()
         halrun.close()
         self.widgets['window1'].set_sensitive(1)
 
@@ -4783,10 +4781,6 @@ class App:
         self.updaterunning = False
         axnum = "xyza".index(axis)
         self.axis_under_tune = axis
-        self.boardname = self.data.mesa0_currentfirmwaredata[0]
-        self.boardname1 = self.data.mesa1_currentfirmwaredata[0]
-        firmware = self.data.mesa0_currentfirmwaredata[1]
-        firmware1 = self.data.mesa1_currentfirmwaredata[1]
         self.stepgen = self.data.stepgen_sig(axis)
         print axis," stepgen--",self.stepgen
         self.encoder = self.data.encoder_sig(axis)
@@ -4867,80 +4861,51 @@ class App:
         if self.stepgen == "false": 
             halrun.write("addf pid.0.do-pid-calcs slow \n")
         self.hal_cmnds("WRITE")
-        
-        for concount,connector in enumerate(self.data.mesa0_currentfirmwaredata[12]) :
-            for pin in range (0,24):
-                firmptype,compnum = self.data.mesa0_currentfirmwaredata[13+pin+(concount*24)]
-                pinv = 'mesa0c%(con)dpin%(num)dinv' % {'con':connector ,'num': pin}
-                ptype = 'mesa0c%(con)dpin%(num)dtype' % {'con':connector ,'num': pin}
-                pintype = self.widgets[ptype].get_active_text()
-                pininv = self.widgets[pinv].get_active()
-                truepinnum = (concount*24) + pin
-                if pintype in (GPIOI,GPIOO,GPIOD): continue 
-                # for encoder pins
-                if pintype in (ENCA,ENCB,ENCI,ENCM):                                    
-                    if not pintype == ENCA: continue   
-                    if "mesa" in self.encoder: 
-                        print self.encoder,"--",self.encoder[10:],self.encoder[6:7]
-                        if pin == int(self.encoder[10:]) and connector == int(self.encoder[6:7]) : 
-                            print "encoder pin # = %d connector # %d" % (pin,compnum) 
-                            self.enc_signalname = self.data.make_pinname(self.encoder)                 
-                            halrun.write("setp %s.counter-mode 0\n"% (self.enc_signalname))
-                            halrun.write("setp %s.filter 1\n"% (self.enc_signalname))
-                            halrun.write("setp %s.index-invert 0\n"% (self.enc_signalname))
-                            halrun.write("setp %s.index-mask 0\n"% (self.enc_signalname))
-                            halrun.write("setp %s.index-mask-invert 0\n"% (self.enc_signalname)) 
-                            halrun.write("setp %s.scale %d\n"% (self.enc_signalname, get_value(w[axis + "scale"])))                         
-                            halrun.write("loadusr halmeter -s pin %s.velocity -g 0 625 330\n"% (self.enc_signalname))
-                            halrun.write("loadusr halmeter -s pin %s.position -g 0 675 330\n"% (self.enc_signalname))
-                            halrun.write("loadusr halmeter pin %s.velocity -g 275 415\n"% (self.enc_signalname))
-                # for PWM pins
-                elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                    if not pintype in (PWMP,PDMP): continue 
-                    if "mesa" in self.pwmgen:  
-                        if pin == int(self.pwmgen[10:]) and connector == int(self.pwmgen[6:7]) :                    
-                            self.pwm_signalname = self.data.make_pinname(self.pwmgen)  
-                            print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
-                            halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
-                            halrun.write("setp %s.output-type 1\n"% (self.pwm_signalname))
-                            
-                            halrun.write("loadusr halmeter pin %s.enable -g 0 415\n"% (self.pwm_signalname))
-                            halrun.write("loadusr halmeter -s pin %s.enable -g 0 525 330\n"% (self.pwm_signalname))
-                            halrun.write("loadusr halmeter -s pin %s.value -g 0 575 330\n"% (self.pwm_signalname)) 
-                # for self.stepgen pins
-                elif pintype in (STEPA,STEPB):
-                    if not pintype == STEPA : 
-                        continue    
-                    if "mesa" in self.stepgen:                        
-                        # check current component number to signal's component number  
-                        if pin == int(self.stepgen[10:]):
-                            self.step_signalname = self.data.make_pinname(self.stepgen) 
-                            print "step_signal--",self.step_signalname   
-                            self.currentstepgen = compnum
-                            #self.invert = concount*24+1+int(self.stepgen[10:])
-                            if w[axis+"invertmotor"].get_active():
-                                self.scale = get_value(w[axis + "scale"]) * -1
-                            else:
-                                self.scale = get_value(w[axis + "scale"]) * 1
-                            #halrun.write("setp %s.gpio.%03d.invert_output %d \n"% (self.step_signalname,self.invert,guiinvert))
-                            halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
-                            halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
-                            halrun.write("net enable %s.enable \n"% (self.step_signalname))
-                            halrun.write("net cmd steptest.0.position-cmd => %s.position-cmd \n"% (self.step_signalname))
-                            halrun.write("net feedback steptest.0.position-fb <= %s.position-fb \n"% (self.step_signalname))
-                            halrun.write("setp %s.steplen %d \n"% (self.step_signalname,w[axis+"steptime"].get_value()))
-                            halrun.write("setp %s.stepspace %d \n"% (self.step_signalname,w[axis+"stepspace"].get_value()))
-                            halrun.write("setp %s.dirhold %d \n"% (self.step_signalname,w[axis+"dirhold"].get_value()))
-                            halrun.write("setp %s.dirsetup %d \n"% (self.step_signalname,w[axis+"dirsetup"].get_value()))
-                            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "scale"]))  )
-                            halrun.write("setp %s.maxaccel 0 \n"% (self.step_signalname))
-                            halrun.write("setp %s.maxvel 0 \n"% (self.step_signalname))
-                            halrun.write("loadusr halmeter pin %s.velocity-fb -g 0 415\n"% (self.step_signalname))
-                            halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
-                            halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
-                else: 
-                    print "pintype error in mesa test panel method pintype:%s connector %d pin %d\n"% (pintype, connector,pin)
-
+        # for encoder signals
+        if "mesa" in self.encoder: 
+            print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
+            self.enc_signalname = self.data.make_pinname(self.encoder)                 
+            halrun.write("setp %s.counter-mode 0\n"% (self.enc_signalname))
+            halrun.write("setp %s.filter 1\n"% (self.enc_signalname))
+            halrun.write("setp %s.index-invert 0\n"% (self.enc_signalname))
+            halrun.write("setp %s.index-mask 0\n"% (self.enc_signalname))
+            halrun.write("setp %s.index-mask-invert 0\n"% (self.enc_signalname)) 
+            halrun.write("setp %s.scale %d\n"% (self.enc_signalname, get_value(w[axis + "scale"])))                         
+            halrun.write("loadusr halmeter -s pin %s.velocity -g 0 625 330\n"% (self.enc_signalname))
+            halrun.write("loadusr halmeter -s pin %s.position -g 0 675 330\n"% (self.enc_signalname))
+            halrun.write("loadusr halmeter pin %s.velocity -g 275 415\n"% (self.enc_signalname))
+        # for pwm components
+        if "mesa" in self.pwmgen:                             
+            self.pwm_signalname = self.data.make_pinname(self.pwmgen)  
+            print "got to pwm", self.pwmgen," -- ",self.pwm_signalname                        
+            halrun.write("setp %s.scale 10\n"% (self.pwm_signalname))                        
+            halrun.write("setp %s.output-type 1\n"% (self.pwm_signalname))                             
+            halrun.write("loadusr halmeter pin %s.enable -g 0 415\n"% (self.pwm_signalname))
+            halrun.write("loadusr halmeter -s pin %s.enable -g 0 525 330\n"% (self.pwm_signalname))
+            halrun.write("loadusr halmeter -s pin %s.value -g 0 575 330\n"% (self.pwm_signalname)) 
+        # for step gen components
+        if "mesa" in self.stepgen:                        
+            # check current component number to signal's component number                             
+            self.step_signalname = self.data.make_pinname(self.stepgen) 
+            print "step_signal--",self.step_signalname   
+            if w[axis+"invertmotor"].get_active():
+                self.scale = get_value(w[axis + "scale"]) * -1
+            else:
+                self.scale = get_value(w[axis + "scale"]) * 1
+                #halrun.write("setp %s.gpio.%03d.invert_output %d \n"% (self.step_signalname,self.invert,guiinvert))
+            halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
+            halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
+            halrun.write("setp %s.steplen %d \n"% (self.step_signalname,w[axis+"steptime"].get_value()))
+            halrun.write("setp %s.stepspace %d \n"% (self.step_signalname,w[axis+"stepspace"].get_value()))
+            halrun.write("setp %s.dirhold %d \n"% (self.step_signalname,w[axis+"dirhold"].get_value()))
+            halrun.write("setp %s.dirsetup %d \n"% (self.step_signalname,w[axis+"dirsetup"].get_value()))
+            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "scale"]))  )
+            halrun.write("setp %s.maxaccel 0 \n"% (self.step_signalname))
+            halrun.write("setp %s.maxvel 0 \n"% (self.step_signalname))
+            halrun.write("loadusr halmeter pin %s.velocity-fb -g 0 415\n"% (self.step_signalname))
+            halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
+            halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
+        # set up enable output pin if used
         temp = self.data.findsignal( "enable")
         amp = self.data.make_pinname(temp)
         if not amp == "false":
@@ -4949,7 +4914,7 @@ class App:
                 halrun.write("net enable %s \n"% (amp + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (amp + ".invert_output"))
-
+        # set up estop output if used
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
         if not estop =="false":        
@@ -4958,7 +4923,7 @@ class App:
                 halrun.write("net enable %s\n"%  (estop + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (estop + ".invert_output"))
-
+        # set up as servo system if no step generator...
         if self.stepgen == "false":
             halrun.write("setp pid.0.Pgain     %d\n"% ( w[axis+"P"].get_value() ))
             halrun.write("setp pid.0.Igain     %d\n"% ( w[axis+"I"].get_value() ))
@@ -4984,8 +4949,8 @@ class App:
         result = w.tunedialog.run()
         w.tunedialog.hide()
         if result == gtk.RESPONSE_OK:
-            w[axis+"maxvel"].set.value( get_value(w[axis+"tunevel"]))
-            w[axis+"maxacc"].set.value( get_value(w[axis+"tuneacc"]))
+            w[axis+"maxvel"].set_value( get_value(w[axis+"tunevel"]))
+            w[axis+"maxacc"].set_value( get_value(w[axis+"tuneacc"]))
             w[axis+"P"].set_value( get_value(w[axis+"tunecurrentP"]))
             w[axis+"I"].set_value( get_value(w[axis+"tunecurrentI"]))
             w[axis+"D"].set_value( get_value(w[axis+"tunecurrentD"]))
@@ -5016,7 +4981,6 @@ class App:
         self.widgets[axis+"tunerun"].set_sensitive(temp)
         halrun = self.halrun
         if not self.stepgen == "false":
-            compnum = self.currentstepgen
             halrun.write("""
                 setp %(stepgen)s.steplen %(len)d
                 setp %(stepgen)s.stepspace %(space)d
@@ -5082,7 +5046,6 @@ class App:
                 'bias':self.widgets[axis+"tunecurrentbias"].get_value(),
                 'deadband':self.widgets[axis+"tunecurrentdeadband"].get_value(),
                 'invert':self.widgets[axis+"tuneinvertmotor"].get_active(),
-                'board': self.boardname,
                 'jogminus': self.tunejogminus,
                 'jogplus': self.tunejogplus,
                 'run': self.widgets[axis+"tunerun"].get_active(),
@@ -5127,13 +5090,10 @@ class App:
         widgets = self.widgets
         axnum = "xyzas".index(axis)
         pump = False
-        boardname = self.data.mesa0_currentfirmwaredata[0]
-        firmware = self.data.mesa0_currentfirmwaredata[1]  
         fastdac = get_value(widgets["fastdac"])
         slowdac = get_value(widgets["slowdac"])
         dacspeed = widgets.Dac_speed_fast.get_active()
-        enc_scale = get_value(widgets[axis+"scale"])
-           
+        enc_scale = get_value(widgets[axis+"scale"])          
         if not self.data.findsignal("charge-pump") =="false": 
             pump = True   
         
@@ -5149,9 +5109,7 @@ class App:
             halrun.write( "addf charge-pump slow\n")                 
         halrun.write("addf steptest.0 slow\n")
         self.hal_cmnds("WRITE")
-                     
-        #halrun.write("addf parport.0.write fast")
-        
+        # set enable pin if used (output)
         temp = self.data.findsignal( "enable")
         self.amp = self.data.make_pinname(temp)
         if not self.amp == "false":
@@ -5166,8 +5124,10 @@ class App:
                 halrun.write("    setp %s true\n" % (self.amp ))
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (self.amp + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))         
+            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))   
+      
 
+        # setup pwm generator
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
         if not estop == "false":        
@@ -5182,13 +5142,13 @@ class App:
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (estop + "-invert"))  
             halrun.write("loadusr halmeter -s pin %s -g 0 550 330\n"%  (estop)) 
-    
+        # set charge pump if used
         temp = self.data.findsignal( "charge-pump")
         pump = self.data.make_pinname(temp)
         if not pump == "false":        
             if "hm2_" in pump:
                 halrun.write("setp %s true\n"%  (pump + ".is_output"))    
-                #halrun.write("setp %s true\n"%  (pump + ".out"))
+                halrun.write("setp %s true\n"%  (pump + ".out"))
                 if self.data[temp+"inv"] == True:
                     halrun.write("setp %s true\n"%  (pump + ".invert_output"))
                 pump = pump + ".out"              
@@ -5198,7 +5158,7 @@ class App:
                     halrun.write("    setp %s true\n" % (pump + "-invert"))  
             halrun.write( "net charge-pump %s\n"%(pump))
             halrun.write("loadusr halmeter -s pin %s -g 0 500 330\n"%  (pump))             
-
+        # setup pwm generator
         pwm = self.data.make_pinname(self.data.findsignal( (axis + "-pwm-pulse")))
         if not pwm == "false":          
             halrun.write("net dac %s \n"%  (pwm +".value"))
@@ -5206,7 +5166,7 @@ class App:
             halrun.write("setp %s \n"%  (pwm +".scale 10"))
             halrun.write("loadusr halmeter -s pin %s -g 550 500 330\n"%  (pwm +".value"))
             halrun.write("loadusr halmeter pin %s -g 550 375\n"% (pwm +".value") )
-            
+        # set up encoder     
         self.enc = self.data.make_pinname(self.data.findsignal( (axis + "-encoder-a")))
         if not self.enc =="false":           
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
@@ -5371,6 +5331,12 @@ class App:
                 halrun.write( "    setp hm2_%s.%d.watchdog.timeout_ns %d\n"% ( 
                     self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
         if command == "READ":
+            if self.data.number_pports > 0:
+                print >>file, "addf parport.0.read base-thread"
+            if self.data.number_pports > 1:
+                print >>file, "addf parport.1.read base-thread"
+            if self.data.number_pports > 2:
+                print >>file, "addf parport.2.read base-thread"
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
                     halnum = 1
@@ -5379,6 +5345,12 @@ class App:
                 halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
                 halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
         if command == "WRITE":
+            if self.data.number_pports > 0:
+                print >>file, "addf parport.0.write base-thread"
+            if self.data.number_pports > 1:
+                print >>file, "addf parport.1.write base-thread"
+            if self.data.number_pports > 2:
+                print >>file, "addf parport.2.write base-thread"
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
                     halnum = 1
