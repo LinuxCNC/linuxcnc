@@ -1908,6 +1908,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
     t0 = time.time()
 
     canon = None
+    o.deselect(None) # remove highlight line from last program
     try:
         # be sure to switch modes to cause an interp synch, which
         # writes out the var file.  there was a reset here, and that
