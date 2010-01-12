@@ -80,7 +80,10 @@ t = Tkinter.Tk(); t.wm_withdraw()
 msg = ""
 try:
     if mode == PING:
-        t.tk.call("send", "axis", "expr", "1")
+        try:
+            t.tk.call("send", "axis", "expr", "1")
+        except Tkinter.TclError, detail:
+            raise SystemExit, 1
     # cmds below are checked for suitability by axis remote() function
     #      return "" if ok
     elif mode == OPEN:
