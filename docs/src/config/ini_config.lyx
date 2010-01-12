@@ -519,6 +519,13 @@ This is the name of the controller, which is printed out at the top of most
  long.
 \end_layout
 
+\begin_layout Description
+DEBUG\InsetSpace ~
+=\InsetSpace ~
+0 Debug level 0 means no messages.
+ See src/emc/nml_int/emcglb.h for others
+\end_layout
+
 \begin_layout Subsection
 [DISPLAY] Section
 \color none
@@ -628,6 +635,18 @@ name "xemc"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Description
+CYCLE_TIME\InsetSpace ~
+=\InsetSpace ~
+0.0500 Cycle time in seconds that display will sleep between polls.
+\end_layout
+
+\begin_layout Description
+HELP_FILE\InsetSpace ~
+=\InsetSpace ~
+tkemc.txt Pathe to help file.
 \end_layout
 
 \begin_layout Description
@@ -1923,6 +1942,24 @@ The following items are for servo-based systems and servo-like systems.
 \end_layout
 
 \begin_layout Description
+DEADBAND\InsetSpace ~
+=\InsetSpace ~
+0.000015 How close is close enough the consider the motor in position.
+\end_layout
+
+\begin_layout Description
+BIAS\InsetSpace ~
+=\InsetSpace ~
+0.000 This is used by hm2-servo and some others.
+ Bias is a constant amount that is added to the output.
+ In most cases it should be left at zero.
+ However, it can sometimes be useful to compensate for offsets in servo
+ amplifiers, or to balance the weight of an object that moves vertically.
+ bias is turned off when the PID loop is disabled, just like all other component
+s of the output.
+\end_layout
+
+\begin_layout Description
 
 \color black
 P\InsetSpace ~
@@ -2188,8 +2225,7 @@ y, DAC units, etc.
 \color black
 Build a calibration table for the output, driving the DAC with a desired
  voltage and measuring the result.
- See table\InsetSpace ~
-
+ See table 
 \begin_inset LatexCommand ref
 reference "cap:Output-Voltage-Measurements"
 
@@ -2272,6 +2308,7 @@ The maximum value for the output of the PID compensation that is written
 
 \begin_layout Standard
 \begin_inset Float table
+placement H
 wide false
 sideways false
 status open
