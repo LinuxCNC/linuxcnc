@@ -2354,7 +2354,7 @@ P
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M62-to-M65:"
+reference "sec:M62-to-M65"
 
 \end_inset
 
@@ -2397,7 +2397,7 @@ P, E, L, Q
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M66:"
+reference "sec:M66-Input-Control"
 
 \end_inset
 
@@ -2440,7 +2440,7 @@ E, Q
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M67-Analog-Motion"
+reference "sec:M67-Analog-Output"
 
 \end_inset
 
@@ -2483,7 +2483,7 @@ E, Q
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M68-Analog-Aux"
+reference "sec:M68-Analog-Output"
 
 \end_inset
 
@@ -8870,7 +8870,7 @@ name "M62 to M65 Output Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M62-to-M65:"
+name "sec:M62-to-M65"
 
 \end_inset
 
@@ -8941,7 +8941,7 @@ name "M66 Input Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M66:"
+name "sec:M66-Input-Control"
 
 \end_inset
 
@@ -9026,7 +9026,7 @@ It is an error to program M66 with both a P-word and an E-word (thus selecting
 \end_layout
 
 \begin_layout Section
-M67 Analog Motion Output Control
+M67 Analog Output
 \begin_inset LatexCommand index
 name "M67 Analog Motion Output Control"
 
@@ -9034,7 +9034,7 @@ name "M67 Analog Motion Output Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M67-Analog-Motion"
+name "sec:M67-Analog-Output"
 
 \end_inset
 
@@ -9058,7 +9058,7 @@ ed with motion.
 \end_layout
 
 \begin_layout Section
-M68 Analog Aux Output Control
+M68 Analog Output
 \begin_inset LatexCommand index
 name "M68 Analog Aux Output Control"
 
@@ -9066,7 +9066,7 @@ name "M68 Analog Aux Output Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M68-Analog-Aux"
+name "sec:M68-Analog-Output"
 
 \end_inset
 
