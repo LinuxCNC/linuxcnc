@@ -21,6 +21,8 @@ kins \- kinematics definitions for emc2
 .B loadrt genserkins
 .PP
 .B loadrt pumakins
+.PP
+.B loadrt scarakins
 .SH DESCRIPTION
 Rather than exporting HAL pins and functions, these components provide the
 forward and inverse kinematics definitions for emc2.
@@ -74,6 +76,35 @@ Kinematics for a puma-style robot with 6 joints
 .TQ
 .B pumakins.D4
 Describe the geometry of the robot
+
+.SS scarakins \- kinematics for SCARA-type robots
+.TP
+.B scarakins.D1
+Vertical distance from the ground plane to the center of the inner arm.
+.TP
+.B scarakins.D2
+Horizontal distance between joint[0] axis and joint[1] axis, ie.  the
+length of the inner arm.
+.TP
+.B scarakins.D3
+Vertical distance from the center of the inner arm to the center of the
+outer arm.  May be positive or negative depending on the structure of
+the robot.
+.TP
+.B scarakins.D4
+Horizontal distance between joint[1] axis and joint[2] axis, ie.  the
+length of the outer arm.
+.TP
+.B scarakins.D5
+Vertical distance from the end effector to the tooltip.  Positive means
+the tooltip is lower than the end effector, and is the normal case.
+.TP
+.B scarakins.D6
+Horizontal distance from the centerline of the end effector (and the
+joints 2 and 3 axis) and the tooltip.  Zero means the tooltip is on the
+centerline.  Non-zero values should be positive, if negative they
+introduce a 180 degree offset on the value of joint[3].
+
 .SH SEE ALSO
 gantrykins(9),
 The Kinematics section of the EMC2 Developer Manual
