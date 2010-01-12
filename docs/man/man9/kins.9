@@ -17,6 +17,8 @@ kins \- kinematics definitions for emc2
 .B loadrt genhexkins
 .PP
 .B loadrt maxkins
+.PP
+.B loadrt genserkins
 .SH DESCRIPTION
 Rather than exporting HAL pins and functions, these components provide the
 forward and inverse kinematics definitions for emc2.
@@ -43,6 +45,21 @@ Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
 head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
 UVW motion in the rotated coordinate system.  The source file, maxkins.c,
 may be a useful starting point for other 5-axis systems.
+.SS genserkins \- generalized serial kinematics
+Kinematics that can model a general serial-link manipulator with up to 6
+angular joints.  
+
+The kinematics use Denavit-Hartenberg definition for the joint and
+links. The DH definitions are the ones used by John J Craig in
+"Introduction to Robotics: Mechanics and Control" The parameters for the
+manipulator are defined by hal pins.
+.TP
+.B genserkins.A-\fIN
+.TQ
+.B genserkins.ALPHA-\fIN
+.TQ
+.B genserkins.D-\fIN
+Parameters describing the \fIN\fRth joint's geometry.
 .SH SEE ALSO
 gantrykins(9),
 The Kinematics section of the EMC2 Developer Manual
