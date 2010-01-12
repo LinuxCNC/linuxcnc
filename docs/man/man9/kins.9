@@ -1,3 +1,9 @@
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
 .TH KINS "9" "2007-01-20" "EMC Documentation" "HAL Component"
 .SH NAME
 kins \- kinematics definitions for emc2
@@ -22,9 +28,9 @@ The joints represent the distance of the controlled point from three predefined
 locations (the motors), giving three degrees of freedom in position (XYZ)
 .TP
 .B tripodkins.Bx
-.TP
+.TQ
 .B tripodkins.Cx
-.TP
+.TQ
 .B tripodkins.Cy
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 .SS genhexkins \- Hexapod Kinematics
