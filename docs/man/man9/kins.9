@@ -19,6 +19,8 @@ kins \- kinematics definitions for emc2
 .B loadrt maxkins
 .PP
 .B loadrt genserkins
+.PP
+.B loadrt pumakins
 .SH DESCRIPTION
 Rather than exporting HAL pins and functions, these components provide the
 forward and inverse kinematics definitions for emc2.
@@ -60,6 +62,18 @@ manipulator are defined by hal pins.
 .TQ
 .B genserkins.D-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
+
+.SS pumakins \- kinematics for puma typed robots
+Kinematics for a puma-style robot with 6 joints
+.TP
+.B pumakins.A2
+.TQ
+.B pumakins.A3
+.TQ
+.B pumakins.D3
+.TQ
+.B pumakins.D4
+Describe the geometry of the robot
 .SH SEE ALSO
 gantrykins(9),
 The Kinematics section of the EMC2 Developer Manual
