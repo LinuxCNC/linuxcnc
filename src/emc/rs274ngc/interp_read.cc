@@ -2841,15 +2841,29 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
                            double *double_ptr,  //!< pointer to double to be read                  
                            double *parameters)  //!< array of system parameters                    
 {
-  char c;
+  char c, c1;
 
   c = line[*counter];
   CHKS((c == 0), NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE);
+
+  c1 = line[*counter+1];
+
   if (c == '[')
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
   {
     CHP(read_parameter(line, counter, double_ptr, parameters));
+  }
+  else if (c == '+' && c1 && !isdigit(c1) && c1 != '.')
+  {
+    (*counter)++;
+    CHP(read_real_value(line, counter, double_ptr, parameters));
+  }
+  else if (c == '-' && c1 && !isdigit(c1) && c1 != '.')
+  {
+    (*counter)++;
+    CHP(read_real_value(line, counter, double_ptr, parameters));
+    *double_ptr = -*double_ptr;
   }
   else if ((c >= 'a') && (c <= 'z'))
     CHP(read_unary(line, counter, double_ptr, parameters));
