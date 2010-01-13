@@ -4902,6 +4902,9 @@ class App:
             halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "scale"]))  )
             halrun.write("setp %s.maxaccel 0 \n"% (self.step_signalname))
             halrun.write("setp %s.maxvel 0 \n"% (self.step_signalname))
+            halrun.write("net enable => %s.enable \n"% (self.step_signalname))
+            halrun.write("net cmd steptest.0.position-cmd => %s.position-cmd \n"% (self.step_signalname))
+            halrun.write("net feedback steptest.0.position-fb <= %s.position-fb \n"% (self.step_signalname))
             halrun.write("loadusr halmeter pin %s.velocity-fb -g 0 415\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.velocity-fb -g 0 575 350\n"% (self.step_signalname))
             halrun.write("loadusr halmeter -s pin %s.position-fb -g 0 525 350\n"% (self.step_signalname))
@@ -4971,13 +4974,19 @@ class App:
         halrun.close()  
         self.widgets['window1'].set_sensitive(1)
 
-    def update_tune_axis_params(self, *args):
-        if not self.updaterunning: return
+    def update_tune_axis_params(self, *args):       
         axis = self.axis_under_tune
-        if axis is None: return
-        temp = self.widgets[axis+"tuneenable"].get_active()
+        if axis is None or not self.updaterunning: return   
+        temp = not self.widgets[axis+"tunerun"].get_active()
+        self.widgets[axis+"tuneinvertmotor"].set_sensitive( temp)
+        self.widgets[axis+"tuneamplitude"].set_sensitive( temp)
+        self.widgets[axis+"tunedir"].set_sensitive( temp)
         self.widgets[axis+"tunejogminus"].set_sensitive(temp)
         self.widgets[axis+"tunejogplus"].set_sensitive(temp)
+        temp = self.widgets[axis+"tuneenable"].get_active()
+        if not self.widgets[axis+"tunerun"].get_active():
+            self.widgets[axis+"tunejogminus"].set_sensitive(temp)
+            self.widgets[axis+"tunejogplus"].set_sensitive(temp)
         self.widgets[axis+"tunerun"].set_sensitive(temp)
         halrun = self.halrun
         if not self.stepgen == "false":

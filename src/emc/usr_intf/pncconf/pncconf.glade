@@ -32895,6 +32895,7 @@ Warning limits switches
                             <child>
                               <widget class="GtkLabel" id="label486">
                                 <property name="visible">True</property>
+                                <property name="sensitive">False</property>
                                 <property name="label" translatable="yes">Run</property>
                                 <property name="use_underline">True</property>
                               </widget>
