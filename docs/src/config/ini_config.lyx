@@ -638,18 +638,6 @@ name "xemc"
 \end_layout
 
 \begin_layout Description
-CYCLE_TIME\InsetSpace ~
-=\InsetSpace ~
-0.0500 Cycle time in seconds that display will sleep between polls.
-\end_layout
-
-\begin_layout Description
-HELP_FILE\InsetSpace ~
-=\InsetSpace ~
-tkemc.txt Pathe to help file.
-\end_layout
-
-\begin_layout Description
 POSITION_OFFSET\InsetSpace ~
 =\InsetSpace ~
 RELATIVE The coordinate system (RELATIVE or MACHINE) to
@@ -707,6 +695,12 @@ emc2.gif The image shown on the splash screen
 INTRO_TIME\InsetSpace ~
 =\InsetSpace ~
 5 The maximum time to show the splash screen
+\end_layout
+
+\begin_layout Description
+CYCLE_TIME\InsetSpace ~
+=\InsetSpace ~
+0.0500 Cycle time in seconds that display will sleep between polls.
 \end_layout
 
 \begin_layout Standard
@@ -838,6 +832,17 @@ The proper GEOMETRY string
  For example rotating around C then B is different than rotating around
  B then C.
  Geometry has no effect without a rotary axis.
+\end_layout
+
+\begin_layout Standard
+The following [DISPLAY] items are not used if you select AXIS as your user
+ interface program.
+\end_layout
+
+\begin_layout Description
+HELP_FILE\InsetSpace ~
+=\InsetSpace ~
+tkemc.txt Path to help file (not used in AXIS).
 \end_layout
 
 \begin_layout Subsection
@@ -1376,19 +1381,15 @@ Coordinates of the homed position of each axis.
 \begin_layout Description
 
 \color black
-LINEAR_UNITS
+LINEAR_UNITS\InsetSpace ~
+=\InsetSpace ~
+<units> 
 \begin_inset LatexCommand index
 name "LINEAR UNITS"
 
 \end_inset
 
-\InsetSpace ~
 
-\series bold
-=
-\series default
-\InsetSpace ~
-<units>
 \color none
  
 \color black
@@ -1404,19 +1405,15 @@ This does not affect the linear units in NC code (the G20 and G21 words
 \begin_layout Description
 
 \color black
-ANGULAR_UNITS
+ANGULAR_UNITS\InsetSpace ~
+=\InsetSpace ~
+<units> 
 \begin_inset LatexCommand index
 name "ANGULAR UNITS"
 
 \end_inset
 
-\InsetSpace ~
-
-\series bold
-=
-\series default
-\InsetSpace ~
-<units> Specifies the machine units for rotational axes.
+ Specifies the machine units for rotational axes.
  Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
  (2pi per circle), 'grad', or 'gon' (400 per circle).
 \newline
@@ -1461,18 +1458,15 @@ In machines with nontrivial kinematics, the acceleration used for "teleop"
 \begin_layout Description
 
 \color black
-MAX_VELOCITY
+MAX_VELOCITY\InsetSpace ~
+=\InsetSpace ~
+5.0 
 \begin_inset LatexCommand index
 name "MAX VELOCITY"
 
 \end_inset
 
-\InsetSpace ~
 
-\series bold
-=\InsetSpace ~
-5.0
-\series default
 \color none
  
 \color black
@@ -1484,22 +1478,15 @@ The maximum velocity for any axis or coordinated move, in machine units
 \begin_layout Description
 
 \color black
-MAX_ACCELERATION
+MAX_ACCELERATION\InsetSpace ~
+=\InsetSpace ~
+20.0 
 \begin_inset LatexCommand index
 name "MAX ACCELERATION"
 
 \end_inset
 
-\InsetSpace ~
 
-\series bold
-=
-\series default
-\InsetSpace ~
-
-\series bold
-20.0
-\series default
 \color none
  
 \color black
@@ -1944,13 +1931,25 @@ The following items are for servo-based systems and servo-like systems.
 \begin_layout Description
 DEADBAND\InsetSpace ~
 =\InsetSpace ~
-0.000015 How close is close enough the consider the motor in position.
+0.000015 
+\series bold
+\size footnotesize
+(HAL)
+\series default
+\size default
+ How close is close enough the consider the motor in position.
 \end_layout
 
 \begin_layout Description
 BIAS\InsetSpace ~
 =\InsetSpace ~
-0.000 This is used by hm2-servo and some others.
+0.000 
+\series bold
+\size footnotesize
+(HAL)
+\series default
+\size default
+ This is used by hm2-servo and some others.
  Bias is a constant amount that is added to the output.
  In most cases it should be left at zero.
  However, it can sometimes be useful to compensate for offsets in servo
