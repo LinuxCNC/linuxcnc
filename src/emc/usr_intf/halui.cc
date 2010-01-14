@@ -1598,6 +1598,8 @@ static void hal_init_pins()
 }
 
 static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
+    if(!halpin) return 0; // uncreated pin never changes
+
     hal_bit_t bit;
     
     bit = *(halpin);
