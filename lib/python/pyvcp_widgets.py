@@ -114,7 +114,8 @@ class pyvcp_dial(Canvas):
         
         pad=size/10
 
-        self.out=initval                    #  float output   out   
+        self.counts = int(round(initval/resolution))
+        self.out = self.counts * resolution #  float output   out
         self.origValue=initval       # in case user wants to reset the pot/valve/thingy
 
         #self.text3=resolution
@@ -199,21 +200,32 @@ class pyvcp_dial(Canvas):
     def chgScaleDn(self,event):
         # reduces the scale by 10x
         self.funit=self.funit/10.0
+        self.counts *= 10
         self.update_scale()
+        self.update_dro()
+        self.update_dot()
     
     def chgScaleUp(self,event):
         # increases the scale by 10x
         self.funit=self.funit*10.0
+        self.counts = (self.counts + 5) / 10
+        self.out = self.counts * self.funit
         self.update_scale()
+        self.update_dro()
+        self.update_dot()
     
     def resetScale(self,event):
         # reset scale to original value
         self.funit=self.origFunit
+        self.counts = int(round(self.out / self.funit))
+        self.out = self.counts * self.funit
         self.update_scale()
     
     def resetValue(self,event):
         # reset output to orifinal value
-        self.out=self.origValue
+        self.counts = int(round(self.origValue / self.funit))
+        self.out= self.counts * self.funit
+        self.update_dot()
         self.update_dro()
 
     def dot_coords(self):
@@ -252,21 +264,25 @@ class pyvcp_dial(Canvas):
 
     def down(self):
         self.alfa-=self.d_alfa
-        self.out-=self.funit
+        self.counts -= 1
+        self.out = self.counts * self.funit
         #TJP clip down side
         if self.mymin != None:
             if self.out<self.mymin:
                 self.out=self.mymin
+                self.counts = self.mymin * self.funit
         self.update_dot()
         self.update_dro()
 
     def up(self):
         self.alfa+=self.d_alfa
-        self.out+=self.funit
+        self.counts += 1
+        self.out = self.counts * self.funit
         #TJP clip up side
         if self.mymax != None:
             if self.out>self.mymax:
                 self.out=self.mymax
+                self.counts = self.mymax * self.funit
         self.update_dot()
         self.update_dro()
 

@@ -43,6 +43,7 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 
+	cd src && ./autogen.sh
 ifeq "$(kernel_version)" "sim"
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
 else
@@ -60,8 +61,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/extras && find . |cpio -pdmuv ../tmp)
-	-(cd debian/extras-@DISTRIB_NAME@ && find . | cpio -pdmuv ../tmp)
+	-(cd debian/@EXTRAS@ && find . | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	python@PYTHON_VERSION@ /usr/lib/python@PYTHON_VERSION@/compileall.py debian/tmp/usr/lib/python@PYTHON_VERSION@
 	find debian/tmp/usr/lib/python@PYTHON_VERSION@ -name \*.py -exec rm {} \;
@@ -104,7 +104,7 @@ endif
 	dh_makeshlibs
 	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
-	dh_python
+	dh_python /usr/lib/python@PYTHON_VERSION@/site-packages /usr/lib/python@PYTHON_VERSION@/dist-packages
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

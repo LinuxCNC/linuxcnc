@@ -207,7 +207,7 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="51" columns="4">
+<lyxtabular version="3" rows="53" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -557,6 +557,49 @@ reference "sec:G10-L1-Set-Tool-Table"
 \begin_inset Text
 
 \begin_layout Standard
+G10 L10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Set Tool Table Entry Calculated
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+P R X Z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G10-L10"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
 G10 L2
 \end_layout
 
@@ -586,6 +629,49 @@ P R X Y Z A B C
 \begin_layout Standard
 \begin_inset LatexCommand ref
 reference "sub:G10:-Set-Coordinate"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+G10 L20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Coordinate System Origin Setting Calculated
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+P X Y Z A B C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G10-L20"
 
 \end_inset
 
@@ -2819,8 +2905,160 @@ It is an error if:
 J and K are both omitted.
 \end_layout
 
+\begin_layout Subsection*
+Examples
+\end_layout
+
 \begin_layout Standard
-Here is an example of a center format command to mill an arc: 
+Calculating arcs by hand can be difficult at times.
+ One option is to draw the arc with a cad program to get the coordinates
+ and offsets.
+ Keep in mind the tolerance mentioned above, you may have to change the
+ precision of your cad program to get the desired results.
+ Another option is to calculate the coordinates and offset using formulas.
+ As you can see in the following figures a triangle can be formed from the
+ current position the end position and the arc center.
+\end_layout
+
+\begin_layout Standard
+In the following figure you can see the start position is X0 Y0, the end
+ position is X1 Y1.
+ The arc center position is at X1 Y0.
+ This gives us an offset from the start position of 1 in the X axis and
+ 0 in the Y axis.
+ In this case only an I offset is needed.
+\end_layout
+
+\begin_layout Standard
+The code for the example:
+\end_layout
+
+\begin_layout LyX-Code
+G2 X1 Y1 I1 F10
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:G2-Example"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g2.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the next example we see the difference between the offsets for Y if we
+ are doing a G2 or a G3 move.
+ For the G2 move the start position is X0 Y0, for the G3 move it is X0 Y1.
+ The arc center is at X1 Y0.5 for both moves.
+ The G2 move the J offset is 0.5 and the G3 move the J offset is -0.5.
+\end_layout
+
+\begin_layout Standard
+The g code for the following example:
+\end_layout
+
+\begin_layout LyX-Code
+G2 X0 Y1 I1 J0.5 F25
+\end_layout
+
+\begin_layout LyX-Code
+G3 X0 Y0 I1 J-0.5 F25
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+\begin_inset LatexCommand label
+name "fig:G2/3-Example"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g2-3.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here is an example of a center format command to mill a spiral arc: 
+\end_layout
+
+\begin_layout LyX-Code
+
 \family typewriter
 G17 G2 X10 Y16 I3 J4 Z9
 \family default
@@ -3212,7 +3450,7 @@ name "sec:G10-L1-Set-Tool-Table"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
 \end_layout
 
@@ -3256,11 +3494,11 @@ name "sub:G10:-Set-Coordinate"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G10 L2 P[coordinate system] R[rotation about Z] 
 \family typewriter
 \emph on
-axes
+axes...
 \end_layout
 
 \begin_layout Standard
@@ -3315,8 +3553,8 @@ Important Concepts:
 \end_layout
 
 \begin_layout Itemize
-G10 Pn does not change from the current coordinate system to the one specified
- by P, you have to use G54-59.3 to select a coordinate system.
+G10 L2 Pn does not change from the current coordinate system to the one
+ specified by P, you have to use G54-59.3 to select a coordinate system.
 \end_layout
 
 \begin_layout Itemize
@@ -3363,9 +3601,19 @@ G10
 \end_layout
 
 \begin_layout Standard
-Example: 
+Examples:
+\end_layout
+
+\begin_layout Description
+
 \family typewriter
-G10 L2 P1 x 3.5 y 17.2
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X\InsetSpace ~
+3.5\InsetSpace ~
+Y\InsetSpace ~
+17.2
 \family default
  sets the origin of the first coordinate system (the one selected by 
 \family typewriter
@@ -3374,6 +3622,15 @@ G54
 ) to be X=3.5 and Y=17.2.
  Because only X and Y are specified, the origin point is only moved in X
  and Y; the other coordinates are not changed.
+\end_layout
+
+\begin_layout Description
+G10\InsetSpace ~
+L2\InsetSpace ~
+P1\InsetSpace ~
+X0\InsetSpace ~
+Y0\InsetSpace ~
+Z0 sets the G54 coordinate back to the origin.
 \end_layout
 
 \begin_layout Standard
@@ -3709,6 +3966,81 @@ G Code
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+G10 L10 Set Tool Table
+\begin_inset LatexCommand index
+name "G10 L10 Set Tool Table"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G10-L10"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G10 L10 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+\end_layout
+
+\begin_layout Standard
+G10 L10 is just like G10 L1 except that instead of setting the offset/entry
+ to the given value, it is set to a calculated value that makes the current
+ coordinates become the given value.
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+Cutter Compensation is on
+\end_layout
+
+\begin_layout Section
+G10 L20 Set Coordinate System
+\begin_inset LatexCommand index
+name "G10 L20 Set Coordinate System"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G10-L20"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G10 L20 P[coordinate system] 
+\family typewriter
+\emph on
+axes...
+\end_layout
+
+\begin_layout Standard
+G10 L20 is similar to G10 L2 except that instead of setting the offset/entry
+ to the given value, it is set to a calculated value that makes the current
+ coordinates become the given value.
+\end_layout
+
+\begin_layout Standard
+It is an error if: 
+\end_layout
+
+\begin_layout Itemize
+The P number does not evaluate to an integer in the range 1 to 9.
+\end_layout
+
+\begin_layout Itemize
+An axis is programmed that is not defined in the configuration.
 \end_layout
 
 \begin_layout Section
@@ -4753,15 +5085,23 @@ G43 and G43.1 change subsequent motions by offsetting the Z and/or X coordinates
 \end_layout
 
 \begin_layout Subsubsection
-G43: Offsets from tool table
+G43: Use current tool loaded
+\end_layout
+
+\begin_layout Standard
+To use the currently loaded tool from the last Tn M6 program a G43
+\end_layout
+
+\begin_layout Subsubsection
+G43 Hn: Offsets from tool table
 \end_layout
 
 \begin_layout Standard
 To use a tool length offset from the tool table, program 
 \family typewriter
-G43 H-
+G43 H
 \family default
-, where the H number is the desired index in the tool table.
+n, where the n number is the desired index in the tool table.
  The H number will typically be, but does not have to be, the same as the
  slot number of the tool currently in the spindle.
  It is OK for the H number to be zero; an offset value of zero will be used.
@@ -8182,7 +8522,10 @@ If the selected tool was not in the spindle before the tool change, the
 \end_layout
 
 \begin_layout Itemize
-The axis positions may be modified
+If configured in the .ini file some axis positions may move when a M6 is
+ issued.
+ See the EMCIO section of the Integrators Manual for more information on
+ tool change options.
 \end_layout
 
 \begin_layout Itemize
@@ -8193,6 +8536,8 @@ No other changes will be made.
 M9
 \family default
 .
+ The tool length offset is not changed, use G43 to change the tool length
+ offset.
 \end_layout
 
 \begin_layout Standard
@@ -8539,6 +8884,10 @@ M- P-
  a default value of 3 in EMC2.
  If needed the value can be increased by using the num_dio parameter when
  loading the motion controller.
+\end_layout
+
+\begin_layout Itemize
+The P- word specifies the digital output number.
 \end_layout
 
 \begin_layout Description

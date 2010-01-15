@@ -44,44 +44,99 @@
 
 \begin_body
 
-\begin_layout Chapter
+\begin_layout Section
+Hal Meter
 \begin_inset LatexCommand label
-name "cha:Internal-Components"
+name "sec:Halmeter"
 
 \end_inset
 
-Internal Components
+
+\begin_inset LatexCommand index
+name "Halmeter"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Most components have unix-style manual pages.
- To view manual pages for real-time components, type 
-\begin_inset Quotes eld
-\end_inset
+Hal Meter can be loaded from a terminal or from Axis.
+ Hal Meter is faster than Hal Show displaying values.
+ Hal Meter has two windows, one to pick the pin, signal, or parameter to
+ monitor and one that displays the value.
+ Multiple Hal Meters can be open at the same time.
+ If you use a script to open multiple Hal Meters you can set the position
+ of each one with -g X Y relative to the upper left corner of your screen.
+ See the man page for more options.
+\end_layout
 
-man 9 
-\emph on
-componentname
-\emph default
+\begin_layout LyX-Code
+loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
+\end_layout
 
-\begin_inset Quotes erd
-\end_inset
+\begin_layout LyX-Code
 
- at the terminal prompt.
 \end_layout
 
 \begin_layout Standard
-This document focuses on more complicated components which have figures
- which are hard to reproduce in the manual page format.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Hal Meter
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/hal-meter01.png
+	scale 75
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename images/hal-meter02.png
+	scale 75
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
+Stepgen
 \begin_inset LatexCommand label
 name "sec:Stepgen"
 
 \end_inset
 
-Stepgen
+
 \begin_inset LatexCommand index
 name "stepgen"
 
@@ -2517,15 +2572,7 @@ Installing
 \begin_layout Quote
 emc2$ 
 \series bold
-halcmd loadrt debounce cfg=
-\begin_inset Quotes erd
-\end_inset
-
-<config-string>
-\begin_inset Quotes erd
-\end_inset
-
-
+halcmd loadrt debounce cfg=<config-string>
 \end_layout
 
 \begin_layout Standard
@@ -2533,7 +2580,7 @@ halcmd loadrt debounce cfg=
 \family typewriter
 <config-string>
 \family default
- is a series of space separated decimal integers.
+ is a series of comma separated decimal integers.
  Each number installs a group of identical debounce filters, the number
  determines how many filters are in the group.
  For example:
@@ -2542,15 +2589,7 @@ halcmd loadrt debounce cfg=
 \begin_layout Quote
 emc2$ 
 \series bold
-halcmd loadrt debounce cfg=
-\begin_inset Quotes erd
-\end_inset
-
-1 4 2
-\begin_inset Quotes erd
-\end_inset
-
-
+halcmd loadrt debounce cfg=1,4,2
 \end_layout
 
 \begin_layout Standard
@@ -2563,15 +2602,7 @@ will install three groups of filters.
 \family default
  is 
 \family typewriter
-
-\begin_inset Quotes eld
-\end_inset
-
-1
-\begin_inset Quotes erd
-\end_inset
-
-
+"1"
 \family default
  which will install a single group containing a single filter.
  The maximum number of groups 8 (as defined by MAX_GROUPS in debounce.c).

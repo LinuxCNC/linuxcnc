@@ -1,0 +1,225 @@
+Configuration Name: HOSTMOT2
+
+General configuration information:
+
+  BoardName : MESA3X20
+  FPGA Size: 1000 KGates
+  FPGA Pins: 456
+  Number of IO Ports: 6
+  Width of one I/O port: 24
+  Clock Low frequency: 50.0000 MHz
+  Clock High frequency: 100.0000 MHz
+
+Modules in configuration: 
+
+  Module: WatchDog
+  There are 1 of WatchDog in configuration
+  Version: 0
+  Registers: 3
+  BaseAddress: 0C00
+  ClockFrequency: 50.000 MHz
+
+  Module: IOPort
+  There are 6 of IOPort in configuration
+  Version: 0
+  Registers: 5
+  BaseAddress: 1000
+  ClockFrequency: 50.000 MHz
+
+  Module: QCount
+  There are 16 of QCount in configuration
+  Version: 2
+  Registers: 5
+  BaseAddress: 3000
+  ClockFrequency: 50.000 MHz
+
+  Module: PWM
+  There are 16 of PWM in configuration
+  Version: 0
+  Registers: 5
+  BaseAddress: 4000
+  ClockFrequency: 100.000 MHz
+
+  Module: StepGen
+  There are 24 of StepGen in configuration
+  Version: 2
+  Registers: 10
+  BaseAddress: 2000
+  ClockFrequency: 50.000 MHz
+
+  Module: LED
+  There are 1 of LED in configuration
+  Version: 0
+  Registers: 1
+  BaseAddress: 0200
+  ClockFrequency: 50.000 MHz
+
+Configuration pin-out: 
+
+    IO Connections for P4
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1        0     IOPort       QCount        1        Quad-B          (In)
+     3        1     IOPort       QCount        1        Quad-A          (In)
+     5        2     IOPort       QCount        0        Quad-B          (In)
+     7        3     IOPort       QCount        0        Quad-A          (In)
+     9        4     IOPort       QCount        1        Quad-IDX        (In)
+    11        5     IOPort       QCount        0        Quad-IDX        (In)
+    13        6     IOPort       PWM           1        PWM             (Out)
+    15        7     IOPort       PWM           0        PWM             (Out)
+    17        8     IOPort       PWM           1        Dir             (Out)
+    19        9     IOPort       PWM           0        Dir             (Out)
+    21       10     IOPort       PWM           1        /Enable         (Out)
+    23       11     IOPort       PWM           0        /Enable         (Out)
+    25       12     IOPort       QCount        3        Quad-B          (In)
+    27       13     IOPort       QCount        3        Quad-A          (In)
+    29       14     IOPort       QCount        2        Quad-B          (In)
+    31       15     IOPort       QCount        2        Quad-A          (In)
+    33       16     IOPort       QCount        3        Quad-IDX        (In)
+    35       17     IOPort       QCount        2        Quad-IDX        (In)
+    37       18     IOPort       PWM           3        PWM             (Out)
+    39       19     IOPort       PWM           2        PWM             (Out)
+    41       20     IOPort       PWM           3        Dir             (Out)
+    43       21     IOPort       PWM           2        Dir             (Out)
+    45       22     IOPort       PWM           3        /Enable         (Out)
+    47       23     IOPort       PWM           2        /Enable         (Out)
+
+    IO Connections for P5
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1       24     IOPort       QCount        5        Quad-B          (In)
+     3       25     IOPort       QCount        5        Quad-A          (In)
+     5       26     IOPort       QCount        4        Quad-B          (In)
+     7       27     IOPort       QCount        4        Quad-A          (In)
+     9       28     IOPort       QCount        5        Quad-IDX        (In)
+    11       29     IOPort       QCount        4        Quad-IDX        (In)
+    13       30     IOPort       PWM           5        PWM             (Out)
+    15       31     IOPort       PWM           4        PWM             (Out)
+    17       32     IOPort       PWM           5        Dir             (Out)
+    19       33     IOPort       PWM           4        Dir             (Out)
+    21       34     IOPort       PWM           5        /Enable         (Out)
+    23       35     IOPort       PWM           4        /Enable         (Out)
+    25       36     IOPort       QCount        7        Quad-B          (In)
+    27       37     IOPort       QCount        7        Quad-A          (In)
+    29       38     IOPort       QCount        6        Quad-B          (In)
+    31       39     IOPort       QCount        6        Quad-A          (In)
+    33       40     IOPort       QCount        7        Quad-IDX        (In)
+    35       41     IOPort       QCount        6        Quad-IDX        (In)
+    37       42     IOPort       PWM           7        PWM             (Out)
+    39       43     IOPort       PWM           6        PWM             (Out)
+    41       44     IOPort       PWM           7        Dir             (Out)
+    43       45     IOPort       PWM           6        Dir             (Out)
+    45       46     IOPort       PWM           7        /Enable         (Out)
+    47       47     IOPort       PWM           6        /Enable         (Out)
+
+    IO Connections for P6
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1       48     IOPort       QCount        9        Quad-B          (In)
+     3       49     IOPort       QCount        9        Quad-A          (In)
+     5       50     IOPort       QCount        8        Quad-B          (In)
+     7       51     IOPort       QCount        8        Quad-A          (In)
+     9       52     IOPort       QCount        9        Quad-IDX        (In)
+    11       53     IOPort       QCount        8        Quad-IDX        (In)
+    13       54     IOPort       PWM           9        PWM             (Out)
+    15       55     IOPort       PWM           8        PWM             (Out)
+    17       56     IOPort       PWM           9        Dir             (Out)
+    19       57     IOPort       PWM           8        Dir             (Out)
+    21       58     IOPort       PWM           9        /Enable         (Out)
+    23       59     IOPort       PWM           8        /Enable         (Out)
+    25       60     IOPort       QCount       11        Quad-B          (In)
+    27       61     IOPort       QCount       11        Quad-A          (In)
+    29       62     IOPort       QCount       10        Quad-B          (In)
+    31       63     IOPort       QCount       10        Quad-A          (In)
+    33       64     IOPort       QCount       11        Quad-IDX        (In)
+    35       65     IOPort       QCount       10        Quad-IDX        (In)
+    37       66     IOPort       PWM          11        PWM             (Out)
+    39       67     IOPort       PWM          10        PWM             (Out)
+    41       68     IOPort       PWM          11        Dir             (Out)
+    43       69     IOPort       PWM          10        Dir             (Out)
+    45       70     IOPort       PWM          11        /Enable         (Out)
+    47       71     IOPort       PWM          10        /Enable         (Out)
+
+    IO Connections for P9
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1       72     IOPort       QCount       13        Quad-B          (In)
+     3       73     IOPort       QCount       13        Quad-A          (In)
+     5       74     IOPort       QCount       12        Quad-B          (In)
+     7       75     IOPort       QCount       12        Quad-A          (In)
+     9       76     IOPort       QCount       13        Quad-IDX        (In)
+    11       77     IOPort       QCount       12        Quad-IDX        (In)
+    13       78     IOPort       PWM          13        PWM             (Out)
+    15       79     IOPort       PWM          12        PWM             (Out)
+    17       80     IOPort       PWM          13        Dir             (Out)
+    19       81     IOPort       PWM          12        Dir             (Out)
+    21       82     IOPort       PWM          13        /Enable         (Out)
+    23       83     IOPort       PWM          12        /Enable         (Out)
+    25       84     IOPort       QCount       15        Quad-B          (In)
+    27       85     IOPort       QCount       15        Quad-A          (In)
+    29       86     IOPort       QCount       14        Quad-B          (In)
+    31       87     IOPort       QCount       14        Quad-A          (In)
+    33       88     IOPort       QCount       15        Quad-IDX        (In)
+    35       89     IOPort       QCount       14        Quad-IDX        (In)
+    37       90     IOPort       PWM          15        PWM             (Out)
+    39       91     IOPort       PWM          14        PWM             (Out)
+    41       92     IOPort       PWM          15        Dir             (Out)
+    43       93     IOPort       PWM          14        Dir             (Out)
+    45       94     IOPort       PWM          15        /Enable         (Out)
+    47       95     IOPort       PWM          14        /Enable         (Out)
+
+    IO Connections for P8
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1       96     IOPort       StepGen       0        Step/Table1     (Out)
+     3       97     IOPort       StepGen       0        Dir/Table2      (Out)
+     5       98     IOPort       StepGen       1        Step/Table1     (Out)
+     7       99     IOPort       StepGen       1        Dir/Table2      (Out)
+     9      100     IOPort       StepGen       2        Step/Table1     (Out)
+    11      101     IOPort       StepGen       2        Dir/Table2      (Out)
+    13      102     IOPort       StepGen       3        Step/Table1     (Out)
+    15      103     IOPort       StepGen       3        Dir/Table2      (Out)
+    17      104     IOPort       StepGen       4        Step/Table1     (Out)
+    19      105     IOPort       StepGen       4        Dir/Table2      (Out)
+    21      106     IOPort       StepGen       5        Step/Table1     (Out)
+    23      107     IOPort       StepGen       5        Dir/Table2      (Out)
+    25      108     IOPort       StepGen       6        Step/Table1     (Out)
+    27      109     IOPort       StepGen       6        Dir/Table2      (Out)
+    29      110     IOPort       StepGen       7        Step/Table1     (Out)
+    31      111     IOPort       StepGen       7        Dir/Table2      (Out)
+    33      112     IOPort       StepGen       8        Step/Table1     (Out)
+    35      113     IOPort       StepGen       8        Dir/Table2      (Out)
+    37      114     IOPort       StepGen       9        Step/Table1     (Out)
+    39      115     IOPort       StepGen       9        Dir/Table2      (Out)
+    41      116     IOPort       StepGen      10        Step/Table1     (Out)
+    43      117     IOPort       StepGen      10        Dir/Table2      (Out)
+    45      118     IOPort       StepGen      11        Step/Table1     (Out)
+    47      119     IOPort       StepGen      11        Dir/Table2      (Out)
+
+    IO Connections for P7
+    Pin#    I/O     Pri. func    Sec. func    Chan      Pin func        Pin Dir
+
+     1      120     IOPort       StepGen      12        Step/Table1     (Out)
+     3      121     IOPort       StepGen      12        Dir/Table2      (Out)
+     5      122     IOPort       StepGen      13        Step/Table1     (Out)
+     7      123     IOPort       StepGen      13        Dir/Table2      (Out)
+     9      124     IOPort       StepGen      14        Step/Table1     (Out)
+    11      125     IOPort       StepGen      14        Step/Table1     (Out)
+    13      126     IOPort       StepGen      15        Step/Table1     (Out)
+    15      127     IOPort       StepGen      15        Dir/Table2      (Out)
+    17      128     IOPort       StepGen      16        Step/Table1     (Out)
+    19      129     IOPort       StepGen      16        Dir/Table2      (Out)
+    21      130     IOPort       StepGen      17        Step/Table1     (Out)
+    23      131     IOPort       StepGen      17        Dir/Table2      (Out)
+    25      132     IOPort       StepGen      18        Step/Table1     (Out)
+    27      133     IOPort       StepGen      18        Dir/Table2      (Out)
+    29      134     IOPort       StepGen      19        Step/Table1     (Out)
+    31      135     IOPort       StepGen      19        Dir/Table2      (Out)
+    33      136     IOPort       StepGen      20        Step/Table1     (Out)
+    35      137     IOPort       StepGen      20        Dir/Table2      (Out)
+    37      138     IOPort       StepGen      21        Step/Table1     (Out)
+    39      139     IOPort       StepGen      21        Dir/Table2      (Out)
+    41      140     IOPort       StepGen      22        Step/Table1     (Out)
+    43      141     IOPort       StepGen      22        Dir/Table2      (Out)
+    45      142     IOPort       StepGen      23        Step/Table1     (Out)
+    47      143     IOPort       StepGen      23        Dir/Table2      (Out)

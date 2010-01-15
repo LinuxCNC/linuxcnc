@@ -871,9 +871,9 @@ void EMC_TOOL_STAT::update(CMS * cms)
 {
 
     EMC_TOOL_STAT_MSG::update(cms);
-    cms->update(toolPrepped);
+    cms->update(pocketPrepped);
     cms->update(toolInSpindle);
-    for (int i_toolTable = 0; i_toolTable < 33; i_toolTable++)
+    for (int i_toolTable = 0; i_toolTable < CANON_POCKETS_MAX; i_toolTable++)
 	CANON_TOOL_TABLE_update(cms, &(toolTable[i_toolTable]));
 
 }
@@ -1393,7 +1393,8 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
 {
 
     EMC_TOOL_CMD_MSG::update(cms);
-    cms->update(id);
+    cms->update(pocket);
+    cms->update(toolno);
     cms->update(zoffset);
     cms->update(xoffset);
     cms->update(diameter);
@@ -1668,7 +1669,7 @@ void EMC_SPINDLE_DECREASE::update(CMS * cms)
 */
 void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x)
 {
-    cms->update(x->id);
+    cms->update(x->toolno);
     cms->update(x->zoffset);
     cms->update(x->diameter);
     cms->update(x->xoffset);
@@ -1722,7 +1723,6 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(axisType);
     cms->update(units);
     cms->update(backlash);
-    cms->update(maxError);
     cms->update(minPositionLimit);
     cms->update(maxPositionLimit);
     cms->update(maxFerror);
@@ -1732,6 +1732,7 @@ void EMC_AXIS_STAT::update(CMS * cms)
     cms->update(ferrorHighMark);
     cms->update(output);
     cms->update(input);
+    cms->update(velocity);
     cms->update(inpos);
     cms->update(homing);
     cms->update(homed);
@@ -1855,9 +1856,9 @@ void EMC_TASK_STAT::update(CMS * cms)
     EmcPose_update(cms, &origin);
     EmcPose_update(cms, &toolOffset);
     cms->update(tloIsAlongW);
-    cms->update(activeGCodes, 12);
-    cms->update(activeMCodes, 7);
-    cms->update(activeSettings, 3);
+    cms->update(activeGCodes, ACTIVE_G_CODES);
+    cms->update(activeMCodes, ACTIVE_M_CODES);
+    cms->update(activeSettings, ACTIVE_SETTINGS);
     cms->update(programUnits);
     cms->update(interpreter_errcode);
     cms->update(input_timeout);

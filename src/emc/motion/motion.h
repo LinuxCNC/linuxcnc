@@ -526,6 +526,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double pos_cmd;		/* commanded joint position */
 	double pos_fb;		/* position feedback, comp removed */
+	double vel_cmd;         /* current velocity */
 	double ferror;		/* following error */
 	double ferror_high_mark;	/* max following error */
 
@@ -645,6 +646,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         double distance_to_go;  /* in this move */
         EmcPose dtg;
         double current_vel;
+        double requested_vel;
 
         unsigned int tcqlen;
         double tooloffset_x;

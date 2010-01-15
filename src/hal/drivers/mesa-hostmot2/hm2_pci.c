@@ -32,7 +32,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i20, 4i65, and 5i22 Anything I/O boards from Mesa Electronics");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[023], 4i6[58], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
@@ -53,6 +53,7 @@ static int num_5i22 = 0;
 static int num_5i23 = 0;
 static int num_4i65 = 0;
 static int num_4i68 = 0;
+static int num_3x20 = 0;
 
 
 static struct pci_device_id hm2_pci_tbl[] = {
@@ -111,6 +112,30 @@ static struct pci_device_id hm2_pci_tbl[] = {
         .device = HM2_PCI_DEV_PLX9054,
         .subvendor = 0x10b5,
         .subdevice = HM2_PCI_SSDEV_4I68,
+    },
+
+    // 3X20-1.0M
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9056,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_3X20_10,
+    },
+
+    // 3X20-1.5M
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9056,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_3X20_15,
+    },
+
+    // 3X20-2.0M
+    {
+        .vendor = 0x10b5,
+        .device = HM2_PCI_DEV_PLX9056,
+        .subvendor = 0x10b5,
+        .subdevice = HM2_PCI_SSDEV_3X20_20,
     },
 
     {0,},
@@ -420,6 +445,31 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_SSDEV_3X20_10:
+        case HM2_PCI_SSDEV_3X20_15:
+        case HM2_PCI_SSDEV_3X20_20: {
+            if (dev->subsystem_device == HM2_PCI_SSDEV_3X20_10) {
+                LL_PRINT("discovered 3x20-1.0M at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "3s1000fg456";
+            } else if (dev->subsystem_device == HM2_PCI_SSDEV_3X20_15) {
+                LL_PRINT("discovered 3x20-1.5M at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "3s1500fg456";
+            } else {
+                LL_PRINT("discovered 3x20-2.0M at %s\n", pci_name(dev));
+                board->llio.fpga_part_number = "3s2000fg456";
+            }
+            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_3x20.%d", num_3x20);
+            num_3x20 ++;
+            board->llio.num_ioport_connectors = 6;
+            board->llio.ioport_connector_name[0] = "P4";
+            board->llio.ioport_connector_name[1] = "P5";
+            board->llio.ioport_connector_name[2] = "P6";
+            board->llio.ioport_connector_name[3] = "P9";
+            board->llio.ioport_connector_name[4] = "P8";
+            board->llio.ioport_connector_name[5] = "P7";
+            break;
+        }
+
         default: {
             LL_ERR("unknown subsystem device id 0x%04x", dev->subsystem_device);
             return -ENODEV;
@@ -450,6 +500,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_DEV_PLX9056:
         case HM2_PCI_DEV_PLX9054: {
             // get a hold of the IO resources we'll need later
             // FIXME: should request_region here

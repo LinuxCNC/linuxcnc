@@ -14,7 +14,7 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-component joyhandle "joypad handle";
+component joyhandle "sets nonlinear joypad movements, deadbands and scales";
 pin in float in;
 pin out float out;
 param rw float power = 2.0;
@@ -24,12 +24,6 @@ param rw float offset = 0.;
 param rw bit inverse = 0;	
 
 description """
-.TH "joyhandle" "9" "2008-02-14 Version 3" "EMC Documentation" "HAL Component"
-.SH "NAME"
-joyhandle \\- sets nonlinear joypad movements, deadbands and scales
-.SH "SYNOPSIS"
-.B loadrt joyhandle [count=\\fIN\\fB]
-.SH "DESCRIPTION"
 The component \\fBjoyhandle\\fR uses the following formula for a non linear joypad movements:
 
 \\fBy = (scale * (a*x^power + b*x)) + offset\\fR
@@ -47,40 +41,6 @@ Valid values are: power >= 1.0 (reasonable values are 1.x .. 4-5, take higher po
 An additional offset component can be set in special cases (default = 0).
 
 All values can be adjusted for each instance separately.
-
-.SH "FUNCTIONS"
-
-.SH "PINS"
-.TP  
-.B joyhandle.\\fIN\\fB.in float in 
-Analog input value (for example form joypad.axis.\\fIN\\fB)
-.TP  
-.B joyhandle.\\fIN\\fB.out float out 
-Analog output value (for example to haluui.jog.\\fIN\\fB).analog
-
-
-.SH "PARAMETERS"
-.TP  
-.B joyhandle.\\fIN\\fB.power float rw 
-Nonlinearity power >= 1.001
-Default power = 2.0
-.TP  
-.B joyhandle.\\fIN\\fB.deadband float rw 
-0. <= deadband <= 0.99
-Default deadband = 0.
-.TP  
-.B joyhandle.\\fIN\\fB.scale float rw 
-Default scale = 1.
-Negative values invert the movements
-.TP  
-.B joyhandle.\\fIN\\fB.offset float rw 
-Default offset = 0.
-.TP  
-.B joyhandle.\\fIN\\fB.ftype unsigned rw 
-Default ftype = 0;
-Not yet used, for further purposes
-.SH ""
-
 """;
 
 function _;
@@ -89,7 +49,7 @@ license "GPL";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-float p,a,b,alin,clin,xm,ym,xinv,yinv;
+double p,a,b,alin,clin,xm,ym,xinv,yinv;
 
 if (power < 1.0) power =1.0;
 

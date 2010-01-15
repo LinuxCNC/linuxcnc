@@ -131,28 +131,9 @@ void halcmd_shutdown(void) {
    command.
 */
 
-enum argtype {
-    A_ZERO,  /* prototype: f(void) */
-    A_ONE,   /* prototype: f(char *arg) */
-    A_TWO,   /* prototype: f(char *arg1, char *arg2) */
-    A_THREE, /* prototype: f(char *arg1, char *arg2, char *arg3) */
+#define FUNCT(x) ((halcmd_func_t)x)
 
-    A_PLUS = 0x100,          /* adds to prototype: char *args[] */
-    A_REMOVE_ARROWS = 0x200, /* removes any arrows from command */
-    A_OPTIONAL = 0x400       /* arguments may be NULL */
-};
-
-typedef int(*func_t)(void);
-
-#define FUNCT(x) ((func_t)x)
-
-struct command {
-    const char *name;
-    func_t func;
-    enum argtype type;
-};
-
-struct command commands[] = {
+struct halcmd_command halcmd_commands[] = {
     {"addf",    FUNCT(do_addf_cmd),    A_TWO | A_PLUS },
     {"alias",   FUNCT(do_alias_cmd),   A_THREE },
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
@@ -188,16 +169,16 @@ struct command commands[] = {
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
     {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
 };
-#define ncommands (sizeof(commands) / sizeof(commands[0]))
+int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));
 
 static int sort_command(const void *a, const void *b) {
-    const struct command *ca = a, *cb = b;
+    const struct halcmd_command *ca = a, *cb = b;
     return strcmp(ca->name, cb->name);
 }
 
 static int compare_command(const void *namep, const void *commandp) {
     const char *name = namep;
-    const struct command *command = commandp;
+    const struct halcmd_command *command = commandp;
     return strcmp(name, command->name);
 }
 
@@ -315,8 +296,9 @@ static int count_args(char **argv) {
 #define REST(i) (argc > i ? argv + i : argv + argc)
 
 static int parse_cmd1(char **argv) {
-    struct command *command = bsearch(argv[0], commands, ncommands,
-		sizeof(struct command), compare_command);
+    struct halcmd_command *command = bsearch(argv[0],
+                halcmd_commands, halcmd_ncommands,
+		sizeof(struct halcmd_command), compare_command);
     int argc = count_args(argv);
 
     if(argc == 0)
@@ -430,7 +412,8 @@ int halcmd_parse_cmd(char *tokens[])
 
     if(first_time) {
         /* ensure that commands is sorted when it is searched later */
-        qsort(commands, ncommands, sizeof(struct command), sort_command);
+        qsort(halcmd_commands, halcmd_ncommands,
+                sizeof(struct halcmd_command), sort_command);
         first_time = 0;
     }
 

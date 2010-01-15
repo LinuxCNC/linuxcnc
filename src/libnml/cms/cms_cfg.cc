@@ -384,6 +384,7 @@ extern char *get_buffer_line(const char *bufname, const char *filename)
 	    return line;
 	}
     }
+    fclose(fp);
     return NULL;
 }
 

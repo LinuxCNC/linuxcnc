@@ -142,8 +142,8 @@ function write "Write all the outputs on the pluto-step board";
 see_also """The \\fIpluto_step\\fR section in the HAL User Manual, which shows the location of each physical pin on the pluto board.""";
 
 license "GPL";
+include "hal/drivers/pluto_common.h";
 ;;
-#include "hal/drivers/pluto_common.h"
 
 static int speedrange=0;
 RTAPI_MP_INT(speedrange, "Speed range 0..3");
@@ -160,8 +160,8 @@ RTAPI_MP_INT(speedrange, "Speed range 0..3");
 #define MAXDELTA (MASK/2)
 
 typedef struct {
-    long last_count[4];
-    long reset_count[4];
+    int64_t last_count[4];
+    int64_t reset_count[4];
     double old_position_cmd[4];
     double old_velocity_cmd[4];
 } internal;
@@ -207,7 +207,7 @@ FUNCTION(write) {
 
     if(communication_error) return;
 
-    ADDR(0);
+    EPP_ADDR(0);
 
     for(i=0; i<4; i++) {
 	double new_position_cmd = stepgen_position_cmd(i);
@@ -270,11 +270,11 @@ FUNCTION(read) {
     int i;
     __u32 ppdata;
 
-    ADDR(0);
+    EPP_ADDR(0);
     EPP_DIR_READ();
 
     for(i=0; i<4; i++) {
-        long long count;
+        int64_t count;
         double fcount;
 	int newlow;
         int reset;

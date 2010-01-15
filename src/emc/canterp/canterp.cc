@@ -629,11 +629,11 @@ int emcTaskPlanExecute(const char *command)
 	return 0;
     }
 
-    if (!strcmp(the_command_name, "SELECT_TOOL")) {
+    if (!strcmp(the_command_name, "SELECT_POCKET")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
 	    return 1;
 	}
-	SELECT_TOOL(i1);
+	SELECT_POCKET(i1);
 	return 0;
     }
 

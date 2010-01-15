@@ -1080,6 +1080,7 @@ AC_SUBST([TK_CFLAGS])
 AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
+AC_SUBST([TCLSH])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #
@@ -1344,6 +1345,7 @@ AC_CONFIG_FILES([../docs/man/man1/emc.1])
 AC_CONFIG_FILES([../scripts/emc], [chmod +x ../scripts/emc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/emc-environment], [chmod +x ../scripts/emc-environment])
+AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)

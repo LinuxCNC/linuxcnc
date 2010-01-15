@@ -1,6 +1,6 @@
-POC     FMS     LEN     DIAM    COMMENT
-1       1       0.0     0.05     first tool
-2       2       0.0     0.0
-3       3       0.0     0.0
-4       4       0.0     0.0
-32      32      0.0     0.0     last tool
+TOOLNO POCKET       LENGTH    DIAMETER  COMMENT
+
+     1      1    +0.511000    0.125000  1/8 end mill
+     2      2    +0.100000    0.062500  1/16 end mill
+     3      3    +1.273000    0.201000  #7 tap drill
+ 99999  99999    +0.100000    0.000000  big tool number

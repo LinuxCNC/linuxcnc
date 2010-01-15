@@ -201,7 +201,7 @@ static PyTypeObject Ini_Type = {
     0,                      /*tp_is_gc*/
 };
 
-#define EMC_COMMAND_TIMEOUT 2.0  // how long to wait until timeout
+#define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
 static int emcWaitCommandComplete(int serial_number, RCS_STAT_CHANNEL *s) {
@@ -355,7 +355,7 @@ static PyMemberDef Stat_members[] = {
 
 // io
 // EMC_TOOL_STAT io.tool
-    {"tool_prepped", T_INT, O(io.tool.toolPrepped), READONLY},
+    {"pocket_prepped", T_INT, O(io.tool.pocketPrepped), READONLY},
     {"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY},
 
 // EMC_COOLANT_STAT io.cooland
@@ -513,7 +513,6 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F(axisType);
     F(units);
     F(backlash);
-    F2("max_error", maxError);
     F2("min_position_limit", minPositionLimit);
     F2("max_position_limit", maxPositionLimit);
     F2("max_ferror", maxFerror);
@@ -522,6 +521,7 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     F2("ferror_highmark", ferrorHighMark);
     F(output);
     F(input);
+    F(velocity);
     F(inpos);
     F(homing);
     F(homed);
@@ -566,13 +566,13 @@ static PyStructSequence_Desc tool_result_desc = {
 static PyTypeObject ToolResultType;
 
 static PyObject *Stat_tool_table(pyStatChannel *s) {
-    PyObject *res = PyTuple_New(CANON_TOOL_MAX);
+    PyObject *res = PyTuple_New(CANON_POCKETS_MAX);
     int j=0;
-    for(int i=1; i<=CANON_TOOL_MAX; i++) {
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
         struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
-        if(t.id == 0) continue;
+        if(t.toolno == -1 && i!=0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.id));
+        PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
         PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.zoffset));
         PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.xoffset));
         PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.diameter));
@@ -857,7 +857,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.id, &m.zoffset, &m.xoffset, &m.diameter, 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.zoffset, &m.xoffset, &m.diameter, 
                          &m.frontangle, &m.backangle, &m.orientation)) 
         return NULL;
     m.serial_number = next_serial(s);
@@ -1567,8 +1567,7 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
             double t = i * 1.0 / st;
             double v = 1.0 - t;
             double pt[9];
-            int i;
-            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
             glvertex9(pt, geometry);
         }
     } else {
@@ -1590,8 +1589,7 @@ static void line9b(const double p1[9], const double p2[9], const char *geometry)
             double t = i * 1.0 / st;
             double v = 1.0 - t;
             double pt[9];
-            int i;
-            for(i=0; i<9; i++) { pt[i] = t * p2[i] + v * p1[i]; }
+            for(int j=0; j<9; j++) { pt[j] = t * p2[j] + v * p1[j]; }
             glvertex9(pt, geometry);
             if(i != st)
                 glvertex9(pt, geometry);

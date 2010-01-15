@@ -39,6 +39,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -84,52 +85,23 @@ In the early 1990's, the bidirectional parallel port was introduced, which
 \begin_layout Standard
 In some parallel ports, the control group pins are open collectors, which
  may also be driven low by an external gate.
- On a board with open collector control pins, the 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode allows a more flexible mode with 8 outputs, and 9 inputs.
+ On a board with open collector control pins, the "x" mode allows a more
+ flexible mode with 8 outputs, and 9 inputs.
  In other parallel ports, the control group has push-pull drivers and cannot
  be used as an input.
 \begin_inset Foot
 status open
 
 \begin_layout Standard
-HAL cannot automatically determine if the 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode bidirectional pins are actually open collectors (OC).
+HAL cannot automatically determine if the "x" mode bidirectional pins are
+ actually open collectors (OC).
  If they are not, they cannot be used as inputs, and attempting to drive
  them LOW from an external source can damage the hardware.
 \end_layout
 
 \begin_layout Standard
-To determine whether your port has 
-\begin_inset Quotes eld
-\end_inset
-
-open collector
-\begin_inset Quotes erd
-\end_inset
-
- pins, load hal_parport in 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode.
+To determine whether your port has "open collector" pins, load hal_parport
+ in "x" mode.
   With no device attached, HAL should read the pin as TRUE.
  Next, insert a 470
 \begin_inset Formula $\Omega$
@@ -156,24 +128,8 @@ The external hardware that drives the control pins should also use open
 \end_layout
 
 \begin_layout Standard
-On some machines, BIOS settings may affect whether 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode can be used.
- 
-\begin_inset Quotes eld
-\end_inset
-
-SPP
-\begin_inset Quotes erd
-\end_inset
-
- mode is most most likely to work.
+On some machines, BIOS settings may affect whether "x" mode can be used.
+ "SPP" mode is most most likely to work.
 \end_layout
 
 \end_inset
@@ -192,15 +148,8 @@ reference "fig:Parport-block-diag"
 
  shows two block diagrams, one showing the driver when the data group is
  configured for output, and one showing it configured for input.
-  For "x" mode, refer to the pin listing of
-\begin_inset Quotes eld
-\end_inset
-
-halcmd show pin
-\begin_inset Quotes erd
-\end_inset
-
- for pin direction assignment.
+  For "x" mode, refer to the pin listing of "halcmd show pin" for pin direction
+ assignment.
 \end_layout
 
 \begin_layout Standard
@@ -213,109 +162,62 @@ t.c).
 Installing
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt hal_parport cfg="<config-string>"
+\end_layout
+
+\begin_layout Subsubsection*
+Using the Port Index
+\end_layout
+
+\begin_layout Standard
+I/O addresses below 16 are treated as port indexes.
+ This is the simplest way to install the parport driver and cooperates with
+ the Linux paraport_pc driver if it is loaded.
+\end_layout
+
+\begin_layout LyX-Code
+loadrt hal_parport cfg="0"
+\end_layout
+
+\begin_layout Standard
+Will use the address Linux has detected for parport0.
+\end_layout
+
+\begin_layout Subsubsection*
+Using the Port Address
 \end_layout
 
 \begin_layout Standard
 The config string consists of a hex port address, followed by an optional
  direction, repeated for each port.
- The direction is 
-\begin_inset Quotes eld
-\end_inset
-
-in
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-out
-\begin_inset Quotes erd
-\end_inset
-
-, or 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- and determines the direction of the physical pins 2 through 9, and whether
- to create input HAL pins for the physical control pins.
+ The direction is "in", "out", or "x" and determines the direction of the
+ physical pins 2 through 9, and whether to create input HAL pins for the
+ physical control pins.
  If the direction is not specified, the data group defaults to output.
  For example:
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 \end_layout
 
 \begin_layout Standard
 This example installs drivers for one port at 0x0278, with pins 2-9 as outputs
- (by default, since neither 
-\begin_inset Quotes eld
-\end_inset
-
-in
-\begin_inset Quotes erd
-\end_inset
-
- nor 
-\begin_inset Quotes eld
-\end_inset
-
-out
-\begin_inset Quotes erd
-\end_inset
-
- was specified), one at 0x0378, with pins 2-9 as inputs, and one at 0x20A0,
- with pins 2-9 explicitly specified as outputs.
+ (by default, since neither "in" nor "out" was specified), one at 0x0378,
+ with pins 2-9 as inputs, and one at 0x20A0, with pins 2-9 explicitly specified
+ as outputs.
  Note that you must know the base address of the parallel port to properly
  configure the driver.
  For ISA bus ports, this is usually not a problem, since the port is almost
- always at a 
-\begin_inset Quotes eld
-\end_inset
-
-well known
-\begin_inset Quotes erd
-\end_inset
-
- address, like 0278 or 0378 which is typically configured in the system
- BIOS.
- The address for a PCI card is usually shown in 
-\begin_inset Quotes eld
-\end_inset
-
-lspci -v
-\begin_inset Quotes erd
-\end_inset
-
- in an 
-\begin_inset Quotes eld
-\end_inset
-
-I/O ports
-\begin_inset Quotes erd
-\end_inset
-
+ always at a "well known" address, like 0278 or 0378 which is typically
+ configured in the system BIOS.
+ The address for a PCI card is usually shown in "lspci -v" in an "I/O ports"
  line, or in the kernel message log after executing 
 \family typewriter
-
-\begin_inset Quotes eld
-\end_inset
-
-sudo modprobe -a parport_pc
+"sudo modprobe -a parport_pc
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
-.
+".
  There is no default address; if 
 \family typewriter
 <config-string>

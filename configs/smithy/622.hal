@@ -1,13 +1,12 @@
 # 5i20 config file for Smithy 622 Mill
 
-# load the hostmot2 driver, this doesnt do anything by itself, 
+# load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
-# for the production 924 lathe use SVST2_4_7I47.BIT
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=1 num_pwmgens=1 num_stepgens=4"
 # set up the watchdog
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
@@ -35,12 +34,20 @@ sets Enable TRUE
 #configure the spindle speed lowpass filter & PWM generator
 net Scmd motion.spindle-speed-out => lowpass.0.in
 net Sflt lowpass.0.out => hm2_5i20.0.pwmgen.00.value
-setp lowpass.0.gain 0.0001
+#early production machines
+#setp lowpass.0.gain 0.0001
+#later production machines
+setp lowpass.0.gain 1.0
 setp hm2_5i20.0.pwmgen.00.scale 5000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 
+# invert the step pulse polarity
+setp hm2_5i20.0.gpio.000.invert_output TRUE
+setp hm2_5i20.0.gpio.002.invert_output TRUE
+setp hm2_5i20.0.gpio.016.invert_output TRUE
+setp hm2_5i20.0.gpio.018.invert_output TRUE
+
 # configure the stepgen parameters
-# Need to try changing dirsetup to 2500 & dirhold to 2500.
 setp hm2_5i20.0.stepgen.00.dirsetup        2500
 setp hm2_5i20.0.stepgen.00.dirhold         2500
 setp hm2_5i20.0.stepgen.00.steplen         2500
@@ -107,7 +114,6 @@ net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 # Safety Relay Monitoring Contacts
 net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
 # Run Switch
-net machine-off hm2_5i20.0.gpio.039.in => halui.machine.off
 net machine-on hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
 #connect limit switches to limit inputs
@@ -128,8 +134,6 @@ setp hm2_5i20.0.gpio.041.is_output TRUE
 setp hm2_5i20.0.gpio.041.invert_output TRUE
 # Door Closed - Energizes spindle contactor
 net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
-# Door Open - Disables motion, stops program execution, and stops the spindle
-net OPEN hm2_5i20.0.gpio.029.in motion.feed-hold halui.program.stop halui.spindle.stop
 
 # Main Contactors - True when both contactors are energized
 net ACOK hm2_5i20.0.gpio.035.in_not
@@ -138,8 +142,8 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 #it is used for the A axis home sensor
 #net VFDOK hm2_5i20.0.gpio.031.in_not
 #net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
-# Spindle Contactor - True when spindle contactor is energized
-net SENA hm2_5i20.0.gpio.033.in_not
+# Spindle Contactor - False when spindle contactor is energized
+net SOFF hm2_5i20.0.gpio.033.in motion.feed-hold
 
 # Axis Drive Status Signals
 # True when YAKO stepper drive is on a full step position

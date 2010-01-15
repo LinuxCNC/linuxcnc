@@ -1,5 +1,14 @@
 INCLUDES += emc/kinematics
 
+GENSERKINSSRCS := \
+	emc/kinematics/genserkins.c
+USERSRCS += $(GENSERKINSSRCS)
+
+../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/libemchal.so ../lib/libposemath.so
+	$(ECHO) Linking $(notdir $@)
+	@$(CXX) $(LDFLAGS) -o $@ $^ 
+TARGETS += ../bin/genserkins
+
 ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@
 ../include/%.hh: ./emc/kinematics/%.hh

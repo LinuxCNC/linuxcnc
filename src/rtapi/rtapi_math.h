@@ -9,6 +9,7 @@ extern double cos(double);
 extern double sqrt(double);
 extern double fabs(double);
 extern double atan2(double, double);
+extern double asin(double);
 extern double acos(double);
 extern double pow(double, double);
 

@@ -20,6 +20,10 @@ extern __inline double atan2 (double __y, double __x) {
     return __value;
 }
 
+extern __inline double asin (double __x) {
+    return atan2(__x, sqrt (1.0 - __x * __x));
+}
+
 extern __inline double acos (double __x) {
     return atan2(sqrt(1.0 - __x * __x), __x);
 }

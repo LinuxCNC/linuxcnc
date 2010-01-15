@@ -179,6 +179,9 @@ typedef struct {
     hal_float_t *saturated_s;  /* pin: the time the output has been saturated */
     hal_s32_t   *saturated_count;
 			       /* pin: the time the output has been saturated */
+    hal_bit_t *index_enable;   /* pin: to monitor for step changes that would
+                                       otherwise screw up FF */
+    char prev_ie;
 } hal_pid_t;
 
 /* pointer to array of pid_t structs in shared memory, 1 per loop */
@@ -316,7 +319,19 @@ static void calc_pid(void *arg, long period)
     /* calculate derivative of command */
     /* save old value for 2nd derivative calc later */
     tmp2 = *(pid->cmd_d);
-    *(pid->cmd_d) = (*(pid->command) - pid->prev_cmd) * periodrecip;
+    if(!(pid->prev_ie && !*(pid->index_enable))) {
+        // not falling edge of index_enable: the normal case
+        *(pid->cmd_d) = (*(pid->command) - pid->prev_cmd) * periodrecip;
+    }
+    // else: leave cmd_d alone and use last period's.  prev_cmd
+    // shouldn't be trusted because index homing has caused us to have
+    // a step in position.  Using the previous period's derivative is
+    // probably a decent approximation since index search is usually a
+    // slow steady speed.
+
+    // save ie for next time
+    pid->prev_ie = *(pid->index_enable);
+
     pid->prev_cmd = *(pid->command);
     /* apply derivative limits */
     if (*(pid->maxcmd_d) != 0.0) {
@@ -503,6 +518,11 @@ static int export_pid(int num, hal_pid_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.maxoutput", num);
     retval = hal_pin_float_new(buf, HAL_IO, &(addr->maxoutput), comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "pid.%d.index-enable", num);
+    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->index_enable), comp_id);
     if (retval != 0) {
 	return retval;
     }

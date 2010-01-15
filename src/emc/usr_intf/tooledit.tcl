@@ -74,11 +74,11 @@ proc ::tooledit::isnumber {v} {
 
 proc ::tooledit::qid {} {
    # generate unique id
-   if { ![info exists ::qid_private]} {
-      set ::qid_private 0
+   if { ![info exists ::te(qid)]} {
+      set ::te(qid) 0
    }
-   incr ::qid_private
-   return q$::qid_private
+   incr ::te(qid)
+   return q$::te(qid)
 } ;# qid
 
 proc ::tooledit::ventry {f validatenumber tvar \
@@ -155,6 +155,7 @@ proc ::tooledit::readfile {filename} {
   if [info exists new] {return    0}
 
   set fd [open $filename r]
+
   set bct 0
   while {1} {
     gets $fd newline
@@ -205,15 +206,43 @@ proc ::tooledit::readfile {filename} {
   return 1 ;# ok
 } ;# readfile
 
+proc ::tooledit::watch {args} {
+  catch {after cancel $::te(afterid)}
+  if ![file exists $::te(filename)] {
+    ::tooledit::message filegone
+    return
+  }
+  set mtime [file mtime $::te(filename)]
+  switch $args {
+    start {
+      set ::te(mtime) $mtime
+      set ::te(md5sum) [eval exec md5sum $::te(filename)]
+    }
+    stop  {return; # no reschedule}
+    default {
+      if {$mtime > $::te(mtime)} {
+        set ::te(mtime) $mtime
+        set md5sum $::te(md5sum)
+        set ::te(md5sum) [eval exec md5sum $::te(filename)]
+        # no message if file contents unchanged
+        if {"$md5sum" != "$::te(md5sum)"} {
+          ::tooledit::message changed
+        }
+      }
+    }
+  }
+  set ::te(afterid) [after 2000 ::tooledit::watch]
+} ;# watch
+
 proc ::tooledit::tooledit {filename} {
   set ::te(filename) $filename
   set ::te(types)        {mill lathe}
-  set ::te(mill,header)  {poc fms length diameter comment}
+  set ::te(mill,header)  {poc fms tlo diameter comment}
   set ::te(lathe,header) {poc fms zoffset xoffset diameter \
                          frontangle backangle orient comment}
   set ::te(poc,width)         4
   set ::te(fms,width)         4
-  set ::te(length,width)     10
+  set ::te(tlo,width)        10
   set ::te(diameter,width)   10
   set ::te(comment,width)    20
   set ::te(zoffset,width)    10
@@ -263,6 +292,7 @@ proc ::tooledit::tooledit {filename} {
       }
     }
   }
+  if [file exists $::te(filename)] {watch start}
 
   # button frame (pack from bottom)
   set f [frame $::te(top).[qid]]
@@ -304,8 +334,9 @@ proc ::tooledit::message {type} {
     checkok  {$w conf -text "$dt: File checked"                -fg darkgreen}
     delete   {$w conf -text "$dt: File items deleted"          -fg cyan4}
     bogus    {$w conf -text "$dt: Bogus lines in file ignored" -fg darkorange}
-    verror   {$w conf -text "$dt: File errors"                 -fg red
-    }
+    verror   {$w conf -text "$dt: File errors"                 -fg red}
+    changed  {$w conf -text "$dt: Warning: File changed by another process" -fg red}
+    filegone {$w conf -text "$dt: Warning: File deleted by another process" -fg red}
   }
 } ;# message
 
@@ -426,7 +457,7 @@ proc ::tooledit::makeline {type ay_name} {
       lappend ::te(mill,items) $i
       set ::te(mill,$i,poc)      $ay(0)
       set ::te(mill,$i,fms)      $ay(1)
-      set ::te(mill,$i,length)   $ay(2)
+      set ::te(mill,$i,tlo)      $ay(2)
       set ::te(mill,$i,diameter) $ay(3)
       set ::te(mill,$i,comment)  [string trim $ay(4)]
       pack [checkbutton $f.b -variable ::te(mill,$i,deleteme) \
@@ -593,7 +624,9 @@ proc ::tooledit::writefile {filename} {
       }
     }
   }
+  watch stop
   close $fd
+  watch start
   message write
 } ;# writefile
 
@@ -714,3 +747,4 @@ if {[info script] == $argv0} {
   tkwait variable ::tooledit::finis
   exit 0
 }
+

@@ -59,7 +59,7 @@ endif
 
 
 # list of supported hostmot2 boards
-HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
+HM2_BOARDS = 3x20 4i65 4i68 5i20 5i22 5i23 7i43
 
 # Print 'entering' all the time
 MAKEFLAGS += w
@@ -80,7 +80,7 @@ SUBDIRS := \
     hal/components hal/drivers hal/user_comps/devices \
     hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
     \
-    emc/usr_intf/axis emc/usr_intf/stepconf emc/usr_intf/pncconf \
+    emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc \
     \
@@ -210,7 +210,7 @@ config.h: config.h.in config.status
 
 INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
-	../scripts/rtapi.conf Makefile.inc Makefile.modinc \
+	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
 	../scripts/emcmkdesktop ../lib/python/nf.py
 $(INFILES): %: %.in config.status
@@ -231,6 +231,7 @@ HEADERS := \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
+    emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
     emc/kinematics/tc.h \
     emc/kinematics/tp.h \
@@ -289,6 +290,8 @@ HEADERS := \
     libnml/os_intf/_timer.h \
     libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
+    libnml/posemath/gotypes.h \
+    libnml/posemath/gomath.h \
     libnml/posemath/sincos.h \
     libnml/rcs/rcs.hh \
     libnml/rcs/rcs_exit.hh \
@@ -478,6 +481,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
 	$(FILE) ../share/emc/stepconf.glade $(DESTDIR)$(prefix)/share/emc
+	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
 
@@ -493,9 +497,11 @@ ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
+	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
+	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/emctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/emc/emc2-wizard.gif $(DESTDIR)$(prefix)/share/emc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
@@ -717,6 +723,11 @@ genhexkins-objs := emc/kinematics/genhexkins.o
 genhexkins-objs += libnml/posemath/_posemath.o
 genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += genserkins.o
+genserkins-objs := emc/kinematics/genserkins.o
+genserkins-objs += libnml/posemath/gomath.o
+genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
 pumakins-objs += libnml/posemath/_posemath.o
@@ -837,6 +848,7 @@ endif
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
+../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 

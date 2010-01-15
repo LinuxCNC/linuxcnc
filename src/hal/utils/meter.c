@@ -143,7 +143,7 @@ int main(int argc, gchar * argv[])
     GtkWidget *vbox, *hbox;
     GtkWidget *button_select, *button_exit;
     char buf[30];
-    int initial_type = 0, n, height, geometryflag = 0, xposition = 0, yposition = 0;
+    int initial_type = 0, n, i, height, geometryflag = 0, xposition = 0, yposition = 0, width = 270;
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
@@ -160,13 +160,24 @@ int main(int argc, gchar * argv[])
     n = 1;
     while ( argc > n ) {  
         if ( strcmp (argv[n], "-g") == 0 ) {
-            /*this sets up the variables for initial position of window*/
+            /* This sets up the variables for initial position of window*/
+            /* The last check is for the optional width request*/
 	        geometryflag = 1;
 	        n++;
             xposition =  atoi(argv[n]);
             n++;
             yposition =  atoi(argv[n]);
             n++;
+            if ( argc > n ){
+                strcpy(buf,argv[n]);
+                for (i=0; i< strlen(argv[n]); i++) {
+                    if (isdigit(buf[i]) == 0) { break; } 
+                }
+                if (strlen(argv[n]) == i){
+                    width =  atoi(argv[n]);
+                    n++;
+                }
+            } 
 	    }
         if ((argc > n) && ( strcmp (argv[n], "-s") == 0 )) {
 	        small = 1;
@@ -226,7 +237,7 @@ int main(int argc, gchar * argv[])
 	height = 80;
 	win_name = _("Hal Meter");
     }
-    gtk_widget_set_usize(GTK_WIDGET(main_window), 270, height);
+    gtk_widget_set_usize(GTK_WIDGET(main_window), width, height);
     gtk_window_set_policy(GTK_WINDOW(main_window), FALSE, FALSE, FALSE);
     /* set main window title */
     gtk_window_set_title(GTK_WINDOW(main_window), win_name);

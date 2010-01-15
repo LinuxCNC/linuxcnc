@@ -1,0 +1,28 @@
+TOUCHY_MODULES = mdi emc_interface hal_interface filechooser listing preferences
+
+PYTARGETS += ../bin/touchy ../lib/python/touchy/__init__.py $(patsubst %,../lib/python/touchy/%.py,$(TOUCHY_MODULES)) \
+	../share/emc/touchy.glade
+PYI18NSRCS += emc/usr_intf/touchy/touchy.py $(patsubst %,emc/usr_intf/touchy/%.py,$(TOUCHY_MODULES)) \
+	emc/usr_intf/touchy/touchy.glade
+
+../lib/python/touchy/__init__.py:
+	@mkdir -p ../lib/python/touchy
+	@touch $@
+
+../lib/python/touchy/%: emc/usr_intf/touchy/%
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	@mkdir -p ../lib/python/touchy
+	@cp $< $@
+
+../share/emc/touchy.glade: emc/usr_intf/touchy/touchy.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	mkdir -p $(dir $@)
+	cp -f $< $@
+
+../bin/touchy: emc/usr_intf/touchy/touchy.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	@$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	@(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

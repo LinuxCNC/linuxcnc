@@ -60,8 +60,7 @@ sys.excepthook = excepthook
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-import gettext;
-#def _(x): return x
+import gettext
 gettext.install("emc2", localedir=LOCALEDIR, unicode=True)
 gtk.glade.bindtextdomain("emc2", LOCALEDIR)
 gtk.glade.textdomain("emc2")
@@ -1282,6 +1281,7 @@ class App:
         self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
         self.data.steptime = self.widgets.steptime.get_value()
         self.data.stepspace = self.widgets.stepspace.get_value()
+        self.data.dirsetup = self.widgets.dirsetup.get_value()
         self.data.dirhold = self.widgets.dirhold.get_value()
         self.data.latency = self.widgets.latency.get_value()
         self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()

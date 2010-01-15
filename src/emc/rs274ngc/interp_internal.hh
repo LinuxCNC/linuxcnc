@@ -24,6 +24,16 @@
 /*   COMPILER MACROS  */
 /**********************/
 
+#ifndef R2D
+#define R2D(r) ((r)*180.0/M_PI)
+#endif
+#ifndef D2R
+#define D2R(r) ((r)*M_PI/180.0)
+#endif
+#ifndef SQ
+#define SQ(a) ((a)*(a))
+#endif
+
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
 
 #define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
@@ -210,7 +220,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"
 
 // number of parameters in parameter table
-#define RS274NGC_MAX_PARAMETERS 5400
+#define RS274NGC_MAX_PARAMETERS 5414
 
 // Subroutine parameters
 #define INTERP_SUB_PARAMS 30
@@ -282,6 +292,10 @@ typedef struct block_struct
   double y_number;
   ON_OFF z_flag;
   double z_number;
+
+  int polar_flag; //polar coordinate was specified
+  double radius;
+  double theta;
 
   // control (o-word) stuff
   long     offset;   // start of line in file
@@ -366,7 +380,7 @@ typedef struct setup_struct
   block block1;                 // parsed next block
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
-  int current_slot;             // carousel slot number of current tool
+  int current_pocket;             // carousel slot number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position
   double current_z;             // current Z-axis position
@@ -419,7 +433,8 @@ typedef struct setup_struct
   double program_y;             // program y, used when cutter comp on
   double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
-  int selected_tool_slot;       // tool slot selected but not active
+  int random_toolchanger;       // tool changer swaps pockets, and pocket 0 is the spindle instead of "no tool"
+  int selected_pocket;          // tool slot selected but not active
   int sequence_number;          // sequence number of line last read
   double speed;                 // current spindle speed in rpm or SxM
   SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
@@ -431,8 +446,8 @@ typedef struct setup_struct
   double tool_zoffset;          // current tool Z offset (AKA tool length offset)
   double tool_xoffset;          // current tool X offset
   double tool_woffset;          // current tool W offset
-  int tool_max;                 // highest number tool slot in carousel
-  CANON_TOOL_TABLE tool_table[CANON_TOOL_MAX + 1];      // index is slot number
+  int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
+  CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
 
   /* stuff for subroutines and control structures */
@@ -461,6 +476,9 @@ typedef struct setup_struct
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
+  int a_axis_wrapped;
+  int b_axis_wrapped;
+  int c_axis_wrapped;
 
   ON_OFF lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
 }

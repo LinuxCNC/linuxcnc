@@ -38,7 +38,9 @@ loadrt pid num_chan=3
 loadrt probe_parport
 
 # hostmot2 driver
-loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+# if you have any firmware trouble, enable the debug flags here and see what's going on in the syslog
+#loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
+loadrt hostmot2
 
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
@@ -101,7 +103,7 @@ setp pid.0.FF0 [AXIS_0]FF0
 setp pid.0.FF1 [AXIS_0]FF1
 setp pid.0.FF2 [AXIS_0]FF2
 setp pid.0.deadband [AXIS_0]DEADBAND
-setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.output-type 1 #pwm on pin1, dir on pin2
@@ -109,6 +111,7 @@ setp hm2_[HOSTMOT2](BOARD).0.pwmgen.00.scale  [AXIS_0]OUTPUT_SCALE
 
 net emcmot.00.pos-cmd axis.0.motor-pos-cmd => pid.0.command
 net motor.00.command  pid.0.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.00.value
+
 
 # ################
 # Y [1] Axis
@@ -141,7 +144,7 @@ setp pid.1.FF0 [AXIS_1]FF0
 setp pid.1.FF1 [AXIS_1]FF1
 setp pid.1.FF2 [AXIS_1]FF2
 setp pid.1.deadband [AXIS_1]DEADBAND
-setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.output-type 1 #pwm on pin1, dir on pin2
@@ -149,6 +152,7 @@ setp hm2_[HOSTMOT2](BOARD).0.pwmgen.01.scale [AXIS_1]OUTPUT_SCALE
 
 net emcmot.01.pos-cmd axis.1.motor-pos-cmd => pid.1.command
 net motor.01.command  pid.1.output  =>  hm2_[HOSTMOT2](BOARD).0.pwmgen.01.value
+
 
 # ################
 # Z [2] Axis
@@ -181,7 +185,7 @@ setp pid.2.FF0 [AXIS_2]FF0
 setp pid.2.FF1 [AXIS_2]FF1
 setp pid.2.FF2 [AXIS_2]FF2
 setp pid.2.deadband [AXIS_2]DEADBAND
-setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
 
 # position command signals
 setp hm2_[HOSTMOT2](BOARD).0.pwmgen.02.output-type 1 #pwm on pin1, dir on pin2
@@ -201,4 +205,32 @@ net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 # create signals for tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
+
+
+#
+# homing
+#
+
+#
+# In this example, each of the three axes have their own home switch.  All
+# home switches are connected to GPIO 25, though hostmot2 boards generally
+# have enough GPIO pins to put each axis' home switch on its own pin.
+#
+# Each switch is normally open, momentarily closed.  When the switch is open,
+# GPIO 25 floats high (because that is the hostmot2 way).  When the switch is
+# closed, it shorts GPIO 25 to ground.
+#
+# EMC expects the value on the .home-sw-in HAL pin to be active high, ie
+# True when the switch is closed and False when the switch is open.
+# We get this behavior by linking the GPIO .in_not pin instead of the .in
+# pin.
+#
+
+net home-switch <= hm2_[HOSTMOT2](BOARD).0.gpio.025.in_not
+net home-switch => axis.0.home-sw-in
+net home-switch => axis.1.home-sw-in
+net home-switch => axis.2.home-sw-in
+
+# only the Y servo has an index, X and Z home without using the index
+net y-index-enable hm2_[HOSTMOT2](BOARD).0.encoder.01.index-enable <=> axis.1.index-enable
 

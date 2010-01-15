@@ -84,7 +84,6 @@ extern int tpResume(TP_STRUCT * tp);
 extern int tpAbort(TP_STRUCT * tp);
 extern EmcPose tpGetPos(TP_STRUCT * tp);
 extern int tpIsDone(TP_STRUCT * tp);
-extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);
 extern int tpGetMotionType(TP_STRUCT * tp);

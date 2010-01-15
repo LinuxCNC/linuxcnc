@@ -22,8 +22,8 @@ loadrt sim_encoder num_chan=3
 loadrt encoder num_chan=6
 
 # add encoder counter and simulator functions to high speed thread
-addf encoder.update-counters base-thread
 addf sim-encoder.make-pulses base-thread
+addf encoder.update-counters base-thread
 
 # add all required functions to servo thread
 addf encoder.capture-position servo-thread
@@ -69,7 +69,7 @@ setp encoder.1.position-scale [AXIS_1]INPUT_SCALE
 setp encoder.2.position-scale [AXIS_2]INPUT_SCALE
 
 # connect encoder index-enables for homing on index
-net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable
+net Xindex-enable encoder.0.index-enable <=> axis.0.index-enable pid.0.index-enable
 net Yindex-enable encoder.1.index-enable <=> axis.1.index-enable
 net Zindex-enable encoder.2.index-enable <=> axis.2.index-enable
 
@@ -262,3 +262,25 @@ setp wcomp.7.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
 # home switch
 setp wcomp.8.min [AXIS_2]HOME_SW_MIN
 setp wcomp.8.max [AXIS_2]HOME_SW_MAX
+
+# Configure fake probing
+loadrt sphereprobe
+
+addf sphereprobe.0 base-thread 2
+
+setp sphereprobe.0.cx -2811 # this is where it ends up after homing
+setp sphereprobe.0.cz -6000 # this is where it ends up after homing
+setp sphereprobe.0.r 5000   # 5/6 inch
+net px encoder.0.rawcounts => sphereprobe.0.px
+net py encoder.1.rawcounts => sphereprobe.0.py
+net pz encoder.2.rawcounts => sphereprobe.0.pz
+net probe-out sphereprobe.0.probe-out => motion.probe-input 
+net probe-out => encoder.0.latch-input encoder.1.latch-input
+net probe-out => encoder.2.latch-input
+
+setp encoder.0.latch-rising 1
+setp encoder.0.latch-falling 1
+setp encoder.1.latch-rising 1
+setp encoder.1.latch-falling 1
+setp encoder.2.latch-rising 1
+setp encoder.2.latch-falling 1

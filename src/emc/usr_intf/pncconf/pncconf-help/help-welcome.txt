@@ -4,3 +4,12 @@ Welcome to PNCCONF a graphical configuration program for EMC2.
 
 Configure a servo or hardware stepper system using the 
 Mesa I / O card and parallel port.
+
+This prelease version requires you to create a link to 
+the mesa firmware file:
+
+sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2-dev
+
+
+
+

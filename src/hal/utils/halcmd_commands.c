@@ -370,7 +370,7 @@ int do_delf_cmd(char *func, char *thread) {
 
 static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
     int i, type=-1, writers=0, bidirs=0, pincnt=0;
-
+    char *writer_name=0, *bidir_name=0;
     /* if signal already exists, use its info */
     if (sig) {
 	type = sig->type;
@@ -378,11 +378,25 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	bidirs = sig->bidirs;
     }
 
+    if(writers || bidirs) 
+    {
+        hal_pin_t *pin;
+        int next;
+        for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
+        {
+            pin = SHMPTR(next);
+            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_OUT)
+                writer_name = pin->name;
+            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_IO)
+                bidir_name = writer_name = pin->name;
+        }
+    }
+
     for(i=0; pins[i] && *pins[i]; i++) {
         hal_pin_t *pin = 0;
         pin = halpr_find_pin_by_name(pins[i]);
         if(!pin) {
-            halcmd_error("pin '%s' does not exist\n",
+            halcmd_error("Pin '%s' does not exist\n",
                     pins[i]);
             return -ENOENT;
         }
@@ -391,8 +405,9 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	    pincnt++;
 	    continue;
 	} else if(pin->signal != 0) {
-            halcmd_error("pin '%s' was already linked\n",
-                    pin->name);
+            hal_sig_t *osig = SHMPTR(pin->signal);
+            halcmd_error("Pin '%s' was already linked to signal '%s'\n",
+                    pin->name, osig->name);
             return -EINVAL;
 	}
 	if (type == -1) {
@@ -400,24 +415,30 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	    type = pin->type;
 	}
         if(type != pin->type) {
-            halcmd_error("Type mismatch on pin '%s'\n",
-                    pin->name);
+            halcmd_error(
+                "Signal '%s' of type '%s' cannot add pin '%s' of type '%s'\n",
+                signal, data_type2(type), pin->name, data_type2(pin->type));
             return -EINVAL;
         }
         if(pin->dir == HAL_OUT) {
             if(writers || bidirs) {
-                halcmd_error("Signal '%s' can not add OUT pin '%s'\n",
-                        signal, pin->name);
+            dir_error:
+                halcmd_error(
+                    "Signal '%s' can not add %s pin '%s', "
+                    "it already has %s pin '%s'\n",
+                        signal, pin_data_dir(pin->dir), pin->name,
+                        bidir_name ? pin_data_dir(HAL_IO):pin_data_dir(HAL_OUT),
+                        bidir_name ? bidir_name : writer_name);
                 return -EINVAL;
             }
+            writer_name = pin->name;
             writers++;
         }
 	if(pin->dir == HAL_IO) {
             if(writers) {
-                halcmd_error("Signal '%s' can not add I/O pin '%s'\n",
-                        signal, pin->name);
-                return -EINVAL;
+                goto dir_error;
             }
+            bidir_name = pin->name;
             bidirs++;
         }
         pincnt++;
@@ -446,7 +467,9 @@ int do_net_cmd(char *signal, char *pins[]) {
     {
 	hal_pin_t *pin = halpr_find_pin_by_name(signal);
 	if(pin) {
-	    halcmd_error("Signal name '%s' must not be the same as a pin.\n",
+	    halcmd_error(
+                    "Signal name '%s' must not be the same as a pin.  "
+                    "Did you omit the signal name?\n",
 		signal);
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    return -ENOENT;
@@ -2206,7 +2229,7 @@ static char *data_value(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "    %08lX", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "  0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:

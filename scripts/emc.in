@@ -220,6 +220,14 @@ echo INIVAR=$INIVAR >>$PRINT_FILE
 echo HALCMD=$HALCMD >>$PRINT_FILE
 echo EMC2_EMCSH=$EMC2_EMCSH >>$PRINT_FILE
 
+#export some common directories, used by some of the GUI's
+export EMC2_TCL_DIR
+export EMC2_EMCSH
+export EMC2_HELP_DIR
+export EMC2_LANG_DIR
+export REALTIME
+export HALCMD
+
 echo "EMC2 - $EMC2VERSION" 
 
 # was an inifile specified on the command line?
@@ -251,6 +259,7 @@ echo "Machine configuration file is '$INI_NAME'"
 
 if [ ! -f "$INIFILE" ] ; then
     echo "Could not find ini file '$INIFILE'"
+    trap '' EXIT
     exit -1
 fi
 echo INIFILE=$INIFILE >>$PRINT_FILE
@@ -315,6 +324,7 @@ EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 GetFromIni NML_FILE EMC
 NMLFILE=$retval
 if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
+export NMLFILE
 
 ################################################################################
 # 3. Done gathering information, define a few functions
@@ -581,10 +591,19 @@ fi
 NUM=1
 CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$CFGFILE" ] ; do
-    if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
-	Cleanup
-	exit -1
-    fi
+    case $CFGFILE in
+    *.tcl)
+        if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+            Cleanup
+            exit -1
+        fi
+    ;;
+    *)
+        if ! $HALCMD -i "$INIFILE" -f $CFGFILE && [ "$DASHK" = "" ]; then
+            Cleanup
+            exit -1
+        fi
+    esac
     # get next config file name from ini file
     NUM=$(($NUM+1))
     CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
@@ -619,15 +638,6 @@ if ! program_available $EMCTASK ; then
     exit 1
 fi
 $EMCTASK -ini "$INIFILE" &
-
-#export some common directories, used by some of the GUI's
-export EMC2_TCL_DIR
-export EMC2_EMCSH
-export EMC2_HELP_DIR
-export EMC2_LANG_DIR
-export REALTIME
-export HALCMD
-export NMLFILE
 
 # 4.3.10. Run display in foreground
 echo "Starting EMC2 DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

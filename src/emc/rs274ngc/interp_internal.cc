@@ -145,6 +145,17 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   int mode0;
   int mode1;
 
+  if(block->polar_flag) {
+      // someday, tediously add polar support for other planes here:
+      CHKS((!_readers['x'] || !_readers['y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
+      CHKS(((settings->plane != CANON_PLANE_XY)), _("Cannot use polar coordinate except in G17 plane"));
+      CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
+      CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
+      block->x_flag = block->y_flag = ON;
+      block->x_number = block->radius * cos(D2R(block->theta));
+      block->y_number = block->radius * sin(D2R(block->theta));
+  }
+
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
                (block->z_flag == ON) || (block->a_flag == ON) ||
                (block->b_flag == ON) || (block->c_flag == ON) ||
@@ -264,6 +275,8 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->x_flag = OFF;
   block->y_flag = OFF;
   block->z_flag = OFF;
+
+  block->polar_flag = OFF;
 
   block->o_type = O_none;
   block->o_number = 0;
@@ -400,13 +413,33 @@ Called by:  Interp::read
 
 int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
 {
+  double a, b, c;
   refresh_actual_position(settings);
   settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
   settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
   settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
-  settings->parameters[5064] = GET_EXTERNAL_PROBE_POSITION_A();
-  settings->parameters[5065] = GET_EXTERNAL_PROBE_POSITION_B();
-  settings->parameters[5066] = GET_EXTERNAL_PROBE_POSITION_C();
+
+  a = GET_EXTERNAL_PROBE_POSITION_A();
+  if(settings->a_axis_wrapped) {
+      a = fmod(a, 360.0);
+      if(a<0) a += 360.0;
+  }
+  settings->parameters[5064] = a;
+
+  b = GET_EXTERNAL_PROBE_POSITION_B();
+  if(settings->b_axis_wrapped) {
+      b = fmod(b, 360.0);
+      if(b<0) b += 360.0;
+  }
+  settings->parameters[5065] = b;
+
+  c = GET_EXTERNAL_PROBE_POSITION_C();
+  if(settings->c_axis_wrapped) {
+      c = fmod(c, 360.0);
+      if(c<0) c += 360.0;
+  }
+  settings->parameters[5066] = c;
+
   settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
   settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
   settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();

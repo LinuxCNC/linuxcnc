@@ -115,6 +115,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
+  gez[12] = -1;
   gez[13] =
     (settings->spindle_mode == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;

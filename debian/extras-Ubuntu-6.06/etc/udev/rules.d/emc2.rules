@@ -1,2 +1,0 @@
-KERNEL=="RTAI_SHM" SYMLINK=="rtai_shm" MODE="0666"
-DEVPATH="/module/rtai_fifos" RUN="/etc/udev/scripts/rtai_fifos.sh"

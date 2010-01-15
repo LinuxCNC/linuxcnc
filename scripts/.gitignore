@@ -1,6 +1,7 @@
 emc
 emc-environment
 halrun
+haltcl
 realtime
 rtapi.conf
 emcmkdesktop

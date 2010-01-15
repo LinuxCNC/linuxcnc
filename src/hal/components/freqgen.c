@@ -338,7 +338,7 @@ typedef struct {
     hal_s32_t rawcount;		/* param: current position (feedback) */
     hal_s32_t *count;		/* captured binary count value */
     hal_float_t pos_scale;	/* parameter: scaling factor for pos */
-    float old_scale;		/* stored scale value */
+    double old_scale;		/* stored scale value */
     double scale_recip;		/* reciprocal value used for scaling */
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t *vel;		/* velocity command */
@@ -389,10 +389,10 @@ static int comp_id;		/* component ID */
 static int num_chan;		/* number of step generators configured */
 static long periodns;		/* makepulses function period in nanosec */
 static long old_periodns;	/* used to detect changes in periodns */
-static float periodfp;		/* makepulses function period in seconds */
-static float maxf;		/* maximum frequency, step types 1 & up */
-static float freqscale;		/* conv. factor from Hz to addval counts */
-static float accelscale;	/* conv. Hz/sec to addval cnts/period */
+static double periodfp;		/* makepulses function period in seconds */
+static double maxf;		/* maximum frequency, step types 1 & up */
+static double freqscale;	/* conv. factor from Hz to addval counts */
+static double accelscale;	/* conv. Hz/sec to addval cnts/period */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -661,7 +661,7 @@ static void update_freq(void *arg, long period)
 {
     freqgen_t *freqgen;
     int n;
-    float tmpf, limf;
+    double tmpf, limf;
 
     /* this periodns stuff is a little convoluted because we need to
        calculate some constants here in this relatively slow thread but the

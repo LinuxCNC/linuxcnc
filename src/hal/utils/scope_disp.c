@@ -69,6 +69,9 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data);
+static void conflict_avoid(int *y, int h);
+static int conflict_avoid_dy(int y, int h, int dy);
+static void conflict_reset(int height);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -245,6 +248,8 @@ void refresh_display(void)
         draw_triggerline(ctrl_shm->trig_chan,
                 ctrl_shm->trig_chan == vert->selected);
     }
+
+    conflict_reset(disp->height);
 
     /* draw non-highlighted waveforms next */
     for (n = 0; n < 16; n++) {
@@ -889,16 +894,60 @@ void draw_waveform(int chan_num, int highlight)
 	n++;
     }
     if(pn) {
-        PangoLayout *p;
-        char scale[HAL_NAME_LEN];
-        char buffer[2 * HAL_NAME_LEN];
         lines(chan_num, points, pn);
-        format_scale_value(scale, sizeof(scale), chan->scale);
-        snprintf(buffer, sizeof(buffer), "%s\n%s", chan->name, scale);
-        gdk_draw_layout(disp->win, disp->context, 5, points[0].y, 
-                        p=gtk_widget_create_pango_layout(disp->drawing, buffer));
-        g_object_unref(p);
+        if(DRAWING) {
+            PangoLayout *p;
+            int y = points[0].y;
+            char scale[HAL_NAME_LEN];
+            char buffer[2 * HAL_NAME_LEN];
+            int h;
+            PangoRectangle r;
+
+            format_scale_value(scale, sizeof(scale), chan->scale);
+            snprintf(buffer, sizeof(buffer), "%s\n%s", chan->name, scale);
+            p=gtk_widget_create_pango_layout(disp->drawing, buffer);
+            pango_layout_get_extents(p, NULL, &r);
+            h = PANGO_PIXELS(r.height);
+
+            if(y < 0 || y+h > disp->height)
+                // if the first sample isn't visible, try the zero value
+                y = (0-yfoffset) * yscale + ypoffset;
+            if(y < 0 || y+h > disp->height)
+                // if that's not visible either, try the offset value
+                y = ypoffset;
+
+            conflict_avoid(&y, h);
+            gdk_draw_layout(disp->win, disp->context, 5, y, p);
+            g_object_unref(p);
+        }
     }
+}
+
+static int ch=0;
+// X limits all windows to 16-bit heights, so this static array will be OK
+static char conflict_map[32768];
+
+void conflict_reset(int h) {
+    ch = h;
+    memset(conflict_map, 0, sizeof(conflict_map));
+}
+
+int conflict_avoid_dy(int y0, int h, int dy) {
+    int oc = 0;
+    for(; y0 > 0 && y0 < ch-h; y0 += dy) {
+        if(conflict_map[y0]) { oc = 0; }
+        oc++;
+        if(oc == h) break;
+    }
+    return y0;
+}
+
+void conflict_avoid(int *y, int h) {
+    int yd = conflict_avoid_dy(*y, h, 1)-h;
+    int yu = conflict_avoid_dy(*y, h, -1);
+    if(abs(yd-*y) < abs(yu-*y)) *y = yd;
+    else *y = yu;
+    memset(conflict_map+*y, 1, h);
 }
 
 // vim:sts=4:sw=4:et

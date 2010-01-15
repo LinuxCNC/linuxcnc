@@ -44,6 +44,16 @@ static int halCmd(ClientData cd, Tcl_Interp *interp, int argc, const char **argv
                 "wrong # args: should be \"", argv[0], " command ...\"", NULL);
         return TCL_ERROR;
     }
+
+    if(strcmp(argv[1], "--commands") == 0)
+    {
+        int i;
+        Tcl_ResetResult(interp);
+        for(i=0; i<halcmd_ncommands; i++)
+            Tcl_AppendElement(interp, halcmd_commands[i].name);
+        return TCL_OK;
+    }
+
     target_interp = interp;
     pending_cr = 0;
     result = halcmd_parse_cmd((char **)argv+1);

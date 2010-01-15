@@ -74,7 +74,7 @@ typedef struct {
     hal_float_t *pos;		/* scaled position (floating point) */
     hal_float_t *vel;		/* scaled velocity (floating point) */
     hal_float_t *pos_scale;	/* pin: scaling factor for pos */
-    float old_scale;		/* stored scale value */
+    double old_scale;		/* stored scale value */
     double scale;		/* reciprocal value used for scaling */
     hal_s32_t last_count;
     hal_s32_t last_index_count;

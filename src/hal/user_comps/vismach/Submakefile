@@ -2,6 +2,7 @@
 
 VISMACH_PY :=  \
 	pumagui.py \
+	puma560gui.py \
 	scaragui.py \
 	hexagui.py \
 	5axisgui.py \

@@ -1,0 +1,22 @@
+Basic Machine Page
+
+Machine Basics:
+    Pick the name of the configuration- use no spaces.
+    Pick the available axis.
+    Pick metric or standard units for pncconf data entry.
+
+Computer Response Time:
+    Test latency of the computer. 
+
+I/O Ports / Boards:
+    Pick available I/O.
+    Mesa board is required as the parallel port
+    can't currently be used for stepper / servo control. 
+    Parallel ports must have the address specified and can
+    be specified as 'OUT' or 'IN' which changes the available
+    8 data pins between output or input.
+    Press the Parport Address Search button to display info on 
+    all PCI cards installed. Look for One that mentions Parallel
+    port, It should have addresses specified. Choose one and try it. 
+
+

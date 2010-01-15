@@ -376,6 +376,13 @@ static int init_hal_io(void)
     if (retval != 0) {
 	return retval;
     }
+    rtapi_snprintf(buf, HAL_NAME_LEN, "motion.requested-vel");
+    retval =
+	hal_pin_float_new(buf, HAL_OUT, &(emcmot_hal_data->requested_vel),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
     rtapi_snprintf(buf, HAL_NAME_LEN, "motion.distance-to-go");
     retval =
 	hal_pin_float_new(buf, HAL_OUT, &(emcmot_hal_data->distance_to_go),

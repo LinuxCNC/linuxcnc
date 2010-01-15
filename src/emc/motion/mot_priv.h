@@ -95,6 +95,7 @@ typedef struct {
 
     hal_s32_t *program_line;    /* RPA: program line causing current motion */
     hal_float_t *current_vel;   /* RPI: velocity magnitude in machine units */
+    hal_float_t *requested_vel;   /* RPI: requested velocity magnitude in machine units */
     hal_float_t *distance_to_go;/* RPI: distance to go in current move*/
 
     hal_bit_t debug_bit_0;	/* RPA: generic param, for debugging */

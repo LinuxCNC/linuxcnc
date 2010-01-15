@@ -22,12 +22,14 @@
 #define INT32_MAX (2147483647)
 #define UINT32_MAX (4294967295U)
 
-
 #include "rtapi.h"
 #include "hal.h"
 
 #include "hostmot2-lowlevel.h"
 
+#ifndef FIRMWARE_NAME_MAX
+    #define FIRMWARE_NAME_MAX  30
+#endif
 
 #define HM2_VERSION "0.15"
 #define HM2_NAME    "hm2"
@@ -37,20 +39,20 @@
 // Note: HM2_PRINT() and HM2_PRINT_NO_LL() use rtapi_print(), all the others use rtapi_print_msg()
 //
 
-#define HM2_PRINT_NO_LL(fmt, args...)  rtapi_print(HM2_NAME ": " fmt, ## args);
+#define HM2_PRINT_NO_LL(fmt, args...)  rtapi_print(HM2_NAME ": " fmt, ## args)
 
-#define HM2_ERR_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME ": " fmt, ## args);
-#define HM2_WARN_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME ": " fmt, ## args);
-#define HM2_INFO_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME ": " fmt, ## args);
-#define HM2_DBG_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME ": " fmt, ## args);
+#define HM2_ERR_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME ": " fmt, ## args)
+#define HM2_WARN_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME ": " fmt, ## args)
+#define HM2_INFO_NO_LL(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME ": " fmt, ## args)
+#define HM2_DBG_NO_LL(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME ": " fmt, ## args)
 
 
-#define HM2_PRINT(fmt, args...)  rtapi_print(HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define HM2_PRINT(fmt, args...)  rtapi_print(HM2_NAME "/%s: " fmt, hm2->llio->name, ## args)
 
-#define HM2_ERR(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define HM2_WARN(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define HM2_INFO(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
-#define HM2_DBG(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args);
+#define HM2_ERR(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args)
+#define HM2_WARN(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args)
+#define HM2_INFO(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HM2_NAME "/%s: " fmt, hm2->llio->name, ## args)
+#define HM2_DBG(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HM2_NAME "/%s: " fmt, hm2->llio->name, ## args)
 
 
 
@@ -69,7 +71,7 @@
 #define HM2_ADDR_IDROM_OFFSET (0x010C)
 
 #define HM2_MAX_MODULE_DESCRIPTORS  (48)
-#define HM2_MAX_PIN_DESCRIPTORS    (128)
+#define HM2_MAX_PIN_DESCRIPTORS     (1000)
 
 
 // 
@@ -201,6 +203,10 @@ typedef struct {
 // encoders
 //
 
+#define HM2_ENCODER_QUADRATURE_ERROR    (1<<15)
+#define HM2_ENCODER_AB_MASK_POLARITY    (1<<14)
+#define HM2_ENCODER_LATCH_ON_PROBE      (1<<13)
+#define HM2_ENCODER_PROBE_POLARITY      (1<<12)
 #define HM2_ENCODER_FILTER              (1<<11)
 #define HM2_ENCODER_COUNTER_MODE        (1<<10)
 #define HM2_ENCODER_INDEX_MASK          (1<<9)
@@ -224,11 +230,16 @@ typedef struct {
 
         struct {
             hal_s32_t *rawcounts;    // raw encoder counts
+            hal_s32_t *rawlatch;     // raw encoder of latch
             hal_s32_t *count;        // (rawcounts - zero_offset)
+            hal_s32_t *count_latch;  // (rawlatch - zero_offset)
             hal_float_t *position;
+            hal_float_t *position_latch;
             hal_float_t *velocity;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
+            hal_bit_t *latch_enable;
+            hal_bit_t *latch_polarity;
         } pin;
 
         struct {
@@ -246,6 +257,8 @@ typedef struct {
     s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
 
     u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
+
+    s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
 
     u32 prev_control;
 
@@ -610,7 +623,7 @@ typedef struct {
     hm2_module_descriptor_t md[HM2_MAX_MODULE_DESCRIPTORS];
     int num_mds;
 
-    hm2_pin_t pin[HM2_MAX_PIN_DESCRIPTORS];
+    hm2_pin_t *pin;
     int num_pins;
 
     // this keeps track of all the tram entries

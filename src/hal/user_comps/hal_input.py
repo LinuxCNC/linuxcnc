@@ -44,7 +44,9 @@ class HalWrapper:
     def __setitem__(self, k, v):
 	if k in self._params:
 	    self._comp[k] = v; return
-	if k not in self._pins: raise KeyError, k
+	if k in self._pins:
+	    self._comp[k] = v; return
+	raise KeyError, k
 	self._drive[k] = v
 
 class HalInputDevice:
@@ -74,7 +76,7 @@ class HalInputDevice:
                 comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
                 comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
                 comp.newpin("%s.%s-reset" % (idx, name), HAL_BIT, HAL_IN)
-                comp.newparam("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_RW)
+                comp.newpin("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_IN)
                 self.set(name + '-scale', 1.)
                 self.rel_items.append(name)
 
@@ -85,10 +87,10 @@ class HalInputDevice:
                 absinfo = self.device.get_absinfo(axis)
                 comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
                 comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
-                comp.newparam("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_RW)
-                comp.newparam("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_RW)
-                comp.newparam("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_RW)
-                comp.newparam("%s.%s-flat" % (idx, name), HAL_S32, HAL_RW)
+                comp.newpin("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_IN)
+                comp.newpin("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_IN)
+                comp.newpin("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_IN)
+                comp.newpin("%s.%s-flat" % (idx, name), HAL_S32, HAL_IN)
                 comp.newparam("%s.%s-min" % (idx, name), HAL_S32, HAL_RO)
                 comp.newparam("%s.%s-max" % (idx, name), HAL_S32, HAL_RO)
                 center = (absinfo.minimum + absinfo.maximum)/2.
@@ -110,7 +112,7 @@ class HalInputDevice:
                 name = tohalname(led)
                 self.ledmap[name] = led
                 comp.newpin("%s.%s" % (idx, name), HAL_BIT, HAL_IN)
-                comp.newparam("%s.%s-invert" % (idx, name), HAL_BIT, HAL_RW)
+                comp.newpin("%s.%s-invert" % (idx, name), HAL_BIT, HAL_IN)
                 self.last[name] = 0
                 self.device.write_event('EV_LED', led, 0)
 	

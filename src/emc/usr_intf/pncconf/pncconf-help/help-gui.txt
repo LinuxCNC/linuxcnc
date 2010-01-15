@@ -1,0 +1,33 @@
+GUI Configuration Page
+
+Frontend:
+    This specifies the graphical display EMC will use.
+    Each one has different option. 
+    eg. mini does not support estop
+        AXIS is the only frontend that fully supports lathes.
+
+Virtual Control Panels:
+    Use to add stand-alone pyvcp panels or if AXIS is chosen,
+        the panel will be integrated.
+    There are sample panels available.
+    Choose one and click the display button to see an example.
+    Click 'include HAL connections' to have the chosen example 
+    connected to EMC
+    With standalone panels the geometry options allow setting the 
+        initial position and size on the panel. 
+    Set them as you like and click the display button 
+    (after picking a sample) to see the changes.
+    Picking a blank program will tell pncconf to set up 
+        blank pyvcp file for a custom built panel.
+
+INI Option:
+    -Require homing before MDI / Running
+        If you want to be able to move the machine before homing
+        uncheck this checkbox   
+    -Leave spindle on during tool change
+        Used for lathes
+    -Popup Tool Prompt:
+        Choose between an on screen prompt for tool changes or export
+        standard signal names for a User supplied custom tool changer 
+        Hal file
+

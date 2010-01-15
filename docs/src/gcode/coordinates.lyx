@@ -38,6 +38,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -471,23 +472,9 @@ m2
 \end_layout
 
 \begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-But,
-\begin_inset Quotes erd
-\end_inset
-
- you say, 
-\begin_inset Quotes eld
-\end_inset
-
-why is there a G54 in there near the end.
-\begin_inset Quotes erd
-\end_inset
-
- Many programmers leave the G54 coordinate system with all zero values so
- that there is a modal code for the absolute machine based axis positions.
+"But," you say, "why is there a G54 in there near the end." Many programmers
+ leave the G54 coordinate system with all zero values so that there is a
+ modal code for the absolute machine based axis positions.
  This program assumes that we have done that and use the ending command
  as a command to machine zero.
  It would have been possible to use g53 and arrive at the same place but
@@ -724,19 +711,12 @@ When the commands are used as described above, they will work pretty much
 A user must understand the correct ways that the g92 values work.
  They are set based upon the location of each axis when the g92 command
  is invoked.
- The NIST document is clear that, 
-\begin_inset Quotes eld
-\end_inset
-
-To make the
+ The NIST document is clear that, "To make the
 \noun on
  
 \noun default
-current point have the coordinates
-\begin_inset Quotes erd
-\end_inset
-
- x0, y0, and z0 you would use g92 x0 y0 z0.
+current point have the coordinates" x0, y0, and z0 you would use g92 x0
+ y0 z0.
  G92 
 \emph on
 does not work from absolute machine coordinates
@@ -878,57 +858,31 @@ Sometimes the values of a G92 offset will remain in the VAR file.
 \begin_layout Standard
 where 5211 is the X axis offset and so on.
  If you are seeing unexpected positions as the result of a commanded move,
- or unexpected numbers in the position displays when you start up, issue
- a G92.1 in the MDI widow the problems should go away.
-\end_layout
-
-\begin_layout Quote
-With these tests we can see that reset returns g92 to the condition that
- it had when the interpreter started up.
- The reader should note that we have established ...
- that no write of these values occurs during a normal run so if no g92 was
- set at the startup, none will be read in during a reset.
-\end_layout
-
-\begin_layout Quote
-It may be that this is the heart of the problem that some have experienced
- with differences between the old and the new interpreter.
- It may well be, but I leave it to others to test, that the old interpreter
- and task programs immediately wrote values to the var file and then found
- those values during a reset.
- 
+ as a result of storing an offset in a previous progam and not clearing
+ them at the end then issue a G92.1 in the MDI widow to clear the stored
+ offsets.
 \end_layout
 
 \begin_layout Standard
-On the other hand, if G92 values existed in the VAR file when the EMC started
- up
-\end_layout
-
-\begin_layout Quote
-...
- starting the EMC with g92 values in the var file is that it will apply
- the values to current location of each axis.
+If G92 values exist in the VAR file when the EMC starts up the g92 values
+ in the var file is that it will apply the values to current location of
+ each axis.
  If this is home position and home position is set as machine zero everything
  will be correct.
  Once home has been established using real machine switches or moving each
- axis to a known home position and issuing an axis home command, g92 commands
- and values work as advertised.
-\end_layout
-
-\begin_layout Quote
-These tests did not study the effect of re-reading the var file while they
- contain numbers.
- This could cause problems if g92 offsets had been removed with g92.1 but
- the var file still contained the previous numbers.
- 
+ axis to a known home position and issuing an axis home command any G92
+ offsets will be applied.
+ If you have a G92 X1 in effect when you home the X axis the DRO will read
+ "X: 1.000" instead of the expected "X: 0.000" because the G92 was applied
+ to the machine origin.
+ If you issue a G92.1 and the DRO now reads all zeros then you had a G92
+ offset in effect when you last ran EMC.
 \end_layout
 
 \begin_layout Standard
-It is this complexity that causes us to say that G92 values must be treated
- as temporary.
- They should be used to set global short term offsets.
- The G54-59.3 coordinate systems should be used whenever long lasting and
- predictable offsets are needed.
+Unless your intention is to use the same G92 offsets in the next program
+ best practice is to issue a G92.1 at the end of any G Code files where you
+ use G92 offsets.
 \end_layout
 
 \begin_layout Section
