@@ -1,6 +1,7 @@
 component limit2 "Limit the output signal to fall between min and max and limit its slew rate to less than maxv per second.  When the signal is a position, this means that position and velocity are limited.";
 pin in float in;
 pin out float out;
+pin in bit load "When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv";
 param rw float min_=-1e20;
 param rw float max_=1e20;
 param rw float maxv=1e20;
@@ -23,6 +24,7 @@ FUNCTION(_) {
     double tmp = in;
     double maxdelta = maxv * fperiod;
     tmp = clamp(tmp, min_, max_);
+    if(load) { out = data.old_out = tmp; return; }
     tmp = clamp(tmp, data.old_out - maxdelta, data.old_out + maxdelta);
     data.old_out = tmp;
     out = tmp;
