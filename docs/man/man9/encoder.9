@@ -113,6 +113,14 @@ counts once per full cycle.  In \fBcounter-mode\fR, this parameter is ignored.
 Update \fBcounts-latched\fR and \fBposition-latched\fR on the rising and/or
 falling edges of \fBlatch-input\fR as indicated by \fBlatch-rising\fR and
 \fBlatch-falling\fR.
+.TP
+\fBencoder.\fIN\fB.counter-mode\fR bit rw
+Enables counter mode.  When true, the counter counts each rising edge of the
+phase-A input, ignoring the value on phase-B.  This is useful for counting
+the output of a single channel (non-quadrature) sensor.  When false (the
+default), it counts in quadrature mode.
+\fBencoder.\fIN\fB.capture-position.tmax\fR s32 rw
+Maximum number of CPU cycles it took to execute this function.
 
 .SH PARAMETERS
 \fBencoder.\fIN\fB.min-velocity-estimate\fR float rw (default: 1.0)
@@ -122,11 +130,4 @@ The units of \fBmin-velocity-estimate\fR are the same as the units of
 \fBvelocity\fR.  Scale factor, in counts per length unit.  Setting this
 parameter too low will cause it to take a long time for \fBvelocity\fR to go to
 0 after encoder pulses have stopped arriving.
-.TP
-\fBencoder.\fIN\fB.counter-mode\fR bit rw
-Enables counter mode.  When true, the counter counts each rising edge of the
-phase-A input, ignoring the value on phase-B.  This is useful for counting
-the output of a single channel (non-quadrature) sensor.  When false (the
-default), it counts in quadrature mode.
-\fBencoder.\fIN\fB.capture-position.tmax\fR s32 rw
-Maximum number of CPU cycles it took to execute this function.
+
