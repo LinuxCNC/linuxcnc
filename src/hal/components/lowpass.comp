@@ -4,6 +4,7 @@ pin out float out " out += (in - out) * gain ";
 param rw float gain;
 function _;
 license "GPL";
+notes "The effect of a specific \\fBgain\\fR value is dependant on the period of the function that \\fBlowpass.\\fIN\\fR is added to";
 ;;
 FUNCTION(_) {
     out += (in - out) * gain;
