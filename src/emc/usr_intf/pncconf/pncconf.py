@@ -4310,12 +4310,14 @@ class App:
               self.data.laddername='custom.clp'
            else:
                if os.path.exists(os.path.expanduser("~/emc2/configs/%s/custom.clp" % self.data.machinename)):
-                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
+                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be\
+                     renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
                      self.widgets.druid1.set_page(self.widgets.advanced)
                      return True 
            if self.widgets.ladderexist.get_active() == False:
               if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
-                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
+                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy\
+                     to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
                    self.widgets.druid1.set_page(self.widgets.advanced)
                    return True       
         
@@ -4629,74 +4631,44 @@ class App:
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
-        halrun.write("loadrt probe_parport\n")
-        if self.data.number_pports>0:
-            port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
-            if self.data.number_pports>2:
-                 port3name = " " + self.ioaddr3
-                 if self.data.pp3_direction:
-                    port3dir =" out"
-                 else: 
-                    port3dir =" in"
-            if self.data.number_pports>1:
-                 port2name = " " + self.data.ioaddr2
-                 if self.data.pp2_direction:
-                    port2dir =" out"
-                 else: 
-                    port2dir =" in"
-            port1name = self.data.ioaddr
-            if self.data.pp1_direction:
-               port1dir =" out"
-            else: 
-               port1dir =" in"
-            halrun.write( "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
-        halrun.write("loadrt or2 count=12\n")
-        if self.data.number_pports > 0:
-            halrun.write( "addf parport.0.read fast\n")
-        if self.data.number_pports > 1:
-            halrun.write("addf parport.1.read fast\n")
-        if self.data.number_pports > 2:
-            halrun.write("addf parport.2.read fast\n")
-        for i in range(0,12):
-            halrun.write("addf or2.%d fast\n"% i)
-        if self.data.number_pports > 0:
-            halrun.write( "addf parport.0.write fast\n")
-        if self.data.number_pports > 1:
-            halrun.write("addf parport.1.write fast\n")
-        if self.data.number_pports > 2:
-            halrun.write("addf parport.2.write fast\n")
-        halrun.write("loadusr -Wn parporttest pyvcp -c parporttest %(panel)s\n" %{'panel':"parportpanel.xml\n",})
-        halrun.write("loadusr halmeter\n")
+        self.hal_cmnds("LOAD")
+        for i in range(0,self.data.number_pports ):
+            halrun.write("loadusr -Wn parport%(number)dtest pyvcp -g +%(pos)d+0 -c parport%(number)dtest %(panel)s\n" 
+                    % {'pos':(i*300),'number':i,'panel':"parportpanel.xml\n",})
+        halrun.write("loadrt or2 count=%d\n"%(self.data.number_pports * 12))
+        self.hal_cmnds("READ")
+        for i in range(0,(self.data.number_pports * 12)):
+           halrun.write("addf or2.%d fast\n"% i)
+        halrun.write("loadusr halmeter pin parport.0.pin-01-out -g 0 500\n")
+        self.hal_cmnds("WRITE")
+        
         templist = ("pp1","pp2","pp3")
-        for j, k in enumerate(templist):
-            if self.data.number_pports < (j+1): break 
-            if self.data[k+"_direction"] == 1:
+        for j in range(self.data.number_pports):         
+            if self.data[templist[j]+"_direction"] == 1:
                 inputpins = (10,11,12,13,15)
                 outputpins = (1,2,3,4,5,6,7,8,9,14,16,17)               
                 for x in (2,3,4,5,6,7,8,9):
-                    halrun.write( "setp parporttest.%s_led.%d.disable true\n"%(k, x))
-                    halrun.write( "setp parporttest.%s_led_text.%d.disable true\n"%(k, x))
+                    halrun.write( "setp parport%dtest.led.%d.disable true\n"%(j, x))
+                    halrun.write( "setp parport%dtest.led_text.%d.disable true\n"%(j, x))
             else:
                 inputpins = (2,3,4,5,6,7,8,9,10,11,12,13,15)
                 outputpins = (1,14,16,17)
                 for x in (2,3,4,5,6,7,8,9):
-                    halrun.write( "setp parporttest.%s_button.%d.disable true\n"% (k, x))
-                    halrun.write( "setp parporttest.%s_button_text.%d.disable true\n"% (k, x))
+                    halrun.write( "setp parport%dtest.button.%d.disable true\n"% (j , x))
+                    halrun.write( "setp parport%dtest.button_text.%d.disable true\n"% (j , x))
+
             for x in inputpins: 
-                i = self.data["%sIpin%dinv" % (k, x)]
-                if i:  halrun.write( "net red_in_not.%d parporttest.%s_led.%d <= parport.%d.pin-%02d-in-not\n" % (x, k, x, j, x))
-                else:  halrun.write( "net red_in.%d parporttest.%s_led.%d <= parport.%d.pin-%02d-in\n" % (x, k, x, j , x))               
-                         
+                i = self.widgets["%sIpin%dinv" % (templist[j], x)].get_active()
+                if i:  halrun.write( "net red_in_not.%d parport%dtest.led.%d <= parport.%d.pin-%02d-in-not\n" % (x, j, x, j, x))
+                else:  halrun.write( "net red_in.%d parport%dtest.led.%d <= parport.%d.pin-%02d-in\n" % (x, j, x, j ,x))
             for num, x in enumerate(outputpins):  
-                i = self.data["%sOpin%dinv" % (k, x)]
+                i = self.widgets["%sOpin%dinv" % (templist[j], x)].get_active()
                 if i:  halrun.write( "setp parport.%d.pin-%02d-out-invert true\n" %(j, x))
                 halrun.write("net signal_out%d or2.%d.out parport.%d.pin-%02d-out\n"% (x, num, j, x))
-                halrun.write("net pushbutton.%d or2.%d.in1 parporttest.%s_button.%d\n"% (x, num, k, x))
-                halrun.write("net latchbutton.%d or2.%d.in0 parporttest.%s_checkbutton.%d\n"% (x, num, k, x))
-
-            
+                halrun.write("net pushbutton.%d or2.%d.in1 parport%dtest.button.%d\n"% (x, num, j, x))
+                halrun.write("net latchbutton.%d or2.%d.in0 parport%dtest.checkbutton.%d\n"% (x, num, j, x))           
         halrun.write("start\n")
-        halrun.write("waitusr parporttest\n"); halrun.flush()
+        halrun.write("waitusr parport0test\n"); halrun.flush()
         halrun.close()
         self.widgets['window1'].set_sensitive(1)
 
@@ -4736,14 +4708,19 @@ class App:
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
+              loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
-               numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d\n""" % {
+               numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d
+               addf classicladder.0.refresh slow
+               start\n""" % {
                       'din': self.widgets.digitsin.get_value(),
                       'dout': self.widgets.digitsout.get_value(),
                       'sin': self.widgets.s32in.get_value(),
                       'sout': self.widgets.s32out.get_value(), 
                       'fin':self.widgets.floatsin.get_value(),
                       'fout':self.widgets.floatsout.get_value(),
+                      'period':100000, 
+                      'period2':self.data.servoperiod
                  })
         if self.widgets.ladderexist.get_active() == True:
             if self.data.tempexists:
@@ -5133,9 +5110,7 @@ class App:
                 halrun.write("    setp %s true\n" % (self.amp ))
                 if self.data[temp+"inv"] == True:
                     halrun.write("    setp %s true\n" % (self.amp + "-invert"))  
-            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))   
-      
-
+            halrun.write("loadusr halmeter -s pin %s -g 0 475 330\n"%  (self.amp))     
         # setup pwm generator
         temp = self.data.findsignal( "estop-out")
         estop = self.data.make_pinname(temp)
@@ -5281,7 +5256,7 @@ class App:
         gtk.main()
    
     def hal_cmnds(self,command = "nothing"):
-        print command
+        #print command
         halrun = self.halrun
         if command == "LOAD":
             halrun.write("loadrt probe_parport\n")
@@ -5341,11 +5316,11 @@ class App:
                     self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
         if command == "READ":
             if self.data.number_pports > 0:
-                print >>file, "addf parport.0.read base-thread"
+                halrun.write( "addf parport.0.read fast\n")
             if self.data.number_pports > 1:
-                print >>file, "addf parport.1.read base-thread"
+                halrun.write( "addf parport.1.read fast\n")
             if self.data.number_pports > 2:
-                print >>file, "addf parport.2.read base-thread"
+                halrun.write( "addf parport.2.read fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
                     halnum = 1
@@ -5355,11 +5330,11 @@ class App:
                 halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
         if command == "WRITE":
             if self.data.number_pports > 0:
-                print >>file, "addf parport.0.write base-thread"
+                halrun.write( "addf parport.0.write fast\n")
             if self.data.number_pports > 1:
-                print >>file, "addf parport.1.write base-thread"
+                halrun.write( "addf parport.1.write fast\n")
             if self.data.number_pports > 2:
-                print >>file, "addf parport.2.write base-thread"
+                halrun.write( "addf parport.2.write fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
                     halnum = 1
