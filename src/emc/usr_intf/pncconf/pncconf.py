@@ -492,7 +492,7 @@ class Data:
         self.require_homing = True
         self.individual_homing = False
         self.restore_joint_position = False
-        self.restore_toolnumber = False
+        self.random_toolchanger = False
         self.raise_z_on_toolchange = False
         self.allow_spindle_on_toolchange = False
         self.customhal = False # include custom hal file
@@ -667,8 +667,8 @@ class Data:
         self.xdrivertype = "custom"
         self.xsteprev = 200
         self.xmicrostep = 2
-        self.xpulleynum = 1
-        self.xpulleyden = 1
+        self.xpulleydriver = 1
+        self.xpulleydriven = 1
         self.xleadscrew = 5
         self.xusecomp = 0
         self.xcompfilename = "xcompensation"
@@ -714,8 +714,8 @@ class Data:
         self.ydrivertype = "custom"
         self.ysteprev = 200
         self.ymicrostep = 2
-        self.ypulleynum = 1
-        self.ypulleyden = 1
+        self.ypulleydriver = 1
+        self.ypulleydriven = 1
         self.yleadscrew = 5
         self.yusecomp = 0
         self.ycompfilename = "ycompensation"
@@ -760,8 +760,8 @@ class Data:
         self.zdrivertype = "custom"     
         self.zsteprev = 200
         self.zmicrostep = 2
-        self.zpulleynum = 1
-        self.zpulleyden = 1
+        self.zpulleydriver = 1
+        self.zpulleydriven = 1
         self.zleadscrew = 5
         self.zusecomp = 0
         self.zcompfilename = "zcompensation"
@@ -807,8 +807,8 @@ class Data:
         self.adrivertype = "custom"
         self.asteprev = 200
         self.amicrostep = 2
-        self.apulleynum = 1
-        self.apulleyden = 1
+        self.apulleydriver = 1
+        self.apulleydriven = 1
         self.aleadscrew = 8
         self.ausecomp = 0
         self.acompfilename = "acompensation"
@@ -853,8 +853,8 @@ class Data:
         self.sdrivertype = "custom"
         self.ssteprev = 200
         self.smicrostep = 2
-        self.spulleynum = 1
-        self.spulleyden = 1
+        self.spulleydriver = 1
+        self.spulleydriven = 1
         self.sleadscrew = 5
         self.smaxvel = 1.67
         self.smaxacc = 2
@@ -1107,6 +1107,8 @@ class Data:
             print >>file, "TOOLCHANGE_WITH_SPINDLE_ON = 1"
         if self.raise_z_on_toolchange:
             print >>file, "TOOLCHANGE_QUILL_UP = 1"
+        if self.random_toolchanger:
+            print >>file, "RANDOM_TOOLCHANGER = 1"
         
         all_homes = self.home_sig("x") and self.home_sig("z")
         if self.axes != 2: all_homes = all_homes and self.home_sig("y")
@@ -1126,12 +1128,12 @@ class Data:
     def hz(self, axname):
         steprev = getattr(self, axname+"steprev")
         microstep = getattr(self, axname+"microstep")
-        pulleynum = getattr(self, axname+"pulleynum")
-        pulleyden = getattr(self, axname+"pulleyden")
+        pulleydriver = getattr(self, axname+"pulleydriver")
+        pulleydriven = getattr(self, axname+"pulleydriven")
         leadscrew = getattr(self, axname+"leadscrew")
         maxvel = getattr(self, axname+"maxvel")
         if self.units or axname == 'a': leadscrew = 1./leadscrew
-        pps = leadscrew * steprev * microstep * (pulleynum/pulleyden) * maxvel
+        pps = leadscrew * steprev * microstep * (pulleydriver/pulleydriven) * maxvel
         return abs(pps)
 
     def minperiod(self, steptime=None, stepspace=None, latency=None):
@@ -2713,7 +2715,7 @@ class App:
         self.widgets.require_homing.set_active(self.data.require_homing)
         self.widgets.individual_homing.set_active(self.data.individual_homing)
         self.widgets.restore_joint_position.set_active(self.data.restore_joint_position) 
-        self.widgets.restore_toolnumber.set_active(self.data.restore_toolnumber) 
+        self.widgets.random_toolchanger.set_active(self.data.random_toolchanger) 
         self.widgets.raise_z_on_toolchange.set_active(self.data.raise_z_on_toolchange) 
         self.widgets.allow_spindle_on_toolchange.set_active(self.data.allow_spindle_on_toolchange)
         self.widgets.toolchangeprompt.set_active(self.data.toolchangeprompt)
@@ -2740,7 +2742,7 @@ class App:
         self.data.require_homing = self.widgets.require_homing.get_active()
         self.data.individual_homing = self.widgets.individual_homing.get_active()
         self.data.restore_joint_position = self.widgets.restore_joint_position.get_active() 
-        self.data.restore_toolnumber = self.widgets.restore_toolnumber.get_active() 
+        self.data.random_toolchanger = self.widgets.random_toolchanger.get_active() 
         self.data.raise_z_on_toolchange = self.widgets.raise_z_on_toolchange.get_active() 
         self.data.allow_spindle_on_toolchange = self.widgets.allow_spindle_on_toolchange.get_active()
         self.data.toolchangeprompt = self.widgets.toolchangeprompt.get_active()
@@ -3773,45 +3775,6 @@ class App:
     def on_acalculatescale_clicked(self, *args): self.calculate_scale('a')
     def on_scalculatescale_clicked(self, *args): self.calculate_scale('s')
 
-    def calculate_scale(self, axis):
-        print axis
-        w = self.widgets
-        stepdriven = rotaryaxis = encoder = 1
-        def get(n): return get_value(w[n])
-        test = self.data.findsignal(axis+"-stepgen-step")    
-        if test == "false":stepdriven = 0
-        test = self.data.findsignal(axis+"-encoder-a")    
-        if test == "false":encoder = 0
-        w["steprev"].set_sensitive( stepdriven ) 
-        w["microstep"].set_sensitive( stepdriven )
-        w["encoderline"].set_sensitive( encoder )
-        if not axis == 'a': rotaryaxis = 0
-        w["wormden"].set_sensitive( rotaryaxis ) 
-        w["wormnum"].set_sensitive( rotaryaxis )
-        w["leadscrew"].set_sensitive( not rotaryaxis )
-        self.widgets.scaledialog.set_title(_("Axis Scale Calculation"))
-        self.widgets.scaledialog.show_all()
-        result = self.widgets.scaledialog.run()
-        self.widgets.scaledialog.hide()
-        try:
-            w[axis + "encodercounts"].set_text( "%d" % ( 4 * get_value(w["encoderline"])))
-            pitch = get("leadscrew")
-            #if self.data.units == 1 or axis =='a' : pitch = 1./pitch
-            if axis == 'a': factor =  ((get("wormnum") / get("wormden")))
-            elif self.data.units == 1: factor = 1./pitch
-            else: factor = pitch
-            if stepdriven :
-                scale = (factor * get("steprev") * get("microstep") * ((get("pulleynum") / get("pulleyden")))) 
-            else:
-                scale =  ( factor * get_value(w[("encoderline")]) * 4 * (get("pulleynum") / get("pulleyden")))
-            print get("pulleynum"),get("pulleyden"),scale,factor
-            if axis == 'a': scale = scale / 360
-            w[axis + "calscale"].set_text("%.1f" % scale)
-            w[axis + "scale"].set_value(scale)
-        except (ValueError, ZeroDivisionError):
-            w[axis + "scale"].set_text( "")
-        self.update_pps(axis)
-
     def axis_prepare(self, axis):
         test = self.data.findsignal(axis+"-stepgen-step")
         stepdriven = 1
@@ -3845,8 +3808,8 @@ class App:
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
-        w["pulleynum"].set_text("%s" % d[axis+"pulleynum"])
-        w["pulleyden"].set_text("%s" % d[axis +"pulleyden"])
+        w["pulleydriver"].set_text("%s" % d[axis+"pulleydriver"])
+        w["pulleydriven"].set_text("%s" % d[axis +"pulleydriven"])
         w["leadscrew"].set_text("%s" % d[axis +"leadscrew"])
         w["encoderline"].set_text("%d" % (d[axis+"encodercounts"]/4))
         set_text("encodercounts")
@@ -3972,8 +3935,8 @@ class App:
                
                 w[axis + "minfollowunits"].set_text(_("inches"))
                 w[axis + "maxfollowunits"].set_text(_("inches"))
-                thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
-                homes = False
+            thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
+            homes = False
             for i in thisaxishome:
                 test = self.data.findsignal(i)
                 if not test == "false": homes = True
@@ -4085,8 +4048,8 @@ class App:
         get_pagevalue("scale")
         get_active("invertmotor")
         get_active("invertencoder") 
-        d[axis + "pulleynum"] = int(get_value(w["pulleynum"]))
-        d[axis + "pulleyden"] = int(get_value(w["pulleyden"]))
+        d[axis + "pulleydriver"] = int(get_value(w["pulleydriver"]))
+        d[axis + "pulleydriven"] = int(get_value(w["pulleydriven"]))
         d[axis + "leadscrew"] = int(get_value(w["leadscrew"]))        
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
         get_text("maxacc")
@@ -4118,12 +4081,68 @@ class App:
             #self.data.spindlecpr = get_value(self.widgets.spindlecpr)
             get_active("pidcontrol") 
 
+    def calculate_scale(self, axis):
+        print axis
+        w = self.widgets
+        stepdriven = rotaryaxis = encoder = 1
+        def get(n): return get_value(w[n])
+        test = self.data.findsignal(axis+"-stepgen-step")    
+        if test == "false":stepdriven = 0
+        test = self.data.findsignal(axis+"-encoder-a")    
+        if test == "false":encoder = 0
+        w["steprev"].set_sensitive( stepdriven ) 
+        w["microstep"].set_sensitive( stepdriven )
+        w["encoderline"].set_sensitive( encoder )
+        if not axis == 'a': rotaryaxis = 0
+        w["wormdriver"].set_sensitive( rotaryaxis ) 
+        w["wormdriven"].set_sensitive( rotaryaxis )
+        w["leadscrew"].set_sensitive( not rotaryaxis )
+        self.widgets.scaledialog.set_title(_("Axis Scale Calculation"))
+        self.widgets.scaledialog.show_all()
+        result = self.widgets.scaledialog.run()
+        self.widgets.scaledialog.hide()
+        try:
+            worm_ratio = enc_count_per_rev = steps_per_rev = 1
+            if axis == 'a': 
+                pitch = 1
+                worm_ratio = (get("wormdriver") / get("wormdriven"))
+            elif self.data.units == 1: 
+                pitch = 1./ get("leadscrew")
+            else:  
+                pitch = get("leadscrew")
+            motor_ratio = (get("pulleydriver") / get("pulleydriven"))          
+            if stepdriven :
+                steps_per_rev = get("steprev") * get("microstep")
+                scale = ( steps_per_rev * pitch * worm_ratio * motor_ratio)
+            else:
+                enc_count_per_rev = get_value(w[("encoderline")]) * 4
+                scale =  ( enc_count_per_rev * pitch * worm_ratio * motor_ratio)
+            w[axis + "encodercounts"].set_text( "%d" % ( enc_count_per_rev))
+            if axis == 'a': scale = scale / 360
+            w[axis + "calscale"].set_text("%.1f" % scale)
+            w[axis + "scale"].set_value(scale)   
+        except (ValueError, ZeroDivisionError):
+            w[axis + "scale"].set_text( "")
+        self.update_pps(axis)
+
     def update_pps(self, axis):
         w = self.widgets
         d = self.data
+        worm_ratio = motor_ratio = 1
+        
+        
         def get(n): return get_value(w[axis + n])
 
         try:
+            if axis == 'a': 
+                pitch = 1
+                worm_ratio = (get_value(w.wormdriver) / get_value(w.wormdriven))
+            elif self.data.units == 1: 
+                pitch = 1./ get_value(w.leadscrew)
+            else:  
+                pitch = get_value(w.leadscrew)
+            motor_ratio = (get_value(w.pulleydriver) / get_value(w.pulleydriven))  
+
             maxvps = (get("maxvel"))/60
             pps = (get_value(w[axis+"scale"]) * (maxvps))/1000
             if pps == 0: raise ValueError
@@ -4131,7 +4150,7 @@ class App:
             w[axis + "khz"].set_text("%.1f" % pps)
             acctime = (maxvps) / get("maxacc")
             accdist = acctime * .5 * (maxvps)
-            maxrpm = int( (maxvps * 60) * ( get_value(w[axis+"scale"])/ ( get_value(w[(axis +"encodercounts")])  ) ) )
+            maxrpm = int(maxvps * 60 *  pitch /( worm_ratio * motor_ratio))
             w[axis + "acctime"].set_text("%.4f" % acctime)
             if not axis == 's':
                 w[axis + "accdist"].set_text("%.4f" % accdist)                 
