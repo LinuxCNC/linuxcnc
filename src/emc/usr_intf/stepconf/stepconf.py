@@ -1934,7 +1934,13 @@ class App:
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
         halrun.write(""" 
-              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d\n""" % {
+              loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
+              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
+                     numFloatIn=%(fin)d numFloatOut=%(fout)d\n
+              addf classicladder.0.refresh slow\n
+              start\n
+                      """ % {
+                      'period': 50000,
                       'din': self.widgets.digitsin.get_value(),
                       'dout': self.widgets.digitsout.get_value(),
                       'sin': self.widgets.s32in.get_value(),
@@ -1959,10 +1965,11 @@ class App:
         else:
             filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
         if self.data.modbus == True: 
-            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\n" %          { 'newfilename':newfilename ,'filename':filename })
+            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\
+                \n" %          { 'newfilename':newfilename ,'filename':filename })
         else:
             halrun.write("loadusr -w classicladder --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
-        halrun.write("start\n"); halrun.flush()
+        halrun.flush()
         halrun.close()
         if os.path.exists(newfilename):
             self.data.tempexists = True
