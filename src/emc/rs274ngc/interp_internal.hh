@@ -293,8 +293,9 @@ typedef struct block_struct
   ON_OFF z_flag;
   double z_number;
 
-  int polar_flag; //polar coordinate was specified
+  int radius_flag;
   double radius;
+  int theta_flag;
   double theta;
 
   // control (o-word) stuff
@@ -569,16 +570,30 @@ macros totally crash-proof. If the function call stack is deeper than
 
 
 #define CYCLE_MACRO(call) for (repeat = block->l_number; \
-                               repeat > 0;                    \
-                               repeat--)                      \
-     {                                                        \
-       aa = (aa + aa_increment);                         \
-       bb = (bb + bb_increment);                         \
-       cycle_traverse(block, plane, aa, bb, old_cc);        \
-       if (old_cc != r)                                     \
-         cycle_traverse(block, plane, aa, bb, r);                    \
-       CHP(call);                                             \
-       old_cc = clear_cc;                                \
+                               repeat > 0; \
+                               repeat--) \
+     { \
+       aa = (aa + aa_increment); \
+       bb = (bb + bb_increment); \
+       if(radius_increment) { \
+           double radius, theta; \
+           theta = atan2(bb, aa); \
+           radius = hypot(bb, aa) + radius_increment; \
+           aa = radius * cos(theta); \
+           bb = radius * sin(theta); \
+       } \
+       if(theta_increment) { \
+           double radius, theta; \
+           theta = atan2(bb, aa) + theta_increment; \
+           radius = hypot(bb, aa); \
+           aa = radius * cos(theta); \
+           bb = radius * sin(theta); \
+       } \
+       cycle_traverse(block, plane, aa, bb, old_cc); \
+       if (old_cc != r) \
+         cycle_traverse(block, plane, aa, bb, r); \
+       CHP(call); \
+       old_cc = clear_cc; \
      }
 
 

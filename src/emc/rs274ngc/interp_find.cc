@@ -167,6 +167,8 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 #ifdef DEBUG_EMC
         COMMENT("interpreter: offsets temporarily suspended");
 #endif
+        CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
+
         if(block->x_flag == ON) {
             *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_xoffset;
         } else {
@@ -256,6 +258,22 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
         }
 
+        if(block->radius_flag == ON) {
+            double theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            theta = atan2(*py, *px);
+            *px = block->radius * cos(theta);
+            *py = block->radius * sin(theta);
+        }
+
+        if(block->theta_flag == ON) {
+            double radius;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            radius = hypot(*py, *px);
+            *px = radius * cos(D2R(block->theta));
+            *py = radius * sin(D2R(block->theta));
+        }
+
         if(block->z_flag == ON) {
             *pz = block->z_number;
         } else {
@@ -306,6 +324,24 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         // but only XY affects Y ...
         *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y: s->current_y;
         if(block->y_flag == ON) *py += block->y_number;
+
+        if(block->radius_flag == ON) {
+            double radius, theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            theta = atan2(*py, *px);
+            radius = hypot(*py, *px) + block->radius;
+            *px = radius * cos(theta);
+            *py = radius * sin(theta);
+        }
+
+        if(block->theta_flag == ON) {
+            double radius, theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            theta = atan2(*py, *px) + D2R(block->theta);
+            radius = hypot(*py, *px);
+            *px = radius * cos(theta);
+            *py = radius * sin(theta);
+        }
 
         // and only XZ affects Z.
         *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z: s->current_z;

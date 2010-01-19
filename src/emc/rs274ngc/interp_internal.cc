@@ -141,19 +141,17 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 {
   int axis_flag;
   int ijk_flag;
+  int polar_flag;
   int mode_zero_covets_axes;
   int mode0;
   int mode1;
 
-  if(block->polar_flag) {
+  if(block->radius_flag || block->theta_flag) {
       // someday, tediously add polar support for other planes here:
       CHKS((!_readers['x'] || !_readers['y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
       CHKS(((settings->plane != CANON_PLANE_XY)), _("Cannot use polar coordinate except in G17 plane"));
       CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
       CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
-      block->x_flag = block->y_flag = ON;
-      block->x_number = block->radius * cos(D2R(block->theta));
-      block->y_number = block->radius * sin(D2R(block->theta));
   }
 
   axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
@@ -161,8 +159,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
                (block->b_flag == ON) || (block->c_flag == ON) ||
                (block->u_flag == ON) || (block->v_flag == ON) ||
                (block->w_flag == ON));
-   ijk_flag = ((block->i_flag == ON) || (block->j_flag == ON) ||
-               (block->k_flag == ON));
+  polar_flag = (block->radius_flag == ON) || (block->theta_flag == ON);
+  ijk_flag = ((block->i_flag == ON) || (block->j_flag == ON) ||
+              (block->k_flag == ON));
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =
@@ -171,25 +170,27 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
   if (mode1 != -1) {
     if (mode1 == G_80) {
-      CHKS((axis_flag && (!mode_zero_covets_axes)),
+      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
       CHKS(((!axis_flag) && (mode0 == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHKS(((!axis_flag) && (mode1 != G_0) && (mode1 != G_1) && mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2),
+      CHKS(((!axis_flag && !polar_flag) && 
+            mode1 != G_0 && mode1 != G_1 && 
+            mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
     CHKS(((!axis_flag) && (block->g_modes[0] == G_92)),
         NCE_ALL_AXES_MISSING_WITH_G92);
-  } else if (axis_flag) {
+  } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
          || (settings->motion_mode == G_80)),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
     block->motion_to_be = settings->motion_mode;
-  } else if (!axis_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
+  } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
     // this is a block like simply "i1" which should be accepted if we're in arc mode
       block->motion_to_be = settings->motion_mode;
   }
@@ -276,7 +277,8 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->y_flag = OFF;
   block->z_flag = OFF;
 
-  block->polar_flag = OFF;
+  block->theta_flag = OFF;
+  block->radius_flag = OFF;
 
   block->o_type = O_none;
   block->o_number = 0;

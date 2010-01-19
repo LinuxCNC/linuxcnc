@@ -323,6 +323,8 @@ private:
                   double *parameters);
  int read_c(char *line, int *counter, block_pointer block,
                   double *parameters);
+ int read_carat(char *line, int *counter, block_pointer block,
+                  double *parameters);
  int read_comment(char *line, int *counter, block_pointer block,
                         double *parameters);
  int read_semicolon(char *line, int *counter, block_pointer block,

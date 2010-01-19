@@ -272,10 +272,9 @@ const read_function_pointer Interp::default_readers[256] = {
 &Interp::read_semicolon, 
 0, 0, 0, 0,
 /* 40 */
-&Interp::read_atsign, 
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+&Interp::read_atsign, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 /* 50 */
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &Interp::read_carat, 0,
 /* 60 */
 0,
 &Interp::read_a, // reads a or ASCII 0x61

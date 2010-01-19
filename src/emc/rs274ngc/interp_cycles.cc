@@ -768,6 +768,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;
@@ -784,15 +786,31 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   old_cc = settings->current_z;
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
+    double radius, theta;
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->z_number;
-    aa = block->x_flag == ON ? block->x_number : settings->current_x;
-    bb = block->y_flag == ON ? block->y_number : settings->current_y;
+    if(block->radius_flag)
+        radius = block->radius;
+    else
+        radius = hypot(settings->current_y, settings->current_x);
+    if(block->theta_flag)
+        theta = D2R(block->theta);
+    else
+        theta = atan2(settings->current_y, settings->current_x);
+    if(block->radius_flag || block->theta_flag) {
+        aa = radius * cos(theta);
+        bb = radius * sin(theta);
+    } else {
+        aa = block->x_flag == ON ? block->x_number : settings->current_x;
+        bb = block->y_flag == ON ? block->y_number : settings->current_y;
+    }
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->x_flag == ON) aa_increment = block->x_number;
-    if (block->y_flag == ON) bb_increment = block->y_number;
+    if (block->x_flag) aa_increment = block->x_number;
+    if (block->y_flag) bb_increment = block->y_number;
+    if (block->radius_flag) radius_increment = block->radius;
+    if (block->theta_flag) theta_increment = D2R(block->theta);
     r = (block->r_number + old_cc);
     cc = (r + block->z_number); /* [NCMS, page 98] */
     aa = settings->current_x;
@@ -927,6 +945,8 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;
@@ -1135,6 +1155,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;
@@ -1295,6 +1317,8 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;
@@ -1512,6 +1536,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;
@@ -1671,6 +1697,8 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   double j;
   double k;
   double old_cc;
+  double radius_increment = 0.;
+  double theta_increment = 0.;
   CANON_PLANE plane;
   double r;
   int repeat;

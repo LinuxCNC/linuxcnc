@@ -3381,12 +3381,19 @@ int Interp::read_atsign(char *line, int *counter, block_pointer block,
     CHKS((line[*counter] != '@'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
     (*counter)++;
     CHP(read_real_value(line, counter, &block->radius, parameters));
-    CHKS((line[*counter] != '^'), _("Missing ^ in polar coordinate"));
-    (*counter)++;
-    CHP(read_real_value(line, counter, &block->theta, parameters));
-    block->polar_flag = ON;
+    block->radius_flag = ON;
     return INTERP_OK;
 }
+
+int Interp::read_carat(char *line, int *counter, block_pointer block,
+                       double *parameters) {
+    CHKS((line[*counter] != '^'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter)++;
+    CHP(read_real_value(line, counter, &block->theta, parameters));
+    block->theta_flag = ON;
+    return INTERP_OK;
+}
+    
     
 
 /****************************************************************************/
