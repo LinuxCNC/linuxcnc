@@ -759,9 +759,9 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -791,8 +791,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->x_flag == ON ? block->x_number : settings->current_x;
     bb = block->y_flag == ON ? block->y_number : settings->current_y;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->x_number;
-    bb_increment = block->y_number;
+    if (block->x_flag == ON) aa_increment = block->x_number;
+    if (block->y_flag == ON) bb_increment = block->y_number;
     r = (block->r_number + old_cc);
     cc = (r + block->z_number); /* [NCMS, page 98] */
     aa = settings->current_x;
@@ -918,9 +918,9 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -950,8 +950,8 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->u_flag == ON ? block->u_number : settings->u_current;
     bb = block->v_flag == ON ? block->v_number : settings->v_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->u_number;
-    bb_increment = block->v_number;
+    if (block->u_flag == ON) aa_increment = block->u_number;
+    if (block->v_flag == ON) bb_increment = block->v_number;
     r = (block->r_number + old_cc);
     cc = (r + block->w_number); /* [NCMS, page 98] */
     aa = settings->u_current;
@@ -1126,9 +1126,9 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -1158,8 +1158,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->y_flag == ON ? block->y_number : settings->current_y;
     bb = block->z_flag == ON ? block->z_number : settings->current_z;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->y_number;
-    bb_increment = block->z_number;
+    if (block->y_flag == ON) aa_increment = block->y_number;
+    if (block->z_flag == ON) bb_increment = block->z_number;
     r = (block->r_number + old_cc);
     cc = (r + block->x_number); /* [NCMS, page 98] */
     aa = settings->current_y;
@@ -1286,9 +1286,9 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -1318,8 +1318,8 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->v_flag == ON ? block->v_number : settings->v_current;
     bb = block->w_flag == ON ? block->w_number : settings->w_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->v_number;
-    bb_increment = block->w_number;
+    if (block->v_flag == ON) aa_increment = block->v_number;
+    if (block->w_flag == ON) bb_increment = block->w_number;
     r = (block->r_number + old_cc);
     cc = (r + block->u_number); /* [NCMS, page 98] */
     aa = settings->v_current;
@@ -1503,9 +1503,9 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -1535,8 +1535,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->z_flag == ON ? block->z_number : settings->current_z;
     bb = block->x_flag == ON ? block->x_number : settings->current_x;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->z_number;
-    bb_increment = block->x_number;
+    if (block->z_flag == ON) aa_increment = block->z_number;
+    if (block->x_flag == ON) bb_increment = block->x_number;
     r = (block->r_number + old_cc);
     cc = (r + block->y_number); /* [NCMS, page 98] */
     aa = settings->current_z;
@@ -1662,9 +1662,9 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
                             setup_pointer settings)     //!< pointer to machine settings                   
 {
   double aa;
-  double aa_increment;
+  double aa_increment=0.;
   double bb;
-  double bb_increment;
+  double bb_increment=0.;
   double cc;
   double clear_cc;
   double i;
@@ -1694,8 +1694,8 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
     aa = block->w_flag == ON ? block->w_number : settings->w_current;
     bb = block->u_flag == ON ? block->u_number : settings->u_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    aa_increment = block->w_number;
-    bb_increment = block->u_number;
+    if (block->w_flag == ON) aa_increment = block->w_number;
+    if (block->u_flag == ON) bb_increment = block->u_number;
     r = (block->r_number + old_cc);
     cc = (r + block->v_number); /* [NCMS, page 98] */
     aa = settings->w_current;
