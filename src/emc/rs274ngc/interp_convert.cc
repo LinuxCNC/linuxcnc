@@ -413,7 +413,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
   } else {
     // in R format, we need some XYZ words specified because a full circle is not allowed.
     if (settings->plane == CANON_PLANE_XY) { 
-        CHKS(((block->x_flag == OFF) && (block->y_flag == OFF)),
+        CHKS(((block->x_flag == OFF) && (block->y_flag == OFF) && (block->radius_flag == OFF) && (block->theta_flag == OFF)),
             NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
     } else if (settings->plane == CANON_PLANE_YZ) {
         CHKS(((block->y_flag == OFF) && (block->z_flag == OFF)),
