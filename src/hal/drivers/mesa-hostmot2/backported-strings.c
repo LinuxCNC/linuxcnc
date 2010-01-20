@@ -19,7 +19,6 @@
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
-#warning "kernel is so old it lacks argv_split(), supplying our own..."
 
 /**
  * kstrndup - allocate space for and copy an existing string
