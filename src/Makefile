@@ -660,6 +660,7 @@ opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
 hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
+    hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
     hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/pwmgen.o    \
