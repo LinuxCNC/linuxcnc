@@ -2976,7 +2976,8 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
        block->z_flag == OFF && block->a_flag == OFF &&
        block->b_flag == OFF && block->c_flag == OFF &&
        block->u_flag == OFF && block->v_flag == OFF &&
-       block->w_flag == OFF),
+       block->w_flag == OFF && block->radius_flag == OFF &&
+       block->theta_flag == OFF),
        NCE_X_Y_Z_A_B_C_U_V_AND_W_WORDS_ALL_MISSING_WITH_G38_2);
   CHKS((settings->cutter_comp_side != OFF),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);

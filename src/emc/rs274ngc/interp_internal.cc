@@ -172,6 +172,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     if (mode1 == G_80) {
       CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
           NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
+      CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
       CHKS(((!axis_flag) && (mode0 == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
     } else {
       CHKS(mode_zero_covets_axes,
@@ -183,8 +184,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     }
     block->motion_to_be = mode1;
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
-    CHKS(((!axis_flag) && (block->g_modes[0] == G_92)),
-        NCE_ALL_AXES_MISSING_WITH_G92);
+    CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
+    CHKS(((!axis_flag) && (block->g_modes[0] == G_92)), NCE_ALL_AXES_MISSING_WITH_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
          || (settings->motion_mode == G_80)),
@@ -194,6 +195,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     // this is a block like simply "i1" which should be accepted if we're in arc mode
       block->motion_to_be = settings->motion_mode;
   }
+  CHKS((polar_flag && block->motion_to_be == -1), _("Polar coordinates can only be used for motion"));
   return INTERP_OK;
 }
 
