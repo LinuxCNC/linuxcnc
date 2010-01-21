@@ -88,6 +88,8 @@ static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
+static void check_memlock_limit();
+
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
 ************************************************************************/
@@ -449,6 +451,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: ERROR: failed to map shmem\n");
 		rtapi_mutex_give(&(rtapi_data->mutex));
+		check_memlock_limit();
 		return -ENOMEM;
 	    }
 	    /* update usage data */
@@ -497,6 +500,29 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     /* done */
     rtapi_mutex_give(&(rtapi_data->mutex));
     return shmem_id;
+}
+
+#include <sys/time.h>
+#include <sys/resource.h>
+#define RECOMMENDED (20480*1024lu)
+static void check_memlock_limit() {
+    static int checked=0;
+    struct rlimit lim;
+    int result;
+    if(checked) return;
+    checked=1;
+
+    result = getrlimit(RLIMIT_MEMLOCK, &lim);
+    if(result < 0) { perror("getrlimit"); return; }
+    if(lim.rlim_cur == (rlim_t)-1) return; // unlimited
+    if(lim.rlim_cur >= RECOMMENDED) return; // limit is at least recommended
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "RTAPI: Locked memory limit is %luKiB, recommended at least %luKiB.\n"
+        "This can cause the error 'failed to map shmem'.\n"
+        "For more information, see\n"
+        "\thttp://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n",
+        (unsigned long)lim.rlim_cur/1024, RECOMMENDED/1024);
+    return;
 }
 
 int rtapi_shmem_delete(int shmem_id, int module_id)
