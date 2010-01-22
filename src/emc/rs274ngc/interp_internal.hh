@@ -577,6 +577,7 @@ macros totally crash-proof. If the function call stack is deeper than
        bb = (bb + bb_increment); \
        if(radius_increment) { \
            double radius, theta; \
+           CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
            theta = atan2(bb, aa); \
            radius = hypot(bb, aa) + radius_increment; \
            aa = radius * cos(theta); \
@@ -584,6 +585,7 @@ macros totally crash-proof. If the function call stack is deeper than
        } \
        if(theta_increment) { \
            double radius, theta; \
+           CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
            theta = atan2(bb, aa) + theta_increment; \
            radius = hypot(bb, aa); \
            aa = radius * cos(theta); \

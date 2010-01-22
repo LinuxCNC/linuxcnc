@@ -258,15 +258,18 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
         }
 
-        if(block->radius_flag == ON) {
+        if(block->radius_flag == ON && block->theta_flag == ON) {
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            *px = block->radius * cos(D2R(block->theta));
+            *py = block->radius * sin(D2R(block->theta));
+        } else if(block->radius_flag == ON) {
             double theta;
             CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("Must specify angle in polar coordinate if at the origin"));
             theta = atan2(*py, *px);
             *px = block->radius * cos(theta);
             *py = block->radius * sin(theta);
-        }
-
-        if(block->theta_flag == ON) {
+        } else  if(block->theta_flag == ON) {
             double radius;
             CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
             radius = hypot(*py, *px);
@@ -328,6 +331,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->radius_flag == ON) {
             double radius, theta;
             CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin"));
             theta = atan2(*py, *px);
             radius = hypot(*py, *px) + block->radius;
             *px = radius * cos(theta);
@@ -337,6 +341,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->theta_flag == ON) {
             double radius, theta;
             CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("G91 motion with polar coordinates is indeterminate when at the origin"));
             theta = atan2(*py, *px) + D2R(block->theta);
             radius = hypot(*py, *px);
             *px = radius * cos(theta);
