@@ -1517,7 +1517,7 @@ static int iniLoad(const char *filename)
 	}
     }
 
-    if (NULL != inifile.Find("HOME_SEQUENCE", "AXIS_0")) {
+    if (NULL != inifile.Find("HOME_SEQUENCE", "JOINT_0")) {
         have_home_all = 1;
     }
 
