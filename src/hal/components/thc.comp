@@ -1,74 +1,73 @@
 component thc "Torch Height Control";
 
-
-
 description 
-"""Torch Height Control using a Mesa THC-AD board. The voltage signal
-from the plasma torch is converted to a frequency by the THC-AD board. This
-frequency is fed to an encoder. The velocity output from the encoder is fed
-into the THC component.
+"""
+Torch Height Control
+Mesa THC > Mesa 5i20 Encoder > EMC THC
+The Mesa THC sends a pulse based on the scaled voltage detected. 
+A velocity is used from the encoder that is being driven by a frequency from
+the Mesa THC.
+If enabled and torch is on and X + Y velocity is within tolerance of set speed
+allow the THC to offset the Z axis as needed to maintain voltage.
 
-The tip voltage rises as the distance increases.
+If enabled and torch is off and the Z axis is moving up remove any correction
+at a rate not to exceed the rate of movment of the Z axis.
 
-While testing no change is made to z_pos_out it is just passed through
+If enabled and torch is off and there is no correction 
+pass the Z position and feed back untouched.
 
-While enabled and torch is on when x+y velocity is above minimum add correction
-to current z position. 
+If not enabled pass the Z position and feed back untouched.
 
-While enabled and torch is off and z is raising up remove any correction 
-as the torch moves up.
+Physical Connections 
+Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
+THC Frequency Signal => Encoder #0, pin A (Input)
+Plasma Torch Arc Ok Signal => parport.0.pin-15-in
+parport.0.pin-16-out => Plasma Torch Start Arc Contacts
+
+HAL Plasma Connections
+hm2_5i20.0.encoder.00.velocity => thc.encoder-vel (tip voltage)
+motion.spindle-on => parport.0.pin-16-out (start the arc)
+thc.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
+
+HAL Motion Connections
+thc.requested-vel <= motion.requested-vel
+thc.current-vel <= motion.current-vel
 
 """;
-
+ 
 author "John Thornton";
 
 license "GPL";
 
+option singleton yes;
+
 // Input Pins
-pin in float volts_setting "Torch Volts Set Point (SP)";
-pin in float p_gain "The Proportional Gain (Kp)"; 
-pin in float i_gain "The Integral Gain (Ki)";
-pin in float d_gain "The Derivative Gain (Kd)";
-
+pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
+pin in float current_vel "Connect to motion.current-vel";
+pin in float requested_vel "Conect to motion.requested-vel";
+pin in float volts_requested "Tip Volts Rcurrent_vel >= min_velocityequested (SP)";
+pin in float vel_tol "Velocity Tolerance (Corner Lock)";
+pin in bit torch_on "Conect to motion.spindle-on";
+pin in bit arc_ok "Arc Ok from Plasma Torch";
 pin in bit enable "Enable the THC, if not enabled Z position is passed through";
-pin in bit chl_enable "Enable the Corner Height Lock"; // don't know if this is needed.
-
-pin in float vel_tol "Percent of Velocity Deviation 0.00-1.00";
-pin in bit spindle_on "Motion Spindle On"; 
-pin in bit arc_ok "Arc OK from Plasma Torch";
-pin in float encoder_vel "Velocity Output in User Units per Second from Encoder";
-pin in float set_vel "the commanded velocity of XY";
-pin in float x_vel "Used to compute velocity";
-pin in float y_vel "Used to compute velocity";
-pin in float z_pos_cmd "Z Motor Position Command In";
+pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
 
 // Output Pins
 pin out float z_pos_out "Z Motor Position Command Out";
-pin out float x_y_velocity "The X + Y velocity";
-pin out float volts "The calculated Volts";
-pin out float vel_out "The velocity reading from the THC";
-pin out float p_out "the Proportional Term correction";
-pin out float i_out "the Integral Term correction";
-pin out float d_out "the Derivative Term correction";
-pin out float correction "the total correction";
-pin out float smoothed "the Input after smoothing";
-pin out bit at_speed "On when within tolerance of speed";
-
-pin out float test "used for testing";
+pin out float z_fb_out "Z Position Feedback to Axis";
+pin out float volts "The Calculated Volts";
+pin out bit vel_status "When the THC thinks we are at requested speed";
 
 // Parameters
-param rw float vel_scale "The scale to convert the Velocity to Volts";
+param rw float vel_scale "The scale to convert the Velocity signal to Volts";
 param rw float scale_offset "The offset of the velocity input at 0 volts";
-param rw float volt_dist_scale "The Voltage Distance Scale";
-param rw float volts_tol "The Voltage Tolerance.";
-param rw float i_cap "The maximum Integeral error.";
-param rw float input_gain "The maximum change between inputs";
+param rw float velocity_tol "The devation percent from planned velocity";
+param rw float voltage_tol "The devation of Tip Voltage before correction takes place";
+param rw float correction_vel "The Velocity to move Z to correct";
 
 // Global Variables
-variable float p_error;
-variable float i_error;
-variable float last_p_error;
-variable int   first_pass=0;
+variable float offset;
+variable float last_z_in;
 
 function _;
 
@@ -77,74 +76,49 @@ function _;
 #include "rtapi_math.h"
 
 FUNCTION(_) {
-	double abs_x_vel, abs_y_vel, d_error;
-	float min_vel;
-	
-    // convert velocity to volts
-    smoothed += (encoder_vel - smoothed) * input_gain;
-    volts = (smoothed - scale_offset) * vel_scale;
-    if(volts < 0){volts =0;} // make sure volts is not a neg number.
+    // convert encoder velocity to volts
+    volts = (encoder_vel - scale_offset) * vel_scale;
+    if(volts < 0){volts = 0;} // make sure volts is not negitive
     
-    if(first_pass == 0){
-        p_error = 0; 
-        i_error = 0; 
-        d_error = 0; 
-        last_p_error = 0; 
-        first_pass = 1;
-    } // start things at 0
-    
-    if(x_vel >= 0.0){abs_x_vel = x_vel;} // get the absolute X vel
-    else{abs_x_vel = -x_vel;}
-    
-    if(y_vel >= 0.0){abs_y_vel = y_vel;} // get the absolute Y vel
-    else{abs_y_vel = -y_vel;}
-         
-    // find the combined velocity of X & Y using the Pythagorean theroem Vxy=sqrt(Vx^2+Vy^2)     
-    
-    x_y_velocity = (sqrt(pow(abs_x_vel,2) + pow(abs_y_vel,2)))*60;
-    
-    // find out if we are within the velocity tolerance
-    test = set_vel*vel_tol;
-    min_vel = set_vel * vel_tol;
-
     if(enable){
-    
-    	if(spindle_on && (x_y_velocity > 0) && (x_y_velocity >= min_vel)){at_speed=1;}
-    	else{at_speed=0;}
-
-        if(at_speed){
-        last_p_error = p_error;
+        float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
+        if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
+        else {vel_status =0;}
         
-        // The P loop
-        p_error = volts_setting - volts;
-        p_out = p_gain * p_error;
-        
-        // The I loop
-        i_error = i_error + p_error;
-        if(i_error > i_cap){i_error = i_cap;} // limit the i error
-        i_out = i_gain * i_error;
-        
-        // The D loop
-        d_error = p_error - last_p_error;
-        d_out = d_gain * d_error;
-        
-        
-        correction = (p_out + i_out + d_out);
+        if(torch_on && arc_ok && vel_status){ // allow correction
+            if((volts + voltage_tol) > volts_requested){
+                offset += correction_vel;
+            }
+            if((volts - voltage_tol) < volts_requested){
+                offset -= correction_vel;
+            }    
+            last_z_in = 0;
         }
-        
-        if(!spindle_on){ // remove any correction as Z moves up
-        
+        if(!torch_on){ // remove any offset
+            float z_diff;
+            z_diff = z_pos_in - last_z_in;
+            if(z_diff > 0){ // torch is moving up
+                if(offset > 0){ // positive offset
+                    if(offset > z_diff){ // remove some
+                        offset -= z_diff;
+                    }
+                    else {offset = 0;}
+                }
+                if(offset < 0){ // negative offset
+                    if(offset < z_diff){ // remove some
+                        offset += z_diff;
+                    }
+                    else {offset = 0;}
+                }
+            last_z_in = z_pos_in;
+            }
         }
-        
-        
-        z_pos_out = z_pos_cmd; // pass the Z position through
-        
+        z_pos_out = z_pos_in + offset;
+        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
-    
     if(!enable){
-        z_pos_out = z_pos_cmd; // pass the Z position through
-        first_pass = 0;
+        z_pos_out = z_pos_in;
+        z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
 }
-
 
