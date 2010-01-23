@@ -190,6 +190,220 @@ L-
 \end_layout
 
 \begin_layout Section
+Polar Coordinates
+\begin_inset LatexCommand index
+name "Polar Coordinates"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Polar Coordinates can be used to specify the XY coordinate of a move.
+ The @n is the distance and ^n is the angle.
+ The advantage of this is for things like bolt hole circles which can be
+ done very simply by moving to a point in the center of the circle, setting
+ the offset and then moving out to the first hole then run the drill cycle.
+ Polar Coordinates always are from the current XY zero position.
+ To shift the Polar Coordinates from machine zero use an offset or select
+ a coordinate system.
+\end_layout
+
+\begin_layout Standard
+In Absolute Mode the distance and angle is from the XY zero position and
+ the angle starts with 0 on the X Positive axis and rotates in a CCW direction
+ about the Z axis.
+ The code G1 @1^90 is the same as G1 Y1.
+\end_layout
+
+\begin_layout Standard
+In Relative Mode the distance and angle is also from the XY zero position
+ but it is cumulative.
+ This can be confusing at first how this works in incremental mode.
+ 
+\end_layout
+
+\begin_layout Standard
+For example if you have the following program you might expect it to be
+ a square pattern.
+\end_layout
+
+\begin_layout LyX-Code
+F100 G1 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+G91 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+G90 G0 X0 Y0 M2
+\end_layout
+
+\begin_layout Standard
+You can see from the following figure that the output is not what you might
+ expect.
+ Because we added .5 to the distance each time the distance from the XY zero
+ position increased with each line.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Polar Spiral
+\begin_inset LatexCommand label
+name "fig:Polar-Spiral"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/polar01.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following code will produce our square pattern.
+\end_layout
+
+\begin_layout LyX-Code
+F100 G1 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+G91 ^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+G90 G0 X0 Y0 M2
+\end_layout
+
+\begin_layout Standard
+As you can see by only adding to the angle by 90 degrees each time the end
+ point distance is the same for each line.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Polar Square
+\begin_inset LatexCommand label
+name "fig:Polar-Square"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/polar02.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+An incremental move is started at the origin
+\end_layout
+
+\begin_layout Itemize
+A mix of Polar and and X or Y words are used
+\end_layout
+
+\begin_layout Section
 Quick Reference Table
 \begin_inset LatexCommand label
 name "sec:Quick-Reference-Table"
