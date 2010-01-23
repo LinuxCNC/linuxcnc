@@ -982,22 +982,22 @@ Most of the buttons are self explanatory:
 \end_layout
 
 \begin_layout Standard
-The vars button is for looking at variables, toggle it to display one, the
+The Vars button is for looking at variables, toggle it to display one, the
  other, both, then none of the windows.
 \end_layout
 
 \begin_layout Standard
-The config button is used for modbus and shows the max number of ladder
+The Config button is used for modbus and shows the max number of ladder
  elements that was loaded with the real time module.
 \end_layout
 
 \begin_layout Standard
-The symbols button will display an editable list of symbols for the variables
+The Symbols button will display an editable list of symbols for the variables
  (hint you can name the inputs, outputs, coils etc).
 \end_layout
 
 \begin_layout Standard
-The quit button will shut down the user program meaning Modbus and the display-
+The Quit button will shut down the user program meaning Modbus and the display-
  the real time ladder program will still run in the back ground.
 \end_layout
 
@@ -1008,16 +1008,8 @@ The check box at the top right allows you to select whether variable names
 
 \begin_layout Standard
 You might notice that there is a line under the ladder program display that
- reads 
-\begin_inset Quotes eld
-\end_inset
-
-Project failed to load...
-\begin_inset Quotes erd
-\end_inset
-
- That is the status bar that gives you info about elements of the ladder
- program that you click on in the display window.
+ reads "Project failed to load..." That is the status bar that gives you info
+ about elements of the ladder program that you click on in the display window.
  This status line will now display HAL signal names for variables %I, %Q
  and the first %W (in an equation) You might see some funny labels, such
  as (103) in the rungs.
@@ -1776,13 +1768,15 @@ For arithmetic comparison.
 \end_layout
 
 \begin_layout Standard
-- The compare block will be true when comparison is true.
+The compare block will be true when comparison is true.
  you can use most math symbols +,-,*,/,=,<,>,<=,>=,(,),^ (exponent),% (modulus),
 & (and),| (or),! (not).
  - You can also use math functions.
  They are ABS (absolute), MOY (french for average) ,AVG (average).
  eg ABS(%W2)=1, MOY(%W1,%W2)<3.
- 
+ No spaces are allowed in the comparison equation.
+ For example %C0.V>%C0.P is a valid comparison expression while %C0.V > %CO.P
+ is not a valid expression.
 \end_layout
 
 \begin_layout Standard
@@ -1930,48 +1924,47 @@ The variable letter can be B or Q and the number can be up to a three digit
  number eg.
  %Q3, or %B123.
  Q coils control HAL out pins.
- eg if &Q15 is 'energized' then HAL pin classicladder.0.out-15 will be true.
+ eg if &Q15 is energized then HAL pin classicladder.0.out-15 will be true.
  B coils are internal coils used to control program flow.
 \end_layout
 
 \begin_layout Itemize
 N.O.
- COIL -(a relay coil.) When coil is 'energized' it"s N.O.
+ COIL -(a relay coil.) When coil is energized it's N.O.
  contact will be closed (on, true, etc)
 \end_layout
 
 \begin_layout Itemize
 N.C.
- COIL -(a relay coil that inverses its contacts.) When coil is 'energized'
+ COIL -(a relay coil that inverses its contacts.) When coil is energized
  it"s N.O.
  contact will be open (off, false, etc) 
 \end_layout
 
 \begin_layout Itemize
-SET COIL -(a relay coil with latching contacts) When coil is 'energized'
- it's N.O.
+SET COIL -(a relay coil with latching contacts) When coil is energized it's
+ N.O.
  contact will be latched closed.
  
 \end_layout
 
 \begin_layout Itemize
-RESET COIL -(a relay coil with latching contacts) When coil is 'energized'
+RESET COIL -(a relay coil with latching contacts) When coil is energized
  It's N.0.
  contact will be latched open.
  
 \end_layout
 
 \begin_layout Itemize
-JUMP COIL -(a "goto" coil) when coil is 'energized' ladder program jumps
- to a rung (in the CURRENT section) -jump points are designated by a rung
- label.
+JUMP COIL -(a "goto" coil) when coil is energized ladder program jumps to
+ a rung (in the CURRENT section) -jump points are designated by a rung label.
  (Add rung labels in the section display, top left label box) 
 \end_layout
 
 \begin_layout Itemize
-CALL COIL -(a "gosub" coil) when coil is 'energized' program jumps to a
- subroutine section designated by a subroutine number -subroutines are designate
-d SR0 to SR9 (designate them in the section manager)
+CALL COIL -(a "gosub" coil) when coil is energized program jumps to a subroutine
+ section designated by a subroutine number -subroutines are designated SR0
+ to SR9 (designate them in the section manager)
 \end_layout
 
 \begin_layout Standard
@@ -2029,7 +2022,7 @@ Select a subroutine number (SR0 for example).
 
 \begin_layout Standard
 When your done that, go back to the section manager and click on the your
- 'main' section (default name prog1).
+ main section (default name prog1).
 \end_layout
 
 \begin_layout Standard
