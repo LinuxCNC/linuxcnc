@@ -1466,6 +1466,8 @@ Active\InsetSpace ~
 G-Codes: This shows the "modal codes" that are active in the interpreter.
  For instance, "G54" indicates that the "G54 offset" is applied to all coordinat
 es that are entered.
+ When in Auto the Active G-Codes represent the codes after any read ahead
+ by the interperter.
 \end_layout
 
 \begin_layout Subsection
