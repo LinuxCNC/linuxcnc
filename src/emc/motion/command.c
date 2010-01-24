@@ -752,49 +752,78 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (joint->wheel_jog_active) {
-		/* can't do two kinds of jog at once */
-		break;
-	    }
 	    if (emcmotStatus->net_feed_scale < 0.0001 ) {
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-	    /* don't jog further onto limits */
-	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
-		SET_JOINT_ERROR_FLAG(joint, 1);
-		break;
-	    }
-	    /* set target position for jog */
-	    if (emcmotCommand->vel > 0.0) {
-		tmp1 = joint->free_tp.pos_cmd + emcmotCommand->offset;
-	    } else {
-		tmp1 = joint->free_tp.pos_cmd - emcmotCommand->offset;
-	    }
-	    /* don't jog past limits */
-	    refresh_jog_limits(joint);
-	    if (tmp1 > joint->max_jog_limit) {
-		break;
-	    }
-	    if (tmp1 < joint->min_jog_limit) {
-		break;
-	    }
-	    /* set target position */
-	    joint->free_tp.pos_cmd = tmp1;
-	    /* set velocity of jog */
-	    joint->free_tp.max_vel = fabs(emcmotCommand->vel);
-	    /* use max joint accel */
-	    joint->free_tp.max_acc = joint->acc_limit;
-	    /* lock out other jog sources */
-	    joint->kb_jog_active = 1;
-	    /* and let it go */
-	    joint->free_tp.enable = 1;
-	    SET_JOINT_ERROR_FLAG(joint, 0);
-	    /* clear joint homed flag(s) if we don't have forward kins.
-	       Otherwise, a transition into coordinated mode will incorrectly
-	       assume the homed position. Do all if they've all been moved
-	       since homing, otherwise just do this one */
-	    clearHomes(joint_num);
+
+            if (!GET_MOTION_TELEOP_FLAG()) {
+	        if (joint->wheel_jog_active) {
+		    /* can't do two kinds of jog at once */
+		    break;
+	        }
+	        /* don't jog further onto limits */
+	        if (!jog_ok(joint_num, emcmotCommand->vel)) {
+		    SET_JOINT_ERROR_FLAG(joint, 1);
+		    break;
+	        }
+	        /* set target position for jog */
+	        if (emcmotCommand->vel > 0.0) {
+		    tmp1 = joint->free_tp.pos_cmd + emcmotCommand->offset;
+	        } else {
+		    tmp1 = joint->free_tp.pos_cmd - emcmotCommand->offset;
+	        }
+	        /* don't jog past limits */
+	        refresh_jog_limits(joint);
+	        if (tmp1 > joint->max_jog_limit) {
+		    break;
+	        }
+	        if (tmp1 < joint->min_jog_limit) {
+		    break;
+	        }
+	        /* set target position */
+	        joint->free_tp.pos_cmd = tmp1;
+	        /* set velocity of jog */
+	        joint->free_tp.max_vel = fabs(emcmotCommand->vel);
+	        /* use max joint accel */
+	        joint->free_tp.max_acc = joint->acc_limit;
+	        /* lock out other jog sources */
+	        joint->kb_jog_active = 1;
+	        /* and let it go */
+	        joint->free_tp.enable = 1;
+	        SET_JOINT_ERROR_FLAG(joint, 0);
+	        /* clear joint homed flag(s) if we don't have forward kins.
+	           Otherwise, a transition into coordinated mode will incorrectly
+	           assume the homed position. Do all if they've all been moved
+	           since homing, otherwise just do this one */
+	        clearHomes(joint_num);
+            } else {
+                axis_num = emcmotCommand->joint;
+                if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
+                    /* valid axis, point to it's data */
+                    axis = &axes[axis_num];
+                }
+	        if (emcmotCommand->vel > 0.0) {
+		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
+	        } else {
+		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
+	        }
+	        /* don't jog past limits */
+	        if (tmp1 > axis->max_pos_limit) {
+		    break;
+	        }
+	        if (tmp1 < axis->min_pos_limit) {
+		    break;
+	        }
+	        /* set target position */
+	        axis->teleop_tp.pos_cmd = tmp1;
+                /* set velocity of jog */
+	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
+	        /* use max axis accel */
+	        axis->teleop_tp.max_acc = axis->acc_limit;
+	        /* and let it go */
+	        axis->teleop_tp.enable = 1;
+            }
 	    break;
 
 	case EMCMOT_JOG_ABS:
