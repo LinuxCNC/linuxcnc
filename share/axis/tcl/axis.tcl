@@ -2084,17 +2084,8 @@ proc update_state {args} {
     }
 
     if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
-        ($::motion_mode == $::TRAJ_MODE_FREE
+        ($::motion_mode != $::TRAJ_MODE_FREE
             || $::kinematics_type == $::KINEMATICS_IDENTITY)} {
-        $::_tabs_manual.jogf.jog.jogincr configure -state normal
-    } else {
-        $::_tabs_manual.jogf.jog.jogincr configure -state disabled
-    }
-
-    if {   $::task_state == $::STATE_ON
-        && $::interp_state == $::INTERP_IDLE
-        && ($::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY)
-       } {
         $::_tabs_manual.jogf.zerohome.zero configure -state normal
     } else {
         $::_tabs_manual.jogf.zerohome.zero configure -state disabled
