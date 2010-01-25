@@ -130,7 +130,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def set_spindle_rate(self, arg): pass
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
-    def comment(self, arg): pass
     def select_plane(self, arg): pass
 
     def change_tool(self, arg):
