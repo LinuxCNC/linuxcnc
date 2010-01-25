@@ -257,10 +257,10 @@ set config_count 0
 set nonsample_count 0
 
 proc describe {dir} {
-    if {[string compare $dir [file normalize ~/emc2/configs]] == 0} {
+    if {[string compare $dir $emc::USER_CONFIG_DIR] == 0} {
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir "/usr/share/doc/emc2/examples/sample-configs"] == 0} {
+    if {[string compare $dir [lindex $emc::CONFIG_DIR end]] == 0} {
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
