@@ -172,15 +172,7 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-
-# parse command line 
-set configs_path [ lindex $argv 0 ]
-if { $configs_path == "" } {
-    puts stderr [msgcat::mc "ERROR: must specify a path to search for configurations"]
-    exit 1
-}
-# split into a list of dirs
-set configs_dir_list [ split $configs_path ":" ]
+set configs_dir_list $emc::CONFIG_DIR
  
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
