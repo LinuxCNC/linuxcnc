@@ -360,7 +360,7 @@ proc prompt_copy configname {
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
     set configdir [format %s [file dirname $configname]]
-    set copydir [format %s [file normalize [file join ~ emc2 configs [file tail $configdir]]]]
+    set copydir [format %s [file join $emc::USER_CONFIG_DIR [file tail $configdir]]]
     set copybase $copydir
     set i 0
     set ncfiles [file normalize [file join ~ emc2 nc_files]]
