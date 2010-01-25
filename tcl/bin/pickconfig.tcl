@@ -267,7 +267,6 @@ proc describe {dir} {
 }
 
 foreach dir $configs_dir_list {
-    set dir [file normalize $dir]
     if {[info exists seen($dir)]} continue
     set seen($dir) 1
     set dir_in_tree 0
