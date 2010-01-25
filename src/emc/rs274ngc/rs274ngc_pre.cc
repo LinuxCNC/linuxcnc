@@ -555,9 +555,7 @@ int Interp::init()
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
-  _setup.tool_xoffset = 0.0;
-  _setup.tool_zoffset = 0.0;
-  _setup.tool_woffset = 0.0;
+   ZERO_EMC_POSE(_setup.tool_offset);
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch
@@ -631,8 +629,7 @@ int Interp::load_tool_table()
   }
   for (; n < CANON_POCKETS_MAX; n++) {
     _setup.tool_table[n].toolno = -1;
-    _setup.tool_table[n].xoffset = 0;
-    _setup.tool_table[n].zoffset = 0;
+    ZERO_EMC_POSE(_setup.tool_table[n].offset);
     _setup.tool_table[n].diameter = 0;
     _setup.tool_table[n].orientation = 0;
     _setup.tool_table[n].frontangle = 0;
@@ -1486,23 +1483,15 @@ int Interp::init_tool_parameters()
   if (_setup.random_toolchanger) {
      // random_toolchanger: tool at startup expected
     _setup.parameters[5400] = _setup.tool_table[0].toolno;
-    _setup.parameters[5401] = _setup.tool_table[0].xoffset;
-    _setup.parameters[5402] =  0; // y offset RESERVED
-    if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-      _setup.parameters[5403] = _setup.tool_table[0].zoffset;
-    } else {
-      _setup.parameters[5403] = 0.0;
-    }
-    _setup.parameters[5404] =  0; // a offset RESERVED
-    _setup.parameters[5405] =  0; // b offset RESERVED
-    _setup.parameters[5406] =  0; // c offset RESERVED
-    _setup.parameters[5407] =  0; // u offset RESERVED
-    _setup.parameters[5408] =  0; // v offset RESERVED
-    if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-      _setup.parameters[5409] =  0; // w offset
-    } else {
-      _setup.parameters[5409] =  _setup.tool_table[0].zoffset;
-    }
+    _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
+    _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
+    _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
+    _setup.parameters[5404] = _setup.tool_table[0].offset.a;
+    _setup.parameters[5405] = _setup.tool_table[0].offset.b;
+    _setup.parameters[5406] = _setup.tool_table[0].offset.c;
+    _setup.parameters[5407] = _setup.tool_table[0].offset.u;
+    _setup.parameters[5408] = _setup.tool_table[0].offset.v;
+    _setup.parameters[5409] = _setup.tool_table[0].offset.w;
     _setup.parameters[5410] = _setup.tool_table[0].diameter;
     _setup.parameters[5411] = _setup.tool_table[0].frontangle;
     _setup.parameters[5412] = _setup.tool_table[0].backangle;
@@ -1542,31 +1531,20 @@ int Interp::set_tool_parameters()
     default_tool_parameters();
     return 0;
   }
-
-  // RESERVED items are for possible future implementation
   _setup.parameters[5400] = _setup.tool_table[0].toolno;
-  _setup.parameters[5401] = _setup.tool_table[0].xoffset;
-  _setup.parameters[5402] =  0; // y offset   RESERVED
-  if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-    _setup.parameters[5403] = _setup.tool_table[0].zoffset;
-  } else {
-    _setup.parameters[5403] = 0.0;
-  }
-  _setup.parameters[5404] =  0; // a offset   RESERVED
-  _setup.parameters[5405] =  0; // b offset   RESERVED
-  _setup.parameters[5406] =  0; // c offset   RESERVED
-  _setup.parameters[5407] =  0; // u offset   RESERVED
-  _setup.parameters[5408] =  0; // v offset   RESERVED
-  if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-    _setup.parameters[5409] =  0.0; // w offset
-  } else {
-    _setup.parameters[5409] =  _setup.tool_table[0].zoffset;
-  }
+  _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
+  _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
+  _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
+  _setup.parameters[5404] = _setup.tool_table[0].offset.a;
+  _setup.parameters[5405] = _setup.tool_table[0].offset.b;
+  _setup.parameters[5406] = _setup.tool_table[0].offset.c;
+  _setup.parameters[5407] = _setup.tool_table[0].offset.u;
+  _setup.parameters[5408] = _setup.tool_table[0].offset.v;
+  _setup.parameters[5409] = _setup.tool_table[0].offset.w;
   _setup.parameters[5410] = _setup.tool_table[0].diameter;
   _setup.parameters[5411] = _setup.tool_table[0].frontangle;
   _setup.parameters[5412] = _setup.tool_table[0].backangle;
   _setup.parameters[5413] = _setup.tool_table[0].orientation;
-
 
   return 0;
 }

@@ -943,12 +943,10 @@ double emcTrajGetAngularUnits()
     return localEmcTrajAngularUnits;
 }
 
-int emcTrajSetOffset(double z, double x, double w) 
+int emcTrajSetOffset(EmcPose tool_offset)
 {
     emcmotCommand.command = EMCMOT_SET_OFFSET;
-    emcmotCommand.tooloffset_z = z;
-    emcmotCommand.tooloffset_x = x;
-    emcmotCommand.tooloffset_w = w;
+    emcmotCommand.tool_offset = tool_offset;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
@@ -970,11 +968,6 @@ int emcTrajSetTermCond(int cond, double tolerance)
     emcmotCommand.tolerance = tolerance;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcTrajSetTloAxis(bool use_w_axis) {
-    emcStatus->task.tloIsAlongW = use_w_axis;
-    return 0;
 }
 
 int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc)

@@ -1,6 +1,6 @@
 #!/usr/bin/wish
 #
-# Copyright: 2009
+# Copyright: 2009-2010
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,26 +27,48 @@
 #     ::tooledit::tooledit
 # A single global array ::te() stores private data
 
-# lathe and mill tools can be combined in same tool table file but
-# a pathological mill tool entry having a comment field with 4
-# leading numbers will be interpreted as a lathe tool entry
-
-# ref: user  manual,version 2.3, mar 6 2009, section 7.4
-#  The file consists of any number of header lines, followed by one blank line,
-#  followed by any number of lines of data. The header lines are ignored by the
-#  interpreter.
-
-# but the current emc implementation does not seem to require a blank line:
-
-# ref: src/emc/iotask/ioControl.cc  loadToolTable()
-#  366   /* invalid line. skip it silently */
-#  367   continue;
+# Supports tool offsets along all axes (x y z a b c u v w)
+# Older tool table formats are not supported
+# No distinction is made between mill or lathe tools
+# Text on a line following a semicolon (;) is treated as comment
+# Comment-only lines are preserved
 
 namespace eval ::tooledit {
   namespace export tooledit ;# public interface
 }
 
+proc ::tooledit::init {} {
+  set ::te(fmt,int)   %d
+  set ::te(fmt,real)  %.4g
+  set ::te(fmt,angle) %.1g
+  set ::te(msg,last)  ""
+  set ::te(pollms)    2000
+
+  set ::te(types)        {unified}
+  set ::te(unified,header)  {tool poc x y z a b c u v w \
+                          diam front back orien comment}
+
+  # include values for each *,header item:
+  set ::te(tool,width)     5; set ::te(tool,tag)     T
+  set ::te(poc,width)      5; set ::te(poc,tag)      P
+  set ::te(x,width)        7; set ::te(x,tag)        X
+  set ::te(y,width)        7; set ::te(y,tag)        Y
+  set ::te(z,width)        7; set ::te(z,tag)        Z
+  set ::te(a,width)        7; set ::te(a,tag)        A
+  set ::te(b,width)        7; set ::te(b,tag)        B
+  set ::te(c,width)        7; set ::te(c,tag)        C
+  set ::te(u,width)        7; set ::te(u,tag)        U
+  set ::te(v,width)        7; set ::te(v,tag)        V
+  set ::te(w,width)        7; set ::te(w,tag)        W
+  set ::te(diam,width)     7; set ::te(diam,tag)     D
+  set ::te(front,width)    7; set ::te(front,tag)    I
+  set ::te(back,width)     7; set ::te(back,tag)     J
+  set ::te(orien,width)    5; set ::te(orien,tag)    Q
+  set ::te(comment,width) 15; set ::te(comment,tag) \;
+} ;# init
+
 proc ::tooledit::validangle {v} {
+  if {[string trim $v] == ""} {return 1} ;# allow null value
   if {$v <= 360 && $v >= -360}  {return 1}
   return 0
 } ;# validangle
@@ -65,6 +87,7 @@ proc ::tooledit::isinteger {v} {
 } ;# isinteger
 
 proc ::tooledit::isnumber {v} {
+  if {[string trim $v] == ""} {return 1} ;# allow null value
   if [catch {format %f $v}] {
     return 0
   } else {
@@ -104,6 +127,7 @@ proc ::tooledit::ventry {f validatenumber tvar \
 
 proc ::tooledit::validateNumber {varname widget current new} {
    if ![info exists $varname] {return 1}
+   if {"$new" == ""} {return 1}
    if {"$new" == "NEW"} {
      return 1 ;# 1==>ok dont flag items tagged "NEW"
    }
@@ -157,49 +181,65 @@ proc ::tooledit::readfile {filename} {
   set fd [open $filename r]
 
   set bct 0
+  set lno 1
   while {1} {
     gets $fd newline
+    incr lno
     if [eof $fd] break
+    foreach item {t p x y z a b c u v w d i j q comment} {
+      set u($item) ""
+    }
+    set newline [string tolower $newline]
+    set i1 [string first \; $newline]
+    if {$i1 >= 0} {
+      set u(comment) [string range $newline [expr $i1 +1] end]
+      set u(comment) [string trim $u(comment)]
+      set newline    [string range $newline 0 [expr -1 + $i1]]
+      set newline    [string trim $newline]
+    }
+     
     if {"$newline" == ""} {
-      # a mandatory blank line denotes end of header
-      set endheader 1
+      lappend ::te(global,comments) $u(comment)
       continue
     }
 
-    catch {unset m}; set m(4) ""
-    set mct [scan $newline "%d %d %f %f %\[^\n\]" m(0) m(1) m(2) m(3) m(4)]
-
-    catch {unset l}; set l(8) ""
-    set lct [scan $newline "%d %d %f %f %f %f %f %d %\[^\n\]" \
-            l(0) l(1) l(2) l(3) l(4) l(5) l(6) l(7) l(8)]
-
-    if { $lct == 8 || $lct == 9} {
-      makeline lathe l
-    } elseif {$mct == 4 || $mct == 5} {
-      makeline mill m
-    } else {
-      # newline was not parsed as mill or lathe item
-      # try to notify for bogus items:
-      set nl [string tolower $newline]
-      if {    [string trim $newline] == "" \
-          ||  [string first poc $nl] >= 0 \
-          ||  [string first "file includes both" $nl] >= 0 \
-         } {
-        # ignore header line
-      } else {
-        set bl($bct) "$newline"
-        incr bct
+    set bogus 0
+    foreach tagvalue [split [string trim $newline]] {
+      set tagvalue [string trim $tagvalue]
+      if {"$tagvalue" == ""} continue
+      set tag   [string range $tagvalue 0 0   ]
+      set value [string range $tagvalue 1 end ]
+      if ![isnumber $value] {
+        puts stderr "Skipping linenumber $lno: not a number for tag=$tag <$value>"
+        incr bct; set bogus 1
       }
-      continue
+      switch $tag {
+        t - p - q {  if ![isinteger $value] {
+                   puts stderr "Skipping linenumber $lno: expected integer $tag $value"
+                   incr bct; set bogus 1
+                 }
+              }
+      }
+      # catch errors since format is already checked
+      # (line will not be displayed)
+      # this allows all errors on a line to be flagged in one pass
+      switch $tag {
+        t - p - q   {catch {set u($tag) [format "$::te(fmt,int)" $value]}}
+        x - y - z -
+        a - b - c -
+        u - v - w -
+        d           {catch {set u($tag) [format "$::te(fmt,real)"  $value]}}
+        i - j       {catch {set u($tag) [format "$::te(fmt,angle)" $value]}}
+        default     {puts stderr "At linenumber $lno: unknown tag <$tag>"
+                     incr bct; set bogus 1
+                    }
+      }
     }
+    if $bogus continue
+    makeline unified u
   } ;# while
   close $fd
-  if [info exists bl] {
-    puts stderr "bogus lines ignored:"
-    for {set b 0} {$b < $bct} {incr b} {
-      puts stderr "$bl($b)"
-    }
-    puts stderr ""
+  if {$bct >0} {
     # schedule message after message widget is created
     after 0 {::tooledit::message bogus}
   }
@@ -210,6 +250,7 @@ proc ::tooledit::watch {args} {
   catch {after cancel $::te(afterid)}
   if ![file exists $::te(filename)] {
     ::tooledit::message filegone
+    set ::te(afterid) [after $::te(pollms) ::tooledit::watch]
     return
   }
   set mtime [file mtime $::te(filename)]
@@ -218,7 +259,7 @@ proc ::tooledit::watch {args} {
       set ::te(mtime) $mtime
       set ::te(md5sum) [eval exec md5sum $::te(filename)]
     }
-    stop  {return; # no reschedule}
+    stop  {return}
     default {
       if {$mtime > $::te(mtime)} {
         set ::te(mtime) $mtime
@@ -231,33 +272,32 @@ proc ::tooledit::watch {args} {
       }
     }
   }
-  set ::te(afterid) [after 2000 ::tooledit::watch]
+
+  # try to clear error display in case user clears error before check
+  #   skip if newtool since error is annoying
+  #   skip if filegone|changed|bogus since important
+  if {   "$::te(msg,last)" != "newtool"
+      && "$::te(msg,last)" != "filegone"
+      && "$::te(msg,last)" != "changed"
+      && "$::te(msg,last)" != "bogus"
+     } {
+    ::tooledit::toolvalidate silent ;# to clear errors
+  }
+  set ::te(afterid) [after $::te(pollms) ::tooledit::watch]
 } ;# watch
 
 proc ::tooledit::tooledit {filename} {
+  package require Tk
+  init
   set ::te(filename) $filename
-  set ::te(types)        {mill lathe}
-  set ::te(mill,header)  {poc fms tlo diameter comment}
-  set ::te(lathe,header) {poc fms zoffset xoffset diameter \
-                         frontangle backangle orient comment}
-  set ::te(poc,width)         4
-  set ::te(fms,width)         4
-  set ::te(tlo,width)        10
-  set ::te(diameter,width)   10
-  set ::te(comment,width)    20
-  set ::te(zoffset,width)    10
-  set ::te(xoffset,width)    10
-  set ::te(frontangle,width) 12
-  set ::te(backangle,width)  12
-  set ::te(orient,width)      7
-  foreach h $::te(mill,header)  {set ::te($h) [string toupper $h]}
-  foreach h $::te(lathe,header) {set ::te($h) [string toupper $h]}
+
+  foreach h $::te(unified,header)  {set ::te($h) [string toupper $h]}
 
   set ::te(top) [toplevel .tooledit]
   wm protocol $::te(top) WM_DELETE_WINDOW ::tooledit::bye
   wm title $::te(top) "tooledit: [file tail $::te(filename)]"
-  if [info exists ::priv(tooledit,geometry)] {
-    wm geometry $::te(top) $::priv(tooledit,geometry)
+  if [info exists ::te(tooledit,geometry)] {
+    wm geometry $::te(top) $::te(tooledit,geometry)
   }
 
   # frame for headers & entries
@@ -278,8 +318,7 @@ proc ::tooledit::tooledit {filename} {
   switch $readstatus {
     0 {
       # no existing file, create empty entries:
-      makeline mill  new
-      makeline lathe new
+      makeline unified new
       message newfile
     }
     1 {message opened}
@@ -304,10 +343,8 @@ proc ::tooledit::tooledit {filename} {
   set ::te(deletebutton) $bb
   checkdelete
 
-  pack [button $f.am -text "Add Mill Tool" \
-       -command {::tooledit::makeline mill new}] -side left -fill x -expand 1
-  pack [button $f.[qid] -text "Add Lathe Tool" \
-       -command {::tooledit::makeline lathe new}] -side left -fill x -expand 1
+  pack [button $f.am -text "Add Tool" \
+       -command {::tooledit::makeline unified new}] -side left -fill x -expand 1
   pack [button $f.[qid] -text "Reload File" \
        -command  ::tooledit::toolreread] -side left -fill x -expand 1
   pack [button $f.[qid] -text "Check Entries" \
@@ -334,10 +371,12 @@ proc ::tooledit::message {type} {
     checkok  {$w conf -text "$dt: File checked"                -fg darkgreen}
     delete   {$w conf -text "$dt: File items deleted"          -fg cyan4}
     bogus    {$w conf -text "$dt: Bogus lines in file ignored" -fg darkorange}
-    verror   {$w conf -text "$dt: File errors"                 -fg red}
+    verror   {$w conf -text "$dt: File errors -- Check Entries"   -fg red}
     changed  {$w conf -text "$dt: Warning: File changed by another process" -fg red}
     filegone {$w conf -text "$dt: Warning: File deleted by another process" -fg red}
+    newtool  {$w conf -text "$dt: Added Tool" -fg green4}
   }
+  set ::te(msg,last) $type
 } ;# message
 
 proc ::tooledit::deleteline {} {
@@ -376,32 +415,36 @@ proc ::tooledit::deleteline {} {
 } ;# deleteline
 
 proc ::tooledit::makeline {type ay_name} {
-  # ay(0)...ay(8) ==> entry line items
   if {"$ay_name" == "new"} {
-    set ay(0) NEW
-    set date "# Added [clock format [clock seconds] -format %Y%m%d]"
+    set new 1
+    set date "Added [clock format [clock seconds] -format %Y%m%d]"
+
     switch $type {
-      mill  {set ay(1) 0;set ay(2) 0;set ay(3) 0;set ay(4) $date}
-      lathe {set ay(1) 0;set ay(2) 0;set ay(3) 0;set ay(4) 0
-             set ay(5) 0;set ay(6) 0;set ay(7) 0;set ay(8) $date
+      unified  {
+        foreach item {t p x y z a b c u v w d i j q} {
+          set ay($item) ""
+        }
+        set ay(p) NEW
+        set ay(t) NEW
+        set ay(comment) "$date"
+        after 0 {::tooledit::message newtool}
       }
     }
   } else {
     upvar $ay_name ay
   }
-
   switch $type {
-    lathe {
-      if ![info exists ::te(lathe,i)] {set ::te(lathe,i) 0}
-      set i $::te(lathe,i)
+    unified  {
+      if ![info exists ::te(unified,i)] {set ::te(unified,i) 0}
+      set i $::te(unified,i)
       pack $::te($type,frame) -side top -fill both -expand 1
-      if ![info exists ::te(lathe,header,frame)] {
-        set f [frame $::te($type,frame).${i}lathe,header]
-        set ::te(lathe,header,frame) $f
+      if ![info exists ::te(unified,header,frame)] {
+        set f [frame $::te($type,frame).${i}unified,header]
+        set ::te(unified,header,frame) $f
         pack $f -side top -expand 0 -fill x
         pack [label $f.b -text Del -width 3] -side left -expand 0
-        foreach h $::te(lathe,header) {
-          set e 0;set j right
+        foreach h $::te(unified,header) {
+          set e 0;set j center
           if {"$h" == "comment"} {set e 1;set j left}
           pack [entry $f.$i$h -justify $j -textvariable ::te($h) \
                -state disabled -relief groove \
@@ -410,66 +453,35 @@ proc ::tooledit::makeline {type ay_name} {
         }
       }
       set f [frame $::te($type,frame).data$i]
-      set ::te(lathe,$i,frame) $f
+      set ::te(unified,$i,frame) $f
       pack $f -side top -expand 0 -fill x
-      lappend ::te(lathe,items) $i
-      set ::te(lathe,$i,poc)        $ay(0)
-      set ::te(lathe,$i,fms)        $ay(1)
-      set ::te(lathe,$i,zoffset)    $ay(2)
-      set ::te(lathe,$i,xoffset)    $ay(3)
-      set ::te(lathe,$i,diameter)   $ay(4)
-      set ::te(lathe,$i,frontangle) $ay(5)
-      set ::te(lathe,$i,backangle)  $ay(6)
-      set ::te(lathe,$i,orient)     $ay(7)
-      set ::te(lathe,$i,comment)    [string trim $ay(8)]
-      pack [checkbutton $f.b -variable ::te(lathe,$i,deleteme)\
+      lappend ::te(unified,items) $i
+      set ::te(unified,$i,tool)      $ay(t)
+      set ::te(unified,$i,poc)       $ay(p)
+      set ::te(unified,$i,x)         $ay(x)
+      set ::te(unified,$i,y)         $ay(y)
+      set ::te(unified,$i,z)         $ay(z)
+      set ::te(unified,$i,a)         $ay(a)
+      set ::te(unified,$i,b)         $ay(b)
+      set ::te(unified,$i,c)         $ay(c)
+      set ::te(unified,$i,u)         $ay(u)
+      set ::te(unified,$i,v)         $ay(v)
+      set ::te(unified,$i,w)         $ay(w)
+      set ::te(unified,$i,diam)      $ay(d)
+      set ::te(unified,$i,front)     $ay(i)
+      set ::te(unified,$i,back)      $ay(j)
+      set ::te(unified,$i,orien)     $ay(q)
+      set ::te(unified,$i,comment)   [string trim $ay(comment)]
+      pack [checkbutton $f.b -variable ::te(unified,$i,deleteme)\
            -command "::tooledit::checkdelete"] -side left -expand 0
-      foreach h $::te(lathe,header) {
+      foreach h $::te(unified,header) {
         set e 0;set j right;set v 1
         if {"$h" == "comment"} {set e 1; set j left;set v 0}
-        set ve [ventry $f $v ::te(lathe,$i,$h) $::te($h,width) $e $j]
-        if {"$ay(0)" == "NEW" && "$h" == "poc"} {set vefocus $ve}
-        entrybindings lathe $ve $h $i
+        set ve [ventry $f $v ::te(unified,$i,$h) $::te($h,width) $e $j]
+        if {[info exists new] && "$h" == "tool"} {set vefocus $ve}
+        entrybindings unified $ve $h $i
       }
-      incr ::te(lathe,i)
-    }
-    mill {
-      if ![info exists ::te(mill,i)] {set ::te(mill,i) 0}
-      set i $::te(mill,i)
-      pack $::te($type,frame) -side top -fill both -expand 1
-      if ![info exists ::te(mill,header,frame)] {
-        set f [frame $::te($type,frame).${i}mill,header]
-        set ::te(mill,header,frame) $f
-        pack $f -side top -expand 0 -fill x
-        pack [label $f.b -text Del -width 3] -side left -expand 0
-        foreach h $::te(mill,header) {
-          set e 0;set j right
-          if {"$h" == "comment"} {set e 1;set j left}
-          pack [entry $f.$i$h -justify $j -textvariable ::te($h) \
-               -state disabled -relief groove \
-               -disabledforeground black \
-               -width $::te($h,width)] -side left -fill x -expand $e
-        }
-      }
-      set f [frame $::te($type,frame).data$i]
-      set ::te(mill,$i,frame) $f
-      pack $f -side top -expand 0 -fill x
-      lappend ::te(mill,items) $i
-      set ::te(mill,$i,poc)      $ay(0)
-      set ::te(mill,$i,fms)      $ay(1)
-      set ::te(mill,$i,tlo)      $ay(2)
-      set ::te(mill,$i,diameter) $ay(3)
-      set ::te(mill,$i,comment)  [string trim $ay(4)]
-      pack [checkbutton $f.b -variable ::te(mill,$i,deleteme) \
-           -command "::tooledit::checkdelete"] -side left -expand 0
-      foreach h $::te(mill,header) {
-        set e 0;set j right;set v 1
-        if {"$h" == "comment"} {set e 1;set j left;set v 0}
-        set ve [ventry $f $v ::te(mill,$i,$h) $::te($h,width) $e $j]
-        if {"$ay(0)" == "NEW" && "$h" == "poc"} {set vefocus $ve}
-        entrybindings mill $ve $h $i
-      }
-      incr ::te(mill,i)
+      incr ::te(unified,i)
     }
     default {return -code error "::tooledit::makeline:<unknown type <$type>"}
   }
@@ -569,11 +581,11 @@ proc ::tooledit::checkdelete {} {
 proc ::tooledit::toolreread {} {
   set geo [wm geometry $::te(top)]
   set loc [string range $geo [string first + $geo] end]
-  set ::priv(tooledit,geometry) $loc
 
   set filename $::te(filename)
   destroy $::te(top)
   unset ::te
+  set ::te(tooledit,geometry) $loc
   after 0 ::tooledit::tooledit $filename
 } ;# toolreread
 
@@ -586,27 +598,11 @@ proc ::tooledit::writefile {filename} {
 
   set fd [open $filename w]
 
-  # header lines
-  if {[info exists ::te(mill,items)] && [info exists ::te(lathe,items)]} {
-    puts $fd "File includes both mill(4-5 columns) and lathe(8-9 columns) entries"
-  }
-  if [info exists ::te(mill,items)] {
-    foreach h $::te(mill,header) {
-      set j ""
-      if {"$h" == "comment"} {set j -}
-      puts -nonewline $fd [format " %$j$::te($h,width)s" [string toupper $h]]
+  if [info exists ::te(global,comments)] {
+    foreach c $::te(global,comments) {
+      puts $fd ";$c"
     }
-    puts $fd "" ;# new line
   }
-  if [info exists ::te(lathe,items)] {
-    foreach h $::te(lathe,header) {
-      set j ""
-      if {"$h" == "comment"} {set j -}
-      puts -nonewline $fd [format " %$j$::te($h,width)s" [string toupper $h]]
-    }
-    puts $fd "" ;# new line
-  }
-  puts $fd "" ;# blank line ends header data (per user manual 7.4)
 
   foreach type $::te(types) {
     if [info exists ::te($type,items)] {
@@ -614,11 +610,9 @@ proc ::tooledit::writefile {filename} {
         foreach h $::te($type,header) {
           set j ""
           set w $::te($h,width)
-          if {"$h" == "comment"} {
-            set j -;set w ""
-            set ::te($type,$i,$h) [fixcomment $::te($type,$i,$h)]
+          if {"$::te($type,$i,$h)" != ""} {
+            puts -nonewline $fd "$::te($h,tag)$::te($type,$i,$h) "
           }
-          puts -nonewline $fd [format " %$j${w}s" $::te($type,$i,$h)]
         }
         puts $fd "" ;# new line
       }
@@ -630,50 +624,40 @@ proc ::tooledit::writefile {filename} {
   message write
 } ;# writefile
 
-proc ::tooledit::fixcomment {c} {
-  # add leading "# " to nonnull strings
-  set c [string trim $c]
-  if {"$c" == ""} {return $c}
-  if {[string first "#" $c] == 0} {return $c}
-  set c "# $c"
-  return $c
-} ;# fixcomment
-
-proc ::tooledit::toolvalidate {} {
+proc ::tooledit::toolvalidate {args} {
   set msg ""
+  set silent 0
+  if {"$args" == "silent"} {set silent 1}
 
-  # common (lathe or mill) checks
   foreach type $::te(types) {
     if [info exists ::te($type,items)] {
       foreach i $::te($type,items) {
         foreach h $::te($type,header) {
           if {"$h" == "comment"} continue
           if ![isnumber $::te($type,$i,$h)] {
-            set nextmsg "Pocket $::te($type,$i,poc): $h value=$::te($type,$i,$h) is not a number"
+            set nextmsg "Tool $::te($type,$i,tool): $h value=$::te($type,$i,$h) is not a number"
             if {[lsearch $msg $nextmsg] >= 0} continue
             lappend msg $nextmsg
           }
-          if {   ("$h" == "poc" || "$h" == "fms")
-              && (![isinteger $::te($type,$i,$h)] || [isnegative $::te($type,$i,$h)]) } {
-             lappend msg "Pocket $::te($type,$i,poc): $h must be nonnegative integer"
-          }
-        }
-      }
-    }
-  }
 
-  # lathe-specific checks
-  if [info exists ::te(lathe,items)] {
-    foreach i $::te(lathe,items) {
-      foreach h $::te(lathe,header) {
-        if {"$h" == "comment"} continue
-        if {   "$h" == "orient"
-             && [lsearch {0 1 2 3 4 5 6 7 8 9} $::te(lathe,$i,$h)] < 0} {
-          lappend msg "Pocket $::te(lathe,$i,poc): Orientation must be 0..9 integer"
-        }
-        if {   ("$h" == "frontangle" || "$h" == "backangle")
-            && ![validangle $::te(lathe,$i,$h)] } {
-           lappend msg "Pocket $::te(lathe,$i,poc): $h must be between  -360 and 360"
+          switch -glob $h {
+            tool* - poc* {
+              if {![isinteger $::te($type,$i,$h)] || [isnegative $::te($type,$i,$h)]} {
+                 lappend msg "Tool $::te($type,$i,tool): $h must be nonnegative integer"
+              }
+            }
+            orien* {
+              if {   "$::te($type,$i,$h)" != "" \
+                  && [lsearch {0 1 2 3 4 5 6 7 8 9} $::te($type,$i,$h)] < 0} {
+                lappend msg "Tool $::te($type,$i,tool): Orientation must be 0..9 integer"
+              }
+            }
+            front* - back* {
+              if {![validangle $::te($type,$i,$h)] } {
+                lappend msg "Tool $::te($type,$i,tool): $h must be between -360 and 360"
+              }
+            }
+          }
         }
       }
     }
@@ -687,7 +671,7 @@ proc ::tooledit::toolvalidate {} {
       set p $::te($type,$i,poc)
 
       if {[lsearch $pocs $p] >= 0} {
-        set nextmsg "$type pocket $p specified multiple times"
+        set nextmsg "Pocket $p specified multiple times"
         if {[lsearch $msg $nextmsg] >= 0} continue
         lappend msg $nextmsg
       } else {
@@ -695,9 +679,25 @@ proc ::tooledit::toolvalidate {} {
       }
     }
   }
+  # check for multiple uses of a single tool
+  foreach type $::te(types) {
+    if ![info exists ::te($type,items)] continue
+    set tools ""
+    foreach i $::te($type,items) {
+      set t $::te($type,$i,tool)
+
+      if {[lsearch $tools $t] >= 0} {
+        set nextmsg "Tool $t specified multiple times"
+        if {[lsearch $msg $nextmsg] >= 0} continue
+        lappend msg $nextmsg
+      } else {
+        lappend tools $t
+      }
+    }
+  }
 
   if {"$msg" != ""} {
-    showerr $msg
+    if {!$silent} {showerr $msg}
     message checke
     return 1 ;#fail
   }
@@ -730,7 +730,8 @@ proc ::tooledit::showerr {msg} {
 } ;# showerr
 
 proc ::tooledit::bye {} {
-  destroy $::te(top)       ;# for embedded usage
+  catch {after cancel $::te(afterid)}
+  destroy $::te(top)      ;# for embedded usage
   set ::tooledit::finis 1 ;# for standalone usage
 } ;# bye
 

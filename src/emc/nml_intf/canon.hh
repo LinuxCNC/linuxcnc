@@ -16,6 +16,8 @@
 #include <stdio.h>		// FILE
 #include <vector>
 
+#include "emcpos.h"
+
 /*
   This is the header file that all applications that use the
   canonical commands for three- to nine-axis machining should include.
@@ -157,8 +159,7 @@ struct CANON_POSITION {
 
 struct CANON_TOOL_TABLE {
     int toolno;
-    double zoffset;
-    double xoffset;
+    EmcPose offset;
     double diameter;
     double frontangle;
     double backangle;
@@ -517,10 +518,9 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter);
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation);
-extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
+extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 
@@ -857,7 +857,14 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
 
 // returns current tool length offset
 extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_COFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
 // Returns number of slots in carousel
 extern int GET_EXTERNAL_POCKETS_MAX();
@@ -875,9 +882,6 @@ extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
 // Returns the CANON_TOOL_TABLE structure associated with the tool
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
-
-// the Z component of the tool offset should actually be put along W instead
-extern int GET_EXTERNAL_TLO_IS_ALONG_W(void);
 
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();

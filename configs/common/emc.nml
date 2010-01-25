@@ -7,7 +7,7 @@
 
 # Top-level buffers to EMC
 B emcCommand            SHMEM   localhost       8192    0       0       1       16 1001 TCP=5005 xdr
-B emcStatus             SHMEM   localhost       10240   0       0       2       16 1002 TCP=5005 xdr
+B emcStatus             SHMEM   localhost       16384   0       0       2       16 1002 TCP=5005 xdr
 B emcError              SHMEM   localhost       8192    0       0       3       16 1003 TCP=5005 xdr queue
 
 # These are for the IO controller, EMCIO

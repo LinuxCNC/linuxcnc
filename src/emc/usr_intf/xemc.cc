@@ -757,7 +757,7 @@ static int sendToolSetOffset(int toolno, double zoffset, double diameter)
   EMC_TOOL_SET_OFFSET emc_tool_set_offset_msg;
 
   emc_tool_set_offset_msg.toolno = toolno;
-  emc_tool_set_offset_msg.zoffset = zoffset;
+  emc_tool_set_offset_msg.offset.tran.z = zoffset;
   emc_tool_set_offset_msg.diameter = diameter;
   emc_tool_set_offset_msg.orientation = 0; // mill style tool table
 

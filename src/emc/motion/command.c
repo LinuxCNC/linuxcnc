@@ -1560,9 +1560,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 
         case EMCMOT_SET_OFFSET:
-            emcmotStatus->tooloffset_x = emcmotCommand->tooloffset_x;
-            emcmotStatus->tooloffset_z = emcmotCommand->tooloffset_z;
-            emcmotStatus->tooloffset_w = emcmotCommand->tooloffset_w;
+            emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             break;
 
 	default:

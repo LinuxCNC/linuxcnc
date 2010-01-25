@@ -8,7 +8,7 @@
  N..... SELECT_PLANE(CANON_PLANE_XY)
  N..... USE_LENGTH_UNITS(CANON_UNITS_INCHES)
  N..... COMMENT("interpreter: cutter radius compensation off")
- N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000)
+ N..... USE_TOOL_LENGTH_OFFSET(0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000, 0.0000 0.0000 0.0000)
  N..... COMMENT("interpreter: feed mode set to units per minute")
  N..... SET_FEED_MODE(0)
  N..... SET_FEED_RATE(0.0000)

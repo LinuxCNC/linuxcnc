@@ -346,9 +346,8 @@ int read_tool_file(  /* ARGUMENTS         */
   for (slot = 0; slot < _pockets_max; slot++) /* initialize */
     {
       _tools[slot].toolno = -1;
-      _tools[slot].zoffset = 0.;
+      ZERO_EMC_POSE(_tools[slot].offset);
       _tools[slot].diameter = 0.;
-      _tools[slot].xoffset = 0.;
       _tools[slot].frontangle = 0.;
       _tools[slot].backangle = 0.;
       _tools[slot].orientation = 0;
@@ -361,9 +360,9 @@ int read_tool_file(  /* ARGUMENTS         */
               ++i < _pockets_max)
         {
           _tools[i].toolno = tool_id;
-          _tools[i].zoffset = zoffset;
+          _tools[i].offset.tran.x = xoffset;
+          _tools[i].offset.tran.z = zoffset;
           _tools[i].diameter = diameter;
-          _tools[i].xoffset = xoffset;
           _tools[i].frontangle = frontangle;
           _tools[i].backangle = backangle;
           _tools[i].orientation = orientation;
@@ -373,7 +372,7 @@ int read_tool_file(  /* ARGUMENTS         */
               ++i < _pockets_max)
         {
           _tools[i].toolno = tool_id;
-          _tools[i].zoffset = zoffset;
+          _tools[i].offset.tran.z = zoffset;
           _tools[i].diameter = diameter;
           _tools[i].orientation = 0;  //mill tool
         }

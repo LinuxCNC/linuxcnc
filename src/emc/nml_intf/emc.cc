@@ -1395,8 +1395,7 @@ void EMC_TOOL_SET_OFFSET::update(CMS * cms)
     EMC_TOOL_CMD_MSG::update(cms);
     cms->update(pocket);
     cms->update(toolno);
-    cms->update(zoffset);
-    cms->update(xoffset);
+    EmcPose_update(cms, &offset);
     cms->update(diameter);
     cms->update(frontangle);
     cms->update(backangle);
@@ -1670,9 +1669,8 @@ void EMC_SPINDLE_DECREASE::update(CMS * cms)
 void CANON_TOOL_TABLE_update(CMS * cms, CANON_TOOL_TABLE * x)
 {
     cms->update(x->toolno);
-    cms->update(x->zoffset);
+    EmcPose_update(cms, &x->offset);
     cms->update(x->diameter);
-    cms->update(x->xoffset);
     cms->update(x->frontangle);
     cms->update(x->backangle);
 
@@ -1855,7 +1853,6 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(command, 256);
     EmcPose_update(cms, &origin);
     EmcPose_update(cms, &toolOffset);
-    cms->update(tloIsAlongW);
     cms->update(activeGCodes, ACTIVE_G_CODES);
     cms->update(activeMCodes, ACTIVE_M_CODES);
     cms->update(activeSettings, ACTIVE_SETTINGS);

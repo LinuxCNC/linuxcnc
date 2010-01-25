@@ -26,9 +26,13 @@ from math import sin, cos, pi
 
 class GLCanon(Translated, ArcsToSegmentsMixin):
     def __init__(self, colors, geometry):
+        # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
         self.traverse = []; self.traverse_append = self.traverse.append
+        # feed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
         self.feed = []; self.feed_append = self.feed.append
+        # arcfeed list - [line number, [start position], [end position], feedrate, [tlo x, tlo y, tlo z]]
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
+        # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []; self.dwells_append = self.dwells.append
         self.choice = None
         self.feedrate = 1
@@ -42,7 +46,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.max_extents_notool = [-9e99,-9e99,-9e99]
         self.colors = colors
         self.in_arc = 0
-        self.xo = self.zo = self.wo = 0
+        self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
 
@@ -90,31 +94,38 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.max_extents = [max(x), max(y), max(z)]
 
     def calc_notool_extents(self):
-        x = [f[1][0]+f[4] for f in self.arcfeed] + [f[1][0]+f[4] for f in self.feed] + [f[1][0]+f[3] for f in self.traverse]
-        y = [f[1][1] for f in self.arcfeed] + [f[1][1] for f in self.feed] + [f[1][1] for f in self.traverse]
-        z = [f[1][2]+f[5] for f in self.arcfeed] + [f[1][2]+f[5] for f in self.feed] + [f[1][2]+f[4] for f in self.traverse]
+        x = [f[1][0]+f[4][0] for f in self.arcfeed] + [f[1][0]+f[4][0] for f in self.feed] + [f[1][0]+f[3][0] for f in self.traverse]
+        y = [f[1][1]+f[4][1] for f in self.arcfeed] + [f[1][1]+f[4][1] for f in self.feed] + [f[1][1]+f[3][1] for f in self.traverse]
+        z = [f[1][2]+f[4][2] for f in self.arcfeed] + [f[1][2]+f[4][2] for f in self.feed] + [f[1][2]+f[3][2] for f in self.traverse]
         if self.arcfeed:
-            x.append(self.arcfeed[-1][2][0] + self.arcfeed[-1][4])
-            y.append(self.arcfeed[-1][2][1])
-            z.append(self.arcfeed[-1][2][2] + self.arcfeed[-1][5])
+            x.append(self.arcfeed[-1][2][0] + self.arcfeed[-1][4][0])
+            y.append(self.arcfeed[-1][2][1] + self.arcfeed[-1][4][1])
+            z.append(self.arcfeed[-1][2][2] + self.arcfeed[-1][4][2])
         if self.feed:
-            x.append(self.feed[-1][2][0] + self.feed[-1][4])
-            y.append(self.feed[-1][2][1])
-            z.append(self.feed[-1][2][2] + self.feed[-1][5])
+            x.append(self.feed[-1][2][0] + self.feed[-1][4][0])
+            y.append(self.feed[-1][2][1] + self.feed[-1][4][1])
+            z.append(self.feed[-1][2][2] + self.feed[-1][4][2])
         if self.traverse:
-            x.append(self.traverse[-1][2][0] + self.traverse[-1][3])
-            y.append(self.traverse[-1][2][1])
-            z.append(self.traverse[-1][2][2] + self.traverse[-1][4])
+            x.append(self.traverse[-1][2][0] + self.traverse[-1][3][0])
+            y.append(self.traverse[-1][2][1] + self.traverse[-1][3][1])
+            z.append(self.traverse[-1][2][2] + self.traverse[-1][3][2])
         if x:
             self.min_extents_notool = [min(x), min(y), min(z)]
             self.max_extents_notool = [max(x), max(y), max(z)]
 
-    def tool_offset(self, zo, xo, wo):
+    def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
-        self.lo = (x - xo + self.xo, y, z - zo + self.zo, a, b, c, u, v, w - wo + self.wo)
+        self.lo = (x - xo + self.xo, y - yo + self.yo, z - zo + self.zo, a - ao + self.ao, b - bo + self.bo, c - bo + self.bo,
+          u - uo + self.uo, v - vo + self.vo, w - wo + self.wo)
         self.xo = xo
+        self.yo = yo
         self.zo = zo
+        self.so = ao
+        self.bo = bo
+        self.co = co
+        self.uo = uo
+        self.vo = vo
         self.wo = wo
 
     def set_spindle_rate(self, arg): pass
@@ -140,7 +151,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
-                self.traverse_append((self.lineno, self.lo, l, self.xo, self.zo))
+                self.traverse_append((self.lineno, self.lo, l, [self.xo, self.yo, self.zo]))
         self.lo = l
 
     def rigid_tap(self, x, y, z):
@@ -149,9 +160,9 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l = self.rotate_and_translate(x,y,z,0,0,0,0,0,0)[:3]
         l += [self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8]]
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
         self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
-        self.feed_append((self.lineno, l, self.lo, self.feedrate, self.xo, self.zo))
+        self.feed_append((self.lineno, l, self.lo, self.feedrate, [self.xo, self.yo, self.zo]))
 
     def arc_feed(self, *args):
         if self.suppress > 0: return
@@ -165,14 +176,14 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def straight_arcsegment(self, x,y,z, a,b,c, u, v, w):
         self.first_move = False
         l = (x,y,z,a,b,c,u,v,w)
-        self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
+        self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
         self.lo = l
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return
         self.first_move = False
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
-        self.feed_append((self.lineno, self.lo, l, self.feedrate, self.xo, self.zo))
+        self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
         self.lo = l
     straight_probe = straight_feed
 

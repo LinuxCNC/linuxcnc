@@ -1392,7 +1392,6 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     EmcPose origin;		// origin, in user units, currently active
     double rotation_xy;
     EmcPose toolOffset;		// tool offset, in general pose form
-    bool tloIsAlongW;		// whether tool offset is applied in Z or W
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];
     double activeSettings[ACTIVE_SETTINGS];
@@ -1501,8 +1500,7 @@ class EMC_TOOL_SET_OFFSET:public EMC_TOOL_CMD_MSG {
 
     int pocket;
     int toolno;
-    double zoffset;
-    double xoffset;
+    EmcPose offset;
     double diameter;
     double frontangle;
     double backangle;
