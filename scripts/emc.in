@@ -247,7 +247,7 @@ fi
 
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
-    INIFILE=$($PICKCONFIG "$EMC2_CONFIG_PATH")
+    INIFILE=$($PICKCONFIG)
     # it returns either a path, or nothing at all
 fi
 
