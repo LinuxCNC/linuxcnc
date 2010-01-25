@@ -287,7 +287,7 @@ foreach dir $configs_dir_list {
             set parts [file split $inifile]
 	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
 	    incr config_count
-	    if {[string first sample-configs $dir] == -1} { incr nonsample_count }
+	    if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level and sort
   	    set inifile_list [ lsort $inifile_list ]
@@ -301,7 +301,7 @@ foreach dir $configs_dir_list {
                 set text [file rootname [file tail $inifile]]
 		$tree insert end $subdir $inifile -text $text -open 1
 		incr config_count
-		if {[string first sample-configs $dir] == -1} { incr nonsample_count }
+		if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	    }
 	}
     }
