@@ -283,14 +283,14 @@ foreach dir $configs_dir_list {
     set subdir_list [ lsort $subdir_list ]
     foreach subdir $subdir_list {
 	set inifile_list [ glob -nocomplain $subdir*.ini ]
+	# add dir to tree if not already
+	if { $dir_in_tree == 0 } {
+	    set text [describe $dir]
+	    $tree insert end root $dir -text $text -open 1
+	    set dir_in_tree 1
+	}
 	if { [ llength $inifile_list ] == 1 } {
 	    # only one ini file, no second level
-	    # add dir to tree if not already
-	    if { $dir_in_tree == 0 } {
-		set text [describe $dir]
-		$tree insert end root $dir -text $text -open 1
-		set dir_in_tree 1
-	    }
 	    # add inifile to tree
 	    set inifile [ lindex $inifile_list 0 ]
             set parts [file split $inifile]
@@ -300,11 +300,6 @@ foreach dir $configs_dir_list {
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level and sort
   	    set inifile_list [ lsort $inifile_list ]
-	    # add dir to tree if not already
-	    if { $dir_in_tree == 0 } {
-		$tree insert end root $dir -text $dir/ -open 1
-		set dir_in_tree 1
-	    }
 	    # add subdir to tree
 	    set subdir [format %s $subdir]
 	    $tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
