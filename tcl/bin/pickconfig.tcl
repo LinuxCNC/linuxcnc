@@ -308,7 +308,11 @@ foreach dir $configs_dir_list {
 }
 
 if {$nonsample_count} {
-    catch { $tree closetree /usr/share/doc/emc2/examples/sample-configs }
+    foreach dir $emc::CONFIG_DIR {
+	if {$dir != $emc::USER_CONFIG_DIR} {
+	    catch {$tree closetree $dir}
+	}
+    }
 }
 
 unset seen
