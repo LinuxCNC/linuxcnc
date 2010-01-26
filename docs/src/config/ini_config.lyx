@@ -1527,12 +1527,6 @@ Warning
  
 \end_layout
 
-\begin_layout Description
-TLO_IS_ALONG_W\InsetSpace ~
-=\InsetSpace ~
-1 Moves the tool length offset from Z to W.
-\end_layout
-
 \begin_layout Subsection
 [AXIS_<num>] Section
 \color none
@@ -1569,6 +1563,15 @@ The [AXIS_0], [AXIS_1], etc.
 TYPE\InsetSpace ~
 =\InsetSpace ~
 LINEAR The type of axes, either LINEAR or ANGULAR.
+\end_layout
+
+\begin_layout Description
+WRAPPED_ROTARY\InsetSpace ~
+=\InsetSpace ~
+1 When this is set to 1 for an ANGULAR axis the axis will
+ move 0-359.999 degrees.
+ Plus Numbers will move the axis in a positive direction and minus numbers
+ will move the axis in the opposite direction.
 \end_layout
 
 \begin_layout Description
