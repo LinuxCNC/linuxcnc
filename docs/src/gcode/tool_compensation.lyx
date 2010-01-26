@@ -38,6 +38,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -158,10 +159,6 @@ The "Tool Table" is a text file that contains information about each tool.
  
 \end_layout
 
-\begin_layout Subsection
-Mill Format
-\end_layout
-
 \begin_layout Standard
 \begin_inset Float table
 placement H
@@ -190,7 +187,7 @@ name "cap:Mill-Format-Tool-File"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="5">
+<lyxtabular version="3" rows="3" columns="5">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -202,7 +199,7 @@ name "cap:Mill-Format-Tool-File"
 \begin_inset Text
 
 \begin_layout Standard
-Pocket
+T1
 \end_layout
 
 \end_inset
@@ -211,7 +208,7 @@ Pocket
 \begin_inset Text
 
 \begin_layout Standard
-FMS
+P1
 \end_layout
 
 \end_inset
@@ -220,7 +217,7 @@ FMS
 \begin_inset Text
 
 \begin_layout Standard
-TLO
+D0.125000
 \end_layout
 
 \end_inset
@@ -229,7 +226,7 @@ TLO
 \begin_inset Text
 
 \begin_layout Standard
-Diameter
+Z+0.511000
 \end_layout
 
 \end_inset
@@ -238,7 +235,11 @@ Diameter
 \begin_inset Text
 
 \begin_layout Standard
-Comment
+;1/8
+\begin_inset Quotes erd
+\end_inset
+
+ End Mill
 \end_layout
 
 \end_inset
@@ -249,7 +250,7 @@ Comment
 \begin_inset Text
 
 \begin_layout Standard
-
+T2
 \end_layout
 
 \end_inset
@@ -258,7 +259,7 @@ Comment
 \begin_inset Text
 
 \begin_layout Standard
-
+P2
 \end_layout
 
 \end_inset
@@ -267,7 +268,7 @@ Comment
 \begin_inset Text
 
 \begin_layout Standard
-
+D0.062500
 \end_layout
 
 \end_inset
@@ -276,7 +277,7 @@ Comment
 \begin_inset Text
 
 \begin_layout Standard
-
+Z+0.100000
 \end_layout
 
 \end_inset
@@ -285,148 +286,11 @@ Comment
 \begin_inset Text
 
 \begin_layout Standard
-
-\end_layout
-
+;1/16
+\begin_inset Quotes erd
 \end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
 
-\begin_layout Standard
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.25
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-endmill
+ End Mill
 \end_layout
 
 \end_inset
@@ -437,7 +301,7 @@ endmill
 \begin_inset Text
 
 \begin_layout Standard
-10
+T99999
 \end_layout
 
 \end_inset
@@ -446,7 +310,7 @@ endmill
 \begin_inset Text
 
 \begin_layout Standard
-10
+P99999
 \end_layout
 
 \end_inset
@@ -455,7 +319,7 @@ endmill
 \begin_inset Text
 
 \begin_layout Standard
-2.4
+D23.75000
 \end_layout
 
 \end_inset
@@ -464,7 +328,7 @@ endmill
 \begin_inset Text
 
 \begin_layout Standard
--0.3
+Z-0.3000000
 \end_layout
 
 \end_inset
@@ -473,7 +337,7 @@ endmill
 \begin_inset Text
 
 \begin_layout Standard
-for testing
+;You have a big tool changer
 \end_layout
 
 \end_inset
@@ -492,472 +356,57 @@ for testing
 \end_layout
 
 \begin_layout Standard
-Each line has five entries.
- The first four entries are required.
- The last entry (a comment) is optional.
- It makes reading easier if the entries are arranged in columns, as shown
- in the table, but the only format requirement is that there be at least
- one space or tab after each of the first three entries on a line and a
- space, tab, or newline at the end of the fourth entry.
- The meanings of the columns and the type of data to be put in each are
- as follows.
+In general new tool table line format is: 
+\end_layout
+
+\begin_layout Itemize
+T - integer tool number 
+\end_layout
+
+\begin_layout Itemize
+P - integer pocket number 
+\end_layout
+
+\begin_layout Itemize
+D - abs float tool diameter 
+\end_layout
+
+\begin_layout Itemize
+X..W - float tool length offset on specified axis 
+\end_layout
+
+\begin_layout Itemize
+I - float front angle (lathe tools) 
+\end_layout
+
+\begin_layout Itemize
+J - float back angle (lathe tools) 
+\end_layout
+
+\begin_layout Itemize
+Q - int tool orientation (lathe) 
+\end_layout
+
+\begin_layout Itemize
+; - begin of comment 
 \end_layout
 
 \begin_layout Standard
-The "Pocket" column (unsigned integer) represents the pocket number or slot
- number of the tool carousel slot in which the tool is placed.
- The entries in this column must all be different.
- 
+There is tool for converting to new tool tables in src/emc/usr_intf/toolconvert.t
+cl 
 \end_layout
 
 \begin_layout Standard
-The "FMS" column (unsigned integer) represents a code number for the tool.
- The user may use any code for any tool, as long as the codes are unsigned
- integers.
- This is typically the same as the pocket number.
-\end_layout
-
-\begin_layout Standard
-The "TLO" column (float number) represents the tool length offset.
- This number will be used if tool length offsets are being used and this
- pocket is selected.
- This is normally a positive floating point number, but it may be zero or
- any other number if it is never to be used.
-\end_layout
-
-\begin_layout Standard
-The "Diameter" column (float number) is used only if tool radius compensation
- is turned on using this pocket.
- If the programmed path during compensation is the edge of the material
- being cut, this should be a positive real number representing the measured
- diameter of the tool.
- If the programmed path during compensation is the path of a tool whose
- diameter is nominal, this should be a small number (positive, negative,
- or zero) representing the difference between the measured diameter of the
- tool and the nominal diameter.
- If cutter radius compensation is not used with a tool, it does not matter
- what number is in this column.
- 
-\end_layout
-
-\begin_layout Standard
-The "Comment" column may optionally be used to describe the tool.
- Any type of description is OK.
- This column is for the benefit of human readers only.
+Usage: ./toolconvert filename (original file is saved as filename.orig) tooledit.tc
+l support net table format if needed.
 \end_layout
 
 \begin_layout Subsection
-Lathe Format
+Lathe 
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float table
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Standard
-\begin_inset Caption
-
-\begin_layout Standard
-Sample Tool File (lathe format)
-\begin_inset LatexCommand label
-name "cap:Lathe-Tool-File"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\align center
-\begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="9">
-<features>
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-Pocket
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-FMS
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-ZOFFSET
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-XOFFSET
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-DIA
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-FRONTANGLE
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-BACKANGLE
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-ORIENTATION
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-Comment
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-95.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-155.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true" bottomline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.1
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-120
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-60
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-6
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The Pocket, FMS, DIA and Comment columns are the same as mill format tool
- files.
- 
-\end_layout
-
-\begin_layout Standard
-The ZOFFSET column is the same as the TLO column of mill format tool files.
- 
-\end_layout
-
-\begin_layout Standard
-The DIA column is used by the AXIS gui display to give a visual indication
- of the tool diameter.
-\end_layout
-
-\begin_layout Standard
-The XOFFSET column gives an offset for the X coordinate when tool length
- offsets are in effect.
- 
-\end_layout
-
-\begin_layout Standard
-The ORIENTATION column gives the orientation of the lathe tool, as illustrated
- in 
+The Q gives the orientation of the lathe tool, as illustrated in 
 \begin_inset LatexCommand ref
 reference "cap:Tool-Orientations"
 

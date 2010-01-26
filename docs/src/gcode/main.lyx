@@ -3751,7 +3751,9 @@ name "sec:G10-L1-Set-Tool-Table"
 \end_layout
 
 \begin_layout LyX-Code
-G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+G10 L1 P[tool number] R[radius] X[offset] Y[offset] Z[offset] A[offset]
+ B[offset] C[offset] U[offset] V[offset] W[offset] I[frontangle] J[backangle]
+ Q[orientation] 
 \end_layout
 
 \begin_layout Standard
@@ -5427,17 +5429,10 @@ G43.1: Dynamic tool compensation
 \begin_layout Standard
 To use a tool length offset from the program, use 
 \family typewriter
-G43.1 I- K-
+G43.1 Xn Yn
 \family default
-, where 
-\family typewriter
-I-
-\family default
- gives the X tool offset (for lathes) and 
-\family typewriter
-K-
-\family default
- gives the Z tool offset (for lathes and mills).
+ ...
+ Wn to set any axis tlo at run time.
  
 \end_layout
 
