@@ -3,7 +3,7 @@ Section: misc
 Priority: extra
 Maintainer: Jeff Epler <jepler@unpythonic.net>
 Build-Depends: debhelper (>> 4.0.0),
-    @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@, g++, make, libc6-dev,
+    @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
     tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget,
     libxaw7-dev, libncurses-dev, libreadline5-dev,
     lyx-qt | lyx, xsltproc, groff,
