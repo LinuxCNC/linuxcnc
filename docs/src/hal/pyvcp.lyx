@@ -39,6 +39,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -990,8 +991,6 @@ The above code produced this example.
 
 \begin_layout Standard
 <font> is a Tkinter font type and size specification.
- Note that on Ubuntu 6.06 "Helvetica" is not available in sizes above ca
- 40 or 50.
  One font that will show up to at least size 200 is "courier 10 pitch",
  so for a really big Number widget you could specify:
 \end_layout
