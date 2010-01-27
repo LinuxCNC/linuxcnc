@@ -125,7 +125,7 @@ NMLmsg *emcTaskCommand = 0;
 // signal handling code to stop main loop
 static int done;
 static int emctask_shutdown(void);
-static int pseudoMdiLineNumber = -1;
+static int pseudoMdiLineNumber = INT_MIN;
 
 static int all_homed(void) {
     for(int i=0; i<9; i++) {
@@ -1957,7 +1957,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         }
 	if (execute_msg->command[0] != 0) {
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-		interp_list.set_line_number(--pseudoMdiLineNumber);
+		interp_list.set_line_number(++pseudoMdiLineNumber);
 	    }
 	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
 	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {
