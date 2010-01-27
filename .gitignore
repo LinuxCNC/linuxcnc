@@ -1,7 +1,6 @@
 autosave.halscope
 build-stamp
 lib
-share
 *.pyc
 *.o
 *.ko
@@ -15,3 +14,5 @@ share
 *.cmd
 .tmp*
 debian/*.debhelper.log
+share/*/*.desktop
+share/menus/CNC.menu
