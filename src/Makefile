@@ -212,7 +212,11 @@ INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop ../lib/python/nf.py
+	../scripts/emcmkdesktop ../lib/python/nf.py \
+	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
+	../share/applications/emc.desktop \
+	../share/applications/emc-latency.desktop
+
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
@@ -400,6 +404,9 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
+install-menu: ../share/menus/CNC.menu
+	mkdir -p $(HOME)/.config/menus/applications-merged
+	cp $< $(HOME)/.config/menus/applications-merged
 else
 
 DOCS=INSTALL NEWS README AUTHORS
