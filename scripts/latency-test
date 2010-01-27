@@ -1,4 +1,9 @@
 #!/bin/bash
+SCRIPT_LOCATION=$(dirname $(readlink -f $0));
+if [ -f $SCRIPT_LOCATION/emc-environment ] && [ -z "$EMC2_HOME" ]; then
+    . $SCRIPT_LOCATION/emc-environment
+fi
+
 T=`mktemp -d`
 trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
 cd $T
