@@ -44,15 +44,15 @@
 
 #include "hal.h"
 struct haldata {
-    hal_float_t *a[6];
-    hal_float_t *alpha[6];
-    hal_float_t *d[6];
+    hal_float_t *a[GENSER_MAX_JOINTS];
+    hal_float_t *alpha[GENSER_MAX_JOINTS];
+    hal_float_t *d[GENSER_MAX_JOINTS];
     genser_struct *kins;
     go_pose *pos;		// used in various functions, we malloc it
 				// only once in rtapi_app_main
 } *haldata = 0;
 
-double j[6];
+double j[GENSER_MAX_JOINTS];
 
 #define A(i) (*(haldata->a[i]))
 #define ALPHA(i) (*(haldata->alpha[i]))

@@ -39,7 +39,7 @@
   The maximum number of joints supported by the general serial
   kinematics. Make this at least 6; a device can have fewer than these.
 */
-#define GENSER_MAX_JOINTS 8
+#define GENSER_MAX_JOINTS 6
 
 #define PI_2 GO_PI_2
 
