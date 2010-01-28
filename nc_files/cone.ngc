@@ -6,7 +6,7 @@ o200 sub
 g0 b0 c0 (tool length change must happen with b,c=0)
 g91 g28 z0 (could also be done with tool change position)
 g90
-g43.1 k#1 (change tool length)
+g43.1 z#1 (change tool length)
 g0z0 (move Z to apply new length)
 
 x-100 b-45 c-180
