@@ -15,6 +15,7 @@ int loadToolTable(const char *filename,
     int t;
     FILE *fp;
     char buffer[CANON_TOOL_ENTRY_LEN];
+    char orig_line[CANON_TOOL_ENTRY_LEN];
     int pocket = 0;
 
     if(!filename) return -1;
@@ -60,6 +61,7 @@ int loadToolTable(const char *filename,
         if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
             break;
         }
+        strcpy(orig_line, buffer);
 
         toolno = -1;
         diameter = frontangle = backangle = 0.0;
@@ -166,6 +168,8 @@ int loadToolTable(const char *filename,
 
             if (ttcomments && comment)
                 strcpy(ttcomments[pocket], comment);
+        } else {
+            fprintf(stderr, "Unrecognized line skipped: %s", orig_line);
         }
         if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
             toolTable[0] = toolTable[pocket];
