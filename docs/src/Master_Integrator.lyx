@@ -178,28 +178,6 @@ preview false
 \end_layout
 
 \begin_layout Part
-Installing EMC
-\end_layout
-
-\begin_layout Standard
-\begin_inset Include \include{install/installing_emc2.lyx}
-preview false
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Include \include{install/compiling_emc2.lyx}
-preview false
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Part
 Configuration
 \end_layout
 
