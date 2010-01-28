@@ -62,7 +62,8 @@ int loadToolTable(const char *filename,
         }
 
         toolno = -1;
-        diameter = frontangle = backangle = orientation = 0.0;
+        diameter = frontangle = backangle = 0.0;
+        orientation = 0;
         ZERO_EMC_POSE(offset);
         buff = strtok(buffer, ";");
         comment = strtok(NULL, "\n");
