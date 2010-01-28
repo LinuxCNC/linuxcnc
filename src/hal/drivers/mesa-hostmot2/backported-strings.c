@@ -19,6 +19,21 @@
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
+typedef unsigned long gfp_t;
+char *kstrdup(const char *s, gfp_t gfp)
+{
+    size_t len = strlen(s)+1;
+    char *r = kmalloc(len, gfp);
+    if(r) memcpy(r, s, len);
+    return r;
+}
+void *kzalloc(size_t sz, gfp_t gfp) {
+    void *r = kmalloc(sz, gfp);
+    if(r) memset(r, 0, sz);
+    return r;
+}
+#endif
 
 /**
  * kstrndup - allocate space for and copy an existing string
