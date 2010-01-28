@@ -47,6 +47,15 @@ PATH=$EMC2_BIN_DIR:$PATH
 #ditto scripts if not RIP
 [ -d $EMC2_HOME/scripts ] && PATH=$EMC2_HOME/scripts:$PATH
 
+if test "xyes" = "x@RUN_IN_PLACE@"; then
+	if [ -z "$LD_LIBRARY_PATH" ]; then
+	    LD_LIBRARY_PATH=$EMC2_HOME/lib
+	else
+	    LD_LIBRARY_PATH=$EMC2_HOME/lib:"$LD_LIBRARY_PATH"
+	fi
+	export LD_LIBRARY_PATH
+fi
+
 if [ -z "$PYTHONPATH" ]; then
     PYTHONPATH=$EMC2_HOME/lib/python
 else
