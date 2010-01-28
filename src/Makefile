@@ -404,7 +404,7 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
-install-menu: ../share/menus/CNC.menu
+install-menus install-menu: ../share/menus/CNC.menu
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
