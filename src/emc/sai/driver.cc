@@ -24,6 +24,7 @@
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
+#include "tool_parse.h"
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
@@ -274,120 +275,31 @@ int interpret_from_file( /* ARGUMENTS                  */
 /* read_tool_file
 
 Returned Value: int
-  If any of the following errors occur, this returns 1.
-  Otherwise, it returns 0.
+  Returns 0 for success, nonzero for failure.  Failures can be caused by:
   1. The file named by the user cannot be opened.
-  2. No blank line is found.
-  3. A line of data cannot be read.
-  4. A tool slot number is less than 1 or >= _pockets_max
+  2. Any error detected by loadToolTable()
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
   as specified in the file.
 
 Called By: main
-
-Tool File Format
------------------
-Everything above the first blank line is read and ignored, so any sort
-of header material may be used.
-
-Everything after the first blank line should be data. Each line of
-data should have four or more items separated by white space. The four
-required items are slot, tool id, tool length offset, and tool diameter.
-Other items might be the holder id and tool description, but these are
-optional and will not be read. Here is a sample line:
-
-20  1419  4.299  1.0   1 inch carbide end mill
-
-The tool_table is indexed by slot number.
-
 */
 
 int read_tool_file(  /* ARGUMENTS         */
  char * tool_file_name)   /* name of tool file */
 {
-  FILE * tool_file_port;
   char buffer[1000];
-  int slot;
-  int tool_id;
-  double zoffset, xoffset, frontangle, backangle;
-  double diameter;
-  int orientation;
-  int i=0;
 
   if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
     {
       fprintf(stderr, "name of tool file => ");
       fgets(buffer, 1000, stdin);
       buffer[strlen(buffer) - 1] = 0;
-      tool_file_port = fopen(buffer, "r");
-    }
-  else
-      tool_file_port = fopen(tool_file_name, "r");
-  if (tool_file_port == NULL)
-    {
-      fprintf(stderr, "Cannot open %s\n",
-              ((tool_file_name[0] == 0) ? buffer : tool_file_name));
-      return 1;
-    }
-  for(;;)    /* read and discard header, checking for blank line */
-    {
-      if (fgets(buffer, 1000, tool_file_port) == NULL)
-        {
-          fprintf(stderr, "Bad tool file format\n");
-          fclose(tool_file_port);
-          return 1;
-        }
-      else if (buffer[0] == '\n')
-        break;
+      tool_file_name = buffer;
     }
 
-  for (slot = 0; slot < _pockets_max; slot++) /* initialize */
-    {
-      _tools[slot].toolno = -1;
-      ZERO_EMC_POSE(_tools[slot].offset);
-      _tools[slot].diameter = 0.;
-      _tools[slot].frontangle = 0.;
-      _tools[slot].backangle = 0.;
-      _tools[slot].orientation = 0;
-    }
-  for (; (fgets(buffer, 1000, tool_file_port) != NULL); )
-    {
-      if (sscanf(buffer, "%d %d %lf %lf %lf %lf %lf %d",
-                 &slot, &tool_id, &zoffset, &xoffset, &diameter,
-                 &frontangle, &backangle, &orientation) == 8 && 
-              ++i < _pockets_max)
-        {
-          _tools[i].toolno = tool_id;
-          _tools[i].offset.tran.x = xoffset;
-          _tools[i].offset.tran.z = zoffset;
-          _tools[i].diameter = diameter;
-          _tools[i].frontangle = frontangle;
-          _tools[i].backangle = backangle;
-          _tools[i].orientation = orientation;
-        } 
-      else if (sscanf(buffer, "%d %d %lf %lf", &slot,
-                      &tool_id, &zoffset, &diameter) == 4 && 
-              ++i < _pockets_max)
-        {
-          _tools[i].toolno = tool_id;
-          _tools[i].offset.tran.z = zoffset;
-          _tools[i].diameter = diameter;
-          _tools[i].orientation = 0;  //mill tool
-        }
-      else 
-        {
-          if (slot < 0 || slot >= _pockets_max) 
-            fprintf(stderr, "Out of range tool slot number %d\n", slot);  
-          else
-            fprintf(stderr, "Bad input line \"%s\" in tool file\n", buffer);
-            fclose(tool_file_port);
-            return 1;
-        }
-    }
-  fclose(tool_file_port);
-  return 0;
+  return loadToolTable(tool_file_name, _tools, 0, 0, 0);
 }
 
 /************************************************************************/
