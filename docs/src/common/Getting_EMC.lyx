@@ -37,9 +37,131 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
+
+\begin_layout Chapter
+About EMC
+\end_layout
+
+\begin_layout Section
+The Software
+\end_layout
+
+\begin_layout Itemize
+EMC (the Enhanced Machine Control) is a software system for computer control
+ of machine tools such as milling machines and lathes.
+\end_layout
+
+\begin_layout Itemize
+EMC is free software with open source code.
+ Current versions of EMC are entirely licensed under the GNU General Public
+ License and Lesser GNU General Public License (GPL and LGPL)
+\end_layout
+
+\begin_layout Itemize
+EMC provides:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+a graphical user interface (actually several interfaces to chose from)
+\end_layout
+
+\begin_layout Itemize
+an interpreter for "G-code" (the RS-274 machine tool programming language)
+\end_layout
+
+\begin_layout Itemize
+a realtime motion planning system with look-ahead
+\end_layout
+
+\begin_layout Itemize
+operation of low-level machine electronics such as sensors and motor drives
+\end_layout
+
+\begin_layout Itemize
+an easy to use "breadboard" layer for quickly creating a unique configuration
+ for your machine
+\end_layout
+
+\begin_layout Itemize
+a software PLC programmable with ladder diagrams
+\end_layout
+
+\begin_layout Itemize
+easy installation with a Live-CD
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+It does not provide drawing (CAD - Computer Aided Design) or G-code generation
+ from the drawing (CAM - Computer Automated Manufacturing) functions.
+\end_layout
+
+\begin_layout Itemize
+It can simultaneously move up to 9 axes and supports a variety of interfaces.
+\end_layout
+
+\begin_layout Itemize
+The control can operate true servos (analog or PWM) with the feedback loop
+ closed by the EMC software at the computer, or open loop with "step-servos"
+ or stepper motors.
+\end_layout
+
+\begin_layout Itemize
+Motion control features include: cutter radius and length compensation,
+ path deviation limited to a specified tolerance, lathe threading, synchronized
+ axis motion, adaptive feedrate, operator feed override, and constant velocity
+ control.
+\end_layout
+
+\begin_layout Itemize
+Support for non-Cartesian motion systems is provided via custom kinematics
+ modules.
+ Available architectures include hexapods (Stewart platforms and similar
+ concepts) and systems with rotary joints to provide motion such as PUMA
+ or SCARA robots.
+\end_layout
+
+\begin_layout Itemize
+EMC runs on Linux using real time extensions.
+ 
+\end_layout
+
+\begin_layout Section
+The Operating System
+\end_layout
+
+\begin_layout Standard
+Ubuntu has been chosen, because it fits perfectly into the Open Source views
+ of EMC2:
+\end_layout
+
+\begin_layout Itemize
+Ubuntu will always be free of charge, and there is no extra fee for the
+ "enterprise edition", we make our very best work available to everyone
+ on the same Free terms.
+\end_layout
+
+\begin_layout Itemize
+EMC is paired with the LTS versions of Ubuntu which provide support and
+ security fixes from the Ubuntu team for 3 - 5 years.
+\end_layout
+
+\begin_layout Itemize
+Ubuntu uses the very best in translations and accessibility infrastructure
+ that the Free Software community has to offer, to make Ubuntu usable for
+ as many people as possible.
+\end_layout
+
+\begin_layout Itemize
+The Ubuntu community is entirely committed to the principles of free software
+ development; we encourage people to use open source software, improve it
+ and pass it on.
+\end_layout
 
 \begin_layout Chapter
 Getting Help
