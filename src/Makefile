@@ -404,7 +404,10 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
-install-menus install-menu: ../share/menus/CNC.menu
+install-menus install-menu: ../share/menus/CNC.menu \
+		../share/desktop-directories/cnc.directory \
+		../share/applications/emc.desktop \
+		../share/applications/emc-latency.desktop
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
