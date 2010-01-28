@@ -312,7 +312,7 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
-const char *ctrl_type[MAX_CHAN] = { "p", "p", "p", "p", "p", "p", "p", "p" };
+const char *ctrl_type[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 8 channels");
 
 /***********************************************************************
@@ -418,6 +418,8 @@ static long old_dtns;		/* update_freq funct period in nsec */
 static double dt;		/* update_freq period in seconds */
 static double recip_dt;		/* recprocal of period, avoids divides */
 
+typedef enum CONTROL { POSITION, VELOCITY, INVALID } CONTROL;
+
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
@@ -426,6 +428,8 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 static void make_pulses(void *arg, long period);
 static void update_freq(void *arg, long period);
 static void update_pos(void *arg, long period);
+static CONTROL parse_ctrl_type(const char *ctrl);
+
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -442,11 +446,7 @@ int rtapi_app_main(void)
 			    step_type[n], n);
 	    return -1;
 	}
-	if ((ctrl_type[n][0] == 'p' ) || (ctrl_type[n][0] == 'P')) {
-	    ctrl_type[n] = "p";
-	} else if ((ctrl_type[n][0] == 'v' ) || (ctrl_type[n][0] == 'V')) {
-	    ctrl_type[n] = "v";
-	} else {
+	if(parse_ctrl_type(ctrl_type[n]) == INVALID) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "STEPGEN: ERROR: bad control type '%s' for axis %i (must be 'p' or 'v')\n",
 			    ctrl_type[n], n);
@@ -490,7 +490,7 @@ int rtapi_app_main(void)
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
 	retval = export_stepgen(n, &(stepgen_array[n]),
-	    step_type[n], (ctrl_type[n][0] == 'p'));
+	    step_type[n], (parse_ctrl_type(ctrl_type[n]) == POSITION));
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"STEPGEN: ERROR: stepgen %d var export failed\n", n);
@@ -1186,4 +1186,11 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;
+}
+
+static CONTROL parse_ctrl_type(const char *ctrl)
+{
+    if(!ctrl || !*ctrl || *ctrl == 'p' || *ctrl == 'P') return POSITION;
+    if(*ctrl == 'v' || *ctrl == 'V') return VELOCITY;
+    return INVALID;
 }
