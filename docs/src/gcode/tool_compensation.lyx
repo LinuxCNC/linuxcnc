@@ -456,7 +456,7 @@ name "cap:Tool-Orientations"
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename images/lathe-tool.png
+	filename images/tool_positions.png
 	scale 50
 
 \end_inset
