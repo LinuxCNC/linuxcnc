@@ -30,6 +30,12 @@ namespace eval emc {
     variable IMAGEDIR @EMC2_IMAGE_DIR@
     variable REALTIME @REALTIME@
     variable SIMULATOR @SIMULATOR@
+    variable CONFIG_DIR {}
+    foreach _dir  [split {@EMC2_CONFIG_PATH@} :] {
+	lappend CONFIG_DIR [file normalize $_dir]
+    }
+    unset _dir
+    variable USER_CONFIG_DIR [lindex $CONFIG_DIR 0]
     variable _langinit 1
 }
 

@@ -36,7 +36,7 @@ g30 (above switch)
 g49 (measure without the last tool's offset)
 g38.2 z0 f15 (measure)
 g91 g0 z.2 (off the switch)
-g43.1 k[#5063-#1000] (set new tool offset)
+g43.1 z[#5063-#1000] (set new tool offset)
 (print,new length is #5063)
 g90 (done)
 

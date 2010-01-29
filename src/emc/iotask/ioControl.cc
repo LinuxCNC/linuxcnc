@@ -68,6 +68,7 @@
 #include "nml_oi.hh"
 #include "timer.hh"
 #include "rcs_print.hh"
+#include "tool_parse.h"
 
 static RCS_CMD_CHANNEL *emcioCommandBuffer = 0;
 static RCS_CMD_MSG *emcioCommand = 0;
@@ -244,196 +245,6 @@ static int iniLoad(const char *filename)
 
     // close it
     inifile.Close();
-
-    return 0;
-}
-
-/********************************************************************
-*
-* Description: loadToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
-*		Loads the tool table from file filename into toolTable[] array.
-*		  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
-*
-* Return Value: Zero on success or -1 if file not found.
-*
-* Side Effects: Default setting used if the parameter not found in
-*		the ini file.
-*
-* Called By: main()
-*
-********************************************************************/
-static int loadToolTable(const char *filename,
-			 CANON_TOOL_TABLE toolTable[])
-{
-    int fakepocket = 0;
-    int t;
-    FILE *fp;
-    char buffer[CANON_TOOL_ENTRY_LEN];
-    const char *name;
-    int pocket = 0;
-
-    // check filename
-    if (filename[0] == 0) {
-	name = TOOL_TABLE_FILE;
-    } else {
-	// point to name provided
-	name = filename;
-    }
-
-    // open tool table file
-    if (NULL == (fp = fopen(name, "r"))) {
-	// can't open file
-	return -1;
-    }
-    // clear out tool table
-    for (t = random_toolchanger? 0: 1; t < CANON_POCKETS_MAX; t++) {
-        toolTable[t].toolno = -1;
-        ZERO_EMC_POSE(toolTable[t].offset);
-        toolTable[t].diameter = 0.0;
-        toolTable[t].frontangle = 0.0;
-        toolTable[t].backangle = 0.0;
-        toolTable[t].orientation = 0;
-        fms[t] = 0;
-        ttcomments[t][0] = '\0';
-    }
-
-    /*
-      Override 0's with codes from tool file
-      File format is:
-
-      <header>
-      <pocket # 0..CANON_TOOL_MAX> <FMS id> <length> <diameter>
-      ...
-
-    */
-
-    while (!feof(fp)) {
-        const char *token;
-        char *buff, *comment;
-        int toolno, orientation, valid = 0;
-        EmcPose offset;  // tlo
-        double diameter, frontangle, backangle;
-
-        // for nonrandom machines, just read the tools into pockets 1..n
-        // no matter their tool numbers.  NB leave the spindle pocket 0
-        // unchanged/empty.
-
-        if (NULL == fgets(buffer, CANON_TOOL_ENTRY_LEN, fp)) {
-            break;
-        }
-
-        toolno = -1;
-        diameter = frontangle = backangle = orientation = 0.0;
-        ZERO_EMC_POSE(offset);
-        buff = strtok(buffer, ";");
-        comment = strtok(NULL, "\n");
-
-        token = strtok(buff, " ");
-        while (token != NULL) {
-            valid = 1;
-            switch (toupper(token[0])) {
-            case 'T':
-                if (sscanf(&token[1], "%d", &toolno) != 1)
-                    valid = 0;
-                break;
-            case 'P':
-                if (sscanf(&token[1], "%d", &pocket) != 1) {
-                    valid = 0;
-                    break;
-                }
-                if (!random_toolchanger) {
-                    fakepocket++;
-                    if (fakepocket >= CANON_POCKETS_MAX) {
-                        printf("too many tools. skipping tool %d\n", toolno);
-                        valid = 0;
-                        break;
-                    }
-                    fms[fakepocket] = pocket;
-                    pocket = fakepocket;
-                }
-                if (pocket < 0 || pocket >= CANON_POCKETS_MAX) {
-                    printf("max pocket number is %d. skipping tool %d\n", CANON_POCKETS_MAX - 1, toolno);
-                    valid = 0;
-                    break;
-                }
-                break;
-            case 'D':
-                if (sscanf(&token[1], "%lf", &diameter) != 1)
-                    valid = 0;
-                break;
-            case 'X':
-                if (sscanf(&token[1], "%lf", &offset.tran.x) != 1)
-                    valid = 0;
-                break;
-            case 'Y':
-                if (sscanf(&token[1], "%lf", &offset.tran.y) != 1)
-                    valid = 0;
-                break;
-            case 'Z':
-                if (sscanf(&token[1], "%lf", &offset.tran.z) != 1)
-                    valid = 0;
-                break;
-            case 'A':
-                if (sscanf(&token[1], "%lf", &offset.a) != 1)
-                    valid = 0;
-                break;
-            case 'B':
-                if (sscanf(&token[1], "%lf", &offset.b) != 1)
-                    valid = 0;
-                break;
-            case 'C':
-                if (sscanf(&token[1], "%lf", &offset.c) != 1)
-                    valid = 0;
-                break;
-            case 'U':
-                if (sscanf(&token[1], "%lf", &offset.u) != 1)
-                    valid = 0;
-                break;
-            case 'V':
-                if (sscanf(&token[1], "%lf", &offset.v) != 1)
-                    valid = 0;
-                break;
-            case 'W':
-                if (sscanf(&token[1], "%lf", &offset.w) != 1)
-                    valid = 0;
-                break;
-            case 'I':
-                if (sscanf(&token[1], "%lf", &frontangle) != 1)
-                    valid = 0;
-                break;
-            case 'J':
-                if (sscanf(&token[1], "%lf", &backangle) != 1)
-                    valid = 0;
-                break;
-            case 'Q':
-                if (sscanf(&token[1], "%d", &orientation) != 1)
-                    valid = 0;
-                break;
-            default:
-                if (strncmp(token, "\n", 1) != 0)
-                    valid = 0;
-                break;
-            }
-            token = strtok(NULL, " ");
-        }
-        if (valid) {
-            toolTable[pocket].toolno = toolno;
-            toolTable[pocket].offset = offset;
-            toolTable[pocket].diameter = diameter;
-            toolTable[pocket].frontangle = frontangle;
-            toolTable[pocket].backangle = backangle;
-            toolTable[pocket].orientation = orientation;
-
-            if (comment != NULL)
-                strcpy(ttcomments[pocket], comment);
-        }
-        if (!random_toolchanger && toolTable[0].toolno == toolTable[pocket].toolno) {
-            toolTable[0] = toolTable[pocket];
-        }
-    }
-
-    // close the file
-    fclose(fp);
 
     return 0;
 }
@@ -930,7 +741,8 @@ int main(int argc, char *argv[])
         ttcomments[0][0] = '\0';
     }
 
-    if (0 != loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable)) {
+    if (0 != loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+		fms, ttcomments, random_toolchanger)) {
 	rcs_print_error("can't load tool table.\n");
     }
 
@@ -998,7 +810,8 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
-	    loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable);
+	    loadToolTable(TOOL_TABLE_FILE, emcioStatus.tool.toolTable,
+		    fms, ttcomments, random_toolchanger);
 	    break;
 
 	case EMC_TOOL_HALT_TYPE:
@@ -1062,7 +875,8 @@ int main(int argc, char *argv[])
 	case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
 	    if (0 != loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->
-			      file, emcioStatus.tool.toolTable))
+			      file, emcioStatus.tool.toolTable,
+			      fms, ttcomments, random_toolchanger))
 		emcioStatus.status = RCS_ERROR;
 	    break;
 
