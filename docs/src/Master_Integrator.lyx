@@ -160,15 +160,6 @@ Permission is granted to copy, distribute and/or modify this document under
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{common/integrator_intro.lyx}
-preview false
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Include \include{common/Integrator_Concepts.lyx}
 preview false
 
