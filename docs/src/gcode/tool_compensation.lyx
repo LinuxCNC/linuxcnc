@@ -156,7 +156,7 @@ The "Tool Table" is a text file that contains information about each tool.
  called "tool.tbl".
  The tools might be in a tool changer or just changed manually.
  The file can be edited with a text editor or be updated using G10 L1.
- 
+ See the Lathe Specifics Section for lathe tool table example.
 \end_layout
 
 \begin_layout Standard
@@ -399,74 +399,6 @@ cl
 \begin_layout Standard
 Usage: ./toolconvert filename (original file is saved as filename.orig) tooledit.tc
 l support net table format if needed.
-\end_layout
-
-\begin_layout Subsection
-Lathe 
-\end_layout
-
-\begin_layout Standard
-The Q gives the orientation of the lathe tool, as illustrated in 
-\begin_inset LatexCommand ref
-reference "cap:Tool-Orientations"
-
-\end_inset
-
-.
- The red cross is the controlled point.
- See 
-\begin_inset LatexCommand ref
-reference "sub:Controlled-Point"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-The FRONTANGLE and BACKANGLE fields are used by some user interfaces to
- display a fancy representation of the lathe tool.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Standard
-\begin_inset Caption
-
-\begin_layout Standard
-Tool Orientations
-\begin_inset LatexCommand label
-name "cap:Tool-Orientations"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\align center
-\begin_inset Graphics
-	filename images/tool_positions.png
-	scale 50
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Section
