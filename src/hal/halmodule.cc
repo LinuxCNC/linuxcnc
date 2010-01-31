@@ -539,6 +539,18 @@ PyObject *component_exists(PyObject *self, PyObject *args) {
     return PyBool_FromLong(halpr_find_comp_by_name(name) != NULL);
 }
 
+PyObject *component_is_ready(PyObject *self, PyObject *args) {
+    char *name;
+    if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+
+    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != NULL);
+}
+
 struct shmobject {
     PyObject_HEAD
     halobject *comp;
@@ -674,6 +686,8 @@ PyMethodDef module_methods[] = {
 	"Return a FALSE value if a pin has no writers and TRUE if it does"},
     {"component_exists", component_exists, METH_VARARGS,
 	"Return a TRUE value if the named component exists"},
+    {"component_is_ready", component_is_ready, METH_VARARGS,
+	"Return a TRUE value if the named component is ready"},
     {NULL},
 };
 
