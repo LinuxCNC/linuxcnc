@@ -1842,12 +1842,12 @@ Example:
 <
 tablerow/>
 \newline
-    <label text>
+    <label>
 \newline
         <text>" A (cell 1,1) "</text>
 \newline
-        <relief>R
-IDGE</relief>
+        <relief>RIDGE<
+/relief>
 \newline
         <bd>3</bd>
 \newline
@@ -1855,25 +1855,31 @@ IDGE</relief>
 \newline
     <label text="B (cell 1,2)"/>
 \newline
-
-        <tablespan columns="2"/><label text="C, D (cells 1,3 and 1,4)"/>
+ 
+       <tablespan columns="2"/>
+\newline
+    <label text="C, D (cells 1,3 and 1,4)"/>
  
 \newline
 <tablerow/>
 \newline
     <label text="E (cell 2,1)"/>
 \newline
-    <tablesticky sticky="nsew"/><tab
-lespan rows="2"/>
+    <tablesticky sticky="nsew"/>
+\newline
+
+    <tablespan rows="2"/>
 \newline
     <label text="'spans
 \backslash
 n2 rows'"/>
 \newline
-    <tablesticky sticky="new"/><label text="G (cell 2,3)"/>
+    <tablesticky sticky="new"/>
 \newline
- 
-   <label text="H (cell 2,4)"/>
+    <label text="G (cell 2,3)"/>
+\newline
+
+    <label text="H (cell 2,4)"/>
 \newline
 <tablerow/> 
 \newline
