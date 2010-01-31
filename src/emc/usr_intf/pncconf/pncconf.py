@@ -20,6 +20,10 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 import sys
 import os
+# this is for importing modules from lib/python/pncconf
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+libdir = os.path.join(BASE, "lib", "python","pncconf")
+sys.path.insert(0, libdir)
 import pwd
 import errno
 import time
@@ -37,8 +41,11 @@ import gtk.glade
 import gnome.ui
 
 import xml.dom.minidom
-
 import traceback
+
+import cairo
+import hal
+#import mesatest
 
 def get_value(w):
     try:
@@ -103,6 +110,7 @@ if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
 helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
 axisdiagram = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help/axisdiagram1.png")
+
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
     ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -129,7 +137,7 @@ _("HDW Step Gen-A"),_("HDW Step Gen-B"),
 _("HDW PWM Gen-P"),_("HDW PWM Gen-D"),_("HDW PWM Gen-E"),
 _("HDW PDM Gen-P"),_("HDW PDM Gen-D"),_("HDW PDM Gen-E") ]
 
-# boardname, firmwarename,
+# boardname, firmwarename, Hal driver name,
 # max encoders, max pwm gens, 
 # max step gens, number of pins per encoder,
 # number of pins per step gen, 
@@ -386,13 +394,15 @@ _("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved 
 _("Spindle StepGen-Step"), _("Spindle StepGen-Direction"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
 _("Spindle reserved f"), ]
 
+
+
 def md5sum(filename):
     try:
         f = open(filename, "rb")
     except IOError:
         return None
     else:
-        return md5.new(f.read()).hexdigest()
+        return md5.new(f.read()).hexdigest()      
 
 class Widgets:
     def __init__(self, xml):
@@ -437,7 +447,7 @@ class Data:
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
         self.available_axes = []
-        self.baseperiod = 50000
+        self.baseperiod = 200000
         self.servoperiod = 1000000
         self.units = 0 # inch
         self.limitsnone = True
@@ -1533,8 +1543,7 @@ class Data:
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
-            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,\
-                                firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
+            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,config=firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
@@ -2366,7 +2375,7 @@ class App:
        
         self.intrnldata = Intrnl_data()
         self.data = Data()
-         
+        
         tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile) 
@@ -3102,7 +3111,87 @@ class App:
            self.widgets.druid1.set_page(self.widgets.xaxismotor)
            return True
         
-    def on_mesapanel_clicked(self, *args):self.m5i20test(self)
+    def on_mesapanel_clicked(self, *args):
+        #self.m5i20test(self)
+        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w") 
+        halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
+        self.hal_cmnds("LOAD")
+        self.hal_cmnds("READ")
+        self.hal_cmnds("WRITE")
+        halrun.write("start\n")
+        halrun.flush()
+        time.sleep(1)
+        PyApp(self,self.data,self.widgets)    
+        print "back, after making panel"
+        
+        for boardnum in range(0,int(self.data.number_mesa)):
+            print "mesa boardnum-%d"% boardnum
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                for pin in range (0,24):
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
+                    ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
+                    pintype = self.widgets[ptype].get_active_text()
+                    pininv = self.widgets[pinv].get_active()
+                    truepinnum = (concount*24) + pin
+                    # for output / open drain pins
+                    if  pintype in (GPIOO,GPIOD):                
+                        halrun.write("setp hm2_%s.gpio.%03d.is_output true\n"% (board,truepinnum ))
+                        if pininv:  halrun.write("setp hm2_%s.gpio.%03d.invert_output true\n"% (board,truepinnum ))
+                        halrun.write("net b%d_signal_out%d testpanel.brd.%d.switch.%d hm2_%s.gpio.%03d.out\
+                                    \n"%  (boardnum,truepinnum,boardnum,truepinnum,board,truepinnum))
+                    # for input pins
+                    elif pintype == GPIOI:                                    
+                        
+                        if pininv: halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in_not testpanel.brd.%d.led.%d\
+                            \n"%(boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
+                        else:   halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in testpanel.brd.%d.led.%d\
+                            \n"% (boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
+                    # for encoder pins
+                    elif pintype in (ENCA,ENCB,ENCI,ENCM):
+                                         
+                        if not pintype == ENCA: continue                 
+                        if pin == 3 :encpinnum = (connector-2)*4 
+                        elif pin == 1 :encpinnum = 1+((connector-2)*4) 
+                        elif pin == 15 :encpinnum = 2+((connector-2)*4) 
+                        elif pin == 13 :encpinnum = 3+((connector-2)*4) 
+                       
+                        halrun.write("net b%d_enc_reset%d hm2_%s.encoder.%02d.reset testpanel.brd.%d.enc.%d.reset\
+                                    \n"% (boardnum,encpinnum,board,encpinnum,boardnum,encpinnum))
+                        halrun.write("net b%d_enc_count%d hm2_%s.encoder.%02d.count testpanel.brd.%d.enc.%d.count\
+                                    \n"% (boardnum,encpinnum,board,encpinnum,boardnum,encpinnum))
+                    # for PWM pins
+                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                        
+                        if not pintype in (PWMP,PDMP): continue    
+                        if pin == 7 :encpinnum = (connector-2)*4 
+                        elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
+                        elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
+                        elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
+                        halrun.write("net b%d_pwm_enable%d hm2_%s.pwmgen.%02d.enable testpanel.brd.%d.pwm.%d.enable\
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
+                        halrun.write("net b%d_pwm_value%d hm2_%s.pwmgen.%02d.value testpanel.brd.%d.pwm.%d.value\
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
+                        halrun.write("setp hm2_%s.pwmgen.%02d.scale 10\n"% (board,compnum)) 
+                    # for Stepgen pins
+                    elif pintype in (STEPA,STEPB):
+                        
+                        if not pintype == STEPA : continue 
+                        
+                        halrun.write("net b%d_step_enable%d hm2_%s.stepgen.%02d.enable testpanel.brd.%d.stp.%d.enable\
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
+                        halrun.write("net b%d_step_cmd%d hm2_%s.stepgen.%02d.position-cmd testpanel.brd.%d.stp.%d.cmd\
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.maxaccel 0 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.maxvel 0 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.steplen 2000 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.stepspace 2000 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.dirhold 2000 \n"% (board,compnum))
+                        halrun.write("setp hm2_%s.stepgen.%02d.dirsetup 2000 \n"% (board,compnum))
+                    else: 
+                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
+        
     
     def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
@@ -4547,9 +4636,7 @@ class App:
             if self.data["mesa%d_currentfirmwaredata"% (i)][0] in( "5i22", "7i43"):
                 self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but\
                      maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
-        #self.widgets['window1'].set_sensitive(0)
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        #self.terminal = terminal = os.popen("gnome-terminal --title=joystick_search -x less /proc/bus/input/devices", "w" )  
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )   
         halrun.write("loadrt threads period1=200000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
@@ -5362,6 +5449,341 @@ class App:
                     halnum = 0         
                 halrun.write( "addf hm2_%s.%d.write slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
 
+#***************************************************************
+# testpanel code
+class hal_interface:
+    def __init__(self):  
+        try: 
+            self.c = hal.component("testpanel")      
+        except:
+            print"problem in HAL routine"
+class Data2:
+    def __init__(self):
+        self.inv = []
+        self.swch = []
+        self.led = []
+        self.enc = []
+        self.pwm = []
+        self.stp = []
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+class LED(gtk.DrawingArea):
+
+    def __init__(self, parent):
+        self.par = parent       
+        super(LED, self).__init__() 
+        self._dia = 10
+        self._state = 0
+        self._on_color = [0.3, 0.4, 0.6]
+        self._off_color = [0.9, 0.1, 0.1]
+        self.set_size_request(25, 25)
+        self.connect("expose-event", self.expose)
+        
+
+    # This method draws our widget
+    # it draws a black circle for a rim around LED
+    # Then depending on self.state
+    # fills in that circle with on or off color.
+    # the dim depends on self.diam
+    def expose(self, widget, event):
+        cr = widget.window.cairo_create()
+        cr.set_line_width(3)
+        #cr.set_source_rgb(0, 0, 0.0)    
+        self.set_size_request(25, 25)  
+        #cr.set_source_rgb(0, 0, 0.0)    
+        #self.set_size_request(self._dia*2+5, self._dia*2+5) 
+        w = self.allocation.width
+        h = self.allocation.height
+        cr.translate(w/2, h/2)
+        #cr = widget.window.cairo_create()
+        lg2 = cairo.RadialGradient(0, 0, 0,  0, 0, self._dia)
+        if self._state:
+            r = self._on_color[0]
+            g = self._on_color[1]
+            b = self._on_color[2]
+        else:
+            r = self._off_color[0]
+            g = self._off_color[1]
+            b = self._off_color[2]
+        lg2.add_color_stop_rgba(1, r/.25,g/.25,b/.25, 1)
+        lg2.add_color_stop_rgba(.5, r,g,b, .5)
+        #lg2.add_color_stop_rgba(0, 0, 0, 0, 1)
+        cr.arc(0, 0, self._dia, 0, 2*math.pi)
+        cr.stroke_preserve()
+        #cr.rectangle(20, 20, 300, 100)
+        cr.set_source(lg2)
+        cr.fill()
+
+        return False
+      
+    # This sets the LED on or off
+    # and then redraws it
+    # Usage: ledname.set_active(True) 
+    def set_active(self, data2 ):
+        self._state = data2
+        self.queue_draw()
+    
+    # This allows setting of the on and off color
+    # Usage: ledname.set_color("off",[r,g,b])
+    def set_color(self, state, color = [0,0,0] ):
+        if state == "off":
+            self._off_color = color
+        elif state == "on":
+            self._on_color = color
+        else:
+            return
+
+    def set_dia(self, dia):
+        self._dia = dia
+        self.queue_draw()
+ 
+class PyApp(gtk.Window): 
+
+    def switch_callback(self, widget, component , boardnum,number, data=None):   
+        print component,boardnum,number,data
+        if component == "switch":
+            invrt = self.data2["brd%dinv%d" % (boardnum,number)].get_active()
+            if (data and not invrt ) or (not data and invrt):
+                self.hal.c["brd.%d.switch.%d"% (boardnum, number)] = True
+            else:
+                self.hal.c["brd.%d.switch.%d"% (boardnum, number)] = False
+        if component == "invert":
+            self.switch_callback(None,"switch",boardnum,number,False)
+
+    def pwm_callback(self, widget, component , boardnum,number, data=None):
+        if component == "pwm":
+            value = self.data2["brd%dpwm%dadj" % (boardnum,number)].get_value()
+            active = self.data2["brd%dpmw_ckbutton%d"% (boardnum,number)].get_active()
+            self.hal.c["brd.%d.pwm.%d.enable"% (boardnum, number)] = active
+            if active:
+                self.hal.c["brd.%d.pwm.%d.value"% (boardnum, number)] = value
+            else:
+                 self.hal.c["brd.%d.pwm.%d.value"% (boardnum, number)] = 0
+    
+    def stp_callback(self, widget, component , boardnum,number, data=None):
+        if component == "stp":
+            value = self.data2["brd%dstp%dcmd" % (boardnum,number)].get_value()
+            active = self.data2["brd%dstp_ckbutton%d"% (boardnum,number)].get_active()
+            self.hal.c["brd.%d.stp.%d.enable"% (boardnum, number)] = active
+            if active:
+                self.hal.c["brd.%d.stp.%d.cmd"% (boardnum, number)] = value
+            
+
+    def quit(self,widget):  
+        self.widgets['window1'].set_sensitive(1)          
+        self.hal.c.exit()
+        gobject.source_remove(self.timer) 
+        self.app.halrun.close()     
+        return False
+
+    def update(self):      
+        if hal.component_exists("testpanel"):
+            for i in (0,1):
+                for j in range(0,72):
+                    try:
+                        self.data2["brd%dled%d"%(i,j)].set_active(self.hal.c["brd.%d.led.%d"% (i,j)]) 
+                    except :
+                        continue    
+                for k in range(0,16):
+                    try:
+                        self.data2["brd%denc%dcount"%(i,k)].set_text("%s"% str(self.hal.c["brd.%d.enc.%d.count"% (i,k)])) 
+                    except :
+                        continue 
+            return True # keep running this event
+        else:
+            return False # kill the event
+
+    # This creates blank labels for placemarks for components
+    # such as encoders that use 3 or 4 pins as input
+    # but only need one line for user interaction
+    # this keeps the page uniform
+    def make_blank(self,container,boardnum,number):
+        #blankname = "enc-%d" % (number)
+        #self.data2["brd%denc%d" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
+        #self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
+        label = gtk.Label("     ")
+        container.pack_start(label, False, False, 10)
+        label = gtk.Label("      ")
+        container.pack_start(label, False, False, 10)
+  
+    # This creates widgets and HAL pins for encoder controls
+    def make_enc(self,container,boardnum,number):
+        encname = "brd.%d.enc.%d.reset" % (boardnum,number)   
+        print"making HAL pin enc bit Brd %d,num %d"%(boardnum,number)   
+        self.hal.c.newpin(encname, hal.HAL_BIT, hal.HAL_OUT)
+        self.data2["brd%denc%dreset" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
+        container.pack_start(self.data2["brd%denc%dreset" % (boardnum,number)], False, False, 10)
+        encname = "brd.%d.enc.%d.count" % (boardnum,number)
+        print"making HAL pin enc s32 brd %d num %d"%(boardnum,number)      
+        self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
+        label = self.data2["brd%denc%dcount" % (boardnum,number)] = gtk.Label("Encoder-%d"% (number))
+        label.set_size_request(100, -1)
+        container.pack_start(label, False, False, 10)
+    
+    # This creates widgets and HAL pins for stepper controls 
+    def make_stp(self,container,boardnum,number):
+        stpname = "brd.%d.stp.%d.cmd" % (boardnum,number)
+        self.hal.c.newpin(stpname, hal.HAL_FLOAT, hal.HAL_OUT)
+        stpname = "brd.%d.stp.%d.enable" % (boardnum,number)
+        self.hal.c.newpin(stpname, hal.HAL_BIT, hal.HAL_OUT)
+        adj = gtk.Adjustment(0.0, -1000.0, 1000.0, 1.0, 5.0, 0.0)
+        spin = self.data2["brd%dstp%dcmd" % (boardnum,number)]= gtk.SpinButton(adj, 0, 1)  
+        adj.connect("value_changed", self.stp_callback,"stp",boardnum,number,None)    
+        container.pack_start(spin, False, False, 10)
+        ckb = self.data2["brd%dstp_ckbutton%d"% (boardnum,number)] = gtk.CheckButton("Enable %d"% (number))
+        ckb.connect("toggled", self.stp_callback, "stp",boardnum,number,None)
+        container.pack_start(ckb, False, False, 10)
+        
+
+    # This places a spinbox for pwm value and a checkbox to enable pwm
+    # It creates two HAL pins
+    def make_pwm(self,container,boardnum,number):
+        pwmname = "brd.%d.pwm.%d.value" % (boardnum,number)
+        print"making HAL pin pwm float brd%d num %d"%(boardnum,number)
+        self.hal.c.newpin(pwmname, hal.HAL_FLOAT, hal.HAL_OUT)
+        pwmname = "brd.%d.pwm.%d.enable" % (boardnum,number)
+        print"making HAL pin pwm bit brd %d num %d"%(boardnum,number)
+        self.hal.c.newpin(pwmname, hal.HAL_BIT, hal.HAL_OUT)
+        adj = self.data2["brd%dpwm%dadj" % (boardnum,number)] = gtk.Adjustment(0.0, -10.0, 10.0, 0.1, 0.5, 0.0)
+        adj.connect("value_changed", self.pwm_callback,"pwm",boardnum,number,None)      
+        pwm = self.data2["brd%dpwm%d" % (boardnum,number)] = gtk.HScale(adj)
+        pwm.set_digits(1)
+        pwm.set_size_request(100, -1)      
+        container.pack_start(pwm, False, False, 10)        
+        ckb = self.data2["brd%dpmw_ckbutton%d"% (boardnum,number)] = gtk.CheckButton("PWM-%d\nON"% (number))
+        ckb.connect("toggled", self.pwm_callback, "pwm",boardnum,number,None)
+        container.pack_start(ckb, False, False, 10)
+    
+    # This places a LED and a label in specified container
+    # it specifies the led on/off colors
+    # and creates a HAL pin
+    def make_led(self,container,boardnum,number):
+        ledname = "brd.%d.led.%d" % (boardnum,number)
+        print"making HAL pin led bit brd %d num %d"%(boardnum,number)
+        self.hal.c.newpin(ledname, hal.HAL_BIT, hal.HAL_IN)
+        led = self.data2["brd%dled%d" % (boardnum,number)] = LED(self)
+        led.set_color("off",[1,0,0]) # red
+        led.set_color("on",[0,1,0]) # Green
+        container.pack_start(led, False, False, 10)
+        label = gtk.Label("<--GPIO-%d"% (number))
+        container.pack_start(label, False, False, 10)
+
+    # This is for placing a button (switch) and an invert check box into
+    # a specified container. It also creates the HAL pin
+    # and connects some signals. 
+    def make_switch(self,container,boardnum,number):
+        # make a HAL pin
+        switchname = "brd.%d.switch.%d" % (boardnum,number)
+        print"making HAL pin switch bit brd %d num %d"%(boardnum,number)
+        self.hal.c.newpin(switchname, hal.HAL_BIT, hal.HAL_OUT)
+        # add button to container using boarnum and number as a reference     
+        button = self.data2["brd%dswch%d" % (boardnum,number)]= gtk.Button("OUT-%d"% number)
+        container.pack_start(button, False, False, 10)
+        # connect signals
+        button.connect("pressed", self.switch_callback, "switch",boardnum,number,True)
+        button.connect("released", self.switch_callback, "switch",boardnum,number,False) 
+        # add invert switch
+        ckb = self.data2["brd%dinv%d" % (boardnum,number)]= gtk.CheckButton("Invert")
+        container.pack_start(ckb, False, False, 10) 
+        ckb.connect("toggled", self.switch_callback, "invert",boardnum,number,None)
+    
+    def __init__(self,App,data,widgets):
+        super(PyApp, self).__init__()
+        print "init super pyapp"
+        self.data2 = Data2()
+        self.data = data
+        self.app = App
+        self.widgets = widgets
+        self.halrun = self.app.halrun
+        print "entering HAL init"
+        self.hal = hal_interface()
+        print "done HAL init"
+        self.set_title("Mesa Test Panel")
+        self.set_size_request(450, 450)        
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.connect_after("destroy", self.quit)
+        self.timer = gobject.timeout_add(100, self.update)
+        print "added timer"
+        brdnotebook = gtk.Notebook()
+        brdnotebook.set_tab_pos(gtk.POS_TOP)
+        brdnotebook.show()
+        self.add(brdnotebook)             
+        
+        for boardnum in range(0,int(self.data.number_mesa)):
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
+            self.data2["notebook%d"%boardnum] = gtk.Notebook()
+            self.data2["notebook%d"%boardnum].set_tab_pos(gtk.POS_TOP)
+            self.data2["notebook%d"%boardnum].show()
+            label = gtk.Label("Mesa Board Number %d"% (boardnum))      
+            brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                table = gtk.Table(12, 3, False)
+                seperator = gtk.VSeparator()
+                table.attach(seperator, 1, 2, 0, 12,True)
+                for pin in range (0,24):
+                    if pin >11:
+                        column = 2
+                        adjust = -12    
+                    else:
+                        column = 0
+                        adjust = 0
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
+                    ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
+                    pintype = self.widgets[ptype].get_active_text()
+                    pininv = self.widgets[pinv].get_active()
+                    truepinnum = (concount*24) + pin
+                    # for output / open drain pins
+                    if  pintype in (GPIOO,GPIOD): 
+                        h = gtk.HBox(False,2)
+                        self.make_switch(h,boardnum,truepinnum)
+                        table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                    # for input pins
+                    elif pintype == GPIOI: 
+                        h = gtk.HBox(False,2)
+                        self.make_led(h,boardnum,truepinnum)
+                        table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                    # for encoder pins
+                    elif pintype in (ENCA,ENCB,ENCI,ENCM):
+                        h = gtk.HBox(False,2)
+                        if pintype == ENCA:
+                            self.make_enc(h,boardnum,compnum)
+                        else:
+                            self.make_blank(h,boardnum,compnum)
+                        table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                    # for PWM pins
+                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
+                        h = gtk.HBox(False,2)
+                        if pintype in (PWMP,PDMP):
+                            self.make_pwm(h,boardnum,compnum)
+                        else:
+                            self.make_blank(h,boardnum,compnum)
+                        table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                    # for Stepgen pins
+                    elif pintype in (STEPA,STEPB):
+                        h = gtk.HBox(False,2)
+                        if pintype == STEPA:          
+                            self.make_stp(h,boardnum,compnum)
+                        else:
+                            self.make_blank(h,boardnum,compnum)
+                        table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                    else:
+                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
+                label = gtk.Label("Mesa %d-Connector %d"% (boardnum,connector))      
+                self.data2["notebook%d"%boardnum].append_page(table, label)
+           
+        self.show_all() 
+        self.widgets['window1'].set_sensitive(0) 
+        self.hal.c.ready()
+        print "got to end of panel"
+
+        
+        
+# testpanel code end
+#****************************************************************
 def makedirs(d):
     try:
         os.makedirs(d)
