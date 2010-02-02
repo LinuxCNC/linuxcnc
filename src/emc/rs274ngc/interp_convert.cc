@@ -3959,14 +3959,6 @@ int Interp::issue_straight_index(int axis, double target, int lineno, setup_poin
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
-    // since stop mode takes effect at the end of subsequent moves,
-    // issue a zero length move to bring the machine to final position
-    // before indexing
-    STRAIGHT_TRAVERSE(lineno,
-                      settings->current_x, settings->current_y, settings->current_z,
-                      settings->AA_current, settings->BB_current, settings->CC_current,
-                      settings->u_current, settings->v_current, settings->w_current);
-
     double AA_end = axis == 3? target: settings->AA_current;
     double BB_end = axis == 4? target: settings->BB_current;
     double CC_end = axis == 5? target: settings->CC_current;
