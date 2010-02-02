@@ -47,6 +47,7 @@ static double css_maximum, css_numerator;
 
 static const double tiny = 1e-7;
 static double xy_rotation = 0.;
+static int rotary_unlock_for_traverse = -1;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -833,6 +834,7 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
+    linearMoveMsg.indexrotary = -1;
     if ((vel && acc) || synched) {
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
@@ -928,7 +930,10 @@ void STRAIGHT_TRAVERSE(int line_number,
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
     linearMoveMsg.feed_mode = 0;
-    linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
+    if (rotary_unlock_for_traverse != -1)
+        linearMoveMsg.type = EMC_MOTION_TYPE_INDEXROTARY;
+    else
+        linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
@@ -939,6 +944,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.indexrotary = rotary_unlock_for_traverse;
 
     int old_feed_mode = feed_mode;
     if(feed_mode)
@@ -1637,6 +1643,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.indexrotary = -1;
         if(vel && acc){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
@@ -1912,6 +1919,7 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	linearMoveMsg.feed_mode = 0;
+        linearMoveMsg.indexrotary = -1;
 
 	int old_feed_mode = feed_mode;
 	if(feed_mode)
@@ -3008,4 +3016,35 @@ int WAIT(int index, /* index of the motion exported input */
  
  interp_list.append(wait_msg);
  return 0;
+}
+
+int UNLOCK_ROTARY(int line_number, int axis) {
+    EMC_TRAJ_LINEAR_MOVE m;
+    // first, set up a zero length move to interrupt blending and get to final position
+    m.type = EMC_MOTION_TYPE_TRAVERSE;
+    m.feed_mode = 0;
+    m.end = to_ext_pose(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z,
+                        canonEndPoint.a, canonEndPoint.b, canonEndPoint.c,
+                        canonEndPoint.u, canonEndPoint.v, canonEndPoint.w);
+    m.vel = m.acc = 1; // nonzero but otherwise doesn't matter
+    m.indexrotary = -1;
+
+    // issue it
+    int old_feed_mode = feed_mode;
+    if(feed_mode)
+	STOP_SPEED_FEED_SYNCH();
+    interp_list.set_line_number(line_number);
+    interp_list.append(m);
+    // no need to update endpoint
+    if(old_feed_mode)
+	START_SPEED_FEED_SYNCH(currentLinearFeedRate, 1);
+
+    // now, the next move is the real indexing move, so be ready
+    rotary_unlock_for_traverse = axis;
+    return 0;
+}
+
+int LOCK_ROTARY(int line_number, int axis) {
+    rotary_unlock_for_traverse = -1;
+    return 0;
 }

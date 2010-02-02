@@ -794,6 +794,8 @@ CANON_MOTION_MODE motion_mode;
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, double timeout) { return 0; }
+int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
+int LOCK_ROTARY(int line_no, int axis) {return 0;}
 
 /* Returns the system feed rate */
 double GET_EXTERNAL_FEED_RATE()

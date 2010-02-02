@@ -2272,6 +2272,10 @@ Side effects:
    also updates the setting of the position of the tool point to the
    end point of the move.
 
+   If either move would affect the position of one or more locking
+   rotaries, the rotaries are unlocked and indexed one at a time,
+   in the order A,B,C and then the other axes are moved.
+
    N.B. Many gcode programmers call the reference point a home
    position, and that is exactly what it is if the parameters are
    zero.  Do not confuse this with homing the axis (searching for
@@ -2315,9 +2319,27 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
   // waypoint is in currently active coordinate system
 
+  // move indexers first, one at a time
+  if (AA_end != settings->AA_current && settings->a_indexer)
+      issue_straight_index(3, AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && settings->b_indexer)
+      issue_straight_index(4, BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && settings->c_indexer)
+      issue_straight_index(5, CC_end, block->line_number, settings);
+
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
                     u_end, v_end, w_end);
+
+  settings->current_x = end_x;
+  settings->current_y = end_y;
+  settings->current_z = end_z;
+  settings->AA_current = AA_end;
+  settings->BB_current = BB_end;
+  settings->CC_current = CC_end;
+  settings->u_current = u_end;
+  settings->v_current = v_end;
+  settings->w_current = w_end;
 
   if (move == G_28) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5161]),
@@ -2377,6 +2399,14 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
       v_end = v_end_home;  
       w_end = w_end_home;  
   }
+
+  // move indexers first, one at a time
+  if (AA_end != settings->AA_current && settings->a_indexer)
+      issue_straight_index(3, AA_end, block->line_number, settings);
+  if (BB_end != settings->BB_current && settings->b_indexer)
+      issue_straight_index(4, BB_end, block->line_number, settings);
+  if (CC_end != settings->CC_current && settings->c_indexer)
+      issue_straight_index(5, CC_end, block->line_number, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -2904,8 +2934,32 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
                           block_pointer block,  //!< pointer to a block of RS274 instructions 
                           setup_pointer settings)       //!< pointer to machine settings              
 {
+  int ai = block->a_flag && settings->a_indexer;
+  int bi = block->b_flag && settings->b_indexer;
+  int ci = block->c_flag && settings->c_indexer;
 
-  if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
+
+  if (motion != G_0) {
+      CHKS((ai), (_("Indexing axis %c can only be moved with G0")), 'A');
+      CHKS((bi), (_("Indexing axis %c can only be moved with G0")), 'B');
+      CHKS((ci), (_("Indexing axis %c can only be moved with G0")), 'C');
+  }
+
+  int xyzuvw_flag = (block->x_flag || block->y_flag || block->z_flag ||
+                     block->u_flag || block->v_flag || block->w_flag);
+
+  CHKS((ai && (xyzuvw_flag || block->b_flag || block->c_flag)),
+       (_("Indexing axis %c can only be moved alone")), 'A');
+  CHKS((bi && (xyzuvw_flag || block->a_flag || block->c_flag)),
+       (_("Indexing axis %c can only be moved alone")), 'B');
+  CHKS((ci && (xyzuvw_flag || block->a_flag || block->b_flag)),
+       (_("Indexing axis %c can only be moved alone")), 'C');
+
+  if (ai || bi || ci) {
+    int n;
+    if(ai) n=3; else if(bi) n=4; else n=5;
+    CHP(convert_straight_indexer(n, block, settings));
+  } else if ((motion == G_0) || (motion == G_1) || (motion == G_33) || (motion == G_33_1) || (motion == G_76)) {
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
@@ -3748,7 +3802,6 @@ the new longer or shorter straight move are taken at this feed.
 
 */
 
-
 int Interp::convert_straight(int move,   //!< either G_0 or G_1                       
                             block_pointer block,        //!< pointer to a block of RS274 instructions
                             setup_pointer settings)     //!< pointer to machine settings             
@@ -3861,6 +3914,80 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   settings->w_current = w_end;
   return INTERP_OK;
 }
+
+int Interp::convert_straight_indexer(int axis, block_pointer block, setup_pointer settings) {
+    double end_x, end_y, end_z;
+    double AA_end, BB_end, CC_end;
+    double u_end, v_end, w_end;
+
+    find_ends(block, settings, &end_x, &end_y, &end_z,
+              &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end);
+
+    CHKS((end_x != settings->current_x ||
+          end_y != settings->current_y ||
+          end_z != settings->current_z ||
+          u_end != settings->u_current ||
+          v_end != settings->v_current ||
+          w_end != settings->w_current ||
+          (axis != 3 && AA_end != settings->AA_current) ||
+          (axis != 4 && BB_end != settings->BB_current) ||
+          (axis != 5 && CC_end != settings->CC_current)),
+         _("BUG: An axis incorrectly moved along with an indexer"));
+
+    switch(axis) {
+    case 3:
+        issue_straight_index(axis, AA_end, block->line_number, settings);
+        break;
+    case 4:
+        issue_straight_index(axis, BB_end, block->line_number, settings);
+        break;
+    case 5:
+        issue_straight_index(axis, CC_end, block->line_number, settings);
+        break;
+    default:
+        ERS((_("BUG: trying to index incorrect axis")));
+    }
+    return INTERP_OK;
+}
+
+int Interp::issue_straight_index(int axis, double target, int lineno, setup_pointer settings) {
+    CANON_MOTION_MODE save_mode;
+    double save_tolerance;
+    // temporarily switch to exact stop mode for indexing move
+    save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+    save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+    if (save_mode != CANON_EXACT_PATH)
+        SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
+
+    // since stop mode takes effect at the end of subsequent moves,
+    // issue a zero length move to bring the machine to final position
+    // before indexing
+    STRAIGHT_TRAVERSE(lineno,
+                      settings->current_x, settings->current_y, settings->current_z,
+                      settings->AA_current, settings->BB_current, settings->CC_current,
+                      settings->u_current, settings->v_current, settings->w_current);
+
+    double AA_end = axis == 3? target: settings->AA_current;
+    double BB_end = axis == 4? target: settings->BB_current;
+    double CC_end = axis == 5? target: settings->CC_current;
+
+    // tell canon that this is a special indexing move
+    UNLOCK_ROTARY(lineno, axis);
+    STRAIGHT_TRAVERSE(lineno, settings->current_x, settings->current_y, settings->current_z,
+                      AA_end, BB_end, CC_end,
+                      settings->u_current, settings->v_current, settings->w_current);
+    LOCK_ROTARY(lineno, axis);
+
+    // restore path mode
+    if(save_mode != CANON_EXACT_PATH)
+        SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+
+    settings->AA_current = AA_end;
+    settings->BB_current = BB_end;
+    settings->CC_current = CC_end;
+    return INTERP_OK;
+}
+
 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current, settings->u_current, settings->v_current, settings->w_current
 

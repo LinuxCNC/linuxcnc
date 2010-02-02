@@ -1622,8 +1622,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
-                emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc);
+                                   emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
+                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
+                                   emcTrajLinearMoveMsg->indexrotary);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:

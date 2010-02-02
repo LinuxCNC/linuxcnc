@@ -381,6 +381,9 @@ int Interp::init()
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
   _setup.random_toolchanger = 0;
+  _setup.a_indexer = 0;
+  _setup.b_indexer = 0;
+  _setup.c_indexer = 0;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -407,6 +410,10 @@ int Interp::init()
           inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_4");
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_5");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+
+          inifile.Find(&_setup.a_indexer, "LOCKING_INDEXER", "AXIS_3");
+          inifile.Find(&_setup.b_indexer, "LOCKING_INDEXER", "AXIS_4");
+          inifile.Find(&_setup.c_indexer, "LOCKING_INDEXER", "AXIS_5");
 
           if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {

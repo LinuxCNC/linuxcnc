@@ -1474,7 +1474,7 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
     cms->update(ini_maxvel);
     cms->update(acc);
     cms->update(feed_mode);
-
+    cms->update(indexrotary);
 }
 
 /*

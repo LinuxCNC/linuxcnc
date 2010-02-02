@@ -701,6 +701,12 @@ extern int WAIT(int index, /* index of the motion exported input */
    changed to the needed state (specified by wait_type).
    Return value: either wait_type if timeout didn't occur, or -1 otherwise. */
 
+/* tell canon the next move needs the rotary to be unlocked */
+extern int UNLOCK_ROTARY(int line_no, int axis);
+
+/* tell canon that is no longer the case */
+extern int LOCK_ROTARY(int line_no, int axis);
+
 /*************************************************************************/
 
 /* Canonical "Give me information" functions for the interpreter to call
