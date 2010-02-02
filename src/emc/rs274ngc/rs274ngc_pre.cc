@@ -380,6 +380,7 @@ int Interp::init()
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
+  _setup.random_toolchanger = 0;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
