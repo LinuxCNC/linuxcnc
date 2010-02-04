@@ -8,6 +8,8 @@ emc2 (1:2.3.5~pre) hardy; urgency=low
   * configs: add smithy 516 sample configuration
   * image2gcode: respect current TLO and fixture settings
   * documentation improvements
+  * hostmot2: Accept "idrom v3" firmwares.  these are the firmwares that
+    will be released with emc 2.4.x.
 
  -- Jeff Epler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:43:22 -0600
 
