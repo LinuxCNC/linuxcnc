@@ -448,12 +448,6 @@ install-dirs:
 		$(DESTDIR)$(datadir)/axis/images \
 		$(DESTDIR)$(datadir)/axis/tcl
 
-	@for B in ${HM2_BOARDS}; do  \
-		echo making dirs for $$B firmware package;  \
-		mkdir -p $(DESTDIR)/lib/firmware/hm2/$$B;  \
-		mkdir -p $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2;  \
-	done
-
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
 	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
@@ -495,14 +489,6 @@ install-kernel-indep: install-dirs
 	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
-
-ifneq ($(BUILD_SYS),sim)
-	@for B in ${HM2_BOARDS}; do  \
-		echo copying files for $$B firmware package;  \
-		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.BIT $(DESTDIR)/lib/firmware/hm2/$$B/;  \
-		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.PIN $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2/;  \
-	done
-endif
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python

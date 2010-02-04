@@ -36,7 +36,7 @@ Conflicts: emc2, emc2-axis
 Provides: emc2, emc2-axis
 Architecture: any
 Suggests: pdf-viewer
-Recommends: emc2-firmware
+Recommends: hostmot2-firmware
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7),
     libreadline5,

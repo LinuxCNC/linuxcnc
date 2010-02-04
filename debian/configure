@@ -143,7 +143,6 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 }
 
 subst control.in > control
-if [ "$TARGET" != "sim" ]; then subst control.firmware >> control; fi
 if [ "$TARGET" == "sim" ]; then cp emc2-dev.files emc2-sim-dev.files; fi
 
 subst rules.in > rules; chmod +x rules
