@@ -1,3 +1,9 @@
+emc2 (1:2.5.0~pre) hardy; urgency=low
+
+  * (fill out this changelog before releasing) 
+
+ -- Jeff Epler <jepler@unpythonic.net>  Wed, 03 Feb 2010 18:58:59 -0600
+
 emc2 (1:2.4.0~pre) hardy; urgency=low
 
   * allow INTERP_MAX_LEN to be defined in the ini
