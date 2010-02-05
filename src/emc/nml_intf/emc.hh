@@ -362,7 +362,7 @@ extern int emcAxisSetMinFerror(int axis, double ferror);
 extern int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
 				  double search_vel, double latch_vel,
 				  int use_index, int ignore_limits,
-				  int is_shared, int home_sequence, int volatile_home);
+				  int is_shared, int home_sequence, int volatile_home, int locking_indexer);
 extern int emcAxisSetMaxVelocity(int axis, double vel);
 extern int emcAxisSetMaxAcceleration(int axis, double acc);
 

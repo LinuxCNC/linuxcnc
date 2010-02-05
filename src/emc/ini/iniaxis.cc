@@ -94,6 +94,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     bool is_shared;
     int sequence;
     int volatile_home;
+    int locking_indexer;
     int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
@@ -207,11 +208,13 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         axisIniFile->Find(&sequence, "HOME_SEQUENCE", axisString);
         volatile_home = 0;	        // default
         axisIniFile->Find(&volatile_home, "VOLATILE_HOME", axisString);
+        locking_indexer = false;
+        axisIniFile->Find(&locking_indexer, "LOCKING_INDEXER", axisString);
 
         // issue NML message to set all params
         if (0 != emcAxisSetHomingParams(axis, home, offset, home_final_vel, search_vel,
                                         latch_vel, (int)use_index, (int)ignore_limits,
-                                        (int)is_shared, sequence, volatile_home)) {
+                                        (int)is_shared, sequence, volatile_home, locking_indexer)) {
             if (EMC_DEBUG & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetHomingParams\n");
             }

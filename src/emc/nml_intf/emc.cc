@@ -2519,6 +2519,7 @@ void EMC_AXIS_SET_HOMING_PARAMS::update(CMS * cms)
     cms->update(use_index);
     cms->update(ignore_limits);
     cms->update(volatile_home);
+    cms->update(locking_indexer);
 
 }
 
