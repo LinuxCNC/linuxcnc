@@ -1,8 +1,15 @@
 emc2 (1:2.3.5~pre) hardy; urgency=low
 
   * fix jog increments for mini
+  * interpreter: detect gouging in last corner before turning off cutter comp
+  * interpreter: fix another case of a skipped full-circle arc
+  * task: fix toolchange at quill-up and g30 positions
+  * stepconf: fix direction of 2nd and 3rd parports
+  * configs: add smithy 516 sample configuration
+  * image2gcode: respect current TLO and fixture settings
+  * documentation improvements
 
- -- Alex Joni <juve@hardy>  Fri, 08 Jan 2010 00:03:09 +0200
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:43:22 -0600
 
 emc2 (1:2.3.4-1) hardy; urgency=low
 
