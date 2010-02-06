@@ -1,13 +1,88 @@
 emc2 (1:2.4.0~pre) hardy; urgency=low
 
-  * allow INTERP_MAX_LEN to be defined in the ini
-  * bump HAL size to allow for more complex configs
   * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
-  * [add bugfixes from the 2.3.x branch here before release]
-  * add machine delay time to status (works for G4Pxx and M66)
-  * AXIS: shift+jog for XYZ gives a jog at the traverse speed.
+  * configs: DOS-damaged inifiles are detected with a clear error
+  * configs: A default nml file is used if it is not specified in the inifile
+  * configs: new [AXIS_#]VOLATILE_HOME flag makes an axis unhomed after estop
+    or machine off (for motors without feedback, such as steppers)
 
- -- Chris Radek <chris@timeguy.com>  Wed, 29 Apr 2009 11:14:22 -0500
+  * nml: enlarge status buffer in default emc.nml
+  * nml: add machine delay time to status (works for G4Pxx and M66)
+  * nml: unused fields removed from the status buffer
+
+  * touchy: a new GUI for touchscreens that doesn't use a keyboard
+
+  * tooledit: new GUI to edit tool table
+
+  * axis: shift+jog for XYZ gives a jog at the traverse speed.
+  * axis: the units (mm, inch, or degrees) are shown in touch-off;
+    when appropriate, radius or diameter mode is indicated
+  * axis: new "big dro" tab
+  * axis: axis-remote --clear remotely clears the backplot
+  * axis: axis-remote --mdi sends an mdi command
+  * axis: new HAL pins such as axisui.set-manual-mode to take UI actions from
+    a remote pendant or hard button
+
+  * halui: new pins such as home-all, unhome
+
+  * python: new methods such as emc.command.set_feed_override
+
+  * pyvcp: leds have a 'disable' pin to select a third color
+  * pyvcp: named widgets don't create gaps in numbered widgets
+    (backwards incompatible change)
+  * pyvcp: -g argument sets initial window size and position
+
+  * pncconf: a new, alpha-release graphical configurator for hostmot2 systems.
+
+  * interpreter: the .var file is automatically created if it doesn't exist
+  * interpreter: many error messages are improved
+  * interpreter: G5x coordinate system rotation
+  * interpreter: additional G10 codes for coordinate system and tool offsets
+  * interpreter: tool offsets can be applied on all 9 axes
+  * interpreter: [TRAJ]TLO_IS_ALONG_W removed
+  * interpreter: Incompatible change in G43.1 to support 9-axis tool lengths
+  * interpreter: G61 P- Q- specifies motion and "naive cam" tolerances
+    separately
+  * interpreter: M68 E- Q- to set analog outputs
+  * interpreter: g90.0/g90.1 choose absolute/relative arc centers
+  * interpreter: new "polar mode" using @ ^ notation
+  * interpreter: new "wrapped rotary" mode
+  * interpreter: #5400..#5413 hold information about loaded tool
+  * interpreter: M1xx permitted with cutter radius compensation on
+  * interpreter: Can negate a parameter, e.g., G0 X-#1
+  * task: Improve behavior of O-call from MDI
+  * task: new "random" toolchanger for carousel systems which don't
+    necessarily put the tool back in the same pocket it came from.
+  * motion: further improvements to spindle-synchronized motion
+
+  * hal: bump shared memory size to allow for more complex configs
+  * hal: now cooperates with the linux parport_pc driver.  When
+    parport_pc is enabled, parports may be specified by number (e.g., 0 for
+    /dev/parport0)
+  * halmeter: -g argument sets initial window size and position
+  * halcmd: DOS-damaged files are detected with a clear error
+  * internationalization: halscope and halmeter are now translatable
+
+  * comp: components must now specify a license
+  * comp: new "include" directive
+
+  * joyhandle: new realtime component for analog joystick deadband,
+    scaling, and exponential "acceleration"
+  * pid: new index-enable pin eliminates thump during homing when connected
+    to axis.#.index-enable (step change means feadforward calculation should
+    be skipped in the cycle where index is seen)
+  * integ: min/max windup limit pins
+  * limit2/limit3/lowpass: "load" pin to preload value from input pin
+  * hostmot2: firmwares are now shipped separately from emc2 in the
+    hostmot2-firmware packages
+  * encoder: better estimates velocity and provides an
+    approximate "interpolated position" for low-resolution encoders
+  * thc: new alpha-release component for torch height control
+
+  * documentation: many improvements
+  * many more small enhancements and bugfixes
+
+ -- jepler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:33:49 -0600
 
 emc2 (1:2.3.5~pre) hardy; urgency=low
 
