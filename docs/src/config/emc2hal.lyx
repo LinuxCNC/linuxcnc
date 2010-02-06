@@ -25,7 +25,7 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
+\paragraph_separation skip
 \defskip medskip
 \quotes_language english
 \papercolumns 1
@@ -33,6 +33,7 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
+\author "" 
 \author "" 
 \end_header
 
@@ -58,12 +59,28 @@ iocontrol(1)
 motion (realtime)
 \end_layout
 
+\begin_layout Subsection
+Options
+\end_layout
+
 \begin_layout Standard
-These pins, parameters, and functions are created by the realtime 
-\family typewriter
-motmod
-\family default
- module.
+Motion is loaded with the motmod command.
+ A kins should be loaded before motion.
+\end_layout
+
+\begin_layout LyX-Code
+loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] [traj_period_
+nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16])] 
+\end_layout
+
+\begin_layout Standard
+If the number of digital I/O needed is above the default of 4 you can add
+ up to 64 digital I/O by using the num_dio option when loading motmod.
+\end_layout
+
+\begin_layout Standard
+If the number of analog I/O needed is more that the default of 4 you can
+ add up to 16 analog I/O by using the num_aio option when loading motmod.
 \end_layout
 
 \begin_layout Subsection
@@ -74,6 +91,14 @@ name "motion (hal pins)"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+These pins, parameters, and functions are created by the realtime 
+\family typewriter
+motmod
+\family default
+ module.
 \end_layout
 
 \begin_layout Description
@@ -92,9 +117,14 @@ motion.feed-hold
 \end_layout
 
 \begin_layout Description
-motion.analog-in-00 (float, in) These pins (00, 01, 02, 03) are controlled
- by M66.
+motion.analog-in-00 (float, in) These pins (00, 01, 02, 03 or more if configured)
+ are controlled by M66.
  
+\end_layout
+
+\begin_layout Description
+motion.analog-out-00 (float, out) These pins (00, 01, 02, 03 or more if configure
+d) are controlled by M67 or M68.
 \end_layout
 
 \begin_layout Description
@@ -113,13 +143,13 @@ motion.current-vel (float, out) The current tool velocity in user units per
 \end_layout
 
 \begin_layout Description
-motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03) are controlled
- by M62-65.
+motion.digital-in-00 (bit, in) These pins (00, 01, 02, 03 or more if configured)
+ are controlled by M62-65.
 \end_layout
 
 \begin_layout Description
-motion.digital-out-00 (bit, out) These pins (00, 01, 02, 03) are controlled
- by the 
+motion.digital-out-00 (bit, out) These pins (00, 01, 02, 03 or more if configured
+) are controlled by the 
 \family typewriter
 M62-65
 \family default
@@ -170,6 +200,12 @@ G38.x
 \begin_layout Description
 motion.program-line (s32, out) The current program line while executing.
  Zero if not running or between lines while single stepping.
+\end_layout
+
+\begin_layout Description
+motion.requested-vel (float, out) The current requested velocity in user
+ units per second from the F=n setting in the G Code file.
+ No feed overrides or any other adjustments are applied to this pin.
 \end_layout
 
 \begin_layout Description
@@ -242,6 +278,20 @@ ddt
 \begin_layout Description
 motion.spindle-speed-out (float, out) Commanded spindle speed in rotations
  per minute.
+ Positive for spindle forward (
+\family typewriter
+M3
+\family default
+), negative for spindle reverse (
+\family typewriter
+M4
+\family default
+).
+\end_layout
+
+\begin_layout Description
+motion.spindle-speed-out-rps (float, out) Commanded spindle speed in rotations
+ per second.
  Positive for spindle forward (
 \family typewriter
 M3
@@ -399,7 +449,7 @@ motion-command-handler Processes motion commands coming from user space
 \end_layout
 
 \begin_layout Description
-motion-controller Runs the emc motion controller
+motion-controller Runs the EMC motion controller
 \end_layout
 
 \begin_layout Section
@@ -570,19 +620,6 @@ axis.N.kb-jog-active (bit, out)
 \end_layout
 
 \begin_layout Description
-\begin_inset Note Note
-status open
-
-\begin_layout Standard
-should this be motor not joint?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Description
 axis.N.motor-pos-cmd (float, out) The commanded position for this joint.
 \end_layout
 
@@ -652,7 +689,7 @@ iocontrol.0.coolant-mist (bit, out) TRUE when mist coolant is requested
 
 \begin_layout Description
 iocontrol.0.emc-enable-in (bit, in) Should be driven FALSE when an external
- estop condition exists
+ E-Stop condition exists
 \end_layout
 
 \begin_layout Description
@@ -692,13 +729,13 @@ iocontrol.0.tool-prepared (bit, in) Should be driven TRUE when a tool prepare
 \end_layout
 
 \begin_layout Description
-iocontrol.0.user-enable-out (bit, out) FALSE when an internal estop condition
+iocontrol.0.user-enable-out (bit, out) FALSE when an internal E-Stop condition
  exists
 \end_layout
 
 \begin_layout Description
 iocontrol.0.user-request-enable (bit, out) TRUE when the user has requested
- that estop be cleared
+ that E-Stop be cleared
 \end_layout
 
 \end_body

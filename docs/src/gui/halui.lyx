@@ -39,6 +39,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -189,6 +190,19 @@ halui.flood.on (bit, in) - pin for requesting flood on
 \end_layout
 
 \begin_layout Subsection
+Homing
+\end_layout
+
+\begin_layout Itemize
+halui.home-all (bit, in) - pin for requesting all axis to home.
+ This pin will only be there is HOME_SEQUENCE is set in the ini file.
+\end_layout
+
+\begin_layout Itemize
+
+\end_layout
+
+\begin_layout Subsection
 Jog
 \end_layout
 
@@ -281,6 +295,10 @@ halui.joint.<n>.select (bit, in) - select joint (0..7) - internal halui
 \end_layout
 
 \begin_layout Itemize
+halui.joint.<n>.unhome (bit, in) - unhomes this joint
+\end_layout
+
+\begin_layout Itemize
 halui.joint.selected (u32, out) - selected joint (0..7) - internal halui
 \end_layout
 
@@ -316,6 +334,10 @@ halui.joint.selected.on-soft-max-limit (bit, out) - status pin telling that
 \begin_layout Itemize
 halui.joint.selected.on-soft-min-limit (bit, out) - status pin telling that
  the selected joint is on the negative software limit
+\end_layout
+
+\begin_layout Itemize
+halui.joint.selected.unhome (bit, in) - pin for unhoming the selected joint
 \end_layout
 
 \begin_layout Subsection

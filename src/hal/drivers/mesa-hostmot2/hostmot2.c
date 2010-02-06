@@ -181,6 +181,10 @@ const char *hm2_get_general_function_name(int gtag) {
 
 
 static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
+    char **argv;
+    int argc;
+    int i;
+
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
     hm2->config.num_pwmgens = -1;
@@ -192,41 +196,44 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("parsing config string \"%s\"\n", config_string);
 
-    do {
-        char *token;
-        char *endp;
+    argv = argv_split(GFP_KERNEL, config_string, &argc);
+    if (argv == NULL) {
+        HM2_ERR("out of memory while parsing config string\n");
+        return -ENOMEM;
+    }
 
-        token = strsep(&config_string, " ");
+    for (i = 0; i < argc; i ++) {
+        char *token = argv[i];
+
         if (token == NULL) break;
-        if (token[0] == '\0') {
-            if ((config_string == NULL) || (config_string[0] == '\0')) break;
-            continue;
-        }
 
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
-            hm2->config.num_encoders = simple_strtol(token, &endp, 0);
+            hm2->config.num_encoders = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_pwmgens=", 12) == 0) {
             token += 12;
-            hm2->config.num_pwmgens = simple_strtol(token, &endp, 0);
+            hm2->config.num_pwmgens = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
-            hm2->config.num_stepgens = simple_strtol(token, &endp, 0);
+            hm2->config.num_stepgens = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "enable_raw", 10) == 0) {
-            token += 10;
             hm2->config.enable_raw = 1;
 
         } else if (strncmp(token, "firmware=", 9) == 0) {
-            hm2->config.firmware = token + 9;
+            // FIXME: we leak this in hm2_register
+            hm2->config.firmware = kstrdup(token + 9, GFP_KERNEL);
+            if (hm2->config.firmware == NULL) {
+                goto fail;
+            }
 
         } else {
             HM2_ERR("invalid token in config string: \"%s\"\n", token);
-            return -EINVAL;
+            goto fail;
         }
-    } while (1);
+    }
 
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
@@ -235,7 +242,12 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
 
+    argv_free(argv);
     return 0;
+
+fail:
+    argv_free(argv);
+    return -EINVAL;
 }
 
 

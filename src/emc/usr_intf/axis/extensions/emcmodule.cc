@@ -305,7 +305,6 @@ static PyMemberDef Stat_members[] = {
     {"optional_stop", T_BOOL, O(task.optional_stop_state), READONLY},
     {"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
     {"task_paused", T_INT, O(task.task_paused), READONLY},
-    {"tlo_is_along_w", T_BOOL, O(task.tloIsAlongW), READONLY},
     {"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
     {"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
     {"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
@@ -544,8 +543,15 @@ static PyObject *Stat_joint(pyStatChannel *s) {
 
 static PyStructSequence_Field tool_fields[] = {
     {"id", },
-    {"zoffset", },
     {"xoffset", },
+    {"yoffset", },
+    {"zoffset", },
+    {"aoffset", },
+    {"boffset", },
+    {"coffset", },
+    {"uoffset", },
+    {"voffset", },
+    {"woffset", },
     {"diameter", },
     {"frontangle", },
     {"backangle", },
@@ -557,7 +563,7 @@ static PyStructSequence_Desc tool_result_desc = {
     "tool_result", /* name */
     "", /* doc */
     tool_fields,
-    7
+    14
 };
 
 static PyTypeObject ToolResultType;
@@ -570,12 +576,19 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         if(t.toolno == -1 && i!=0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
         PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
-        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.zoffset));
-        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.xoffset));
-        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.diameter));
-        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.frontangle));
-        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.backangle));
-        PyStructSequence_SET_ITEM(tool, 6, PyInt_FromLong(t.orientation));
+        PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));
+        PyStructSequence_SET_ITEM(tool, 2, PyFloat_FromDouble(t.offset.tran.y));
+        PyStructSequence_SET_ITEM(tool, 3, PyFloat_FromDouble(t.offset.tran.z));
+        PyStructSequence_SET_ITEM(tool, 4, PyFloat_FromDouble(t.offset.a));
+        PyStructSequence_SET_ITEM(tool, 5, PyFloat_FromDouble(t.offset.b));
+        PyStructSequence_SET_ITEM(tool, 6, PyFloat_FromDouble(t.offset.c));
+        PyStructSequence_SET_ITEM(tool, 7, PyFloat_FromDouble(t.offset.u));
+        PyStructSequence_SET_ITEM(tool, 8, PyFloat_FromDouble(t.offset.v));
+        PyStructSequence_SET_ITEM(tool, 9, PyFloat_FromDouble(t.offset.w));
+        PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
+        PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
+        PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
+        PyStructSequence_SET_ITEM(tool, 13, PyInt_FromLong(t.orientation));
         PyTuple_SetItem(res, j, tool);
         j++;
     }
@@ -854,7 +867,7 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *tool_offset(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_SET_OFFSET m;
-    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.zoffset, &m.xoffset, &m.diameter, 
+    if(!PyArg_ParseTuple(o, "idddddi", &m.toolno, &m.offset.tran.z, &m.offset.tran.x, &m.diameter, 
                          &m.frontangle, &m.backangle, &m.orientation)) 
         return NULL;
     m.serial_number = next_serial(s);
@@ -1659,6 +1672,75 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
+static PyObject *pydraw_dwells(PyObject *s, PyObject *o) {
+    PyListObject *li;
+    int for_selection = 0, is_lathe = 0, i, n;
+    char *geometry;
+    double delta = 0.015625;
+
+    if(!PyArg_ParseTuple(o, "sO!ii:draw_dwells", &geometry, &PyList_Type, &li, &for_selection, &is_lathe))
+        return NULL;
+
+    if (for_selection == 0)
+        glBegin(GL_LINES);
+
+    for(i=0; i<PyList_GET_SIZE(li); i++) {
+        PyObject *it = PyList_GET_ITEM(li, i);
+        double red, green, blue, x, y, z;
+        int axis;
+        if(!PyArg_ParseTuple(it, "i(ddd)dddi", &n, &red, &green, &blue, &x, &y, &z, &axis)) {
+            return NULL;
+        }
+        glColor3f(red, green, blue);
+        if (for_selection == 1) {
+            glLoadName(n);
+            glBegin(GL_LINES);
+        }
+        if (is_lathe == 1)
+            axis = 1;
+
+        if (axis == 0) {
+            glVertex3f(x-delta,y-delta,z);
+            glVertex3f(x+delta,y+delta,z);
+            glVertex3f(x-delta,y+delta,z);
+            glVertex3f(x+delta,y-delta,z);
+
+            glVertex3f(x+delta,y+delta,z);
+            glVertex3f(x-delta,y-delta,z);
+            glVertex3f(x+delta,y-delta,z);
+            glVertex3f(x-delta,y+delta,z);
+        } else if (axis == 1) {
+            glVertex3f(x-delta,y,z-delta);
+            glVertex3f(x+delta,y,z+delta);
+            glVertex3f(x-delta,y,z+delta);
+            glVertex3f(x+delta,y,z-delta);
+
+            glVertex3f(x+delta,y,z+delta);
+            glVertex3f(x-delta,y,z-delta);
+            glVertex3f(x+delta,y,z-delta);
+            glVertex3f(x-delta,y,z+delta);
+        } else {
+            glVertex3f(x,y-delta,z-delta);
+            glVertex3f(x,y+delta,z+delta);
+            glVertex3f(x,y+delta,z-delta);
+            glVertex3f(x,y-delta,z+delta);
+
+            glVertex3f(x,y+delta,z+delta);
+            glVertex3f(x,y-delta,z-delta);
+            glVertex3f(x,y-delta,z+delta);
+            glVertex3f(x,y+delta,z-delta);
+        }
+        if (for_selection == 1)
+            glEnd();
+    }
+
+    if (for_selection == 0)
+        glEnd();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 struct color {
     unsigned char r, g, b, a;
     bool operator==(const color &o) const {
@@ -1965,6 +2047,7 @@ static PyTypeObject PositionLoggerType = {
 static PyMethodDef emc_methods[] = {
 #define METH(name, doc) { #name, (PyCFunction) py##name, METH_VARARGS, doc }
 METH(draw_lines, "Draw a bunch of lines in the 'rs274.glcanon' format"),
+METH(draw_dwells, "Draw a bunch of dwell positions in the 'rs274.glcanon' format"),
 METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(GL_LINES)"),
 METH(vertex9, "Get the 3d location for a 9d point"),
     {NULL}

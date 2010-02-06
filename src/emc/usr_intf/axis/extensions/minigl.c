@@ -100,11 +100,14 @@ GLCALL0V(glLoadIdentity)
 GLCALL1V(glLoadName, "i", int)
 GLCALL2V(glNewList, "ii", int, int)
 GLCALL3V(glNormal3f, "fff", float, float, float)
+GLCALL2V(glPixelZoom, "ff", float, float)
 GLCALL2V(glPolygonOffset, "ff", float, float)
 GLCALL0V(glPopMatrix)
 GLCALL0V(glPushMatrix)
 GLCALL1V(glPushAttrib, "i", int)
+GLCALL1V(glPushClientAttrib, "i", int)
 GLCALL0V(glPopAttrib)
+GLCALL0V(glPopClientAttrib)
 GLCALL1V(glPushName, "i", int)
 GLCALL2V(glRasterPos2i, "ii", int, int)
 GLCALL4V(glRectf, "ffff", float, float, float, float)
@@ -147,6 +150,19 @@ static PyObject *pyglBitmap(PyObject *s, PyObject *o) {
         return NULL;
     }
     glBitmap(width, height, xorg, yorg, xmove, ymove, (GLubyte*)bitmap);
+    CHECK_ERROR;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *pyglDrawPixels(PyObject *s, PyObject *o) {
+    int width, height, format, type, nbitmap;
+    char *bitmap;
+    if(!PyArg_ParseTuple(o, "iiiis#:glBitmap", &width, &height,
+                &format, &type, &bitmap, &nbitmap)) {
+        return NULL;
+    }
+    glDrawPixels(width, height, format, type, (GLubyte*)bitmap);
     CHECK_ERROR;
     Py_INCREF(Py_None);
     return Py_None;
@@ -662,12 +678,15 @@ METH(glLoadName, "load a name onto the name stack"),
 METH(glMatrixMode, "specify which matrix is the current matrix"),
 METH(glNewList, "create or replace a display list"),
 METH(glNormal3f, "set the current normal vector"),
+METH(glPixelZoom, "specify the pixel zoom factors"),
 METH(glPolygonOffset, "set the scale and units used to calculate depth values"),
 METH(glPolygonStipple, "set the polygon stippling pattern"),
 METH(glPopMatrix, "push and pop the current matrix stack"),
 METH(glPushMatrix, "push and pop the current matrix stack"),
 METH(glPopAttrib, "push and pop the current attribute stack"),
 METH(glPushAttrib, "push and pop the current attribute stack"),
+METH(glPopClientAttrib, "push and pop the current client attribute stack"),
+METH(glPushClientAttrib, "push and pop the current client attribute stack"),
 METH(glPushName, "push and pop the name stack"),
 METH(glRenderMode, "set rasterization mode"),
 METH(glRasterPos2i, "specify the raster position for pixel operations"),
@@ -679,6 +698,7 @@ METH(glStencilOp, "specify the stencil buffer operation"),
 METH(glFlush, "force execution of GL commands in finite time"),
 METH(glDrawBuffer, "specify which color buffers are to be drawn into"),
 METH(glDrawArrays, "render primitives from array data"),
+METH(glDrawPixels, "write a block of pixels to the frame buffer"),
 METH(glMatrixMode, "specify which matrix is the current matrix"),
 METH(glOrtho, "multiply the current matrix with an orthographic matrix"),
 METH(glTranslatef, "multiply the current matrix by a translation matrix"),
@@ -798,4 +818,16 @@ void initminigl(void) {
     CONST(GL_3D_COLOR_TEXTURE);
     CONST(GL_4D_COLOR_TEXTURE);
     CONST(GL_COMPILE_AND_EXECUTE);
+    CONST(GL_CLIENT_PIXEL_STORE_BIT);
+    CONST(GL_UNPACK_SWAP_BYTES);
+    CONST(GL_UNPACK_LSB_FIRST);
+    CONST(GL_UNPACK_ROW_LENGTH);
+    CONST(GL_UNPACK_IMAGE_HEIGHT);
+    CONST(GL_UNPACK_SKIP_PIXELS);
+    CONST(GL_UNPACK_SKIP_ROWS);
+    CONST(GL_UNPACK_SKIP_IMAGES);
+    CONST(GL_UNPACK_ALIGNMENT);
+    CONST(GL_LUMINANCE);
+    CONST(GL_UNSIGNED_BYTE);
+
 }

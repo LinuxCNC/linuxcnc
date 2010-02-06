@@ -172,15 +172,7 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-
-# parse command line 
-set configs_path [ lindex $argv 0 ]
-if { $configs_path == "" } {
-    puts stderr [msgcat::mc "ERROR: must specify a path to search for configurations"]
-    exit 1
-}
-# split into a list of dirs
-set configs_dir_list [ split $configs_path ":" ]
+set configs_dir_list $emc::CONFIG_DIR
  
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
@@ -265,17 +257,16 @@ set config_count 0
 set nonsample_count 0
 
 proc describe {dir} {
-    if {[string compare $dir [file normalize ~/emc2/configs]] == 0} {
+    if {[string compare $dir $emc::USER_CONFIG_DIR] == 0} {
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir "/usr/share/doc/emc2/examples/sample-configs"] == 0} {
+    if {[string compare $dir [lindex $emc::CONFIG_DIR end]] == 0} {
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
 }
 
 foreach dir $configs_dir_list {
-    set dir [file normalize $dir]
     if {[info exists seen($dir)]} continue
     set seen($dir) 1
     set dir_in_tree 0
@@ -283,28 +274,23 @@ foreach dir $configs_dir_list {
     set subdir_list [ lsort $subdir_list ]
     foreach subdir $subdir_list {
 	set inifile_list [ glob -nocomplain $subdir*.ini ]
+	# add dir to tree if not already
+	if { $dir_in_tree == 0 } {
+	    set text [describe $dir]
+	    $tree insert end root $dir -text $text -open 1
+	    set dir_in_tree 1
+	}
 	if { [ llength $inifile_list ] == 1 } {
 	    # only one ini file, no second level
-	    # add dir to tree if not already
-	    if { $dir_in_tree == 0 } {
-		set text [describe $dir]
-		$tree insert end root $dir -text $text -open 1
-		set dir_in_tree 1
-	    }
 	    # add inifile to tree
 	    set inifile [ lindex $inifile_list 0 ]
             set parts [file split $inifile]
 	    $tree insert end $dir $inifile -text [lindex $parts end-1] -open 1
 	    incr config_count
-	    if {[string first sample-configs $dir] == -1} { incr nonsample_count }
+	    if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	} elseif { [ llength $inifile_list ] > 1 } {
 	    # multiples, use second level and sort
   	    set inifile_list [ lsort $inifile_list ]
-	    # add dir to tree if not already
-	    if { $dir_in_tree == 0 } {
-		$tree insert end root $dir -text $dir/ -open 1
-		set dir_in_tree 1
-	    }
 	    # add subdir to tree
 	    set subdir [format %s $subdir]
 	    $tree insert end $dir $subdir -text [ file tail $subdir ] -open 1
@@ -315,14 +301,18 @@ foreach dir $configs_dir_list {
                 set text [file rootname [file tail $inifile]]
 		$tree insert end $subdir $inifile -text $text -open 1
 		incr config_count
-		if {[string first sample-configs $dir] == -1} { incr nonsample_count }
+		if {[string first $emc::USER_CONFIG_DIR $dir] == 0} { incr nonsample_count }
 	    }
 	}
     }
 }
 
 if {$nonsample_count} {
-    catch { $tree closetree /usr/share/doc/emc2/examples/sample-configs }
+    foreach dir $emc::CONFIG_DIR {
+	if {$dir != $emc::USER_CONFIG_DIR} {
+	    catch {$tree closetree $dir}
+	}
+    }
 }
 
 unset seen
@@ -370,7 +360,7 @@ proc prompt_copy configname {
     if {$res == -1 || $res == 2} { return "" }
     if {$res == 1} { return $configname }
     set configdir [format %s [file dirname $configname]]
-    set copydir [format %s [file normalize [file join ~ emc2 configs [file tail $configdir]]]]
+    set copydir [format %s [file join $emc::USER_CONFIG_DIR [file tail $configdir]]]
     set copybase $copydir
     set i 0
     set ncfiles [file normalize [file join ~ emc2 nc_files]]

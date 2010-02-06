@@ -125,7 +125,7 @@ NMLmsg *emcTaskCommand = 0;
 // signal handling code to stop main loop
 static int done;
 static int emctask_shutdown(void);
-static int pseudoMdiLineNumber = -1;
+static int pseudoMdiLineNumber = INT_MIN;
 
 static int all_homed(void) {
     for (int i = 0; i < emcStatus->motion.traj.joints; i++) {
@@ -1669,10 +1669,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
 	// update tool offset
-	emcStatus->task.toolOffset.tran.z = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.z;
-	emcStatus->task.toolOffset.tran.x = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.tran.x;
-        emcStatus->task.toolOffset.w = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset.w;
-        retval = emcTrajSetOffset(emcStatus->task.toolOffset.tran.z, emcStatus->task.toolOffset.tran.x, emcStatus->task.toolOffset.w);
+	emcStatus->task.toolOffset = ((EMC_TRAJ_SET_OFFSET *) cmd)->offset;
+        retval = emcTrajSetOffset(emcStatus->task.toolOffset);
 	break;
 
     case EMC_TRAJ_SET_ROTATION_TYPE:
@@ -1840,8 +1838,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emc_tool_set_offset_msg = (EMC_TOOL_SET_OFFSET *) cmd;
 	retval = emcToolSetOffset(emc_tool_set_offset_msg->pocket,
                                   emc_tool_set_offset_msg->toolno,
-                                  emc_tool_set_offset_msg->zoffset,
-                                  emc_tool_set_offset_msg->xoffset,
+                                  emc_tool_set_offset_msg->offset,
                                   emc_tool_set_offset_msg->diameter,
                                   emc_tool_set_offset_msg->frontangle,
                                   emc_tool_set_offset_msg->backangle,
@@ -1954,7 +1951,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         }
 	if (execute_msg->command[0] != 0) {
 	    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-		interp_list.set_line_number(--pseudoMdiLineNumber);
+		interp_list.set_line_number(++pseudoMdiLineNumber);
 	    }
 	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
 	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {

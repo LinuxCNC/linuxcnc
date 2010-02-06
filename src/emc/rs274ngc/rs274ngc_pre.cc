@@ -380,6 +380,7 @@ int Interp::init()
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
+  _setup.random_toolchanger = 0;
 
   // not clear -- but this is fn is called a second time without an INI.
   if(NULL == iniFileName)
@@ -555,9 +556,7 @@ int Interp::init()
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
 //_setup.stack_index does not need initialization
-  _setup.tool_xoffset = 0.0;
-  _setup.tool_zoffset = 0.0;
-  _setup.tool_woffset = 0.0;
+   ZERO_EMC_POSE(_setup.tool_offset);
 //_setup.tool_max set in Interp::synch
 //_setup.tool_table set in Interp::synch
 //_setup.traverse_rate set in Interp::synch
@@ -631,8 +630,7 @@ int Interp::load_tool_table()
   }
   for (; n < CANON_POCKETS_MAX; n++) {
     _setup.tool_table[n].toolno = -1;
-    _setup.tool_table[n].xoffset = 0;
-    _setup.tool_table[n].zoffset = 0;
+    ZERO_EMC_POSE(_setup.tool_table[n].offset);
     _setup.tool_table[n].diameter = 0;
     _setup.tool_table[n].orientation = 0;
     _setup.tool_table[n].frontangle = 0;
@@ -811,6 +809,11 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   read_status =
     read_text(command, _setup.file_pointer, _setup.linetext,
               _setup.blocktext, &_setup.line_length);
+
+  if (read_status == INTERP_ERROR && _setup.skipping_to_sub) {
+    free(_setup.skipping_to_sub);
+    _setup.skipping_to_sub = 0;
+  }
 
   if(command)logDebug("%s:[cmd]:|%s|", name, command);
   else logDebug("%s:|%s|", name, _setup.linetext);
@@ -1121,10 +1124,13 @@ the controller.
 
 int Interp::synch()
 {
-
+  double tolerance;
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  SET_MOTION_CONTROL_MODE(_setup.control_mode, tolerance);
+
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
@@ -1478,23 +1484,15 @@ int Interp::init_tool_parameters()
   if (_setup.random_toolchanger) {
      // random_toolchanger: tool at startup expected
     _setup.parameters[5400] = _setup.tool_table[0].toolno;
-    _setup.parameters[5401] = _setup.tool_table[0].xoffset;
-    _setup.parameters[5402] =  0; // y offset RESERVED
-    if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-      _setup.parameters[5403] = _setup.tool_table[0].zoffset;
-    } else {
-      _setup.parameters[5403] = 0.0;
-    }
-    _setup.parameters[5404] =  0; // a offset RESERVED
-    _setup.parameters[5405] =  0; // b offset RESERVED
-    _setup.parameters[5406] =  0; // c offset RESERVED
-    _setup.parameters[5407] =  0; // u offset RESERVED
-    _setup.parameters[5408] =  0; // v offset RESERVED
-    if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-      _setup.parameters[5409] =  0; // w offset
-    } else {
-      _setup.parameters[5409] =  _setup.tool_table[0].zoffset;
-    }
+    _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
+    _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
+    _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
+    _setup.parameters[5404] = _setup.tool_table[0].offset.a;
+    _setup.parameters[5405] = _setup.tool_table[0].offset.b;
+    _setup.parameters[5406] = _setup.tool_table[0].offset.c;
+    _setup.parameters[5407] = _setup.tool_table[0].offset.u;
+    _setup.parameters[5408] = _setup.tool_table[0].offset.v;
+    _setup.parameters[5409] = _setup.tool_table[0].offset.w;
     _setup.parameters[5410] = _setup.tool_table[0].diameter;
     _setup.parameters[5411] = _setup.tool_table[0].frontangle;
     _setup.parameters[5412] = _setup.tool_table[0].backangle;
@@ -1527,51 +1525,27 @@ int Interp::default_tool_parameters()
 
 int Interp::set_tool_parameters()
 {
-  // invoke for CHANGE_TOOL_NUMBER() to set tool parameters for current tool
-  // when a tool is removed, set default (zero offset) tool parameters
-  int toolno = _setup.tool_table[_setup.current_pocket].toolno;
-  int pocket;
+  // invoke to set tool parameters for current tool (pocket==0)
+  // when a tool is absent, set default (zero offset) tool parameters
 
-  if (   toolno <= 0
-      || (! _setup.random_toolchanger && _setup.current_pocket ==0) ) {
+  if ((! _setup.random_toolchanger) && (_setup.tool_table[0].toolno <= 0)) {
     default_tool_parameters();
     return 0;
   }
-
-  find_tool_pocket(&_setup,toolno,&pocket);
-  if (pocket < 0) {
-    fprintf(stderr,"set_tool_parameters: no such tool:%d\n",toolno);
-    return 0;
-  }
-  if (toolno != _setup.tool_table[pocket].toolno) {
-    fprintf(stderr,"set_tool_parameters: toolno=%d disagrees %d\n"
-           ,toolno, _setup.tool_table[pocket].toolno); //not seen
-  }
-
-  // RESERVED items are for possible future implementation
-  _setup.parameters[5400] = _setup.tool_table[pocket].toolno;
-  _setup.parameters[5401] = _setup.tool_table[pocket].xoffset;
-  _setup.parameters[5402] =  0; // y offset   RESERVED
-  if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-    _setup.parameters[5403] = _setup.tool_table[pocket].zoffset;
-  } else {
-    _setup.parameters[5403] = 0.0;
-  }
-  _setup.parameters[5404] =  0; // a offset   RESERVED
-  _setup.parameters[5405] =  0; // b offset   RESERVED
-  _setup.parameters[5406] =  0; // c offset   RESERVED
-  _setup.parameters[5407] =  0; // u offset   RESERVED
-  _setup.parameters[5408] =  0; // v offset   RESERVED
-  if(!GET_EXTERNAL_TLO_IS_ALONG_W()) {
-    _setup.parameters[5409] =  0.0; // w offset
-  } else {
-    _setup.parameters[5409] =  _setup.tool_table[pocket].zoffset;
-  }
-  _setup.parameters[5410] = _setup.tool_table[pocket].diameter;
-  _setup.parameters[5411] = _setup.tool_table[pocket].frontangle;
-  _setup.parameters[5412] = _setup.tool_table[pocket].backangle;
-  _setup.parameters[5413] = _setup.tool_table[pocket].orientation;
-
+  _setup.parameters[5400] = _setup.tool_table[0].toolno;
+  _setup.parameters[5401] = _setup.tool_table[0].offset.tran.x;
+  _setup.parameters[5402] = _setup.tool_table[0].offset.tran.y;
+  _setup.parameters[5403] = _setup.tool_table[0].offset.tran.z;
+  _setup.parameters[5404] = _setup.tool_table[0].offset.a;
+  _setup.parameters[5405] = _setup.tool_table[0].offset.b;
+  _setup.parameters[5406] = _setup.tool_table[0].offset.c;
+  _setup.parameters[5407] = _setup.tool_table[0].offset.u;
+  _setup.parameters[5408] = _setup.tool_table[0].offset.v;
+  _setup.parameters[5409] = _setup.tool_table[0].offset.w;
+  _setup.parameters[5410] = _setup.tool_table[0].diameter;
+  _setup.parameters[5411] = _setup.tool_table[0].frontangle;
+  _setup.parameters[5412] = _setup.tool_table[0].backangle;
+  _setup.parameters[5413] = _setup.tool_table[0].orientation;
 
   return 0;
 }

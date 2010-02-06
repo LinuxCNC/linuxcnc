@@ -122,12 +122,14 @@ DONE: - spindle:
 
 DONE: - joint:
    halui.joint.0.home                  bit  // pin for homing the specific joint
+   halui.joint.0.unhome                bit  // pin for unhoming the specific joint
    halui.joint.0.is-homed              bit  // status pin telling that the joint is homed
    ..
    halui.joint.8.home                  bit 
    halui.joint.8.is-homed              bit 
 
    halui.joint.selected.home           bit  // pin for homing the selected joint
+   halui.joint.selected.unhome         bit  // pin for unhoming the selected joint
    halui.joint.selected.is-homed       bit  // status pin telling that the selected joint is homed
 
    halui.joint.x.on-soft-min-limit     bit
@@ -179,6 +181,7 @@ DONE: - program:
    halui.program.stop                  bit
 
 DONE: - general:
+   halui.home-all                      bit // pin to send a sequenced home all joints message
    halui.abort                         bit // pin to send an abort message (clears out most errors, stops running programs, etc)
 
 DONE: - max-velocity-override
@@ -256,9 +259,15 @@ struct halui_str {
     hal_bit_t *program_bd_is_on;   //status pin that block delete is on
 
     hal_u32_t *tool_number;		//pin for current selected tool
-    hal_float_t *tool_length_offset_x;	//current applied tool-length-offset
-    hal_float_t *tool_length_offset_z;	//current applied tool-length-offset
-    hal_float_t *tool_length_offset_w;	//current applied tool-length-offset
+    hal_float_t *tool_length_offset_x;	//current applied x tool-length-offset
+    hal_float_t *tool_length_offset_y;	//current applied y tool-length-offset
+    hal_float_t *tool_length_offset_z;	//current applied z tool-length-offset
+    hal_float_t *tool_length_offset_a;	//current applied a tool-length-offset
+    hal_float_t *tool_length_offset_b;	//current applied b tool-length-offset
+    hal_float_t *tool_length_offset_c;	//current applied c tool-length-offset
+    hal_float_t *tool_length_offset_u;	//current applied u tool-length-offset
+    hal_float_t *tool_length_offset_v;	//current applied v tool-length-offset
+    hal_float_t *tool_length_offset_w;	//current applied w tool-length-offset
 
     hal_bit_t *spindle_start;		//pin for starting the spindle
     hal_bit_t *spindle_stop;		//pin for stoping the spindle
@@ -275,6 +284,7 @@ struct halui_str {
     hal_bit_t *spindle_brake_is_on;//status pin that tells us if brake is on
 
     hal_bit_t *joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
+    hal_bit_t *joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
     hal_bit_t *joint_is_homed[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is homed
     hal_bit_t *joint_on_soft_min_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software min limit
     hal_bit_t *joint_on_soft_max_limit[EMCMOT_MAX_JOINTS+1];   //status pin that the joint is on the software max limit
@@ -363,6 +373,7 @@ struct local_halui_str {
     hal_bit_t spindle_brake_off;  //pin for deactivating spindle/brake
 
     hal_bit_t joint_home[EMCMOT_MAX_JOINTS+1];   //pin for homing one joint
+    hal_bit_t joint_unhome[EMCMOT_MAX_JOINTS+1];   //pin for unhoming one joint
     hal_u32_t joint_selected;
     hal_bit_t joint_nr_select[EMCMOT_MAX_JOINTS];
     hal_bit_t joint_is_selected[EMCMOT_MAX_JOINTS];
@@ -819,11 +830,23 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number"); 
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x"); 
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_z), comp_id, "halui.tool.length_offset.z"); 
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_y), comp_id, "halui.tool.length_offset.y");
     if (retval < 0) return retval;
-    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w"); 
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_z), comp_id, "halui.tool.length_offset.z");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_a), comp_id, "halui.tool.length_offset.a");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_b), comp_id, "halui.tool.length_offset.b");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_c), comp_id, "halui.tool.length_offset.c");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_u), comp_id, "halui.tool.length_offset.u");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_v), comp_id, "halui.tool.length_offset.v");
+    if (retval < 0) return retval;
+    retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_w), comp_id, "halui.tool.length_offset.w");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->so_value), comp_id, "halui.spindle-override.value"); 
     if (retval < 0) return retval;
@@ -946,6 +969,8 @@ int halui_hal_init(void)
     for (joint=0; joint < num_axes ; joint++) {
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[joint]), comp_id, "halui.joint.%d.home", joint); 
 	if (retval < 0) return retval;
+	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[joint]), comp_id, "halui.joint.%d.unhome", joint);
+	if (retval < 0) return retval;
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_nr_select[joint]), comp_id, "halui.joint.%d.select", joint); 
 	if (retval < 0) return retval;
 	retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_plus[joint]), comp_id, "halui.jog.%d.plus", joint); 
@@ -957,6 +982,8 @@ int halui_hal_init(void)
     }
 
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_axes]), comp_id, "halui.joint.selected.home"); 
+    if (retval < 0) return retval;
+    retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[num_axes]), comp_id, "halui.joint.selected.unhome");
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->jog_plus[num_axes]), comp_id, "halui.jog.selected.plus"); 
     if (retval < 0) return retval;
@@ -1307,6 +1334,16 @@ static int sendHome(int joint)
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
+static int sendUnhome(int joint)
+{
+    EMC_JOINT_UNHOME emc_joint_home_msg;
+
+    emc_joint_home_msg.serial_number = ++emcCommandSerialNumber;
+    emc_joint_home_msg.joint = joint;
+    emcCommandBuffer->write(emc_joint_home_msg);
+    return emcCommandWaitReceived(emcCommandSerialNumber);
+}
+
 static int sendAbort()
 {
     EMC_TASK_ABORT task_abort_msg;
@@ -1526,6 +1563,7 @@ static void hal_init_pins()
     
     for (joint=0; joint < num_axes; joint++) {
 	*(halui_data->joint_home[joint]) = old_halui_data.joint_home[joint] = 0;
+	*(halui_data->joint_unhome[joint]) = old_halui_data.joint_unhome[joint] = 0;
 	*(halui_data->joint_nr_select[joint]) = old_halui_data.joint_nr_select[joint] = 0;
 	*(halui_data->jog_minus[joint]) = old_halui_data.jog_minus[joint] = 0;
 	*(halui_data->jog_plus[joint]) = old_halui_data.jog_plus[joint] = 0;
@@ -1545,6 +1583,8 @@ static void hal_init_pins()
 }
 
 static int check_bit_changed(hal_bit_t *halpin, hal_bit_t *oldpin) {
+    if(!halpin) return 0; // uncreated pin never changes
+
     hal_bit_t bit;
     
     bit = *(halpin);
@@ -1730,6 +1770,9 @@ static void check_hal_changes()
 	if (check_bit_changed(halui_data->joint_home[joint], &(old_halui_data.joint_home[joint])) != 0)
 	    sendHome(joint);
 
+	if (check_bit_changed(halui_data->joint_unhome[joint], &(old_halui_data.joint_unhome[joint])) != 0)
+	    sendUnhome(joint);
+
 	bit = *(halui_data->jog_minus[joint]);
 	if (bit != old_halui_data.jog_minus[joint]) {
 	    if (bit != 0)
@@ -1780,6 +1823,9 @@ static void check_hal_changes()
 
     if (check_bit_changed(halui_data->joint_home[num_axes], &(old_halui_data.joint_home[num_axes])) != 0)
 	sendHome(*(halui_data->joint_selected));
+
+    if (check_bit_changed(halui_data->joint_unhome[num_axes], &(old_halui_data.joint_unhome[num_axes])) != 0)
+	sendUnhome(*(halui_data->joint_selected));
 
     bit = *(halui_data->jog_minus[num_axes]);
     js = *(halui_data->joint_selected);
@@ -1885,7 +1931,13 @@ static void modify_hal_pins()
 
     *(halui_data->tool_number) = emcStatus->io.tool.toolInSpindle;
     *(halui_data->tool_length_offset_x) = emcStatus->task.toolOffset.tran.x;
+    *(halui_data->tool_length_offset_y) = emcStatus->task.toolOffset.tran.y;
     *(halui_data->tool_length_offset_z) = emcStatus->task.toolOffset.tran.z;
+    *(halui_data->tool_length_offset_a) = emcStatus->task.toolOffset.a;
+    *(halui_data->tool_length_offset_b) = emcStatus->task.toolOffset.b;
+    *(halui_data->tool_length_offset_c) = emcStatus->task.toolOffset.c;
+    *(halui_data->tool_length_offset_u) = emcStatus->task.toolOffset.u;
+    *(halui_data->tool_length_offset_v) = emcStatus->task.toolOffset.v;
     *(halui_data->tool_length_offset_w) = emcStatus->task.toolOffset.w;
 
     *(halui_data->spindle_is_on) = (emcStatus->motion.spindle.speed != 0);

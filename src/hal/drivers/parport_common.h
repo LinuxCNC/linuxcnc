@@ -1,3 +1,19 @@
+//    Copyright (C) 2009 Jeff Epler
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program; if not, write to the Free Software
+//    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
 #ifndef HAL_PARPORT_COMMON_H
 #define HAL_PARPORT_COMMON_H
 
@@ -48,10 +64,10 @@ hal_parport_get(int comp_id, hal_parport_t *port,
                   linux_port->name, linux_port->base, linux_port->base_hi);
         port->linux_dev = parport_register_device(linux_port,
                 hal_comp_name(comp_id), NULL, NULL, NULL, 0, NULL);
-        parport_put_port(linux_port);
 
         if(!port->linux_dev)
         {
+            parport_put_port(linux_port);
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "PARPORT: ERROR: port %s register failed\n", linux_port->name);
             return -EIO;
@@ -60,6 +76,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
         retval = parport_claim(port->linux_dev);
         if(retval < 0)
         {
+            parport_put_port(linux_port);
             parport_unregister_device(port->linux_dev);
             rtapi_print_msg(RTAPI_MSG_ERR,
                 "PARPORT: ERROR: port %s claim failed\n", linux_port->name);
@@ -68,6 +85,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
 
         port->base = linux_port->base;
         port->base_hi = linux_port->base_hi;
+        parport_put_port(linux_port);
     } else {
         if(base_hi == 0) base_hi = base + 0x400;
 

@@ -1406,5 +1406,101 @@ In the above example one copy of and2 is loaded into real time space and
  the output pin 14 will be on.
 \end_layout
 
+\begin_layout Section
+Conversion Components
+\end_layout
+
+\begin_layout Subsection
+weighted_sum
+\end_layout
+
+\begin_layout Standard
+The weighted_sum converts a group of bits to an integer.
+ The conversion is the sum of the "weights" of the bits that are on plus
+ any offset.
+ This is similar to a binary coded decimal but with more options.
+ The "hold" bit stops processing the input changes so the "sum" will not
+ change.
+\end_layout
+
+\begin_layout Standard
+The following syntax is used to load the weighted_sum component.
+\end_layout
+
+\begin_layout LyX-Code
+loadrt weighted_sum wsum_sizes=size[,size,...]
+\end_layout
+
+\begin_layout Standard
+Creates weighted sum groups each with the given number of input bits (size).
+\end_layout
+
+\begin_layout Standard
+To update the weighted_sum you need to attach process_wsums to a thread.
+\end_layout
+
+\begin_layout LyX-Code
+addf process_wsums servo-thread
+\end_layout
+
+\begin_layout Standard
+This updates the weighted_sum component.
+\end_layout
+
+\begin_layout Standard
+In the following example clipped from the HAL Configuration window in Axis
+ the bits "0" and "2" are true and there is no offset.
+ The "weight" of 0 is 1 and the "weight" of 2 is 4 so the sum is 5.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+weighted_sum
+\begin_inset LatexCommand label
+name "fig:weighted_sum"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/wsum01.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \end_body
 \end_document

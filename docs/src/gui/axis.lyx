@@ -41,6 +41,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -165,25 +166,19 @@ reference "cap:AXIS-Window"
 \end_layout
 
 \begin_layout Subsection
-A typical session
+A Typical Session
 \end_layout
 
 \begin_layout Enumerate
-Start EMC and select a configuration file.
+Start EMC.
 \end_layout
 
 \begin_layout Enumerate
-Clear the "ESTOP
-\begin_inset LatexCommand index
-name "ESTOP"
-
-\end_inset
-
-" condition and turn the machine on.
+Clear the E-STOP (F1) and turn the Machine Power (F2) on.
 \end_layout
 
 \begin_layout Enumerate
-"Home" all axes.
+Home all axes.
 \end_layout
 
 \begin_layout Enumerate
@@ -195,13 +190,8 @@ Use the preview plot to verify that the program is correct.
 \end_layout
 
 \begin_layout Enumerate
-Set the proper offsets for each axis by jogging and using the "Touch Off
-\begin_inset LatexCommand index
-name "Touch Off"
-
-\end_inset
-
-" button.
+Set the proper offsets for each axis by jogging and using the Touch Off
+ button.
 \end_layout
 
 \begin_layout Enumerate
@@ -376,7 +366,7 @@ Menu Items
 \end_layout
 
 \begin_layout Standard
-Some menu items might be greyed out depending on how you have your .ini file
+Some menu items might be grayed out depending on how you have your .ini file
  configured.
  For more information on configuration see the Integrators Manual.
 \end_layout
@@ -1028,8 +1018,8 @@ reference "cap:Soft-Limit"
 
 \end_inset
 
-) the maximum soft limit is exceeded on the X axis as indicatated by the
- box surrounding the coordinate value.
+) the maximum soft limit is exceeded on the X axis as indicated by the box
+ surrounding the coordinate value.
 \end_layout
 
 \begin_layout Standard
@@ -1307,6 +1297,7 @@ By pressing "Touch Off" or the END key, the "G54 offset" for the current
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -1410,6 +1401,7 @@ name "MDI"
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -1463,6 +1455,8 @@ Active\InsetSpace ~
 G-Codes: This shows the "modal codes" that are active in the interpreter.
  For instance, "G54" indicates that the "G54 offset" is applied to all coordinat
 es that are entered.
+ When in Auto the Active G-Codes represent the codes after any read ahead
+ by the interpreter.
 \end_layout
 
 \begin_layout Subsection
@@ -1541,7 +1535,7 @@ name "Max Velocity"
 
 \begin_layout Standard
 By moving this slider, the maximum velocity can be set.
- This caps the maximun velocity of axis no matter what is programed in the
+ This caps the maximum velocity of axis no matter what is programed in the
  g code file.
 \end_layout
 
@@ -1557,7 +1551,21 @@ Almost all actions in AXIS can be accomplished with the keyboard.
 Help > Quick Reference
 \noun default
 .
- Many of the shortcuts are unavailable when in Code Entry mode.
+ Many of the shortcuts are unavailable when in MDI mode.
+ 
+\end_layout
+
+\begin_layout Subsubsection*
+Feed Override Keys
+\end_layout
+
+\begin_layout Standard
+The Feed Override keys behave differently when in Manual Mode.
+ The keys `12345678 will select an axis if it is programed.
+ If you have 3 axis then ` will select axis 0, 1 will select axis 1 and
+ 2 will select axis 2.
+ The remainder of the number keys will still set the Feed Override.
+ When running a program `1234567890 will set the Feed Override to 0% - 100%.
 \end_layout
 
 \begin_layout Standard
@@ -1572,6 +1580,7 @@ reference "cap:Most-Common-Keyboard"
 
 \begin_layout Standard
 \begin_inset Float table
+placement H
 wide false
 sideways false
 status open
@@ -1597,10 +1606,11 @@ name "cap:Most-Common-Keyboard"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="27" columns="2">
+<lyxtabular version="3" rows="27" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<column alignment="center" valignment="top" rightline="true" width="0">
 <row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -1616,6 +1626,15 @@ Keystroke
 
 \begin_layout Standard
 Action Taken
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Mode
 \end_layout
 
 \end_inset
@@ -1640,6 +1659,15 @@ Toggle Emergency Stop
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+All
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1656,6 +1684,15 @@ F2
 
 \begin_layout Standard
 Turn machine on/off
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+All
 \end_layout
 
 \end_inset
@@ -1681,6 +1718,15 @@ Set feed override from 0% to 100%
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Varies
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1697,6 +1743,15 @@ X, `
 
 \begin_layout Standard
 Activate first axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1721,6 +1776,15 @@ Activate second axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1737,6 +1801,15 @@ Z, 2
 
 \begin_layout Standard
 Activate third axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1761,6 +1834,15 @@ Activate fourth axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1777,6 +1859,15 @@ I
 
 \begin_layout Standard
 Select jog increment
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1801,6 +1892,15 @@ Continuous jog
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1817,6 +1917,15 @@ Control-Home
 
 \begin_layout Standard
 Perform homing sequence
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1841,6 +1950,15 @@ Touch off: Set G54 offset for active axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1857,6 +1975,15 @@ Left, Right
 
 \begin_layout Standard
 Jog first axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1881,6 +2008,15 @@ Jog second axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1897,6 +2033,15 @@ Pg Up, Pg Dn
 
 \begin_layout Standard
 Jog third axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1921,6 +2066,15 @@ Jog fourth axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1937,6 +2091,15 @@ O
 
 \begin_layout Standard
 Open File
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -1961,6 +2124,15 @@ Reload File
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -1977,6 +2149,15 @@ R
 
 \begin_layout Standard
 Run file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -2001,6 +2182,15 @@ Pause execution
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Auto
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -2017,6 +2207,15 @@ S
 
 \begin_layout Standard
 Resume Execution
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Auto
 \end_layout
 
 \end_inset
@@ -2041,6 +2240,15 @@ Stop execution
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Auto
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -2057,6 +2265,15 @@ Control-K
 
 \begin_layout Standard
 Clear backplot
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Auto/Manual
 \end_layout
 
 \end_inset
@@ -2081,6 +2298,15 @@ Cycle among preset views
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Auto/Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -2097,6 +2323,15 @@ Shift-Left,Right
 
 \begin_layout Standard
 Rapid X Axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -2121,6 +2356,15 @@ Rapid Y Axis
 
 \end_inset
 </cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
+\end_layout
+
+\end_inset
+</cell>
 </row>
 <row bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
@@ -2137,6 +2381,15 @@ Shift-PgUp, PgDn
 
 \begin_layout Standard
 Rapid Z Axis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Manual
 \end_layout
 
 \end_inset
@@ -2168,6 +2421,7 @@ Machine > Show EMC Status
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2347,6 +2601,7 @@ Important Note: Rapids will not show on the preview after a T<n> is issued
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2500,6 +2755,7 @@ When in lathe mode, the shape of the loaded tool (if any) is shown.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2618,6 +2874,7 @@ ce of a circle.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2702,7 +2959,7 @@ xrdb -merge /usr/share/doc/emc2/axis_big_dro
 
 \begin_layout Standard
 For information about the other items which can be configured in Tk applications
-, see the Tk manpages.
+, see the Tk man pages.
 \end_layout
 
 \begin_layout Standard
@@ -2858,7 +3115,7 @@ Special comments can be inserted into the G Code file to control how the
 \begin_layout Standard
 These comments are useful to unclutter the preview display (for instance
  while debugging a larger g-code file, one can disable the preview on certain
- parts that are already working ok).
+ parts that are already working OK).
 \end_layout
 
 \begin_layout Itemize

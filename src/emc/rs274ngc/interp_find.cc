@@ -167,14 +167,16 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 #ifdef DEBUG_EMC
         COMMENT("interpreter: offsets temporarily suspended");
 #endif
+        CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
+
         if(block->x_flag == ON) {
-            *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_xoffset;
+            *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_offset.tran.x;
         } else {
             *px = s->current_x;
         }
 
         if(block->y_flag == ON) {
-            *py = block->y_number - s->origin_offset_y - s->axis_offset_y;
+            *py = block->y_number - s->origin_offset_y - s->axis_offset_y - s->tool_offset.tran.y;
         } else {
             *py = s->current_y;
         }
@@ -182,7 +184,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         rotate(px, py, -s->rotation_xy);
 
         if(block->z_flag == ON) {
-            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_zoffset;
+            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_offset.tran.z;
         } else {
             *pz = s->current_z;
         }
@@ -190,7 +192,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->a_flag == ON) {
             if(s->a_axis_wrapped) {
                 CHP(unwrap_rotary(AA_p, block->a_number, 
-                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset, 
+                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a,
                                   s->AA_current, 'A'));
             } else {
                 *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
@@ -202,7 +204,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->b_flag == ON) {
             if(s->b_axis_wrapped) {
                 CHP(unwrap_rotary(BB_p, block->b_number, 
-                                  block->b_number - s->BB_origin_offset - s->BB_axis_offset, 
+                                  block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b,
                                   s->BB_current, 'B'));
             } else {
                 *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
@@ -214,7 +216,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         if(block->c_flag == ON) {
             if(s->c_axis_wrapped) {
                 CHP(unwrap_rotary(CC_p, block->c_number, 
-                                  block->c_number - s->CC_origin_offset - s->CC_axis_offset, 
+                                  block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c,
                                   s->CC_current, 'C'));
             } else {
                 *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
@@ -224,19 +226,19 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         if(block->u_flag == ON) {
-            *u_p = block->u_number - s->u_origin_offset - s->u_axis_offset;
+            *u_p = block->u_number - s->u_origin_offset - s->u_axis_offset - s->tool_offset.u;
         } else {
             *u_p = s->u_current;
         }
 
         if(block->v_flag == ON) {
-            *v_p = block->v_number - s->v_origin_offset - s->v_axis_offset;
+            *v_p = block->v_number - s->v_origin_offset - s->v_axis_offset - s->tool_offset.v;
         } else {
             *v_p = s->v_current;
         }
 
         if(block->w_flag == ON) {
-            *w_p = block->w_number - s->w_origin_offset - s->w_axis_offset - s->tool_woffset;
+            *w_p = block->w_number - s->w_origin_offset - s->w_axis_offset - s->tool_offset.w;
         } else {
             *w_p = s->w_current;
         }
@@ -254,6 +256,25 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         } else {
             // but only XY affects Y ...
             *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
+        }
+
+        if(block->radius_flag == ON && block->theta_flag == ON) {
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            *px = block->radius * cos(D2R(block->theta));
+            *py = block->radius * sin(D2R(block->theta));
+        } else if(block->radius_flag == ON) {
+            double theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("Must specify angle in polar coordinate if at the origin"));
+            theta = atan2(*py, *px);
+            *px = block->radius * cos(theta);
+            *py = block->radius * sin(theta);
+        } else  if(block->theta_flag == ON) {
+            double radius;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            radius = hypot(*py, *px);
+            *px = radius * cos(D2R(block->theta));
+            *py = radius * sin(D2R(block->theta));
         }
 
         if(block->z_flag == ON) {
@@ -306,6 +327,26 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         // but only XY affects Y ...
         *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y: s->current_y;
         if(block->y_flag == ON) *py += block->y_number;
+
+        if(block->radius_flag == ON) {
+            double radius, theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin"));
+            theta = atan2(*py, *px);
+            radius = hypot(*py, *px) + block->radius;
+            *px = radius * cos(theta);
+            *py = radius * sin(theta);
+        }
+
+        if(block->theta_flag == ON) {
+            double radius, theta;
+            CHKS((block->x_flag == ON || block->y_flag == ON), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0), _("G91 motion with polar coordinates is indeterminate when at the origin"));
+            theta = atan2(*py, *px) + D2R(block->theta);
+            radius = hypot(*py, *px);
+            *px = radius * cos(theta);
+            *py = radius * sin(theta);
+        }
 
         // and only XZ affects Z.
         *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z: s->current_z;
@@ -374,14 +415,14 @@ int Interp::find_relative(double x1,     //!< absolute x position
                           double *w_2,
                           setup_pointer settings)        //!< pointer to machine settings
 {
-  *x2 = x1 - settings->origin_offset_x - settings->axis_offset_x - settings->tool_xoffset;
-  *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y;
+  *x2 = x1 - settings->origin_offset_x - settings->axis_offset_x - settings->tool_offset.tran.x;
+  *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y - settings->tool_offset.tran.y;
   rotate(x2, y2, -settings->rotation_xy);
-  *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_zoffset;
+  *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_offset.tran.z;
 
   if(settings->a_axis_wrapped) {
       CHP(unwrap_rotary(AA_2, AA_1,
-                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset, 
+                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a,
                         settings->AA_current, 'A'));
   } else {
       *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
@@ -389,7 +430,7 @@ int Interp::find_relative(double x1,     //!< absolute x position
 
   if(settings->b_axis_wrapped) {
       CHP(unwrap_rotary(BB_2, BB_1,
-                        BB_1 - settings->BB_origin_offset - settings->BB_axis_offset, 
+                        BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b,
                         settings->BB_current, 'B'));
   } else {
       *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
@@ -397,15 +438,15 @@ int Interp::find_relative(double x1,     //!< absolute x position
 
   if(settings->c_axis_wrapped) {
       CHP(unwrap_rotary(CC_2, CC_1,
-                        CC_1 - settings->CC_origin_offset - settings->CC_axis_offset, 
+                        CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c,
                         settings->CC_current, 'C'));
   } else {
       *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
   }
 
-  *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset;
-  *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset;
-  *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_woffset;
+  *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset - settings->tool_offset.u;
+  *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset - settings->tool_offset.v;
+  *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_offset.w;
   return INTERP_OK;
 }
 

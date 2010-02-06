@@ -27,6 +27,11 @@
 
 #include "hostmot2-lowlevel.h"
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+void argv_free(char **argv);
+char **argv_split(gfp_t gfp, const char *str, int *argcp);
+#endif
+
 #ifndef FIRMWARE_NAME_MAX
     #define FIRMWARE_NAME_MAX  30
 #endif

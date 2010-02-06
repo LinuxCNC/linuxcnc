@@ -42,6 +42,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -2181,12 +2182,172 @@ EXTRA_CLEANUP
 \end_layout
 
 \begin_layout LyX-Code
-\begin_inset Include \verbatiminput{out8.comp}
-preview false
+component out8;
+\end_layout
 
-\end_inset
+\begin_layout LyX-Code
+pin out unsigned out_ "Output value; only low 8 bits are used";
+\end_layout
 
+\begin_layout LyX-Code
+param r unsigned ioaddr;
+\end_layout
 
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+function _;
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+option count_function;
+\end_layout
+
+\begin_layout LyX-Code
+option extra_setup;
+\end_layout
+
+\begin_layout LyX-Code
+option extra_cleanup;
+\end_layout
+
+\begin_layout LyX-Code
+option constructable no;
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+license "GPL";
+\end_layout
+
+\begin_layout LyX-Code
+;;
+\end_layout
+
+\begin_layout LyX-Code
+#include <asm/io.h>
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+#define MAX 8 int io[MAX] = {0,};
+\end_layout
+
+\begin_layout LyX-Code
+RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of out8 boards");
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+int get_count(void) {
+\end_layout
+
+\begin_layout LyX-Code
+    int i = 0;
+\end_layout
+
+\begin_layout LyX-Code
+    for(i=0; i<MAX && io[i]; i++) { /* Nothing */ }
+\end_layout
+
+\begin_layout LyX-Code
+    return i;
+\end_layout
+
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+EXTRA_SETUP() {
+\end_layout
+
+\begin_layout LyX-Code
+    if(!rtapi_request_region(io[extra_arg], 1, "out8")) {
+\end_layout
+
+\begin_layout LyX-Code
+    // set this I/O port to 0 so that EXTRA_CLEANUP does not release the
+ IO
+\end_layout
+
+\begin_layout LyX-Code
+    // ports that were never requested.
+\end_layout
+
+\begin_layout LyX-Code
+        io[extra_arg] = 0;
+\end_layout
+
+\begin_layout LyX-Code
+        return -EBUSY;
+\end_layout
+
+\begin_layout LyX-Code
+    }
+\end_layout
+
+\begin_layout LyX-Code
+    ioaddr = io[extra_arg];
+\end_layout
+
+\begin_layout LyX-Code
+    return 0; }
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+EXTRA_CLEANUP() {
+\end_layout
+
+\begin_layout LyX-Code
+    int i;
+\end_layout
+
+\begin_layout LyX-Code
+    for(i=0; i < MAX && io[i]; i++) {
+\end_layout
+
+\begin_layout LyX-Code
+        rtapi_release_region(io[i], 1);
+\end_layout
+
+\begin_layout LyX-Code
+    }
+\end_layout
+
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+FUNCTION(_) { outb(out_, ioaddr); }
 \end_layout
 
 \begin_layout Subsection

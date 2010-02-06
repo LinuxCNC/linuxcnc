@@ -59,7 +59,7 @@ endif
 
 
 # list of supported hostmot2 boards
-HM2_BOARDS = 4i65 4i68 5i20 5i22 5i23 7i43
+HM2_BOARDS = 3x20 4i65 4i68 5i20 5i22 5i23 7i43
 
 # Print 'entering' all the time
 MAKEFLAGS += w
@@ -212,7 +212,11 @@ INFILES = \
 	../docs/man/man1/emc.1 ../scripts/emc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/emc.tcl ../scripts/halrun ../scripts/emc-environment \
-	../scripts/emcmkdesktop ../lib/python/nf.py
+	../scripts/emcmkdesktop ../lib/python/nf.py \
+	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
+	../share/applications/emc.desktop \
+	../share/applications/emc-latency.desktop
+
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
@@ -401,6 +405,12 @@ and rebuild
 endef
 install:
 	$(error $(ERROR_MESSAGE))
+install-menus install-menu: ../share/menus/CNC.menu \
+		../share/desktop-directories/cnc.directory \
+		../share/applications/emc.desktop \
+		../share/applications/emc-latency.desktop
+	mkdir -p $(HOME)/.config/menus/applications-merged
+	cp $< $(HOME)/.config/menus/applications-merged
 else
 
 DOCS=INSTALL NEWS README AUTHORS
@@ -465,6 +475,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
+	$(EXE) ../bin/toolconvert $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
@@ -661,6 +672,7 @@ opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
 hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
+    hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o    \
     hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/pwmgen.o    \

@@ -1673,7 +1673,7 @@ class LivePlotter:
         global current_tool
         current_tool = self.stat.tool_table[0]
         if current_tool:
-            tool_data = {'tool': current_tool[0], 'zo': current_tool[1], 'xo': current_tool[2], 'dia': current_tool[3]}
+            tool_data = {'tool': current_tool[0], 'zo': current_tool[3], 'xo': current_tool[1], 'dia': current_tool[10]}
         if current_tool is None:
             vupdate(vars.tool, _("Unknown tool %d") % self.stat.tool_in_spindle)
         elif tool_data['tool'] == 0 or tool_data['tool'] == -1:
@@ -1905,6 +1905,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
     t0 = time.time()
 
     canon = None
+    o.deselect(None) # remove highlight line from last program
     try:
         # be sure to switch modes to cause an interp synch, which
         # writes out the var file.  there was a reset here, and that
@@ -2188,7 +2189,7 @@ class DummyCanon:
     def set_plane(*args): pass
     def get_axis_mask(self): return 7
     def get_tool(self, tool):
-        return tool,0.,0.,0.,0.,0.,0
+        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
     def set_feed_rate(self, rate): pass
 
     def user_defined_function(self, m, p, q):
@@ -2313,17 +2314,9 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
 class _prompt_touchoff(_prompt_float):
     def __init__(self, title, text, default, defaultsystem):
         systems = all_systems[:]
-        if s.tlo_is_along_w:
-            tool_offset_axes = "w"
-        elif lathe:
-            tool_offset_axes = "xz"
-        else:
-            tool_offset_axes = "z"
-        if vars.current_axis.get() not in tool_offset_axes:
-            del systems[-1]
-            if defaultsystem.startswith("T"): defaultsystem = systems[0]
         if s.tool_in_spindle == 0:
             del systems[-1]
+            if defaultsystem.startswith("T"): defaultsystem = systems[0]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
@@ -2349,7 +2342,7 @@ class _prompt_touchoff(_prompt_float):
         self.buttons.tkraise()
         for i in [1,2,3,4,5,6,7,8,9]:
             t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
-        if not ((s.tool_in_spindle == 0) or vars.current_axis.get() not in tool_offset_axes):
+        if current_tool.id > 0:
             t.bind("<Alt-t>", lambda event: c.set(systems[9]))
             t.bind("<Alt-0>", lambda event: c.set(systems[9]))
 
@@ -2714,6 +2707,22 @@ class TclCommands(nf.TclCommands):
         f = str(f)
         open_directory = os.path.dirname(f)
         commands.open_file_name(f)
+
+    def remote (cmd,arg=""):
+        if cmd == "clear_live_plot":
+            commands.clear_live_plot()
+            return ""
+        if running():
+            return _("axis cannot accept remote command while running")
+        if cmd == "open_file_name":
+            commands.open_file_name(arg)
+        elif cmd == "send_mdi_command":
+            commands.send_mdi_command(arg)
+        elif cmd == "reload_file":
+            commands.reload_file()
+        elif cmd == "destroy":
+            root_window.tk.call("destroy", ".")
+        return ""
 
     def open_file_name(f):
         open_file_guts(f)

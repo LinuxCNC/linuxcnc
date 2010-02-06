@@ -2090,7 +2090,6 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHKS(isreadonly(index),NCE_PARAMETER_NUMBER_READONLY);
       *double_ptr = parameters[index];
   }
   return INTERP_OK;
@@ -2842,15 +2841,29 @@ int Interp::read_real_value(char *line,  //!< string: line of RS274/NGC code bei
                            double *double_ptr,  //!< pointer to double to be read                  
                            double *parameters)  //!< array of system parameters                    
 {
-  char c;
+  char c, c1;
 
   c = line[*counter];
   CHKS((c == 0), NCE_NO_CHARACTERS_FOUND_IN_READING_REAL_VALUE);
+
+  c1 = line[*counter+1];
+
   if (c == '[')
     CHP(read_real_expression(line, counter, double_ptr, parameters));
   else if (c == '#')
   {
     CHP(read_parameter(line, counter, double_ptr, parameters));
+  }
+  else if (c == '+' && c1 && !isdigit(c1) && c1 != '.')
+  {
+    (*counter)++;
+    CHP(read_real_value(line, counter, double_ptr, parameters));
+  }
+  else if (c == '-' && c1 && !isdigit(c1) && c1 != '.')
+  {
+    (*counter)++;
+    CHP(read_real_value(line, counter, double_ptr, parameters));
+    *double_ptr = -*double_ptr;
   }
   else if ((c >= 'a') && (c <= 'z'))
     CHP(read_unary(line, counter, double_ptr, parameters));
@@ -3362,6 +3375,26 @@ int Interp::read_x(char *line,   //!< string: line of RS274 code being processed
   }
   return INTERP_OK;
 }
+
+int Interp::read_atsign(char *line, int *counter, block_pointer block,
+                        double *parameters) {
+    CHKS((line[*counter] != '@'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter)++;
+    CHP(read_real_value(line, counter, &block->radius, parameters));
+    block->radius_flag = ON;
+    return INTERP_OK;
+}
+
+int Interp::read_carat(char *line, int *counter, block_pointer block,
+                       double *parameters) {
+    CHKS((line[*counter] != '^'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
+    (*counter)++;
+    CHP(read_real_value(line, counter, &block->theta, parameters));
+    block->theta_flag = ON;
+    return INTERP_OK;
+}
+    
+    
 
 /****************************************************************************/
 

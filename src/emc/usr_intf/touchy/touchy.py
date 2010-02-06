@@ -62,21 +62,6 @@ from touchy import filechooser
 from touchy import listing
 from touchy import preferences
 
-gtk.rc_parse_string('''
-style "touchy-default-style" {
-    bg[PRELIGHT] = "#dcdad5"
-    bg[NORMAL] = "#dcdad5"
-    bg[ACTIVE] = "#dcdad5"
-    bg[INSENSITIVE] = "#dcdad5"
-    fg[PRELIGHT] = "#000"
-    fg[NORMAL] = "#000"
-    fg[ACTIVE] = "#000"
-    fg[INSENSITIVE] = "#9a9895"
-    GtkWidget::focus-line-width = 0
-}
-class "GtkWidget" style "touchy-default-style"
-''')
-
 pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
 "1 1 1 1",
@@ -94,6 +79,11 @@ class touchy:
 		self.gladefile = os.path.join(datadir, "touchy.glade")
 	        self.wTree = gtk.glade.XML(self.gladefile) 
                 
+		for widget in self.wTree.get_widget_prefix(''):
+			widget.unset_flags(gtk.CAN_FOCUS)
+		self.wTree.get_widget('MainWindow').set_flags(gtk.CAN_FOCUS)
+		self.wTree.get_widget('MainWindow').grab_focus()
+
                 self.num_mdi_labels = 11
                 self.num_filechooser_labels = 11
                 self.num_listing_labels = 20
@@ -218,6 +208,8 @@ class touchy:
                         self.emc.opstop_on(0)
                 else:
                         self.emc.opstop_off(0)                        
+
+                self.emc.max_velocity(self.mv_val)
                                 
                 gobject.timeout_add(50, self.periodic_status)
                 gobject.timeout_add(100, self.periodic_radiobuttons)
@@ -252,6 +244,7 @@ class touchy:
                         "on_mdi_minus_clicked" : self.mdi_control.minus,
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
                         "on_mdi_g_clicked" : self.mdi_control.g,
+                        "on_mdi_gp_clicked" : self.mdi_control.gp,
                         "on_mdi_m_clicked" : self.mdi_control.m,
                         "on_mdi_t_clicked" : self.mdi_control.t,
                         "on_mdi_select" : self.mdi_control.select,
@@ -297,6 +290,10 @@ class touchy:
                         "on_spindle_faster_clicked" : self.emc.spindle_faster,
                         }
                 self.wTree.signal_autoconnect(dic)
+
+		for widget in self.wTree.get_widget_prefix(''):
+			if isinstance(widget, gtk.Button):
+				widget.connect_after('released',self.hack_leave)
 
         def quit(self, unused):
                 gtk.main_quit()
@@ -466,7 +463,7 @@ class touchy:
                 for i in ["1", "2", "3", "4", "5", "6", "7",
                           "8", "9", "0", "minus", "decimal",
                           "flood_on", "flood_off", "mist_on", "mist_off",
-                          "g", "m", "t", "set_tool", "set_origin",
+                          "g", "gp", "m", "t", "set_tool", "set_origin",
                           "estop", "estop_reset", "machine_off", "machine_on",
                           "home_all", "unhome_all", "home_selected", "unhome_selected",
                           "fo", "so", "mv", "jogging", "wheelinc1", "wheelinc2", "wheelinc3",
@@ -607,6 +604,15 @@ class touchy:
 
                         
                 return True
+
+	def hack_leave(self,w):
+		if not self.invisible_cursor: return
+		w = self.wTree.get_widget("MainWindow").window
+		d = w.get_display()
+		s = w.get_screen()
+		x, y = w.get_origin()
+		d.warp_pointer(s, x, y)
+
 
 if __name__ == "__main__":
 	hwg = touchy()

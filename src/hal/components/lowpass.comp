@@ -1,10 +1,15 @@
 component lowpass "Low-pass filter";
 pin in float in;
 pin out float out " out += (in - out) * gain ";
+pin in bit load "When TRUE, copy \\fBin\\fR to \\fBout\\fR instead of applying the filter equation.";
 param rw float gain;
 function _;
 license "GPL";
+notes "The effect of a specific \\fBgain\\fR value is dependant on the period of the function that \\fBlowpass.\\fIN\\fR is added to";
 ;;
 FUNCTION(_) {
-    out += (in - out) * gain;
+    if(load)
+	out = in;
+    else
+	out += (in - out) * gain;
 }

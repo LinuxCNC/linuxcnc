@@ -190,6 +190,220 @@ L-
 \end_layout
 
 \begin_layout Section
+Polar Coordinates
+\begin_inset LatexCommand index
+name "Polar Coordinates"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Polar Coordinates can be used to specify the XY coordinate of a move.
+ The @n is the distance and ^n is the angle.
+ The advantage of this is for things like bolt hole circles which can be
+ done very simply by moving to a point in the center of the circle, setting
+ the offset and then moving out to the first hole then run the drill cycle.
+ Polar Coordinates always are from the current XY zero position.
+ To shift the Polar Coordinates from machine zero use an offset or select
+ a coordinate system.
+\end_layout
+
+\begin_layout Standard
+In Absolute Mode the distance and angle is from the XY zero position and
+ the angle starts with 0 on the X Positive axis and rotates in a CCW direction
+ about the Z axis.
+ The code G1 @1^90 is the same as G1 Y1.
+\end_layout
+
+\begin_layout Standard
+In Relative Mode the distance and angle is also from the XY zero position
+ but it is cumulative.
+ This can be confusing at first how this works in incremental mode.
+ 
+\end_layout
+
+\begin_layout Standard
+For example if you have the following program you might expect it to be
+ a square pattern.
+\end_layout
+
+\begin_layout LyX-Code
+F100 G1 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+G91 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+@.5 ^90
+\end_layout
+
+\begin_layout LyX-Code
+G90 G0 X0 Y0 M2
+\end_layout
+
+\begin_layout Standard
+You can see from the following figure that the output is not what you might
+ expect.
+ Because we added .5 to the distance each time the distance from the XY zero
+ position increased with each line.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Polar Spiral
+\begin_inset LatexCommand label
+name "fig:Polar-Spiral"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/polar01.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The following code will produce our square pattern.
+\end_layout
+
+\begin_layout LyX-Code
+F100 G1 @.5 ^90 
+\end_layout
+
+\begin_layout LyX-Code
+G91 ^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+^90
+\end_layout
+
+\begin_layout LyX-Code
+G90 G0 X0 Y0 M2
+\end_layout
+
+\begin_layout Standard
+As you can see by only adding to the angle by 90 degrees each time the end
+ point distance is the same for each line.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Polar Square
+\begin_inset LatexCommand label
+name "fig:Polar-Square"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/polar02.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+An incremental move is started at the origin
+\end_layout
+
+\begin_layout Itemize
+A mix of Polar and and X or Y words are used
+\end_layout
+
+\begin_layout Section
 Quick Reference Table
 \begin_inset LatexCommand label
 name "sec:Quick-Reference-Table"
@@ -207,7 +421,7 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="53" columns="4">
+<lyxtabular version="3" rows="55" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -2354,7 +2568,7 @@ P
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M62-to-M65:"
+reference "sec:M62-to-M65"
 
 \end_inset
 
@@ -2397,7 +2611,93 @@ P, E, L, Q
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M66:"
+reference "sec:M66-Input-Control"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+M67
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Analog Output Control
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+E, Q
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:M67-Analog-Output"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+M68
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Analog Output Control
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+E, Q
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:M68-Analog-Output"
 
 \end_inset
 
@@ -3451,7 +3751,9 @@ name "sec:G10-L1-Set-Tool-Table"
 \end_layout
 
 \begin_layout LyX-Code
-G10 L1 P[tool number] R[radius] X[offset] Z[offset] Q[orientation]
+G10 L1 P[tool number] R[radius] X[offset] Y[offset] Z[offset] A[offset]
+ B[offset] C[offset] U[offset] V[offset] W[offset] I[frontangle] J[backangle]
+ Q[orientation] 
 \end_layout
 
 \begin_layout Standard
@@ -4275,7 +4577,7 @@ G28
 axes
 \family default
 \emph default
- will make a rapid traverse move to the position specifed by 
+ will make a rapid traverse move to the position specified by 
 \family typewriter
 \emph on
 axes
@@ -4328,7 +4630,7 @@ G30
 axes
 \family default
 \emph default
- will make a rapid traverse move to the position specifed by 
+ will make a rapid traverse move to the position specified by 
 \family typewriter
 \emph on
 axes
@@ -4930,6 +5232,10 @@ Cutter radius compensation may be performed only if the XY-plane is active.
 \end_layout
 
 \begin_layout Standard
+User M100- commands are allowed when Cutter Compensation is on.
+\end_layout
+
+\begin_layout Standard
 The behavior of the machining center when cutter radius compensation is
  on is described in Section 
 \begin_inset LatexCommand ref
@@ -5039,7 +5345,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-the yz plane is active,
+the YZ plane is active,
 \end_layout
 
 \begin_layout Itemize
@@ -5123,17 +5429,10 @@ G43.1: Dynamic tool compensation
 \begin_layout Standard
 To use a tool length offset from the program, use 
 \family typewriter
-G43.1 I- K-
+G43.1 Xn Yn
 \family default
-, where 
-\family typewriter
-I-
-\family default
- gives the X tool offset (for lathes) and 
-\family typewriter
-K-
-\family default
- gives the Z tool offset (for lathes and mills).
+ ...
+ Wn to set any axis tlo at run time.
  
 \end_layout
 
@@ -6424,7 +6723,7 @@ G64 Best Possible Speed
 \end_layout
 
 \begin_layout Quote
-G64 P- Best Possible Speed within "P" tolerance.
+G64 P- (motion blending tolerance) Q- (naive cam tolerance) 
 \end_layout
 
 \begin_layout Standard
@@ -6440,11 +6739,14 @@ G64 without P means to keep the  best speed possible, no matter how far
 \end_layout
 
 \begin_layout Standard
-G64 P- means that it should slow down as required to keep  no more than
- P- away from the programmed endpoint.
-  In addition, when  you activate G64 P- it turns on the "naive cam detector";
+G64 P- Q- is a way to fine tune your system for best compromise between
+ speed and accuracy.
+ The P- tolerance means that the actual path will be no more than P- away
+ from the programmed endpoint.
+ The velocity will be reduced if needed to maintain the path.
+ In addition, when  you activate G64 P- Q- it turns on the "naive cam detector";
  when there are a series of linear XYZ feed moves at the same feed rate
- that are less than P- away from being collinear, they are collapsed into
+ that are less than Q- away from being collinear, they are collapsed into
  a single linear move.
  On G2/3 moves in the G17 (XY) plane when the maximum deviation of an arc
  from a straight line is less than the G64 P- tolerance the arc is broken
@@ -6461,7 +6763,8 @@ reference "sub:Path-Control-Mode"
 \end_inset
 
  for a discussion of these modes.
- 
+ If Q is not specified then it will have the same behavior as before and
+ use the value of P-.
 \end_layout
 
 \begin_layout Section
@@ -6570,7 +6873,7 @@ The
 \family typewriter
 R-
 \family default
- degression value is less than 1.0.
+ digression value is less than 1.0.
 \end_layout
 
 \begin_layout Itemize
@@ -6606,24 +6909,8 @@ E-
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-drive line
-\begin_inset Quotes erd
-\end_inset
-
- is a safe line outside the thread material.
- The 
-\begin_inset Quotes eld
-\end_inset
-
-drive line
-\begin_inset Quotes erd
-\end_inset
-
- goes from the initial location to the 
+The "drive line" is a safe line outside the thread material.
+ The "drive line" goes from the initial location to the 
 \family typewriter
 Z-
 \family default
@@ -6636,15 +6923,7 @@ G76
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-thread pitch
-\begin_inset Quotes erd
-\end_inset
-
-, or distance per revolution, is given by the 
+The "thread pitch", or distance per revolution, is given by the 
 \family typewriter
 P-
 \family default
@@ -6652,15 +6931,7 @@ P-
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-thread peak
-\begin_inset Quotes erd
-\end_inset
-
- is given by the 
+The "thread peak" is given by the 
 \family typewriter
 I-
 \family default
@@ -6682,15 +6953,7 @@ G76
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-initial cut depth
-\begin_inset Quotes erd
-\end_inset
-
- is given by the 
+The "initial cut depth" is given by the 
 \family typewriter
 J-
 \family default
@@ -6699,15 +6962,7 @@ J-
 \family typewriter
 J
 \family default
- beyond the 
-\begin_inset Quotes eld
-\end_inset
-
-thread peak
-\begin_inset Quotes erd
-\end_inset
-
- position.
+ beyond the "thread peak" position.
  
 \family typewriter
 J-
@@ -6720,15 +6975,7 @@ I-
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-full thread depth
-\begin_inset Quotes erd
-\end_inset
-
- is given by the 
+The "full thread depth" is given by the 
 \family typewriter
 K-
 \family default
@@ -6737,15 +6984,7 @@ K-
 \family typewriter
 K
 \family default
- beyond the 
-\begin_inset Quotes eld
-\end_inset
-
-thread peak
-\begin_inset Quotes erd
-\end_inset
-
- position.
+ beyond the "thread peak" position.
  
 \family typewriter
 K-
@@ -6758,15 +6997,7 @@ I-
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-depth degression
-\begin_inset Quotes erd
-\end_inset
-
- is given by the 
+The "depth digression" is given by the 
 \family typewriter
 R-
 \family default
@@ -6783,16 +7014,12 @@ R2.0
  selects constant area.
  Values between 1.0 and 2.0 select decreasing depth but increasing area.
  Values above 2.0 select decreasing area.
- Beware that unnecessarily high degression values will cause a large number
+ Beware that unnecessarily high digression values will cause a large number
  of passes to be used.
 \end_layout
 
 \begin_layout Standard
-The 
-\begin_inset Quotes eld
-\end_inset
-
-compound slide angle
+The "compound slide angle"
 \begin_inset Quotes erd
 \end_inset
 
@@ -6813,15 +7040,7 @@ Q
 \end_layout
 
 \begin_layout Standard
-The number of 
-\begin_inset Quotes eld
-\end_inset
-
-spring passes
-\begin_inset Quotes erd
-\end_inset
-
- is given by the 
+The number of "spring passes" is given by the 
 \family typewriter
 H-
 \family default
@@ -6907,6 +7126,19 @@ g76.ngc
 sim/lathe.ini
 \family default
  configuration.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Standard
+This drawing needs to be clarified a bit
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -7089,15 +7321,8 @@ The L number is optional and represents the number of repeats.
 \begin_inset Formula $L>1$
 \end_inset
 
- means 
-\begin_inset Quotes eld
-\end_inset
-
-do the same cycle in the same place several times,
-\begin_inset Quotes erd
-\end_inset
-
- Omitting the L word is equivalent to specifying 
+ means "do the same cycle in the same place several times", Omitting the
+ L word is equivalent to specifying 
 \begin_inset Formula $L=1$
 \end_inset
 
@@ -7128,15 +7353,8 @@ Retract Mode
 \end_layout
 
 \begin_layout Standard
-The height of the retract move at the end of each repeat (called 
-\begin_inset Quotes eld
-\end_inset
-
-clear Z
-\begin_inset Quotes erd
-\end_inset
-
- in the descriptions below) is determined by the setting of the retract
+The height of the retract move at the end of each repeat (called "clear
+ Z" in the descriptions below) is determined by the setting of the retract
  mode: either to the original Z position (if that is above the R position
  and the retract mode is 
 \family typewriter
@@ -7498,15 +7716,8 @@ G83
  with chip breaking.
  The retracts in this cycle clear the hole of chips and cut off any long
  stringers (which are common when drilling in aluminum).
- This cycle takes a Q number which represents a 
-\begin_inset Quotes eld
-\end_inset
-
-delta
-\begin_inset Quotes erd
-\end_inset
-
- increment along the Z-axis.
+ This cycle takes a Q number which represents a "delta" increment along
+ the Z-axis.
 \end_layout
 
 \begin_layout Enumerate
@@ -7865,7 +8076,7 @@ G91.1 Incremental Distance Mode for I, J & K offsets.
 \end_layout
 
 \begin_layout Itemize
-Returns I, J & K to their normal behaviour.
+Returns I, J & K to their normal behavior.
 \end_layout
 
 \begin_layout Section
@@ -7929,7 +8140,7 @@ G92
  is executed, the origins of all coordinate systems move.
  They move such that the value of the current controlled point, in the currently
  active coordinate system, becomes the specified value.
- All coordinate systems' origins are offset this same distance.
+ All coordinate system's origins are offset this same distance.
  
 \end_layout
 
@@ -8030,7 +8241,7 @@ G92.3
 \begin_layout Standard
 EMC2 stores the G92 offsets and reuses them on the next run of a program.
  To prevent this, one can program a G92.1 (to erase them), or program a G92.2
- (to unapply them - they are still stored).
+ (to remove them - they are still stored).
 \end_layout
 
 \begin_layout Section
@@ -8471,7 +8682,7 @@ Manual Tool Change
 \end_layout
 
 \begin_layout Standard
-If the hal component hal_manualtoolchange is loaded M6 will stop the spindle
+If the Hal component hal_manualtoolchange is loaded M6 will stop the spindle
  and prompt the user to change the tool.
  For more information on hal_manualtoolchange see Section (
 \begin_inset LatexCommand ref
@@ -8815,7 +9026,7 @@ M53 P0
 \family default
 .
  Enabling the feed stop switch will allow motion to be interrupted by means
- of the feedstop control.
+ of the feed stop control.
  In EMC2, the HAL pin 
 \family typewriter
 motion.feed-hold
@@ -8868,7 +9079,7 @@ name "M62 to M65 Output Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M62-to-M65:"
+name "sec:M62-to-M65"
 
 \end_inset
 
@@ -8881,9 +9092,11 @@ To control a digital output bit, program
 M- P-
 \family default
 , where the M-word ranges from 62 to 65, and the P-word ranges from 0 to
- a default value of 3 in EMC2.
- If needed the value can be increased by using the num_dio parameter when
- loading the motion controller.
+ a default value of 3.
+ If needed the the number of I/O can be increased by using the num_dio parameter
+ when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.
 \end_layout
 
 \begin_layout Itemize
@@ -8891,11 +9104,11 @@ The P- word specifies the digital output number.
 \end_layout
 
 \begin_layout Description
-M62 Turn on digital output synched with motion
+M62 Turn on digital output synchronized with motion
 \end_layout
 
 \begin_layout Description
-M63 Turn off digital output synched with motion
+M63 Turn off digital output synchronized with motion
 \end_layout
 
 \begin_layout Description
@@ -8925,7 +9138,7 @@ The actual change of the specified outputs will happen at the beginning
 
 \begin_layout Standard
 M64 & M65 happen immediately as they are received by the motion controller.
- They are not synched with movement, and they will break blending.
+ They are not synchronized with movement, and they will break blending.
 \end_layout
 
 \begin_layout Section
@@ -8937,7 +9150,7 @@ name "M66 Input Control"
 
 
 \begin_inset LatexCommand label
-name "sec:M66:"
+name "sec:M66-Input-Control"
 
 \end_inset
 
@@ -8949,9 +9162,11 @@ To read the value of an analog or digital input pin, program
 \family typewriter
 M66 P- E- L- Q-
 \family default
- , where the P-word and the E-word ranges from 0 to an implementation-defined
- maximum.
- Only one of the P or E words must be present.
+ , where the P-word and the E-word ranges from 0 to 3.
+ If needed the the number of I/O can be increased by using the num_dio or
+ num_aio parameter when loading the motion controller.
+ See the Integrators Manual Configuration Section EMC and HAL section for
+ more information.Only one of the P or E words must be present.
  It is an error if they are both missing.
 \end_layout
 
@@ -9016,7 +9231,70 @@ M66 wait on an input stops further execution of the program, until the selected
 \begin_layout Standard
 It is an error to program M66 with both a P-word and an E-word (thus selecting
  both an analog and a digital input).In EMC2 these inputs are not monitored
- in realtime and thus should not be used for timing-critical applications.
+ in real time and thus should not be used for timing-critical applications.
+\end_layout
+
+\begin_layout Section
+M67 Analog Output
+\begin_inset LatexCommand index
+name "M67 Analog Motion Output Control"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:M67-Analog-Output"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To control an analog output synchronized with motion, program 
+\family typewriter
+M67 E- Q-
+\family default
+, where the E word ranges from 0 to the default maximum of 3 and Q is the
+ value to set.
+ The number of I/O can be increased by using the num_aio parameter when
+ loading the motion controller.
+ See the "EMC2 and HAL" chapter in the Configuration Section of the Integrators
+ Manual for more information on the Motion Controller.
+ M67 functions the same as M62-63.
+ See the M62-65 section for information about queuing output commands synchroniz
+ed with motion.
+\end_layout
+
+\begin_layout Section
+M68 Analog Output
+\begin_inset LatexCommand index
+name "M68 Analog Aux Output Control"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:M68-Analog-Output"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To control an analog output immediately, program 
+\family typewriter
+M68 E- Q-, 
+\family default
+where the E word ranges from 0 to the default maximum of 3 and Q is the
+ value to set.
+ The number of I/O can be increased by using the num_aio parameter when
+ loading the motion controller.
+ See the "EMC2 and HAL" chapter in the Configuration Section of the Integrators
+ Manual for more information on the Motion Controller.
+ M68 functions the same as M64-65.
+ See the M62-65 section for information about immediate output commands.
 \end_layout
 
 \begin_layout Section

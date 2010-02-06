@@ -2,7 +2,14 @@ Package: emc2-firmware
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
-Recommends: emc2-firmware-mesa-4i65-hostmot2, emc2-firmware-mesa-4i68-hostmot2, emc2-firmware-mesa-5i20-hostmot2, emc2-firmware-mesa-5i22-hostmot2, emc2-firmware-mesa-5i23-hostmot2, emc2-firmware-mesa-7i43-hostmot2
+Recommends: \
+ emc2-firmware-mesa-3x20-hostmot2, \
+ emc2-firmware-mesa-4i65-hostmot2, \
+ emc2-firmware-mesa-4i68-hostmot2, \
+ emc2-firmware-mesa-5i20-hostmot2, \
+ emc2-firmware-mesa-5i22-hostmot2, \
+ emc2-firmware-mesa-5i23-hostmot2, \
+ emc2-firmware-mesa-7i43-hostmot2
 Description: All separately-packaged firmware used by EMC2
  This is an empty package that depends on all the separately packaged
  firmware images used by EMC2.  If your configuration does not need
@@ -10,39 +17,66 @@ Description: All separately-packaged firmware used by EMC2
  specific emc2-firmware-* package you need, you can remove this package
  and install just the one you need.
 
+Package: emc2-firmware-mesa-3x20-hostmot2
+Architecture: all
+Depends: @EMC2_PACKAGE_NAME@
+Enhances: @EMC2_PACKAGE_NAME@
+Description: HostMot2 firmware images for the Mesa 3x20
+ This package contains HostMot2 firmware images for the Mesa 3x20
+ "Anything I/O" board.  If you don't use a 3x20 you can safely remove
+ this package.
+
 Package: emc2-firmware-mesa-4i65-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 4i65
+ This package contains HostMot2 firmware images for the Mesa 4i65
+ "Anything I/O" board.  If you don't use a 4i65 you can safely remove
+ this package.
 
 Package: emc2-firmware-mesa-4i68-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 4i68
+ This package contains HostMot2 firmware images for the Mesa 4i68
+ "Anything I/O" board.  If you don't use a 4i68 you can safely remove
+ this package.
 
 Package: emc2-firmware-mesa-5i20-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 5i20
+ This package contains HostMot2 firmware images for the Mesa 5i20
+ "Anything I/O" board.  If you don't use a 5i20 you can safely remove
+ this package.
 
 Package: emc2-firmware-mesa-5i22-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 5i22
+ This package contains HostMot2 firmware images for the Mesa 5i22
+ "Anything I/O" board.  If you don't use a 5i22 you can safely remove
+ this package.
 
 Package: emc2-firmware-mesa-5i23-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 5i23
+ This package contains HostMot2 firmware images for the Mesa 5i23
+ "Anything I/O" board.  If you don't use a 5i23 you can safely remove
+ this package.
 
 Package: emc2-firmware-mesa-7i43-hostmot2
 Architecture: all
 Depends: @EMC2_PACKAGE_NAME@
 Enhances: @EMC2_PACKAGE_NAME@
 Description: HostMot2 firmware images for the Mesa 7i43
+ This package contains HostMot2 firmware images for the Mesa 7i43
+ "Anything I/O" board.  If you don't use a 7i43 you can safely remove
+ this package.
 

@@ -61,17 +61,21 @@ When you set up a lathe using Lathe Mode you need to use a Lathe Tool Table
 \end_layout
 
 \begin_layout Section
-Tool Files
+Tool Table
 \end_layout
 
 \begin_layout Standard
-Lathe Tool Files differ from mill tool files by the addition of FRONTANGLE,
- BACKANGLE and ORIENT.
- The following table show the lathe format for a tool table.
+The "Tool Table" is a text file that contains information about each tool.
+ The file is located in the same directory as your configuration and is
+ called "tool.tbl".
+ The tools might be in a tool changer or just changed manually.
+ The file can be edited with a text editor or be updated using G10 L1.
+ 
 \end_layout
 
 \begin_layout Standard
 \begin_inset Float table
+placement H
 wide false
 sideways false
 status open
@@ -80,9 +84,9 @@ status open
 \begin_inset Caption
 
 \begin_layout Standard
-Lathe Tool File
+Lathe Format Tool Table
 \begin_inset LatexCommand label
-name "cap:Lathe-Tool-File"
+name "tab:Lathe-Format-Tool-Table"
 
 \end_inset
 
@@ -97,7 +101,7 @@ name "cap:Lathe-Tool-File"
 \begin_layout Standard
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="11" columns="9">
+<lyxtabular version="3" rows="3" columns="8">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -106,16 +110,13 @@ name "cap:Lathe-Tool-File"
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
-<column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
-<row topline="true" bottomline="true">
+<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-Pocket
+T1
 \end_layout
 
 \end_inset
@@ -124,9 +125,7 @@ Pocket
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-FMS
+P1
 \end_layout
 
 \end_inset
@@ -135,9 +134,7 @@ FMS
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-ZOFFSET
+D0.125000
 \end_layout
 
 \end_inset
@@ -146,9 +143,7 @@ ZOFFSET
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-XOFFSET
+Z+0.511000
 \end_layout
 
 \end_inset
@@ -157,9 +152,7 @@ XOFFSET
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-DIA
+Q7
 \end_layout
 
 \end_inset
@@ -168,9 +161,7 @@ DIA
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-FRONTANGLE
+I-30
 \end_layout
 
 \end_inset
@@ -179,20 +170,7 @@ FRONTANGLE
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-BACKANGLE
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
-\size footnotesize
-ORIENT
+J30
 \end_layout
 
 \end_inset
@@ -201,9 +179,7 @@ ORIENT
 \begin_inset Text
 
 \begin_layout Standard
-
-\size footnotesize
-COMMENT
+;Facing Tool
 \end_layout
 
 \end_inset
@@ -214,7 +190,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-1
+T2
 \end_layout
 
 \end_inset
@@ -223,7 +199,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-1
+P2
 \end_layout
 
 \end_inset
@@ -232,7 +208,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-0.000
+D0.062500
 \end_layout
 
 \end_inset
@@ -241,7 +217,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-0.000
+Z+0.100000
 \end_layout
 
 \end_inset
@@ -250,7 +226,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-0.10
+Q1
 \end_layout
 
 \end_inset
@@ -259,7 +235,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-105.0
+I165
 \end_layout
 
 \end_inset
@@ -268,16 +244,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-165.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-1
+J105
 \end_layout
 
 \end_inset
@@ -286,671 +253,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-60 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.05
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-22.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-67.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-2
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-3
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-3
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-277.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-352.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-3
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-75 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-4
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-4
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-255.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-195.0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-4
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-60 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-202.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-157.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-6
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-6
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-90
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-6
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-7
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-7
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
--22.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-22.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-7
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-8
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-8
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-247.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-292.5
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-8
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-45 deg
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row topline="true">
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-9
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-9
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.000
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0.10
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-0
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-9
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
+;Back Cutting Tool
 \end_layout
 
 \end_inset
@@ -961,7 +264,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+T99999
 \end_layout
 
 \end_inset
@@ -970,7 +273,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+P99999
 \end_layout
 
 \end_inset
@@ -979,7 +282,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+...
 \end_layout
 
 \end_inset
@@ -988,7 +291,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+...
 \end_layout
 
 \end_inset
@@ -997,7 +300,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+...
 \end_layout
 
 \end_inset
@@ -1006,7 +309,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+...
 \end_layout
 
 \end_inset
@@ -1015,16 +318,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-
+...
 \end_layout
 
 \end_inset
@@ -1033,7 +327,7 @@ COMMENT
 \begin_inset Text
 
 \begin_layout Standard
-
+;You have a big tool changer
 \end_layout
 
 \end_inset
@@ -1052,8 +346,49 @@ COMMENT
 \end_layout
 
 \begin_layout Standard
-The Tool Table can be set using G10 L1 with the exception of FRONTANGLE
- ,BACKANGLE and COMMENT which must be set manually at this time.
+In general new tool table line format is: 
+\end_layout
+
+\begin_layout Itemize
+T - integer tool number 
+\end_layout
+
+\begin_layout Itemize
+P - integer pocket number 
+\end_layout
+
+\begin_layout Itemize
+D - abs float tool diameter 
+\end_layout
+
+\begin_layout Itemize
+X..W - float tool length offset on specified axis 
+\end_layout
+
+\begin_layout Itemize
+I - float front angle (lathe tools) 
+\end_layout
+
+\begin_layout Itemize
+J - float back angle (lathe tools) 
+\end_layout
+
+\begin_layout Itemize
+Q - int tool orientation (lathe) 
+\end_layout
+
+\begin_layout Itemize
+; - begin of comment 
+\end_layout
+
+\begin_layout Standard
+There is tool for converting to new tool tables in src/emc/usr_intf/toolconvert.t
+cl 
+\end_layout
+
+\begin_layout Standard
+Usage: ./toolconvert filename (original file is saved as filename.orig) tooledit.tc
+l support net table format if needed.
 \end_layout
 
 \begin_layout Standard
@@ -1121,7 +456,7 @@ status open
 \begin_layout Standard
 Tool Positions 1, 2, 3 & 4
 \begin_inset LatexCommand label
-name "cap:Tool-Positions-1,"
+name "cap:Tool-Positions-1, 2, 3 & 4"
 
 \end_inset
 
@@ -1181,9 +516,8 @@ status open
 \begin_inset Caption
 
 \begin_layout Standard
-Tool Position 2
 \begin_inset LatexCommand label
-name "cap:Tool-Position-2"
+name "fig:Tool-Position-5, 6, 7 & 8"
 
 \end_inset
 

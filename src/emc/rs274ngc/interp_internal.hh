@@ -17,12 +17,23 @@
 #include <limits.h>
 #include <stdio.h>
 #include "canon.hh"
+#include "emcpos.h"
 #include "libintl.h"
 #define _(s) gettext(s)
 
 /**********************/
 /*   COMPILER MACROS  */
 /**********************/
+
+#ifndef R2D
+#define R2D(r) ((r)*180.0/M_PI)
+#endif
+#ifndef D2R
+#define D2R(r) ((r)*M_PI/180.0)
+#endif
+#ifndef SQ
+#define SQ(a) ((a)*(a))
+#endif
 
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
 
@@ -283,6 +294,11 @@ typedef struct block_struct
   ON_OFF z_flag;
   double z_number;
 
+  int radius_flag;
+  double radius;
+  int theta_flag;
+  double theta;
+
   // control (o-word) stuff
   long     offset;   // start of line in file
   int      o_type;
@@ -429,9 +445,7 @@ typedef struct setup_struct
   CANON_DIRECTION spindle_turning;      // direction spindle is turning
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
-  double tool_zoffset;          // current tool Z offset (AKA tool length offset)
-  double tool_xoffset;          // current tool X offset
-  double tool_woffset;          // current tool W offset
+  EmcPose tool_offset;          // tool length offset
   int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
@@ -555,16 +569,32 @@ macros totally crash-proof. If the function call stack is deeper than
 
 
 #define CYCLE_MACRO(call) for (repeat = block->l_number; \
-                               repeat > 0;                    \
-                               repeat--)                      \
-     {                                                        \
-       aa = (aa + aa_increment);                         \
-       bb = (bb + bb_increment);                         \
-       cycle_traverse(block, plane, aa, bb, old_cc);        \
-       if (old_cc != r)                                     \
-         cycle_traverse(block, plane, aa, bb, r);                    \
-       CHP(call);                                             \
-       old_cc = clear_cc;                                \
+                               repeat > 0; \
+                               repeat--) \
+     { \
+       aa = (aa + aa_increment); \
+       bb = (bb + bb_increment); \
+       if(radius_increment) { \
+           double radius, theta; \
+           CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
+           theta = atan2(bb, aa); \
+           radius = hypot(bb, aa) + radius_increment; \
+           aa = radius * cos(theta); \
+           bb = radius * sin(theta); \
+       } \
+       if(theta_increment) { \
+           double radius, theta; \
+           CHKS((bb == 0 && aa == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin")); \
+           theta = atan2(bb, aa) + theta_increment; \
+           radius = hypot(bb, aa); \
+           aa = radius * cos(theta); \
+           bb = radius * sin(theta); \
+       } \
+       cycle_traverse(block, plane, aa, bb, old_cc); \
+       if (old_cc != r) \
+         cycle_traverse(block, plane, aa, bb, r); \
+       CHP(call); \
+       old_cc = clear_cc; \
      }
 
 

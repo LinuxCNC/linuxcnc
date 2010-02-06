@@ -507,6 +507,10 @@ fe () {
 }
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
+    EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
+    EMC2_SCRIPT=$EMC2_HOME/scripts/emc
+    EMC2_SUFFIX=" (run-in-place)"
+    EMC2_ICON=$EMC2_HOME/emc2icon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
@@ -521,6 +525,10 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
 else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
+    EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_SCRIPT=$EMC2_BIN_DIR/emc
+    EMC2_SUFFIX=""
+    EMC2_ICON=emc2icon
     EMC2_TCL_DIR=${prefix}/share/emc/tcl
     EMC2_TCL_LIB_DIR=${prefix}/lib/emc/tcl
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
@@ -556,6 +564,10 @@ AC_SUBST([EMC2_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
+AC_SUBST([EMC2_SCRIPT])
+AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_SUFFIX])
+AC_SUBST([EMC2_ICON])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -1352,6 +1364,10 @@ AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/emc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/emcmkdesktop], [chmod +x ../scripts/emcmkdesktop])
+AC_CONFIG_FILES(../share/applications/emc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/emc.desktop)
+AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
+AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 
 ##############################################################################

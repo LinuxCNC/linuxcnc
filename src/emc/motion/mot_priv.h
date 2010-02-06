@@ -154,7 +154,13 @@ typedef struct {
     hal_u32_t overruns;		/* param: count of RT overruns */
 
     hal_float_t *tooloffset_x;
+    hal_float_t *tooloffset_y;
     hal_float_t *tooloffset_z;
+    hal_float_t *tooloffset_a;
+    hal_float_t *tooloffset_b;
+    hal_float_t *tooloffset_c;
+    hal_float_t *tooloffset_u;
+    hal_float_t *tooloffset_v;
     hal_float_t *tooloffset_w;
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */

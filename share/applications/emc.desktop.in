@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=@EMC2_SCRIPT@
+Icon=@EMC2_ICON@
+X-GNOME-DocPath=
+Terminal=false
+Name=EMC2@EMC2_SUFFIX@
+Comment=The Enhanced Machine Controller
+StartupNotify=false
+Categories=X-CNC;

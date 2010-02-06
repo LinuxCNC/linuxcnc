@@ -115,7 +115,7 @@ pin showing joint by joint jog mode is on
 pin for starting mist
 .TP
 \fIhalui.mist.off\fR
-pin for stoping mist
+pin for stopping mist
 .TP
 \fIhalui.mist.is-on\fR
 pin for mist is on
@@ -124,7 +124,7 @@ pin for mist is on
 pin for starting flood
 .TP
 \fIhalui.flood.off\fR
-pin for stoping flood
+pin for stopping flood
 .TP
 \fIhalui.flood.is-on\fR
 pin for flood is on
@@ -133,7 +133,7 @@ pin for flood is on
 pin for starting lube
 .TP
 \fIhalui.lube.off\fR
-pin for stoping lube
+pin for stopping lube
 .TP
 \fIhalui.lube.is-on\fR
 pin for lube is on
@@ -168,10 +168,10 @@ status pin that tells us if brake is on
 .SS joint
 .TP
 \fIhalui.joint.#.home\fR
-pin for homing the specific joint (x = 0..7)
+pin for homing the specific joint
 .TP
 \fIhalui.joint.#.is-homed\fR
-status pin telling that the joint is homed (x = 0..7)
+status pin telling that the joint is homed
 .TP
 \fIhalui.joint.selected.home\fR
 pin for homing the selected joint 
@@ -180,31 +180,31 @@ pin for homing the selected joint
 status pin telling that the selected joint is homed
 .TP
 \fIhalui.joint.#.on-soft-min-limit\fR
-status pin telling that the joint is on the negative software limit (x=0..7, selected)
+status pin telling that the joint is on the negative software limit
 .TP
 \fIhalui.joint.#.on-soft-max-limit\fR
-status pin telling that the joint is on the positive software limit (x=0..7, selected)
+status pin telling that the joint is on the positive software limit
 .TP
 \fIhalui.joint.#.on-hard-min-limit\fR
-status pin telling that the joint is on the negative hardware limit (x=0..7, selected)
+status pin telling that the joint is on the negative hardware limit
 .TP
 \fIhalui.joint.#.on-hard-max-limit\fR
-status pin telling that the joint is on the positive hardware limit (x=0..7, selected)
+status pin telling that the joint is on the positive hardware limit
 .TP
 \fIhalui.joint.#.has-fault\fR
-status pin telling that the joint has a fault (x = 0..7, selected)
+status pin telling that the joint has a fault
 .TP
 \fIhalui.joint.select\fR
-select joint (value = 0..7)
+select joint
 .TP
 \fIhalui.joint.selected\fR
-selected joint (value = 0..7)
+selected joint
 .TP
 \fIhalui.joint.#.select\fR
-pins for selecting a joint (x = 0..7)
+pins for selecting a joint
 .TP
 \fIhalui.joint.#.is-selected\fR
-status pin that a joint is selected (x = 0..7)
+status pin that a joint is selected
 .SS jogging
 .TP
 \fIhalui.jog.speed\fR

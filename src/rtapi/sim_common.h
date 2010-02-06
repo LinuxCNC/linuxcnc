@@ -37,19 +37,23 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     if(shmem_array[i].magic != SHMEM_MAGIC) break;
   }
   if(i == MAX_SHM)
+  {
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to MAX_SHM\n");
     return -ENOMEM;
-
+  }
   shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0666);
   if (shmem->id == -1) {
-    return -ENOMEM;
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
+    return -errno;
   }
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((ssize_t) (shmem->mem) == -1) {
-    return -ENOMEM;
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
+    return -errno;
   }
 
   /* label as a valid shmem structure */

@@ -146,7 +146,8 @@ G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
 
 \begin_layout Description
 G64\InsetSpace ~
-Px.xxx (blend tolerance mode) This enables the "naive cam detector" and
+P-\InsetSpace ~
+Q- (blend tolerance mode) This enables the "naive cam detector" and
  enables blending with a tolerance.
  If you are in inch mode and program G64 P0.05, you tell the planner that
  you want continuous feed, but at programmed corners you want it to slow
@@ -159,7 +160,7 @@ Px.xxx (blend tolerance mode) This enables the "naive cam detector" and
  The blend tolerance can be changed throughout the program as necessary.
  Beware that a specification of G64 P0 has the same effect as G64 alone
  (above), which is necessary for backward compatibility for old G Code programs.
- 
+ See the G Code Chapter for more information on G64 P- Q-.
 \end_layout
 
 \begin_layout Description
@@ -178,7 +179,7 @@ tolerance The controlled point will touch each specified
 Naive\InsetSpace ~
 Cam\InsetSpace ~
 Detector Successive G1 moves that involve only the XYZ axes that
- deviate less than P- from a straight line are merged into a single straight
+ deviate less than Q- from a straight line are merged into a single straight
  line.
  This merged movement replaces the individual G1 movements for the purposes
  of blending with tolerance.
@@ -189,7 +190,7 @@ Detector Successive G1 moves that involve only the XYZ axes that
  stop at the end of the current movement (or next movement, if you pause
  when blending has already started) On G2/3 moves in the G17 (XY) plane
  when the maximum deviation of an arc from a straight line is less than
- the G64 P- tolerance the arc is broken into two lines (from start of arc
+ the G64 Q- tolerance the arc is broken into two lines (from start of arc
  to midpoint, and from midpoint to end).
  those lines are then subject to the naive cam algorithm for lines.
  Thus, line-arc, arc-arc, and arc-line cases as well as line-line benefit

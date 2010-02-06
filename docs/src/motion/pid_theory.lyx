@@ -25,14 +25,15 @@
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
-\paragraph_separation indent
-\defskip medskip
+\paragraph_separation skip
+\defskip smallskip
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
+\author "" 
 \author "" 
 \end_header
 
@@ -64,10 +65,10 @@ ikipedia.org/wiki/PID_controller
 
 \begin_layout Standard
 The Controller compares a measured value from a process (typically an industrial
- process) with a reference setpoint value.
+ process) with a reference set point value.
  The difference (or "error" signal) is then used to calculate a new value
- for a manipulatable input to the process that brings the process' measured
- value back to its desired setpoint.
+ for a manipulable input to the process that brings the process measured
+ value back to its desired set point.
 \end_layout
 
 \begin_layout Standard
@@ -99,9 +100,9 @@ In older control literature this adjustment process is called a "reset"
  action.
  The position of the needle on the gauge is a "measurement", "process value"
  or "process variable".
- The desired value on the gauge is called a "setpoint" (also called "set
+ The desired value on the gauge is called a "set point" (also called "set
  value").
- The difference between the gauge's needle and the setpoint is the "error".
+ The difference between the gauge's needle and the set point is the "error".
 \end_layout
 
 \begin_layout Standard
@@ -126,7 +127,7 @@ A control loop consists of three parts:
 
 \begin_layout Standard
 As the controller reads a sensor, it subtracts this measurement from the
- "setpoint" to determine the "error".
+ "set point" to determine the "error".
  It then uses the error to calculate a correction to the process's input
  variable (the "action") so that this correction will remove the error from
  the process's output measurement.
@@ -154,7 +155,7 @@ Some control systems arrange PID controllers in cascades or networks.
  One common situation is motor controls: one often wants the motor to have
  a controlled speed, with the "slave" controller (often built into a variable
  frequency drive) directly managing the speed based on a proportional input.
- This "slave" input is fed by the "master" controllers' output, which is
+ This "slave" input is fed by the "master" controller's output, which is
  controlling based upon a related variable.
 \end_layout
 
@@ -192,16 +193,16 @@ To learn from the past, the error is integrated (added up) over a period
  of time, and then multiplied by a (negative) constant I (making an average),
  and added to (subtracting error from) the controlled quantity.
  I averages the measured error to find the process output's average error
- from the setpoint.
+ from the set point.
  A simple proportional system either oscillates, moving back and forth around
- the setpoint because there's nothing to remove the error when it overshoots,
+ the set point because there's nothing to remove the error when it overshoots,
  or oscillates and/or stabilizes at a too low or too high value.
  By adding a negative proportion of (i.e.
  subtracting part of) the average error from the process input, the average
- difference between the process output and the setpoint is always being
+ difference between the process output and the set point is always being
  reduced.
  Therefore, eventually, a well-tuned PID loop's process output will settle
- down at the setpoint.
+ down at the set point.
  
 \end_layout
 
@@ -225,7 +226,7 @@ More technically, a PID loop can be characterized as a filter applied to
  This is useful in order to calculate whether it will actually reach a stable
  value.
  If the values are chosen incorrectly, the controlled process input can
- oscillate, and the process output may never stay at the setpoint.
+ oscillate, and the process output may never stay at the set point.
 \end_layout
 
 \begin_layout Subsection
@@ -236,19 +237,20 @@ Loop Tuning
 "Tuning" a control loop is the adjustment of its control parameters (gain/propor
 tional band, integral gain/reset, derivative gain/rate) to the optimum values
  for the desired control response.
- The optimum behavior on a process change or setpoint change varies depending
+ The optimum behavior on a process change or set point change varies depending
  on the application.
  Some processes must not allow an overshoot of the process variable from
- the setpoint.
- Other processes must minimize the energy expended in reaching a new setpoint.
+ the set point.
+ Other processes must minimize the energy expended in reaching a new set
+ point.
  Generally stability of response is required and the process must not oscillate
- for any combination of process conditions and setpoints.
+ for any combination of process conditions and set points.
  
 \end_layout
 
 \begin_layout Standard
 Tuning of loops is made more complicated by the response time of the process;
- it may take minutes or hours for a setpoint change to produce a stable
+ it may take minutes or hours for a set point change to produce a stable
  effect.
  Some processes have a degree of non-linearity and so parameters that work
  well at full-load conditions don't work when the process is starting up
@@ -270,13 +272,14 @@ Simple method
 \end_layout
 
 \begin_layout Standard
-If the system must remain online, one tuning method is to first set the
+If the system must remain on line, one tuning method is to first set the
  I and D values to zero.
  Increase the P until the output of the loop oscillates.
  Then increase I until oscillation stops.
  Finally, increase D until the loop is acceptably quick to reach its reference.
- A fast PID loop tuning usually overshoots slightly to reach the setpoint
+ A fast PID loop tuning usually overshoots slightly to reach the set point
  more quickly; however, some systems cannot accept overshoot.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -500,8 +503,10 @@ Another tuning method is formally known as the "Ziegler-Nichols method",
  Ziegler and Nathaniel B.
  Nichols.
  It starts in the same way as the method described before: first set the
- I and D gains to zero and then increase the P gain until the output of
- the loop starts to oscillate.
+ I and D gains to zero and then increase the P gain and expose the loop
+ to external interference for example knocking the motor axis to cause it
+ to move out of equilibrium in order to determine critical gain and period
+ of oscillation until the output of the loop starts to oscillate.
  Write down the critical gain (
 \begin_inset Formula $K_{c}$
 \end_inset
@@ -698,6 +703,16 @@ PID
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subparagraph
+Final Steps
+\end_layout
+
+\begin_layout Standard
+After tuning the axis check the following error with Hal Scope to make sure
+ it is within your machine requirements.
+ More information on Hal Scope is in the HAL User manual.
 \end_layout
 
 \begin_layout Standard

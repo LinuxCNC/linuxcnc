@@ -2,7 +2,7 @@
 
 Also refer to the diagram tab for an example of
 home and limit switches. This is one example of
-many different ways to set homming and limits.
+many different ways to set homing and limits.
 
   Origin:
     The Origin is the machine zero point. EMC2
@@ -10,19 +10,36 @@ many different ways to set homming and limits.
     from. It should be inside the software limits.
     On a lathe, the X axis Origin must be at the 
     centerline of the spindle for constant surface 
-    speed to work correctly.
-
+    speed to work correctly. EMC uses the home 
+    switch location to calculate the origin 
+    position (when using home switches) or be
+    manually set if not using home switches.
+  Travel distance:
+    This is the maximun distance the axis can
+    travel in each direction. This may
+    or may not be able to be measured directly
+    from origin to limit switch. Move the axis 
+    to the origin. Mark a reference on the movable
+    slide and the non-moveable support (so they are 
+    in line) move the machine to the end of travel.
+    measure between the marks that is one of the
+    travel distances.
+  
 * Positive Travel Distance:
     This is the distance the Axis travels from 
-    the Origin to the positive limit switch. This
-    will always be zero or a positive number.
+    the Origin to the positive travel distance or
+    the total travel minus the negative travel 
+    distance. The will always be zero or a 
+    positive number.
 
 * Negative Travel Distance:
     This is the distance the Axis travels from 
-    the Origin to the negative limit switch. This
-    will always be zero or a negative number.
+    the Origin to the negative travel distance.
+    or the total travel minus the positive travel 
+    distance. This will always be zero or a 
+    negative number.
 
-* Home position:
+* (Final) Home Position:
     This is the position the home sequence will
     finish at. It is referenced from the Origin
     so can be negative or positive depending on
@@ -32,7 +49,7 @@ many different ways to set homming and limits.
     get to the Origin, then the number will be 
     negative.
 
-* Home switch Location:
+* Home Switch Location:
     This is the distance from the home switch to 
     the Origin. It could be negative or positive
     depending on what side of the Origin it is
@@ -66,7 +83,7 @@ many different ways to set homming and limits.
     or opposite of the search direction.
 
 * Use Encoder Index For Home:
-    EMC2 wil search for an encoder index pulse while in
+    EMC2 will search for an encoder index pulse while in
     the latch stage of homing.
 
 * Use Compensation File:

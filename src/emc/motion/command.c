@@ -1272,12 +1272,9 @@ check_stuff ( "before command_handler()" );
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
             
-            if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-                reportError("must be in joint mode to unhome");
+            if ((emcmotStatus->motion_state != EMCMOT_MOTION_FREE) && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+                reportError("must be in joint mode or disabled to unhome");
                 return;
-            }
-            if (!GET_MOTION_ENABLE_FLAG()) {
-                break;
             }
 
             if (joint_num < 0) {
@@ -1553,9 +1550,7 @@ check_stuff ( "before command_handler()" );
 	    break;
 
         case EMCMOT_SET_OFFSET:
-            emcmotStatus->tooloffset_x = emcmotCommand->tooloffset_x;
-            emcmotStatus->tooloffset_z = emcmotCommand->tooloffset_z;
-            emcmotStatus->tooloffset_w = emcmotCommand->tooloffset_w;
+            emcmotStatus->tool_offset = emcmotCommand->tool_offset;
             break;
 
 	case EMCMOT_SET_AXIS_POSITION_LIMITS:

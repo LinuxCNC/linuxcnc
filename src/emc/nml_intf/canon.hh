@@ -16,6 +16,9 @@
 #include <stdio.h>		// FILE
 #include <vector>
 
+#include "emcpos.h"
+#include "emctool.h"
+
 /*
   This is the header file that all applications that use the
   canonical commands for three- to nine-axis machining should include.
@@ -151,24 +154,6 @@ struct CANON_POSITION {
     double x, y, z, a, b, c, u, v, w;
 };
 
-/* Tools are numbered 1..CANON_TOOL_MAX, with tool 0 meaning no tool. */
-#define CANON_POCKETS_MAX 56	// max size of carousel handled
-#define CANON_TOOL_ENTRY_LEN 256	// how long each file line can be
-
-struct CANON_TOOL_TABLE {
-    int toolno;
-    double zoffset;
-    double xoffset;
-    double diameter;
-    double frontangle;
-    double backangle;
-    int orientation;
-};
-
-struct CANON_TOOL_OFFSET {
-    double x, z, w;
-};
-
 typedef struct CanonConfig_t {
     double xy_rotation;
     double css_maximum;
@@ -189,7 +174,7 @@ typedef struct CanonConfig_t {
     CANON_UNITS lengthUnits;
     CANON_PLANE activePlane;
 /* Tool length offset is saved here */
-    CANON_TOOL_OFFSET toolOffset;
+    EmcPose toolOffset;
 /* motion control mode is used to signify blended v. stop-at-end moves.
    Set to 0 (invalid) at start, so first call will send command out */
     CANON_MOTION_MODE motionMode;
@@ -573,10 +558,9 @@ extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
 
 /* Tool Functions */
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double diameter);
-extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, double zoffset, double xoffset, double diameter,
+extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation);
-extern void USE_TOOL_LENGTH_OFFSET(double xoffset, double zoffset, double woffset);
+extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
 extern void CHANGE_TOOL(int slot);	/* slot is slot number */
 
@@ -913,7 +897,14 @@ extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
 
 // returns current tool length offset
 extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_YOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_AOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_BOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_COFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
+extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
 // Returns number of slots in carousel
 extern int GET_EXTERNAL_POCKETS_MAX();
@@ -931,9 +922,6 @@ extern int GET_EXTERNAL_SELECTED_TOOL_SLOT();
 // Returns the CANON_TOOL_TABLE structure associated with the tool
 // in the given pocket
 extern CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket);
-
-// the Z component of the tool offset should actually be put along W instead
-extern int GET_EXTERNAL_TLO_IS_ALONG_W(void);
 
 // Returns the system traverse rate
 extern double GET_EXTERNAL_TRAVERSE_RATE();

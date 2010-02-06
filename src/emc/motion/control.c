@@ -1681,9 +1681,15 @@ static void output_to_hal(void)
     old_motion_index = emcmotStatus->spindle_index_enable;
     old_hal_index = *emcmot_hal_data->spindle_index_enable;
 
-    *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tooloffset_x;
-    *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tooloffset_z;
-    *(emcmot_hal_data->tooloffset_w) = emcmotStatus->tooloffset_w;
+    *(emcmot_hal_data->tooloffset_x) = emcmotStatus->tool_offset.tran.x;
+    *(emcmot_hal_data->tooloffset_y) = emcmotStatus->tool_offset.tran.y;
+    *(emcmot_hal_data->tooloffset_z) = emcmotStatus->tool_offset.tran.z;
+    *(emcmot_hal_data->tooloffset_a) = emcmotStatus->tool_offset.a;
+    *(emcmot_hal_data->tooloffset_b) = emcmotStatus->tool_offset.b;
+    *(emcmot_hal_data->tooloffset_c) = emcmotStatus->tool_offset.c;
+    *(emcmot_hal_data->tooloffset_u) = emcmotStatus->tool_offset.u;
+    *(emcmot_hal_data->tooloffset_v) = emcmotStatus->tool_offset.v;
+    *(emcmot_hal_data->tooloffset_w) = emcmotStatus->tool_offset.w;
 
     /* output joint info to HAL for scoping, etc */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {

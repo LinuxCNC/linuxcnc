@@ -1,11 +1,11 @@
 component wcomp "Window comparator";
-pin out bit out "True if in is between min and max";
-pin out bit over "True if in is greater than max";
-pin out bit under "True if in is less than min";
-pin in float in;
+pin in float in "Value being compared";
 pin in float min_ "Low boundary for comparison";
 pin in float max_ "High boundary for comparison";
-notes "Note that if min = max, strange things happen.";
+pin out bit out "True if \\fBin\\fR is strictly between \\fBmin\\fR and \\fBmax\\fR";
+pin out bit under "True if \\fBin\\fR is less than or equal to \\fBmin\\fR";
+pin out bit over "True if \\fBin\\fR is greater than or equal to \\fBmax\\fR";
+notes "If \\fBmax\\fR <= \\fBmin\\fR then the behavior is undefined.";
 
 function _;
 license "GPL";

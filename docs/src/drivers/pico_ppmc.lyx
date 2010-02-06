@@ -158,19 +158,9 @@ float
 \noun on
 (bit) 
 \noun default
-ppmc.<port>.encoder.<channel>.index
+ppmc.<port>.encoder.<channel>.index-enable
 \family default
- -- Something to do with index pulse.
-\begin_inset Foot
-status collapsed
-
-\begin_layout Standard
-Index handling does _not_ comply with the canonical encoder interface, and
- should be changed.
-\end_layout
-
-\end_inset
-
+ -- Connect to axis.#.index-enable for home-to-index.
 
 \end_layout
 

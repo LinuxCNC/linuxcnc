@@ -49,8 +49,6 @@ DOC_SRCS := \
 	common/GPLD_Copyright.lyx \
 	common/Glossary.lyx \
 	common/Integrator_Concepts.lyx \
-	common/integrator_intro.lyx \
-	common/integrator_intro_fr.lyx \
 	common/Linux_FAQ.lyx \
 	common/Linux_FAQ_fr.lyx \
 	common/machining_center.lyx \
@@ -122,7 +120,6 @@ DOC_SRCS := \
 	hal/tutorial_fr.lyx \
 	install/compiling_emc2.lyx \
 	install/compiling_emc2_fr.lyx \
-	install/installing_emc2.lyx \
 	install/installing_emc2_fr.lyx \
 	ladder/ladder_intro.lyx \
 	ladder/ladder_intro_fr.lyx \
@@ -239,13 +236,13 @@ $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 ST := style=\"-moz-column-width: 25ex; -moz-column-gap: 4ex; list-style-type: none\"
 
 objects/index.incl: objects/var-MAN_HTML_TARGETS $(DOC_SRCDIR)/Submakefile
-	echo "<LI>Commands and userspace components<UL $(ST)>" > $@.tmp
+	echo "<A NAME=\"man1\"><LI>Commands and userspace components<UL $(ST)>" > $@.tmp
 	for i in $(filter %.1.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
+	echo "<A NAME=\"man9\"></UL><LI>Realtime components and kernel modules<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.9.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
+	echo "<A NAME=\"man3hal\"></UL><LI>HAL API calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3hal.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
-	echo "</UL><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
+	echo "<A NAME=\"man3rtapi\"></UL><LI>RTAPI calls<UL $(ST)>" >> $@.tmp
 	for i in $(filter %.3rtapi.html, $(MAN_HTML_TARGETS)); do j=$$(basename $$i .html); echo "<LI><A HREF=\"$${i#$(DOC_DIR)/html/}\">$$j</A>"; done >> $@.tmp
 	echo "</UL>" >> $@.tmp
 	mv -f $@.tmp $@

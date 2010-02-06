@@ -39,12 +39,144 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
 
 \begin_layout Section
 Ladder Examples
+\end_layout
+
+\begin_layout Subsection
+Wrapping Counter
+\end_layout
+
+\begin_layout Standard
+To have a counter that "wraps around" you have to use the preset pin and
+ the reset pin.
+ When you create the counter set the preset at the number you wish to reach
+ before wrapping around to 0.
+ The logic is if the counter value is over the preset then reset the counter
+ and if the underflow is on then set the counter value to the preset value.
+ As you can see in the example when the counter value is greater than the
+ counter preset the counter reset is triggered and the value is now 0.
+ The underflow output %Q2 will set the counter value at the preset when
+ counting backwards.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Wrapping Counter
+\begin_inset LatexCommand label
+name "fig:Wrapping-Counter"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/wrapping-counter.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Reject Extra Pulses
+\end_layout
+
+\begin_layout Standard
+This example shows you how to reject extra pulses from an input.
+ Suppose the input pulse %I0 has an annoying habit of giving an extra pulse
+ that spoils our logic.
+ The TOF (Timer Off Delay) prevents the extra pulse from reaching our cleaned
+ up output %Q0.
+ How this works is when the timer gets an input the output of the timer
+ is on for the duration of the time setting.
+ Using a normally closed contact %TM0.Q the output of the timer blocks any
+ further inputs from reaching our output until it times out.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Reject Extra Pulse
+\begin_inset LatexCommand label
+name "fig:Reject-Extra-Pulse"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/extra-pulse-reject.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection

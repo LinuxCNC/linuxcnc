@@ -505,7 +505,7 @@ static void printStatus()
               sprintf(scratch_string, "%4d%10d%10.4f%10.4f",
                       t,
                       emcStatus->io.tool.toolTable[t].toolno,
-                      emcStatus->io.tool.toolTable[t].zoffset,
+                      emcStatus->io.tool.toolTable[t].offset.tran.z,
                       emcStatus->io.tool.toolTable[t].diameter);
               mvwaddstr(window, line++, 3, scratch_string);
             }

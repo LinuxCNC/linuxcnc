@@ -1,0 +1,15 @@
+#!/bin/sh
+
+GIT_VERSION=`git describe --tags`
+GIT_TAG=`echo $GIT_VERSION | sed -r 's/^(.*)-[^-]+-[^-]+$/\1/'`
+
+DEB_VERSION=`head -1 debian/changelog | sed 's/.*(\(.*\)).*/\1/'`
+
+NEW_DEB_VERSION="$DEB_VERSION+$GIT_VERSION"
+
+set -e
+dch --distribution $(lsb_release -cs) --newversion $NEW_DEB_VERSION "This is a testing release from git"
+git log --pretty=oneline $GIT_TAG..  | while read line; do
+    dch "$line"
+done
+
