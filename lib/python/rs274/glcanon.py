@@ -433,7 +433,8 @@ class GlCanonDraw:
             y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
             z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
         glEndList()
-        self.set_centerpoint(x, y, z)
+        if line is not None:
+            self.set_centerpoint(x, y, z)
 
     @with_context_swap
     def redraw_perspective(self):
