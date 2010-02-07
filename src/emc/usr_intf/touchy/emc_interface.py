@@ -374,6 +374,7 @@ class emc_status:
                 set_text(self.status['spindledir'], sd[self.emcstat.spindle_direction+1])
 
                 set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle_speed)
+                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle_speed)
                 set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
 		if self.emcstat.pocket_prepped == -1:
 			set_text(self.status['preppedtool'], _("None"))
