@@ -172,7 +172,7 @@ class touchy:
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
                 stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
-                         'xyrotation', 'tlo', 'activecodes']
+                         'xyrotation', 'tlo', 'activecodes', 'spindlespeed2']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)
@@ -492,7 +492,7 @@ class touchy:
                         w = self.wTree.get_widget("listing%d" % i)
                         w.modify_font(self.listing_font)
                 for i in ["mdi", "startup", "manual", "auto", "preferences", "status",
-                          "relative", "absolute", "dtg"]:
+                          "relative", "absolute", "dtg", "ss2label", "status_spindlespeed2"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.control_font)
 
