@@ -833,6 +833,10 @@ int main(int argc, char *argv[])
             {
                 signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
                 rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE\n");
+
+                // it doesn't make sense to prep the spindle pocket
+                if(random_toolchanger && p == 0) break;
+
                 /* set tool number first */
                 *(iocontrol_data->tool_prep_pocket) = p;
                 if(!random_toolchanger && p == 0) {
