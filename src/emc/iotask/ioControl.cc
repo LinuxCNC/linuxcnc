@@ -855,9 +855,18 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_LOAD_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.pocketPrepped);
+
+            // it doesn't make sense to load a tool from the spindle pocket
             if (random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
                 break;
             }
+
+            // it's not necessary to load the tool already in the spindle
+            if (!random_toolchanger && emcioStatus.tool.pocketPrepped > 0 &&
+                emcioStatus.tool.toolInSpindle == emcioStatus.tool.toolTable[emcioStatus.tool.pocketPrepped].toolno) {
+                break;
+            }
+
 	    if (emcioStatus.tool.pocketPrepped != -1) {
 		//notify HW for toolchange
 		*(iocontrol_data->tool_change) = 1;
