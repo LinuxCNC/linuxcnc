@@ -1319,6 +1319,57 @@ class DummyCanon:
     def user_defined_function(self, m, p, q):
         self.number = p
 
+class _prompt_areyousure:
+    """ Prompt for a question, user can enter yes or no """
+    def __init__(self, title, text):
+        t = self.t = Toplevel(root_window, padx=7, pady=7)
+        t.wm_title(title)
+        t.wm_transient(root_window)
+        t.wm_resizable(0, 0)
+        self.status=False
+        m = Message(t, text=text, aspect=500, anchor="w", justify="left")
+        self.w = w = StringVar(t)
+        l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
+                aspect=500)
+        self.buttons = f = Tkinter.Frame(t)
+        self.ok = Tkinter.Button(f, text=_("Ok"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
+        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
+        t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<space>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
+
+        m.pack(side="top", anchor="w")
+        l.pack(side="top", anchor="w", fill="x", expand=1)
+        f.pack(side="bottom", anchor="e")
+        self.ok.pack(side="left", padx=3, pady=3)
+        self.cancel.pack(side="left", padx=3, pady=3)
+
+    def do_ok(self):
+        self.status=True
+        self.t.destroy()
+
+    def do_cancel(self):
+        self.status=False
+        self.t.destroy()
+
+    def result(self):
+        return self.status
+
+    def run(self):
+        self.t.grab_set()
+        self.t.wait_window()
+        try:
+            self.t.destroy()
+        except Tkinter.TclError:
+            pass
+        return self.result()
+
+def prompt_areyousure(title, text):
+    t = _prompt_areyousure(title, text)
+    return t.run()
+
 class _prompt_float:
     """ Prompt for a g-code floating point expression """
     def __init__(self, title, text, default, unit_str=''):
@@ -2106,7 +2157,15 @@ class TclCommands(nf.TclCommands):
     def home_all_axes(event=None):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
-        c.home(-1)
+        isHomed=True
+        for i,h in enumerate(s.homed):
+            if s.axis_mask & (1<<i):
+                isHomed=isHomed and h
+        doHoming=True
+        if isHomed:
+            doHoming=prompt_areyousure(_("Warning"),_("Axis is already homed, are you sure you want to re-home?"))
+        if doHoming:
+            c.home(-1)
 
     def unhome_all_axes(event=None):
         if not manual_ok(): return
@@ -2115,8 +2174,12 @@ class TclCommands(nf.TclCommands):
 
     def home_axis(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
-        c.home("xyzabcuvw".index(vars.current_axis.get()))
+        doHoming=True
+        if s.homed["xyzabcuvw".index(vars.current_axis.get())]:
+            doHoming=prompt_areyousure(_("Warning"),_("This axis is already homed, are you sure you want to re-home?"))
+        if doHoming:
+            ensure_mode(emc.MODE_MANUAL)
+            c.home("xyzabcuvw".index(vars.current_axis.get()))
 
     def unhome_axis(event=None):
         if not manual_ok(): return
