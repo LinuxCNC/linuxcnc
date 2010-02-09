@@ -169,8 +169,6 @@ proc nf_dialog {w title text image default args} {
 
 	bind $w.button$i <FocusIn> [list nf_dialog_default $w $l $i]
 
-        if {$u == -2} { set default $u }
-
         if {$u == -3} {
             bind $w <Escape> "$w.button$i flash; set tkPriv(button) $i"
         }
