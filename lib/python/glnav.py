@@ -1,10 +1,12 @@
 from minigl import *
 import math
+import array, itertools
 
 def use_pango_font(font, start, count):
     import pango, cairo, pangocairo
     fontDesc = pango.FontDescription(font)
-    surface = cairo.ImageSurface(cairo.FORMAT_A8, 256, 256)
+    a = array.array('b', itertools.repeat(0, 256*256))
+    surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
     context = pangocairo.CairoContext(cairo.Context(surface))
     layout = context.create_layout()
     fontmap = pangocairo.cairo_font_map_get_default()
@@ -51,7 +53,7 @@ def use_pango_font(font, start, count):
         w, h = pango.PIXELS(w), pango.PIXELS(h)
         glNewList(base+i, GL_COMPILE)
         glBitmap(0, 0, 0, 0, 0, h-d, '');
-        if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, surface.get_data())
+        if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a)
         glBitmap(0, 0, 0, 0, w, -h+d, '');
         glEndList()
 
