@@ -773,11 +773,12 @@ def main():
     if options['expand']:
         if options['expand'] == 1: pixel = 1
         else: pixel = 0
+        w, h = nim.shape
         tw, th = tool.shape
         w1 = w + 2*tw
         h1 = h + 2*th
         nim1 = numarray.zeros((w1, h1), 'Float32') + pixel
-        nim1[tw:tw+w, th:th+w] = nim
+        nim1[tw:tw+w, th:th+h] = nim
         nim = nim1
         w, h = w1, h1
     nim = nim * depth
