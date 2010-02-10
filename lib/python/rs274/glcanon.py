@@ -393,11 +393,9 @@ class GlCanonDraw:
 
             try:
                 buffer = list(glRenderMode(GL_RENDER))
-            except GLerror, detail:
-                if detail.errno[0] == GL_STACK_OVERFLOW:
-                    self.select_buffer_size *= 2
-                    continue
-                raise
+            except OverflowError:
+                self.select_buffer_size *= 2
+                continue
             break
 
         if buffer:

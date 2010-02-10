@@ -609,6 +609,11 @@ static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
 
     CHECK_ERROR;
 
+    if(count < 0) {
+	PyErr_Format(PyExc_OverflowError, "Buffer too small");
+	return 0;
+    }
+
     if(lastmode == GL_SELECT) {
         PyObject *r = PyList_New(0);
         int i = 0;
