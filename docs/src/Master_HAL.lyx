@@ -14,7 +14,7 @@
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
 
-\lhead{\fancyplain{}{EMC V2.3 Integrator Manual}}
+\lhead{\fancyplain{}{EMC V2.4 Integrator Manual}}
  
 \fancyfoot{}
 \fancyfoot[CE,CO]{\thepage}
@@ -30,7 +30,7 @@
 \font_sf_scale 100
 \font_tt_scale 100
 \graphics default
-\float_placement !!h
+\float_placement !h
 \paperfontsize 10
 \spacing single
 \papersize letterpaper
@@ -56,6 +56,7 @@
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
+\author "" 
 \author "" 
 \end_header
 

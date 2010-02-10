@@ -15,7 +15,7 @@
 \pagestyle{fancy}
 \renewcommand{\chaptermark}[1]{\markboth{\chaptername \ \thechapter.\ #1}{}}
 
-\lhead{\fancyplain{}{EMC V2.3 User Manual}}
+\lhead{\fancyplain{}{EMC V2.4 User Manual}}
  
 \fancyfoot{}
 \fancyfoot[CE,CO]{\thepage}
@@ -31,7 +31,7 @@
 \font_sf_scale 100
 \font_tt_scale 100
 \graphics default
-\float_placement !!h
+\float_placement !h
 \paperfontsize 10
 \spacing single
 \papersize letterpaper
