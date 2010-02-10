@@ -542,6 +542,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         GlCanonDraw.redraw(self)
 
     def redraw_dro(self):
+        self.stat.poll()
         limit, homed, posstrs, droposstrs = self.posstrs()
 
         text = widgets.numbers_text
