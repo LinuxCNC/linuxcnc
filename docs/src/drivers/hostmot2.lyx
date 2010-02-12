@@ -73,8 +73,8 @@ Firmware Binaries
 \begin_layout Standard
 Several pre-compiled HostMot2 firmware binaries are available for the different
  Anything I/O boards.
- (This list may be incomplete, check the EMC distribution and Mesa's web
- site for more up-to-date firmware lists.)
+ (This list is incomplete, check the hostmot2-firmware distribution for
+ up-to-date firmware lists.)
 \end_layout
 
 \begin_layout Standard
@@ -124,7 +124,7 @@ Installing Firmware
 \begin_layout Standard
 Depending on how you installed EMC2 you may have to open the Synaptic Package
  Manager from the System menu and install the package for your Mesa card.
- The quickest way to find them is to do a search for "emc" in the Synaptic
+ The quickest way to find them is to do a search for "hostmot2" in the Synaptic
  Package Manager.
  Mark the firmware for installation then apply.
 \end_layout
@@ -427,23 +427,11 @@ PIN Files
 
 \begin_layout Standard
 The default pinout is described in a .PIN file.
- 
-\end_layout
-
-\begin_layout Standard
-If if you installed EMC2 the file is located in:
+ When you install a firmware package .deb, the .PIN file is installed in
 \end_layout
 
 \begin_layout Quote
-/usr/share/doc/emc2-firmware-mesa-<board>-hostmot2 
-\end_layout
-
-\begin_layout Standard
-In the source tree, the pin files are located in:
-\end_layout
-
-\begin_layout Quote
-src/hal/drivers/mesa-hostmot2/firmware/<board>
+/usr/share/doc/hostmot2-firmware-mesa-<board>-hostmot2 
 \end_layout
 
 \begin_layout Section
@@ -451,19 +439,19 @@ Firmware
 \end_layout
 
 \begin_layout Standard
-If your using Run In Place you will have to create a symbolic link to the
- bit files.
-\end_layout
-
-\begin_layout Quote
-
-\size footnotesize
-sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/
-hm2-trunk
-\end_layout
+If you are using Run In Place, you must still install a hostmot2-firmware
+ package.
+\begin_inset Foot
+status open
 
 \begin_layout Standard
-And change the "firmware=hm2..." to "firmware=hm2-trunk..." in your ini file.
+The emc2-firmware packages from emc 2.3.x are also compatible with this version
+ of emc2.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
