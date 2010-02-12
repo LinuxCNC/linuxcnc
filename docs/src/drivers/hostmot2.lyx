@@ -106,6 +106,18 @@ Several pre-compiled HostMot2 firmware binaries are available for the different
 \end_layout
 
 \begin_layout Standard
+3x20 (144 I/O pins): using hm2_pci module
+\end_layout
+
+\begin_layout Itemize
+24-channel servo
+\end_layout
+
+\begin_layout Itemize
+16-channel servo plus 24 step/dir generators
+\end_layout
+
+\begin_layout Standard
 7i43 (48 I/O pins): using hm2_7i43 module
 \end_layout
 
