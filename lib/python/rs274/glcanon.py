@@ -46,6 +46,12 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.dwell_time = 0
         self.suppress = 0
 
+    def clear(self):
+        self.traverse[:] = []
+        self.feed[:] = []
+        self.arcfeed[:] = []
+        self.dwells[:] = []
+
     def message(self, message): pass
 
     def next_line(self, st):

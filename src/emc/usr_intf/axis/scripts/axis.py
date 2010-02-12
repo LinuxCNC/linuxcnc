@@ -1938,6 +1938,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
     set_first_line(0)
     t0 = time.time()
 
+    if o.g is not None:
+        o.g.clear()
     canon = None
     try:
         # be sure to switch modes to cause an interp synch, which
