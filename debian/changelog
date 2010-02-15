@@ -6,14 +6,228 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
 
 emc2 (1:2.4.0~pre) hardy; urgency=low
 
-  * allow INTERP_MAX_LEN to be defined in the ini
-  * bump HAL size to allow for more complex configs
   * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
-  * [add bugfixes from the 2.3.x branch here before release]
-  * add machine delay time to status (works for G4Pxx and M66)
-  * AXIS: shift+jog for XYZ gives a jog at the traverse speed.
+  * configs: DOS-damaged inifiles are detected with a clear error
+  * configs: A default nml file is used if it is not specified in the inifile
+  * configs: new [AXIS_#]VOLATILE_HOME flag makes an axis unhomed after estop
+    or machine off (for motors without feedback, such as steppers)
 
- -- Chris Radek <chris@timeguy.com>  Wed, 29 Apr 2009 11:14:22 -0500
+  * nml: enlarge status buffer in default emc.nml
+  * nml: add machine delay time to status (works for G4Pxx and M66)
+  * nml: unused fields removed from the status buffer
+
+  * touchy: a new GUI for touchscreens that doesn't use a keyboard
+
+  * tooledit: new GUI to edit tool table
+
+  * axis: shift+jog for XYZ gives a jog at the traverse speed.
+  * axis: the units (mm, inch, or degrees) are shown in touch-off;
+    when appropriate, radius or diameter mode is indicated
+  * axis: new "big dro" tab
+  * axis: axis-remote --clear remotely clears the backplot
+  * axis: axis-remote --mdi sends an mdi command
+  * axis: new HAL pins such as axisui.set-manual-mode to take UI actions from
+    a remote pendant or hard button
+
+  * halui: new pins such as home-all, unhome
+
+  * python: new methods such as emc.command.set_feed_override
+
+  * pyvcp: leds have a 'disable' pin to select a third color
+  * pyvcp: named widgets don't create gaps in numbered widgets
+    (backwards incompatible change)
+  * pyvcp: -g argument sets initial window size and position
+
+  * pncconf: a new, alpha-release graphical configurator for hostmot2 systems.
+
+  * interpreter: the .var file is automatically created if it doesn't exist
+  * interpreter: many error messages are improved
+  * interpreter: G5x coordinate system rotation
+  * interpreter: additional G10 codes for coordinate system and tool offsets
+  * interpreter: tool offsets can be applied on all 9 axes
+  * interpreter: [TRAJ]TLO_IS_ALONG_W removed
+  * interpreter: Incompatible change in G43.1 to support 9-axis tool lengths
+  * interpreter: G61 P- Q- specifies motion and "naive cam" tolerances
+    separately
+  * interpreter: M68 E- Q- to set analog outputs
+  * interpreter: g90.0/g90.1 choose absolute/relative arc centers
+  * interpreter: new "polar mode" using @ ^ notation
+  * interpreter: new "wrapped rotary" mode
+  * interpreter: #5400..#5413 hold information about loaded tool
+  * interpreter: M1xx permitted with cutter radius compensation on
+  * interpreter: Can negate a parameter, e.g., G0 X-#1
+  * task: Improve behavior of O-call from MDI
+  * task: new "random" toolchanger for carousel systems which don't
+    necessarily put the tool back in the same pocket it came from.
+  * motion: further improvements to spindle-synchronized motion
+
+  * hal: bump shared memory size to allow for more complex configs
+  * hal: now cooperates with the linux parport_pc driver.  When
+    parport_pc is enabled, parports may be specified by number (e.g., 0 for
+    /dev/parport0)
+  * halmeter: -g argument sets initial window size and position
+  * halcmd: DOS-damaged files are detected with a clear error
+  * internationalization: halscope and halmeter are now translatable
+
+  * comp: components must now specify a license
+  * comp: new "include" directive
+
+  * joyhandle: new realtime component for analog joystick deadband,
+    scaling, and exponential "acceleration"
+  * pid: new index-enable pin eliminates thump during homing when connected
+    to axis.#.index-enable (step change means feadforward calculation should
+    be skipped in the cycle where index is seen)
+  * integ: min/max windup limit pins
+  * limit2/limit3/lowpass: "load" pin to preload value from input pin
+  * hostmot2: firmwares are now shipped separately from emc2 in the
+    hostmot2-firmware packages
+  * encoder: better estimates velocity and provides an
+    approximate "interpolated position" for low-resolution encoders
+  * thc: new alpha-release component for torch height control
+
+  * documentation: many improvements
+  * many more small enhancements and bugfixes
+
+ -- jepler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:33:49 -0600
+
+emc2 (1:2.3.5~pre) hardy; urgency=low
+
+  * fix jog increments for mini
+  * interpreter: detect gouging in last corner before turning off cutter comp
+  * interpreter: fix another case of a skipped full-circle arc
+  * task: fix toolchange at quill-up and g30 positions
+  * stepconf: fix direction of 2nd and 3rd parports
+  * configs: add smithy 516 sample configuration
+  * image2gcode: respect current TLO and fixture settings
+  * documentation improvements
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:43:22 -0600
+
+emc2 (1:2.3.4-1) hardy; urgency=low
+
+  * Rebuild packages to get rid of spurious python2.4 dependency
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 24 Oct 2009 18:52:16 -0500
+
+emc2 (1:2.3.4) hardy; urgency=low
+
+  * Fix two constant surface speed bugs
+  * Allow M66 timeout to be a fractional number
+  * 'comp --print-modinc' prints the location of Makefile.modinc,
+    which eases building components that use Makefiles
+  * stepconf: make the screen fit on 800x600; use expander widgets
+    to access some advanced items.
+  * fix cooltool configs by adding missing emc.nml reference.
+  * serport: don't print errors at startup
+  * fix hang for M1xx code that cannot be executed (SF#2836077)
+  * rotatekins: Fix forward kinematics (SF#2870683)
+  * fix saving the direction setup time (SF#2870131)
+  * improve initial threading synchronization
+  * hostmot2: sample configuration improvements: the line required
+    for home-to-index is now shown in the samples
+  * smithy: include sample configuration files for a number of
+    smithy cnc systems (1240, 6130, 622, 924)
+  * fix spurious extra G0 in the active gcode readouts
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 24 Oct 2009 14:15:39 -0500
+
+emc2 (1:2.3.3) hardy; urgency=low
+
+  * Stepconf: fix error "global name 'machinename' is not defined"
+  * comp: fix building userspace .comps
+  * interpreter: Reject bad values of I, J, K in G76 (SF#2817324)
+  * interpreter: show error instead of silently continuing for certain
+    rejected forms of G76
+  * documentation improvements
+  * hm2 bugfix: avoid occasionally filling the system log when
+    stepgen.maxvel is too high for the timings
+  * tkemc: when running a program, the line following the currently
+    executing line is now visible
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 26 Jul 2009 08:39:44 -0500
+
+emc2 (1:2.3.2) hardy; urgency=low
+
+  * pyvcp: New "-g" flag to specify window size and position
+  * classicladder:Fix crash from clicking on comparison objects
+  * halshow: fix overlap of pin name and value with long values
+  * calibration now works with hostmot2-style hal files
+  * documentation improvements
+  * documentation: fix User Manual menu item
+  * configure: fix obscure error 'source: not found'
+  * configure: check that tk and Tkinter
+  * configure: fix truncated output on some systems
+  * After an abort, DTG and velocity will now show as 0
+  * axis: improve max velocity slider default maximum for machines with rotary
+    axes
+  * axis: when showing machine position, do not include TLO
+  * axis: in touch-off, show mm/in/degree, radius/diameter
+  * update CoolTool config files
+  * stepconf: Fix second and third parport direction settings (in/out)
+    not following the user request.
+  * stepconf: Fix creating shortcuts on systems where the Desktop directory
+    is not called "Desktop"
+  * pickconfig: Fix creating shortcuts on systems where the Desktop directory
+    is not called "Desktop"
+  * Increase the HAL shared memory area.  This fixes problems loading complex
+    configurations, such as those that use two mesa cards
+  * in AXIS, machine position no longer incorrectly shows the tool offset
+  * in AXIS, use [TRAJ]MAX_LINEAR_VELOCITY for the top end of the max velocity
+    slider, instead of [TRAJ]MAX_VELOCITY which is inappropriate for machines
+    with some linear and some rotary axes.
+  * hm2 stepgen .position-fb now has sub-step resolution (like the sw stepgen)
+  * hm2 stepgen now supports maxaccel=0, useful when a nice trajectory
+    planner manages your acceleration for you
+  * hm2 stepgen now supports velocity mode
+  * hm2: new firmware 5i20/SVST2_4_7I47 (2 encoder + 1 pwm + 4 stepgen on one
+    header)
+  * bugfix: the hm2-servo sample config now honors INPUT_SCALE and
+    OUTPUT_SCALE from the .ini
+  * bugfix: much lower following error for the hm2 stepgen
+  * bugfix: hm2 encoder now honors .reset even when no encoder edges are
+    coming in
+  * bugfix: (minor) the hm2 driver now uses double instead of hal_float_t
+    for internal temporary variables
+  * axis: fix a bug that made axis lock up when clicking the "show hidden
+    files" checkbox in the Open dialog
+  * motion: fix G95 G1 followed by G33
+
+ -- Jeff Epler <jepler@unpythonic.net>  Thu, 02 Jul 2009 13:46:13 -0500
+
+emc2 (1:2.3.1) hardy; urgency=low
+
+  * hm2: fixed a bug that would cause the stepgen to oscillate by one
+    step when the scale was negative
+  * hm2: use stepgen accel headroom in sample configurations
+  * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
+  * Fix hal_joystick 'HAL: ERROR: pin_new called after hal_ready'
+  * documentation improvements
+  * Fix User and HAL manual links in applications menu
+  * latency-test: fix illegible font on some systems
+  * comp: fix a compiler warning when array variables are used
+  * x86_64/rtai: fix a crashing bug reported by Michael Buesch
+  * ppc64/sim: fix a compilation error reported by Michael Buesch
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 16 May 2009 19:52:54 -0500
+
+emc2 (1:2.3.0) hardy; urgency=low
+
+  * hostmot2: allow stepgen maxaccel=0 for 'no acceleration limit'.  This is a
+    slightly experimental mode, and using acceleration headroom in the hal
+    file is probably still the best way to get a hostmot2 stepper system
+    running.
+  * hostmot2: make each stepgen only use 2 pins instead of 6
+  * axis: in a non-trivkins machine in joint mode, do not display the joints
+    that are not used
+  * stepconf: enable image-to-gcode and python g-code generators
+  * fix problem with full circles with G64P-
+  * make the center of rotation assumed by G96 include the g5x and g92
+    offsets, if applicable
+  * fix several obscure crashes and memory leaks
+  * update Polish, Italian, and German translations
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 19 Apr 2009 12:11:26 -0500
+
 
 emc2 (1:2.3.0~beta2) hardy; urgency=low
 
