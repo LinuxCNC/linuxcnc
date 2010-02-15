@@ -8503,6 +8503,10 @@ M30
 \end_layout
 
 \begin_layout Enumerate
+Change from Auto mode to MDI mode.
+\end_layout
+
+\begin_layout Enumerate
 Origin offsets are set to the default (like 
 \family typewriter
 G54
