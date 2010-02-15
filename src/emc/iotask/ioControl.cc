@@ -886,11 +886,15 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
-	    if (0 != loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->
-			      file, emcioStatus.tool.toolTable,
-			      fms, ttcomments, random_toolchanger))
-		emcioStatus.status = RCS_ERROR;
+	    {
+		const char *filename =
+		    ((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file;
+		if(!strlen(filename)) filename = TOOL_TABLE_FILE;
+		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
+		if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
+				  fms, ttcomments, random_toolchanger))
+		    emcioStatus.status = RCS_ERROR;
+	    }
 	    break;
 
 	case EMC_TOOL_SET_OFFSET_TYPE: 
