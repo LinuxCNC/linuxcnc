@@ -4883,8 +4883,9 @@ class App:
             w[axis+"tuningnotebook"].set_current_page(0)
             w[axis+"step"].set_sensitive(0)
             w[axis+"steptable"].set_sensitive(0)
-            text = _("Servo tuning is not finished / working\n")
+            text = _("Servo tuning is not finished\n")
             self.warning_dialog(text,True)
+            return
 
         if axis == "a":
             w[axis + "tunedistunits"].set_text(_("degrees"))
