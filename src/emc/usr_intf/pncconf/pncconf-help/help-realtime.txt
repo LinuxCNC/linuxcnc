@@ -15,12 +15,12 @@ Use this page to load extra HAL components
 Custom Component Commands:
     This selection will allow you to load HAL 
         components that pncconf does not use.
-    The first five allow single line component
-        loading and single line thread commands.
-        you may choose the thread speed.
-    The sixth allows single line component loading
-        and multiple line thread commands.
-        you mayalso select the thread speed.
+        Add the loadrt or loadusr command, under the
+        heading 'loading command'
+        Add the addf command under the heading
+        'Thread command'. By adding these commands
+        to either the upper or lower boxes, you can
+        choose the thread speed.
     The components will be added to the thread 
         between reading of inputs and writing of 
         outputs, in the order you write them.
