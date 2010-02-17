@@ -447,7 +447,7 @@ class Data:
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
         self.available_axes = []
-        self.baseperiod = 200000
+        self.baseperiod = 50000
         self.servoperiod = 1000000
         self.units = 0 # inch
         self.limitsnone = True
@@ -1350,7 +1350,7 @@ class Data:
                         print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
                         print >>file, "net spindle-enable      => pid.%s.enable" % (let) 
                         print >>file, "net spindle-enable      => " + pinname +".enable"
-                        print >>file, "net spindle-vel-cmd => pid.%d.feedback"% (let)          
+                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)          
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
                         print >>file, "net spindle-enable      => " + pinname +".enable"
@@ -4328,6 +4328,7 @@ class App:
     def on_yaxistune_clicked(self, *args): self.tune_axis('y')
     def on_zaxistune_clicked(self, *args): self.tune_axis('z')
     def on_aaxistune_clicked(self, *args): self.tune_axis('a')
+    def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
     def on_spindle_prepare(self, *args):
         self.axis_prepare('s')      
@@ -4863,7 +4864,7 @@ class App:
         d = self.data
         w = self.widgets
         self.updaterunning = False
-        axnum = "xyza".index(axis)
+        axnum = "xyzas".index(axis)
         self.axis_under_tune = axis
         self.stepgen = self.data.stepgen_sig(axis)
         print axis," stepgen--",self.stepgen
