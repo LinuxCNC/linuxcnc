@@ -390,6 +390,7 @@ fi
 
 AC_MSG_RESULT([$KERNEL_VERS])
 AC_SUBST([KERNEL_VERS])
+AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
 
 # Do a quick test for module extension..
 AC_MSG_CHECKING([for kernel module extension])
