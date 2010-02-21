@@ -2430,6 +2430,20 @@ class App:
         except:
             text = _("Help page is unavailable\n")
             self.warning_dialog(text,True)
+
+    def check_for_rt(self,fussy=True):
+        actual_kernel = os.uname()[2]
+        if hal.is_sim == 1 :
+            if fussy:
+                self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of external hardware is unavailable."),True)
+                return False
+            else:
+                return True
+        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+            self.warning_dialog(_("""You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
+            return False
+        else:
+            return True
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
@@ -4736,6 +4750,8 @@ class App:
             self.warning_dialog(text,True)
 
     def parporttest(self,w):
+        if not self.check_for_rt(self):
+            return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
@@ -4782,6 +4798,8 @@ class App:
 
     # This is for pyvcp test panel
     def testpanel(self,w):
+        if not self.check_for_rt(True):
+            return 
         pos = "+0+0"
         size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
@@ -4811,7 +4829,9 @@ class App:
         halrun.close()
 
     # for classicladder test  
-    def load_ladder(self,w):   
+    def load_ladder(self,w): 
+        if not self.check_for_rt(True):
+            return  
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
@@ -4861,6 +4881,8 @@ class App:
       
     # servo and stepper test  
     def tune_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         d = self.data
         w = self.widgets
         self.updaterunning = False
@@ -5177,6 +5199,8 @@ class App:
 
     # openloop servo test
     def test_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
              self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
              return
