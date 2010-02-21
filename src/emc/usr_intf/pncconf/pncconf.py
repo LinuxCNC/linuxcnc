@@ -1804,7 +1804,7 @@ class Data:
                     if not axletter == "s":
                         pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                         print pinname
-                        if 'hms' in pinname:      
+                        if 'hm2' in pinname:      
                             print >>file, "# connect jogwheel signals to mesa encoder - %s axis MPG "% axletter       
                             print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "    setp  axis.%d.jog-enable true"% (axnum)
@@ -1943,7 +1943,7 @@ class Data:
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd                       =>  abs.0.in")
                       print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
@@ -2002,8 +2002,8 @@ class Data:
         else: unit = "a metric"
         if self.frontend == 1: display = "AXIS"
         elif self.frontend == 2: display = "Tkemc"
-        elif self.frontend == 0: display = "Mini"
-        else: display == "an unknown"
+        elif self.frontend == 3: display = "Mini"
+        else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
@@ -2037,8 +2037,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s " %{ 
-            'type':temptype, 'pinnum':x, 'data':temp,   'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
         print >>file
         print >>file,_("Mesa 5i20 connector 4 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
@@ -2048,8 +2048,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s" %{
-            'type':temptype,'pinnum':x, 'data':temp, 'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
         print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
