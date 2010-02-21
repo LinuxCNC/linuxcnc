@@ -21,6 +21,7 @@
 #include <map>
 using namespace std;
 
+#include "config.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "hal_priv.h"
@@ -740,6 +741,14 @@ void inithal(void) {
     PyModule_AddIntConstant(m, "HAL_IN", HAL_IN);
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
+
+#ifdef RTAPI_SIM
+    PyModule_AddIntConstant(m, "is_sim", 1);
+    PyModule_AddIntConstant(m, "is_rt", 0);
+#else
+    PyModule_AddIntConstant(m, "is_sim", 0);
+    PyModule_AddIntConstant(m, "is_rt", 1);
+#endif
 
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
