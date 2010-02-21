@@ -750,6 +750,8 @@ void inithal(void) {
     PyModule_AddIntConstant(m, "is_rt", 1);
 #endif
 
+    PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
+
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
                  "s.signal(s.SIGTERM, s.default_int_handler))()");
