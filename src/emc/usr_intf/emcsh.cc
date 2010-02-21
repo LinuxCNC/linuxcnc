@@ -1460,7 +1460,7 @@ static int emc_joint_pos(ClientData clientdata,
 
     if (objc != 2) {
 	Tcl_SetResult(interp,
-		      "emc_rel_act_pos: need exactly 1 non-negative integer",
+		      "emc_joint_pos: need exactly 1 non-negative integer",
 		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
@@ -1767,7 +1767,7 @@ static int emc_unhome(ClientData clientdata,
     int axis;
 
     if (objc != 2) {
-	Tcl_SetResult(interp, "emc_home: need axis", TCL_VOLATILE);
+	Tcl_SetResult(interp, "emc_unhome: need axis", TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
@@ -1776,7 +1776,7 @@ static int emc_unhome(ClientData clientdata,
 	return TCL_OK;
     }
 
-    Tcl_SetResult(interp, "emc_home: need axis as integer, 0..",
+    Tcl_SetResult(interp, "emc_unhome: need axis as integer, 0..",
 		  TCL_VOLATILE);
     return TCL_ERROR;
 }
@@ -2311,7 +2311,7 @@ static int emc_joint_units(ClientData clientdata,
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
 	if (joint < 0 || joint >= EMC_AXIS_MAX) {
 	    Tcl_SetResult(interp,
-			  "emc_joint_type: joint out of bounds",
+			  "emc_joint_units: joint out of bounds",
 			  TCL_VOLATILE);
 	    return TCL_ERROR;
 	}
@@ -3090,7 +3090,7 @@ static int emc_axis_load_comp(ClientData clientdata,
     strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
     if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
-	Tcl_SetResult(interp, "emc_load_comp: <type> must be an int",
+	Tcl_SetResult(interp, "emc_axis_load_comp: <type> must be an int",
 		      TCL_VOLATILE);
     }
 

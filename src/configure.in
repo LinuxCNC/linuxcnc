@@ -61,6 +61,9 @@ else
 fi
 AC_SUBST([EMC2VERSION])
 
+AC_PATH_PROG(GREP, grep)
+AC_PATH_PROG(EGREP, egrep)
+
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
@@ -622,7 +625,6 @@ AC_PROG_CXX
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
-AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(INSTALL, install)
 AC_PATH_PROG(SED, sed)
 AC_PATH_PROG(PS, ps)
