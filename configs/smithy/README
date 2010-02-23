@@ -18,6 +18,8 @@ These configurations are for the following Smithy machines:
 
 622gecko - Mill equipped with Gecko G201 axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a PC parallel port.
 
+622leadshine - Mill equipped with Leadshine MD2278 axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a Mesa 5i20 FPGA card.
+
 924 - Lathe equipped with YAKO Automation axis drives, Sieg variable speed brushless DC spindle, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card.
 
 6130 - Lathe equipped with GSK axis drives, VFD and AC induction type spindle motor, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card. (Currently a prototype machine with prototype handwheel jogging pendant.)

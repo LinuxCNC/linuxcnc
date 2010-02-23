@@ -20,9 +20,6 @@ loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EM
 # load charge pump
 loadrt charge_pump
 
-# load the spindle speed offset component
-loadrt offset
-
 # These loopbacks are usually disconnected by a postgui halfile
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
@@ -31,14 +28,11 @@ net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 newsig Enable bit
 sets Enable TRUE
 
-#configure the spindle speed offset & PWM generator
-net scmd motion.spindle-speed-out => offset.0.in
-net spwm offset.0.out => hm2_5i20.0.pwmgen.00.value
-newsig soff float
-sets soff 185
-net soff offset.0.offset
+#configure the spindle speed
+net scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
 setp hm2_5i20.0.pwmgen.00.scale 4000
 setp hm2_5i20.0.pwmgen.00.output-type 1
+setp hm2_5i20.0.pwmgen.pwm_frequency 100
 
 # invert the step pulse polarity
 setp hm2_5i20.0.gpio.000.invert_output TRUE
@@ -137,7 +131,10 @@ net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
 # Main Contactors - True when both contactors are energized
 net ACOK hm2_5i20.0.gpio.035.in_not
 # VFD Fault Relay - True when VFD is not faulted
+#this bit is repurposed on a Sieg KX3 that has no VFD fault signal
+#it is used for the A axis home sensor
 net VFDOK hm2_5i20.0.gpio.031.in_not
+#net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in motion.feed-hold
 
@@ -171,8 +168,6 @@ addf hm2_5i20.0.read_gpio servo-thread
 addf motion-command-handler servo-thread
 # run the motion controller
 addf motion-controller servo-thread
-# run the spindle speed offset
-addf offset.0.update-output servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 addf hm2_5i20.0.write_gpio servo-thread
