@@ -1,4 +1,4 @@
-# 5i20 config file for 4 Axis Smithy 622 Mill
+# 5i20 config file for Smithy 622 Mill with Leadshine Drives
 
 # load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
@@ -41,31 +41,31 @@ setp hm2_5i20.0.gpio.016.invert_output TRUE
 setp hm2_5i20.0.gpio.018.invert_output TRUE
 
 # configure the stepgen parameters
-setp hm2_5i20.0.stepgen.00.dirsetup        2500
-setp hm2_5i20.0.stepgen.00.dirhold         2500
-setp hm2_5i20.0.stepgen.00.steplen         2500
-setp hm2_5i20.0.stepgen.00.stepspace       2500
+setp hm2_5i20.0.stepgen.00.dirsetup        5000
+setp hm2_5i20.0.stepgen.00.dirhold         1250
+setp hm2_5i20.0.stepgen.00.steplen         1250
+setp hm2_5i20.0.stepgen.00.stepspace       1250
 setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
 setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
-setp hm2_5i20.0.stepgen.01.dirsetup        2500
-setp hm2_5i20.0.stepgen.01.dirhold         2500
-setp hm2_5i20.0.stepgen.01.steplen         2500
-setp hm2_5i20.0.stepgen.01.stepspace       2500
+setp hm2_5i20.0.stepgen.01.dirsetup        5000
+setp hm2_5i20.0.stepgen.01.dirhold         1250
+setp hm2_5i20.0.stepgen.01.steplen         1250
+setp hm2_5i20.0.stepgen.01.stepspace       1250
 setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_1]SCALE
 setp hm2_5i20.0.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAXVEL
-setp hm2_5i20.0.stepgen.02.dirsetup        2500
-setp hm2_5i20.0.stepgen.02.dirhold         2500
-setp hm2_5i20.0.stepgen.02.steplen         2500
-setp hm2_5i20.0.stepgen.02.stepspace       2500
+setp hm2_5i20.0.stepgen.02.dirsetup        5000
+setp hm2_5i20.0.stepgen.02.dirhold         1250
+setp hm2_5i20.0.stepgen.02.steplen         1250
+setp hm2_5i20.0.stepgen.02.stepspace       1250
 setp hm2_5i20.0.stepgen.02.position-scale  [AXIS_2]SCALE
 setp hm2_5i20.0.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAXVEL
-setp hm2_5i20.0.stepgen.03.dirsetup        2500
-setp hm2_5i20.0.stepgen.03.dirhold         2500
-setp hm2_5i20.0.stepgen.03.steplen         2500
-setp hm2_5i20.0.stepgen.03.stepspace       2500
+setp hm2_5i20.0.stepgen.03.dirsetup        5000
+setp hm2_5i20.0.stepgen.03.dirhold         1250
+setp hm2_5i20.0.stepgen.03.steplen         1250
+setp hm2_5i20.0.stepgen.03.stepspace       1250
 setp hm2_5i20.0.stepgen.03.position-scale  [AXIS_3]SCALE
 setp hm2_5i20.0.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
@@ -74,25 +74,25 @@ setp hm2_5i20.0.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAXVEL
 net Xpos-cmd axis.0.motor-pos-cmd => hm2_5i20.0.stepgen.00.position-cmd
 net Ypos-cmd axis.1.motor-pos-cmd => hm2_5i20.0.stepgen.01.position-cmd
 net Zpos-cmd axis.2.motor-pos-cmd => hm2_5i20.0.stepgen.02.position-cmd
-net Apos-cmd axis.3.motor-pos-cmd => hm2_5i20.0.stepgen.03.position-cmd
+#net Apos-cmd axis.3.motor-pos-cmd => hm2_5i20.0.stepgen.03.position-cmd
 
 # connect position feedback from step generators to motion module
 net Xpos-fb hm2_5i20.0.stepgen.00.position-fb => axis.0.motor-pos-fb
 net Ypos-fb hm2_5i20.0.stepgen.01.position-fb => axis.1.motor-pos-fb
 net Zpos-fb hm2_5i20.0.stepgen.02.position-fb => axis.2.motor-pos-fb
-net Apos-fb hm2_5i20.0.stepgen.03.position-fb => axis.3.motor-pos-fb
+#net Apos-fb hm2_5i20.0.stepgen.03.position-fb => axis.3.motor-pos-fb
 
 # connect enable signals for step generators
 net Xen axis.0.amp-enable-out => hm2_5i20.0.stepgen.00.enable
 net Yen axis.1.amp-enable-out => hm2_5i20.0.stepgen.01.enable
 net Zen axis.2.amp-enable-out => hm2_5i20.0.stepgen.02.enable
-net Aen axis.3.amp-enable-out => hm2_5i20.0.stepgen.03.enable
+#net Aen axis.3.amp-enable-out => hm2_5i20.0.stepgen.03.enable
 
 # enable velocity mode jogging
 net Enable axis.0.jog-vel-mode
 net Enable axis.1.jog-vel-mode
 net Enable axis.2.jog-vel-mode
-net Enable axis.3.jog-vel-mode
+#net Enable axis.3.jog-vel-mode
 
 # enable the PWM generator
 net Enable => hm2_5i20.0.pwmgen.00.enable
@@ -114,8 +114,8 @@ net Xmax hm2_5i20.0.gpio.032.in => axis.0.pos-lim-sw-in
 net Xmin hm2_5i20.0.gpio.034.in => axis.0.neg-lim-sw-in
 net Ymax hm2_5i20.0.gpio.028.in => axis.1.pos-lim-sw-in
 net Ymin hm2_5i20.0.gpio.030.in => axis.1.neg-lim-sw-in
-net Zmax hm2_5i20.0.gpio.024.in => axis.2.pos-lim-sw-in
-net Zmin hm2_5i20.0.gpio.026.in => axis.2.neg-lim-sw-in
+net Zmax hm2_5i20.0.gpio.024.in_not => axis.2.pos-lim-sw-in
+net Zmin hm2_5i20.0.gpio.026.in_not => axis.2.neg-lim-sw-in
 
 #connect positive limit signals to home inputs
 net Xmax => axis.0.home-sw-in
@@ -131,10 +131,11 @@ net CLOSED hm2_5i20.0.gpio.029.in_not hm2_5i20.0.gpio.041.out
 # Main Contactors - True when both contactors are energized
 net ACOK hm2_5i20.0.gpio.035.in_not
 # VFD Fault Relay - True when VFD is not faulted
+net VFDOK hm2_5i20.0.gpio.031.in_not
 #this bit is repurposed on a Sieg KX3 that has no VFD fault signal
 #it is used for the A axis home sensor
 #net VFDOK hm2_5i20.0.gpio.031.in_not
-net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
+#net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
 net SOFF hm2_5i20.0.gpio.033.in motion.feed-hold
 
