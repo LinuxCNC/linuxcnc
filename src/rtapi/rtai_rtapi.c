@@ -463,7 +463,6 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 
 void rtapi_print(const char *fmt, ...)
 {
-    char buffer[BUFFERLEN];
     va_list args;
 
     va_start(args, fmt);
@@ -474,7 +473,6 @@ void rtapi_print(const char *fmt, ...)
 
 void rtapi_print_msg(int level, const char *fmt, ...)
 {
-    char buffer[BUFFERLEN];
     va_list args;
 
     if ((level <= msg_level) && (msg_level != RTAPI_MSG_NONE)) {
