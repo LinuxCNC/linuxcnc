@@ -3,7 +3,7 @@ emc2 (1:2.3.5~pre) hardy; urgency=low
   * fix jog increments for mini
   * interpreter: detect gouging in last corner before turning off cutter comp
   * interpreter: fix another case of a skipped full-circle arc
-  * task: fix toolchange at quill-up and g30 positions
+  * task: fix toolchange at quill-up and g30 positions (SF#2941688)
   * stepconf: fix direction of 2nd and 3rd parports
   * configs: add smithy 516 sample configuration
   * image2gcode: respect current TLO and fixture settings
