@@ -372,8 +372,6 @@ else
 setuid:
 	chown root ../bin/emc_module_helper
 	chmod 4750 ../bin/emc_module_helper
-	chown root ../bin/bfload
-	chmod 4750 ../bin/bfload
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
