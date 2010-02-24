@@ -461,7 +461,7 @@ install-kernel-indep: install-dirs
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
@@ -512,7 +512,6 @@ install-kernel-dep:
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq "$(BUILD_SYS)" "sim"
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
-	$(SETUID) ../bin/bfload $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif

@@ -22,7 +22,6 @@ usr/share/emc/*
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/axis.1
 usr/share/man/man1/axis-remote.1
-usr/share/man/man1/bfload.1
 usr/share/man/man1/emc.1
 usr/share/man/man1/gs2.1
 usr/share/man/man1/halcmd.1
