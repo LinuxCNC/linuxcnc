@@ -129,7 +129,7 @@ BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
 MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
-ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
+ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME, DIN0, DIN1, DIN2, DIN3,
 UNUSED_INPUT) = hal_input_names = [
 "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
 "home-x", "home-y", "home-z", "home-a",
@@ -139,7 +139,7 @@ UNUSED_INPUT) = hal_input_names = [
 "min-x", "min-y", "min-z", "min-a",
 "max-x", "max-y", "max-z", "max-a",
 "both-x", "both-y", "both-z", "both-a",
-"all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
+"all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
 "unused-input"]
 
 human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
@@ -165,7 +165,7 @@ _("Maximum Limit X"), _("Maximum Limit Y"),
 _("Maximum Limit Z"), _("Maximum Limit A"),
 _("Both Limit X"), _("Both Limit Y"),
 _("Both Limit Z"), _("Both Limit A"),
-_("All limits"), _("All home"),
+_("All limits"), _("All home"), _("All limits + homes"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
 _("Unused"))
 
@@ -638,8 +638,9 @@ class Data:
         print >>file, "MAX_LIMIT = %s" % maxlim
 
         inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-        thisaxishome = set((ALL_HOME, "home-" + letter, "min-home-" + letter,
+        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
                             "max-home-" + letter, "both-home-" + letter))
+        # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick
         ignore = set(("min-home-" + letter, "max-home-" + letter,
                             "both-home-" + letter))
         homes = bool(inputs & thisaxishome)
@@ -665,24 +666,34 @@ class Data:
 
     def home_sig(self, axis):
         inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-        thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         for i in inputs:
             if i in thisaxishome: return i
 
     def min_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxisminlimits = set((ALL_LIMIT, "min-" + axis, "min-home-" + axis,
+           thisaxisminlimits = set((ALL_LIMIT, ALL_LIMIT_HOME, "min-" + axis, "min-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
            for i in inputs:
-               if i in thisaxisminlimits: return i
+               if i in thisaxisminlimits:
+                   if i==ALL_LIMIT_HOME:
+                       # ALL_LIMIT is reused here as filtered signal
+                       return ALL_LIMIT
+                   else:
+                       return i
 
     def max_lim_sig(self, axis):
            inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxismaxlimits = set((ALL_LIMIT, "max-" + axis, "max-home-" + axis,
+           thisaxismaxlimits = set((ALL_LIMIT, ALL_LIMIT_HOME, "max-" + axis, "max-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
            for i in inputs:
-               if i in thisaxismaxlimits: return i
+               if i in thisaxismaxlimits:
+                   if i==ALL_LIMIT_HOME:
+                       # ALL_LIMIT is reused here as filtered signal
+                       return ALL_LIMIT
+                   else:
+                       return i
  
     def connect_axis(self, file, num, let):
         axnum = "xyza".index(let)
@@ -784,9 +795,9 @@ class Data:
         encoder = PHA in inputs
         counter = PHB not in inputs
         probe = PROBE in inputs
+        limits_homes = ALL_LIMIT_HOME in inputs
         pwm = PWM in outputs
         pump = PUMP in outputs
-
         if self.axes == 2:
             print >>file, "loadrt stepgen step_type=0,0"
         elif self.axes == 1:
@@ -806,8 +817,12 @@ class Data:
             print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
             print >>file, "net charge-pump <= charge-pump.out"
 
+        if limits_homes:
+            print >>file, "loadrt lut5"
+
         if pwm:
             print >>file, "loadrt pwmgen output_type=0"
+
 
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
@@ -838,6 +853,10 @@ class Data:
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
         print >>file, "addf stepgen.update-freq servo-thread"
+
+        if limits_homes:
+            print >>file, "addf lut5.0 servo-thread"
+
         if pwm: print >>file, "addf pwmgen.update servo-thread"
         if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
             print >>file, "addf abs.0 servo-thread"
@@ -915,6 +934,24 @@ class Data:
         print >>file
         for i in (10,11,12,13,15): self.connect_input(file, i)
         print >>file
+
+        if limits_homes:
+            print >>file, "setp lut5.0.function 0x10000"
+            print >>file, "net all-limit-home => lut5.0.in-4"
+            print >>file, "net all-limit <= lut5.0.out"
+            if self.axes == 2:
+                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
+                print >>file, "net homing-z <= axis.1.homing => lut5.0.in-1"
+            elif self.axes == 0:
+                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
+                print >>file, "net homing-y <= axis.1.homing => lut5.0.in-1"
+                print >>file, "net homing-z <= axis.2.homing => lut5.0.in-2"
+            elif self.axes == 1:
+                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
+                print >>file, "net homing-y <= axis.1.homing => lut5.0.in-1"
+                print >>file, "net homing-z <= axis.2.homing => lut5.0.in-2"
+                print >>file, "net homing-a <= axis.3.homing => lut5.0.in-3"
+
 
         if self.axes == 2:
             self.connect_axis(file, 0, 'x')
@@ -1324,51 +1361,63 @@ class App:
     def do_exclusive_inputs(self, pin):
         if self.in_pport_prepare: return
         exclusive = {
-            HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME),
-            HOME_Y: (MAX_HOME_Y, MIN_HOME_Y, BOTH_HOME_Y, ALL_HOME),
-            HOME_Z: (MAX_HOME_Z, MIN_HOME_Z, BOTH_HOME_Z, ALL_HOME),
-            HOME_A: (MAX_HOME_A, MIN_HOME_A, BOTH_HOME_A, ALL_HOME),
+            HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME, ALL_LIMIT_HOME),
+            HOME_Y: (MAX_HOME_Y, MIN_HOME_Y, BOTH_HOME_Y, ALL_HOME, ALL_LIMIT_HOME),
+            HOME_Z: (MAX_HOME_Z, MIN_HOME_Z, BOTH_HOME_Z, ALL_HOME, ALL_LIMIT_HOME),
+            HOME_A: (MAX_HOME_A, MIN_HOME_A, BOTH_HOME_A, ALL_HOME, ALL_LIMIT_HOME),
 
-            MAX_HOME_X: (HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME),
-            MAX_HOME_Y: (HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME),
-            MAX_HOME_Z: (HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME),
-            MAX_HOME_A: (HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME),
+            MAX_HOME_X: (HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MAX_HOME_Y: (HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MAX_HOME_Z: (HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MAX_HOME_A: (HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
 
-            MIN_HOME_X: (HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME),
-            MIN_HOME_Y: (HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME),
-            MIN_HOME_Z: (HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME),
-            MIN_HOME_A: (HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME),
+            MIN_HOME_X: (HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MIN_HOME_Y: (HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MIN_HOME_Z: (HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            MIN_HOME_A: (HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
 
-            BOTH_HOME_X: (HOME_X, MAX_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_HOME),
-            BOTH_HOME_Y: (HOME_Y, MAX_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_HOME),
-            BOTH_HOME_Z: (HOME_Z, MAX_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_HOME),
-            BOTH_HOME_A: (HOME_A, MAX_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_HOME),
+            BOTH_HOME_X: (HOME_X, MAX_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            BOTH_HOME_Y: (HOME_Y, MAX_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            BOTH_HOME_Z: (HOME_Z, MAX_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+            BOTH_HOME_A: (HOME_A, MAX_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
 
-            MIN_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT),
-            MIN_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT),
-            MIN_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT),
-            MIN_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT),
+            MIN_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+            MIN_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+            MIN_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+            MIN_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
 
-            MAX_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT),
-            MAX_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT),
-            MAX_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT),
-            MAX_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT),
+            MAX_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+            MAX_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+            MAX_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+            MAX_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
 
-            BOTH_X: (MIN_X, MAX_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT),
-            BOTH_Y: (MIN_Y, MAX_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT),
-            BOTH_Z: (MIN_Z, MAX_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT),
-            BOTH_A: (MIN_A, MAX_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT),
+            BOTH_X: (MIN_X, MAX_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+            BOTH_Y: (MIN_Y, MAX_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+            BOTH_Z: (MIN_Z, MAX_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+            BOTH_A: (MIN_A, MAX_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
 
             ALL_LIMIT: (
                 MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
                 MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
                 MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A),
+                MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+                ALL_LIMIT_HOME),
             ALL_HOME: (
                 HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
                 HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
                 HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A),
+                HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+                ALL_LIMIT_HOME),
+            ALL_LIMIT_HOME: (
+                HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+                HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+                HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+                HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+                MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+                MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+                MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+                MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+                ALL_LIMIT, ALL_HOME),
         } 
 
         p = 'pin%d' % pin
@@ -1506,7 +1555,7 @@ class App:
             w[axis + "scaleunits"].set_text(_("Steps / in"))
 
         inputs = set((d.pin10, d.pin11, d.pin12, d.pin13, d.pin15))
-        thisaxishome = set((ALL_HOME, "home-" + axis, "min-home-" + axis,
+        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         homes = bool(inputs & thisaxishome)
         w[axis + "homesw"].set_sensitive(homes)
