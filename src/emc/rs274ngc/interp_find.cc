@@ -610,6 +610,6 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
             *pocket = i;
     }
 
-    CHKS((*pocket == -1), "Specified tool not found in the tool table");
+    CHKS((*pocket == -1), (_("Requested tool %d not found in the tool table")), toolno);
     return INTERP_OK;
 }
