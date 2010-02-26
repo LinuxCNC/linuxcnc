@@ -609,6 +609,7 @@ void load_tool(int pocket) {
         // magic T0 = pocket 0 = no tool
 	emcioStatus.tool.toolTable[0].toolno = -1;
         ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
+        emcioStatus.tool.toolTable[0].diameter = 0.0;
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
         emcioStatus.tool.toolTable[0].backangle = 0.0;
         emcioStatus.tool.toolTable[0].orientation = 0;
