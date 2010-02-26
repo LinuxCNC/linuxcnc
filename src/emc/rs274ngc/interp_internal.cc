@@ -148,7 +148,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 
   if(block->radius_flag || block->theta_flag) {
       // someday, tediously add polar support for other planes here:
-      CHKS((!_readers['x'] || !_readers['y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
+      CHKS((!_readers[(int)'x'] || !_readers[(int)'y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
       CHKS(((settings->plane != CANON_PLANE_XY)), _("Cannot use polar coordinate except in G17 plane"));
       CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
       CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
