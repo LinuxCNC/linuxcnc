@@ -598,6 +598,9 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.u,
 						       emcStatus->motion.traj.actualPosition.v,
 						       emcStatus->motion.traj.actualPosition.w);
+				if (emcStatus->task.readLine + 1
+					== programStartLine)
+				    emcTaskPlanSynch();
 			    }
 
                             if (count++ < EMC_TASK_INTERP_MAX_LEN
