@@ -1608,7 +1608,7 @@ class LivePlotter:
                 or self.stat.homed != o.last_homed
                 or self.stat.origin != o.last_origin
                 or self.stat.limit != o.last_limit
-                or self.stat.tool_in_spindle != o.last_tool
+                or self.stat.tool_table[0] != o.last_tool
                 or self.stat.motion_mode != o.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
@@ -1618,7 +1618,7 @@ class LivePlotter:
             o.last_position = self.stat.actual_position
             o.last_origin = self.stat.origin
             o.last_motion_mode = self.stat.motion_mode
-            o.last_tool = self.stat.tool_in_spindle
+            o.last_tool = self.stat.tool_table[0]
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
             self.lastpts = self.logger.npts
