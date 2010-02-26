@@ -145,14 +145,23 @@ class PrintCanon:
         print "arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args
 
 class StatMixin:
-    def __init__(self, s):
+    def __init__(self, s, r):
         self.s = s
+        self.tools = list(s.tool_table)
+        self.random = r
 
-    def get_tool(self, tool):
-        for t in self.s.tool_table:
-            if t[0] == tool:
-                return tuple(t)
-        return tool, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    def change_tool(self, pocket):
+        if self.random:
+            self.tools[0], self.tools[pocket] = self.tools[pocket], self.tools[0]
+        elif pocket==0:
+            self.tools[0] = -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+        else:
+            self.tools[0] = self.tools[pocket]
+
+    def get_tool(self, pocket):
+        if pocket >= 0 and pocket < len(self.tools):
+            return tuple(self.tools[pocket])
+        return -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0

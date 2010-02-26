@@ -1806,12 +1806,16 @@ class Progress:
 class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress):
         GLCanon.__init__(self, widget.colors, geometry)
-        StatMixin.__init__(self, s)
+        StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
         root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
+
+    def change_tool(self, pocket):
+        GLCanon.change_tool(self, pocket)
+        StatMixin.change_tool(self, pocket)
 
     def is_lathe(self): return lathe
 
@@ -3556,6 +3560,7 @@ if sys.argv[1] != "-ini":
     raise SystemExit, "-ini must be first argument"
 
 inifile = emc.ini(sys.argv[2])
+random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 vars.machine.set(inifile.find("EMC", "MACHINE"))
