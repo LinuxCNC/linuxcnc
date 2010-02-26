@@ -1,6 +1,13 @@
 #!/bin/bash
 
-GIT_VERSION=`git describe --match "v2.[0-9]*"`
+GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
+case $GIT_BRANCH in
+    master) TAG_GLOB="v2.5*";;
+    v2.4_branch) TAG_GLOB="v2.4*";;
+    *) TAG_GLOB="*";;
+esac
+
+GIT_VERSION=`git describe --match $TAG_GLOB`
 GIT_TAG=`echo $GIT_VERSION | sed -r 's/^(.*)-[^-]+-[^-]+$/\1/'`
 
 DEB_VERSION=`git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/'`
