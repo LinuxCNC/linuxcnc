@@ -735,7 +735,7 @@ class LivePlotter:
                 or self.stat.homed != o.last_homed
                 or self.stat.origin != o.last_origin
                 or self.stat.limit != o.last_limit
-                or self.stat.tool_in_spindle != o.last_tool
+                or self.stat.tool_table[0] != o.last_tool
                 or self.stat.motion_mode != o.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
@@ -745,7 +745,7 @@ class LivePlotter:
             o.last_position = self.stat.actual_position
             o.last_origin = self.stat.origin
             o.last_motion_mode = self.stat.motion_mode
-            o.last_tool = self.stat.tool_in_spindle
+            o.last_tool = self.stat.tool_table[0]
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
             self.lastpts = self.logger.npts
@@ -933,12 +933,16 @@ class Progress:
 class AxisCanon(GLCanon, StatMixin):
     def __init__(self, widget, text, linecount, progress):
         GLCanon.__init__(self, widget.colors, geometry)
-        StatMixin.__init__(self, s)
+        StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
         root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
+
+    def change_tool(self, pocket):
+        GLCanon.change_tool(self, pocket)
+        StatMixin.change_tool(self, pocket)
 
     def is_lathe(self): return lathe
 
@@ -2670,6 +2674,7 @@ if sys.argv[1] != "-ini":
     raise SystemExit, "-ini must be first argument"
 
 inifile = emc.ini(sys.argv[2])
+random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 open_directory = inifile.find("DISPLAY", "PROGRAM_PREFIX")
 vars.machine.set(inifile.find("EMC", "MACHINE"))

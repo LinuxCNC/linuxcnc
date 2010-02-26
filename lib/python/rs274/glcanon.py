@@ -65,7 +65,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if arg.startswith("AXIS,"):
             parts = arg.split(",")
             command = parts[1]
-            if command == "stop": self.aborted = True
+            if command == "stop": raise KeyboardInterrupt
             if command == "hide": self.suppress += 1
             if command == "show": self.suppress -= 1
 

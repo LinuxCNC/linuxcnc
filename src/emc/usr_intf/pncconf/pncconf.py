@@ -1804,7 +1804,7 @@ class Data:
                     if not axletter == "s":
                         pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                         print pinname
-                        if 'hms' in pinname:      
+                        if 'hm2' in pinname:      
                             print >>file, "# connect jogwheel signals to mesa encoder - %s axis MPG "% axletter       
                             print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "    setp  axis.%d.jog-enable true"% (axnum)
@@ -1943,7 +1943,7 @@ class Data:
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd                       =>  abs.0.in")
                       print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
@@ -2002,8 +2002,8 @@ class Data:
         else: unit = "a metric"
         if self.frontend == 1: display = "AXIS"
         elif self.frontend == 2: display = "Tkemc"
-        elif self.frontend == 0: display = "Mini"
-        else: display == "an unknown"
+        elif self.frontend == 3: display = "Mini"
+        else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
@@ -2037,8 +2037,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s " %{ 
-            'type':temptype, 'pinnum':x, 'data':temp,   'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
         print >>file
         print >>file,_("Mesa 5i20 connector 4 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
@@ -2048,8 +2048,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s" %{
-            'type':temptype,'pinnum':x, 'data':temp, 'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
         print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
@@ -2430,6 +2430,20 @@ class App:
         except:
             text = _("Help page is unavailable\n")
             self.warning_dialog(text,True)
+
+    def check_for_rt(self,fussy=True):
+        actual_kernel = os.uname()[2]
+        if hal.is_sim == 1 :
+            if fussy:
+                self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of external hardware is unavailable."),True)
+                return False
+            else:
+                return True
+        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+            self.warning_dialog(_("""You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
+            return False
+        else:
+            return True
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
@@ -4736,6 +4750,8 @@ class App:
             self.warning_dialog(text,True)
 
     def parporttest(self,w):
+        if not self.check_for_rt(self):
+            return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
@@ -4782,6 +4798,8 @@ class App:
 
     # This is for pyvcp test panel
     def testpanel(self,w):
+        if not self.check_for_rt(True):
+            return 
         pos = "+0+0"
         size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
@@ -4811,7 +4829,9 @@ class App:
         halrun.close()
 
     # for classicladder test  
-    def load_ladder(self,w):   
+    def load_ladder(self,w): 
+        if not self.check_for_rt(True):
+            return  
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
@@ -4861,6 +4881,8 @@ class App:
       
     # servo and stepper test  
     def tune_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         d = self.data
         w = self.widgets
         self.updaterunning = False
@@ -5176,6 +5198,8 @@ class App:
 
     # openloop servo test
     def test_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
              self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
              return

@@ -565,7 +565,7 @@ static int pins_and_params(char *argv[])
     }
     /* export all the pins and params for each port */
     for (n = 0; n < num_ports; n++) {
-        int modes = use_control_in[n] ? 0 : PARPORT_MODE_TRISTATE;
+        int modes = use_control_in[n] ? PARPORT_MODE_TRISTATE : 0;
         retval = hal_parport_get(comp_id, &port_data_array[n].portdata,
                 port_addr[n], -1, modes);
 

@@ -357,16 +357,16 @@ void SET_FEED_MODE(int mode) {
 #endif
 }
 
-void CHANGE_TOOL(int tool) {
+void CHANGE_TOOL(int pocket) {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = 
-        PyObject_CallMethod(callback, "change_tool", "i", tool);
+        PyObject_CallMethod(callback, "change_tool", "i", pocket);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
 
-void CHANGE_TOOL_NUMBER(int tool) {
+void CHANGE_TOOL_NUMBER(int pocket) {
     maybe_new_line();
     if(interp_error) return;
 }
@@ -545,11 +545,11 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     strncpy(name, s, max_size - 1);
 }
 int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
-        PyObject_CallMethod(callback, "get_tool", "i", tool);
+        PyObject_CallMethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
        !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
                           &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,

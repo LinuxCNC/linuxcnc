@@ -538,10 +538,12 @@ interpret_again:
 					       command);
 			    // and execute it
 			    execRetval = emcTaskPlanExecute(0);
-			    if (execRetval == -1 /* INTERP_ERROR */  ||
-				execRetval > INTERP_MIN_ERROR || execRetval == 1	/* INTERP_EXIT
-											 */ ) {
-				// end of file
+			    if (execRetval > INTERP_MIN_ERROR) {
+				emcStatus->task.interpState =
+				    EMC_TASK_INTERP_WAITING;
+				interp_list.clear();
+			    } else if (execRetval == -1
+				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
 			    } else if (execRetval == 2	/* INTERP_EXECUTE_FINISH
@@ -598,6 +600,9 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.u,
 						       emcStatus->motion.traj.actualPosition.v,
 						       emcStatus->motion.traj.actualPosition.w);
+				if (emcStatus->task.readLine + 1
+					== programStartLine)
+				    emcTaskPlanSynch();
 			    }
 
                             if (count++ < EMC_TASK_INTERP_MAX_LEN
