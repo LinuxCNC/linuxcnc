@@ -19,7 +19,7 @@ Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends},
-    @EMC2_PACKAGE_NAME@ (= ${Source-Version}),
+    @EMC2_PACKAGE_NAME@ (= ${binary:Version}),
     yapps2-runtime
 Section: libs
 Description: PC based motion controller for real-time Linux.
