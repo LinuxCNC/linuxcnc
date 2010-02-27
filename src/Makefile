@@ -413,7 +413,7 @@ install-menus install-menu: ../share/menus/CNC.menu \
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=INSTALL NEWS README AUTHORS
+DOCS=NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
