@@ -305,6 +305,8 @@
 #include "rtapi_math.h"
 
 #define MAX_CHAN 8
+#define MAX_CYCLE 10
+#define USER_STEP_TYPE 13
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -314,6 +316,9 @@ int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
 const char *ctrl_type[MAX_CHAN] = { "p", "p", "p", "p", "p", "p", "p", "p" };
 RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 8 channels");
+int user_step_type[MAX_CYCLE] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
+	"lookup table for user-defined step type");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -373,7 +378,7 @@ static stepgen_t *stepgen_array;
 
 /* lookup tables for stepping types 2 and higher - phase A is the LSB */
 
-static const unsigned char master_lut[][10] = {
+static unsigned char master_lut[][MAX_CYCLE] = {
     {1, 3, 2, 0, 0, 0, 0, 0, 0, 0},	/* type 2: Quadrature */
     {1, 2, 4, 0, 0, 0, 0, 0, 0, 0},	/* type 3: Three Wire */
     {1, 3, 2, 6, 4, 5, 0, 0, 0, 0},	/* type 4: Three Wire Half Step */
@@ -386,16 +391,17 @@ static const unsigned char master_lut[][10] = {
     {1, 2, 4, 8, 16, 0, 0, 0, 0, 0},	/* 11: Five Wire Unipolar */
     {3, 6, 12, 24, 17, 0, 0, 0, 0, 0},	/* 12: Five Wire Wave */
     {1, 3, 2, 6, 4, 12, 8, 24, 16, 17},	/* 13: Five Wire Uni Half */
-    {3, 7, 6, 14, 12, 28, 24, 25, 17, 19}	/* 14: Five Wire Wave Half */
+    {3, 7, 6, 14, 12, 28, 24, 25, 17, 19},	/* 14: Five Wire Wave Half */
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0} /* 15: User-defined */
 };
 
-static const unsigned char cycle_len_lut[] =
-    { 4, 3, 6, 4, 4, 4, 4, 8, 8, 5, 5, 10, 10 };
+static unsigned char cycle_len_lut[] =
+    { 4, 3, 6, 4, 4, 4, 4, 8, 8, 5, 5, 10, 10, 0 };
 
-static const unsigned char num_phases_lut[] =
-    { 2, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, };
+static unsigned char num_phases_lut[] =
+    { 2, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 0, };
 
-#define MAX_STEP_TYPE 14
+#define MAX_STEP_TYPE 15
 
 #define STEP_PIN	0	/* output phase used for STEP signal */
 #define DIR_PIN		1	/* output phase used for DIR signal */
@@ -426,6 +432,7 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
 static void make_pulses(void *arg, long period);
 static void update_freq(void *arg, long period);
 static void update_pos(void *arg, long period);
+static int setup_user_step_type(void);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -434,6 +441,11 @@ static void update_pos(void *arg, long period);
 int rtapi_app_main(void)
 {
     int n, retval;
+
+    retval = setup_user_step_type();
+    if(retval < 0) {
+        return retval;
+    }
 
     for (n = 0; n < MAX_CHAN && step_type[n] != -1 ; n++) {
 	if ((step_type[n] > MAX_STEP_TYPE) || (step_type[n] < 0)) {
@@ -1185,5 +1197,32 @@ static int export_stepgen(int num, stepgen_t * addr, int step_type, int pos_mode
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
+    return 0;
+}
+
+static int setup_user_step_type(void) {
+    int used_phases = 0;
+    int i = 0;
+    for(i=0; i<10 && user_step_type[i] != -1; i++) {
+        master_lut[USER_STEP_TYPE][i] = user_step_type[i];
+	used_phases |= user_step_type[i];
+    }
+    cycle_len_lut[USER_STEP_TYPE] = i;
+    if(used_phases & ~0x1f) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "STEPGEN: ERROR: "
+			    "bad user step type uses more than 5 phases");
+	    return -EINVAL; // more than 5 phases is not allowed
+    }
+
+    if(used_phases & 0x10) num_phases_lut[USER_STEP_TYPE] = 5;
+    else if(used_phases & 0x8) num_phases_lut[USER_STEP_TYPE] = 4;
+    else if(used_phases & 0x4) num_phases_lut[USER_STEP_TYPE] = 3;
+    else if(used_phases & 0x2) num_phases_lut[USER_STEP_TYPE] = 2;
+    else if(used_phases & 0x1) num_phases_lut[USER_STEP_TYPE] = 1;
+
+    if(used_phases)
+	    rtapi_print_msg(RTAPI_MSG_INFO,
+		"User step type has %d phases and %d steps per cycle\n",
+		num_phases_lut[USER_STEP_TYPE], i);
     return 0;
 }

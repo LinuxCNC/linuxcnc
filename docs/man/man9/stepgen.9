@@ -8,7 +8,7 @@
 .SH NAME
 stepgen \- software step pulse generation
 .SH SYNOPSIS
-\fBloadrt stepgen step_type=\fItype0\fR[,\fItype1\fR...] [\fBctrl_type=\fItype0\fR[,\fItype1\fR...]]
+\fBloadrt stepgen step_type=\fItype0\fR[,\fItype1\fR...] [\fBctrl_type=\fItype0\fR[,\fItype1\fR...]] [\fBuser_step_type=#,#\fR...]
 
 .SH DESCRIPTION
 \fBstepgen\fR is used to control stepper motors.  The maximum
@@ -31,7 +31,7 @@ velocity mode replaces the former component \fBfreqgen\fR.)
 motors/channels actually loaded depends on the number of \fItype\fR values
 given.  The value of each \fItype\fR determines the outputs for that channel.
 Position or velocity mode can be individually selected for each channel.
-Both control modes support the same 15 possible step types.
+Both control modes support the same 16 possible step types.
 .P
 By far the most common step type is '0', standard step and direction.  Others
 include up/down, quadrature, and a wide variety of three, four, and five phase
@@ -67,7 +67,10 @@ Five pins, phases A through E.  Five steps per full cycle.  See HAL reference ma
 .TP
 types 13 and 14: five phase, half step
 Five pins, phases A through E.  Ten steps per full cycle.  See HAL reference manual for the patterns.
-
+.TP
+type 15: user-specified
+This uses the waveform specified by the \fBuser_step_type\fR module parameter,
+which may have up to 10 steps and 5 phases.
 .SH FUNCTIONS
 .TP 
 \fBstepgen.make-pulses \fR(no floating-point)
