@@ -33,7 +33,7 @@ sys.excepthook = sys.__excepthook__
 import gettext;
 gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import array, time, atexit, tempfile, shutil, errno, thread, select, re
+import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
@@ -467,8 +467,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def tkRedraw_perspective(self, *dummy):
         """Cause the opengl widget to redraw itself."""
-        w = self.winfo_width()
-        h = self.winfo_height()
         self.redraw_perspective()
 
     def swapbuffers(self):
@@ -476,8 +474,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
     def tkRedraw_ortho(self, *dummy):
         """Cause the opengl widget to redraw itself."""
-        w = self.winfo_width()
-        h = self.winfo_height()
         self.redraw_ortho()
 
     def startRotate(self, event):
@@ -631,8 +627,6 @@ def scroll_down(event):
     t.yview_scroll(2, "units")
 
 current_tool = None
-
-import array
 
 def vupdate(var, val):
     try:
@@ -2658,8 +2652,6 @@ def bind_axis(a, b, d):
     root_window.bind("<KeyRelease-%s>" % b, lambda e: jog_off(d))
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
-
-import sys, getopt
 
 open_directory = "programs"
 
