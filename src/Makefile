@@ -669,9 +669,18 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/raw.o       \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
-hm2_pci-objs  := hal/drivers/mesa-hostmot2/hm2_pci.o  $(MATHSTUB)
-hm2_test-objs := hal/drivers/mesa-hostmot2/hm2_test.o $(MATHSTUB)
+hm2_7i43-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_7i43.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_pci-objs  :=                          \
+    hal/drivers/mesa-hostmot2/hm2_pci.o   \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_test-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_test.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o

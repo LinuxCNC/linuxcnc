@@ -23,6 +23,8 @@
 //
 
 
+#include <linux/firmware.h>
+
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
@@ -93,6 +95,11 @@ static int bitfile_parse_and_verify_chunk(const struct firmware *fw, bitfile_t *
 
     tag = fw->data[*i];
     (*i) ++;
+
+    if ((*i) > fw->size) {
+        HM2_PRINT_NO_LL("bitfile chunk '%c' size fell off the end!\n", tag);
+        return -ENODATA;
+    }
 
     switch (tag) {
         case 'a':
@@ -216,7 +223,7 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
 // is based on the serial interface, and the data needs to be reversed
 //
 
-static u8 bitfile_reverse_bits(u8 data) {
+u8 bitfile_reverse_bits(u8 data) {
     static const u8 swaptab[256] = {
 	0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0,
 	0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8, 0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8,
