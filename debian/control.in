@@ -19,10 +19,10 @@ Provides: emc2-dev
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends},
-    @EMC2_PACKAGE_NAME@ (= ${Source-Version}),
+    @EMC2_PACKAGE_NAME@ (= ${binary:Version}),
     yapps2-runtime
 Section: libs
-Description: PC based motion controller for real-time Linux.
+Description: PC based motion controller for real-time Linux
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).
@@ -47,7 +47,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python@PYTHON_VERSION@-numarray | python-numarray,
     python@PYTHON_VERSION@-imaging,
     python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
-Description: PC based motion controller for real-time Linux.
+Description: PC based motion controller for real-time Linux
  EMC2 is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic 
  applications (milling, cutting, routing, etc.).

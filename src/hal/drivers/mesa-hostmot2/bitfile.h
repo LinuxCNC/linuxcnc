@@ -27,6 +27,9 @@
 #define __BITFILE_H
 
 
+#include <linux/firmware.h>
+
+
 
 
 typedef struct {
@@ -44,6 +47,7 @@ typedef struct {
 
 int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile);
 void bitfile_reverse_bits_of_chunk(bitfile_chunk_t *chunk);
+u8 bitfile_reverse_bits(u8 data);
 
 
 

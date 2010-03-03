@@ -26,6 +26,7 @@
 
 #include "hal.h"
 
+#include "bitfile.h"
 #include "hostmot2-lowlevel.h"
 #include "hm2_pci.h"
 
@@ -175,7 +176,7 @@ static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bi
 
     // program the FPGA
     for (i = 0; i < bitfile->e.size; i ++) {
-        outb(bitfile->e.data[i], board->data_base_addr);
+        outb(bitfile_reverse_bits(bitfile->e.data[i]), board->data_base_addr);
     }
 
     // all bytes transferred, make sure FPGA is all set up now

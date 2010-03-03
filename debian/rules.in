@@ -100,8 +100,8 @@ binary-arch: build install
 ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper
 endif
-	dh_installdeb
 	dh_makeshlibs
+	dh_installdeb
 	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
 	dh_python /usr/lib/python@PYTHON_VERSION@/site-packages /usr/lib/python@PYTHON_VERSION@/dist-packages

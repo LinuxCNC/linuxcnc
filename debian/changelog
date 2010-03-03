@@ -688,7 +688,7 @@ emc2 (1:2.2.0) unstable; urgency=low
   * fixed a bug that caused helixes with a small circular component to have 
     too low a feed rate
 
- -- Chris Radek <chris@rover>  Sun,  5 Aug 2007 20:07:45 -0500
+ -- Chris Radek <chris@timeguy.com>  Sun,  5 Aug 2007 20:07:45 -0500
 
 emc2 (1:2.1.8~pre) unstable; urgency=low
 

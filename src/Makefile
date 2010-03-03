@@ -361,6 +361,7 @@ clean: depclean modclean
 	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
+	-rm -f config.log config.status
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
@@ -410,7 +411,7 @@ install-menus install-menu: ../share/menus/CNC.menu \
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=INSTALL NEWS README AUTHORS
+DOCS=NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(call GLOB,../nc_files/*)
@@ -663,9 +664,18 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/raw.o       \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
-hm2_pci-objs  := hal/drivers/mesa-hostmot2/hm2_pci.o  $(MATHSTUB)
-hm2_test-objs := hal/drivers/mesa-hostmot2/hm2_test.o $(MATHSTUB)
+hm2_7i43-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_7i43.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_pci-objs  :=                          \
+    hal/drivers/mesa-hostmot2/hm2_pci.o   \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_test-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_test.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
