@@ -178,14 +178,14 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 # high but only to +3.3V.  This is problematic on some kinds of inputs.
 #
 
-setp hm2_[HOSTMOT2](BOARD).0.gpio.048.is_opendrain 1
-setp hm2_[HOSTMOT2](BOARD).0.gpio.049.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.048.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.049.is_opendrain 1
 
-setp hm2_[HOSTMOT2](BOARD).0.gpio.054.is_opendrain 1
-setp hm2_[HOSTMOT2](BOARD).0.gpio.055.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.054.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.055.is_opendrain 1
 
-setp hm2_[HOSTMOT2](BOARD).0.gpio.060.is_opendrain 1
-setp hm2_[HOSTMOT2](BOARD).0.gpio.061.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.060.is_opendrain 1
+#setp hm2_[HOSTMOT2](BOARD).0.gpio.061.is_opendrain 1
 
 
 
