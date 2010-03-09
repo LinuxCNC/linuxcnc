@@ -25,14 +25,6 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
-#define active_settings  interp_new.active_settings
-#define active_g_codes   interp_new.active_g_codes
-#define active_m_codes   interp_new.active_m_codes
-#define interp_init	 interp_new.init
-#define interp_open      interp_new.open
-#define interp_close     interp_new.close
-#define interp_read	 interp_new.read
-#define interp_execute	 interp_new.execute
 char _parameter_file_name[LINELEN];
 
 
@@ -162,9 +154,9 @@ void maybe_new_line(int sequence_number) {
         return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
-    active_settings(new_line_code->settings);
-    active_g_codes(new_line_code->gcodes);
-    active_m_codes(new_line_code->mcodes);
+    interp_new.active_settings(new_line_code->settings);
+    interp_new.active_g_codes(new_line_code->gcodes);
+    interp_new.active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
     PyObject *result = 
@@ -706,25 +698,25 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_init();
-    interp_open(f);
+    interp_new.init();
+    interp_new.open(f);
 
     maybe_new_line();
 
     int result = INTERP_OK;
     if(unitcode) {
-        result = interp_read(unitcode);
+        result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_execute();
+        result = interp_new.execute();
     }
     if(initcode && RESULT_OK) {
-        result = interp_read(initcode);
+        result = interp_new.read(initcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_execute();
+        result = interp_new.execute();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
-        result = interp_read();
+        result = interp_new.read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
@@ -732,10 +724,10 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
         }
         if(!RESULT_OK) break;
         error_line_offset = 0;
-        result = interp_execute();
+        result = interp_new.execute();
     }
 out_error:
-    interp_close();
+    interp_new.close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
