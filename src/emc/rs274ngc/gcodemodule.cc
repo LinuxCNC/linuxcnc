@@ -50,20 +50,20 @@ typedef struct {
     int mcodes[ACTIVE_M_CODES];
 } LineCode;
 
-PyObject *LineCode_gcodes(LineCode *l) {
+static PyObject *LineCode_gcodes(LineCode *l) {
     return int_array(l->gcodes, ACTIVE_G_CODES);
 }
-PyObject *LineCode_mcodes(LineCode *l) {
+static PyObject *LineCode_mcodes(LineCode *l) {
     return int_array(l->mcodes, ACTIVE_M_CODES);
 }
 
-PyGetSetDef LineCodeGetSet[] = {
+static PyGetSetDef LineCodeGetSet[] = {
     {"gcodes", (getter)LineCode_gcodes},
     {"mcodes", (getter)LineCode_mcodes},
     {NULL, NULL},
 };
 
-PyMemberDef LineCodeMembers[] = {
+static PyMemberDef LineCodeMembers[] = {
     {"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY},
 
     {"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY},
@@ -89,7 +89,7 @@ PyMemberDef LineCodeMembers[] = {
     {NULL}
 };
 
-PyTypeObject LineCodeType = {
+static PyTypeObject LineCodeType = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
     "gcode.linecode",       /*tp_name*/
@@ -134,17 +134,17 @@ PyTypeObject LineCodeType = {
     0,                      /*tp_is_gc*/
 };
 
-PyObject *callback;
-int interp_error;
-int last_sequence_number;
-bool metric;
-double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
+static PyObject *callback;
+static int interp_error;
+static int last_sequence_number;
+static bool metric;
+static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-Interp interp_new;
+static Interp interp_new;
 
-void maybe_new_line(int sequence_number=interp_new.sequence_number());
-void maybe_new_line(int sequence_number) {
+static void maybe_new_line(int sequence_number=interp_new.sequence_number());
+static void maybe_new_line(int sequence_number) {
     if(interp_error) return;
     if(sequence_number == last_sequence_number)
         return;
@@ -544,7 +544,7 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, double timeout) { return 0;}
 
-void user_defined_function(int num, double arg1, double arg2) {
+static void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
     maybe_new_line();
     PyObject *result =
@@ -613,7 +613,7 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
     return tool_offset.w;
 }
 
-bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
+static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
             "%s: Expected double, got %s", func, p->ob_type->tp_name);
@@ -650,7 +650,7 @@ double GET_EXTERNAL_LENGTH_UNITS() {
     return dresult;
 }
 
-bool check_abort() {
+static bool check_abort() {
     PyObject *result =
         PyObject_CallMethod(callback, "check_abort", "");
     if(!result) return 1;
@@ -673,7 +673,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
-PyObject *parse_file(PyObject *self, PyObject *args) {
+static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0;
     int error_line_offset = 0;
@@ -751,7 +751,7 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     return PyString_FromString(savedError);
 }
 
-PyMethodDef gcode_methods[] = {
+static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
     {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS, "Convert a numeric error to a string"},
     {NULL}
