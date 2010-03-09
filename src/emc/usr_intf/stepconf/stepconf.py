@@ -1988,7 +1988,10 @@ class App:
 
         scale = data[axis + "scale"]
         maxvel = 1.5 * vel
-        period = int(1e9 / maxvel / scale)
+        if data.doublestep():
+                period = int(1e9 / maxvel / scale)
+        else:
+                period = int(.5e9 / maxvel / scale)
 
         steptime = self.widgets.steptime.get_value()
         stepspace = self.widgets.stepspace.get_value()
@@ -1997,7 +2000,10 @@ class App:
 
         if period < minperiod:
             period = minperiod
-            maxvel = 1e9 / minperiod / abs(scale)
+            if data.doublestep():
+                maxvel = 1e9 / minperiod / abs(scale)
+            else:
+                maxvel = 1e9 / minperiod / abs(scale)
         if period > 100000:
             period = 100000
 
