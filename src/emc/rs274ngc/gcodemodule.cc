@@ -155,9 +155,9 @@ EmcPose tool_offset;
 
 Interp interp_new;
 
-void maybe_new_line(int line_number) {
+void maybe_new_line(int sequence_number=interp_new.sequence_number());
+void maybe_new_line(int sequence_number) {
     if(interp_error) return;
-    int sequence_number = line_number == -1? interp_new.sequence_number(): line_number;
     if(sequence_number == last_sequence_number)
         return;
     LineCode *new_line_code =
@@ -233,12 +233,6 @@ void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y
       STRAIGHT_FEED(12345, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     }
 }
-
-
-void maybe_new_line(void) {
-    maybe_new_line(-1);
-}
-
 
 void ARC_FEED(int line_number,
               double first_end, double second_end, double first_axis,
