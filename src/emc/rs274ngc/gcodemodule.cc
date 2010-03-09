@@ -140,7 +140,6 @@ PyTypeObject LineCodeType = {
 PyObject *callback;
 int interp_error;
 int last_sequence_number;
-int plane;
 bool metric;
 double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
