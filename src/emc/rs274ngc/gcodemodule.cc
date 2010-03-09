@@ -157,17 +157,15 @@ Interp interp_new;
 
 void maybe_new_line(int line_number) {
     if(interp_error) return;
+    int sequence_number = line_number == -1? interp_new.sequence_number(): line_number;
+    if(sequence_number == last_sequence_number)
+        return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
     active_settings(new_line_code->settings);
     active_g_codes(new_line_code->gcodes);
     active_m_codes(new_line_code->mcodes);
-    int sequence_number = line_number == -1? interp_new.sequence_number(): line_number;
     new_line_code->gcodes[0] = sequence_number;
-    if(sequence_number == last_sequence_number) {
-        Py_DECREF(new_line_code);
-        return;
-    }
     last_sequence_number = sequence_number;
     PyObject *result = 
         PyObject_CallMethod(callback, "next_line", "O", new_line_code);
