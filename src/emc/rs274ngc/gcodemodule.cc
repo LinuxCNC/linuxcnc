@@ -43,9 +43,6 @@ static PyObject *int_array(int *arr, int sz) {
     return res;
 }
 
-extern PyTypeObject LineCodeType, DelayType, VelocityType;
-extern PyTypeObject LinearMoveType, CircularMoveType, UnknownMessageType;
-
 typedef struct {
     PyObject_HEAD
     double settings[ACTIVE_SETTINGS];
