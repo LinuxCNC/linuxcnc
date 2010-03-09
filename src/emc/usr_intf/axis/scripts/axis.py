@@ -932,7 +932,6 @@ class AxisCanon(GLCanon, StatMixin):
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
-        root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
 
     def change_tool(self, pocket):
         GLCanon.change_tool(self, pocket)
@@ -1008,6 +1007,10 @@ def add_recent_file(f):
     ap.putpref('recentfiles', recent, repr)
     update_recent_menu()
 
+def cancel_open(event=None):
+    if o.canon is not None:
+        o.canon.aborted = True
+
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
@@ -1063,6 +1066,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
         o.canon = canon = AxisCanon(o, widgets.text, i, progress)
+        root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
