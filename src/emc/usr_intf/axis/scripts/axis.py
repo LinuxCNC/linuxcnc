@@ -2937,10 +2937,6 @@ t.bind('<Button-3>', rClicker) #allow right-click to select start from line
 t.tag_configure("ignored", background="#ffffff", foreground="#808080")
 t.tag_configure("lineno", foreground="#808080")
 t.tag_configure("executing", background="#804040", foreground="#ffffff")
-if args:
-    for i, l in enumerate(open(args[0])):
-        l = l.expandtabs().replace("\r", "")
-        t.insert("end", "%6d: " % (i+1), "lineno", l)
 t.bind("<Button-1>", select_line)
 t.bind("<B1-Motion>", lambda e: "break")
 t.bind("<B1-Leave>", lambda e: "break")
