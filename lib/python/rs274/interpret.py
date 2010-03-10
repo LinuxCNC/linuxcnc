@@ -18,11 +18,9 @@ import math
 
 class Translated:
     def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
-        t = self.rotation_xy
-        if t:
-            t = math.radians(t)
-            rotx = x * math.cos(t) - y * math.sin(t)
-            y = x * math.sin(t) + y * math.cos(t)
+        if self.rotation_xy:
+            rotx = x * self.rotation_cos - y * self.rotation_sin
+            y = x * self.rotation_sin + y * self.rotation_cos
             x = rotx
 
         return [x+self.offset_x, y+self.offset_y, z+self.offset_z,
@@ -45,6 +43,9 @@ class Translated:
         self.offset_w = offset_w
     def set_xy_rotation(self, theta):
         self.rotation_xy = theta
+        t = math.radians(theta)
+        self.rotation_sin = math.sin(t)
+        self.rotation_cos = math.cos(t)
 
 class ArcsToSegmentsMixin:
     plane = 1
@@ -54,17 +55,14 @@ class ArcsToSegmentsMixin:
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
         if self.plane == 1:
-            t = self.rotation_xy
-            if t:
-                t = math.radians(t)
-                rotx = x1 * math.cos(t) - y1 * math.sin(t)
-                roty = x1 * math.sin(t) + y1 * math.cos(t)
-                x1 = rotx
-                y1 = roty
+            if self.rotation_xy:
+                 rotx = x1 * self.rotation_cos - y1 * self.rotation_sin
+                 y1 = x1 * self.rotation_sin + y1 * self.rotation_cos
+                 x1 = rotx
             f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
-            if t:
-                rotcx = cx * math.cos(t) - cy * math.sin(t)
-                rotcy = cx * math.sin(t) + cy * math.cos(t)
+            if self.rotation_xy:
+                rotcx = cx * self.rotation_cos - cy * self.rotation_sin
+                rotcy = cx * self.rotation_sin + cy * self.rotation_cos
                 cx = rotcx
                 cy = rotcy
             cx += self.offset_x
