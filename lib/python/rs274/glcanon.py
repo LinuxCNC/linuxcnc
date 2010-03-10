@@ -145,17 +145,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def change_tool(self, arg):
         self.first_move = True
 
-    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u, offset_v, offset_w):
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.offset_z = offset_z
-        self.offset_a = offset_a
-        self.offset_b = offset_b
-        self.offset_c = offset_c
-        self.offset_u = offset_u
-        self.offset_v = offset_v
-        self.offset_w = offset_w
-
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
