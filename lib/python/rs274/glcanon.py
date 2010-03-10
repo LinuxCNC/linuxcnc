@@ -1351,4 +1351,4 @@ class GlCanonDraw:
         return [a*b for a, b in zip(pos, lus)]
 
 
-# vim:ts=8:sts=4:et:
+# vim:ts=8:sts=4:sw=4:et:
