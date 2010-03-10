@@ -436,7 +436,6 @@ install: install-test install-kernel-dep install-kernel-indep
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
-		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
