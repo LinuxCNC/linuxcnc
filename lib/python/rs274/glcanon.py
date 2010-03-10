@@ -755,8 +755,10 @@ class GlCanonDraw:
                 glCallList(olist)
                 origin = self.to_internal_units(s.origin)[:3]
                 glTranslatef(*origin)
+                glRotatef(s.rotation_xy, 0, 0, 1)
                 glCallList(alist)
             else:
+                glRotatef(s.rotation_xy, 0, 0, 1)
                 glCallList(alist)
             glPopMatrix()
 
@@ -1090,8 +1092,6 @@ class GlCanonDraw:
         s = self.stat
         view = self.get_view()
 
-        glPushMatrix()
-        glRotatef(s.rotation_xy, 0, 0, 1)
 
         glColor3f(*self.colors['axis_x'])
         glBegin(GL_LINES)
@@ -1155,7 +1155,6 @@ class GlCanonDraw:
             self.hershey.plot_string("Z", 0.5)
             glPopMatrix()
 
-        glPopMatrix()
         glEndList()
 
     def make_cone(self, n):
