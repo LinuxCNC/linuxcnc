@@ -17,8 +17,6 @@
 import math
 
 class Translated:
-    offset_x = offset_y = offset_z = offset_a = offset_b = offset_c = 0
-    rotation_xy = 0
     def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
         t = self.rotation_xy
         if t:

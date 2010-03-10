@@ -49,7 +49,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.feedrate = 1
         self.lo = (0,) * 9
         self.first_move = True
-        self.offset_x = self.offset_y = self.offset_z = 0
         self.geometry = geometry
         self.min_extents = [9e99,9e99,9e99]
         self.max_extents = [-9e99,-9e99,-9e99]
