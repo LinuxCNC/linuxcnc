@@ -8354,10 +8354,9 @@ Two spindle control modes are recognized: revolutions per minute, and CSS
  Program G96 D- S- to select constant surface speed of S feet per minute
  (if G20 is in effect) or meters per minute (if G21 is in effect).
  The maximum spindle speed is set by the D- number in revolutions per minute.
- CSS uses the machine X origin modified by the tool X offset to calculate
- the spindle RPM.
- The X machine origin should be when the reference tool (the one with zero
- offset) is at the center of rotation.
+ When using G96, ensure that X0 in the current coordinate system (including
+ offsets and tool lengths) is the center of rotation or emc will not give
+ the desired spindle speed.  G96 is not affected by radius or diameter mode.
 \end_layout
 
 \begin_layout Standard
