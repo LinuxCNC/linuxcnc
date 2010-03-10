@@ -1249,12 +1249,9 @@ class GlCanonDraw:
         return mid, size
 
     def set_view_x(self):
-        if self.canon:
-            mid, size = self.extents_info()
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            self.set_eyepoint_from_extents(size[1], size[2])
-        else:
-            self.set_eyepoint(5.)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.set_eyepoint_from_extents(size[1], size[2])
         self.perspective = False
         self.lat = -90
         self.lon = 270
@@ -1265,12 +1262,9 @@ class GlCanonDraw:
         glRotatef(-90, 1, 0, 0)
         if self.is_lathe():
             glRotatef(90, 0, 1, 0)
-        if self.canon:
-            mid, size = self.extents_info()
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            self.set_eyepoint_from_extents(size[0], size[2])
-        else:
-            self.set_eyepoint(5.)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.set_eyepoint_from_extents(size[0], size[2])
         self.perspective = False
         self.lat = -90
         self.lon = 0
@@ -1278,12 +1272,9 @@ class GlCanonDraw:
 
     def set_view_z(self):
         self.reset()
-        if self.canon:
-            mid, size = self.extents_info()
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            self.set_eyepoint_from_extents(size[0], size[1])
-        else:
-            self.set_eyepoint(5.)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.set_eyepoint_from_extents(size[0], size[1])
         self.perspective = False
         self.lat = self.lon = 0
         self._redraw()
@@ -1291,12 +1282,9 @@ class GlCanonDraw:
     def set_view_z2(self):
         self.reset()
         glRotatef(-90, 0, 0, 1)
-        if self.canon:
-            mid, size = self.extents_info()
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            self.set_eyepoint_from_extents(size[1], size[0])
-        else:
-            self.set_eyepoint(5.)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.set_eyepoint_from_extents(size[1], size[0])
         self.perspective = False
         self.lat = 0
         self.lon = 270
@@ -1305,27 +1293,18 @@ class GlCanonDraw:
     def set_view_p(self):
         self.reset()
         self.perspective = True
-        if self.canon:
-            mid, size = self.extents_info()
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
-            if size > 1e99: size = 5. # in case there are no moves in the preview
-            w = self.winfo_width()
-            h = self.winfo_height()
-            fovx = self.fovy * w / h
-            fov = min(fovx, self.fovy)
-            self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
-            self.lat = -60
-            self.lon = 335
-            x = (self.canon.min_extents[0] + self.canon.max_extents[0])/2
-            y = (self.canon.min_extents[1] + self.canon.max_extents[1])/2
-            z = (self.canon.min_extents[2] + self.canon.max_extents[2])/2
-            glnav.glRotateScene(self, 1.0, x, y, z, 0, 0, 0, 0)
-        else:
-            self.set_eyepoint(5.)
-            self.lat = -60
-            self.lon = 335
-            glnav.glRotateScene(self, 1.0, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
+        if size > 1e99: size = 5. # in case there are no moves in the preview
+        w = self.winfo_width()
+        h = self.winfo_height()
+        fovx = self.fovy * w / h
+        fov = min(fovx, self.fovy)
+        self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
+        self.lat = -60
+        self.lon = 335
+        glnav.glRotateScene(self, 1.0, mid[0], mid[1], mid[2], 0, 0, 0, 0)
         self._redraw()
 
     def make_selection_list(self):
