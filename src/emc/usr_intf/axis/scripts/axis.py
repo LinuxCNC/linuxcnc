@@ -495,6 +495,18 @@ class MyOpengl(GlCanonDraw, Opengl):
         widgets.view_p.configure(relief="link")
         vars.view_type.set(0)
 
+    def tkTranslateOrRotate(self, event):
+        if self.getRotateMode():
+            self.tkRotate(event)
+        else:
+            self.tkTranslate(event)
+
+    def tkRotateOrTranslate(self, event):
+        if self.getRotateMode():
+            self.tkTranslate(event)
+        else:
+            self.tkRotate(event)
+
     def actual_tkRedraw(self, *dummy):
         self.after_id = None
         if self.perspective:
