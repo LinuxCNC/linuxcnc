@@ -352,6 +352,7 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.last_position = None
         self.last_homed = None
         self.last_origin = None
+        self.last_rotation_xy = None
         self.last_tool = None
         self.last_limits = None
         self.set_eyepoint(5.)
@@ -727,6 +728,7 @@ class LivePlotter:
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
                 or self.stat.origin != o.last_origin
+                or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_table[0] != o.last_tool
                 or self.stat.motion_mode != o.last_motion_mode
@@ -737,6 +739,7 @@ class LivePlotter:
             o.last_homed = self.stat.homed
             o.last_position = self.stat.actual_position
             o.last_origin = self.stat.origin
+            o.last_rotation_xy = self.stat.rotation_xy
             o.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
             o.last_joint_position = self.stat.joint_actual_position
