@@ -256,6 +256,7 @@ class GlNavBase:
         """Perform rotation of scene."""
 
         self.activate()
+        self.perspective = True
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, x, y, self.xmouse, self.ymouse)
         self._redraw()
         self.recordMouse(x, y)
