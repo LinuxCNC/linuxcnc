@@ -1240,8 +1240,12 @@ class GlCanonDraw:
         glDepthFunc(GL_LESS)
 
     def extents_info(self):
-        mid = [(a+b)/2 for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
-        size = [(a-b) for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
+        if self.canon:
+            mid = [(a+b)/2 for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
+            size = [(a-b) for a, b in zip(self.canon.max_extents, self.canon.min_extents)]
+        else:
+            mid = [0, 0, 0]
+            size = [3, 3, 3]
         return mid, size
 
     def set_view_x(self):
