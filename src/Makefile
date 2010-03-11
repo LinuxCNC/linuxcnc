@@ -469,7 +469,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(EXE) ../bin/toolconvert $(DESTDIR)$(bindir)
-	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
