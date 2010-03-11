@@ -234,22 +234,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             z = (self.min_extents[2] + self.max_extents[2])/2
         return x, y, z
 
-    def draw(self, for_selection=0):
-        glEnable(GL_LINE_STIPPLE)
-        glColor3f(*self.colors['traverse'])
-        self.draw_lines(self.traverse, for_selection)
-        glDisable(GL_LINE_STIPPLE)
-
-        glColor3f(*self.colors['straight_feed'])
-        self.draw_lines(self.feed, for_selection)
-
-        glColor3f(*self.colors['arc_feed'])
-        self.draw_lines(self.arcfeed, for_selection)
-
-        glLineWidth(2)
-        self.draw_dwells(self.dwells, for_selection)
-        glLineWidth(1)
-
     def draw(self, for_selection=0, include_traverse=True):
         self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
 
