@@ -134,11 +134,17 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         finally:
             self.in_arc = False
 
-    def straight_arcsegment(self, x,y,z, a,b,c, u, v, w):
+    def straight_arcsegments(self, segs):
         self.first_move = False
-        l = (x,y,z,a,b,c,u,v,w)
-        self.arcfeed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
-        self.lo = l
+        lo = self.lo
+        lineno = self.lineno
+        feedrate = self.feedrate
+        to = [self.xo, self.yo, self.zo]
+        append = self.arcfeed_append
+        for l in segs:
+            append((lineno, lo, l, feedrate, to))
+            lo = l
+        self.lo = lo
 
     def straight_feed(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return

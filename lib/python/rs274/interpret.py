@@ -96,6 +96,8 @@ class ArcsToSegmentsMixin:
         def interp(low, high):
             return low + (high-low) * i / steps
 
+        segs = []
+        seg_append = segs.append
         steps = max(8, int(128 * abs(theta1 - theta2) / math.pi))
         p = [0] * 9
         for i in range(1, steps):
@@ -110,8 +112,9 @@ class ArcsToSegmentsMixin:
             p[6] = interp(o[6], n[6])
             p[7] = interp(o[7], n[7])
             p[8] = interp(o[8], n[8])
-            self.straight_arcsegment(*p)
-        self.straight_arcsegment(*n)
+            seg_append(tuple(p))
+        seg_append(tuple(n));
+        self.straight_arcsegments(segs)
 
 class PrintCanon:
     def set_origin_offsets(self, *args):
