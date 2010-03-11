@@ -917,6 +917,7 @@ class Progress:
         self.phase += 1
         self.total = total or 1
         self.lastcount = -100
+        self.update(0, True)
 
     def done(self):
         root_window.tk.call("destroy", ".info.progress")
@@ -1062,7 +1063,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
-        progress = Progress(4, len(lines)) 
+        progress = Progress(7, len(lines))
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []

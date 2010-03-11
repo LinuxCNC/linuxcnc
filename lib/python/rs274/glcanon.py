@@ -235,23 +235,27 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return x, y, z
 
     def draw(self, for_selection=0, no_traverse=True):
-        self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
 
         if not no_traverse:
+            self.progress.nextphase(1)
             glEnable(GL_LINE_STIPPLE)
             glColor3f(*self.colors['traverse'])
             self.draw_lines(self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
         else:
+            self.progress.nextphase(3)
             glColor3f(*self.colors['straight_feed'])
             self.draw_lines(self.feed, for_selection, len(self.traverse))
+            self.progress.update(1, True)
 
             glColor3f(*self.colors['arc_feed'])
             self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
+            self.progress.update(1, True)
 
             glLineWidth(2)
             self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
             glLineWidth(1)
+            self.progress.update(1, True)
 
 def with_context(f):
     def inner(self, *args, **kw):
@@ -1249,7 +1253,9 @@ class GlCanonDraw:
         result, seq = gcode.parse(f, canon, unitcode, initcode)
 
         if result < gcode.MIN_ERROR:
+            self.canon.progress.nextphase(1)
             canon.calc_extents()
+            self.canon.progress.nextphase(1)
             canon.calc_notool_extents()
             self.make_main_list()
             self.make_selection_list()
