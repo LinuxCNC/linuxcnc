@@ -359,6 +359,11 @@ class GlCanonDraw:
             gen(base)
         return self._dlists[name][0]
 
+    def stale_dlist(self, name):
+        if name not in self._dlists: return
+        base, count = self._dlists.pop(name)
+        glDeleteLists(base, count)
+
     def __del__(self):
         for base, count in self._dlists.values():
             glDeleteLists(base, count)
