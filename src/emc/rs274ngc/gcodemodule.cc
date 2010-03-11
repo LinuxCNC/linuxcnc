@@ -743,10 +743,75 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     return PyString_FromString(savedError);
 }
 
+static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
+    double min_x = INFINITY, min_y = INFINITY, min_z = INFINITY,
+           min_xt = INFINITY, min_yt = INFINITY, min_zt = INFINITY,
+           max_x = -INFINITY, max_y = -INFINITY, max_z = -INFINITY,
+           max_xt = -INFINITY, max_yt = -INFINITY, max_zt = -INFINITY;
+    for(int i=0; i<PySequence_Length(args); i++) {
+        PyObject *si = PyTuple_GetItem(args, i);
+        if(!si) return NULL;
+        int j;
+        double xs, ys, zs, xe, ye, ze, xt, yt, zt;
+        for(j=0; j<PySequence_Length(si); j++) {
+            PyObject *sj = PySequence_GetItem(si, j);
+            PyObject *unused;
+            int r;
+            if(PyTuple_Size(sj) == 4)
+                r = PyArg_ParseTuple(sj,
+                    "O(dddOOOOOO)(dddOOOOOO)(ddd):calc_extents item",
+                    &unused,
+                    &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &unused, &xt, &yt, &zt);
+            else
+                r = PyArg_ParseTuple(sj,
+                    "O(dddOOOOOO)(dddOOOOOO)O(ddd):calc_extents item",
+                    &unused,
+                    &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &unused, &xt, &yt, &zt);
+            Py_DECREF(sj);
+            if(!r) return NULL;
+            max_x = std::max(max_x, xs);
+            max_y = std::max(max_y, ys);
+            max_z = std::max(max_z, zs);
+            min_x = std::min(min_x, xs);
+            min_y = std::min(min_y, ys);
+            min_z = std::min(min_z, zs);
+            max_xt = std::max(max_xt, xs+xt);
+            max_yt = std::max(max_yt, ys+yt);
+            max_zt = std::max(max_zt, zs+zt);
+            min_xt = std::min(min_xt, xs+xt);
+            min_yt = std::min(min_yt, ys+yt);
+            min_zt = std::min(min_zt, zs+zt);
+        }
+        if(j > 0) {
+            max_x = std::max(max_x, xe);
+            max_y = std::max(max_y, ye);
+            max_z = std::max(max_z, ze);
+            min_x = std::min(min_x, xe);
+            min_y = std::min(min_y, ye);
+            min_z = std::min(min_z, ze);
+            max_xt = std::max(max_xt, xe+xt);
+            max_yt = std::max(max_yt, ye+yt);
+            max_zt = std::max(max_zt, ze+zt);
+            min_xt = std::min(min_xt, xe+xt);
+            min_yt = std::min(min_yt, ye+yt);
+            min_zt = std::min(min_zt, ze+zt);
+        }
+    }
+    return Py_BuildValue("[ddd][ddd][ddd][ddd]",
+        min_x, min_y, min_z,  max_x, max_y, max_z,
+        min_xt, min_yt, min_zt,  max_xt, max_yt, max_zt);
+}
+
 static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
     {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS,
         "Convert a numeric error to a string"},
+    {"calc_extents", (PyCFunction)rs274_calc_extents, METH_VARARGS,
+        "Calculate information about extents of gcode"},
     {NULL}
 };
 

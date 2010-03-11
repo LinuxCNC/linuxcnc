@@ -84,44 +84,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
 
     def calc_extents(self):
-        x = [f[1][0] for f in self.arcfeed] + [f[1][0] for f in self.feed] + [f[1][0] for f in self.traverse]
-        y = [f[1][1] for f in self.arcfeed] + [f[1][1] for f in self.feed] + [f[1][1] for f in self.traverse]
-        z = [f[1][2] for f in self.arcfeed] + [f[1][2] for f in self.feed] + [f[1][2] for f in self.traverse]
-        if self.arcfeed:
-            x.append(self.arcfeed[-1][2][0])
-            y.append(self.arcfeed[-1][2][1])
-            z.append(self.arcfeed[-1][2][2])
-        if self.feed:
-            x.append(self.feed[-1][2][0])
-            y.append(self.feed[-1][2][1])
-            z.append(self.feed[-1][2][2])
-        if self.traverse:
-            x.append(self.traverse[-1][2][0])
-            y.append(self.traverse[-1][2][1])
-            z.append(self.traverse[-1][2][2])
-        if x:
-            self.min_extents = [min(x), min(y), min(z)]
-            self.max_extents = [max(x), max(y), max(z)]
-
-    def calc_notool_extents(self):
-        x = [f[1][0]+f[4][0] for f in self.arcfeed] + [f[1][0]+f[4][0] for f in self.feed] + [f[1][0]+f[3][0] for f in self.traverse]
-        y = [f[1][1]+f[4][1] for f in self.arcfeed] + [f[1][1]+f[4][1] for f in self.feed] + [f[1][1]+f[3][1] for f in self.traverse]
-        z = [f[1][2]+f[4][2] for f in self.arcfeed] + [f[1][2]+f[4][2] for f in self.feed] + [f[1][2]+f[3][2] for f in self.traverse]
-        if self.arcfeed:
-            x.append(self.arcfeed[-1][2][0] + self.arcfeed[-1][4][0])
-            y.append(self.arcfeed[-1][2][1] + self.arcfeed[-1][4][1])
-            z.append(self.arcfeed[-1][2][2] + self.arcfeed[-1][4][2])
-        if self.feed:
-            x.append(self.feed[-1][2][0] + self.feed[-1][4][0])
-            y.append(self.feed[-1][2][1] + self.feed[-1][4][1])
-            z.append(self.feed[-1][2][2] + self.feed[-1][4][2])
-        if self.traverse:
-            x.append(self.traverse[-1][2][0] + self.traverse[-1][3][0])
-            y.append(self.traverse[-1][2][1] + self.traverse[-1][3][1])
-            z.append(self.traverse[-1][2][2] + self.traverse[-1][3][2])
-        if x:
-            self.min_extents_notool = [min(x), min(y), min(z)]
-            self.max_extents_notool = [max(x), max(y), max(z)]
+        self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
 
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
@@ -1255,8 +1218,6 @@ class GlCanonDraw:
         if result < gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
             canon.calc_extents()
-            self.canon.progress.nextphase(1)
-            canon.calc_notool_extents()
             self.make_main_list()
             self.make_selection_list()
 
