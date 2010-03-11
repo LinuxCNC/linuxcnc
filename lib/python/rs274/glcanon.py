@@ -234,24 +234,24 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             z = (self.min_extents[2] + self.max_extents[2])/2
         return x, y, z
 
-    def draw(self, for_selection=0, include_traverse=True):
+    def draw(self, for_selection=0, no_traverse=True):
         self.progress.nextphase(len(self.traverse) + len(self.feed) + len(self.dwells) + len(self.arcfeed))
 
-        if include_traverse:
+        if not no_traverse:
             glEnable(GL_LINE_STIPPLE)
             glColor3f(*self.colors['traverse'])
             self.draw_lines(self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
+        else:
+            glColor3f(*self.colors['straight_feed'])
+            self.draw_lines(self.feed, for_selection, len(self.traverse))
 
-        glColor3f(*self.colors['straight_feed'])
-        self.draw_lines(self.feed, for_selection, len(self.traverse))
+            glColor3f(*self.colors['arc_feed'])
+            self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
-        glColor3f(*self.colors['arc_feed'])
-        self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
-
-        glLineWidth(2)
-        self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
-        glLineWidth(1)
+            glLineWidth(2)
+            self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
+            glLineWidth(1)
 
 def with_context(f):
     def inner(self, *args, **kw):
@@ -358,10 +358,9 @@ class GlCanonDraw:
             glInitNames()
             glPushName(0)
 
-            if not self.get_show_rapids():
-                glCallList(self.dlist('select_norapids'))
-            else:
-                glCallList(self.dlist('select_program'))
+            if self.get_show_rapids():
+                glCallList(self.dlist('select_rapids'))
+            glCallList(self.dlist('select_norapids'))
 
             try:
                 buffer = list(glRenderMode(GL_RENDER))
@@ -712,10 +711,9 @@ class GlCanonDraw:
         glMatrixMode(GL_MODELVIEW)
 
         if self.get_show_program():
-            if not self.get_show_rapids():
-                glCallList(self.dlist('norapids'))
-            else:
-                glCallList(self.dlist('program'))
+            if self.get_show_rapids():
+                glCallList(self.dlist('program_rapids'))
+            glCallList(self.dlist('program_norapids'))
             glCallList(self.dlist('highlight'))
 
             if self.get_show_extents():
@@ -1226,25 +1224,23 @@ class GlCanonDraw:
         return mid, size
 
     def make_selection_list(self):
-        select_program = self.dlist('select_program')
-        select_norapids = self.dlist('select_norapids')
-        glNewList(select_program, GL_COMPILE)
+        select_rapids = self.dlist('select_rapids')
+        select_program = self.dlist('select_norapids')
+        glNewList(select_rapids, GL_COMPILE)
         self.canon.draw(1)
         glEndList()
-        glNewList(select_norapids, GL_COMPILE)
+        glNewList(select_program, GL_COMPILE)
         self.canon.draw(1, False)
         glEndList()
 
     def make_main_list(self):
-        program = self.dlist('program')
-        norapids = self.dlist('norapids')
-        if program is None: program = glGenLists(1)
+        program = self.dlist('program_norapids')
+        rapids = self.dlist('program_rapids')
         glNewList(program, GL_COMPILE)
         self.canon.draw(0, True)
         glEndList()
 
-        if norapids is None: norapids = glGenLists(1)
-        glNewList(norapids, GL_COMPILE)
+        glNewList(rapids, GL_COMPILE)
         self.canon.draw(0, False)
         glEndList()
 
