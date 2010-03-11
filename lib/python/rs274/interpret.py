@@ -87,31 +87,39 @@ class ArcsToSegmentsMixin:
         # these ought to be the same, but go ahead and display them if not, for debugging
         rad1 = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
         rad2 = math.hypot(n[xyz[0]]-cx, n[xyz[1]]-cy)
-
+        rad = (rad1+rad2)/2
         if rot < 0:
             if theta2 >= theta1: theta2 -= math.pi * 2
         else:
             if theta2 <= theta1: theta2 += math.pi * 2
 
-        def interp(low, high):
-            return low + (high-low) * i / steps
-
         segs = []
         seg_append = segs.append
         steps = max(8, int(128 * abs(theta1 - theta2) / math.pi))
         p = [0] * 9
+        X, Y, Z = xyz[0], xyz[1], xyz[2]
+        dtheta = theta2-theta1
+        oz = o[Z]; dz = n[Z] - o[Z]
+        o3 = o[3]; d3 = n[3] - o[3]
+        o4 = o[4]; d4 = n[4] - o[4]
+        o5 = o[5]; d5 = n[5] - o[5]
+        o6 = o[6]; d6 = n[6] - o[6]
+        o7 = o[7]; d7 = n[7] - o[7]
+        o8 = o[8]; d8 = n[8] - o[8]
+        sin = math.sin; cos = math.cos
+        rsteps = 1. / steps
         for i in range(1, steps):
-            theta = interp(theta1, theta2)
-            rad = interp(rad1, rad2)
-            p[xyz[0]] = math.cos(theta) * rad + cx
-            p[xyz[1]] = math.sin(theta) * rad + cy
-            p[xyz[2]] = interp(o[xyz[2]], n[xyz[2]])
-            p[3] = interp(o[3], n[3])
-            p[4] = interp(o[4], n[4])
-            p[5] = interp(o[5], n[5])
-            p[6] = interp(o[6], n[6])
-            p[7] = interp(o[7], n[7])
-            p[8] = interp(o[8], n[8])
+            f = i * rsteps
+            theta = theta1 + dtheta * f
+            p[X] = cos(theta) * rad + cx
+            p[Y] = sin(theta) * rad + cy
+            p[Z] = oz + dz * f
+            p[3] = o3 + d3 * f
+            p[4] = o4 + d4 * f
+            p[5] = o5 + d5 * f
+            p[6] = o6 + d6 * f
+            p[7] = o7 + d7 * f
+            p[8] = o8 + d8 * f
             seg_append(tuple(p))
         seg_append(tuple(n));
         self.straight_arcsegments(segs)
