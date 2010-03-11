@@ -11,7 +11,7 @@ $(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC
 INIFILESRCS := libnml/inifile/inivar.cc
 
 USERSRCS += $(INIFILESRCS) $(LIBINISRCS)
-TARGETS += ../lib/libemcini.so ../lib/libemcini.so.0
+TARGETS += ../lib/libemcini.so.0
 
 ../lib/libemcini.so.0: $(call TOOBJS,$(LIBINISRCS))
 	$(ECHO) Creating shared library $(notdir $@)

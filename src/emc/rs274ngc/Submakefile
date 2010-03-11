@@ -20,7 +20,7 @@ USERSRCS += $(LIBRS274SRCS)
 
 $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC
 
-TARGETS += ../lib/librs274.so ../lib/librs274.so.0
+TARGETS += ../lib/librs274.so.0
 
 ../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS))
 	$(ECHO) Linking $(notdir $@)
