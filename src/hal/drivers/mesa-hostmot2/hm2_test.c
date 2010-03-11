@@ -423,6 +423,9 @@ int rtapi_app_main(void) {
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, IOPorts, IOWidth, and clocks
         // 
+        // The problem with this register file is that the Pin Descriptor
+        // array contains no valid PDs, though the IDROM advertised 144 pins.
+        //
 
         case 11: {
             *((u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
@@ -448,7 +451,7 @@ int rtapi_app_main(void) {
             // unusual offset to PinDescriptors
             *((u32*)&me->test_pattern[0x408]) = 0x1C0;
 
-            // unusual offset to PinDescriptors
+            // board name (8 bytes, not NULL terminated)
             me->test_pattern[0x40c] = 'T';
             me->test_pattern[0x40d] = 'E';
             me->test_pattern[0x40e] = 'S';
