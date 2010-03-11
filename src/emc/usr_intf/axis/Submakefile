@@ -14,7 +14,7 @@ $(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFL
 
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
-$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so
 	$(ECHO) Linking python module $(notdir $@)
 	@$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
 

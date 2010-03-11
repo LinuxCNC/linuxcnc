@@ -899,4 +899,7 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@echo $($*) > $@.tmp
 	@sh move-if-change $@.tmp $@
 
+../lib/%.so: ../lib/%.so.0
+	ln -sf $< $@
+
 # vim:ts=8:sts=8:sw=8:noet:

@@ -20,7 +20,7 @@ $(call TOOBJSDEPS, $(LIBNMLSRCS)) : EXTRAFLAGS=-fPIC
 
 USERSRCS += $(LIBNMLSRCS)
 
-TARGETS += ../lib/libnml.so.0
+TARGETS += ../lib/libnml.so ../lib/libnml.so.0
 
 ../lib/libnml.so.0: $(call TOOBJS,$(LIBNMLSRCS))
 	$(ECHO) Creating shared library $(notdir $@)
