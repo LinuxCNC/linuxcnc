@@ -488,6 +488,82 @@ int rtapi_app_main(void) {
         }
 
 
+
+        //
+        // good IO Cookie, Config Name, and IDROM Type
+        // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
+        // good PortWidth, IOWidth, and clocks
+        // but there are no IOPorts instances according to the MDs
+        // (this is the case with a firmware Jeff made for testing an RNG circuit)
+        //
+
+        case 12: {
+            int num_io_pins = 24;
+            int pd_index;
+
+            *((u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
+
+            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
+            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
+
+            // put the IDROM at 0x400, where it usually lives
+            *((u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
+
+            // standard idrom type
+            *((u32*)&me->test_pattern[0x400]) = 2;
+
+            // normal offset to Module Descriptors
+            *((u32*)&me->test_pattern[0x404]) = 64;
+
+            // normal offset to PinDescriptors
+            *((u32*)&me->test_pattern[0x408]) = 0x200;
+
+            // board name (8 bytes, not NULL terminated)
+            me->test_pattern[0x40c] = 'T';
+            me->test_pattern[0x40d] = 'E';
+            me->test_pattern[0x40e] = 'S';
+            me->test_pattern[0x40f] = 'T';
+            me->test_pattern[0x410] = 'I';
+            me->test_pattern[0x411] = 'N';
+            me->test_pattern[0x412] = 'G';
+            me->test_pattern[0x413] = ' ';
+
+            // IOPorts
+            *((u32*)&me->test_pattern[0x41c]) = 1;
+
+            // IOWidth
+            *((u32*)&me->test_pattern[0x420]) = num_io_pins;
+
+            // PortWidth
+            *((u32*)&me->test_pattern[0x424]) = 24;
+
+            // ClockLow = 2e6
+            *((u32*)&me->test_pattern[0x428]) = 2e6;
+
+            // ClockHigh = 2e7
+            *((u32*)&me->test_pattern[0x42c]) = 2e7;
+
+            me->llio.num_ioport_connectors = 1;
+            me->llio.ioport_connector_name[0] = "P3";
+
+            // make a bunch of valid Pin Descriptors
+            for (pd_index = 0; pd_index < num_io_pins; pd_index ++) {
+                me->test_pattern[0x600 + (pd_index * 4) + 0] = 0;               // SecPin (byte) = Which pin of secondary function connects here eg: A,B,IDX.  Output pins have bit 7 = '1'
+                me->test_pattern[0x600 + (pd_index * 4) + 1] = 0;               // SecTag (byte) = Secondary function type (PWM,QCTR etc).  Same as module GTag
+                me->test_pattern[0x600 + (pd_index * 4) + 2] = 0;               // SecUnit (byte) = Which secondary unit or channel connects here
+                me->test_pattern[0x600 + (pd_index * 4) + 3] = HM2_GTAG_IOPORT; // PrimaryTag (byte) = Primary function tag (normally I/O port)
+            }
+
+            break;
+        }
+
+
         default: {
             LL_ERR("unknown test pattern %d", test_pattern); 
             return -ENODEV;
