@@ -204,27 +204,21 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return x, y, z
 
     def draw(self, for_selection=0, no_traverse=True):
-
         if not no_traverse:
-            self.progress.nextphase(1)
             glEnable(GL_LINE_STIPPLE)
             glColor3f(*self.colors['traverse'])
             self.draw_lines(self.traverse, for_selection)
             glDisable(GL_LINE_STIPPLE)
         else:
-            self.progress.nextphase(3)
             glColor3f(*self.colors['straight_feed'])
             self.draw_lines(self.feed, for_selection, len(self.traverse))
-            self.progress.update(1, True)
 
             glColor3f(*self.colors['arc_feed'])
             self.draw_lines(self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
-            self.progress.update(1, True)
 
             glLineWidth(2)
             self.draw_dwells(self.dwells, for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
             glLineWidth(1)
-            self.progress.update(1, True)
 
 def with_context(f):
     def inner(self, *args, **kw):
@@ -332,8 +326,8 @@ class GlCanonDraw:
             glPushName(0)
 
             if self.get_show_rapids():
-                glCallList(self.dlist('select_rapids'))
-            glCallList(self.dlist('select_norapids'))
+                glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
+            glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
 
             try:
                 buffer = list(glRenderMode(GL_RENDER))
@@ -690,8 +684,8 @@ class GlCanonDraw:
 
         if self.get_show_program():
             if self.get_show_rapids():
-                glCallList(self.dlist('program_rapids'))
-            glCallList(self.dlist('program_norapids'))
+                glCallList(self.dlist('program_rapids', gen=self.make_main_list))
+            glCallList(self.dlist('program_norapids', gen=self.make_main_list))
             glCallList(self.dlist('highlight'))
 
             if self.get_show_extents():
@@ -1201,25 +1195,25 @@ class GlCanonDraw:
             size = [3, 3, 3]
         return mid, size
 
-    def make_selection_list(self):
+    def make_selection_list(self, unused=None):
         select_rapids = self.dlist('select_rapids')
         select_program = self.dlist('select_norapids')
         glNewList(select_rapids, GL_COMPILE)
-        self.canon.draw(1)
+        if self.canon: self.canon.draw(1)
         glEndList()
         glNewList(select_program, GL_COMPILE)
-        self.canon.draw(1, False)
+        if self.canon: self.canon.draw(1, False)
         glEndList()
 
-    def make_main_list(self):
+    def make_main_list(self, unused=None):
         program = self.dlist('program_norapids')
         rapids = self.dlist('program_rapids')
         glNewList(program, GL_COMPILE)
-        self.canon.draw(0, True)
+        if self.canon: self.canon.draw(0, True)
         glEndList()
 
         glNewList(rapids, GL_COMPILE)
-        self.canon.draw(0, False)
+        if self.canon: self.canon.draw(0, False)
         glEndList()
 
     def load_preview(self, f, canon, unitcode, initcode):
@@ -1229,8 +1223,10 @@ class GlCanonDraw:
         if result < gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
             canon.calc_extents()
-            self.make_main_list()
-            self.make_selection_list()
+            self.stale_dlist('program_rapids')
+            self.stale_dlist('program_norapids')
+            self.stale_dlist('select_rapids')
+            self.stale_dlist('select_norapids')
 
         return result, seq
 

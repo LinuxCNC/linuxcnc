@@ -1063,7 +1063,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
-        progress = Progress(6, len(lines))
+        progress = Progress(2, len(lines))
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
