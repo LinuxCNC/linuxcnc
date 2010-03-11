@@ -479,13 +479,6 @@ class GlCanonDraw:
             glFlush()                               # Tidy up
             glPopMatrix()                   # Restore the matrix
 
-    def set_eyepoint_from_extents(self, e1, e2):
-        w = self.winfo_width()
-        h = self.winfo_height()
-
-        ztran = max(2.0, e1, e2 * w/h) ** 2
-        self.set_eyepoint(ztran - self.zcenter)
-
     def color_limit(self, cond):
         if cond:
             glColor3f(*self.colors['label_limit'])
@@ -1247,65 +1240,6 @@ class GlCanonDraw:
             mid = [0, 0, 0]
             size = [3, 3, 3]
         return mid, size
-
-    def set_view_x(self):
-        mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.set_eyepoint_from_extents(size[1], size[2])
-        self.perspective = False
-        self.lat = -90
-        self.lon = 270
-        self._redraw()
-
-    def set_view_y(self):
-        self.reset()
-        glRotatef(-90, 1, 0, 0)
-        if self.is_lathe():
-            glRotatef(90, 0, 1, 0)
-        mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.set_eyepoint_from_extents(size[0], size[2])
-        self.perspective = False
-        self.lat = -90
-        self.lon = 0
-        self._redraw()
-
-    def set_view_z(self):
-        self.reset()
-        mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.set_eyepoint_from_extents(size[0], size[1])
-        self.perspective = False
-        self.lat = self.lon = 0
-        self._redraw()
-
-    def set_view_z2(self):
-        self.reset()
-        glRotatef(-90, 0, 0, 1)
-        mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.set_eyepoint_from_extents(size[1], size[0])
-        self.perspective = False
-        self.lat = 0
-        self.lon = 270
-        self._redraw()
-
-    def set_view_p(self):
-        self.reset()
-        self.perspective = True
-        mid, size = self.extents_info()
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        size = (size[0] ** 2 + size[1] ** 2 + size[2] ** 2) ** .5
-        if size > 1e99: size = 5. # in case there are no moves in the preview
-        w = self.winfo_width()
-        h = self.winfo_height()
-        fovx = self.fovy * w / h
-        fov = min(fovx, self.fovy)
-        self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
-        self.lat = -60
-        self.lon = 335
-        glnav.glRotateScene(self, 1.0, mid[0], mid[1], mid[2], 0, 0, 0, 0)
-        self._redraw()
 
     def make_selection_list(self):
         select_program = self.dlist('select_program')
