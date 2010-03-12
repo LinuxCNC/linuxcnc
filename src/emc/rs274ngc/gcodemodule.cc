@@ -608,7 +608,7 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
 static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
-            "%s: Expected double, got %s", func, p->ob_type->tp_name);
+            "%s: Expected float, got %s", func, p->ob_type->tp_name);
     return false;
 }
 
