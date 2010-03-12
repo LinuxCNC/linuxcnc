@@ -27,14 +27,6 @@
 
 char _parameter_file_name[LINELEN];
 
-
-/* This definition of offsetof avoids the g++ warning
- * 'invalid offsetof from non-POD type'.
- */
-#undef offsetof
-#define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
-
-
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
