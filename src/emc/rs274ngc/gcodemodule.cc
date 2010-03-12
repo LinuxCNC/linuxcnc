@@ -745,7 +745,8 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
 
 static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
-    {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS, "Convert a numeric error to a string"},
+    {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS,
+        "Convert a numeric error to a string"},
     {NULL}
 };
 
