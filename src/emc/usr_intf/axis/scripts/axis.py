@@ -62,7 +62,6 @@ import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
-from rs274 import ArcsToSegmentsMixin
 import emc
 from glnav import *
 
