@@ -4,6 +4,6 @@ SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc) \
 USERSRCS += $(SAISRCS)
 
 $(call TOOBJSDEPS,$(SAISRCS)) : 
-../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0 ../lib/libemcini.so.0
+../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS) 
