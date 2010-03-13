@@ -65,9 +65,9 @@ if(run) {
     }
 } else {
     if(jog_minus) {
-        position_cmd = position_fb - maxvel * fperiod;
+        position_cmd = position_fb - 2 * maxvel * fperiod;
     } else if(jog_plus) {
-        position_cmd = position_fb + maxvel * fperiod;
+        position_cmd = position_fb + 2 * maxvel * fperiod;
     } else {
         position_cmd = position_fb;
     }

@@ -184,7 +184,7 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
     ioport_number = pin_number / 24;
     bit_number = pin_number % 24;
 
-    if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
+    if ((pin_number < 0) || (ioport_number >= hm2->ioport.num_instances)) {
         HM2_ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
         return;
     }
@@ -211,7 +211,7 @@ void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
     ioport_number = pin_number / 24;
     bit_number = pin_number % 24;
 
-    if ((pin_number < 0) || (ioport_number > hm2->ioport.num_instances)) {
+    if ((pin_number < 0) || (ioport_number >= hm2->ioport.num_instances)) {
         HM2_ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
         return;
     }

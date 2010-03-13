@@ -3,7 +3,7 @@ etc/init.d/realtime
 etc/X11/app-defaults/*
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
-usr/lib/*.so*
+usr/lib/*.so.*
 usr/bin/*
 usr/lib/emc/tcl/*.so
 usr/lib/python@PYTHON_VERSION@/dist-packages/*.pyc
