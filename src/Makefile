@@ -160,7 +160,7 @@ CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath-link,$(LIB_DIR)
+LDFLAGS := -Wl,-rpath-link,../lib
 endif
 
 # Rules to make .d (dependency) files.
