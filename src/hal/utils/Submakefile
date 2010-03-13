@@ -21,7 +21,7 @@ TARGETS += ../bin/halcmd
 HALRMTSRCS := hal/utils/halrmt.c
 USERSRCS += $(HALRMTSRCS)
 
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemcini.so.0 ../lib/libnml.so.0 ../lib/libemchal.so.0 $(READLINE_LIBS)
+../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemchal.so.0 $(READLINE_LIBS)
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/halrmt
@@ -33,7 +33,7 @@ HALMETERSRCS := \
 
 USERSRCS += $(HALMETERSRCS)
 
-../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libnml.so.0 ../lib/libemchal.so.0
+../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
@@ -49,9 +49,9 @@ HALSCOPESRCS := \
 
 USERSRCS += $(HALSCOPESRCS)
 
-../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libnml.so.0 ../lib/libemchal.so.0
+../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+	@$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
 TARGETS += ../bin/halscope
 
 HALGTKSRCS := \
