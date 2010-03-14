@@ -813,6 +813,13 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
         min_xt, min_yt, min_zt,  max_xt, max_yt, max_zt);
 }
 
+#if PY_VERSION_HEX < 0x02050000
+#define PyObject_GetAttrString(o,s) \
+    PyObject_GetAttrString((o),const_cast<char*>((s)))
+#define PyArg_VaParse(o,f,a) \
+    PyArg_VaParse((o),const_cast<char*>((f)),(a))
+#endif
+
 static bool get_attr(PyObject *o, const char *attr_name, int *v) {
     PyObject *attr = PyObject_GetAttrString(o, attr_name);
     bool result = false;
