@@ -887,7 +887,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
         if(theta2 <= theta1) theta2 += 2*M_PI;
     }
 
-    int steps = std::max(8, int(max_segments * fabs(theta1 - theta2) / M_PI));
+    int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
     double rsteps = 1. / steps;
     PyObject *segs = PyList_New(steps);
 
