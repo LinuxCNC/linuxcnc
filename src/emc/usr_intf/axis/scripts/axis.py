@@ -940,13 +940,14 @@ class Progress:
                 "-text", text)
 
 class AxisCanon(GLCanon, StatMixin):
-    def __init__(self, widget, text, linecount, progress):
+    def __init__(self, widget, text, linecount, progress, arcdivision):
         GLCanon.__init__(self, widget.colors, geometry)
         StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
+        self.arcdivision = arcdivision
 
     def change_tool(self, pocket):
         GLCanon.change_tool(self, pocket)
@@ -1080,7 +1081,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
             t.insert("end", *code)
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
-        o.canon = canon = AxisCanon(o, widgets.text, i, progress)
+        o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
         root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
@@ -2842,6 +2843,8 @@ widgets.jogincr.configure(command= jogspeed_listbox_change)
 root_window.call(widgets.jogincr._w, "select", 0)   
 
 vcp = inifile.find("DISPLAY", "PYVCP")
+
+arcdivision = int(inifile.find("DISPLAY", "ARCDIVISION") or 128)
 
 del sys.argv[1:3]
 
