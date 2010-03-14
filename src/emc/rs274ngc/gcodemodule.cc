@@ -605,6 +605,13 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
     return tool_offset.w;
 }
 
+static bool PyInt_CheckAndError(const char *func, PyObject *p)  {
+    if(PyInt_Check(p)) return true;
+    PyErr_Format(PyExc_TypeError,
+            "%s: Expected int, got %s", func, p->ob_type->tp_name);
+    return false;
+}
+
 static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
@@ -806,12 +813,155 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
         min_xt, min_yt, min_zt,  max_xt, max_yt, max_zt);
 }
 
+static bool get_attr(PyObject *o, const char *attr_name, int *v) {
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    bool result = false;
+    if(attr && PyInt_CheckAndError(attr_name, attr)) {
+        *v = PyInt_AsLong(attr);
+        result = true;
+    }
+    Py_XDECREF(attr);
+    return result;
+}
+
+static bool get_attr(PyObject *o, const char *attr_name, double *v) {
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    bool result = false;
+    if(attr && PyFloat_CheckAndError(attr_name, attr)) {
+        *v = PyFloat_AsDouble(attr);
+        result = true;
+    }
+    Py_XDECREF(attr);
+    return result;
+}
+
+static bool get_attr(PyObject *o, const char *attr_name, const char *fmt, ...) {
+    bool result = false;
+    va_list ap;
+    va_start(ap, fmt);
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    if(attr) result = PyArg_VaParse(attr, fmt, ap);
+    va_end(ap);
+    Py_XDECREF(attr);
+    return result;
+}
+
+static void unrotate(double &x, double &y, double c, double s) {
+    double tx = x * c + y * s;
+    y = -x * s + y * c;
+    x = tx;
+}
+
+static void rotate(double &x, double &y, double c, double s) {
+    double tx = x * c - y * s;
+    y = x * s + y * c;
+    x = tx;
+}
+
+static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
+    PyObject *canon;
+    double x1, y1, cx, cy, z1, a, b, c, u, v, w;
+    double o[9], n[9], offset[9];
+    int rot, plane;
+    int X, Y, Z;
+    double rotation_cos, rotation_sin;
+    int max_segments = 128;
+
+    if(!PyArg_ParseTuple(args, "Oddddiddddddd|i:arcs_to_segments",
+        &canon, &x1, &y1, &cx, &cy, &rot, &z1, &a, &b, &c, &u, &v, &w, &max_segments)) return NULL;
+    if(!get_attr(canon, "lo", "ddddddddd:arcs_to_segments lo", &o[0], &o[1], &o[2],
+                    &o[3], &o[4], &o[5], &o[6], &o[7], &o[8]))
+        return NULL;
+    if(!get_attr(canon, "plane", &plane)) return NULL;
+    if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL;
+    if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL;
+    if(!get_attr(canon, "offset_x", &offset[0])) return NULL;
+    if(!get_attr(canon, "offset_y", &offset[1])) return NULL;
+    if(!get_attr(canon, "offset_z", &offset[2])) return NULL;
+    if(!get_attr(canon, "offset_a", &offset[3])) return NULL;
+    if(!get_attr(canon, "offset_b", &offset[4])) return NULL;
+    if(!get_attr(canon, "offset_c", &offset[5])) return NULL;
+    if(!get_attr(canon, "offset_u", &offset[6])) return NULL;
+    if(!get_attr(canon, "offset_v", &offset[7])) return NULL;
+    if(!get_attr(canon, "offset_w", &offset[8])) return NULL;
+
+    if(plane == 1) {
+        n[0] = x1;
+        n[1] = y1;
+        n[2] = z1;
+        X=0; Y=1; Z=2;
+    } else if(plane == 3) {
+        n[0] = y1;
+        n[1] = z1;
+        n[2] = x1;
+        X=2; Y=0; Z=1;
+    } else {
+        n[0] = z1;
+        n[1] = x1;
+        n[2] = y1;
+        X=1; Y=2; Z=0;
+    }
+    n[3] = a;
+    n[4] = b;
+    n[5] = c;
+    n[6] = u;
+    n[7] = v;
+    n[8] = w;
+    for(int ax=0; ax<9; ax++) o[ax] -= offset[ax];
+    unrotate(o[0], o[1], rotation_cos, rotation_sin);
+
+    double rad = hypot(o[X]-cx, o[Y]-cy);
+    double theta1 = atan2(o[Y]-cy, o[X]-cx);
+    double theta2 = atan2(n[Y]-cy, n[X]-cx);
+
+    if(rot < 0) {
+        if(theta2 >= theta1) theta2 -= 2*M_PI;
+    } else {
+        if(theta2 <= theta1) theta2 += 2*M_PI;
+    }
+
+    int steps = std::max(8, int(max_segments * fabs(theta1 - theta2) / M_PI));
+    double rsteps = 1. / steps;
+    PyObject *segs = PyList_New(steps);
+
+    double dtheta = theta2 - theta1;
+    double d[9] = {0, 0, 0, n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
+    d[Z] = o[Z] - n[Z];
+
+    double tx = cos(theta1) * rad, ty = sin(theta1)*rad, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    for(int i=0; i<steps-1; i++) {
+        double f = i * rsteps;
+        double p[9];
+        rotate(tx, ty, dc, ds);
+        p[X] = tx + cx;
+        p[Y] = ty + cy;
+        p[Z] = o[Z] + d[Z] * f;
+        p[3] = o[3] + d[3] * f;
+        p[4] = o[4] + d[4] * f;
+        p[5] = o[5] + d[5] * f;
+        p[6] = o[6] + d[6] * f;
+        p[7] = o[7] + d[7] * f;
+        p[8] = o[8] + d[8] * f;
+        rotate(p[0], p[1], rotation_cos, rotation_sin);
+        for(int ax=0; ax<9; ax++) p[ax] += offset[ax];
+        PyList_SET_ITEM(segs, i,
+            Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
+    }
+    rotate(n[0], n[1], rotation_cos, rotation_sin);
+    for(int ax=0; ax<9; ax++) n[ax] += offset[ax];
+    PyList_SET_ITEM(segs, steps-1,
+        Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
+    return segs;
+}
+
 static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
     {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS,
         "Convert a numeric error to a string"},
     {"calc_extents", (PyCFunction)rs274_calc_extents, METH_VARARGS,
         "Calculate information about extents of gcode"},
+    {"arc_to_segments", (PyCFunction)rs274_arc_to_segments, METH_VARARGS,
+        "Convert an arc to straight segments"},
     {NULL}
 };
 
