@@ -374,17 +374,16 @@ IniFile::Find(const char *_tag, const char *_section, int _num)
             continue;
         }
 
-        if (--_num > 0) {
-            /* Not looking for this one, so skip it... */
-            continue;
-        }
-
         /* it matches the first part of the string-- if whitespace or = is
            next char then call it a match */
         tagEnd = nonWhite[len];
         if (tagEnd == ' ' || tagEnd == '\r' || tagEnd == '\t'
             || tagEnd == '\n' || tagEnd == '=') {
             /* it matches-- return string after =, or NULL */
+            if (--_num > 0) {
+                /* Not looking for this one, so skip it... */
+                continue;
+            }
             nonWhite += len;
             valueString = AfterEqual(nonWhite);
             /* Eliminate white space at the end of a line also. */
