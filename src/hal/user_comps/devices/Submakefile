@@ -5,7 +5,7 @@ USERSRCS += $(HALJSSRCS)
 
 ../bin/hal_joystick: $(call TOOBJS, $(HALJSSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 
 TARGETS += ../bin/hal_joystick
 endif

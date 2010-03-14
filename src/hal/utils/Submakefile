@@ -10,20 +10,20 @@ $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/libemcini.so.0 ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^
+	$(CC) $(LDFLAGS) -shared -o $@ $^
 TARGETS += ../tcl/hal.so
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/libemcini.so.0 ../lib/libemchal.so.0 
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS)
 TARGETS += ../bin/halcmd
 
 HALRMTSRCS := hal/utils/halrmt.c
 USERSRCS += $(HALRMTSRCS)
 
-../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemchal.so.0 $(READLINE_LIBS)
+../bin/halrmt: $(call TOOBJS, $(HALRMTSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
+	@$(CC) $(LDFLAGS) -o $@ $^ -lpthread
 TARGETS += ../bin/halrmt
 
 ifneq ($(GTK_VERSION),)
@@ -35,7 +35,7 @@ USERSRCS += $(HALMETERSRCS)
 
 ../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
+	@$(CC) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
 
 HALSCOPESRCS := \
@@ -51,7 +51,7 @@ USERSRCS += $(HALSCOPESRCS)
 
 ../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
+	@$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
 TARGETS += ../bin/halscope
 
 HALGTKSRCS := \
@@ -72,14 +72,14 @@ PCIWRITESRCS := hal/utils/pci_write.c hal/utils/upci.c
 USERSRCS += $(PCIWRITESRCS)
 ../bin/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/pci_write
 
 PCIREADSRCS := hal/utils/pci_read.c hal/utils/upci.c
 USERSRCS += $(PCIREADSRCS)
 ../bin/pci_read: $(call TOOBJS, $(PCIREADSRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/pci_read
 
 endif
