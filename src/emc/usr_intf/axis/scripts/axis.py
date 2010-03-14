@@ -2844,7 +2844,7 @@ root_window.call(widgets.jogincr._w, "select", 0)
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
-arcdivision = int(inifile.find("DISPLAY", "ARCDIVISION") or 128)
+arcdivision = int(inifile.find("DISPLAY", "ARCDIVISION") or 64)
 
 del sys.argv[1:3]
 

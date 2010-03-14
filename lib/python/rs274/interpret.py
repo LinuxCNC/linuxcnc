@@ -49,7 +49,7 @@ class Translated:
 
 class ArcsToSegmentsMixin:
     plane = 1
-    arcdivision = 128
+    arcdivision = 64
 
     def set_plane(self, plane):
         self.plane = plane
