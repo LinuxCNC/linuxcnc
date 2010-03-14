@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-import math
+import math, gcode
 
 class Translated:
     offset_x = offset_y = offset_z = offset_a = offset_b = offset_c = 0
@@ -54,63 +54,9 @@ class ArcsToSegmentsMixin:
         self.plane = plane
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
-        if self.plane == 1:
-            t = self.rotation_xy
-            t = math.radians(t)
-            rotx = x1 * math.cos(t) - y1 * math.sin(t)
-            roty = x1 * math.sin(t) + y1 * math.cos(t)
-            x1 = rotx
-            y1 = roty
-            f = n = [x1+self.offset_x,y1+self.offset_y,z1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
-            rotcx = cx * math.cos(t) - cy * math.sin(t)
-            rotcy = cx * math.sin(t) + cy * math.cos(t)
-            cx = rotcx
-            cy = rotcy
-            cx += self.offset_x
-            cy += self.offset_y
-            xyz = [0,1,2]
-        elif self.plane == 3:
-            f = n = [y1+self.offset_x,z1+self.offset_y,x1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
-            cx=cx+self.offset_z
-            cy=cy+self.offset_x
-            xyz = [2,0,1]
-        else:
-            f = n = [z1+self.offset_x,x1+self.offset_y,y1+self.offset_z, a+self.offset_a, b+self.offset_b, c+self.offset_c, u+self.offset_u, v+self.offset_v, w+self.offset_w]
-            cx=cx+self.offset_y
-            cy=cy+self.offset_z
-            xyz = [1,2,0]
-        o = self.lo[:]
-        theta1 = math.atan2(o[xyz[1]]-cy, o[xyz[0]]-cx)
-        theta2 = math.atan2(n[xyz[1]]-cy, n[xyz[0]]-cx)
-
-        # these ought to be the same, but go ahead and display them if not, for debugging
-        rad1 = math.hypot(o[xyz[0]]-cx, o[xyz[1]]-cy)
-        rad2 = math.hypot(n[xyz[0]]-cx, n[xyz[1]]-cy)
-
-        if rot < 0:
-            if theta2 >= theta1: theta2 -= math.pi * 2
-        else:
-            if theta2 <= theta1: theta2 += math.pi * 2
-
-        def interp(low, high):
-            return low + (high-low) * i / steps
-
-        steps = max(8, int(128 * abs(theta1 - theta2) / math.pi))
-        p = [0] * 9
-        for i in range(1, steps):
-            theta = interp(theta1, theta2)
-            rad = interp(rad1, rad2)
-            p[xyz[0]] = math.cos(theta) * rad + cx
-            p[xyz[1]] = math.sin(theta) * rad + cy
-            p[xyz[2]] = interp(o[xyz[2]], n[xyz[2]])
-            p[3] = interp(o[3], n[3])
-            p[4] = interp(o[4], n[4])
-            p[5] = interp(o[5], n[5])
-            p[6] = interp(o[6], n[6])
-            p[7] = interp(o[7], n[7])
-            p[8] = interp(o[8], n[8])
-            self.straight_arcsegment(*p)
-        self.straight_arcsegment(*n)
+        self.lo = tuple(self.lo)
+        segs = gcode.arc_to_segments(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w)
+        self.straight_arcsegments(segs)
 
 class PrintCanon:
     def set_origin_offsets(self, *args):
