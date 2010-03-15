@@ -706,8 +706,17 @@ pack .toolbar.rule12 \
 pack .toolbar.clear_plot \
 	-side left
 
-set pane_top [frame .top]
-set pane_bottom [frame .bottom]
+panedwindow .pane \
+        -borderwidth 0 \
+        -handlesize 5 \
+        -orient v \
+        -sashpad 0 \
+        -showhandle 1
+
+set pane_top [frame .pane.top]
+set pane_bottom [frame .pane.bottom]
+.pane add $pane_top -sticky nsew
+.pane add $pane_bottom -sticky nsew
 
 NoteBook ${pane_top}.tabs \
 	-borderwidth 2 \
@@ -1786,8 +1795,7 @@ grid ${pane_bottom}.t \
 grid rowconfigure ${pane_bottom} 1 -weight 1
 grid columnconfigure ${pane_bottom} 1 -weight 1
 
-grid .top -column 0 -row 1 -sticky nsew
-grid .bottom -column 0 -row 2 -sticky nsew
+grid .pane -column 0 -row 1 -sticky nsew -rowspan 2
 
 # Grid widget .toolbar
 grid .toolbar \
