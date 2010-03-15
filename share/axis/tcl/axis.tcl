@@ -2280,8 +2280,11 @@ proc update_recent {args} {
 }
 
 
-bind . <Configure> { if {"%W" == "."} {
-    wm minsize %W [winfo reqwidth %W] [expr [winfo reqheight %W]+4] }
+bind . <Configure> {
+    if {"%W" == "."} {
+        wm minsize %W [winfo reqwidth %W] [winfo reqheight %W]
+        bind . <Configure> {}
+    }
 }
 
 bind . <Alt-v> [bind all <Alt-Key>]
