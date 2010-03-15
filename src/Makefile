@@ -202,7 +202,10 @@ config.h.in: configure.in
 	AUTOGEN_TARGET=config.h.in ./autogen.sh
 
 config.status: configure
-	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
+	if [ -f config.status ]; then ./config.status --recheck; else \
+	    echo 1>&2 "*** emc2 is not configured.  Run './configure' with appropriate flags."; \
+	    exit 1; \
+	fi
 endif
 
 config.h: config.h.in config.status
