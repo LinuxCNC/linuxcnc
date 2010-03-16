@@ -508,17 +508,13 @@ interpret_again:
 		    } else {
 			readRetval = emcTaskPlanRead();
 			/*! \todo MGS FIXME
-			   This next bit of code is goofy for the following reasons:
-			   1. It uses numbers when these values are #defined in interp_return.hh...
-			   2. This if() actually evaluates to if (readRetval != INTERP_OK)...
-			   3. The "end of file" comment is inaccurate...
+			   This if() actually evaluates to if (readRetval != INTERP_OK)...
 			   *** Need to look at all calls to things that return INTERP_xxx values! ***
 			   MGS */
-			if (readRetval > INTERP_MIN_ERROR || readRetval == 3	/* INTERP_ENDFILE 
-										 */  ||
-			    readRetval == 1 /* INTERP_EXIT */  ||
-			    readRetval == 2	/* INTERP_ENDFILE,
-						   INTERP_EXECUTE_FINISH */ ) {
+			if (readRetval > INTERP_MIN_ERROR
+				|| readRetval == INTERP_ENDFILE
+				|| readRetval == INTERP_EXIT
+				|| readRetval == INTERP_EXECUTE_FINISH) {
 			    /* emcTaskPlanRead retval != INTERP_OK
 			       Signal to the rest of the system that that the interp
 			       is now in a paused state. */
@@ -546,8 +542,7 @@ interpret_again:
 				    || execRetval == INTERP_EXIT ) {
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP_WAITING;
-			    } else if (execRetval == 2	/* INTERP_EXECUTE_FINISH
-							 */ ) {
+			    } else if (execRetval == INTERP_EXECUTE_FINISH) {
 				// INTERP_EXECUTE_FINISH signifies
 				// that no more reading should be done until
 				// everything
@@ -1965,8 +1960,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		interp_list.set_line_number(++pseudoMdiLineNumber);
 	    }
 	    execRetval = emcTaskPlanExecute(execute_msg->command, pseudoMdiLineNumber);
-	    if (execRetval == 2 /* INTERP_ENDFILE */ ) {
-		// this is an end-of-file
+	    if (execRetval == INTERP_EXECUTE_FINISH) {
 		// need to flush execution, so signify no more reading
 		// until all is done
 		emcTaskPlanSetWait();
