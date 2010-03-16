@@ -893,21 +893,15 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(!get_attr(canon, "offset_w", &offset[8])) return NULL;
 
     if(plane == 1) {
-        n[0] = x1;
-        n[1] = y1;
-        n[2] = z1;
         X=0; Y=1; Z=2;
     } else if(plane == 3) {
-        n[0] = y1;
-        n[1] = z1;
-        n[2] = x1;
         X=2; Y=0; Z=1;
     } else {
-        n[0] = z1;
-        n[1] = x1;
-        n[2] = y1;
         X=1; Y=2; Z=0;
     }
+    n[X] = x1;
+    n[Y] = y1;
+    n[Z] = z1;
     n[3] = a;
     n[4] = b;
     n[5] = c;
