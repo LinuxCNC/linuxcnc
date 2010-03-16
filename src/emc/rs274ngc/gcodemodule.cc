@@ -822,24 +822,24 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
 
 static bool get_attr(PyObject *o, const char *attr_name, int *v) {
     PyObject *attr = PyObject_GetAttrString(o, attr_name);
-    bool result = false;
     if(attr && PyInt_CheckAndError(attr_name, attr)) {
         *v = PyInt_AsLong(attr);
-        result = true;
+        Py_DECREF(attr);
+        return true;
     }
     Py_XDECREF(attr);
-    return result;
+    return false;
 }
 
 static bool get_attr(PyObject *o, const char *attr_name, double *v) {
     PyObject *attr = PyObject_GetAttrString(o, attr_name);
-    bool result = false;
     if(attr && PyFloat_CheckAndError(attr_name, attr)) {
         *v = PyFloat_AsDouble(attr);
-        result = true;
+        Py_DECREF(attr);
+        return true;
     }
     Py_XDECREF(attr);
-    return result;
+    return false;
 }
 
 static bool get_attr(PyObject *o, const char *attr_name, const char *fmt, ...) {
