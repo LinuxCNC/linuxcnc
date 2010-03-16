@@ -911,7 +911,6 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     for(int ax=0; ax<9; ax++) o[ax] -= offset[ax];
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
 
-    double rad = hypot(o[X]-cx, o[Y]-cy);
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
 
@@ -929,7 +928,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double d[9] = {0, 0, 0, n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
     d[Z] = o[Z] - n[Z];
 
-    double tx = cos(theta1) * rad, ty = sin(theta1)*rad, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
     for(int i=0; i<steps-1; i++) {
         double f = i * rsteps;
         double p[9];
