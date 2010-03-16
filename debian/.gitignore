@@ -11,6 +11,8 @@ emc2-dev
 emc2-sim-dev
 emc2-python
 *.substvars
-emc2*.files
+/emc2.files
+/emc2-sim.files
+/emc2-sim-dev.files
 *.debhelper
 shlibs.local
