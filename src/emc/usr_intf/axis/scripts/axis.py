@@ -903,7 +903,10 @@ class MyOpengl(Opengl):
                 draw_small_origin()
                 origin = to_internal_units(s.origin)[:3]
                 glTranslatef(*origin)
+                glPushMatrix()
+                glRotatef(s.rotation_xy, 0, 0, 1)
                 draw_axes()
+                glPopMatrix()
             else:
                 draw_axes()
             glPopMatrix()
@@ -1284,9 +1287,6 @@ def draw_axes():
     else:
         view = p
 
-    glPushMatrix()
-    glRotatef(s.rotation_xy, 0, 0, 1)
-
     glColor3f(*o.colors['axis_x'])
     glBegin(GL_LINES);
     glVertex3f(1.0,0.0,0.0)
@@ -1348,8 +1348,6 @@ def draw_axes():
         glScalef(0.2, 0.2, 0.2)
         hershey.plot_string("Z", 0.5)
         glPopMatrix()
-
-    glPopMatrix()
 
 def toggle_perspective(e):
     o.perspective = not o.perspective
