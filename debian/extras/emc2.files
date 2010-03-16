@@ -1,4 +1,8 @@
-usr/share/applications/*.desktop
+usr/share/applications/emc2.desktop
+usr/share/applications/emc2-gcoderef.desktop
+usr/share/applications/emc2-gcoderef-fr.desktop
+usr/share/applications/emc2-latency.desktop
+usr/share/applications/emc2-stepconf.desktop
 usr/share/desktop-directories/cnc.directory
 usr/share/pixmaps/emc2icon.png
 etc/modprobe.d/emc2

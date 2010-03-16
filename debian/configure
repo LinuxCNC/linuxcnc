@@ -146,10 +146,23 @@ subst control.in > control
 if [ "$TARGET" == "sim" ]; then cp emc2-dev.files emc2-sim-dev.files; fi
 
 subst rules.in > rules; chmod +x rules
+
 if [ -f $EXTRAS/emc2.files ]; then
     subst emc2.files.in $DRIVERS $EXTRAS/emc2.files > $EMC2_PACKAGE_NAME.files
 else
     subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
+fi
+
+if [ -f $EXTRAS/emc2-doc-en.files ]; then
+    cat emc2-doc-en.files.in $EXTRAS/emc2-doc-en.files > emc2-doc-en.files
+else
+    cat emc2-doc-en.files.in > emc2-doc-en.files
+fi
+
+if [ -f $EXTRAS/emc2-doc-fr.files ]; then
+    cat emc2-doc-fr.files.in $EXTRAS/emc2-doc-fr.files > emc2-doc-fr.files
+else
+    cat emc2-doc-fr.files.in > emc2-doc-fr.files
 fi
 
 rm -f ../build-stamp
