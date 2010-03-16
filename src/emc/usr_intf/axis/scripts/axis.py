@@ -469,9 +469,6 @@ class MyOpengl(GlCanonDraw, Opengl):
         """Cause the opengl widget to redraw itself."""
         self.redraw_perspective()
 
-    def swapbuffers(self):
-        self.tk.call(self._w, 'swapbuffers')
-
     def tkRedraw_ortho(self, *dummy):
         """Cause the opengl widget to redraw itself."""
         self.redraw_ortho()
