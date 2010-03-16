@@ -418,7 +418,7 @@ else
 DOCS=NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
-NC_FILES=$(call GLOB,../nc_files/*)
+NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
