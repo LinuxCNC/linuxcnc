@@ -692,7 +692,6 @@ class GlCanonDraw:
                 self.show_extents()
 
         if self.get_show_live_plot() or self.get_show_program():
-            glPushMatrix()
 
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             if self.get_show_relative() and (s.origin[0] or s.origin[1] or
@@ -701,12 +700,13 @@ class GlCanonDraw:
                                         gen=self.draw_small_origin)
                 glCallList(olist)
                 origin = self.to_internal_units(s.origin)[:3]
+                glPushMatrix()
                 glTranslatef(*origin)
                 glRotatef(s.rotation_xy, 0, 0, 1)
                 glCallList(alist)
+                glPopMatrix()
             else:
                 glCallList(alist)
-            glPopMatrix()
 
         if self.get_show_limits():
             glLineWidth(1)
