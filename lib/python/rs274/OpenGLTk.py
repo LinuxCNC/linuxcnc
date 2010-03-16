@@ -131,7 +131,7 @@ class RawOpengl(Togl, Misc):
                 glPopMatrix()
         finally:
             glMatrixMode(_mode)
-        self.tk.call(self._w, 'swapbuffers')
+        self.swapbuffers()
 
 
     def tkMap(self, *dummy):
@@ -349,7 +349,7 @@ http://www.yorvic.york.ac.uk/~mjh/
         glFlush()               # Tidy up
         glPopMatrix()           # Restore the matrix
 
-        self.tk.call(self._w, 'swapbuffers')
+        self.swapbuffers()
 
 
     def tkMap(self, *dummy):
