@@ -705,7 +705,6 @@ class GlCanonDraw:
                 glRotatef(s.rotation_xy, 0, 0, 1)
                 glCallList(alist)
             else:
-                glRotatef(s.rotation_xy, 0, 0, 1)
                 glCallList(alist)
             glPopMatrix()
 
