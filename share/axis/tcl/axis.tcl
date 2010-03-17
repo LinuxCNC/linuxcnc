@@ -717,6 +717,10 @@ set pane_top [frame .pane.top]
 set pane_bottom [frame .pane.bottom]
 .pane add $pane_top -sticky nsew
 .pane add $pane_bottom -sticky nsew
+catch {
+    .pane paneconfigure $pane_top -stretch always
+    .pane paneconfigure $pane_bottom -stretch never
+}
 
 NoteBook ${pane_top}.tabs \
 	-borderwidth 2 \
