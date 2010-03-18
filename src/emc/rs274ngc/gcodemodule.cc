@@ -882,9 +882,9 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
 
     if(rot < 0) {
-        if(theta2 >= theta1) theta2 -= 2*M_PI;
+        while(theta2 - theta1 > -1e-12) theta2 -= 2*M_PI;
     } else {
-        if(theta2 <= theta1) theta2 += 2*M_PI;
+        while(theta2 - theta1 < 1e-12) theta2 += 2*M_PI;
     }
 
     int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
