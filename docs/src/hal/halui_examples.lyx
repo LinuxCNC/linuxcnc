@@ -1,116 +1,241 @@
-#LyX 1.3 created this file. For more info see http://www.lyx.org/
-\lyxformat 221
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
 \textclass book
 \language english
 \inputencoding auto
-\fontscheme default
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
 \graphics default
 \paperfontsize default
-\spacing single 
-\papersize Default
-\paperpackage a4
-\use_geometry 0
-\use_amsmath 0
-\use_natbib 0
-\use_numerical_citations 0
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
 \paperorientation portrait
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation skip
 \defskip smallskip
 \quotes_language english
-\quotes_times 2
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
 
-\layout Chapter
+\begin_body
 
+\begin_layout Chapter
 Halui Examples
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 For any Halui examples to work you need to add the following line to the
  [HAL] section of the ini file.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 HALUI = halui
-\layout Section
+\end_layout
 
+\begin_layout Section
+Remote Start
+\end_layout
+
+\begin_layout Standard
+To connect a remote program start button to EMC you use the halui.program.run
+ pin and the halui.mode.auto pin.
+ You have to insure that it is Ok to run first by using the halui.mode.is-auto
+ pin.
+ You do this with an and2 component.
+ The following figure shows how this is done.
+ When the Remote Run Button is pressed it is connected to both halui.mode.auto
+ and and2.0.in0.
+ If it is ok for auto mode the pin halui.mode.is-auto will be on.
+ If both the inputs to the and2.0 component are on the and2.0.out will be on
+ and this will start the program.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Remote Start Example
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/remote-start.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The hal commands needed to accomplish the above are:
+\end_layout
+
+\begin_layout LyX-Code
+net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
+\end_layout
+
+\begin_layout LyX-Code
+net program-run-ok and2.0.in1 <= halui.mode.is-auto
+\end_layout
+
+\begin_layout LyX-Code
+net remote-program-run halui.program.run <= and2.0.out
+\end_layout
+
+\begin_layout Standard
+Notice on line one that there are two reader pins, this can also be split
+ up to two lines like this:
+\end_layout
+
+\begin_layout LyX-Code
+net program-start-btn halui.mode.auto <= <your input pin>
+\end_layout
+
+\begin_layout LyX-Code
+net program-start-btn and2.0.in0
+\end_layout
+
+\begin_layout Section
 Paused & Resume
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This example developed from the need of EMC2 to move a rotary axis when
  told to do so by another machine.
  To coordinate between two control systems using Halui we take advantage
  of two components of Halui.
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 halui.program.is-paused
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 halui.program.resume
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 In your custom.hal file we can add a couple of lines that when connected
  to your I/O can tell the other control system that the program is paused
  and to resume the program when the other control system wants EMC2 to resume.
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net ispaused halui.program.is-paused => "your out pin"
-\layout Quote
+\end_layout
 
+\begin_layout Quote
 net resume halui.program.resume <= "your in pin"
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Your "in" and "out
 \begin_inset Quotes erd
-\end_inset 
+\end_inset
 
  pin is what is connected to the other controller.
  It could be a parallel port pin or any other pin you have access to.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 How this works is when a M0 is encountered in your g code halui.program.is-paused
  goes true.
  This turns on your "out" pin so the other controller knows EMC2 is finished.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 To resume the g code the other controller makes your "in" pin go true.
  This will then run the EMC2 g code up to the next M0.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Timing requirements
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Resume must not be true longer that it takes to run the g code
-\layout Itemize
+\end_layout
 
+\begin_layout Itemize
 Is Paused must not be on when next resume arrives
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 Timing issues that could foul up a good plan is when the other controller
  sends a resume out and sees the is paused bit on and thinks that EMC2 was
  very fast at completing the requested command.
  The second issue is the other controller sending out a resume that is longer
  than it takes to execute the program.
  
-\layout Standard
+\end_layout
 
+\begin_layout Standard
 This could be over come using ClassicLadder to turn on the is paused bit
  for a limited amount of time then turning it back off.
  Also the resume could be on a one shot or a very short timer.
-\layout Standard
+\end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
 
-\begin_inset Note
-collapsed false
-
-\layout Standard
-
+\begin_layout Standard
 add ClassicLadder example
-\end_inset 
+\end_layout
+
+\end_inset
 
 
-\the_end
+\end_layout
+
+\end_body
+\end_document
