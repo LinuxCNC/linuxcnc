@@ -732,6 +732,12 @@ proc show_all_tabs w {
     if {$a < $b} { $w configure -width $b }
 }
 after 1 after idle show_all_tabs ${pane_top}.tabs
+proc set_pane_minsize {} {
+    global pane_bottom pane_top
+    .pane paneconfigure $pane_top -minsize [winfo reqheight $pane_top]
+    .pane paneconfigure $pane_bottom -minsize [winfo reqheight $pane_bottom]
+}
+after 1 after idle set_pane_minsize
 
 set _tabs_manual [${pane_top}.tabs insert end manual -text [_ "Manual Control \[F3\]"] -raisecmd {focus .; ensure_manual}]
 set _tabs_mdi [${pane_top}.tabs insert end mdi -text [_ "MDI \[F5\]"]]
