@@ -1529,6 +1529,7 @@ text ${pane_bottom}.t.text \
 	-takefocus 0 \
 	-yscrollcommand [list ${pane_bottom}.t.sb set]
 ${pane_bottom}.t.text insert end {}
+bind ${pane_bottom}.t.text <Configure> { goto_sensible_line }
 
 scrollbar ${pane_bottom}.t.sb \
 	-borderwidth 0 \

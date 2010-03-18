@@ -2404,6 +2404,13 @@ class TclCommands(nf.TclCommands):
         else:
             add_recent_file(f)
 
+    def goto_sensible_line():
+        line = o.get_highlight_line()
+        if not line: line = vars.running_line.get()
+        if line is not None and line > 0:
+            t.see("%d.0" % (line+2))
+            t.see("%d.0" % line)
+
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window, 
