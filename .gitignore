@@ -16,3 +16,4 @@ lib
 debian/*.debhelper.log
 share/*/*.desktop
 share/menus/CNC.menu
+share/desktop-directories/cnc.directory
