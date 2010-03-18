@@ -930,7 +930,7 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
 
     double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
     for(int i=0; i<steps-1; i++) {
-        double f = i * rsteps;
+        double f = (i+1) * rsteps;
         double p[9];
         rotate(tx, ty, dc, ds);
         p[X] = tx + cx;
