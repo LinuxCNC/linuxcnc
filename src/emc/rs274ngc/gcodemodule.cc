@@ -751,10 +751,10 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
 }
 
 static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
-    double min_x = INFINITY, min_y = INFINITY, min_z = INFINITY,
-           min_xt = INFINITY, min_yt = INFINITY, min_zt = INFINITY,
-           max_x = -INFINITY, max_y = -INFINITY, max_z = -INFINITY,
-           max_xt = -INFINITY, max_yt = -INFINITY, max_zt = -INFINITY;
+    double min_x = 9e99, min_y = 9e99, min_z = 9e99,
+           min_xt = 9e99, min_yt = 9e99, min_zt = 9e99,
+           max_x = -9e99, max_y = -9e99, max_z = -9e99,
+           max_xt = -9e99, max_yt = -9e99, max_zt = -9e99;
     for(int i=0; i<PySequence_Length(args); i++) {
         PyObject *si = PyTuple_GetItem(args, i);
         if(!si) return NULL;
