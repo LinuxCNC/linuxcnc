@@ -8169,7 +8169,8 @@ Two spindle control modes are recognized: revolutions per minute, and CSS
  The maximum spindle speed is set by the D- number in revolutions per minute.
  When using G96, ensure that X0 in the current coordinate system (including
  offsets and tool lengths) is the center of rotation or emc will not give
- the desired spindle speed.  G96 is not affected by radius or diameter mode.
+ the desired spindle speed.
+  G96 is not affected by radius or diameter mode.
 \end_layout
 
 \begin_layout Standard
@@ -9131,7 +9132,7 @@ name "sec:M100-to-M199:"
 
 \begin_layout Standard
 To invoke a user-defined command, program M1nn P- Q- where P- and Q- are
- both optional.
+ both optional and must be a number.
  The external program "M1nn" must be in the directory named in [DISPLAY]PROGRAM_
 PREFIX in the ini file and is executed with the P and Q values as its two
  arguments.
@@ -9157,15 +9158,15 @@ For example to open and close a collet closer that is controlled by a paraport
  Create two files called M101 and M102.
  Set them as executable files (typically right click/properties/permissions)
  before running EMC2.
- 
+ Make sure the paraport pin is not connected to anything in a hal file.
 \end_layout
 
 \begin_layout Standard
-M101
+M101 (file name)
 \end_layout
 
 \begin_layout LyX-Code
-#!/bin/bash
+#!/bin/sh
 \end_layout
 
 \begin_layout LyX-Code
@@ -9181,11 +9182,11 @@ exit 0
 \end_layout
 
 \begin_layout Standard
-M102
+M102 (file name)
 \end_layout
 
 \begin_layout LyX-Code
-#!/bin/bash
+#!/bin/sh
 \end_layout
 
 \begin_layout LyX-Code
@@ -9213,7 +9214,7 @@ In your M100 file it might look like this:
 \end_layout
 
 \begin_layout LyX-Code
-#!/bin/bash
+#!/bin/sh
 \end_layout
 
 \begin_layout LyX-Code
