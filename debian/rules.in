@@ -51,7 +51,7 @@ else
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
-	rm -f config.log config.status
+	rm -f src/config.log src/config.status
 
 	dh_clean
 
