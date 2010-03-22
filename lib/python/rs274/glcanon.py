@@ -695,7 +695,7 @@ class GlCanonDraw:
 
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             if self.get_show_relative() and (s.origin[0] or s.origin[1] or
-                                          s.origin[2]):
+                                          s.origin[2] or s.rotation_xy):
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
                 glCallList(olist)
