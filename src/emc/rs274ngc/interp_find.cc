@@ -169,16 +169,20 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 #endif
         CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
 
+        double cx = s->current_x;
+        double cy = s->current_y;
+        rotate(&cx, &cy, s->rotation_xy);
+
         if(block->x_flag == ON) {
             *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_offset.tran.x;
         } else {
-            *px = s->current_x;
+            *px = cx;
         }
 
         if(block->y_flag == ON) {
             *py = block->y_number - s->origin_offset_y - s->axis_offset_y - s->tool_offset.tran.y;
         } else {
-            *py = s->current_y;
+            *py = cy;
         }
 
         rotate(px, py, -s->rotation_xy);
