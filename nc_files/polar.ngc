@@ -5,29 +5,17 @@ G20 G90
 G0 X0 Y0 Z0
 
 ; drill three bolt holes on a 5" diameter
-G81 @2.5^0 R.1 Z-0.5 F60
-@2.5^120
-@2.5^240
+G0 X2.5 Y0
+G81 R.1 Z-0.5 F60
+^120
+^240
 
-G0 X0 Y0 Z0
+G90 @1 ^33
 ; drill a row of holes 1" apart along a 33 degree feature
-G91 G81 @1^33 R.1 Z-0.5 L5
+G91 G81 @1 R.1 Z-0.5 L5
 
-G90 G0 X0 Y0 Z0
-; mill a square
-G1 Z-0.25
-G91 @2^0
-@2^90
-@2^180
-@2^270
-
-G90
+G90 G0 X2 Y0
 ; drill 17 evenly-spaced bolt holes on a 4" diameter
-#1000=4
-#1001=0
-o100 repeat [17]
-G81 @[#1000/2]^#1001 R.1 Z-0.5
-#1001=[#1001 + [360/17]]
-o100 endrepeat
+G91 G81 ^[360/17] R.1 Z-0.5 L17
 
 M2
