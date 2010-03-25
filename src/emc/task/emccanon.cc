@@ -1171,7 +1171,7 @@ static void unit(double *x, double *y) {
 }
 
 static void
-arc(double x0, double y0, double x1, double y1, double dx, double dy) {
+arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy) {
     double small = 0.000001;
     double x = x1-x0, y=y1-y0;
     double den = 2 * (y*dx - x*dy);
@@ -1179,13 +1179,13 @@ arc(double x0, double y0, double x1, double y1, double dx, double dy) {
     double i = dy*r, j = -dx*r;
     double cx = x1+i, cy=y1+j;
     if (fabs(den) > small) {
-        ARC_FEED(interp_list.get_line_number(), x1, y1, cx, cy, r<0 ? 1 : -1,
+        ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
                TO_PROG_LEN(canonEndPoint.z - programOrigin.z), TO_PROG_ANG(canonEndPoint.a),
                TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
                TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
                TO_PROG_ANG(canonEndPoint.w));
     } else { 
-        STRAIGHT_FEED(interp_list.get_line_number(), x1,y1, 
+        STRAIGHT_FEED(lineno, x1,y1,
                TO_PROG_LEN(canonEndPoint.z), TO_PROG_ANG(canonEndPoint.a),
                TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
                TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
@@ -1194,7 +1194,7 @@ arc(double x0, double y0, double x1, double y1, double dx, double dy) {
 }
 
 static int
-biarc(double p0x, double p0y, double tsx, double tsy,
+biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
       double p4x, double p4y, double tex, double tey, double r=1.0) {
     unit(&tsx, &tsy);
     unit(&tex, &tey);
@@ -1223,15 +1223,15 @@ biarc(double p0x, double p0y, double tsx, double tsy,
     double tmx = p3x-p2x, tmy = p3y-p2y;
     unit(&tmx, &tmy);
 
-    arc(p0x, p0y, p2x, p2y, tsx, tsy);
-    arc(p2x, p2y, p4x, p4y, tmx, tmy);
+    arc(lineno, p0x, p0y, p2x, p2y, tsx, tsy);
+    arc(lineno, p2x, p2y, p4x, p4y, tmx, tmy);
     return 1;
 }
 
 
 /* Canon calls */
 
-void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
@@ -1263,7 +1263,7 @@ void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
         dxe = cos(alphaM);
         dye = sin(alphaM);
  	unit(&dxe,&dye);
-        biarc(P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
+        biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
         //printf("___________________________________________\n");
         //printf("X %8.4f Y %8.4f\n", P0.X, P0.Y); 
         dxs = dxe;
@@ -1278,12 +1278,12 @@ void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
     dxe = nurbs_control_points[n].X - nurbs_control_points[n-1].X;
     dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
     unit(&dxe,&dye);
-    biarc(P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
+    biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
     //printf("parameters: n = %d, umax = %f, div= %d, u = %f, k = %d\n",n,umax,div,u,k);
     knot_vector.clear();
 }
 
-void SPLINE_FEED(double x1, double y1, double x2, double y2) {
+void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2) {
     flush_segments();
 
     double x0 = TO_PROG_LEN(canonEndPoint.x);
@@ -1307,14 +1307,14 @@ perturb:
       double y = y0*t0 + y1*t1 + y2*t2;
       double dx = xx0*q0 + xx1*q1;
       double dy = yy0*q0 + yy1*q1;
-      if(!biarc(ox, oy, odx, ody, x, y, dx, dy)) {
+      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
           t = t - u; u /= -2; goto perturb;
       }
       ox = x; oy = y; odx = dx; ody = dy;
     }
 }
 
-void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y3) {
+void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3) {
     flush_segments();
 
     double x0 = TO_PROG_LEN(canonEndPoint.x);
@@ -1340,7 +1340,7 @@ perturb:
       double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
       double dx = xx0*q0 + xx1*q1 + xx2*q2;
       double dy = yy0*q0 + yy1*q1 + yy2*q2;
-      if(!biarc(ox, oy, odx, ody, x, y, dx, dy)) {
+      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
           t = t - u; u /= -2; goto perturb;
       }
       ox = x; oy = y; odx = dx; ody = dy;

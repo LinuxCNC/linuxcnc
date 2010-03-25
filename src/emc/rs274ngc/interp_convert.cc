@@ -183,7 +183,7 @@ int Interp::convert_nurbs(int mode,
         CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
 	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
         settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
-        NURBS_FEED(nurbs_control_points, nurbs_order);
+        NURBS_FEED(block->line_number, nurbs_control_points, nurbs_order);
 	//printf("hello\n");
 	nurbs_control_points.clear();
 	//printf("%d\n", 	nurbs_control_points.size());
@@ -233,7 +233,7 @@ int Interp::convert_spline(int mode,
       y1 = settings->current_y + block->j_number;
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
-      SPLINE_FEED(x1,y1,x2,y2);
+      SPLINE_FEED(block->line_number, x1,y1,x2,y2);
       settings->current_x = x2;
       settings->current_y = y2;
     } else {
@@ -252,7 +252,7 @@ int Interp::convert_spline(int mode,
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
 
-      SPLINE_FEED(x1, y1, x2, y2, x3, y3);
+      SPLINE_FEED(block->line_number, x1, y1, x2, y2, x3, y3);
 
       settings->cycle_i = -block->p_number;
       settings->cycle_j = -block->q_number;
