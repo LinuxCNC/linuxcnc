@@ -154,8 +154,8 @@ Q- (blend tolerance mode) This enables the "naive cam detector" and
  enables blending with a tolerance.
  If you are in inch mode and program G64 P0.05, you tell the planner that
  you want continuous feed, but at programmed corners you want it to slow
- down enough so that the tool path can stay within 0.05 inches of the programmed
- path.
+ down enough so that the tool path can stay within 0.05 user units of the
+ programmed path.
  The exact amount of slowdown depends on the geometry of the programmed
  corner and the machine constraints, but the only thing the programmer needs
  to worry about is the tolerance.

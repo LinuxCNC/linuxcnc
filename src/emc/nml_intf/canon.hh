@@ -426,16 +426,16 @@ extern double alpha_finder(double dx, double dy);
 
 /* Canon calls */
 
-extern void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k);
+extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k);
 /* Move at the feed rate along an approximation of a NURBS with a variable number
  * of control points
  */
 
-extern void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y3);
+extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3);
 /* Move at the feed rate along an approximation of the cubic
  * bezier spline with control points x1y1 x2y2 and endpoint x3y3
  */
-extern void SPLINE_FEED(double x1, double y1, double x2, double y2);
+extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2);
 /* Move at the feed rate along an approximation of the conic
  * spline with control point x1y1 and endpoint x2y2
  */

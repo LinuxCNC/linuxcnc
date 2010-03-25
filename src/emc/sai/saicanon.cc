@@ -385,7 +385,7 @@ void STOP_SPEED_FEED_SYNCH()
 
 /* Machining Functions */
 
-void NURBS_FEED(
+void NURBS_FEED(int lineno,
 std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -396,7 +396,7 @@ std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
   _program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
 }
 
-void SPLINE_FEED(
+void SPLINE_FEED(int lineno,
 double x1, double y1, double x2, double y2, double x3, double y3)
 {
   fprintf(_outfile, "%5d ", _line_number++);
@@ -408,7 +408,7 @@ double x1, double y1, double x2, double y2, double x3, double y3)
   _program_position_y = y3;
 }
 
-void SPLINE_FEED(
+void SPLINE_FEED(int lineno,
 double x1, double y1, double x2, double y2)
 {
   fprintf(_outfile, "%5d ", _line_number++);
