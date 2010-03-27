@@ -108,8 +108,9 @@ if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
-helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
-axisdiagram = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help/axisdiagram1.png")
+helpdir = os.path.join(BASE, "share", "emc", "pncconf", "pncconf-help")
+if not os.path.exists(helpdir):
+    helpdir = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "pncconf-help")
 
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
@@ -2360,6 +2361,7 @@ class App:
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
+        axisdiagram = os.path.join(helpdir,"axisdiagram1.png")
         self.widgets.helppic.set_from_file(axisdiagram)
         self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
