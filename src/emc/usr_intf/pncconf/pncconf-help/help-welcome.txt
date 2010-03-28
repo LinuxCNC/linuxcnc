@@ -10,10 +10,7 @@ using Mesa I / O cards with the Hostmot2 driver, and parallel ports.
 
 Pncconf require the mesa firmwares to be installed and a realtime 
 kernal for tests.
-This Alpha version requires you to create a link to the mesa 
-firmware file:
 
-sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2-dev
 
 
 
