@@ -1236,7 +1236,7 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*4;
-    double dxs,dys,dx1,dy1,dx2,dy2,dxe,dye,alpha1,alpha2, alphaM;
+    double dxs,dys,dxe,dye,alpha1,alpha2,alpha3,alphaM;
     std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
     PLANE_POINT P0, P1, P2;
 
@@ -1250,27 +1250,26 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
     u = u + umax/div;
     while (u+umax/div <= umax) {
         P2= nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        dx1 = P1.X-P0.X;
-	dy1 = P1.Y-P0.Y;
-        dx2 = P2.X-P1.X;
-        dy2 = P2.Y-P1.Y;
-        alpha1 = alpha_finder(dx1,dy1);
-        alpha2 = alpha_finder(dx2,dy2);
-	if (alpha2 > alpha1 + M_PI)
-            alphaM = (alpha1+alpha2)/2 + M_PI;
-        else
-            alphaM = (alpha1+alpha2)/2;
+        alpha1 = atan2(P1.Y-P0.Y, P1.X-P0.X); // starting direction
+        alpha2 = atan2(P2.Y-P1.Y, P2.X-P1.X); // ending direction
+        alpha3 = atan2(P2.Y-P0.Y, P2.X-P0.X); // direction of startpoint->endpoint vector
+
+        // direction we'd like to be going at the middle of our biarc
+        alphaM = (alpha1 + alpha2) / 2.; 
+
+        // except if we have quadrant crossing, it'll be pointing backward.
+        // this is easy to see since it's contrary to alpha3
+        if(fabs(fabs(alpha3) - fabs(alphaM)) > M_PI/4.) {
+            // so flip it
+            alphaM += M_PI;
+        }
         dxe = cos(alphaM);
         dye = sin(alphaM);
- 	unit(&dxe,&dye);
         biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
-        //printf("___________________________________________\n");
-        //printf("X %8.4f Y %8.4f\n", P0.X, P0.Y); 
         dxs = dxe;
         dys = dye;
         P0 = P1;
         P1 = P2;   
-        //printf("u = %f\n", u);
         u = u + umax/div;      
     }
     P1.X = nurbs_control_points[n].X;
@@ -1279,7 +1278,6 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
     dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
     unit(&dxe,&dye);
     biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
-    //printf("parameters: n = %d, umax = %f, div= %d, u = %f, k = %d\n",n,umax,div,u,k);
     knot_vector.clear();
 }
 
