@@ -672,18 +672,18 @@ static int init_comm_buffers(void)
     emcmotDebug->start_time = etime();
     emcmotDebug->running_time = 0.0;
 
-    /* init motion emcmotDebug->queue */
-    if (-1 == tpCreate(&emcmotDebug->queue, DEFAULT_TC_QUEUE_SIZE,
+    /* init motion emcmotDebug->coord_tp */
+    if (-1 == tpCreate(&emcmotDebug->coord_tp, DEFAULT_TC_QUEUE_SIZE,
 	    emcmotDebug->queueTcSpace)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create motion emcmotDebug->queue\n");
+	    "MOTION: failed to create motion emcmotDebug->coord_tp\n");
 	return -1;
     }
-//    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
-    tpSetCycleTime(&emcmotDebug->queue, emcmotConfig->trajCycleTime);
-    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
-    tpSetVmax(&emcmotDebug->queue, emcmotStatus->vel, emcmotStatus->vel);
-    tpSetAmax(&emcmotDebug->queue, emcmotStatus->acc);
+//    tpInit(&emcmotDebug->coord_tp); // tpInit called from tpCreate
+    tpSetCycleTime(&emcmotDebug->coord_tp, emcmotConfig->trajCycleTime);
+    tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
+    tpSetVmax(&emcmotDebug->coord_tp, emcmotStatus->vel, emcmotStatus->vel);
+    tpSetAmax(&emcmotDebug->coord_tp, emcmotStatus->acc);
 
     emcmotStatus->tail = 0;
 
@@ -810,7 +810,7 @@ static int setTrajCycleTime(double secs)
         emcmotConfig->interpolationRate = 1;
 
     /* set traj planner */
-    tpSetCycleTime(&emcmotDebug->queue, secs);
+    tpSetCycleTime(&emcmotDebug->coord_tp, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < emcmotConfig->numJoints; t++) {
