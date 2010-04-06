@@ -500,7 +500,7 @@ static void process_inputs(void)
 	    emcmotStatus->spindle.orient_fault = *(emcmot_hal_data->spindle_orient_fault);
 	    reportError(_("fault %d during orient in progress"), emcmotStatus->spindle.orient_fault);
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
-	    tpAbort(&emcmotDebug->queue);
+	    tpAbort(&emcmotDebug->coord_tp);
 	    SET_MOTION_ERROR_FLAG(1);
 	} else if (*(emcmot_hal_data->spindle_is_oriented)) {
 	    *(emcmot_hal_data->spindle_orient) = 0;
@@ -644,9 +644,9 @@ static void process_probe_inputs(void)
             /* stop! */
             emcmotStatus->probing = 0;
             emcmotStatus->probeTripped = 1;
-            tpAbort(&emcmotDebug->queue);
+            tpAbort(&emcmotDebug->coord_tp);
         /* check if the probe hasn't tripped, but the move finished */
-        } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) == 0) {
+        } else if (GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) == 0) {
             /* we are already stopped, but we need to remember the current 
                position here, because it will still be queried */
             emcmotStatus->probedPos = emcmotStatus->carte_pos_fb;
@@ -667,10 +667,10 @@ static void process_probe_inputs(void)
         int i;
         int aborted = 0;
 
-        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->queue) &&
-           tpGetExecId(&emcmotDebug->queue) <= 0) {
+        if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotDebug->coord_tp) &&
+           tpGetExecId(&emcmotDebug->coord_tp) <= 0) {
             // running an MDI command
-            tpAbort(&emcmotDebug->queue);
+            tpAbort(&emcmotDebug->coord_tp);
             reportError(_("Probe tripped during non-probe MDI command."));
 	    SET_MOTION_ERROR_FLAG(1);
         }
@@ -782,8 +782,8 @@ static void set_operating_mode(void)
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
-	/* clear out the motion emcmotDebug->queue and interpolators */
-	tpClear(&emcmotDebug->queue);
+	/* clear out the motion emcmotDebug->coord_tp and interpolators */
+	tpClear(&emcmotDebug->coord_tp);
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint data */
 	    joint = &joints[joint_num];
@@ -807,7 +807,7 @@ static void set_operating_mode(void)
 
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
-	tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+	tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	    /* point to joint data */
 	    joint = &joints[joint_num];
@@ -831,8 +831,8 @@ static void set_operating_mode(void)
     if (emcmotDebug->teleoperating && !GET_MOTION_TELEOP_FLAG()) {
 	if (GET_MOTION_INPOS_FLAG()) {
 
-	    /* update coordinated emcmotDebug->queue position */
-	    tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+	    /* update coordinated emcmotDebug->coord_tp position */
+	    tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		/* point to joint data */
@@ -875,7 +875,7 @@ static void set_operating_mode(void)
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
 		/* preset traj planner to current position */
-		tpSetPos(&emcmotDebug->queue, emcmotStatus->carte_pos_cmd);
+		tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		    /* point to joint data */
@@ -1176,9 +1176,9 @@ static void get_pos_cmds(long period)
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
-	    tpRunCycle(&emcmotDebug->queue, period);
+	    tpRunCycle(&emcmotDebug->coord_tp, period);
 	    /* gt new commanded traj pos */
-	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->coord_tp);
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
@@ -1207,7 +1207,7 @@ static void get_pos_cmds(long period)
 	}
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);
-	if (tpIsDone(&emcmotDebug->queue)) {
+	if (tpIsDone(&emcmotDebug->coord_tp)) {
 	    SET_MOTION_INPOS_FLAG(1);
 	}
 	break;
@@ -1816,17 +1816,17 @@ static void update_status(void)
        don't know how much is still needed, and how much is baggage.
     */
 
-    /* motion emcmotDebug->queue status */
-    emcmotStatus->depth = tpQueueDepth(&emcmotDebug->queue);
-    emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->queue);
-    emcmotStatus->id = tpGetExecId(&emcmotDebug->queue);
-    emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->queue);
-    emcmotStatus->queueFull = tcqFull(&emcmotDebug->queue.queue);
+    /* motion emcmotDebug->coord_tp status */
+    emcmotStatus->depth = tpQueueDepth(&emcmotDebug->coord_tp);
+    emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->coord_tp);
+    emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
+    emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
+    emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 
     /* check to see if we should pause in order to implement
        single emcmotDebug->stepping */
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
-      tpPause(&emcmotDebug->queue);
+      tpPause(&emcmotDebug->coord_tp);
       emcmotDebug->stepping = 0;
       emcmotStatus->paused = 1;
     }
