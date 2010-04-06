@@ -43,16 +43,6 @@
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 
-	double tMin, tMax, tAvg;	/* trajectory min, max, avg times */
-	double sMin, sMax, sAvg;	/* servo min, max, avg times */
-	double nMin, nMax, nAvg;	/* min, max, avg times in DISABLED
-					   mode */
-	double yMin, yMax, yAvg;	/* min, max, avg times cycle times
-					   rather than compute */
-	double fMin, fMax, fAvg;	/* min, max, avg times frequency */
-	double fyMin, fyMax, fyAvg;	/* min, max, avg times frequency
-					   cycle times rather than compute */
-
 	int split;		/* number of split command reads */
 
 	/* flag that all active axes are homed */
