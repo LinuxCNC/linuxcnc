@@ -265,7 +265,6 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	}
 	printf("\n");
 	break;
-#endif
     case 5:
 	printf("traj  m/m/a:\t%f\t%f\t%f\n", d.tMin, d.tMax, d.tAvg);
 	printf("\n");
@@ -283,6 +282,7 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t d, int which)
 	    d.fyMin, d.fyMax, d.fyAvg);
 	printf("\n");
 	break;
+#endif
 
     case 6:
     case 7:

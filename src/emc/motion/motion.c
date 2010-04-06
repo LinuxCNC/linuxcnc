@@ -668,25 +668,6 @@ static int init_comm_buffers(void)
 
     /*! \todo FIXME-- add emcmotError */
 
-    emcmotDebug->tMin = 0.0;
-    emcmotDebug->tMax = 0.0;
-    emcmotDebug->tAvg = 0.0;
-    emcmotDebug->sMin = 0.0;
-    emcmotDebug->sMax = 0.0;
-    emcmotDebug->sAvg = 0.0;
-    emcmotDebug->nMin = 0.0;
-    emcmotDebug->nMax = 0.0;
-    emcmotDebug->nAvg = 0.0;
-    emcmotDebug->yMin = 0.0;
-    emcmotDebug->yMax = 0.0;
-    emcmotDebug->yAvg = 0.0;
-    emcmotDebug->fyMin = 0.0;
-    emcmotDebug->fyMax = 0.0;
-    emcmotDebug->fyAvg = 0.0;
-    emcmotDebug->fMin = 0.0;
-    emcmotDebug->fMax = 0.0;
-    emcmotDebug->fAvg = 0.0;
-
     emcmotDebug->cur_time = emcmotDebug->last_time = 0.0;
     emcmotDebug->start_time = etime();
     emcmotDebug->running_time = 0.0;
