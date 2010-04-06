@@ -27,6 +27,7 @@
 
 #include "hal.h"
 
+#include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
 #include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
 
@@ -282,12 +283,8 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     // select the CPLD's data address
     hm2_7i43_epp_addr8(0, board);
 
-    for (i = 0; i < (bitfile->e.size & ~0x3); i += 4, firmware += 4) {
-        hm2_7i43_epp_write32(*(u32 *)firmware, board);
-    }
-
-    for (; i < bitfile->e.size; i ++, firmware ++) {
-        hm2_7i43_epp_write(*(u8 *)firmware, board);
+    for (i = 0; i < bitfile->e.size; i ++, firmware ++) {
+        hm2_7i43_epp_write(bitfile_reverse_bits(*(u8 *)firmware), board);
     }
 
     end_time = rtapi_get_time();
@@ -426,7 +423,7 @@ static int hm2_7i43_setup(void) {
         hm2_7i43_epp_write_control(0x04, &board[i]);  // set control lines and input mode
         hm2_7i43_epp_clear_timeout(&board[i]);
 
-        snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, i);
+        rtapi_snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, i);
         board[i].llio.comp_id = comp_id;
 
         board[i].llio.read = hm2_7i43_read;

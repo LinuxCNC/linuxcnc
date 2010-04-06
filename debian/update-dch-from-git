@@ -1,15 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 
-GIT_VERSION=`git describe --tags`
+if [ -z "$1" ]; then
+    GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
+    if [ "$GIT_BRANCH" = "(no" ]; then
+        echo "'git branch' says we're not on a branch, pass one in as an argument"
+        exit 1
+    fi
+else
+    GIT_BRANCH="$1"
+fi
+
+case $GIT_BRANCH in
+    master) TAG_GLOB="v2.5*";;
+    v2.4_branch) TAG_GLOB="v2.4*";;
+    *) TAG_GLOB="*";;
+esac
+
+
+GIT_VERSION=$(git describe --match "$TAG_GLOB")
 GIT_TAG=`echo $GIT_VERSION | sed -r 's/^(.*)-[^-]+-[^-]+$/\1/'`
 
-DEB_VERSION=`head -1 debian/changelog | sed 's/.*(\(.*\)).*/\1/'`
+DEB_VERSION=`git show HEAD:debian/changelog | head -1 | sed 's/.*(\(.*\)).*/\1/'`
 
-NEW_DEB_VERSION="$DEB_VERSION+$GIT_VERSION"
+NEW_DEB_VERSION="${GIT_VERSION/-pre/~pre}"
+NEW_DEB_VERSION="1:${NEW_DEB_VERSION/v/}"
 
 set -e
-dch --distribution $(lsb_release -cs) --newversion $NEW_DEB_VERSION "This is a testing release from git"
-git log --pretty=oneline $GIT_TAG..  | while read line; do
-    dch "$line"
-done
+(
+echo "emc2 ($NEW_DEB_VERSION) $(lsb_release -cs); urgency=low"
+echo
+git log --pretty=format:"  * %s" $GIT_TAG..
+echo
+echo
+echo " -- buildbot <buildbot@example.com>  $(date -R)"
+echo
+git show HEAD:debian/changelog
+) > debian/changelog
 
+dch -r --nomultimaint ""

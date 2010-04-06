@@ -24,10 +24,18 @@ INI Option:
     -Require homing before MDI / Running
         If you want to be able to move the machine before homing
         uncheck this checkbox   
-    -Leave spindle on during tool change
-        Used for lathes
     -Popup Tool Prompt:
         Choose between an on screen prompt for tool changes or export
         standard signal names for a User supplied custom tool changer 
         Hal file
+    -Leave spindle on during tool change
+        Used for lathes
+    -Force individual manual homing
 
+    -Move spindle up before tool change
+
+    -Restore joint position after shutdown
+        Used for non-trivial kinematics machines
+    -Random position toolchangers
+        Used for toolchangers that do not return the tool to the same
+        pocket.

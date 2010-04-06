@@ -6,6 +6,7 @@ cd src
 
 In the source directory, build EMC2:
 
+./autogen.sh  (this builds the configure script)
 ./configure --enable-run-in-place
 make clean
 make

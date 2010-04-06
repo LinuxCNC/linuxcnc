@@ -908,8 +908,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             }
         }
 
-        bitfile_reverse_bits_of_chunk(&bitfile.e);
-
         if (llio->reset != NULL) {
             r = llio->reset(llio);
             if (r != 0) {

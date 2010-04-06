@@ -52,7 +52,7 @@ USERSRCS += $(HALSTREAMERSRCS)
 
 ../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halstreamer
 
 HALSAMPLERSRCS := hal/components/sampler_usr.c
@@ -60,7 +60,7 @@ USERSRCS += $(HALSAMPLERSRCS)
 
 ../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile

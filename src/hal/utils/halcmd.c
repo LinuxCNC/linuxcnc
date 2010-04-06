@@ -216,7 +216,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
         /* call execv() to invoke command */
 	execvp(argv[0], argv);
 	/* should never get here */
-	halcmd_error("execv(%s) failed\n", argv[0] );
+	halcmd_error("execv(%s): %s\n", argv[0], strerror(errno) );
 	exit(1);
     }
     /* parent process */

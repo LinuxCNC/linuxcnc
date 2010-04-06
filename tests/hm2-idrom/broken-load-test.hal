@@ -1,4 +1,4 @@
 
-loadrt hostmot2 debug_idrom=1
+loadrt hostmot2 debug_idrom=1 debug_pin_descriptors=1 debug_module_descriptors=1
 loadrt hm2_test test_pattern=$(TEST_PATTERN)
 

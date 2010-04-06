@@ -80,7 +80,7 @@ if {$emc::_langinit && [info exists env(LANG)]} {
 }
 
 proc emc::standard_font_size {} {
-    if {[info exists ::emc::standard_font]} { return $::emc::standard_font }
+    if {[info exists ::emc::standard_font_size]} { return $::emc::standard_font_size }
     set res1 [catch {exec gconftool -g /desktop/gnome/font_rendering/dpi} gnome_dpi]
     set res2 [catch {exec xlsfonts -fn -adobe-helvetica-medium-r-normal--*-*-*-*-p-*-iso10646-1} fonts]
     if {$res1 == 0 && $res2 == 0} {
@@ -103,18 +103,26 @@ proc emc::standard_font_size {} {
 }
 
 proc emc::standard_font_family {} {
+    if {[lsearch [font names] TkDefaultFont] != -1} {
+	return [font configure TkDefaultFont -family]
+    }
     return Helvetica
 }
 
 proc emc::standard_font {} {
+    if {[lsearch [font names] TkDefaultFont] != -1} { return TkDefaultFont }
     list [standard_font_family] [standard_font_size]
 }
 
 proc emc::standard_fixed_font_family {} {
+    if {[lsearch [font names] TkFixedFont] != -1} {
+	return [font configure TkFixedFont -family]
+    }
     return Courier
 }
 
 proc emc::standard_fixed_font {} {
+    if {[lsearch [font names] TkFixedFont] != -1} { return TkFixedFont }
     set sz [standard_font_size]
     if {$sz < 0 && $sz >= -12 && [lsearch [font families] fixed] != -1} {
         return fixed

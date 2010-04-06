@@ -21,6 +21,9 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
+// Mark strings for translation, but defer translation to userspace
+#define _(s) (s)
+
 /***********************************************************************
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
@@ -142,27 +145,26 @@ void emcmot_config_change(void)
     }
 }
 
-extern int vsnprintf(char *, size_t size, const char *format, va_list ap);
 void reportError(const char *fmt, ...)
 {
     va_list args;
-    char error[EMCMOT_ERROR_LEN + 2];
 
     va_start(args, fmt);
-    /* Don't use the rtapi_snprintf... */
-    vsnprintf(error, EMCMOT_ERROR_LEN, fmt, args);
+    emcmotErrorPutfv(emcmotError, fmt, args);
     va_end(args);
-/*! \todo FIXME - eventually should print _only_ to the RCS buffer, I think */
-/* print to the kernel buffer... */
-    rtapi_print("%d: ERROR: %s\n", emcmotStatus->heartbeat, error);
-/* print to the RCS buffer... */
-    emcmotErrorPut(emcmotError, error);
 }
 
+#ifndef va_copy
+#define va_copy(dest, src) ((dest)=(src))
+#endif
+
 rtapi_msg_handler_t old_handler = NULL;
-static void emc_message_handler(msg_level_t level, const char *message) {
-    if(level == RTAPI_MSG_ERR) emcmotErrorPut(emcmotError, message);
-    if(old_handler) old_handler(level, message);
+static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
+{
+    va_list apc;
+    va_copy(apc, ap);
+    if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
+    if(old_handler) old_handler(level, fmt, ap);
 }
 
 int rtapi_app_main(void)
@@ -176,26 +178,26 @@ int rtapi_app_main(void)
     /* connect to the HAL and RTAPI */
     mot_comp_id = hal_init("motmod");
     if (mot_comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: hal_init() failed\n"));
 	return -1;
     }
     if (( num_joints < 1 ) || ( num_joints > EMCMOT_MAX_JOINTS )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: num_joints is %d, must be between 1 and %d\n", num_joints, EMCMOT_MAX_JOINTS);
+	    _("MOTION: num_joints is %d, must be between 1 and %d\n"), num_joints, EMCMOT_MAX_JOINTS);
 	hal_exit(mot_comp_id);
 	return -1;
     }
 
     if (( num_dio < 1 ) || ( num_dio > EMCMOT_MAX_DIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: num_dio is %d, must be between 1 and %d\n", num_dio, EMCMOT_MAX_DIO);
+	    _("MOTION: num_dio is %d, must be between 1 and %d\n"), num_dio, EMCMOT_MAX_DIO);
 	hal_exit(mot_comp_id);
 	return -1;
     }
     
     if (( num_aio < 1 ) || ( num_aio > EMCMOT_MAX_AIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: num_aio is %d, must be between 1 and %d\n", num_aio, EMCMOT_MAX_AIO);
+	    _("MOTION: num_aio is %d, must be between 1 and %d\n"), num_aio, EMCMOT_MAX_AIO);
 	hal_exit(mot_comp_id);
 	return -1;
     }
@@ -203,7 +205,7 @@ int rtapi_app_main(void)
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_hal_io() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_hal_io() failed\n"));
 	hal_exit(mot_comp_id);
 	return -1;
     }
@@ -211,7 +213,7 @@ int rtapi_app_main(void)
     /* allocate/initialize user space comm buffers (cmd/status/err) */
     retval = init_comm_buffers();
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_comm_buffers() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_comm_buffers() failed\n"));
 	hal_exit(mot_comp_id);
 	return -1;
     }
@@ -219,7 +221,7 @@ int rtapi_app_main(void)
     /* set up for realtime execution of code */
     retval = init_threads();
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: init_threads() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: init_threads() failed\n"));
 	hal_exit(mot_comp_id);
 	return -1;
     }
@@ -244,19 +246,19 @@ void rtapi_app_exit(void)
     retval = hal_stop_threads();
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: hal_stop_threads() failed, returned %d\n", retval);
+	    _("MOTION: hal_stop_threads() failed, returned %d\n"), retval);
     }
     /* free shared memory */
     retval = rtapi_shmem_delete(emc_shmem_id, mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: rtapi_shmem_delete() failed, returned %d\n", retval);
+	    _("MOTION: rtapi_shmem_delete() failed, returned %d\n"), retval);
     }
     /* disconnect from HAL and RTAPI */
     retval = hal_exit(mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: hal_exit() failed, returned %d\n", retval);
+	    _("MOTION: hal_exit() failed, returned %d\n"), retval);
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: cleanup_module() finished.\n");
 }
@@ -278,7 +280,7 @@ static int init_hal_io(void)
     /* allocate shared memory for machine data */
     emcmot_hal_data = hal_malloc(sizeof(emcmot_hal_data_t));
     if (emcmot_hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: emcmot_hal_data malloc failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: emcmot_hal_data malloc failed\n"));
 	return -1;
     }
 
@@ -417,7 +419,7 @@ static int init_hal_io(void)
 	/* export all vars */
         retval = export_joint(n, joint_data);
 	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "MOTION: joint %d pin/param export failed\n", n);
+	    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: joint %d pin/param export failed\n"), n);
 	    return -1;
 	}
 	/* init axis pins and parameters */

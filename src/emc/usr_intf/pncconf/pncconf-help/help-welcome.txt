@@ -1,14 +1,17 @@
 Welcome to PNCCONF a graphical configuration program for EMC2.
 
              ALPHA Version
+Alpha means that there are probably bugs and that some features
+are not finished. Please give feed back to the mailing list
+or EMC forum.
 
-Configure a servo or hardware stepper system using the 
-Mesa I / O card and parallel port.
+Pncconf is used to configure a servo or hardware stepper system 
+using Mesa I / O cards with the Hostmot2 driver, and parallel ports.
 
-This prelease version requires you to create a link to 
-the mesa firmware file:
+Pncconf require the mesa firmwares to be installed and a realtime 
+kernal for tests.
 
-sudo ln -s <path to trunk>/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2-dev
+
 
 
 

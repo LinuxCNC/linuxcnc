@@ -26,6 +26,9 @@
 #include "motion_debug.h"
 #include "config.h"
 
+// Mark strings for translation, but defer translation to userspace
+#define _(s) (s)
+
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -270,17 +273,17 @@ void emcmotController(void *arg, long period)
                 if(emcmot_hal_data->overruns == 1) {
                     int saved_level = rtapi_get_msg_level();
                     rtapi_set_msg_level(RTAPI_MSG_ALL);
-                    reportError("Unexpected realtime delay: check dmesg for details.");
+                    reportError(_("Unexpected realtime delay: check dmesg for details."));
                     rtapi_print_msg(RTAPI_MSG_WARN,
-                        "\nIn recent history there were\n"
+                        _("\nIn recent history there were\n"
                         "%ld, %ld, %ld, %ld, and %ld\n"
-                        "elapsed clocks between calls to the motion controller.\n",
+                        "elapsed clocks between calls to the motion controller.\n"),
                         cycles[0], cycles[1], cycles[2], cycles[3], cycles[4]);
                     rtapi_print_msg(RTAPI_MSG_WARN,
-                        "This time, there were %ld which is so anomalously\n"
+                        _("This time, there were %ld which is so anomalously\n"
                         "large that it probably signifies a problem with your\n"
                         "realtime configuration.  For the rest of this run of\n"
-                        "EMC, this message will be suppressed.\n\n",
+                        "EMC, this message will be suppressed.\n\n"),
                         this_run);
                     rtapi_set_msg_level(saved_level);
                 }
@@ -698,7 +701,7 @@ static void check_for_faults(void)
     /* only check enable input if running */
     if ( GET_MOTION_ENABLE_FLAG() != 0 ) {
 	if ( *(emcmot_hal_data->enable) == 0 ) {
-	    reportError("motion stopped by enable input");
+	    reportError(_("motion stopped by enable input"));
 	    emcmotDebug->enabling = 0;
 	}
     }
@@ -721,7 +724,7 @@ static void check_for_faults(void)
 		    /* trip on limits */
 		    if (!GET_JOINT_ERROR_FLAG(joint)) {
 			/* report the error just this once */
-			reportError("joint %d on limit switch error",
+			reportError(_("joint %d on limit switch error"),
 			    joint_num);
 		    }
 		    SET_JOINT_ERROR_FLAG(joint, 1);
@@ -733,7 +736,7 @@ static void check_for_faults(void)
 		/* joint is faulted, trip */
 		if (!GET_JOINT_ERROR_FLAG(joint)) {
 		    /* report the error just this once */
-		    reportError("joint %d amplifier fault", joint_num);
+		    reportError(_("joint %d amplifier fault"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		emcmotDebug->enabling = 0;
@@ -742,7 +745,7 @@ static void check_for_faults(void)
 	    if (GET_JOINT_FERROR_FLAG(joint)) {
 		if (!GET_JOINT_ERROR_FLAG(joint)) {
 		    /* report the error just this once */
-		    reportError("joint %d following error", joint_num);
+		    reportError(_("joint %d following error"), joint_num);
 		}
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		emcmotDebug->enabling = 0;
@@ -1291,9 +1294,9 @@ static void get_pos_cmds(long period)
 	    /* just hit the limit */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0]) {
-                    reportError("joint %d exceed min soft limit", joint_num);
+                    reportError(_("joint %d exceed min soft limit"), joint_num);
                 } else if (joint_limit[joint_num][1]) {
-                    reportError("joint %d exceed max soft limit", joint_num);
+                    reportError(_("joint %d exceed max soft limit"), joint_num);
                 }
 	    }
 	    SET_MOTION_ERROR_FLAG(1);

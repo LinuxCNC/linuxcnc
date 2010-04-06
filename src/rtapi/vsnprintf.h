@@ -61,6 +61,12 @@ static int skip_atoi(const char **s)
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
+static char *ch(char *buf, char *end, char ch)
+{
+    if(buf <= end) *buf = ch;
+    return buf+1;
+}
+
 static char *number(char *buf, char *end, long long numll, int base,
 		    int size, int precision, int type)
 {
@@ -180,7 +186,7 @@ static char *number(char *buf, char *end, long long numll, int base,
 * @fmt: The format string to use
 * @args: Arguments for the format string
 */
-static int vsn_printf(char *buf, int size, const char *fmt, va_list args)
+static int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args)
 {
     int len;
     unsigned long long num;
@@ -327,6 +333,21 @@ static int vsn_printf(char *buf, int size, const char *fmt, va_list args)
 	    str = number(str, end, (unsigned long) va_arg(args, void *),
 			 16, field_width, precision, flags);
 	    continue;
+        case 'e': case 'E':
+        case 'f': case 'F':
+        case 'g': case 'G':
+        case 'a': case 'A':
+            {
+                double d = va_arg(args, double);
+                uint32_t *l = (uint32_t*)&d;
+                str = ch(str, end, 'F');
+                str = ch(str, end, '[');
+                str = number(str, end, l[0], 16, 8, 8, 0);
+                str = ch(str, end, ':');
+                str = number(str, end, l[1], 16, 8, 8, 0);
+                str = ch(str, end, ']');
+                continue;
+            }
 	case '%':
 	    if (str <= end) {
 		*str = '%';

@@ -88,11 +88,3 @@ PLANE_POINT nurbs_point(double u, unsigned int k,
     return point;
 }
 
-double alpha_finder(double dx, double dy) {
-    
-    if ((dx > 0 && dy > 0) || (dx > 0 && dy < 0)) {  /* First quadrant, Fourth quadrant */
-        return atan(dy/dx) + 2*M_PI;
-    } else {                                         /* Second quadrant, Third quadrant */
-        return atan(dy/dx) + M_PI; 
-    }
-}   

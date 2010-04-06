@@ -78,6 +78,9 @@ In reality, the whole move can't be made at F10, since the machine must
  accelerate from a stop, move toward X=1, and then decelerate to stop again.
  Sometimes part of the move is done at F10, but for many moves, especially
  short ones, the specified feed rate is never reached at all.
+ Having short moves in your G Code can cause your machine to slow down and
+ speed up for the longer moves if the "naive cam detector" is not employed
+ with G64 Pn.
 \end_layout
 
 \begin_layout Standard
@@ -151,8 +154,8 @@ Q- (blend tolerance mode) This enables the "naive cam detector" and
  enables blending with a tolerance.
  If you are in inch mode and program G64 P0.05, you tell the planner that
  you want continuous feed, but at programmed corners you want it to slow
- down enough so that the tool path can stay within 0.05 inches of the programmed
- path.
+ down enough so that the tool path can stay within 0.05 user units of the
+ programmed path.
  The exact amount of slowdown depends on the geometry of the programmed
  corner and the machine constraints, but the only thing the programmer needs
  to worry about is the tolerance.
@@ -197,6 +200,61 @@ Detector Successive G1 moves that involve only the XYZ axes that
  from the "naive cam detector".
  This improves contouring performance by simplifying the path.
  
+\end_layout
+
+\begin_layout Standard
+In the following figure the blue line represents the actual machine velocity.
+ The red lines are the acceleration capability of the machine.
+ The horizontal lines below each plot is the planned move.
+ The upper plot shows how the trajectory planner will slow the machine down
+ when short moves are encountered to stay within the limits of the machines
+ acceleration setting to be able to come to an exact stop at the end of
+ the next move.
+ The bottom plot shows the effect of the Naive Cam Detector to combine the
+ moves and do a better job of keeping the velocity as planned.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Naive Cam Detector
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/naive-cam.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection

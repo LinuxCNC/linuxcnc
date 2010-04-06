@@ -108,8 +108,9 @@ if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "emc2", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/emc2/examples/sample-configs/common"
-helpdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help")
-axisdiagram = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..","src/emc/usr_intf/pncconf/pncconf-help/axisdiagram1.png")
+helpdir = os.path.join(BASE, "share", "emc", "pncconf", "pncconf-help")
+if not os.path.exists(helpdir):
+    helpdir = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "pncconf-help")
 
 # internalname / displayed name / steptime / step space / direction hold / direction setup
 drivertypes = [
@@ -447,7 +448,7 @@ class Data:
         self.frontend = 1 # AXIS
         self.axes = 0 # XYZ
         self.available_axes = []
-        self.baseperiod = 200000
+        self.baseperiod = 50000
         self.servoperiod = 1000000
         self.units = 0 # inch
         self.limitsnone = True
@@ -1054,13 +1055,13 @@ class Data:
         print >>file, "# This is for info only"
         print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[2]
         print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[0]
-        print >>file, """# CONFIG0="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+        print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                     self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         if self.number_mesa == 2:
             print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[2]
             print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[0]
-            print >>file, """# CONFIG1="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+            print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                      self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                      self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         print >>file
@@ -1350,7 +1351,7 @@ class Data:
                         print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
                         print >>file, "net spindle-enable      => pid.%s.enable" % (let) 
                         print >>file, "net spindle-enable      => " + pinname +".enable"
-                        print >>file, "net spindle-vel-cmd => pid.%d.feedback"% (let)          
+                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)          
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
                         print >>file, "net spindle-enable      => " + pinname +".enable"
@@ -1539,21 +1540,21 @@ class Data:
         print >>file, "loadrt probe_parport"
         print >>file, "loadrt hostmot2"
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
-            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,config=firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
                     self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                     self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
-            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
+            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                     self.mesa1_currentfirmwaredata[2],self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                     self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         for boardnum in range(0,int(self.number_mesa)):
@@ -1804,7 +1805,7 @@ class Data:
                     if not axletter == "s":
                         pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"),ini_style)
                         print pinname
-                        if 'hms' in pinname:      
+                        if 'hm2' in pinname:      
                             print >>file, "# connect jogwheel signals to mesa encoder - %s axis MPG "% axletter       
                             print >>file, "    setp  axis.%d.jog-vel-mode 0" % axnum
                             print >>file, "    setp  axis.%d.jog-enable true"% (axnum)
@@ -1943,7 +1944,7 @@ class Data:
                       print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
+                      print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd                       =>  abs.0.in")
                       print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
@@ -2002,8 +2003,8 @@ class Data:
         else: unit = "a metric"
         if self.frontend == 1: display = "AXIS"
         elif self.frontend == 2: display = "Tkemc"
-        elif self.frontend == 0: display = "Mini"
-        else: display == "an unknown"
+        elif self.frontend == 3: display = "Mini"
+        else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
@@ -2037,8 +2038,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s " %{ 
-            'type':temptype, 'pinnum':x, 'data':temp,   'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
         print >>file
         print >>file,_("Mesa 5i20 connector 4 \n")
         for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
@@ -2048,8 +2049,8 @@ class Data:
             if tempinv: 
                 invmessage = _("-> inverted")
             else: invmessage =""
-            print >>file,("pin# %(pinnum)d (type %(type)s) is connected to signal:'%(data)s'%(mess)s" %{
-            'type':temptype,'pinnum':x, 'data':temp, 'mess':invmessage}) 
+            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
+            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
         print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
@@ -2360,6 +2361,7 @@ class App:
         self.widgets = Widgets(self.xml)
 
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
+        axisdiagram = os.path.join(helpdir,"axisdiagram1.png")
         self.widgets.helppic.set_from_file(axisdiagram)
         self.widgets.openloopdialog.hide()
         self.widgets.druidpagestart1.set_watermark(self.watermark)
@@ -2430,6 +2432,20 @@ class App:
         except:
             text = _("Help page is unavailable\n")
             self.warning_dialog(text,True)
+
+    def check_for_rt(self,fussy=True):
+        actual_kernel = os.uname()[2]
+        if hal.is_sim == 1 :
+            if fussy:
+                self.warning_dialog(_("You are using a simulated-realtime version of EMC, so testing / tuning of external hardware is unavailable."),True)
+                return False
+            else:
+                return True
+        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+            self.warning_dialog(_("""You are using a realtime version of EMC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
+            return False
+        else:
+            return True
        
     def on_page_newormodify_prepare(self, *args):
         self.data.help = "help-load.txt"
@@ -4328,6 +4344,7 @@ class App:
     def on_yaxistune_clicked(self, *args): self.tune_axis('y')
     def on_zaxistune_clicked(self, *args): self.tune_axis('z')
     def on_aaxistune_clicked(self, *args): self.tune_axis('a')
+    def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
     def on_spindle_prepare(self, *args):
         self.axis_prepare('s')      
@@ -4735,6 +4752,8 @@ class App:
             self.warning_dialog(text,True)
 
     def parporttest(self,w):
+        if not self.check_for_rt(self):
+            return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
@@ -4781,6 +4800,8 @@ class App:
 
     # This is for pyvcp test panel
     def testpanel(self,w):
+        if not self.check_for_rt(True):
+            return 
         pos = "+0+0"
         size = ""
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
@@ -4810,7 +4831,9 @@ class App:
         halrun.close()
 
     # for classicladder test  
-    def load_ladder(self,w):   
+    def load_ladder(self,w): 
+        if not self.check_for_rt(True):
+            return  
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
@@ -4860,10 +4883,12 @@ class App:
       
     # servo and stepper test  
     def tune_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         d = self.data
         w = self.widgets
         self.updaterunning = False
-        axnum = "xyza".index(axis)
+        axnum = "xyzas".index(axis)
         self.axis_under_tune = axis
         self.stepgen = self.data.stepgen_sig(axis)
         print axis," stepgen--",self.stepgen
@@ -5175,6 +5200,8 @@ class App:
 
     # openloop servo test
     def test_axis(self, axis):
+        if not self.check_for_rt(self):
+            return
         if self.data.findsignal( (axis + "-pwm-pulse")) =="false" or self.data.findsignal( (axis + "-encoder-a")) =="false":
              self.warning_dialog( _(" You must designate a ENCODER signal and a PWM signal for this axis test") , True)     
              return
@@ -5391,22 +5418,22 @@ class App:
             # mesa stuff
             halrun.write("loadrt hostmot2\n")
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
                     self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
             elif self.data.number_mesa == 2 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
-                halrun.write( """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,\
-                                firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,\
+                                firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n
                     """ % (
                     self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens,
                     self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
                     self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
                     self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
-                halrun.write( """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
+                halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
                     self.data.mesa1_currentfirmwaredata[2],self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
                     self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             for boardnum in range(0,int(self.data.number_mesa)):

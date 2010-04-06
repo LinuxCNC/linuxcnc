@@ -779,7 +779,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_XY;
   if (settings->motion_mode != motion) {
     CHKS((block->z_flag == OFF),
-        NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE);
+        _readers[(int)'z']? NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE: _("G17 canned cycle is not possible on a machine without Z axis"));
   }
   block->z_number =
     block->z_flag == ON ? block->z_number : settings->cycle_cc;
@@ -956,7 +956,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_UV;
   if (settings->motion_mode != motion) {
     CHKS((block->w_flag == OFF),
-        NCE_W_VALUE_UNSPECIFIED_IN_UV_PLANE_CANNED_CYCLE);
+        _readers[(int)'w']? NCE_W_VALUE_UNSPECIFIED_IN_UV_PLANE_CANNED_CYCLE: _("G17.1 canned cycle is not possible on a machine without W axis"));
   }
   block->w_number =
     block->w_flag == ON ? block->w_number : settings->cycle_cc;
@@ -1166,7 +1166,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_YZ;
   if (settings->motion_mode != motion) {
     CHKS((block->x_flag == OFF),
-        NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE);
+        _readers[(int)'x']? NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE: _("G19 canned cycle is not possible on a machine without X axis"));
   }
   block->x_number =
     block->x_flag == ON ? block->x_number : settings->cycle_cc;
@@ -1328,7 +1328,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_VW;
   if (settings->motion_mode != motion) {
     CHKS((block->x_flag == OFF),
-        NCE_U_VALUE_UNSPECIFIED_IN_VW_PLANE_CANNED_CYCLE);
+        _readers[(int)'u']? NCE_U_VALUE_UNSPECIFIED_IN_VW_PLANE_CANNED_CYCLE: _("G19.1 canned cycle is not possible on a machine without U axis"));
   }
   block->u_number =
     block->u_flag == ON ? block->u_number : settings->cycle_cc;
@@ -1547,7 +1547,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_XZ;
   if (settings->motion_mode != motion) {
     CHKS((block->y_flag == OFF),
-        NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE);
+        _readers[(int)'y']? NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE: _("G18 canned cycle is not possible on a machine without Y axis"));
   }
   block->y_number =
     block->y_flag == ON ? block->y_number : settings->cycle_cc;
@@ -1708,7 +1708,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   plane = CANON_PLANE_UW;
   if (settings->motion_mode != motion) {
     CHKS((block->v_flag == OFF),
-        NCE_V_VALUE_UNSPECIFIED_IN_UW_PLANE_CANNED_CYCLE);
+        _readers[(int)'v']? NCE_V_VALUE_UNSPECIFIED_IN_UW_PLANE_CANNED_CYCLE: _("G18.1 canned cycle is not possible on a machine without V axis"));
   }
   block->v_number =
     block->v_flag == ON ? block->v_number : settings->cycle_cc;

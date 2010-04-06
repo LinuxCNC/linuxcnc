@@ -33,7 +33,7 @@ sys.excepthook = sys.__excepthook__
 import gettext;
 gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import array, time, atexit, tempfile, shutil, errno, thread, select, re
+import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
 
 # Print Tk errors to stdout. python.org/sf/639266
 import Tkinter 
@@ -53,7 +53,7 @@ from Tkinter import *
 from minigl import *
 from rs274.OpenGLTk import *
 from rs274.interpret import StatMixin
-from rs274.glcanon import GLCanon
+from rs274.glcanon import GLCanon, GlCanonDraw
 from hershey import Hershey
 from propertywindow import properties
 import rs274.options
@@ -62,8 +62,8 @@ import gcode
 import locale
 import bwidget
 from math import hypot, atan2, sin, cos, pi, sqrt
-from rs274 import ArcsToSegmentsMixin
 import emc
+from glnav import *
 
 if os.environ.has_key("AXIS_NO_HAL"):
     hal_present = 0;
@@ -132,17 +132,6 @@ spindlerate_blackout = 0
 maxvel_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
-
-homeicon = array.array('B', 
-        [0x2, 0x00,   0x02, 0x00,   0x02, 0x00,   0x0f, 0x80,
-        0x1e, 0x40,   0x3e, 0x20,   0x3e, 0x20,   0x3e, 0x20,
-        0xff, 0xf8,   0x23, 0xe0,   0x23, 0xe0,   0x23, 0xe0,
-        0x13, 0xc0,   0x0f, 0x80,   0x02, 0x00,   0x02, 0x00])
-
-limiticon = array.array('B',
-        [  0,   0,  128, 0,  134, 0,  140, 0,  152, 0,  176, 0,  255, 255,
-         255, 255,  176, 0,  152, 0,  140, 0,  134, 0,  128, 0,    0,   0,
-           0,   0,    0, 0])
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -218,13 +207,14 @@ help2 = [
 
 def install_help(app):
     keys = nf.makewidget(app, Frame, '.keys.text')
+    fixed = app.tk.call("emc::standard_fixed_font")
     for i in range(len(help1)):
         a, b = help1[i]
-        Label(keys, text=a, font="fixed", padx=4, pady=0, highlightthickness=0).grid(row=i, column=0, sticky="w")
+        Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=0, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=1, sticky="w")
     for i in range(len(help2)):
         a, b = help2[i]
-        Label(keys, text=a, font="fixed", padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
+        Label(keys, text=a, font=fixed, padx=4, pady=0, highlightthickness=0).grid(row=i, column=3, sticky="w")
         Label(keys, text=b, padx=4, pady=0, highlightthickness=0).grid(row=i, column=4, sticky="w")
     Label(keys, text="    ").grid(row=0, column=2)
 
@@ -346,72 +336,34 @@ def soft_limits():
         to_internal_units([fudge(ax[i]['min_position_limit']) for i in range(3)]),
         to_internal_units([fudge(ax[i]['max_position_limit']) for i in range(3)]))
 
-class MyOpengl(Opengl):
+class MyOpengl(GlCanonDraw, Opengl):
     def __init__(self, *args, **kw):
         self.after_id = None
         self.motion_after = None
         self.perspective = False
         Opengl.__init__(self, *args, **kw)
-        self.bind('<Button-4>', self.zoomin)
-        self.bind('<Button-5>', self.zoomout)
-        self.bind('<MouseWheel>', self.zoomwheel)
+        GlCanonDraw.__init__(self, s, None)
         self.bind('<Button-1>', self.select_prime, add=True)
         self.bind('<ButtonRelease-1>', self.select_fire, add=True)
-        self.bind('<Button1-Motion>', self.translate_or_rotate)
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
-        self.bind("<Control-Button-1>", self.start_zoom)
-        self.bind("<Control-B1-Motion>", self.continue_zoom)
-        self.bind("<Button-3>", self.start_zoom)
-        self.bind("<B3-Motion>", self.continue_zoom)
-        self.bind("<Shift-Button-1>", self.StartRotate)
-        self.bind("<Shift-B1-Motion>", self.rotate_or_translate)
-        self.bind("<B2-Motion>", self.rotate_or_translate)
         self.highlight_line = None
         self.select_event = None
-        self.select_buffer_size = 100
         self.select_primed = False
         self.last_position = None
         self.last_homed = None
         self.last_origin = None
+        self.last_rotation_xy = None
         self.last_tool = None
         self.last_limits = None
-        self.g = None
         self.set_eyepoint(5.)
         self.get_resources()
+        self.realize()
 
-    def translate_or_rotate(self, event):
-        if vars.rotate_mode.get():
-            self.tkRotate(event)
-        else:
-            self.tkTranslate(event)
+    def getRotateMode(self):
+        return vars.rotate_mode.get()
 
-    def rotate_or_translate(self, event):
-        if not vars.rotate_mode.get():
-            self.tkRotate(event)
-        else:
-            self.tkTranslate(event)
-
-    def basic_lighting(self):
-        self.activate()
-        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, self.colors['tool_ambient'] + (0,))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, self.colors['tool_diffuse'] + (0,))
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (1,1,1,0))
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glDepthFunc(GL_LESS)
-        glEnable(GL_DEPTH_TEST)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-    def start_zoom(self, event):
-        self.y0 = event.y
-        self.original_zoom = self.distance
-
-    def continue_zoom(self, event):
-        dy = event.y - self.y0
-        self.distance = self.original_zoom * pow(1.25, dy / 16.)
-        self.tkRedraw()
+    def get_font_info(self):
+        return coordinate_charwidth, coordinate_linespace, fontbase
 
     def get_resources(self):
         self.colors = {}
@@ -462,48 +414,19 @@ class MyOpengl(Opengl):
         self.set_highlight_line(None)
 
     def select(self, event):
-        if self.g is None: return
-        pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        vport = glGetIntegerv(GL_VIEWPORT)
-        gluPickMatrix(event.x, vport[3]-event.y, 5, 5, vport)
-        glMultMatrixd(pmatrix)
-        glMatrixMode(GL_MODELVIEW)
+        GlCanonDraw.select(self, event.x, event.y)
 
-        while 1:
-            glSelectBuffer(self.select_buffer_size)
-            glRenderMode(GL_SELECT)
-            glInitNames()
-            glPushName(0)
+    def get_joints_mode(self): return joints_mode()
+    def get_current_tool(self): return current_tool
+    def is_lathe(self): return lathe
+    def get_show_commanded(self): return vars.display_type.get()
+    def get_show_rapids(self): return vars.show_rapids.get()
+    def get_geometry(self): return geometry
+    def get_num_joints(self): return num_joints
 
-            
-            if not vars.show_rapids.get() and norapids is not None:
-                glCallList(select_norapids)
-            else:
-                glCallList(select_program)
-
-            try:
-                buffer = list(glRenderMode(GL_RENDER))
-            except GLerror, detail:
-                if detail.errno[0] == GL_STACK_OVERFLOW:
-                    self.select_buffer_size *= 2
-                    continue
-                raise
-            break
-
-        buffer.sort()
-
-        if buffer:
-            min_depth, max_depth, names = buffer[0]
-            self.set_highlight_line(names[0])
-        else:
-            self.set_highlight_line(None)
-
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
+    def get_a_axis_wrapped(self): return a_axis_wrapped
+    def get_b_axis_wrapped(self): return b_axis_wrapped
+    def get_c_axis_wrapped(self): return c_axis_wrapped
 
     def set_current_line(self, line):
         if line == vars.running_line.get(): return
@@ -517,9 +440,12 @@ class MyOpengl(Opengl):
         else:
             vupdate(vars.running_line, 0)
 
+    def get_highlight_line(self):
+        return vars.highlight_line.get()
+
     def set_highlight_line(self, line):
-        if line == vars.highlight_line.get(): return
-        self.highlight_line = line
+        if line == self.get_highlight_line(): return
+        GlCanonDraw.set_highlight_line(self, line)
         t.tag_remove("sel", "0.0", "end")
         if line is not None and line > 0:
             t.see("%d.0" % (line+2))
@@ -528,31 +454,6 @@ class MyOpengl(Opengl):
             vupdate(vars.highlight_line, line)
         else:
             vupdate(vars.highlight_line, -1)
-        global highlight
-        if highlight is not None: glDeleteLists(highlight, 1)
-        highlight = glGenLists(1)
-        glNewList(highlight, GL_COMPILE)
-        if line is not None and self.g is not None:
-            x, y, z = self.g.highlight(line, geometry)
-            self.set_centerpoint(x, y, z)
-        elif self.g is not None:
-            x = (self.g.min_extents[0] + self.g.max_extents[0])/2
-            y = (self.g.min_extents[1] + self.g.max_extents[1])/2
-            z = (self.g.min_extents[2] + self.g.max_extents[2])/2
-            self.set_centerpoint(x, y, z)
-        glEndList()
- 
-    def zoomin(self, event):
-        self.distance = self.distance / 1.25
-        self.tkRedraw()
-
-    def zoomout(self, event):
-        self.distance = self.distance * 1.25
-        self.tkRedraw()
-
-    def zoomwheel(self, event):
-        if event.delta > 0: self.zoomin(event)
-        else: self.zoomout(event)
 
     def tkRedraw(self, *dummy):
         if self.after_id:
@@ -566,72 +467,11 @@ class MyOpengl(Opengl):
 
     def tkRedraw_perspective(self, *dummy):
         """Cause the opengl widget to redraw itself."""
-
-        if not self.initialised: return
-        self.activate()
-
-        glPushMatrix()                  # Protect our matrix
-        self.update_idletasks()
-        self.activate()
-        w = self.winfo_width()
-        h = self.winfo_height()
-        glViewport(0, 0, w, h)
-
-        # Clear the background and depth buffer.
-        glClearColor(*(self.colors['back'] + (0,)))
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        gluPerspective(self.fovy, float(w)/float(h), self.near, self.far + self.distance)
-
-        gluLookAt(0, 0, self.distance,
-            0, 0, 0,
-            0., 1., 0.)
-        glMatrixMode(GL_MODELVIEW)
-
-        # Call objects redraw method.
-        self.redraw()
-        glFlush()                               # Tidy up
-        glPopMatrix()                   # Restore the matrix
-
-        self.tk.call(self._w, 'swapbuffers')
+        self.redraw_perspective()
 
     def tkRedraw_ortho(self, *dummy):
         """Cause the opengl widget to redraw itself."""
-
-        if not self.initialised: return
-        self.activate()
-
-        glPushMatrix()                  # Protect our matrix
-        self.update_idletasks()
-        self.activate()
-        w = self.winfo_width()
-        h = self.winfo_height()
-        glViewport(0, 0, w, h)
-
-        # Clear the background and depth buffer.
-        glClearColor(*(self.colors['back'] + (0,)))
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        ztran = self.distance
-        k = sqrt(abs(ztran or 1))
-        l = k * h / w
-        glOrtho(-k, k, -l, l, -1000, 1000.)
-
-        gluLookAt(0, 0, 1,
-            0, 0, 0,
-            0., 1., 0.)
-        glMatrixMode(GL_MODELVIEW)
-
-        # Call objects redraw method.
-        self.redraw()
-        glFlush()                               # Tidy up
-        glPopMatrix()                   # Restore the matrix
-
-        self.tk.call(self._w, 'swapbuffers')
+        self.redraw_ortho()
 
     def startRotate(self, event):
         if lathe: return
@@ -652,6 +492,18 @@ class MyOpengl(Opengl):
         widgets.view_p.configure(relief="link")
         vars.view_type.set(0)
 
+    def tkTranslateOrRotate(self, event):
+        if self.getRotateMode():
+            self.tkRotate(event)
+        else:
+            self.tkTranslate(event)
+
+    def tkRotateOrTranslate(self, event):
+        if self.getRotateMode():
+            self.tkTranslate(event)
+        else:
+            self.tkRotate(event)
+
     def actual_tkRedraw(self, *dummy):
         self.after_id = None
         if self.perspective:
@@ -659,524 +511,43 @@ class MyOpengl(Opengl):
         else:
             self.tkRedraw_ortho()
 
-    def set_eyepoint_from_extents(self, e1, e2):
-        w = self.winfo_width()
-        h = self.winfo_height()
+    def get_show_program(self): return vars.show_program.get()
+    def get_show_rapids(self): return vars.show_rapids.get()
+    def get_show_extents(self): return vars.show_extents.get()
+    def get_show_metric(self): return vars.metric.get()
+    def get_show_live_plot(self): return vars.show_live_plot.get()
+    def get_show_machine_speed(self): return vars.show_machine_speed.get()
+    def get_show_distance_to_go(self): return vars.show_distance_to_go.get()
 
-        ztran = max(2.0, e1, e2 * w/h) ** 2
-        self.set_eyepoint(ztran - self.zcenter)
+    def get_view(self):
+        x,y,z,p = 0,1,2,3
+        if str(widgets.view_x['relief']) == "sunken":
+            view = x
+        elif str(widgets.view_y['relief']) == "sunken":
+            view = y
+        elif (str(widgets.view_z['relief']) == "sunken" or
+              str(widgets.view_z2['relief']) == "sunken"):
+            view = z
+        else:
+            view = p
+        return view
 
 
+    def get_show_relative(self): return vars.coord_type.get()
+    def get_show_limits(self): return vars.show_machine_limits.get()
+    def get_show_tool(self): return vars.show_tool.get()
     def redraw(self):
-        s.poll()
-
         if not self.winfo_viewable():
             return self.redraw_dro()
-
-        machine_limit_min, machine_limit_max = soft_limits()
 
         if self.select_event:
             self.select(self.select_event)
             self.select_event = None
 
-        glDisable(GL_LIGHTING)
-        glMatrixMode(GL_MODELVIEW)
-
-        if vars.show_program.get() and program is not None:
-            if not vars.show_rapids.get() and norapids is not None:
-                glCallList(norapids)
-            else:
-                glCallList(program)
-            if highlight is not None: glCallList(highlight)
-
-            if vars.show_extents.get():
-                # Dimensions
-                x,y,z,p = 0,1,2,3
-                if str(widgets.view_x['relief']) == "sunken":
-                    view = x
-                elif str(widgets.view_y['relief']) == "sunken":
-                    view = y
-                elif (str(widgets.view_z['relief']) == "sunken" or
-                      str(widgets.view_z2['relief']) == "sunken"):
-                    view = z
-                else:
-                    view = p
-
-                g = self.g
-
-                dimscale = vars.metric.get() and 25.4 or 1.0
-                fmt = vars.metric.get() and "%.1f" or "%.2f"
-
-                pullback = max(g.max_extents[x] - g.min_extents[x],
-                               g.max_extents[y] - g.min_extents[y],
-                               g.max_extents[z] - g.min_extents[z],
-                               2 ) * .1
-
-                dashwidth = pullback/4
-                charsize = dashwidth * 1.5
-                halfchar = charsize * .5
-
-                if view == z or view == p:
-                    z_pos = g.min_extents[z]
-                    zdashwidth = 0
-                else:
-                    z_pos = g.min_extents[z] - pullback
-                    zdashwidth = dashwidth
-                # x dimension
-
-                color_limit(0)
-                glBegin(GL_LINES)
-                if view != x and g.max_extents[x] > g.min_extents[x]:
-                    y_pos = g.min_extents[y] - pullback;
-                    glVertex3f(g.min_extents[x], y_pos, z_pos)
-                    glVertex3f(g.max_extents[x], y_pos, z_pos)
-
-                    glVertex3f(g.min_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
-                    glVertex3f(g.min_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
-
-                    glVertex3f(g.max_extents[x], y_pos - dashwidth, z_pos - zdashwidth)
-                    glVertex3f(g.max_extents[x], y_pos + dashwidth, z_pos + zdashwidth)
-
-                # y dimension
-                if view != y and g.max_extents[y] > g.min_extents[y]:
-                    x_pos = g.min_extents[x] - pullback;
-                    glVertex3f(x_pos, g.min_extents[y], z_pos)
-                    glVertex3f(x_pos, g.max_extents[y], z_pos)
-
-                    glVertex3f(x_pos - dashwidth, g.min_extents[y], z_pos - zdashwidth)
-                    glVertex3f(x_pos + dashwidth, g.min_extents[y], z_pos + zdashwidth)
-
-                    glVertex3f(x_pos - dashwidth, g.max_extents[y], z_pos - zdashwidth)
-                    glVertex3f(x_pos + dashwidth, g.max_extents[y], z_pos + zdashwidth)
-
-                # z dimension
-                if view != z and g.max_extents[z] > g.min_extents[z]:
-                    x_pos = g.min_extents[x] - pullback;
-                    y_pos = g.min_extents[y] - pullback;
-                    glVertex3f(x_pos, y_pos, g.min_extents[z]);
-                    glVertex3f(x_pos, y_pos, g.max_extents[z]);
-
-                    glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.min_extents[z])
-                    glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.min_extents[z])
-
-                    glVertex3f(x_pos - dashwidth, y_pos - zdashwidth, g.max_extents[z])
-                    glVertex3f(x_pos + dashwidth, y_pos + zdashwidth, g.max_extents[z])
-
-                glEnd()
-
-                # Labels
-                if vars.coord_type.get():
-                    offset = to_internal_units(s.origin)
-                else:
-                    offset = 0, 0, 0
-                if view != z and g.max_extents[z] > g.min_extents[z]:
-                    if view == x:
-                        x_pos = g.min_extents[x] - pullback;
-                        y_pos = g.min_extents[y] - 6.0*dashwidth;
-                    else:
-                        x_pos = g.min_extents[x] - 6.0*dashwidth;
-                        y_pos = g.min_extents[y] - pullback;
-
-                    bbox = color_limit(g.min_extents[z] < machine_limit_min[z])
-                    glPushMatrix()
-                    f = fmt % ((g.min_extents[z]-offset[z]) * dimscale)
-                    glTranslatef(x_pos, y_pos, g.min_extents[z] - halfchar)
-                    glScalef(charsize, charsize, charsize)
-                    glRotatef(-90, 0, 1, 0)
-                    glRotatef(-90, 0, 0, 1)
-                    if view != x:
-                        glRotatef(-90, 0, 1, 0)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    bbox = color_limit(g.max_extents[z] > machine_limit_max[z])
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[z]-offset[z]) * dimscale)
-                    glTranslatef(x_pos, y_pos, g.max_extents[z] - halfchar)
-                    glScalef(charsize, charsize, charsize)
-                    glRotatef(-90, 0, 1, 0)
-                    glRotatef(-90, 0, 0, 1)
-                    if view != x:
-                        glRotatef(-90, 0, 1, 0)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    color_limit(0)
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[z] - g.min_extents[z]) * dimscale)
-                    glTranslatef(x_pos, y_pos, (g.max_extents[z] + g.min_extents[z])/2)
-                    glScalef(charsize, charsize, charsize)
-                    if view != x:
-                        glRotatef(-90, 0, 0, 1)
-                    glRotatef(-90, 0, 1, 0)
-                    hershey.plot_string(f, .5, bbox)
-                    glPopMatrix()
-
-                if view != y and g.max_extents[y] > g.min_extents[y]:
-                    x_pos = g.min_extents[x] - 6.0*dashwidth;
-
-                    bbox = color_limit(g.min_extents[y] < machine_limit_min[y])
-                    glPushMatrix()
-                    f = fmt % ((g.min_extents[y] - offset[y]) * dimscale)
-                    glTranslatef(x_pos, g.min_extents[y] + halfchar, z_pos)
-                    glRotatef(-90, 0, 0, 1)
-                    glRotatef(-90, 0, 0, 1)
-                    if view == x:
-                        glRotatef(90, 0, 1, 0)
-                        glTranslatef(dashwidth*1.5, 0, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    bbox = color_limit(g.max_extents[y] > machine_limit_max[y])
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[y] - offset[y]) * dimscale)
-                    glTranslatef(x_pos, g.max_extents[y] + halfchar, z_pos)
-                    glRotatef(-90, 0, 0, 1)
-                    glRotatef(-90, 0, 0, 1)
-                    if view == x:
-                        glRotatef(90, 0, 1, 0)
-                        glTranslatef(dashwidth*1.5, 0, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    color_limit(0)
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[y] - g.min_extents[y]) * dimscale)
-
-                    glTranslatef(x_pos, (g.max_extents[y] + g.min_extents[y])/2,
-                                z_pos)
-                    glRotatef(-90, 0, 0, 1)
-                    if view == x:
-                        glRotatef(-90, 1, 0, 0)
-                        glTranslatef(0, halfchar, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, .5)
-                    glPopMatrix()
-
-                if view != x and g.max_extents[x] > g.min_extents[x]:
-                    y_pos = g.min_extents[y] - 6.0*dashwidth;
-
-                    bbox = color_limit(g.min_extents[x] < machine_limit_min[x])
-                    glPushMatrix()
-                    f = fmt % ((g.min_extents[x] - offset[x]) * dimscale)
-                    glTranslatef(g.min_extents[x] - halfchar, y_pos, z_pos)
-                    glRotatef(-90, 0, 0, 1)
-                    if view == y:
-                        glRotatef(90, 0, 1, 0)
-                        glTranslatef(dashwidth*1.5, 0, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    bbox = color_limit(g.max_extents[x] > machine_limit_max[x])
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[x] - offset[x]) * dimscale)
-                    glTranslatef(g.max_extents[x] - halfchar, y_pos, z_pos)
-                    glRotatef(-90, 0, 0, 1)
-                    if view == y:
-                        glRotatef(90, 0, 1, 0)
-                        glTranslatef(dashwidth*1.5, 0, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, 0, bbox)
-                    glPopMatrix()
-
-                    color_limit(0)
-                    glPushMatrix()
-                    f = fmt % ((g.max_extents[x] - g.min_extents[x]) * dimscale)
-
-                    glTranslatef((g.max_extents[x] + g.min_extents[x])/2, y_pos,
-                                z_pos)
-                    if view == y:
-                        glRotatef(-90, 1, 0, 0)
-                        glTranslatef(0, halfchar, 0)
-                    glScalef(charsize, charsize, charsize)
-                    hershey.plot_string(f, .5)
-                    glPopMatrix()
-
-        if vars.show_live_plot.get() or vars.show_program.get():
-            glPushMatrix()
-
-            if vars.coord_type.get() and (s.origin[0] or s.origin[1] or 
-                                          s.origin[2]):
-                draw_small_origin()
-                origin = to_internal_units(s.origin)[:3]
-                glTranslatef(*origin)
-                draw_axes()
-            else:
-                draw_axes()
-            glPopMatrix()
-
-        if vars.show_machine_limits.get():
-            glLineWidth(1)
-            glColor3f(1.0,0.0,0.0)
-            glLineStipple(1, 0x1111)
-            glEnable(GL_LINE_STIPPLE)
-            glBegin(GL_LINES)
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-
-            
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_min[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_min[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_max[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_max[1], machine_limit_max[2])
-
-            glVertex3f(machine_limit_min[0], machine_limit_min[1], machine_limit_max[2])
-            glVertex3f(machine_limit_max[0], machine_limit_min[1], machine_limit_max[2])
-            
-            glEnd()
-            glDisable(GL_LINE_STIPPLE)
-            glLineStipple(2, 0xffff)
-            
-        if vars.show_live_plot.get():
-            glDepthFunc(GL_LEQUAL)
-            glLineWidth(3)
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            glEnable(GL_BLEND)
-            glPushMatrix()
-            lu = 1/((s.linear_units or 1)*25.4)
-            glScalef(lu, lu, lu);
-            glMatrixMode(GL_PROJECTION)
-            glPushMatrix()
-            glTranslatef(0,0,.003)
-
-            live_plotter.logger.call()
-
-            glDrawArrays(GL_LINE_STRIP, 0, o.live_plot_size)
-            glPopMatrix()
-            glMatrixMode(GL_MODELVIEW)
-            glPopMatrix();
-            glDisable(GL_BLEND)
-            glLineWidth(1)
-            glDepthFunc(GL_LESS);
-            
-        if live_plotter.running.get() and vars.show_tool.get():
-            pos = live_plotter.logger.last(vars.show_live_plot.get())
-            if pos is None: pos = [0] * 6
-            if program is not None:
-                g = self.g
-                x,y,z = 0,1,2
-                cone_scale = max(g.max_extents[x] - g.min_extents[x],
-                               g.max_extents[y] - g.min_extents[y],
-                               g.max_extents[z] - g.min_extents[z],
-                               2 ) * .5
-            else:
-                cone_scale = 1
-            rx, ry, rz = pos[3:6]
-            pos = to_internal_units(pos[:3])
-            glPushMatrix()
-            glTranslatef(*pos)
-            sign = 1
-            for ch in geometry:
-                if ch == '-':
-                    sign = -1
-                elif ch == 'A':
-                    glRotatef(rx*sign, 1, 0, 0)
-                    sign = 1
-                elif ch == 'B':
-                    glRotatef(ry*sign, 0, 1, 0)
-                    sign = 1
-                elif ch == 'C':
-                    glRotatef(rz*sign, 0, 0, 1)
-                    sign = 1
-            glEnable(GL_BLEND)
-            glEnable(GL_CULL_FACE);
-            glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA);
-
-            if lathe and current_tool and current_tool.orientation != 0:
-                glBlendColor(0,0,0,o.colors['lathetool_alpha'])
-                lathetool()
-            else:
-                glBlendColor(0,0,0,o.colors['tool_alpha'])
-                if lathe:
-                    glRotatef(90, 0, 1, 0)
-                if current_tool and current_tool.diameter != 0:
-                    dia = current_tool.diameter
-                    r = to_internal_linear_unit(dia) / 2.
-                    q = gluNewQuadric()
-                    glEnable(GL_LIGHTING)
-                    glColor3f(*o.colors['cone'])
-                    gluCylinder(q, r, r, 8*r, 32, 1)
-                    glPushMatrix()
-                    glRotatef(180, 1, 0, 0)
-                    gluDisk(q, 0, r, 32, 1)
-                    glPopMatrix()
-                    glTranslatef(0,0,8*r)
-                    gluDisk(q, 0, r, 32, 1)
-                    glDisable(GL_LIGHTING)
-                    gluDeleteQuadric(q)
-                else:    
-                    glScalef(cone_scale, cone_scale, cone_scale)
-                    glCallList(cone_program)
-            glPopMatrix()
-
-        glMatrixMode(GL_PROJECTION)
-        glPushMatrix()
-        glLoadIdentity()
-        ypos = self.winfo_height()
-        glOrtho(0.0, self.winfo_width(), 0.0, ypos, -1.0, 1.0)
-        glMatrixMode(GL_MODELVIEW)
-        glPushMatrix()
-        glLoadIdentity()
-
-        limit, homed, posstrs, droposstrs = self.posstrs()
-
-        maxlen = max([len(p) for p in posstrs])
-        pixel_width = coordinate_charwidth * max(len(p) for p in posstrs)
-
-        glDepthFunc(GL_ALWAYS)
-        glDepthMask(GL_FALSE)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_ONE, GL_CONSTANT_ALPHA)
-        glColor3f(*o.colors['overlay_background'])
-        glBlendColor(0,0,0,1-o.colors['overlay_alpha'])
-        glBegin(GL_QUADS)
-        glVertex3f(0, ypos, 1)
-        glVertex3f(0, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos - 8 - coordinate_linespace*len(posstrs), 1)
-        glVertex3f(pixel_width+42, ypos, 1)
-        glEnd()
-        glDisable(GL_BLEND)
-
-        maxlen = 0
-        ypos -= coordinate_linespace+5
-        i=0
-        glColor3f(*o.colors['overlay_foreground'])
-        for string in posstrs:
-            maxlen = max(maxlen, len(string))
-            glRasterPos2i(5, ypos)
-            for char in string:
-                glCallList(fontbase + ord(char))
-            if i < len(homed) and homed[i]:
-                glRasterPos2i(pixel_width + 8, ypos)
-                glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-            if i < len(homed) and limit[i]:
-                glBitmap(13, 16, 0, 1, 17, 0, limiticon)
-            ypos -= coordinate_linespace
-            i = i + 1
-        glDepthFunc(GL_LESS)
-        glDepthMask(GL_TRUE)
-
-        glPopMatrix()
-        glMatrixMode(GL_PROJECTION)
-        glPopMatrix()
-        glMatrixMode(GL_MODELVIEW)
-
-
-    def posstrs(self):
-        if not joints_mode():
-            if s.kinematics_type == emc.KINEMATICS_IDENTITY:
-                homed = s.homed[:]
-                limit = s.limit[:]
-            else:
-                homed = [0]*9
-                limit = [0]*9
-
-            if vars.display_type.get():
-                positions = s.position
-            else:
-                positions = s.actual_position
-
-            if vars.coord_type.get():
-                positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
-                positions = [(i-j) for i, j in zip(positions, s.origin)]
-
-                t = -s.rotation_xy
-                t = math.radians(t)
-                x = positions[0]
-                y = positions[1]
-                positions[0] = x * math.cos(t) - y * math.sin(t)
-                positions[1] = x * math.sin(t) + y * math.cos(t)
-            else:
-                positions = list(positions)
-
-            if a_axis_wrapped:
-                positions[3] = math.fmod(positions[3], 360.0)
-                if positions[3] < 0: positions[3] += 360.0
-
-            if b_axis_wrapped:
-                positions[4] = math.fmod(positions[4], 360.0)
-                if positions[4] < 0: positions[4] += 360.0
-
-            if c_axis_wrapped:
-                positions[5] = math.fmod(positions[5], 360.0)
-                if positions[5] < 0: positions[5] += 360.0
-
-            positions = to_internal_units(positions)
-            axisdtg = to_internal_units(s.dtg)
-
-            if vars.metric.get():
-                positions = from_internal_units(positions, 1)
-                axisdtg = from_internal_units(axisdtg, 1)
-                format = "%3s:% 9.3f"
-                droformat = format + "  DTG%1s:% 9.3f"
-            else:
-                format = "%3s:% 9.4f"
-                droformat = format + "  DTG%1s:% 9.4f"
-
-            posstrs = [format % j for i, j in zip(range(9), zip("XYZABCUVW", positions)) if s.axis_mask & (1<<i)]
-            droposstrs = [droformat % (j + k) for i, j, k in zip(range(9), zip("XYZABCUVW", positions), zip("XYZABCUVW", axisdtg)) if s.axis_mask & (1<<i)]
-
-            if lathe:
-                posstrs[0] = format % ("Rad", positions[0])
-                posstrs.insert(1, format % ("Dia", positions[0]*2.0))
-                droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
-                droposstrs.insert(1, format % ("Dia", positions[0]*2.0))
-
-            if vars.show_machine_speed.get():
-                spd = to_internal_linear_unit(s.current_vel)
-                if vars.metric.get():
-                    spd = spd * 25.4 * 60
-                else:
-                    spd = spd * 60
-                posstrs.append(format % ("Vel", spd))
-
-            if vars.show_distance_to_go.get():
-                dtg = to_internal_linear_unit(s.distance_to_go)
-                if vars.metric.get():
-                    dtg *= 25.4
-                posstrs.append(format % ("DTG", dtg))
-        else:
-            homed = s.homed[:]
-            limit = s.limit[:]
-
-            # N.B. no conversion here because joint positions are unitless
-            posstrs = ["  %s:% 9.4f" % i for i in
-                zip(range(num_joints), s.joint_actual_position)]
-            droposstrs = posstrs
-
-        return limit, homed, posstrs, droposstrs
+        GlCanonDraw.redraw(self)
 
     def redraw_dro(self):
+        self.stat.poll()
         limit, homed, posstrs, droposstrs = self.posstrs()
 
         text = widgets.numbers_text
@@ -1231,122 +602,6 @@ def init():
     glClearColor(0,0,0,0)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
 
-def draw_small_origin():
-    r = 2.0/25.4
-    glColor3f(*o.colors['small_origin'])
-
-    glBegin(GL_LINE_STRIP)
-    for i in range(37):
-        theta = (i*10)*math.pi/180.0
-        glVertex3f(r*cos(theta),r*sin(theta),0.0)
-    glEnd()
-    glBegin(GL_LINE_STRIP)
-    for i in range(37):
-        theta = (i*10)*math.pi/180.0
-        glVertex3f(0.0, r*cos(theta), r*sin(theta))
-    glEnd()
-    glBegin(GL_LINE_STRIP)
-    for i in range(37):
-        theta = (i*10)*math.pi/180.0
-        glVertex3f(r*cos(theta),0.0, r*sin(theta))
-    glEnd()
-
-    glBegin(GL_LINES);
-    glVertex3f(-r, -r, 0.0)
-    glVertex3f( r,  r, 0.0)
-    glVertex3f(-r,  r, 0.0)
-    glVertex3f( r, -r, 0.0)
-
-    glVertex3f(-r, 0.0, -r)
-    glVertex3f( r, 0.0,  r)
-    glVertex3f(-r, 0.0,  r)
-    glVertex3f( r, 0.0, -r)
-
-    glVertex3f(0.0, -r, -r)
-    glVertex3f(0.0,  r,  r)
-    glVertex3f(0.0, -r,  r)
-    glVertex3f(0.0,  r, -r)
-    glEnd()
-
-def draw_axes():
-    x,y,z,p = 0,1,2,3
-    if str(widgets.view_x['relief']) == "sunken":
-        view = x
-    elif str(widgets.view_y['relief']) == "sunken":
-        view = y
-    elif (str(widgets.view_z['relief']) == "sunken" or
-          str(widgets.view_z2['relief']) == "sunken"):
-        view = z
-    else:
-        view = p
-
-    glPushMatrix()
-    glRotatef(s.rotation_xy, 0, 0, 1)
-
-    glColor3f(*o.colors['axis_x'])
-    glBegin(GL_LINES);
-    glVertex3f(1.0,0.0,0.0)
-    glVertex3f(0.0,0.0,0.0)
-    glEnd();
-
-    if view != x:
-        glPushMatrix()
-        if lathe:
-            glTranslatef(1.3, -0.1, 0)
-            glTranslatef(0, 0, -0.1)
-            glRotatef(-90, 0, 1, 0)
-            glRotatef(90, 1, 0, 0)
-            glTranslatef(0.1, 0, 0)
-        else:
-            glTranslatef(1.2, -0.1, 0)
-            if view == y:
-                glTranslatef(0, 0, -0.1)
-                glRotatef(90, 1, 0, 0)
-        glScalef(0.2, 0.2, 0.2)
-        hershey.plot_string("X", 0.5)
-        glPopMatrix()
-
-    glColor3f(*o.colors['axis_y'])
-    glBegin(GL_LINES);
-    glVertex3f(0.0,0.0,0.0)
-    glVertex3f(0.0,1.0,0.0)
-    glEnd();
-
-    if view != y:
-        glPushMatrix()
-        glTranslatef(0, 1.2, 0)
-        if view == x:
-            glTranslatef(0, 0, -0.1)
-            glRotatef(90, 0, 1, 0)
-            glRotatef(90, 0, 0, 1)
-        glScalef(0.2, 0.2, 0.2)
-        hershey.plot_string("Y", 0.5)
-        glPopMatrix()
-
-    glColor3f(*o.colors['axis_z'])
-    glBegin(GL_LINES);
-    glVertex3f(0.0,0.0,0.0)
-    glVertex3f(0.0,0.0,1.0)
-    glEnd();
-
-    if view != z:
-        glPushMatrix()
-        glTranslatef(0, 0, 1.2)
-        if lathe:
-            glRotatef(-90, 0, 1, 0)
-        if view == x:
-            glRotatef(90, 0, 1, 0)
-            glRotatef(90, 0, 0, 1)
-        elif view == y or view == p:
-            glRotatef(90, 1, 0, 0)
-        if lathe:
-            glTranslatef(0, -.1, 0)
-        glScalef(0.2, 0.2, 0.2)
-        hershey.plot_string("Z", 0.5)
-        glPopMatrix()
-
-    glPopMatrix()
-
 def toggle_perspective(e):
     o.perspective = not o.perspective
     o.tkRedraw()
@@ -1380,117 +635,7 @@ def scroll_up(event):
 def scroll_down(event):
     t.yview_scroll(2, "units")
 
-select_program = select_norapids = program = highlight = norapids = None
-
-def make_cone():
-    global cone_program
-    cone_program = glGenLists(1)
-    q = gluNewQuadric()
-    glNewList(cone_program, GL_COMPILE)
-    glEnable(GL_LIGHTING)
-    glColor3f(*o.colors['cone'])
-    gluCylinder(q, 0, .1, .25, 32, 1)
-    glPushMatrix()
-    glTranslatef(0,0,.25)
-    gluDisk(q, 0, .1, 32, 1)
-    glPopMatrix()
-    glDisable(GL_LIGHTING)
-    glEndList()
-    gluDeleteQuadric(q)
-
 current_tool = None
-lathe_shapes = [
-    None,                           # 0
-    (1,-1), (1,1), (-1,1), (-1,-1), # 1..4
-    (0,-1), (1,0), (0,1), (-1,0),   # 5..8
-    (0,0)                           # 9
-]
-
-def lathetool():
-    glDepthFunc(GL_ALWAYS)
-    diameter, frontangle, backangle, orientation = current_tool[-4:]
-    w = 3/8. 
-
-    radius = to_internal_linear_unit(diameter) / 2.
-    glColor3f(*o.colors['lathetool'])
-    glBegin(GL_LINES)
-    glVertex3f(-radius/2.0,0.0,0.0)
-    glVertex3f(radius/2.0,0.0,0.0)
-    glVertex3f(0.0,0.0,-radius/2.0)
-    glVertex3f(0.0,0.0,radius/2.0)
-    glEnd()
-
-    glNormal3f(0,1,0)
-
-    if orientation == 9:
-        glBegin(GL_TRIANGLE_FAN)
-        for i in range(37):
-            t = i * math.pi / 18
-            glVertex3f(radius * math.cos(t), 0.0, radius * math.sin(t))
-        glEnd()
-    else:
-        dx, dy = lathe_shapes[orientation]
-
-        min_angle = min(backangle, frontangle) * math.pi / 180
-        max_angle = max(backangle, frontangle) * math.pi / 180
-
-        sinmax = sin(max_angle)
-        cosmax = cos(max_angle)
-        tanmax = cos(max_angle)
-        sinmin = sin(min_angle)
-        cosmin = cos(min_angle)
-        tanmin = cos(min_angle)
-
-        circleminangle = - pi/2 + min_angle
-        circlemaxangle = - 3*pi/2 + max_angle
-        d0 = 0
-
-        x1 = (w - d0)
-
-        sz = max(w, 3*radius)
-
-        glBegin(GL_TRIANGLE_FAN)
-        glVertex3f(
-            radius * dx + radius * math.sin(circleminangle) + sz * sinmin,
-            0,
-            radius * dy + radius * math.cos(circleminangle) + sz * cosmin)
-        for i in range(37):
-            #t = circleminangle + i * (circlemaxangle - circleminangle)/36.
-            t = circleminangle + i * (circlemaxangle - circleminangle)/36.
-            glVertex3f(radius*dx + radius * math.sin(t), 0.0, radius*dy + radius * math.cos(t))
-
-        glVertex3f(
-            radius * dx + radius * math.sin(circlemaxangle) + sz * sinmax,
-            0,
-            radius * dy + radius * math.cos(circlemaxangle) + sz * cosmax)
-
-        glEnd()
-    glDepthFunc(GL_LESS)
-
-def make_selection_list(g):
-    global select_program, select_norapids
-    if select_program is None: select_program = glGenLists(1)
-    if select_norapids is None: select_norapids = glGenLists(1)
-    glNewList(select_program, GL_COMPILE)
-    g.draw(1)
-    glEndList()
-    glNewList(select_norapids, GL_COMPILE)
-    g.draw(1, False)
-    glEndList()
-
-def make_main_list(g):
-    global program, norapids
-    if program is None: program = glGenLists(1)
-    glNewList(program, GL_COMPILE)
-    g.draw(0, True)
-    glEndList()
-
-    if norapids is None: norapids = glGenLists(1)
-    glNewList(norapids, GL_COMPILE)
-    g.draw(0, False)
-    glEndList()
-
-import array
 
 def vupdate(var, val):
     try:
@@ -1498,17 +643,6 @@ def vupdate(var, val):
     except ValueError:
         pass
     var.set(val)
-
-def colinear(p1, p2, p3):
-    x, y, z = 0, 1, 2
-    p = p2[x] - p1[x], p2[y] - p1[y], p2[z] - p1[z]      
-    q = p3[x] - p2[x], p3[y] - p2[y], p3[z] - p2[z]     
-    dp = sqrt(p[x]**2 + p[y]**2 + p[z]**2)      
-    dq = sqrt(q[x]**2 + q[y]**2 + q[z]**2)      
-    if dp == 0 or dq == 0:
-        return True
-    dot = (p[x] * q[x] + p[y] * q[y] + p[z] * q[z]) / dp / dq   
-    return abs(1-dot) < 1e-8
 
 class LivePlotter:
     def __init__(self, window):
@@ -1603,8 +737,9 @@ class LivePlotter:
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
                 or self.stat.origin != o.last_origin
+                or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
-                or self.stat.tool_in_spindle != o.last_tool
+                or self.stat.tool_table[0] != o.last_tool
                 or self.stat.motion_mode != o.last_motion_mode
                 or abs(speed - self.last_speed) > .01):
             o.redraw_soon()
@@ -1613,8 +748,9 @@ class LivePlotter:
             o.last_homed = self.stat.homed
             o.last_position = self.stat.actual_position
             o.last_origin = self.stat.origin
+            o.last_rotation_xy = self.stat.rotation_xy
             o.last_motion_mode = self.stat.motion_mode
-            o.last_tool = self.stat.tool_in_spindle
+            o.last_tool = self.stat.tool_table[0]
             o.last_joint_position = self.stat.joint_actual_position
             self.last_speed = speed
             self.lastpts = self.logger.npts
@@ -1779,6 +915,7 @@ class Progress:
         self.phase += 1
         self.total = total or 1
         self.lastcount = -100
+        self.update(0, True)
 
     def done(self):
         root_window.tk.call("destroy", ".info.progress")
@@ -1801,14 +938,18 @@ class Progress:
                 "-text", text)
 
 class AxisCanon(GLCanon, StatMixin):
-    def __init__(self, widget, text, linecount, progress):
+    def __init__(self, widget, text, linecount, progress, arcdivision):
         GLCanon.__init__(self, widget.colors, geometry)
-        StatMixin.__init__(self, s)
+        StatMixin.__init__(self, s, random_toolchanger)
         self.text = text
         self.linecount = linecount
         self.progress = progress
         self.aborted = False
-        root_window.bind_class(".info.progress", "<Escape>", self.do_cancel)
+        self.arcdivision = arcdivision
+
+    def change_tool(self, pocket):
+        GLCanon.change_tool(self, pocket)
+        StatMixin.change_tool(self, pocket)
 
     def is_lathe(self): return lathe
 
@@ -1880,6 +1021,10 @@ def add_recent_file(f):
     ap.putpref('recentfiles', recent, repr)
     update_recent_menu()
 
+def cancel_open(event=None):
+    if o.canon is not None:
+        o.canon.aborted = True
+
 loaded_file = None
 def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
@@ -1917,7 +1062,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
         c.wait_complete()
         c.program_open(f)
         lines = open(f).readlines()
-        progress = Progress(4, len(lines)) 
+        progress = Progress(2, len(lines))
         t.configure(state="normal")
         t.tk.call("delete_all", t)
         code = []
@@ -1934,7 +1079,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
             t.insert("end", *code)
         progress.nextphase(len(lines))
         f = os.path.abspath(f)
-        o.g = canon = AxisCanon(o, widgets.text, i, progress)
+        o.canon = canon = AxisCanon(o, widgets.text, i, progress, arcdivision)
+        root_window.bind_class(".info.progress", "<Escape>", cancel_open)
 
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         temp_parameter = os.path.join(tempdir, os.path.basename(parameter))
@@ -1946,7 +1092,7 @@ def open_file_guts(f, filtered=False, addrecent=True):
     	    initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         unitcode = "G%d" % (20 + (s.linear_units == 1))
         try:
-            result, seq = gcode.parse(f, canon, unitcode, initcode)
+            result, seq = o.load_preview(f, canon, unitcode, initcode)
         except KeyboardInterrupt:
             result, seq = 0, 0
         # According to the documentation, MIN_ERROR is the largest value that is
@@ -1959,11 +1105,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
                     "error",0,_("OK"))
 
         t.configure(state="disabled")
-
-        canon.calc_extents()
-        canon.calc_notool_extents()
-        make_main_list(canon)
-        make_selection_list(canon)
 
     finally:
         # Before unbusying, I update again, so that any keystroke events
@@ -2195,6 +1336,57 @@ class DummyCanon:
     def user_defined_function(self, m, p, q):
         self.number = p
 
+class _prompt_areyousure:
+    """ Prompt for a question, user can enter yes or no """
+    def __init__(self, title, text):
+        t = self.t = Toplevel(root_window, padx=7, pady=7)
+        t.wm_title(title)
+        t.wm_transient(root_window)
+        t.wm_resizable(0, 0)
+        self.status=False
+        m = Message(t, text=text, aspect=500, anchor="w", justify="left")
+        self.w = w = StringVar(t)
+        l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
+                aspect=500)
+        self.buttons = f = Tkinter.Frame(t)
+        self.ok = Tkinter.Button(f, text=_("Ok"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
+        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
+        t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<space>", lambda event: (self.ok.flash(), self.ok.invoke()))
+        t.bind("<Escape>", lambda event: (self.cancel.flash(), self.cancel.invoke()))
+
+        m.pack(side="top", anchor="w")
+        l.pack(side="top", anchor="w", fill="x", expand=1)
+        f.pack(side="bottom", anchor="e")
+        self.ok.pack(side="left", padx=3, pady=3)
+        self.cancel.pack(side="left", padx=3, pady=3)
+
+    def do_ok(self):
+        self.status=True
+        self.t.destroy()
+
+    def do_cancel(self):
+        self.status=False
+        self.t.destroy()
+
+    def result(self):
+        return self.status
+
+    def run(self):
+        self.t.grab_set()
+        self.t.wait_window()
+        try:
+            self.t.destroy()
+        except Tkinter.TclError:
+            pass
+        return self.result()
+
+def prompt_areyousure(title, text):
+    t = _prompt_areyousure(title, text)
+    return t.run()
+
 class _prompt_float:
     """ Prompt for a g-code floating point expression """
     def __init__(self, title, text, default, unit_str=''):
@@ -2380,14 +1572,14 @@ def get_max_jog_speed(a):
 
 def run_warn():
     warnings = []
-    if o.g:
+    if o.canon:
         machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.g.min_extents_notool[i] < machine_limit_min[i]:
+            if o.canon.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.g.max_extents_notool[i] > machine_limit_max[i]:
+            if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:
@@ -2474,15 +1666,15 @@ class TclCommands(nf.TclCommands):
                 fmt = "%.4f"
 
             mf = vars.max_speed.get()
-            #print o.g.traverse[0]
+            #print o.canon.traverse[0]
 
-            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.g.traverse)
-            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.g.feed) +
-                sum(dist(l[1][:3], l[2][:3]) for l in o.g.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.g.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.g.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.g.traverse) +
-                o.g.dwell_time
+            g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.canon.traverse)
+            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.canon.feed) +
+                sum(dist(l[1][:3], l[2][:3]) for l in o.canon.arcfeed))
+            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.canon.feed) +
+                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.canon.arcfeed) +
+                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
+                o.canon.dwell_time
                 )
  
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
@@ -2492,8 +1684,8 @@ class TclCommands(nf.TclCommands):
             else:
                 props['run'] = _("%d seconds") % (int(gt))
 
-            min_extents = from_internal_units(o.g.min_extents, conv)
-            max_extents = from_internal_units(o.g.max_extents, conv)
+            min_extents = from_internal_units(o.canon.min_extents, conv)
+            max_extents = from_internal_units(o.canon.max_extents, conv)
             for (i, c) in enumerate("xyz"):
                 a = min_extents[i]
                 b = max_extents[i]
@@ -2551,10 +1743,10 @@ class TclCommands(nf.TclCommands):
         commands.task_run()
 
     def zoomin(event=None):
-        o.zoomin(event)
+        o.zoomin()
 
     def zoomout(event=None):
-        o.zoomout(event)
+        o.zoomout()
 
     def set_view_x(event=None):
         widgets.view_z.configure(relief="link")
@@ -2566,17 +1758,7 @@ class TclCommands(nf.TclCommands):
         o.reset()
         glRotatef(-90, 0, 1, 0)
         glRotatef(-90, 1, 0, 0)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[1], size[2])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = -90
-        o.lon = 270
-        o.tkRedraw()
+        o.set_view_x()
 
     def set_view_y(event=None):
         widgets.view_z.configure(relief="link")
@@ -2585,21 +1767,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="sunken")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(4)
-        o.reset()
-        glRotatef(-90, 1, 0, 0)
-        if lathe:
-            glRotatef(90, 0, 1, 0)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[0], size[2])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = -90
-        o.lon = 0
-        o.tkRedraw()
+        o.set_view_y()
 
     def set_view_z(event=None):
         widgets.view_z.configure(relief="sunken")
@@ -2608,17 +1776,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(1)
-        o.reset()
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[0], size[1])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = o.lon = 0
-        o.tkRedraw()
+        o.set_view_z()
 
     def set_view_z2(event=None):
         widgets.view_z.configure(relief="link")
@@ -2627,19 +1785,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="link")
         vars.view_type.set(2)
-        o.reset()
-        glRotatef(-90, 0, 0, 1)
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            o.set_eyepoint_from_extents(size[1], size[0])
-        else:
-            o.set_eyepoint(5.)
-        o.perspective = False
-        o.lat = 0
-        o.lon = 270
-        o.tkRedraw()
+        o.set_view_z2()
 
 
     def set_view_p(event=None):
@@ -2649,32 +1795,7 @@ class TclCommands(nf.TclCommands):
         widgets.view_y.configure(relief="link")
         widgets.view_p.configure(relief="sunken")
         vars.view_type.set(5)
-        o.reset()
-        o.perspective = True
-        if o.g:
-            mid = [(a+b)/2 for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            glTranslatef(-mid[0], -mid[1], -mid[2])
-
-            size = [(a-b) for a, b in zip(o.g.max_extents, o.g.min_extents)]
-            size = sqrt(size[0] **2 + size[1] ** 2 + size[2] ** 2)
-            if size > 1e99: size = 5. # in case there are no moves in the preview
-            w = o.winfo_width()
-            h = o.winfo_height()
-            fovx = o.fovy * w / h
-            fov = min(fovx, o.fovy)
-            o.set_eyepoint((size * 1.1 + 1.0) / 2 / sin ( fov * pi / 180 / 2))
-            o.lat = -60
-            o.lon = 335
-            x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-            y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-            z = (o.g.min_extents[2] + o.g.max_extents[2])/2
-            glRotateScene(o, 1.0, x, y, z, 0, 0, 0, 0)
-        else:
-            o.set_eyepoint(5.)
-            o.lat = -60
-            o.lon = 335
-            glRotateScene(o, 1.0, o.xcenter, o.ycenter, o.zcenter, 0, 0, 0, 0)
-        o.tkRedraw()
+        o.set_view_p()
 
     def estop_clicked(event=None):
         s.poll()
@@ -2736,10 +1857,10 @@ class TclCommands(nf.TclCommands):
             commands.set_view_z2()
         else:
             commands.set_view_p()
-        if o.g is not None:
-            x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-            y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-            z = (o.g.min_extents[2] + o.g.max_extents[2])/2
+        if o.canon is not None:
+            x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+            y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+            z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
             o.set_centerpoint(x, y, z)
 
     def open_pipe(f, c):
@@ -3053,7 +2174,15 @@ class TclCommands(nf.TclCommands):
     def home_all_axes(event=None):
         if not manual_ok(): return
         ensure_mode(emc.MODE_MANUAL)
-        c.home(-1)
+        isHomed=True
+        for i,h in enumerate(s.homed):
+            if s.axis_mask & (1<<i):
+                isHomed=isHomed and h
+        doHoming=True
+        if isHomed:
+            doHoming=prompt_areyousure(_("Warning"),_("Axis is already homed, are you sure you want to re-home?"))
+        if doHoming:
+            c.home(-1)
 
     def unhome_all_axes(event=None):
         if not manual_ok(): return
@@ -3062,8 +2191,12 @@ class TclCommands(nf.TclCommands):
 
     def home_axis(event=None):
         if not manual_ok(): return
-        ensure_mode(emc.MODE_MANUAL)
-        c.home("xyzabcuvw".index(vars.current_axis.get()))
+        doHoming=True
+        if s.homed["xyzabcuvw".index(vars.current_axis.get())]:
+            doHoming=prompt_areyousure(_("Warning"),_("This axis is already homed, are you sure you want to re-home?"))
+        if doHoming:
+            ensure_mode(emc.MODE_MANUAL)
+            c.home("xyzabcuvw".index(vars.current_axis.get()))
 
     def unhome_axis(event=None):
         if not manual_ok(): return
@@ -3271,6 +2404,13 @@ class TclCommands(nf.TclCommands):
                 str(detail), "error", 0, _("OK"))
         else:
             add_recent_file(f)
+
+    def goto_sensible_line():
+        line = o.get_highlight_line()
+        if not line: line = vars.running_line.get()
+        if line is not None and line > 0:
+            t.see("%d.0" % (line+2))
+            t.see("%d.0" % line)
 
 commands = TclCommands(root_window)
 
@@ -3528,8 +2668,6 @@ def bind_axis(a, b, d):
 
 root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
-import sys, getopt
-
 open_directory = "programs"
 
 unit_values = {'inch': 1/25.4, 'mm': 1}
@@ -3543,6 +2681,7 @@ if sys.argv[1] != "-ini":
     raise SystemExit, "-ini must be first argument"
 
 inifile = emc.ini(sys.argv[2])
+random_toolchanger = int(inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
 vars.emcini.set(sys.argv[2])
 jointcount = int(inifile.find("KINS", "JOINTS"))
 jointnames = "012345678"[:jointcount]
@@ -3639,8 +2778,8 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 s = emc.stat();
 s.poll()
 statfail=0
-while s.axes == 0:
-    print "waiting for s.axes"
+while s.joints == 0:
+    print "waiting for s.joints"
     time.sleep(.01)
     statfail+=1
     if statfail > 500:
@@ -3698,6 +2837,8 @@ widgets.jogincr.configure(command= jogspeed_listbox_change)
 root_window.call(widgets.jogincr._w, "select", 0)   
 
 vcp = inifile.find("DISPLAY", "PYVCP")
+
+arcdivision = int(inifile.find("DISPLAY", "ARCDIVISION") or 64)
 
 del sys.argv[1:3]
 
@@ -3760,16 +2901,15 @@ def get_coordinate_font(large):
     global fontbase
 
     if large:
-        coordinate_font = "-*-lucidatypewriter-medium-r-*-*-20-*-*-*-*-*-*-1"
+        coordinate_font = "courier bold 20"
     else:
-        coordinate_font = "9x15"
-    coordinate_charwidth, coordinate_linespace = map(int,
-        o.tk.call(o, "measurebitmapfont", coordinate_font).split())
+        coordinate_font = "courier bold 11"
     
     if coordinate_font not in font_cache:
-        font_cache[coordinate_font] = fontbase = int(o.tk.call(o._w, "loadbitmapfont", coordinate_font))
-    else:
-        fontbase = font_cache[coordinate_font]
+        font_cache[coordinate_font] = \
+            glnav.use_pango_font(coordinate_font, 0, 128)
+    fontbase, coordinate_charwidth, coordinate_linespace = \
+            font_cache[coordinate_font]
 
 root_window.bind("<Key-F3>", pane_top + ".tabs raise manual")
 root_window.bind("<Key-F5>", pane_top + ".tabs raise mdi")
@@ -3807,10 +2947,6 @@ t.bind('<Button-3>', rClicker) #allow right-click to select start from line
 t.tag_configure("ignored", background="#ffffff", foreground="#808080")
 t.tag_configure("lineno", foreground="#808080")
 t.tag_configure("executing", background="#804040", foreground="#ffffff")
-if args:
-    for i, l in enumerate(open(args[0])):
-        l = l.expandtabs().replace("\r", "")
-        t.insert("end", "%6d: " % (i+1), "lineno", l)
 t.bind("<Button-1>", select_line)
 t.bind("<B1-Motion>", lambda e: "break")
 t.bind("<B1-Leave>", lambda e: "break")
@@ -3851,20 +2987,12 @@ root_window.bind("<Control-space>", lambda event: notifications.clear())
 widgets.mdi_command.bind("<Control-space>", lambda event: notifications.clear())
 
 
-make_cone()
-
 get_coordinate_font(vars.dro_large_font.get())
 
 live_plotter = LivePlotter(o)
 live_plotter.start()
+o.lp = live_plotter.logger
 hershey = Hershey()
-
-def color_limit(cond):
-    if cond:
-        glColor3f(*o.colors['label_limit'])
-    else:
-        glColor3f(*o.colors['label_ok'])
-    return cond
 
 def remove_tempdir(t):
     shutil.rmtree(t)
@@ -3900,10 +3028,10 @@ if lathe:
     commands.set_view_y()
 else:
     commands.set_view_p()
-if o.g:
-    x = (o.g.min_extents[0] + o.g.max_extents[0])/2
-    y = (o.g.min_extents[1] + o.g.max_extents[1])/2
-    z = (o.g.min_extents[2] + o.g.max_extents[2])/2
+if o.canon:
+    x = (o.canon.min_extents[0] + o.canon.max_extents[0])/2
+    y = (o.canon.min_extents[1] + o.canon.max_extents[1])/2
+    z = (o.canon.min_extents[2] + o.canon.max_extents[2])/2
     o.set_centerpoint(x, y, z)
 
 try:

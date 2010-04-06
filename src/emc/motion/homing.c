@@ -17,6 +17,9 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 
+// Mark strings for translation, but defer translation to userspace
+#define _(s) (s)
+
 /***********************************************************************
 *                         LOCAL CONSTANTS                              *
 ************************************************************************/
@@ -74,7 +77,7 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
 	/* on limit, check to see if we should trip */
 	if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 	    /* not ignoring limits, time to quit */
-	    reportError("hit limit in home state %d", joint->home_state);
+	    reportError(_("hit limit in home state %d"), joint->home_state);
 	    joint->home_state = HOME_ABORT;
 	    immediate_state = 1;
 	    return;
@@ -84,7 +87,7 @@ static void home_do_moving_checks(emcmot_joint_t * joint)
     if (!joint->free_tp.active) {
 	/* reached end of move without hitting switch */
 	joint->free_tp.enable = 0;
-	reportError("end of move in home state %d", joint->home_state);
+	reportError(_("end of move in home state %d"), joint->home_state);
 	joint->home_state = HOME_ABORT;
 	immediate_state = 1;
 	return;
@@ -179,7 +182,7 @@ void do_homing_sequence(void)
 	break;
     default:
 	/* should never get here */
-	reportError("unknown state '%d' during homing sequence",
+	reportError(_("unknown state '%d' during homing sequence"),
 	    emcmotStatus->homingSequenceState);
 	emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
 	emcmotStatus->homing_active = 0;
@@ -240,7 +243,7 @@ void do_homing(void)
 		   determines what state is next */
 		if (joint->home_flags & HOME_IS_SHARED && home_sw_active) {
 		    reportError(
-			"Cannot home while shared home switch is closed");
+			_("Cannot home while shared home switch is closed"));
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -263,7 +266,7 @@ void do_homing(void)
 			joint->home_state = HOME_INDEX_ONLY_START;
 			immediate_state = 1;
 		    } else {
-			reportError("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX");
+			reportError(_("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX"));
 			joint->home_state = HOME_IDLE;
 		    }
 		} else {
@@ -272,7 +275,7 @@ void do_homing(void)
 			joint->home_state = HOME_INITIAL_SEARCH_START;
 			immediate_state = 1;
 		    } else {
-			reportError("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL");
+			reportError(_("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"));
 			joint->home_state = HOME_IDLE;
 		    }
 		}
@@ -420,7 +423,7 @@ void do_homing(void)
 		/* we should still be on the switch */
 		if (! home_sw_active) {
 		    reportError(
-			"Home switch inactive before start of backoff move");
+			_("Home switch inactive before start of backoff move"));
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -468,7 +471,7 @@ void do_homing(void)
 		/* we should still be off of the switch */
 		if (home_sw_active) {
 		    reportError(
-			"Home switch active before start of latch move");
+			_("Home switch active before start of latch move"));
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -524,7 +527,7 @@ void do_homing(void)
 		/* we should still be on the switch */
 		if (!home_sw_active) {
 		    reportError(
-			"Home switch inactive before start of latch move");
+			_("Home switch inactive before start of latch move"));
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -720,7 +723,7 @@ void do_homing(void)
 		    /* on limit, check to see if we should trip */
 		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 			/* not ignoring limits, time to quit */
-			reportError("hit limit in home state %d",
+			reportError(_("hit limit in home state %d"),
 			    joint->home_state);
 			joint->home_state = HOME_ABORT;
 			immediate_state = 1;
@@ -749,7 +752,7 @@ void do_homing(void)
 
 	    default:
 		/* should never get here */
-		reportError("unknown state '%d' during homing",
+		reportError(_("unknown state '%d' during homing"),
 		    joint->home_state);
 		joint->home_state = EMCMOT_ABORT;
 		immediate_state = 1;

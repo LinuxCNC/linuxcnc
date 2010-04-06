@@ -1,4 +1,7 @@
 #!/bin/sh
+
+#DEBHELPER#
+
 [ -x /etc/init.d/udev ] && /etc/init.d/udev restart
 
 if [ -f /etc/security/limits.conf ]; then

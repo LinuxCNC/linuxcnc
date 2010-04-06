@@ -77,6 +77,7 @@ to another.
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
 #include "simple_tp.h"
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -726,6 +727,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 /* error ring buffer access functions */
     extern int emcmotErrorInit(emcmot_error_t * errlog);
     extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
+    extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
+    extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
 #ifdef __cplusplus

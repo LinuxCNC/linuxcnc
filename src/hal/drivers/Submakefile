@@ -11,10 +11,6 @@ hal/drivers/pluto_step_rbf.h: hal/drivers/pluto_step_firmware/pluto_step.rbf hal
     -c "Copyright (C) 2006, 2007 Jeff Epler" \
 	    $< > $@
 
-hal/drivers/m5i20_HM5-4E.h: hal/drivers/m5i20/bit/hostmot5_4.bit ../bin/m5i20cfg
-	../bin/m5i20cfg $< > $@
-
-
 clean: pluto_clean
 pluto_clean:
 	rm  -rf \
@@ -40,7 +36,6 @@ pluto_clean:
 ifneq ($(BUILD_SYS),sim)
 modules:                                                         \
     hal/drivers/pluto_servo_rbf.h                                \
-    hal/drivers/m5i20_HM5-4E.h                                   \
     hal/drivers/pluto_step_rbf.h
 endif
 

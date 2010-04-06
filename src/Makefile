@@ -160,7 +160,7 @@ CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(libdir)
+LDFLAGS := -Wl,-rpath-link,../lib
 endif
 
 # Rules to make .d (dependency) files.
@@ -202,7 +202,10 @@ config.h.in: configure.in
 	AUTOGEN_TARGET=config.h.in ./autogen.sh
 
 config.status: configure
-	if [ -f config.status ]; then ./config.status --recheck; else ./configure --enable-run-in-place; fi
+	if [ -f config.status ]; then ./config.status --recheck; else \
+	    echo 1>&2 "*** emc2 is not configured.  Run './configure' with appropriate flags."; \
+	    exit 1; \
+	fi
 endif
 
 config.h: config.h.in config.status
@@ -373,8 +376,6 @@ else
 setuid:
 	chown root ../bin/emc_module_helper
 	chmod 4750 ../bin/emc_module_helper
-	chown root ../bin/bfload
-	chmod 4750 ../bin/bfload
 	chown root ../bin/pci_write
 	chmod 4750 ../bin/pci_write
 	chown root ../bin/pci_read
@@ -413,10 +414,10 @@ install-menus install-menu: ../share/menus/CNC.menu \
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=INSTALL NEWS README AUTHORS
+DOCS=NEWS README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
-NC_FILES=$(call GLOB,../nc_files/*)
+NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
@@ -436,7 +437,6 @@ install: install-test install-kernel-dep install-kernel-indep
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/emc2 $(DESTDIR)$(bindir) \
-		$(DESTDIR)/usr/local/etc/emc2/configs \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
@@ -447,13 +447,8 @@ install-dirs:
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
 		$(DESTDIR)$(datadir)/axis/images \
-		$(DESTDIR)$(datadir)/axis/tcl
-
-	@for B in ${HM2_BOARDS}; do  \
-		echo making dirs for $$B firmware package;  \
-		mkdir -p $(DESTDIR)/lib/firmware/hm2/$$B;  \
-		mkdir -p $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2;  \
-	done
+		$(DESTDIR)$(datadir)/axis/tcl \
+		$(DESTDIR)$(datadir)/emc/pncconf/pncconf-help
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -468,15 +463,16 @@ install-kernel-indep: install-dirs
 
         # install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
-	((cd ../configs && tar --exclude CVS --exclude .cvsignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
+	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/bfload ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/emc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emcmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(EXE) ../bin/toolconvert $(DESTDIR)$(bindir)
-	$(FILE) $(filter ../lib/%.a ../lib/%.so ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
+	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/emc2/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -496,14 +492,8 @@ install-kernel-indep: install-dirs
 	$(FILE) ../share/emc/touchy.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../share/emc/pncconf.glade $(DESTDIR)$(prefix)/share/emc
 	$(FILE) ../configs/common/emc.nml $(DESTDIR)$(prefix)/share/emc
-
-ifneq ($(BUILD_SYS),sim)
-	@for B in ${HM2_BOARDS}; do  \
-		echo copying files for $$B firmware package;  \
-		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.BIT $(DESTDIR)/lib/firmware/hm2/$$B/;  \
-		$(FILE) hal/drivers/mesa-hostmot2/firmware/$$B/*.PIN $(DESTDIR)/usr/share/doc/emc2-firmware-mesa-$$B-hostmot2/;  \
-	done
-endif
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
+	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/emc/pncconf/pncconf-help
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -529,7 +519,6 @@ install-kernel-dep:
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq "$(BUILD_SYS)" "sim"
 	$(SETUID) ../bin/emc_module_helper $(DESTDIR)$(bindir)
-	$(SETUID) ../bin/bfload $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
@@ -542,7 +531,7 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 .PHONY: configs
 COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe cooltool) \
-	$(patsubst %,../configs/%/core_servo.hal, motenc m5i20 stg vti) \
+	$(patsubst %,../configs/%/core_servo.hal, motenc stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
 	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
@@ -656,8 +645,6 @@ obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
 hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
-obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
-hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
 obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
 hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
@@ -683,9 +670,18 @@ hostmot2-objs :=                          \
     hal/drivers/mesa-hostmot2/raw.o       \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-hm2_7i43-objs := hal/drivers/mesa-hostmot2/hm2_7i43.o $(MATHSTUB)
-hm2_pci-objs  := hal/drivers/mesa-hostmot2/hm2_pci.o  $(MATHSTUB)
-hm2_test-objs := hal/drivers/mesa-hostmot2/hm2_test.o $(MATHSTUB)
+hm2_7i43-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_7i43.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_pci-objs  :=                          \
+    hal/drivers/mesa-hostmot2/hm2_pci.o   \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_test-objs :=                          \
+    hal/drivers/mesa-hostmot2/hm2_test.o  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
 
 ifneq "$(filter 2.6.%, $(kernelvers))" ""
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
@@ -765,6 +761,8 @@ motmod-objs += emc/motion/homing.o
 motmod-objs += emc/motion/simple_tp.o 
 motmod-objs += emc/motion/emcmotglb.o 
 motmod-objs += emc/motion/emcmotutil.o 
+motmod-objs += emc/motion/stashf.o
+motmod-objs += emc/motion/dbuf.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
@@ -847,7 +845,6 @@ endif
 ../rtlib/hal_vti$(MODULE_EXT): $(addprefix objects/rt,$(hal_vti-objs))
 ../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
-../rtlib/hal_m5i20$(MODULE_EXT): $(addprefix objects/rt,$(hal_m5i20-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
@@ -897,6 +894,7 @@ swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
 		$(dir $(BASEPWD))tcl \
 		$(dir $(BASEPWD))share/axis/tcl \
+		$(dir $(BASEPWD))lib/python \
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs \
 		$(dir $(BASEPWD))docs/src \
@@ -911,6 +909,6 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@sh move-if-change $@.tmp $@
 
 ../lib/%.so: ../lib/%.so.0
-	ln -sf $< $@
+	ln -sf $(notdir $<) $@
 
 # vim:ts=8:sts=8:sw=8:noet:

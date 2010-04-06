@@ -48,6 +48,7 @@ po/emc2.pot: hal/utils/meter.c \
     hal/utils/scope_disp.c \
     hal/utils/scope_files.c \
     hal/utils/miscgtk.c
+po/emc2.pot: emc/motion/control.c emc/motion/command.c emc/motion/motion.c emc/motion/homing.c
 
 po/emc2.pot: $(TCLSRCS)
 po/emc2.pot: $(PYI18NSRCS)

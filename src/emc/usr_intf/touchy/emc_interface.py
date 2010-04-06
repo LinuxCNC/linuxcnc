@@ -178,19 +178,19 @@ class emc_control:
         def single_block(self, s):
                 self.sb = s
                 self.emcstat.poll()
-                if self.emcstat.interp_state != self.emc.INTERP_IDLE:
-                        # program is running
+                if self.emcstat.queue > 0 or self.emcstat.paused:
+                        # program or mdi is running
                         if s:
                                 self.emccommand.auto(self.emc.AUTO_PAUSE)
-                        # else do nothing and wait for cycle start to be pressed
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RESUME)
 
         def cycle_start(self):
                 self.emcstat.poll()
                 if self.emcstat.paused:
                         if self.sb:
                                 self.emccommand.auto(self.emc.AUTO_STEP)
-                        else:
-                                self.emccommand.auto(self.emc.AUTO_RESUME)
+                                return
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)
@@ -374,6 +374,7 @@ class emc_status:
                 set_text(self.status['spindledir'], sd[self.emcstat.spindle_direction+1])
 
                 set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle_speed)
+                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle_speed)
                 set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
 		if self.emcstat.pocket_prepped == -1:
 			set_text(self.status['preppedtool'], _("None"))

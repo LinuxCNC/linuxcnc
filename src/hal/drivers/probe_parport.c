@@ -68,7 +68,7 @@ MODULE_LICENSE("GPL");
 static int comp_id;
 static int pnp_registered_parport = 0;
 
-static const struct pnp_device_id parport_pc_pnp_tbl[] = {
+static const struct pnp_device_id probe_parport_pnp_tbl[] = {
 	/* Standard LPT Printer Port */
 	{.id = "PNP0400", .driver_data = 0},
 	/* ECP Printer Port */
@@ -76,9 +76,9 @@ static const struct pnp_device_id parport_pc_pnp_tbl[] = {
 	{ }
 };
 
-MODULE_DEVICE_TABLE(pnp,parport_pc_pnp_tbl);
+MODULE_DEVICE_TABLE(pnp,probe_parport_pnp_tbl);
 
-static int parport_pc_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *id)
+static int probe_parport_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id *id)
 {
 	unsigned long io_lo, io_hi;
 
@@ -101,16 +101,16 @@ static int parport_pc_pnp_probe(struct pnp_dev *dev, const struct pnp_device_id 
 	return 0;
 }
 
-static void parport_pc_pnp_remove(struct pnp_dev *dev)
+static void probe_parport_pnp_remove(struct pnp_dev *dev)
 {
 }
 
 /* we only need the pnp layer to activate the device, at least for now */
-static struct pnp_driver parport_pc_pnp_driver = {
-	.name		= "parport_pc",
-	.id_table	= parport_pc_pnp_tbl,
-	.probe		= parport_pc_pnp_probe,
-	.remove		= parport_pc_pnp_remove,
+static struct pnp_driver probe_parport_pnp_driver = {
+	.name		= "probe_parport",
+	.id_table	= probe_parport_pnp_tbl,
+	.probe		= probe_parport_pnp_probe,
+	.remove		= probe_parport_pnp_remove,
 };
 
 
@@ -124,7 +124,7 @@ int rtapi_app_main(void) {
     }
 
 
-    r = pnp_register_driver (&parport_pc_pnp_driver);
+    r = pnp_register_driver (&probe_parport_pnp_driver);
     if (r >= 0) {
         pnp_registered_parport = 1;
     } else {
@@ -137,6 +137,6 @@ int rtapi_app_main(void) {
 
 void rtapi_app_exit(void) {
     if (pnp_registered_parport)
-            pnp_unregister_driver (&parport_pc_pnp_driver);
+            pnp_unregister_driver (&probe_parport_pnp_driver);
     hal_exit(comp_id);
 }

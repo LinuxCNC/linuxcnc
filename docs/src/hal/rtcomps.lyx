@@ -1113,7 +1113,7 @@ halcmd loadrt pwmgen output_type=<config-array>
 \begin_layout LyX-Code
 emc2$ 
 \series bold
-halcmd loadrt pwmgen step_type=0,1,2
+halcmd loadrt pwmgen output_type=0,1,2
 \end_layout
 
 \begin_layout Standard

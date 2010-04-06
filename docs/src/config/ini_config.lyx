@@ -834,6 +834,34 @@ The proper GEOMETRY string
  Geometry has no effect without a rotary axis.
 \end_layout
 
+\begin_layout Description
+ARCDIVISION\InsetSpace ~
+=\InsetSpace ~
+64 Set the quality of preview of arcs.
+ Arcs are previewed by dividing them into a number of straight lines; a
+ semicircle is divided into 
+\series bold
+ARCDIVISION
+\series default
+ parts.
+ Larger values give a more accurate preview, but take longer to load and
+ result in a more sluggish display.
+ Smaller values give a less accurate preview, but take less time to load
+ and may result in a faster display.
+ The default value of 64 means a circle of up to 3 inches will be displayed
+ to within 1 mil (.03%).
+\begin_inset Foot
+status open
+
+\begin_layout Standard
+In emc2.4 and earlier, the default value was 128.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 The following [DISPLAY] items are not used if you select AXIS as your user
  interface program.

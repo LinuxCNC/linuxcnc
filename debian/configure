@@ -61,7 +61,7 @@ MODULE_PATH=usr/realtime-$1/modules/emc2
 MODULE_EXT=.ko
 KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
 KERNEL_HEADERS=linux-headers-$1
-EXTRA_FILES="usr/bin/emc_module_helper usr/bin/bfload"
+EXTRA_FILES="usr/bin/emc_module_helper"
 KERNEL_VERSION=$1
 DRIVERS=drivers.files.in
 PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
@@ -143,14 +143,26 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 }
 
 subst control.in > control
-if [ "$TARGET" != "sim" ]; then subst control.firmware >> control; fi
 if [ "$TARGET" == "sim" ]; then cp emc2-dev.files emc2-sim-dev.files; fi
 
 subst rules.in > rules; chmod +x rules
+
 if [ -f $EXTRAS/emc2.files ]; then
     subst emc2.files.in $DRIVERS $EXTRAS/emc2.files > $EMC2_PACKAGE_NAME.files
 else
     subst emc2.files.in $DRIVERS > $EMC2_PACKAGE_NAME.files
+fi
+
+if [ -f $EXTRAS/emc2-doc-en.files ]; then
+    cat emc2-doc-en.files.in $EXTRAS/emc2-doc-en.files > emc2-doc-en.files
+else
+    cat emc2-doc-en.files.in > emc2-doc-en.files
+fi
+
+if [ -f $EXTRAS/emc2-doc-fr.files ]; then
+    cat emc2-doc-fr.files.in $EXTRAS/emc2-doc-fr.files > emc2-doc-fr.files
+else
+    cat emc2-doc-fr.files.in > emc2-doc-fr.files
 fi
 
 rm -f ../build-stamp

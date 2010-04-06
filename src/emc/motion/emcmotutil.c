@@ -13,6 +13,8 @@
 
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "motion.h"		/* these decls */
+#include "dbuf.h"
+#include "stashf.h"
 
 int emcmotErrorInit(emcmot_error_t * errlog)
 {
@@ -29,11 +31,10 @@ int emcmotErrorInit(emcmot_error_t * errlog)
     return 0;
 }
 
-int emcmotErrorPut(emcmot_error_t * errlog, const char *error)
+int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap)
 {
-    char *p1;
-    const char *p2;
-    int i;
+    struct dbuf errbuf;
+    struct dbuf_iter it;
 
     if (errlog == 0 || errlog->num == EMCMOT_ERROR_NUM) {
 	/* full */
@@ -42,18 +43,9 @@ int emcmotErrorPut(emcmot_error_t * errlog, const char *error)
 
     errlog->head++;
 
-    // strncpy(errlog->error[errlog->end], error, EMCMOT_ERROR_LEN);
-    // replaced strncpy with manual copy
-    p1 = errlog->error[errlog->end];
-    p2 = error;
-    i = 0;
-    while (*p2 && i < EMCMOT_ERROR_LEN) {
-	*p1 = *p2;
-	p1++;
-	p2++;
-	i++;
-    }
-    *p1 = 0;
+    dbuf_init(&errbuf, (unsigned char*)errlog->error[errlog->end], EMCMOT_ERROR_LEN);
+    dbuf_iter_init(&it, &errbuf);
+    vstashf(&it, fmt, ap);
 
     errlog->end = (errlog->end + 1) % EMCMOT_ERROR_NUM;
     errlog->num++;
@@ -63,34 +55,32 @@ int emcmotErrorPut(emcmot_error_t * errlog, const char *error)
     return 0;
 }
 
+int emcmotErrorPutf(emcmot_error_t *errlog, const char *fmt, ...)
+{
+    int result;
+    va_list ap;
+    va_start(ap, fmt);
+    result = emcmotErrorPutfv(errlog, fmt, ap);
+    va_end(ap);
+    return result;
+}
+
+int emcmotErrorPut(emcmot_error_t *errlog, const char *error)
+{
+    return emcmotErrorPutf(errlog, "%s", error);
+}
+
 int emcmotErrorGet(emcmot_error_t * errlog, char *error)
 {
-    char *p1;
-    const char *p2;
-    int i;
     if (errlog == 0 || errlog->num == 0) {
 	/* empty */
 	return -1;
     }
 
     errlog->head++;
-
-    // strncpy(error, errlog->error[errlog->start], EMCMOT_ERROR_LEN); 
-    // replaced strncpy with manual copy
-    p1 = error;
-    p2 = errlog->error[errlog->start];
-    i = 0;
-    while (*p2 && i < EMCMOT_ERROR_LEN) {
-	*p1 = *p2;
-	p1++;
-	p2++;
-	i++;
-    }
-    *p1 = 0;
-
+    memcpy(error, errlog->error[errlog->start], EMCMOT_ERROR_LEN);
     errlog->start = (errlog->start + 1) % EMCMOT_ERROR_NUM;
     errlog->num--;
-
     errlog->tail = errlog->head;
 
     return 0;

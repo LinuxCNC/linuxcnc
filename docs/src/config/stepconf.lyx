@@ -564,44 +564,38 @@ For each pin, choose the signal which matches your parallel port pin out.
 \begin_layout Description
 Output\InsetSpace ~
 pinout\InsetSpace ~
-presets
-\begin_inset LatexCommand index
-name "Output pinout presets"
-
-\end_inset
-
- Automatically set pins 2 through 9 according to the Sherline standard (Directio
-n on pins 2, 4, 6, 8) or the Xylotex standard (Direction on pins 3, 5, 7,
- 9).
+presets Automatically set pins 2 through 9 according to the
+ Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
+ (Direction on pins 3, 5, 7, 9).
  
 \end_layout
 
 \begin_layout Description
 Inputs\InsetSpace ~
 and\InsetSpace ~
-Outputs
-\begin_inset LatexCommand index
-name "Inputs and Outputs"
-
-\end_inset
-
- If the input or output is not used set the option to "Unused".
+Outputs If the input or output is not used set the option to "Unused".
 \end_layout
 
-\begin_layout Standard
+\begin_layout Description
+External\InsetSpace ~
+E\InsetSpace ~
+Stop This can be selected from an input pin drop down box.
+ A typical E Stop chain uses all normally closed contacts.
+\end_layout
 
-\series bold
-Charge Pump
-\begin_inset LatexCommand index
-name "Charge Pump"
+\begin_layout Description
+Homing\InsetSpace ~
+&\InsetSpace ~
+Limit\InsetSpace ~
+Switches These can be selected from an input pin drop down box
+ for most configurations.
+\end_layout
 
-\end_inset
-
-
-\series default
- If your driver board requires a charge pump signal simply select Charge
- Pump from the drop down list for the output pin you wish to connect to
- your charge pump input.
+\begin_layout Description
+Charge\InsetSpace ~
+Pump If your driver board requires a charge pump signal simply select
+ Charge Pump from the drop down list for the output pin you wish to connect
+ to your charge pump input.
  The charge pump output is connected to the base thread by Stepconf.
  The charge pump output will be about 1/2 of the maximum step rate shown
  on the Basic Machine Configuration page.

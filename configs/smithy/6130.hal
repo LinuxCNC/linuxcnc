@@ -1,4 +1,4 @@
-# 5i20 config file for Smithy 924 Lathe
+# 5i20 config file for Smithy 6130 Lathe
 
 # load the hostmot2 driver, this doesnt do anything by itself,
 # it just waits for low-level drivers to register boards
@@ -7,7 +7,6 @@ loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
-# for the production 924 lathe use SVST2_4_7I47.BIT
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=2 num_pwmgens=1 num_stepgens=2"
 # set up the watchdog
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
@@ -45,6 +44,7 @@ net Sflt lowpass.0.out => hm2_5i20.0.pwmgen.00.value
 setp lowpass.0.gain 0.0001
 setp hm2_5i20.0.pwmgen.00.scale 3000
 setp hm2_5i20.0.pwmgen.00.output-type 1
+setp hm2_5i20.0.pwmgen.pwm_frequency 100
 
 # configure the stepgen parameters
 # Need to try changing dirsetup to 2500 & dirhold to 2500.
@@ -170,5 +170,4 @@ addf hm2_5i20.0.write_gpio servo-thread
 addf hm2_5i20.0.pet_watchdog servo-thread
 # toggle the charge pump
 addf charge-pump servo-thread
-
 

@@ -14,6 +14,7 @@ many different ways to set homing and limits.
     switch location to calculate the origin 
     position (when using home switches) or be
     manually set if not using home switches.
+
   Travel distance:
     This is the maximun distance the axis can
     travel in each direction. This may

@@ -64,12 +64,44 @@ static PyObject *py##name(PyObject *s, PyObject *o) { \
     Py_INCREF(Py_None); return Py_None; \
 }
 
+#define GLCALL5V(name, fmt, t1, t2, t3, t4, t5) \
+static PyObject *py##name(PyObject *s, PyObject *o) { \
+    t1 p1; t2 p2; t3 p3; t4 p4; t5 p5; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3, &p4, &p5)) \
+	return NULL; \
+    name(p1, p2, p3, p4, p5); \
+    CHECK_ERROR; \
+    Py_INCREF(Py_None); return Py_None; \
+}
+
 #define GLCALL6V(name, fmt, t1, t2, t3, t4, t5, t6) \
 static PyObject *py##name(PyObject *s, PyObject *o) { \
     t1 p1; t2 p2; t3 p3; t4 p4; t5 p5; t6 p6; \
     if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3, &p4, &p5, &p6)) \
 	return NULL; \
     name(p1, p2, p3, p4, p5, p6); \
+    CHECK_ERROR; \
+    Py_INCREF(Py_None); return Py_None; \
+}
+
+
+#define GLCALL7V(name, fmt, t1, t2, t3, t4, t5, t6, t7) \
+static PyObject *py##name(PyObject *s, PyObject *o) { \
+    t1 p1; t2 p2; t3 p3; t4 p4; t5 p5; t6 p6; t7 p7; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, &p1, &p2, &p3, &p4, &p5, &p6, &p7)) \
+	return NULL; \
+    name(p1, p2, p3, p4, p5, p6, p7); \
+    CHECK_ERROR; \
+    Py_INCREF(Py_None); return Py_None; \
+}
+
+#define GLCALL8V(name, fmt, t1, t2, t3, t4, t5, t6, t7, t8) \
+static PyObject *py##name(PyObject *s, PyObject *o) { \
+    t1 p1; t2 p2; t3 p3; t4 p4; t5 p5; t6 p6; t7 p7; t8 p8; \
+    if(!PyArg_ParseTuple(o, fmt ":" #name, \
+		&p1, &p2, &p3, &p4, &p5, &p6, &p7, &p8)) \
+	return NULL; \
+    name(p1, p2, p3, p4, p5, p6, p7, p8); \
     CHECK_ERROR; \
     Py_INCREF(Py_None); return Py_None; \
 }
@@ -608,6 +640,11 @@ static PyObject *pyglRenderMode( PyObject *s, PyObject *o) {
     count = glRenderMode(mode);
 
     CHECK_ERROR;
+
+    if(count < 0) {
+	PyErr_Format(PyExc_OverflowError, "Buffer too small");
+	return 0;
+    }
 
     if(lastmode == GL_SELECT) {
         PyObject *r = PyList_New(0);

@@ -11,7 +11,7 @@ endif
 
 ../bin/emc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -o $@ $^ 
+	@$(CC) -o $@ $^
 
 TARGETS += ../bin/emc_module_helper
 endif

@@ -15,66 +15,11 @@ from Tkinter import *
 import math
 import os,sys
 import _togl
-
-def glTranslateScene(w, s, x, y, mousex, mousey):
-    glMatrixMode(GL_MODELVIEW)
-    mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-    glLoadIdentity()
-    glTranslatef(s * (x - mousex), s * (mousey - y), 0.0)
-    glMultMatrixd(mat)
-
-
-def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
-    def snap(a):
-        m = a%90
-        if m < 3:
-            return a-m
-        elif m > 87:
-            return a-m+90
-        else:
-            return a
-
-    lat = min(w.maxlat, max(w.minlat, w.lat + (y - mousey) * .5))
-    lon = (w.lon + (x - mousex) * .5) % 360
-
-    glMatrixMode(GL_MODELVIEW)
-
-    glTranslatef(xcenter, ycenter, zcenter)
-    mat = glGetDoublev(GL_MODELVIEW_MATRIX)
-
-    glLoadIdentity()
-    tx, ty, tz = mat[12:15]
-    glTranslatef(tx, ty, tz)
-    glRotatef(snap(lat), *w.rotation_vectors[0])
-    glRotatef(snap(lon), *w.rotation_vectors[1])
-    glTranslatef(-xcenter, -ycenter, -zcenter)
-    w.lat = lat
-    w.lon = lon
-
-def sub(x, y):
-    return map(lambda a, b: a-b, x, y)
-
-
-def dot(x, y):
-    t = 0
-    for i in range(len(x)):
-        t = t + x[i]*y[i]
-    return t
-
-
-def glDistFromLine(x, p1, p2):
-    f = map(lambda x, y: x-y, p2, p1)
-    g = map(lambda x, y: x-y, x, p1)
-    return dot(g, g) - dot(f, g)**2/dot(f, f)
-
+import glnav
 
 # Keith Junius <junius@chem.rug.nl> provided many changes to Togl
 TOGL_NORMAL = 1
 TOGL_OVERLAY = 2
-
-def v3distsq(a,b):
-    d = ( a[0] - b[0], a[1] - b[1], a[2] - b[2] )
-    return d[0]*d[0] + d[1]*d[1] + d[2]*d[2]
 
 class Togl(Widget):
     """
@@ -186,7 +131,7 @@ class RawOpengl(Togl, Misc):
                 glPopMatrix()
         finally:
             glMatrixMode(_mode)
-        self.tk.call(self._w, 'swapbuffers')
+        self.swapbuffers()
 
 
     def tkMap(self, *dummy):
@@ -199,7 +144,7 @@ class RawOpengl(Togl, Misc):
 
 
 
-class Opengl(RawOpengl):
+class Opengl(RawOpengl, glnav.GlNavBase):
     """\
 Tkinter bindings for an Opengl widget.
 Mike Hartshorn
@@ -217,31 +162,36 @@ http://www.yorvic.york.ac.uk/~mjh/
 
         #Widget.__init__(self, master, 'togl', cnf, kw)
         apply(RawOpengl.__init__, (self, master, cnf), kw)
-        self.initialised = 0
+        glnav.GlNavBase.__init__(self)
 
-        # Current coordinates of the mouse.
-        self.xmouse = 0
-        self.ymouse = 0
+        # Basic bindings for the virtual trackball
+        self.bind('<Map>', self.tkMap)
+        self.bind('<Expose>', self.tkExpose)
+        self.bind('<Configure>', self.tkExpose)
 
-        # Where we are centering.
-        self.xcenter = 0.0
-        self.ycenter = 0.0
-        self.zcenter = 0.0
+        self.bind('<Shift-Button-1>', self.tkHandlePick)
+        self.bind('<Button-2>', self.tkStartRotate)
+        self.bind("<B2-Motion>", self.tkRotateOrTranslate)
+        self.bind('<ButtonRelease-2>', self.tkAutoSpin)
+        self.bind('<Button-3>', self.tkRecordMouse)
+        self.bind('<B3-Motion>', self.tkScale)
+        self.bind('<Button-4>', self.tkZoomin)
+        self.bind('<Button-5>', self.tkZoomout)
+        self.bind('<MouseWheel>', self.zoomwheel)
+        self.bind('<Button-1>', self.tkStartRotate)
+        self.bind('<Button1-Motion>', self.tkTranslateOrRotate)
+        self.bind("<Shift-Button-1>", self.tkStartRotate)
+        self.bind("<Shift-B1-Motion>", self.tkRotateOrTranslate)
 
-        # The _back color
-        self.r_back = 1.
-        self.g_back = 0.
-        self.b_back = 1.
+        self.bind("<Control-Button-1>", self.tkStartZoom)
+        self.bind("<Control-B1-Motion>", self.tkContinueZoom)
+        self.bind("<Button-3>", self.tkStartZoom)
+        self.bind("<B3-Motion>", self.tkContinueZoom)
 
-        # Where the eye is
-        self.distance = 10.0
-
-        # Field of view in y direction
-        self.fovy = 30.0
-
-        # Position of clipping planes.
-        self.near = 0.1
-        self.far = 1000.0
+        self.lat = 0
+        self.minlat = -90
+        self.maxlat = 0
+        self.lon = 0
 
         # Is the widget allowed to autospin?
         self.autospin_allowed = 0
@@ -249,25 +199,7 @@ http://www.yorvic.york.ac.uk/~mjh/
         # Is the widget currently autospinning?
         self.autospin = 0
 
-        # Basic bindings for the virtual trackball
-        self.bind('<Map>', self.tkMap)
-        self.bind('<Expose>', self.tkExpose)
-        self.bind('<Configure>', self.tkExpose)
-        self.bind('<Shift-Button-1>', self.tkHandlePick)
-        #self.bind('<Button-1><ButtonRelease-1>', self.tkHandlePick)
-        self.bind('<Button-1>', self.tkRecordMouse)
-        self.bind('<B1-Motion>', self.tkTranslate)
-        self.bind('<Button-2>', self.StartRotate)
-        self.bind('<B2-Motion>', self.tkRotate)
-        self.bind('<ButtonRelease-2>', self.tkAutoSpin)
-        self.bind('<Button-3>', self.tkRecordMouse)
-        self.bind('<B3-Motion>', self.tkScale)
-
-        self.lat = 0
-        self.minlat = -90
-        self.maxlat = 0
-        self.lon = 0
-
+        self.initialised = 0
     def help(self):
         """Help for the widget."""
 
@@ -282,81 +214,13 @@ http://www.yorvic.york.ac.uk/~mjh/
                      'strings': ('Done', 'Ok')})
 
 
+    def deactivate(self):
+        pass
+
     def activate(self):
         """Cause this Opengl widget to be the current destination for drawing."""
 
         self.tk.call(self._w, 'makecurrent')
-
-
-    # This should almost certainly be part of some derived class.
-    # But I have put it here for convenience.
-    def basic_lighting(self):
-        """\
-        Set up some basic lighting (single infinite light source).
-
-        Also switch on the depth buffer."""
-   
-        self.activate()
-        glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, (.4, .4, .4, 1))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, (.6, .6, .6, 1))
-        glEnable(GL_LIGHTING)
-        glEnable(GL_LIGHT0)
-        glDepthFunc(GL_LESS)
-        glEnable(GL_DEPTH_TEST)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-
-
-    def set_background(self, r, g, b):
-        """Change the background colour of the widget."""
-
-        self.r_back = r
-        self.g_back = g
-        self.b_back = b
-
-        self.tkRedraw()
-
-
-    def set_centerpoint(self, x, y, z):
-        """Set the new center point for the model.
-        This is where we are looking."""
-
-        self.xcenter = x
-        self.ycenter = y
-        self.zcenter = z
-
-        self.tkRedraw()
-
-
-    def set_latitudelimits(self, minlat, maxlat):
-        """Set the new "latitude" limits for rotations."""
-
-        if maxlat > 180:
-            return
-        if minlat < -180:
-            return
-        if maxlat <= minlat:
-            return
-        self.maxlat = maxlat
-        self.minlat = minlat
-
-        self.tkRedraw()
-
-
-    def set_eyepoint(self, distance):
-        """Set how far the eye is from the position we are looking."""
-
-        self.distance = distance
-        self.tkRedraw()
-
-
-    def reset(self):
-        """Reset rotation matrix for this widget."""
-
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        self.tkRedraw()
 
 
     def tkHandlePick(self, event):
@@ -383,43 +247,22 @@ http://www.yorvic.york.ac.uk/~mjh/
 
     def tkRecordMouse(self, event):
         """Record the current mouse position."""
-
-        self.xmouse = event.x
-        self.ymouse = event.y
+        self.recordMouse(event.x, event.y)
 
 
-    def StartRotate(self, event):
+    def tkStartRotate(self, event):
         # Switch off any autospinning if it was happening
-
         self.autospin = 0
         self.tkRecordMouse(event)
 
-
     def tkScale(self, event):
-        """Scale the scene.  Achieved by moving the eye position.
-
-        Dragging up zooms in, while dragging down zooms out
-        """
-        scale = 1 - 0.01 * (event.y - self.ymouse)
-        # do some sanity checks, scale no more than
-        # 1:1000 on any given click+drag
-        if scale < 0.001:
-            scale = 0.001
-        elif scale > 1000:
-            scale = 1000
-        newdistance = self.distance * scale
-        if newdistance < 1e-30 or newdistance > 1e30:
-            return
-        self.distance = newdistance
-        self.tkRedraw()
-        self.tkRecordMouse(event)
-
+        self.scale(event.x, event.y)
 
     def do_AutoSpin(self):
         s = 0.5
         self.activate()
 
-        glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, self.yspin, self.xspin, 0, 0)
+        glnav.glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, self.yspin, self.xspin, 0, 0)
         self.tkRedraw()
 
         if self.autospin:
@@ -450,31 +293,22 @@ http://www.yorvic.york.ac.uk/~mjh/
 
 
     def tkRotate(self, event):
-        """Perform rotation of scene."""
-
-        self.activate()
-        glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, event.x, event.y, self.xmouse, self.ymouse)
-        self.tkRedraw()
-        self.tkRecordMouse(event)
+        self.rotate(event.x, event.y)
 
 
     def tkTranslate(self, event):
-        """Perform translation of scene."""
+        self.translate(event.x, event.y)
 
-        self.activate()
+    def tkTranslateOrRotate(self, event):
+        self.translateOrRotate(event.x, event.y)
 
-        # Scale mouse translations to object viewplane so object tracks with mouse
-        win_height = max( 1,self.winfo_height() )
-        obj_c     = ( self.xcenter, self.ycenter, self.zcenter )
-        win     = gluProject( obj_c[0], obj_c[1], obj_c[2])
-        obj     = gluUnProject( win[0], win[1] + 0.5 * win_height, win[2])
-        dist       = math.sqrt( v3distsq( obj, obj_c ) )
-        scale     = abs( dist / ( 0.5 * win_height ) )
+    def tkRotateOrTranslate(self, event):
+        self.rotateOrTranslate(event.x, event.y)
 
-        glTranslateScene(self, scale, event.x, event.y, self.xmouse, self.ymouse)
+
+
+    def _redraw(self):
         self.tkRedraw()
-        self.tkRecordMouse(event)
-
 
     def tkRedraw(self, *dummy):
         """Cause the opengl widget to redraw itself."""
@@ -511,11 +345,11 @@ http://www.yorvic.york.ac.uk/~mjh/
             glMatrixMode(GL_MODELVIEW)
     
         # Call objects redraw method.
-        self.redraw(self)
+        self.redraw()
         glFlush()               # Tidy up
         glPopMatrix()           # Restore the matrix
 
-        self.tk.call(self._w, 'swapbuffers')
+        self.swapbuffers()
 
 
     def tkMap(self, *dummy):
@@ -541,5 +375,21 @@ http://www.yorvic.york.ac.uk/~mjh/
         """Turn the current scene into PostScript via the feedback buffer."""
 
         self.activate()
+
+    def zoomwheel(self, event):
+        if event.delta > 0: self.zoomin(event)
+        else: self.zoomout(event)
+
+    def tkStartZoom(self, event):
+        self.startZoom(event.y)
+
+    def tkContinueZoom(self, event):
+        self.continueZoom(event.y)
+
+    def tkZoomin(self, event):
+        self.zoomin()
+
+    def tkZoomout(self, event):
+        self.zoomout()
 
 # vim:ts=8:sts=4:et:

@@ -706,8 +706,21 @@ pack .toolbar.rule12 \
 pack .toolbar.clear_plot \
 	-side left
 
-set pane_top [frame .top]
-set pane_bottom [frame .bottom]
+panedwindow .pane \
+        -borderwidth 0 \
+        -handlesize 5 \
+        -orient v \
+        -sashpad 0 \
+        -showhandle 1
+
+set pane_top [frame .pane.top]
+set pane_bottom [frame .pane.bottom]
+.pane add $pane_top -sticky nsew
+.pane add $pane_bottom -sticky nsew
+catch {
+    .pane paneconfigure $pane_top -stretch always
+    .pane paneconfigure $pane_bottom -stretch never
+}
 
 NoteBook ${pane_top}.tabs \
 	-borderwidth 2 \
@@ -719,6 +732,12 @@ proc show_all_tabs w {
     if {$a < $b} { $w configure -width $b }
 }
 after 1 after idle show_all_tabs ${pane_top}.tabs
+proc set_pane_minsize {} {
+    global pane_bottom pane_top
+    .pane paneconfigure $pane_top -minsize [winfo reqheight $pane_top]
+    .pane paneconfigure $pane_bottom -minsize [winfo reqheight $pane_bottom]
+}
+after 1 after idle set_pane_minsize
 
 set _tabs_manual [${pane_top}.tabs insert end manual -text [_ "Manual Control \[F3\]"] -raisecmd {focus .; ensure_manual}]
 set _tabs_mdi [${pane_top}.tabs insert end mdi -text [_ "MDI \[F5\]"]]
@@ -1510,6 +1529,7 @@ text ${pane_bottom}.t.text \
 	-takefocus 0 \
 	-yscrollcommand [list ${pane_bottom}.t.sb set]
 ${pane_bottom}.t.text insert end {}
+bind ${pane_bottom}.t.text <Configure> { goto_sensible_line }
 
 scrollbar ${pane_bottom}.t.sb \
 	-borderwidth 0 \
@@ -1786,8 +1806,7 @@ grid ${pane_bottom}.t \
 grid rowconfigure ${pane_bottom} 1 -weight 1
 grid columnconfigure ${pane_bottom} 1 -weight 1
 
-grid .top -column 0 -row 1 -sticky nsew
-grid .bottom -column 0 -row 2 -sticky nsew
+grid .pane -column 0 -row 1 -sticky nsew -rowspan 2
 
 # Grid widget .toolbar
 grid .toolbar \
@@ -2264,8 +2283,11 @@ proc update_recent {args} {
 }
 
 
-bind . <Configure> { if {"%W" == "."} {
-    wm minsize %W [winfo reqwidth %W] [expr [winfo reqheight %W]+4] }
+bind . <Configure> {
+    if {"%W" == "."} {
+        wm minsize %W [winfo reqwidth %W] [winfo reqheight %W]
+        bind . <Configure> {}
+    }
 }
 
 bind . <Alt-v> [bind all <Alt-Key>]

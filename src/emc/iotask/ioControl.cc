@@ -609,6 +609,7 @@ void load_tool(int pocket) {
         // magic T0 = pocket 0 = no tool
 	emcioStatus.tool.toolTable[0].toolno = -1;
         ZERO_EMC_POSE(emcioStatus.tool.toolTable[0].offset);
+        emcioStatus.tool.toolTable[0].diameter = 0.0;
         emcioStatus.tool.toolTable[0].frontangle = 0.0;
         emcioStatus.tool.toolTable[0].backangle = 0.0;
         emcioStatus.tool.toolTable[0].orientation = 0;
@@ -833,6 +834,10 @@ int main(int argc, char *argv[])
             {
                 signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
                 rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE\n");
+
+                // it doesn't make sense to prep the spindle pocket
+                if(random_toolchanger && p == 0) break;
+
                 /* set tool number first */
                 *(iocontrol_data->tool_prep_pocket) = p;
                 if(!random_toolchanger && p == 0) {
@@ -851,9 +856,18 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_LOAD_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD loaded=%d prepped=%d\n", emcioStatus.tool.toolInSpindle, emcioStatus.tool.pocketPrepped);
+
+            // it doesn't make sense to load a tool from the spindle pocket
             if (random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
                 break;
             }
+
+            // it's not necessary to load the tool already in the spindle
+            if (!random_toolchanger && emcioStatus.tool.pocketPrepped > 0 &&
+                emcioStatus.tool.toolInSpindle == emcioStatus.tool.toolTable[emcioStatus.tool.pocketPrepped].toolno) {
+                break;
+            }
+
 	    if (emcioStatus.tool.pocketPrepped != -1) {
 		//notify HW for toolchange
 		*(iocontrol_data->tool_change) = 1;
@@ -873,11 +887,15 @@ int main(int argc, char *argv[])
 	    break;
 
 	case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
-	    if (0 != loadToolTable(((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->
-			      file, emcioStatus.tool.toolTable,
-			      fms, ttcomments, random_toolchanger))
-		emcioStatus.status = RCS_ERROR;
+	    {
+		const char *filename =
+		    ((EMC_TOOL_LOAD_TOOL_TABLE *) emcioCommand)->file;
+		if(!strlen(filename)) filename = TOOL_TABLE_FILE;
+		rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
+		if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
+				  fms, ttcomments, random_toolchanger))
+		    emcioStatus.status = RCS_ERROR;
+	    }
 	    break;
 
 	case EMC_TOOL_SET_OFFSET_TYPE: 

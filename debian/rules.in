@@ -51,6 +51,7 @@ else
 endif
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
+	rm -f src/config.log src/config.status
 
 	dh_clean
 
@@ -98,10 +99,10 @@ binary-arch: build install
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml
 ifneq "$(kernel_version)" "sim"
-	dh_fixperms -X/emc_module_helper -X/bfload
+	dh_fixperms -X/emc_module_helper
 endif
-	dh_installdeb
 	dh_makeshlibs
+	dh_installdeb
 	cat debian/@EMC2_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
 	dh_shlibdeps -l debian/@EMC2_PACKAGE_NAME@/usr/lib
 	dh_python /usr/lib/python@PYTHON_VERSION@/site-packages /usr/lib/python@PYTHON_VERSION@/dist-packages

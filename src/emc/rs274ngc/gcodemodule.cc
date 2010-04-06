@@ -25,23 +25,7 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
-#define active_settings  interp_new.active_settings
-#define active_g_codes   interp_new.active_g_codes
-#define active_m_codes   interp_new.active_m_codes
-#define interp_init	 interp_new.init
-#define interp_open      interp_new.open
-#define interp_close     interp_new.close
-#define interp_read	 interp_new.read
-#define interp_execute	 interp_new.execute
 char _parameter_file_name[LINELEN];
-
-
-/* This definition of offsetof avoids the g++ warning
- * 'invalid offsetof from non-POD type'.
- */
-#undef offsetof
-#define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
-
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
@@ -51,9 +35,6 @@ static PyObject *int_array(int *arr, int sz) {
     return res;
 }
 
-extern PyTypeObject LineCodeType, DelayType, VelocityType;
-extern PyTypeObject LinearMoveType, CircularMoveType, UnknownMessageType;
-
 typedef struct {
     PyObject_HEAD
     double settings[ACTIVE_SETTINGS];
@@ -61,20 +42,20 @@ typedef struct {
     int mcodes[ACTIVE_M_CODES];
 } LineCode;
 
-PyObject *LineCode_gcodes(LineCode *l) {
+static PyObject *LineCode_gcodes(LineCode *l) {
     return int_array(l->gcodes, ACTIVE_G_CODES);
 }
-PyObject *LineCode_mcodes(LineCode *l) {
+static PyObject *LineCode_mcodes(LineCode *l) {
     return int_array(l->mcodes, ACTIVE_M_CODES);
 }
 
-PyGetSetDef LineCodeGetSet[] = {
+static PyGetSetDef LineCodeGetSet[] = {
     {"gcodes", (getter)LineCode_gcodes},
     {"mcodes", (getter)LineCode_mcodes},
     {NULL, NULL},
 };
 
-PyMemberDef LineCodeMembers[] = {
+static PyMemberDef LineCodeMembers[] = {
     {"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY},
 
     {"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY},
@@ -100,7 +81,7 @@ PyMemberDef LineCodeMembers[] = {
     {NULL}
 };
 
-PyTypeObject LineCodeType = {
+static PyTypeObject LineCodeType = {
     PyObject_HEAD_INIT(NULL)
     0,                      /*ob_size*/
     "gcode.linecode",       /*tp_name*/
@@ -145,29 +126,26 @@ PyTypeObject LineCodeType = {
     0,                      /*tp_is_gc*/
 };
 
-PyObject *callback;
-int interp_error;
-int last_sequence_number;
-int plane;
-bool metric;
-double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
+static PyObject *callback;
+static int interp_error;
+static int last_sequence_number;
+static bool metric;
+static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-Interp interp_new;
+static Interp interp_new;
 
-void maybe_new_line(int line_number) {
+static void maybe_new_line(int sequence_number=interp_new.sequence_number());
+static void maybe_new_line(int sequence_number) {
     if(interp_error) return;
+    if(sequence_number == last_sequence_number)
+        return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
-    active_settings(new_line_code->settings);
-    active_g_codes(new_line_code->gcodes);
-    active_m_codes(new_line_code->mcodes);
-    int sequence_number = line_number == -1? interp_new.sequence_number(): line_number;
+    interp_new.active_settings(new_line_code->settings);
+    interp_new.active_g_codes(new_line_code->gcodes);
+    interp_new.active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
-    if(sequence_number == last_sequence_number) {
-        Py_DECREF(new_line_code);
-        return;
-    }
     last_sequence_number = sequence_number;
     PyObject *result = 
         PyObject_CallMethod(callback, "next_line", "O", new_line_code);
@@ -181,7 +159,7 @@ static double TO_PROG_LEN(double p) {
     return p;
 }
 
-void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
@@ -191,17 +169,17 @@ void NURBS_FEED(std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
     while (u+umax/div < umax) {
         PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
         // EBo -- replace 12345 with *whatever* gives us the line_number
-        STRAIGHT_FEED(12345, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
         u = u + umax/div;
     } 
     P1.X = nurbs_control_points[n].X;
     P1.Y = nurbs_control_points[n].Y;
     // EBo -- replace 12345 with *whatever* gives us the line_number
-    STRAIGHT_FEED(12345, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     knot_vector.clear();
 }
 
-void SPLINE_FEED(double x1, double y1, double x2, double y2) {
+void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2) {
     double x0 = TO_PROG_LEN(_pos_x),
          y0 = TO_PROG_LEN(_pos_y);
 
@@ -216,11 +194,11 @@ void SPLINE_FEED(double x1, double y1, double x2, double y2) {
       double x = x0*t0 + x1*t1 + x2*t2;
       double y = y0*t0 + y1*t1 + y2*t2;
       // EBo -- replace 12345 with *whatever* gives us the line_number
-      STRAIGHT_FEED(12345, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     }
 }
 
-void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y3) {
+void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2, double x3, double y3) {
     double x0 = TO_PROG_LEN(_pos_x),
          y0 = TO_PROG_LEN(_pos_y);
 
@@ -231,16 +209,9 @@ void SPLINE_FEED(double x1, double y1, double x2, double y2, double x3, double y
       double t0 = (1-t)*(1-t)*(1-t);
       double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
       double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
-      // EBo -- replace 12345 with *whatever* gives us the line_number
-      STRAIGHT_FEED(12345, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     }
 }
-
-
-void maybe_new_line(void) {
-    maybe_new_line(-1);
-}
-
 
 void ARC_FEED(int line_number,
               double first_end, double second_end, double first_axis,
@@ -357,16 +328,16 @@ void SET_FEED_MODE(int mode) {
 #endif
 }
 
-void CHANGE_TOOL(int tool) {
+void CHANGE_TOOL(int pocket) {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = 
-        PyObject_CallMethod(callback, "change_tool", "i", tool);
+        PyObject_CallMethod(callback, "change_tool", "i", pocket);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
 
-void CHANGE_TOOL_NUMBER(int tool) {
+void CHANGE_TOOL_NUMBER(int pocket) {
     maybe_new_line();
     if(interp_error) return;
 }
@@ -545,11 +516,11 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     strncpy(name, s, max_size - 1);
 }
 int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
-CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int tool) {
+CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
-        PyObject_CallMethod(callback, "get_tool", "i", tool);
+        PyObject_CallMethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
        !PyArg_ParseTuple(result, "iddddddddddddi", &t.toolno, &t.offset.tran.x, &t.offset.tran.y, &t.offset.tran.z,
                           &t.offset.a, &t.offset.b, &t.offset.c, &t.offset.u, &t.offset.v, &t.offset.w,
@@ -564,7 +535,7 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
 int WAIT(int index, int input_type, int wait_type, double timeout) { return 0;}
 
-void user_defined_function(int num, double arg1, double arg2) {
+static void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
     maybe_new_line();
     PyObject *result =
@@ -633,10 +604,17 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
     return tool_offset.w;
 }
 
-bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
+static bool PyInt_CheckAndError(const char *func, PyObject *p)  {
+    if(PyInt_Check(p)) return true;
+    PyErr_Format(PyExc_TypeError,
+            "%s: Expected int, got %s", func, p->ob_type->tp_name);
+    return false;
+}
+
+static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
     if(PyFloat_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
-            "%s: Expected double, got %s", func, p->ob_type->tp_name);
+            "%s: Expected float, got %s", func, p->ob_type->tp_name);
     return false;
 }
 
@@ -670,7 +648,7 @@ double GET_EXTERNAL_LENGTH_UNITS() {
     return dresult;
 }
 
-bool check_abort() {
+static bool check_abort() {
     PyObject *result =
         PyObject_CallMethod(callback, "check_abort", "");
     if(!result) return 1;
@@ -693,7 +671,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
-PyObject *parse_file(PyObject *self, PyObject *args) {
+static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0;
     int error_line_offset = 0;
@@ -714,25 +692,25 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_init();
-    interp_open(f);
+    interp_new.init();
+    interp_new.open(f);
 
     maybe_new_line();
 
     int result = INTERP_OK;
     if(unitcode) {
-        result = interp_read(unitcode);
+        result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_execute();
+        result = interp_new.execute();
     }
     if(initcode && RESULT_OK) {
-        result = interp_read(initcode);
+        result = interp_new.read(initcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_execute();
+        result = interp_new.execute();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
-        result = interp_read();
+        result = interp_new.read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
@@ -740,10 +718,10 @@ PyObject *parse_file(PyObject *self, PyObject *args) {
         }
         if(!RESULT_OK) break;
         error_line_offset = 0;
-        result = interp_execute();
+        result = interp_new.execute();
     }
 out_error:
-    interp_close();
+    interp_new.close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
@@ -771,9 +749,218 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     return PyString_FromString(savedError);
 }
 
-PyMethodDef gcode_methods[] = {
+static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
+    double min_x = 9e99, min_y = 9e99, min_z = 9e99,
+           min_xt = 9e99, min_yt = 9e99, min_zt = 9e99,
+           max_x = -9e99, max_y = -9e99, max_z = -9e99,
+           max_xt = -9e99, max_yt = -9e99, max_zt = -9e99;
+    for(int i=0; i<PySequence_Length(args); i++) {
+        PyObject *si = PyTuple_GetItem(args, i);
+        if(!si) return NULL;
+        int j;
+        double xs, ys, zs, xe, ye, ze, xt, yt, zt;
+        for(j=0; j<PySequence_Length(si); j++) {
+            PyObject *sj = PySequence_GetItem(si, j);
+            PyObject *unused;
+            int r;
+            if(PyTuple_Size(sj) == 4)
+                r = PyArg_ParseTuple(sj,
+                    "O(dddOOOOOO)(dddOOOOOO)(ddd):calc_extents item",
+                    &unused,
+                    &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &unused, &xt, &yt, &zt);
+            else
+                r = PyArg_ParseTuple(sj,
+                    "O(dddOOOOOO)(dddOOOOOO)O(ddd):calc_extents item",
+                    &unused,
+                    &xs, &ys, &zs, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &xe, &ye, &ze, &unused, &unused, &unused, &unused, &unused, &unused,
+                    &unused, &xt, &yt, &zt);
+            Py_DECREF(sj);
+            if(!r) return NULL;
+            max_x = std::max(max_x, xs);
+            max_y = std::max(max_y, ys);
+            max_z = std::max(max_z, zs);
+            min_x = std::min(min_x, xs);
+            min_y = std::min(min_y, ys);
+            min_z = std::min(min_z, zs);
+            max_xt = std::max(max_xt, xs+xt);
+            max_yt = std::max(max_yt, ys+yt);
+            max_zt = std::max(max_zt, zs+zt);
+            min_xt = std::min(min_xt, xs+xt);
+            min_yt = std::min(min_yt, ys+yt);
+            min_zt = std::min(min_zt, zs+zt);
+        }
+        if(j > 0) {
+            max_x = std::max(max_x, xe);
+            max_y = std::max(max_y, ye);
+            max_z = std::max(max_z, ze);
+            min_x = std::min(min_x, xe);
+            min_y = std::min(min_y, ye);
+            min_z = std::min(min_z, ze);
+            max_xt = std::max(max_xt, xe+xt);
+            max_yt = std::max(max_yt, ye+yt);
+            max_zt = std::max(max_zt, ze+zt);
+            min_xt = std::min(min_xt, xe+xt);
+            min_yt = std::min(min_yt, ye+yt);
+            min_zt = std::min(min_zt, ze+zt);
+        }
+    }
+    return Py_BuildValue("[ddd][ddd][ddd][ddd]",
+        min_x, min_y, min_z,  max_x, max_y, max_z,
+        min_xt, min_yt, min_zt,  max_xt, max_yt, max_zt);
+}
+
+#if PY_VERSION_HEX < 0x02050000
+#define PyObject_GetAttrString(o,s) \
+    PyObject_GetAttrString((o),const_cast<char*>((s)))
+#define PyArg_VaParse(o,f,a) \
+    PyArg_VaParse((o),const_cast<char*>((f)),(a))
+#endif
+
+static bool get_attr(PyObject *o, const char *attr_name, int *v) {
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    if(attr && PyInt_CheckAndError(attr_name, attr)) {
+        *v = PyInt_AsLong(attr);
+        Py_DECREF(attr);
+        return true;
+    }
+    Py_XDECREF(attr);
+    return false;
+}
+
+static bool get_attr(PyObject *o, const char *attr_name, double *v) {
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    if(attr && PyFloat_CheckAndError(attr_name, attr)) {
+        *v = PyFloat_AsDouble(attr);
+        Py_DECREF(attr);
+        return true;
+    }
+    Py_XDECREF(attr);
+    return false;
+}
+
+static bool get_attr(PyObject *o, const char *attr_name, const char *fmt, ...) {
+    bool result = false;
+    va_list ap;
+    va_start(ap, fmt);
+    PyObject *attr = PyObject_GetAttrString(o, attr_name);
+    if(attr) result = PyArg_VaParse(attr, fmt, ap);
+    va_end(ap);
+    Py_XDECREF(attr);
+    return result;
+}
+
+static void unrotate(double &x, double &y, double c, double s) {
+    double tx = x * c + y * s;
+    y = -x * s + y * c;
+    x = tx;
+}
+
+static void rotate(double &x, double &y, double c, double s) {
+    double tx = x * c - y * s;
+    y = x * s + y * c;
+    x = tx;
+}
+
+static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
+    PyObject *canon;
+    double x1, y1, cx, cy, z1, a, b, c, u, v, w;
+    double o[9], n[9], offset[9];
+    int rot, plane;
+    int X, Y, Z;
+    double rotation_cos, rotation_sin;
+    int max_segments = 128;
+
+    if(!PyArg_ParseTuple(args, "Oddddiddddddd|i:arcs_to_segments",
+        &canon, &x1, &y1, &cx, &cy, &rot, &z1, &a, &b, &c, &u, &v, &w, &max_segments)) return NULL;
+    if(!get_attr(canon, "lo", "ddddddddd:arcs_to_segments lo", &o[0], &o[1], &o[2],
+                    &o[3], &o[4], &o[5], &o[6], &o[7], &o[8]))
+        return NULL;
+    if(!get_attr(canon, "plane", &plane)) return NULL;
+    if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL;
+    if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL;
+    if(!get_attr(canon, "offset_x", &offset[0])) return NULL;
+    if(!get_attr(canon, "offset_y", &offset[1])) return NULL;
+    if(!get_attr(canon, "offset_z", &offset[2])) return NULL;
+    if(!get_attr(canon, "offset_a", &offset[3])) return NULL;
+    if(!get_attr(canon, "offset_b", &offset[4])) return NULL;
+    if(!get_attr(canon, "offset_c", &offset[5])) return NULL;
+    if(!get_attr(canon, "offset_u", &offset[6])) return NULL;
+    if(!get_attr(canon, "offset_v", &offset[7])) return NULL;
+    if(!get_attr(canon, "offset_w", &offset[8])) return NULL;
+
+    if(plane == 1) {
+        X=0; Y=1; Z=2;
+    } else if(plane == 3) {
+        X=2; Y=0; Z=1;
+    } else {
+        X=1; Y=2; Z=0;
+    }
+    n[X] = x1;
+    n[Y] = y1;
+    n[Z] = z1;
+    n[3] = a;
+    n[4] = b;
+    n[5] = c;
+    n[6] = u;
+    n[7] = v;
+    n[8] = w;
+    for(int ax=0; ax<9; ax++) o[ax] -= offset[ax];
+    unrotate(o[0], o[1], rotation_cos, rotation_sin);
+
+    double theta1 = atan2(o[Y]-cy, o[X]-cx);
+    double theta2 = atan2(n[Y]-cy, n[X]-cx);
+
+    if(rot < 0) {
+        while(theta2 - theta1 > -1e-12) theta2 -= 2*M_PI;
+    } else {
+        while(theta2 - theta1 < 1e-12) theta2 += 2*M_PI;
+    }
+
+    int steps = std::max(3, int(max_segments * fabs(theta1 - theta2) / M_PI));
+    double rsteps = 1. / steps;
+    PyObject *segs = PyList_New(steps);
+
+    double dtheta = theta2 - theta1;
+    double d[9] = {0, 0, 0, n[4]-o[4], n[5]-o[5], n[6]-o[6], n[7]-o[7], n[8]-o[8]};
+    d[Z] = n[Z] - o[Z];
+
+    double tx = o[X] - cx, ty = o[Y] - cy, dc = cos(dtheta*rsteps), ds = sin(dtheta*rsteps);
+    for(int i=0; i<steps-1; i++) {
+        double f = (i+1) * rsteps;
+        double p[9];
+        rotate(tx, ty, dc, ds);
+        p[X] = tx + cx;
+        p[Y] = ty + cy;
+        p[Z] = o[Z] + d[Z] * f;
+        p[3] = o[3] + d[3] * f;
+        p[4] = o[4] + d[4] * f;
+        p[5] = o[5] + d[5] * f;
+        p[6] = o[6] + d[6] * f;
+        p[7] = o[7] + d[7] * f;
+        p[8] = o[8] + d[8] * f;
+        rotate(p[0], p[1], rotation_cos, rotation_sin);
+        for(int ax=0; ax<9; ax++) p[ax] += offset[ax];
+        PyList_SET_ITEM(segs, i,
+            Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
+    }
+    rotate(n[0], n[1], rotation_cos, rotation_sin);
+    for(int ax=0; ax<9; ax++) n[ax] += offset[ax];
+    PyList_SET_ITEM(segs, steps-1,
+        Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
+    return segs;
+}
+
+static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
-    {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS, "Convert a numeric error to a string"},
+    {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS,
+        "Convert a numeric error to a string"},
+    {"calc_extents", (PyCFunction)rs274_calc_extents, METH_VARARGS,
+        "Calculate information about extents of gcode"},
+    {"arc_to_segments", (PyCFunction)rs274_arc_to_segments, METH_VARARGS,
+        "Convert an arc to straight segments"},
     {NULL}
 };
 
@@ -787,3 +974,5 @@ initgcode(void) {
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
 }
+
+// vim:ts=8:sts=4:sw=4:et:

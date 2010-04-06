@@ -5,13 +5,13 @@
 #
 # Ernesto Lo Valvo <elovalvo@unipa.it>, 2007.
 # Francis TISSERANT <ftissera@free.fr>, 2007.
-# Francis Tisserant <ftissera@free.fr>, 2007, 2008, 2009.
+# Francis Tisserant <ftissera@free.fr>, 2007, 2008, 2009, 2010.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-11 16:58+0200\n"
-"PO-Revision-Date: 2009-07-15 20:54+0200\n"
+"POT-Creation-Date: 2009-08-26 16:22+0200\n"
+"PO-Revision-Date: 2010-03-03 15:07+0100\n"
 "Last-Translator: Francis Tisserant <ftissera@free.fr>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "MIME-Version: 1.0\n"
@@ -32,7 +32,9 @@ msgstr "ERREUR: aucun nom de pin/signal/paramètre\n"
 #: hal/utils/meter.c:201
 #, c-format
 msgid "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
-msgstr "ERREUR: l'option -s requiert un type de sonde et un nom de pin/signal/paramètre\n"
+msgstr ""
+"ERREUR: l'option -s requiert un type de sonde et un nom de pin/signal/"
+"paramètre\n"
 
 #: hal/utils/meter.c:227 ../tcl/tkemc.tcl:816
 msgid "Hal Meter"
@@ -189,13 +191,15 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "HALSCOPE utilise un composant temps réel appelé scope_rt'\n"
-"pour échantillonner les signaux à afficher.  Il n'est actuellement pas chargé\n"
+"pour échantillonner les signaux à afficher.  Il n'est actuellement pas "
+"chargé\n"
 "et l'attente de son chargement automatique à échoué.  D'autres informations\n"
 "peuvent être disponibles dans le terminal d'où halscope a été lancé.\n"
 "\n"
 "Veuillez procéder comme suit:\n"
 "\n"
-"Chargez le composant (en tapant 'halcmd loadrt scope_rt'), puis cliquez 'OK'\n"
+"Chargez le composant (en tapant 'halcmd loadrt scope_rt'), puis cliquez "
+"'OK'\n"
 "ou\n"
 "Cliquez 'Quitter' pour sortir de HALSCOPE"
 
@@ -303,11 +307,11 @@ msgstr "%5d échantillons (16 canaux)"
 #: ../tcl/tkemc.tcl:1379 ../tcl/tkemc.tcl:1448 ../tcl/tkemc.tcl:1479
 #: ../tcl/tkemc.tcl:1510 ../tcl/tkemc.tcl:2058 ../tcl/tkemc.tcl:2077
 #: ../tcl/tkemc.tcl:2096 ../tcl/tkemc.tcl:2143
-#: emc/usr_intf/axis/scripts/axis.py:1955
-#: emc/usr_intf/axis/scripts/axis.py:2013
-#: emc/usr_intf/axis/scripts/axis.py:2268
-#: emc/usr_intf/axis/scripts/axis.py:3335
-#: emc/usr_intf/axis/scripts/axis.py:4083
+#: emc/usr_intf/axis/scripts/axis.py:1860
+#: emc/usr_intf/axis/scripts/axis.py:1918
+#: emc/usr_intf/axis/scripts/axis.py:2174
+#: emc/usr_intf/axis/scripts/axis.py:3241
+#: emc/usr_intf/axis/scripts/axis.py:3989
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:709
 #: ../lib/python/propertywindow.py:34 ../share/axis/tcl/axis.tcl:1676
 #: ../share/axis/tcl/axis.tcl:1713
@@ -399,10 +403,10 @@ msgstr "ms"
 msgid "Sec"
 msgstr "s"
 
-#: hal/utils/scope_horiz.c:1210 emc/usr_intf/stepconf/stepconf.glade:2459
-#: emc/usr_intf/stepconf/stepconf.glade:3142
-#: emc/usr_intf/pncconf/pncconf.glade:15953
-#: emc/usr_intf/pncconf/pncconf.glade:18084
+#: hal/utils/scope_horiz.c:1210 emc/usr_intf/stepconf/stepconf.glade:3022
+#: emc/usr_intf/stepconf/stepconf.glade:3328
+#: emc/usr_intf/pncconf/pncconf.glade:16057
+#: emc/usr_intf/pncconf/pncconf.glade:18210
 msgid "Hz"
 msgstr "Hz"
 
@@ -465,8 +469,8 @@ msgstr "AC Couplé"
 #: ../tcl/tkemc.tcl:217 ../tcl/tkemc.tcl:260 ../tcl/tkemc.tcl:286
 #: ../tcl/tkemc.tcl:465 ../tcl/tkemc.tcl:1380 ../tcl/tkemc.tcl:1449
 #: ../tcl/tkemc.tcl:1480 ../tcl/tkemc.tcl:1511 ../tcl/tkemc.tcl:2144
-#: emc/usr_intf/axis/scripts/axis.py:2269
-#: emc/usr_intf/axis/scripts/axis.py:2458
+#: emc/usr_intf/axis/scripts/axis.py:2175
+#: emc/usr_intf/axis/scripts/axis.py:2364
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:711
 msgid "Cancel"
 msgstr "Annuler"
@@ -1528,19 +1532,19 @@ msgid "MDI:"
 msgstr "MDI:"
 
 #: ../tcl/mini.tcl:1666 ../tcl/tkemc.tcl:1699
-#: emc/usr_intf/stepconf/stepconf.glade:4045
-#: emc/usr_intf/pncconf/pncconf.glade:20249
-#: emc/usr_intf/pncconf/pncconf.glade:21272
-#: emc/usr_intf/pncconf/pncconf.glade:21972
-#: emc/usr_intf/pncconf/pncconf.glade:22672
+#: emc/usr_intf/stepconf/stepconf.glade:4314
+#: emc/usr_intf/pncconf/pncconf.glade:20492
+#: emc/usr_intf/pncconf/pncconf.glade:21516
+#: emc/usr_intf/pncconf/pncconf.glade:22544
+#: emc/usr_intf/pncconf/pncconf.glade:23570
 msgid "Run"
 msgstr "Lancer"
 
 #: ../tcl/mini.tcl:1668 ../tcl/tkemc.tcl:1700
-#: emc/usr_intf/pncconf/pncconf.glade:20220
-#: emc/usr_intf/pncconf/pncconf.glade:21243
-#: emc/usr_intf/pncconf/pncconf.glade:21943
-#: emc/usr_intf/pncconf/pncconf.glade:22643
+#: emc/usr_intf/pncconf/pncconf.glade:20462
+#: emc/usr_intf/pncconf/pncconf.glade:21486
+#: emc/usr_intf/pncconf/pncconf.glade:22514
+#: emc/usr_intf/pncconf/pncconf.glade:23540
 msgid "Pause"
 msgstr "Pause"
 
@@ -1573,7 +1577,7 @@ msgid "Restart"
 msgstr "Reprise"
 
 #: ../tcl/mini.tcl:1708 ../tcl/mini.tcl:2820 ../tcl/mini.tcl:2879
-#: ../tcl/tkemc.tcl:519 emc/usr_intf/axis/scripts/axis.py:2761
+#: ../tcl/tkemc.tcl:519 emc/usr_intf/axis/scripts/axis.py:2667
 #: emc/usr_intf/axis/scripts/image-to-gcode.py:745
 msgid "All files"
 msgstr "Tous les fichiers"
@@ -2099,26 +2103,25 @@ msgstr "Unités"
 msgid "auto"
 msgstr "auto"
 
-#: ../tcl/tkemc.tcl:808 emc/usr_intf/pncconf/pncconf.py:3329
-#: emc/usr_intf/pncconf/pncconf.py:3337 emc/usr_intf/pncconf/pncconf.py:3338
-#: emc/usr_intf/pncconf/pncconf.py:4176
+#: ../tcl/tkemc.tcl:808 emc/usr_intf/pncconf/pncconf.py:3499
+#: emc/usr_intf/pncconf/pncconf.py:3507 emc/usr_intf/pncconf/pncconf.py:3508
+#: emc/usr_intf/pncconf/pncconf.py:4480
 msgid "inches"
 msgstr "pouces"
 
-#: ../tcl/tkemc.tcl:809 emc/usr_intf/axis/scripts/axis.py:2381
-#: emc/usr_intf/axis/scripts/axis.py:2528
-#: emc/usr_intf/stepconf/stepconf.py:1495
-#: emc/usr_intf/stepconf/stepconf.py:2079
-#: emc/usr_intf/stepconf/stepconf.glade:3999
-#: emc/usr_intf/pncconf/pncconf.py:3310 emc/usr_intf/pncconf/pncconf.py:3318
-#: emc/usr_intf/pncconf/pncconf.py:3319 emc/usr_intf/pncconf/pncconf.py:4172
-#: emc/usr_intf/pncconf/pncconf.glade:15668
-#: emc/usr_intf/pncconf/pncconf.glade:15755
-#: emc/usr_intf/pncconf/pncconf.glade:17901
-#: emc/usr_intf/pncconf/pncconf.glade:20518
-#: emc/usr_intf/pncconf/pncconf.glade:21537
-#: emc/usr_intf/pncconf/pncconf.glade:22237
-#: emc/usr_intf/pncconf/pncconf.glade:22937
+#: ../tcl/tkemc.tcl:809 emc/usr_intf/axis/scripts/axis.py:2287
+#: emc/usr_intf/axis/scripts/axis.py:2434
+#: emc/usr_intf/stepconf/stepconf.py:1499
+#: emc/usr_intf/stepconf/stepconf.py:2083
+#: emc/usr_intf/stepconf/stepconf.glade:4268
+#: emc/usr_intf/pncconf/pncconf.py:3480 emc/usr_intf/pncconf/pncconf.py:3488
+#: emc/usr_intf/pncconf/pncconf.py:3489 emc/usr_intf/pncconf/pncconf.py:4476
+#: emc/usr_intf/pncconf/pncconf.glade:15772
+#: emc/usr_intf/pncconf/pncconf.glade:15859
+#: emc/usr_intf/pncconf/pncconf.glade:20761
+#: emc/usr_intf/pncconf/pncconf.glade:21785
+#: emc/usr_intf/pncconf/pncconf.glade:22811
+#: emc/usr_intf/pncconf/pncconf.glade:23837
 msgid "mm"
 msgstr "mm"
 
@@ -2358,359 +2361,359 @@ msgstr "Régler le zéro"
 msgid "Write"
 msgstr "Écrire"
 
-#: emc/usr_intf/axis/scripts/axis.py:147
+#: emc/usr_intf/axis/scripts/axis.py:148
 msgid "Emergency stop"
 msgstr "Arrêt d'urgence"
 
-#: emc/usr_intf/axis/scripts/axis.py:148
+#: emc/usr_intf/axis/scripts/axis.py:149
 msgid "Turn machine on"
 msgstr "Marche machine"
 
-#: emc/usr_intf/axis/scripts/axis.py:150
+#: emc/usr_intf/axis/scripts/axis.py:151
 msgid "Activate first axis"
 msgstr "Activer le premier axe"
 
-#: emc/usr_intf/axis/scripts/axis.py:151
+#: emc/usr_intf/axis/scripts/axis.py:152
 msgid "Activate second axis"
 msgstr "Activer le deuxième axe "
 
-#: emc/usr_intf/axis/scripts/axis.py:152
+#: emc/usr_intf/axis/scripts/axis.py:153
 msgid "Activate third axis"
 msgstr "Activer le troisième axe "
 
-#: emc/usr_intf/axis/scripts/axis.py:153
+#: emc/usr_intf/axis/scripts/axis.py:154
 msgid "Activate fourth axis"
 msgstr "Activer le quatrième axe "
 
-#: emc/usr_intf/axis/scripts/axis.py:154
+#: emc/usr_intf/axis/scripts/axis.py:155
 msgid "Activate fifth through ninth axis"
 msgstr "Activer du cinquième axe au neuvième"
 
-#: emc/usr_intf/axis/scripts/axis.py:155
+#: emc/usr_intf/axis/scripts/axis.py:156
 msgid "Set Feed Override from 0% to 100%"
 msgstr "Correction de la vitesse entre 0% et 100%"
 
-#: emc/usr_intf/axis/scripts/axis.py:156
+#: emc/usr_intf/axis/scripts/axis.py:157
 msgid ", and ."
 msgstr ", et ."
 
-#: emc/usr_intf/axis/scripts/axis.py:156
+#: emc/usr_intf/axis/scripts/axis.py:157
 msgid "Select jog speed"
 msgstr "Sélection de la vitesse de jog"
 
-#: emc/usr_intf/axis/scripts/axis.py:157
+#: emc/usr_intf/axis/scripts/axis.py:158
 msgid "< and >"
 msgstr "< et >"
 
-#: emc/usr_intf/axis/scripts/axis.py:157
+#: emc/usr_intf/axis/scripts/axis.py:158
 msgid "Select angular jog speed"
 msgstr "Sélection de la vitesse angulaire de jog"
 
-#: emc/usr_intf/axis/scripts/axis.py:158
+#: emc/usr_intf/axis/scripts/axis.py:159
 msgid "I, Shift-I"
 msgstr "I, Maj+I"
 
-#: emc/usr_intf/axis/scripts/axis.py:158 ../share/axis/tcl/axis.tcl:2305
+#: emc/usr_intf/axis/scripts/axis.py:159 ../share/axis/tcl/axis.tcl:2305
 msgid "Select jog increment"
 msgstr "Sélection de l'incrément de jog"
 
-#: emc/usr_intf/axis/scripts/axis.py:159
+#: emc/usr_intf/axis/scripts/axis.py:160
 msgid "Continuous jog"
 msgstr "Jog en continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:160
-#: emc/usr_intf/pncconf/pncconf.glade:20289
-#: emc/usr_intf/pncconf/pncconf.glade:21312
-#: emc/usr_intf/pncconf/pncconf.glade:22012
-#: emc/usr_intf/pncconf/pncconf.glade:22712
+#: emc/usr_intf/axis/scripts/axis.py:161
+#: emc/usr_intf/pncconf/pncconf.glade:20532
+#: emc/usr_intf/pncconf/pncconf.glade:21556
+#: emc/usr_intf/pncconf/pncconf.glade:22584
+#: emc/usr_intf/pncconf/pncconf.glade:23610
 msgid "Home"
 msgstr "Origine"
 
-#: emc/usr_intf/axis/scripts/axis.py:160
+#: emc/usr_intf/axis/scripts/axis.py:161
 msgid "Send active axis home"
 msgstr "Prise d'origine machine de l'axe courant"
 
-#: emc/usr_intf/axis/scripts/axis.py:161
+#: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Ctrl-Home"
 msgstr "Ctrl+origine"
 
-#: emc/usr_intf/axis/scripts/axis.py:161
+#: emc/usr_intf/axis/scripts/axis.py:162
 msgid "Home all axes"
 msgstr "Prise d'origine machine de tous les axes"
 
-#: emc/usr_intf/axis/scripts/axis.py:162
+#: emc/usr_intf/axis/scripts/axis.py:163
 msgid "Shift-Home"
 msgstr "Maj+origine"
 
-#: emc/usr_intf/axis/scripts/axis.py:162
+#: emc/usr_intf/axis/scripts/axis.py:163
 msgid "Zero G54 offset for active axis"
 msgstr "Annule le décalage G54 de l'axe actif"
 
-#: emc/usr_intf/axis/scripts/axis.py:163
+#: emc/usr_intf/axis/scripts/axis.py:164
 msgid "End"
 msgstr "Fin"
 
-#: emc/usr_intf/axis/scripts/axis.py:163
+#: emc/usr_intf/axis/scripts/axis.py:164
 msgid "Set G54 offset for active axis"
 msgstr "Valide le décalage G54 de l'axe actif"
 
-#: emc/usr_intf/axis/scripts/axis.py:164
+#: emc/usr_intf/axis/scripts/axis.py:165
 msgid "Jog active axis"
 msgstr "Jog de l'axe actif"
 
-#: emc/usr_intf/axis/scripts/axis.py:167
+#: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Left, Right"
 msgstr "Gauche, Droite"
 
-#: emc/usr_intf/axis/scripts/axis.py:167
+#: emc/usr_intf/axis/scripts/axis.py:168
 msgid "Jog first axis"
 msgstr "Jog du premier axe"
 
-#: emc/usr_intf/axis/scripts/axis.py:168
+#: emc/usr_intf/axis/scripts/axis.py:169
 msgid "Up, Down"
 msgstr "Haut, Bas"
 
-#: emc/usr_intf/axis/scripts/axis.py:168
+#: emc/usr_intf/axis/scripts/axis.py:169
 msgid "Jog second axis"
 msgstr "Jog du deuxième axe"
 
-#: emc/usr_intf/axis/scripts/axis.py:169
+#: emc/usr_intf/axis/scripts/axis.py:170
 msgid "Pg Up, Pg Dn"
 msgstr "Pg.Préc, Pg.Suiv"
 
-#: emc/usr_intf/axis/scripts/axis.py:169
+#: emc/usr_intf/axis/scripts/axis.py:170
 msgid "Jog third axis"
 msgstr "Jog du troisième axe"
 
-#: emc/usr_intf/axis/scripts/axis.py:170
+#: emc/usr_intf/axis/scripts/axis.py:171
 msgid "Shift+above jogs"
 msgstr "Shift+above jogs"
 
-#: emc/usr_intf/axis/scripts/axis.py:170
+#: emc/usr_intf/axis/scripts/axis.py:171
 msgid "Jog at traverse speed"
 msgstr "Jog en vitesse rapide"
 
-#: emc/usr_intf/axis/scripts/axis.py:171
+#: emc/usr_intf/axis/scripts/axis.py:172
 msgid "Jog fourth axis"
 msgstr "Jog du quatrième axe"
 
-#: emc/usr_intf/axis/scripts/axis.py:174
+#: emc/usr_intf/axis/scripts/axis.py:175
 msgid "Toggle between Drag and Rotate mode"
 msgstr "Bascule entre « glisser la vue » et « tourner la vue »"
 
-#: emc/usr_intf/axis/scripts/axis.py:175
+#: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Left Button"
 msgstr "Bouton gauche"
 
-#: emc/usr_intf/axis/scripts/axis.py:175
+#: emc/usr_intf/axis/scripts/axis.py:176
 msgid "Pan, rotate or select line"
 msgstr "Glisser la vue, la tourner ou sélectionner la ligne"
 
-#: emc/usr_intf/axis/scripts/axis.py:176
+#: emc/usr_intf/axis/scripts/axis.py:177
 msgid "Shift+Left Button"
 msgstr "Maj+bouton gauche"
 
-#: emc/usr_intf/axis/scripts/axis.py:176
+#: emc/usr_intf/axis/scripts/axis.py:177
 msgid "Rotate or pan"
 msgstr "Rotation ou glissement de la vue"
 
-#: emc/usr_intf/axis/scripts/axis.py:177
+#: emc/usr_intf/axis/scripts/axis.py:178
 msgid "Right Button"
 msgstr "Bouton droit"
 
-#: emc/usr_intf/axis/scripts/axis.py:177 emc/usr_intf/axis/scripts/axis.py:179
-#: emc/usr_intf/axis/scripts/axis.py:180
+#: emc/usr_intf/axis/scripts/axis.py:178 emc/usr_intf/axis/scripts/axis.py:180
+#: emc/usr_intf/axis/scripts/axis.py:181
 msgid "Zoom view"
 msgstr "Zoomer la vue"
 
-#: emc/usr_intf/axis/scripts/axis.py:178
+#: emc/usr_intf/axis/scripts/axis.py:179
 msgid "Wheel Button"
 msgstr "Appui molette souris"
 
-#: emc/usr_intf/axis/scripts/axis.py:178
+#: emc/usr_intf/axis/scripts/axis.py:179
 msgid "Rotate view"
 msgstr "Tourner la vue"
 
-#: emc/usr_intf/axis/scripts/axis.py:179
+#: emc/usr_intf/axis/scripts/axis.py:180
 msgid "Rotate Wheel"
 msgstr "Rotation molette souris"
 
-#: emc/usr_intf/axis/scripts/axis.py:180
+#: emc/usr_intf/axis/scripts/axis.py:181
 msgid "Control+Left Button"
 msgstr "Ctrl+bouton gauche"
 
-#: emc/usr_intf/axis/scripts/axis.py:183
+#: emc/usr_intf/axis/scripts/axis.py:184
 msgid "Manual control"
 msgstr "Contrôle manuel"
 
-#: emc/usr_intf/axis/scripts/axis.py:184
+#: emc/usr_intf/axis/scripts/axis.py:185
 msgid "Code entry (MDI)"
 msgstr "Données en manuel (MDI)"
 
-#: emc/usr_intf/axis/scripts/axis.py:185
+#: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Control-M"
 msgstr "Ctrl+M"
 
-#: emc/usr_intf/axis/scripts/axis.py:185
+#: emc/usr_intf/axis/scripts/axis.py:186
 msgid "Clear MDI history"
 msgstr "Vider l'historique du MDI"
 
-#: emc/usr_intf/axis/scripts/axis.py:186
+#: emc/usr_intf/axis/scripts/axis.py:187
 msgid "Control-H"
 msgstr "Ctrl+H"
 
-#: emc/usr_intf/axis/scripts/axis.py:186
+#: emc/usr_intf/axis/scripts/axis.py:187
 msgid "Copy selected MDI history elements"
 msgstr "Copier la sélection de l'historique du MDI"
 
-#: emc/usr_intf/axis/scripts/axis.py:187
+#: emc/usr_intf/axis/scripts/axis.py:188
 msgid "to clipboard"
 msgstr "dans le presse-papiers"
 
-#: emc/usr_intf/axis/scripts/axis.py:188
+#: emc/usr_intf/axis/scripts/axis.py:189
 msgid "Control-Shift-H"
 msgstr "Ctrl+Maj+H"
 
-#: emc/usr_intf/axis/scripts/axis.py:188
+#: emc/usr_intf/axis/scripts/axis.py:189
 msgid "Paste clipboard to MDI history"
 msgstr "Coller dans l'historique du MDI"
 
-#: emc/usr_intf/axis/scripts/axis.py:189 ../share/axis/tcl/axis.tcl:1070
+#: emc/usr_intf/axis/scripts/axis.py:190 ../share/axis/tcl/axis.tcl:1070
 msgid "Override Limits"
 msgstr "Dépassement des limites"
 
-#: emc/usr_intf/axis/scripts/axis.py:191
+#: emc/usr_intf/axis/scripts/axis.py:192
 msgid "Open program"
 msgstr "Ouvrir programme"
 
-#: emc/usr_intf/axis/scripts/axis.py:192
+#: emc/usr_intf/axis/scripts/axis.py:193
 msgid "Control-R"
 msgstr "Ctrl+R"
 
-#: emc/usr_intf/axis/scripts/axis.py:192
+#: emc/usr_intf/axis/scripts/axis.py:193
 msgid "Reload program"
 msgstr "Recharger le programme"
 
-#: emc/usr_intf/axis/scripts/axis.py:193
+#: emc/usr_intf/axis/scripts/axis.py:194
 msgid "Control-S"
 msgstr "Ctrl+S"
 
-#: emc/usr_intf/axis/scripts/axis.py:193
+#: emc/usr_intf/axis/scripts/axis.py:194
 msgid "Save g-code as"
 msgstr "Enregistrer le G-code sous"
 
-#: emc/usr_intf/axis/scripts/axis.py:194
+#: emc/usr_intf/axis/scripts/axis.py:195
 msgid "Run program"
 msgstr "Lancer le programme"
 
-#: emc/usr_intf/axis/scripts/axis.py:195
+#: emc/usr_intf/axis/scripts/axis.py:196
 msgid "Step program"
 msgstr "Programme pas à pas"
 
-#: emc/usr_intf/axis/scripts/axis.py:196
+#: emc/usr_intf/axis/scripts/axis.py:197
 msgid "Pause program"
 msgstr "Programme en pause"
 
-#: emc/usr_intf/axis/scripts/axis.py:197
+#: emc/usr_intf/axis/scripts/axis.py:198
 msgid "Resume program"
 msgstr "Reprise du programme"
 
-#: emc/usr_intf/axis/scripts/axis.py:198
+#: emc/usr_intf/axis/scripts/axis.py:199
 msgid "Stop running program, or"
 msgstr "Arrêter le programme, ou"
 
-#: emc/usr_intf/axis/scripts/axis.py:199
+#: emc/usr_intf/axis/scripts/axis.py:200
 msgid "stop loading program preview"
 msgstr "stopper le parcours d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:201
+#: emc/usr_intf/axis/scripts/axis.py:202
 msgid "Toggle mist"
 msgstr "Avec ou sans brouillard"
 
-#: emc/usr_intf/axis/scripts/axis.py:202
+#: emc/usr_intf/axis/scripts/axis.py:203
 msgid "Toggle flood"
 msgstr "Avec ou sans arrosage"
 
-#: emc/usr_intf/axis/scripts/axis.py:203
+#: emc/usr_intf/axis/scripts/axis.py:204
 msgid "Spindle brake off"
 msgstr "Relâchement frein de broche"
 
-#: emc/usr_intf/axis/scripts/axis.py:204
+#: emc/usr_intf/axis/scripts/axis.py:205
 msgid "Shift-B"
 msgstr "Maj+B"
 
-#: emc/usr_intf/axis/scripts/axis.py:204
+#: emc/usr_intf/axis/scripts/axis.py:205
 msgid "Spindle brake on"
 msgstr "Activation frein de broche"
 
-#: emc/usr_intf/axis/scripts/axis.py:205
+#: emc/usr_intf/axis/scripts/axis.py:206
 msgid "Turn spindle clockwise"
 msgstr "Broche en sens horaire"
 
-#: emc/usr_intf/axis/scripts/axis.py:206
+#: emc/usr_intf/axis/scripts/axis.py:207
 msgid "Turn spindle counterclockwise"
 msgstr "Broche en sens anti-horaire"
 
-#: emc/usr_intf/axis/scripts/axis.py:207
+#: emc/usr_intf/axis/scripts/axis.py:208
 msgid "Turn spindle more slowly"
 msgstr "Diminuer la vitesse de broche"
 
-#: emc/usr_intf/axis/scripts/axis.py:208
+#: emc/usr_intf/axis/scripts/axis.py:209
 msgid "Turn spindle more quickly"
 msgstr "Augmenter la vitesse de broche"
 
-#: emc/usr_intf/axis/scripts/axis.py:210
+#: emc/usr_intf/axis/scripts/axis.py:211
 msgid "Control-K"
 msgstr "Ctrl+K"
 
-#: emc/usr_intf/axis/scripts/axis.py:210
+#: emc/usr_intf/axis/scripts/axis.py:211
 msgid "Clear live plot"
 msgstr "Rafraîchir le parcours d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:211
+#: emc/usr_intf/axis/scripts/axis.py:212
 msgid "Cycle among preset views"
 msgstr "Défilement cyclique des vues prédéfinies"
 
-#: emc/usr_intf/axis/scripts/axis.py:212
+#: emc/usr_intf/axis/scripts/axis.py:213
 msgid "Switch between preview and DRO"
 msgstr "Bascule entre parcours d'outil et visu"
 
-#: emc/usr_intf/axis/scripts/axis.py:214
+#: emc/usr_intf/axis/scripts/axis.py:215
 msgid "Ctrl-Space"
 msgstr "Ctrl-Espace"
 
-#: emc/usr_intf/axis/scripts/axis.py:214
+#: emc/usr_intf/axis/scripts/axis.py:215
 msgid "Clear notifications"
 msgstr "Effacer les notifications"
 
-#: emc/usr_intf/axis/scripts/axis.py:1637
+#: emc/usr_intf/axis/scripts/axis.py:1638
 msgid "No tool"
 msgstr "Pas d'outil"
 
-#: emc/usr_intf/axis/scripts/axis.py:1639
+#: emc/usr_intf/axis/scripts/axis.py:1640
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Outil %d inconnu"
 
-#: emc/usr_intf/axis/scripts/axis.py:1641
+#: emc/usr_intf/axis/scripts/axis.py:1642
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Outil %(tool)d, offset %(zo)g, diamètre %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1643
+#: emc/usr_intf/axis/scripts/axis.py:1644
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Outil %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
-#: emc/usr_intf/axis/scripts/axis.py:1895
+#: emc/usr_intf/axis/scripts/axis.py:1800
 msgid "Filtering..."
 msgstr "Filtrage..."
 
-#: emc/usr_intf/axis/scripts/axis.py:1951
+#: emc/usr_intf/axis/scripts/axis.py:1856
 msgid "Filter failed"
 msgstr "Le filtrage a échoué"
 
-#: emc/usr_intf/axis/scripts/axis.py:1952
+#: emc/usr_intf/axis/scripts/axis.py:1857
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
@@ -2719,12 +2722,12 @@ msgstr ""
 "Le programme %(program)r s'est arrêté avec le code %(code)d.  Si des "
 "messages ont été produits, ils sont les suivants:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2011
+#: emc/usr_intf/axis/scripts/axis.py:1916
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erreur de G-code en %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2012
+#: emc/usr_intf/axis/scripts/axis.py:1917
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -2733,119 +2736,119 @@ msgstr ""
 "Vers la ligne %(seq)d de %(f)s:\n"
 "%(error_str)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2168
-#: emc/usr_intf/axis/scripts/axis.py:3561 ../share/axis/tcl/axis.tcl:1049
+#: emc/usr_intf/axis/scripts/axis.py:2073
+#: emc/usr_intf/axis/scripts/axis.py:3467 ../share/axis/tcl/axis.tcl:1049
 #: ../share/axis/tcl/axis.tcl:1051 ../share/axis/tcl/axis.tcl:2097
 msgid "Continuous"
 msgstr "Continu"
 
-#: emc/usr_intf/axis/scripts/axis.py:2365
+#: emc/usr_intf/axis/scripts/axis.py:2271
 msgid "T    Tool Table"
 msgstr "T    Table d'outils"
 
-#: emc/usr_intf/axis/scripts/axis.py:2382
-#: emc/usr_intf/axis/scripts/axis.py:2532
-#: emc/usr_intf/stepconf/stepconf.py:1501
-#: emc/usr_intf/stepconf/stepconf.py:2093
+#: emc/usr_intf/axis/scripts/axis.py:2288
+#: emc/usr_intf/axis/scripts/axis.py:2438
+#: emc/usr_intf/stepconf/stepconf.py:1505
+#: emc/usr_intf/stepconf/stepconf.py:2097
 msgid "in"
 msgstr "en"
 
-#: emc/usr_intf/axis/scripts/axis.py:2385
+#: emc/usr_intf/axis/scripts/axis.py:2291
 msgid " radius"
 msgstr "rayon"
 
-#: emc/usr_intf/axis/scripts/axis.py:2387
+#: emc/usr_intf/axis/scripts/axis.py:2293
 msgid " diameter"
 msgstr "diamètre"
 
-#: emc/usr_intf/axis/scripts/axis.py:2388
+#: emc/usr_intf/axis/scripts/axis.py:2294
 msgid "°"
 msgstr "°"
 
-#: emc/usr_intf/axis/scripts/axis.py:2394
+#: emc/usr_intf/axis/scripts/axis.py:2300
 msgid "Coordinate System:"
 msgstr "Coordonnées système"
 
-#: emc/usr_intf/axis/scripts/axis.py:2417
+#: emc/usr_intf/axis/scripts/axis.py:2323
 msgid "Name:"
 msgstr "Nom:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2417
+#: emc/usr_intf/axis/scripts/axis.py:2323
 msgid "Size:"
 msgstr "Taille:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2418
+#: emc/usr_intf/axis/scripts/axis.py:2324
 msgid "Tool order:"
 msgstr "Outil N°:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2418
+#: emc/usr_intf/axis/scripts/axis.py:2324
 msgid "Rapid distance:"
 msgstr "Distance en vitesse rapide:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2419
+#: emc/usr_intf/axis/scripts/axis.py:2325
 msgid "Feed distance:"
 msgstr "Distance en vitesse travail:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2419
+#: emc/usr_intf/axis/scripts/axis.py:2325
 msgid "Total distance:"
 msgstr "Distance totale:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2420
+#: emc/usr_intf/axis/scripts/axis.py:2326
 msgid "Run time:"
 msgstr "Run time:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2420
+#: emc/usr_intf/axis/scripts/axis.py:2326
 msgid "X bounds:"
 msgstr "Limites X:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2421
+#: emc/usr_intf/axis/scripts/axis.py:2327
 msgid "Y bounds:"
 msgstr "Limites Y:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2421
+#: emc/usr_intf/axis/scripts/axis.py:2327
 msgid "Z bounds:"
 msgstr "Limites Z:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2422
+#: emc/usr_intf/axis/scripts/axis.py:2328
 msgid "A bounds:"
 msgstr "Limites A:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2422
+#: emc/usr_intf/axis/scripts/axis.py:2328
 msgid "B bounds:"
 msgstr "Limites B:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2423
+#: emc/usr_intf/axis/scripts/axis.py:2329
 msgid "C bounds:"
 msgstr "Limites C:"
 
-#: emc/usr_intf/axis/scripts/axis.py:2447
+#: emc/usr_intf/axis/scripts/axis.py:2353
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2450
+#: emc/usr_intf/axis/scripts/axis.py:2356
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Le programme dépasse la limite maxi sur l'axe %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2455
+#: emc/usr_intf/axis/scripts/axis.py:2361
 msgid "Program exceeds machine limits"
 msgstr "Le programme excède les limites machine"
 
-#: emc/usr_intf/axis/scripts/axis.py:2458
+#: emc/usr_intf/axis/scripts/axis.py:2364
 msgid "Run Anyway"
 msgstr "Exécuter tout de même"
 
-#: emc/usr_intf/axis/scripts/axis.py:2510
+#: emc/usr_intf/axis/scripts/axis.py:2416
 msgid "No file loaded"
 msgstr "Aucun fichier chargé"
 
-#: emc/usr_intf/axis/scripts/axis.py:2518
+#: emc/usr_intf/axis/scripts/axis.py:2424
 #, python-format
 msgid "generated from %s"
 msgstr "produit depuis %s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2524
+#: emc/usr_intf/axis/scripts/axis.py:2430
 #, python-format
 msgid ""
 "%(size)s bytes\n"
@@ -2854,78 +2857,78 @@ msgstr ""
 "%(size)s octets\n"
 "%(lines)s lignes de gcode"
 
-#: emc/usr_intf/axis/scripts/axis.py:2550
+#: emc/usr_intf/axis/scripts/axis.py:2456
 #, python-format
 msgid "%.1f minutes"
 msgstr "% 1f minutes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2552
+#: emc/usr_intf/axis/scripts/axis.py:2458
 #, python-format
 msgid "%d seconds"
 msgstr "%d secondes"
 
-#: emc/usr_intf/axis/scripts/axis.py:2560
+#: emc/usr_intf/axis/scripts/axis.py:2466
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f à %(b)f = %(diff)f %(units)s"
 
-#: emc/usr_intf/axis/scripts/axis.py:2561
+#: emc/usr_intf/axis/scripts/axis.py:2467
 msgid "G-Code Properties"
 msgstr "Propriétés du G-code"
 
-#: emc/usr_intf/axis/scripts/axis.py:2759
+#: emc/usr_intf/axis/scripts/axis.py:2665
 msgid "All machinable files"
 msgstr "Tous les fichiers d'usinage"
 
-#: emc/usr_intf/axis/scripts/axis.py:2760
-#: emc/usr_intf/axis/scripts/axis.py:3322
+#: emc/usr_intf/axis/scripts/axis.py:2666
+#: emc/usr_intf/axis/scripts/axis.py:3228
 msgid "rs274ngc files"
 msgstr "Fichiers rs274ngc"
 
-#: emc/usr_intf/axis/scripts/axis.py:3146 ../share/axis/tcl/axis.tcl:1065
+#: emc/usr_intf/axis/scripts/axis.py:3052 ../share/axis/tcl/axis.tcl:1065
 msgid "Touch Off"
 msgstr "Toucher"
 
-#: emc/usr_intf/axis/scripts/axis.py:3147
+#: emc/usr_intf/axis/scripts/axis.py:3053
 #, python-format
 msgid "Enter %s coordinate relative to workpiece:"
 msgstr "Entrer la coordonnée %s relative à la pièce:"
 
-#: emc/usr_intf/axis/scripts/axis.py:3334
+#: emc/usr_intf/axis/scripts/axis.py:3240
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: emc/usr_intf/axis/scripts/axis.py:3696
+#: emc/usr_intf/axis/scripts/axis.py:3602
 msgid "Home All"
 msgstr "Prise d'origine générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3698
+#: emc/usr_intf/axis/scripts/axis.py:3604
 msgid "Home all axes [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: emc/usr_intf/axis/scripts/axis.py:3701
+#: emc/usr_intf/axis/scripts/axis.py:3607
 msgid "Home All Axes"
 msgstr "POM générale"
 
-#: emc/usr_intf/axis/scripts/axis.py:3706
+#: emc/usr_intf/axis/scripts/axis.py:3612
 msgid "Unhome All Axes"
 msgstr "Annulation OM de tous les axes"
 
-#: emc/usr_intf/axis/scripts/axis.py:3726
+#: emc/usr_intf/axis/scripts/axis.py:3632
 #, python-format
 msgid "Home Axis _%s"
 msgstr "POM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3728
+#: emc/usr_intf/axis/scripts/axis.py:3634
 #, python-format
 msgid "Unhome Axis _%s"
 msgstr "Annulation OM de l'axe _%s"
 
-#: emc/usr_intf/axis/scripts/axis.py:3865
+#: emc/usr_intf/axis/scripts/axis.py:3771
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: emc/usr_intf/axis/scripts/axis.py:4082
+#: emc/usr_intf/axis/scripts/axis.py:3988
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -3970,23 +3973,23 @@ msgstr "Phase A broche"
 msgid "Spindle Phase B"
 msgstr "Phase B broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2607
-#: emc/usr_intf/pncconf/pncconf.py:2849 emc/usr_intf/pncconf/pncconf.py:3099
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2756
+#: emc/usr_intf/pncconf/pncconf.py:3021 emc/usr_intf/pncconf/pncconf.py:3269
 msgid "Home X"
 msgstr "Origine X"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2607
-#: emc/usr_intf/pncconf/pncconf.py:2849 emc/usr_intf/pncconf/pncconf.py:3099
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2756
+#: emc/usr_intf/pncconf/pncconf.py:3021 emc/usr_intf/pncconf/pncconf.py:3269
 msgid "Home Y"
 msgstr "Origine Y"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2607
-#: emc/usr_intf/pncconf/pncconf.py:2849 emc/usr_intf/pncconf/pncconf.py:3099
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2756
+#: emc/usr_intf/pncconf/pncconf.py:3021 emc/usr_intf/pncconf/pncconf.py:3269
 msgid "Home Z"
 msgstr "Origine Z"
 
-#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2607
-#: emc/usr_intf/pncconf/pncconf.py:2849 emc/usr_intf/pncconf/pncconf.py:3099
+#: emc/usr_intf/stepconf/stepconf.py:156 emc/usr_intf/pncconf/pncconf.py:2756
+#: emc/usr_intf/pncconf/pncconf.py:3021 emc/usr_intf/pncconf/pncconf.py:3269
 msgid "Home A"
 msgstr "Origine A"
 
@@ -4092,8 +4095,8 @@ msgid "All limits"
 msgstr "Toutes les limites"
 
 #: emc/usr_intf/stepconf/stepconf.py:169 emc/usr_intf/pncconf/pncconf.py:250
-#: emc/usr_intf/pncconf/pncconf.py:2607 emc/usr_intf/pncconf/pncconf.py:2849
-#: emc/usr_intf/pncconf/pncconf.py:3099
+#: emc/usr_intf/pncconf/pncconf.py:2756 emc/usr_intf/pncconf/pncconf.py:3021
+#: emc/usr_intf/pncconf/pncconf.py:3269
 msgid "All home"
 msgstr "Toutes les origines"
 
@@ -4118,7 +4121,7 @@ msgid "my-mill"
 msgstr "ma-machine"
 
 #: emc/usr_intf/stepconf/stepconf.py:208 emc/usr_intf/stepconf/stepconf.py:210
-#: emc/usr_intf/pncconf/pncconf.py:378 emc/usr_intf/pncconf/pncconf.py:380
+#: emc/usr_intf/pncconf/pncconf.py:389 emc/usr_intf/pncconf/pncconf.py:391
 msgid "Enter Address"
 msgstr "Entrer l'adresse"
 
@@ -4135,11 +4138,11 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:383 emc/usr_intf/pncconf/pncconf.py:772
+#: emc/usr_intf/stepconf/stepconf.py:383 emc/usr_intf/pncconf/pncconf.py:819
 msgid "Continue? "
 msgstr "Continuer ?"
 
-#: emc/usr_intf/stepconf/stepconf.py:384 emc/usr_intf/pncconf/pncconf.py:773
+#: emc/usr_intf/stepconf/stepconf.py:384 emc/usr_intf/pncconf/pncconf.py:820
 msgid "yY"
 msgstr "yY"
 
@@ -4149,7 +4152,7 @@ msgid "# Generated by stepconf at %s"
 msgstr "# Généré par Stepconf le %s"
 
 #: emc/usr_intf/stepconf/stepconf.py:437 emc/usr_intf/stepconf/stepconf.py:763
-#: emc/usr_intf/pncconf/pncconf.py:782 emc/usr_intf/pncconf/pncconf.py:1258
+#: emc/usr_intf/pncconf/pncconf.py:829 emc/usr_intf/pncconf/pncconf.py:1395
 msgid "# If you make changes to this file, they will be"
 msgstr "# Si vous modifiez ce fichier, il sera"
 
@@ -4161,33 +4164,33 @@ msgstr "# écrasé quand vous relancerez Stepconf"
 msgid "# add halui MDI commands here (max 64) "
 msgstr "# ajouter ici les commandes MDI halui (maximum 64) "
 
-#: emc/usr_intf/stepconf/stepconf.py:937 emc/usr_intf/pncconf/pncconf.py:1514
+#: emc/usr_intf/stepconf/stepconf.py:937 emc/usr_intf/pncconf/pncconf.py:1631
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr "# **** Setup for external estop ladder program -START ****"
 
-#: emc/usr_intf/stepconf/stepconf.py:944 emc/usr_intf/pncconf/pncconf.py:1521
+#: emc/usr_intf/stepconf/stepconf.py:944 emc/usr_intf/pncconf/pncconf.py:1638
 msgid "# **** Setup for external estop ladder program -END ****"
 msgstr "# **** Setup for external estop ladder program -END ****"
 
-#: emc/usr_intf/stepconf/stepconf.py:964 emc/usr_intf/pncconf/pncconf.py:1543
+#: emc/usr_intf/stepconf/stepconf.py:964 emc/usr_intf/pncconf/pncconf.py:1660
 msgid "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 
-#: emc/usr_intf/stepconf/stepconf.py:967 emc/usr_intf/pncconf/pncconf.py:1546
+#: emc/usr_intf/stepconf/stepconf.py:967 emc/usr_intf/pncconf/pncconf.py:1663
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 msgstr "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 
-#: emc/usr_intf/stepconf/stepconf.py:977 emc/usr_intf/pncconf/pncconf.py:1556
+#: emc/usr_intf/stepconf/stepconf.py:977 emc/usr_intf/pncconf/pncconf.py:1673
 msgid "Include your PyVCP panel here.\n"
 msgstr "Inclure son propre panneau PyVCP ici \n"
 
 #: emc/usr_intf/stepconf/stepconf.py:986
-#: emc/usr_intf/stepconf/stepconf.py:1012 emc/usr_intf/pncconf/pncconf.py:1565
-#: emc/usr_intf/pncconf/pncconf.py:1626
+#: emc/usr_intf/stepconf/stepconf.py:1012 emc/usr_intf/pncconf/pncconf.py:1682
+#: emc/usr_intf/pncconf/pncconf.py:1743
 msgid "# Include your customized HAL commands here"
 msgstr "# Inclure vos commandes HAL personnalisées ici"
 
-#: emc/usr_intf/stepconf/stepconf.py:987 emc/usr_intf/pncconf/pncconf.py:1566
+#: emc/usr_intf/stepconf/stepconf.py:987 emc/usr_intf/pncconf/pncconf.py:1683
 msgid ""
 "# The commands in this file are run after the AXIS GUI (including PyVCP "
 "panel) starts"
@@ -4195,23 +4198,23 @@ msgstr ""
 "# Les commandes contenues dans ce fichier seront lancées après "
 "quel'interface graphique AXIS (PyVCP inclus) aura démarré."
 
-#: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:1570
+#: emc/usr_intf/stepconf/stepconf.py:991 emc/usr_intf/pncconf/pncconf.py:1687
 msgid "# **** Setup of spindle speed and tool number display using pyvcp -START ****"
 msgstr "# **** Setup of spindle speed and tool number display using pyvcp -START ****"
 
-#: emc/usr_intf/stepconf/stepconf.py:993 emc/usr_intf/pncconf/pncconf.py:1572
+#: emc/usr_intf/stepconf/stepconf.py:993 emc/usr_intf/pncconf/pncconf.py:1689
 msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
 msgstr "# **** Utiliser la vitesse de broche actuelle depuis le codeur de broche"
 
-#: emc/usr_intf/stepconf/stepconf.py:994 emc/usr_intf/pncconf/pncconf.py:1573
+#: emc/usr_intf/stepconf/stepconf.py:994 emc/usr_intf/pncconf/pncconf.py:1690
 msgid "# **** spindle-velocity is signed so we use absolute compoent to remove sign"
 msgstr "# **** spindle-velocity is signed so we use absolute compoent to remove sign"
 
-#: emc/usr_intf/stepconf/stepconf.py:995 emc/usr_intf/pncconf/pncconf.py:1574
+#: emc/usr_intf/stepconf/stepconf.py:995 emc/usr_intf/pncconf/pncconf.py:1691
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr "# **** ACTUAL velocity is in RPS not RPM so we scale it."
 
-#: emc/usr_intf/stepconf/stepconf.py:1002 emc/usr_intf/pncconf/pncconf.py:1581
+#: emc/usr_intf/stepconf/stepconf.py:1002 emc/usr_intf/pncconf/pncconf.py:1698
 msgid ""
 "# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
 "was specified"
@@ -4219,7 +4222,7 @@ msgstr ""
 "# **** Use COMMANDED spindle velocity from EMC because no spindle encoder "
 "was specified"
 
-#: emc/usr_intf/stepconf/stepconf.py:1003 emc/usr_intf/pncconf/pncconf.py:1582
+#: emc/usr_intf/stepconf/stepconf.py:1003 emc/usr_intf/pncconf/pncconf.py:1699
 msgid ""
 "# **** COMANDED velocity is signed so we use absolute component (abs.0) to "
 "remove sign"
@@ -4236,7 +4239,7 @@ msgstr "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 msgid "Generated by stepconf at %s"
 msgstr "Généré par Stepconf le %s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1091 emc/usr_intf/pncconf/pncconf.py:1778
+#: emc/usr_intf/stepconf/stepconf.py:1091 emc/usr_intf/pncconf/pncconf.py:1895
 #, python-format
 msgid "launch %s"
 msgstr "lancer %s"
@@ -4245,7 +4248,7 @@ msgstr "lancer %s"
 msgid "Desktop Launcher for EMC config made by Stepconf"
 msgstr "Lanceur de bureau pour la configuration faite avec Stepconf"
 
-#: emc/usr_intf/stepconf/stepconf.py:1119 emc/usr_intf/pncconf/pncconf.py:1916
+#: emc/usr_intf/stepconf/stepconf.py:1119 emc/usr_intf/pncconf/pncconf.py:2033
 #, python-format
 msgid "%s Axis Configuration"
 msgstr "Configuration axe %s"
@@ -4263,82 +4266,80 @@ msgstr "Quitter Stepconf et perdre les modifications ?"
 msgid "EMC2 'stepconf' configuration files"
 msgstr "Fichier de configuration 'stepconf' d'EMC2 "
 
-#: emc/usr_intf/stepconf/stepconf.py:1209 emc/usr_intf/pncconf/pncconf.py:2081
+#: emc/usr_intf/stepconf/stepconf.py:1209 emc/usr_intf/pncconf/pncconf.py:2199
 msgid "Modify Existing Configuration"
 msgstr "Modifier configurations existantes"
 
-#: emc/usr_intf/stepconf/stepconf.py:1486
+#: emc/usr_intf/stepconf/stepconf.py:1490
 msgid "degree / rev"
 msgstr "degrés / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1487
-#: emc/usr_intf/stepconf/stepconf.py:2063
+#: emc/usr_intf/stepconf/stepconf.py:1491
+#: emc/usr_intf/stepconf/stepconf.py:2067
 msgid "deg / s"
 msgstr "deg / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1488
-#: emc/usr_intf/stepconf/stepconf.py:2064
+#: emc/usr_intf/stepconf/stepconf.py:1492
+#: emc/usr_intf/stepconf/stepconf.py:2068
 msgid "deg / s²"
 msgstr "degré / s²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1489
-#: emc/usr_intf/stepconf/stepconf.py:2065
+#: emc/usr_intf/stepconf/stepconf.py:1493
+#: emc/usr_intf/stepconf/stepconf.py:2069
 msgid "deg"
 msgstr "deg"
 
-#: emc/usr_intf/stepconf/stepconf.py:1490
+#: emc/usr_intf/stepconf/stepconf.py:1494
 msgid "Steps / deg"
 msgstr "Pas / degré"
 
-#: emc/usr_intf/stepconf/stepconf.py:1492
-#: emc/usr_intf/stepconf/stepconf.glade:2534
-#: emc/usr_intf/pncconf/pncconf.glade:15473
+#: emc/usr_intf/stepconf/stepconf.py:1496
+#: emc/usr_intf/stepconf/stepconf.glade:2947
+#: emc/usr_intf/pncconf/pncconf.glade:15577
 msgid "mm / rev"
 msgstr "mm / tour"
 
-#: emc/usr_intf/stepconf/stepconf.py:1493
-#: emc/usr_intf/stepconf/stepconf.py:2077
-#: emc/usr_intf/stepconf/stepconf.glade:2519
-#: emc/usr_intf/pncconf/pncconf.glade:15457
-#: emc/usr_intf/pncconf/pncconf.glade:17690
+#: emc/usr_intf/stepconf/stepconf.py:1497
+#: emc/usr_intf/stepconf/stepconf.py:2081
+#: emc/usr_intf/stepconf/stepconf.glade:2962
+#: emc/usr_intf/pncconf/pncconf.glade:15561
 msgid "mm / s"
 msgstr "mm / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1494
-#: emc/usr_intf/stepconf/stepconf.py:2078
-#: emc/usr_intf/stepconf/stepconf.glade:2504
-#: emc/usr_intf/pncconf/pncconf.glade:15442
-#: emc/usr_intf/pncconf/pncconf.glade:17675
+#: emc/usr_intf/stepconf/stepconf.py:1498
+#: emc/usr_intf/stepconf/stepconf.py:2082
+#: emc/usr_intf/stepconf/stepconf.glade:2977
+#: emc/usr_intf/pncconf/pncconf.glade:15546
 msgid "mm / s²"
 msgstr "mm / s²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1496
-#: emc/usr_intf/stepconf/stepconf.glade:3048
-#: emc/usr_intf/pncconf/pncconf.py:3313
-#: emc/usr_intf/pncconf/pncconf.glade:16098
-#: emc/usr_intf/pncconf/pncconf.glade:18180
+#: emc/usr_intf/stepconf/stepconf.py:1500
+#: emc/usr_intf/stepconf/stepconf.glade:2433
+#: emc/usr_intf/pncconf/pncconf.py:3483
+#: emc/usr_intf/pncconf/pncconf.glade:16202
+#: emc/usr_intf/pncconf/pncconf.glade:18306
 msgid "Steps / mm"
 msgstr "Pas / mm"
 
-#: emc/usr_intf/stepconf/stepconf.py:1498
+#: emc/usr_intf/stepconf/stepconf.py:1502
 msgid "rev / in"
 msgstr "tour / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:1499
-#: emc/usr_intf/stepconf/stepconf.py:2091
+#: emc/usr_intf/stepconf/stepconf.py:1503
+#: emc/usr_intf/stepconf/stepconf.py:2095
 msgid "in / s"
 msgstr "pouces / s"
 
-#: emc/usr_intf/stepconf/stepconf.py:1500
-#: emc/usr_intf/stepconf/stepconf.py:2092
+#: emc/usr_intf/stepconf/stepconf.py:1504
+#: emc/usr_intf/stepconf/stepconf.py:2096
 msgid "in / s²"
 msgstr "pouces / s²"
 
-#: emc/usr_intf/stepconf/stepconf.py:1502
+#: emc/usr_intf/stepconf/stepconf.py:1506
 msgid "Steps / in"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/stepconf/stepconf.py:1630
+#: emc/usr_intf/stepconf/stepconf.py:1634
 msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
@@ -4346,7 +4347,7 @@ msgstr ""
 "Pour ce programme, vous devez indiquer une broche d'entrée pour l'arrêt "
 "d'urgence dans la page de réglage du port parallèle."
 
-#: emc/usr_intf/stepconf/stepconf.py:1643 emc/usr_intf/pncconf/pncconf.py:3716
+#: emc/usr_intf/stepconf/stepconf.py:1647 emc/usr_intf/pncconf/pncconf.py:3999
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -4356,7 +4357,7 @@ msgstr ""
 "Le fichier custom.clp existant sera renommé custom_backup.clp \n"
 "Tout autre fichier custom_backup.clp précédent sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:1648 emc/usr_intf/pncconf/pncconf.py:3721
+#: emc/usr_intf/stepconf/stepconf.py:1652 emc/usr_intf/pncconf/pncconf.py:4004
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -4370,7 +4371,7 @@ msgstr ""
 "\n"
 "Etes-vous sûr de ce choix ? "
 
-#: emc/usr_intf/stepconf/stepconf.py:1662 emc/usr_intf/pncconf/pncconf.py:2301
+#: emc/usr_intf/stepconf/stepconf.py:1666 emc/usr_intf/pncconf/pncconf.py:2432
 msgid ""
 "OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
 "Existing custompanel.xml and custom_postgui.hal will be renamed "
@@ -4385,7 +4386,7 @@ msgstr ""
 "custompanel_backup.xml et postgui_backup.hal \n"
 "Tout fichier existant portant déjà un de ces noms sera perdu."
 
-#: emc/usr_intf/stepconf/stepconf.py:2060 emc/usr_intf/pncconf/pncconf.py:4425
+#: emc/usr_intf/stepconf/stepconf.py:2064 emc/usr_intf/pncconf/pncconf.py:4754
 #, python-format
 msgid "%s Axis Test"
 msgstr "Test axe %s"
@@ -4404,15 +4405,21 @@ msgstr ""
 "direction\" pour les fraiseuses ou les tours pilotés via le port parallèle "
 "du PC."
 
-#: emc/usr_intf/stepconf/stepconf.glade:64
-msgid "Create a desktop _launcher to start EMC with this configuration."
-msgstr "Créer un lanceur pour démarrer EMC2 avec cette configuration."
+#: emc/usr_intf/stepconf/stepconf.glade:47
+msgid "Create a _new configuration"
+msgstr "Créer une _nouvelle configuration"
 
-#: emc/usr_intf/stepconf/stepconf.glade:81
-msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Créer un lien sur le bureau vers les fichiers de configurations."
+#: emc/usr_intf/stepconf/stepconf.glade:65
+#: emc/usr_intf/pncconf/pncconf.glade:129
+msgid "Modify a configuration already created with this program"
+msgstr "Modifier une configuration déjà créée avec ce programme"
 
-#: emc/usr_intf/stepconf/stepconf.glade:98
+#: emc/usr_intf/stepconf/stepconf.glade:83
+#: emc/usr_intf/pncconf/pncconf.glade:117
+msgid "Do you wish to:"
+msgstr "Que voulez-vous faire:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:95
 #: emc/usr_intf/pncconf/pncconf.glade:99
 msgid ""
 "If you have made modifications to this configuration outside this program, "
@@ -4421,47 +4428,59 @@ msgstr ""
 "Si vous avez modifié ce fichier à l'extérieur du programme, les "
 "modifications seront perdues si vous choisissez\"Modifier une configuration\""
 
-#: emc/usr_intf/stepconf/stepconf.glade:115
-#: emc/usr_intf/pncconf/pncconf.glade:117
-msgid "Do you wish to:"
-msgstr "Que voulez-vous faire:"
+#: emc/usr_intf/stepconf/stepconf.glade:112
+msgid "Create a desktop _shortcut (symlink) to configuration files."
+msgstr "Créer un lien sur le bureau vers les fichiers de configurations."
 
-#: emc/usr_intf/stepconf/stepconf.glade:127
-#: emc/usr_intf/pncconf/pncconf.glade:129
-msgid "Modify a configuration already created with this program"
-msgstr "Modifier une configuration déjà créée avec ce programme"
+#: emc/usr_intf/stepconf/stepconf.glade:129
+msgid "Create a desktop _launcher to start EMC with this configuration."
+msgstr "Créer un lanceur pour démarrer EMC2 avec cette configuration."
 
-#: emc/usr_intf/stepconf/stepconf.glade:145
-msgid "Create a _new configuration"
-msgstr "Créer une _nouvelle configuration"
-
-#: emc/usr_intf/stepconf/stepconf.glade:170
+#: emc/usr_intf/stepconf/stepconf.glade:165
 #: emc/usr_intf/pncconf/pncconf.glade:174
 msgid "Basic machine information"
 msgstr "Informations machine"
 
-#: emc/usr_intf/stepconf/stepconf.glade:311
-msgid ""
-"_Onscreen prompt for\n"
-"tool change"
-msgstr ""
-"Pr_ompt à l'écran\n"
-"pour chgt d'outil"
+#: emc/usr_intf/stepconf/stepconf.glade:323
+msgid "Step _Time:"
+msgstr "Step _Time:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:328
-msgid "Min Base Period:"
-msgstr "Période de base minimale:"
+#: emc/usr_intf/stepconf/stepconf.glade:352
+#: emc/usr_intf/stepconf/stepconf.glade:398
+#: emc/usr_intf/stepconf/stepconf.glade:445
+#: emc/usr_intf/stepconf/stepconf.glade:490
+#: emc/usr_intf/stepconf/stepconf.glade:905
+#: emc/usr_intf/pncconf/pncconf.glade:492
+#: emc/usr_intf/pncconf/pncconf.glade:2000
+msgid "ns"
+msgstr "ns"
 
-#: emc/usr_intf/stepconf/stepconf.glade:344
-msgid "Max step rate:"
-msgstr "Fréquence maxi des pas:"
+#: emc/usr_intf/stepconf/stepconf.glade:365
+msgid "Step _Space:"
+msgstr "Valeur _Space d'un pas:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:371
-msgid "Out"
-msgstr "Sortie"
+#: emc/usr_intf/stepconf/stepconf.glade:413
+msgid "Direction _Hold:"
+msgstr "Direction _Hold:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:384
-#: emc/usr_intf/stepconf/stepconf.glade:400
+#: emc/usr_intf/stepconf/stepconf.glade:460
+msgid "_Direction Setup:"
+msgstr "Réglage _direction:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:508
+msgid "Driver Timing Settings"
+msgstr "Réglages de timing du pilote"
+
+#: emc/usr_intf/stepconf/stepconf.glade:534
+msgid "First Parport _Base Address:"
+msgstr "Adresse de _base du port parallèle:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:560
+msgid "     Out"
+msgstr ".....Sortie"
+
+#: emc/usr_intf/stepconf/stepconf.glade:571
+#: emc/usr_intf/stepconf/stepconf.glade:587
 #: emc/usr_intf/pncconf/pncconf.glade:711
 #: emc/usr_intf/pncconf/pncconf.glade:723
 #: emc/usr_intf/pncconf/pncconf.glade:736
@@ -4472,49 +4491,57 @@ msgstr ""
 "Entrée\n"
 "sortie"
 
-#: emc/usr_intf/stepconf/stepconf.glade:442
-msgid "T_hird Parport Address:"
-msgstr "Adresse du troisième port parallèle:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:458
+#: emc/usr_intf/stepconf/stepconf.glade:629
 msgid "S_econd Parport Address:"
 msgstr "Adr_esse du second port parallèle:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:475
-#: emc/usr_intf/stepconf/stepconf.glade:768
-#: emc/usr_intf/stepconf/stepconf.glade:783
-#: emc/usr_intf/stepconf/stepconf.glade:798
-#: emc/usr_intf/stepconf/stepconf.glade:813
-#: emc/usr_intf/pncconf/pncconf.glade:492
-#: emc/usr_intf/pncconf/pncconf.glade:1878
-msgid "ns"
-msgstr "ns"
+#: emc/usr_intf/stepconf/stepconf.glade:646
+msgid "T_hird Parport Address:"
+msgstr "Adresse du troisième port parallèle:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:508
-msgid "Base Period Maximum _Jitter:"
-msgstr "Base Period Maximum _Jitter:"
+#: emc/usr_intf/stepconf/stepconf.glade:663
+msgid " Parallel Port Settings"
+msgstr "Réglages port parallèle"
 
-#: emc/usr_intf/stepconf/stepconf.glade:565
+#: emc/usr_intf/stepconf/stepconf.glade:680
 msgid ""
-"Driver characteristics: (Multiply by 1000 for times specified in µs or "
-"microseconds)\n"
-"\n"
-"Additional signal conditioning or isolation such as optocouplers and RC "
-"filters\n"
-"can impose timing constraints of their own, in addition to those of the "
-"driver."
+"_Test Base\n"
+"Period Jitter "
 msgstr ""
-"Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en "
-"µs ou microsecondes)\n"
-"\n"
-"Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
-"peuvent imposer des contraintes de temps en plus de celles du pilote."
+"Test de\n"
+"latence"
 
-#: emc/usr_intf/stepconf/stepconf.glade:649
-msgid "First Parport _Base Address:"
-msgstr "Adresse de _base du port parallèle:"
+#: emc/usr_intf/stepconf/stepconf.glade:699
+msgid "Machine _Name:"
+msgstr "Nom de la machine:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:694
+#: emc/usr_intf/stepconf/stepconf.glade:712
+msgid "_Axis configuration:"
+msgstr "Configuration _axe"
+
+#: emc/usr_intf/stepconf/stepconf.glade:726
+msgid "Machine _units:"
+msgstr "_Unités machine"
+
+#: emc/usr_intf/stepconf/stepconf.glade:740
+#: emc/usr_intf/pncconf/pncconf.glade:244
+msgid "Configuration directory:"
+msgstr "Répertoire de configuration: "
+
+#: emc/usr_intf/stepconf/stepconf.glade:753
+msgid "D_river type:"
+msgstr "Type de d_river:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:781
+#: emc/usr_intf/pncconf/pncconf.glade:324
+msgid ""
+"Inch\n"
+"Millimeter"
+msgstr ""
+"pouce\n"
+"millimètre"
+
+#: emc/usr_intf/stepconf/stepconf.glade:796
 #: emc/usr_intf/pncconf/pncconf.glade:289
 msgid ""
 "XYZ\n"
@@ -4525,213 +4552,237 @@ msgstr ""
 "XYZA\n"
 "XZ (tour)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:710
-#: emc/usr_intf/pncconf/pncconf.glade:324
-msgid ""
-"Inch\n"
-"Millimeter"
-msgstr ""
-"pouce\n"
-"millimètre"
-
-#: emc/usr_intf/stepconf/stepconf.glade:741
-msgid "D_river type:"
-msgstr "Type de d_river:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:755
-#: emc/usr_intf/pncconf/pncconf.glade:244
-msgid "Configuration directory:"
-msgstr "Répertoire de configuration: "
-
-#: emc/usr_intf/stepconf/stepconf.glade:828
-msgid "_Direction Setup:"
-msgstr "Réglage _direction:"
-
 #: emc/usr_intf/stepconf/stepconf.glade:843
-msgid "Direction _Hold:"
-msgstr "Direction _Hold:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:858
-msgid "Step _Space:"
-msgstr "Valeur _Space d'un pas:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:873
-msgid "Step _Time:"
-msgstr "Step _Time:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:888
-msgid "Machine _units:"
-msgstr "_Unités machine"
-
-#: emc/usr_intf/stepconf/stepconf.glade:902
-msgid "_Axis configuration:"
-msgstr "Configuration _axe"
-
-#: emc/usr_intf/stepconf/stepconf.glade:916
-msgid "Machine _Name:"
-msgstr "Nom de la machine:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:929
 msgid ""
-"_Test Base\n"
-"Period Jitter "
+"Driver characteristics: (Multiply by 1000 for times specified in µs or "
+"microseconds)\n"
+"         Additional signal conditioning or isolation such as optocouplers "
+"and RC filters\n"
+"         can impose timing constraints of their own, in addition to those of "
+"the driver."
 msgstr ""
-"Test de\n"
-"latence"
+"Caractéristiques du pilote: (Multipliez par 1000 pour les temps spécifiés en µs ou microsecondes)\n"
+"........Mise en forme du signal, isolement galvanique, optocoupleurs ou filtres RC\n"
+"peuvent imposer des contraintes de temps en plus de celles du pilote."
 
-#: emc/usr_intf/stepconf/stepconf.glade:958
+#: emc/usr_intf/stepconf/stepconf.glade:871
+msgid "Base Period Maximum _Jitter:"
+msgstr "Base Period Maximum _Jitter:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:920
+msgid "Max step rate:"
+msgstr "Fréquence maxi des pas:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:936
+msgid "Min Base Period:"
+msgstr "Période de base minimale:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:952
+msgid ""
+"_Onscreen prompt for\n"
+"tool change"
+msgstr ""
+"Pr_ompt à l'écran\n"
+"pour chgt d'outil"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1011
 msgid "Parallel Port Setup"
 msgstr "Réglage port parallèle"
 
-#: emc/usr_intf/stepconf/stepconf.glade:1142
-msgid "Output pinout presets:"
-msgstr "Sorties préselectionnées"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1157
-msgid "_Xylotex Outputs"
-msgstr "Sorties de type _Xylotex"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1175
-msgid "_Sherline Outputs"
-msgstr "Sorties de type _Sherline"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1629
-#: emc/usr_intf/stepconf/stepconf.glade:1642
-#: emc/usr_intf/pncconf/pncconf.glade:14037
-#: emc/usr_intf/pncconf/pncconf.glade:14050
-msgid "Invert"
-msgstr "Inverser"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1668
-msgid "Inputs (Mill to PC):"
-msgstr "Entrées (machine vers PC)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1730
-#: emc/usr_intf/pncconf/pncconf.glade:13467
-msgid "Pin 1_5:"
-msgstr "Pin 1_5:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1746
-#: emc/usr_intf/pncconf/pncconf.glade:13451
-msgid "Pin 1_3:"
-msgstr "Pin 1_3:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1762
-#: emc/usr_intf/pncconf/pncconf.glade:13435
-msgid "Pin 1_2:"
-msgstr "Pin 1_2:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1778
-#: emc/usr_intf/pncconf/pncconf.glade:13419
-msgid "Pin 1_1:"
-msgstr "Pin 1_1:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1794
-#: emc/usr_intf/pncconf/pncconf.glade:13403
-msgid "Pin 1_0:"
-msgstr "Pin 1_0:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:1810
-msgid "Outputs (PC to Mill):"
-msgstr "Sorties (PC vers machine)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2152
-#: emc/usr_intf/pncconf/pncconf.glade:14463
-msgid "Pi_n 17:"
-msgstr "Pi_n 17:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2166
-#: emc/usr_intf/pncconf/pncconf.glade:14477
-msgid "P_in 16:"
-msgstr "P_in 16:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2180
-#: emc/usr_intf/pncconf/pncconf.glade:14491
-msgid "_Pin 14:"
-msgstr "_Pin 14:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2194
-#: emc/usr_intf/pncconf/pncconf.glade:13268
-#: emc/usr_intf/pncconf/pncconf.glade:14505
-msgid "Pin _9:"
-msgstr "Pin _9:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2208
-#: emc/usr_intf/pncconf/pncconf.glade:13285
-#: emc/usr_intf/pncconf/pncconf.glade:14519
-msgid "Pin _8:"
-msgstr "Pin _8:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2222
-#: emc/usr_intf/pncconf/pncconf.glade:13302
-#: emc/usr_intf/pncconf/pncconf.glade:14533
-msgid "Pin _7:"
-msgstr "Pin _7:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2236
-#: emc/usr_intf/pncconf/pncconf.glade:13319
-#: emc/usr_intf/pncconf/pncconf.glade:14547
-msgid "Pin _6:"
-msgstr "Pin _6:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2250
-#: emc/usr_intf/pncconf/pncconf.glade:13336
-#: emc/usr_intf/pncconf/pncconf.glade:14561
-msgid "Pin _5:"
-msgstr "Pin _5:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2264
-#: emc/usr_intf/pncconf/pncconf.glade:13353
-#: emc/usr_intf/pncconf/pncconf.glade:14575
-msgid "Pin _4:"
-msgstr "Pin _4:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2278
-#: emc/usr_intf/pncconf/pncconf.glade:13370
-#: emc/usr_intf/pncconf/pncconf.glade:14589
-msgid "Pin _3:"
-msgstr "Pin _3:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2292
-#: emc/usr_intf/pncconf/pncconf.glade:13387
-#: emc/usr_intf/pncconf/pncconf.glade:14603
-msgid "Pin _2:"
-msgstr "Pin _2:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2306
-#: emc/usr_intf/pncconf/pncconf.glade:14617
+#: emc/usr_intf/stepconf/stepconf.glade:1118
+#: emc/usr_intf/pncconf/pncconf.glade:14737
 msgid "Pin _1:"
 msgstr "Pin _1:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2327
-#: emc/usr_intf/pncconf/pncconf.glade:16236
+#: emc/usr_intf/stepconf/stepconf.glade:1132
+#: emc/usr_intf/pncconf/pncconf.glade:13507
+#: emc/usr_intf/pncconf/pncconf.glade:14723
+msgid "Pin _2:"
+msgstr "Pin _2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1146
+#: emc/usr_intf/pncconf/pncconf.glade:13490
+#: emc/usr_intf/pncconf/pncconf.glade:14709
+msgid "Pin _3:"
+msgstr "Pin _3:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1160
+#: emc/usr_intf/pncconf/pncconf.glade:13473
+#: emc/usr_intf/pncconf/pncconf.glade:14695
+msgid "Pin _4:"
+msgstr "Pin _4:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1174
+#: emc/usr_intf/pncconf/pncconf.glade:13456
+#: emc/usr_intf/pncconf/pncconf.glade:14681
+msgid "Pin _5:"
+msgstr "Pin _5:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1188
+#: emc/usr_intf/pncconf/pncconf.glade:13439
+#: emc/usr_intf/pncconf/pncconf.glade:14667
+msgid "Pin _6:"
+msgstr "Pin _6:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1202
+#: emc/usr_intf/pncconf/pncconf.glade:13422
+#: emc/usr_intf/pncconf/pncconf.glade:14653
+msgid "Pin _7:"
+msgstr "Pin _7:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1216
+#: emc/usr_intf/pncconf/pncconf.glade:13405
+#: emc/usr_intf/pncconf/pncconf.glade:14639
+msgid "Pin _8:"
+msgstr "Pin _8:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1230
+#: emc/usr_intf/pncconf/pncconf.glade:13388
+#: emc/usr_intf/pncconf/pncconf.glade:14625
+msgid "Pin _9:"
+msgstr "Pin _9:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1244
+#: emc/usr_intf/pncconf/pncconf.glade:14611
+msgid "_Pin 14:"
+msgstr "_Pin 14:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1258
+#: emc/usr_intf/pncconf/pncconf.glade:14597
+msgid "P_in 16:"
+msgstr "P_in 16:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1272
+#: emc/usr_intf/pncconf/pncconf.glade:14583
+msgid "Pi_n 17:"
+msgstr "Pi_n 17:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1616
+msgid "Outputs (PC to Mill):"
+msgstr "Sorties (PC vers machine)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1628
+#: emc/usr_intf/pncconf/pncconf.glade:13523
+msgid "Pin 1_0:"
+msgstr "Pin 1_0:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1644
+#: emc/usr_intf/pncconf/pncconf.glade:13539
+msgid "Pin 1_1:"
+msgstr "Pin 1_1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1660
+#: emc/usr_intf/pncconf/pncconf.glade:13555
+msgid "Pin 1_2:"
+msgstr "Pin 1_2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1676
+#: emc/usr_intf/pncconf/pncconf.glade:13571
+msgid "Pin 1_3:"
+msgstr "Pin 1_3:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1692
+#: emc/usr_intf/pncconf/pncconf.glade:13587
+msgid "Pin 1_5:"
+msgstr "Pin 1_5:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1757
+msgid "Inputs (Mill to PC):"
+msgstr "Entrées (machine vers PC)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:1783
+#: emc/usr_intf/stepconf/stepconf.glade:1796
+#: emc/usr_intf/pncconf/pncconf.glade:14157
+#: emc/usr_intf/pncconf/pncconf.glade:14170
+msgid "Invert"
+msgstr "Inverser"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2245
+msgid "_Sherline Outputs"
+msgstr "Sorties de type _Sherline"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2263
+msgid "_Xylotex Outputs"
+msgstr "Sorties de type _Xylotex"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2281
+msgid "Output pinout presets:"
+msgstr "Sorties préselectionnées"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2380
+#: emc/usr_intf/pncconf/pncconf.glade:16340
 msgid "X Axis Configuration"
 msgstr "Configuration axe X"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2396
-#: emc/usr_intf/pncconf/pncconf.glade:15940
-#: emc/usr_intf/pncconf/pncconf.glade:18071
-msgid "Axis SCALE:"
-msgstr "Echelle de l'axe:"
+#: emc/usr_intf/stepconf/stepconf.glade:2448
+msgid "_Motor steps per revolution:"
+msgstr "No_mbre de pas moteur par tour:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2433
-msgid "T_est this axis"
-msgstr "T_ester cet axe"
+#: emc/usr_intf/stepconf/stepconf.glade:2461
+msgid "_Driver Microstepping:"
+msgstr "Micropas du _driver:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2474
-msgid "s"
-msgstr "s"
+#: emc/usr_intf/stepconf/stepconf.glade:2476
+#: emc/usr_intf/pncconf/pncconf.glade:15736
+msgid "_Pulley teeth (Motor:Leadscrew):"
+msgstr "Dents des _poulies (moteur:vis):"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2600
-msgid "t_o"
-msgstr " à "
+#: emc/usr_intf/stepconf/stepconf.glade:2491
+#: emc/usr_intf/pncconf/pncconf.glade:15672
+msgid "_Leadscrew Pitch:"
+msgstr "Pas de _la vis:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2631
-msgid "Tab_le travel:"
-msgstr "Course de la tab_le:"
+#: emc/usr_intf/stepconf/stepconf.glade:2506
+#: emc/usr_intf/pncconf/pncconf.glade:15657
+#: emc/usr_intf/pncconf/pncconf.glade:17871
+msgid "Maximum _Velocity:"
+msgstr "_Vitesse maximum:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2684
-#: emc/usr_intf/pncconf/pncconf.glade:16658
+#: emc/usr_intf/stepconf/stepconf.glade:2521
+#: emc/usr_intf/pncconf/pncconf.glade:15642
+#: emc/usr_intf/pncconf/pncconf.glade:17856
+msgid "Maximum _Acceleration:"
+msgstr "_Accélération maximum:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2536
+#: emc/usr_intf/pncconf/pncconf.glade:16187
+#: emc/usr_intf/pncconf/pncconf.glade:18291
+msgid "Time to accelerate to max speed:"
+msgstr "Temps pour accélérer à la vitesse maxi:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2551
+msgid "Distance to accelerate to max speed:"
+msgstr "Distance pour accélérer à la vitesse maxi:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2650
+#: emc/usr_intf/pncconf/pncconf.glade:16159
+#: emc/usr_intf/pncconf/pncconf.glade:18278
+msgid "Pulse rate at max speed:"
+msgstr "Fréquence des impulsions à la vitesse maxi:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2720
+msgid "_Home location:"
+msgstr "Emplacement de l'origine machine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2735
+msgid "Home _Switch location:"
+msgstr "Po_sition du contact d'origine machine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2750
+msgid "Home Sear_ch velocity:"
+msgstr "Vitesse de re_cherche de l'origine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2765
+msgid "Home La_tch direction:"
+msgstr "Dégagement du contact d'origine:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2778
+#: emc/usr_intf/pncconf/pncconf.glade:15702
+msgid "_:"
+msgstr "_:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:2795
+#: emc/usr_intf/pncconf/pncconf.glade:16762
 msgid ""
 "Same\n"
 "Opposite"
@@ -4739,151 +4790,99 @@ msgstr ""
 "Identique\n"
 "Opposée"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2699
-#: emc/usr_intf/pncconf/pncconf.glade:15598
-#: emc/usr_intf/pncconf/pncconf.glade:17780
-msgid "_:"
-msgstr "_:"
+#: emc/usr_intf/stepconf/stepconf.glade:2850
+msgid "Tab_le travel:"
+msgstr "Course de la tab_le:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2717
-msgid "Home La_tch direction:"
-msgstr "Dégagement du contact d'origine:"
+#: emc/usr_intf/stepconf/stepconf.glade:2877
+msgid "t_o"
+msgstr " à "
 
-#: emc/usr_intf/stepconf/stepconf.glade:2731
-msgid "Home Sear_ch velocity:"
-msgstr "Vitesse de re_cherche de l'origine:"
+#: emc/usr_intf/stepconf/stepconf.glade:3007
+msgid "s"
+msgstr "s"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2746
-msgid "Home _Switch location:"
-msgstr "Po_sition du contact d'origine machine:"
+#: emc/usr_intf/stepconf/stepconf.glade:3061
+msgid "T_est this axis"
+msgstr "T_ester cet axe"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2761
-msgid "_Home location:"
-msgstr "Emplacement de l'origine machine:"
+#: emc/usr_intf/stepconf/stepconf.glade:3087
+#: emc/usr_intf/pncconf/pncconf.glade:16044
+#: emc/usr_intf/pncconf/pncconf.glade:18197
+msgid "Axis SCALE:"
+msgstr "Echelle de l'axe:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:2833
-#: emc/usr_intf/pncconf/pncconf.glade:16055
-#: emc/usr_intf/pncconf/pncconf.glade:18152
-msgid "Pulse rate at max speed:"
-msgstr "Fréquence des impulsions à la vitesse maxi:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2930
-msgid "Distance to accelerate to max speed:"
-msgstr "Distance pour accélérer à la vitesse maxi:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2945
-#: emc/usr_intf/pncconf/pncconf.glade:16083
-#: emc/usr_intf/pncconf/pncconf.glade:18165
-msgid "Time to accelerate to max speed:"
-msgstr "Temps pour accélérer à la vitesse maxi:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2960
-#: emc/usr_intf/pncconf/pncconf.glade:15538
-#: emc/usr_intf/pncconf/pncconf.glade:17736
-msgid "Maximum _Acceleration:"
-msgstr "_Accélération maximum:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2975
-#: emc/usr_intf/pncconf/pncconf.glade:15553
-#: emc/usr_intf/pncconf/pncconf.glade:17751
-msgid "Maximum _Velocity:"
-msgstr "_Vitesse maximum:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:2990
-#: emc/usr_intf/pncconf/pncconf.glade:15568
-msgid "_Leadscrew Pitch:"
-msgstr "Pas de _la vis:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3005
-#: emc/usr_intf/pncconf/pncconf.glade:15632
-#: emc/usr_intf/pncconf/pncconf.glade:17813
-msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr "Dents des _poulies (moteur:vis):"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3020
-msgid "_Driver Microstepping:"
-msgstr "Micropas du _driver:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3035
-msgid "_Motor steps per revolution:"
-msgstr "No_mbre de pas moteur par tour:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3070
-#: emc/usr_intf/pncconf/pncconf.glade:16881
+#: emc/usr_intf/stepconf/stepconf.glade:3123
+#: emc/usr_intf/pncconf/pncconf.glade:16985
 msgid "Spindle Configuration"
 msgstr "Configuration broche"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3103
-msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr "Entrez 0 Hz pour le mode \"PDM\""
-
-#: emc/usr_intf/stepconf/stepconf.glade:3155
-msgid "_Cycles per revolution:"
-msgstr "_Cycles par tour:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3233
-msgid "PWM _Rate:"
-msgstr "F_réquence PWM:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3246
-msgid "P_WM 2:"
-msgstr "P_WM 2:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3264
-msgid "S_peed 2:"
-msgstr "Vitesse 2:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3279
-msgid "_PWM 1:"
-msgstr "_PWM 1:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3297
-msgid "_Speed 1:"
-msgstr "Vite_sse 1:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3312
+#: emc/usr_intf/stepconf/stepconf.glade:3158
 msgid "Calibration:"
 msgstr "Calibration:"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3332
+#: emc/usr_intf/stepconf/stepconf.glade:3171
+msgid "_Speed 1:"
+msgstr "Vite_sse 1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3186
+msgid "_PWM 1:"
+msgstr "_PWM 1:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3204
+msgid "S_peed 2:"
+msgstr "Vitesse 2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3219
+msgid "P_WM 2:"
+msgstr "P_WM 2:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3237
+msgid "PWM _Rate:"
+msgstr "F_réquence PWM:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3313
+msgid "_Cycles per revolution:"
+msgstr "_Cycles par tour:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3367
+msgid "Enter 0 Hz for \"PDM\" mode"
+msgstr "Entrez 0 Hz pour le mode \"PDM\""
+
+#: emc/usr_intf/stepconf/stepconf.glade:3385
 msgid "Advanced Configuration Options"
 msgstr "Options de configuration avancée"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3348
+#: emc/usr_intf/stepconf/stepconf.glade:3403
 msgid "Include Halui user interface component"
 msgstr "Inclure l'interface utilisateur HalUI"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3363
-#: emc/usr_intf/pncconf/pncconf.glade:1526
-msgid "Include custom PyVCP GUI panel"
-msgstr "Inclure un panneau PyVCP personnalisé"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3405
-#: emc/usr_intf/pncconf/pncconf.glade:1248
+#: emc/usr_intf/stepconf/stepconf.glade:3444
+#: emc/usr_intf/pncconf/pncconf.glade:1258
 msgid "Blank program"
 msgstr "Programme vierge"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3420
-#: emc/usr_intf/pncconf/pncconf.glade:1263
+#: emc/usr_intf/stepconf/stepconf.glade:3459
+#: emc/usr_intf/pncconf/pncconf.glade:1273
 msgid "Spindle speed/tool position display  "
 msgstr "Vitesse broche/affichage position de l'outil"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3436
-#: emc/usr_intf/stepconf/stepconf.glade:3824
-#: emc/usr_intf/pncconf/pncconf.glade:1295
-#: emc/usr_intf/pncconf/pncconf.glade:19169
+#: emc/usr_intf/stepconf/stepconf.glade:3475
+#: emc/usr_intf/stepconf/stepconf.glade:3913
+#: emc/usr_intf/pncconf/pncconf.glade:1305
+#: emc/usr_intf/pncconf/pncconf.glade:19300
 msgid "Existing custom program"
 msgstr "Programme personnalisé existant"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3451
-#: emc/usr_intf/stepconf/stepconf.glade:3840
-#: emc/usr_intf/pncconf/pncconf.glade:1310
-#: emc/usr_intf/pncconf/pncconf.glade:19185
+#: emc/usr_intf/stepconf/stepconf.glade:3490
+#: emc/usr_intf/stepconf/stepconf.glade:3929
+#: emc/usr_intf/pncconf/pncconf.glade:1320
+#: emc/usr_intf/pncconf/pncconf.glade:19316
 msgid "Include connections to HAL"
 msgstr "Inclure les connections à HAL"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3485
-#: emc/usr_intf/pncconf/pncconf.glade:1490
+#: emc/usr_intf/stepconf/stepconf.glade:3524
+#: emc/usr_intf/pncconf/pncconf.glade:1500
 msgid ""
 "_Display\n"
 "sample\n"
@@ -4893,67 +4892,67 @@ msgstr ""
 "sample\n"
 "panel"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3518
-msgid "Pyvcp Example Options"
-msgstr "Exemple d'options Pyvcp"
+#: emc/usr_intf/stepconf/stepconf.glade:3558
+#: emc/usr_intf/pncconf/pncconf.glade:1536
+msgid "Include custom PyVCP GUI panel"
+msgstr "Inclure un panneau PyVCP personnalisé"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3537
-#: emc/usr_intf/pncconf/pncconf.glade:19255
-msgid "Include _Classicladder PLC"
-msgstr "Inclure l'API _Classicladder"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3587
-#: emc/usr_intf/pncconf/pncconf.glade:18932
-msgid "Number of digital in pins:"
-msgstr "Nombre de broches d'entrée numérique:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3598
-#: emc/usr_intf/pncconf/pncconf.glade:18943
-msgid "Number of digital  out pins:"
-msgstr "Nombre de broches de sortie numérique:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3613
-#: emc/usr_intf/pncconf/pncconf.glade:18958
-msgid " Number of analog (s32) in pins:"
-msgstr "Nombre de broches d'entrée analogique (s32)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3629
-#: emc/usr_intf/pncconf/pncconf.glade:18974
-msgid " Number of analog (s32) out pins:"
-msgstr "Nombre de broches de sortie analogique (s32)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3644
-#: emc/usr_intf/pncconf/pncconf.glade:18989
-msgid " Number of analog (float) in pins:"
-msgstr "Nombre de broches d'entrée analogique (float)"
-
-#: emc/usr_intf/stepconf/stepconf.glade:3659
-#: emc/usr_intf/pncconf/pncconf.glade:19004
+#: emc/usr_intf/stepconf/stepconf.glade:3691
+#: emc/usr_intf/pncconf/pncconf.glade:19135
 msgid " Number of analog (float) out pins:"
 msgstr "Nombre de broches de sortie analogique (float)"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3673
-#: emc/usr_intf/pncconf/pncconf.glade:19018
+#: emc/usr_intf/stepconf/stepconf.glade:3705
+#: emc/usr_intf/pncconf/pncconf.glade:19120
+msgid " Number of analog (float) in pins:"
+msgstr "Nombre de broches d'entrée analogique (float)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3719
+#: emc/usr_intf/pncconf/pncconf.glade:19105
+msgid " Number of analog (s32) out pins:"
+msgstr "Nombre de broches de sortie analogique (s32)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3733
+#: emc/usr_intf/pncconf/pncconf.glade:19089
+msgid " Number of analog (s32) in pins:"
+msgstr "Nombre de broches d'entrée analogique (s32)"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3748
+#: emc/usr_intf/pncconf/pncconf.glade:19074
+msgid "Number of digital  out pins:"
+msgstr "Nombre de broches de sortie numérique:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3773
+#: emc/usr_intf/pncconf/pncconf.glade:19063
+msgid "Number of digital in pins:"
+msgstr "Nombre de broches d'entrée numérique:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3784
+msgid "setup number of external pins"
+msgstr "Nombre de broches externes"
+
+#: emc/usr_intf/stepconf/stepconf.glade:3799
+#: emc/usr_intf/pncconf/pncconf.glade:19149
 msgid "Include modbus master support"
 msgstr "Inclure le support modbus maître"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3781
-#: emc/usr_intf/pncconf/pncconf.glade:19126
+#: emc/usr_intf/stepconf/stepconf.glade:3870
+#: emc/usr_intf/pncconf/pncconf.glade:19257
 msgid "Blank ladder program"
 msgstr "Programme ladder vierge"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3794
-#: emc/usr_intf/pncconf/pncconf.glade:19139
+#: emc/usr_intf/stepconf/stepconf.glade:3883
+#: emc/usr_intf/pncconf/pncconf.glade:19270
 msgid "Estop ladder program"
 msgstr "Programme ladder d'arrêt d'urgence"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3808
-#: emc/usr_intf/pncconf/pncconf.glade:19153
+#: emc/usr_intf/stepconf/stepconf.glade:3897
+#: emc/usr_intf/pncconf/pncconf.glade:19284
 msgid "Serial modbus program"
 msgstr "Programme Modbus série"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3873
-#: emc/usr_intf/pncconf/pncconf.glade:19219
+#: emc/usr_intf/stepconf/stepconf.glade:3962
+#: emc/usr_intf/pncconf/pncconf.glade:19350
 msgid ""
 "Edit ladder\n"
 "program"
@@ -4961,17 +4960,18 @@ msgstr ""
 "Editer prog.\n"
 "ladder"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3908
-msgid "PLC Options"
-msgstr "Options API"
+#: emc/usr_intf/stepconf/stepconf.glade:3998
+#: emc/usr_intf/pncconf/pncconf.glade:19386
+msgid "Include _Classicladder PLC"
+msgstr "Inclure l'API _Classicladder"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3934
-#: emc/usr_intf/pncconf/pncconf.glade:19851
+#: emc/usr_intf/stepconf/stepconf.glade:4024
+#: emc/usr_intf/pncconf/pncconf.glade:20078
 msgid "Machine configuration complete"
 msgstr "Configuration machine complète"
 
-#: emc/usr_intf/stepconf/stepconf.glade:3935
-#: emc/usr_intf/pncconf/pncconf.glade:19852
+#: emc/usr_intf/stepconf/stepconf.glade:4025
+#: emc/usr_intf/pncconf/pncconf.glade:20079
 msgid ""
 "All the necessary information has now been gathered.  Click \"Apply\" to "
 "write your configuration files to disk.\n"
@@ -5003,11 +5003,52 @@ msgstr ""
 "\n"
 "Faites de même si vous avez le message \"Unexpected Realtime Delay\". "
 
-#: emc/usr_intf/stepconf/stepconf.glade:3971
-#: emc/usr_intf/pncconf/pncconf.glade:20492
-#: emc/usr_intf/pncconf/pncconf.glade:21511
-#: emc/usr_intf/pncconf/pncconf.glade:22211
-#: emc/usr_intf/pncconf/pncconf.glade:22911
+#: emc/usr_intf/stepconf/stepconf.glade:4059
+#: emc/usr_intf/pncconf/pncconf.glade:20556
+#: emc/usr_intf/pncconf/pncconf.glade:21580
+#: emc/usr_intf/pncconf/pncconf.glade:22608
+#: emc/usr_intf/pncconf/pncconf.glade:23634
+msgid "Velocity:"
+msgstr "Vitesse:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4071
+#: emc/usr_intf/pncconf/pncconf.glade:20568
+#: emc/usr_intf/pncconf/pncconf.glade:21592
+#: emc/usr_intf/pncconf/pncconf.glade:22620
+#: emc/usr_intf/pncconf/pncconf.glade:23646
+msgid "Acceleration:"
+msgstr "Accélération:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4085
+#: emc/usr_intf/pncconf/pncconf.glade:20300
+#: emc/usr_intf/pncconf/pncconf.glade:20582
+#: emc/usr_intf/pncconf/pncconf.glade:21606
+#: emc/usr_intf/pncconf/pncconf.glade:22634
+#: emc/usr_intf/pncconf/pncconf.glade:23660
+msgid "Jog:"
+msgstr "Jog:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4099
+#: emc/usr_intf/pncconf/pncconf.glade:20596
+#: emc/usr_intf/pncconf/pncconf.glade:21620
+#: emc/usr_intf/pncconf/pncconf.glade:22648
+#: emc/usr_intf/pncconf/pncconf.glade:23674
+msgid "Test Area:"
+msgstr "Zone de test:"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4128
+msgid "mm/s^2"
+msgstr "mm/s^2"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4164
+msgid "mm/s"
+msgstr "mm/s"
+
+#: emc/usr_intf/stepconf/stepconf.glade:4240
+#: emc/usr_intf/pncconf/pncconf.glade:20735
+#: emc/usr_intf/pncconf/pncconf.glade:21759
+#: emc/usr_intf/pncconf/pncconf.glade:22785
+#: emc/usr_intf/pncconf/pncconf.glade:23811
 msgid ""
 "±\n"
 "+\n"
@@ -5016,47 +5057,6 @@ msgstr ""
 "±\n"
 "+\n"
 "-\n"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4150
-msgid "mm/s"
-msgstr "mm/s"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4184
-msgid "mm/s^2"
-msgstr "mm/s^2"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4205
-#: emc/usr_intf/pncconf/pncconf.glade:20353
-#: emc/usr_intf/pncconf/pncconf.glade:21376
-#: emc/usr_intf/pncconf/pncconf.glade:22076
-#: emc/usr_intf/pncconf/pncconf.glade:22776
-msgid "Test Area:"
-msgstr "Zone de test:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4219
-#: emc/usr_intf/pncconf/pncconf.glade:20058
-#: emc/usr_intf/pncconf/pncconf.glade:20339
-#: emc/usr_intf/pncconf/pncconf.glade:21362
-#: emc/usr_intf/pncconf/pncconf.glade:22062
-#: emc/usr_intf/pncconf/pncconf.glade:22762
-msgid "Jog:"
-msgstr "Jog:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4233
-#: emc/usr_intf/pncconf/pncconf.glade:20325
-#: emc/usr_intf/pncconf/pncconf.glade:21348
-#: emc/usr_intf/pncconf/pncconf.glade:22048
-#: emc/usr_intf/pncconf/pncconf.glade:22748
-msgid "Acceleration:"
-msgstr "Accélération:"
-
-#: emc/usr_intf/stepconf/stepconf.glade:4247
-#: emc/usr_intf/pncconf/pncconf.glade:20313
-#: emc/usr_intf/pncconf/pncconf.glade:21336
-#: emc/usr_intf/pncconf/pncconf.glade:22036
-#: emc/usr_intf/pncconf/pncconf.glade:22736
-msgid "Velocity:"
-msgstr "Vitesse:"
 
 #: emc/usr_intf/pncconf/pncconf.py:54
 msgid ""
@@ -5601,39 +5601,39 @@ msgid "A reserved f"
 msgstr "A reserved f"
 
 #: emc/usr_intf/pncconf/pncconf.py:324
-msgid "spindle StepGen-Step"
-msgstr "Pas stepGen broche"
+msgid "Spindle StepGen-Step"
+msgstr "Pas StepGen de la broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:324
-msgid "spindle StepGen-Direction"
-msgstr "Direction stepGen broche"
+msgid "Spindle StepGen-Direction"
+msgstr "Direction StepGen de la broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:324
-msgid "spindle reserved c"
-msgstr "spindle reserved c"
+msgid "Spindle reserved c"
+msgstr "réservé c broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:324
-msgid "spindle reserved d"
-msgstr "spindle reserved d"
+msgid "Spindle reserved d"
+msgstr "réservé d broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:324
-msgid "spindle reserved e"
-msgstr "spindle reserved e"
+msgid "Spindle reserved e"
+msgstr "réservé e broche"
 
 #: emc/usr_intf/pncconf/pncconf.py:325
-msgid "spindle reserved f"
-msgstr "spindle reserved f"
+msgid "Spindle reserved f"
+msgstr "réservé f broche"
 
-#: emc/usr_intf/pncconf/pncconf.py:351
+#: emc/usr_intf/pncconf/pncconf.py:361
 msgid "my_EMC_machine"
 msgstr "ma_machine_EMC"
 
-#: emc/usr_intf/pncconf/pncconf.py:753
+#: emc/usr_intf/pncconf/pncconf.py:800
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
 msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:757
+#: emc/usr_intf/pncconf/pncconf.py:804
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
@@ -5641,24 +5641,28 @@ msgstr ""
 "Enregistrer cette configuration va écraser les modifications faites à "
 "l'extérieur de PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:781 emc/usr_intf/pncconf/pncconf.py:1257
+#: emc/usr_intf/pncconf/pncconf.py:828 emc/usr_intf/pncconf/pncconf.py:1394
 #, python-format
 msgid "# Generated by PNCconf at %s"
 msgstr "# Généré par PNCconf le %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:783 emc/usr_intf/pncconf/pncconf.py:1259
+#: emc/usr_intf/pncconf/pncconf.py:830 emc/usr_intf/pncconf/pncconf.py:1396
 msgid "# overwritten when you run PNCconf again"
 msgstr "# écrasé quand vous relancerez PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1510
-msgid "#  estop signals"
-msgstr "#  signaux d'A/U"
+#: emc/usr_intf/pncconf/pncconf.py:1624
+msgid "# connect miscellaneous signals"
+msgstr "#connections de signaux divers"
 
-#: emc/usr_intf/pncconf/pncconf.py:1588
+#: emc/usr_intf/pncconf/pncconf.py:1627
+msgid "#  ---estop signals---"
+msgstr "#  ---signaux d'A/U---"
+
+#: emc/usr_intf/pncconf/pncconf.py:1705
 msgid "# **** Setup of spindle speed and tool number display using pyvcp -END ****"
 msgstr "# **** Setup of spindle speed and tool number display using pyvcp -END ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:1590
+#: emc/usr_intf/pncconf/pncconf.py:1707
 msgid ""
 "# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - "
 "START ****"
@@ -5666,7 +5670,7 @@ msgstr ""
 "# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - "
 "START ****"
 
-#: emc/usr_intf/pncconf/pncconf.py:1606
+#: emc/usr_intf/pncconf/pncconf.py:1723
 msgid ""
 "# **** The following mdi-comands are specified in the machine named INI file "
 "under [HALUI] heading"
@@ -5674,7 +5678,7 @@ msgstr ""
 "# **** The following mdi-comands are specified in the machine named INI file "
 "under [HALUI] heading"
 
-#: emc/usr_intf/pncconf/pncconf.py:1620
+#: emc/usr_intf/pncconf/pncconf.py:1737
 msgid ""
 "# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END "
 "****"
@@ -5682,270 +5686,298 @@ msgstr ""
 "# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - END "
 "****"
 
-#: emc/usr_intf/pncconf/pncconf.py:1627
+#: emc/usr_intf/pncconf/pncconf.py:1744
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr "# Ce fichier ne sera pas écrasé si vous relancez PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1634
+#: emc/usr_intf/pncconf/pncconf.py:1751
 #, python-format
 msgid "Generated by PNCconf at %s"
 msgstr "Généré par PNCconf le %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:1645
+#: emc/usr_intf/pncconf/pncconf.py:1762
 msgid "configures EMC2 as:"
 msgstr "configure EMC2 comme:"
 
-#: emc/usr_intf/pncconf/pncconf.py:1647
+#: emc/usr_intf/pncconf/pncconf.py:1764
 msgid "type CNC"
 msgstr "type de CNC"
 
-#: emc/usr_intf/pncconf/pncconf.py:1649
+#: emc/usr_intf/pncconf/pncconf.py:1766
 msgid "will be used as the frontend display"
 msgstr "qui sera utilisé en façade de l'affichage"
 
-#: emc/usr_intf/pncconf/pncconf.py:1656
+#: emc/usr_intf/pncconf/pncconf.py:1773
 msgid "Mesa 5i20 connector 2 \n"
 msgstr "Mesa 5i20 connector 2 \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:1662 emc/usr_intf/pncconf/pncconf.py:1673
-#: emc/usr_intf/pncconf/pncconf.py:1684 emc/usr_intf/pncconf/pncconf.py:1697
-#: emc/usr_intf/pncconf/pncconf.py:1705
+#: emc/usr_intf/pncconf/pncconf.py:1779 emc/usr_intf/pncconf/pncconf.py:1790
+#: emc/usr_intf/pncconf/pncconf.py:1801 emc/usr_intf/pncconf/pncconf.py:1814
+#: emc/usr_intf/pncconf/pncconf.py:1822
 msgid "-> inverted"
 msgstr "-> inversé"
 
-#: emc/usr_intf/pncconf/pncconf.py:1667
+#: emc/usr_intf/pncconf/pncconf.py:1784
 msgid "Mesa 5i20 connector 3 \n"
 msgstr "Mesa 5i20 connector 3 \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:1678
+#: emc/usr_intf/pncconf/pncconf.py:1795
 msgid "Mesa 5i20 connector 4 \n"
 msgstr "Mesa 5i20 connector 4 \n"
 
-#: emc/usr_intf/pncconf/pncconf.py:1692
+#: emc/usr_intf/pncconf/pncconf.py:1809
 #, python-format
 msgid "%(name)s Parport"
 msgstr "%(name)s Parport"
 
-#: emc/usr_intf/pncconf/pncconf.py:1699
+#: emc/usr_intf/pncconf/pncconf.py:1816
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
 
-#: emc/usr_intf/pncconf/pncconf.py:1707
+#: emc/usr_intf/pncconf/pncconf.py:1824
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 
-#: emc/usr_intf/pncconf/pncconf.py:1782
+#: emc/usr_intf/pncconf/pncconf.py:1899
 msgid "Desktop Launcher for EMC config made by PNCconf"
 msgstr "Lanceur de bureau pour la configuration faite par PNCconf"
 
-#: emc/usr_intf/pncconf/pncconf.py:1940
+#: emc/usr_intf/pncconf/pncconf.py:2057
 #, python-format
 msgid "%s Axis Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:1964
+#: emc/usr_intf/pncconf/pncconf.py:2081
 #, python-format
 msgid "%s Parallel Port Setup"
 msgstr "Réglage du port parallèle %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:2023
+#: emc/usr_intf/pncconf/pncconf.py:2141
 msgid "Quit PNCconfig and discard changes?"
 msgstr "Quitter PNCconf et perdre les modifications ?"
 
-#: emc/usr_intf/pncconf/pncconf.py:2067
+#: emc/usr_intf/pncconf/pncconf.py:2185
 msgid "Help page is unavailable\n"
 msgstr "Page d'aide non disponible\n"
 
-#: emc/usr_intf/pncconf/pncconf.py:2080
+#: emc/usr_intf/pncconf/pncconf.py:2198
 msgid "EMC2 'PNCconf' configuration files"
 msgstr "Fichiers 'PNCconf' de configuration d'EMC2 "
 
-#: emc/usr_intf/pncconf/pncconf.py:2191
+#: emc/usr_intf/pncconf/pncconf.py:2312
 msgid "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr "Vous devez définir un port parallèle et/ou une carte Mesa avant de continuer."
 
-#: emc/usr_intf/pncconf/pncconf.py:3036
+#: emc/usr_intf/pncconf/pncconf.py:2577
+msgid ""
+"You need to configure the mesa page.\n"
+" Choose the board type, firmware, component amounts and press 'Accept "
+"component changes' button'"
+msgstr ""
+"La page mesa doit être configurée.\n"
+"Choisir le type de carte, de microprogramme, de composants et presser le bouton 'Accepter les changements'"
+
+#: emc/usr_intf/pncconf/pncconf.py:3206
 msgid "First Parallel Port set for OUTPUT"
 msgstr "Réglage du premier port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3038
+#: emc/usr_intf/pncconf/pncconf.py:3208
 msgid "First Parallel Port set for INPUT"
 msgstr "Réglage du premier port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3058
+#: emc/usr_intf/pncconf/pncconf.py:3228
 msgid "Second Parallel Port set for OUTPUT"
 msgstr "Réglage du deuxième port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3060
+#: emc/usr_intf/pncconf/pncconf.py:3230
 msgid "Second Parallel Port set for INPUT"
 msgstr "Réglage du deuxième port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3072
+#: emc/usr_intf/pncconf/pncconf.py:3242
 msgid "Third Parallel Port set for OUTPUT"
 msgstr "Réglage du troisième port parallèle en SORTIES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3074
+#: emc/usr_intf/pncconf/pncconf.py:3244
 msgid "Third Parallel Port set for INPUT"
 msgstr "Réglage du troisième port parallèle en ENTREES"
 
-#: emc/usr_intf/pncconf/pncconf.py:3240 emc/usr_intf/pncconf/pncconf.py:3414
+#: emc/usr_intf/pncconf/pncconf.py:3410 emc/usr_intf/pncconf/pncconf.py:3585
+#: emc/usr_intf/pncconf/pncconf.py:3815
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: emc/usr_intf/pncconf/pncconf.py:3285
+#: emc/usr_intf/pncconf/pncconf.py:3455
 msgid "Reduction Ratio"
 msgstr "Ration de réduction"
 
-#: emc/usr_intf/pncconf/pncconf.py:3286
+#: emc/usr_intf/pncconf/pncconf.py:3456
 msgid "degrees / rev"
 msgstr "degrés / tour"
 
-#: emc/usr_intf/pncconf/pncconf.py:3287 emc/usr_intf/pncconf/pncconf.py:3289
-#: emc/usr_intf/pncconf/pncconf.py:3290 emc/usr_intf/pncconf/pncconf.py:3291
+#: emc/usr_intf/pncconf/pncconf.py:3457 emc/usr_intf/pncconf/pncconf.py:3459
+#: emc/usr_intf/pncconf/pncconf.py:3460 emc/usr_intf/pncconf/pncconf.py:3461
 msgid "degrees / min"
 msgstr "degrés / mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:3288
+#: emc/usr_intf/pncconf/pncconf.py:3458
 msgid "degrees / sec²"
 msgstr "degrés / s²"
 
-#: emc/usr_intf/pncconf/pncconf.py:3292 emc/usr_intf/pncconf/pncconf.py:3299
-#: emc/usr_intf/pncconf/pncconf.py:3300 emc/usr_intf/pncconf/pncconf.py:4168
+#: emc/usr_intf/pncconf/pncconf.py:3462 emc/usr_intf/pncconf/pncconf.py:3469
+#: emc/usr_intf/pncconf/pncconf.py:3470 emc/usr_intf/pncconf/pncconf.py:4472
 msgid "degrees"
 msgstr "degrés"
 
-#: emc/usr_intf/pncconf/pncconf.py:3294
+#: emc/usr_intf/pncconf/pncconf.py:3464
 msgid "degree / Step"
 msgstr "degrés / pas"
 
-#: emc/usr_intf/pncconf/pncconf.py:3295
+#: emc/usr_intf/pncconf/pncconf.py:3465
 msgid "Steps / degree"
 msgstr "Pas / degré"
 
-#: emc/usr_intf/pncconf/pncconf.py:3297
+#: emc/usr_intf/pncconf/pncconf.py:3467
 msgid "degrees / encoder pulse"
 msgstr "degré / impulsion codeur"
 
-#: emc/usr_intf/pncconf/pncconf.py:3298
+#: emc/usr_intf/pncconf/pncconf.py:3468
 msgid "Encoder pulses / degree"
 msgstr "Impulsions codeur / degré"
 
-#: emc/usr_intf/pncconf/pncconf.py:3303
+#: emc/usr_intf/pncconf/pncconf.py:3473
 msgid "Leadscrew Pitch"
 msgstr "Pas de la vis:"
 
-#: emc/usr_intf/pncconf/pncconf.py:3304
+#: emc/usr_intf/pncconf/pncconf.py:3474
 msgid "(mm / rev)"
 msgstr "(mm / tour)"
 
-#: emc/usr_intf/pncconf/pncconf.py:3305 emc/usr_intf/pncconf/pncconf.py:3307
-#: emc/usr_intf/pncconf/pncconf.py:3308 emc/usr_intf/pncconf/pncconf.py:3309
+#: emc/usr_intf/pncconf/pncconf.py:3475 emc/usr_intf/pncconf/pncconf.py:3477
+#: emc/usr_intf/pncconf/pncconf.py:3478 emc/usr_intf/pncconf/pncconf.py:3479
 msgid "mm / min"
 msgstr "mm / mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:3306
+#: emc/usr_intf/pncconf/pncconf.py:3476
 msgid "mm / sec²"
 msgstr "mm / s²"
 
-#: emc/usr_intf/pncconf/pncconf.py:3312
+#: emc/usr_intf/pncconf/pncconf.py:3482
 msgid "mm / Step"
 msgstr "mm / pas"
 
-#: emc/usr_intf/pncconf/pncconf.py:3315
-#: emc/usr_intf/pncconf/pncconf.glade:16141
-#: emc/usr_intf/pncconf/pncconf.glade:18223
+#: emc/usr_intf/pncconf/pncconf.py:3485
+#: emc/usr_intf/pncconf/pncconf.glade:16245
+#: emc/usr_intf/pncconf/pncconf.glade:18349
 msgid "mm / encoder pulse"
 msgstr "mm / impulsion codeur"
 
-#: emc/usr_intf/pncconf/pncconf.py:3316
+#: emc/usr_intf/pncconf/pncconf.py:3486
 msgid "Encoder pulses / mm"
 msgstr "impulsions codeur / mm"
 
-#: emc/usr_intf/pncconf/pncconf.py:3322
+#: emc/usr_intf/pncconf/pncconf.py:3492
 msgid "Leadscrew TPI"
 msgstr "Filets de la vis par pouce"
 
-#: emc/usr_intf/pncconf/pncconf.py:3323
+#: emc/usr_intf/pncconf/pncconf.py:3493
 msgid "(rev / inch)"
 msgstr "(tour / pouce)"
 
-#: emc/usr_intf/pncconf/pncconf.py:3324 emc/usr_intf/pncconf/pncconf.py:3326
-#: emc/usr_intf/pncconf/pncconf.py:3327 emc/usr_intf/pncconf/pncconf.py:3328
+#: emc/usr_intf/pncconf/pncconf.py:3494 emc/usr_intf/pncconf/pncconf.py:3496
+#: emc/usr_intf/pncconf/pncconf.py:3497 emc/usr_intf/pncconf/pncconf.py:3498
 msgid "inches / min"
 msgstr "pouces / mn"
 
-#: emc/usr_intf/pncconf/pncconf.py:3325
+#: emc/usr_intf/pncconf/pncconf.py:3495
 msgid "inches / sec²"
 msgstr "pouces / s²"
 
-#: emc/usr_intf/pncconf/pncconf.py:3331
+#: emc/usr_intf/pncconf/pncconf.py:3501
 msgid "inches / Step"
 msgstr "pouces / pas"
 
-#: emc/usr_intf/pncconf/pncconf.py:3332
+#: emc/usr_intf/pncconf/pncconf.py:3502
 msgid "Steps / inch"
 msgstr "Pas / pouce"
 
-#: emc/usr_intf/pncconf/pncconf.py:3334
+#: emc/usr_intf/pncconf/pncconf.py:3504
 msgid "inches / encoder pulse"
 msgstr "pouces / impulsion codeur"
 
-#: emc/usr_intf/pncconf/pncconf.py:3335
+#: emc/usr_intf/pncconf/pncconf.py:3505
 msgid "Encoder pulses / inch"
 msgstr "impulsions codeur / pouce"
 
-#: emc/usr_intf/pncconf/pncconf.py:3703
+#: emc/usr_intf/pncconf/pncconf.py:3818
+msgid "revolution / Step"
+msgstr "tour / pas"
+
+#: emc/usr_intf/pncconf/pncconf.py:3819
+msgid "Steps / revolution"
+msgstr "Pas / tour"
+
+#: emc/usr_intf/pncconf/pncconf.py:3821
+msgid "revolution / encoder pulse"
+msgstr "tour / impulsion codeur"
+
+#: emc/usr_intf/pncconf/pncconf.py:3822
+msgid "Encoder pulses / revolution"
+msgstr "impulsions codeur / tour"
+
+#: emc/usr_intf/pncconf/pncconf.py:3986
 msgid "You need to designate an E-stop input pin for this ladder program."
 msgstr ""
 "Pour ce programme ladder, vous devez indiquer une broche d'entrée pour "
 "l'arrêt d'urgence."
 
-#: emc/usr_intf/pncconf/pncconf.py:3909
+#: emc/usr_intf/pncconf/pncconf.py:4212
 msgid ""
 " The test panel for this board and/or firmware should work fine for GPIO but "
 "maybe not so fine for other components.\n"
 " work in progress. \n"
 " You must have the board installed for it to work."
 msgstr ""
-" Le panneau de test pour cette carte et/ou le microprogramme doivent bien fonctionner pour le  GPIO mais peut être pas aussi bien pour d'autres composants.\n"
+" Le panneau de test pour cette carte et/ou le microprogramme doivent bien "
+"fonctionner pour le  GPIO mais peut être pas aussi bien pour d'autres "
+"composants.\n"
 " Le travail progresse. \n"
 " La carte doit etre installée pour qu'elle fonctionne."
 
-#: emc/usr_intf/pncconf/pncconf.py:4169
+#: emc/usr_intf/pncconf/pncconf.py:4473
 msgid "degrees / minute"
 msgstr "degrés / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:4170
+#: emc/usr_intf/pncconf/pncconf.py:4474
 msgid "degrees / second²"
 msgstr "degrés / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:4173
-#: emc/usr_intf/pncconf/pncconf.glade:16467
-#: emc/usr_intf/pncconf/pncconf.glade:16620
-#: emc/usr_intf/pncconf/pncconf.glade:16688
+#: emc/usr_intf/pncconf/pncconf.py:4477
+#: emc/usr_intf/pncconf/pncconf.glade:16571
+#: emc/usr_intf/pncconf/pncconf.glade:16724
+#: emc/usr_intf/pncconf/pncconf.glade:16792
 msgid "mm / minute"
 msgstr "mm / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:4174
+#: emc/usr_intf/pncconf/pncconf.py:4478
 msgid "mm / second²"
 msgstr "mm / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:4177
+#: emc/usr_intf/pncconf/pncconf.py:4481
 msgid "inches / minute"
 msgstr "pouces / minute"
 
-#: emc/usr_intf/pncconf/pncconf.py:4178
+#: emc/usr_intf/pncconf/pncconf.py:4482
 msgid "inches / second²"
 msgstr "pouces / seconde²"
 
-#: emc/usr_intf/pncconf/pncconf.py:4289
+#: emc/usr_intf/pncconf/pncconf.py:4598
 #, python-format
 msgid "%s Axis Tune"
 msgstr "Calibration de l'axe %s"
 
-#: emc/usr_intf/pncconf/pncconf.py:4365
+#: emc/usr_intf/pncconf/pncconf.py:4690
 msgid " You must designate a ENCODER signal and a PWM signal for this axis test"
 msgstr " Un signal CODEUR et un signal PWM doivent être déclarés pour tester cet axe"
 
@@ -6101,71 +6133,101 @@ msgstr "Mini"
 msgid "GUI list"
 msgstr "Liste des GUI"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1279
+#: emc/usr_intf/pncconf/pncconf.glade:1219
+msgid "<b>Virtual Control Panel</b>"
+msgstr "<b>Panneau de contrôle virtuel</b>"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1289
 msgid "XYZ buttons (uses Halui)"
 msgstr "Boutons XYZ (utilise Halui)"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1335
+#: emc/usr_intf/pncconf/pncconf.glade:1345
 msgid "size"
 msgstr "Taille"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1344
+#: emc/usr_intf/pncconf/pncconf.glade:1354
 msgid "Position"
 msgstr "Position"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1356
+#: emc/usr_intf/pncconf/pncconf.glade:1366
 msgid "Y"
 msgstr "Y"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1381
+#: emc/usr_intf/pncconf/pncconf.glade:1391
 msgid "X"
 msgstr "X"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1393
+#: emc/usr_intf/pncconf/pncconf.glade:1403
 msgid "W"
 msgstr "W"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1427
+#: emc/usr_intf/pncconf/pncconf.glade:1437
 msgid "H"
 msgstr "H"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1450
+#: emc/usr_intf/pncconf/pncconf.glade:1460
 msgid "Geometry Options"
 msgstr "Options de géomètrie"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1577
+#: emc/usr_intf/pncconf/pncconf.glade:1592
+msgid "Require homing before MDI / Running"
+msgstr "Prise d'origine requise avant tout mouvement"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1601
+msgid "Restore joint position after shutdown"
+msgstr "Recupération position jointure après arrêt"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1614
+msgid "Tool offset on W instead of Z"
+msgstr "offset d'outil en W à la place de Z"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1627
+msgid "Leave spindle on during tool change"
+msgstr "Laisser tourner la broche pendant le changement d'outil"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1640
+msgid "Move spindle up before tool change"
+msgstr "Remonter la broche avant le changement d'outil"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1655
+msgid "Restore tool number after shutdown"
+msgstr "Récupération du N° d'outil après arrêt"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1671
+msgid "<b>INI options</b>"
+msgstr "<b>options d'INI</b>"
+
+#: emc/usr_intf/pncconf/pncconf.glade:1699
 msgid "Mesa I/O setup\n"
 msgstr "Mesa I/O setup\n"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1596
+#: emc/usr_intf/pncconf/pncconf.glade:1718
 msgid ""
 "Click on each page tab to configure signal names for each connector port.\n"
 "\n"
-"The spin buttons below on this page allow you to select the amouns of \n"
+"The spin buttons below on this page allow you to select the amounts of \n"
 "different types of components. Press the button to make the tabbed pages\n"
 "accept the changes.\n"
 msgstr ""
-"Cliquer sur chaque onglet pour configurer les noms de signaux pour chaque "
-"connecteur connector de port.\n"
+"Cliquer sur chaque onglet pour configurer les noms de signaux de chaque connecteur de port.\n"
 "\n"
-"Les boutons tournants, plus bas sur cette page, vous permettent de choisir "
-"les\n"
-"différents types de composants. Pressez sur le bouton pour accepter tous les "
-"changements sur la page d'onglets.\n"
+"Les boutons tournants, au bas de cette page, permettent de choisir les\n"
+"différents types de composants. Presser sur le bouton pour accepter tous les "
+"changements sur les pages d'onglets.\n"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1727
+#: emc/usr_intf/pncconf/pncconf.glade:1849
 msgid "PWM base frequency:"
 msgstr "PWM base frequency:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1737
+#: emc/usr_intf/pncconf/pncconf.glade:1859
 msgid "SVST8_4"
 msgstr "SVST8_4"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1751
+#: emc/usr_intf/pncconf/pncconf.glade:1873
 msgid "Firmware:"
 msgstr "Firmware:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1761
+#: emc/usr_intf/pncconf/pncconf.glade:1883
 msgid ""
 "5i20\n"
 "5i23\n"
@@ -6175,16 +6237,16 @@ msgstr ""
 "5i23\n"
 "5i22"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1775
+#: emc/usr_intf/pncconf/pncconf.glade:1897
 msgid "Board name"
 msgstr "Nom de la carte"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1781
-#: emc/usr_intf/pncconf/pncconf.glade:1969
+#: emc/usr_intf/pncconf/pncconf.glade:1903
+#: emc/usr_intf/pncconf/pncconf.glade:2091
 msgid "htz"
 msgstr "Htz"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1795
+#: emc/usr_intf/pncconf/pncconf.glade:1917
 msgid ""
 "Accept  components\n"
 "          Changes"
@@ -6192,63 +6254,69 @@ msgstr ""
 "Accepter le changement\n"
 "       de composants"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1811
-#: emc/usr_intf/pncconf/pncconf.glade:16127
-#: emc/usr_intf/pncconf/pncconf.glade:18209
-#: emc/usr_intf/pncconf/pncconf.glade:20693
-#: emc/usr_intf/pncconf/pncconf.glade:20705
-#: emc/usr_intf/pncconf/pncconf.glade:20717
-#: emc/usr_intf/pncconf/pncconf.glade:20729
-#: emc/usr_intf/pncconf/pncconf.glade:20741
-#: emc/usr_intf/pncconf/pncconf.glade:20753
-#: emc/usr_intf/pncconf/pncconf.glade:20869
-#: emc/usr_intf/pncconf/pncconf.glade:20881
-#: emc/usr_intf/pncconf/pncconf.glade:21700
-#: emc/usr_intf/pncconf/pncconf.glade:21712
-#: emc/usr_intf/pncconf/pncconf.glade:21724
-#: emc/usr_intf/pncconf/pncconf.glade:21736
-#: emc/usr_intf/pncconf/pncconf.glade:21748
-#: emc/usr_intf/pncconf/pncconf.glade:21760
-#: emc/usr_intf/pncconf/pncconf.glade:22400
-#: emc/usr_intf/pncconf/pncconf.glade:22412
-#: emc/usr_intf/pncconf/pncconf.glade:22424
-#: emc/usr_intf/pncconf/pncconf.glade:22436
-#: emc/usr_intf/pncconf/pncconf.glade:22448
-#: emc/usr_intf/pncconf/pncconf.glade:22460
-#: emc/usr_intf/pncconf/pncconf.glade:23100
-#: emc/usr_intf/pncconf/pncconf.glade:23112
-#: emc/usr_intf/pncconf/pncconf.glade:23124
-#: emc/usr_intf/pncconf/pncconf.glade:23136
-#: emc/usr_intf/pncconf/pncconf.glade:23148
-#: emc/usr_intf/pncconf/pncconf.glade:23160
+#: emc/usr_intf/pncconf/pncconf.glade:1933
+#: emc/usr_intf/pncconf/pncconf.glade:16231
+#: emc/usr_intf/pncconf/pncconf.glade:18335
+#: emc/usr_intf/pncconf/pncconf.glade:20936
+#: emc/usr_intf/pncconf/pncconf.glade:20948
+#: emc/usr_intf/pncconf/pncconf.glade:20960
+#: emc/usr_intf/pncconf/pncconf.glade:20972
+#: emc/usr_intf/pncconf/pncconf.glade:20984
+#: emc/usr_intf/pncconf/pncconf.glade:20996
+#: emc/usr_intf/pncconf/pncconf.glade:21112
+#: emc/usr_intf/pncconf/pncconf.glade:21124
+#: emc/usr_intf/pncconf/pncconf.glade:21894
+#: emc/usr_intf/pncconf/pncconf.glade:21906
+#: emc/usr_intf/pncconf/pncconf.glade:22022
+#: emc/usr_intf/pncconf/pncconf.glade:22034
+#: emc/usr_intf/pncconf/pncconf.glade:22046
+#: emc/usr_intf/pncconf/pncconf.glade:22058
+#: emc/usr_intf/pncconf/pncconf.glade:22070
+#: emc/usr_intf/pncconf/pncconf.glade:22082
+#: emc/usr_intf/pncconf/pncconf.glade:22986
+#: emc/usr_intf/pncconf/pncconf.glade:22998
+#: emc/usr_intf/pncconf/pncconf.glade:23010
+#: emc/usr_intf/pncconf/pncconf.glade:23022
+#: emc/usr_intf/pncconf/pncconf.glade:23034
+#: emc/usr_intf/pncconf/pncconf.glade:23046
+#: emc/usr_intf/pncconf/pncconf.glade:23162
+#: emc/usr_intf/pncconf/pncconf.glade:23174
+#: emc/usr_intf/pncconf/pncconf.glade:23946
+#: emc/usr_intf/pncconf/pncconf.glade:23958
+#: emc/usr_intf/pncconf/pncconf.glade:24074
+#: emc/usr_intf/pncconf/pncconf.glade:24086
+#: emc/usr_intf/pncconf/pncconf.glade:24098
+#: emc/usr_intf/pncconf/pncconf.glade:24110
+#: emc/usr_intf/pncconf/pncconf.glade:24122
+#: emc/usr_intf/pncconf/pncconf.glade:24134
 msgid "0"
 msgstr "0"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1891
+#: emc/usr_intf/pncconf/pncconf.glade:2013
 msgid "Num of GPIO:"
 msgstr "Nombre de GPIO:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1902
+#: emc/usr_intf/pncconf/pncconf.glade:2024
 msgid "Num of step generators: "
 msgstr "Nombre de générateurs de pas:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1913
+#: emc/usr_intf/pncconf/pncconf.glade:2035
 msgid "Num of pwm generators:"
 msgstr "Nombre de générateurs de PWM:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1924
+#: emc/usr_intf/pncconf/pncconf.glade:2046
 msgid "Num of encoders:"
 msgstr "Nombre de codeurs:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1935
+#: emc/usr_intf/pncconf/pncconf.glade:2057
 msgid "Watchdog timeout:"
 msgstr "Watchdog timeout:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1946
+#: emc/usr_intf/pncconf/pncconf.glade:2068
 msgid "PDM base frequency:"
 msgstr "fréquence de base PDM:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:1993
+#: emc/usr_intf/pncconf/pncconf.glade:2115
 msgid ""
 "Configuration\n"
 "     Page"
@@ -6256,70 +6324,70 @@ msgstr ""
 "Configuration\n"
 "     Page"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2105
-#: emc/usr_intf/pncconf/pncconf.glade:2157
-#: emc/usr_intf/pncconf/pncconf.glade:2477
-#: emc/usr_intf/pncconf/pncconf.glade:2529
-#: emc/usr_intf/pncconf/pncconf.glade:2581
-#: emc/usr_intf/pncconf/pncconf.glade:2633
-#: emc/usr_intf/pncconf/pncconf.glade:2685
-#: emc/usr_intf/pncconf/pncconf.glade:2737
-#: emc/usr_intf/pncconf/pncconf.glade:2789
-#: emc/usr_intf/pncconf/pncconf.glade:2841
-#: emc/usr_intf/pncconf/pncconf.glade:2893
-#: emc/usr_intf/pncconf/pncconf.glade:2945
-#: emc/usr_intf/pncconf/pncconf.glade:3784
-#: emc/usr_intf/pncconf/pncconf.glade:3837
-#: emc/usr_intf/pncconf/pncconf.glade:3889
-#: emc/usr_intf/pncconf/pncconf.glade:3941
-#: emc/usr_intf/pncconf/pncconf.glade:4742
-#: emc/usr_intf/pncconf/pncconf.glade:5425
-#: emc/usr_intf/pncconf/pncconf.glade:5477
-#: emc/usr_intf/pncconf/pncconf.glade:5529
-#: emc/usr_intf/pncconf/pncconf.glade:5581
-#: emc/usr_intf/pncconf/pncconf.glade:6420
-#: emc/usr_intf/pncconf/pncconf.glade:6472
-#: emc/usr_intf/pncconf/pncconf.glade:6524
-#: emc/usr_intf/pncconf/pncconf.glade:6576
-#: emc/usr_intf/pncconf/pncconf.glade:6628
-#: emc/usr_intf/pncconf/pncconf.glade:6680
-#: emc/usr_intf/pncconf/pncconf.glade:6732
-#: emc/usr_intf/pncconf/pncconf.glade:6784
-#: emc/usr_intf/pncconf/pncconf.glade:6836
-#: emc/usr_intf/pncconf/pncconf.glade:6888
-#: emc/usr_intf/pncconf/pncconf.glade:6940
-#: emc/usr_intf/pncconf/pncconf.glade:8010
-#: emc/usr_intf/pncconf/pncconf.glade:8062
-#: emc/usr_intf/pncconf/pncconf.glade:8114
-#: emc/usr_intf/pncconf/pncconf.glade:8166
-#: emc/usr_intf/pncconf/pncconf.glade:9005
-#: emc/usr_intf/pncconf/pncconf.glade:9057
-#: emc/usr_intf/pncconf/pncconf.glade:9109
-#: emc/usr_intf/pncconf/pncconf.glade:9161
-#: emc/usr_intf/pncconf/pncconf.glade:9213
-#: emc/usr_intf/pncconf/pncconf.glade:9265
-#: emc/usr_intf/pncconf/pncconf.glade:9317
-#: emc/usr_intf/pncconf/pncconf.glade:9369
-#: emc/usr_intf/pncconf/pncconf.glade:9421
-#: emc/usr_intf/pncconf/pncconf.glade:9473
-#: emc/usr_intf/pncconf/pncconf.glade:9525
-#: emc/usr_intf/pncconf/pncconf.glade:9577
-#: emc/usr_intf/pncconf/pncconf.glade:10016
-#: emc/usr_intf/pncconf/pncconf.glade:10068
-#: emc/usr_intf/pncconf/pncconf.glade:10751
-#: emc/usr_intf/pncconf/pncconf.glade:10803
-#: emc/usr_intf/pncconf/pncconf.glade:10855
-#: emc/usr_intf/pncconf/pncconf.glade:11694
-#: emc/usr_intf/pncconf/pncconf.glade:11746
-#: emc/usr_intf/pncconf/pncconf.glade:11798
-#: emc/usr_intf/pncconf/pncconf.glade:11850
-#: emc/usr_intf/pncconf/pncconf.glade:11902
-#: emc/usr_intf/pncconf/pncconf.glade:11954
-#: emc/usr_intf/pncconf/pncconf.glade:12006
-#: emc/usr_intf/pncconf/pncconf.glade:12058
-#: emc/usr_intf/pncconf/pncconf.glade:12110
-#: emc/usr_intf/pncconf/pncconf.glade:12162
-#: emc/usr_intf/pncconf/pncconf.glade:12214
+#: emc/usr_intf/pncconf/pncconf.glade:2227
+#: emc/usr_intf/pncconf/pncconf.glade:2279
+#: emc/usr_intf/pncconf/pncconf.glade:2599
+#: emc/usr_intf/pncconf/pncconf.glade:2651
+#: emc/usr_intf/pncconf/pncconf.glade:2703
+#: emc/usr_intf/pncconf/pncconf.glade:2755
+#: emc/usr_intf/pncconf/pncconf.glade:2807
+#: emc/usr_intf/pncconf/pncconf.glade:2859
+#: emc/usr_intf/pncconf/pncconf.glade:2911
+#: emc/usr_intf/pncconf/pncconf.glade:2963
+#: emc/usr_intf/pncconf/pncconf.glade:3015
+#: emc/usr_intf/pncconf/pncconf.glade:3067
+#: emc/usr_intf/pncconf/pncconf.glade:3906
+#: emc/usr_intf/pncconf/pncconf.glade:3959
+#: emc/usr_intf/pncconf/pncconf.glade:4011
+#: emc/usr_intf/pncconf/pncconf.glade:4063
+#: emc/usr_intf/pncconf/pncconf.glade:4864
+#: emc/usr_intf/pncconf/pncconf.glade:5547
+#: emc/usr_intf/pncconf/pncconf.glade:5599
+#: emc/usr_intf/pncconf/pncconf.glade:5651
+#: emc/usr_intf/pncconf/pncconf.glade:5703
+#: emc/usr_intf/pncconf/pncconf.glade:6542
+#: emc/usr_intf/pncconf/pncconf.glade:6594
+#: emc/usr_intf/pncconf/pncconf.glade:6646
+#: emc/usr_intf/pncconf/pncconf.glade:6698
+#: emc/usr_intf/pncconf/pncconf.glade:6750
+#: emc/usr_intf/pncconf/pncconf.glade:6802
+#: emc/usr_intf/pncconf/pncconf.glade:6854
+#: emc/usr_intf/pncconf/pncconf.glade:6906
+#: emc/usr_intf/pncconf/pncconf.glade:6958
+#: emc/usr_intf/pncconf/pncconf.glade:7010
+#: emc/usr_intf/pncconf/pncconf.glade:7062
+#: emc/usr_intf/pncconf/pncconf.glade:8130
+#: emc/usr_intf/pncconf/pncconf.glade:8182
+#: emc/usr_intf/pncconf/pncconf.glade:8234
+#: emc/usr_intf/pncconf/pncconf.glade:8286
+#: emc/usr_intf/pncconf/pncconf.glade:9125
+#: emc/usr_intf/pncconf/pncconf.glade:9177
+#: emc/usr_intf/pncconf/pncconf.glade:9229
+#: emc/usr_intf/pncconf/pncconf.glade:9281
+#: emc/usr_intf/pncconf/pncconf.glade:9333
+#: emc/usr_intf/pncconf/pncconf.glade:9385
+#: emc/usr_intf/pncconf/pncconf.glade:9437
+#: emc/usr_intf/pncconf/pncconf.glade:9489
+#: emc/usr_intf/pncconf/pncconf.glade:9541
+#: emc/usr_intf/pncconf/pncconf.glade:9593
+#: emc/usr_intf/pncconf/pncconf.glade:9645
+#: emc/usr_intf/pncconf/pncconf.glade:9697
+#: emc/usr_intf/pncconf/pncconf.glade:10136
+#: emc/usr_intf/pncconf/pncconf.glade:10188
+#: emc/usr_intf/pncconf/pncconf.glade:10871
+#: emc/usr_intf/pncconf/pncconf.glade:10923
+#: emc/usr_intf/pncconf/pncconf.glade:10975
+#: emc/usr_intf/pncconf/pncconf.glade:11814
+#: emc/usr_intf/pncconf/pncconf.glade:11866
+#: emc/usr_intf/pncconf/pncconf.glade:11918
+#: emc/usr_intf/pncconf/pncconf.glade:11970
+#: emc/usr_intf/pncconf/pncconf.glade:12022
+#: emc/usr_intf/pncconf/pncconf.glade:12074
+#: emc/usr_intf/pncconf/pncconf.glade:12126
+#: emc/usr_intf/pncconf/pncconf.glade:12178
+#: emc/usr_intf/pncconf/pncconf.glade:12230
+#: emc/usr_intf/pncconf/pncconf.glade:12282
+#: emc/usr_intf/pncconf/pncconf.glade:12334
 msgid ""
 "ESTOP IN\n"
 "Spindle PPR\n"
@@ -6393,124 +6461,124 @@ msgstr ""
 "All home\n"
 "Unused"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2209
-#: emc/usr_intf/pncconf/pncconf.glade:2465
-#: emc/usr_intf/pncconf/pncconf.glade:6993
-#: emc/usr_intf/pncconf/pncconf.glade:7249
-#: emc/usr_intf/pncconf/pncconf.glade:9630
-#: emc/usr_intf/pncconf/pncconf.glade:9886
-#: emc/usr_intf/pncconf/pncconf.glade:12267
-#: emc/usr_intf/pncconf/pncconf.glade:12523
+#: emc/usr_intf/pncconf/pncconf.glade:2331
+#: emc/usr_intf/pncconf/pncconf.glade:2587
+#: emc/usr_intf/pncconf/pncconf.glade:7115
+#: emc/usr_intf/pncconf/pncconf.glade:7370
+#: emc/usr_intf/pncconf/pncconf.glade:9750
+#: emc/usr_intf/pncconf/pncconf.glade:10006
+#: emc/usr_intf/pncconf/pncconf.glade:12387
+#: emc/usr_intf/pncconf/pncconf.glade:12643
 msgid "Pin Type"
 msgstr "Type de pin"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2222
-#: emc/usr_intf/pncconf/pncconf.glade:2284
-#: emc/usr_intf/pncconf/pncconf.glade:7173
-#: emc/usr_intf/pncconf/pncconf.glade:7237
-#: emc/usr_intf/pncconf/pncconf.glade:9810
-#: emc/usr_intf/pncconf/pncconf.glade:9874
-#: emc/usr_intf/pncconf/pncconf.glade:12447
-#: emc/usr_intf/pncconf/pncconf.glade:12511
+#: emc/usr_intf/pncconf/pncconf.glade:2344
+#: emc/usr_intf/pncconf/pncconf.glade:2406
+#: emc/usr_intf/pncconf/pncconf.glade:7295
+#: emc/usr_intf/pncconf/pncconf.glade:7358
+#: emc/usr_intf/pncconf/pncconf.glade:9930
+#: emc/usr_intf/pncconf/pncconf.glade:9994
+#: emc/usr_intf/pncconf/pncconf.glade:12567
+#: emc/usr_intf/pncconf/pncconf.glade:12631
 msgid "Inv"
 msgstr "Inverser"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2251
-#: emc/usr_intf/pncconf/pncconf.glade:4115
-#: emc/usr_intf/pncconf/pncconf.glade:4136
-#: emc/usr_intf/pncconf/pncconf.glade:4157
-#: emc/usr_intf/pncconf/pncconf.glade:4178
-#: emc/usr_intf/pncconf/pncconf.glade:4199
-#: emc/usr_intf/pncconf/pncconf.glade:4220
-#: emc/usr_intf/pncconf/pncconf.glade:4241
-#: emc/usr_intf/pncconf/pncconf.glade:4262
-#: emc/usr_intf/pncconf/pncconf.glade:4283
-#: emc/usr_intf/pncconf/pncconf.glade:4304
-#: emc/usr_intf/pncconf/pncconf.glade:4325
-#: emc/usr_intf/pncconf/pncconf.glade:4346
-#: emc/usr_intf/pncconf/pncconf.glade:4367
-#: emc/usr_intf/pncconf/pncconf.glade:4388
-#: emc/usr_intf/pncconf/pncconf.glade:4409
-#: emc/usr_intf/pncconf/pncconf.glade:4430
-#: emc/usr_intf/pncconf/pncconf.glade:4451
-#: emc/usr_intf/pncconf/pncconf.glade:4472
-#: emc/usr_intf/pncconf/pncconf.glade:4493
-#: emc/usr_intf/pncconf/pncconf.glade:4514
-#: emc/usr_intf/pncconf/pncconf.glade:4535
-#: emc/usr_intf/pncconf/pncconf.glade:4556
-#: emc/usr_intf/pncconf/pncconf.glade:4577
-#: emc/usr_intf/pncconf/pncconf.glade:4820
-#: emc/usr_intf/pncconf/pncconf.glade:4841
-#: emc/usr_intf/pncconf/pncconf.glade:4862
-#: emc/usr_intf/pncconf/pncconf.glade:4883
-#: emc/usr_intf/pncconf/pncconf.glade:4904
-#: emc/usr_intf/pncconf/pncconf.glade:4925
-#: emc/usr_intf/pncconf/pncconf.glade:4946
-#: emc/usr_intf/pncconf/pncconf.glade:4967
-#: emc/usr_intf/pncconf/pncconf.glade:4988
-#: emc/usr_intf/pncconf/pncconf.glade:5009
-#: emc/usr_intf/pncconf/pncconf.glade:5030
-#: emc/usr_intf/pncconf/pncconf.glade:5051
-#: emc/usr_intf/pncconf/pncconf.glade:5072
-#: emc/usr_intf/pncconf/pncconf.glade:5093
-#: emc/usr_intf/pncconf/pncconf.glade:5114
-#: emc/usr_intf/pncconf/pncconf.glade:5135
-#: emc/usr_intf/pncconf/pncconf.glade:5156
-#: emc/usr_intf/pncconf/pncconf.glade:5177
-#: emc/usr_intf/pncconf/pncconf.glade:5198
-#: emc/usr_intf/pncconf/pncconf.glade:5219
-#: emc/usr_intf/pncconf/pncconf.glade:5240
-#: emc/usr_intf/pncconf/pncconf.glade:5261
-#: emc/usr_intf/pncconf/pncconf.glade:5282
-#: emc/usr_intf/pncconf/pncconf.glade:7198
-#: emc/usr_intf/pncconf/pncconf.glade:7405
-#: emc/usr_intf/pncconf/pncconf.glade:7426
-#: emc/usr_intf/pncconf/pncconf.glade:7447
-#: emc/usr_intf/pncconf/pncconf.glade:7468
-#: emc/usr_intf/pncconf/pncconf.glade:7489
-#: emc/usr_intf/pncconf/pncconf.glade:7510
-#: emc/usr_intf/pncconf/pncconf.glade:7531
-#: emc/usr_intf/pncconf/pncconf.glade:7552
-#: emc/usr_intf/pncconf/pncconf.glade:7573
-#: emc/usr_intf/pncconf/pncconf.glade:7594
-#: emc/usr_intf/pncconf/pncconf.glade:7615
-#: emc/usr_intf/pncconf/pncconf.glade:7636
-#: emc/usr_intf/pncconf/pncconf.glade:7657
-#: emc/usr_intf/pncconf/pncconf.glade:7678
-#: emc/usr_intf/pncconf/pncconf.glade:7699
-#: emc/usr_intf/pncconf/pncconf.glade:7720
-#: emc/usr_intf/pncconf/pncconf.glade:7741
-#: emc/usr_intf/pncconf/pncconf.glade:7762
-#: emc/usr_intf/pncconf/pncconf.glade:7783
-#: emc/usr_intf/pncconf/pncconf.glade:7804
-#: emc/usr_intf/pncconf/pncconf.glade:7825
-#: emc/usr_intf/pncconf/pncconf.glade:7846
-#: emc/usr_intf/pncconf/pncconf.glade:7867
-#: emc/usr_intf/pncconf/pncconf.glade:9835
-#: emc/usr_intf/pncconf/pncconf.glade:10146
-#: emc/usr_intf/pncconf/pncconf.glade:10167
-#: emc/usr_intf/pncconf/pncconf.glade:10188
-#: emc/usr_intf/pncconf/pncconf.glade:10209
-#: emc/usr_intf/pncconf/pncconf.glade:10230
-#: emc/usr_intf/pncconf/pncconf.glade:10251
-#: emc/usr_intf/pncconf/pncconf.glade:10272
-#: emc/usr_intf/pncconf/pncconf.glade:10293
-#: emc/usr_intf/pncconf/pncconf.glade:10314
-#: emc/usr_intf/pncconf/pncconf.glade:10335
-#: emc/usr_intf/pncconf/pncconf.glade:10356
-#: emc/usr_intf/pncconf/pncconf.glade:10377
-#: emc/usr_intf/pncconf/pncconf.glade:10398
-#: emc/usr_intf/pncconf/pncconf.glade:10419
-#: emc/usr_intf/pncconf/pncconf.glade:10440
-#: emc/usr_intf/pncconf/pncconf.glade:10461
-#: emc/usr_intf/pncconf/pncconf.glade:10482
-#: emc/usr_intf/pncconf/pncconf.glade:10503
-#: emc/usr_intf/pncconf/pncconf.glade:10524
-#: emc/usr_intf/pncconf/pncconf.glade:10545
-#: emc/usr_intf/pncconf/pncconf.glade:10566
-#: emc/usr_intf/pncconf/pncconf.glade:10587
-#: emc/usr_intf/pncconf/pncconf.glade:10608
-#: emc/usr_intf/pncconf/pncconf.glade:12472
+#: emc/usr_intf/pncconf/pncconf.glade:2373
+#: emc/usr_intf/pncconf/pncconf.glade:4237
+#: emc/usr_intf/pncconf/pncconf.glade:4258
+#: emc/usr_intf/pncconf/pncconf.glade:4279
+#: emc/usr_intf/pncconf/pncconf.glade:4300
+#: emc/usr_intf/pncconf/pncconf.glade:4321
+#: emc/usr_intf/pncconf/pncconf.glade:4342
+#: emc/usr_intf/pncconf/pncconf.glade:4363
+#: emc/usr_intf/pncconf/pncconf.glade:4384
+#: emc/usr_intf/pncconf/pncconf.glade:4405
+#: emc/usr_intf/pncconf/pncconf.glade:4426
+#: emc/usr_intf/pncconf/pncconf.glade:4447
+#: emc/usr_intf/pncconf/pncconf.glade:4468
+#: emc/usr_intf/pncconf/pncconf.glade:4489
+#: emc/usr_intf/pncconf/pncconf.glade:4510
+#: emc/usr_intf/pncconf/pncconf.glade:4531
+#: emc/usr_intf/pncconf/pncconf.glade:4552
+#: emc/usr_intf/pncconf/pncconf.glade:4573
+#: emc/usr_intf/pncconf/pncconf.glade:4594
+#: emc/usr_intf/pncconf/pncconf.glade:4615
+#: emc/usr_intf/pncconf/pncconf.glade:4636
+#: emc/usr_intf/pncconf/pncconf.glade:4657
+#: emc/usr_intf/pncconf/pncconf.glade:4678
+#: emc/usr_intf/pncconf/pncconf.glade:4699
+#: emc/usr_intf/pncconf/pncconf.glade:4942
+#: emc/usr_intf/pncconf/pncconf.glade:4963
+#: emc/usr_intf/pncconf/pncconf.glade:4984
+#: emc/usr_intf/pncconf/pncconf.glade:5005
+#: emc/usr_intf/pncconf/pncconf.glade:5026
+#: emc/usr_intf/pncconf/pncconf.glade:5047
+#: emc/usr_intf/pncconf/pncconf.glade:5068
+#: emc/usr_intf/pncconf/pncconf.glade:5089
+#: emc/usr_intf/pncconf/pncconf.glade:5110
+#: emc/usr_intf/pncconf/pncconf.glade:5131
+#: emc/usr_intf/pncconf/pncconf.glade:5152
+#: emc/usr_intf/pncconf/pncconf.glade:5173
+#: emc/usr_intf/pncconf/pncconf.glade:5194
+#: emc/usr_intf/pncconf/pncconf.glade:5215
+#: emc/usr_intf/pncconf/pncconf.glade:5236
+#: emc/usr_intf/pncconf/pncconf.glade:5257
+#: emc/usr_intf/pncconf/pncconf.glade:5278
+#: emc/usr_intf/pncconf/pncconf.glade:5299
+#: emc/usr_intf/pncconf/pncconf.glade:5320
+#: emc/usr_intf/pncconf/pncconf.glade:5341
+#: emc/usr_intf/pncconf/pncconf.glade:5362
+#: emc/usr_intf/pncconf/pncconf.glade:5383
+#: emc/usr_intf/pncconf/pncconf.glade:5404
+#: emc/usr_intf/pncconf/pncconf.glade:7320
+#: emc/usr_intf/pncconf/pncconf.glade:7526
+#: emc/usr_intf/pncconf/pncconf.glade:7546
+#: emc/usr_intf/pncconf/pncconf.glade:7567
+#: emc/usr_intf/pncconf/pncconf.glade:7588
+#: emc/usr_intf/pncconf/pncconf.glade:7609
+#: emc/usr_intf/pncconf/pncconf.glade:7630
+#: emc/usr_intf/pncconf/pncconf.glade:7651
+#: emc/usr_intf/pncconf/pncconf.glade:7672
+#: emc/usr_intf/pncconf/pncconf.glade:7693
+#: emc/usr_intf/pncconf/pncconf.glade:7714
+#: emc/usr_intf/pncconf/pncconf.glade:7735
+#: emc/usr_intf/pncconf/pncconf.glade:7756
+#: emc/usr_intf/pncconf/pncconf.glade:7777
+#: emc/usr_intf/pncconf/pncconf.glade:7798
+#: emc/usr_intf/pncconf/pncconf.glade:7819
+#: emc/usr_intf/pncconf/pncconf.glade:7840
+#: emc/usr_intf/pncconf/pncconf.glade:7861
+#: emc/usr_intf/pncconf/pncconf.glade:7882
+#: emc/usr_intf/pncconf/pncconf.glade:7903
+#: emc/usr_intf/pncconf/pncconf.glade:7924
+#: emc/usr_intf/pncconf/pncconf.glade:7945
+#: emc/usr_intf/pncconf/pncconf.glade:7966
+#: emc/usr_intf/pncconf/pncconf.glade:7987
+#: emc/usr_intf/pncconf/pncconf.glade:9955
+#: emc/usr_intf/pncconf/pncconf.glade:10266
+#: emc/usr_intf/pncconf/pncconf.glade:10287
+#: emc/usr_intf/pncconf/pncconf.glade:10308
+#: emc/usr_intf/pncconf/pncconf.glade:10329
+#: emc/usr_intf/pncconf/pncconf.glade:10350
+#: emc/usr_intf/pncconf/pncconf.glade:10371
+#: emc/usr_intf/pncconf/pncconf.glade:10392
+#: emc/usr_intf/pncconf/pncconf.glade:10413
+#: emc/usr_intf/pncconf/pncconf.glade:10434
+#: emc/usr_intf/pncconf/pncconf.glade:10455
+#: emc/usr_intf/pncconf/pncconf.glade:10476
+#: emc/usr_intf/pncconf/pncconf.glade:10497
+#: emc/usr_intf/pncconf/pncconf.glade:10518
+#: emc/usr_intf/pncconf/pncconf.glade:10539
+#: emc/usr_intf/pncconf/pncconf.glade:10560
+#: emc/usr_intf/pncconf/pncconf.glade:10581
+#: emc/usr_intf/pncconf/pncconf.glade:10602
+#: emc/usr_intf/pncconf/pncconf.glade:10623
+#: emc/usr_intf/pncconf/pncconf.glade:10644
+#: emc/usr_intf/pncconf/pncconf.glade:10665
+#: emc/usr_intf/pncconf/pncconf.glade:10686
+#: emc/usr_intf/pncconf/pncconf.glade:10707
+#: emc/usr_intf/pncconf/pncconf.glade:10728
+#: emc/usr_intf/pncconf/pncconf.glade:12592
 msgid ""
 "GPIO Input\n"
 "GPIO Output\n"
@@ -6526,204 +6594,204 @@ msgstr ""
 "PWM\n"
 "StepGen\n"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2297
-#: emc/usr_intf/pncconf/pncconf.glade:7160
-#: emc/usr_intf/pncconf/pncconf.glade:9797
-#: emc/usr_intf/pncconf/pncconf.glade:12434
+#: emc/usr_intf/pncconf/pncconf.glade:2419
+#: emc/usr_intf/pncconf/pncconf.glade:7282
+#: emc/usr_intf/pncconf/pncconf.glade:9917
+#: emc/usr_intf/pncconf/pncconf.glade:12554
 msgid "  1:"
 msgstr "  1:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2311
-#: emc/usr_intf/pncconf/pncconf.glade:7146
-#: emc/usr_intf/pncconf/pncconf.glade:9783
-#: emc/usr_intf/pncconf/pncconf.glade:12420
+#: emc/usr_intf/pncconf/pncconf.glade:2433
+#: emc/usr_intf/pncconf/pncconf.glade:7268
+#: emc/usr_intf/pncconf/pncconf.glade:9903
+#: emc/usr_intf/pncconf/pncconf.glade:12540
 msgid "  3:"
 msgstr "  3:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2325
-#: emc/usr_intf/pncconf/pncconf.glade:7132
-#: emc/usr_intf/pncconf/pncconf.glade:9769
-#: emc/usr_intf/pncconf/pncconf.glade:12406
+#: emc/usr_intf/pncconf/pncconf.glade:2447
+#: emc/usr_intf/pncconf/pncconf.glade:7254
+#: emc/usr_intf/pncconf/pncconf.glade:9889
+#: emc/usr_intf/pncconf/pncconf.glade:12526
 msgid "  5:"
 msgstr "  5:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2339
-#: emc/usr_intf/pncconf/pncconf.glade:7118
-#: emc/usr_intf/pncconf/pncconf.glade:9755
-#: emc/usr_intf/pncconf/pncconf.glade:12392
+#: emc/usr_intf/pncconf/pncconf.glade:2461
+#: emc/usr_intf/pncconf/pncconf.glade:7240
+#: emc/usr_intf/pncconf/pncconf.glade:9875
+#: emc/usr_intf/pncconf/pncconf.glade:12512
 msgid "  7:"
 msgstr "  7:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2353
-#: emc/usr_intf/pncconf/pncconf.glade:7104
-#: emc/usr_intf/pncconf/pncconf.glade:9741
-#: emc/usr_intf/pncconf/pncconf.glade:12378
+#: emc/usr_intf/pncconf/pncconf.glade:2475
+#: emc/usr_intf/pncconf/pncconf.glade:7226
+#: emc/usr_intf/pncconf/pncconf.glade:9861
+#: emc/usr_intf/pncconf/pncconf.glade:12498
 msgid "  9:"
 msgstr "  9:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2367
-#: emc/usr_intf/pncconf/pncconf.glade:7090
-#: emc/usr_intf/pncconf/pncconf.glade:9727
-#: emc/usr_intf/pncconf/pncconf.glade:12364
+#: emc/usr_intf/pncconf/pncconf.glade:2489
+#: emc/usr_intf/pncconf/pncconf.glade:7212
+#: emc/usr_intf/pncconf/pncconf.glade:9847
+#: emc/usr_intf/pncconf/pncconf.glade:12484
 msgid "11:"
 msgstr "11:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2381
-#: emc/usr_intf/pncconf/pncconf.glade:7076
-#: emc/usr_intf/pncconf/pncconf.glade:9713
-#: emc/usr_intf/pncconf/pncconf.glade:12350
+#: emc/usr_intf/pncconf/pncconf.glade:2503
+#: emc/usr_intf/pncconf/pncconf.glade:7198
+#: emc/usr_intf/pncconf/pncconf.glade:9833
+#: emc/usr_intf/pncconf/pncconf.glade:12470
 msgid "13:"
 msgstr "13:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2395
-#: emc/usr_intf/pncconf/pncconf.glade:7062
-#: emc/usr_intf/pncconf/pncconf.glade:9699
-#: emc/usr_intf/pncconf/pncconf.glade:12336
+#: emc/usr_intf/pncconf/pncconf.glade:2517
+#: emc/usr_intf/pncconf/pncconf.glade:7184
+#: emc/usr_intf/pncconf/pncconf.glade:9819
+#: emc/usr_intf/pncconf/pncconf.glade:12456
 msgid "15:"
 msgstr "15:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2409
-#: emc/usr_intf/pncconf/pncconf.glade:7048
-#: emc/usr_intf/pncconf/pncconf.glade:9685
-#: emc/usr_intf/pncconf/pncconf.glade:12322
+#: emc/usr_intf/pncconf/pncconf.glade:2531
+#: emc/usr_intf/pncconf/pncconf.glade:7170
+#: emc/usr_intf/pncconf/pncconf.glade:9805
+#: emc/usr_intf/pncconf/pncconf.glade:12442
 msgid "17:"
 msgstr "17:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2423
-#: emc/usr_intf/pncconf/pncconf.glade:7034
-#: emc/usr_intf/pncconf/pncconf.glade:9671
-#: emc/usr_intf/pncconf/pncconf.glade:12308
+#: emc/usr_intf/pncconf/pncconf.glade:2545
+#: emc/usr_intf/pncconf/pncconf.glade:7156
+#: emc/usr_intf/pncconf/pncconf.glade:9791
+#: emc/usr_intf/pncconf/pncconf.glade:12428
 msgid "19:"
 msgstr "19:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2437
-#: emc/usr_intf/pncconf/pncconf.glade:7020
-#: emc/usr_intf/pncconf/pncconf.glade:9657
-#: emc/usr_intf/pncconf/pncconf.glade:12294
+#: emc/usr_intf/pncconf/pncconf.glade:2559
+#: emc/usr_intf/pncconf/pncconf.glade:7142
+#: emc/usr_intf/pncconf/pncconf.glade:9777
+#: emc/usr_intf/pncconf/pncconf.glade:12414
 msgid "21:"
 msgstr "21:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:2451
-#: emc/usr_intf/pncconf/pncconf.glade:7006
-#: emc/usr_intf/pncconf/pncconf.glade:9643
-#: emc/usr_intf/pncconf/pncconf.glade:12280
+#: emc/usr_intf/pncconf/pncconf.glade:2573
+#: emc/usr_intf/pncconf/pncconf.glade:7128
+#: emc/usr_intf/pncconf/pncconf.glade:9763
+#: emc/usr_intf/pncconf/pncconf.glade:12400
 msgid "23:"
 msgstr "23:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3185
-#: emc/usr_intf/pncconf/pncconf.glade:6218
-#: emc/usr_intf/pncconf/pncconf.glade:8803
-#: emc/usr_intf/pncconf/pncconf.glade:11492
+#: emc/usr_intf/pncconf/pncconf.glade:3307
+#: emc/usr_intf/pncconf/pncconf.glade:6340
+#: emc/usr_intf/pncconf/pncconf.glade:8923
+#: emc/usr_intf/pncconf/pncconf.glade:11612
 msgid "47:"
 msgstr "47:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3252
-#: emc/usr_intf/pncconf/pncconf.glade:6151
-#: emc/usr_intf/pncconf/pncconf.glade:8736
-#: emc/usr_intf/pncconf/pncconf.glade:11425
+#: emc/usr_intf/pncconf/pncconf.glade:3374
+#: emc/usr_intf/pncconf/pncconf.glade:6273
+#: emc/usr_intf/pncconf/pncconf.glade:8856
+#: emc/usr_intf/pncconf/pncconf.glade:11545
 msgid "45:"
 msgstr "45:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3268
-#: emc/usr_intf/pncconf/pncconf.glade:6135
-#: emc/usr_intf/pncconf/pncconf.glade:8720
-#: emc/usr_intf/pncconf/pncconf.glade:11409
+#: emc/usr_intf/pncconf/pncconf.glade:3390
+#: emc/usr_intf/pncconf/pncconf.glade:6257
+#: emc/usr_intf/pncconf/pncconf.glade:8840
+#: emc/usr_intf/pncconf/pncconf.glade:11529
 msgid "43:"
 msgstr "43:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3284
-#: emc/usr_intf/pncconf/pncconf.glade:6119
-#: emc/usr_intf/pncconf/pncconf.glade:8704
-#: emc/usr_intf/pncconf/pncconf.glade:11393
+#: emc/usr_intf/pncconf/pncconf.glade:3406
+#: emc/usr_intf/pncconf/pncconf.glade:6241
+#: emc/usr_intf/pncconf/pncconf.glade:8824
+#: emc/usr_intf/pncconf/pncconf.glade:11513
 msgid "41:"
 msgstr "41:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3300
-#: emc/usr_intf/pncconf/pncconf.glade:6103
-#: emc/usr_intf/pncconf/pncconf.glade:8688
-#: emc/usr_intf/pncconf/pncconf.glade:11377
+#: emc/usr_intf/pncconf/pncconf.glade:3422
+#: emc/usr_intf/pncconf/pncconf.glade:6225
+#: emc/usr_intf/pncconf/pncconf.glade:8808
+#: emc/usr_intf/pncconf/pncconf.glade:11497
 msgid "39:"
 msgstr "39:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3316
-#: emc/usr_intf/pncconf/pncconf.glade:6087
-#: emc/usr_intf/pncconf/pncconf.glade:8672
-#: emc/usr_intf/pncconf/pncconf.glade:11361
+#: emc/usr_intf/pncconf/pncconf.glade:3438
+#: emc/usr_intf/pncconf/pncconf.glade:6209
+#: emc/usr_intf/pncconf/pncconf.glade:8792
+#: emc/usr_intf/pncconf/pncconf.glade:11481
 msgid "37:"
 msgstr "37:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3332
-#: emc/usr_intf/pncconf/pncconf.glade:6071
-#: emc/usr_intf/pncconf/pncconf.glade:8656
-#: emc/usr_intf/pncconf/pncconf.glade:11345
+#: emc/usr_intf/pncconf/pncconf.glade:3454
+#: emc/usr_intf/pncconf/pncconf.glade:6193
+#: emc/usr_intf/pncconf/pncconf.glade:8776
+#: emc/usr_intf/pncconf/pncconf.glade:11465
 msgid "35:"
 msgstr "35:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3348
-#: emc/usr_intf/pncconf/pncconf.glade:6055
-#: emc/usr_intf/pncconf/pncconf.glade:8640
-#: emc/usr_intf/pncconf/pncconf.glade:11329
+#: emc/usr_intf/pncconf/pncconf.glade:3470
+#: emc/usr_intf/pncconf/pncconf.glade:6177
+#: emc/usr_intf/pncconf/pncconf.glade:8760
+#: emc/usr_intf/pncconf/pncconf.glade:11449
 msgid "33:"
 msgstr "33:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3721
-#: emc/usr_intf/pncconf/pncconf.glade:5682
-#: emc/usr_intf/pncconf/pncconf.glade:8267
-#: emc/usr_intf/pncconf/pncconf.glade:10956
+#: emc/usr_intf/pncconf/pncconf.glade:3843
+#: emc/usr_intf/pncconf/pncconf.glade:5804
+#: emc/usr_intf/pncconf/pncconf.glade:8387
+#: emc/usr_intf/pncconf/pncconf.glade:11076
 msgid "25:"
 msgstr "25:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3737
-#: emc/usr_intf/pncconf/pncconf.glade:5666
-#: emc/usr_intf/pncconf/pncconf.glade:8251
-#: emc/usr_intf/pncconf/pncconf.glade:10940
+#: emc/usr_intf/pncconf/pncconf.glade:3859
+#: emc/usr_intf/pncconf/pncconf.glade:5788
+#: emc/usr_intf/pncconf/pncconf.glade:8371
+#: emc/usr_intf/pncconf/pncconf.glade:11060
 msgid "27:"
 msgstr "27:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3753
-#: emc/usr_intf/pncconf/pncconf.glade:5650
-#: emc/usr_intf/pncconf/pncconf.glade:8235
-#: emc/usr_intf/pncconf/pncconf.glade:10924
+#: emc/usr_intf/pncconf/pncconf.glade:3875
+#: emc/usr_intf/pncconf/pncconf.glade:5772
+#: emc/usr_intf/pncconf/pncconf.glade:8355
+#: emc/usr_intf/pncconf/pncconf.glade:11044
 msgid "29:"
 msgstr "29:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:3769
-#: emc/usr_intf/pncconf/pncconf.glade:5634
-#: emc/usr_intf/pncconf/pncconf.glade:8219
-#: emc/usr_intf/pncconf/pncconf.glade:10908
+#: emc/usr_intf/pncconf/pncconf.glade:3891
+#: emc/usr_intf/pncconf/pncconf.glade:5756
+#: emc/usr_intf/pncconf/pncconf.glade:8339
+#: emc/usr_intf/pncconf/pncconf.glade:11028
 msgid "31:"
 msgstr "31:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:4061
-#: emc/usr_intf/pncconf/pncconf.glade:4073
-#: emc/usr_intf/pncconf/pncconf.glade:5333
-#: emc/usr_intf/pncconf/pncconf.glade:5345
-#: emc/usr_intf/pncconf/pncconf.glade:7918
-#: emc/usr_intf/pncconf/pncconf.glade:7930
-#: emc/usr_intf/pncconf/pncconf.glade:10659
-#: emc/usr_intf/pncconf/pncconf.glade:10671
+#: emc/usr_intf/pncconf/pncconf.glade:4183
+#: emc/usr_intf/pncconf/pncconf.glade:4195
+#: emc/usr_intf/pncconf/pncconf.glade:5455
+#: emc/usr_intf/pncconf/pncconf.glade:5467
+#: emc/usr_intf/pncconf/pncconf.glade:8038
+#: emc/usr_intf/pncconf/pncconf.glade:8050
+#: emc/usr_intf/pncconf/pncconf.glade:10779
+#: emc/usr_intf/pncconf/pncconf.glade:10791
 msgid "function"
 msgstr "fonction"
 
-#: emc/usr_intf/pncconf/pncconf.glade:4087
-#: emc/usr_intf/pncconf/pncconf.glade:5318
-#: emc/usr_intf/pncconf/pncconf.glade:7903
-#: emc/usr_intf/pncconf/pncconf.glade:10644
+#: emc/usr_intf/pncconf/pncconf.glade:4209
+#: emc/usr_intf/pncconf/pncconf.glade:5440
+#: emc/usr_intf/pncconf/pncconf.glade:8023
+#: emc/usr_intf/pncconf/pncconf.glade:10764
 msgid "Launch test panel"
 msgstr "Lancer le panneau de test"
 
-#: emc/usr_intf/pncconf/pncconf.glade:4599
-#: emc/usr_intf/pncconf/pncconf.glade:4611
-#: emc/usr_intf/pncconf/pncconf.glade:4795
-#: emc/usr_intf/pncconf/pncconf.glade:4809
-#: emc/usr_intf/pncconf/pncconf.glade:7380
-#: emc/usr_intf/pncconf/pncconf.glade:7394
-#: emc/usr_intf/pncconf/pncconf.glade:10121
-#: emc/usr_intf/pncconf/pncconf.glade:10135
+#: emc/usr_intf/pncconf/pncconf.glade:4721
+#: emc/usr_intf/pncconf/pncconf.glade:4733
+#: emc/usr_intf/pncconf/pncconf.glade:4917
+#: emc/usr_intf/pncconf/pncconf.glade:4931
+#: emc/usr_intf/pncconf/pncconf.glade:7501
+#: emc/usr_intf/pncconf/pncconf.glade:7515
+#: emc/usr_intf/pncconf/pncconf.glade:10241
+#: emc/usr_intf/pncconf/pncconf.glade:10255
 msgid "Pin"
 msgstr "Pin"
 
-#: emc/usr_intf/pncconf/pncconf.glade:4629
+#: emc/usr_intf/pncconf/pncconf.glade:4751
 msgid ""
 "Input / Output\n"
 " Connector 2"
@@ -6731,7 +6799,7 @@ msgstr ""
 "Entrée/Sortie\n"
 "Connecteur 2"
 
-#: emc/usr_intf/pncconf/pncconf.glade:7266
+#: emc/usr_intf/pncconf/pncconf.glade:7387
 msgid ""
 "Input / Output \n"
 " Connector 3"
@@ -6739,7 +6807,7 @@ msgstr ""
 "Entrés / Sortie \n"
 " Connecteur 3"
 
-#: emc/usr_intf/pncconf/pncconf.glade:9903
+#: emc/usr_intf/pncconf/pncconf.glade:10023
 msgid ""
 "Input / Output\n"
 " Connector 4"
@@ -6747,7 +6815,7 @@ msgstr ""
 "Entrée / Sortie\n"
 " Connecteur 4"
 
-#: emc/usr_intf/pncconf/pncconf.glade:12540
+#: emc/usr_intf/pncconf/pncconf.glade:12660
 msgid ""
 "Input / Output\n"
 " Connector 5"
@@ -6755,28 +6823,27 @@ msgstr ""
 "Entrée / Sortie\n"
 " Connecteur 5"
 
-#: emc/usr_intf/pncconf/pncconf.glade:12563
+#: emc/usr_intf/pncconf/pncconf.glade:12683
 msgid "First Parallel Port Setup"
 msgstr "Réglage du premier port parallèle"
 
-#: emc/usr_intf/pncconf/pncconf.glade:12648
+#: emc/usr_intf/pncconf/pncconf.glade:12768
 msgid "Launch Test Panel"
 msgstr "Lancer le panneau de test"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14076
+#: emc/usr_intf/pncconf/pncconf.glade:14196
 msgid "Inputs (Machine to PC):"
 msgstr "Entrées (machine vers PC):"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14631
+#: emc/usr_intf/pncconf/pncconf.glade:14751
 msgid "Outputs (PC to Machine):"
 msgstr "Sorties (PC vers machine):"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14652
+#: emc/usr_intf/pncconf/pncconf.glade:14772
 msgid "X Axis Motor/Encoder Configuration"
 msgstr "Configuration moteur/codeur de l'axe X"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14711
-#: emc/usr_intf/pncconf/pncconf.glade:16942
+#: emc/usr_intf/pncconf/pncconf.glade:14847
 msgid ""
 "Open\n"
 "Loop\n"
@@ -6788,199 +6855,206 @@ msgstr ""
 "Servo\n"
 "Test"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14735
-#: emc/usr_intf/pncconf/pncconf.glade:16966
-msgid "pulses / rev"
-msgstr "impulsions / tour"
-
-#: emc/usr_intf/pncconf/pncconf.glade:14754
-#: emc/usr_intf/pncconf/pncconf.glade:16985
-msgid "x 4 ="
-msgstr "x 4 ="
-
-#: emc/usr_intf/pncconf/pncconf.glade:14765
-#: emc/usr_intf/pncconf/pncconf.glade:16996
-#: emc/usr_intf/pncconf/pncconf.glade:21120
-#: emc/usr_intf/pncconf/pncconf.glade:21132
-#: emc/usr_intf/pncconf/pncconf.glade:21144
-#: emc/usr_intf/pncconf/pncconf.glade:21156
-msgid "label"
-msgstr "label"
-
-#: emc/usr_intf/pncconf/pncconf.glade:14802
-#: emc/usr_intf/pncconf/pncconf.glade:17032
+#: emc/usr_intf/pncconf/pncconf.glade:14889
 msgid "Encoder lines / Rev"
 msgstr "Lignes de codeur / tour"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14834
-#: emc/usr_intf/pncconf/pncconf.glade:17063
+#: emc/usr_intf/pncconf/pncconf.glade:14905
+#: emc/usr_intf/pncconf/pncconf.glade:17121
 msgid "Dac Output Offset:"
 msgstr "Dac Output Offset:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14866
-#: emc/usr_intf/pncconf/pncconf.glade:17094
+#: emc/usr_intf/pncconf/pncconf.glade:14937
+#: emc/usr_intf/pncconf/pncconf.glade:17150
 msgid "Dac Max Output:"
 msgstr "Dac Max Output:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14896
-#: emc/usr_intf/pncconf/pncconf.glade:17123
+#: emc/usr_intf/pncconf/pncconf.glade:14967
+#: emc/usr_intf/pncconf/pncconf.glade:17177
 msgid "Dac Output Scale:"
 msgstr "Dac Output Scale:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14972
-#: emc/usr_intf/pncconf/pncconf.glade:17199
-#: emc/usr_intf/pncconf/pncconf.glade:20664
-#: emc/usr_intf/pncconf/pncconf.glade:21791
-#: emc/usr_intf/pncconf/pncconf.glade:22491
-#: emc/usr_intf/pncconf/pncconf.glade:23191
+#: emc/usr_intf/pncconf/pncconf.glade:15043
+#: emc/usr_intf/pncconf/pncconf.glade:17317
+#: emc/usr_intf/pncconf/pncconf.glade:20907
+#: emc/usr_intf/pncconf/pncconf.glade:22113
+#: emc/usr_intf/pncconf/pncconf.glade:22957
+#: emc/usr_intf/pncconf/pncconf.glade:24165
 msgid "FF2"
 msgstr "FF2"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14985
-#: emc/usr_intf/pncconf/pncconf.glade:17212
-#: emc/usr_intf/pncconf/pncconf.glade:20654
-#: emc/usr_intf/pncconf/pncconf.glade:21801
-#: emc/usr_intf/pncconf/pncconf.glade:22501
-#: emc/usr_intf/pncconf/pncconf.glade:23201
+#: emc/usr_intf/pncconf/pncconf.glade:15056
+#: emc/usr_intf/pncconf/pncconf.glade:17330
+#: emc/usr_intf/pncconf/pncconf.glade:20897
+#: emc/usr_intf/pncconf/pncconf.glade:22123
+#: emc/usr_intf/pncconf/pncconf.glade:22947
+#: emc/usr_intf/pncconf/pncconf.glade:24175
 msgid "FF1"
 msgstr "FF1"
 
-#: emc/usr_intf/pncconf/pncconf.glade:14998
-#: emc/usr_intf/pncconf/pncconf.glade:17225
-#: emc/usr_intf/pncconf/pncconf.glade:20644
-#: emc/usr_intf/pncconf/pncconf.glade:21811
-#: emc/usr_intf/pncconf/pncconf.glade:22511
-#: emc/usr_intf/pncconf/pncconf.glade:23211
+#: emc/usr_intf/pncconf/pncconf.glade:15069
+#: emc/usr_intf/pncconf/pncconf.glade:17343
+#: emc/usr_intf/pncconf/pncconf.glade:20887
+#: emc/usr_intf/pncconf/pncconf.glade:22133
+#: emc/usr_intf/pncconf/pncconf.glade:22937
+#: emc/usr_intf/pncconf/pncconf.glade:24185
 msgid "FF0"
 msgstr "FF0"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15045
-#: emc/usr_intf/pncconf/pncconf.glade:17272
+#: emc/usr_intf/pncconf/pncconf.glade:15116
+#: emc/usr_intf/pncconf/pncconf.glade:17390
 msgid "Deadband"
 msgstr "Deadband"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15058
-#: emc/usr_intf/pncconf/pncconf.glade:17285
-#: emc/usr_intf/pncconf/pncconf.glade:20849
+#: emc/usr_intf/pncconf/pncconf.glade:15129
+#: emc/usr_intf/pncconf/pncconf.glade:17403
+#: emc/usr_intf/pncconf/pncconf.glade:21092
+#: emc/usr_intf/pncconf/pncconf.glade:21928
+#: emc/usr_intf/pncconf/pncconf.glade:23142
+#: emc/usr_intf/pncconf/pncconf.glade:23980
 msgid "Bias"
 msgstr "Bias"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15071
-#: emc/usr_intf/pncconf/pncconf.glade:17298
+#: emc/usr_intf/pncconf/pncconf.glade:15142
+#: emc/usr_intf/pncconf/pncconf.glade:17416
 msgid "P"
 msgstr "P"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15082
-#: emc/usr_intf/pncconf/pncconf.glade:17309
+#: emc/usr_intf/pncconf/pncconf.glade:15153
+#: emc/usr_intf/pncconf/pncconf.glade:17427
 msgid "I"
 msgstr "I"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15095
-#: emc/usr_intf/pncconf/pncconf.glade:17322
+#: emc/usr_intf/pncconf/pncconf.glade:15166
+#: emc/usr_intf/pncconf/pncconf.glade:17440
 msgid "D"
 msgstr "D"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15160
-#: emc/usr_intf/pncconf/pncconf.glade:17387
+#: emc/usr_intf/pncconf/pncconf.glade:15228
+#: emc/usr_intf/pncconf/pncconf.glade:17188
+msgid "Quad Pulses / Rev:"
+msgstr "Impulsions en quadrature / tour:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:15246
+#: emc/usr_intf/pncconf/pncconf.glade:17204
+#: emc/usr_intf/pncconf/pncconf.glade:21363
+#: emc/usr_intf/pncconf/pncconf.glade:21375
+#: emc/usr_intf/pncconf/pncconf.glade:21387
+#: emc/usr_intf/pncconf/pncconf.glade:21399
+#: emc/usr_intf/pncconf/pncconf.glade:22271
+#: emc/usr_intf/pncconf/pncconf.glade:22283
+#: emc/usr_intf/pncconf/pncconf.glade:22295
+#: emc/usr_intf/pncconf/pncconf.glade:22307
+#: emc/usr_intf/pncconf/pncconf.glade:23413
+#: emc/usr_intf/pncconf/pncconf.glade:23425
+#: emc/usr_intf/pncconf/pncconf.glade:23437
+#: emc/usr_intf/pncconf/pncconf.glade:23449
+#: emc/usr_intf/pncconf/pncconf.glade:24323
+#: emc/usr_intf/pncconf/pncconf.glade:24335
+#: emc/usr_intf/pncconf/pncconf.glade:24347
+#: emc/usr_intf/pncconf/pncconf.glade:24359
+msgid "label"
+msgstr "label"
+
+#: emc/usr_intf/pncconf/pncconf.glade:15264
 msgid "Servo Info"
 msgstr "Informations servo"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15198
-#: emc/usr_intf/pncconf/pncconf.glade:17425
+#: emc/usr_intf/pncconf/pncconf.glade:15302
+#: emc/usr_intf/pncconf/pncconf.glade:17547
 msgid "Step On-Time"
 msgstr "Step On-Time"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15211
-#: emc/usr_intf/pncconf/pncconf.glade:17438
+#: emc/usr_intf/pncconf/pncconf.glade:15315
+#: emc/usr_intf/pncconf/pncconf.glade:17560
 msgid "Step Space"
 msgstr "Step Space"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15254
-#: emc/usr_intf/pncconf/pncconf.glade:17481
+#: emc/usr_intf/pncconf/pncconf.glade:15358
+#: emc/usr_intf/pncconf/pncconf.glade:17603
 msgid "Direction Hold"
 msgstr "Direction Hold"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15267
-#: emc/usr_intf/pncconf/pncconf.glade:17494
+#: emc/usr_intf/pncconf/pncconf.glade:15371
+#: emc/usr_intf/pncconf/pncconf.glade:17616
 msgid "Direction Setup"
 msgstr "Direction Setup"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15310
-#: emc/usr_intf/pncconf/pncconf.glade:17537
+#: emc/usr_intf/pncconf/pncconf.glade:15414
+#: emc/usr_intf/pncconf/pncconf.glade:17659
 msgid "Motor steps per revolution:"
 msgstr "Nombre de pas moteur par tour:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15325
-#: emc/usr_intf/pncconf/pncconf.glade:17552
+#: emc/usr_intf/pncconf/pncconf.glade:15429
+#: emc/usr_intf/pncconf/pncconf.glade:17674
 msgid "Driver Microstepping:"
 msgstr "Micropas du pilote:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15372
-#: emc/usr_intf/pncconf/pncconf.glade:17597
+#: emc/usr_intf/pncconf/pncconf.glade:15476
+#: emc/usr_intf/pncconf/pncconf.glade:17721
 msgid "Driver Type:"
 msgstr "Type de pilote:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15405
-#: emc/usr_intf/pncconf/pncconf.glade:17629
+#: emc/usr_intf/pncconf/pncconf.glade:15509
+#: emc/usr_intf/pncconf/pncconf.glade:17754
 msgid "Stepper Info"
 msgstr "Info moteur pas à pas"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15505
-#: emc/usr_intf/pncconf/pncconf.glade:15522
-#: emc/usr_intf/pncconf/pncconf.glade:17721
+#: emc/usr_intf/pncconf/pncconf.glade:15609
+#: emc/usr_intf/pncconf/pncconf.glade:15626
 msgid "123"
 msgstr "123"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15587
-#: emc/usr_intf/pncconf/pncconf.glade:15612
-#: emc/usr_intf/pncconf/pncconf.glade:17770
-#: emc/usr_intf/pncconf/pncconf.glade:17794
+#: emc/usr_intf/pncconf/pncconf.glade:15691
+#: emc/usr_intf/pncconf/pncconf.glade:15716
+#: emc/usr_intf/pncconf/pncconf.glade:17890
+#: emc/usr_intf/pncconf/pncconf.glade:17915
+#: emc/usr_intf/pncconf/pncconf.glade:17964
 msgid "1"
 msgstr "1"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15698
-#: emc/usr_intf/pncconf/pncconf.glade:17858
+#: emc/usr_intf/pncconf/pncconf.glade:15802
+#: emc/usr_intf/pncconf/pncconf.glade:18021
 msgid "Invert Encoder Direction "
 msgstr "Inverser direction codeur"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15713
-#: emc/usr_intf/pncconf/pncconf.glade:17873
+#: emc/usr_intf/pncconf/pncconf.glade:15817
+#: emc/usr_intf/pncconf/pncconf.glade:18037
 msgid "Invert Motor Direction"
 msgstr "Inverser direction moteur"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15728
+#: emc/usr_intf/pncconf/pncconf.glade:15832
 msgid "Feed Speed Following Error:"
 msgstr "Feed Speed Following Error:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15742
-#: emc/usr_intf/pncconf/pncconf.glade:17888
+#: emc/usr_intf/pncconf/pncconf.glade:15846
 msgid "Rapid Speed Following Error:"
 msgstr "Rapid Speed Following Error:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:15968
-#: emc/usr_intf/pncconf/pncconf.glade:18099
+#: emc/usr_intf/pncconf/pncconf.glade:16072
+#: emc/usr_intf/pncconf/pncconf.glade:18225
 msgid "sec"
 msgstr "s"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16068
+#: emc/usr_intf/pncconf/pncconf.glade:16172
 msgid "Distance to acheave max speed:"
 msgstr "Distance pour atteindre la vitesse maxi:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16113
-#: emc/usr_intf/pncconf/pncconf.glade:18195
+#: emc/usr_intf/pncconf/pncconf.glade:16217
+#: emc/usr_intf/pncconf/pncconf.glade:18321
 msgid "Resolution:"
 msgstr "Résolution:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16185
-#: emc/usr_intf/pncconf/pncconf.glade:18383
+#: emc/usr_intf/pncconf/pncconf.glade:16289
+#: emc/usr_intf/pncconf/pncconf.glade:18513
 msgid "Test / Tune Axis"
 msgstr "Test / calibration axe"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16495
+#: emc/usr_intf/pncconf/pncconf.glade:16599
 msgid "Home Final Velocity:"
 msgstr "Vitesse finale de re_cherche d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16505
+#: emc/usr_intf/pncconf/pncconf.glade:16609
 msgid ""
 "NO\n"
 "YES"
@@ -6988,47 +7062,47 @@ msgstr ""
 "NON\n"
 "OUI"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16521
+#: emc/usr_intf/pncconf/pncconf.glade:16625
 msgid "Use Encoder Index For Home:"
 msgstr "Utiliser l'index codeur pour la prise d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16547
+#: emc/usr_intf/pncconf/pncconf.glade:16651
 msgid "Home location:"
 msgstr "Emplacement de l'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16574
+#: emc/usr_intf/pncconf/pncconf.glade:16678
 msgid "to"
 msgstr "vers"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16605
+#: emc/usr_intf/pncconf/pncconf.glade:16709
 msgid "Table Travel:"
 msgstr "Course de la table:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16648
+#: emc/usr_intf/pncconf/pncconf.glade:16752
 msgid "Home latch Velocity:"
 msgstr "Vitesse de dégagement du contact d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16674
+#: emc/usr_intf/pncconf/pncconf.glade:16778
 msgid "Home Latch Direction:"
 msgstr "Direction de dégagement du contact d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16742
+#: emc/usr_intf/pncconf/pncconf.glade:16846
 msgid "Home Switch location:"
 msgstr "Position du contact d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16757
+#: emc/usr_intf/pncconf/pncconf.glade:16861
 msgid "Home Search Velocity:"
 msgstr "Vitesse de recherche d'origine:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16772
+#: emc/usr_intf/pncconf/pncconf.glade:16876
 msgid "Use Compensation File:"
 msgstr "Utiliser un fichier de compensation:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16786
+#: emc/usr_intf/pncconf/pncconf.glade:16890
 msgid "Use Backlash Compensation:"
 msgstr "Utiliser la compensation des jeux:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16816
+#: emc/usr_intf/pncconf/pncconf.glade:16920
 msgid ""
 "Type 1\n"
 "Type 2"
@@ -7036,144 +7110,200 @@ msgstr ""
 "Type 1\n"
 "Type 2"
 
-#: emc/usr_intf/pncconf/pncconf.glade:16846
+#: emc/usr_intf/pncconf/pncconf.glade:16950
 msgid "filename:"
 msgstr "nom de fichier:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18238
+#: emc/usr_intf/pncconf/pncconf.glade:17065
+msgid ""
+"Open\n"
+"Loop\n"
+"Motor\n"
+"Test"
+msgstr ""
+"Ouvrir\n"
+"Boucle\n"
+"Servo\n"
+"Test"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17107
+msgid "Encoder lines / Rev:"
+msgstr "Lignes de codeur / tour:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17222
+msgid "I /O Info"
+msgstr "Informations d'I/O"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17506
+msgid "Use PID Control"
+msgstr "Utiliser contrôle PID"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17794
+msgid "rev / s²"
+msgstr "tour / s²"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17809
+msgid "rpm"
+msgstr "tr/mn"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17901
+msgid "   Shaft :  "
+msgstr "   Axe :  "
+
+#: emc/usr_intf/pncconf/pncconf.glade:17935
+msgid "Pulley teeth   Motor : "
+msgstr "Dents de la poulie moteur:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:17948
+msgid "Reduction Ratio:"
+msgstr "Rapport de réduction:"
+
+#: emc/usr_intf/pncconf/pncconf.glade:18364
 msgid "Speed 1:"
 msgstr "Vitesse 1:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18282
+#: emc/usr_intf/pncconf/pncconf.glade:18408
 msgid "Speed 2:"
 msgstr "Vitesse 2:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18295
+#: emc/usr_intf/pncconf/pncconf.glade:18421
 msgid "PWM 1:"
 msgstr "PWM 1:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18310
+#: emc/usr_intf/pncconf/pncconf.glade:18436
 msgid "PWM 2:"
 msgstr "PWM 2:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18437
+#: emc/usr_intf/pncconf/pncconf.glade:18568
 msgid "Advanced  Options"
 msgstr "Options avancées"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18521
+#: emc/usr_intf/pncconf/pncconf.glade:18652
 msgid "Cmd 15"
 msgstr "Cmd 15"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18533
+#: emc/usr_intf/pncconf/pncconf.glade:18664
 msgid "Cmd 14"
 msgstr "Cmd 14"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18545
+#: emc/usr_intf/pncconf/pncconf.glade:18676
 msgid "Cmd 13"
 msgstr "Cmd 13"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18557
+#: emc/usr_intf/pncconf/pncconf.glade:18688
 msgid "Cmd 12"
 msgstr "Cmd 12"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18569
+#: emc/usr_intf/pncconf/pncconf.glade:18700
 msgid "Cmd 11"
 msgstr "Cmd 11"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18637
+#: emc/usr_intf/pncconf/pncconf.glade:18768
 msgid "Cmd 10"
 msgstr "Cmd 10"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18649
+#: emc/usr_intf/pncconf/pncconf.glade:18780
 msgid "Cmd 9"
 msgstr "Cmd 9"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18661
+#: emc/usr_intf/pncconf/pncconf.glade:18792
 msgid "Cmd 8"
 msgstr "Cmd 8"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18673
+#: emc/usr_intf/pncconf/pncconf.glade:18804
 msgid "Cmd 7"
 msgstr "Cmd 7"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18685
+#: emc/usr_intf/pncconf/pncconf.glade:18816
 msgid "Cmd 6"
 msgstr "Cmd 6"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18811
+#: emc/usr_intf/pncconf/pncconf.glade:18942
 msgid "Cmd 5"
 msgstr "Cmd 5"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18821
+#: emc/usr_intf/pncconf/pncconf.glade:18952
 msgid "Cmd 4"
 msgstr "Cmd 4"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18831
+#: emc/usr_intf/pncconf/pncconf.glade:18962
 msgid "Cmd 3"
 msgstr "Cmd 3"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18841
+#: emc/usr_intf/pncconf/pncconf.glade:18972
 msgid "Cmd 2"
 msgstr "Cmd 2"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18851
+#: emc/usr_intf/pncconf/pncconf.glade:18982
 msgid "Cmd 1"
 msgstr "Cmd 1"
 
-#: emc/usr_intf/pncconf/pncconf.glade:18862
+#: emc/usr_intf/pncconf/pncconf.glade:18993
 msgid "Include Halui user interface component / commands"
 msgstr "Inclure les commandes de l'interface utilisateur de composants Halui"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19281
-msgid "Realtime Components"
-msgstr "Composants temps réel"
+#: emc/usr_intf/pncconf/pncconf.glade:19412
+msgid "HAL Component Page"
+msgstr "Page de composants de HAL"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19408
-msgid "Add realtime components with this page."
-msgstr "Ajouter les composants temps réel avec cette page."
+#: emc/usr_intf/pncconf/pncconf.glade:19527
+msgid "Add HAL components with this page."
+msgstr "Ajouter les composants de HAL depuis cette page."
 
-#: emc/usr_intf/pncconf/pncconf.glade:19433
+#: emc/usr_intf/pncconf/pncconf.glade:19552
 msgid "<b>Component</b>"
 msgstr "<b>Composant</b>"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19446
+#: emc/usr_intf/pncconf/pncconf.glade:19565
 msgid "Encoder"
 msgstr "Codeur"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19457
+#: emc/usr_intf/pncconf/pncconf.glade:19576
 msgid "<b>number of components</b>"
 msgstr "<b>nombre de composants</b>"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19473
+#: emc/usr_intf/pncconf/pncconf.glade:19592
 msgid "PWM generator"
 msgstr "Générateur de PWM"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19485
+#: emc/usr_intf/pncconf/pncconf.glade:19604
 msgid "Step generator"
 msgstr "Générateur de pas"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19497
+#: emc/usr_intf/pncconf/pncconf.glade:19616
 msgid "PID"
 msgstr "PID"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19554
+#: emc/usr_intf/pncconf/pncconf.glade:19673
 msgid "and"
 msgstr "et"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19565
+#: emc/usr_intf/pncconf/pncconf.glade:19684
 msgid "or"
 msgstr "ou"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19576
+#: emc/usr_intf/pncconf/pncconf.glade:19695
 msgid "scale"
 msgstr "échelle"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19686
-#: emc/usr_intf/pncconf/pncconf.glade:19699
-#: emc/usr_intf/pncconf/pncconf.glade:19712
-#: emc/usr_intf/pncconf/pncconf.glade:19725
-#: emc/usr_intf/pncconf/pncconf.glade:19738
-#: emc/usr_intf/pncconf/pncconf.glade:19780
+#: emc/usr_intf/pncconf/pncconf.glade:19772
+msgid "Thread Speed"
+msgstr "Vitesse Thread"
+
+#: emc/usr_intf/pncconf/pncconf.glade:19782
+msgid "Thread Command"
+msgstr "Commande de thread"
+
+#: emc/usr_intf/pncconf/pncconf.glade:19792
+msgid "Load Command "
+msgstr "Commande de chargement"
+
+#: emc/usr_intf/pncconf/pncconf.glade:19798
+#: emc/usr_intf/pncconf/pncconf.glade:19813
+#: emc/usr_intf/pncconf/pncconf.glade:19826
+#: emc/usr_intf/pncconf/pncconf.glade:19839
+#: emc/usr_intf/pncconf/pncconf.glade:19852
+#: emc/usr_intf/pncconf/pncconf.glade:19986
 msgid ""
 "fast (base)\n"
 "slow (servo)"
@@ -7181,19 +7311,19 @@ msgstr ""
 "rapide (base)\n"
 "lente (servo)"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19761
-msgid "Add to thread command"
-msgstr "Commande d'ajout au thread"
+#: emc/usr_intf/pncconf/pncconf.glade:20025
+msgid "<b>Custom Components Commands</b>"
+msgstr "<b>Commandes de composants utilisateur</b>"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19819
+#: emc/usr_intf/pncconf/pncconf.glade:20046
 msgid "Test Page"
 msgstr "Page test"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19828
+#: emc/usr_intf/pncconf/pncconf.glade:20055
 msgid "Use this page to test / tune the configuration."
 msgstr "Utiliser cette page pour tester / calibrer la configuration."
 
-#: emc/usr_intf/pncconf/pncconf.glade:19880
+#: emc/usr_intf/pncconf/pncconf.glade:20107
 msgid ""
 "<b>  Motor Encoder Test\n"
 "Warning limits switches \n"
@@ -7203,143 +7333,168 @@ msgstr ""
 "Warning limits switches \n"
 "  Will not be obeyed</b>"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19944
-msgid "Slow Dac Speed"
-msgstr "Slow Dac Speed"
+#: emc/usr_intf/pncconf/pncconf.glade:20141
+msgid "Enable Amp"
+msgstr "Validation ampli"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19960
-msgid "Fast Dac Speed"
-msgstr "Fast Dac Speed"
+#: emc/usr_intf/pncconf/pncconf.glade:20156
+msgid "Dac Offset:"
+msgstr "Offset du DAC:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:19975
-msgid "Invert Motor"
-msgstr "Inverser moteur"
-
-#: emc/usr_intf/pncconf/pncconf.glade:19996
-msgid "estop"
-msgstr "A/U"
-
-#: emc/usr_intf/pncconf/pncconf.glade:20016
+#: emc/usr_intf/pncconf/pncconf.glade:20192
 msgid "Invert Encoder"
 msgstr "Inverser codeur"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20037
+#: emc/usr_intf/pncconf/pncconf.glade:20208
+msgid "Invert Motor"
+msgstr "Inverser moteur"
+
+#: emc/usr_intf/pncconf/pncconf.glade:20225
 msgid "Reset Encoder"
 msgstr "Reset codeur"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20202
-#: emc/usr_intf/pncconf/pncconf.glade:21225
-#: emc/usr_intf/pncconf/pncconf.glade:21925
-#: emc/usr_intf/pncconf/pncconf.glade:22625
+#: emc/usr_intf/pncconf/pncconf.glade:20269
+msgid "Slow Dac Speed"
+msgstr "Slow Dac Speed"
+
+#: emc/usr_intf/pncconf/pncconf.glade:20285
+msgid "Fast Dac Speed"
+msgstr "Fast Dac Speed"
+
+#: emc/usr_intf/pncconf/pncconf.glade:20444
+#: emc/usr_intf/pncconf/pncconf.glade:21468
+#: emc/usr_intf/pncconf/pncconf.glade:22496
+#: emc/usr_intf/pncconf/pncconf.glade:23522
 msgid "Seconds"
 msgstr "Secondes"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20381
-#: emc/usr_intf/pncconf/pncconf.glade:21404
-#: emc/usr_intf/pncconf/pncconf.glade:22104
-#: emc/usr_intf/pncconf/pncconf.glade:22804
+#: emc/usr_intf/pncconf/pncconf.glade:20624
+#: emc/usr_intf/pncconf/pncconf.glade:21648
+#: emc/usr_intf/pncconf/pncconf.glade:22676
+#: emc/usr_intf/pncconf/pncconf.glade:23702
 msgid "mm/minute^2"
 msgstr "mm/minute^2"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20416
-#: emc/usr_intf/pncconf/pncconf.glade:21439
-#: emc/usr_intf/pncconf/pncconf.glade:22139
-#: emc/usr_intf/pncconf/pncconf.glade:22839
+#: emc/usr_intf/pncconf/pncconf.glade:20659
+#: emc/usr_intf/pncconf/pncconf.glade:21683
+#: emc/usr_intf/pncconf/pncconf.glade:22711
+#: emc/usr_intf/pncconf/pncconf.glade:23737
 msgid "mm/minute"
 msgstr "mm/minute"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20604
-#: emc/usr_intf/pncconf/pncconf.glade:21034
-#: emc/usr_intf/pncconf/pncconf.glade:21851
-#: emc/usr_intf/pncconf/pncconf.glade:22551
-#: emc/usr_intf/pncconf/pncconf.glade:23251
+#: emc/usr_intf/pncconf/pncconf.glade:20847
+#: emc/usr_intf/pncconf/pncconf.glade:21277
+#: emc/usr_intf/pncconf/pncconf.glade:22173
+#: emc/usr_intf/pncconf/pncconf.glade:22393
+#: emc/usr_intf/pncconf/pncconf.glade:22897
+#: emc/usr_intf/pncconf/pncconf.glade:23327
+#: emc/usr_intf/pncconf/pncconf.glade:24225
+#: emc/usr_intf/pncconf/pncconf.glade:24445
 msgid "Current"
 msgstr "Courant"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20614
-#: emc/usr_intf/pncconf/pncconf.glade:21841
-#: emc/usr_intf/pncconf/pncconf.glade:22541
-#: emc/usr_intf/pncconf/pncconf.glade:23241
+#: emc/usr_intf/pncconf/pncconf.glade:20857
+#: emc/usr_intf/pncconf/pncconf.glade:22163
+#: emc/usr_intf/pncconf/pncconf.glade:22907
+#: emc/usr_intf/pncconf/pncconf.glade:24215
 msgid "P:"
 msgstr "P:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20624
-#: emc/usr_intf/pncconf/pncconf.glade:21831
-#: emc/usr_intf/pncconf/pncconf.glade:22531
-#: emc/usr_intf/pncconf/pncconf.glade:23231
+#: emc/usr_intf/pncconf/pncconf.glade:20867
+#: emc/usr_intf/pncconf/pncconf.glade:22153
+#: emc/usr_intf/pncconf/pncconf.glade:22917
+#: emc/usr_intf/pncconf/pncconf.glade:24205
 msgid "I:"
 msgstr "I:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20634
-#: emc/usr_intf/pncconf/pncconf.glade:21821
-#: emc/usr_intf/pncconf/pncconf.glade:22521
-#: emc/usr_intf/pncconf/pncconf.glade:23221
+#: emc/usr_intf/pncconf/pncconf.glade:20877
+#: emc/usr_intf/pncconf/pncconf.glade:22143
+#: emc/usr_intf/pncconf/pncconf.glade:22927
+#: emc/usr_intf/pncconf/pncconf.glade:24195
 msgid "D:"
 msgstr "D:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20683
-#: emc/usr_intf/pncconf/pncconf.glade:21046
-#: emc/usr_intf/pncconf/pncconf.glade:21772
-#: emc/usr_intf/pncconf/pncconf.glade:22472
-#: emc/usr_intf/pncconf/pncconf.glade:23172
+#: emc/usr_intf/pncconf/pncconf.glade:20926
+#: emc/usr_intf/pncconf/pncconf.glade:21289
+#: emc/usr_intf/pncconf/pncconf.glade:22094
+#: emc/usr_intf/pncconf/pncconf.glade:22381
+#: emc/usr_intf/pncconf/pncconf.glade:22976
+#: emc/usr_intf/pncconf/pncconf.glade:23339
+#: emc/usr_intf/pncconf/pncconf.glade:24146
+#: emc/usr_intf/pncconf/pncconf.glade:24433
 msgid "Original"
 msgstr "Original"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20859
+#: emc/usr_intf/pncconf/pncconf.glade:21102
+#: emc/usr_intf/pncconf/pncconf.glade:21918
+#: emc/usr_intf/pncconf/pncconf.glade:23152
+#: emc/usr_intf/pncconf/pncconf.glade:23970
 msgid "DeadBand"
 msgstr "DeadBand"
 
-#: emc/usr_intf/pncconf/pncconf.glade:20923
+#: emc/usr_intf/pncconf/pncconf.glade:21166
+#: emc/usr_intf/pncconf/pncconf.glade:22190
+#: emc/usr_intf/pncconf/pncconf.glade:23216
+#: emc/usr_intf/pncconf/pncconf.glade:24242
 msgid "PID Tuning"
 msgstr "Calibration PID"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21004
+#: emc/usr_intf/pncconf/pncconf.glade:21247
+#: emc/usr_intf/pncconf/pncconf.glade:22425
+#: emc/usr_intf/pncconf/pncconf.glade:23297
+#: emc/usr_intf/pncconf/pncconf.glade:24477
 msgid "Step Time:"
 msgstr "Step Time:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21014
+#: emc/usr_intf/pncconf/pncconf.glade:21257
+#: emc/usr_intf/pncconf/pncconf.glade:22415
+#: emc/usr_intf/pncconf/pncconf.glade:23307
+#: emc/usr_intf/pncconf/pncconf.glade:24467
 msgid "Step Space:"
 msgstr "Step Space:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21024
+#: emc/usr_intf/pncconf/pncconf.glade:21267
+#: emc/usr_intf/pncconf/pncconf.glade:22405
+#: emc/usr_intf/pncconf/pncconf.glade:23317
+#: emc/usr_intf/pncconf/pncconf.glade:24457
 msgid "Direction Hold:"
 msgstr "Direction Hold:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21058
+#: emc/usr_intf/pncconf/pncconf.glade:21301
+#: emc/usr_intf/pncconf/pncconf.glade:22371
+#: emc/usr_intf/pncconf/pncconf.glade:23351
+#: emc/usr_intf/pncconf/pncconf.glade:24423
 msgid "Direction Setup:"
 msgstr "Réglage direction:"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21173
+#: emc/usr_intf/pncconf/pncconf.glade:21416
+#: emc/usr_intf/pncconf/pncconf.glade:22440
+#: emc/usr_intf/pncconf/pncconf.glade:23466
+#: emc/usr_intf/pncconf/pncconf.glade:24492
 msgid "Step Timing"
 msgstr "Step Timing"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21191
+#: emc/usr_intf/pncconf/pncconf.glade:21434
 msgid "X Axis"
 msgstr "Axe X"
 
-#: emc/usr_intf/pncconf/pncconf.glade:21870
-#: emc/usr_intf/pncconf/pncconf.glade:22570
-#: emc/usr_intf/pncconf/pncconf.glade:23270
-msgid "<b>PID tuning</b>"
-msgstr "<b>Calibration PID</b>"
-
-#: emc/usr_intf/pncconf/pncconf.glade:21890
+#: emc/usr_intf/pncconf/pncconf.glade:22461
 msgid "Y Axis"
 msgstr "Axe Y"
 
-#: emc/usr_intf/pncconf/pncconf.glade:22590
+#: emc/usr_intf/pncconf/pncconf.glade:23487
 msgid "Z Axis"
 msgstr "Axe Z"
 
-#: emc/usr_intf/pncconf/pncconf.glade:23290
+#: emc/usr_intf/pncconf/pncconf.glade:24513
 msgid "A Axis"
 msgstr "Axe A"
 
-#: emc/usr_intf/pncconf/pncconf.glade:23341
+#: emc/usr_intf/pncconf/pncconf.glade:24564
 msgid "Help Pages"
 msgstr "Pages d'aide"
 
-#: emc/usr_intf/pncconf/pncconf.glade:23393
+#: emc/usr_intf/pncconf/pncconf.glade:24616
 msgid "button"
 msgstr "bouton"
 
@@ -7474,20 +7629,24 @@ msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "or NURBS code"
 msgstr ""
-"Mot L sans G10, ni code de compensation d'outil, cycle préprogrammé, entrée digitale/analogique "
-"ou NURBS"
+"Mot L sans G10, ni code de compensation d'outil, cycle préprogrammé, entrée "
+"digitale/analogique ou NURBS"
 
 #: emc/rs274ngc/interp_check.cc:300
 msgid ""
 "P word with no G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 M53 M62 "
 "M63 M64 M65 M66 or user M code to use it"
-msgstr "Mot P sans G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 ou M50 M51 M52 M53 M62 M63 M64 M65 M66 ni code M utilisateur l'utilisant"
+msgstr ""
+"Mot P sans G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 ou M50 M51 M52 M53 M62 M63 "
+"M64 M65 M66 ni code M utilisateur l'utilisant"
 
 #: emc/rs274ngc/interp_check.cc:308
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M66, M67, M68 or user M code "
 "that uses it"
-msgstr "Mot Q sans G5, G10, G64, G73, G76, G83, M66, M67, M68 ou code M utilisateur l'utilisant"
+msgstr ""
+"Mot Q sans G5, G10, G64, G73, G76, G83, M66, M67, M68 ou code M utilisateur "
+"l'utilisant"
 
 #: emc/rs274ngc/interp_convert.cc:192
 #, c-format
@@ -7535,11 +7694,15 @@ msgstr ""
 
 #: emc/rs274ngc/interp_convert.cc:1448
 msgid "Cannot change control mode with cutter radius compensation on"
-msgstr "Changement de mode de contrôle impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Changement de mode de contrôle impossible avec la compensation de rayon "
+"d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:1561
 msgid "Cannot change coordinate systems with cutter radius compensation on"
-msgstr "Changement de système de coordonnées impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Changement de système de coordonnées impossible avec la compensation de "
+"rayon d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:1808
 #, c-format
@@ -7563,7 +7726,9 @@ msgstr "G%d avec outil de tour, mais le plan n'est pas G18"
 
 #: emc/rs274ngc/interp_convert.cc:2548
 msgid "Cannot set motion output with cutter radius compensation on"
-msgstr "Réglage de sortie mouvement impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Réglage de sortie mouvement impossible avec la compensation de rayon d'outil "
+"activée"
 
 #: emc/rs274ngc/interp_convert.cc:2549
 msgid "No valid P word with M62"
@@ -7571,7 +7736,9 @@ msgstr "Pas de mot P valide avec M62"
 
 #: emc/rs274ngc/interp_convert.cc:2553
 msgid "Cannot set motion digital output with cutter radius compensation on"
-msgstr "Réglage de sortie numérique impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Réglage de sortie numérique impossible avec la compensation de rayon d'outil "
+"activée"
 
 #: emc/rs274ngc/interp_convert.cc:2554
 msgid "No valid P word with M63"
@@ -7579,7 +7746,9 @@ msgstr "Pas de mot P valide avec M63"
 
 #: emc/rs274ngc/interp_convert.cc:2558 emc/rs274ngc/interp_convert.cc:2563
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
-msgstr "Réglage de sortie numérique auxiliaire impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Réglage de sortie numérique auxiliaire impossible avec la compensation de "
+"rayon d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:2559
 msgid "No valid P word with M64"
@@ -7591,15 +7760,21 @@ msgstr "Pas de mot P valide avec M65"
 
 #: emc/rs274ngc/interp_convert.cc:2608
 msgid "Cannot wait for digital input with cutter radius compensation on"
-msgstr "Attente d'une entrée numérique impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Attente d'une entrée numérique impossible avec la compensation de rayon "
+"d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:2620
 msgid "Cannot wait for analog input with cutter radius compensation on"
-msgstr "Attente d'une entrée analogique impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Attente d'une entrée analogique impossible avec la compensation de rayon "
+"d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:2634
 msgid "Cannot set motion analog output with cutter radius compensation on"
-msgstr "Réglage de sortie analogique impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Réglage de sortie analogique impossible avec la compensation de rayon "
+"d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:2635
 msgid "Invalid analog index with M67"
@@ -7607,7 +7782,9 @@ msgstr "Index analogique invalide avec M67"
 
 #: emc/rs274ngc/interp_convert.cc:2641
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
-msgstr "Réglage de sortie analogique auxiliaire impossible avec la compensation de rayon d'outil activée"
+msgstr ""
+"Réglage de sortie analogique auxiliaire impossible avec la compensation de "
+"rayon d'outil activée"
 
 #: emc/rs274ngc/interp_convert.cc:2642
 msgid "Invalid analog index with M68"
@@ -7639,29 +7816,29 @@ msgstr ""
 "Changement de mode de retrait impossible avec la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3765
+#: emc/rs274ngc/interp_convert.cc:3766
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:3768
+#: emc/rs274ngc/interp_convert.cc:3769
 msgid "In G76, I must not be 0"
 msgstr "I ne peut pas être à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:3770
+#: emc/rs274ngc/interp_convert.cc:3771
 msgid "In G76, J must be greater than 0"
 msgstr "J doit être supérieur à 0 dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:3772
+#: emc/rs274ngc/interp_convert.cc:3773
 msgid "In G76, K must be greater than J"
 msgstr "K doit être plus grand que J dans G76"
 
-#: emc/rs274ngc/interp_convert.cc:4134
+#: emc/rs274ngc/interp_convert.cc:4135
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "Un angle interne de zéro degré est invalide pour la compensation de rayon "
 "d'outil"
 
-#: emc/rs274ngc/interp_convert.cc:4172 emc/rs274ngc/interp_convert.cc:4180
+#: emc/rs274ngc/interp_convert.cc:4173 emc/rs274ngc/interp_convert.cc:4181
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -7669,11 +7846,11 @@ msgstr ""
 "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
 "pouvant pas être suivi sans interférer avec la pièce"
 
-#: emc/rs274ngc/interp_convert.cc:4264
+#: emc/rs274ngc/interp_convert.cc:4265
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "Changement d'outil impossible avec la compensation de rayon d'outil active"
 
-#: emc/rs274ngc/interp_convert.cc:4373
+#: emc/rs274ngc/interp_convert.cc:4374
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
