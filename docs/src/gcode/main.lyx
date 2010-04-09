@@ -421,7 +421,7 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="54" columns="4">
+<lyxtabular version="3" rows="40" columns="4">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -751,7 +751,7 @@ P R X Z
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -837,7 +837,7 @@ P X Y Z A B C
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2099,7 +2099,7 @@ reference "sec:G96,-G97:-Spindle"
 \end_inset
 </cell>
 </row>
-<row topline="true">
+<row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -2142,6 +2142,68 @@ reference "sub:G98,-G99:-Set"
 \end_inset
 </cell>
 </row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+\begin_inset Tabular
+<lyxtabular version="3" rows="15" columns="4">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Code
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Description
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Parameters
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Section
+\end_layout
+
+\end_inset
+</cell>
+</row>
 <row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -2176,12 +2238,6 @@ n/a
 \begin_layout Standard
 \begin_inset LatexCommand ref
 reference "sub:F:-Set-Feed"
-
-\end_inset
-
-
-\begin_inset LatexCommand ref
-reference "sub:S:-Set-Spindle"
 
 \end_inset
 
@@ -2377,7 +2433,7 @@ M30, M60
 \begin_inset Text
 
 \begin_layout Standard
-Pallet Shuttle 
+Pallet Shuttle
 \end_layout
 
 \end_inset
@@ -2482,7 +2538,7 @@ Q
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M61-Set-Current-Tool-Number"
+reference "sec:M66-Input-Control"
 
 \end_inset
 
@@ -2563,7 +2619,7 @@ P, E, L, Q
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2692,7 +2748,7 @@ P Q
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2735,7 +2791,7 @@ n/a
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2754,8 +2810,6 @@ reference "cha:O-Codes"
 
 \end_inset
 
-
-\newpage
 
 \end_layout
 
@@ -6722,42 +6776,72 @@ E-
 \end_layout
 
 \begin_layout Standard
-The "drive line" is a safe line outside the thread material.
- The "drive line" goes from the initial location to the 
-\family typewriter
-Z-
-\family default
- value specified with 
-\family typewriter
-G76
-\family default
-.
- The Z extent of the thread is the same as the drive line.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+G76 Threading
+\begin_inset LatexCommand label
+name "fig:G76-Threading"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-The "thread pitch", or distance per revolution, is given by the 
-\family typewriter
-P-
-\family default
- value.
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g76-threads.png
+	scale 75
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-The "thread peak" is given by the 
-\family typewriter
-I-
-\family default
- value, which is an offset from the drive line.
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Drive\InsetSpace ~
+Line A line through the initial X position parallel to the Z.
+\end_layout
+
+\begin_layout Description
+P- The "thread pitch" in distance per revolution.
+\end_layout
+
+\begin_layout Description
+Z- The final position of threads.
+ At the end of the cycle the tool will be at this Z position.
+\end_layout
+
+\begin_layout Description
+I- The "thread peak" offset from the "drive line".
  Negative 
 \family typewriter
 I
 \family default
- values indicate external threads, and positive 
+ values are external threads, and positive 
 \family typewriter
 I
 \family default
- values indicate internal threads.
+ values are internal threads.
  Generally the material has been turned to this size before the 
 \family typewriter
 G76
@@ -6765,56 +6849,30 @@ G76
  cycle.
 \end_layout
 
-\begin_layout Standard
-The "initial cut depth" is given by the 
-\family typewriter
-J-
-\family default
- value.
+\begin_layout Description
+J- A positive value specifying the "initial cut depth".
  The first threading cut will be 
 \family typewriter
 J
 \family default
  beyond the "thread peak" position.
- 
-\family typewriter
-J-
-\family default
- is positive, even when 
-\family typewriter
-I-
-\family default
- is negative.
 \end_layout
 
-\begin_layout Standard
-The "full thread depth" is given by the 
-\family typewriter
-K-
-\family default
- value.
+\begin_layout Description
+K- A positive value specifying the "full thread depth".
  The final threading cut will be 
 \family typewriter
 K
 \family default
  beyond the "thread peak" position.
- 
-\family typewriter
-K-
-\family default
- is positive, even when 
-\family typewriter
-I-
-\family default
- is negative.
 \end_layout
 
 \begin_layout Standard
-The "depth digression" is given by the 
-\family typewriter
-R-
-\family default
- value.
+Optional settings
+\end_layout
+
+\begin_layout Description
+R- The "depth digression".
  
 \family typewriter
 R1.0
@@ -6831,17 +6889,9 @@ R2.0
  of passes to be used.
 \end_layout
 
-\begin_layout Standard
-The "compound slide angle"
-\begin_inset Quotes erd
-\end_inset
-
- 
-\family typewriter
-Q-
-\family default
- is the angle (in degrees) describing to what extent successive passes should
- be offset along the drive line.
+\begin_layout Description
+Q- The "compound slide angle" is the angle (in degrees) describing to what
+ extent successive passes should be offset along the drive line.
  This is used to cause one side of the tool to remove more material than
  the other.
  A positive 
@@ -6852,12 +6902,8 @@ Q
  Typical values are 29, 29.5 or 30.
 \end_layout
 
-\begin_layout Standard
-The number of "spring passes" is given by the 
-\family typewriter
-H-
-\family default
- value.
+\begin_layout Description
+H- The number of "spring passes".
  Spring passes are additional passes at full thread depth.
  If no additional passes are desired, program 
 \family typewriter
@@ -6876,21 +6922,26 @@ E-
 L-
 \family default
 .
- 
+\end_layout
+
+\begin_layout Description
+E- Specifies the distance along the drive line used for the taper.
+ The angle of the taper will be so the last pass tapers to the thread crest
+ over the distance specified with E.
+
 \family typewriter
-E-
-\family default
- gives a distance along the drive line used for the taper.
- 
-\family typewriter
-E0.2
+ E0.2
 \family default
  will give a taper for the first/last 0.2 length units along the thread.
- 
+ For a 45 degree taper program E the same as K
+\end_layout
+
+\begin_layout Description
+
 \family typewriter
 L-
 \family default
- is used to specify which ends of the thread get the taper.
+ Specifies which ends of the thread get the taper.
  Program 
 \family typewriter
 L0
@@ -6908,6 +6959,17 @@ L2
 L3
 \family default
  for both entry and exit tapers.
+ Entry tapers will pause at the drive line to synchronize with the index
+ pulse then feed in to the beginning of the taper.
+ No entry taper and the tool will rapid to the cut depth then synchronize
+ and begin the cut.
+\end_layout
+
+\begin_layout Standard
+The tool is moved to the initial X and Z positions prior to issuing the
+ G76.
+ The X position is the "drive line" and the Z position is the start of the
+ threads.
 \end_layout
 
 \begin_layout Standard
@@ -6929,6 +6991,12 @@ Unless using an exit taper, the exit move (traverse to original X) is not
 \end_layout
 
 \begin_layout Standard
+The final position of the tool will be at the end of the "drive line".
+ A safe Z move will be needed with an internal thread to remove the tool
+ from the hole.
+\end_layout
+
+\begin_layout Standard
 The sample program 
 \family typewriter
 g76.ngc
@@ -6942,16 +7010,22 @@ sim/lathe.ini
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Standard
-This drawing needs to be clarified a bit
+The following example shows the result of running this G-Code:
 \end_layout
 
-\end_inset
+\begin_layout LyX-Code
+G0 Z-.5 X .2
+\end_layout
 
+\begin_layout LyX-Code
+G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+\end_layout
 
+\begin_layout Standard
+The tool is in the final position after the G76 cycle is completed.
+ You can see the entry path on the right from the Q29.5 and the exit path
+ on the left from the L2 E0.045.
+ The white lines are the cutting moves.
 \end_layout
 
 \begin_layout Standard
@@ -6965,12 +7039,13 @@ status open
 \begin_inset Caption
 
 \begin_layout Standard
+Threading Example
 \begin_inset LatexCommand label
-name "fig:G76-canned-cycle"
+name "fig:Threading-Example"
 
 \end_inset
 
-G76 canned cycle
+
 \end_layout
 
 \end_inset
@@ -6979,9 +7054,10 @@ G76 canned cycle
 \end_layout
 
 \begin_layout Standard
+\noindent
 \align center
 \begin_inset Graphics
-	filename g76.epsi
+	filename images/g76-01.png
 	scale 75
 
 \end_inset

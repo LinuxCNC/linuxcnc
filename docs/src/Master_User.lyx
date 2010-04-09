@@ -274,7 +274,7 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{gcode/main.lyx}
+\begin_inset Include \include{gcode/coordinates.lyx}
 preview false
 
 \end_inset
@@ -292,7 +292,7 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{gcode/coordinates.lyx}
+\begin_inset Include \include{gcode/main.lyx}
 preview false
 
 \end_inset

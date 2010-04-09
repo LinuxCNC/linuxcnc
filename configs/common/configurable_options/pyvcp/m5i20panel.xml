@@ -12,10 +12,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -29,10 +29,10 @@
                         <text>"In 001:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -46,10 +46,10 @@
                         <text>"In 002:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -63,10 +63,10 @@
                         <text>"In 003:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -80,10 +80,10 @@
                         <text>"In 004:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -97,10 +97,10 @@
                         <text>"In 005:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -114,10 +114,10 @@
                         <text>"In 006:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -131,10 +131,10 @@
                         <text>"In 007:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -148,10 +148,10 @@
                         <text>"In 008:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -165,10 +165,10 @@
                         <text>"In 009:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -182,10 +182,10 @@
                         <text>"In 010:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -199,10 +199,10 @@
                         <text>"In 011:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -222,10 +222,10 @@
                         <text>"In 012:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -239,10 +239,10 @@
                         <text>"In 013:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -256,10 +256,10 @@
                         <text>"In 014:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -273,10 +273,10 @@
                         <text>"In 015:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -290,10 +290,10 @@
                         <text>"In 016:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -307,10 +307,10 @@
                         <text>"In 017:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -324,10 +324,10 @@
                         <text>"In 018:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -341,10 +341,10 @@
                         <text>"In 019:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -358,10 +358,10 @@
                         <text>"In 020:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -375,10 +375,10 @@
                         <text>"In 021:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -392,10 +392,10 @@
                         <text>"In 022:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -409,10 +409,10 @@
                         <text>"In 023:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -429,7 +429,7 @@
             <labelframe text="Encoder 0">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.0.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -446,7 +446,7 @@
             <labelframe text="Encoder 1">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>   
+                        <disable_pin>True</disable_pin>   
                         <halpin>"enc.1.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -463,7 +463,7 @@
             <labelframe text="Encoder 2">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.2.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -480,7 +480,7 @@
             <labelframe text="Encoder 3">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.3.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -588,10 +588,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -605,10 +605,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -622,10 +622,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -639,10 +639,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -656,10 +656,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -673,10 +673,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -690,10 +690,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -707,10 +707,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -724,10 +724,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -741,10 +741,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -758,10 +758,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -775,10 +775,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -798,10 +798,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -815,10 +815,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -832,10 +832,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -849,10 +849,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -866,10 +866,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -883,10 +883,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -900,10 +900,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -917,10 +917,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -934,10 +934,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -951,10 +951,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -968,10 +968,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -985,10 +985,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1005,7 +1005,7 @@
             <labelframe text="Encoder 4">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.4.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -1022,7 +1022,7 @@
             <labelframe text="Encoder 5">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.5.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -1039,7 +1039,7 @@
             <labelframe text="Encoder 6">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.6.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -1056,7 +1056,7 @@
             <labelframe text="Encoder 7">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.7.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -1163,10 +1163,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1180,10 +1180,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1197,10 +1197,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1214,10 +1214,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1231,10 +1231,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1248,10 +1248,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1265,10 +1265,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1282,10 +1282,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1299,10 +1299,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1316,10 +1316,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1333,10 +1333,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1350,10 +1350,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1373,10 +1373,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1390,10 +1390,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1407,10 +1407,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1424,10 +1424,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1441,10 +1441,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1458,10 +1458,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1475,10 +1475,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1492,10 +1492,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1509,10 +1509,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1526,10 +1526,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1543,10 +1543,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1560,10 +1560,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1682,10 +1682,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1699,10 +1699,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1716,10 +1716,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1733,10 +1733,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1750,10 +1750,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1767,10 +1767,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1784,10 +1784,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1801,10 +1801,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1818,10 +1818,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1835,10 +1835,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1852,10 +1852,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1869,10 +1869,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1892,10 +1892,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1909,10 +1909,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1926,10 +1926,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1943,10 +1943,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1960,10 +1960,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1977,10 +1977,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -1994,10 +1994,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2011,10 +2011,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2028,10 +2028,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2045,10 +2045,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2062,10 +2062,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2079,10 +2079,10 @@
                         <text>"In 000:"</text>
                     </label>
 	                <led>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                     </led>
                     <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <text>"Out 000"</text>
                     </button>
 	                <checkbutton>
@@ -2099,7 +2099,7 @@
             <labelframe text="Encoder 8">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.8.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -2116,7 +2116,7 @@
             <labelframe text="Encoder 9">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.9.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -2133,7 +2133,7 @@
             <labelframe text="Encoder 10">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.10.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>
@@ -2150,7 +2150,7 @@
             <labelframe text="Encoder 11">
 	        <hbox>
 	            <button>
-                        <disablepin>True</disablepin>
+                        <disable_pin>True</disable_pin>
                         <halpin>"enc.11.reset"</halpin>
                         <text>"Reset"</text>
                         <font>("Helvetica",8)</font>

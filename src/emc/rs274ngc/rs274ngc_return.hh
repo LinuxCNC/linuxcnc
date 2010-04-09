@@ -221,7 +221,6 @@
 #define NCE_NAMED_OWORD_NOT_TERMINATED _("Named oword not terminated")
 #define NCE_NAMED_OWORD_NOT_DEFINED _("Named oword not defined")
 #define NCE_OUT_OF_MEMORY _("Out of memory")
-#define NCE_XYZABCJ_WORDS_NOT_ALLOWED_WITH_G43H_1_G41R_OR_G42R _("X Y Z A B C J words not allowed with G43.1, G41 R, or G42 R")
 #define NCE_S_WORD_MISSING_WITH_G96 _("S word missing with G96")
 #define NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT _("Queue is not empty after external input")
 #define NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE _("Can't select analog input with wait type != immediate return")

@@ -621,6 +621,11 @@ Label
 A label is a piece of text on your panel.
 \end_layout
 
+\begin_layout Standard
+The label has an optional disable pin that is created when you add <disable_pin>
+true</disable_pin>.
+\end_layout
+
 \begin_layout LyX-Code
 <label>
 \newline
@@ -675,6 +680,10 @@ A LED is used to indicate the status of a "bit" halpin.
 
 \begin_layout Description
 <disable_pin> when true adds a disable pin to the led.
+\end_layout
+
+\begin_layout Description
+<disabled_color> sets the color of the LED when the pin is disabled.
 \end_layout
 
 \begin_layout Subsubsection
@@ -797,7 +806,11 @@ Text Button
 A text button controls a "bit" halpin.
  The halpin is false until the button is pressed then it is true.
  The button is a momentary button.
- The text button has an optional disable pin that is created when you add
+ 
+\end_layout
+
+\begin_layout Standard
+The text button has an optional disable pin that is created when you add
  <disable_pin>true</disable_pin>.
 \end_layout
 

@@ -126,16 +126,22 @@ The trajectory control commands are as follows:
 \end_layout
 
 \begin_layout Description
-G61 (Exact Stop Mode) G61 tells the planner to come to an exact stop at
- every segment's end.
- This ensures exact path following but the full stops can be harmful to
- the workpiece or the tooling, depending on the particular cut.
+G61 (Exact Path Mode) visits the programmed point exactly, even though that
+ means it might temporarily come to a complete stop in order to change direction
+ to the next programmed point.
  
 \end_layout
 
 \begin_layout Description
-G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
- naive cam detector is not enabled.
+G61.1 (Exact Stop Mode) tells the planner to come to an exact stop at every
+ segment's end.
+ 
+\end_layout
+
+\begin_layout Description
+G64 (Blend Without Tolerance Mode) G64 is the default setting when you start
+ EMC.
+ G64 is just blending and the naive cam detector is not enabled.
  G64 and G64P0 tell the planner to sacrifice path following accuracy in
  order to keep the feed rate up.
  This is necessary for some types of material or tooling where exact stops
@@ -143,19 +149,18 @@ G64 (Blend Without Tolerance Mode) [Default] G64 is just blending and the
  keep in mind that the tool's path will be somewhat more curvy than the
  program specifies.
  When using G0 (rapid) moves with G64 use caution on clearance moves and
- allow enough distance to clear obstacles based on the capabilities of your
- machine.
+ allow enough distance to clear obstacles based on the acceleration capabilities
+ of your machine.
 \end_layout
 
 \begin_layout Description
 G64\InsetSpace ~
 P-\InsetSpace ~
-Q- (blend tolerance mode) This enables the "naive cam detector" and
- enables blending with a tolerance.
- If you are in inch mode and program G64 P0.05, you tell the planner that
- you want continuous feed, but at programmed corners you want it to slow
- down enough so that the tool path can stay within 0.05 user units of the
- programmed path.
+Q- (Blend With Tolerance Mode) This enables the "naive cam detector"
+ and enables blending with a tolerance.
+ If you program G64 P0.05, you tell the planner that you want continuous
+ feed, but at programmed corners you want it to slow down enough so that
+ the tool path can stay within 0.05 user units of the programmed path.
  The exact amount of slowdown depends on the geometry of the programmed
  corner and the machine constraints, but the only thing the programmer needs
  to worry about is the tolerance.

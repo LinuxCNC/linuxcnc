@@ -619,14 +619,14 @@ class pyvcp_label(Label):
         <label>
             <text>"My Label:"</text>
             <halpin>"name"</halpin>
-            <disablepin>True</disablepin>
+            <disable_pin>True</disable_pin>
         </label>
     """
     n=0
-    def __init__(self,master,pycomp,halpin=None,disablepin=False,**kw):
+    def __init__(self,master,pycomp,halpin=None,disable_pin=False,**kw):
         Label.__init__(self,master,**kw)
-        self.disablepin=disablepin
-        if disablepin:
+        self.disable_pin=disable_pin
+        if disable_pin:
             if halpin == None:
                 halpin = "label."+str(pyvcp_label.n) 
                 pyvcp_label.n += 1
@@ -636,7 +636,7 @@ class pyvcp_label(Label):
         
 
     def update(self,pycomp):
-        if self.disablepin: 
+        if self.disable_pin: 
             is_disabled = pycomp[self.halpin_disable]     
             if is_disabled == 1: Label.config(self,state=DISABLED)
             else: Label.config(self,state=NORMAL)
@@ -1053,17 +1053,17 @@ class pyvcp_led(Canvas):
         <led>
             <on_color>"colorname"</on_color>             Default color red
             <off_color>"colorname"</off_color>           Default color green
-            <disable_pin>True</disablepin>               Optional halpin sets led to disable_color
+            <disable_pin>True</disable_pin>               Optional halpin sets led to disable_color
             <disable_color>"colorname"</disable_color>   Default color gray80
         </led>"""
     n=0
-    def __init__(self,master,pycomp, halpin=None,disablepin=False,     
+    def __init__(self,master,pycomp, halpin=None,disable_pin=False,     
                     off_color="red",on_color="green",disabled_color="gray80",size=20,**kw):
         Canvas.__init__(self,master,width=size,height=size,bd=0)
         self.off_color=off_color
         self.on_color=on_color
         self.disabled_color=disabled_color
-        self.disablepin = disablepin
+        self.disable_pin = disable_pin
         self.oh=self.create_oval(1,1,size,size)
         self.state = 0
         self.itemconfig(self.oh,fill=off_color)
@@ -1072,7 +1072,7 @@ class pyvcp_led(Canvas):
             pyvcp_led.n+=1
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
-        if disablepin:
+        if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)       
@@ -1086,7 +1086,7 @@ class pyvcp_led(Canvas):
         else:
             self.itemconfig(self.oh,fill=self.off_color) 
             self.state=0
-        if self.disablepin:
+        if self.disable_pin:
             is_disabled = pycomp[self.halpin_disable]
             if is_disabled == 1:
                 self.itemconfig(self.oh,fill=self.disabled_color)
@@ -1102,18 +1102,18 @@ class pyvcp_rectled(Canvas):
         <rectled>
             <on_color>"colorname"</on_color>             Default color red
             <off_color>"colorname"</off_color>           Default color green
-            <disable_pin>True</disablepin>               Optional halpin sets led to disable_color
+            <disable_pin>True</disable_pin>               Optional halpin sets led to disable_color
             <disable_color>"somecolor"</disable_color>   Default color light gray
         </rectled>"""
     
     n=0
-    def __init__(self,master,pycomp, halpin=None,disablepin=False,     
+    def __init__(self,master,pycomp, halpin=None,disable_pin=False,     
                     off_color="red",on_color="green",disabled_color="gray80",height=10,width=30,**kw):
         Canvas.__init__(self,master,width=width,height=height,bd=2)
         self.off_color=off_color
         self.on_color=on_color
         self.disabled_color=disabled_color
-        self.disablepin = disablepin
+        self.disable_pin = disable_pin
         self.oh=self.create_rectangle(1,1,width,height)
         self.state=0
         self.itemconfig(self.oh,fill=off_color)
@@ -1122,7 +1122,7 @@ class pyvcp_rectled(Canvas):
             pyvcp_led.n+=1     
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_IN)
-        if disablepin:
+        if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
@@ -1136,7 +1136,7 @@ class pyvcp_rectled(Canvas):
         else:
             self.itemconfig(self.oh,fill=self.off_color) 
             self.state=0
-        if self.disablepin:
+        if self.disable_pin:
             is_disabled = pycomp[self.halpin_disable]
             if is_disabled == 1:
                 self.itemconfig(self.oh,fill=self.disabled_color)
@@ -1198,15 +1198,15 @@ class pyvcp_button(Button):
             <disablepin>True</disablepin>
         </button>"""
     n=0
-    def __init__(self,master,pycomp,halpin=None,disablepin=False,**kw):
+    def __init__(self,master,pycomp,halpin=None,disable_pin=False,**kw):
         Button.__init__(self,master,**kw)
         if halpin == None:
             halpin = "button."+str(pyvcp_button.n)
             pyvcp_button.n += 1  
         self.halpin=halpin
         pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-        self.disablepin = disablepin
-        if not disablepin == False:
+        self.disable_pin = disable_pin
+        if not disable_pin == False:
             halpin_disable = halpin + ".disable" 
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)
             self.halpin_disable=halpin_disable      
@@ -1216,19 +1216,19 @@ class pyvcp_button(Button):
         self.pycomp = pycomp
 
     def pressed(self,event):
-        if self.disablepin: 
+        if self.disable_pin: 
             is_disabled = self.pycomp[self.halpin_disable] 
             if is_disabled == 1: return
         self.pycomp[self.halpin]=1
 
     def released(self,event):
-        if self.disablepin: 
+        if self.disable_pin: 
             is_disabled = self.pycomp[self.halpin_disable] 
             if is_disabled == 1: return
         self.pycomp[self.halpin]=0
 
     def update(self,pycomp):
-        if self.disablepin: 
+        if self.disable_pin: 
             is_disabled = pycomp[self.halpin_disable]     
             if is_disabled == 1: Button.config(self,state=DISABLED)
             else: Button.config(self,state=NORMAL)
