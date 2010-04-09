@@ -1843,6 +1843,7 @@ static void output_to_hal(void)
 	/* point to HAL data */
 	joint_data = &(emcmot_hal_data->joint[joint_num]);
 	/* write to HAL pins */
+        *(joint_data->motor_offset) = joint->motor_offset;
 	*(joint_data->motor_pos_cmd) = joint->motor_pos_cmd;
 	*(joint_data->joint_pos_cmd) = joint->pos_cmd;
 	*(joint_data->joint_pos_fb) = joint->pos_fb;
