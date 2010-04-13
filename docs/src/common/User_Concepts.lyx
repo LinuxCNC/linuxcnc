@@ -406,13 +406,14 @@ Coordinate Systems
 The Coordinate Systems can be confusing at first.
  Before running a CNC machine you must understand the basics of the coordinate
  systems used by EMC.
- In depth information on the EMC Coordinate Systems is in the section 
+ In depth information on the EMC Coordinate Systems is in the coordinate
+ section 
 \begin_inset LatexCommand ref
 reference "cha:Coordinate-System"
 
 \end_inset
 
- of this chapter.
+ of this manual.
 \end_layout
 
 \begin_layout Subsection
@@ -460,6 +461,56 @@ Offsets stored in a user coordinate system are retained when EMC is shut
 \begin_layout Itemize
 Using the "Touch Off" button in Axis sets an offset for the chosen User
  Coordinate System.
+\end_layout
+
+\begin_layout Subsection
+When Your Lost
+\end_layout
+
+\begin_layout Standard
+If your having trouble getting 0,0,0 on the DRO when you think you should.
+ You have some offsets programmed in and need to remove them.
+ 
+\end_layout
+
+\begin_layout Itemize
+Move to the Machine origin with 
+\newline
+G53 G0 X0 Y0 Z0
+\end_layout
+
+\begin_layout Itemize
+Clear any G92 offset with
+\newline
+G92.1
+\end_layout
+
+\begin_layout Itemize
+Use the G54 coordinate system with
+\newline
+G54
+\end_layout
+
+\begin_layout Itemize
+Set the G54 coordinate system to be the same as the machine coordinate system
+ with
+\newline
+G10 L2 P1 X0 Y0 Z0
+\end_layout
+
+\begin_layout Itemize
+Turn off tool offsets with
+\newline
+G49
+\end_layout
+
+\begin_layout Itemize
+Turn on the Relative Coordinate Display from the menu
+\end_layout
+
+\begin_layout Standard
+Now you should be at the machine origin X0 Y0 Z0 and the relative coordinate
+ system should be the same as the machine coordinate system.
 \end_layout
 
 \end_body

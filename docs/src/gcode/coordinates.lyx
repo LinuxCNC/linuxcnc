@@ -79,81 +79,15 @@ This chapter introduces you to offsets as they are used by the EMC.
 \end_layout
 
 \begin_layout Itemize
-machine coordinates (G53
-\begin_inset LatexCommand index
-name "G53"
-
-\end_inset
-
-) 
+machine coordinates (G53) 
 \end_layout
 
 \begin_layout Itemize
-nine fixture offsets (G54-G59.3
-\begin_inset LatexCommand index
-name "G54"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G55"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G56"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G57"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G58"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.1"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.2"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.3"
-
-\end_inset
-
- ) 
+nine fixture offsets (G54-G59.3) 
 \end_layout
 
 \begin_layout Itemize
-a set of global offsets (G92
-\begin_inset LatexCommand index
-name "G92"
-
-\end_inset
-
-).
+global offsets (G92)
 \end_layout
 
 \begin_layout Section
@@ -161,14 +95,9 @@ The Machine Position Command (G53)
 \end_layout
 
 \begin_layout Standard
-Regardless of any offsets that may be in effect, putting a G53
-\begin_inset LatexCommand index
-name "G53"
-
-\end_inset
-
- in a block of code tells the interpreter to go to the real or absolute
- axis positions commanded in the block.
+Regardless of any offsets that may be in effect, putting a G53 in a block
+ of code tells the interpreter to go to the real or absolute axis positions
+ commanded in the block.
  For example
 \end_layout
 
@@ -193,61 +122,7 @@ G53 is not a modal command.
 \end_layout
 
 \begin_layout Section
-Fixture Offsets (G54-G59.3
-\begin_inset LatexCommand index
-name "G54"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G55"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G56"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G57"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G58"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.1"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.2"
-
-\end_inset
-
-
-\begin_inset LatexCommand index
-name "G59.3"
-
-\end_inset
-
-)
+Fixture Offsets (G54-G59.3)
 \end_layout
 
 \begin_layout Standard
