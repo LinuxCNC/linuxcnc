@@ -347,11 +347,11 @@ SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_nam
 "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
 human_pwm_output_names =[ _("Unused PWM Gen"), 
-_("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), 
-_("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), 
-_("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"),
-_("A PWM Pulse Stream"), _("A PWM Direction"), _("A PWM Enable"), 
-_("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
+_("X Axis PWM"), _("X Axis PWM"), _("X Axis PWM"), 
+_("Y Axis PWM"), _("Y AXIS PWM"), _("Y Axis PWM"), 
+_("Z Axis PWM"), _("Z Axis PWM"), _("Z Axis PWM"),
+_("A Axis PWM"), _("A Axis PWM"), _("A Axis PWM"), 
+_("Spindle PWM"), _("Spindle PWM"), _("Spindle PWM"),  ]
 
 (UNUSED_ENCODER, 
 X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, X_ENCODER_M,
@@ -372,16 +372,16 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
 
 human_encoder_input_names = [ _("Unused Encoder"), 
-_("X Encoder-A Phase"), _("X Encoder-B Phase"), _("X Encoder-I Phase"), _("X Encoder-M Phase"),
-_("Y Encoder-A Phase"), _("Y Encoder-B Phase"), _("Y Encoder-I Phase"), _("Y Encoder-M Phase"), 
-_("Z Encoder-A Phase"), _("Z Encoder-B Phase"), _("Z Encoder-I Phase"), _("Z Encoder-M Phase"),
-_("A Encoder-A Phase"), _("A Encoder-B Phase"), _("A Encoder-I Phase"), _("A Encoder-M Phase"),
-_("Spindle Encoder-A Phase"), _("Spindle  Encoder-B Phase"), _("Spindle Encoder-I Phase"), _("Spindle Encoder-M Phase"), 
-_("X Hand Wheel-A Phase"), _("X Hand Wheel-B Phase"), _("X Hand Wheel-I Phase"), _("X Hand Wheel-M Phase"), 
-_("Y Hand wheel-A Phase"), _("Y Hand Wheel-B Phase"), _("Y Hand Wheel-I Phase"), _("Y Hand Wheel-M Phase"), 
-_("Z Hand Wheel-A Phase"), _("Z Hand Wheel-B Phase"), _("Z Hand Wheel-I Phase"), _("Z Hand Wheel-M Phase"), 
-_("A Hand Wheel-A Phase"), _("A Hand Wheel-B Phase"), _("A Hand Wheel-I Phase"), _("A Hand Wheel-M Phase"), 
-_("Multi Hand Wheel-A Phase"), _("Multi Hand Wheel-B Phase"), _("Multi Hand Wheel-I Phase"), _("Multi Hand Wheel-M Phase")]
+_("X Encoder"), _("X Encoder"), _("X Encoder"), _("X Encoder"),
+_("Y Encoder"), _("Y Encoder"), _("Y Encoder"), _("Y Encoder"), 
+_("Z Encoder"), _("Z Encoder"), _("Z Encoder"), _("Z Encoder"),
+_("A Encoder"), _("A Encoder"), _("A Encoder"), _("A Encoder"),
+_("Spindle Encoder"), _("Spindle  Encoder"), _("Spindle Encoder"), _("Spindle Encoder"), 
+_("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), 
+_("Y Hand wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), 
+_("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), 
+_("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), 
+_("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel")]
 
 (UNUSED_STEPGEN, 
 X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
@@ -396,11 +396,11 @@ SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_
 "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
 "s-stepgen-phase-f",]
 
-human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved c"), _("X reserved d"), 
-_("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
-_("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
-_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
-_("Spindle StepGen-Step"), _("Spindle StepGen-Direction"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
+human_stepper_names = [_("Unused StepGen"), _("X Axis StepGen"), _("X Axis StepGen"), _("X reserved c"), _("X reserved d"), 
+_("X reserved e"), _("X reserved f"), _("Y Axis StepGen"), _("Y Axis StepGen"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
+_("Y reserved f"), _("Z Axis StepGen"), _("Z Axis StepGen"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
+_("A Axis StepGen"), _("A Axis StepGen"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
+_("Spindle StepGen"), _("Spindle StepGen"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
 _("Spindle reserved f"), ]
 
 
@@ -924,12 +924,20 @@ class Data:
             setattr(self, name, conv(text))
         
         # this loads custom signal names created by the user
+        # strips endings off of custom signal name when put in
+        # human names arrays 
         for i in  self.halencoderinputsignames:
             hal_encoder_input_names.append(i)
-            human_encoder_input_names.append(i)
+            for j in(["-a","-b","-i","-m"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_encoder_input_names.append(k)
         for i in  self.halpwmoutputsignames:
             hal_pwm_output_names.append(i)
-            human_pwm_output_names.append(i)
+            for j in(["-pulse","-dir","-enable"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_pwm_output_names.append(k)
         for i in  self.halinputsignames:
             hal_input_names.append(i)
             human_input_names.append(i)
@@ -938,7 +946,10 @@ class Data:
             human_output_names.append(i)
         for i in  self.halsteppersignames:
             hal_stepper_names.append(i)
-            human_stepper_names.append(i)
+            for j in(["-step","-dir","-c","-d","-e","-f"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_stepper_names.append(k)
 
 
         warnings = []
@@ -3611,9 +3622,10 @@ class App:
                 # and that cause recursion
                 nametocheck_copy = copy.deepcopy(nametocheck)
                 for index, name in enumerate(nametocheck_copy):
-                    #print index,name,pinchanged,custom
+                    print index,name,pinchanged,custom
                     if name == pinchanged or (index+1 == len(nametocheck_copy) and custom == True) :
                         if not pinchanged == unusedcheck:used = 1
+                        if name == pinchanged: custom = False
                         for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]):
                             if i == connector:
                                 # This finds the pin type and component number of the pin that has changed
@@ -3634,26 +3646,27 @@ class App:
                                         if compnum != currentcompnum: continue                             
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
-                                        #print "checking-",comptype,"num-",compnum,"in ",tochange 
+                                        print "checking-",comptype,"num-",compnum,"in ",tochange 
                                         for offset,i in enumerate(relatedsearch):
                                             customname = pinchanged+relatedending[offset]
-                                            #print "customname-"+customname,"    offset ",offset
-                                            if custom:   
+                                            print "customname-"+customname,"    offset ",offset
+                                            if custom :
+                                                print "*** adding names to arrays:",customname   
                                                 if comptype == relatedsearch[0]:
                                                     signaltocheck.append ((customname))
-                                                    nametocheck.append ((customname))
+                                                    nametocheck.append ((pinchanged))
                                                     addsignalto.append ((customname))
                                                 if comptype != relatedsearch[0] or (comptype == relatedsearch[0] and offset == 0):
                                                     model = self.widgets[tochange].get_model()
-                                                    model.append((customname,))
+                                                    model.append((pinchanged,))
                                             if i == comptype:
-                                                #print "comptype found-"+ i
+                                                print "*** comptype found- "+ i," pinchanged:",pinchanged 
                                                 blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
                                                 self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
                                                 blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
                                                 self.widgets[tochange].child.handler_block(self.intrnldata[blocksignal])
-                                                if custom:  
-                                                    searchword = customname                                                                     
+                                                if custom :  
+                                                    searchword = pinchanged                                                                   
                                                 else:
                                                     searchword = pinchanged
                                                 model = self.widgets[tochange].get_model()
@@ -3665,7 +3678,8 @@ class App:
                                                 self.widgets[tochange].child.handler_unblock(self.intrnldata[blocksignal])
                                                 blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
                                                 self.widgets[tochange].handler_unblock(self.intrnldata[blocksignal])
-
+                    #print "\nafter"
+                    print "after ",index,name," - ",pinchanged,custom
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
         self.in_pport_prepare = True
@@ -3921,7 +3935,7 @@ class App:
         model.clear()
         for i in drivertypes:
             model.append((i[1],))
-        model.append((_("Custom"),))     
+        model.append((_("Custom"),))   
         w["steprev"].set_text("%s" % d[axis+"steprev"])
         w["microstep"].set_text("%s" % d[axis +"microstep"])
         set_value("P")
