@@ -48,170 +48,73 @@ halui triggers an appropriate event.
 
 .SH EXPORTED PINS
 
-.SS machine
+.SS abort
 .TP 
-\fIhalui.machine.on\fR
-pin for setting machine On
+\fIhalui.abort\fR
+pin for clearing most errors
+.SS home
 .TP 
-\fIhalui.machine.off\fR
-pin for setting machine Off
-.TP 
-\fIhalui.machine.is-on\fR
-pin for machine is On/Off
+\fIhalui.home-all\fR
+pin for requesting home-all
 .SS axis
 .TP
-\fIhalui.axis.#.pos-commanded\fR
+\fIhalui.axis.N.pos-commanded\fR
 Commanded axis position in machine coordinates
 .TP
-\fIhalui.axis.#.pos-feedback\fR
+\fIhalui.axis.N.pos-feedback\fR
 Feedback axis position in machine coordinates
 .TP
-\fIhalui.axis.#.pos-relative\fR
+\fIhalui.axis.N.pos-relative\fR
 Commanded axis position in relative coordinates
 .SS estop
 .TP
 \fIhalui.estop.activate\fR
 pin for setting Estop (emc internal) On
 .TP
-\fIhalui.estop.reset\fR
-pin for resetting Estop (emc internal) Off
-.TP
 \fIhalui.estop.is-activated\fR
 pin for displaying Estop state (emc internal) On/Off
-.SS mode
 .TP
-\fIhalui.mode.manual\fR
-pin for requesting manual mode
+\fIhalui.estop.reset\fR
+pin for resetting Estop (emc internal) Off
+.SS feed override
 .TP
-\fIhalui.mode.is_manual\fR
-pin for manual mode is on
+\fIhalui.feed-override.count-enable\fR (default: \fBTRUE\fR)
+When TRUE, modify feed override when counts changes.
 .TP
-\fIhalui.mode.auto\fR
-pin for requesting auto mode
+\fIhalui.feed-override.counts\fR
+counts from an encoder to change FO
 .TP
-\fIhalui.mode.is_auto\fR
-pin for auto mode is on
+\fIhalui.feed-override.decrease\fR
+pin for decreasing the FO (-=scale)
 .TP
-\fIhalui.mode.mdi\fR
-pin for requesting mdi mode
+\fIhalui.feed-override.increase\fR
+pin for increasing the FO (+=scale)
 .TP
-\fIhalui.mode.is_mdi\fR
-pin for mdi mode is on
+\fIhalui.feed-override.scale\fR
+pin for setting the scale on changing the FO
 .TP
-\fIhalui.mode.teleop\fR
-pin for requesting coordinated jog mode
-.TP
-\fIhalui.mode.is_teleop\fR
-pin showing coordinated jog mode is on
-.TP
-\fIhalui.mode.joint\fR
-pin for requesting joint by joint jog mode
-.TP
-\fIhalui.mode.is_joint\fR
-pin showing joint by joint jog mode is on
-.SS coolant, lubrication
-.TP
-\fIhalui.mist.on\fR
-pin for starting mist
-.TP
-\fIhalui.mist.off\fR
-pin for stopping mist
-.TP
-\fIhalui.mist.is-on\fR
-pin for mist is on
-.TP
-\fIhalui.flood.on\fR
-pin for starting flood
-.TP
-\fIhalui.flood.off\fR
-pin for stopping flood
+\fIhalui.feed-override.value\fR
+current Feed Override value
+.SS flood
 .TP
 \fIhalui.flood.is-on\fR
 pin for flood is on
 .TP
-\fIhalui.lube.on\fR
-pin for starting lube
+\fIhalui.flood.off\fR
+pin for stopping flood
 .TP
-\fIhalui.lube.off\fR
-pin for stopping lube
+\fIhalui.flood.on\fR
+pin for starting flood
+.SS jog
 .TP
-\fIhalui.lube.is-on\fR
-pin for lube is on
-.SS spindle
-.TP
-\fIhalui.spindle.start\fR
-pin for starting the spindle
-.TP
-\fIhalui.spindle.stop\fR
-pin for stopping the spindle
-.TP
-\fIhalui.spindle.forward\fR
-pin for making the spindle go forward
-.TP
-\fIhalui.spindle.reverse\fR
-pin for making the spindle go reverse
-.TP
-\fIhalui.spindle.increase\fR
-pin for making the spindle go faster
-.TP
-\fIhalui.spindle.decrease\fR
-pin for making the spindle go slower
-.TP
-\fIhalui.spindle.brake-on\fR
-pin for activating the spindle brake
-.TP
-\fIhalui.spindle.brake-off\fR
-pin for deactivating the spindle brake
-.TP
-\fIhalui.spindle.brake-is-on\fR
-status pin that tells us if brake is on
-.SS joint
-.TP
-\fIhalui.joint.#.home\fR
-pin for homing the specific joint
-.TP
-\fIhalui.joint.#.is-homed\fR
-status pin telling that the joint is homed
-.TP
-\fIhalui.joint.selected.home\fR
-pin for homing the selected joint 
-.TP
-\fIhalui.joint.selected.is-homed\fR
-status pin telling that the selected joint is homed
-.TP
-\fIhalui.joint.#.on-soft-min-limit\fR
-status pin telling that the joint is on the negative software limit
-.TP
-\fIhalui.joint.#.on-soft-max-limit\fR
-status pin telling that the joint is on the positive software limit
-.TP
-\fIhalui.joint.#.on-hard-min-limit\fR
-status pin telling that the joint is on the negative hardware limit
-.TP
-\fIhalui.joint.#.on-hard-max-limit\fR
-status pin telling that the joint is on the positive hardware limit
-.TP
-\fIhalui.joint.#.has-fault\fR
-status pin telling that the joint has a fault
-.TP
-\fIhalui.joint.select\fR
-select joint
-.TP
-\fIhalui.joint.selected\fR
-selected joint
-.TP
-\fIhalui.joint.#.select\fR
-pins for selecting a joint
-.TP
-\fIhalui.joint.#.is-selected\fR
-status pin that a joint is selected
-.SS jogging
+\fIhalui.jog.deadband\fR
+pin for setting jog analog deadband (where not to move)
 .TP
 \fIhalui.jog.speed\fR
 pin for setting jog speed. will be used for minus/plus jogging.
 .TP
-\fIhalui.jog.deadband\fR
-pin for setting jog analog deadband (where not to move)
+\fIhalui.jog.N.analog\fR
+pin for jogging the axis N using an float value (e.g. joystick)
 .TP
 \fIhalui.jog.N.minus\fR
 pin for jogging axis N in negative direction at the halui.jog.speed velocity
@@ -219,34 +122,180 @@ pin for jogging axis N in negative direction at the halui.jog.speed velocity
 \fIhalui.jog.N.plus\fR
 pin for jogging axis N in positive direction at the halui.jog.speed velocity
 .TP
-\fIhalui.jog.N.analog\fR
-pin for jogging the axis X using an float value (e.g. joystick)
-.TP
 \fIhalui.jog.selected.minus\fR
 pin for jogging the selected axis in negative direction at the halui.jog.speed velocity
 .TP
 \fIhalui.jog.selected.plus\fR
 pin for jogging the selected axis in positive direction at the halui.jog.speed velocity
-.SS tool
+.SS joint
 .TP
-\fIhalui.tool.number\fR
-current selected tool
+\fIhalui.joint.N.has-fault\fR
+status pin telling that joint N has a fault
 .TP
-\fIhalui.tool.length-offset\fR
-current applied tool-length-offset
+\fIhalui.joint.N.home\fR
+pin for homing joint N
+.TP
+\fIhalui.joint.N.is-homed\fR
+status pin telling that joint N is homed
+.TP
+\fIhalui.joint.N.is-selected\fR
+status pin that joint N is selected
+.TP
+\fIhalui.joint.N.on-hard-max-limit\fR
+status pin telling that joint N is on the positive hardware limit
+.TP
+\fIhalui.joint.N.on-hard-min-limit\fR
+status pin telling that joint N is on the negative hardware limit
+.TP
+\fIhalui.joint.N.on-soft-max-limit\fR
+status pin telling that joint N is on the positive software limit
+.TP
+\fIhalui.joint.N.on-soft-min-limit\fR
+status pin telling that joint N is on the negative software limit
+.TP
+\fIhalui.joint.N.select\fR
+pin for selecting joint N
+.TP
+\fIhalui.joint.N.unhome\fR
+pin for unhoming joint N
+.TP
+\fIhalui.joint.selected\fR
+selected joint
+.TP
+\fIhalui.joint.selected.has-fault\fR
+status pin selected joint is faulted
+.TP
+\fIhalui.joint.select\fR
+select joint
+.TP
+\fIhalui.joint.selected.home\fR
+pin for homing the selected joint 
+.TP
+\fIhalui.joint.selected.is-homed\fR
+status pin telling that the selected joint is homed
+.TP
+\fIhalui.joint.selected.on-hard-max-limit\fR
+status pin telling that the selected joint is on the positive hardware limit
+.TP
+\fIhalui.joint.selected.on-hard-min-limit\fR
+status pin telling that the selected joint is on the negative hardware limit
+.TP
+\fIhalui.joint.selected.on-soft-max-limit\fR
+status pin telling that the selected joint is on the positive software limit
+.TP
+\fIhalui.joint.selected.on-soft-min-limit\fR
+status pin telling that the selected joint is on the negative software limit
+.TP
+\fIhalui.joint.selected.unhome\fR
+pin for unhoming the selected joint
+.SS lube
+.TP
+\fIhalui.lube.is-on\fR
+pin for lube is on
+.TP
+\fIhalui.lube.off\fR
+pin for stopping lube
+.TP
+\fIhalui.lube.on\fR
+pin for starting lube
+.SS machine
+.TP 
+\fIhalui.machine.is-on\fR
+pin for machine is On/Off
+.TP 
+\fIhalui.machine.off\fR
+pin for setting machine Off
+.TP 
+\fIhalui.machine.on\fR
+pin for setting machine On
+.SS max-velocity
+.TP
+\fIhalui.max-velocity.count-enable\fR (default: \fBTRUE\fR)
+When TRUE, modify max velocity when counts changes.
+.TP
+\fIhalui.max-velocity.counts\fR
+counts from an encoder for example to change maximum velocity
+.TP
+\fIhalui.max-velocity.decrease\fR
+pin for decreasing the maximum velocity (-=scale)
+.TP
+\fIhalui.max-velocity.increase\fR
+pin for increasing the maximum velocity (+=scale)
+.TP
+\fIhalui.max-velocity.scale\fR
+pin for setting the scale on changing the maximum velocity
+.TP
+\fIhalui.max-velocity.value\fR
+Current value for maximum velocity
+.SS mist
+.TP
+\fIhalui.mist.is-on\fR
+pin for mist is on
+.TP
+\fIhalui.mist.off\fR
+pin for stopping mist
+.TP
+\fIhalui.mist.on\fR
+pin for starting mist
+.SS mode
+.TP
+\fIhalui.mode.auto\fR
+pin for requesting auto mode
+.TP
+\fIhalui.mode.is_auto\fR
+pin for auto mode is on
+.TP
+\fIhalui.mode.is_joint\fR
+pin showing joint by joint jog mode is on
+.TP
+\fIhalui.mode.is_manual\fR
+pin for manual mode is on
+.TP
+\fIhalui.mode.is_mdi\fR
+pin for mdi mode is on
+.TP
+\fIhalui.mode.is_teleop\fR
+pin showing coordinated jog mode is on
+.TP
+\fIhalui.mode.joint\fR
+pin for requesting joint by joint jog mode
+.TP
+\fIhalui.mode.manual\fR
+pin for requesting manual mode
+.TP
+\fIhalui.mode.mdi\fR
+pin for requesting mdi mode
+.TP
+\fIhalui.mode.teleop\fR
+pin for requesting coordinated jog mode
 .SS program
+.TP
+\fIhalui.program.block-delete.is-on\fR
+status pin telling that block delete is on
+.TP
+\fIhalui.program.block-delete.off\fR
+pin for requesting that block delete is off
+.TP
+\fIhalui.program.block-delete.on\fR
+pin for requesting that block delete is on
 .TP
 \fIhalui.program.is-idle\fR
 status pin telling that no program is running
 .TP
-\fIhalui.program.is-running\fR
-status pin telling that a program is running
-.TP
 \fIhalui.program.is-paused\fR
 status pin telling that a program is paused
 .TP
-\fIhalui.program.run\fR
-pin for running a program
+\fIhalui.program.is-running\fR
+status pin telling that a program is running
+.TP
+\fIhalui.program.optional-stop.is-on\fR
+status pin telling that the optional stop is on
+.TP
+\fIhalui.program.optional-stop.off\fR
+pin requesting that the optional stop is off
+.TP
+\fIhalui.program.optional-stop.on\fR
+pin requesting that the optional stop is on
 .TP
 \fIhalui.program.pause\fR
 pin for pausing a program
@@ -254,73 +303,102 @@ pin for pausing a program
 \fIhalui.program.resume\fR
 pin for resuming a program
 .TP
-\fIhalui.program.step\fR
-pin for stepping in a program
+\fIhalui.program.run\fR
+pin for running a program
 .TP
 \fIhalui.program.stop\fR
 pin for stopping a program 
 (note: this pin does the same thing as halui.abort)
-.SS general
-\fIhalui.abort\fR
-pin to send an abort message (clears out most errors)
-.SS feed override
 .TP
-\fIhalui.feed-override.value\fR
-current Feed Override value
-.TP
-\fIhalui.feed-override.scale\fR
-pin for setting the scale on changing the FO
-.TP
-\fIhalui.feed-override.counts\fR
-counts from an encoder to change FO
-\fIhalui.feed-override.count-enable\fR (default: \fBTRUE\fR)
-When TRUE, modify feed override when counts changes.
-.TP
-\fIhalui.feed-override.increase\fR
-pin for increasing the FO (+=scale)
-.TP
-\fIhalui.feed-override.decrease\fR
-pin for decreasing the FO (-=scale)
+\fIhalui.program.step\fR
+pin for stepping in a program
 .SS spindle override
 .TP
-\fIhalui.spindle-override.value\fR
-current FO value
-.TP
-\fIhalui.spindle-override.scale\fR
-pin for setting the scale on changing the SO
-.TP
-\fIhalui.spindle-override.counts\fR
-counts from an encoder for example to change SO
 \fIhalui.spindle-override.count-enable\fR (default: \fBTRUE\fR)
 When TRUE, modify spindle override when counts changes.
 .TP
-\fIhalui.spindle-override.increase\fR
-pin for increasing the SO (+=scale)
+\fIhalui.spindle-override.counts\fR
+counts from an encoder for example to change SO
 .TP
 \fIhalui.spindle-override.decrease\fR
 pin for decreasing the SO (-=scale)
 .TP
+\fIhalui.spindle-override.increase\fR
+pin for increasing the SO (+=scale)
+.TP
+\fIhalui.spindle-override.scale\fR
+pin for setting the scale on changing the SO
+.TP
 \fIhalui.spindle-override.value\fR
 current FO value
-.SS maximum velocity
+.SS spindle
 .TP
-\fIhalui.max-velocity.scale\fR
-pin for setting the scale on changing the maximum velocity
+\fIhalui.spindle.brake-is-on\fR
+status pin that tells us if brake is on
 .TP
-\fIhalui.max-velocity.counts\fR
-counts from an encoder for example to change maximum velocity
-\fIhalui.max-velocity.count-enable\fR (default: \fBTRUE\fR)
-When TRUE, modify max velocity when counts changes.
+\fIhalui.spindle.brake-off\fR
+pin for deactivating the spindle brake
 .TP
-\fIhalui.max-velocity.increase\fR
-pin for increasing the maximum velocity (+=scale)
+\fIhalui.spindle.brake-on\fR
+pin for activating the spindle brake
 .TP
-\fIhalui.max-velocity.decrease\fR
-pin for decreasing the maximum velocity (-=scale)
+\fIhalui.spindle.decrease\fR
+pin for making the spindle go slower
 .TP
-\fIhalui.max-velocity.value\fR
-Current value for maximum velocity
-
+\fIhalui.spindle.forward\fR
+pin for making the spindle go forward
+.TP
+\fIhalui.spindle.increase\fR
+pin for making the spindle go faster
+.TP
+\fIhalui.spindle.in-on\fR
+status pin telling if the spindle is on
+.TP
+\fIhalui.spindle.reverse\fR
+pin for making the spindle go reverse
+.TP
+\fIhalui.spindle.runs-backward\fR
+status pin telling if the spindle is running backward
+.TP
+\fIhalui.spindle.runs-forward\fR
+status pin telling if the spindle is running forward
+.TP
+\fIhalui.spindle.start\fR
+pin for starting the spindle
+.TP
+\fIhalui.spindle.stop\fR
+pin for stopping the spindle
+.SS tool
+.TP
+\fIhalui.tool.length-offset.a\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.b\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.c\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.u\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.v\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.w\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.x\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.y\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.length-offset.z\fR
+current applied tool-length-offset
+.TP
+\fIhalui.tool.number\fR
+current selected tool
 
 .SH "SEE ALSO"
 
@@ -330,7 +408,7 @@ Current value for maximum velocity
 none known at this time.
 .SH AUTHOR
 Written by Alex Joni, as part of the Enhanced Machine
-Controller (EMC2) project.
+Controller (EMC2) project. Updated by John Thornton
 .SH REPORTING BUGS
 Report bugs to alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT
