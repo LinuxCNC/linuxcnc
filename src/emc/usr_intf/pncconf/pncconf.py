@@ -2991,14 +2991,15 @@ class App:
                 # for encoder pins
                 if pintype not in(GPIOI,GPIOO,GPIOD) :
                     if not foundit:
-                        print "callin pin changed !!!"
+                       # print "callin pin changed !!!"
                         self.on_mesa_pin_changed(p,boardnum,connector,pin,True)  
-                        print "back !!!"
+                       # print "back !!!"
                         for index , i in enumerate(nametocheck):
-                            print "looking for signame -> ",selection," + ",addedending," ",i,index
-                            if selection+addedending == i : 
+                            selection = self.widgets[p].get_active_text()
+                        #    print "looking for signame -> ",selection," ",i,index
+                            if selection == i : 
                                 foundit = True
-                                print "found it",nametocheck[index],"in ",p,"at index ",index,"\n"
+                         #       print "found it",nametocheck[index],"in ",p,"at index ",index,"\n"
                                 break
             
                         
@@ -3009,19 +3010,19 @@ class App:
                     flag = 1
                     if selection == unusedname:flag = 0
                     currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
-                    print "current firm type, number-",currentfirm,currentcompnum
+                    # print "current firm type, number-",currentfirm,currentcompnum
                     for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
                         for t_pin in range (0,24):
                             comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
                             if compnum != currentcompnum: continue                             
                             if comptype not in (relatedsignals): continue
-                            print "checking-",comptype, compnum 
+                           # print "checking-",comptype, compnum 
                             for offset,i in enumerate(relatedsignals):
                                 if i == comptype:
                                     d = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)  
-                                    print "index",index,"offset",offset                                 
+                                  #  print "index",index,"offset",offset                                 
                                     self.data[d] = signaltocheck[(index+offset)*flag]
-                                    print d," <- ", self.data[d]
+                                  #  print d," <- ", self.data[d]
                               
                 # for input and output
                 elif pintype in(GPIOI,GPIOO,GPIOD):
@@ -3299,7 +3300,7 @@ class App:
                 self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                 self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_block(self.intrnldata[actblocksignal])                                            
-                # convert widget[ptype] to component specified in firmwaredata   
+                # *** convert widget[ptype] to component specified in firmwaredata  *** 
                    
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
@@ -3622,7 +3623,7 @@ class App:
                 # and that cause recursion
                 nametocheck_copy = copy.deepcopy(nametocheck)
                 for index, name in enumerate(nametocheck_copy):
-                    print index,name,pinchanged,custom
+                    #print index,name,pinchanged,custom
                     if name == pinchanged or (index+1 == len(nametocheck_copy) and custom == True) :
                         if not pinchanged == unusedcheck:used = 1
                         if name == pinchanged: custom = False
@@ -3646,27 +3647,31 @@ class App:
                                         if compnum != currentcompnum: continue                             
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
-                                        print "checking-",comptype,"num-",compnum,"in ",tochange 
-                                        for offset,i in enumerate(relatedsearch):
-                                            customname = pinchanged+relatedending[offset]
-                                            print "customname-"+customname,"    offset ",offset
+                                        #print "checking-",comptype,"num-",compnum,"in ",tochange 
+                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
+                                        blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].child.handler_block(self.intrnldata[blocksignal])
+                                        for offset,i in enumerate(relatedsearch):                                     
+                                            #print "rawname-"+pinchanged,"    offset ",offset
                                             if custom :
-                                                print "*** adding names to arrays:",customname   
+                                                legal_name = pinchanged.replace(" ","_")
+                                                with_endings = legal_name + relatedending[offset]                                               
                                                 if comptype == relatedsearch[0]:
-                                                    signaltocheck.append ((customname))
-                                                    nametocheck.append ((pinchanged))
-                                                    addsignalto.append ((customname))
+                                                    #print "*** adding names to arrays:" 
+                                                    #print "legalname:",legal_name, ",",with_endings
+                                                    signaltocheck.append ((with_endings))
+                                                    nametocheck.append ((legal_name))
+                                                    addsignalto.append ((with_endings))
                                                 if comptype != relatedsearch[0] or (comptype == relatedsearch[0] and offset == 0):
+                                                    #print "*** adding names to widget:"
                                                     model = self.widgets[tochange].get_model()
-                                                    model.append((pinchanged,))
+                                                    model.append((legal_name,))
                                             if i == comptype:
-                                                print "*** comptype found- "+ i," pinchanged:",pinchanged 
-                                                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
-                                                self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
-                                                blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
-                                                self.widgets[tochange].child.handler_block(self.intrnldata[blocksignal])
+                                                #print "*** comptype found- "+ i," pinchanged:",pinchanged 
+                                               
                                                 if custom :  
-                                                    searchword = pinchanged                                                                   
+                                                    searchword = legal_name                                                                 
                                                 else:
                                                     searchword = pinchanged
                                                 model = self.widgets[tochange].get_model()
@@ -3675,11 +3680,11 @@ class App:
                                                     if model[search][0]  == searchword:
                                                         self.widgets[tochange].set_active(search)
                                                         break
-                                                self.widgets[tochange].child.handler_unblock(self.intrnldata[blocksignal])
-                                                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
-                                                self.widgets[tochange].handler_unblock(self.intrnldata[blocksignal])
-                    #print "\nafter"
-                    print "after ",index,name," - ",pinchanged,custom
+                                        self.widgets[tochange].child.handler_unblock(self.intrnldata[blocksignal])
+                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].handler_unblock(self.intrnldata[blocksignal])
+                                        if i == comptype :break
+
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
         self.in_pport_prepare = True
@@ -3791,6 +3796,7 @@ class App:
                     foundit = True
                     break               
             if not foundit:
+                selection = selection.replace(" ","_")
                 model = self.widgets[p].get_model()
                 model.append((selection,))
                 g = human_input_names
@@ -3808,6 +3814,7 @@ class App:
             for i in human_output_names:
                if selection == i : foundit = 1
             if not foundit:
+                selection = selection.replace(" ","_")
                 model = self.widgets[p].get_model()
                 model.append((selection,))
                 g = human_output_names
