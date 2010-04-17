@@ -346,11 +346,11 @@ SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_nam
 "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
 "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
-human_pwm_output_names =[ _("Unused PWM Gen"), 
-_("X Axis PWM"), _("X Axis PWM"), _("X Axis PWM"), 
-_("Y Axis PWM"), _("Y AXIS PWM"), _("Y Axis PWM"), 
+human_pwm_output_names =[ _("Unused PWM Gen"),
+_("X Axis PWM"), _("X Axis PWM"), _("X Axis PWM"),
+_("Y Axis PWM"), _("Y AXIS PWM"), _("Y Axis PWM"),
 _("Z Axis PWM"), _("Z Axis PWM"), _("Z Axis PWM"),
-_("A Axis PWM"), _("A Axis PWM"), _("A Axis PWM"), 
+_("A Axis PWM"), _("A Axis PWM"), _("A Axis PWM"),
 _("Spindle PWM"), _("Spindle PWM"), _("Spindle PWM"),  ]
 
 (UNUSED_ENCODER, 
@@ -371,16 +371,16 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
 
-human_encoder_input_names = [ _("Unused Encoder"), 
+human_encoder_input_names = [ _("Unused Encoder"),
 _("X Encoder"), _("X Encoder"), _("X Encoder"), _("X Encoder"),
 _("Y Encoder"), _("Y Encoder"), _("Y Encoder"), _("Y Encoder"), 
 _("Z Encoder"), _("Z Encoder"), _("Z Encoder"), _("Z Encoder"),
 _("A Encoder"), _("A Encoder"), _("A Encoder"), _("A Encoder"),
-_("Spindle Encoder"), _("Spindle  Encoder"), _("Spindle Encoder"), _("Spindle Encoder"), 
-_("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), 
-_("Y Hand wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), 
-_("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), 
-_("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), 
+_("Spindle Encoder"), _("Spindle  Encoder"), _("Spindle Encoder"), _("Spindle Encoder"),
+_("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"),
+_("Y Hand wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"),
+_("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"),
+_("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"),
 _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel")]
 
 (UNUSED_STEPGEN, 
@@ -396,11 +396,11 @@ SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_
 "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
 "s-stepgen-phase-f",]
 
-human_stepper_names = [_("Unused StepGen"), _("X Axis StepGen"), _("X Axis StepGen"), _("X reserved c"), _("X reserved d"), 
-_("X reserved e"), _("X reserved f"), _("Y Axis StepGen"), _("Y Axis StepGen"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
-_("Y reserved f"), _("Z Axis StepGen"), _("Z Axis StepGen"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
-_("A Axis StepGen"), _("A Axis StepGen"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
-_("Spindle StepGen"), _("Spindle StepGen"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
+human_stepper_names = [_("Unused StepGen"), _("X Axis StepGen"), _("X Axis StepGen"), _("X reserved c"), _("X reserved d"),
+_("X reserved e"), _("X reserved f"), _("Y Axis StepGen"), _("Y Axis StepGen"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"),
+_("Y reserved f"), _("Z Axis StepGen"), _("Z Axis StepGen"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"),
+_("A Axis StepGen"), _("A Axis StepGen"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"),
+_("Spindle StepGen"), _("Spindle StepGen"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"),
 _("Spindle reserved f"), ]
 
 
@@ -3647,7 +3647,7 @@ class App:
                                         if compnum != currentcompnum: continue                             
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
-                                        #print "checking-",comptype,"num-",compnum,"in ",tochange 
+                                        #print "checking-",comptype,"num-",compnum,"in ",tochange
                                         blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
                                         self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
                                         blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
