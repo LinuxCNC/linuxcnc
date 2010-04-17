@@ -486,6 +486,10 @@ halui.mode.is-joint (bit, out) - pin showing joint by joint jog mode is on
 \end_layout
 
 \begin_layout Itemize
+halui.mode.manual (bit, in) - pin for requesting manual mode
+\end_layout
+
+\begin_layout Itemize
 halui.mode.is-manual (bit, out) - indicates manual mode is on
 \end_layout
 
