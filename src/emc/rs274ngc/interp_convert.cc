@@ -4552,9 +4552,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
   } else if (g_code == G_43_1) {
-    CHKS((block->i_flag == ON) ||
-        (block->k_flag == ON),
-        _("I K words not allowed with G43.1"));
     tool_offset = settings->tool_offset;
     index = -1;
     if(block->x_flag == ON) tool_offset.tran.x = block->x_number;
