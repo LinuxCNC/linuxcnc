@@ -23,8 +23,17 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import gettext;
 gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import Image, numarray
-import numarray.ieeespecial as ieee
+import Image
+
+try:
+    import numpy.numarray as numarray
+    import numpy.core
+    olderr = numpy.core.seterr(divide='ignore')
+    plus_inf = (numarray.array((1.,))/0.)[0]
+    numpy.core.seterr(**olderr)
+except ImportError:
+    import numarray, numarray.ieeespecial
+    plus_inf = numarray.ieeespecial.inf
 
 from rs274.author import Gcode
 import rs274.options
@@ -54,7 +63,7 @@ def make_tool_shape(f, wdia, resp):
     dia = int(wdia*res+.5)
     wrad = wdia/2.
     if dia < 2: dia = 2
-    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
+    n = numarray.array([[plus_inf] * dia] * dia, type="Float32")
     hdia = dia / 2.
     l = []
     for x in range(dia):
