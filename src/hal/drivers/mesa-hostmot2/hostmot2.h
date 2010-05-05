@@ -344,15 +344,6 @@ typedef struct {
 } hm2_pwmgen_instance_t;
 
 
-// these hal params affect all pwmgen instances
-typedef struct {
-    struct {
-        hal_u32_t pwm_frequency;
-        hal_u32_t pdm_frequency;
-    } param;
-} hm2_pwmgen_module_global_t;
-
-
 typedef struct {
     int num_instances;
     hm2_pwmgen_instance_t *instance;
@@ -361,8 +352,13 @@ typedef struct {
     u8 version;
 
 
-    // module-global HAL objects...
-    hm2_pwmgen_module_global_t *hal;
+    // these hal params affect all pwmgen instances
+    struct {
+        struct {
+            hal_u32_t pwm_frequency;
+            hal_u32_t pdm_frequency;
+        } param;
+    } hal;
 
     // these keep track of the most recent hal->param.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
