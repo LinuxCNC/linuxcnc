@@ -102,7 +102,7 @@ name "HAL"
 
 \end_inset
 
- The hal files start up process modules and provide linkages between EMC
+ The HAL files start up process modules and provide linkages between EMC
  signals and specific hardware pins.
 \end_layout
 
@@ -522,8 +522,11 @@ This is the name of the controller, which is printed out at the top of most
 \begin_layout Description
 DEBUG\InsetSpace ~
 =\InsetSpace ~
-0 Debug level 0 means no messages.
- See src/emc/nml_int/emcglb.h for others
+0 Debug level 0 means no messages will be printed when EMC is run
+ from a terminal.
+ Debug flags are usually only useful to developers.
+ See src/emc/nml_int/emcglb.h for other settings.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -1177,6 +1180,19 @@ name "TASK (inifile section)"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Description
+TASK\InsetSpace ~
+=\InsetSpace ~
+milltask Specifies the name of the "task" executable.
+ "task" does various things, such as communicate with the UIs over NML,
+ communicate with the realtime motion planner over non-HAL shared memory,
+ and interpret gcode.
+ Currently there is only one task executable that makes sense for 99.9% of
+ users, milltask In the dim mists of time (before HAL), it was frequently
+ the case that an integrator would have to build a modified version of things
+ like task, io, and motion for a specific machine.
 \end_layout
 
 \begin_layout Description
