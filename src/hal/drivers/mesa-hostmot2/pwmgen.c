@@ -35,9 +35,9 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     u32 dds;
 
 
-    if (hm2->pwmgen.hal.param.pwm_frequency < 1) {
-        HM2_ERR("pwmgen.pwm_frequency %d is too low, setting to 1\n", hm2->pwmgen.hal.param.pwm_frequency);
-        hm2->pwmgen.hal.param.pwm_frequency = 1;
+    if (hm2->pwmgen.hal->param.pwm_frequency < 1) {
+        HM2_ERR("pwmgen.pwm_frequency %d is too low, setting to 1\n", hm2->pwmgen.hal->param.pwm_frequency);
+        hm2->pwmgen.hal->param.pwm_frequency = 1;
     }
 
 
@@ -66,7 +66,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     //
 
     // can we do it with 12 bits?
-    dds = ((double)hm2->pwmgen.hal.param.pwm_frequency * 65536.0 * 4096.0) / (double)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 4096.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 12;
@@ -74,7 +74,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 11 bits
-    dds = ((double)hm2->pwmgen.hal.param.pwm_frequency * 65536.0 * 2048.0) / (double)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 2048.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 11;
@@ -82,7 +82,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 10 bits
-    dds = ((double)hm2->pwmgen.hal.param.pwm_frequency * 65536.0 * 1024.0) / (double)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 1024.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 10;
@@ -90,7 +90,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
     // try 9 bits
-    dds = ((double)hm2->pwmgen.hal.param.pwm_frequency * 65536.0 * 512.0) / (double)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pwm_frequency * 65536.0 * 512.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds < 65536) {
         hm2->pwmgen.pwmgen_master_rate_dds_reg = dds;
         hm2->pwmgen.pwm_bits = 9;
@@ -100,8 +100,8 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     // no joy, lower frequency until it'll work with 9 bits
     // From above:
     //     PWMFreq = (ClockHigh * DDS) / (65536 * 2^PWMBits)
-    hm2->pwmgen.hal.param.pwm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / (65536.0 * 512.0);
-    HM2_ERR("max PWM frequency is %d Hz\n", hm2->pwmgen.hal.param.pwm_frequency);
+    hm2->pwmgen.hal->param.pwm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / (65536.0 * 512.0);
+    HM2_ERR("max PWM frequency is %d Hz\n", hm2->pwmgen.hal->param.pwm_frequency);
     hm2->pwmgen.pwmgen_master_rate_dds_reg = 65535;
     hm2->pwmgen.pwm_bits = 9;
 }
@@ -111,9 +111,9 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     u32 dds;
 
 
-    if (hm2->pwmgen.hal.param.pdm_frequency < 1) {
-        HM2_ERR("pwmgen.pdm_frequency %d is too low, setting to 1\n", hm2->pwmgen.hal.param.pdm_frequency);
-        hm2->pwmgen.hal.param.pdm_frequency = 1;
+    if (hm2->pwmgen.hal->param.pdm_frequency < 1) {
+        HM2_ERR("pwmgen.pdm_frequency %d is too low, setting to 1\n", hm2->pwmgen.hal->param.pdm_frequency);
+        hm2->pwmgen.hal->param.pdm_frequency = 1;
     }
 
 
@@ -152,14 +152,14 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     //
 
     // can we do it with 12 bits?
-    dds = ((double)hm2->pwmgen.hal.param.pdm_frequency * 65536.0) / (double)hm2->pwmgen.clock_frequency;
+    dds = ((double)hm2->pwmgen.hal->param.pdm_frequency * 65536.0) / (double)hm2->pwmgen.clock_frequency;
     if (dds == 0) {
         // too slow, set frequency to minimum
         // From above:
         //     PulseFreq = (ClockHigh * DDS) / 65536
         dds = 1;
-        hm2->pwmgen.hal.param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * (double)dds) / 65536.0;
-        HM2_ERR("min PDM frequency is %d Hz\n", hm2->pwmgen.hal.param.pdm_frequency);
+        hm2->pwmgen.hal->param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * (double)dds) / 65536.0;
+        HM2_ERR("min PDM frequency is %d Hz\n", hm2->pwmgen.hal->param.pdm_frequency);
         hm2->pwmgen.pdmgen_master_rate_dds_reg = 1;
         return;
     }
@@ -173,8 +173,8 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     // user wants too much, lower frequency until it'll work with 12 bits
     // From above:
     //     PulseFreq = (ClockHigh * DDS) / 65536
-    hm2->pwmgen.hal.param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / 65536.0;
-    HM2_ERR("max PDM frequency is %d Hz\n", hm2->pwmgen.hal.param.pdm_frequency);
+    hm2->pwmgen.hal->param.pdm_frequency = ((double)hm2->pwmgen.clock_frequency * 65535.0) / 65536.0;
+    HM2_ERR("max PDM frequency is %d Hz\n", hm2->pwmgen.hal->param.pdm_frequency);
     hm2->pwmgen.pdmgen_master_rate_dds_reg = 65535;
 }
 
@@ -290,8 +290,8 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
         hm2->pwmgen.instance[i].written_enable = *hm2->pwmgen.instance[i].hal.pin.enable;
     }
 
-    hm2->pwmgen.written_pwm_frequency = hm2->pwmgen.hal.param.pwm_frequency;
-    hm2->pwmgen.written_pdm_frequency = hm2->pwmgen.hal.param.pdm_frequency;
+    hm2->pwmgen.written_pwm_frequency = hm2->pwmgen.hal->param.pwm_frequency;
+    hm2->pwmgen.written_pdm_frequency = hm2->pwmgen.hal->param.pdm_frequency;
 }
 
 
@@ -314,8 +314,8 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
     }
 
     // check pwm & pdm frequency
-    if (hm2->pwmgen.hal.param.pwm_frequency != hm2->pwmgen.written_pwm_frequency) goto force_write;
-    if (hm2->pwmgen.hal.param.pdm_frequency != hm2->pwmgen.written_pdm_frequency) goto force_write;
+    if (hm2->pwmgen.hal->param.pwm_frequency != hm2->pwmgen.written_pwm_frequency) goto force_write;
+    if (hm2->pwmgen.hal->param.pdm_frequency != hm2->pwmgen.written_pdm_frequency) goto force_write;
 
     // update enable register?
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
@@ -381,6 +381,15 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
+    // allocate the module-global HAL shared memory
+    hm2->pwmgen.hal = (hm2_pwmgen_module_global_t *)hal_malloc(sizeof(hm2_pwmgen_module_global_t));
+    if (hm2->pwmgen.hal == NULL) {
+        HM2_ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail0;
+    }
+
+
     hm2->pwmgen.instance = (hm2_pwmgen_instance_t *)hal_malloc(hm2->pwmgen.num_instances * sizeof(hm2_pwmgen_instance_t));
     if (hm2->pwmgen.instance == NULL) {
         HM2_ERR("out of memory!\n");
@@ -400,14 +409,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     r = hm2_register_tram_write_region(hm2, hm2->pwmgen.pwm_value_addr, (hm2->pwmgen.num_instances * sizeof(u32)), &hm2->pwmgen.pwm_value_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for PWM Value register (%d)\n", r);
-        goto fail1;
+        goto fail0;
     }
 
     hm2->pwmgen.pwm_mode_reg = (u32 *)kmalloc(hm2->pwmgen.num_instances * sizeof(u32), GFP_KERNEL);
     if (hm2->pwmgen.pwm_mode_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
-        goto fail1;
+        goto fail0;
     }
 
     // export to HAL
@@ -421,30 +430,30 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
         // these hal parameters affect all pwmgen instances
         r = hal_param_u32_newf(
             HAL_RW,
-            &(hm2->pwmgen.hal.param.pwm_frequency),
+            &(hm2->pwmgen.hal->param.pwm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pwm_frequency",
             hm2->llio->name
         );
         if (r < 0) {
             HM2_ERR("error adding pwmgen.pwm_frequency param, aborting\n");
-            goto fail2;
+            goto fail1;
         }
-        hm2->pwmgen.hal.param.pwm_frequency = 20000;
+        hm2->pwmgen.hal->param.pwm_frequency = 20000;
         hm2->pwmgen.written_pwm_frequency = 0;
 
         r = hal_param_u32_newf(
             HAL_RW,
-            &(hm2->pwmgen.hal.param.pdm_frequency),
+            &(hm2->pwmgen.hal->param.pdm_frequency),
             hm2->llio->comp_id,
             "%s.pwmgen.pdm_frequency",
             hm2->llio->name
         );
         if (r < 0) {
             HM2_ERR("error adding pwmgen.pdm_frequency param, aborting\n");
-            goto fail2;
+            goto fail1;
         }
-        hm2->pwmgen.hal.param.pdm_frequency = 20000;
+        hm2->pwmgen.hal->param.pdm_frequency = 20000;
         hm2->pwmgen.written_pdm_frequency = 0;
 
 
@@ -454,14 +463,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             r = hal_pin_float_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.value), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
-                goto fail2;
+                goto fail1;
             }
 
             rtapi_snprintf(name, HAL_NAME_LEN, "%s.pwmgen.%02d.enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
-                goto fail2;
+                goto fail1;
             }
 
             // parameters
@@ -483,7 +492,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             );
             if (r < 0) {
                 HM2_ERR("error adding param, aborting\n");
-                goto fail2;
+                goto fail1;
             }
 
             // init hal objects
@@ -501,11 +510,8 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->pwmgen.num_instances;
 
 
-fail2:
-    kfree(hm2->pwmgen.pwm_mode_reg);
-
 fail1:
-    kfree(hm2->pwmgen.instance);
+    kfree(hm2->pwmgen.pwm_mode_reg);
 
 fail0:
     hm2->pwmgen.num_instances = 0;
@@ -517,17 +523,10 @@ fail0:
 
 void hm2_pwmgen_cleanup(hostmot2_t *hm2) {
     if (hm2->pwmgen.num_instances <= 0) return;
-
     if (hm2->pwmgen.pwm_mode_reg != NULL) {
         kfree(hm2->pwmgen.pwm_mode_reg);
         hm2->pwmgen.pwm_mode_reg = NULL;
     }
-
-    if (hm2->pwmgen.instance != NULL) {
-        kfree(hm2->pwmgen.instance);
-        hm2->pwmgen.instance = NULL;
-    }
-
     hm2->pwmgen.num_instances = 0;
 }
 
