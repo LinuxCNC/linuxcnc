@@ -323,8 +323,11 @@ step resolution.
 (float output) velocity-fb: Feedback velocity in arbitrary position
 units per second.
 
-(bit input) enable: Enables output steps.  When false, no steps are
-generated.
+(bit input) enable: This pin enables the step generator instance.
+When True, the stepgen instance works as expected.  When False, no steps
+are generated and velocity-fb goes immediately to 0.  If the stepgen is
+moving when enable goes false it stops immediately, without obeying the
+maxaccel limit.
 
 (bit input) control-type: Switches between position control mode (0)
 and velocity control mode (1).  Defaults to position control (0).
