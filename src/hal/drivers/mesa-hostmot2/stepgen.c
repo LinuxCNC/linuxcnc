@@ -32,15 +32,6 @@
 #define f_period_s ((double)(l_period_ns * 1e-9))
 
 
-// note that it's important to use "subcounts/65536" instead of just
-// "counts" when computing position_fb, because position_fb needs sub-step
-// precision
-static void hm2_stepgen_update_position_and_counts(hm2_stepgen_instance_t *s) {
-    *s->hal.pin.counts = s->subcounts >> 16;
-    *s->hal.pin.position_fb = ((double)s->subcounts / 65536.0) / s->hal.param.position_scale;
-}
-
-
 
 
 // 
@@ -77,7 +68,12 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
         hm2->stepgen.instance[i].subcounts += acc_delta;
 
-        hm2_stepgen_update_position_and_counts(&hm2->stepgen.instance[i]);
+        *(hm2->stepgen.instance[i].hal.pin.counts) = hm2->stepgen.instance[i].subcounts >> 16;
+
+        // note that it's important to use "subcounts/65536.0" instead of just
+        // "counts" when computing position_fb, because position_fb needs sub-count
+        // precision
+        *(hm2->stepgen.instance[i].hal.pin.position_fb) = ((double)hm2->stepgen.instance[i].subcounts / 65536.0) / hm2->stepgen.instance[i].hal.param.position_scale;
 
         hm2->stepgen.instance[i].prev_accumulator = acc;
     }
@@ -290,12 +286,7 @@ void hm2_stepgen_prepare_tram_write(hostmot2_t *hm2, long l_period_ns) {
     for (i = 0; i < hm2->stepgen.num_instances; i ++) {
         if (*(hm2->stepgen.instance[i].hal.pin.enable) == 0) {
             hm2->stepgen.step_rate_reg[i] = 0;
-
             hm2->stepgen.instance[i].old_position_cmd = *(hm2->stepgen.instance[i].hal.pin.position_cmd);
-
-            hm2->stepgen.instance[i].subcounts = *hm2->stepgen.instance[i].hal.pin.position_cmd * hm2->stepgen.instance[i].hal.param.position_scale * 65536;
-            hm2_stepgen_update_position_and_counts(&hm2->stepgen.instance[i]);
-
             *(hm2->stepgen.instance[i].hal.pin.velocity_fb) = 0;
         } else {
             hm2_stepgen_instance_prepare_tram_write(hm2, l_period_ns, i);
