@@ -941,14 +941,14 @@ static int emcTaskPlan(void)
 		    /*! \todo FIXME-- can have GUI set this; send a run instead of a 
 		       step */
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
-		    // issuing an EMC_TASK_PLAN_RUN message clears the
-		    // stepping
-		    // flag-- reset it here
-		    stepping = 1;	// set step flag
-		    steppingWait = 0;	// don't wait for first one
+		    if(retval != 0) break;
+		    emcTrajPause();
+		    if (emcStatus->task.interpState != EMC_TASK_INTERP_PAUSED) {
+			interpResumeState = emcStatus->task.interpState;
+		    }
+		    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
 		    emcStatus->task.task_paused = 1;
-		    interpResumeState = EMC_TASK_INTERP_WAITING; //AJ: for some odd reason we need to return to WAITING on a subsequent TASK_RESUME
-		    emcTrajPause(); // cause a motion pause (causes stat->motion.paused to become true)
+		    retval = 0;
 		    break;
 
 		case EMC_TOOL_LOAD_TOOL_TABLE_TYPE:

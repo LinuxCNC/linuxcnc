@@ -34,6 +34,7 @@ import math
 import getopt
 import textwrap
 import locale
+import copy
 
 import gobject
 import gtk
@@ -131,10 +132,10 @@ drivertypes = [
     ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
 ]
 
-(GPIOI, GPIOO, GPIOD, ENCA, ENCB, ENCI, ENCM, STEPA, STEPB, PWMP, PWMD, PWME, PDMP, PDMD, PDME ) = pintype_names = [
+(GPIOI, GPIOO, GPIOD, ENCA, ENCB, ENCI, ENCM, STEPA, STEPB, STEPC, STEPD, STEPE, STEPF, PWMP, PWMD, PWME, PDMP, PDMD, PDME ) = pintype_names = [
 _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),
 _("HDW Encoder-A"),_("HDW Encoder-B"),_("HDW Encoder-I"),_("HDW Encoder-M"),
-_("HDW Step Gen-A"),_("HDW Step Gen-B"),
+_("HDW Step Gen-A"),_("HDW Step Gen-B"),_("HDW Step Gen-C"),_("HDW Step Gen-D"),_("HDW Step Gen-E"),_("HDW Step Gen-F"),
 _("HDW PWM Gen-P"),_("HDW PWM Gen-D"),_("HDW PWM Gen-E"),
 _("HDW PDM Gen-P"),_("HDW PDM Gen-D"),_("HDW PDM Gen-E") ]
 
@@ -242,6 +243,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
+    
 ]
 # boardname, firmwarename, Hal driver name,
 # max encoders, max pwm gens, 
@@ -344,12 +346,12 @@ SPINDLE_PWM_PULSE, SPINDLE_PWM_DIR, SPINDLE_PWM_ENABLE,   ) = hal_pwm_output_nam
 "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
 "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable"]
 
-human_pwm_output_names =[ _("Unused PWM Gen"), 
-_("X PWM Pulse Stream"), _("X PWM Direction"), _("X PWM Enable"), 
-_("Y PWM Pulse Stream"), _("Y PWM Direction"), _("Y PWM Enable"), 
-_("Z PWM Pulse Stream"), _("Z PWM Direction"), _("Z PWM Enable"),
-_("A PWM Pulse Stream"), _("A PWM Direction"), _("A PWM Enable"), 
-_("Spindle PWM Pulse Stream"), _("Spindle PWM Direction"), _("Spindle PWM Enable"),  ]
+human_pwm_output_names =[ _("Unused PWM Gen"),
+_("X Axis PWM"), _("X Axis PWM"), _("X Axis PWM"),
+_("Y Axis PWM"), _("Y AXIS PWM"), _("Y Axis PWM"),
+_("Z Axis PWM"), _("Z Axis PWM"), _("Z Axis PWM"),
+_("A Axis PWM"), _("A Axis PWM"), _("A Axis PWM"),
+_("Spindle PWM"), _("Spindle PWM"), _("Spindle PWM"),  ]
 
 (UNUSED_ENCODER, 
 X_ENCODER_A, X_ENCODER_B, X_ENCODER_I, X_ENCODER_M,
@@ -369,17 +371,17 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
 "select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
 
-human_encoder_input_names = [ _("Unused Encoder"), 
-_("X Encoder-A Phase"), _("X Encoder-B Phase"), _("X Encoder-I Phase"), _("X Encoder-M Phase"),
-_("Y Encoder-A Phase"), _("Y Encoder-B Phase"), _("Y Encoder-I Phase"), _("Y Encoder-M Phase"), 
-_("Z Encoder-A Phase"), _("Z Encoder-B Phase"), _("Z Encoder-I Phase"), _("Z Encoder-M Phase"),
-_("A Encoder-A Phase"), _("A Encoder-B Phase"), _("A Encoder-I Phase"), _("A Encoder-M Phase"),
-_("Spindle Encoder-A Phase"), _("Spindle  Encoder-B Phase"), _("Spindle Encoder-I Phase"), _("Spindle Encoder-M Phase"), 
-_("X Hand Wheel-A Phase"), _("X Hand Wheel-B Phase"), _("X Hand Wheel-I Phase"), _("X Hand Wheel-M Phase"), 
-_("Y Hand wheel-A Phase"), _("Y Hand Wheel-B Phase"), _("Y Hand Wheel-I Phase"), _("Y Hand Wheel-M Phase"), 
-_("Z Hand Wheel-A Phase"), _("Z Hand Wheel-B Phase"), _("Z Hand Wheel-I Phase"), _("Z Hand Wheel-M Phase"), 
-_("A Hand Wheel-A Phase"), _("A Hand Wheel-B Phase"), _("A Hand Wheel-I Phase"), _("A Hand Wheel-M Phase"), 
-_("Multi Hand Wheel-A Phase"), _("Multi Hand Wheel-B Phase"), _("Multi Hand Wheel-I Phase"), _("Multi Hand Wheel-M Phase")]
+human_encoder_input_names = [ _("Unused Encoder"),
+_("X Encoder"), _("X Encoder"), _("X Encoder"), _("X Encoder"),
+_("Y Encoder"), _("Y Encoder"), _("Y Encoder"), _("Y Encoder"), 
+_("Z Encoder"), _("Z Encoder"), _("Z Encoder"), _("Z Encoder"),
+_("A Encoder"), _("A Encoder"), _("A Encoder"), _("A Encoder"),
+_("Spindle Encoder"), _("Spindle  Encoder"), _("Spindle Encoder"), _("Spindle Encoder"),
+_("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"),
+_("Y Hand wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"),
+_("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"),
+_("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"),
+_("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel")]
 
 (UNUSED_STEPGEN, 
 X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
@@ -394,11 +396,11 @@ SPINDLE_STEPGEN_STEP, SPINDLE_STEPGEN_DIR, SPINDLE_STEPGEN_PHC, SPINDLE_STEPGEN_
 "s-stepgen-step", "s-stepgen-dir", "s-stepgen-phase-c", "s-stepgen-phase-d", "s-stepgen-phase-e", 
 "s-stepgen-phase-f",]
 
-human_stepper_names = [_("Unused StepGen"), _("X StepGen-Step"), _("X StepGen-Direction"), _("X reserved c"), _("X reserved d"), 
-_("X reserved e"), _("X reserved f"), _("Y StepGen-Step"), _("Y StepGen-Direction"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"), 
-_("Y reserved f"), _("Z StepGen-Step"), _("Z StepGen-Direction"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"), 
-_("A StepGen-Step"), _("A StepGen-Direction"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"), 
-_("Spindle StepGen-Step"), _("Spindle StepGen-Direction"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"), 
+human_stepper_names = [_("Unused StepGen"), _("X Axis StepGen"), _("X Axis StepGen"), _("X reserved c"), _("X reserved d"),
+_("X reserved e"), _("X reserved f"), _("Y Axis StepGen"), _("Y Axis StepGen"), _("Y reserved c"), _("Y reserved d"), _("Y reserved e"),
+_("Y reserved f"), _("Z Axis StepGen"), _("Z Axis StepGen"), _("Z reserved c"), _("Z reserved d"), _("Z reserved e"), _("Z reserved f"),
+_("A Axis StepGen"), _("A Axis StepGen"), _("A reserved c"), _("A reserved d"), _("A reserved e"), _("A reserved f"),
+_("Spindle StepGen"), _("Spindle StepGen"), _("Spindle reserved c"), _("Spindle reserved d"), _("Spindle reserved e"),
 _("Spindle reserved f"), ]
 
 
@@ -922,12 +924,20 @@ class Data:
             setattr(self, name, conv(text))
         
         # this loads custom signal names created by the user
+        # strips endings off of custom signal name when put in
+        # human names arrays 
         for i in  self.halencoderinputsignames:
             hal_encoder_input_names.append(i)
-            human_encoder_input_names.append(i)
+            for j in(["-a","-b","-i","-m"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_encoder_input_names.append(k)
         for i in  self.halpwmoutputsignames:
             hal_pwm_output_names.append(i)
-            human_pwm_output_names.append(i)
+            for j in(["-pulse","-dir","-enable"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_pwm_output_names.append(k)
         for i in  self.halinputsignames:
             hal_input_names.append(i)
             human_input_names.append(i)
@@ -936,7 +946,10 @@ class Data:
             human_output_names.append(i)
         for i in  self.halsteppersignames:
             hal_stepper_names.append(i)
-            human_stepper_names.append(i)
+            for j in(["-step","-dir","-c","-d","-e","-f"]):
+                if i.endswith(j):
+                    k = i.rstrip(j)
+            human_stepper_names.append(k)
 
 
         warnings = []
@@ -2193,7 +2206,7 @@ class Data:
 
     # This method takes a signalname data pin (eg mesa0c3pin1)
     # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
-    # The adj variable is for adjustment of position of pins related to the
+    # component number conversion is for adjustment of position of pins related to the
     # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
     # (a,b,i are related pins for encoder component) 
     def make_pinname(self, pin, ini_style = False):
@@ -2211,54 +2224,27 @@ class Data:
             signalname = self[pin]
             pinnum = int(test[10:])
             connum = int(test[6:7])
-            type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", PWMP:"pwmgen",      PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
+
+            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+                if i == connum:
+                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][13+pinnum+(concount*24)]
+
+            type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
+                PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
             try:
                 comptype = type_name[ptype]
             except :
                 comptype = "false"           
             #print test,self[pin], ptype, pinnum
-            # GPIO pins truenumber can be any number between 0 and 72 for 5i20 ( 96 in 5i22)
-            # true number is HAL number (vrs the connector/pin position)
+            # comp number is HAL number (vrs the connector/pin position)
             if ptype in(GPIOI,GPIOO,GPIOD):
-                truepinnum = int(pinnum)+(int(connum)-2)*24
-                return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (truepinnum)          
-            # Encoder 
-            elif ptype in (ENCA,ENCB,ENCI,ENCM):
-                adj = 0
-                if ptype == ENCB:adj = -1
-                if ptype == ENCI:
-                    adj = 2
-                    if pinnum in(4,16):adj = 3
-                if pinnum ==  3 + adj:truepinnum = 0 +((connum-2)*4) 
-                elif pinnum == 1 + adj:truepinnum = 1 +((connum-2)*4)
-                elif pinnum == 15 + adj:truepinnum = 2 +((connum-2)*4)
-                elif pinnum == 13 + adj:truepinnum = 3 +((connum-2)*4) 
-                else:print "(encoder) pin number error pinnum = %d"% pinnum
-            # PWMGen pins
-            elif ptype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                adj = 0
-                if signalname.endswith('dir'):adj = 2
-                if signalname.endswith('enable'):adj = 4         
-                if pinnum == 7 + adj:truepinnum = 0 +((connum-2)*4) 
-                elif pinnum == 6 + adj:truepinnum = 1 +((connum-2)*4)
-                elif pinnum == 19 + adj:truepinnum = 2 +((connum-2)*4)  
-                elif pinnum == 18 + adj:truepinnum = 3 +((connum-2)*4) 
-                else:print "(pwm) pin number error pinnum = %d"% pinnum
-            # StepGen pins 
-            elif ptype in (STEPA,STEPB):
-                adj = 0
-                if signalname.endswith('dir'):adj = 1
-                if signalname.endswith('c'):adj = 2
-                if signalname.endswith('d'):adj = 3
-                if signalname.endswith('e'):adj = 4
-                if signalname.endswith('f'):adj = 5
-                if pinnum == 0 + adj:truepinnum = 0 
-                elif pinnum == 6 + adj:truepinnum = 1 
-                elif pinnum == 12 + adj:truepinnum = 2 
-                elif pinnum == 18 + adj:truepinnum = 3
-                else:print "(step) pin number error pinnum = %d"% pinnum
-            else: print "pintype error"
-            return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (truepinnum)
+                compnum = int(pinnum)+(int(connum)-2)*24
+                return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
+            elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,STEPA,STEPB,STEPC,STEPD,STEPE,STEPF):
+                return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
+            else: 
+                print "pintype error"
+                return 
         elif 'pp' in test:
             print test
             ending = "-out"
@@ -2606,7 +2592,9 @@ class App:
                     for pin in range(0,24):
                       cb = "mesa%dc%ipin%i"% (boardnum,connector,pin)
                       i = "mesa%dsignalhandlerc%ipin%i"% (boardnum,connector,pin)
-                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin))
+                      self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pin_changed,boardnum,connector,pin,False))
+                      i = "mesa%dactivatehandlerc%ipin%i"% (boardnum,connector,pin)
+                      self.intrnldata[i] = int(self.widgets[cb].child.connect("activate", self.on_mesa_pin_changed,boardnum,connector,pin,True))
                       cb = "mesa%dc%ipin%itype"% (boardnum,connector,pin)
                       i = "mesa%dptypesignalhandlerc%ipin%i"% (boardnum,connector,pin)
                       self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_pintype_changed,boardnum,connector,pin))
@@ -2931,10 +2919,10 @@ class App:
     # if the signal name is not in the list add it to Human_names, signal_names
     # and disc-saved signalname lists
     # if encoder, pwm, or stepper pins the related pin are also set properly
-    # eg if pin 0 is [encoder-A} then pin 2 is set to [encoder -B] and
-    # pin 4 to [encoder-C]   
+    # it does this by searching the current firmware array and finding what the
+    # other related pins numbers are then changing them to the appropriate signalname.    
     def mesa_data_transfer(self,boardnum):
-        for connector in self.data["mesa%d_currentfirmwaredata"% boardnum][12] :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
             for pin in range(0,24):
                 foundit = 0
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
@@ -2942,7 +2930,7 @@ class App:
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                 pintype = self.widgets[ptype].get_active_text()
                 selection = self.widgets[p].get_active_text()
-                if pintype in (ENCB,ENCI,ENCM,PWMD,PWME,STEPB): continue
+                if pintype in (ENCB,ENCI,ENCM,PDMD,PDME,PWMD,PWME,STEPB): continue
                 # type GPIO input
                 if pintype == GPIOI:
                     nametocheck = human_input_names
@@ -2958,97 +2946,84 @@ class App:
                     nametocheck = human_encoder_input_names
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
+                    relatedsignals =["DUMMY",ENCB,ENCI,ENCM]
+                    relatedending = ["-a","-b","-i","-m"]
+                    addedending = "-a"
+                    unusedname = "Unused Encoder"
                 # type PWM gen
-                elif pintype in( PWMP,PDMP):
+                elif pintype in( PDMP):
                     nametocheck = human_pwm_output_names
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
+                    relatedsignals =["DUMMY",PDMD,PDME]
+                    relatedending = ["-pulse","-dir","-enable"]
+                    addedending = "-pulse"
+                    unusedname = "Unused PWM Gen"
+                elif pintype in( PWMP):
+                    nametocheck = human_pwm_output_names
+                    signaltocheck = hal_pwm_output_names
+                    addsignalto = self.data.halpwmoutputsignames
+                    relatedsignals =["DUMMY",PWMD,PWME]
+                    relatedending = ["-pulse","-dir","-enable"]
+                    addedending = "-pulse"
+                    unusedname = "Unused PWM Gen"
                 # type step gen
                 elif pintype == STEPA:
                     nametocheck = human_stepper_names
                     signaltocheck = hal_stepper_names
                     addsignalto = self.data.halsteppersignames
+                    relatedsignals =["DUMMY",STEPB,STEPC,STEPD,STEPE,STEPF]
+                    relatedending = ["-step","-dir","c","d","e","f"]
+                    addedending = "-a"
+                    unusedname = "Unused StepGen"
                 else :
                     print "error unknown pin type"
                     return
                 # check apropriote signal array for current signalname
                 # if not found, user made a new signalname -add it to array
                 for index , i in enumerate(nametocheck):
-                    if selection == i : 
+                    if selection == i: 
                         foundit = True
                         #print "found it",nametocheck[index],"in ",p,"\n"
-                        break         
+                        break
+                
                 # **Start widget to data Convertion**                    
                 # for encoder pins
-                if pintype == ENCA :
+                if pintype not in(GPIOI,GPIOO,GPIOD) :
                     if not foundit:
-                        print " adding encoder pinname\n"
-                        model = self.widgets[p].get_model()
-                        model.append((selection+"-a",))
-                        self.widgets[p].set_active( len(model))
-                        index = index +1
-                        for ending in ("-a","-b","-i","-m"):
-                            signaltocheck.append ((selection + ending))
-                            nametocheck.append ((selection + ending))
-                            addsignalto.append ((selection + ending))
+                       # print "callin pin changed !!!"
+                        self.on_mesa_pin_changed(p,boardnum,connector,pin,True)  
+                       # print "back !!!"
+                        for index , i in enumerate(nametocheck):
+                            selection = self.widgets[p].get_active_text()
+                        #    print "looking for signame -> ",selection," ",i,index
+                            if selection == i : 
+                                foundit = True
+                         #       print "found it",nametocheck[index],"in ",p,"at index ",index,"\n"
+                                break
+            
+                        
                     # set related encoder pins
+                    # searches the current firmware data array to find were the relate pins are
+                    # adds the widget signalname to the data unless the signal is Unused Encoder
+                    # then just adds that 
                     flag = 1
-                    if selection == "Unused Encoder":flag = 0
-                    if pin in (1,13):
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
-                        self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+3)
-                        self.data[d] = signaltocheck[(index+2)*flag]
-                    elif pin in (3,15):
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
-                        self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
-                        self.data[d] = signaltocheck[(index+2)*flag]  
-                    else:
-                        print"Encoder pin config error"
-                        continue
-                    if self.data.mesa0_currentfirmwaredata[6] == 4:                           
-                            for count, name in enumerate((1,3,13,15)):
-                                if name == pin:
-                                    if connector == 3: count=count+4
-                                    d = 'mesa%dc%dpin%d' % (boardnum,4,count)
-                                    self.data[d] = signaltocheck[(index+3)*flag]
-                # for PWM pins
-                elif pintype in (PWMP,PDMP) :
-                    if not foundit:
-                        model = self.widgets[p].get_model()
-                        model.append((selection+"-pulse",))
-                        index = index +1
-                        for ending in ("-pulse","-dir","-enable"):
-                            signaltocheck.append ((selection + ending))
-                            nametocheck.append ((selection + ending))
-                            addsignalto.append ((selection + ending))
-                    # set related pwm pins
-                    flag = 1
-                    if selection == "Unused PWM Gen":flag = 0
-                    if pin in (6,7,18,19):
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
-                        self.data[d] = signaltocheck[(index+1)*flag]
-                        d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+4)
-                        self.data[d] = signaltocheck[(index+2)*flag]
-                    else:
-                        print "PWM pin config error"
-                        continue
-                    # for stepgen pins
-                elif pintype == STEPA :
-                    if not foundit:
-                        model = self.widgets[p].get_model()
-                        model.append((selection+"-step",))
-                        index = index +1
-                        for ending in ("-step","-dir"):
-                            signaltocheck.append ((selection + ending))
-                            nametocheck.append ((selection + ending))
-                            addsignalto.append ((selection + ending))
-                    # set related stepgen pins
-                    flag = 1
-                    if selection == "Unused StepGen":flag = 0
-                    d = 'mesa%dc%dpin%d' % (boardnum,connector,pin+1)
-                    self.data[d] = signaltocheck[(index+1)*flag]                   
+                    if selection == unusedname:flag = 0
+                    currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    # print "current firm type, number-",currentfirm,currentcompnum
+                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                        for t_pin in range (0,24):
+                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                            if compnum != currentcompnum: continue                             
+                            if comptype not in (relatedsignals): continue
+                           # print "checking-",comptype, compnum 
+                            for offset,i in enumerate(relatedsignals):
+                                if i == comptype:
+                                    d = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)  
+                                  #  print "index",index,"offset",offset                                 
+                                    self.data[d] = signaltocheck[(index+offset)*flag]
+                                  #  print d," <- ", self.data[d]
+                              
                 # for input and output
                 elif pintype in(GPIOI,GPIOO,GPIOD):
                     if not foundit:
@@ -3262,7 +3237,9 @@ class App:
                 elif old == PDMP and new == PWMP:
                     print "switch PDM  ",p,"to PWM"
                     self.data[ptype] = new
-                else: print "pintype error in pinchanged method old,new ",old,new,"\n"
+                elif old in(GPIOI,GPIOO,GPIOD) and new in (ENCA,ENCB,ENCI,ENCM):
+                    print "switch ",old,"to ",new," on pin ",p
+                else: print "pintype error in pinchanged method old",old,"new ",new,"\npinnumber ",p
 
     def on_mesa_component_value_changed(self, widget,boardnum):
         self.in_mesa_prepare = True
@@ -3277,7 +3254,7 @@ class App:
         self.set_mesa_options(boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders)
         return True
 
-    # This method sets up the mesa GUI page.
+    # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
     # it changes the component comboboxes according to the firmware max and user requested amounts
     # it adds signal names to the signal name combo boxes according to component type and in the
     # case of GPIO options selected on the basic page such as limit/homing types.
@@ -3317,12 +3294,18 @@ class App:
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
                 blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
-                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)               
-                # convert widget[ptype] to component specified in firmwaredata   
+                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                actblocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
+                # kill all widget signals:
+                self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
+                self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
+                self.widgets[p].child.handler_block(self.intrnldata[actblocksignal])                                            
+                # *** convert widget[ptype] to component specified in firmwaredata  *** 
                    
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
-                # if we are we will change the variable 'firmtype' to ask for GPIO
+                # if we are then we trick this routine into thinking the firware asked for GPIO:
+                # we can do that by changing the variable 'firmptype' to ask for GPIO
                 if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
                     if numofencoders >= (compnum+1):
                         # if the combobox is not already displaying the right component:
@@ -3330,13 +3313,10 @@ class App:
                         if not self.widgets[ptype].get_active_text() in ( ENCA,ENCB,ENCI,ENCM ):  
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)                      
-                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
                             self.widgets[ptype].set_active(0)
-                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
-                            self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                             model = self.widgets[p].get_model()
                             model.clear()
                             # we only add every 4th human name so the user can only select
@@ -3352,18 +3332,19 @@ class App:
                                         continue
                                     model.append((name,))
                                 self.widgets[p].set_active(0)
-                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                                
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
+                            # pncconf control what the user sees with these ones:
                             elif firmptype in(ENCB,ENCI,ENCM):                           
                                 for name in human_encoder_input_names:model.append((name,)) 
-                                self.widgets[p].set_active(0)  
-                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
+                                self.widgets[p].set_active(0)   
                                 self.widgets[p].set_sensitive(0)
                                 self.widgets[ptype].set_sensitive(0)
                             self.widgets[p].set_wrap_width(1)
                             # if the data stored ptype is the encoder family then use the data stored signal name
                             # else set to unused_encoder signal name 
+                            # no sense in deleting the user's selected signal if it is for the right ptype
                             if self.data[ptype] in (ENCA,ENCB,ENCI,ENCM): 
                                 #print self.data[p]
                                 self.widgets[p].set_active(0) 
@@ -3371,7 +3352,8 @@ class App:
                                 for search,item in enumerate(model):
                                     if model[search][0]  == human_encoder_input_names[hal_encoder_input_names.index(self.data[p])]:
                                         self.widgets[p].set_active(search)
-                                        break                                          
+                                        break 
+                            # otherwise set it to unused so the user sees it has changed                                         
                             else:
                                 self.data[p] =  UNUSED_ENCODER
                                 self.data[ptype] = firmptype
@@ -3383,21 +3365,21 @@ class App:
                         # it should be GPIO
                         firmptype = GPIOI
                 # ---SETUP GUI FOR PWM FAMILY COMPONENT---
+                # the user has a choice of pulse width or pulse density modulation
                 elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                     if numofpwmgens >= (compnum+1):
                         if not self.widgets[ptype].get_active_text() in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
                             self.widgets[pinv].set_sensitive(0)
-                            self.widgets[pinv].set_active(0)
-                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
+                            self.widgets[pinv].set_active(0) 
+                            # add the two choices PWM and PDM to ptype combobox   
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
-                            temp = pintype_names[12]
-                            model.append((temp,))
-                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
-                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
+                            temp = pintype_names[16]
+                            model.append((temp,))                  
                             model = self.widgets[p].get_model()
                             model.clear()
+                            # only add the -pulse signal names for the user to see
                             if firmptype in(PWMP,PDMP):
                                 temp = -1                               
                                 for name in human_pwm_output_names:                       
@@ -3409,19 +3391,19 @@ class App:
                                     model.append((name,))
                                 self.widgets[ptype].set_sensitive(1)
                                 self.widgets[p].set_sensitive(1)
-                                self.widgets[p].set_active(0)
-                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
+                                self.widgets[p].set_active(0)   
+                            # add them all here      
                             elif firmptype in (PWMD,PWME,PDMD,PDME):                             
                                 self.widgets[p].set_sensitive(0)
                                 for name in human_pwm_output_names: model.append((name,))
-                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                 self.widgets[p].set_active(0) 
                                 self.widgets[ptype].set_sensitive(0)
                             self.widgets[p].set_wrap_width(1)
-                # This is for GPIO to PWM conversion
+                # This is for PWM conversions
                 # check to see data is already set to PWM family
-                # if in PWM family - set to data signal name
-                # if in GPIO family - changed to unused_PWM signal name 
+                # set the ptype to PWM or PDM 
+                # if in PWM family - set to widget signal name 
+                # else change to unused_PWM signal name 
                             if self.data[ptype] in (PWMP,PWMD,PWME,PDMP,PDMD,PDME): 
                                 if self.data[ptype] in (PWMP,PWMD,PWME):self.widgets[ptype].set_active(0)
                                 else:self.widgets[ptype].set_active(1)
@@ -3430,7 +3412,7 @@ class App:
                                 for search,item in enumerate(model):
                                     if model[search][0]  == human_pwm_output_names[hal_pwm_output_names.index(self.data[p])]:
                                         self.widgets[p].set_active(search)
-                                        break    
+                                        break                               
                             else:
                                 self.data[p] =  UNUSED_PWM
                                 self.data[ptype] = firmptype
@@ -3446,12 +3428,9 @@ class App:
                         if not self.widgets[ptype].get_active_text() in (STEPA,STEPB):
                             self.widgets[pinv].set_sensitive(0)
                             self.widgets[pinv].set_active(0)
-                            self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                             model = self.widgets[ptype].get_model()
                             model.clear() 
                             model.append((firmptype,))
-                            self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])                  
-                            self.widgets[p].handler_block(self.intrnldata[blocksignal])
                             model = self.widgets[p].get_model()
                             model.clear() 
                             # We have to step over some extra signalnames that hostmot2 currently
@@ -3467,10 +3446,8 @@ class App:
                                     model.append((name,))
                                 self.widgets[p].set_sensitive(1)
                                 self.widgets[ptype].set_sensitive(1)
-                                self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                             elif firmptype == STEPB:                               
                                     for name in human_stepper_names: model.append((name,))
-                                    self.widgets[p].handler_unblock(self.intrnldata[blocksignal])
                                     self.widgets[p].set_sensitive(0)
                                     self.widgets[p].set_active(0)
                                     self.widgets[ptype].set_sensitive(0) 
@@ -3495,9 +3472,9 @@ class App:
                 # first check to see if firmware says it should be in GPIO family
                 # (note this can be because firmware says it should be some other 
                 # type but the user wants to deselect it so as to use it as GPIO
-                # this is done in the firmtype checks before this check. 
-                # They will change firmtype variable to GPIOI)       
-                # check if firmtype is in GPIO family
+                # this is done in the firmptype checks before this check. 
+                # They will change firmptype variable to GPIOI)       
+                # check if firmptype is in GPIO family
                 # check if widget is already configured
                 # check to see if data says it is in GPIO family
                 # if not change datatype to GPIOI and signal to unused input
@@ -3514,15 +3491,12 @@ class App:
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
                         self.widgets[ptype].set_sensitive(1)
-                        self.widgets[ptype].handler_block(self.intrnldata[ptypeblocksignal])
                         model = self.widgets[ptype].get_model()
                         model.clear()
                         #  add 'input, output, and open drain' names to GPIO combobox
                         for j in (0,1,2):
                             temp = pintype_names[j]
                             model.append((temp,))
-                        self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
-                        self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                         model = self.widgets[p].get_model()
                         model.clear()
                         # signal names for GPIO INPUT
@@ -3537,8 +3511,7 @@ class App:
                                 if self.data.homenone or self.data.limitshared:
                                     if name in (_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All home")): continue
                                 model.append((name,))  
-                            self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
-                            #self.widgets[p].set_active(0)
+                            self.widgets[p].set_active(0)
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
                                 if model[search][0]  == human_input_names[hal_input_names.index(self.data[p])]:
@@ -3552,7 +3525,6 @@ class App:
                             if firmptype == GPIOO:self.widgets[ptype].set_active(2)
                             else:self.widgets[ptype].set_active(1)  
                             for name in human_output_names: model.append((name,))
-                            self.widgets[p].handler_unblock(self.intrnldata[blocksignal])  
                             self.widgets[p].set_active(0)  
                             model = self.widgets[p].get_model()
                             for search,item in enumerate(model):
@@ -3576,9 +3548,20 @@ class App:
         self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(numofpwmgens)
         self.in_mesa_prepare = False   
         self.intrnldata["mesa%d_configured"% boardnum] = True
-       
+        # unblock all the widget signals again
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+            for pin in range (0,24):      
+                p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
+                ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
+                blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, connector, pin)    
+                ptypeblocksignal  = "mesa%dptypesignalhandlerc%ipin%i" % (boardnum, connector,pin)  
+                actblocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
+                self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
+                self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
+                self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
 
-    def on_mesa_pin_changed(self, widget, boardnum, connector, pin):
+    # This is for when a user picks a signal name or creates a custom signal (by pressing enter)
+    def on_mesa_pin_changed(self, widget, boardnum, connector, pin, custom):
                 #if self.in_mesa_prepare == True: return       
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
@@ -3586,16 +3569,16 @@ class App:
                 dataptype = self.data[ptype]
                 used = 0
                 #print"pin change method ",ptype," = ",dataptype,"active ",pinchanged,"\n"
-                if dataptype in (ENCB,ENCI,ENCM,STEPB,PWMD,PWME,GPIOI,GPIOO,GPIOD):return
+                if dataptype in (ENCB,ENCI,ENCM,STEPB,STEPC,STEPD,STEPE,STEPF,PDMD,PDME,PWMD,PWME,GPIOI,GPIOO,GPIOD):return
                 # for stepgen pins
                 if dataptype == STEPA:
                     #print"ptype step\n"
-                    for index, name in enumerate(human_stepper_names):
-                        if name == pinchanged:
-                            if not pinchanged == "Unused StepGen":used = 1
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+1)
-                            self.widgets[tochange].set_active((index+1)*used) 
-                    return 
+                    nametocheck = human_stepper_names
+                    signaltocheck = hal_stepper_names
+                    addsignalto = self.data.halsteppersignames
+                    unusedcheck = "Unused StepGen"
+                    relatedsearch = [STEPA,STEPB,STEPC,STEPD,STEPE,STEPF] 
+                    relatedending = ["-step","-dir","c","d","e","f"]
                 # for encoder pins
                 elif dataptype == ENCA: 
                     #print"ptype encoder\n"
@@ -3603,6 +3586,8 @@ class App:
                     signaltocheck = hal_encoder_input_names
                     addsignalto = self.data.halencoderinputsignames
                     unusedcheck = "Unused Encoder"
+                    relatedsearch = [ENCA,ENCB,ENCI,ENCM]
+                    relatedending = ["-a","-b","-i","-m"]
                 # for PWM pins
                 elif dataptype == PWMP: 
                     #print"ptype pwmp\n"
@@ -3610,40 +3595,95 @@ class App:
                     signaltocheck = hal_pwm_output_names
                     addsignalto = self.data.halpwmoutputsignames
                     unusedcheck = "Unused PWM Gen"
+                    relatedsearch = [PWMP,PWMD,PWME]
+                    relatedending = ["-pulse","-dir","-enable"]
+                # for PDM pins
+                elif dataptype == PDMP: 
+                    datatype = PWMP
+                    #print"ptype pdmp\n"
+                    nametocheck = human_pwm_output_names
+                    signaltocheck = hal_pwm_output_names
+                    addsignalto = self.data.halpwmoutputsignames
+                    unusedcheck = "Unused PWM Gen"
+                    relatedsearch = [PWMP,PWMD,PWME]
+                    relatedending = ["-pulse","-dir","-enable"]
                 else: 
                     print" pintype not found\n"
                     return   
-                foundit = False            
-                for index, name in enumerate(nametocheck):
-                    if name == pinchanged:
+                # *** change the related pin's signal names ***
+                     
+                # see if the signal name is in our list of signals
+                # or if we are at the end of list and the custom flag is true we will add the signal name
+                # either way we have to search the current firmware array for the pin numbers of the related
+                # pins so we can change them to the related signal name 
+                # all signal names have related signal (eg encoders have A and B phase and index and index mask)
+                # except 'unused' signal it is a special case as there is no related signal names with it.
+
+                # have to deep copy because we are going to add names to namestocheck array
+                # and that cause recursion
+                nametocheck_copy = copy.deepcopy(nametocheck)
+                for index, name in enumerate(nametocheck_copy):
+                    #print index,name,pinchanged,custom
+                    if name == pinchanged or (index+1 == len(nametocheck_copy) and custom == True) :
                         if not pinchanged == unusedcheck:used = 1
-                        # for encoder 0 amd 2 pins
-                        if pin in (1,13):
-                           # print"changing encoder b"
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
-                            self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+3)
-                            self.widgets[tochange].set_active((index+2)*used)
-                        # for encoder 1 and 3 pins
-                        elif pin in (3,15):
-                            #print"changing encoder i"
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin-1)
-                            self.widgets[tochange].set_active((index+1)*used) 
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
-                            self.widgets[tochange].set_active((index+2)*used) 
-                        # for encoder mask pins
-                        if self.data["mesa%d_currentfirmwaredata"% boardnum][6] == 4:                           
-                            for count, name in enumerate((1,3,13,15)):
-                                if name == pin:
-                                    if connector == 3: count=count+4
-                                    tochange = 'mesa%dc%dpin%d' % (boardnum,4,count)
-                                    self.widgets[tochange].set_active((index+3)*used) 
-                        # for pwm pins d and e
-                        if pin in (6,7,18,19):
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+2)
-                            self.widgets[tochange].set_active((index+1)*used)
-                            tochange = 'mesa%dc%dpin%d' % (boardnum,connector,pin+4)
-                            self.widgets[tochange].set_active((index+2)*used)
+                        if name == pinchanged: custom = False
+                        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+                            if i == connector:
+                                # This finds the pin type and component number of the pin that has changed
+                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                                # search all the current firmware array for related pins
+                                # if not the same component number as the pin that changed or
+                                # if not in the relate component type keep searching
+                                # if is the right component type and number search the relatedsearch array for a match
+                                # while search with or without a match:
+                                # if custom flag set and the component type is for the user selectable signal (first relatedsearch item)
+                                # add the signal name with new related endings to the search arrays 
+                                # and widget combobox list - again unless the component type is for the user selectable signal then
+                                # only put the first signalname ending in it.
+                                # if we found a match display it in combobox (if a custom signal we have to search for the index number)
+                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                                    for t_pin in range (0,24):
+                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                                        if compnum != currentcompnum: continue                             
+                                        if comptype not in (relatedsearch): continue
+                                        tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
+                                        #print "checking-",comptype,"num-",compnum,"in ",tochange
+                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].handler_block(self.intrnldata[blocksignal])
+                                        blocksignal = "mesa%dactivatehandlerc%ipin%i"  % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].child.handler_block(self.intrnldata[blocksignal])
+                                        for offset,i in enumerate(relatedsearch):                                     
+                                            #print "rawname-"+pinchanged,"    offset ",offset
+                                            if custom :
+                                                legal_name = pinchanged.replace(" ","_")
+                                                with_endings = legal_name + relatedending[offset]                                               
+                                                if comptype == relatedsearch[0]:
+                                                    #print "*** adding names to arrays:" 
+                                                    #print "legalname:",legal_name, ",",with_endings
+                                                    signaltocheck.append ((with_endings))
+                                                    nametocheck.append ((legal_name))
+                                                    addsignalto.append ((with_endings))
+                                                if comptype != relatedsearch[0] or (comptype == relatedsearch[0] and offset == 0):
+                                                    #print "*** adding names to widget:"
+                                                    model = self.widgets[tochange].get_model()
+                                                    model.append((legal_name,))
+                                            if i == comptype:
+                                                #print "*** comptype found- "+ i," pinchanged:",pinchanged 
+                                               
+                                                if custom :  
+                                                    searchword = legal_name                                                                 
+                                                else:
+                                                    searchword = pinchanged
+                                                model = self.widgets[tochange].get_model()
+                                                for search,item in enumerate(model):
+                                                    #print "signal-> ",model[search][0],"<-",customname," ",pinchanged
+                                                    if model[search][0]  == searchword:
+                                                        self.widgets[tochange].set_active(search)
+                                                        break
+                                        self.widgets[tochange].child.handler_unblock(self.intrnldata[blocksignal])
+                                        blocksignal = "mesa%dsignalhandlerc%ipin%i" % (boardnum, t_connector, t_pin) 
+                                        self.widgets[tochange].handler_unblock(self.intrnldata[blocksignal])
+                                        if i == comptype :break
 
     def on_pp1pport_prepare(self, *args):
         self.data.help = 5
@@ -3756,6 +3796,7 @@ class App:
                     foundit = True
                     break               
             if not foundit:
+                selection = selection.replace(" ","_")
                 model = self.widgets[p].get_model()
                 model.append((selection,))
                 g = human_input_names
@@ -3773,6 +3814,7 @@ class App:
             for i in human_output_names:
                if selection == i : foundit = 1
             if not foundit:
+                selection = selection.replace(" ","_")
                 model = self.widgets[p].get_model()
                 model.append((selection,))
                 g = human_output_names
@@ -3900,7 +3942,7 @@ class App:
         model.clear()
         for i in drivertypes:
             model.append((i[1],))
-        model.append((_("Custom"),))     
+        model.append((_("Custom"),))   
         w["steprev"].set_text("%s" % d[axis+"steprev"])
         w["microstep"].set_text("%s" % d[axis +"microstep"])
         set_value("P")
