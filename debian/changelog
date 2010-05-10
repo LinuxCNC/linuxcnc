@@ -49,9 +49,9 @@ emc2 (1:2.4.0) hardy; urgency=low
   * interpreter: tool offsets can be applied on all 9 axes
   * interpreter: [TRAJ]TLO_IS_ALONG_W removed
   * interpreter: Incompatible change in G43.1 to support 9-axis tool lengths
-  * interpreter: G61 P- Q- specifies motion and "naive cam" tolerances
+  * interpreter: G64 P- Q- specifies motion and "naive cam" tolerances
     separately
-  * interpreter: M68 E- Q- to set analog outputs
+  * interpreter: M67/M68 E- Q- to set analog outputs
   * interpreter: g90.0/g90.1 choose absolute/relative arc centers
   * interpreter: new "polar mode" using @ ^ notation
   * interpreter: new "wrapped rotary" mode
