@@ -775,10 +775,10 @@ bind . <$modifier-o> {fileDialog}
 $filemenu add command -label [msgcat::mc "Edit..."] -command {popupProgramEditor} -underline 0
 set tooleditor [emc_ini "TOOL_EDITOR" "DISPLAY"]
 if {$tooleditor == ""} {
-  set tooleditor tooledit.tcl
+  set tooleditor tooledit
 }
 $filemenu add command -label [msgcat::mc "Tool Table Editor..."] \
-                      -command "exec $tooleditor $toolfilename&" \
+                      -command "eval exec $tooleditor [file normalize $toolfilename] &" \
                       -underline 0
 $filemenu add command -label [msgcat::mc "Reset"] -command {emc_task_plan_init} -underline 0
 $filemenu add separator
