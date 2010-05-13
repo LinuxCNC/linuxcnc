@@ -9,7 +9,7 @@ Specify the I/O address of the serial ports using the module parameter
 To free up the I/O ports after bootup, install setserial and execute a command
 like:
 .RS 
-sudo setserial /dev/ttyS0 none
+sudo setserial /dev/ttyS0 uart none
 .RE
 but it is best to ensure that the serial port is never used or configured by
 the Linux kernel by setting a kernel commandline parameter or not loading

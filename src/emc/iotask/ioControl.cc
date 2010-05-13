@@ -644,7 +644,12 @@ int read_tool_inputs(void)
     }
     
     if (*iocontrol_data->tool_change && *iocontrol_data->tool_changed) {
-	emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolTable[emcioStatus.tool.pocketPrepped].toolno; //the tool now in the spindle is the one that was prepared
+        if(!random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
+            emcioStatus.tool.toolInSpindle = 0;
+        } else {
+            // the tool now in the spindle is the one that was prepared
+            emcioStatus.tool.toolInSpindle = emcioStatus.tool.toolTable[emcioStatus.tool.pocketPrepped].toolno; 
+        }
 	*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	load_tool(emcioStatus.tool.pocketPrepped);
 	emcioStatus.tool.pocketPrepped = -1; //reset the tool preped number, -1 to permit tool 0 to be loaded

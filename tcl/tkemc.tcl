@@ -243,24 +243,6 @@ if {[string length $toolfilename] == 0} {
     set toolfilename "emc.tbl"
 }
 
-# pop up the tool table editor
-proc popupToolEditor {} {
-    global toolfilename
-
-    # create an editor as top-level ".toolEditor"
-    if {[file isfile $toolfilename]} {
-        geneditStart toolEditor $toolfilename
-    } else {
-        geneditStart toolEditor [msgcat::mc "untitled"].tbl
-    }
-
-    frame .toolEditor.buttons
-    pack .toolEditor.buttons -side bottom -fill x -pady 2m
-    button .toolEditor.buttons.load -text [msgcat::mc "Load Tool Table"] -command {geneditSaveFile toolEditor; emc_load_tool_table $toolfilename}
-    button .toolEditor.buttons.cancel -text [msgcat::mc "Cancel"] -default active -command {destroy .toolEditor}
-    pack .toolEditor.buttons.load .toolEditor.buttons.cancel -side left -expand 1
-}
-
 set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
 if {[string length $paramfilename] == 0} {
     set paramfilename "emc.var"
@@ -775,11 +757,13 @@ bind . <$modifier-o> {fileDialog}
 $filemenu add command -label [msgcat::mc "Edit..."] -command {popupProgramEditor} -underline 0
 set tooleditor [emc_ini "TOOL_EDITOR" "DISPLAY"]
 if {$tooleditor == ""} {
-  set tooleditor tooledit.tcl
+  set tooleditor tooledit
 }
 $filemenu add command -label [msgcat::mc "Tool Table Editor..."] \
-                      -command "exec $tooleditor $toolfilename&" \
+                      -command "eval exec $tooleditor [file normalize $toolfilename] &" \
                       -underline 0
+$filemenu add command -label [msgcat::mc "Reload Tool Table"] \
+                      -command "emc_load_tool_table [file normalize $toolfilename]"
 $filemenu add command -label [msgcat::mc "Reset"] -command {emc_task_plan_init} -underline 0
 $filemenu add separator
 $filemenu add command -label [msgcat::mc "Exit"] -command {after cancel updateStatus ; destroy . ; exit} -accelerator $modifierstring+X -underline 1
@@ -788,7 +772,6 @@ bind . <$modifier-x> {after cancel updateStatus ; destroy . ; exit}
 # add the View menu
 set viewmenu [menu $menubar.view -tearoff 0]
 $menubar add cascade -label [msgcat::mc "View"] -menu $viewmenu -underline 0
-$viewmenu add command -label [msgcat::mc "Tools..."] -command {popupToolEditor} -underline 0
 $viewmenu add command -label [msgcat::mc "Offsets and Variables..."] -command {popupParamEditor} -underline 0
 $viewmenu add command -label [msgcat::mc "Diagnostics..."] -command {popupDiagnostics} -underline 0
 $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -underline 0
