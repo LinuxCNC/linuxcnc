@@ -2581,6 +2581,8 @@ G2
 G3
 \family default
  (counterclockwise arc).
+ The direction (CW, CCW) is as viewed from the positive end of the axis
+ about which the rotation occours.
  The axis of the circle or helix must be parallel to the X, Y, or Z-axis
  of the machine coordinate system.
  The axis (or, equivalently, the plane perpendicular to the axis) is selected
@@ -4623,14 +4625,6 @@ Program G40 to turn cutter radius compensation off.
  
 \end_layout
 
-\begin_layout Standard
-It is an error if:
-\end_layout
-
-\begin_layout Itemize
-A G2/3 arc move is programmed after G40
-\end_layout
-
 \begin_layout Section
 G41, G42 Cutter Radius Compensation
 \begin_inset LatexCommand index
@@ -4652,12 +4646,15 @@ G41 or G42 D[tool]
 \end_layout
 
 \begin_layout Standard
-G41 start cutter radius compensation to the left of the programmed line.
+G41 start cutter radius compensation to the left of the programmed line
+ as viewed from the positive end of the axis perpendicular to the plane.
  
 \end_layout
 
 \begin_layout Standard
-G42 start cutter radius compensation to the right of the programmed line.
+G42 start cutter radius compensation to the right of the programmed line
+ as viewed from the positive end of the axis perpendicular to the plane.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -4666,7 +4663,8 @@ The lead in move must be at least as long as the tool radius and can be
 \end_layout
 
 \begin_layout Standard
-Cutter radius compensation may be performed only if the XY-plane is active.
+Cutter radius compensation may be performed if the XY-plane or XZ-plane
+ is active.
 \end_layout
 
 \begin_layout Standard
