@@ -4625,6 +4625,14 @@ Program G40 to turn cutter radius compensation off.
  
 \end_layout
 
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+A G2/3 arc move is programmed next after a G40.
+\end_layout
+
 \begin_layout Section
 G41, G42 Cutter Radius Compensation
 \begin_inset LatexCommand index
