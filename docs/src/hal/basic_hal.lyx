@@ -247,7 +247,7 @@ net <signal-name> <pin-name> <opt-direction> <opt-pin-name>
 \end_layout
 
 \begin_layout LyX-Code
-net both-home-y <= paraport.0.pin-11-in
+net both-home-y <= parport.0.pin-11-in
 \end_layout
 
 \begin_layout Standard
@@ -372,7 +372,7 @@ setp <pin/parameter-name> <value>
 \end_layout
 
 \begin_layout LyX-Code
-setp paraport.0.pin-08-out TRUE
+setp parport.0.pin-08-out TRUE
 \end_layout
 
 \begin_layout Subsection
@@ -1386,13 +1386,13 @@ loadrt and2 count=1
 \newline
 addf and2.0 servo-thread
 \newline
-net my-sigin1 and2.0.in0 <= paraport.0.pin
--11-in
+net my-sigin1 and2.0.in0 <= parport.0.pin-
+11-in
 \newline
-net my-sigin2 and2.0.in.1 <= paraport.0.pin-12-in
+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
 \newline
-net both-on paraport.0.pin-14-ou
-t <= and2.0.out
+net both-on parport.0.pin-14-out
+ <= and2.0.out
 \end_layout
 
 \begin_layout Standard
