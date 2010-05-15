@@ -100,7 +100,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -133,6 +133,11 @@ encoders available in the firmware, the board will fail to register.
 Only enable the first N pwmgens.  If N is -1, all pwmgens are enabled.
 If N is 0, no pwmgens are enabled.  If N is greater than the number of
 pwmgens available in the firmware, the board will fail to register.
+.TP
+\fBnum_3pwmgens\fR [optional, default: -1]
+Only enable the first N Three-phase pwmgens.  If N is -1, all 3pwmgens
+are enabled. If N is 0, no pwmgens are enabled.  If N is greater than the
+number of pwmgens available in the firmware, the board will fail to register.
 .TP
 \fBnum_stepgens\fR [optional, default: -1]
 Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
@@ -287,6 +292,71 @@ is determined by the ClockHigh frequency of the Anything IO board; the
 frequency.  Other boards may have different clocks, resulting in different
 max PDM frequencies.  If the user attempts to set the frequency too high,
 it will be clipped to the max supported frequency of the board.
+
+.SH 3ppwmgen
+Three-Phase PWM generators (3pwmgens) are intended for controlling the high-side
+and low-side gates in a 3-phase motor driver. The function is included to
+support the Mesa motor controller daughter-cards but can be used to control
+an IGBT or similar driver directly.
+3pwmgens have names like "hm2_<BoardType>.<BoardNum>.3pwmgen.<Instance>"
+where <Instance> is a 2-digit number. There will be num_3pwmgens instances,
+starting at 00.
+Each instance allocates 7 output and one input pins on the Mesa card connectors.
+Outputs are: PWM A, PWM B, PWM C, /PWM A, /PWM B, /PWM C, Enable. The first three
+pins are the high side drivers, the second three are their complementary low-side
+drivers. The enable bit is intended to control the servo amplifier.
+The input bit is a fault bit, typically wired to over-current detection. When set
+the PWM generator is disabled.
+The three phase duty-cycles are individually controllable from -Scale to +Scale.
+Note that 0 corresponds to a 50% duty cycle and this is the inialization value.
+
+Pins:
+
+(float input) A-value, B-value, C-value: The PWM command value for each phase,
+limited to +/- "scale". Defaults to zero which is 50% duty cycle on high-side and
+low-sidepins (but see the "deadtime" parameter)
+
+(bit input) enable: When high the PWM is enabled as long as the fault bit is not
+set by the external fault input pin. When low the PWM is disabled, with both high-
+side and low-side drivers low. This is not the same as 0 output (50% duty cycle on
+both sets of pins) or negative full scale (where the low side drivers are "on"
+100% of the time)
+
+(bit output) fault: Indicates the status of the fault bit. This output latches high
+once set by the physical fault pin until the "enable" pin is set to high.
+
+Parameters:
+
+(u32 rw) deadtime: Sets the dead-time between the high-side driver turning off and
+the low-side driver turning on and vice-versa. Deadtime is subtracted from on time
+and added to off time symmetrically. For example with 20 KHz PWM (50 uSec period),
+50% duty cycle and zero dead time, the PWM and NPWM outputs would be square
+waves (NPWM being inverted from PWM) with high times of 25 uS. With the same
+settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
+times of 23 uS (25 - (2X 1 uS), 1 uS per edge).
+The value is specified in nS and defaults to a rather conservative 5000nS. Setting
+this parameter to too low a value could be both expensive and dangerous as if both
+gates are open at the same time there is effectively a short circuit accross the
+supply.
+
+(float rw) scale: Sets the half-scale of the specified 3-phase PWM generator.
+PWM values from -scale to +scale are valid. Default is +/- 1.0
+
+(bit rw) fault-invert: Sets the polarity of the fault input pin. A value of 1 means
+that a fault is triggered with the pin high, and 0 means that a fault it triggered
+when the pin is pulled low. Default 0, fault = low so that the PWM works with the
+fault pin unconnected.
+
+(u32 rw) sample-time: Sets the time during the cycle when an ADC pulse is generated.
+0 = start of PWM cycle and 1 = end. Not currently useful to EMC2. Default 0.5.
+
+In addition the per-instance parameters above there is the following parameter
+that affects all instances
+
+(u32 rw) frequency: Sets the master PWM frequency. Maximum is approx 48kHz, minimum
+is 1kHz. Defaults to 20kHz.
+
+
 .SH stepgen
 
 stepgens have names like "hm2_<BoardType>.<BoardNum>.stepgen.<Instance>".
