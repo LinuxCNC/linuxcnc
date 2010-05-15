@@ -100,7 +100,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -143,6 +143,10 @@ number of pwmgens available in the firmware, the board will fail to register.
 Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
+.TP
+\fBnum_leds\fR [optional, default: -1]
+Only enable the first N of the LEDs on the FPGA board. If N is -1, then HAL
+pins for all the LEDs will be created. If N=0 then no pins will be added.
 .TP
 \fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
@@ -494,6 +498,17 @@ instances have this parameter.
 value of the GPIO will be the inverse of the value on the "out" HAL pin.
 Only full GPIO pins and IO pins used as outputs by active module instances
 have this parameter.
+
+.SH led
+
+Creates HAL pins for the LEDs on the FPGA board.
+
+Pins:
+
+(bit in) CR<NN>: The pins are numbered from CR01 upwards with the name
+corresponding to the PCB silkscreen. Setting the bit to "true" or 1 lights
+the led.
+
 .SH Watchdog
 
 The HostMot2 firmware may include a watchdog Module; if it does, the

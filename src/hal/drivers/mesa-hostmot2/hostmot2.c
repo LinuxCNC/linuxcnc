@@ -114,6 +114,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
     hm2_encoder_write(hm2);   // update ctrl register if needed
+    hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
 }
@@ -175,6 +176,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_PWMGEN:          return "PWMGen";
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
         case HM2_GTAG_TPPWM:           return "ThreePhasePWM";
+        case HM2_GTAG_LED:             return "LED";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -194,6 +196,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
     hm2->config.num_stepgens = -1;
+    hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
 
@@ -227,6 +230,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
             hm2->config.num_stepgens = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "num_leds=", 9) == 0) {
+            token += 9;
+            hm2->config.num_leds = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
@@ -635,6 +642,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_tp_pwmgen_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_LED:
+                md_accepted = hm2_led_parse_md(hm2, md_index);
+                break;
+
             default:
                 HM2_WARN(
                     "MD %d: %dx %s v%d: ignored\n",
@@ -688,6 +699,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);
     hm2_tp_pwmgen_cleanup(hm2);
+    hm2_led_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);

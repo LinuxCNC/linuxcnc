@@ -101,6 +101,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_PWMGEN           (6)
 #define HM2_GTAG_TRANSLATIONRAM  (11)
 #define HM2_GTAG_TPPWM           (19)
+#define HM2_GTAG_LED            (128)
 
 
 
@@ -635,7 +636,26 @@ typedef struct {
     u32 *reset_reg;
 } hm2_watchdog_t;
 
+//
+// On-board LEDs
+//
 
+typedef struct {
+        hal_bit_t *led;
+    } hm2_led_instance_t ;
+
+typedef struct {
+
+    int num_instances ;
+
+    hm2_led_instance_t *instance ;
+
+    u32 written_buff ;
+
+    u32 led_addr;
+    u32 *led_reg;
+
+} hm2_led_t ;
 
 
 // 
@@ -686,6 +706,7 @@ typedef struct {
         int num_pwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
+        int num_leds;
         int enable_raw;
         char *firmware;
     } config;
@@ -717,6 +738,7 @@ typedef struct {
     hm2_stepgen_t stepgen;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
+    hm2_led_t led;
 
     hm2_raw_t *raw;
 
@@ -879,6 +901,14 @@ void hm2_watchdog_force_write(hostmot2_t *hm2);
 
 
 // 
+// LED functions
+//
+
+int hm2_led_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_led_write(hostmot2_t *hm2);
+void hm2_led_cleanup(hostmot2_t *hm2);
+
+//
 // the raw interface lets you peek and poke the hostmot2 instance from HAL
 //
 
