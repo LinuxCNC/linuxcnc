@@ -83,6 +83,7 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
 
     hm2_ioport_gpio_process_tram_read(hm2);
+    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
 
@@ -101,6 +102,7 @@ static void hm2_write(void *void_hm2, long period) {
 
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
+    hm2_tp_pwmgen_prepare_tram_write(hm2);
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_tram_write(hm2);
 
@@ -109,8 +111,10 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_ioport_write(hm2);    // handles gpio.is_output but not gpio.out (that's done in tram_write() above)
     hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
+    hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
     hm2_encoder_write(hm2);   // update ctrl register if needed
+    hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
 }
@@ -171,6 +175,8 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_STEPGEN:         return "StepGen";
         case HM2_GTAG_PWMGEN:          return "PWMGen";
         case HM2_GTAG_TRANSLATIONRAM:  return "TranslationRAM";
+        case HM2_GTAG_TPPWM:           return "ThreePhasePWM";
+        case HM2_GTAG_LED:             return "LED";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -188,7 +194,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
     hm2->config.num_pwmgens = -1;
+    hm2->config.num_tp_pwmgens = -1;
     hm2->config.num_stepgens = -1;
+    hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
 
@@ -215,9 +223,17 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 12;
             hm2->config.num_pwmgens = simple_strtol(token, NULL, 0);
 
+        } else if (strncmp(token, "num_3pwmgens=", 13) == 0) {
+            token += 13;
+            hm2->config.num_tp_pwmgens = simple_strtol(token, NULL, 0);
+
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
             hm2->config.num_stepgens = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "num_leds=", 9) == 0) {
+            token += 9;
+            hm2->config.num_leds = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
@@ -238,6 +254,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
+    HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    enable_raw=%d\n",   hm2->config.enable_raw);
     HM2_DBG("    firmware=%s\n",   hm2->config.firmware ? hm2->config.firmware : "(NULL)");
@@ -621,6 +638,14 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_watchdog_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_TPPWM:
+                md_accepted = hm2_tp_pwmgen_parse_md(hm2, md_index);
+                break;
+
+            case HM2_GTAG_LED:
+                md_accepted = hm2_led_parse_md(hm2, md_index);
+                break;
+
             default:
                 HM2_WARN(
                     "MD %d: %dx %s v%d: ignored\n",
@@ -673,6 +698,8 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_encoder_cleanup(hm2);
     hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);
+    hm2_tp_pwmgen_cleanup(hm2);
+    hm2_led_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -684,6 +711,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 void hm2_print_modules(hostmot2_t *hm2) {
     hm2_encoder_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
+    hm2_tp_pwmgen_print_module(hm2);
     hm2_stepgen_print_module(hm2);
     hm2_ioport_print_module(hm2);
     hm2_watchdog_print_module(hm2);
@@ -1287,5 +1315,6 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_encoder_force_write(hm2);
     hm2_pwmgen_force_write(hm2);
     hm2_stepgen_force_write(hm2);
+    hm2_tp_pwmgen_force_write(hm2);
 }
 
