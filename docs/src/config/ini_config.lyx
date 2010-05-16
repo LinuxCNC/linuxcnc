@@ -1918,6 +1918,8 @@ NO
  If the encoder used for this axis has an index pulse, and the motion card
  has provision for this signal you may set it to yes.
  When it is yes, it will affect the kind of home pattern used.
+ Currently, you can't home to index with steppers unless your using stepgen
+ in velocity mode and pid.
 \end_layout
 
 \begin_layout Description
