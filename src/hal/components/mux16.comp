@@ -56,13 +56,13 @@ FUNCTION(_) {
                 else     {out_f = in07; out_s = in07;}
             }
             else {
-                if(sel3) {out_f = in13; out_s = in13;}
+                if(sel3) {out_f = in11; out_s = in11;}
                 else     {out_f = in03; out_s = in03;}
             }
         }
         else {
             if(sel2) {
-                if(sel3) {out_f = in11; out_s = in11;}
+                if(sel3) {out_f = in13; out_s = in13;}
                 else     {out_f = in05; out_s = in05;}
             }
             else {
@@ -78,13 +78,13 @@ FUNCTION(_) {
                 else     {out_f = in06; out_s = in06;}
             }
             else {
-                if(sel3) {out_f = in12; out_s = in12;}
+                if(sel3) {out_f = in10; out_s = in10;}
                 else     {out_f = in02; out_s = in02;}
             }
         }
         else {
             if(sel2) {
-                if(sel3) {out_f = in10; out_s = in10;}
+                if(sel3) {out_f = in12; out_s = in12;}
                 else     {out_f = in04; out_s = in04;}
             }
             else {
