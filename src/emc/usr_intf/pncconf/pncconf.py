@@ -2336,22 +2336,61 @@ class App:
                 node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
         nextpage.parentNode.insertBefore(axispage, nextpage)
 
+    def splash_screen(self):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
+        self.window.set_title("Pncconf setup")
+        self.window.set_border_width(10)
+
+        vbox = gtk.VBox(False, 5)
+        vbox.set_border_width(10)
+        self.window.add(vbox)
+        vbox.show()
+        align = gtk.Alignment(0.5, 0.5, 0, 0)
+        vbox.pack_start(align, False, False, 5)
+        align.show()
+
+        self.pbar = gtk.ProgressBar()
+        self.pbar.set_text("Pncconf is setting up")
+        self.pbar.set_fraction(.1)
+
+        align.add(self.pbar)
+        self.pbar.show()
+        self.window.show()
+        while gtk.events_pending():
+            gtk.main_iteration()
+
     def __init__(self):
         gnome.init("pncconf", "0.6") 
+        
+        self.splash_screen()
         glade = xml.dom.minidom.parse(os.path.join(datadir, self.fname))
         self.make_axispage(glade, 'y')
         self.make_axispage(glade, 'z')
         self.make_axispage(glade, 'a')
+        self.pbar.set_fraction(.2)
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.make_axismotorpage(glade, 'y')
         self.make_axismotorpage(glade, 'z')
         self.make_axismotorpage(glade, 'a')
+        self.pbar.set_fraction(.3)
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.make_pportpage(glade, 'pp2')
         self.make_pportpage(glade, 'pp3')
+        self.pbar.set_fraction(.4)
+        while gtk.events_pending():
+            gtk.main_iteration()
         doc = glade.toxml().encode("utf-8")
-
+        self.pbar.set_fraction(.75)
+        while gtk.events_pending():
+            gtk.main_iteration()
         self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="axis")
-        self.widgets = Widgets(self.xml)
+        self.window.hide()
 
+        self.widgets = Widgets(self.xml)
+        
         self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
         axisdiagram = os.path.join(helpdir,"axisdiagram1.png")
         self.widgets.helppic.set_from_file(axisdiagram)
