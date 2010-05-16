@@ -213,6 +213,15 @@ preview false
 \end_layout
 
 \begin_layout Standard
+\begin_inset Include \include{config/pncconf.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Include \include{config/copy_and_run.lyx}
 preview false
 
