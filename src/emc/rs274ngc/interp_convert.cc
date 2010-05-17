@@ -3669,8 +3669,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();
     PROGRAM_END();
-    if (_setup.percent_flag == ON) {
-      CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
+    if (_setup.percent_flag == ON && _setup.file_pointer) {
       line = _setup.linetext;
       for (;;) {                /* check for ending percent sign and comment if missing */
         if (fgets(line, LINELEN, _setup.file_pointer) == NULL) {
