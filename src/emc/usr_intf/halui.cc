@@ -205,9 +205,9 @@ DONE: - feed-override
 DONE: - spindle-override
    halui.spindle-override.value           float //current FO value
    halui.spindle-override.scale           float // pin for setting the scale on changing the SO
-   halui.spindle-override.counts          s43   //counts from an encoder for example to change SO
+   halui.spindle-override.counts          s32   //counts from an encoder for example to change SO
    halui.spindle-override.count-enable    bit   // TRUE to modify SO based on counts
-   halui.spindleoverride.direct-value     bit   // TRUE to make override based as a direct (scaled) value rather then counts of increments
+   halui.spindle-override.direct-value    bit   // TRUE to make override based as a direct (scaled) value rather then counts of increments
    halui.spindle-override.increase        bit   // pin for increasing the SO (+=scale)
    halui.spindle-override.decrease        bit   // pin for decreasing the SO (-=scale)
 
@@ -1728,46 +1728,46 @@ static void check_hal_changes()
 
     //max-velocity stuff
     counts = *halui_data->mv_counts;
-    if(*halui_data->mv_direct_value) {
-        if(*halui_data->mv_count_enable)
-            sendMaxVelocity(counts * *halui_data->mv_scale);
-    }else{
-        if(counts != old_halui_data.mv_counts) {
-            if(*halui_data->mv_count_enable)
+    if (counts != old_halui_data.mv_counts) {
+        if (*halui_data->mv_count_enable) {
+            if (*halui_data->mv_direct_value) {
+                sendMaxVelocity(counts * *halui_data->mv_scale);
+            } else {
                 sendMaxVelocity( *halui_data->mv_value + (counts - old_halui_data.mv_counts) *
                     *halui_data->mv_scale);
-            old_halui_data.mv_counts = counts;
+            }
         }
+        old_halui_data.mv_counts = counts;
     }
 
     //feed-override stuff
     counts = *halui_data->fo_counts;
-    if(*halui_data->fo_direct_value) {
-        if(*halui_data->fo_count_enable)
-            sendFeedOverride(counts * *halui_data->fo_scale);
-    }else{
-        if(counts != old_halui_data.fo_counts) {
-            if(*halui_data->fo_count_enable)
+    if (counts != old_halui_data.fo_counts) {
+        if (*halui_data->fo_count_enable) {
+            if (*halui_data->fo_direct_value) {
+                sendFeedOverride(counts * *halui_data->fo_scale);
+            } else {
                 sendFeedOverride( *halui_data->fo_value + (counts - old_halui_data.fo_counts) *
                     *halui_data->fo_scale);
-            old_halui_data.fo_counts = counts;
+            }
         }
+        old_halui_data.fo_counts = counts;
     }
 
     //spindle-override stuff
     counts = *halui_data->so_counts;
-    if(*halui_data->so_direct_value) {
-        if(*halui_data->so_count_enable)
-            sendSpindleOverride(counts * *halui_data->so_scale);
-    }else{
-        if(counts != old_halui_data.so_counts) {
-            if(*halui_data->so_count_enable)
+    if (counts != old_halui_data.so_counts) {
+        if (*halui_data->so_count_enable) {
+            if (*halui_data->so_direct_value) {
+                sendSpindleOverride(counts * *halui_data->so_scale);
+            } else {
                 sendSpindleOverride( *halui_data->so_value + (counts - old_halui_data.so_counts) *
                     *halui_data->so_scale);
-            old_halui_data.so_counts = counts;
+            }
         }
+        old_halui_data.so_counts = counts;
     }
-    
+
     if (check_bit_changed(halui_data->mv_increase, &(old_halui_data.mv_increase)) != 0)
         sendMaxVelocity(*halui_data->mv_value + *halui_data->mv_scale);
     if (check_bit_changed(halui_data->mv_decrease, &(old_halui_data.mv_decrease)) != 0)
