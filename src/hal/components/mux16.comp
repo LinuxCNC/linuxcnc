@@ -1,7 +1,7 @@
 component mux16 "Select from one of sixteen input values";
-pin in bit suppress_no_input"""\
-This suppresses changing the output if all select lines are false.
-This stops unwanted jumps in output between transitions of input.
+pin in bit suppress_transition_state"""\
+This surpresses changing the output if all select lines are false.
+This stops unwanted jumps in output between transitions of a real rotary switches.
 """;
 pin in bit sel0;
 pin in bit sel1;
@@ -9,8 +9,8 @@ pin in bit sel2;
 pin in bit sel3 """\
 Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 """;
-pin out float out_f;
-pin out s32 out_s """\
+pin out float out;
+pin out s32 sout """\
 Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
 The s32 value will be trunuated and limited to the max and min values of signed values. 
 .RS
@@ -24,16 +24,16 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 etc.
 .RE
 """;
-pin in float in00;
-pin in float in01;
-pin in float in02;
-pin in float in03;
-pin in float in04;
-pin in float in05;
-pin in float in06;
-pin in float in07;
-pin in float in08;
-pin in float in09;
+pin in float in0;
+pin in float in1;
+pin in float in2;
+pin in float in3;
+pin in float in4;
+pin in float in5;
+pin in float in6;
+pin in float in7;
+pin in float in8;
+pin in float in9;
 pin in float in10;
 pin in float in11;
 pin in float in12;
@@ -44,7 +44,7 @@ function _;
 license "GPL";
 ;;
 FUNCTION(_) {
-    if(suppress_no_input) {
+    if(suppress_transition_state) {
         if (sel0 + sel1 + sel2 + sel3 == 0) {
             return;
         }
@@ -52,44 +52,44 @@ FUNCTION(_) {
     if(sel0) {
         if(sel1) {
             if(sel2) {
-                if(sel3) {out_f = in15; out_s = in15;}
-                else     {out_f = in07; out_s = in07;}
+                if(sel3) {out = in15; sout = in15;}
+                else     {out = in7; sout = in7;}
             }
             else {
-                if(sel3) {out_f = in11; out_s = in11;}
-                else     {out_f = in03; out_s = in03;}
+                if(sel3) {out = in13; sout = in13;}
+                else     {out = in5; sout = in5;}
             }
         }
         else {
             if(sel2) {
-                if(sel3) {out_f = in13; out_s = in13;}
-                else     {out_f = in05; out_s = in05;}
+                if(sel3) {out = in11; sout = in11;}
+                else     {out = in3; sout = in3;}
             }
             else {
-                if(sel3) {out_f = in09; out_s = in09;}
-                else     {out_f = in01; out_s = in01;}
+                if(sel3) {out = in9; sout = in9;}
+                else     {out = in1; sout = in1;}
             }
         }
     }
     else {
        if(sel1) {
             if(sel2) {
-                if(sel3) {out_f = in14; out_s = in14;}
-                else     {out_f = in06; out_s = in06;}
+                if(sel3) {out = in14; sout = in14;}
+                else     {out = in6; sout = in6;}
             }
             else {
-                if(sel3) {out_f = in10; out_s = in10;}
-                else     {out_f = in02; out_s = in02;}
+                if(sel3) {out = in12; sout = in12;}
+                else     {out = in4; sout = in4;}
             }
         }
         else {
             if(sel2) {
-                if(sel3) {out_f = in12; out_s = in12;}
-                else     {out_f = in04; out_s = in04;}
+                if(sel3) {out = in10; sout = in10;}
+                else     {out = in2; sout = in2;}
             }
             else {
-                if(sel3) {out_f = in08; out_s = in08;}
-                else     {out_f = in00; out_s = in00;}
+                if(sel3) {out = in8; sout = in8;}
+                else     {out = in0; sout = in0;}
             }
         }
     }
