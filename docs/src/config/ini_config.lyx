@@ -424,8 +424,12 @@ Definitions
 
 \begin_layout Description
 Machine\InsetSpace ~
-Units The units (of length or angle) specified in the ini file for
- a particular axis
+Unit The unit of measurement for an axis is determined by the settings
+ in the [TRAJ] section.
+ A machine unit is equal to one unit as specified by 
+\color black
+LINEAR_UNITS or ANGULAR_UNITS.
+ 
 \end_layout
 
 \begin_layout Section
@@ -2676,8 +2680,12 @@ name "INPUT SCALE"
 \series default
 \noun default
  Specifies the number of pulses that corresponds to a move of one machine
- unit.
- A second number, if specified, is ignored.
+ unit as set in the [TRAJ] section.
+ For a linear axis one machine unit will be equal to the setting of LINEAR_UNITS.
+ For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+\newline
+A
+ second number, if specified, is ignored.
 \color black
 
 \newline
@@ -2732,16 +2740,18 @@ name "INPUT SCALE"
 \series default
 \noun default
  Specifies the number of pulses that corresponds to a move of one machine
- unit.
+ unit as set in the [TRAJ] section.
  For stepper systems, this is the number of step pulses issued per machine
  unit.
+ For a linear axis one machine unit will be equal to the setting of LINEAR_UNITS.
+ For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
  For servo systems, this is the number of feedback pulses per machine unit.
  A second number, if specified, is ignored.
 \color black
 
 \newline
 For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
- gearing, and desired units of inch, we have
+ gearing, and desired machine units of inch, we have
 \begin_inset Formula \begin{eqnarray*}
 input\_scale & = & \frac{{2\, steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}\\
  & = & 4000\frac{steps}{inch}\end{eqnarray*}
