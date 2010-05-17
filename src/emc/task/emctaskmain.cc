@@ -2910,7 +2910,7 @@ int main(int argc, char *argv[])
     done = 0;
     // trap ^C
     signal(SIGINT, emctask_quit);
-    // and SIGTERM (used by runs script to shut down
+    // and SIGTERM (used by runscript to shut down)
     signal(SIGTERM, emctask_quit);
 
     // set print destination to stdout, for console apps
