@@ -8,6 +8,7 @@
 <doc name="common_Linux_FAQ" title="Linux FAQ"/>
 
 <doc name="config_stepconf" title="Configuration Wizard for Stepper-Based Machines"/>
+<doc name="config_pncconf" title="Point n Click Configurator for Mesa Servo and Stepper Machines"/>
 <doc name="config_ini_config" title="Basic Configuration"/>
 <doc name="config_ini_homing" title="Homing Configuration"/>
 <doc name="config_emc2hal" title="EMC2's interface to HAL"/>
