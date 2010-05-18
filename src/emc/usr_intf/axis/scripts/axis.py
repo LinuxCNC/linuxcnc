@@ -1882,7 +1882,8 @@ class TclCommands(nf.TclCommands):
         else:
             e = string.split(editor)
             e.append(loaded_file)
-            os.spawnvp(os.P_NOWAIT, e[0], e)
+            e.append("&")
+            root_window.tk.call("exec", *e)
 
     def edit_tooltable(*event):
         if tooltable is None:
@@ -1890,7 +1891,8 @@ class TclCommands(nf.TclCommands):
         else:
             e = string.split(tooleditor)
             e.append(tooltable)
-            os.spawnvp(os.P_NOWAIT, e[0], e)
+            e.append("&")
+            root_window.tk.call("exec", *e)
 
     def task_run(*event):
         if run_warn(): return

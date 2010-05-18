@@ -4,13 +4,14 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
 
  -- Jeff Epler <jepler@unpythonic.net>  Wed, 03 Feb 2010 18:58:59 -0600
 
-emc2 (1:2.4.0~pre) hardy; urgency=low
+emc2 (1:2.4.0) hardy; urgency=low
 
   * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates
   * configs: DOS-damaged inifiles are detected with a clear error
   * configs: A default nml file is used if it is not specified in the inifile
   * configs: new [AXIS_#]VOLATILE_HOME flag makes an axis unhomed after estop
     or machine off (for motors without feedback, such as steppers)
+  * configs: updates to smithy configuration files
 
   * nml: enlarge status buffer in default emc.nml
   * nml: add machine delay time to status (works for G4Pxx and M66)
@@ -28,6 +29,11 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
   * axis: axis-remote --mdi sends an mdi command
   * axis: new HAL pins such as axisui.set-manual-mode to take UI actions from
     a remote pendant or hard button
+  * axis: improve (AXIS,stop) comment
+  * axis: improve load time of programs, particularly those containing arcs
+  * axis: inifile item [DISPLAY]ARCDIVISION trades preview generation speed
+    for preview accuracy
+  * axis: fix a memory leak on program reload
 
   * halui: new pins such as home-all, unhome
 
@@ -38,6 +44,8 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
     (backwards incompatible change)
   * pyvcp: -g argument sets initial window size and position
 
+  * stepconf: improve "test axis" for machines with long step length
+
   * pncconf: a new, alpha-release graphical configurator for hostmot2 systems.
 
   * interpreter: the .var file is automatically created if it doesn't exist
@@ -47,9 +55,9 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
   * interpreter: tool offsets can be applied on all 9 axes
   * interpreter: [TRAJ]TLO_IS_ALONG_W removed
   * interpreter: Incompatible change in G43.1 to support 9-axis tool lengths
-  * interpreter: G61 P- Q- specifies motion and "naive cam" tolerances
+  * interpreter: G64 P- Q- specifies motion and "naive cam" tolerances
     separately
-  * interpreter: M68 E- Q- to set analog outputs
+  * interpreter: M67/M68 E- Q- to set analog outputs
   * interpreter: g90.0/g90.1 choose absolute/relative arc centers
   * interpreter: new "polar mode" using @ ^ notation
   * interpreter: new "wrapped rotary" mode
@@ -59,7 +67,13 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
   * task: Improve behavior of O-call from MDI
   * task: new "random" toolchanger for carousel systems which don't
     necessarily put the tool back in the same pocket it came from.
+  * task: fix "step from first line"
+  * task: improve "run from line" when next line does not specify all
+    axis words
+  * task: avoid undesired motion on "run from line" when next line is an
+    error
   * motion: further improvements to spindle-synchronized motion
+  * motion: improve blending of arcs with very low acceleration limit
 
   * hal: bump shared memory size to allow for more complex configs
   * hal: now cooperates with the linux parport_pc driver.  When
@@ -68,7 +82,7 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
   * halmeter: -g argument sets initial window size and position
   * halcmd: DOS-damaged files are detected with a clear error
   * internationalization: halscope and halmeter are now translatable
-
+  * hal_parport: fix a problem with control pins in "x" mode
   * comp: components must now specify a license
   * comp: new "include" directive
 
@@ -85,10 +99,12 @@ emc2 (1:2.4.0~pre) hardy; urgency=low
     approximate "interpolated position" for low-resolution encoders
   * thc: new alpha-release component for torch height control
 
+  * image-to-gcode: use numpy instead of numarray
+
   * documentation: many improvements
   * many more small enhancements and bugfixes
 
- -- jepler <jepler@unpythonic.net>  Sat, 06 Feb 2010 08:33:49 -0600
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 09 May 2010 11:07:19 -0500
 
 emc2 (1:2.3.5~pre) hardy; urgency=low
 
