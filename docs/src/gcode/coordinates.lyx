@@ -239,9 +239,24 @@ In the VAR file scheme, the first variable number stores the X offset, the
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Standard
+This needs to be updated!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Each of the graphical interfaces has a way to set values for these offsets.
- You can also set these values by editing the VAR file itself and then issuing
- a [reset] so that the EMC reads the new values.
+ You can also set these values by editing the VAR file itself and then restartin
+g EMC so that the EMC reads the new values however this is not the recommended
+ way.
+ G10, G92, G28.1, etc are better ways to affect variables.
  For our example let's directly edit the file so that G55 takes on the following
  values.
 \end_layout
@@ -492,11 +507,11 @@ One other variable in the VAR file becomes important when we think about
  In the default files its value is set to 1.00000.
  This means that when the EMC starts up it should use the first coordinate
  system as its default.
- If you set this to 9.00000 it would use the nineth offset system as its
- default for startup and reset.
- Any value other than an interger (decimal really) between 1 and 9, or a
+ If you set this to 9.00000 it would use the ninth offset system as its default
+ for start up and reset.
+ Any value other than an integer (decimal really) between 1 and 9, or a
  missing 5220 variable will cause the EMC to revert to the default value
- of 1.00000 on startup.
+ of 1.00000 on start up.
  
 \end_layout
 
