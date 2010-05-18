@@ -205,9 +205,6 @@ void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2) {
     double x0 = TO_PROG_LEN(_pos_x),
          y0 = TO_PROG_LEN(_pos_y);
 
-    fprintf(stderr, "SPLINE_FEED(conic): %8.4f %8.4f %8.4f %8.4f %8.4f %8.4f\n",
-          x0,y0,x1,y1,x2,y2);
-
     for(int i=1; i<=100; i++) {
       double t = i / 100.;
       double t2 = t*t;
