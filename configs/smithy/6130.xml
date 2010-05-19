@@ -1,0 +1,21 @@
+<pyvcp>
+    <label>
+        <text>"Commanded:"</text>
+    </label>
+    <number>
+        <halpin>"commanded-spindle-speed"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"6d"</format>
+        <width>6</width>
+    </number>
+    <label>
+        <text>"Actual:"</text>
+    </label>
+    <number>
+        <halpin>"actual-spindle-speed"</halpin>
+        <font>("Helvetica",12)</font>
+        <format>"6d"</format>
+        <width>6</width>
+    </number>
+</pyvcp>
+

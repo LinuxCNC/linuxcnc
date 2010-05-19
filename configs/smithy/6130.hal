@@ -1,12 +1,13 @@
-# 5i20 config file for Smithy 6130 Lathe
+# 5i20 config file for Smithy 924 Lathe
 
-# load the hostmot2 driver, this doesnt do anything by itself,
+# load the hostmot2 driver, this doesnt do anything by itself, 
 # it just waits for low-level drivers to register boards
 loadrt hostmot2 debug_idrom=1 debug_module_descriptors=1 debug_pin_descriptors=1 debug_modules=1
 
 # load the low-level driver for the board
 # this will load the board's firmware and register it with the hostmot2
 # driver loaded above, and it'll show up in HAL
+# for the production 924 lathe use SVST2_4_7I47.BIT
 loadrt hm2_pci config="firmware=hm2/5i20/SVST2_4_7I47.BIT num_encoders=2 num_pwmgens=1 num_stepgens=2"
 # set up the watchdog
 #setp hm2_5i20.0.watchdog.timeout_ns 10000000
@@ -26,9 +27,6 @@ loadusr -w classicladder --nogui 924.clp
 # load charge pump
 loadrt charge_pump
 
-# load the spindle speed lowpass filter
-loadrt lowpass
-
 #the Enable signal is used to permanently enable things
 newsig Enable bit
 sets Enable TRUE
@@ -38,10 +36,8 @@ setp hm2_5i20.0.encoder.00.scale 4800
 net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
 net Sidx hm2_5i20.0.encoder.00.index-enable => motion.spindle-index-enable
 
-#configure the spindle speed lowpass filter & PWM generator
-net Scmd motion.spindle-speed-out => lowpass.0.in
-net Sflt lowpass.0.out => hm2_5i20.0.pwmgen.00.value
-setp lowpass.0.gain 0.0001
+#configure the spindle speed PWM generator
+net Scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
 setp hm2_5i20.0.pwmgen.00.scale 3000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 setp hm2_5i20.0.pwmgen.pwm_frequency 100
@@ -95,17 +91,19 @@ net chargepump hm2_5i20.0.gpio.022.out => charge-pump.out
 
 # create a signal for the estop loopback
 #net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
-net estop-enable hm2_5i20.0.gpio.037.in => iocontrol.0.emc-enable-in
+net estop-enable hm2_5i20.0.gpio.037.in_not => iocontrol.0.emc-enable-in
 net machine-on hm2_5i20.0.gpio.039.in => halui.machine.off
 net machine-off hm2_5i20.0.gpio.039.in_not => halui.machine.on
 
-#connect limit switches to limit inputs
-net pos_lim hm2_5i20.0.gpio.028.in_not axis.0.pos-lim-sw-in axis.2.pos-lim-sw-in
-net neg_lim hm2_5i20.0.gpio.030.in_not axis.0.neg-lim-sw-in axis.2.neg-lim-sw-in
-
-#connect home switches to home inputs
-net Xhome hm2_5i20.0.gpio.026.in => axis.0.home-sw-in
-net Zhome hm2_5i20.0.gpio.024.in => axis.2.home-sw-in
+#connect limit/home switches
+#Brown Wire - Was Zhome, now Xpos
+net Xpos_lim hm2_5i20.0.gpio.024.in_not axis.0.pos-lim-sw-in axis.0.home-sw-in
+#Brown/White Wire - Was Xhome, now Xneg
+net Xneg_lim hm2_5i20.0.gpio.026.in_not axis.0.neg-lim-sw-in
+#Green Wire - Was XZpos, now Zpos
+net Zpos_lim hm2_5i20.0.gpio.028.in_not axis.2.pos-lim-sw-in axis.2.home-sw-in
+#Green/White Wire - Was XZneg, now Zneg
+net Zneg_lim hm2_5i20.0.gpio.030.in_not axis.2.neg-lim-sw-in
 
 #Tool Post Control Inputs
 net PrepNo iocontrol.0.tool-prep-number => classicladder.0.s32in-00
@@ -161,8 +159,6 @@ addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 # refresh classicladder
 addf classicladder.0.refresh servo-thread
-# run the spindle speed lowpass filter
-addf lowpass.0  servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
 addf hm2_5i20.0.write_gpio servo-thread
@@ -170,4 +166,5 @@ addf hm2_5i20.0.write_gpio servo-thread
 addf hm2_5i20.0.pet_watchdog servo-thread
 # toggle the charge pump
 addf charge-pump servo-thread
+
 
