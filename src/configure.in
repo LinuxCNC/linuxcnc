@@ -516,8 +516,8 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=emc2icon
-    EMC2_TCL_DIR=${prefix}/share/emc/tcl
-    EMC2_TCL_LIB_DIR=${prefix}/lib/emc/tcl
+    EMC2_TCL_DIR=${prefix}/lib/tcltk/emc2
+    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/emc2
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share
     EMC2_HELP_DIR=${prefix}/share/doc/emc2

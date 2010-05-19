@@ -45,6 +45,12 @@ EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 EMC2_EMCSH=@WISH@; export EMC2_EMCSH
 PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
 
+if [ -z "$TCLLIBPATH" ]; then
+    TCLLIBPATH=$EMC2_HOME/tcl
+else
+    TCLLIBPATH=$EMC2_HOME/tcl:$TCLLIBPATH
+fi
+
 if [ -z "$LD_LIBRARY_PATH" ]; then
     LD_LIBRARY_PATH=$EMC2_HOME/lib
 else
@@ -92,4 +98,4 @@ if [ -f $EMC2_HOME/src/Makefile ]; then
     build () { make -C $EMC2_HOME/src "$@"; }
 fi
 
-export PYTHONPATH MANPATH LD_LIBRARY_PATH
+export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH

@@ -439,7 +439,7 @@ install-dirs:
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/emc2 \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
-		$(DESTDIR)$(tcldir)/scripts $(DESTDIR)$(libdir)/emc/tcl \
+		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
@@ -482,8 +482,9 @@ install-kernel-indep: install-dirs
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/emc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
-	$(FILE) ../tcl/hal.so $(DESTDIR)$(libdir)/emc/tcl
+	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/emc.so $(DESTDIR)$(tcldir)
+	$(FILE) ../tcl/pkgIndex.tcl $(DESTDIR)$(tcldir)
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts

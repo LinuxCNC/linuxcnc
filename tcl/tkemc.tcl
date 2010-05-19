@@ -17,8 +17,8 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 # Provides default display or operators for each NML message
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] emc.tcl]
+# Load the emc package, which defines variables for various useful paths
+package require Emc
 eval emc_init $argv
 
 # Tk GUI for the Enhanced Machine Controller

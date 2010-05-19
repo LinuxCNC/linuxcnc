@@ -3897,6 +3897,7 @@ int Emc_Init(Tcl_Interp * interp)
 
     // set app-specific global variables
     Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
+    Tcl_PkgProvide(interp, "Emc", "1.0");
 
     Tcl_ResetResult(interp);
 

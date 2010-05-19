@@ -4,8 +4,8 @@ etc/X11/app-defaults/*
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so.*
+usr/lib/tcltk/emc2
 usr/bin/*
-usr/lib/emc/tcl/*.so
 usr/lib/python@PYTHON_VERSION@/dist-packages/*.pyc
 usr/lib/python@PYTHON_VERSION@/dist-packages/*/*.pyc
 usr/lib/python@PYTHON_VERSION@/dist-packages/*/*.so

@@ -15,8 +15,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] emc.tcl]
+# Load the emc package, which defines variables for various useful paths
+package require Emc
 
 proc insert_file {w title f {p {}}} {
     set f [open $f r]
