@@ -369,7 +369,7 @@ class MyOpengl(Opengl):
         self.highlight_line = None
         self.select_event = None
         self.select_buffer_size = 100
-        self.select_primed = False
+        self.select_primed = None
         self.last_position = None
         self.last_homed = None
         self.last_origin = None
@@ -449,7 +449,8 @@ class MyOpengl(Opengl):
         self.select_primed = event
 
     def select_cancel(self, event):
-        self.select_primed = False
+        if self.select_primed and (event.x != self.select_primed.x or event.y != self.select_primed.y):
+            self.select_primed = None
 
     def select_fire(self, event):
         if self.select_primed: self.queue_select(event)
