@@ -3347,19 +3347,20 @@ class App:
                 self.widgets[p].handler_block(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_block(self.intrnldata[actblocksignal])                                            
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
-                if self.data[ptype] not in (GPIOI,GPIOO,GPIOD):
-                    if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
-                        self.data[p] =  UNUSED_ENCODER
-                    elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
-                        self.data[p] =  UNUSED_PWM
-                    elif firmptype in ( STEPA,STEPB ):
-                        self.data[p] =  UNUSED_STEPGEN
-                    elif firmptype == GPIOI:
-                        self.data[p] = UNUSED_INPUT
-                    else:
-                        self.data[p] = UNUSED_OUTPUT
-                    self.data[ptype] = firmptype
-                    self.widgets[p].set_active(0) 
+                if self.intrnldata["mesa%d_configured"% boardnum]: 
+                    if self.data[ptype] not in (GPIOI,GPIOO,GPIOD):
+                        if firmptype in ( ENCA,ENCB,ENCI,ENCM ): 
+                            self.data[p] =  UNUSED_ENCODER
+                        elif firmptype in ( PWMP,PWMD,PWME,PDMP,PDMD,PDME ):
+                            self.data[p] =  UNUSED_PWM
+                        elif firmptype in ( STEPA,STEPB ):
+                            self.data[p] =  UNUSED_STEPGEN
+                        elif firmptype == GPIOI:
+                            self.data[p] = UNUSED_INPUT
+                        else:
+                            self.data[p] = UNUSED_OUTPUT
+                        self.data[ptype] = firmptype
+                        self.widgets[p].set_active(0) 
 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
