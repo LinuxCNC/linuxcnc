@@ -430,12 +430,9 @@ int set_rcs_print_file(char *_file_name)
 
 int rcs_print(const char *_fmt, ...)
 {
-    static char temp_buffer[256];
+    static char temp_buffer[400];
     int retval;
     va_list args;
-    if (strlen(_fmt) > 250) {
-	return EOF;
-    }
     va_start(args, _fmt);
     retval = vsnprintf(temp_buffer, sizeof(temp_buffer), _fmt, args);
     va_end(args);
