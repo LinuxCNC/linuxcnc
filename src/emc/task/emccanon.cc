@@ -1175,12 +1175,12 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
     double small = 0.000001;
     double x = x1-x0, y=y1-y0;
     double den = 2 * (y*dx - x*dy);
-    double r = -(x*x+y*y)/den;
-    double i = dy*r, j = -dx*r;
-    double cx = x1+i, cy=y1+j;
     CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
     to_prog(p);
     if (fabs(den) > small) {
+        double r = -(x*x+y*y)/den;
+        double i = dy*r, j = -dx*r;
+        double cx = x1+i, cy=y1+j;
         ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
                  p.z, p.a, p.b, p.c, p.u, p.v, p.w);
     } else { 
