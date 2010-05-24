@@ -1178,18 +1178,13 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
     double r = -(x*x+y*y)/den;
     double i = dy*r, j = -dx*r;
     double cx = x1+i, cy=y1+j;
+    CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
+    to_prog(p);
     if (fabs(den) > small) {
         ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
-               TO_PROG_LEN(canonEndPoint.z - programOrigin.z), TO_PROG_ANG(canonEndPoint.a),
-               TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
-               TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
-               TO_PROG_ANG(canonEndPoint.w));
+                 p.z, p.a, p.b, p.c, p.u, p.v, p.w);
     } else { 
-        STRAIGHT_FEED(lineno, x1,y1,
-               TO_PROG_LEN(canonEndPoint.z), TO_PROG_ANG(canonEndPoint.a),
-               TO_PROG_ANG(canonEndPoint.b), TO_PROG_ANG(canonEndPoint.c),
-               TO_PROG_ANG(canonEndPoint.u),TO_PROG_ANG(canonEndPoint.v), 
-               TO_PROG_ANG(canonEndPoint.w));
+        STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
     }
 }
 
@@ -1283,9 +1278,11 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
 
 void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2) {
     flush_segments();
+    CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
+    to_prog(p);
 
-    double x0 = TO_PROG_LEN(canonEndPoint.x);
-    double y0 = TO_PROG_LEN(canonEndPoint.y);
+    double x0 = p.x;
+    double y0 = p.y;
     double xx0 = 2*(x1-x0), xx1 = 2*(x2-x1),
            yy0 = 2*(y1-y0), yy1 = 2*(y2-y1),
          ox = x0, oy = y0, odx = xx0, ody = yy0;
@@ -1315,8 +1312,10 @@ perturb:
 void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3) {
     flush_segments();
 
-    double x0 = TO_PROG_LEN(canonEndPoint.x);
-    double y0 = TO_PROG_LEN(canonEndPoint.y);
+    CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
+    to_prog(p);
+    double x0 = p.x;
+    double y0 = p.y;
     double xx0 = 3*(x1-x0), xx1 = 3*(x2-x1), xx2 = 3*(x3-x2),
            yy0 = 3*(y1-y0), yy1 = 3*(y2-y1), yy2 = 3*(y3-y2),
          ox = x0, oy = y0, odx = xx0, ody = yy0;
