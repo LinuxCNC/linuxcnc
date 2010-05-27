@@ -330,7 +330,7 @@ EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
 # 2.10. get NML config information
-GetFromIni NML_FILE EMC
+GetFromIniQuiet NML_FILE EMC
 NMLFILE=$retval
 if [ -z "$NMLFILE" ]; then NMLFILE=@DEFAULT_NMLFILE@; fi
 export NMLFILE
