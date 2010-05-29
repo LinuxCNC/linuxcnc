@@ -252,6 +252,7 @@ The gratis version of Quartus II runs only on Microsoft Windows, although
 For more information
 \end_layout
 
+\begin_layout Standard
  Some additional information about it is available from 
 \begin_inset LatexCommand htmlurl
 target "http://www.fpga4fun.com/board_pluto-P.html"
