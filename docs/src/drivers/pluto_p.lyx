@@ -210,10 +210,7 @@ PC interface
 \end_layout
 
 \begin_layout Itemize
-At present, only a single pluto_servo or pluto_step board is supported.
- At present there is no provision for multiple boards on one parallel port
- (because all boards reside at the same EPP address) but supporting one
- board per parallel port should be possible.
+Only a single pluto_servo or pluto_step board is supported.
 \end_layout
 
 \begin_layout Subsection
@@ -255,14 +252,6 @@ The gratis version of Quartus II runs only on Microsoft Windows, although
 For more information
 \end_layout
 
-\begin_layout Standard
-The Pluto-P board may be ordered from 
-\begin_inset LatexCommand htmlurl
-target "http://www.knjn.com/ShopBoards_Parallel.html"
-
-\end_inset
-
- (US based, international shipping is available).
  Some additional information about it is available from 
 \begin_inset LatexCommand htmlurl
 target "http://www.fpga4fun.com/board_pluto-P.html"
