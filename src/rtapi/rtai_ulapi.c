@@ -88,7 +88,7 @@ static int fifo_fd_array[RTAPI_MAX_FIFOS + 1];
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
-static void check_memlock_limit();
+static void check_memlock_limit(const char *where);
 
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
@@ -112,6 +112,7 @@ int rtapi_init(const char *modname)
     if (rtapi_data == NULL || rtapi_data == (rtapi_data_t*)-1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
+	check_memlock_limit("could not open shared memory");
 	return -ENOMEM;
     }
     /* perform a global init if needed */
@@ -451,7 +452,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: ERROR: failed to map shmem\n");
 		rtapi_mutex_give(&(rtapi_data->mutex));
-		check_memlock_limit();
+		check_memlock_limit("failed to map shmem");
 		return -ENOMEM;
 	    }
 	    /* update usage data */
@@ -505,7 +506,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 #include <sys/time.h>
 #include <sys/resource.h>
 #define RECOMMENDED (20480*1024lu)
-static void check_memlock_limit() {
+static void check_memlock_limit(const char *where) {
     static int checked=0;
     struct rlimit lim;
     int result;
@@ -518,10 +519,10 @@ static void check_memlock_limit() {
     if(lim.rlim_cur >= RECOMMENDED) return; // limit is at least recommended
     rtapi_print_msg(RTAPI_MSG_ERR,
         "RTAPI: Locked memory limit is %luKiB, recommended at least %luKiB.\n"
-        "This can cause the error 'failed to map shmem'.\n"
+        "This can cause the error '%s'.\n"
         "For more information, see\n"
         "\thttp://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n",
-        (unsigned long)lim.rlim_cur/1024, RECOMMENDED/1024);
+        (unsigned long)lim.rlim_cur/1024, RECOMMENDED/1024, where);
     return;
 }
 

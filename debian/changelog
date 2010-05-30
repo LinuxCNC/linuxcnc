@@ -4,6 +4,33 @@ emc2 (1:2.5.0~pre) hardy; urgency=low
 
  -- Jeff Epler <jepler@unpythonic.net>  Wed, 03 Feb 2010 18:58:59 -0600
 
+emc2 (1:2.4.1) hardy; urgency=low
+
+  * tooledit: fix display of angles for lathe tools
+  * tkemc: fix "Tool Table Editor" menu item
+  * tkemc: remove 'balloon' and 'emchelp' menu items which should not have
+    appeared
+  * parport: make it a warning, not an error, if EPP is not detected by Linux
+  * pncconf: various improvements
+  * configs: various improvements to the smithy configurations
+  * axis: fix "touch off" when loaded program starts with "%"
+  * axis: fix click-to-select in preview on Ubuntu 10.04 in
+    focus-follows-mouse mode
+  * axis: new splash screen
+  * hostmot2: fix undesired motion of steppers immediately after enabling them
+  * fixed several buffer overflows in error routines
+  * NURBS: fix several bugs and document it
+  * hal_joystick: remove as it no longer works.  Use hal_input instead.
+  * Documentation improvements
+  * Remove several debugging messages and warnings
+  * Change the default message level from ALL to ERR, which was the default
+    in version 2.3.x.
+  * Locked memory: improve locked memory setup and locked memory error
+    messages
+  * integ: new 'gain' pin
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 29 May 2010 10:17:11 -0500
+
 emc2 (1:2.4.0) hardy; urgency=low
 
   * configs: add GEOMETRY=AXYZ to Sherline4Axis so A rotates

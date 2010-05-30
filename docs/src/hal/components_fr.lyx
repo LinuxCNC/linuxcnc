@@ -81,11 +81,6 @@ hal_input.1 = Contrôler des pins d'entrée de HAL avec n'importe quel matériel
 \layout List
 \labelwidthstring 00.00.0000
 
-hal_joystick.1 = Contrôler des pins de HAL avec un joystick (obsolète, utiliser
- hal_input)
-\layout List
-\labelwidthstring 00.00.0000
-
 halcmd.1 = Manipuler HAL depuis la ligne de commandes
 \layout List
 \labelwidthstring 00.00.0000

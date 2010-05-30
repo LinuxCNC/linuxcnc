@@ -294,7 +294,7 @@ int rcs_vprint(const char *_fmt, va_list _args, int save_string)
     if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
 	return (EOF);
     }
-    if (EOF == (int) vsprintf(temp_string, _fmt, _args)) {
+    if (EOF == (int) vsnprintf(temp_string, sizeof(temp_string), _fmt, _args)) {
 	return (EOF);
     }
     if (save_string) {
@@ -430,14 +430,11 @@ int set_rcs_print_file(char *_file_name)
 
 int rcs_print(const char *_fmt, ...)
 {
-    static char temp_buffer[256];
+    static char temp_buffer[400];
     int retval;
     va_list args;
-    if (strlen(_fmt) > 250) {
-	return EOF;
-    }
     va_start(args, _fmt);
-    retval = vsprintf(temp_buffer, _fmt, args);
+    retval = vsnprintf(temp_buffer, sizeof(temp_buffer), _fmt, args);
     va_end(args);
     if (retval == (EOF)) {
 	return EOF;
@@ -523,7 +520,7 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
     if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
 	return (EOF);
     }
-    if (EOF == (int) vsprintf(temp_string, _fmt, args)) {
+    if (EOF == (int) vsnprintf(temp_string, sizeof(temp_string), _fmt, args)) {
 	return (EOF);
     }
     va_end(args);
@@ -539,7 +536,8 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
 
     switch (error_source) {
     case ERRNO_ERROR_SOURCE:
-	sprintf(message_string, "%s %d %s\n", temp_string, errno,
+	snprintf(message_string, sizeof(message_string),
+	    "%s %d %s\n", temp_string, errno,
 	    strerror(errno));
 	rcs_puts(message_string);
 	break;

@@ -110,11 +110,6 @@ hal_input.1 = control HAL pins with any Linux input device, including USB
 
 \begin_layout List
 \labelwidthstring 00.00.0000
-hal_joystick.1 = control HAL pins with a joystick (deprecated use hal_input)
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
 halcmd.1 = manipulate the Enhanced Machine Controller HAL from the command
  line
 \end_layout

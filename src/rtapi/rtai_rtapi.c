@@ -113,7 +113,7 @@ static unsigned long timer_counts;
 
 /* module parameters */
 
-static int msg_level = RTAPI_MSG_ALL;	/* message printing level */
+static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 RTAPI_MP_INT(msg_level, "debug message level (default=1)");
 
 /* other module information */

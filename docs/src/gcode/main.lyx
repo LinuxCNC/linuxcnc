@@ -421,7 +421,7 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="40" columns="3">
+<lyxtabular version="3" rows="41" columns="3">
 <features>
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
@@ -582,6 +582,40 @@ Dwell
 \begin_layout Standard
 \begin_inset LatexCommand ref
 reference "sec:G4:-Dwell"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+G5.2, G5.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+NURBs Block
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G5.2-G5.3-NURBs"
 
 \end_inset
 
@@ -3114,7 +3148,151 @@ It is an error if:
 the P number is negative.
 \end_layout
 
+\begin_layout Section
+G5.2 G5.3 NURBs Block
+\begin_inset LatexCommand index
+name "G5.2 G5.3 NURBs Block"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G5.2-G5.3-NURBs"
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
+Warning: G5.2, G5.3 is experimental and not fully tested.
+\end_layout
+
+\begin_layout Standard
+G5.2 is for opening the data block defining a NURBs and G5.3 for closing the
+ data block.
+ In the lines between these two codes the curve control points are defined
+ with both their related "weights" (P) and their parameter (L) which determines
+ the order of the curve (k) and subsequently its degree (k-1).
+\end_layout
+
+\begin_layout Standard
+Using this curve definition the knots of the NURBs curve are not defined
+ by the user they are calculated by the inside algorithm, in the same way
+ as it happens in a great number of graphic applications, where the curve
+ shape can be modified only acting on either control points or weights.
+\end_layout
+
+\begin_layout Standard
+Sample NURBs Code
+\end_layout
+
+\begin_layout LyX-Code
+G0 X0 Y0
+\end_layout
+
+\begin_layout LyX-Code
+F10 
+\end_layout
+
+\begin_layout LyX-Code
+G5.2 X0 Y1 P1 L3
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y2 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y0 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X0 Y0 P2
+\end_layout
+
+\begin_layout LyX-Code
+G5.3
+\end_layout
+
+\begin_layout LyX-Code
+/ The rapid moves show the same path without the NURBs Block
+\end_layout
+
+\begin_layout LyX-Code
+G0 X0 Y1
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y2
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y0
+\end_layout
+
+\begin_layout LyX-Code
+   X0 Y0
+\end_layout
+
+\begin_layout LyX-Code
+M2
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Sample NURBs Output
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/nurbs01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+More information on NURBs can be found here:
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand url
+target "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS"
+
+\end_inset
+
 
 \end_layout
 
