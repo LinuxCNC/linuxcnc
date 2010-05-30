@@ -1232,7 +1232,9 @@ LIBS="$X_LIBS $temp_LIBS"
 
 AC_PATH_PROG(XGETTEXT,xgettext,none)
 XGETTEXT_TCL_WORKS=no
-if test "$XGETTEXT" != "none"; then
+if test "$XGETTEXT" = "none"; then
+   AC_MSG_ERROR(install gettext 0.14.5 or above)
+else
    AC_MSG_CHECKING(for xgettext tcl bug)
    set -- $(xgettext --version | head -1)
    version=$4
@@ -1249,7 +1251,9 @@ fi
 AC_SUBST(XGETTEXT)
 
 AC_PATH_PROG(MSGFMT,msgfmt,none)
-if test "$MSGFMT" != "none"; then
+if test "$MSGFMT" = "none"; then
+   AC_MSG_ERROR(install gettext 0.14.5 or above)
+else
     AC_MSG_CHECKING(for --tcl support in msgfmt)
     if $MSGFMT --tcl -l de -d /tmp /dev/null > /dev/null 2>&1; then
         AC_MSG_RESULT(yes)
