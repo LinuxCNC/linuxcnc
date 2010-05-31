@@ -1,0 +1,173 @@
+#LyX 1.5.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass book
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\spacing single
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+Upgrading EMC2
+\end_layout
+
+\begin_layout Standard
+The following instructions only apply to Ubuntu 8.04 "Hardy Heron".
+ EMC 2.4 is not available for older releases of Ubuntu.
+\end_layout
+
+\begin_layout Standard
+Because there are several minor incompatibilities between 2.3.5 and 2.4.x, your
+ existing install will not automatically be updated to 2.4.x.
+ If you want to run 2.4.x, change to the EMC-2.4 repository by following these
+ instructions:
+\end_layout
+
+\begin_layout Standard
+run System/Administration/Synaptic Package Manager
+\end_layout
+
+\begin_layout Standard
+go to Settings/Repositories
+\end_layout
+
+\begin_layout Standard
+In the list of Third-Party software there should be at least two lines for
+ linuxcnc.org.
+\end_layout
+
+\begin_layout Standard
+For each of them:
+\end_layout
+
+\begin_layout Itemize
+Select the line and click Edit
+\end_layout
+
+\begin_layout Itemize
+on the Components line, change emc2.3 to emc2.4
+\end_layout
+
+\begin_layout Itemize
+Click OK 
+\end_layout
+
+\begin_layout Standard
+Close the "Software Preferences" window
+\end_layout
+
+\begin_layout Standard
+Click "Reload" as instructed
+\end_layout
+
+\begin_layout Standard
+Click "Mark All Upgrades"
+\end_layout
+
+\begin_layout Standard
+If you use a mesa card, find the proper hostmot2-firmware package for your
+ card and mark it for installation.
+ Hint: do a search for "hostmot2-firmware in the synaptic package manager.
+\end_layout
+
+\begin_layout Standard
+Click "Apply" 
+\end_layout
+
+\begin_layout Section*
+Changes between 2.3.x and 2.4.x
+\end_layout
+
+\begin_layout Standard
+Once you have done the upgrade, update any custom configurations by following
+ these instructions:
+\end_layout
+
+\begin_layout Subsection*
+emc.nml changes 
+\end_layout
+
+\begin_layout Standard
+For configurations that have not customized emc.nml, remove the inifile line
+ NML_FILE = emc.nml.
+ This will cause the most up to date version of emc.nml to be used.
+\end_layout
+
+\begin_layout Standard
+For configurations that have customized emc.nml, a change similar to this
+ one is required.
+\end_layout
+
+\begin_layout Standard
+Failure to do this can cause an error like "libnml/buffer/physmem.cc 143:
+ PHYSMEM_HANDLE: Can't write 10748 bytes at offset 60 from buffer of size
+ 10208."
+\end_layout
+
+\begin_layout Subsection*
+tool table changes 
+\end_layout
+
+\begin_layout Standard
+The format of the tool table has been changed incompatibly.
+ The documentation shows the new format.
+ The tool table will automatically be converted to the new format.
+\end_layout
+
+\begin_layout Subsection*
+hostmot2 firmware images 
+\end_layout
+
+\begin_layout Standard
+The hostmot2 firmware images are now a separate package.
+ You can:
+\end_layout
+
+\begin_layout Itemize
+Continue using an already-installed emc2-firmware-mesa-* 2.3.x package
+\end_layout
+
+\begin_layout Itemize
+Install the new packages from the synaptic package manager.
+ The new packages are named hostmot2-firmware-*
+\end_layout
+
+\begin_layout Itemize
+Download the firmware images as tar files from http://emergent.unpy.net/0126762256
+1 and install them manually 
+\end_layout
+
+\end_body
+\end_document
