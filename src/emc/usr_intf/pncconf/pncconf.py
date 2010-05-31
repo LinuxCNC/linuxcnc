@@ -3311,6 +3311,11 @@ class App:
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
     def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders): 
+        self.pbar.set_text("Setting up Mesa tabs")
+        self.pbar.set_fraction(0)
+        self.window.show()
+        while gtk.events_pending():
+            gtk.main_iteration()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
@@ -3335,6 +3340,9 @@ class App:
             self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(1)
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
             for pin in range (0,24):
+                self.pbar.set_fraction((pin+1)/24.0)
+                while gtk.events_pending():
+                    gtk.main_iteration()
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][13+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
@@ -3619,6 +3627,7 @@ class App:
                 self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
+        self.window.hide()
 
     # This is for when a user picks a signal name or creates a custom signal (by pressing enter)
     def on_mesa_pin_changed(self, widget, boardnum, connector, pin, custom):
