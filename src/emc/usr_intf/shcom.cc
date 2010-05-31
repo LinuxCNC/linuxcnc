@@ -409,40 +409,11 @@ double convertLinearUnits(double u)
     return u;
 }
 
-/*! \todo Another #if 0 */
-#if 0
-static double convertAngularUnits(double u)
+double convertAngularUnits(double u)
 {
-    double in_deg;
-
-    /* convert u to deg */
-    in_deg = u / emcStatus->motion.traj.angularUnits;
-
-    /* convert u to display units */
-    switch (angularUnitConversion) {
-    case ANGULAR_UNITS_DEG:
-	return in_deg;
-	break;
-    case ANGULAR_UNITS_RAD:
-	return in_deg * RAD_PER_DEG;
-	break;
-    case ANGULAR_UNITS_GRAD:
-	return in_deg * GRAD_PER_DEG;
-	break;
-    case ANGULAR_UNITS_AUTO:
-	return in_deg;		/*! \todo FIXME-- program units always degrees now */
-	break;
-
-    case ANGULAR_UNITS_CUSTOM:
-	return u;
-	break;
-
-    }
-
-    /* should never get here */
+    // Angular units are always degrees
     return u;
 }
-#endif
 
 // polarities for axis jogging, from ini file
 static int jogPol[EMC_AXIS_MAX];
