@@ -3149,6 +3149,36 @@ the P number is negative.
 \end_layout
 
 \begin_layout Section
+G5.1 Quadratic B-spline
+\end_layout
+
+\begin_layout LyX-Code
+G5.1 Xn Yn I[X offset] J[Y offset]
+\end_layout
+
+\begin_layout Standard
+G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+I and J offset is not specified
+\end_layout
+
+\begin_layout Itemize
+An axis other than X or Y is specified
+\end_layout
+
+\begin_layout Itemize
+The active plane is not G17
+\end_layout
+
+\begin_layout Section
+\noindent
+\align left
 G5.2 G5.3 NURBs Block
 \begin_inset LatexCommand index
 name "G5.2 G5.3 NURBs Block"
