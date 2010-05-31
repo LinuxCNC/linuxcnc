@@ -1331,13 +1331,15 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    position.tran.x -
 						    emcStatus->task.origin.
-						    tran.x));
+						    tran.x -
+						    emcStatus->task.toolOffset.tran.x));
 	} else if (axis == 1) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    position.tran.y -
 						    emcStatus->task.origin.
-						    tran.y));
+						    tran.y -
+						    emcStatus->task.toolOffset.tran.y));
 	} else if (axis == 2) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
@@ -1352,37 +1354,43 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.a -
 							emcStatus->task.
-							origin.a));
+							origin.a -
+							emcStatus->task.toolOffset.a));
 	    } else if (axis == 4) {
 		posobj =
 		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.b -
 							emcStatus->task.
-							origin.b));
+							origin.b -
+							emcStatus->task.toolOffset.b));
 	    } else if (axis == 5) {
 		posobj =
 		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.c -
 							emcStatus->task.
-							origin.c));
+							origin.c -
+							emcStatus->task.toolOffset.c));
 	    } else if (axis == 6) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.u - 
 							emcStatus->task.
-							origin.u));
+							origin.u -
+							emcStatus->task.toolOffset.u));
 	    } else if (axis == 7) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.v - 
 							emcStatus->task.
-							origin.v));
+							origin.v -
+							emcStatus->task.toolOffset.v));
 	    } else if (axis == 8) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.w - 
 							emcStatus->task.
-							origin.w));
+							origin.w -
+							emcStatus->task.toolOffset.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1421,13 +1429,15 @@ static int emc_rel_act_pos(ClientData clientdata,
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    actualPosition.tran.x -
 						    emcStatus->task.origin.
-						    tran.x));
+						    tran.x -
+						    emcStatus->task.toolOffset.tran.x));
 	} else if (axis == 1) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    actualPosition.tran.y -
 						    emcStatus->task.origin.
-						    tran.y));
+						    tran.y -
+						    emcStatus->task.toolOffset.tran.y));
 	} else if (axis == 2) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
@@ -1443,42 +1453,48 @@ static int emc_rel_act_pos(ClientData clientdata,
 							traj.
 							actualPosition.a -
 							emcStatus->task.
-							origin.a));
+							origin.a -
+							emcStatus->task.toolOffset.a));
 	    } else if (axis == 4) {
 		posobj =
 		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.b -
 							emcStatus->task.
-							origin.b));
+							origin.b -
+							emcStatus->task.toolOffset.b));
 	    } else if (axis == 5) {
 		posobj =
 		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.c -
 							emcStatus->task.
-							origin.c));
+							origin.c -
+							emcStatus->task.toolOffset.c));
 	    } else if (axis == 6) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.u -
 							emcStatus->task.
-							origin.u));
+							origin.u -
+							emcStatus->task.toolOffset.u));
 	    } else if (axis == 7) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.v -
 							emcStatus->task.
-							origin.v));
+							origin.v -
+							emcStatus->task.toolOffset.v));
 	    } else if (axis == 8) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.w -
 							emcStatus->task.
-							origin.w));
+							origin.w -
+							emcStatus->task.toolOffset.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
