@@ -1034,21 +1034,64 @@ static int emc_tool_offset(ClientData clientdata,
 			   Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *tlobj;
+    int axis = 2;
 
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_tool_offset: need no args",
+    if (objc > 2) {
+	Tcl_SetResult(interp, "emc_tool_offset: need 0 or 1 args",
 		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
+    if (objc == 2) {
+	if (TCL_OK != Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	    return TCL_ERROR;
+	}
+    }
     if (emcUpdateType == EMC_UPDATE_AUTO) {
 	updateStatus();
     }
 
-    tlobj =
-	Tcl_NewDoubleObj(convertLinearUnits
-			 (emcStatus->task.toolOffset.tran.z));
-
+    if(axis == 0) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.x));
+    } else if(axis == 1) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.y));
+    } else if(axis == 2) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.z));
+    } else if(axis == 3) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.a));
+    } else if(axis == 4) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.b));
+    } else if(axis == 5) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.c));
+    } else if(axis == 6) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.u));
+    } else if(axis == 7) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.v));
+    } else if(axis == 8) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.w));
+    } else {
+	Tcl_SetResult(interp, "emc_tool_offset: axis must be from 0..8",
+		      TCL_STATIC);
+	return TCL_ERROR;
+    }
     Tcl_SetObjResult(interp, tlobj);
     return TCL_OK;
 }
@@ -1149,15 +1192,15 @@ static int emc_abs_cmd_pos(ClientData clientdata,
 	} else {
 	    if (axis == 3) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.a));
 	    } else if (axis == 4) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.b));
 	    } else if (axis == 5) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.c));
 	    } else if (axis == 6) {
 		posobj =
@@ -1222,17 +1265,17 @@ static int emc_abs_act_pos(ClientData clientdata,
 	} else {
 	    if (axis == 3) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.a));
 	    } else if (axis == 4) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.b));
 	    } else if (axis == 5) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.c));
 	    } else if (axis == 6) {
@@ -1288,13 +1331,15 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    position.tran.x -
 						    emcStatus->task.origin.
-						    tran.x));
+						    tran.x -
+						    emcStatus->task.toolOffset.tran.x));
 	} else if (axis == 1) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    position.tran.y -
 						    emcStatus->task.origin.
-						    tran.y));
+						    tran.y -
+						    emcStatus->task.toolOffset.tran.y));
 	} else if (axis == 2) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
@@ -1304,43 +1349,48 @@ static int emc_rel_cmd_pos(ClientData clientdata,
 						    emcStatus->task.
 						    toolOffset.tran.z));
 	} else {
-	    /*! \todo FIXME-- no rotational offsets yet */
 	    if (axis == 3) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.a -
 							emcStatus->task.
-							origin.a));
+							origin.a -
+							emcStatus->task.toolOffset.a));
 	    } else if (axis == 4) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.b -
 							emcStatus->task.
-							origin.b));
+							origin.b -
+							emcStatus->task.toolOffset.b));
 	    } else if (axis == 5) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.position.c -
 							emcStatus->task.
-							origin.c));
+							origin.c -
+							emcStatus->task.toolOffset.c));
 	    } else if (axis == 6) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.u - 
 							emcStatus->task.
-							origin.u));
+							origin.u -
+							emcStatus->task.toolOffset.u));
 	    } else if (axis == 7) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.v - 
 							emcStatus->task.
-							origin.v));
+							origin.v -
+							emcStatus->task.toolOffset.v));
 	    } else if (axis == 8) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.position.w - 
 							emcStatus->task.
-							origin.w));
+							origin.w -
+							emcStatus->task.toolOffset.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1379,13 +1429,15 @@ static int emc_rel_act_pos(ClientData clientdata,
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    actualPosition.tran.x -
 						    emcStatus->task.origin.
-						    tran.x));
+						    tran.x -
+						    emcStatus->task.toolOffset.tran.x));
 	} else if (axis == 1) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
 						    actualPosition.tran.y -
 						    emcStatus->task.origin.
-						    tran.y));
+						    tran.y -
+						    emcStatus->task.toolOffset.tran.y));
 	} else if (axis == 2) {
 	    posobj =
 		Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.traj.
@@ -1397,46 +1449,52 @@ static int emc_rel_act_pos(ClientData clientdata,
 	} else {
 	    if (axis == 3) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.a -
 							emcStatus->task.
-							origin.a));
+							origin.a -
+							emcStatus->task.toolOffset.a));
 	    } else if (axis == 4) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.b -
 							emcStatus->task.
-							origin.b));
+							origin.b -
+							emcStatus->task.toolOffset.b));
 	    } else if (axis == 5) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							actualPosition.c -
 							emcStatus->task.
-							origin.c));
+							origin.c -
+							emcStatus->task.toolOffset.c));
 	    } else if (axis == 6) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.u -
 							emcStatus->task.
-							origin.u));
+							origin.u -
+							emcStatus->task.toolOffset.u));
 	    } else if (axis == 7) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.v -
 							emcStatus->task.
-							origin.v));
+							origin.v -
+							emcStatus->task.toolOffset.v));
 	    } else if (axis == 8) {
 		posobj =
 		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
 							traj.
 							actualPosition.w -
 							emcStatus->task.
-							origin.w));
+							origin.w -
+							emcStatus->task.toolOffset.w));
 	    } else {
 		posobj = Tcl_NewDoubleObj(0.0);
 	    }
@@ -1515,13 +1573,13 @@ static int emc_pos_offset(ClientData clientdata,
 			     (emcStatus->task.origin.tran.z));
     } else if (string[0] == 'A') {
 	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.a));
+	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.origin.a));
     } else if (string[0] == 'B') {
 	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.b));
+	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.origin.b));
     } else if (string[0] == 'C') {
 	posobj =
-	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.c));
+	    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->task.origin.c));
     } else if (string[0] == 'U') {
 	posobj =
 	    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->task.origin.u));
@@ -3258,17 +3316,17 @@ static int emc_probed_pos(ClientData clientdata,
 	} else {
 	    if (axis == 3) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							probedPosition.a));
 	    } else if (axis == 4) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							probedPosition.b));
 	    } else if (axis == 5) {
 		posobj =
-		    Tcl_NewDoubleObj(convertLinearUnits(emcStatus->motion.
+		    Tcl_NewDoubleObj(convertAngularUnits(emcStatus->motion.
 							traj.
 							probedPosition.c));
 	    } else {

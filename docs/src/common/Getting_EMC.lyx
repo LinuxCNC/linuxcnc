@@ -688,7 +688,7 @@ name "Updates to EMC2"
 With the normal install the Update Manager will notify you of updates to
  EMC2 when you go on line and allow you to easily upgrade with no Linux
  knowledge needed.
- If you want to upgrade to 8.04 from 6.06 a clean install from the Live-CD
+ If you want to upgrade to 10.04 from 8.04 a clean install from the Live-CD
  is needed.
  It is OK to upgrade EMC when asked to.
  
