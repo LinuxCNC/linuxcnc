@@ -1034,21 +1034,64 @@ static int emc_tool_offset(ClientData clientdata,
 			   Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *tlobj;
+    int axis = 2;
 
-    if (objc != 1) {
-	Tcl_SetResult(interp, "emc_tool_offset: need no args",
+    if (objc > 2) {
+	Tcl_SetResult(interp, "emc_tool_offset: need 0 or 1 args",
 		      TCL_VOLATILE);
 	return TCL_ERROR;
     }
 
+    if (objc == 2) {
+	if (TCL_OK != Tcl_GetIntFromObj(0, objv[1], &axis)) {
+	    return TCL_ERROR;
+	}
+    }
     if (emcUpdateType == EMC_UPDATE_AUTO) {
 	updateStatus();
     }
 
-    tlobj =
-	Tcl_NewDoubleObj(convertLinearUnits
-			 (emcStatus->task.toolOffset.tran.z));
-
+    if(axis == 0) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.x));
+    } else if(axis == 1) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.y));
+    } else if(axis == 2) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.tran.z));
+    } else if(axis == 3) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.a));
+    } else if(axis == 4) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.b));
+    } else if(axis == 5) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertAngularUnits
+			     (emcStatus->task.toolOffset.c));
+    } else if(axis == 6) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.u));
+    } else if(axis == 7) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.v));
+    } else if(axis == 8) {
+	tlobj =
+	    Tcl_NewDoubleObj(convertLinearUnits
+			     (emcStatus->task.toolOffset.w));
+    } else {
+	Tcl_SetResult(interp, "emc_tool_offset: axis must be from 0..8",
+		      TCL_STATIC);
+	return TCL_ERROR;
+    }
     Tcl_SetObjResult(interp, tlobj);
     return TCL_OK;
 }
