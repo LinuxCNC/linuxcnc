@@ -1625,26 +1625,27 @@ class LivePlotter:
         root_window.update_idletasks()
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
-        set_manual_mode = comp["set-manual-mode"]
-        if self.set_manual_mode != set_manual_mode:
-             self.set_manual_mode = set_manual_mode
-             if self.set_manual_mode:
-                 root_window.tk.eval(pane_top + ".tabs raise manual")
-        notifications_clear = comp["notifications-clear"]
-        if self.notifications_clear != notifications_clear:
-             self.notifications_clear = notifications_clear
-             if self.notifications_clear:
-                 notifications.clear()
-        notifications_clear_info = comp["notifications-clear-info"]
-        if self.notifications_clear_info != notifications_clear_info:
-             self.notifications_clear_info = notifications_clear_info
-             if self.notifications_clear_info:
-                 notifications.clear("info")
-        notifications_clear_error = comp["notifications-clear-error"]
-        if self.notifications_clear_error != notifications_clear_error:
-             self.notifications_clear_error = notifications_clear_error
-             if self.notifications_clear_error:
-                 notifications.clear("error")
+        if hal_present == 1 :
+            set_manual_mode = comp["set-manual-mode"]
+            if self.set_manual_mode != set_manual_mode:
+                 self.set_manual_mode = set_manual_mode
+                 if self.set_manual_mode:
+                     root_window.tk.eval(pane_top + ".tabs raise manual")
+            notifications_clear = comp["notifications-clear"]
+            if self.notifications_clear != notifications_clear:
+                 self.notifications_clear = notifications_clear
+                 if self.notifications_clear:
+                     notifications.clear()
+            notifications_clear_info = comp["notifications-clear-info"]
+            if self.notifications_clear_info != notifications_clear_info:
+                 self.notifications_clear_info = notifications_clear_info
+                 if self.notifications_clear_info:
+                     notifications.clear("info")
+            notifications_clear_error = comp["notifications-clear-error"]
+            if self.notifications_clear_error != notifications_clear_error:
+                 self.notifications_clear_error = notifications_clear_error
+                 if self.notifications_clear_error:
+                     notifications.clear("error")
         vupdate(vars.task_mode, self.stat.task_mode)
         vupdate(vars.task_state, self.stat.task_state)
         vupdate(vars.task_paused, self.stat.task_paused)
