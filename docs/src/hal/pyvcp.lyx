@@ -623,7 +623,7 @@ A label is a piece of text on your panel.
 
 \begin_layout Standard
 The label has an optional disable pin that is created when you add <disable_pin>
-true</disable_pin>.
+True</disable_pin>.
 \end_layout
 
 \begin_layout LyX-Code
@@ -811,7 +811,7 @@ A text button controls a "bit" halpin.
 
 \begin_layout Standard
 The text button has an optional disable pin that is created when you add
- <disable_pin>true</disable_pin>.
+ <disable_pin>True</disable_pin>.
 \end_layout
 
 \begin_layout LyX-Code
