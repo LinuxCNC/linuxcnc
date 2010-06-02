@@ -512,7 +512,7 @@ class Data:
         self.editor = "gedit"
         self.geometry = "xyz"
 
-        # EMC assorted defults and options
+        # EMC assorted defaults and options
         self.toolchangeprompt = True
         self.multimpg = False
         self.require_homing = True
@@ -524,6 +524,9 @@ class Data:
         self.customhal = False # include custom hal file
         self.userneededpid = 0
         self.userneededmux8 = 0
+        self.userneededabs = 0
+        self.userneededscale = 0
+
 
         # pyvcp data
         self.pyvcp = 0 # not included
@@ -1618,11 +1621,11 @@ class Data:
         enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = False
 
-        if not self.findsignal("spindle-phase-a") == "false":
+        if not self.findsignal("s-encoder-a") == "false":
             spindle_enc = True        
         if not self.findsignal("probe") =="false":
             probe = True
-        if not self.findsignal("spindle-pwm") =="false":
+        if not self.findsignal("s-pwm-pulse") =="false":
             pwm = True
         if not self.findsignal("charge-pump") =="false":
             pump = True
@@ -1642,17 +1645,44 @@ class Data:
             flood = True
         if not self.findsignal("spindle-brake") =="false":
             brake = True
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "loadrt abs count=1"
-            if spindle_enc:
-               print >>file, "loadrt scale count=1"
+        if self.pyvcp or self.userneededabs >0:
+            self.absnames=""
+            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
+                self.absnames=self.absnames+"spindle"
+                if self.userneededabs >0:
+                    self.absnames=self.absnames+","
+            for i in range(0,self.userneededabs):
+                self.absnames = self.absnames+"%d"% (i)
+                if i <> self.userneededabs-1:
+                    self.absnames = self.absnames+","
+            print >>file, "loadrt abs names=%s"% self.absnames
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
+            self.scalenames=""
+            if spindle_enc and self.pyvcp:
+                self.scalenames=self.scalenames+"spindle"
+                if self.userneededscale >0:
+                    self.scalenames=self.scalenames+","
+            for i in range(0,self.userneededscale):
+                self.scalenames = self.scalenames+"%d"% (i)
+                if  i <> self.userneededscale-1:
+                    self.scalenames = self.scalenames+","
+            print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg:
-            print >>file, "loadrt mux8 count=%d"% (self.userneededmux8+1)
+        if self.externalmpg or self.userneededmux8 > 0:
+            self.mux8names=""
+            if self.externalmpg: 
+                self.mux8names = self.mux8names+"jogincr"
+                if self.userneededmux8 > 0:
+                    self.mux8names = self.mux8names+","
+            for i in range(0,self.userneededmux8):
+                self.mux8names = self.mux8names+"%d"% (i)
+                if i <> self.userneededmux8-1:
+                    self.mux8names = self.mux8names+","
+            print >>file, "loadrt mux8 names=%s"% (self.mux8names)
         # load user custom components
         for i in self.loadcompbase:
             if i == '': continue
@@ -1734,20 +1764,19 @@ class Data:
             print >>file,"addf classicladder.0.refresh servo-thread"
         if pwm: 
             print >>file, "addf pwmgen.update servo-thread"
-        if self.externalmpg: 
-            for j in range(0,self.userneededmux8+1):
-                print >>file, "addf mux8.%d servo-thread"% j
-            print >>file, "alias pin mux8.%d.sel0 mux8.jogincr.sel0"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.sel1 mux8.jogincr.sel1"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.sel2 mux8.jogincr.sel2"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.out mux8.jogincr.out"% (self.userneededmux8)
-            for i in range(0,8):
-                print >>file, "alias pin mux8.%d.in%d mux8.jogincr.in%d"% (self.userneededmux8,i,i)
-
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "addf abs.0 servo-thread"
-            if spindle_enc:
-               print >>file, "addf scale.0 servo-thread"
+        if self.externalmpg or self.userneededmux8 > 0: 
+            temp=self.mux8names.split(",")
+            for j in (temp):
+                print >>file, "addf mux8.%s servo-thread"% j
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
+            temp=self.absnames.split(",")
+            for j in (temp):
+                print >>file, "addf abs.%s servo-thread"% j
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededscale > 0:
+            if spindle_enc or self.userneededscale > 0:
+                temp=self.scalenames.split(",")
+                for j in (temp):
+                    print >>file, "addf scale.%s servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
@@ -1964,16 +1993,16 @@ class Data:
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("    setp scale.0.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("    setp scale.spindle.gain .01667")
+                      print >>f1, ("net spindle-velocity => abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
+                      print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd                       =>  abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
+                      print >>f1, ("net spindle-cmd                       =>  abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
                   print >>f1, ("net tool-number                        => pyvcp.toolnumber")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
@@ -3310,6 +3339,7 @@ class App:
     # the update.  
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
+
     def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders): 
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -4624,6 +4654,8 @@ class App:
         self.data.help = "help-realtime.txt"
         self.widgets.userneededpid.set_value(self.data.userneededpid)
         self.widgets.userneededmux8.set_value(self.data.userneededmux8)
+        self.widgets.userneededabs.set_value(self.data.userneededabs)
+        self.widgets.userneededscale.set_value(self.data.userneededscale)
         if not self.intrnldata.components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
             for i in self.data.loadcompservo:
@@ -4646,6 +4678,8 @@ class App:
     def on_realtime_components_next(self,*args):
         self.data.userneededpid = int(self.widgets.userneededpid.get_value())
         self.data.userneededmux8 = int(self.widgets.userneededmux8.get_value())
+        self.data.userneededabs = int(self.widgets.userneededabs.get_value())
+        self.data.userneededscale = int(self.widgets.userneededscale.get_value())
         textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
