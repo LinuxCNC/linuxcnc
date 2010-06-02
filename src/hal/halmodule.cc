@@ -619,6 +619,18 @@ static PyObject *shm_getbuffer(PyObject *_self, PyObject *o) {
     return (PyObject*)PyBuffer_FromReadWriteObject((PyObject*)self, 0, self->size);
 }
 
+static PyObject *set_msg_level(PyObject *_self, PyObject *args) {
+    int level, res;
+    if(!PyArg_ParseTuple(args, "i", &level)) return NULL;
+    res = rtapi_set_msg_level(level);
+    if(res) return pyhal_error(res);
+    Py_RETURN_NONE;
+}
+
+static PyObject *get_msg_level(PyObject *_self, PyObject *args) {
+    return PyInt_FromLong(rtapi_get_msg_level());
+}
+
 static
 PyBufferProcs shmbuffer_procs = {
     shm_buffer,
@@ -689,6 +701,10 @@ PyMethodDef module_methods[] = {
 	"Return a TRUE value if the named component exists"},
     {"component_is_ready", component_is_ready, METH_VARARGS,
 	"Return a TRUE value if the named component is ready"},
+    {"set_msg_level", set_msg_level, METH_VARARGS,
+	"Set the RTAPI message level"},
+    {"get_msg_level", get_msg_level, METH_NOARGS,
+	"Get the RTAPI message level"},
     {NULL},
 };
 
@@ -730,6 +746,13 @@ void inithal(void) {
     PyType_Ready(&shm_type);
     PyModule_AddObject(m, "component", (PyObject*)&halobject_type);
     PyModule_AddObject(m, "shm", (PyObject*)&shm_type);
+
+    PyModule_AddIntConstant(m, "MSG_NONE", RTAPI_MSG_NONE);
+    PyModule_AddIntConstant(m, "MSG_ERR", RTAPI_MSG_ERR);
+    PyModule_AddIntConstant(m, "MSG_WARN", RTAPI_MSG_WARN);
+    PyModule_AddIntConstant(m, "MSG_INFO", RTAPI_MSG_INFO);
+    PyModule_AddIntConstant(m, "MSG_DBG", RTAPI_MSG_DBG);
+    PyModule_AddIntConstant(m, "MSG_ALL", RTAPI_MSG_ALL);
 
     PyModule_AddIntConstant(m, "HAL_BIT", HAL_BIT);
     PyModule_AddIntConstant(m, "HAL_FLOAT", HAL_FLOAT);
