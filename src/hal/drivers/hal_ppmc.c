@@ -428,6 +428,8 @@ int rtapi_app_main(void)
             return rv;
 
         port_addr[busnum] = port_registration[busnum].base;
+        if(port_registration[busnum].base_hi)
+            rtapi_outb(0x80, port_registration[busnum].base_hi + 2);
 
         /* got a good one */
         n++;
