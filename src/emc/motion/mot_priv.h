@@ -37,7 +37,7 @@ typedef struct {
     hal_float_t *backlash_corr;	/* RPI: correction for backlash */
     hal_float_t *backlash_filt;	/* RPI: filtered backlash correction */
     hal_float_t *backlash_vel;	/* RPI: backlash speed variable */
-    hal_float_t *motor_offset;	/* WPI: motor offset, for checking homing stability */
+    hal_float_t *motor_offset;	/* RPI: motor offset, for checking homing stability */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
     hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, mot ofs */

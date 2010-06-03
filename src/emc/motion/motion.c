@@ -662,7 +662,7 @@ static int export_joint(int num, joint_hal_t * addr)
     }
     rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.motor-offset", num);
     retval =
-	hal_pin_float_new(buf, HAL_IN, &(addr->motor_offset), mot_comp_id);
+	hal_pin_float_new(buf, HAL_OUT, &(addr->motor_offset), mot_comp_id);
     if (retval != 0) {
 	return retval;
     }
