@@ -2063,50 +2063,28 @@ class Data:
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
-        print >>file, self.machinename,_("configures EMC2 as:")
-        print >>file
-        print >>file, unit,machinetype,_("type CNC")
-        print >>file
+        print >>file, self.machinename,_("configures EMC2 as:\n")
+        print >>file, unit,machinetype,_("type CNC\n")
         print >>file, display,_("will be used as the frontend display")
         print >>file
-        if self.number_mesa== True:
-            print >>file, "The Mesa", self.mesa0_boardname, "hardware I/O card"
-            print >>file, "will be loaded with firmware designation:", self.mesa0_firmware
-            print >>file, "and has", self.mesa0_currentfirmwaredata[9], "I/O pins"
-        print >>file
-        print >>file,_("Mesa 5i20 connector 2 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c2pin%d" % x]
-            tempinv = self["mesa0c2pin%dinv" %  x]
-            temptype = self["mesa0c2pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
-        print >>file
-        print >>file,_("Mesa 5i20 connector 3 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c3pin%d" % x]
-            tempinv = self["mesa0c3pin%dinv" %  x]
-            temptype = self["mesa0c3pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
-        print >>file
-        print >>file,_("Mesa 5i20 connector 4 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c4pin%d" % x]
-            tempinv = self["mesa0c4pin%dinv" %  x]
-            temptype = self["mesa0c4pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
-        print >>file
+        if self.number_mesa <> 0:
+            for boardnum in range(0,int(self.number_mesa)):
+                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][0] 
+                print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][9], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
+                print >>file
+            for boardnum in range(0,int(self.number_mesa)):
+                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][12]) :
+                    print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardname"% boardnum],boardnum,_(" connector")," %d **\n"% connector
+                    for pin in range (0,24):
+                        temp = self["mesa%dc%dpin%d" % (boardnum,connector,pin) ]
+                        tempinv = self["mesa%dc%dpin%dinv" % (boardnum,connector,pin) ]
+                        temptype = self["mesa%dc%dpin%dtype" % (boardnum,connector,pin) ]
+                        if tempinv: 
+                            invmessage = _("-> inverted")
+                        else: invmessage =""
+                        print >>file, ("pin# %(pinnum)d (%(type)s)               "%{ 'type':temptype,'pinnum':pin})
+                        print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
+            print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
             if self.number_pports < (j+1): break 
@@ -3341,6 +3319,7 @@ class App:
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
     def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders): 
+        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -3658,6 +3637,7 @@ class App:
                 self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
         self.window.hide()
+        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     # This is for when a user picks a signal name or creates a custom signal (by pressing enter)
     def on_mesa_pin_changed(self, widget, boardnum, connector, pin, custom):
