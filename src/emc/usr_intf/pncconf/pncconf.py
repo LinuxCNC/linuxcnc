@@ -4061,10 +4061,10 @@ class App:
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
-        w["pulleydriver"].set_text("%s" % d[axis+"pulleydriver"])
-        w["pulleydriven"].set_text("%s" % d[axis +"pulleydriven"])
-        w["leadscrew"].set_text("%s" % d[axis +"leadscrew"])
-        w["encoderline"].set_text("%d" % (d[axis+"encodercounts"]/4))
+        w["pulleydriver"].set_value(d[axis+"pulleydriver"])
+        w["pulleydriven"].set_value(d[axis +"pulleydriven"])
+        w["leadscrew"].set_value(d[axis +"leadscrew"])
+        w["encoderline"].set_value((d[axis+"encodercounts"]/4))
         set_text("encodercounts")
         set_value("scale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
@@ -4095,7 +4095,8 @@ class App:
             else:
                 w["sresolutionunits"].set_text(_("revolution / encoder pulse"))
                 w["sscaleunits"].set_text(_("Encoder pulses / revolution"))
-            w["leadscrewlabel"].set_text(_("Reduction Ratio"))
+            w["leadscrewlabel"].set_text(_("Gearbox Reduction Ratio"))
+            w["screwunits"].set_text((""))
             #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
             w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
             w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
@@ -4335,7 +4336,6 @@ class App:
             get_active("pidcontrol") 
 
     def calculate_scale(self, axis):
-        print axis
         w = self.widgets
         stepdriven = rotaryaxis = encoder = 1
         def get(n): return get_value(w[n])
@@ -4381,9 +4381,7 @@ class App:
     def update_pps(self, axis):
         w = self.widgets
         d = self.data
-        worm_ratio = motor_ratio = 1
-        
-        
+        worm_ratio = motor_ratio = 1       
         def get(n): return get_value(w[axis + n])
 
         try:
@@ -4395,7 +4393,6 @@ class App:
             else:  
                 pitch = get_value(w.leadscrew)
             motor_ratio = (get_value(w.pulleydriver) / get_value(w.pulleydriven))  
-
             maxvps = (get("maxvel"))/60
             pps = (get_value(w[axis+"scale"]) * (maxvps))/1000
             if pps == 0: raise ValueError
