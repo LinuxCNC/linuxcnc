@@ -472,6 +472,7 @@ static int export_joint(int num, joint_hal_t * addr)
     if ((retval = hal_pin_s32_newf(HAL_IN, &(addr->jog_counts), mot_comp_id, "joint.%d.jog-counts", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->jog_enable), mot_comp_id, "joint.%d.jog-enable", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_IN, &(addr->jog_scale), mot_comp_id, "joint.%d.jog-scale", num)) != 0) return retval;
+    if ((retval = hal_pin_float_newf(HAL_IN, &(addr->jog_vel_mode), mot_comp_id, "joint.%d.jog-vel-mode", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->joint_vel_cmd), mot_comp_id, "joint.%d.vel-cmd", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->backlash_corr), mot_comp_id, "joint.%d.backlash-corr", num)) != 0) return retval;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(addr->backlash_filt), mot_comp_id, "joint.%d.backlash-filt", num)) != 0) return retval;
