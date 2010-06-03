@@ -396,6 +396,12 @@ int rtapi_app_main(void)
     slot_data_t *slot;
     char buf[HAL_NAME_LEN + 2];
 
+    /* connect to the HAL */
+    comp_id = hal_init("hal_ppmc");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: ERROR: hal_init() failed\n");
+	return -1;
+    }
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: installing driver\n");
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -437,14 +443,10 @@ int rtapi_app_main(void)
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 	    "PPMC: ERROR: no ports specified\n");
+	hal_exit(comp_id);
 	return -1;
     }
-    /* have valid config info, connect to the HAL */
-    comp_id = hal_init("hal_ppmc");
-    if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: ERROR: hal_init() failed\n");
-	return -1;
-    }
+    /* have valid config info */
     /* begin init - loop thru all busses */
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
 	/* check to see if a port address was specified */
