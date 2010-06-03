@@ -512,7 +512,7 @@ class Data:
         self.editor = "gedit"
         self.geometry = "xyz"
 
-        # EMC assorted defults and options
+        # EMC assorted defaults and options
         self.toolchangeprompt = True
         self.multimpg = False
         self.require_homing = True
@@ -524,6 +524,9 @@ class Data:
         self.customhal = False # include custom hal file
         self.userneededpid = 0
         self.userneededmux8 = 0
+        self.userneededabs = 0
+        self.userneededscale = 0
+
 
         # pyvcp data
         self.pyvcp = 0 # not included
@@ -1618,11 +1621,11 @@ class Data:
         enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = False
 
-        if not self.findsignal("spindle-phase-a") == "false":
+        if not self.findsignal("s-encoder-a") == "false":
             spindle_enc = True        
         if not self.findsignal("probe") =="false":
             probe = True
-        if not self.findsignal("spindle-pwm") =="false":
+        if not self.findsignal("s-pwm-pulse") =="false":
             pwm = True
         if not self.findsignal("charge-pump") =="false":
             pump = True
@@ -1642,17 +1645,44 @@ class Data:
             flood = True
         if not self.findsignal("spindle-brake") =="false":
             brake = True
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "loadrt abs count=1"
-            if spindle_enc:
-               print >>file, "loadrt scale count=1"
+        if self.pyvcp or self.userneededabs >0:
+            self.absnames=""
+            if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
+                self.absnames=self.absnames+"spindle"
+                if self.userneededabs >0:
+                    self.absnames=self.absnames+","
+            for i in range(0,self.userneededabs):
+                self.absnames = self.absnames+"%d"% (i)
+                if i <> self.userneededabs-1:
+                    self.absnames = self.absnames+","
+            print >>file, "loadrt abs names=%s"% self.absnames
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
+            self.scalenames=""
+            if spindle_enc and self.pyvcp:
+                self.scalenames=self.scalenames+"spindle"
+                if self.userneededscale >0:
+                    self.scalenames=self.scalenames+","
+            for i in range(0,self.userneededscale):
+                self.scalenames = self.scalenames+"%d"% (i)
+                if  i <> self.userneededscale-1:
+                    self.scalenames = self.scalenames+","
+            print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg:
-            print >>file, "loadrt mux8 count=%d"% (self.userneededmux8+1)
+        if self.externalmpg or self.userneededmux8 > 0:
+            self.mux8names=""
+            if self.externalmpg: 
+                self.mux8names = self.mux8names+"jogincr"
+                if self.userneededmux8 > 0:
+                    self.mux8names = self.mux8names+","
+            for i in range(0,self.userneededmux8):
+                self.mux8names = self.mux8names+"%d"% (i)
+                if i <> self.userneededmux8-1:
+                    self.mux8names = self.mux8names+","
+            print >>file, "loadrt mux8 names=%s"% (self.mux8names)
         # load user custom components
         for i in self.loadcompbase:
             if i == '': continue
@@ -1734,20 +1764,19 @@ class Data:
             print >>file,"addf classicladder.0.refresh servo-thread"
         if pwm: 
             print >>file, "addf pwmgen.update servo-thread"
-        if self.externalmpg: 
-            for j in range(0,self.userneededmux8+1):
-                print >>file, "addf mux8.%d servo-thread"% j
-            print >>file, "alias pin mux8.%d.sel0 mux8.jogincr.sel0"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.sel1 mux8.jogincr.sel1"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.sel2 mux8.jogincr.sel2"% (self.userneededmux8)
-            print >>file, "alias pin mux8.%d.out mux8.jogincr.out"% (self.userneededmux8)
-            for i in range(0,8):
-                print >>file, "alias pin mux8.%d.in%d mux8.jogincr.in%d"% (self.userneededmux8,i,i)
-
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "addf abs.0 servo-thread"
-            if spindle_enc:
-               print >>file, "addf scale.0 servo-thread"
+        if self.externalmpg or self.userneededmux8 > 0: 
+            temp=self.mux8names.split(",")
+            for j in (temp):
+                print >>file, "addf mux8.%s servo-thread"% j
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
+            temp=self.absnames.split(",")
+            for j in (temp):
+                print >>file, "addf abs.%s servo-thread"% j
+        if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededscale > 0:
+            if spindle_enc or self.userneededscale > 0:
+                temp=self.scalenames.split(",")
+                for j in (temp):
+                    print >>file, "addf scale.%s servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
@@ -1964,16 +1993,16 @@ class Data:
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1
-                      print >>f1, ("    setp scale.0.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => scale.0.in")
-                      print >>f1, ("net scaled-spindle-vel <= scale.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("    setp scale.spindle.gain .01667")
+                      print >>f1, ("net spindle-velocity => abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
+                      print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd                       =>  abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel    abs.0.out =>  pyvcp.spindle-speed")                     
+                      print >>f1, ("net spindle-cmd                       =>  abs.spindle.in")
+                      print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
                   print >>f1, ("net tool-number                        => pyvcp.toolnumber")
                   print >>f1
                   print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
@@ -2034,50 +2063,28 @@ class Data:
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
         elif self.axes == 2:machinetype ="XZ-Lathe"
-        print >>file, self.machinename,_("configures EMC2 as:")
-        print >>file
-        print >>file, unit,machinetype,_("type CNC")
-        print >>file
+        print >>file, self.machinename,_("configures EMC2 as:\n")
+        print >>file, unit,machinetype,_("type CNC\n")
         print >>file, display,_("will be used as the frontend display")
         print >>file
-        if self.number_mesa== True:
-            print >>file, "The Mesa", self.mesa0_boardname, "hardware I/O card"
-            print >>file, "will be loaded with firmware designation:", self.mesa0_firmware
-            print >>file, "and has", self.mesa0_currentfirmwaredata[9], "I/O pins"
-        print >>file
-        print >>file,_("Mesa 5i20 connector 2 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c2pin%d" % x]
-            tempinv = self["mesa0c2pin%dinv" %  x]
-            temptype = self["mesa0c2pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
-        print >>file
-        print >>file,_("Mesa 5i20 connector 3 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c3pin%d" % x]
-            tempinv = self["mesa0c3pin%dinv" %  x]
-            temptype = self["mesa0c3pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
-        print >>file
-        print >>file,_("Mesa 5i20 connector 4 \n")
-        for x in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
-            temp = self["mesa0c4pin%d" % x]
-            tempinv = self["mesa0c4pin%dinv" %  x]
-            temptype = self["mesa0c4pin%dtype" %  x]
-            if tempinv: 
-                invmessage = _("-> inverted")
-            else: invmessage =""
-            print >>file, ("pin# %(pinnum)d (type %(type)s)               "%{ 'type':temptype,'pinnum':x})
-            print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
-        print >>file
+        if self.number_mesa <> 0:
+            for boardnum in range(0,int(self.number_mesa)):
+                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][0] 
+                print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][9], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
+                print >>file
+            for boardnum in range(0,int(self.number_mesa)):
+                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][12]) :
+                    print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardname"% boardnum],boardnum,_(" connector")," %d **\n"% connector
+                    for pin in range (0,24):
+                        temp = self["mesa%dc%dpin%d" % (boardnum,connector,pin) ]
+                        tempinv = self["mesa%dc%dpin%dinv" % (boardnum,connector,pin) ]
+                        temptype = self["mesa%dc%dpin%dtype" % (boardnum,connector,pin) ]
+                        if tempinv: 
+                            invmessage = _("-> inverted")
+                        else: invmessage =""
+                        print >>file, ("pin# %(pinnum)d (%(type)s)               "%{ 'type':temptype,'pinnum':pin})
+                        print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}) 
+            print >>file
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
             if self.number_pports < (j+1): break 
@@ -3310,7 +3317,14 @@ class App:
     # the update.  
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
+
     def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders): 
+        self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
+        self.pbar.set_text("Setting up Mesa tabs")
+        self.pbar.set_fraction(0)
+        self.window.show()
+        while gtk.events_pending():
+            gtk.main_iteration()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
             if not d[0] == board:continue
@@ -3335,6 +3349,9 @@ class App:
             self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(1)
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
             for pin in range (0,24):
+                self.pbar.set_fraction((pin+1)/24.0)
+                while gtk.events_pending():
+                    gtk.main_iteration()
                 firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][13+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
@@ -3619,6 +3636,8 @@ class App:
                 self.widgets[ptype].handler_unblock(self.intrnldata[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.intrnldata[blocksignal]) 
                 self.widgets[p].child.handler_unblock(self.intrnldata[actblocksignal])          
+        self.window.hide()
+        self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
 
     # This is for when a user picks a signal name or creates a custom signal (by pressing enter)
     def on_mesa_pin_changed(self, widget, boardnum, connector, pin, custom):
@@ -4022,10 +4041,10 @@ class App:
         set_active("invertmotor")
         set_active("invertencoder")  
         set_value("maxoutput")
-        w["pulleydriver"].set_text("%s" % d[axis+"pulleydriver"])
-        w["pulleydriven"].set_text("%s" % d[axis +"pulleydriven"])
-        w["leadscrew"].set_text("%s" % d[axis +"leadscrew"])
-        w["encoderline"].set_text("%d" % (d[axis+"encodercounts"]/4))
+        w["pulleydriver"].set_value(d[axis+"pulleydriver"])
+        w["pulleydriven"].set_value(d[axis +"pulleydriven"])
+        w["leadscrew"].set_value(d[axis +"leadscrew"])
+        w["encoderline"].set_value((d[axis+"encodercounts"]/4))
         set_text("encodercounts")
         set_value("scale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
@@ -4056,7 +4075,8 @@ class App:
             else:
                 w["sresolutionunits"].set_text(_("revolution / encoder pulse"))
                 w["sscaleunits"].set_text(_("Encoder pulses / revolution"))
-            w["leadscrewlabel"].set_text(_("Reduction Ratio"))
+            w["leadscrewlabel"].set_text(_("Gearbox Reduction Ratio"))
+            w["screwunits"].set_text((""))
             #self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
             w['spindlespeed1'].set_text("%s" % d.spindlespeed1)
             w['spindlespeed2'].set_text("%s" % d.spindlespeed2)
@@ -4296,7 +4316,6 @@ class App:
             get_active("pidcontrol") 
 
     def calculate_scale(self, axis):
-        print axis
         w = self.widgets
         stepdriven = rotaryaxis = encoder = 1
         def get(n): return get_value(w[n])
@@ -4342,9 +4361,7 @@ class App:
     def update_pps(self, axis):
         w = self.widgets
         d = self.data
-        worm_ratio = motor_ratio = 1
-        
-        
+        worm_ratio = motor_ratio = 1       
         def get(n): return get_value(w[axis + n])
 
         try:
@@ -4356,7 +4373,6 @@ class App:
             else:  
                 pitch = get_value(w.leadscrew)
             motor_ratio = (get_value(w.pulleydriver) / get_value(w.pulleydriven))  
-
             maxvps = (get("maxvel"))/60
             pps = (get_value(w[axis+"scale"]) * (maxvps))/1000
             if pps == 0: raise ValueError
@@ -4615,6 +4631,8 @@ class App:
         self.data.help = "help-realtime.txt"
         self.widgets.userneededpid.set_value(self.data.userneededpid)
         self.widgets.userneededmux8.set_value(self.data.userneededmux8)
+        self.widgets.userneededabs.set_value(self.data.userneededabs)
+        self.widgets.userneededscale.set_value(self.data.userneededscale)
         if not self.intrnldata.components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
             for i in self.data.loadcompservo:
@@ -4637,6 +4655,8 @@ class App:
     def on_realtime_components_next(self,*args):
         self.data.userneededpid = int(self.widgets.userneededpid.get_value())
         self.data.userneededmux8 = int(self.widgets.userneededmux8.get_value())
+        self.data.userneededabs = int(self.widgets.userneededabs.get_value())
+        self.data.userneededscale = int(self.widgets.userneededscale.get_value())
         textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
