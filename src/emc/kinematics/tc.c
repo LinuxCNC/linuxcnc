@@ -29,10 +29,19 @@ PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
     } else {
         PmPose startpoint;
         PmCartesian radius;
+        PmCartesian tan, perp;
 
         pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
         pmCartCartSub(startpoint.tran, tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &v);
+        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &tan);
+        pmCartUnit(tan, &tan);
+
+        pmCartCartSub(tc->coords.circle.xyz.center, startpoint.tran, &perp);
+        pmCartUnit(perp, &perp);
+
+        pmCartScalMult(tan, tc->maxaccel, &tan);
+        pmCartScalMult(perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
+        pmCartCartAdd(tan, perp, &v);
     }
     pmCartUnit(v, &v);
     return v;

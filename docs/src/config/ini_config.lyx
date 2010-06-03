@@ -102,7 +102,7 @@ name "HAL"
 
 \end_inset
 
- The hal files start up process modules and provide linkages between EMC
+ The HAL files start up process modules and provide linkages between EMC
  signals and specific hardware pins.
 \end_layout
 
@@ -424,8 +424,12 @@ Definitions
 
 \begin_layout Description
 Machine\InsetSpace ~
-Units The units (of length or angle) specified in the ini file for
- a particular axis
+Unit The unit of measurement for an axis is determined by the settings
+ in the [TRAJ] section.
+ A machine unit is equal to one unit as specified by 
+\color black
+LINEAR_UNITS or ANGULAR_UNITS.
+ 
 \end_layout
 
 \begin_layout Section
@@ -522,8 +526,11 @@ This is the name of the controller, which is printed out at the top of most
 \begin_layout Description
 DEBUG\InsetSpace ~
 =\InsetSpace ~
-0 Debug level 0 means no messages.
- See src/emc/nml_int/emcglb.h for others
+0 Debug level 0 means no messages will be printed when EMC is run
+ from a terminal.
+ Debug flags are usually only useful to developers.
+ See src/emc/nml_int/emcglb.h for other settings.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -1177,6 +1184,19 @@ name "TASK (inifile section)"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Description
+TASK\InsetSpace ~
+=\InsetSpace ~
+milltask Specifies the name of the "task" executable.
+ "task" does various things, such as communicate with the UIs over NML,
+ communicate with the realtime motion planner over non-HAL shared memory,
+ and interpret gcode.
+ Currently there is only one task executable that makes sense for 99.9% of
+ users, milltask In the dim mists of time (before HAL), it was frequently
+ the case that an integrator would have to build a modified version of things
+ like task, io, and motion for a specific machine.
 \end_layout
 
 \begin_layout Description
@@ -1902,6 +1922,8 @@ NO
  If the encoder used for this axis has an index pulse, and the motion card
  has provision for this signal you may set it to yes.
  When it is yes, it will affect the kind of home pattern used.
+ Currently, you can't home to index with steppers unless your using stepgen
+ in velocity mode and pid.
 \end_layout
 
 \begin_layout Description
@@ -2658,8 +2680,12 @@ name "INPUT SCALE"
 \series default
 \noun default
  Specifies the number of pulses that corresponds to a move of one machine
- unit.
- A second number, if specified, is ignored.
+ unit as set in the [TRAJ] section.
+ For a linear axis one machine unit will be equal to the setting of LINEAR_UNITS.
+ For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
+\newline
+A
+ second number, if specified, is ignored.
 \color black
 
 \newline
@@ -2714,16 +2740,18 @@ name "INPUT SCALE"
 \series default
 \noun default
  Specifies the number of pulses that corresponds to a move of one machine
- unit.
+ unit as set in the [TRAJ] section.
  For stepper systems, this is the number of step pulses issued per machine
  unit.
+ For a linear axis one machine unit will be equal to the setting of LINEAR_UNITS.
+ For an angular axis one unit is equal to the setting in ANGULAR_UNITS.
  For servo systems, this is the number of feedback pulses per machine unit.
  A second number, if specified, is ignored.
 \color black
 
 \newline
 For example, on a 1.8 degree stepper motor with half-stepping, and 10 revs/inch
- gearing, and desired units of inch, we have
+ gearing, and desired machine units of inch, we have
 \begin_inset Formula \begin{eqnarray*}
 input\_scale & = & \frac{{2\, steps}}{1.8\, degree}*360\frac{{degree}}{rev}*10\frac{rev}{inch}\\
  & = & 4000\frac{steps}{inch}\end{eqnarray*}

@@ -40,7 +40,7 @@ namespace eval ::tooledit {
 proc ::tooledit::init {} {
   set ::te(fmt,int)   %d
   set ::te(fmt,real)  %.4g
-  set ::te(fmt,angle) %.1g
+  set ::te(fmt,angle) %.1f
   set ::te(msg,last)  ""
   set ::te(pollms)    2000
 

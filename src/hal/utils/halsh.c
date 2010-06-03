@@ -74,6 +74,7 @@ int Hal_Init(Tcl_Interp *interp) {
 
     Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
 
+    Tcl_PkgProvide(interp, "Hal", "1.0");
     return TCL_OK;
 }
 

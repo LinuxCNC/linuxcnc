@@ -348,7 +348,8 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.bind('<Button1-Motion>', self.select_cancel, add=True)
         self.highlight_line = None
         self.select_event = None
-        self.select_primed = False
+        self.select_buffer_size = 100
+        self.select_primed = None
         self.last_position = None
         self.last_homed = None
         self.last_origin = None
@@ -401,7 +402,8 @@ class MyOpengl(GlCanonDraw, Opengl):
         self.select_primed = event
 
     def select_cancel(self, event):
-        self.select_primed = False
+        if self.select_primed and (event.x != self.select_primed.x or event.y != self.select_primed.y):
+            self.select_primed = None
 
     def select_fire(self, event):
         if self.select_primed: self.queue_select(event)
@@ -1883,7 +1885,8 @@ class TclCommands(nf.TclCommands):
         else:
             e = string.split(editor)
             e.append(loaded_file)
-            os.spawnvp(os.P_NOWAIT, e[0], e)
+            e.append("&")
+            root_window.tk.call("exec", *e)
 
     def edit_tooltable(*event):
         if tooltable is None:
@@ -1891,7 +1894,8 @@ class TclCommands(nf.TclCommands):
         else:
             e = string.split(tooleditor)
             e.append(tooltable)
-            os.spawnvp(os.P_NOWAIT, e[0], e)
+            e.append("&")
+            root_window.tk.call("exec", *e)
 
     def task_run(*event):
         if run_warn(): return

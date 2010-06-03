@@ -7,8 +7,7 @@
 \usepackage[plainpages=false,pdfpagelabels,colorlinks=true,linkcolor=blue]{hyperref}
 \pagenumbering{Roman}
 \let\myTOC\tableofcontents
-\renewcommand\tableofcontents{\myTOC\clearpage\pagenumbering{arabic}
-}
+\renewcommand\tableofcontents{\myTOC \clearpage \pagenumbering{arabic}}
 
 \usepackage{fancyhdr}
 \setlength{\headheight}{15pt}
@@ -169,22 +168,6 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Standard
-
-
-\backslash
-addcontentsline{toc}{chapter}{Foreword}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Include \include{common/user_intro.lyx}
 preview false
 
@@ -274,7 +257,7 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{gcode/main.lyx}
+\begin_inset Include \include{gcode/coordinates.lyx}
 preview false
 
 \end_inset
@@ -292,7 +275,7 @@ preview false
 \end_layout
 
 \begin_layout Standard
-\begin_inset Include \include{gcode/coordinates.lyx}
+\begin_inset Include \include{gcode/main.lyx}
 preview false
 
 \end_inset

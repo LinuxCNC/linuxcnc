@@ -81,6 +81,10 @@ else
 fi
 
 case $DISTRIB_NAME in
+Ubuntu-10.04)
+	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
+	TCLTK_VERSION=8.5
+	;;
 Ubuntu-9.10)
 	EXTRA_BUILD=lyx,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french
 	TCLTK_VERSION=8.5

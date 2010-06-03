@@ -100,6 +100,8 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_STEPGEN          (5)
 #define HM2_GTAG_PWMGEN           (6)
 #define HM2_GTAG_TRANSLATIONRAM  (11)
+#define HM2_GTAG_TPPWM           (19)
+#define HM2_GTAG_LED            (128)
 
 
 
@@ -390,6 +392,74 @@ typedef struct {
 } hm2_pwmgen_t;
 
 
+//
+// 3-Phase pwmgen
+//
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *Avalue;
+            hal_float_t *Bvalue;
+            hal_float_t *Cvalue;
+            hal_bit_t *fault;
+            hal_bit_t *enable;
+        } pin;
+
+        struct {
+            hal_float_t scale;
+            hal_float_t deadzone;
+            hal_bit_t faultpolarity;
+            hal_float_t sampletime;
+        } param;
+
+    } hal;
+
+    // these keep track of the written values of each register so we
+    // know if an update-write is needed
+    // enable is a little more complicated and is based on the read-back
+    // of the fault/enable register
+    float written_deadzone;
+    bool written_faultpolarity;
+    float written_sampletime;
+} hm2_tp_pwmgen_instance_t;
+
+typedef struct {
+    struct {
+        hal_u32_t pwm_frequency; // One PWM rate for all instances
+    } param;
+} hm2_tp_pwmgen_global_hal_t;
+
+typedef struct {
+    int num_instances;
+
+    hm2_tp_pwmgen_instance_t *instance;
+
+    hm2_tp_pwmgen_global_hal_t *hal;
+
+    u32 clock_frequency;
+    u8 version;
+
+    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // that we've told the FPGA about, so we know if we need to update it
+    u32 written_pwm_frequency;
+
+    u32 pwm_value_addr; // All three phases share a register (10 bits each)
+    u32 *pwm_value_reg; // Pointer to a memory block that holds the set.
+
+    u32 setup_addr; // holds dead-time, fault polarity and ADC sample time
+    u32 *setup_reg;
+
+    u32 enable_addr; // a 32-bit enable register for each tp_pwmgen. Seems excessive
+    u32 *enable_reg;
+
+    u32 pwmgen_master_rate_dds_addr;
+    u32 pwmgen_master_rate_dds_reg;  // one register for the whole Function
+
+} hm2_tp_pwmgen_t;
 
 
 // 
@@ -566,7 +636,26 @@ typedef struct {
     u32 *reset_reg;
 } hm2_watchdog_t;
 
+//
+// On-board LEDs
+//
 
+typedef struct {
+        hal_bit_t *led;
+    } hm2_led_instance_t ;
+
+typedef struct {
+
+    int num_instances ;
+
+    hm2_led_instance_t *instance ;
+
+    u32 written_buff ;
+
+    u32 led_addr;
+    u32 *led_reg;
+
+} hm2_led_t ;
 
 
 // 
@@ -615,7 +704,9 @@ typedef struct {
     struct {
         int num_encoders;
         int num_pwmgens;
+        int num_tp_pwmgens;
         int num_stepgens;
+        int num_leds;
         int enable_raw;
         char *firmware;
     } config;
@@ -643,9 +734,11 @@ typedef struct {
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
     hm2_pwmgen_t pwmgen;
+    hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
+    hm2_led_t led;
 
     hm2_raw_t *raw;
 
@@ -765,6 +858,17 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
 
 
+//
+// Three Phase pwmgen functions
+//
+
+int  hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_tp_pwmgen_print_module(hostmot2_t *hm2);
+void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2);
+void hm2_tp_pwmgen_write(hostmot2_t *hm2);
+void hm2_tp_pwmgen_force_write(hostmot2_t *hm2);
+void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2);
+void hm2_tp_pwmgen_read(hostmot2_t *hm2);
 
 
 //
@@ -797,6 +901,14 @@ void hm2_watchdog_force_write(hostmot2_t *hm2);
 
 
 // 
+// LED functions
+//
+
+int hm2_led_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_led_write(hostmot2_t *hm2);
+void hm2_led_cleanup(hostmot2_t *hm2);
+
+//
 // the raw interface lets you peek and poke the hostmot2 instance from HAL
 //
 

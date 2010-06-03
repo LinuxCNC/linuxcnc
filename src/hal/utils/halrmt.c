@@ -449,7 +449,10 @@ static void strupr(char *s)
 
 static int initSockets()
 {
+  int optval = 1;
+
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);

@@ -158,7 +158,11 @@ net KA2 motion.spindle-forward => hm2_5i20.0.gpio.042.out
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE
-net M7 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+net M8 hm2_5i20.0.gpio.043.out => iocontrol.0.coolant-flood
+# Mist Coolant
+setp hm2_5i20.0.gpio.045.is_output TRUE
+setp hm2_5i20.0.gpio.045.invert_output TRUE
+net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
 
 # hook the functions to threads
 # read inputs

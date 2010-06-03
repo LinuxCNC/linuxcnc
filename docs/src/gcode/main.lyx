@@ -421,9 +421,8 @@ name "G Code Table"
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="54" columns="4">
+<lyxtabular version="3" rows="41" columns="3">
 <features>
-<column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
@@ -442,15 +441,6 @@ Code
 
 \begin_layout Standard
 Description
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-Parameters
 \end_layout
 
 \end_inset
@@ -480,15 +470,6 @@ G0
 
 \begin_layout Standard
 Coordinated Straight Motion Rapid
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -527,15 +508,6 @@ Coordinated Straight Motion Feed Rate
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -566,15 +538,6 @@ G2, G3
 
 \begin_layout Standard
 Coordinated Helical Motion Feed Rate
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-I J K or R
 \end_layout
 
 \end_inset
@@ -613,21 +576,46 @@ Dwell
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P L
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
 reference "sec:G4:-Dwell"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+G5.2, G5.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+NURBs Block
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sec:G5.2-G5.3-NURBs"
 
 \end_inset
 
@@ -652,15 +640,6 @@ G7, G8
 
 \begin_layout Standard
 Diameter or Radius Mode
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -699,15 +678,6 @@ Set Tool Table Entry
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P R X Z
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -742,16 +712,7 @@ Set Tool Table Entry Calculated
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P R X Z
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -781,15 +742,6 @@ G10 L2
 
 \begin_layout Standard
 Coordinate System Origin Setting
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P R X Y Z A B C
 \end_layout
 
 \end_inset
@@ -828,16 +780,7 @@ Coordinate System Origin Setting Calculated
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P X Y Z A B C
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -857,7 +800,7 @@ reference "sec:G10-L20"
 \begin_inset Text
 
 \begin_layout Standard
-G17, G18, G19
+G17 - G19.1
 \end_layout
 
 \end_inset
@@ -867,15 +810,6 @@ G17, G18, G19
 
 \begin_layout Standard
 Plane Select
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -909,16 +843,7 @@ G20, G21
 \begin_inset Text
 
 \begin_layout Standard
-Units 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
+Units of Measure
 \end_layout
 
 \end_inset
@@ -943,7 +868,7 @@ reference "sec:G20,-G21:-Length"
 \begin_inset Text
 
 \begin_layout Standard
-G28, G30
+G28 - G30.1
 \end_layout
 
 \end_inset
@@ -952,16 +877,7 @@ G28, G30
 \begin_inset Text
 
 \begin_layout Standard
-Return To 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
+Go to Predefined Position
 \end_layout
 
 \end_inset
@@ -1000,15 +916,6 @@ Spindle Synchronized Motion
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-K
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1043,15 +950,6 @@ Rigid Tapping
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-K
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1072,7 +970,7 @@ reference "sec:G33,-G33.1:-Spindle-Synchronized"
 \begin_inset Text
 
 \begin_layout Standard
-G38.2-G38.5
+G38.2 - G38.5
 \end_layout
 
 \end_inset
@@ -1082,15 +980,6 @@ G38.2-G38.5
 
 \begin_layout Standard
 Probing
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -1129,15 +1018,6 @@ Cancel Cutter Compensation
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1168,15 +1048,6 @@ G41, G42
 
 \begin_layout Standard
 Cutter Compensation 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-D
 \end_layout
 
 \end_inset
@@ -1215,15 +1086,6 @@ Cutter Compensation Transient
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-D L
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1244,7 +1106,7 @@ reference "sec:G41.1,-G42.1"
 \begin_inset Text
 
 \begin_layout Standard
-G43
+G43, G43.1
 \end_layout
 
 \end_inset
@@ -1254,15 +1116,6 @@ G43
 
 \begin_layout Standard
 Use Tool Length Offset from Tool Table
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-H
 \end_layout
 
 \end_inset
@@ -1301,15 +1154,6 @@ Cancel Tool Length Offset
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-I K
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1340,15 +1184,6 @@ G53
 
 \begin_layout Standard
 Motion in Machine Coordinate System
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -1387,15 +1222,6 @@ Select Coordinate System
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1430,15 +1256,6 @@ Select Coordinate System
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1468,16 +1285,7 @@ G61, G61.1
 \begin_inset Text
 
 \begin_layout Standard
-Path Mode 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
+Path Control Mode 
 \end_layout
 
 \end_inset
@@ -1511,16 +1319,7 @@ G64
 \begin_inset Text
 
 \begin_layout Standard
-Continuous Mode with Optional Tolerance
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P
+Path Control Mode with Optional Tolerance
 \end_layout
 
 \end_inset
@@ -1559,15 +1358,6 @@ Drilling Cycle with Chip Breaking
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-R L Q
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1598,15 +1388,6 @@ G76
 
 \begin_layout Standard
 Multipass Threading Cycle (Lathe)
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P Z I J R K Q H L E
 \end_layout
 
 \end_inset
@@ -1645,15 +1426,6 @@ Cancel Motion Modes
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1684,15 +1456,6 @@ G81
 
 \begin_layout Standard
 Canned Drilling Cycle
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-R L P
 \end_layout
 
 \end_inset
@@ -1731,15 +1494,6 @@ Other Canned Cycles
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-R L P Q
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1770,15 +1524,6 @@ G90, G91
 
 \begin_layout Standard
 Distance Mode 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -1817,15 +1562,6 @@ Arc Distance Mode
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-I J K
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1856,15 +1592,6 @@ G92
 
 \begin_layout Standard
 Offset Coordinate Systems & Set Parameters
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-X Y Z A B C
 \end_layout
 
 \end_inset
@@ -1903,15 +1630,6 @@ Cancel Offsets
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -1942,15 +1660,6 @@ G92.3
 
 \begin_layout Standard
 Apply Parameters to Offset Coordinate Systems
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -1989,15 +1698,6 @@ Feed Modes
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2028,15 +1728,6 @@ G96
 
 \begin_layout Standard
 Constant Surface Speed 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-D S
 \end_layout
 
 \end_inset
@@ -2075,15 +1766,6 @@ RPM Mode
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2099,7 +1781,7 @@ reference "sec:G96,-G97:-Spindle"
 \end_inset
 </cell>
 </row>
-<row topline="true">
+<row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -2114,15 +1796,6 @@ G98, G99
 
 \begin_layout Standard
 Canned Cycle Z Retract Mode 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -2142,12 +1815,35 @@ reference "sub:G98,-G99:-Set"
 \end_inset
 </cell>
 </row>
-<row topline="true">
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+\begin_inset Tabular
+<lyxtabular version="3" rows="17" columns="3">
+<features>
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" width="0">
+<column alignment="center" valignment="top" leftline="true" rightline="true" width="0">
+<row topline="true" bottomline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
-F, S
+Code
 \end_layout
 
 \end_inset
@@ -2156,16 +1852,7 @@ F, S
 \begin_inset Text
 
 \begin_layout Standard
-F=Feed, S=Speed
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
+Description
 \end_layout
 
 \end_inset
@@ -2174,18 +1861,7 @@ n/a
 \begin_inset Text
 
 \begin_layout Standard
-\begin_inset LatexCommand ref
-reference "sub:F:-Set-Feed"
-
-\end_inset
-
-
-\begin_inset LatexCommand ref
-reference "sub:S:-Set-Spindle"
-
-\end_inset
-
-
+Section
 \end_layout
 
 \end_inset
@@ -2206,15 +1882,6 @@ M0, M1, M2
 
 \begin_layout Standard
 Program Control
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -2253,15 +1920,6 @@ Spindle Control
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-S
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2291,16 +1949,7 @@ M6
 \begin_inset Text
 
 \begin_layout Standard
-Change Tool T=Tool Number
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-T
+Tool Change
 \end_layout
 
 \end_inset
@@ -2339,15 +1988,6 @@ Coolant Control
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2377,16 +2017,7 @@ M30, M60
 \begin_inset Text
 
 \begin_layout Standard
-Pallet Shuttle 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
+Pallet Shuttle
 \end_layout
 
 \end_inset
@@ -2425,15 +2056,6 @@ Override Controls
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2468,21 +2090,12 @@ Set Current Tool Number
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-Q
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
 \begin_inset LatexCommand ref
-reference "sec:M61-Set-Current-Tool-Number"
+reference "sec:M66-Input-Control"
 
 \end_inset
 
@@ -2507,15 +2120,6 @@ M62-65
 
 \begin_layout Standard
 Output Control
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P
 \end_layout
 
 \end_inset
@@ -2554,15 +2158,6 @@ Input Control
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P, E, L, Q
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2597,16 +2192,7 @@ Analog Output Control
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-E, Q
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2640,16 +2226,7 @@ Analog Output Control
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-E, Q
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Standard
@@ -2683,15 +2260,6 @@ User Defined M-Codes
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-P Q
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
@@ -2707,7 +2275,7 @@ reference "sec:M100-to-M199:"
 \end_inset
 </cell>
 </row>
-<row topline="true" bottomline="true">
+<row topline="true">
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -2722,15 +2290,6 @@ O
 
 \begin_layout Standard
 O Codes
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Standard
-n/a
 \end_layout
 
 \end_inset
@@ -2750,12 +2309,112 @@ reference "cha:O-Codes"
 \end_inset
 </cell>
 </row>
-</lyxtabular>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+F
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Feed
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sub:F:-Set-Feed"
 
 \end_inset
 
 
-\newpage
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+S
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Spindle Speed
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sub:S:-Set-Spindle"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+T
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+Tool Select
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Standard
+\begin_inset LatexCommand ref
+reference "sub:T:-Select-Tool"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
 
 \end_layout
 
@@ -2956,6 +2615,8 @@ G2
 G3
 \family default
  (counterclockwise arc).
+ The direction (CW, CCW) is as viewed from the positive end of the axis
+ about which the rotation occours.
  The axis of the circle or helix must be parallel to the X, Y, or Z-axis
  of the machine coordinate system.
  The axis (or, equivalently, the plane perpendicular to the axis) is selected
@@ -3487,7 +3148,179 @@ It is an error if:
 the P number is negative.
 \end_layout
 
+\begin_layout Section
+G5.1 Quadratic B-spline
+\end_layout
+
+\begin_layout LyX-Code
+G5.1 Xn Yn I[X offset] J[Y offset]
+\end_layout
+
 \begin_layout Standard
+G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
+\end_layout
+
+\begin_layout Standard
+It is an error if:
+\end_layout
+
+\begin_layout Itemize
+I and J offset is not specified
+\end_layout
+
+\begin_layout Itemize
+An axis other than X or Y is specified
+\end_layout
+
+\begin_layout Itemize
+The active plane is not G17
+\end_layout
+
+\begin_layout Section
+G5.2 G5.3 NURBs Block
+\begin_inset LatexCommand index
+name "G5.2 G5.3 NURBs Block"
+
+\end_inset
+
+
+\begin_inset LatexCommand label
+name "sec:G5.2-G5.3-NURBs"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Warning: G5.2, G5.3 is experimental and not fully tested.
+\end_layout
+
+\begin_layout Standard
+G5.2 is for opening the data block defining a NURBs and G5.3 for closing the
+ data block.
+ In the lines between these two codes the curve control points are defined
+ with both their related "weights" (P) and their parameter (L) which determines
+ the order of the curve (k) and subsequently its degree (k-1).
+\end_layout
+
+\begin_layout Standard
+Using this curve definition the knots of the NURBs curve are not defined
+ by the user they are calculated by the inside algorithm, in the same way
+ as it happens in a great number of graphic applications, where the curve
+ shape can be modified only acting on either control points or weights.
+\end_layout
+
+\begin_layout Standard
+Sample NURBs Code
+\end_layout
+
+\begin_layout LyX-Code
+G0 X0 Y0
+\end_layout
+
+\begin_layout LyX-Code
+F10 
+\end_layout
+
+\begin_layout LyX-Code
+G5.2 X0 Y1 P1 L3
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y2 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X2 Y0 P1
+\end_layout
+
+\begin_layout LyX-Code
+     X0 Y0 P2
+\end_layout
+
+\begin_layout LyX-Code
+G5.3
+\end_layout
+
+\begin_layout LyX-Code
+/ The rapid moves show the same path without the NURBs Block
+\end_layout
+
+\begin_layout LyX-Code
+G0 X0 Y1
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y2
+\end_layout
+
+\begin_layout LyX-Code
+   X2 Y0
+\end_layout
+
+\begin_layout LyX-Code
+   X0 Y0
+\end_layout
+
+\begin_layout LyX-Code
+M2
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Sample NURBs Output
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/nurbs01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+More information on NURBs can be found here:
+\end_layout
+
+\begin_layout Standard
+\begin_inset LatexCommand url
+target "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS"
+
+\end_inset
+
 
 \end_layout
 
@@ -5003,7 +4836,7 @@ It is an error if:
 \end_layout
 
 \begin_layout Itemize
-A G2/3 arc move is programmed after G40
+A G2/3 arc move is programmed next after a G40.
 \end_layout
 
 \begin_layout Section
@@ -5027,12 +4860,15 @@ G41 or G42 D[tool]
 \end_layout
 
 \begin_layout Standard
-G41 start cutter radius compensation to the left of the programmed line.
+G41 start cutter radius compensation to the left of the programmed line
+ as viewed from the positive end of the axis perpendicular to the plane.
  
 \end_layout
 
 \begin_layout Standard
-G42 start cutter radius compensation to the right of the programmed line.
+G42 start cutter radius compensation to the right of the programmed line
+ as viewed from the positive end of the axis perpendicular to the plane.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -5041,7 +4877,8 @@ The lead in move must be at least as long as the tool radius and can be
 \end_layout
 
 \begin_layout Standard
-Cutter radius compensation may be performed only if the XY-plane is active.
+Cutter radius compensation may be performed if the XY-plane or XZ-plane
+ is active.
 \end_layout
 
 \begin_layout Standard
@@ -6722,42 +6559,72 @@ E-
 \end_layout
 
 \begin_layout Standard
-The "drive line" is a safe line outside the thread material.
- The "drive line" goes from the initial location to the 
-\family typewriter
-Z-
-\family default
- value specified with 
-\family typewriter
-G76
-\family default
-.
- The Z extent of the thread is the same as the drive line.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+G76 Threading
+\begin_inset LatexCommand label
+name "fig:G76-Threading"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-The "thread pitch", or distance per revolution, is given by the 
-\family typewriter
-P-
-\family default
- value.
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/g76-threads.png
+	scale 75
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-The "thread peak" is given by the 
-\family typewriter
-I-
-\family default
- value, which is an offset from the drive line.
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Drive\InsetSpace ~
+Line A line through the initial X position parallel to the Z.
+\end_layout
+
+\begin_layout Description
+P- The "thread pitch" in distance per revolution.
+\end_layout
+
+\begin_layout Description
+Z- The final position of threads.
+ At the end of the cycle the tool will be at this Z position.
+\end_layout
+
+\begin_layout Description
+I- The "thread peak" offset from the "drive line".
  Negative 
 \family typewriter
 I
 \family default
- values indicate external threads, and positive 
+ values are external threads, and positive 
 \family typewriter
 I
 \family default
- values indicate internal threads.
+ values are internal threads.
  Generally the material has been turned to this size before the 
 \family typewriter
 G76
@@ -6765,56 +6632,30 @@ G76
  cycle.
 \end_layout
 
-\begin_layout Standard
-The "initial cut depth" is given by the 
-\family typewriter
-J-
-\family default
- value.
+\begin_layout Description
+J- A positive value specifying the "initial cut depth".
  The first threading cut will be 
 \family typewriter
 J
 \family default
  beyond the "thread peak" position.
- 
-\family typewriter
-J-
-\family default
- is positive, even when 
-\family typewriter
-I-
-\family default
- is negative.
 \end_layout
 
-\begin_layout Standard
-The "full thread depth" is given by the 
-\family typewriter
-K-
-\family default
- value.
+\begin_layout Description
+K- A positive value specifying the "full thread depth".
  The final threading cut will be 
 \family typewriter
 K
 \family default
  beyond the "thread peak" position.
- 
-\family typewriter
-K-
-\family default
- is positive, even when 
-\family typewriter
-I-
-\family default
- is negative.
 \end_layout
 
 \begin_layout Standard
-The "depth digression" is given by the 
-\family typewriter
-R-
-\family default
- value.
+Optional settings
+\end_layout
+
+\begin_layout Description
+R- The "depth digression".
  
 \family typewriter
 R1.0
@@ -6831,17 +6672,9 @@ R2.0
  of passes to be used.
 \end_layout
 
-\begin_layout Standard
-The "compound slide angle"
-\begin_inset Quotes erd
-\end_inset
-
- 
-\family typewriter
-Q-
-\family default
- is the angle (in degrees) describing to what extent successive passes should
- be offset along the drive line.
+\begin_layout Description
+Q- The "compound slide angle" is the angle (in degrees) describing to what
+ extent successive passes should be offset along the drive line.
  This is used to cause one side of the tool to remove more material than
  the other.
  A positive 
@@ -6852,12 +6685,8 @@ Q
  Typical values are 29, 29.5 or 30.
 \end_layout
 
-\begin_layout Standard
-The number of "spring passes" is given by the 
-\family typewriter
-H-
-\family default
- value.
+\begin_layout Description
+H- The number of "spring passes".
  Spring passes are additional passes at full thread depth.
  If no additional passes are desired, program 
 \family typewriter
@@ -6876,21 +6705,26 @@ E-
 L-
 \family default
 .
- 
+\end_layout
+
+\begin_layout Description
+E- Specifies the distance along the drive line used for the taper.
+ The angle of the taper will be so the last pass tapers to the thread crest
+ over the distance specified with E.
+
 \family typewriter
-E-
-\family default
- gives a distance along the drive line used for the taper.
- 
-\family typewriter
-E0.2
+ E0.2
 \family default
  will give a taper for the first/last 0.2 length units along the thread.
- 
+ For a 45 degree taper program E the same as K
+\end_layout
+
+\begin_layout Description
+
 \family typewriter
 L-
 \family default
- is used to specify which ends of the thread get the taper.
+ Specifies which ends of the thread get the taper.
  Program 
 \family typewriter
 L0
@@ -6908,6 +6742,17 @@ L2
 L3
 \family default
  for both entry and exit tapers.
+ Entry tapers will pause at the drive line to synchronize with the index
+ pulse then feed in to the beginning of the taper.
+ No entry taper and the tool will rapid to the cut depth then synchronize
+ and begin the cut.
+\end_layout
+
+\begin_layout Standard
+The tool is moved to the initial X and Z positions prior to issuing the
+ G76.
+ The X position is the "drive line" and the Z position is the start of the
+ threads.
 \end_layout
 
 \begin_layout Standard
@@ -6929,6 +6774,12 @@ Unless using an exit taper, the exit move (traverse to original X) is not
 \end_layout
 
 \begin_layout Standard
+The final position of the tool will be at the end of the "drive line".
+ A safe Z move will be needed with an internal thread to remove the tool
+ from the hole.
+\end_layout
+
+\begin_layout Standard
 The sample program 
 \family typewriter
 g76.ngc
@@ -6942,16 +6793,22 @@ sim/lathe.ini
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Standard
-This drawing needs to be clarified a bit
+The following example shows the result of running this G-Code:
 \end_layout
 
-\end_inset
+\begin_layout LyX-Code
+G0 Z-.5 X .2
+\end_layout
 
+\begin_layout LyX-Code
+G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
+\end_layout
 
+\begin_layout Standard
+The tool is in the final position after the G76 cycle is completed.
+ You can see the entry path on the right from the Q29.5 and the exit path
+ on the left from the L2 E0.045.
+ The white lines are the cutting moves.
 \end_layout
 
 \begin_layout Standard
@@ -6965,12 +6822,13 @@ status open
 \begin_inset Caption
 
 \begin_layout Standard
+Threading Example
 \begin_inset LatexCommand label
-name "fig:G76-canned-cycle"
+name "fig:Threading-Example"
 
 \end_inset
 
-G76 canned cycle
+
 \end_layout
 
 \end_inset
@@ -6979,9 +6837,10 @@ G76 canned cycle
 \end_layout
 
 \begin_layout Standard
+\noindent
 \align center
 \begin_inset Graphics
-	filename g76.epsi
+	filename images/g76-01.png
 	scale 75
 
 \end_inset

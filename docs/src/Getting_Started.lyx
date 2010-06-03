@@ -195,6 +195,15 @@ preview false
 \end_layout
 
 \begin_layout Standard
+\begin_inset Include \include{common/Updating_EMC.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Include \include{quickstart/stepper_quickstart.lyx}
 preview false
 
@@ -205,6 +214,15 @@ preview false
 
 \begin_layout Standard
 \begin_inset Include \include{config/stepconf.lyx}
+preview false
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Include \include{config/pncconf.lyx}
 preview false
 
 \end_inset

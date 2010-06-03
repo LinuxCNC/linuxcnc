@@ -576,12 +576,36 @@ When running in lathe mode in AXIS you can set the X and Z in the tool table
  
 \end_layout
 
+\begin_layout Subsection*
+The X Axis
+\end_layout
+
+\begin_layout Standard
+The X axis offsets for each tool is normally an offset from the center line
+ of the spindle in the tool table.
+ 
+\end_layout
+
+\begin_layout Standard
+One method is to take your normal turning tool and turn down some stock
+ to a known diameter.
+ Using the Tool Touch Off window enter the measured diameter (or radius
+ if in radius mode) for that tool.
+ Then using some layout fluid or a marker to coat the part bring each tool
+ up till it just touches the dye and set it's X offset to the diameter of
+ the part used using the tool touch off.
+ Make sure any tools in the corner quadrants have the nose radius set properly
+ in the tool table so the control point is correct.
+ Tool touch off automatically adds a G43 so the current tool is the current
+ offset.
+\end_layout
+
 \begin_layout Standard
 A typical session might be:
 \end_layout
 
 \begin_layout Enumerate
-Home each axis.
+Home each axis if not homed.
 \end_layout
 
 \begin_layout Enumerate
@@ -600,12 +624,105 @@ Move the X to a known position or take a test cut and measure the diameter.
 Select Touch Off and pick Tool Table then enter the position or the diameter.
 \end_layout
 
-\begin_layout Enumerate
-Repeat for Z.
+\begin_layout Standard
+Note: if your in Radius Mode you will enter the radius not the diameter.
+\end_layout
+
+\begin_layout Subsection*
+The Z Tool Offset
 \end_layout
 
 \begin_layout Standard
-Note: if your in Radius Mode you will enter the radius not the diameter.
+The Z axis offsets can be a bit confusing at first because there are two
+ elements to the Z offset.
+ The tool table offset and the machine coordinate offset.
+ First we will look at the tool table offsets.
+ One method is to use a fixed point on your lathe and set the Z offset for
+ all tools from this point.
+ Some use the spindle nose or chuck face.
+ This gives you the ability to change to a new tool and set it's Z offset
+ without having to reset all the tools.
+\end_layout
+
+\begin_layout Standard
+A typical session might be:
+\end_layout
+
+\begin_layout Enumerate
+Home each axis if not homed.
+\end_layout
+
+\begin_layout Enumerate
+Make sure no offsets are in effect for the curret coordinate system.
+\end_layout
+
+\begin_layout Enumerate
+Set the curret tool with "TnM6" where "n" is the tool number.
+\end_layout
+
+\begin_layout Enumerate
+Select the Z axis in the Manual Control window.
+\end_layout
+
+\begin_layout Enumerate
+Bring the tool close to the control surface.
+ Using a cylinder move the Z away from the control surface until the cylinder
+ just passes between the tool and the control surface.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Select Touch Off and pick Tool Table and set the position to 0.0.
+\end_layout
+
+\begin_layout Enumerate
+Repete for each tool using the same cylinder.
+\end_layout
+
+\begin_layout Standard
+Now all the tools are offset the same distance from a standard position.
+ If you change a tool like a drill bit you repete the above and it is now
+ in sync with the rest of the tools for Z offset.
+ Some tools might require a bit of cyphering to determine the control point
+ from the touch off point.
+ For example if you have a 0.125" wide parting tool and you touch the left
+ side off but want the right to be Z0 then enter 0.125" in the touch off
+ window.
+\end_layout
+
+\begin_layout Subsection*
+The Z Machine Offset
+\end_layout
+
+\begin_layout Standard
+Once all the tools have the Z offset entered into the tool table you can
+ use any tool to set the machine offset using a machine coordinate system.
+\end_layout
+
+\begin_layout Standard
+A typical session might be:
+\end_layout
+
+\begin_layout Enumerate
+Home each axis if not homed.
+\end_layout
+
+\begin_layout Enumerate
+Set the current tool with "TnM6" where "n" is the tool number.
+\end_layout
+
+\begin_layout Enumerate
+Issue a G43 so the current tool offset is in effect.
+\end_layout
+
+\begin_layout Enumerate
+Bring the tool to the work piece and set the machine Z offset.
+\end_layout
+
+\begin_layout Standard
+If you forget to set the G43 for the current tool when you set the machine
+ coordinate system offset you will not get what you expect as the tool offset
+ will be added to the current offset when the tool is used in your program.
 \end_layout
 
 \begin_layout Section

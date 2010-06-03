@@ -3669,8 +3669,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();
     PROGRAM_END();
-    if (_setup.percent_flag == ON) {
-      CHKS((_setup.file_pointer == NULL), NCE_UNABLE_TO_OPEN_FILE);
+    if (_setup.percent_flag == ON && _setup.file_pointer) {
       line = _setup.linetext;
       for (;;) {                /* check for ending percent sign and comment if missing */
         if (fgets(line, LINELEN, _setup.file_pointer) == NULL) {
@@ -4552,9 +4551,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.v);
     tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[index].offset.w);
   } else if (g_code == G_43_1) {
-    CHKS((block->i_flag == ON) ||
-        (block->k_flag == ON),
-        _("I K words not allowed with G43.1"));
     tool_offset = settings->tool_offset;
     index = -1;
     if(block->x_flag == ON) tool_offset.tran.x = block->x_number;

@@ -1852,6 +1852,7 @@ To find out if S32in bit 2 is equal to 10 the syntax would be:
 \begin_layout Standard
 Note: Compare uses the arithmetic equals not the double equals that programmers
  are use to.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -2111,11 +2112,19 @@ List of variables :
 \end_layout
 
 \begin_layout Itemize
-%IFxx : Word memory xx (Float in pin) (converted to S32 in Classic Ladder)
+%IFxx : Word memory xx (Float in pin) (
+\series bold
+converted to S32 in Classic Ladder
+\series default
+)
 \end_layout
 
 \begin_layout Itemize
-%QFxx : Word memory xx (Float out pin) (converted to S32 in Classic Ladder)
+%QFxx : Word memory xx (Float out pin) (
+\series bold
+converted to S32 in Classic Ladder
+\series default
+)
 \end_layout
 
 \begin_layout Itemize

@@ -17,8 +17,8 @@ exec ${EMC2_EMCSH-emcsh} "$0" "$@"
 # Provides default display or operators for each NML message
 ###############################################################
 
-# Load the emc.tcl file, which defines variables for various useful paths
-source [file join [file dirname [info script]] emc.tcl]
+# Load the emc package, which defines variables for various useful paths
+package require Emc
 eval emc_init $argv
 
 # Tk GUI for the Enhanced Machine Controller
@@ -243,24 +243,6 @@ if {[string length $toolfilename] == 0} {
     set toolfilename "emc.tbl"
 }
 
-# pop up the tool table editor
-proc popupToolEditor {} {
-    global toolfilename
-
-    # create an editor as top-level ".toolEditor"
-    if {[file isfile $toolfilename]} {
-        geneditStart toolEditor $toolfilename
-    } else {
-        geneditStart toolEditor [msgcat::mc "untitled"].tbl
-    }
-
-    frame .toolEditor.buttons
-    pack .toolEditor.buttons -side bottom -fill x -pady 2m
-    button .toolEditor.buttons.load -text [msgcat::mc "Load Tool Table"] -command {geneditSaveFile toolEditor; emc_load_tool_table $toolfilename}
-    button .toolEditor.buttons.cancel -text [msgcat::mc "Cancel"] -default active -command {destroy .toolEditor}
-    pack .toolEditor.buttons.load .toolEditor.buttons.cancel -side left -expand 1
-}
-
 set paramfilename [emc_ini "PARAMETER_FILE" "RS274NGC"]
 if {[string length $paramfilename] == 0} {
     set paramfilename "emc.var"
@@ -430,9 +412,37 @@ proc popupAbout {} {
     bind .about <Return> "destroy .about"
 }
 
+proc toolenter {} {
+  #G10 L1 P[tool number]
+  #       R[radius]
+  #       X[offset] Y[offset] Z[offset]
+  #       A[offset] B[offset] C[offset]
+  #       U[offset] V[offset] W[offset]
+  #       I[frontangle] J[backangle] Q[orientation]
+  set cmd ""
+  foreach item "$::coordnames" {
+    set tag   $item ;# X|Y|...
+    set value [string trim $::tentry($item)]
+    switch $item {
+      Diam    {set tag R}
+      Front   {set tag I}
+      Back    {set tag J}
+      Orient  {set tag Q}
+    }
+    if {"$item" == "Diam" && "$value" != ""} {
+      set value [expr $::tentry(Diam)/2.0]
+    }
+    if {"$value" != ""} { set cmd "$cmd $tag$value"}
+  }
+  if {"$cmd" == ""} return
+  set restore [emc_mode]
+  emc_mode mdi
+  emc_mdi "G10 L1 P$::tentry(toolno) $cmd"
+  emc_mdi G43
+  emc_mode $restore
+}
+
 proc popupToolOffset {} {
-    global toolsetting tooloffsetsetting
-    global toolentry toollengthentry tooldiameterentry
 
     if {[winfo exists .tooloffset]} {
         wm deiconify .tooloffset
@@ -444,39 +454,30 @@ proc popupToolOffset {} {
     wm title .tooloffset [msgcat::mc "Set Tool Offset"]
 
     # pre-load the entries with values
-    set toolentry $toolsetting
-    set toollengthentry $tooloffsetsetting
-    set tooldiameterentry 0.0 ; # no value provided by controller
 
     frame .tooloffset.tool
-    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor w -width 15
-    entry .tooloffset.tool.entry -textvariable toolentry -width 20
-
-    frame .tooloffset.length
-    label .tooloffset.length.label -text [msgcat::mc "Length:"] -anchor w -width 15
-    entry .tooloffset.length.entry -textvariable toollengthentry -width 20
-
-    frame .tooloffset.diameter
-    label .tooloffset.diameter.label -text [msgcat::mc "Diameter:"] -anchor w -width 15
-    entry .tooloffset.diameter.entry -textvariable tooldiameterentry -width 20
-
-    frame .tooloffset.buttons
-    button .tooloffset.buttons.ok -text [msgcat::mc "OK"] -default active -command {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
-    button .tooloffset.buttons.cancel -text [msgcat::mc "Cancel"] -command {destroy .tooloffset}
-
+    label .tooloffset.tool.label -text [msgcat::mc "Tool:"] -anchor e -width 8
+    entry .tooloffset.tool.entry -textvariable ::tentry(toolno) -width 10
     pack .tooloffset.tool -side top
     pack .tooloffset.tool.label .tooloffset.tool.entry -side left
-    pack .tooloffset.length -side top
-    pack .tooloffset.length.label .tooloffset.length.entry -side left
-    pack .tooloffset.diameter -side top
-    pack .tooloffset.diameter.label .tooloffset.diameter.entry -side left
+
+    foreach item "$::coordnames" {
+      set witem [string tolower $item]
+      frame .tooloffset.$witem
+      label .tooloffset.$witem.label -text [msgcat::mc "$item:"] -anchor e -width 8
+      entry .tooloffset.$witem.entry -textvariable ::tentry($item) -width 10
+      pack  .tooloffset.$witem -side top
+      pack  .tooloffset.$witem.label .tooloffset.$witem.entry -side left
+    }
+
+    frame .tooloffset.buttons
+    button .tooloffset.buttons.ok -text [msgcat::mc "OK"] -default active -command {toolenter; destroy .tooloffset}
+    button .tooloffset.buttons.cancel -text [msgcat::mc "Cancel"] -command {destroy .tooloffset}
 
     pack .tooloffset.buttons -side bottom -fill x -pady 2m
     pack .tooloffset.buttons.ok .tooloffset.buttons.cancel -side left -expand 1
-    bind .tooloffset <Return> {emc_set_tool_offset $toolentry $toollengthentry $tooldiameterentry; destroy .tooloffset}
+    bind .tooloffset <Return> {toolenter; destroy .tooloffset}
 
-    focus .tooloffset.length.entry
-    .tooloffset.length.entry select range 0 end
 }
 
 # set waiting on EMC to wait until command is received, not finished, with
@@ -775,11 +776,13 @@ bind . <$modifier-o> {fileDialog}
 $filemenu add command -label [msgcat::mc "Edit..."] -command {popupProgramEditor} -underline 0
 set tooleditor [emc_ini "TOOL_EDITOR" "DISPLAY"]
 if {$tooleditor == ""} {
-  set tooleditor tooledit.tcl
+  set tooleditor tooledit
 }
 $filemenu add command -label [msgcat::mc "Tool Table Editor..."] \
-                      -command "exec $tooleditor $toolfilename&" \
+                      -command "eval exec $tooleditor [file normalize $toolfilename] &" \
                       -underline 0
+$filemenu add command -label [msgcat::mc "Reload Tool Table"] \
+                      -command "emc_load_tool_table [file normalize $toolfilename]"
 $filemenu add command -label [msgcat::mc "Reset"] -command {emc_task_plan_init} -underline 0
 $filemenu add separator
 $filemenu add command -label [msgcat::mc "Exit"] -command {after cancel updateStatus ; destroy . ; exit} -accelerator $modifierstring+X -underline 1
@@ -788,7 +791,6 @@ bind . <$modifier-x> {after cancel updateStatus ; destroy . ; exit}
 # add the View menu
 set viewmenu [menu $menubar.view -tearoff 0]
 $menubar add cascade -label [msgcat::mc "View"] -menu $viewmenu -underline 0
-$viewmenu add command -label [msgcat::mc "Tools..."] -command {popupToolEditor} -underline 0
 $viewmenu add command -label [msgcat::mc "Offsets and Variables..."] -command {popupParamEditor} -underline 0
 $viewmenu add command -label [msgcat::mc "Diagnostics..."] -command {popupDiagnostics} -underline 0
 $viewmenu add command -label [msgcat::mc "Backplot..."] -command {popupPlot} -underline 0
@@ -946,8 +948,8 @@ pack $abortbutton -side left -fill both -expand true
 bind $abortbutton <ButtonPress-1> {tkemc_abort}
 pack $abortbutton -side top -fill both -expand true
 
-set toolsetting 0
-set tooloffsetsetting 0.0000
+set ::tentry(toolno) 0
+set tooloffsetsetting "X0.0000 Y0.0000 Z0.0000"
 set offsetsetting "X0.0000 Y0.0000 Z0.0000"
 set unitsetting "custom"
 set oldunitsetting $unitsetting
@@ -955,9 +957,9 @@ set oldunitsetting $unitsetting
 set settings [frame $top.settings]
 pack $settings -side top -anchor w -pady 2m
 set toollabel [label $settings.toollabel -text [msgcat::mc "Tool:"] -anchor w]
-set toolsetting [label $settings.toolsetting -textvariable toolsetting -width 4 -anchor w]
+set toolsetting [label $settings.toolsetting -textvariable ::tentry(toolno) -width 4 -anchor w]
 set tooloffsetlabel [label $settings.tooloffsetlabel -text [msgcat::mc "Offset:"] -anchor w]
-set tooloffsetsetting [label $settings.tooloffsetsetting -textvariable tooloffsetsetting -width 10 -anchor e]
+set tooloffsetsetting [label $settings.tooloffsetsetting -textvariable tooloffsetsetting -width 30 -anchor w]
 set offsetlabel [label $settings.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
 set offsetsetting [label $settings.offsetsetting -textvariable offsetsetting -width 30 -anchor w]
 set unitlabel [label $settings.unitlabel -textvariable unitsetting -width 6 -anchor e]
@@ -2204,7 +2206,7 @@ proc updateStatus {} {
     global mistbutton floodbutton spindlebutton brakebutton
     global modeInDisplay
     global estoplabel modelabel mistlabel floodlabel lubelabel spindlelabel brakelabel
-    global toolsetting tooloffsetsetting offsetsetting 
+    global tooloffsetsetting offsetsetting 
     global unitlabel unitsetting oldunitsetting
     global actcmd coords jointworld
     # FIXME-- use for loop for these
@@ -2357,10 +2359,15 @@ proc updateStatus {} {
         set brakelabel [msgcat::mc "BRAKE ?"]
     }
 
-    # set the tool information
-    set toolsetting [emc_tool]
-    set tooloffsetsetting [format "%.4f" [emc_tool_offset]]
-
+    # set the tool information, inhibit update if .tooloffset popup in progress
+    if {![winfo exists .tooloffset] || ![winfo ismapped .tooloffset]} {
+      set ::tentry(toolno) [emc_tool]
+      set tooloffsetsetting [format "X%.4f Y%.4f Z%.4f" [emc_tool_offset 0] [emc_tool_offset 1] [emc_tool_offset 2]]
+      # note: currently no emc_tool_offset options for diam,front,back,orient
+      foreach item "$::coordnames" {
+        set ::tentry($item) [format %.4f [emc_tool_offset [lsearch -nocase $::worldlabellist $item]]]
+      }
+    }
     # set the offset information
     set offsetsetting [format "X%.4f Y%.4f Z%.4f" [emc_pos_offset "X"] [emc_pos_offset "Y"] [emc_pos_offset "Z"] ]
 

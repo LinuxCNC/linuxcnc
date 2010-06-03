@@ -17,7 +17,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import tempfile
-import sha
+import hashlib
 import sys
 import getopt
 import os
@@ -605,7 +605,7 @@ EquationTemplate = """
 
 def EquationProcess(v0, outdir):
     v = EquationTemplate % v0
-    ref = sha.new(v).hexdigest()
+    ref = hashlib.sha1(v).hexdigest()
     tfn = os.path.join(outdir, "tmp_%s" % os.getpid() + ref + ".png")
     fn = os.path.join(outdir, ref + ".png")
     if not os.path.exists(fn):

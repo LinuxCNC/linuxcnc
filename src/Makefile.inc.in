@@ -64,7 +64,7 @@ initd_dir = /etc/init.d
 docsdir = ${prefix}/share/doc/emc2
 sampleconfsdir = ${prefix}/share/doc/emc2/examples/sample-configs
 ncfilesdir = ${prefix}/share/emc/ncfiles
-tcldir = ${prefix}/share/emc/tcl
+tcldir = ${prefix}/lib/tcltk/emc2
 
 
 # /Standard configure directories
@@ -86,7 +86,6 @@ MODULE_EXT = @MODEXT@
 BUILD_SYS = @BUILD_SYS@
 CC = @CC@
 MANDB = @MANDB@
-JOYSTICK_H_USABLE = @JOYSTICK_H_USABLE@
 
 # deps for xemc
 CFLAGS_X = @X_CFLAGS@

@@ -92,6 +92,7 @@ extern int updateError();
 extern int emcCommandWaitReceived(int serial_number);
 extern int emcCommandWaitDone(int serial_number);
 extern double convertLinearUnits(double u);
+extern double convertAngularUnits(double u);
 extern int sendDebug(int level);
 extern int sendEstop();
 extern int sendEstopReset();

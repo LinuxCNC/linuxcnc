@@ -23,8 +23,17 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import gettext;
 gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import Image, numarray
-import numarray.ieeespecial as ieee
+import Image
+
+try:
+    import numpy.numarray as numarray
+    import numpy.core
+    olderr = numpy.core.seterr(divide='ignore')
+    plus_inf = (numarray.array((1.,))/0.)[0]
+    numpy.core.seterr(**olderr)
+except ImportError:
+    import numarray, numarray.ieeespecial
+    plus_inf = numarray.ieeespecial.inf
 
 from rs274.author import Gcode
 import rs274.options
@@ -54,7 +63,7 @@ def make_tool_shape(f, wdia, resp):
     dia = int(wdia*res+.5)
     wrad = wdia/2.
     if dia < 2: dia = 2
-    n = numarray.array([[ieee.plus_inf] * dia] * dia, type="Float32")
+    n = numarray.array([[plus_inf] * dia] * dia, type="Float32")
     hdia = dia / 2.
     l = []
     for x in range(dia):
@@ -196,11 +205,6 @@ def progress(a, b):
         print >>sys.stderr, "FILTER_PROGRESS=%d" % int(a*100./b+.5)
         sys.stderr.flush()
 
-def arrslice(a, l, t, w, h):
-    return a[l:, t:][:w, :h]
-def arrsetslice(a, l, t, w, h, v):
-    a[l:, t:][:w, :h] = v
-
 class Converter:
     def __init__(self,
             image, units, tool_shape, pixelsize, pixelstep, safetyheight, \
@@ -272,12 +276,12 @@ class Converter:
             w1 = w + tw
             h1 = h + th
             nim1 = numarray.zeros((w1, h1), 'Float32') + base_image.min()
-            arrsetslice(nim1, tw/2, th/2, w, h, base_image)
+            nim1[tw/2:tw/2+w, th/2:th/2+h] = base_image
             self.image = numarray.zeros((w,h), type="Float32")
             for j in range(0, w):
                 progress(j,w)
                 for i in range(0, h):
-                    self.image[j,i] = (arrslice(nim1, j, i, tw, th) - rough).max()
+                    self.image[j,i] = (nim1[j:j+tw,i:i+th] - rough).max()
             self.feed = self.roughing_feed
             r = -self.roughing_delta
             m = self.image.min()
@@ -301,7 +305,7 @@ class Converter:
         try:
             return min(0, max(self.rd, self.cache[x,y]) + self.ro)
         except KeyError:
-            m1 = arrslice(self.image, y, x, self.ts, self.ts)
+            m1 = self.image[y:y+self.ts, x:x+self.ts]
             self.cache[x,y] = d = (m1 - self.tool).max()
             return min(0, max(self.rd, d) + self.ro)
         
@@ -783,7 +787,7 @@ def main():
         w1 = w + 2*tw
         h1 = h + 2*th
         nim1 = numarray.zeros((w1, h1), 'Float32') + pixel
-        arrsetslice(nim1, tw, th, w, h, nim)
+        nim1[tw:tw+w, th:th+h] = nim
         nim = nim1
         w, h = w1, h1
     nim = nim * depth

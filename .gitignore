@@ -7,7 +7,6 @@ lib
 *.so
 *.so.*
 *.a
-*.d
 *.pdf
 *.tex
 *.mod.c

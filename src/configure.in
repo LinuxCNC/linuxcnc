@@ -338,23 +338,6 @@ void use_rdtscll(void) { long long tsc; rdtscll(tsc); }
     ], [MSR_H_USABLE=no])
 AC_MSG_RESULT($MSR_H_USABLE)
 
-CFLAGS_save=$CFLAGS
-if ! test -z "$KERNELDIR"; then
-	CFLAGS="$CFLAGS -I$KERNELDIR/include"
-fi
-AC_MSG_CHECKING([for usability of linux/joystick.h])
-AC_TRY_LINK(
-    [
-#include <inttypes.h>
-#include <linux/joystick.h>
-    ],
-    [],
-    [JOYSTICK_H_USABLE=yes],
-    [JOYSTICK_H_USABLE=no])
-AC_MSG_RESULT($JOYSTICK_H_USABLE)
-AC_SUBST([JOYSTICK_H_USABLE])
-CFLAGS=$CFLAGS_save
-
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -533,8 +516,8 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=emc2icon
-    EMC2_TCL_DIR=${prefix}/share/emc/tcl
-    EMC2_TCL_LIB_DIR=${prefix}/lib/emc/tcl
+    EMC2_TCL_DIR=${prefix}/lib/tcltk/emc2
+    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/emc2
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
@@ -1249,7 +1232,9 @@ LIBS="$X_LIBS $temp_LIBS"
 
 AC_PATH_PROG(XGETTEXT,xgettext,none)
 XGETTEXT_TCL_WORKS=no
-if test "$XGETTEXT" != "none"; then
+if test "$XGETTEXT" = "none"; then
+   AC_MSG_ERROR(install gettext 0.14.5 or above)
+else
    AC_MSG_CHECKING(for xgettext tcl bug)
    set -- $(xgettext --version | head -1)
    version=$4
@@ -1266,7 +1251,9 @@ fi
 AC_SUBST(XGETTEXT)
 
 AC_PATH_PROG(MSGFMT,msgfmt,none)
-if test "$MSGFMT" != "none"; then
+if test "$MSGFMT" = "none"; then
+   AC_MSG_ERROR(install gettext 0.14.5 or above)
+else
     AC_MSG_CHECKING(for --tcl support in msgfmt)
     if $MSGFMT --tcl -l de -d /tmp /dev/null > /dev/null 2>&1; then
         AC_MSG_RESULT(yes)

@@ -1125,13 +1125,10 @@ the controller.
 
 int Interp::synch()
 {
-  double tolerance;
+
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
-  tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
-  SET_MOTION_CONTROL_MODE(_setup.control_mode, tolerance);
-
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();

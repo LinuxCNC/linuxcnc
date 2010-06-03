@@ -158,6 +158,7 @@ static unsigned int compute_response_size(modbus_param_t *mb_param,
 	  (coil_count / 8) + ((coil_count % 8) ? 1 : 0);
     }	break;
     case 0x03:
+    case 0x04:
       /* Header + 2 * nb values */
       response_size_computed = 3 + 
 	  2 * (query[offset + 4] << 8 | query[offset + 5]);

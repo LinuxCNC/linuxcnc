@@ -124,8 +124,6 @@ class touchy:
                 self.wTree.get_widget("listingfontbutton").set_font_name(self.listing_font_name)
                 self.listing_font = pango.FontDescription(self.listing_font_name)
 
-                self.setfont()
-
                 # interactive mdi command builder and issuer
                 mdi_labels = []
                 mdi_eventboxes = []
@@ -294,6 +292,8 @@ class touchy:
 		for widget in self.wTree.get_widget_prefix(''):
 			if isinstance(widget, gtk.Button):
 				widget.connect_after('released',self.hack_leave)
+
+                self.setfont()
 
         def quit(self, unused):
                 gtk.main_quit()

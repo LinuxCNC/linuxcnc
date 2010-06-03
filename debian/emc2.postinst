@@ -6,6 +6,6 @@
 
 if [ -f /etc/security/limits.conf ]; then
     if ! grep -q "EMC2" /etc/security/limits.conf; then
-	echo '* hard memlock 20480 #EMC2' >> /etc/security/limits.conf
+	echo '* - memlock 20480 #EMC2' >> /etc/security/limits.conf
     fi
 fi

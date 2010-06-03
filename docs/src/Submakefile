@@ -68,6 +68,7 @@ DOC_SRCS := \
 	config/ini_homing_fr.lyx \
 	config/lathe_config.lyx \
 	config/lathe_config_fr.lyx \
+	config/pncconf.lyx \
 	config/emc2hal.lyx \
 	config/emc2hal_fr.lyx \
 	config/stepper.lyx \

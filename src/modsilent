@@ -14,7 +14,7 @@ except ImportError:
 undefined_warning = re.compile('WARNING: "(.*?)" \[.*?\] undefined!')
 duplicate_warning = re.compile("WARNING: [^ ]*: '(.*?)' exported twice. Previous.*")
 
-actually_defined = ['sin', 'cos', 'acos', 'atan2',
+actually_defined = ['sin', 'cos', 'acos', 'atan2', 'fabs', 'ceil', 'pow',
     'rt_task_wait_period', 'rt_sem_wait', 'rt_sem_delete',
     'rt_task_init_cpuid', 'rt_set_periodic_mode', 'count2nano',
     'rt_task_resume', 'rt_release_irq', 'rtf_create', 'rt_sem_init',

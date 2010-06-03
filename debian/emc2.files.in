@@ -4,8 +4,8 @@ etc/X11/app-defaults/*
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so.*
+usr/lib/tcltk/emc2
 usr/bin/*
-usr/lib/emc/tcl/*.so
 usr/lib/python@PYTHON_VERSION@/dist-packages/*.pyc
 usr/lib/python@PYTHON_VERSION@/dist-packages/*/*.pyc
 usr/lib/python@PYTHON_VERSION@/dist-packages/*/*.so
@@ -35,7 +35,6 @@ usr/share/man/man1/emc.1
 usr/share/man/man1/gs2.1
 usr/share/man/man1/halcmd.1
 usr/share/man/man1/hal_input.1
-usr/share/man/man1/hal_joystick.1
 usr/share/man/man1/halmeter.1
 usr/share/man/man1/halrun.1
 usr/share/man/man1/halsampler.1

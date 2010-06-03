@@ -64,6 +64,19 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_TPPWM:
+            switch (sec_pin) {
+                case 1: return "PWM A";
+                case 2: return "PWM B";
+                case 3: return "PWM C";
+                case 4: return "PWM /A";
+                case 5: return "PWM /B";
+                case 6: return "PWM /C";
+                case 7: return "Enable";
+                case 8: return "Fault";
+            }
+            break;
+
         case HM2_GTAG_STEPGEN:
             // FIXME: these depend on the stepgen mode
             switch (sec_pin) {
@@ -335,6 +348,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // encoder and pwmgen just get all their enabled instances' pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
 }
 
 

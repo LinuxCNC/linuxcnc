@@ -39,8 +39,6 @@ namespace eval emc {
     variable _langinit 1
 }
 
-load [file join [file dirname [info script]] emc.so]
-
 if {[string first $::emc::BIN_DIR: $env(PATH)] != 0} {
     set env(PATH) $::emc::BIN_DIR:$env(PATH)
 }
@@ -57,6 +55,8 @@ proc emc::image_search i {
     }
     error "image $i is not available"
 }
+
+load [file join [file dirname [info script]] emc[info sharedlibextension]]
 
 # Arrange to load hal.so when the 'hal' command is requested
 proc hal {args} {

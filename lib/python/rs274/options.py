@@ -18,7 +18,9 @@
 
 import nf, os
 
-for candidate in 'share/emc/tcl', 'tcl':
+# lib/tcltk/emc2 for installed emc
+# tcl            for run-in-place emc
+for candidate in 'lib/tcltk/emc2', 'tcl':
     EMC_TCL = os.path.join(nf.PREFIX, candidate, 'emc.tcl')
     if os.path.exists(EMC_TCL): break
 
