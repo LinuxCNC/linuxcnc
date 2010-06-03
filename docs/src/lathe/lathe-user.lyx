@@ -740,7 +740,7 @@ Threading with a lathe requires feedback from the spindle to EMC.
 The G76 threading cycle is used for both internal and external threads for
  more information see G76
 \begin_inset LatexCommand ref
-reference "fig:G76-canned-cycle"
+reference "sec:G76:-Threading-Canned"
 
 \end_inset
 
