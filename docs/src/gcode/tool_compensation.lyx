@@ -157,6 +157,8 @@ The "Tool Table" is a text file that contains information about each tool.
  The tools might be in a tool changer or just changed manually.
  The file can be edited with a text editor or be updated using G10 L1.
  See the Lathe Specifics Section for lathe tool table example.
+ The maximum number of entries in the tool table is 56.
+ The maximum tool and pocket number is 99999.
 \end_layout
 
 \begin_layout Standard
@@ -337,7 +339,7 @@ Z-0.3000000
 \begin_inset Text
 
 \begin_layout Standard
-;You have a big tool changer
+;You have a lot of tools
 \end_layout
 
 \end_inset
@@ -368,7 +370,7 @@ P - integer pocket number
 \end_layout
 
 \begin_layout Itemize
-D - abs float tool diameter 
+D - float tool diameter 
 \end_layout
 
 \begin_layout Itemize
@@ -391,14 +393,55 @@ Q - int tool orientation (lathe)
 ; - begin of comment 
 \end_layout
 
-\begin_layout Standard
-There is tool for converting to new tool tables in src/emc/usr_intf/toolconvert.t
-cl 
+\begin_layout Subsection
+Tool Changers
 \end_layout
 
 \begin_layout Standard
-Usage: ./toolconvert filename (original file is saved as filename.orig) tooledit.tc
-l support net table format if needed.
+EMC supports three types of tool changers "manual", "random location" and
+ "fixed location".
+ Information about configuring an EMC tool changer is in the Integrators
+ Manual.
+\end_layout
+
+\begin_layout Subsubsection*
+Manual Tool Changer
+\end_layout
+
+\begin_layout Standard
+Manual tool changer (you change the tool by hand) is treated like a fixed
+ location tool changer and the P number is ignored.
+ Using the manual tool changer only makes sense if you have tool holders
+ that remain with the tool (Cat, NMTB, Kwik Switch etc.) when changed thus
+ preserving the location of the tool to the spindle.
+ Machines with R-8 or router collet type tool holders do not preserve the
+ location of the tool and the manual tool changer should not be used.
+\end_layout
+
+\begin_layout Subsubsection*
+Fixed Location Tool Changers
+\end_layout
+
+\begin_layout Standard
+Fixed location tool changers like lathe turrets the tools are in a fixed
+ position in the tool changer.
+ When EMC is configured for a fixed location tool changer the "P" number
+ is ignored (but read, preserved and rewritten) by EMC, so you can use P
+ for any bookkeeping number you want.
+\end_layout
+
+\begin_layout Subsubsection*
+Random Location Tool Changers
+\end_layout
+
+\begin_layout Standard
+Random location tool changers swaps the tool in the spindle with the one
+ in the changer.
+ This type of tool changer the tool location will always be in a different
+ pocket after a tool change.
+ When a tool is changed EMC rewrites the pocket number to keep track of
+ where the tool are.
+ T can be any number but P must be a number that makes sense for the machine.
 \end_layout
 
 \begin_layout Section
