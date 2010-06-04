@@ -1219,7 +1219,7 @@ class GlCanonDraw:
         self.set_canon(canon)
         result, seq = gcode.parse(f, canon, unitcode, initcode)
 
-        if result < gcode.MIN_ERROR:
+        if result <= gcode.MIN_ERROR:
             self.canon.progress.nextphase(1)
             canon.calc_extents()
             self.stale_dlist('program_rapids')
