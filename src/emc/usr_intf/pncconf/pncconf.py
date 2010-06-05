@@ -283,7 +283,8 @@ MIN_X, MIN_Y, MIN_Z, MIN_A,
 MAX_X, MAX_Y, MAX_Z, MAX_A,
 BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
 ALL_LIMIT, ALL_HOME, DIN0, DIN1, DIN2, DIN3,
-JOGA, JOGB, JOGC, SELECT_A, SELECT_B, SELECT_C, SELECT_D,
+JOGA, JOGB, JOGC, FOA, FOB, FOC, FOD,
+SELECT_A, SELECT_B, SELECT_C, SELECT_D,
 JOGX_P,JOGX_N,JOGY_P,JOGY_N,JOGZ_P,JOGZ_N,JOGA_P,JOGA_N,
 JOGSLCT_P, JOGSLCT_N, SPINDLE_CW, SPINDLE_CCW, SPINDLE_STOP,
 SPINDLE_AT_SPEED   ) = hal_input_names = ["unused-input",
@@ -297,6 +298,7 @@ SPINDLE_AT_SPEED   ) = hal_input_names = ["unused-input",
 "both-x", "both-y", "both-z", "both-a",
 "all-limit", "all-home", "din-00", "din-01", "din-02", "din-03",
 "jog-incr-a","jog-incr-b","jog-incr-c",
+"fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",
 "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
 "jog-x-pos","jog-x-neg","jog-y-pos","jog-y-neg",
 "jog-z-pos","jog-z-neg","jog-a-pos","jog-a-neg",
@@ -321,6 +323,7 @@ _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
 _("All Limits"), _("All Home"),
 _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
 _("Jog incr A"),_("Jog incr B"),_("Jog incr C"),
+_("Feed Override incr A"),_("Feed Override incr B"),_("Feed Override incr C"),_("Feed Override incr D"),
 _("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D"),
 _("Jog X +"),_("Jog X -"),_("Jog Y +"),_("Jog Y -"),_("Jog Z +"),_("Jog Z -"),
 _("Jog A +"),_("Jog A -"),_("Jog button selected +"),_("Jog button selected -"),_("Manual Spindle CW"),
@@ -367,8 +370,9 @@ Z_ENCODER_A, Z_ENCODER_B, Z_ENCODER_I, Z_ENCODER_M,
 A_ENCODER_A, A_ENCODER_B, A_ENCODER_I, A_ENCODER_M, 
 SPINDLE_ENCODER_A, SPINDLE_ENCODER_B, SPINDLE_ENCODER_I, SPINDLE_ENCODER_M,
 X_MPG_A, X_MPG_B, X_MPG_I, X_MPG_M, Y_MPG_A, Y_MPG_B, Y_MPG_I, Y_MPG_M,
-Z_MPG_A, Z_MPG_B, Z_MPG_I, Z_MPG_M, A_MPG_A, A_MPG_B, A_MPG_I,A_MPG_m,
-SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_names = [ "unused-encoder",
+Z_MPG_A, Z_MPG_B, Z_MPG_I, Z_MPG_M, A_MPG_A, A_MPG_B, A_MPG_I,A_MPG_M,
+SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M,
+FO_MPG_A,FO_MPG_B,FO_MPG_I,FO_MPG_M,SO_MPG_A,SO_MPG_B,SO_MPG_I,SO_MPG_I,)  = hal_encoder_input_names = [ "unused-encoder",
 "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
 "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
 "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
@@ -376,7 +380,8 @@ SELECT_MPG_A, SELECT_MPG_B, SELECT_MPG_I, SELECT_MPG_M)  = hal_encoder_input_nam
 "s-encoder-a","s-encoder-b","s-encoder-i", "s-encoder-m",
 "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
 "z-mpg-a","z-mpg-b", "z-mpg-i", "z-mpg-m", "a-mpg-a", "a-mpg-b", "a-mpg-i", "a-mpg-m",
-"select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m"]
+"select-mpg-a", "select-mpg-b", "select-mpg-i", "select-mpg-m",
+"fo-mpg-a","fo-mpg-b","fo-mpg-i","fo-mpg-m","so-mpg-a","so-mpg-b","so-mpg-i","so-mpg-m"]
 
 human_encoder_input_names = [ _("Unused Encoder"),
 _("X Encoder"), _("X Encoder"), _("X Encoder"), _("X Encoder"),
@@ -388,7 +393,9 @@ _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"), _("X Hand Wheel"),
 _("Y Hand wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"), _("Y Hand Wheel"),
 _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"), _("Z Hand Wheel"),
 _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"), _("A Hand Wheel"),
-_("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel")]
+_("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"), _("Multi Hand Wheel"),
+_("Feed Override"),_("Feed Override"),_("Feed Override"),_("Feed Override"),
+_("Spindle Override"),_("Spindle Override"),_("Spindle Override"),_("Spindle Override")]
 
 (UNUSED_STEPGEN, 
 X_STEPGEN_STEP, X_STEPGEN_DIR, X_STEPGEN_PHC, X_STEPGEN_PHD, X_STEPGEN_PHE, X_STEPGEN_PHF,
@@ -492,7 +499,42 @@ class Data:
         self.mpgincrvalue5 = .01   # ac
         self.mpgincrvalue6 = .05   # bc
         self.mpgincrvalue7 = .1    # abc
-       
+        self.externalfo = False
+        self.fo_usempg = False
+        self.foincrvalue0 = 0  # all incr-select low
+        self.foincrvalue1 = 5  # incr-select-a  high
+        self.foincrvalue2 = 10  # b
+        self.foincrvalue3 = 25  # ab
+        self.foincrvalue4 = 50 # c
+        self.foincrvalue5 = 75 # ac
+        self.foincrvalue6 = 90 # bc
+        self.foincrvalue7 = 100 # abc
+        self.foincrvalue8 = 110  # d
+        self.foincrvalue9 = 125  # ad
+        self.foincrvalue10 = 140  # bd
+        self.foincrvalue11 = 150  # abd
+        self.foincrvalue12 = 165 # cd
+        self.foincrvalue13 = 180 # acd
+        self.foincrvalue14 = 190 # bcd
+        self.foincrvalue15 = 200 # abcd
+        self.externalso = False
+        self.so_usingmpg = False
+        self.soincrvalue0 = 0  # all incr-select low
+        self.soincrvalue1 = 5  # incr-select-a  high
+        self.soincrvalue2 = 10  # b
+        self.soincrvalue3 = 25  # ab
+        self.soincrvalue4 = 50 # c
+        self.soincrvalue5 = 75 # ac
+        self.soincrvalue6 = 90 # bc
+        self.soincrvalue7 = 100 # abc
+        self.soincrvalue8 = 110  # d
+        self.soincrvalue9 = 125  # ad
+        self.soincrvalue10 = 140  # bd
+        self.soincrvalue11 = 150  # abd
+        self.soincrvalue12 = 165 # cd
+        self.soincrvalue13 = 180 # acd
+        self.soincrvalue14 = 190 # bcd
+        self.soincrvalue15 = 200 # abcd
 
         # GUI frontend defaults
         self.position_offset = 1 # relative
@@ -526,7 +568,7 @@ class Data:
         self.userneededmux8 = 0
         self.userneededabs = 0
         self.userneededscale = 0
-
+        self.userneededmux16 = 0
 
         # pyvcp data
         self.pyvcp = 0 # not included
@@ -1580,7 +1622,7 @@ class Data:
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
-            print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
+            print >>file, """loadrt %s config="firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,firmware=hm2-dev/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
                     self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
@@ -1690,6 +1732,9 @@ class Data:
                 if i <> self.userneededmux8-1:
                     self.mux8names = self.mux8names+","
             print >>file, "loadrt mux8 names=%s"% (self.mux8names)
+        #if self.externalmpg or self.externalfo or self.externalso or self.userneededmux16:           
+        #    print >>file, "loadrt mux16 count=%d"% (self.userneededmux16+self.externalmpg +self.externalfo+self.externalso+self.userneededmux16)
+        
         # load user custom components
         for i in self.loadcompbase:
             if i == '': continue
@@ -1893,22 +1938,65 @@ class Data:
                     print >>file
             if self.incrselect:
                 print >>file, "# connect selectable mpg jog increments "  
-                print >>file, "net jog-incr-a           =>  mux8.jogincr.sel0"
-                print >>file, "net jog-incr-b           =>  mux8.jogincr.sel1"
-                print >>file, "net jog-incr-c           =>  mux8.jogincr.sel2"
-                print >>file, "net selected-jog-incr    <=  mux8.jogincr.out"
-                print >>file, "    setp mux8.jogincr.in0          %f"% (self.mpgincrvalue0)
-                print >>file, "    setp mux8.jogincr.in1          %f"% (self.mpgincrvalue1)
-                print >>file, "    setp mux8.jogincr.in2          %f"% (self.mpgincrvalue2)
-                print >>file, "    setp mux8.jogincr.in3          %f"% (self.mpgincrvalue3)
-                print >>file, "    setp mux8.jogincr.in4          %f"% (self.mpgincrvalue4)
-                print >>file, "    setp mux8.jogincr.in5          %f"% (self.mpgincrvalue5)
-                print >>file, "    setp mux8.jogincr.in6          %f"% (self.mpgincrvalue6)
-                print >>file, "    setp mux8.jogincr.in7          %f"% (self.mpgincrvalue7)
+                print >>file, "net jog-incr-a           =>  mux16.jogincr.sel0"
+                print >>file, "net jog-incr-b           =>  mux16.jogincr.sel1"
+                print >>file, "net jog-incr-c           =>  mux16.jogincr.sel2"
+                print >>file, "net selected-jog-incr    <=  mux16.jogincr.out"
+                print >>file, "    setp mux16.jogincr.in0          %f"% (self.mpgincrvalue0)
+                print >>file, "    setp mux16.jogincr.in1          %f"% (self.mpgincrvalue1)
+                print >>file, "    setp mux16.jogincr.in2          %f"% (self.mpgincrvalue2)
+                print >>file, "    setp mux16.jogincr.in3          %f"% (self.mpgincrvalue3)
+                print >>file, "    setp mux16.jogincr.in4          %f"% (self.mpgincrvalue4)
+                print >>file, "    setp mux16.jogincr.in5          %f"% (self.mpgincrvalue5)
+                print >>file, "    setp mux16.jogincr.in6          %f"% (self.mpgincrvalue6)
+                print >>file, "    setp mux16.jogincr.in7          %f"% (self.mpgincrvalue7)
                 print >>file
             else:
                 print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
-
+            
+        if self.externalfo:
+            print >>file, "# connect feed overide increments " 
+            print >>file, "    setp halui.feed-override.count-enable true"
+            print >>file, "    setp halui.feed-override.direct_value true"
+            print >>file, "net feedoverride-incr <=  halui.feed-override.counts"
+            print >>file, "    setp halui.feed-override.scale .01"
+            print >>file, "net fo-incr-a           =>  mux16.foincr.sel0"
+            print >>file, "net fo-incr-b           =>  mux16.foincr.sel1"
+            print >>file, "net fo-incr-c           =>  mux16.foincr.sel2"
+            print >>file, "net fo-incr-d           =>  mux16.foincr.sel3"
+            print >>file, "net feedoverride-incr   <=  mux16.foincr.sout"
+            print >>file, "    setp mux16.foincr.suppress-transition-state true"
+            print >>file, "    setp mux16.foincr.in0          %f"% (self.foincrvalue0)
+            print >>file, "    setp mux16.foincr.in1          %f"% (self.foincrvalue1)
+            print >>file, "    setp mux16.foincr.in2          %f"% (self.foincrvalue2)
+            print >>file, "    setp mux16.foincr.in3          %f"% (self.foincrvalue3)
+            print >>file, "    setp mux16.foincr.in4          %f"% (self.foincrvalue4)
+            print >>file, "    setp mux16.foincr.in5          %f"% (self.foincrvalue5)
+            print >>file, "    setp mux16.foincr.in6          %f"% (self.foincrvalue6)
+            print >>file, "    setp mux16.foincr.in7          %f"% (self.foincrvalue7)
+            print >>file
+        
+        if self.externalso:
+            print >>file, "# connect spindle overide increments " 
+            print >>file, "    setp halui.spindle-override.count-enable true"
+            print >>file, "    setp halui.spindle-override.direct_value true"
+            print >>file, "net spindleoverride-incr <=  halui.spindle-override.counts"
+            print >>file, "    setp halui.spindle-override.scale .01"
+            print >>file, "net so-incr-a           =>  mux16.soincr.sel0"
+            print >>file, "net so-incr-b           =>  mux16.soincr.sel1"
+            print >>file, "net so-incr-c           =>  mux16.soincr.sel2"
+            print >>file, "net so-incr-d           =>  mux16.soincr.sel3"
+            print >>file, "net spindleoverride-incr   <=  mux16.soincr.sout"
+            print >>file, "    setp mux16.soincr.suppress-transition-state true"
+            print >>file, "    setp mux16.soincr.in0          %f"% (self.soincrvalue0)
+            print >>file, "    setp mux16.soincr.in1          %f"% (self.soincrvalue1)
+            print >>file, "    setp mux16.soincr.in2          %f"% (self.soincrvalue2)
+            print >>file, "    setp mux16.soincr.in3          %f"% (self.soincrvalue3)
+            print >>file, "    setp mux16.soincr.in4          %f"% (self.soincrvalue4)
+            print >>file, "    setp mux16.soincr.in5          %f"% (self.soincrvalue5)
+            print >>file, "    setp mux16.soincr.in6          %f"% (self.soincrvalue6)
+            print >>file, "    setp mux16.soincr.in7          %f"% (self.soincrvalue7)
+            print >>file
         print >>file, _("#  ---digital in / out signals---")
         print >>file
         for i in range(4):
@@ -2069,7 +2157,7 @@ class Data:
         else: unit = "a metric"
         if self.frontend == 1: display = "AXIS"
         elif self.frontend == 2: display = "Tkemc"
-        elif self.frontend == 3: display = "Mini"
+        elif self.frontend == 0: display = "Mini"
         else: display = "an unknown"
         if self.axes == 0:machinetype ="XYZ"
         elif self.axes == 1:machinetype ="XYZA"
@@ -2714,11 +2802,17 @@ class App:
             self.widgets.multimpg.set_active(1)
         else:
             self.widgets.sharedmpg.set_active(1)
+        if self.data.fo_usempg :
+            self.widgets.fo_usempg.set_active(1)
+        else:
+            self.widgets.fo_useswitch.set_active(1)
         self.widgets.jograpidrate.set_value(self.data.jograpidrate)
         self.widgets.singlejogbuttons.set_active(self.data.singlejogbuttons)
         self.widgets.multijogbuttons.set_active(self.data.multijogbuttons)
         self.widgets.externalmpg.set_active(self.data.externalmpg)
         self.widgets.externaljog.set_active(self.data.externaljog)
+        self.widgets.externalfo.set_active(self.data.externalfo)
+        self.widgets.externalso.set_active(self.data.externalso)
         self.widgets.sharedmpg.set_active(self.data.sharedmpg)
         self.widgets.multimpg.set_active(self.data.multimpg)
         self.widgets.incrselect.set_active(self.data.incrselect)
@@ -2726,15 +2820,22 @@ class App:
             tempunits = "in"
         else:
             tempunits = "mm"      
-        for i in range(0,8):
+        for i in range(0,16):
+            
+            self.widgets["foincrvalue"+str(i)].set_value(self.data["foincrvalue"+str(i)])
+            self.widgets["soincrvalue"+str(i)].set_value(self.data["soincrvalue"+str(i)])
+            if i >= 8:  continue
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
-        self.widgets.jograpidunits.set_text(tempunits+" / min")
-        for i in range(0,8):
             self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
+        self.widgets.jograpidunits.set_text(tempunits+" / min")            
 
     def on_external_options_toggled(self, *args):
         self.widgets.externaljogbox.set_sensitive(self.widgets.externaljog.get_active())
         self.widgets.externalmpgbox.set_sensitive(self.widgets.externalmpg.get_active())
+        self.widgets.externalfobox.set_sensitive(self.widgets.externalfo.get_active())
+        self.widgets.externalsobox.set_sensitive(self.widgets.externalso.get_active())      
+        self.widgets.foexpander.set_sensitive(self.widgets.fo_useswitch.get_active())
+        self.widgets.soexpander.set_sensitive(self.widgets.so_useswitch.get_active())
         i= self.widgets.incrselect.get_active()
         for j in range(1,8):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
@@ -2751,19 +2852,22 @@ class App:
         self.data.homeindex = self.widgets.home_index.get_active()
         self.data.homeswitch = self.widgets.home_switch.get_active()
         self.data.homeboth = self.widgets.home_both.get_active()
-        if self.widgets.multimpg.get_active():
-            self.data.multimpg == True            
-        else:
-            self.data.multimpg == False
+        self.data.multimpg == self.widgets.multimpg.get_active()
+        self.data.fo_usempg == self.widgets.fo_usempg.get_active()
         self.data.jograpidrate = self.widgets.jograpidrate.get_value()
         self.data.singlejogbuttons = self.widgets.singlejogbuttons.get_active()
         self.data.multijogbuttons = self.widgets.multijogbuttons.get_active()
         self.data.externalmpg = self.widgets.externalmpg.get_active()
         self.data.externaljog = self.widgets.externaljog.get_active()
+        self.data.externalfo = self.widgets.externalfo.get_active()
+        self.data.externalso = self.widgets.externalso.get_active()
         self.data.sharedmpg = self.widgets.sharedmpg.get_active()
         self.data.multimpg = self.widgets.multimpg.get_active()
         self.data.incrselect = self.widgets.incrselect.get_active()
-        for i in range (0,8):
+        for i in range (0,16):
+            self.data["foincrvalue"+str(i)] = self.widgets["foincrvalue"+str(i)].get_value()
+            self.data["soincrvalue"+str(i)] = self.widgets["soincrvalue"+str(i)].get_value()
+            if i >= 8:  continue
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
 
     def on_GUI_config_prepare(self, *args):
@@ -3184,7 +3288,7 @@ class App:
         time.sleep(1)
         PyApp(self,self.data,self.widgets)    
         print "back, after making panel"
-        
+        return
         for boardnum in range(0,int(self.data.number_mesa)):
             print "mesa boardnum-%d"% boardnum
             board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
@@ -3204,42 +3308,29 @@ class App:
                                     \n"%  (boardnum,truepinnum,boardnum,truepinnum,board,truepinnum))
                     # for input pins
                     elif pintype == GPIOI:                                    
-                        
+                       
                         if pininv: halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in_not testpanel.brd.%d.led.%d\
                             \n"%(boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
                         else:   halrun.write("net b%d_signal_in%d hm2_%s.gpio.%03d.in testpanel.brd.%d.led.%d\
                             \n"% (boardnum,truepinnum,board,truepinnum,boardnum,truepinnum))
                     # for encoder pins
-                    elif pintype in (ENCA,ENCB,ENCI,ENCM):
-                                         
+                    elif pintype in (ENCA,ENCB,ENCI,ENCM):                                        
                         if not pintype == ENCA: continue                 
-                        if pin == 3 :encpinnum = (connector-2)*4 
-                        elif pin == 1 :encpinnum = 1+((connector-2)*4) 
-                        elif pin == 15 :encpinnum = 2+((connector-2)*4) 
-                        elif pin == 13 :encpinnum = 3+((connector-2)*4) 
-                       
                         halrun.write("net b%d_enc_reset%d hm2_%s.encoder.%02d.reset testpanel.brd.%d.enc.%d.reset\
-                                    \n"% (boardnum,encpinnum,board,encpinnum,boardnum,encpinnum))
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
                         halrun.write("net b%d_enc_count%d hm2_%s.encoder.%02d.count testpanel.brd.%d.enc.%d.count\
-                                    \n"% (boardnum,encpinnum,board,encpinnum,boardnum,encpinnum))
+                                    \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
                     # for PWM pins
-                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):
-                        
-                        if not pintype in (PWMP,PDMP): continue    
-                        if pin == 7 :encpinnum = (connector-2)*4 
-                        elif pin == 6 :encpinnum = 1 + ((connector-2)*4) 
-                        elif pin == 19 :encpinnum = 2 + ((connector-2)*4) 
-                        elif pin == 18 :encpinnum = 3 + ((connector-2)*4)        
+                    elif pintype in (PWMP,PWMD,PWME,PDMP,PDMD,PDME):                     
+                        if not pintype in (PWMP,PDMP): continue        
                         halrun.write("net b%d_pwm_enable%d hm2_%s.pwmgen.%02d.enable testpanel.brd.%d.pwm.%d.enable\
                                     \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
                         halrun.write("net b%d_pwm_value%d hm2_%s.pwmgen.%02d.value testpanel.brd.%d.pwm.%d.value\
                                     \n"% (boardnum,compnum,board,compnum,boardnum,compnum)) 
                         halrun.write("setp hm2_%s.pwmgen.%02d.scale 10\n"% (board,compnum)) 
                     # for Stepgen pins
-                    elif pintype in (STEPA,STEPB):
-                        
-                        if not pintype == STEPA : continue 
-                        
+                    elif pintype in (STEPA,STEPB):                      
+                        if not pintype == STEPA : continue                        
                         halrun.write("net b%d_step_enable%d hm2_%s.stepgen.%02d.enable testpanel.brd.%d.stp.%d.enable\
                                     \n"% (boardnum,compnum,board,compnum,boardnum,compnum))
                         halrun.write("net b%d_step_cmd%d hm2_%s.stepgen.%02d.position-cmd testpanel.brd.%d.stp.%d.cmd\
@@ -3252,7 +3343,8 @@ class App:
                         halrun.write("setp hm2_%s.stepgen.%02d.dirsetup 2000 \n"% (board,compnum))
                     else: 
                         print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
-        
+        halrun.flush()
+        time.sleep(.01)
     
     def on_mesa_pintype_changed(self, widget,boardnum,connector,pin):
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
@@ -4644,6 +4736,8 @@ class App:
         self.widgets.userneededmux8.set_value(self.data.userneededmux8)
         self.widgets.userneededabs.set_value(self.data.userneededabs)
         self.widgets.userneededscale.set_value(self.data.userneededscale)
+        self.widgets.userneededmux16.set_value(self.data.userneededmux16)
+
         if not self.intrnldata.components_is_prepared:
             textbuffer = self.widgets.loadcompservo.get_buffer()
             for i in self.data.loadcompservo:
@@ -4668,6 +4762,8 @@ class App:
         self.data.userneededmux8 = int(self.widgets.userneededmux8.get_value())
         self.data.userneededabs = int(self.widgets.userneededabs.get_value())
         self.data.userneededscale = int(self.widgets.userneededscale.get_value())
+        self.data.userneededmux16 = int(self.widgets.userneededmux16.get_value())
+
         textbuffer = self.widgets.loadcompservo.get_buffer()
         startiter = textbuffer.get_start_iter()
         enditer = textbuffer.get_end_iter()
@@ -5528,8 +5624,7 @@ class App:
             self.widgets.druid1.set_page(self.widgets.basicinfo)
         gtk.main()
    
-    def hal_cmnds(self,command = "nothing"):
-        #print command
+    def hal_cmnds(self,command ):
         halrun = self.halrun
         if command == "LOAD":
             halrun.write("loadrt probe_parport\n")
@@ -5739,11 +5834,11 @@ class PyApp(gtk.Window):
             
 
     def quit(self,widget):  
-        self.widgets['window1'].set_sensitive(1)          
-        self.hal.c.exit()
+        self.widgets['window1'].set_sensitive(1)                 
         gobject.source_remove(self.timer) 
+        self.hal.c.exit()
         self.app.halrun.close()     
-        return False
+        return True
 
     def update(self):      
         if hal.component_exists("testpanel"):
@@ -5780,11 +5875,15 @@ class PyApp(gtk.Window):
         encname = "brd.%d.enc.%d.reset" % (boardnum,number)   
         print"making HAL pin enc bit Brd %d,num %d"%(boardnum,number)   
         self.hal.c.newpin(encname, hal.HAL_BIT, hal.HAL_OUT)
+        hal.new_sig(encname+"-signal","bit")
+        hal.connect("testpanel."+encname,encname+"-signal")
         self.data2["brd%denc%dreset" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
         container.pack_start(self.data2["brd%denc%dreset" % (boardnum,number)], False, False, 10)
         encname = "brd.%d.enc.%d.count" % (boardnum,number)
         print"making HAL pin enc s32 brd %d num %d"%(boardnum,number)      
         self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
+        hal.new_sig(encname+"-signal","s32")
+        hal.connect("testpanel."+encname,encname+"-signal")
         label = self.data2["brd%denc%dcount" % (boardnum,number)] = gtk.Label("Encoder-%d"% (number))
         label.set_size_request(100, -1)
         container.pack_start(label, False, False, 10)
@@ -5793,8 +5892,12 @@ class PyApp(gtk.Window):
     def make_stp(self,container,boardnum,number):
         stpname = "brd.%d.stp.%d.cmd" % (boardnum,number)
         self.hal.c.newpin(stpname, hal.HAL_FLOAT, hal.HAL_OUT)
+        hal.new_sig(stpname+"-signal","float")
+        hal.connect("testpanel."+stpname,stpname+"-signal")
         stpname = "brd.%d.stp.%d.enable" % (boardnum,number)
         self.hal.c.newpin(stpname, hal.HAL_BIT, hal.HAL_OUT)
+        hal.new_sig(stpname+"-signal","bit")
+        hal.connect("testpanel."+stpname,stpname+"-signal")
         adj = gtk.Adjustment(0.0, -1000.0, 1000.0, 1.0, 5.0, 0.0)
         spin = self.data2["brd%dstp%dcmd" % (boardnum,number)]= gtk.SpinButton(adj, 0, 1)  
         adj.connect("value_changed", self.stp_callback,"stp",boardnum,number,None)    
@@ -5810,9 +5913,13 @@ class PyApp(gtk.Window):
         pwmname = "brd.%d.pwm.%d.value" % (boardnum,number)
         print"making HAL pin pwm float brd%d num %d"%(boardnum,number)
         self.hal.c.newpin(pwmname, hal.HAL_FLOAT, hal.HAL_OUT)
+        hal.new_sig(pwmname+"-signal","float")
+        hal.connect("testpanel."+pwmname,pwmname+"-signal")
         pwmname = "brd.%d.pwm.%d.enable" % (boardnum,number)
         print"making HAL pin pwm bit brd %d num %d"%(boardnum,number)
         self.hal.c.newpin(pwmname, hal.HAL_BIT, hal.HAL_OUT)
+        hal.new_sig(pwmname+"-signal","bit")
+        hal.connect("testpanel."+pwmname,pwmname+"-signal")
         adj = self.data2["brd%dpwm%dadj" % (boardnum,number)] = gtk.Adjustment(0.0, -10.0, 10.0, 0.1, 0.5, 0.0)
         adj.connect("value_changed", self.pwm_callback,"pwm",boardnum,number,None)      
         pwm = self.data2["brd%dpwm%d" % (boardnum,number)] = gtk.HScale(adj)
@@ -5830,6 +5937,8 @@ class PyApp(gtk.Window):
         ledname = "brd.%d.led.%d" % (boardnum,number)
         print"making HAL pin led bit brd %d num %d"%(boardnum,number)
         self.hal.c.newpin(ledname, hal.HAL_BIT, hal.HAL_IN)
+        hal.new_sig(ledname+"-signal","bit")
+        hal.connect("testpanel."+ledname,ledname+"-signal")
         led = self.data2["brd%dled%d" % (boardnum,number)] = LED(self)
         led.set_color("off",[1,0,0]) # red
         led.set_color("on",[0,1,0]) # Green
@@ -5845,6 +5954,8 @@ class PyApp(gtk.Window):
         switchname = "brd.%d.switch.%d" % (boardnum,number)
         print"making HAL pin switch bit brd %d num %d"%(boardnum,number)
         self.hal.c.newpin(switchname, hal.HAL_BIT, hal.HAL_OUT)
+        hal.new_sig(switchname+"-signal","bit")
+        hal.connect("testpanel."+switchname,switchname+"-signal")
         # add button to container using boarnum and number as a reference     
         button = self.data2["brd%dswch%d" % (boardnum,number)]= gtk.Button("OUT-%d"% number)
         container.pack_start(button, False, False, 10)
@@ -5863,7 +5974,7 @@ class PyApp(gtk.Window):
         self.data = data
         self.app = App
         self.widgets = widgets
-        self.halrun = self.app.halrun
+        #self.halrun = self.app.halrun
         print "entering HAL init"
         self.hal = hal_interface()
         print "done HAL init"
@@ -5907,16 +6018,23 @@ class PyApp(gtk.Window):
                         h = gtk.HBox(False,2)
                         self.make_switch(h,boardnum,truepinnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                        hal.set_pin("hm2_%s.gpio.%03d.is_output"% (board,truepinnum ),"true")
+                        if pininv:  hal.set_pin("hm2_%s.gpio.%03d.invert_output"% (board,truepinnum ),"true")
+                        hal.connect("hm2_%s.gpio.%03d.out"% (board,truepinnum ),"brd.%d.switch.%d-signal" % (boardnum,truepinnum))
                     # for input pins
                     elif pintype == GPIOI: 
                         h = gtk.HBox(False,2)
                         self.make_led(h,boardnum,truepinnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
+                        if pininv: hal.connect("hm2_%s.gpio.%03d.in_not"% (board,truepinnum),"brd.%d.led.%d-signal"% (boardnum,truepinnum))
+                        else:   hal.connect("hm2_%s.gpio.%03d.in"% (board,truepinnum),"brd.%d.led.%d-signal"% (boardnum,truepinnum))
                     # for encoder pins
                     elif pintype in (ENCA,ENCB,ENCI,ENCM):
                         h = gtk.HBox(False,2)
                         if pintype == ENCA:
                             self.make_enc(h,boardnum,compnum)
+                            hal.connect("hm2_%s.encoder.%02d.reset"% (board,compnum), "brd.%d.enc.%d.reset-signal"% (boardnum,compnum))
+                            hal.connect("hm2_%s.encoder.%02d.count"% (board,compnum), "brd.%d.enc.%d.count-signal"% (boardnum,compnum))
                         else:
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
@@ -5925,6 +6043,9 @@ class PyApp(gtk.Window):
                         h = gtk.HBox(False,2)
                         if pintype in (PWMP,PDMP):
                             self.make_pwm(h,boardnum,compnum)
+                            hal.connect("hm2_%s.pwmgen.%02d.enable"% (board,compnum),"brd.%d.pwm.%d.enable-signal"% (boardnum,compnum)) 
+                            hal.connect("hm2_%s.pwmgen.%02d.value"% (board,compnum),"brd.%d.pwm.%d.value-signal"% (boardnum,compnum)) 
+                            hal.set_pin("hm2_%s.pwmgen.%02d.scale"% (board,compnum),"10") 
                         else:
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
@@ -5933,6 +6054,14 @@ class PyApp(gtk.Window):
                         h = gtk.HBox(False,2)
                         if pintype == STEPA:          
                             self.make_stp(h,boardnum,compnum)
+                            hal.connect("hm2_%s.stepgen.%02d.enable"% (board,compnum),"brd.%d.stp.%d.enable-signal"% (boardnum,compnum))
+                            hal.connect("hm2_%s.stepgen.%02d.position-cmd"% (board,compnum),"brd.%d.stp.%d.position-cmd-signal"% (boardnum,compnum))   
+                            hal.set_pin("hm2_%s.stepgen.%02d.maxaccel"% (board,compnum),"0")
+                            hal.set_pin("hm2_%s.stepgen.%02d.maxvel"% (board,compnum),"2000")
+                            hal.set_pin("hm2_%s.stepgen.%02d.steplen"% (board,compnum),"2000")
+                            hal.set_pin("hm2_%s.stepgen.%02d.stepspace"% (board,compnum),"2000")
+                            hal.set_pin("hm2_%s.stepgen.%02d.dirhold"% (board,compnum),"2000")
+                            hal.set_pin("hm2_%s.stepgen.%02d.dirsetup"% (board,compnum),"2000")
                         else:
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
