@@ -57,7 +57,6 @@ static pth_uctx_t main_ctx, this_ctx;
 
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
-static struct rtapi_module module_array[MAX_MODULES] = {{0},};
 
 /* Priority functions.  SIM uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
@@ -94,32 +93,6 @@ int rtapi_prio_next_lower(int prio)
   /* return next lower priority for in-range arg */
   return prio + 1;
 }
-
-
-int rtapi_init(const char *modname)
-{
-  int n, result=0;
-  /* clear the task array - if magic doesn't contain the magic
-     number, that means that array entry is empty */
-  for (n = 0; n < MAX_MODULES; n++) {
-    if(module_array[n].magic != MODULE_MAGIC) {
-      result = n + MODULE_OFFSET;
-      module_array[n].magic = MODULE_MAGIC;
-      return result;
-    }
-  }
-  return -ENOMEM;
-}
-
-
-int rtapi_exit(int id)
-{
-  int n = id - MODULE_OFFSET;
-  if(n < 0 || n >= MAX_MODULES) return -1;
-  module_array[n].magic = 0;
-  return 0;
-}
-
 
 static int period = 0;
 int rtapi_clock_set_period(unsigned long int nsecs)

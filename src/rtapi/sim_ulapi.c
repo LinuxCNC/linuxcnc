@@ -21,19 +21,6 @@
 #include "rtapi.h"
 #include <unistd.h>
 
-int rtapi_init(const char *modname)
-{
-  /* does nothing, for now */
-  return getpid();
-}
-
-
-int rtapi_exit(int module_id)
-{
-  /* does nothing, for now */
-  return 0;
-}
-
 
 /* FIXME - no support for fifos */
 
