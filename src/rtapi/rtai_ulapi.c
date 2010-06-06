@@ -121,7 +121,6 @@ int rtapi_init(const char *modname)
     if (rtapi_data->rev_code != rev_code) {
 	/* mismatch - release master shared memory block */
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: version mismatch %d vs %d\n", rtapi_data->rev_code, rev_code);
-	rtai_free(RTAPI_KEY, rtapi_data);
 	return -EINVAL;
     }
     /* set up local pointers to global data */
@@ -220,9 +219,7 @@ int rtapi_exit(int module_id)
     module->state = NO_MODULE;
     module->name[0] = '\0';
     rtapi_data->ul_module_count--;
-    /* unmap shared memory block */
     rtapi_mutex_give(&(rtapi_data->mutex));
-    rtai_free(RTAPI_KEY, rtapi_data);
     return 0;
 }
 
