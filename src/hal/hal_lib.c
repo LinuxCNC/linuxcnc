@@ -74,10 +74,8 @@ MODULE_LICENSE("GPL");
 
 char *hal_shmem_base = 0;
 hal_data_t *hal_data = 0;
-#ifdef RTAPI
 static int lib_module_id = -1;	/* RTAPI module ID for library module */
 static int lib_mem_id = 0;	/* RTAPI shmem ID for library module */
-#endif
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -167,18 +165,14 @@ static int ref_cnt = 0;
 
 int hal_init(const char *name)
 {
-    int comp_id, mem_id, retval;
+    int comp_id;
+#ifdef ULAPI
+    int retval;
     void *mem;
+#endif
     char rtapi_name[RTAPI_NAME_LEN + 1];
     char hal_name[HAL_NAME_LEN + 1];
     hal_comp_t *comp;
-
-#ifdef ULAPI
-    if (ref_cnt) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: Only one component per process\n");
-	return -EMFILE;
-    }
-#endif
 
     if (name == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
@@ -189,6 +183,42 @@ int hal_init(const char *name)
 	    "HAL: ERROR: component name '%s' is too long\n", name);
 	return -EINVAL;
     }
+
+#ifdef ULAPI
+    if(!lib_mem_id) {
+	rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing hal_lib\n");
+	rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_LIB_%d", (int)getpid());
+	lib_module_id = rtapi_init(rtapi_name);
+
+	/* get HAL shared memory block from RTAPI */
+	lib_mem_id = rtapi_shmem_new(HAL_KEY, lib_module_id, HAL_SIZE);
+	if (lib_mem_id < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not open shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+	/* get address of shared memory area */
+	retval = rtapi_shmem_getptr(lib_mem_id, &mem);
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not access shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+	/* set up internal pointers to shared mem and data structure */
+        hal_shmem_base = (char *) mem;
+        hal_data = (hal_data_t *) mem;
+	/* perform a global init if needed */
+	retval = init_hal_data();
+	if ( retval ) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: could not init shared memory\n");
+	    rtapi_exit(lib_module_id);
+	    return -EINVAL;
+	}
+    }
+#endif
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: initializing component '%s'\n",
 	name);
     /* copy name to local vars, truncating if needed */
@@ -198,35 +228,6 @@ int hal_init(const char *name)
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: rtapi init failed\n");
-	return -EINVAL;
-    }
-    /* get HAL shared memory block from RTAPI */
-    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
-    if (mem_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: could not open shared memory\n");
-	rtapi_exit(comp_id);
-	return -EINVAL;
-    }
-    /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(mem_id, &mem);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: could not access shared memory\n");
-	rtapi_exit(comp_id);
-	return -EINVAL;
-    }
-    /* set up internal pointers to shared mem and data structure */
-    if(hal_shmem_base == 0) {
-        hal_shmem_base = (char *) mem;
-        hal_data = (hal_data_t *) mem;
-    }
-    /* perform a global init if needed */
-    retval = init_hal_data();
-    if ( retval ) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: could not init shared memory\n");
-	rtapi_exit(comp_id);
 	return -EINVAL;
     }
     /* get mutex before manipulating the shared data */
@@ -252,7 +253,6 @@ int hal_init(const char *name)
     }
     /* initialize the structure */
     comp->comp_id = comp_id;
-    comp->mem_id = mem_id;
 #ifdef RTAPI
     comp->type = 1;
     comp->pid = 0;
@@ -278,7 +278,7 @@ int hal_init(const char *name)
 
 int hal_exit(int comp_id)
 {
-    int *prev, next, mem_id;
+    int *prev, next;
     hal_comp_t *comp;
     char name[HAL_NAME_LEN + 1];
 
@@ -316,8 +316,7 @@ int hal_exit(int comp_id)
     }
     /* found our component, unlink it from the list */
     *prev = comp->next_ptr;
-    /* save shmem ID and component name for later */
-    mem_id = comp->mem_id;
+    /* save component name for later */
     rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
@@ -340,14 +339,23 @@ int hal_exit(int comp_id)
 #endif
     /* release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
-    /* release RTAPI resources */
-    rtapi_shmem_delete(mem_id, comp_id);
+    --ref_cnt;
+#ifdef ULAPI
+    if(ref_cnt == 0) {
+	/* release RTAPI resources */
+	rtapi_shmem_delete(lib_mem_id, lib_module_id);
+	rtapi_exit(lib_module_id);
+	lib_mem_id = 0;
+	lib_module_id = -1;
+	hal_shmem_base = NULL;
+	hal_data = NULL;
+    }
+#endif
     rtapi_exit(comp_id);
     /* done */
     rtapi_print_msg(RTAPI_MSG_DBG,
 	"HAL: component %02d removed, name = '%s'\n", comp_id, name);
 
-    ref_cnt --;
 
     return 0;
 }
