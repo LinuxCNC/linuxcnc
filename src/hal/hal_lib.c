@@ -184,7 +184,7 @@ int hal_init(const char *name)
 	rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: no component name\n");
 	return -EINVAL;
     }
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component name '%s' is too long\n", name);
 	return -EINVAL;
@@ -531,7 +531,7 @@ static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
     char name[HAL_NAME_LEN];
     int sz;
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) {
+    if(sz == -1 || sz > HAL_NAME_LEN) {
         rtapi_print_msg(RTAPI_MSG_ERR,
 	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
 	    sz, name);
@@ -617,7 +617,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
 	return -EINVAL;
     }
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin name '%s' is too long\n", name);
 	return -EINVAL;
@@ -724,7 +724,7 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	return -EPERM;
     }
     if (alias != NULL ) {
-	if (strlen(alias) >= HAL_NAME_LEN) {
+	if (strlen(alias) > HAL_NAME_LEN) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: alias name '%s' is too long\n", alias);
 	    return -EINVAL;
@@ -847,7 +847,7 @@ int hal_signal_new(const char *name, hal_type_t type)
 	return -EINVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal name '%s' is too long\n", name);
 	return -EINVAL;
@@ -1176,7 +1176,7 @@ static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
     char name[HAL_NAME_LEN];
     int sz;
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) {
+    if(sz == -1 || sz > HAL_NAME_LEN) {
         rtapi_print_msg(RTAPI_MSG_ERR,
 	    "hal_param_newfv: length %d too long for name starting '%s'\n",
 	    sz, name);
@@ -1257,7 +1257,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
 	return -EINVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: parameter name '%s' is too long\n", name);
 	return -EINVAL;
@@ -1458,7 +1458,7 @@ int hal_param_alias(const char *param_name, const char *alias)
 	return -EPERM;
     }
     if (alias != NULL ) {
-	if (strlen(alias) >= HAL_NAME_LEN) {
+	if (strlen(alias) > HAL_NAME_LEN) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 	        "HAL: ERROR: alias name '%s' is too long\n", alias);
 	    return -EINVAL;
@@ -1584,7 +1584,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	return -EINVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: function name '%s' is too long\n", name);
 	return -EINVAL;
@@ -1710,7 +1710,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
 	return -EINVAL;
     }
 
-    if (strlen(name) >= HAL_NAME_LEN) {
+    if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: thread name '%s' is too long\n", name);
 	return -EINVAL;
