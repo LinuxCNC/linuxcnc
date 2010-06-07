@@ -18,7 +18,7 @@ module that intends to use the API, before any other RTAPI
 calls.
 
 \fImodname\fR can optionally point to a string that identifies
-the module.  The string will be truncated at \fBRTAPI_NAME_LEN\fR
+the module.  The string may be no longer than \fBRTAPI_NAME_LEN\fR
 characters.  If \fImodname\fR is \fBNULL\fR, the system will assign a
 name.
 
