@@ -370,8 +370,7 @@ static void thisQuit(ClientData clientData)
 	emcCommandBuffer = 0;
     }
 
-    Tcl_Exit(0);
-    exit(0);
+    return;
 }
 
 
@@ -3647,7 +3646,7 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
 
     // init NML
     if (0 != tryNml()) {
-        Tcl_SetResult(interp, "can't connect to emc\n", TCL_STATIC);
+        Tcl_SetResult(interp, "no emc connection", TCL_STATIC);
         thisQuit(NULL);
         return TCL_ERROR;
     }
