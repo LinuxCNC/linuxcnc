@@ -525,57 +525,58 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
+int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
+    void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
+{
+    char name[HAL_NAME_LEN];
+    int sz;
+    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
+    return hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
+}
+
 int hal_pin_bit_newf(hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_pin_newfv(HAL_BIT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_pin_new(name, HAL_BIT, dir, (void **) data_ptr_addr, comp_id);
+    return ret;
 }
 
 int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_pin_newfv(HAL_FLOAT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_pin_new(name, HAL_FLOAT, dir, (void **) data_ptr_addr,
-	comp_id);
+    return ret;
 }
 
 int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_pin_newfv(HAL_U32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_pin_new(name, HAL_U32, dir, (void **) data_ptr_addr, comp_id);
+    return ret;
 }
 
 int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_pin_newfv(HAL_S32, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
+    return ret;
 }
 
 
@@ -1165,56 +1166,57 @@ int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_ad
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
+int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
+	void *data_addr, int comp_id, const char *fmt, va_list ap) {
+    char name[HAL_NAME_LEN];
+    int sz;
+    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
+    return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
+}
+
 int hal_param_bit_newf(hal_param_dir_t dir, hal_bit_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_param_newfv(HAL_BIT, dir, (void*)data_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_param_new(name, HAL_BIT, dir, (void *) data_addr, comp_id);
+    return ret;
 }
 
 int hal_param_float_newf(hal_param_dir_t dir, hal_float_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_param_newfv(HAL_FLOAT, dir, (void*)data_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_param_new(name, HAL_FLOAT, dir, (void *) data_addr, comp_id);
+    return ret;
 }
 
 int hal_param_u32_newf(hal_param_dir_t dir, hal_u32_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_param_newfv(HAL_U32, dir, (void*)data_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_param_new(name, HAL_U32, dir, (void *) data_addr, comp_id);
+    return ret;
 }
 
 int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
-    char name[HAL_NAME_LEN];
     va_list ap;
-    int sz;
+    int ret;
     va_start(ap, fmt);
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    ret = hal_param_newfv(HAL_S32, dir, (void*)data_addr, comp_id, fmt, ap);
     va_end(ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
-    return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
+    return ret;
 }
 
 
