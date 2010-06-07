@@ -2365,7 +2365,7 @@ proc updateStatus {} {
       set tooloffsetsetting [format "X%.4f Y%.4f Z%.4f" [emc_tool_offset 0] [emc_tool_offset 1] [emc_tool_offset 2]]
       # note: currently no emc_tool_offset options for diam,front,back,orient
       foreach item "$::coordnames" {
-        set ::tentry($item) [format %.4f [emc_tool_offset [lsearch -nocase $::worldlabellist $item]]]
+        set ::tentry($item) [format %.4f [emc_tool_offset [lsearch [string toupper $::worldlabellist] $item]]]
       }
     }
     # set the offset information
