@@ -525,13 +525,18 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
+static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
     void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
 {
     char name[HAL_NAME_LEN];
     int sz;
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
+	    sz, name);
+        return -ENOMEM;
+    }
     return hal_pin_new(name, type, dir, data_ptr_addr, comp_id);
 }
 
@@ -1166,12 +1171,17 @@ int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_ad
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
+static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
 	void *data_addr, int comp_id, const char *fmt, va_list ap) {
     char name[HAL_NAME_LEN];
     int sz;
     sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
-    if(sz == -1 || sz >= HAL_NAME_LEN) return -ENOMEM;
+    if(sz == -1 || sz >= HAL_NAME_LEN) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+	    "hal_param_newfv: length %d too long for name starting '%s'\n",
+	    sz, name);
+	return -ENOMEM;
+    }
     return hal_param_new(name, type, dir, (void *) data_addr, comp_id);
 }
 
