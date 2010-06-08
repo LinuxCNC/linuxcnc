@@ -1384,5 +1384,11 @@ int iniLoad(const char *filename)
     return 0;
 }
 
+int checkStatus ()
+{
+    if (emcStatus) return 1;    
+    return 0;
+}
+
 
 
