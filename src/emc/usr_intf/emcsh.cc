@@ -3632,6 +3632,7 @@ static void initMain()
 
 int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
 {
+    bool quick = false;
     initMain();
     // process command line args
     if (0 != emcGetArgs(argc, (char**)argv)) {
@@ -3641,11 +3642,16 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     // get configuration information
     iniLoad(EMC_INIFILE);
 
+    for(int i=1; i<argc; i++)
+    {
+	if(!strcmp(argv[i], "-quick")) quick = true;
+    }
+
     // update tcl's idea of the inifile name
     Tcl_SetVar(interp, "EMC_INIFILE", EMC_INIFILE, TCL_GLOBAL_ONLY);
 
     // init NML
-    if (0 != tryNml()) {
+    if (0 != tryNml(quick ? 0.0 : 10.0, quick ? 0.0 : 1.0)) {
         Tcl_SetResult(interp, "no emc connection", TCL_STATIC);
         thisQuit(NULL);
         return TCL_ERROR;
