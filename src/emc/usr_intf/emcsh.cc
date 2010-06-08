@@ -36,22 +36,20 @@
 #include "shcom.hh"
 
 /*
+  Using tcl package Emc:
   Using emcsh:
 
-  emcsh {<filename>} {-- -ini <ini file>}
+  % package require Emc
+  % emc_init -ini inifilename # to start with an inifile
+  or
+  % emc_init # to start with the default inifilename (emc.ini)
 
   With filename, it opens NML buffers to the EMC, runs the script, closes
   the buffers, and quits.
 
-  With -- -ini <inifile>, uses inifile instead of emc.ini. Note that
-  the two dashes prevents Tcl from looking at the remaining args, which
-  would otherwise trigger a Tcl error that it doesn't understand what
-  -ini means.
+  With -ini <inifile>, uses inifile instead of emc.ini.
 
-  Without filename, it runs interactively.
-
-  The files (or manual input) are Tcl scripts, extended with EMC-specific
-  commands. These commands are all prefixed with "emc_", which makes them
+  Commands in the emc package are all prefixed with "emc_", which makes them
   somewhat inconvenient for typing but avoids name conflicts, e.g., open.
 
   Some commands take 0 or more arguments. 0 arguments means they return
@@ -62,9 +60,6 @@
   command completed, or not wait at all.
 
   EMC commands:
-
-  EMC_INIFILE
-  Exported values of the EMC global of the same name
 
   emc_plat
   Returns the platform for which this was compiled, e.g., linux_2_0_36
@@ -3635,6 +3630,9 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     bool quick = false;
     initMain();
     // process command line args
+    // use -ini inifilename to set EMC_INIFILE
+    // see emcargs.c for other arguments
+    // use -quick to return quickly if emc is not running
     if (0 != emcGetArgs(argc, (char**)argv)) {
         Tcl_SetResult(interp, "error in argument list\n", TCL_STATIC);
         return TCL_ERROR;
