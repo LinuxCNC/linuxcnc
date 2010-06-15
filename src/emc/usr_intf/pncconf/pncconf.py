@@ -1648,22 +1648,22 @@ class Data:
         if self.pyvcp or self.userneededabs >0:
             self.absnames=""
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
-                self.absnames=self.absnames+"spindle"
+                self.absnames=self.absnames+"abs.spindle"
                 if self.userneededabs >0:
                     self.absnames=self.absnames+","
             for i in range(0,self.userneededabs):
-                self.absnames = self.absnames+"%d"% (i)
+                self.absnames = self.absnames+"abs.%d"% (i)
                 if i <> self.userneededabs-1:
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
             self.scalenames=""
             if spindle_enc and self.pyvcp:
-                self.scalenames=self.scalenames+"spindle"
+                self.scalenames=self.scalenames+"scale.spindle"
                 if self.userneededscale >0:
                     self.scalenames=self.scalenames+","
             for i in range(0,self.userneededscale):
-                self.scalenames = self.scalenames+"%d"% (i)
+                self.scalenames = self.scalenames+"scale.%d"% (i)
                 if  i <> self.userneededscale-1:
                     self.scalenames = self.scalenames+","
             print >>file, "loadrt scale names=%s"% self.scalenames
@@ -1675,11 +1675,11 @@ class Data:
         if self.externalmpg or self.userneededmux8 > 0:
             self.mux8names=""
             if self.externalmpg: 
-                self.mux8names = self.mux8names+"jogincr"
+                self.mux8names = self.mux8names+"mux8.jogincr"
                 if self.userneededmux8 > 0:
                     self.mux8names = self.mux8names+","
             for i in range(0,self.userneededmux8):
-                self.mux8names = self.mux8names+"%d"% (i)
+                self.mux8names = self.mux8names+"mux8.%d"% (i)
                 if i <> self.userneededmux8-1:
                     self.mux8names = self.mux8names+","
             print >>file, "loadrt mux8 names=%s"% (self.mux8names)
@@ -1767,16 +1767,16 @@ class Data:
         if self.externalmpg or self.userneededmux8 > 0: 
             temp=self.mux8names.split(",")
             for j in (temp):
-                print >>file, "addf mux8.%s servo-thread"% j
+                print >>file, "addf %s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
             temp=self.absnames.split(",")
             for j in (temp):
-                print >>file, "addf abs.%s servo-thread"% j
+                print >>file, "addf %s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededscale > 0:
             if spindle_enc or self.userneededscale > 0:
                 temp=self.scalenames.split(",")
                 for j in (temp):
-                    print >>file, "addf scale.%s servo-thread"% j
+                    print >>file, "addf %s servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
