@@ -1099,8 +1099,9 @@ class Data:
         print >>file, "HALFILE = %s.hal" % self.machinename
         if self.customhal:
             print >>file, "HALFILE = custom.hal"
+        if self.pyvcp or self.customhal:
             print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
-
+        print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
         if self.halui == True:
@@ -1984,8 +1985,8 @@ class Data:
             print >>f1, _("# Include your customized HAL commands here")
             print >>f1, _("""# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   print >>f1
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
@@ -1994,18 +1995,17 @@ class Data:
                       print >>f1
                       print >>f1
                       print >>f1, ("    setp scale.spindle.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.spindle.in")
+                      print >>f1, ("net spindle-velocity-fb  => abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd                       =>  abs.spindle.in")
+                      print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
-                  print >>f1, ("net tool-number                        => pyvcp.toolnumber")
                   print >>f1
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
@@ -2046,6 +2046,12 @@ class Data:
                 f1 = open(custom, "w")
                 print >>f1, _("# Include your customized HAL commands here")
                 print >>f1, _("# This file will not be overwritten when you run PNCconf again") 
+
+        shutdown = os.path.join(base, "shutdown.hal")
+        if not os.path.exists(shutdown):
+            f1 = open(shutdown, "w")
+            print >>f1, _("# Include your optional shutdown HAL commands here")
+            print >>f1, _("# This file will not be overwritten when you run PNCconf again") 
         file.close()
         self.add_md5sum(filename)
 
