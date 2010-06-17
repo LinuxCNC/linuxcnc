@@ -1384,15 +1384,15 @@ class Data:
                     if self.spidcontrol == True:
                         print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
                         print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
-                        print >>file, "net spindle-enable      => pid.%s.enable" % (let) 
+                        print >>file, "net spindle-enable      => pid.%s.enable" % (let)
                         print >>file, "net spindle-enable      => " + pinname +".enable"
-                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)          
+                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)    
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
                         print >>file, "net spindle-enable      => " + pinname +".enable"
                 else:
-                    print >>file, "net %senable     => pid.%s.enable" % (let, let)                
-                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pinname + ".value" 
+                    print >>file, "net %senable     => pid.%s.enable" % (let, let)
+                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pinname + ".value"
                     print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
                     print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pinname +".enable"
                 print >>file    
@@ -1417,9 +1417,9 @@ class Data:
                     print >>file, "net spindle-vel-fb         <=  "+ pinname + ".velocity-fb"     
             else:
                 print >>file
-                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"  
+                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + pinname + ".position-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"  
+                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"
             print >>file
 
         if 'mesa' in encoder:
@@ -1438,10 +1438,10 @@ class Data:
                     print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"                
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
-                    print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let) 
-                    print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum) 
-                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + pinname + ".index-enable" 
-                print >>file  
+                    print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
+                    print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + pinname + ".index-enable"
+                print >>file
 
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
@@ -2050,13 +2050,13 @@ class Data:
             if not os.path.exists(custom):
                 f1 = open(custom, "w")
                 print >>f1, _("# Include your customized HAL commands here")
-                print >>f1, _("# This file will not be overwritten when you run PNCconf again") 
+                print >>f1, _("# This file will not be overwritten when you run PNCconf again")
 
         shutdown = os.path.join(base, "shutdown.hal")
         if not os.path.exists(shutdown):
             f1 = open(shutdown, "w")
             print >>f1, _("# Include your optional shutdown HAL commands here")
-            print >>f1, _("# This file will not be overwritten when you run PNCconf again") 
+            print >>f1, _("# This file will not be overwritten when you run PNCconf again")
         file.close()
         self.add_md5sum(filename)
 
