@@ -1354,6 +1354,11 @@ class Data:
                 print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
                 print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
                 print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                if let == 's':
+                    name = "spindle"
+                else:
+                    name = let
+                print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
                
             if 'mesa' in pwmgen:
@@ -1429,12 +1434,13 @@ class Data:
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
                 if let == 's':
-                    print >>file, "net spindle-vel-fb            <=  " +pinname+".velocity"
+                    print >>file, "net spindle-vel-fb            <=  " + pinname+".velocity"
                     print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"                
                 else: 
-                    print >>file, "net %spos-fb     <=  "% (let) +pinname+".position"
-                    print >>file, "net %spos-fb     =>  pid.%s.feedback"% (let,let) 
-                    print >>file, "net %spos-fb     =>  axis.%d.motor-pos-fb" % (let, axnum)  
+                    print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
+                    print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let) 
+                    print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum) 
+                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + pinname + ".index-enable" 
                 print >>file  
 
         if let =='s':
@@ -1747,24 +1753,23 @@ class Data:
             for j in range(0,temp ):
                 print >>file, "addf pid.%d.do-pid-calcs servo-thread"% j
             for axnum,j in enumerate(axislet):
-                print >>file, "alias pin    pid.%d.Pgain     pid.%s.Pgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Igain     pid.%s.Igain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Dgain     pid.%s.Dgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.bias      pid.%s.bias" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF0       pid.%s.FF0" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF1       pid.%s.FF1" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF2       pid.%s.FF2" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.deadband  pid.%s.deadband" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.maxoutput pid.%s.maxoutput" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.enable    pid.%s.enable" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.command   pid.%s.command" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.feedback  pid.%s.feedback" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.output    pid.%s.output" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Pgain         pid.%s.Pgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Igain         pid.%s.Igain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Dgain         pid.%s.Dgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.bias          pid.%s.bias" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF0           pid.%s.FF0" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF1           pid.%s.FF1" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF2           pid.%s.FF2" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.deadband      pid.%s.deadband" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.maxoutput     pid.%s.maxoutput" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.enable        pid.%s.enable" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.command       pid.%s.command" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.feedback      pid.%s.feedback" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.output        pid.%s.output" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.index-enable  pid.%s.index-enable" % (axnum + self.userneededpid, j)
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
-        if pwm: 
-            print >>file, "addf pwmgen.update servo-thread"
         if self.externalmpg or self.userneededmux8 > 0: 
             temp=self.mux8names.split(",")
             for j in (temp):
