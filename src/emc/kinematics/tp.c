@@ -821,6 +821,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     if (tc->motion_type == TC_RIGIDTAP) {
         static double old_spindlepos;
         double new_spindlepos = emcmotStatus->spindleRevs;
+        if (emcmotStatus->spindle.direction < 0) new_spindlepos = -new_spindlepos;
 
         switch (tc->coords.rigidtap.state) {
         case TAPPING:
@@ -908,13 +909,16 @@ int tpRunCycle(TP_STRUCT * tp, long period)
             }
         } else {
             double spindle_vel, target_vel;
+            double new_spindlepos = emcmotStatus->spindleRevs;
+            if (emcmotStatus->spindle.direction < 0) new_spindlepos = -new_spindlepos;
+
             if(tc->motion_type == TC_RIGIDTAP && 
                (tc->coords.rigidtap.state == RETRACTION || 
                 tc->coords.rigidtap.state == FINAL_REVERSAL))
                 revs = tc->coords.rigidtap.spindlerevs_at_reversal - 
-                    emcmotStatus->spindleRevs;
+                    new_spindlepos;
             else
-                revs = emcmotStatus->spindleRevs;
+                revs = new_spindlepos;
 
             pos_error = (revs - spindleoffset) * tc->uu_per_rev - tc->progress;
             if(nexttc) pos_error -= nexttc->progress;
