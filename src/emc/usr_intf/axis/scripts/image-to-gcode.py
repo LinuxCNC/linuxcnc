@@ -195,7 +195,7 @@ class Reduce_Scan_Lace:
                 yield True, span[a:]
 
     def reset(self):
-        self.primary.reset()
+        self.converter.reset()
 
 unitcodes = ['G20', 'G21']
 convert_makers = [ Convert_Scan_Increasing, Convert_Scan_Decreasing, Convert_Scan_Alternating, Convert_Scan_Upmill, Convert_Scan_Downmill ]

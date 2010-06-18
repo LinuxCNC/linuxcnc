@@ -1605,6 +1605,42 @@ The [AXIS_0], [AXIS_1], etc.
  of axes specified in the [TRAJ] AXES entry minus 1.
 \end_layout
 
+\begin_layout Itemize
+AXIS_0 = X
+\end_layout
+
+\begin_layout Itemize
+AXIS_1 = Y
+\end_layout
+
+\begin_layout Itemize
+AXIS_2 = Z
+\end_layout
+
+\begin_layout Itemize
+AXIS_3 = A
+\end_layout
+
+\begin_layout Itemize
+AXIS_4 = B
+\end_layout
+
+\begin_layout Itemize
+AXIS_5 = C
+\end_layout
+
+\begin_layout Itemize
+AXIS_6 = U
+\end_layout
+
+\begin_layout Itemize
+AXIS_7 = V
+\end_layout
+
+\begin_layout Itemize
+AXIS_8 = W
+\end_layout
+
 \begin_layout Description
 
 \color black

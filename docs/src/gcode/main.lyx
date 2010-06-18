@@ -2772,7 +2772,7 @@ The axis words are all optional except that at least one of X and Z must
  respectively) of the center of the circle.
  I and K are optional except that at least one of the two must be used.
  If only one is specified, the value of the other is taken as 0.
- 
+ In Diameter Mode G7 I & K are still radius dimensions.
 \end_layout
 
 \begin_layout Standard
@@ -9466,9 +9466,11 @@ name "Calling Files"
 \end_layout
 
 \begin_layout Standard
-To call a file name the file the same as your call and include a sub and
- endsub.
- The file must be in the directory pointed to by PROGRAM_PREFIX 
+To call a separate file with a subroutine name the file the same as your
+ call and include a sub and endsub in the file.
+ The file must be in the directory pointed to by PROGRAM_PREFIX.
+ The file name can include lowercase letters, numbers, dash, and underscore
+ only.
 \end_layout
 
 \begin_layout LyX-Code
@@ -9484,8 +9486,8 @@ o123 call (a number file)
 \end_layout
 
 \begin_layout Standard
-In the called file include the oxxx sub and endsub and the file must be
- a valid file
+In the called file you must include the oxxx sub and endsub and the file
+ must be a valid file.
 \end_layout
 
 \begin_layout LyX-Code
@@ -9720,17 +9722,9 @@ Printable characters and white space inside parentheses is a comment.
  after the start of a comment and before the end of the comment.
  Here is an example of a line containing a comment: 
 \family typewriter
-
-\begin_inset Quotes eld
-\end_inset
-
-G80 M5 (stop motion)
+"G80 M5 (stop motion)
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
-.
+".
  Comments do not cause a machining center to do anything.
 \end_layout
 

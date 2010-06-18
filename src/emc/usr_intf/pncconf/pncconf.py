@@ -1099,8 +1099,9 @@ class Data:
         print >>file, "HALFILE = %s.hal" % self.machinename
         if self.customhal:
             print >>file, "HALFILE = custom.hal"
+        if self.pyvcp or self.customhal:
             print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
-
+        print >>file, "SHUTDOWN = shutdown.hal"
         print >>file
         print >>file, "[HALUI]"          
         if self.halui == True:
@@ -1353,6 +1354,11 @@ class Data:
                 print >>file, "    setp pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
                 print >>file, "    setp pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
                 print >>file, "    setp pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                if let == 's':
+                    name = "spindle"
+                else:
+                    name = let
+                print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
                 print >>file
                
             if 'mesa' in pwmgen:
@@ -1378,15 +1384,15 @@ class Data:
                     if self.spidcontrol == True:
                         print >>file, "net spindle-vel-cmd     => pid.%s.command" % (let)
                         print >>file, "net spindle-output     pid.%s.output      => "% (let) + pinname + ".value"
-                        print >>file, "net spindle-enable      => pid.%s.enable" % (let) 
+                        print >>file, "net spindle-enable      => pid.%s.enable" % (let)
                         print >>file, "net spindle-enable      => " + pinname +".enable"
-                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)          
+                        print >>file, "net spindle-vel-fb      => pid.%s.feedback"% (let)    
                     else:
                         print >>file, "net spindle-vel-cmd     => " + pinname + ".value"
                         print >>file, "net spindle-enable      => " + pinname +".enable"
                 else:
-                    print >>file, "net %senable     => pid.%s.enable" % (let, let)                
-                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pinname + ".value" 
+                    print >>file, "net %senable     => pid.%s.enable" % (let, let)
+                    print >>file, "net %soutput     pid.%s.output           => "% (let, let) + pinname + ".value"
                     print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd   => pid.%s.command" % (let, axnum , let)
                     print >>file, "net %senable     axis.%d.amp-enable-out  => "% (let,axnum) + pinname +".enable"
                 print >>file    
@@ -1411,9 +1417,9 @@ class Data:
                     print >>file, "net spindle-vel-fb         <=  "+ pinname + ".velocity-fb"     
             else:
                 print >>file
-                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"  
+                print >>file, "net %spos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + pinname + ".position-fb"
                 print >>file, "net %spos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + pinname + ".position-cmd"
-                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"  
+                print >>file, "net %senable     axis.%d.amp-enable-out =>  "% (let, axnum) + pinname + ".enable"
             print >>file
 
         if 'mesa' in encoder:
@@ -1428,13 +1434,14 @@ class Data:
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
                 if let == 's':
-                    print >>file, "net spindle-vel-fb            <=  " +pinname+".velocity"
+                    print >>file, "net spindle-vel-fb            <=  " + pinname+".velocity"
                     print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"                
                 else: 
-                    print >>file, "net %spos-fb     <=  "% (let) +pinname+".position"
-                    print >>file, "net %spos-fb     =>  pid.%s.feedback"% (let,let) 
-                    print >>file, "net %spos-fb     =>  axis.%d.motor-pos-fb" % (let, axnum)  
-                print >>file  
+                    print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
+                    print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
+                    print >>file, "net %spos-fb               =>  axis.%d.motor-pos-fb" % (let, axnum)
+                    print >>file, "net %s-index-enable    axis.%d.index-enable  <=>  "% (let, axnum) + pinname + ".index-enable"
+                print >>file
 
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
@@ -1648,22 +1655,22 @@ class Data:
         if self.pyvcp or self.userneededabs >0:
             self.absnames=""
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
-                self.absnames=self.absnames+"spindle"
+                self.absnames=self.absnames+"abs.spindle"
                 if self.userneededabs >0:
                     self.absnames=self.absnames+","
             for i in range(0,self.userneededabs):
-                self.absnames = self.absnames+"%d"% (i)
+                self.absnames = self.absnames+"abs.%d"% (i)
                 if i <> self.userneededabs-1:
                     self.absnames = self.absnames+","
             print >>file, "loadrt abs names=%s"% self.absnames
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and spindle_enc or self.userneededscale >0:
             self.scalenames=""
             if spindle_enc and self.pyvcp:
-                self.scalenames=self.scalenames+"spindle"
+                self.scalenames=self.scalenames+"scale.spindle"
                 if self.userneededscale >0:
                     self.scalenames=self.scalenames+","
             for i in range(0,self.userneededscale):
-                self.scalenames = self.scalenames+"%d"% (i)
+                self.scalenames = self.scalenames+"scale.%d"% (i)
                 if  i <> self.userneededscale-1:
                     self.scalenames = self.scalenames+","
             print >>file, "loadrt scale names=%s"% self.scalenames
@@ -1675,11 +1682,11 @@ class Data:
         if self.externalmpg or self.userneededmux8 > 0:
             self.mux8names=""
             if self.externalmpg: 
-                self.mux8names = self.mux8names+"jogincr"
+                self.mux8names = self.mux8names+"mux8.jogincr"
                 if self.userneededmux8 > 0:
                     self.mux8names = self.mux8names+","
             for i in range(0,self.userneededmux8):
-                self.mux8names = self.mux8names+"%d"% (i)
+                self.mux8names = self.mux8names+"mux8.%d"% (i)
                 if i <> self.userneededmux8-1:
                     self.mux8names = self.mux8names+","
             print >>file, "loadrt mux8 names=%s"% (self.mux8names)
@@ -1746,37 +1753,36 @@ class Data:
             for j in range(0,temp ):
                 print >>file, "addf pid.%d.do-pid-calcs servo-thread"% j
             for axnum,j in enumerate(axislet):
-                print >>file, "alias pin    pid.%d.Pgain     pid.%s.Pgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Igain     pid.%s.Igain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.Dgain     pid.%s.Dgain" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.bias      pid.%s.bias" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF0       pid.%s.FF0" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF1       pid.%s.FF1" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.FF2       pid.%s.FF2" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.deadband  pid.%s.deadband" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.maxoutput pid.%s.maxoutput" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.enable    pid.%s.enable" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.command   pid.%s.command" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.feedback  pid.%s.feedback" % (axnum + self.userneededpid, j)
-                print >>file, "alias pin    pid.%d.output    pid.%s.output" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Pgain         pid.%s.Pgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Igain         pid.%s.Igain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.Dgain         pid.%s.Dgain" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.bias          pid.%s.bias" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF0           pid.%s.FF0" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF1           pid.%s.FF1" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.FF2           pid.%s.FF2" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.deadband      pid.%s.deadband" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.maxoutput     pid.%s.maxoutput" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.enable        pid.%s.enable" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.command       pid.%s.command" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.feedback      pid.%s.feedback" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.output        pid.%s.output" % (axnum + self.userneededpid, j)
+                print >>file, "alias pin    pid.%d.index-enable  pid.%s.index-enable" % (axnum + self.userneededpid, j)
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
-        if pwm: 
-            print >>file, "addf pwmgen.update servo-thread"
         if self.externalmpg or self.userneededmux8 > 0: 
             temp=self.mux8names.split(",")
             for j in (temp):
-                print >>file, "addf mux8.%s servo-thread"% j
+                print >>file, "addf %s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
             temp=self.absnames.split(",")
             for j in (temp):
-                print >>file, "addf abs.%s servo-thread"% j
+                print >>file, "addf %s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededscale > 0:
             if spindle_enc or self.userneededscale > 0:
                 temp=self.scalenames.split(",")
                 for j in (temp):
-                    print >>file, "addf scale.%s servo-thread"% j
+                    print >>file, "addf %s servo-thread"% j
 
         for i in self.addcompservo:
             if not i == '':
@@ -1984,8 +1990,8 @@ class Data:
             print >>f1, _("# Include your customized HAL commands here")
             print >>f1, _("""# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -START ****")
+            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed display
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   print >>f1
                   if spindle_enc:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
@@ -1994,18 +2000,17 @@ class Data:
                       print >>f1
                       print >>f1
                       print >>f1, ("    setp scale.spindle.gain .01667")
-                      print >>f1, ("net spindle-velocity => abs.spindle.in")
+                      print >>f1, ("net spindle-velocity-fb  => abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.spindle.out => scale.spindle.in")
                       print >>f1, ("net scaled-spindle-vel <= scale.spindle.out => pyvcp.spindle-speed")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from EMC because no spindle encoder was specified")
                       print >>f1, _("# **** COMMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd                       =>  abs.spindle.in")
+                      print >>f1, ("net spindle-vel-cmd                       =>  abs.spindle.in")
                       print >>f1, ("net absolute-spindle-vel    abs.spindle.out =>  pyvcp.spindle-speed")                     
-                  print >>f1, ("net tool-number                        => pyvcp.toolnumber")
                   print >>f1
-                  print >>f1, _("# **** Setup of spindle speed and tool number display using pyvcp -END ****")
+                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
                   print >>f1
             if self.pyvcphaltype == 2 and self.pyvcpconnect: # Hal_UI example
                       print >>f1, _("# **** Setup of pyvcp buttons and MDI commands using HAL_UI and pyvcp - START ****")
@@ -2045,7 +2050,13 @@ class Data:
             if not os.path.exists(custom):
                 f1 = open(custom, "w")
                 print >>f1, _("# Include your customized HAL commands here")
-                print >>f1, _("# This file will not be overwritten when you run PNCconf again") 
+                print >>f1, _("# This file will not be overwritten when you run PNCconf again")
+
+        shutdown = os.path.join(base, "shutdown.hal")
+        if not os.path.exists(shutdown):
+            f1 = open(shutdown, "w")
+            print >>f1, _("# Include your optional shutdown HAL commands here")
+            print >>f1, _("# This file will not be overwritten when you run PNCconf again")
         file.close()
         self.add_md5sum(filename)
 

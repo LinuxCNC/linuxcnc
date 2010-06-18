@@ -1443,8 +1443,8 @@ name "encoder"
 \begin_layout Standard
 This component provides software based counting of signals from quadrature
  encoders.
- It is a realtime component only, and depending on CPU speed, etc, is capable
- of maximum count rates of 10kHz to perhaps 50kHz.
+ It is a realtime component only, and depending on CPU speed, latency, etc,
+ is capable of maximum count rates of 10kHz to perhaps up to 50kHz.
  Figure 
 \begin_inset LatexCommand ref
 reference "fig:Encoder-Block-Diag"
