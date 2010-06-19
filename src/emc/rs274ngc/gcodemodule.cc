@@ -190,13 +190,11 @@ void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points
     PLANE_POINT P1;
     while (u+umax/div < umax) {
         PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        // EBo -- replace 12345 with *whatever* gives us the line_number
         STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
         u = u + umax/div;
     } 
     P1.X = nurbs_control_points[n].X;
     P1.Y = nurbs_control_points[n].Y;
-    // EBo -- replace 12345 with *whatever* gives us the line_number
     STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
     knot_vector.clear();
 }
