@@ -2382,6 +2382,7 @@ int Interp::read_q(char *line,   //!< string: line of RS274/NGC code being proce
   // user-defined codes
   // CHKS((value <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
   block->q_number = value;
+  block->q_flag = ON;
   return INTERP_OK;
 }
 
