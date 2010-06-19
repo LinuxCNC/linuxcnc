@@ -267,8 +267,8 @@ static int comp_id;
         v = ":".join(map(str, v))
         print >>f, "MODULE_INFO(emc2, %s);" % q(v)
         license = finddoc('license')
-        if license and license[1]:
-            print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
+    if license and license[1]:
+        print >>f, "MODULE_LICENSE(\"%s\");" % license[1].split("\n")[0]
     print >>f, "#endif // MODULE_INFO"
     print >>f
 
