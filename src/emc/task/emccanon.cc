@@ -1227,52 +1227,23 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 /* Canon calls */
 
 void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
-    double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*4;
-    double dxs,dys,dxe,dye,alpha1,alpha2,alpha3,alphaM;
     std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
-    PLANE_POINT P0, P1, P2;
+    PLANE_POINT P0, P0T, P1, P1T;
 
-    P0 = nurbs_point(u,k,nurbs_control_points,knot_vector);
-    P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+    P0 = nurbs_point(0,k,nurbs_control_points,knot_vector);
+    P0T = nurbs_tangent(0, k, nurbs_control_points, knot_vector);
 
-
-    dxs = nurbs_control_points[1].X-nurbs_control_points[0].X;
-    dys = nurbs_control_points[1].Y-nurbs_control_points[0].Y;
-    unit(&dxs,&dys);
-    u = u + umax/div;
-    while (u+umax/div <= umax) {
-        P2= nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        alpha1 = atan2(P1.Y-P0.Y, P1.X-P0.X); // starting direction
-        alpha2 = atan2(P2.Y-P1.Y, P2.X-P1.X); // ending direction
-        alpha3 = atan2(P2.Y-P0.Y, P2.X-P0.X); // direction of startpoint->endpoint vector
-
-        // direction we'd like to be going at the middle of our biarc
-        alphaM = (alpha1 + alpha2) / 2.; 
-
-        // except if we have quadrant crossing, it'll be pointing backward.
-        // this is easy to see since it's contrary to alpha3
-        if(fabs(fabs(alpha3) - fabs(alphaM)) > M_PI/4.) {
-            // so flip it
-            alphaM += M_PI;
-        }
-        dxe = cos(alphaM);
-        dye = sin(alphaM);
-        biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
-        dxs = dxe;
-        dys = dye;
+    for(unsigned int i=1; i<=div; i++) {
+	double u = umax * i / div;
+        P1 = nurbs_point(u,k,nurbs_control_points,knot_vector);
+	P1T = nurbs_tangent(u,k,nurbs_control_points,knot_vector);
+        biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
         P0 = P1;
-        P1 = P2;   
-        u = u + umax/div;      
+        P0T = P1T;
     }
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;	   
-    dxe = nurbs_control_points[n].X - nurbs_control_points[n-1].X;
-    dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
-    unit(&dxe,&dye);
-    biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
     knot_vector.clear();
 }
 

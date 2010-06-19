@@ -422,6 +422,9 @@ extern double Rden(double u, unsigned int k,
 extern PLANE_POINT nurbs_point(double u, unsigned int k, 
                   std::vector<CONTROL_POINT> nurbs_control_points,
                   std::vector<unsigned int> knot_vector);
+extern PLANE_POINT nurbs_tangent(double u, unsigned int k,
+                  std::vector<CONTROL_POINT> nurbs_control_points,
+                  std::vector<unsigned int> knot_vector);
 extern double alpha_finder(double dx, double dy);
 
 /* Canon calls */
