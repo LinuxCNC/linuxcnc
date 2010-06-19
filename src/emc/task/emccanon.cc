@@ -1227,6 +1227,8 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 /* Canon calls */
 
 void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+    flush_segments();
+
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*4;
