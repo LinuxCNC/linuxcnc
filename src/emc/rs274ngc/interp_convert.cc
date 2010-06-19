@@ -1032,6 +1032,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   CHKS((block->c_flag && settings->c_axis_wrapped && (block->c_number <= -360.0 || block->c_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
   pars = settings->parameters;
   if (g_code == G_92) {
+    pars[5210] = 1.0;
     if (block->x_flag == ON) {
       settings->axis_offset_x =
         (settings->current_x + settings->axis_offset_x - block->x_number);
@@ -1106,6 +1107,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
     pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
+    pars[5210] = 0.0;
     settings->current_x = settings->current_x + settings->axis_offset_x;
     settings->current_y = settings->current_y + settings->axis_offset_y;
     settings->current_z = settings->current_z + settings->axis_offset_z;
@@ -1144,6 +1146,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       pars[5219] = 0.0;
     }
   } else if (g_code == G_92_3) {
+    pars[5210] = 1.0;
     settings->current_x =
       settings->current_x + settings->axis_offset_x - USER_TO_PROGRAM_LEN(pars[5211]);
     settings->current_y =
