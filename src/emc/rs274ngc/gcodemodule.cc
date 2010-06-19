@@ -201,38 +201,6 @@ void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points
     knot_vector.clear();
 }
 
-void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2) {
-    double x0 = TO_PROG_LEN(_pos_x),
-         y0 = TO_PROG_LEN(_pos_y);
-
-    for(int i=1; i<=100; i++) {
-      double t = i / 100.;
-      double t2 = t*t;
-      double t1 = 2*t*(1-t);
-      double t0 = (1-t)*(1-t);
-      double x = x0*t0 + x1*t1 + x2*t2;
-      double y = y0*t0 + y1*t1 + y2*t2;
-      // EBo -- replace 12345 with *whatever* gives us the line_number
-      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
-    }
-}
-
-void SPLINE_FEED(int line_number, double x1, double y1, double x2, double y2, double x3, double y3) {
-    double x0 = TO_PROG_LEN(_pos_x),
-         y0 = TO_PROG_LEN(_pos_y);
-
-    for(int i=1; i<=100; i++) {      double t = i / 100.;
-      double t3 = t*t*t;
-      double t2 = 3*t*t*(1-t);
-      double t1 = 3*t*(1-t)*(1-t);
-      double t0 = (1-t)*(1-t)*(1-t);
-      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
-      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
-      STRAIGHT_FEED(line_number, x,y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
-    }
-}
-
-
 void maybe_new_line(void) {
     maybe_new_line(-1);
 }

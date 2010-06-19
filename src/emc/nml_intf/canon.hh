@@ -431,16 +431,6 @@ extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_poin
  * of control points
  */
 
-extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3);
-/* Move at the feed rate along an approximation of the cubic
- * bezier spline with control points x1y1 x2y2 and endpoint x3y3
- */
-extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2);
-/* Move at the feed rate along an approximation of the conic
- * spline with control point x1y1 and endpoint x2y2
- */
-
-
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
