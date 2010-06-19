@@ -257,6 +257,8 @@ int Interp::convert_spline(int mode,
       CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
 
+      CHKS(block->p_flag != ON || block->q_flag != ON,
+	      ("Must specify both P and Q with G5"));
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
 
