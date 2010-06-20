@@ -124,9 +124,10 @@ class PM_CARTESIAN;
 #define EMC_TRAJ_CIRCULAR_MOVE_TYPE                  ((NMLTYPE) 221)
 #define EMC_TRAJ_SET_TERM_COND_TYPE                  ((NMLTYPE) 222)
 #define EMC_TRAJ_SET_OFFSET_TYPE                     ((NMLTYPE) 223)
-#define EMC_TRAJ_SET_ORIGIN_TYPE                     ((NMLTYPE) 224)
+#define EMC_TRAJ_SET_G5X_TYPE                        ((NMLTYPE) 224)
 #define EMC_TRAJ_SET_HOME_TYPE                       ((NMLTYPE) 225)
 #define EMC_TRAJ_SET_ROTATION_TYPE                   ((NMLTYPE) 226)
+#define EMC_TRAJ_SET_G92_TYPE                        ((NMLTYPE) 227)
 /* gap because of removed messages */
 
 #define EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG_TYPE       ((NMLTYPE) 228)

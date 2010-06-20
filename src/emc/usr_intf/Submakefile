@@ -26,7 +26,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS) #$(EMCRSHSRCS) 
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -77,13 +77,13 @@ TARGETS += ../bin/usrmot
 ../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/libemc.a ../lib/libemcini.so.0 ../lib/libnml.so.0 ../lib/libemchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ 
-TARGETS += ../bin/halui
+#TARGETS += ../bin/halui
 
 ifeq "$(HAVE_NCURSES)" "yes"
 ../bin/keystick: $(call TOOBJS, $(KEYSTICKSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(KEYSTICKLIBS)
-TARGETS += ../bin/keystick
+#TARGETS += ../bin/keystick
 endif
 
 ifeq "$(HAVE_XAW)" "yes"
@@ -91,5 +91,5 @@ $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
 ../bin/xemc: $(call TOOBJS, $(XEMCSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
-TARGETS += ../bin/xemc
+#TARGETS += ../bin/xemc
 endif

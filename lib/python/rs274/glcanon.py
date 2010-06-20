@@ -59,6 +59,24 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
         self.dwell_time = 0
         self.suppress = 0
+        self.g92_offset_x = 0.0
+        self.g92_offset_y = 0.0
+        self.g92_offset_z = 0.0
+        self.g92_offset_a = 0.0
+        self.g92_offset_b = 0.0
+        self.g92_offset_c = 0.0
+        self.g92_offset_u = 0.0
+        self.g92_offset_v = 0.0
+        self.g92_offset_w = 0.0
+        self.g5x_offset_x = 0.0
+        self.g5x_offset_y = 0.0
+        self.g5x_offset_z = 0.0
+        self.g5x_offset_a = 0.0
+        self.g5x_offset_b = 0.0
+        self.g5x_offset_c = 0.0
+        self.g5x_offset_u = 0.0
+        self.g5x_offset_v = 0.0
+        self.g5x_offset_w = 0.0
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -516,7 +534,7 @@ class GlCanonDraw:
 
         # Labels
         if self.get_show_relative():
-            offset = self.to_internal_units(s.origin)
+            offset = self.to_internal_units(s.g5x_offset + s.g92_offset)
         else:
             offset = 0, 0, 0
         if view != z and g.max_extents[z] > g.min_extents[z]:
@@ -694,12 +712,13 @@ class GlCanonDraw:
         if self.get_show_live_plot() or self.get_show_program():
 
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
-            if self.get_show_relative() and (s.origin[0] or s.origin[1] or
-                                          s.origin[2] or s.rotation_xy):
+            if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
+                                             s.g92_offset[0] or s.g92_offset[1] or s.g92_offset[2] or
+                                             s.rotation_xy):
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
                 glCallList(olist)
-                origin = self.to_internal_units(s.origin)[:3]
+                origin = self.to_internal_units(s.g5x_offset + s.g92_offset)[:3]
                 glPushMatrix()
                 glTranslatef(*origin)
                 glRotatef(s.rotation_xy, 0, 0, 1)
@@ -929,7 +948,8 @@ class GlCanonDraw:
 
             if self.get_show_relative():
                 positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
-                positions = [(i-j) for i, j in zip(positions, s.origin)]
+                positions = [(i-j) for i, j in zip(positions, s.g5x_offset)]
+                positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
 
                 t = -s.rotation_xy
                 t = math.radians(t)

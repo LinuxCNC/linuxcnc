@@ -472,6 +472,26 @@ int Interp::init()
   }
 
   k = (5200 + (_setup.origin_index * 20));
+  _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
+  _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
+  _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
+  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
+  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
+  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
+  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
+  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
+  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
+
+  SET_G5X_OFFSET(_setup.origin_offset_x ,
+                 _setup.origin_offset_y ,
+                 _setup.origin_offset_z ,
+                 _setup.AA_origin_offset,
+                 _setup.BB_origin_offset,
+                 _setup.CC_origin_offset,
+                 _setup.u_origin_offset ,
+                 _setup.v_origin_offset ,
+                 _setup.w_origin_offset);
+
   if (pars[5210]) {
       _setup.axis_offset_x = USER_TO_PROGRAM_LEN(pars[5211]);
       _setup.axis_offset_y = USER_TO_PROGRAM_LEN(pars[5212]);
@@ -482,15 +502,6 @@ int Interp::init()
       _setup.u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
       _setup.v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
       _setup.w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
-      SET_ORIGIN_OFFSETS(USER_TO_PROGRAM_LEN(pars[k + 1] + pars[5211]),
-                         USER_TO_PROGRAM_LEN(pars[k + 2] + pars[5212]), 
-                         USER_TO_PROGRAM_LEN(pars[k + 3] + pars[5213]),
-                         USER_TO_PROGRAM_ANG(pars[k + 4] + pars[5214]),
-                         USER_TO_PROGRAM_ANG(pars[k + 5] + pars[5215]),
-                         USER_TO_PROGRAM_ANG(pars[k + 6] + pars[5216]),
-                         USER_TO_PROGRAM_LEN(pars[k + 7] + pars[5217]),
-                         USER_TO_PROGRAM_LEN(pars[k + 8] + pars[5218]),
-                         USER_TO_PROGRAM_LEN(pars[k + 9] + pars[5219]));
   } else {
       _setup.axis_offset_x = 0.0;
       _setup.axis_offset_y = 0.0;
@@ -501,28 +512,21 @@ int Interp::init()
       _setup.u_axis_offset = 0.0;
       _setup.v_axis_offset = 0.0;
       _setup.w_axis_offset = 0.0;
-      SET_ORIGIN_OFFSETS(USER_TO_PROGRAM_LEN(pars[k + 1]),
-                         USER_TO_PROGRAM_LEN(pars[k + 2]), 
-                         USER_TO_PROGRAM_LEN(pars[k + 3]),
-                         USER_TO_PROGRAM_ANG(pars[k + 4]),
-                         USER_TO_PROGRAM_ANG(pars[k + 5]),
-                         USER_TO_PROGRAM_ANG(pars[k + 6]),
-                         USER_TO_PROGRAM_LEN(pars[k + 7]),
-                         USER_TO_PROGRAM_LEN(pars[k + 8]),
-                         USER_TO_PROGRAM_LEN(pars[k + 9]));
   }
+
+  SET_G92_OFFSET(_setup.axis_offset_x ,
+                 _setup.axis_offset_y ,
+                 _setup.axis_offset_z ,
+                 _setup.AA_axis_offset,
+                 _setup.BB_axis_offset,
+                 _setup.CC_axis_offset,
+                 _setup.u_axis_offset ,
+                 _setup.v_axis_offset ,
+                 _setup.w_axis_offset);
+
   _setup.rotation_xy = pars[k+10];
   SET_XY_ROTATION(pars[k+10]);
   SET_FEED_REFERENCE(CANON_XYZ);
-//_setup.Aa_current set in Interp::synch
-  _setup.AA_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 4]);
-//_setup.Bb_current set in Interp::synch
-  _setup.BB_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 5]);
-//_setup.Cc_current set in Interp::synch
-  _setup.CC_origin_offset = USER_TO_PROGRAM_ANG(pars[k + 6]);
-  _setup.u_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 7]);
-  _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
-  _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
 //_setup.active_g_codes initialized below
 //_setup.active_m_codes initialized below
 //_setup.active_settings initialized below
@@ -550,9 +554,6 @@ int Interp::init()
 //_setup.mist set in Interp::synch
   _setup.motion_mode = G_80;
 //_setup.origin_index set above
-  _setup.origin_offset_x = USER_TO_PROGRAM_LEN(pars[k + 1]);
-  _setup.origin_offset_y = USER_TO_PROGRAM_LEN(pars[k + 2]);
-  _setup.origin_offset_z = USER_TO_PROGRAM_LEN(pars[k + 3]);
 //_setup.parameters set above
 //_setup.parameter_occurrence does not need initialization
 //_setup.parameter_numbers does not need initialization

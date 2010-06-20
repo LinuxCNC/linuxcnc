@@ -973,7 +973,7 @@ Returned Value: int
       NCE_BUG_CODE_NOT_IN_G92_SERIES
 
 Side effects:
-   SET_PROGRAM_ORIGIN is called, and the coordinate
+   SET_G92_OFFSET is called, and the coordinate
    values for the axis offsets are reset. The coordinates of the
    current point are reset. Parameters may be set.
 
@@ -1081,21 +1081,15 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       settings->w_current = block->w_number;
     }
 
-    SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
-                       settings->origin_offset_y + settings->axis_offset_y,
-                       settings->origin_offset_z + settings->axis_offset_z,
-                       (settings->AA_origin_offset +
-                        settings->AA_axis_offset),
-                       (settings->BB_origin_offset +
-                        settings->BB_axis_offset),
-                       (settings->CC_origin_offset +
-                        settings->CC_axis_offset),
-                       (settings->u_origin_offset +
-                        settings->u_axis_offset),
-                       (settings->v_origin_offset +
-                        settings->v_axis_offset),
-                       (settings->w_origin_offset +
-                        settings->w_axis_offset));
+    SET_G92_OFFSET(settings->axis_offset_x,
+                   settings->axis_offset_y,
+                   settings->axis_offset_z,
+                   settings->AA_axis_offset,
+                   settings->BB_axis_offset,
+                   settings->CC_axis_offset,
+                   settings->u_axis_offset,
+                   settings->v_axis_offset,
+                   settings->w_axis_offset);
     
     pars[5211] = PROGRAM_TO_USER_LEN(settings->axis_offset_x);
     pars[5212] = PROGRAM_TO_USER_LEN(settings->axis_offset_y);
@@ -1117,14 +1111,9 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->u_current = (settings->u_current + settings->u_axis_offset);
     settings->v_current = (settings->v_current + settings->v_axis_offset);
     settings->w_current = (settings->w_current + settings->w_axis_offset);
-    SET_ORIGIN_OFFSETS(settings->origin_offset_x,
-                       settings->origin_offset_y, settings->origin_offset_z,
-                       settings->AA_origin_offset,
-                       settings->BB_origin_offset,
-                       settings->CC_origin_offset,
-                       settings->u_origin_offset,
-                       settings->v_origin_offset,
-                       settings->w_origin_offset);
+
+    SET_G92_OFFSET(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
     settings->axis_offset_x = 0.0;
     settings->axis_offset_y = 0.0;
     settings->axis_offset_z = 0.0;
@@ -1175,22 +1164,16 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->u_axis_offset = USER_TO_PROGRAM_LEN(pars[5217]);
     settings->v_axis_offset = USER_TO_PROGRAM_LEN(pars[5218]);
     settings->w_axis_offset = USER_TO_PROGRAM_LEN(pars[5219]);
-    SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
-                       settings->origin_offset_y + settings->axis_offset_y,
-                       settings->origin_offset_z + settings->axis_offset_z,
-                       (settings->AA_origin_offset +
-                        settings->AA_axis_offset),
-                       (settings->BB_origin_offset +
-                        settings->BB_axis_offset),
-                       (settings->CC_origin_offset +
-                        settings->CC_axis_offset),
-                       (settings->u_origin_offset +
-                        settings->u_axis_offset),
-                       (settings->v_origin_offset +
-                        settings->v_axis_offset),
-                       (settings->w_origin_offset +
-                        settings->w_axis_offset));
 
+    SET_G92_OFFSET(settings->axis_offset_x,
+                   settings->axis_offset_y,
+                   settings->axis_offset_z,
+                   settings->AA_axis_offset,
+                   settings->BB_axis_offset,
+                   settings->CC_axis_offset,
+                   settings->u_axis_offset,
+                   settings->v_axis_offset,
+                   settings->w_axis_offset);
   } else
     ERS(NCE_BUG_CODE_NOT_IN_G92_SERIES);
 
@@ -1644,15 +1627,26 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->w_origin_offset = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
   settings->rotation_xy = parameters[5210 + (origin * 20)];
 
-  SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
-                     settings->origin_offset_y + settings->axis_offset_y,
-                     settings->origin_offset_z + settings->axis_offset_z,
-                     settings->AA_origin_offset + settings->AA_axis_offset,
-                     settings->BB_origin_offset + settings->BB_axis_offset,
-                     settings->CC_origin_offset + settings->CC_axis_offset,
-                     settings->u_origin_offset + settings->u_axis_offset,
-                     settings->v_origin_offset + settings->v_axis_offset,
-                     settings->w_origin_offset + settings->w_axis_offset);
+  SET_G5X_OFFSET(settings->origin_offset_x,
+                 settings->origin_offset_y,
+                 settings->origin_offset_z,
+                 settings->AA_origin_offset,
+                 settings->BB_origin_offset,
+                 settings->CC_origin_offset,
+                 settings->u_origin_offset,
+                 settings->v_origin_offset,
+                 settings->w_origin_offset);
+
+  SET_G92_OFFSET(settings->axis_offset_x,
+                 settings->axis_offset_y,
+                 settings->axis_offset_z,
+                 settings->AA_axis_offset,
+                 settings->BB_axis_offset,
+                 settings->CC_axis_offset,
+                 settings->u_axis_offset,
+                 settings->v_axis_offset,
+                 settings->w_axis_offset);
+
   SET_XY_ROTATION(settings->rotation_xy);
   return INTERP_OK;
 }
@@ -3205,7 +3199,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 Returned Value: int (INTERP_OK)
 
 Side effects:
-   SET_PROGRAM_ORIGIN is called, and the coordinate
+   SET_G5X_OFFSET is called, and the coordinate
    values for the program origin are reset.
    If the program origin is currently in use, the values of the
    the coordinates of the current point are updated.
@@ -3403,15 +3397,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_current -= v;
     settings->w_current -= w;
 
-    SET_ORIGIN_OFFSETS(x + settings->axis_offset_x,
-                       y + settings->axis_offset_y,
-                       z + settings->axis_offset_z,
-                       a + settings->AA_axis_offset,
-                       b + settings->BB_axis_offset,
-                       c + settings->CC_axis_offset,
-                       u + settings->u_axis_offset,
-                       v + settings->v_axis_offset,
-                       w + settings->w_axis_offset);
+    SET_G5X_OFFSET(x, y, z, a, b, c, u, v, w);
 
     // current_xy are relative to this sytem's origin, so we can rotate directly
     rotate(&settings->current_x, &settings->current_y, settings->rotation_xy - r);
@@ -3565,8 +3551,7 @@ The following resets have been added by calling the appropriate
 canonical machining command and/or by resetting interpreter
 settings. They occur on M2 or M30.
 
-1. Axis offsets are set to zero (like g92.2) and      - SET_ORIGIN_OFFSETS
-   origin offsets are set to the default (like G54)
+1. origin offsets are set to the default (like G54)
 2. Selected plane is set to CANON_PLANE_XY (like G17) - SELECT_PLANE
 3. Distance mode is set to MODE_ABSOLUTE (like G90)   - no canonical call
 4. Feed mode is set to UNITS_PER_MINUTE (like G94)    - no canonical call
@@ -3635,15 +3620,15 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->v_current -= settings->v_origin_offset;
     settings->w_current -= settings->w_origin_offset;
 
-    SET_ORIGIN_OFFSETS(settings->origin_offset_x + settings->axis_offset_x,
-                       settings->origin_offset_y + settings->axis_offset_y,
-                       settings->origin_offset_z + settings->axis_offset_z,
-                       settings->AA_origin_offset + settings->AA_axis_offset,
-                       settings->BB_origin_offset + settings->BB_axis_offset,
-                       settings->CC_origin_offset + settings->CC_axis_offset,
-                       settings->u_origin_offset + settings->u_axis_offset,
-                       settings->v_origin_offset + settings->v_axis_offset,
-                       settings->w_origin_offset + settings->w_axis_offset);
+    SET_G5X_OFFSET(settings->origin_offset_x,
+                   settings->origin_offset_y,
+                   settings->origin_offset_z,
+                   settings->AA_origin_offset,
+                   settings->BB_origin_offset,
+                   settings->CC_origin_offset,
+                   settings->u_origin_offset,
+                   settings->v_origin_offset,
+                   settings->w_origin_offset);
     SET_XY_ROTATION(settings->rotation_xy);
 
 /*2*/ if (settings->plane != CANON_PLANE_XY) {

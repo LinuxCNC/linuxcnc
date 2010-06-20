@@ -161,9 +161,13 @@ extern void INIT_CANON();
 
 /* Representation */
 
-extern void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                               double a, double b, double c,
-                               double u, double v, double w);
+extern void SET_G5X_OFFSET(double x, double y, double z,
+                           double a, double b, double c,
+                           double u, double v, double w);
+
+extern void SET_G92_OFFSET(double x, double y, double z,
+                           double a, double b, double c,
+                           double u, double v, double w);
 
 extern void SET_XY_ROTATION(double t);
 

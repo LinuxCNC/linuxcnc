@@ -239,14 +239,27 @@ void STRAIGHT_TRAVERSE(int line_number,
     Py_XDECREF(result);
 }
 
-void SET_ORIGIN_OFFSETS(double x, double y, double z,
-                        double a, double b, double c,
-                        double u, double v, double w) {
+void SET_G5X_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
     PyObject *result =
-        PyObject_CallMethod(callback, "set_origin_offsets", "fffffffff",
+        PyObject_CallMethod(callback, "set_g5x_offset", "fffffffff",
+                            x, y, z, a, b, c, u, v, w);
+    if(result == NULL) interp_error ++;
+    Py_XDECREF(result);
+}
+
+void SET_G92_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
+    maybe_new_line();
+    if(interp_error) return;
+    PyObject *result =
+        PyObject_CallMethod(callback, "set_g92_offset", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
