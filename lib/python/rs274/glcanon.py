@@ -718,7 +718,7 @@ class GlCanonDraw:
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
                 glCallList(olist)
-                origin = self.to_internal_units(s.g5x_offset + s.g92_offset)[:3]
+                origin = self.to_internal_units([a+b for a,b in zip(s.g5x_offset, s.g92_offset)])[:3]
                 glPushMatrix()
                 glTranslatef(*origin)
                 glRotatef(s.rotation_xy, 0, 0, 1)
@@ -972,18 +972,34 @@ class GlCanonDraw:
 
             positions = self.to_internal_units(positions)
             axisdtg = self.to_internal_units(s.dtg)
+            g5x_offset = self.to_internal_units(s.g5x_offset)
+            g92_offset = self.to_internal_units(s.g92_offset)
 
             if self.get_show_metric():
                 positions = self.from_internal_units(positions, 1)
                 axisdtg = self.from_internal_units(axisdtg, 1)
-                format = "%3s:% 9.3f"
+                g5x_offset = self.from_internal_units(g5x_offset, 1)
+                g92_offset = self.from_internal_units(g92_offset, 1)
+                format = "%4s:% 9.3f"
                 droformat = format + "  DTG%1s:% 9.3f"
+                offsetformat = "G5_%1s:% 9.3f  G92%1s:% 9.3f"
             else:
-                format = "%3s:% 9.4f"
+                format = "%4s:% 9.4f"
                 droformat = format + "  DTG%1s:% 9.4f"
+                offsetformat = "G5_%1s:% 9.4f  G92%1s:% 9.4f"
 
-            posstrs = [format % j for i, j in zip(range(9), zip("XYZABCUVW", positions)) if s.axis_mask & (1<<i)]
-            droposstrs = [droformat % (j + k) for i, j, k in zip(range(9), zip("XYZABCUVW", positions), zip("XYZABCUVW", axisdtg)) if s.axis_mask & (1<<i)]
+            posstrs = []
+            droposstrs = []
+            for i in range(9):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    posstrs.append(format % (a, positions[i]))
+                    droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+
+            for i in range(9):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    droposstrs.append(offsetformat % (a, g5x_offset[i], a, g92_offset[i]))
 
             if self.is_lathe():
                 posstrs[0] = format % ("Rad", positions[0])
