@@ -422,6 +422,9 @@ extern double Rden(double u, unsigned int k,
 extern PLANE_POINT nurbs_point(double u, unsigned int k, 
                   std::vector<CONTROL_POINT> nurbs_control_points,
                   std::vector<unsigned int> knot_vector);
+extern PLANE_POINT nurbs_tangent(double u, unsigned int k,
+                  std::vector<CONTROL_POINT> nurbs_control_points,
+                  std::vector<unsigned int> knot_vector);
 extern double alpha_finder(double dx, double dy);
 
 /* Canon calls */
@@ -430,16 +433,6 @@ extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_poin
 /* Move at the feed rate along an approximation of a NURBS with a variable number
  * of control points
  */
-
-extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3);
-/* Move at the feed rate along an approximation of the cubic
- * bezier spline with control points x1y1 x2y2 and endpoint x3y3
- */
-extern void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2);
-/* Move at the feed rate along an approximation of the conic
- * spline with control point x1y1 and endpoint x2y2
- */
-
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.

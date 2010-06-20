@@ -1227,121 +1227,26 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 /* Canon calls */
 
 void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
-    double u = 0.0;
+    flush_segments();
+
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*4;
-    double dxs,dys,dxe,dye,alpha1,alpha2,alpha3,alphaM;
     std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
-    PLANE_POINT P0, P1, P2;
+    PLANE_POINT P0, P0T, P1, P1T;
 
-    P0 = nurbs_point(u,k,nurbs_control_points,knot_vector);
-    P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
+    P0 = nurbs_point(0,k,nurbs_control_points,knot_vector);
+    P0T = nurbs_tangent(0, k, nurbs_control_points, knot_vector);
 
-
-    dxs = nurbs_control_points[1].X-nurbs_control_points[0].X;
-    dys = nurbs_control_points[1].Y-nurbs_control_points[0].Y;
-    unit(&dxs,&dys);
-    u = u + umax/div;
-    while (u+umax/div <= umax) {
-        P2= nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        alpha1 = atan2(P1.Y-P0.Y, P1.X-P0.X); // starting direction
-        alpha2 = atan2(P2.Y-P1.Y, P2.X-P1.X); // ending direction
-        alpha3 = atan2(P2.Y-P0.Y, P2.X-P0.X); // direction of startpoint->endpoint vector
-
-        // direction we'd like to be going at the middle of our biarc
-        alphaM = (alpha1 + alpha2) / 2.; 
-
-        // except if we have quadrant crossing, it'll be pointing backward.
-        // this is easy to see since it's contrary to alpha3
-        if(fabs(fabs(alpha3) - fabs(alphaM)) > M_PI/4.) {
-            // so flip it
-            alphaM += M_PI;
-        }
-        dxe = cos(alphaM);
-        dye = sin(alphaM);
-        biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
-        dxs = dxe;
-        dys = dye;
+    for(unsigned int i=1; i<=div; i++) {
+	double u = umax * i / div;
+        P1 = nurbs_point(u,k,nurbs_control_points,knot_vector);
+	P1T = nurbs_tangent(u,k,nurbs_control_points,knot_vector);
+        biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
         P0 = P1;
-        P1 = P2;   
-        u = u + umax/div;      
+        P0T = P1T;
     }
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;	   
-    dxe = nurbs_control_points[n].X - nurbs_control_points[n-1].X;
-    dye = nurbs_control_points[n].Y - nurbs_control_points[n-1].Y;
-    unit(&dxe,&dye);
-    biarc(lineno, P0.X,P0.Y,dxs,dys,P1.X,P1.Y,dxe,dye);
     knot_vector.clear();
-}
-
-void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2) {
-    flush_segments();
-    CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
-    to_prog(p);
-
-    double x0 = p.x;
-    double y0 = p.y;
-    double xx0 = 2*(x1-x0), xx1 = 2*(x2-x1),
-           yy0 = 2*(y1-y0), yy1 = 2*(y2-y1),
-         ox = x0, oy = y0, odx = xx0, ody = yy0;
-
-#define N 2
-    for(int i=1; i<=N; i++) {
-      double t = i * 1. / N;
-      double u = 1. / N;
-      double t0 = (1-t)*(1-t);
-      double t1 = 2*t*(1-t);
-      double t2 = t*t;
-      double q0 = (1-t);
-      double q1 = t;
-
-perturb:
-      double x = x0*t0 + x1*t1 + x2*t2;
-      double y = y0*t0 + y1*t1 + y2*t2;
-      double dx = xx0*q0 + xx1*q1;
-      double dy = yy0*q0 + yy1*q1;
-      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
-          t = t - u; u /= -2; goto perturb;
-      }
-      ox = x; oy = y; odx = dx; ody = dy;
-    }
-}
-
-void SPLINE_FEED(int lineno, double x1, double y1, double x2, double y2, double x3, double y3) {
-    flush_segments();
-
-    CANON_POSITION p = unoffset_and_unrotate_pos(canonEndPoint);
-    to_prog(p);
-    double x0 = p.x;
-    double y0 = p.y;
-    double xx0 = 3*(x1-x0), xx1 = 3*(x2-x1), xx2 = 3*(x3-x2),
-           yy0 = 3*(y1-y0), yy1 = 3*(y2-y1), yy2 = 3*(y3-y2),
-         ox = x0, oy = y0, odx = xx0, ody = yy0;
-
-//#define N 4
-    for(int i=1; i<=N; i++) {
-      double t = i * 1. / N;
-      double u = 1. / N;
-      double t3 = t*t*t;
-      double t2 = 3*t*t*(1-t);
-      double t1 = 3*t*(1-t)*(1-t);
-      double t0 = (1-t)*(1-t)*(1-t);
-      double q0 = (1-t)*(1-t);
-      double q1 = 2*t*(1-t);
-      double q2 = t*t;
-
-perturb:
-      double x = x0*t0 + x1*t1 + x2*t2 + x3*t3;
-      double y = y0*t0 + y1*t1 + y2*t2 + y3*t3;
-      double dx = xx0*q0 + xx1*q1 + xx2*q2;
-      double dy = yy0*q0 + yy1*q1 + yy2*q2;
-      if(!biarc(lineno, ox, oy, odx, ody, x, y, dx, dy)) {
-          t = t - u; u /= -2; goto perturb;
-      }
-      ox = x; oy = y; odx = dx; ody = dy;
-    }
 }
 
 

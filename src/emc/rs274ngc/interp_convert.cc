@@ -207,7 +207,7 @@ int Interp::convert_spline(int mode,
 {
     double x1, y1, x2, y2, x3, y3;
     double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
-
+    CONTROL_POINT cp;
 
     CHKS((settings->cutter_comp_side != OFF), _("Cannot convert spline with cutter radius compensation")); // XXX
 
@@ -233,7 +233,15 @@ int Interp::convert_spline(int mode,
       y1 = settings->current_y + block->j_number;
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
-      SPLINE_FEED(block->line_number, x1,y1,x2,y2);
+      cp.W = 1;
+      cp.X = settings->current_x, cp.Y = settings->current_y;
+      nurbs_control_points.push_back(cp);
+      cp.X = x1, cp.Y = y1;
+      nurbs_control_points.push_back(cp);
+      cp.X = x2, cp.Y = y2;
+      nurbs_control_points.push_back(cp);
+      NURBS_FEED(block->line_number, nurbs_control_points, 3);
+      nurbs_control_points.clear();
       settings->current_x = x2;
       settings->current_y = y2;
     } else {
@@ -249,10 +257,22 @@ int Interp::convert_spline(int mode,
       CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
 
+      CHKS(block->p_flag != ON || block->q_flag != ON,
+	      ("Must specify both P and Q with G5"));
       x2 = x3 + block->p_number;
       y2 = y3 + block->q_number;
 
-      SPLINE_FEED(block->line_number, x1, y1, x2, y2, x3, y3);
+      cp.W = 1;
+      cp.X = settings->current_x, cp.Y = settings->current_y;
+      nurbs_control_points.push_back(cp);
+      cp.X = x1, cp.Y = y1;
+      nurbs_control_points.push_back(cp);
+      cp.X = x2, cp.Y = y2;
+      nurbs_control_points.push_back(cp);
+      cp.X = x3, cp.Y = y3;
+      nurbs_control_points.push_back(cp);
+      NURBS_FEED(block->line_number, nurbs_control_points, 4);
+      nurbs_control_points.clear();
 
       settings->cycle_i = -block->p_number;
       settings->cycle_j = -block->q_number;
@@ -1012,6 +1032,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
   CHKS((block->c_flag && settings->c_axis_wrapped && (block->c_number <= -360.0 || block->c_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
   pars = settings->parameters;
   if (g_code == G_92) {
+    pars[5210] = 1.0;
     if (block->x_flag == ON) {
       settings->axis_offset_x =
         (settings->current_x + settings->axis_offset_x - block->x_number);
@@ -1086,6 +1107,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     pars[5218] = PROGRAM_TO_USER_LEN(settings->v_axis_offset);
     pars[5219] = PROGRAM_TO_USER_LEN(settings->w_axis_offset);
   } else if ((g_code == G_92_1) || (g_code == G_92_2)) {
+    pars[5210] = 0.0;
     settings->current_x = settings->current_x + settings->axis_offset_x;
     settings->current_y = settings->current_y + settings->axis_offset_y;
     settings->current_z = settings->current_z + settings->axis_offset_z;
@@ -1124,6 +1146,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
       pars[5219] = 0.0;
     }
   } else if (g_code == G_92_3) {
+    pars[5210] = 1.0;
     settings->current_x =
       settings->current_x + settings->axis_offset_x - USER_TO_PROGRAM_LEN(pars[5211]);
     settings->current_y =

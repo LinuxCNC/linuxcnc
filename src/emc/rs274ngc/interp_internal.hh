@@ -277,6 +277,7 @@ typedef struct block_struct
   double p_number;
   ON_OFF p_flag;
   double q_number;
+  ON_OFF q_flag;
   ON_OFF r_flag;
   double r_number;
   double s_number;

@@ -396,31 +396,6 @@ std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
   _program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
 }
 
-void SPLINE_FEED(int lineno,
-double x1, double y1, double x2, double y2, double x3, double y3)
-{
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SPLINE_FEED(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n",
-  x1, y1, x2, y2, x3, y3);
-
-  _program_position_x = x3;
-  _program_position_y = y3;
-}
-
-void SPLINE_FEED(int lineno,
-double x1, double y1, double x2, double y2)
-{
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SPLINE_FEED(%.4f, %.4f, %.4f, %.4f\n",
-  x1, y1, x2, y2);
-
-  _program_position_x = x2;
-  _program_position_y = y2;
-}
-
-
 void ARC_FEED(int line_number,
  double first_end, double second_end,
  double first_axis, double second_axis, int rotation, double axis_end_point

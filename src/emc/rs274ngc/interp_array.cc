@@ -184,6 +184,7 @@ const int Interp::_required_parameters[] = {
  5181, 5182, 5183,   /* G30 home */
  5184, 5185, 5186, /* A, B, & C */
  5187, 5188, 5189, /* U, V, & W */
+ 5210, /* G92 is currently applied */
  5211, 5212, 5213,   /* G92 offsets */
  5214, 5215, 5216, /* A, B, & C */
  5217, 5218, 5219, /* U, V, & W */
