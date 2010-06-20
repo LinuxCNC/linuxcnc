@@ -122,7 +122,7 @@ extern void CANON_ERROR(const char *fmt, ...);
   Units are then converted from mm to external units, as reported by
   the GET_EXTERNAL_LENGTH_UNITS() function.
   */
-static CANON_POSITION g54Offset(0.0, 0.0, 0.0, 
+static CANON_POSITION g5xOffset(0.0, 0.0, 0.0, 
                                 0.0, 0.0, 0.0,
                                 0.0, 0.0, 0.0);
 static CANON_POSITION g92Offset(0.0, 0.0, 0.0, 
@@ -137,79 +137,6 @@ static int synched = 0;
 /* Tool length offset is saved here */
 static EmcPose currentToolOffset;
 
-static double offset_x(double x) {
-    return x + g54Offset.x + g92Offset.x + currentToolOffset.tran.x;
-}
-
-static double offset_y(double y) {
-    return y + g54Offset.y + g92Offset.y + currentToolOffset.tran.y;
-}
-
-static double offset_z(double z) {
-    return z + g54Offset.z + g92Offset.z + currentToolOffset.tran.z;
-}
-
-static double offset_a(double a) {
-    return a + g54Offset.a + g92Offset.a + currentToolOffset.a;
-}
-
-static double offset_b(double b) {
-    return b + g54Offset.b + g92Offset.b + currentToolOffset.b;
-}
-
-static double offset_c(double c) {
-    return c + g54Offset.c + g92Offset.c + currentToolOffset.c;
-}
-
-static double offset_u(double u) {
-    return u + g54Offset.u + g92Offset.u + currentToolOffset.u;
-}
-
-static double offset_v(double v) {
-    return v + g54Offset.v + g92Offset.v + currentToolOffset.v;
-}
-
-static double offset_w(double w) {
-    return w + g54Offset.w + g92Offset.w + currentToolOffset.w;
-}
-
-static double unoffset_x(double x) {
-    return x - g54Offset.x - g92Offset.x - currentToolOffset.tran.x;
-}
-
-static double unoffset_y(double y) {
-    return y - g54Offset.y - g92Offset.y - currentToolOffset.tran.y;
-}
-
-static double unoffset_z(double z) {
-    return z - g54Offset.z - g92Offset.z - currentToolOffset.tran.z;
-}
-
-static double unoffset_a(double a) {
-    return a - g54Offset.a - g92Offset.a - currentToolOffset.a;
-}
-
-static double unoffset_b(double b) {
-    return b - g54Offset.b - g92Offset.b - currentToolOffset.b;
-}
-
-static double unoffset_c(double c) {
-    return c - g54Offset.c - g92Offset.c - currentToolOffset.c;
-}
-
-static double unoffset_u(double u) {
-    return u - g54Offset.u - g92Offset.u - currentToolOffset.u;
-}
-
-static double unoffset_v(double v) {
-    return v - g54Offset.v - g92Offset.v - currentToolOffset.v;
-}
-
-static double unoffset_w(double w) {
-    return w - g54Offset.w - g92Offset.w - currentToolOffset.w;
-}
-
-
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
 #endif
@@ -223,46 +150,94 @@ static void rotate(double &x, double &y, double theta) {
 }
 
 static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
+
+    x += g92Offset.x;
+    y += g92Offset.y;
+    z += g92Offset.z;
+    a += g92Offset.a;
+    b += g92Offset.b;
+    c += g92Offset.c;
+    u += g92Offset.u;
+    v += g92Offset.v;
+    w += g92Offset.w;
+
     rotate(x, y, xy_rotation);
-    x = offset_x(x);
-    y = offset_y(y);
-    z = offset_z(z);
-    a = offset_a(a);
-    b = offset_b(b);
-    c = offset_c(c);
-    u = offset_u(u);
-    v = offset_v(v);
-    w = offset_w(w);
+
+    x += g5xOffset.x;
+    y += g5xOffset.y;
+    z += g5xOffset.z;
+    a += g5xOffset.a;
+    b += g5xOffset.b;
+    c += g5xOffset.c;
+    u += g5xOffset.u;
+    v += g5xOffset.v;
+    w += g5xOffset.w;
+
+    x += currentToolOffset.tran.x;
+    y += currentToolOffset.tran.y;
+    x += currentToolOffset.tran.z;
+    a += currentToolOffset.a;
+    b += currentToolOffset.b;
+    c += currentToolOffset.c;
+    u += currentToolOffset.u;
+    v += currentToolOffset.v;
+    w += currentToolOffset.w;
 }
 
 static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
     CANON_POSITION res;
-    res.x = unoffset_x(pos.x);
-    res.y = unoffset_y(pos.y);
+
+    res = pos;
+
+    res.x -= currentToolOffset.tran.x;
+    res.y -= currentToolOffset.tran.y;
+    res.z -= currentToolOffset.tran.z;
+    res.a -= currentToolOffset.a;
+    res.b -= currentToolOffset.b;
+    res.c -= currentToolOffset.c;
+    res.u -= currentToolOffset.u;
+    res.v -= currentToolOffset.v;
+    res.w -= currentToolOffset.w;
+    
+    res.x -= g5xOffset.x;
+    res.y -= g5xOffset.y;
+    res.z -= g5xOffset.z;
+    res.a -= g5xOffset.a;
+    res.b -= g5xOffset.b;
+    res.c -= g5xOffset.c;
+    res.u -= g5xOffset.u;
+    res.v -= g5xOffset.v;
+    res.w -= g5xOffset.w;
+
     rotate(res.x, res.y, -xy_rotation);
-    res.z = unoffset_z(pos.z);
-    res.a = unoffset_a(pos.a);
-    res.b = unoffset_b(pos.b);
-    res.c = unoffset_c(pos.c);
-    res.u = unoffset_u(pos.u);
-    res.v = unoffset_v(pos.v);
-    res.w = unoffset_w(pos.w);
+
+    res.x -= g92Offset.x;
+    res.y -= g92Offset.y;
+    res.z -= g92Offset.z;
+    res.a -= g92Offset.a;
+    res.b -= g92Offset.b;
+    res.c -= g92Offset.c;
+    res.u -= g92Offset.u;
+    res.v -= g92Offset.v;
+    res.w -= g92Offset.w;
+
     return res;
 }
 
+
 static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
     CANON_POSITION res;
-    res.x = unoffset_x(pos.tran.x);
-    res.y = unoffset_y(pos.tran.y);
-    rotate(res.x, res.y, -xy_rotation);
-    res.z = unoffset_z(pos.tran.z);
-    res.a = unoffset_a(pos.a);
-    res.b = unoffset_b(pos.b);
-    res.c = unoffset_c(pos.c);
-    res.u = unoffset_u(pos.u);
-    res.v = unoffset_v(pos.v);
-    res.w = unoffset_w(pos.w);
-    return res;
+    res.x = pos.tran.x;
+    res.y = pos.tran.y;
+    res.z = pos.tran.z;
+    res.a = pos.a;
+    res.b = pos.b;
+    res.c = pos.c;
+    res.u = pos.u;
+    res.v = pos.v;
+    res.w = pos.w;
+
+    return unoffset_and_unrotate_pos(res);
 }
 
 // for c in "xyzabcuvw": print "    %s = offset_%s(%s)" % (c,c,c)
@@ -421,23 +396,23 @@ static void send_g5x_msg(void) {
        read-ahead time */
     EMC_TRAJ_SET_G5X set_g5x_msg;
 
-    set_g5x_msg.origin.tran.x = TO_EXT_LEN(g54Offset.x);
-    set_g5x_msg.origin.tran.y = TO_EXT_LEN(g54Offset.y);
-    set_g5x_msg.origin.tran.z = TO_EXT_LEN(g54Offset.z);
+    set_g5x_msg.origin.tran.x = TO_EXT_LEN(g5xOffset.x);
+    set_g5x_msg.origin.tran.y = TO_EXT_LEN(g5xOffset.y);
+    set_g5x_msg.origin.tran.z = TO_EXT_LEN(g5xOffset.z);
 
-    set_g5x_msg.origin.a = TO_EXT_ANG(g54Offset.a);
-    set_g5x_msg.origin.b = TO_EXT_ANG(g54Offset.b);
-    set_g5x_msg.origin.c = TO_EXT_ANG(g54Offset.c);
+    set_g5x_msg.origin.a = TO_EXT_ANG(g5xOffset.a);
+    set_g5x_msg.origin.b = TO_EXT_ANG(g5xOffset.b);
+    set_g5x_msg.origin.c = TO_EXT_ANG(g5xOffset.c);
 
-    set_g5x_msg.origin.u = TO_EXT_LEN(g54Offset.u);
-    set_g5x_msg.origin.v = TO_EXT_LEN(g54Offset.v);
-    set_g5x_msg.origin.w = TO_EXT_LEN(g54Offset.w);
+    set_g5x_msg.origin.u = TO_EXT_LEN(g5xOffset.u);
+    set_g5x_msg.origin.v = TO_EXT_LEN(g5xOffset.v);
+    set_g5x_msg.origin.w = TO_EXT_LEN(g5xOffset.w);
 
     if(css_maximum) {
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_g5x_msg);
@@ -466,7 +441,7 @@ static void send_g92_msg(void) {
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_g92_msg);
@@ -495,17 +470,17 @@ void SET_G5X_OFFSET(double x, double y, double z,
     v = FROM_PROG_LEN(v);
     w = FROM_PROG_LEN(w);
 
-    g54Offset.x = x;
-    g54Offset.y = y;
-    g54Offset.z = z;
+    g5xOffset.x = x;
+    g5xOffset.y = y;
+    g5xOffset.z = z;
     
-    g54Offset.a = a;
-    g54Offset.b = b;
-    g54Offset.c = c;
+    g5xOffset.a = a;
+    g5xOffset.b = b;
+    g5xOffset.c = c;
 
-    g54Offset.u = u;
-    g54Offset.v = v;
-    g54Offset.w = w;
+    g5xOffset.u = u;
+    g5xOffset.v = v;
+    g5xOffset.w = w;
 
     send_g5x_msg();
 }
@@ -1332,12 +1307,16 @@ void ARC_FEED(int line_number,
     get_last_pos(lx, ly, lz);
 
     // XXX rotation?
+#if 0
     if( (activePlane == CANON_PLANE_XY)
             && canonMotionMode == CANON_CONTINUOUS
             && chord_deviation(lx, ly,
                 offset_x(FROM_PROG_LEN(first_end)), offset_y(FROM_PROG_LEN(second_end)),
                 offset_x(FROM_PROG_LEN(first_axis)), offset_y(FROM_PROG_LEN(second_axis)),
                 rotation, mx, my) < canonNaivecamTolerance) {
+#else
+    if(0) {
+#endif
         double x=FROM_PROG_LEN(first_end), y=FROM_PROG_LEN(second_end), z=FROM_PROG_LEN(axis_end_point);
         rotate_and_offset_pos(x, y, z, a, b, c, u, v, w);
         see_segment(line_number, mx, my,
@@ -1683,7 +1662,7 @@ void START_SPINDLE_CLOCKWISE()
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed * TO_EXT_LEN(1);
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1704,7 +1683,7 @@ void START_SPINDLE_COUNTERCLOCKWISE()
 	    css_numerator = -1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_on_msg.speed = css_maximum;
 	emc_spindle_on_msg.factor = css_numerator;
-	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_on_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_on_msg.speed = -spindleSpeed;
 	css_numerator = 0;
@@ -1730,7 +1709,7 @@ void SET_SPINDLE_SPEED(double r)
 	    css_numerator = 1000 / (2 * M_PI) * spindleSpeed;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
     } else {
 	emc_spindle_speed_msg.speed = spindleSpeed;
 	css_numerator = 0;
@@ -1827,7 +1806,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 	EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 	emc_spindle_speed_msg.speed = css_maximum;
 	emc_spindle_speed_msg.factor = css_numerator;
-	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g54Offset.x + g92Offset.x + currentToolOffset.tran.x);
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(g5xOffset.x + g92Offset.x + currentToolOffset.tran.x);
 	interp_list.append(emc_spindle_speed_msg);
     }
     interp_list.append(set_offset_msg);
@@ -2290,15 +2269,15 @@ void INIT_CANON()
     chained_points().clear();
 
     // initialize locals to original values
-    g54Offset.x = 0.0;
-    g54Offset.y = 0.0;
-    g54Offset.z = 0.0;
-    g54Offset.a = 0.0;
-    g54Offset.b = 0.0;
-    g54Offset.c = 0.0;
-    g54Offset.u = 0.0;
-    g54Offset.v = 0.0;
-    g54Offset.w = 0.0;
+    g5xOffset.x = 0.0;
+    g5xOffset.y = 0.0;
+    g5xOffset.z = 0.0;
+    g5xOffset.a = 0.0;
+    g5xOffset.b = 0.0;
+    g5xOffset.c = 0.0;
+    g5xOffset.u = 0.0;
+    g5xOffset.v = 0.0;
+    g5xOffset.w = 0.0;
     g92Offset.x = 0.0;
     g92Offset.y = 0.0;
     g92Offset.z = 0.0;
