@@ -181,10 +181,10 @@ void SerialSend( char *Buff, int BuffLength )
 		write(fd,Buff,BuffLength);
 		if ( ModbusDebugLevel>=2 )
 			printf("Writing done!\n");
+		// wait until everything has been transmitted
+		tcdrain( fd );
 		if ( ModbusSerialUseRtsToSend )
 		{
-			// wait until everything has been transmitted
-			tcdrain( fd );
 			SerialSetRTS( 0 );
 		}
 	}
