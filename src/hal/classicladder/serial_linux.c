@@ -203,7 +203,7 @@ void SerialSetResponseSize( int Size, int TimeOutResp )
 	}
 }
 
-int SerialReceive( char * Buff, int MaxBuffLength )//, int TimeOutResp )
+int SerialReceive( char * Buff, int MaxBuffLength, int TimeOutResp )
 {
 	int NbrCarsReceived = 0;
 	if ( PortIsOpened )
@@ -216,8 +216,8 @@ struct timeval tv;
 FD_ZERO( &myset);
 // add descrip to survey and set time-out wanted !
 FD_SET( fd, &myset );
-tv.tv_sec = 0; //seconds
-tv.tv_usec = newtio.c_cc[VTIME]*100 *1000; //micro-seconds
+tv.tv_sec = TimeOutResp / 1000; //seconds
+tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
 if ( ModbusDebugLevel>=3 )
 	printf("select() for serial reading...\n");
 recep_descrip = select( 16, &myset, NULL, NULL, &tv );
