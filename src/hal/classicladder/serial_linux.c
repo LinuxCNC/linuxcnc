@@ -196,7 +196,7 @@ void SerialSetResponseSize( int Size, int TimeOutResp )
 	if ( PortIsOpened )
 	{
 	        newtio.c_cc[VMIN] = Size; //Nbr chars we should receive;
-		newtio.c_cc[VTIME] = TimeOutResp/100; // TimeOut in 0.1s
+		newtio.c_cc[VTIME] = 1;
 //		tcflush(fd, TCIFLUSH);
 		if ( ModbusDebugLevel>=2 )
 			printf("Serial config...\n");
