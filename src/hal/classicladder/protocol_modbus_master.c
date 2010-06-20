@@ -589,10 +589,10 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 			// Modbus/RTU on serial used ?
 			if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 			{
-				unsigned short CalcCRC = CRC16( &Response[ 0 ], LgtResponse-2 ) ;
+				unsigned short CalcCRC = CRC16( &Response[ 0 ], LgtResponse ) ;
 				OffsetHeader = 1; // slave address
 				// verify CRC
-				if( CalcCRC==( (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] ) )
+				if( CalcCRC==0 )
 				{
 					LgtResponse = LgtResponse-2;
 					// verify number of slave which has responded
