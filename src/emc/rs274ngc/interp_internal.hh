@@ -413,9 +413,9 @@ typedef struct setup_struct
   ON_OFF mist;                  // whether mist coolant is on
   int motion_mode;              // active G-code for motion
   int origin_index;             // active origin (1=G54 to 9=G59.3)
-  double origin_offset_x;       // origin offset x
-  double origin_offset_y;       // origin offset y
-  double origin_offset_z;       // origin offset z
+  double origin_offset_x;       // g5x offset x
+  double origin_offset_y;       // g5x offset y
+  double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
   double parameters[RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
