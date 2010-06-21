@@ -140,7 +140,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         l += [self.lo[3], self.lo[4], self.lo[5],
                self.lo[6], self.lo[7], self.lo[8]]
         self.feed_append((self.lineno, self.lo, l, self.feedrate, [self.xo, self.yo, self.zo]))
-        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
+#        self.dwells_append((self.lineno, self.colors['dwell'], x + self.offset_x, y + self.offset_y, z + self.offset_z, 0))
         self.feed_append((self.lineno, l, self.lo, self.feedrate, [self.xo, self.yo, self.zo]))
 
     def arc_feed(self, *args):
@@ -951,7 +951,6 @@ class GlCanonDraw:
             if self.get_show_relative():
                 positions = [(i-j) for i, j in zip(positions, s.tool_offset)]
                 positions = [(i-j) for i, j in zip(positions, s.g5x_offset)]
-                positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
 
                 t = -s.rotation_xy
                 t = math.radians(t)
@@ -959,6 +958,7 @@ class GlCanonDraw:
                 y = positions[1]
                 positions[0] = x * math.cos(t) - y * math.sin(t)
                 positions[1] = x * math.sin(t) + y * math.cos(t)
+                positions = [(i-j) for i, j in zip(positions, s.g92_offset)]
 
             if self.get_a_axis_wrapped():
                 positions[3] = math.fmod(positions[3], 360.0)
