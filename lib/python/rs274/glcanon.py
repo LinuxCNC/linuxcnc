@@ -718,10 +718,12 @@ class GlCanonDraw:
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
                 glCallList(olist)
-                origin = self.to_internal_units([a+b for a,b in zip(s.g5x_offset, s.g92_offset)])[:3]
+                g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
+                g92_offset = self.to_internal_units(s.g92_offset)[:3]
                 glPushMatrix()
-                glTranslatef(*origin)
+                glTranslatef(*g5x_offset)
                 glRotatef(s.rotation_xy, 0, 0, 1)
+                glTranslatef(*g92_offset)
                 glCallList(alist)
                 glPopMatrix()
             else:
