@@ -844,7 +844,7 @@ static void rotate(double &x, double &y, double c, double s) {
 static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     PyObject *canon;
     double x1, y1, cx, cy, z1, a, b, c, u, v, w;
-    double o[9], n[9], offset[9];
+    double o[9], n[9], g5xoffset[9], g92offset[9];
     int rot, plane;
     int X, Y, Z;
     double rotation_cos, rotation_sin;
@@ -858,15 +858,24 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     if(!get_attr(canon, "plane", &plane)) return NULL;
     if(!get_attr(canon, "rotation_cos", &rotation_cos)) return NULL;
     if(!get_attr(canon, "rotation_sin", &rotation_sin)) return NULL;
-    if(!get_attr(canon, "offset_x", &offset[0])) return NULL;
-    if(!get_attr(canon, "offset_y", &offset[1])) return NULL;
-    if(!get_attr(canon, "offset_z", &offset[2])) return NULL;
-    if(!get_attr(canon, "offset_a", &offset[3])) return NULL;
-    if(!get_attr(canon, "offset_b", &offset[4])) return NULL;
-    if(!get_attr(canon, "offset_c", &offset[5])) return NULL;
-    if(!get_attr(canon, "offset_u", &offset[6])) return NULL;
-    if(!get_attr(canon, "offset_v", &offset[7])) return NULL;
-    if(!get_attr(canon, "offset_w", &offset[8])) return NULL;
+    if(!get_attr(canon, "g5x_offset_x", &g5xoffset[0])) return NULL;
+    if(!get_attr(canon, "g5x_offset_y", &g5xoffset[1])) return NULL;
+    if(!get_attr(canon, "g5x_offset_z", &g5xoffset[2])) return NULL;
+    if(!get_attr(canon, "g5x_offset_a", &g5xoffset[3])) return NULL;
+    if(!get_attr(canon, "g5x_offset_b", &g5xoffset[4])) return NULL;
+    if(!get_attr(canon, "g5x_offset_c", &g5xoffset[5])) return NULL;
+    if(!get_attr(canon, "g5x_offset_u", &g5xoffset[6])) return NULL;
+    if(!get_attr(canon, "g5x_offset_v", &g5xoffset[7])) return NULL;
+    if(!get_attr(canon, "g5x_offset_w", &g5xoffset[8])) return NULL;
+    if(!get_attr(canon, "g92_offset_x", &g92offset[0])) return NULL;
+    if(!get_attr(canon, "g92_offset_y", &g92offset[1])) return NULL;
+    if(!get_attr(canon, "g92_offset_z", &g92offset[2])) return NULL;
+    if(!get_attr(canon, "g92_offset_a", &g92offset[3])) return NULL;
+    if(!get_attr(canon, "g92_offset_b", &g92offset[4])) return NULL;
+    if(!get_attr(canon, "g92_offset_c", &g92offset[5])) return NULL;
+    if(!get_attr(canon, "g92_offset_u", &g92offset[6])) return NULL;
+    if(!get_attr(canon, "g92_offset_v", &g92offset[7])) return NULL;
+    if(!get_attr(canon, "g92_offset_w", &g92offset[8])) return NULL;
 
     if(plane == 1) {
         X=0; Y=1; Z=2;
@@ -884,8 +893,9 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     n[6] = u;
     n[7] = v;
     n[8] = w;
-    for(int ax=0; ax<9; ax++) o[ax] -= offset[ax];
+    for(int ax=0; ax<9; ax++) o[ax] -= g5xoffset[ax];
     unrotate(o[0], o[1], rotation_cos, rotation_sin);
+    for(int ax=0; ax<9; ax++) o[ax] -= g92offset[ax];
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
@@ -918,13 +928,15 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
         p[6] = o[6] + d[6] * f;
         p[7] = o[7] + d[7] * f;
         p[8] = o[8] + d[8] * f;
+        for(int ax=0; ax<9; ax++) p[ax] += g92offset[ax];
         rotate(p[0], p[1], rotation_cos, rotation_sin);
-        for(int ax=0; ax<9; ax++) p[ax] += offset[ax];
+        for(int ax=0; ax<9; ax++) p[ax] += g5xoffset[ax];
         PyList_SET_ITEM(segs, i,
             Py_BuildValue("ddddddddd", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]));
     }
+    for(int ax=0; ax<9; ax++) n[ax] += g92offset[ax];
     rotate(n[0], n[1], rotation_cos, rotation_sin);
-    for(int ax=0; ax<9; ax++) n[ax] += offset[ax];
+    for(int ax=0; ax<9; ax++) n[ax] += g5xoffset[ax];
     PyList_SET_ITEM(segs, steps-1,
         Py_BuildValue("ddddddddd", n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8]));
     return segs;

@@ -18,14 +18,32 @@ import math, gcode
 
 class Translated:
     def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
+        x += self.g92_offset_x
+        y += self.g92_offset_y
+        z += self.g92_offset_z
+        a += self.g92_offset_a
+        b += self.g92_offset_b
+        c += self.g92_offset_c
+        u += self.g92_offset_u
+        v += self.g92_offset_v
+        w += self.g92_offset_w
+        
         if self.rotation_xy:
             rotx = x * self.rotation_cos - y * self.rotation_sin
             y = x * self.rotation_sin + y * self.rotation_cos
             x = rotx
 
-        return [x+self.offset_x, y+self.offset_y, z+self.offset_z,
-                a+self.offset_a, b+self.offset_b, c+self.offset_c,
-                u+self.offset_u, v+self.offset_v, w+self.offset_w]
+        x += self.g5x_offset_x
+        y += self.g5x_offset_y
+        z += self.g5x_offset_z
+        a += self.g5x_offset_a
+        b += self.g5x_offset_b
+        c += self.g5x_offset_c
+        u += self.g5x_offset_u
+        v += self.g5x_offset_v
+        w += self.g5x_offset_w
+
+        return [x, y, z, a, b, c, u, v, w]
 
     def straight_traverse(self, *args):
         self.straight_traverse_translated(*self.rotate_and_translate(*args))
@@ -41,15 +59,6 @@ class Translated:
         self.g5x_offset_u = u
         self.g5x_offset_v = v
         self.g5x_offset_w = w
-        self.offset_x = self.g5x_offset_x + self.g92_offset_x
-        self.offset_y = self.g5x_offset_y + self.g92_offset_y
-        self.offset_z = self.g5x_offset_z + self.g92_offset_z
-        self.offset_a = self.g5x_offset_a + self.g92_offset_a
-        self.offset_b = self.g5x_offset_b + self.g92_offset_b
-        self.offset_c = self.g5x_offset_c + self.g92_offset_c
-        self.offset_u = self.g5x_offset_u + self.g92_offset_u
-        self.offset_v = self.g5x_offset_v + self.g92_offset_v
-        self.offset_w = self.g5x_offset_w + self.g92_offset_w
     def set_g92_offset(self, x, y, z, a, b, c, u=None, v=None, w=None):
         self.g92_offset_x = x
         self.g92_offset_y = y
@@ -60,15 +69,6 @@ class Translated:
         self.g92_offset_u = u
         self.g92_offset_v = v
         self.g92_offset_w = w
-        self.offset_x = self.g5x_offset_x + self.g92_offset_x
-        self.offset_y = self.g5x_offset_y + self.g92_offset_y
-        self.offset_z = self.g5x_offset_z + self.g92_offset_z
-        self.offset_a = self.g5x_offset_a + self.g92_offset_a
-        self.offset_b = self.g5x_offset_b + self.g92_offset_b
-        self.offset_c = self.g5x_offset_c + self.g92_offset_c
-        self.offset_u = self.g5x_offset_u + self.g92_offset_u
-        self.offset_v = self.g5x_offset_v + self.g92_offset_v
-        self.offset_w = self.g5x_offset_w + self.g92_offset_w
     def set_xy_rotation(self, theta):
         self.rotation_xy = theta
         t = math.radians(theta)
