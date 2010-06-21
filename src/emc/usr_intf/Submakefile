@@ -57,7 +57,7 @@ TARGETS += ../tcl/emc.so
 ../bin/emcrsh: $(call TOOBJS, $(EMCRSHSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lpthread
-TARGETS += ../bin/emcrsh
+#TARGETS += ../bin/emcrsh
 
 ../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) ../lib/libemc.a ../lib/libnml.so.0 ../lib/libemcini.so.0
 	$(ECHO) Linking $(notdir $@)
