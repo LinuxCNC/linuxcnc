@@ -983,12 +983,12 @@ class GlCanonDraw:
                 g5x_offset = self.from_internal_units(g5x_offset, 1)
                 g92_offset = self.from_internal_units(g92_offset, 1)
                 format = "%4s:% 9.3f"
-                droformat = format + "  DTG%1s:% 9.3f"
-                offsetformat = "G5_%1s:% 9.3f  G92%1s:% 9.3f"
+                droformat = " " + format + "  DTG %1s:% 9.3f"
+                offsetformat = "G5x %1s:% 9.3f  G92 %1s:% 9.3f"
             else:
                 format = "%4s:% 9.4f"
-                droformat = format + "  DTG%1s:% 9.4f"
-                offsetformat = "G5_%1s:% 9.4f  G92%1s:% 9.4f"
+                droformat = " " + format + "  DTG %1s:% 9.4f"
+                offsetformat = "G5x %1s:% 9.4f  G92 %1s:% 9.4f"
 
             posstrs = []
             droposstrs = []
@@ -997,6 +997,8 @@ class GlCanonDraw:
                 if s.axis_mask & (1<<i):
                     posstrs.append(format % (a, positions[i]))
                     droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+
+            droposstrs.append("")
 
             for i in range(9):
                 a = "XYZABCUVW"[i]
