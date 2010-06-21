@@ -64,12 +64,12 @@ char SerialOpen( char * SerialPortName, int Speed )
 		int BaudRate = -1;
 		int ScanBaudRate = 0;
 		fcntl(fd, F_SETFL, O_RDWR | O_NOCTTY ); /* perform blocking reads */
-		while( SerialSpeed[ ScanBaudRate ]!=Speed && SerialSpeed[ ScanBaudRate ]>=0 )
+		for(ScanBaudRate = 0; SerialSpeed[ScanBaudRate]; ScanBaudRate++)
 		{
-			ScanBaudRate++;
 			if ( SerialSpeed[ ScanBaudRate ]==Speed )
 			{
 				BaudRate = SerialCorres[ ScanBaudRate ];
+				break;
 			}
 		}
 switch (ModbusSerialDataBits)
