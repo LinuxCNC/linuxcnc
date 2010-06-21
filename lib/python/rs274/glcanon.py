@@ -720,11 +720,43 @@ class GlCanonDraw:
                 glCallList(olist)
                 g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
+
                 glPushMatrix()
+
+                glBegin(GL_LINES)
+                glVertex3f(0,0,0)
+                glVertex3f(*g5x_offset)
+                glEnd()
+
+                if g5x_offset[0] or g5x_offset[1] or g5x_offset[2]:
+                    glPushMatrix()
+                    glScalef(0.2,0.2,0.2)
+                    g5xrot=math.atan2(g5x_offset[1], g5x_offset[0])
+                    glRotatef(math.degrees(g5xrot), 0, 0, 1)
+                    glTranslatef(0.5, 0.5, 0)
+                    self.hershey.plot_string("5X", 0.1)
+                    glPopMatrix()
+
                 glTranslatef(*g5x_offset)
                 glRotatef(s.rotation_xy, 0, 0, 1)
+
+                glBegin(GL_LINES)
+                glVertex3f(0,0,0)
+                glVertex3f(*g92_offset)
+                glEnd()
+                
+                if g92_offset[0] or g92_offset[1] or g92_offset[2]:
+                    glPushMatrix()
+                    glScalef(0.2,0.2,0.2)
+                    g92rot=math.atan2(g92_offset[1], g92_offset[0])
+                    glRotatef(math.degrees(g92rot), 0, 0, 1)
+                    glTranslatef(0.5, 0.5, 0)
+                    self.hershey.plot_string("92", 0.1)
+                    glPopMatrix()
+
                 glTranslatef(*g92_offset)
                 glCallList(alist)
+
                 glPopMatrix()
             else:
                 glCallList(alist)
