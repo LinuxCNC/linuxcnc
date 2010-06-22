@@ -283,15 +283,15 @@ class emc_status:
                 else:
                         p = self.emcstat.position
 
-                x = p[0] - self.emcstat.origin[0] - self.emcstat.tool_offset[0]
-                y = p[1] - self.emcstat.origin[1]
-                z = p[2] - self.emcstat.origin[2] - self.emcstat.tool_offset[2]
-                a = p[3] - self.emcstat.origin[3]
-                b = p[4] - self.emcstat.origin[4]
-                c = p[5] - self.emcstat.origin[5]
-                u = p[6] - self.emcstat.origin[6]
-                v = p[7] - self.emcstat.origin[7]
-                w = p[8] - self.emcstat.origin[8] - self.emcstat.tool_offset[8]
+                x = p[0] - self.emcstat.g5x_offset[0] - self.emcstat.g92_offset[0] - self.emcstat.tool_offset[0]
+                y = p[1] - self.emcstat.g5x_offset[1] - self.emcstat.g92_offset[1] - self.emcstat.tool_offset[1]
+                z = p[2] - self.emcstat.g5x_offset[2] - self.emcstat.g92_offset[2] - self.emcstat.tool_offset[2]
+                a = p[3] - self.emcstat.g5x_offset[3] - self.emcstat.g92_offset[3] - self.emcstat.tool_offset[3]
+                b = p[4] - self.emcstat.g5x_offset[4] - self.emcstat.g92_offset[4] - self.emcstat.tool_offset[4]
+                c = p[5] - self.emcstat.g5x_offset[5] - self.emcstat.g92_offset[5] - self.emcstat.tool_offset[5]
+                u = p[6] - self.emcstat.g5x_offset[6] - self.emcstat.g92_offset[6] - self.emcstat.tool_offset[6]
+                v = p[7] - self.emcstat.g5x_offset[7] - self.emcstat.g92_offset[7] - self.emcstat.tool_offset[7]
+                w = p[8] - self.emcstat.g5x_offset[8] - self.emcstat.g92_offset[8] - self.emcstat.tool_offset[8]
                 t = math.radians(-self.emcstat.rotation_xy)
                 relp = [x * math.cos(t) - y * math.sin(t), x * math.sin(t) + y * math.cos(t), z, a, b, c, u, v, w]
 
