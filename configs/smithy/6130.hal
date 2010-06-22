@@ -42,17 +42,20 @@ setp hm2_5i20.0.pwmgen.00.scale 3000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 setp hm2_5i20.0.pwmgen.pwm_frequency 100
 
+# invert the step pulse polarity
+setp hm2_5i20.0.gpio.000.invert_output TRUE
+setp hm2_5i20.0.gpio.002.invert_output TRUE
+
 # configure the stepgen parameters
-# Need to try changing dirsetup to 2500 & dirhold to 2500.
 setp hm2_5i20.0.stepgen.00.dirsetup        10000
-setp hm2_5i20.0.stepgen.00.dirhold         125
+setp hm2_5i20.0.stepgen.00.dirhold         2500
 setp hm2_5i20.0.stepgen.00.steplen         2500
 setp hm2_5i20.0.stepgen.00.stepspace       2500
 setp hm2_5i20.0.stepgen.00.position-scale  [AXIS_0]SCALE
 setp hm2_5i20.0.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAXACCEL
 setp hm2_5i20.0.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAXVEL
 setp hm2_5i20.0.stepgen.01.dirsetup        10000
-setp hm2_5i20.0.stepgen.01.dirhold         125
+setp hm2_5i20.0.stepgen.01.dirhold         2500
 setp hm2_5i20.0.stepgen.01.steplen         2500
 setp hm2_5i20.0.stepgen.01.stepspace       2500
 setp hm2_5i20.0.stepgen.01.position-scale  [AXIS_2]SCALE
