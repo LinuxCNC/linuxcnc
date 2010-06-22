@@ -402,8 +402,16 @@ static PyObject *pose(const EmcPose &p) {
     return res;
 }
 
-static PyObject *Stat_origin(pyStatChannel *s) {
-    return pose(s->status.task.origin);
+static PyObject *Stat_g5x_index(pyStatChannel *s) {
+    return PyInt_FromLong(s->status.task.g5x_index);
+}
+
+static PyObject *Stat_g5x_offset(pyStatChannel *s) {
+    return pose(s->status.task.g5x_offset);
+}
+
+static PyObject *Stat_g92_offset(pyStatChannel *s) {
+    return pose(s->status.task.g92_offset);
 }
 
 static PyObject *Stat_tool_offset(pyStatChannel *s) {
@@ -613,7 +621,9 @@ static PyGetSetDef Stat_getsetlist[] = {
     {"homed", (getter)Stat_homed},
     {"limit", (getter)Stat_limit},
     {"mcodes", (getter)Stat_activemcodes},
-    {"origin", (getter)Stat_origin},
+    {"g5x_offset", (getter)Stat_g5x_offset},
+    {"g5x_index", (getter)Stat_g5x_index},
+    {"g92_offset", (getter)Stat_g92_offset},
     {"position", (getter)Stat_position},
     {"dtg", (getter)Stat_dtg},
     {"joint_position", (getter)Stat_joint_position},

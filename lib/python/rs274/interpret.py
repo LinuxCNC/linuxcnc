@@ -18,29 +18,58 @@ import math, gcode
 
 class Translated:
     def rotate_and_translate(self, x,y,z,a,b,c,u,v,w):
+        x += self.g92_offset_x
+        y += self.g92_offset_y
+        z += self.g92_offset_z
+        a += self.g92_offset_a
+        b += self.g92_offset_b
+        c += self.g92_offset_c
+        u += self.g92_offset_u
+        v += self.g92_offset_v
+        w += self.g92_offset_w
+        
         if self.rotation_xy:
             rotx = x * self.rotation_cos - y * self.rotation_sin
             y = x * self.rotation_sin + y * self.rotation_cos
             x = rotx
 
-        return [x+self.offset_x, y+self.offset_y, z+self.offset_z,
-                a+self.offset_a, b+self.offset_b, c+self.offset_c,
-                u+self.offset_u, v+self.offset_v, w+self.offset_w]
+        x += self.g5x_offset_x
+        y += self.g5x_offset_y
+        z += self.g5x_offset_z
+        a += self.g5x_offset_a
+        b += self.g5x_offset_b
+        c += self.g5x_offset_c
+        u += self.g5x_offset_u
+        v += self.g5x_offset_v
+        w += self.g5x_offset_w
+
+        return [x, y, z, a, b, c, u, v, w]
 
     def straight_traverse(self, *args):
         self.straight_traverse_translated(*self.rotate_and_translate(*args))
     def straight_feed(self, *args):
         self.straight_feed_translated(*self.rotate_and_translate(*args))
-    def set_origin_offsets(self, offset_x, offset_y, offset_z, offset_a, offset_b, offset_c, offset_u=None, offset_v=None, offset_w=None):
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.offset_z = offset_z
-        self.offset_a = offset_a
-        self.offset_b = offset_b
-        self.offset_c = offset_c
-        self.offset_u = offset_u
-        self.offset_v = offset_v
-        self.offset_w = offset_w
+    def set_g5x_offset(self, index, x, y, z, a, b, c, u=None, v=None, w=None):
+        self.g5x_index = index
+        self.g5x_offset_x = x
+        self.g5x_offset_y = y
+        self.g5x_offset_z = z
+        self.g5x_offset_a = a
+        self.g5x_offset_b = b
+        self.g5x_offset_c = c
+        self.g5x_offset_u = u
+        self.g5x_offset_v = v
+        self.g5x_offset_w = w
+    def set_g92_offset(self, x, y, z, a, b, c, u=None, v=None, w=None):
+        self.g92_offset_x = x
+        self.g92_offset_y = y
+        self.g92_offset_z = z
+        self.g92_offset_a = a
+        self.g92_offset_b = b
+        self.g92_offset_c = c
+        self.g92_offset_u = u
+        self.g92_offset_v = v
+        self.g92_offset_w = w
     def set_xy_rotation(self, theta):
         self.rotation_xy = theta
         t = math.radians(theta)
@@ -60,8 +89,11 @@ class ArcsToSegmentsMixin:
         self.straight_arcsegments(segs)
 
 class PrintCanon:
-    def set_origin_offsets(self, *args):
-        print "set_origin_offsets", args
+    def set_g5x_offset(self, *args):
+        print "set_g5x_offset", args
+
+    def set_g92_offset(self, *args):
+        print "set_g92_offset", args
 
     def next_line(self, state):
         print "next_line", state.sequence_number

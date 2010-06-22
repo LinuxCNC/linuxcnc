@@ -205,14 +205,10 @@ void SET_XY_ROTATION(double t) {
 }
     
 
-void SET_ORIGIN_OFFSETS(
- double x, double y, double z
- , double a  /*AA*/
- , double b  /*BB*/
- , double c  /*CC*/
- , double u, double v, double w
-)
-{
+void SET_G5X_OFFSET(int index,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "SET_ORIGIN_OFFSETS(%.4f, %.4f, %.4f"
@@ -237,6 +233,12 @@ void SET_ORIGIN_OFFSETS(
   _program_origin_a = a;  /*AA*/
   _program_origin_b = b;  /*BB*/
   _program_origin_c = c;  /*CC*/
+}
+
+void SET_G92_OFFSET(double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
+    // XXX
 }
 
 void USE_LENGTH_UNITS(CANON_UNITS in_unit)

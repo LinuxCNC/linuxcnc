@@ -738,7 +738,9 @@ class LivePlotter:
                 or self.stat.actual_position != o.last_position
                 or self.stat.joint_actual_position != o.last_joint_position
                 or self.stat.homed != o.last_homed
-                or self.stat.origin != o.last_origin
+                or self.stat.g5x_offset != o.last_g5x_offset
+                or self.stat.g92_offset != o.last_g92_offset
+                or self.stat.g5x_index != o.last_g5x_index
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_table[0] != o.last_tool
@@ -749,7 +751,9 @@ class LivePlotter:
             o.last_limit = self.stat.limit
             o.last_homed = self.stat.homed
             o.last_position = self.stat.actual_position
-            o.last_origin = self.stat.origin
+            o.last_g5x_offset = self.stat.g5x_offset
+            o.last_g92_offset = self.stat.g92_offset
+            o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
             o.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]
@@ -1325,7 +1329,8 @@ selection = SelectionHandler(root_window)
 class DummyCanon:
     def comment(*args): pass
     def next_line(*args): pass
-    def set_origin_offsets(*args): pass
+    def set_g5x_offset(*args): pass
+    def set_g92_offset(*args): pass
     def set_xy_rotation(*args): pass
     def get_external_angular_units(self): return 1.0
     def get_external_length_units(self): return 1.0

@@ -835,31 +835,23 @@ static void printStatus()
           if (posDisplay == POS_DISPLAY_ACT)
             {
               sprintf(pos_string, "%13.4f  %18.4f  %18.4f",
-                      emcStatus->motion.traj.actualPosition.tran.x -
-                      emcStatus->task.origin.tran.x,
-                      emcStatus->motion.traj.actualPosition.tran.y -
-                      emcStatus->task.origin.tran.y,
-                      emcStatus->motion.traj.actualPosition.tran.z -
-                      emcStatus->task.origin.tran.z -
-                      emcStatus->task.toolOffset.tran.z);
+                      emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x,
+                      emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.y,
+                      emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.z);
             }
           else
             {
               sprintf(pos_string, "%13.4f  %18.4f  %18.4f",
-                      emcStatus->motion.traj.position.tran.x -
-                      emcStatus->task.origin.tran.x,
-                      emcStatus->motion.traj.position.tran.y -
-                      emcStatus->task.origin.tran.y,
-                      emcStatus->motion.traj.position.tran.z -
-                      emcStatus->task.origin.tran.z -
-                      emcStatus->task.toolOffset.tran.z);
+                      emcStatus->motion.traj.position.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x,
+                      emcStatus->motion.traj.position.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.y,
+                      emcStatus->motion.traj.position.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.z);
             }
         }
 
       sprintf(origin_string, "%13.4f  %18.4f  %18.4f",
-              emcStatus->task.origin.tran.x,
-              emcStatus->task.origin.tran.y,
-              emcStatus->task.origin.tran.z);
+              emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x,
+              emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y,
+              emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z);
 
       sprintf(speed_string, "%10.1f", jogSpeed);
       if (jogMode == JOG_INCREMENTAL)
