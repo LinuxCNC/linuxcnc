@@ -319,6 +319,11 @@ setup_menu_accel .menu.view end [_ "Show too_l"]
 setup_menu_accel .menu.view end [_ "Show e_xtents"]
 
 .menu.view add checkbutton \
+	-variable show_offsets \
+	-command toggle_show_offsets
+setup_menu_accel .menu.view end [_ "Show o_ffsets"]
+
+.menu.view add checkbutton \
 	-variable show_machine_limits \
 	-command toggle_show_machine_limits
 setup_menu_accel .menu.view end [_ "Sh_ow machine limits"]
