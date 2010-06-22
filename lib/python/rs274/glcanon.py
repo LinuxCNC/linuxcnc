@@ -68,6 +68,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.g92_offset_u = 0.0
         self.g92_offset_v = 0.0
         self.g92_offset_w = 0.0
+        self.g5x_index = 1
         self.g5x_offset_x = 0.0
         self.g5x_offset_y = 0.0
         self.g5x_offset_z = 0.0
@@ -729,12 +730,17 @@ class GlCanonDraw:
                 glEnd()
 
                 if g5x_offset[0] or g5x_offset[1] or g5x_offset[2]:
+                    i = s.g5x_index
+                    if i<7:
+                        label = "G5%d" % (i+3)
+                    else:
+                        label = "G59.%d" % (i-6)
                     glPushMatrix()
                     glScalef(0.2,0.2,0.2)
                     g5xrot=math.atan2(g5x_offset[1], g5x_offset[0])
                     glRotatef(math.degrees(g5xrot), 0, 0, 1)
                     glTranslatef(0.5, 0.5, 0)
-                    self.hershey.plot_string("5X", 0.1)
+                    self.hershey.plot_string(label, 0.1)
                     glPopMatrix()
 
                 glTranslatef(*g5x_offset)
@@ -751,7 +757,7 @@ class GlCanonDraw:
                     g92rot=math.atan2(g92_offset[1], g92_offset[0])
                     glRotatef(math.degrees(g92rot), 0, 0, 1)
                     glTranslatef(0.5, 0.5, 0)
-                    self.hershey.plot_string("92", 0.1)
+                    self.hershey.plot_string("G92", 0.1)
                     glPopMatrix()
 
                 glTranslatef(*g92_offset)
@@ -1016,11 +1022,11 @@ class GlCanonDraw:
                 g92_offset = self.from_internal_units(g92_offset, 1)
                 format = "%4s:% 9.3f"
                 droformat = " " + format + "  DTG %1s:% 9.3f"
-                offsetformat = "G5x %1s:% 9.3f  G92 %1s:% 9.3f"
+                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
             else:
                 format = "%4s:% 9.4f"
                 droformat = " " + format + "  DTG %1s:% 9.4f"
-                offsetformat = "G5x %1s:% 9.4f  G92 %1s:% 9.4f"
+                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
 
             posstrs = []
             droposstrs = []
@@ -1033,9 +1039,15 @@ class GlCanonDraw:
             droposstrs.append("")
 
             for i in range(9):
+                index = s.g5x_index
+                if index<7:
+                    label = "G5%d" % (index+3)
+                else:
+                    label = "G59.%d" % (index-6)
+
                 a = "XYZABCUVW"[i]
                 if s.axis_mask & (1<<i):
-                    droposstrs.append(offsetformat % (a, g5x_offset[i], a, g92_offset[i]))
+                    droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
 
             if self.is_lathe():
                 posstrs[0] = format % ("Rad", positions[0])

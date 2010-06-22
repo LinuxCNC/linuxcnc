@@ -389,12 +389,14 @@ static double toExtVel(double vel) {
 
 static double toExtAcc(double acc) { return toExtVel(acc); }
 
-static void send_g5x_msg(void) {
+static void send_g5x_msg(int index) {
     flush_segments();
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
     EMC_TRAJ_SET_G5X set_g5x_msg;
+
+    set_g5x_msg.g5x_index = index;
 
     set_g5x_msg.origin.tran.x = TO_EXT_LEN(g5xOffset.x);
     set_g5x_msg.origin.tran.y = TO_EXT_LEN(g5xOffset.y);
@@ -455,7 +457,8 @@ void SET_XY_ROTATION(double t) {
     xy_rotation = t;
 }
 
-void SET_G5X_OFFSET(double x, double y, double z,
+void SET_G5X_OFFSET(int index,
+                    double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w)
 {
@@ -482,7 +485,7 @@ void SET_G5X_OFFSET(double x, double y, double z,
     g5xOffset.v = v;
     g5xOffset.w = w;
 
-    send_g5x_msg();
+    send_g5x_msg(index);
 }
 
 void SET_G92_OFFSET(double x, double y, double z,

@@ -49,7 +49,8 @@ class Translated:
         self.straight_traverse_translated(*self.rotate_and_translate(*args))
     def straight_feed(self, *args):
         self.straight_feed_translated(*self.rotate_and_translate(*args))
-    def set_g5x_offset(self, x, y, z, a, b, c, u=None, v=None, w=None):
+    def set_g5x_offset(self, index, x, y, z, a, b, c, u=None, v=None, w=None):
+        self.g5x_index = index
         self.g5x_offset_x = x
         self.g5x_offset_y = y
         self.g5x_offset_z = z

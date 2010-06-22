@@ -740,6 +740,7 @@ class LivePlotter:
                 or self.stat.homed != o.last_homed
                 or self.stat.g5x_offset != o.last_g5x_offset
                 or self.stat.g92_offset != o.last_g92_offset
+                or self.stat.g5x_index != o.last_g5x_index
                 or self.stat.rotation_xy != o.last_rotation_xy
                 or self.stat.limit != o.last_limit
                 or self.stat.tool_table[0] != o.last_tool
@@ -752,6 +753,7 @@ class LivePlotter:
             o.last_position = self.stat.actual_position
             o.last_g5x_offset = self.stat.g5x_offset
             o.last_g92_offset = self.stat.g92_offset
+            o.last_g5x_index = self.stat.g5x_index
             o.last_rotation_xy = self.stat.rotation_xy
             o.last_motion_mode = self.stat.motion_mode
             o.last_tool = self.stat.tool_table[0]

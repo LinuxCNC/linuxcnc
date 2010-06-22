@@ -1627,7 +1627,8 @@ int Interp::convert_coordinate_system(int g_code,        //!< g_code called (mus
   settings->w_origin_offset = USER_TO_PROGRAM_LEN(parameters[5209 + (origin * 20)]);
   settings->rotation_xy = parameters[5210 + (origin * 20)];
 
-  SET_G5X_OFFSET(settings->origin_offset_x,
+  SET_G5X_OFFSET(origin,
+                 settings->origin_offset_x,
                  settings->origin_offset_y,
                  settings->origin_offset_z,
                  settings->AA_origin_offset,
@@ -3397,7 +3398,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     settings->v_current -= v;
     settings->w_current -= w;
 
-    SET_G5X_OFFSET(x, y, z, a, b, c, u, v, w);
+    SET_G5X_OFFSET(p_int, x, y, z, a, b, c, u, v, w);
 
     // current_xy are relative to this sytem's origin, so we can rotate directly
     rotate(&settings->current_x, &settings->current_y, settings->rotation_xy - r);
@@ -3620,7 +3621,8 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->v_current -= settings->v_origin_offset;
     settings->w_current -= settings->w_origin_offset;
 
-    SET_G5X_OFFSET(settings->origin_offset_x,
+    SET_G5X_OFFSET(settings->origin_index,
+                   settings->origin_offset_x,
                    settings->origin_offset_y,
                    settings->origin_offset_z,
                    settings->AA_origin_offset,

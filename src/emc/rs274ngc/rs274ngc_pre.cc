@@ -482,7 +482,8 @@ int Interp::init()
   _setup.v_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 8]);
   _setup.w_origin_offset = USER_TO_PROGRAM_LEN(pars[k + 9]);
 
-  SET_G5X_OFFSET(_setup.origin_offset_x ,
+  SET_G5X_OFFSET(_setup.origin_index,
+                 _setup.origin_offset_x ,
                  _setup.origin_offset_y ,
                  _setup.origin_offset_z ,
                  _setup.AA_origin_offset,

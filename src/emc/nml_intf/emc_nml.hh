@@ -841,7 +841,7 @@ class EMC_TRAJ_SET_G5X:public EMC_TRAJ_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
+    int g5x_index;
     EmcPose origin;
 };
 
@@ -1402,6 +1402,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     char file[LINELEN];
     char command[LINELEN];
     EmcPose g5x_offset;		// in user units, currently active
+    int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
     double rotation_xy;
     EmcPose toolOffset;		// tool offset, in general pose form

@@ -1859,6 +1859,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     EmcPose_update(cms, &g5x_offset);
     EmcPose_update(cms, &g92_offset);
     EmcPose_update(cms, &toolOffset);
+    cms->update(g5x_index);
     cms->update(activeGCodes, ACTIVE_G_CODES);
     cms->update(activeMCodes, ACTIVE_M_CODES);
     cms->update(activeSettings, ACTIVE_SETTINGS);
@@ -2190,6 +2191,7 @@ void EMC_TRAJ_SET_G5X::update(CMS * cms)
 {
 
     EMC_TRAJ_CMD_MSG::update(cms);
+    cms->update(g5x_index);
     EmcPose_update(cms, &origin);
 
 }

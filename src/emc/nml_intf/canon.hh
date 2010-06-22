@@ -161,7 +161,8 @@ extern void INIT_CANON();
 
 /* Representation */
 
-extern void SET_G5X_OFFSET(double x, double y, double z,
+extern void SET_G5X_OFFSET(int origin,
+                           double x, double y, double z,
                            double a, double b, double c,
                            double u, double v, double w);
 

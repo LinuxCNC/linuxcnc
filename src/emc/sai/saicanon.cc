@@ -205,14 +205,10 @@ void SET_XY_ROTATION(double t) {
 }
     
 
-void SET_G5X_OFFSET(
- double x, double y, double z
- , double a  /*AA*/
- , double b  /*BB*/
- , double c  /*CC*/
- , double u, double v, double w
-)
-{
+void SET_G5X_OFFSET(int index,
+                    double x, double y, double z,
+                    double a, double b, double c,
+                    double u, double v, double w) {
   fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "SET_ORIGIN_OFFSETS(%.4f, %.4f, %.4f"

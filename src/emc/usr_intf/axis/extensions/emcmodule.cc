@@ -402,6 +402,10 @@ static PyObject *pose(const EmcPose &p) {
     return res;
 }
 
+static PyObject *Stat_g5x_index(pyStatChannel *s) {
+    return PyInt_FromLong(s->status.task.g5x_index);
+}
+
 static PyObject *Stat_g5x_offset(pyStatChannel *s) {
     return pose(s->status.task.g5x_offset);
 }
@@ -618,6 +622,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {"limit", (getter)Stat_limit},
     {"mcodes", (getter)Stat_activemcodes},
     {"g5x_offset", (getter)Stat_g5x_offset},
+    {"g5x_index", (getter)Stat_g5x_index},
     {"g92_offset", (getter)Stat_g92_offset},
     {"position", (getter)Stat_position},
     {"dtg", (getter)Stat_dtg},
