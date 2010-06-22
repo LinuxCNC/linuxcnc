@@ -1198,10 +1198,10 @@ class GlCanonDraw:
         select_rapids = self.dlist('select_rapids')
         select_program = self.dlist('select_norapids')
         glNewList(select_rapids, GL_COMPILE)
-        if self.canon: self.canon.draw(1)
+        if self.canon: self.canon.draw(1, False)
         glEndList()
         glNewList(select_program, GL_COMPILE)
-        if self.canon: self.canon.draw(1, False)
+        if self.canon: self.canon.draw(1, True)
         glEndList()
 
     def make_main_list(self, unused=None):
