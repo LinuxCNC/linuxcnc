@@ -571,25 +571,42 @@ else
   AC_MSG_ERROR(no -- required until somebody makes modbus optional)
 fi
 
-AC_MSG_CHECKING([for GTK 2.4.0 or above])
-if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-  GTK_VER=`pkg-config gtk+-2.0 --modversion`
-  AC_MSG_RESULT(yes - $GTK_VER)
-  GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-  GTK_LIBS=`pkg-config gtk+-2.0 --libs`
-  AC_MSG_CHECKING(for libgnomeprintui-2.2)
-  if pkg-config --exists libgnomeprintui-2.2; then
-    AC_MSG_RESULT(yes)
-    GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-    GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-    HAVE_GNOMEPRINT=yes
+
+AC_ARG_ENABLE(gtk,
+    [  --disable-gtk        Disable the parts of emc2 that depend on GTK],
+    [
+	case "$enableval" in
+	Y*|y*)
+	    BUILD_GTK=yes ;;
+	*)
+	    BUILD_GTK=no ;;
+	esac
+    ],
+    [BUILD_GTK=yes])
+
+if test "$BUILD_GTK" = "yes"; then
+  AC_MSG_CHECKING([for GTK 2.4.0 or above])
+  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
+    GTK_VER=`pkg-config gtk+-2.0 --modversion`
+    AC_MSG_RESULT(yes - $GTK_VER)
+    GTK_CFLAGS=`pkg-config gtk+-2.0 --cflags`
+    GTK_LIBS=`pkg-config gtk+-2.0 --libs`
+    AC_MSG_CHECKING(for libgnomeprintui-2.2)
+    if pkg-config --exists libgnomeprintui-2.2; then
+      AC_MSG_RESULT(yes)
+      GTK_CFLAGS="$GTK_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
+      GTK_LIBS="$GTK_LIBS `pkg-config --libs libgnomeprintui-2.2`"
+      HAVE_GNOMEPRINT=yes
+    else
+      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
+      HAVE_GNOMEPRINT= 
+    fi
   else
-    AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-    HAVE_GNOMEPRINT= 
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([GTK2 missing.  Install it or specify --disable-gtk to skip the parts of emc2 that depend on GTK])
   fi
-else
-  AC_MSG_WARN([GTK2 not found, some utilities (halscope, classicladder) will not be built])
 fi
+
 AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
