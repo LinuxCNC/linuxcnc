@@ -1171,7 +1171,7 @@ AC_CHECK_LIB(ncurses, initscr,
 	    [HAVE_NCURSES=no])
 
 if test "x$HAVE_NCURSES" = "xno"; then
-    AC_MSG_WARN(ncurses lib missing, you won't be ablet o build/run keystick. try installing it with 'apt-get install libncurses-dev')
+    AC_MSG_WARN(ncurses lib missing, you won't be able to build/run keystick. try installing it with 'apt-get install libncurses-dev')
 else    
     NCURSES_LIBS="-lncurses"
 fi
