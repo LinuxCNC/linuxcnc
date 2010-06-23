@@ -568,6 +568,8 @@ static void init_chan_sel_window(void)
 static void init_chan_info_window(void)
 {
     scope_vert_t *vert;
+    char dummyname[HAL_NAME_LEN+1];
+    int n;
 
     vert = &(ctrl_usr->vert);
 
@@ -584,8 +586,10 @@ static void init_chan_info_window(void)
     vert->source_name_label = (GTK_BIN(vert->source_name_button))->child;
     gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
 	GTK_JUSTIFY_LEFT);
-    gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label),
-	"--longest possible source name--");
+    /* longest source name we ever need to display */
+    for ( n = 0 ; n < HAL_NAME_LEN ; n++) dummyname[n] = 'x';
+    dummyname[n] = '\0';
+    gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label), dummyname);
     /* activate the source selection dialog if button is clicked */
     gtk_signal_connect(GTK_OBJECT(vert->source_name_button), "clicked",
 	GTK_SIGNAL_FUNC(change_source_button), NULL);
