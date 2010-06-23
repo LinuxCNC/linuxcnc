@@ -1436,11 +1436,11 @@ static void get_pos_cmds(long period)
 	    /* check for soft limits */
 	    if (joint->pos_cmd > joint->max_pos_limit) {
 		onlimit = 1;
-                reportError(_("Exceeded positive soft limit on joint %d"));
+                reportError(_("Exceeded positive soft limit on joint %d"), joint_num);
 	    }
 	    if (joint->pos_cmd < joint->min_pos_limit) {
 		onlimit = 1;
-                reportError(_("Exceeded negative soft limit on joint %d"));
+                reportError(_("Exceeded negative soft limit on joint %d"), joint_num);
 	    }
 	}
     }
