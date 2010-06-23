@@ -235,46 +235,46 @@ static void calc_siggen(void *arg, long period)
 static int export_siggen(int num, hal_siggen_t * addr)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.square", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->square), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->square), comp_id,
+				"siggen.%d.square", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.sawtooth", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->sawtooth), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->sawtooth), comp_id,
+				"siggen.%d.sawtooth", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.triangle", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->triangle), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->triangle), comp_id,
+				"siggen.%d.triangle", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.sine", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->sine), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->sine), comp_id,
+				"siggen.%d.sine", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.cosine", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->cosine), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->cosine), comp_id,
+				"siggen.%d.cosine", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.frequency", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->frequency), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->frequency), comp_id,
+				"siggen.%d.frequency", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.amplitude", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->amplitude), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->amplitude), comp_id,
+				"siggen.%d.amplitude", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.offset", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &(addr->offset), comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &(addr->offset), comp_id,
+				"siggen.%d.offset", num);
     if (retval != 0) {
 	return retval;
     }
@@ -289,7 +289,7 @@ static int export_siggen(int num, hal_siggen_t * addr)
     *(addr->offset) = 0.0;
     addr->index = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "siggen.%d.update", num);
+    rtapi_snprintf(buf, sizeof(buf), "siggen.%d.update", num);
     retval =
 	hal_export_funct(buf, calc_siggen, &(siggen_array[num]), 1, 0,
 	comp_id);

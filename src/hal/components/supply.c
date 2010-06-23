@@ -159,37 +159,31 @@ static void update_supply(void *arg, long l)
 static int export_supply(int num, hal_supply_t * addr)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
 
     /* export pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.q", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->q), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->q), comp_id, "supply.%d.q", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._q", num);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->_q), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(addr->_q), comp_id, "supply.%d._q", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.variable", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->variable), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->variable), comp_id,"supply.%d.variable", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d._variable", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->_variable), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->_variable), comp_id, "supply.%d._variable", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameters */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.d", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &(addr->d), comp_id);
+    retval = hal_pin_bit_newf(HAL_IO, &(addr->d), comp_id, "supply.%d.d", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.value", num);
-    retval = hal_pin_float_new(buf, HAL_IO, &(addr->value), comp_id);
+    retval = hal_pin_float_newf(HAL_IO, &(addr->value), comp_id, "supply.%d.value", num);
     if (retval != 0) {
 	return retval;
     }
@@ -201,7 +195,7 @@ static int export_supply(int num, hal_supply_t * addr)
     *(addr->d) = 0;
     *(addr->value) = 0.0;
     /* export function for this loop */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "supply.%d.update", num);
+    rtapi_snprintf(buf, sizeof(buf), "supply.%d.update", num);
     retval =
 	hal_export_funct(buf, update_supply, &(supply_array[num]), 1, 0,
 	comp_id);

@@ -327,7 +327,6 @@ static void update(void *arg, long period)
 static int export_encoder_pair(int num, encoder_pair_t * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -337,56 +336,56 @@ static int export_encoder_pair(int num, encoder_pair_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins for the quadrature inputs */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-A", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->master_A), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->master_A), comp_id,
+			      "encoder-ratio.%d.master-A", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-B", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->master_B), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->master_B), comp_id,
+			      "encoder-ratio.%d.master-B", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-A", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->slave_A), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_A), comp_id,
+			      "encoder-ratio.%d.slave-A", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-B", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->slave_B), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->slave_B), comp_id,
+			      "encoder-ratio.%d.slave-B", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for the enable input */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.enable", num);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(addr->enable), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
+			      "encoder-ratio.%d.enable", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for output */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.error", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->error), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->error), comp_id,
+				"encoder-ratio.%d.error", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pins for config info() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-ppr", num);
-    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->master_ppr), comp_id);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->master_ppr), comp_id,
+			      "encoder-ratio.%d.master-ppr", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-ppr", num);
-    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->slave_ppr), comp_id);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_ppr), comp_id,
+			      "encoder-ratio.%d.slave-ppr", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.master-teeth", num);
-    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->master_teeth), comp_id);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->master_teeth), comp_id,
+			      "encoder-ratio.%d.master-teeth", num);
     if (retval != 0) {
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "encoder-ratio.%d.slave-teeth", num);
-    retval = hal_pin_u32_new(buf, HAL_IO, &(addr->slave_teeth), comp_id);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->slave_teeth), comp_id,
+			      "encoder-ratio.%d.slave-teeth", num);
     if (retval != 0) {
 	return retval;
     }

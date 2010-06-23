@@ -163,7 +163,7 @@ static void mod_dir_funct(void *arg, long period)
 static int export_mod_dir(int num)
 {
     int retval;
-    char buf[HAL_NAME_LEN + 2];
+    char buf[HAL_NAME_LEN + 1];
     mod_dir_t *moddir;
 
     /* allocate shared memory for modulo "closest direction finder" */
@@ -174,21 +174,21 @@ static int export_mod_dir(int num)
 	return -1;
     }
     /* export output pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.up", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.up", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->up), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.down", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.down", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->down), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.on-target", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.on-target", num);
     retval = hal_pin_bit_new(buf, HAL_OUT, &(moddir->on_target), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -197,14 +197,14 @@ static int export_mod_dir(int num)
     }
 
     /* export input pins */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.actual", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.actual", num);
     retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->actual), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.desired", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.desired", num);
     retval = hal_pin_s32_new(buf, HAL_IN, &(moddir->desired), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -213,21 +213,21 @@ static int export_mod_dir(int num)
     }
 
     /* export pins for max and min values */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.min-num", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.min-num", num);
     retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->min_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.max-num", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.max-num", num);
     retval = hal_pin_s32_new(buf, HAL_IO, &(moddir->max_num), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MODMATH: ERROR: '%s' pin export failed\n", buf);
 	return retval;
     }
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d.wrap", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d.wrap", num);
     retval = hal_pin_bit_new(buf, HAL_IO, &(moddir->wrap), comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -235,7 +235,7 @@ static int export_mod_dir(int num)
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "mod-dir.%d", num);
+    rtapi_snprintf(buf, sizeof(buf), "mod-dir.%d", num);
     retval = hal_export_funct(buf, mod_dir_funct, moddir, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
