@@ -691,6 +691,11 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
+            if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                reportError("Can't jog a locking axis.");
+		SET_JOINT_ERROR_FLAG(joint, 1);
+                break;
+            }
 	    /* don't jog further onto limits */
 	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -752,6 +757,11 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
+            if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                reportError("Can't jog a locking axis.");
+		SET_JOINT_ERROR_FLAG(joint, 1);
+                break;
+            }
 	    /* don't jog further onto limits */
 	    if (!jog_ok(joint_num, emcmotCommand->vel)) {
 		SET_JOINT_ERROR_FLAG(joint, 1);
