@@ -435,6 +435,9 @@ void SET_MOTION_OUTPUT_BIT(int bit) {}
 void SET_MOTION_OUTPUT_VALUE(int index, double value) {}
 void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
+int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
+int LOCK_ROTARY(int line_no, int axis) {return 0;}
+
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
                     double a, double b, double c,

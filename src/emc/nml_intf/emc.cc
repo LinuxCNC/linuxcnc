@@ -1479,7 +1479,7 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
     cms->update(ini_maxvel);
     cms->update(acc);
     cms->update(feed_mode);
-
+    cms->update(indexrotary);
 }
 
 /*
@@ -2535,6 +2535,7 @@ void EMC_AXIS_SET_HOMING_PARAMS::update(CMS * cms)
     cms->update(use_index);
     cms->update(ignore_limits);
     cms->update(volatile_home);
+    cms->update(locking_indexer);
 
 }
 

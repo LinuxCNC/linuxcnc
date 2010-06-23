@@ -846,7 +846,13 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-
+    if(num >=3 && num <= 5) {
+        // for rotaries only...
+        rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.unlock", num);
+        retval = hal_pin_bit_new(buf, HAL_OUT, &(addr->unlock), mot_comp_id);
+        rtapi_snprintf(buf, HAL_NAME_LEN, "axis.%d.is-unlocked", num);
+        retval = hal_pin_bit_new(buf, HAL_IN, &(addr->is_unlocked), mot_comp_id);
+    }
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;

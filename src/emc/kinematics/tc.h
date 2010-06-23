@@ -98,6 +98,7 @@ typedef struct {
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     char atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
+    int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

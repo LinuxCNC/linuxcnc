@@ -267,6 +267,7 @@ class EMC_AXIS_SET_HOMING_PARAMS:public EMC_AXIS_CMD_MSG {
     int is_shared;
     int home_sequence;
     int volatile_home;
+    int locking_indexer;
 };
 
 class EMC_AXIS_SET_MAX_VELOCITY:public EMC_AXIS_CMD_MSG {
@@ -774,6 +775,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
     int feed_mode;
+    int indexrotary;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {

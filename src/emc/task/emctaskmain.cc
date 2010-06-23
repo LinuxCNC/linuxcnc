@@ -1536,7 +1536,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
-					set_homing_params_msg->volatile_home);
+					set_homing_params_msg->volatile_home,
+                                        set_homing_params_msg->locking_indexer);
 	break;
 
     case EMC_AXIS_SET_FERROR_TYPE:
@@ -1623,8 +1624,9 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
-                emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc);
+                                   emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
+                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
+                                   emcTrajLinearMoveMsg->indexrotary);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:

@@ -481,6 +481,10 @@ typedef struct setup_struct
   int b_axis_wrapped;
   int c_axis_wrapped;
 
+  int a_indexer;
+  int b_indexer;
+  int c_indexer;
+
   ON_OFF lathe_diameter_mode;       //Lathe diameter mode (g07/G08)
 }
 setup;

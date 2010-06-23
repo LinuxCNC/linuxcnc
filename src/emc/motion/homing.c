@@ -256,6 +256,27 @@ void do_homing(void)
 		/* reset delay counter */
 		joint->home_pause_timer = 0;
 		/* figure out exactly what homing sequence is needed */
+		if (joint->home_flags & HOME_UNLOCK_FIRST) {
+		    joint->home_state = HOME_UNLOCK;
+		} else {
+		    joint->home_state = HOME_UNLOCK_WAIT;
+		    immediate_state = 1;
+		}		     
+		break;
+
+	    case HOME_UNLOCK:
+		// unlock now
+		emcmotSetRotaryUnlock(joint_num, 1);
+		joint->home_state = HOME_UNLOCK_WAIT;
+		break;
+
+	    case HOME_UNLOCK_WAIT:
+		// if not yet unlocked, continue waiting
+		if ((joint->home_flags & HOME_UNLOCK_FIRST) && 
+		    !emcmotGetRotaryIsUnlocked(joint_num)) break;
+
+		// either we got here without an unlock needed, or the
+		// unlock is now complete.
 		if (joint->home_search_vel == 0.0) {
 		    if (joint->home_latch_vel == 0.0) {
 			/* both vels == 0 means home at current position */
@@ -716,7 +737,7 @@ void do_homing(void)
 		    /* yes, stop motion */
 		    joint->free_tp_enable = 0;
 		    /* we're finally done */
-		    joint->home_state = HOME_FINISHED;
+		    joint->home_state = HOME_LOCK;
 		    immediate_state = 1;
 		    break;
 		}
@@ -731,6 +752,26 @@ void do_homing(void)
 			break;
 		    }
 		}
+		break;
+
+	    case HOME_LOCK:
+		if (joint->home_flags & HOME_UNLOCK_FIRST) {
+		    emcmotSetRotaryUnlock(joint_num, 0);
+		} else {
+		    immediate_state = 1;
+		}
+		joint->home_state = HOME_LOCK_WAIT;
+		break;
+
+	    case HOME_LOCK_WAIT:
+		// if not yet locked, continue waiting
+		if ((joint->home_flags & HOME_UNLOCK_FIRST) && 
+		    emcmotGetRotaryIsUnlocked(joint_num)) break;
+
+		// either we got here without a lock needed, or the
+		// lock is now complete.
+		joint->home_state = HOME_FINISHED;
+		immediate_state = 1;
 		break;
 
 	    case HOME_FINISHED:
