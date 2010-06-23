@@ -591,7 +591,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     inst->pid = 0;
     inst->ready = 1;
     inst->shmem_base = 0;
-    rtapi_snprintf(inst->name, HAL_NAME_LEN, "%s", inst_name);
+    rtapi_snprintf(inst->name, sizeof(inst->name), "%s", inst_name);
     /* insert new structure at head of list */
     inst->next_ptr = hal_data->comp_list_ptr;
     hal_data->comp_list_ptr = SHMOFF(inst);
@@ -1172,7 +1172,9 @@ int do_delsig_cmd(char *mod_name)
 	    sig = SHMPTR(next);
 	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
-	        strncpy(sigs[n++], sig->name, HAL_NAME_LEN );
+	        strncpy(sigs[n], sig->name, HAL_NAME_LEN );
+		sigs[n][HAL_NAME_LEN] = '\0';
+		n++;
 	    }
 	    next = sig->next_ptr;
 	}
@@ -1262,7 +1264,9 @@ int do_unloadrt_cmd(char *mod_name)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n++], comp->name, HAL_NAME_LEN );
+		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
+		    comps[n][HAL_NAME_LEN] = '\0';
+		    n++;
 		}
 	    }
 	}
@@ -1630,8 +1634,7 @@ static void print_pin_aliases(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Pin Aliases:\n");
-	/* 41 is HAL_NAME_LEN */
-	halcmd_output(" %-41s  %s\n", "Alias", "Original Name");
+	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -1642,8 +1645,7 @@ static void print_pin_aliases(char **patterns)
 	    oldname = SHMPTR(pin->oldname);
 	    if ( match(patterns, pin->name) || match(patterns, oldname->name) ) {
 		if (scriptmode == 0) {
-		    /* 41 is HAL_NAME_LEN */
-		    halcmd_output(" %-41s  %s\n", pin->name, oldname->name);
+		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, pin->name, oldname->name);
 		} else {
 		    halcmd_output(" %s  %s\n", pin->name, oldname->name);
 		}
@@ -1767,8 +1769,7 @@ static void print_param_aliases(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Parameter Aliases:\n");
-	/* 41 is HAL_NAME_LEN */
-	halcmd_output(" %-41s  %s\n", "Alias", "Original Name");
+	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
@@ -1779,8 +1780,7 @@ static void print_param_aliases(char **patterns)
 	    oldname = SHMPTR(param->oldname);
 	    if ( match(patterns, param->name) || match(patterns, oldname->name) ) {
 		if (scriptmode == 0) {
-		    /* 41 is HAL_NAME_LEN */
-		    halcmd_output(" %-41s  %s\n", param->name, oldname->name);
+		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, param->name, oldname->name);
 		} else {
 		    halcmd_output(" %s  %s\n", param->name, oldname->name);
 		}

@@ -926,7 +926,8 @@ static int activate_sample_thread(void)
 	return rv;
     }
     /* store name of thread in shared memory */
-    strncpy(ctrl_shm->thread_name, horiz->thread_name, HAL_NAME_LEN + 1);
+    strncpy(ctrl_shm->thread_name, horiz->thread_name, HAL_NAME_LEN);
+    ctrl_shm->thread_name[HAL_NAME_LEN] = '\0';
     /* give the code some time to get started */
     ctrl_shm->watchdog = 0;
     invalidate_all_channels();

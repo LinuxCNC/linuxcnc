@@ -223,7 +223,7 @@ int hal_init(const char *name)
 	name);
     /* copy name to local vars, truncating if needed */
     rtapi_snprintf(rtapi_name, RTAPI_NAME_LEN, "HAL_%s", name);
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(hal_name, sizeof(hal_name), "%s", name);
     /* do RTAPI init */
     comp_id = rtapi_init(rtapi_name);
     if (comp_id < 0) {
@@ -263,7 +263,7 @@ int hal_init(const char *name)
     comp->ready = 0;
     comp->shmem_base = hal_shmem_base;
     comp->insmod_args = 0;
-    rtapi_snprintf(comp->name, HAL_NAME_LEN, "%s", hal_name);
+    rtapi_snprintf(comp->name, sizeof(comp->name), "%s", hal_name);
     /* insert new structure at head of list */
     comp->next_ptr = hal_data->comp_list_ptr;
     hal_data->comp_list_ptr = SHMOFF(comp);
@@ -317,7 +317,7 @@ int hal_exit(int comp_id)
     /* found our component, unlink it from the list */
     *prev = comp->next_ptr;
     /* save component name for later */
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s", comp->name);
+    rtapi_snprintf(name, sizeof(name), "%s", comp->name);
     /* get rid of the component */
     free_comp_struct(comp);
 /*! \todo Another #if 0 */
@@ -536,9 +536,9 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
 static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
     void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
 {
-    char name[HAL_NAME_LEN];
+    char name[HAL_NAME_LEN + 1];
     int sz;
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
     if(sz == -1 || sz > HAL_NAME_LEN) {
         rtapi_print_msg(RTAPI_MSG_ERR,
 	    "hal_pin_newfv: length %d too long for name starting '%s'\n",
@@ -678,7 +678,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     new->dir = dir;
     new->signal = 0;
     memset(&new->dummysig, 0, sizeof(hal_data_u));
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* make 'data_ptr' point to dummy signal */
     *data_ptr_addr = comp->shmem_base + SHMOFF(&(new->dummysig));
     /* search list for 'name' and insert new structure */
@@ -798,16 +798,16 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	    /* save old name (only if not already saved) */
 	    oldname = halpr_alloc_oldname_struct();
 	    pin->oldname = SHMOFF(oldname);
-	    rtapi_snprintf(oldname->name, HAL_NAME_LEN, "%s", pin->name);
+	    rtapi_snprintf(oldname->name, sizeof(oldname->name), "%s", pin->name);
 	}
 	/* change pin's name to 'alias' */
-	rtapi_snprintf(pin->name, HAL_NAME_LEN, "%s", alias);
+	rtapi_snprintf(pin->name, sizeof(pin->name), "%s", alias);
     } else {
 	/* removing an alias */
 	if ( pin->oldname != 0 ) {
 	    /* restore old name (only if pin is aliased) */
 	    oldname = SHMPTR(pin->oldname);
-	    rtapi_snprintf(pin->name, HAL_NAME_LEN, "%s", oldname->name);
+	    rtapi_snprintf(pin->name, sizeof(pin->name), "%s", oldname->name);
 	    pin->oldname = 0;
 	    free_oldname_struct(oldname);
 	}
@@ -926,7 +926,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     new->readers = 0;
     new->writers = 0;
     new->bidirs = 0;
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->sig_list_ptr);
     next = *prev;
@@ -1181,9 +1181,9 @@ int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_ad
 
 static int hal_param_newfv(hal_type_t type, hal_param_dir_t dir,
 	void *data_addr, int comp_id, const char *fmt, va_list ap) {
-    char name[HAL_NAME_LEN];
+    char name[HAL_NAME_LEN + 1];
     int sz;
-    sz = rtapi_vsnprintf(name, HAL_NAME_LEN, fmt, ap);
+    sz = rtapi_vsnprintf(name, sizeof(name), fmt, ap);
     if(sz == -1 || sz > HAL_NAME_LEN) {
         rtapi_print_msg(RTAPI_MSG_ERR,
 	    "hal_param_newfv: length %d too long for name starting '%s'\n",
@@ -1316,7 +1316,7 @@ int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir, void *
     new->data_ptr = SHMOFF(data_addr);
     new->type = type;
     new->dir = dir;
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->param_list_ptr);
     next = *prev;
@@ -1532,16 +1532,16 @@ int hal_param_alias(const char *param_name, const char *alias)
 	    /* save old name (only if not already saved) */
 	    oldname = halpr_alloc_oldname_struct();
 	    param->oldname = SHMOFF(oldname);
-	    rtapi_snprintf(oldname->name, HAL_NAME_LEN, "%s", param->name);
+	    rtapi_snprintf(oldname->name, sizeof(oldname->name), "%s", param->name);
 	}
 	/* change param's name to 'alias' */
-	rtapi_snprintf(param->name, HAL_NAME_LEN, "%s", alias);
+	rtapi_snprintf(param->name, sizeof(param->name), "%s", alias);
     } else {
 	/* removing an alias */
 	if ( param->oldname != 0 ) {
 	    /* restore old name (only if param is aliased) */
 	    oldname = SHMPTR(param->oldname);
-	    rtapi_snprintf(param->name, HAL_NAME_LEN, "%s", oldname->name);
+	    rtapi_snprintf(param->name, sizeof(param->name), "%s", oldname->name);
 	    param->oldname = 0;
 	    free_oldname_struct(oldname);
 	}
@@ -1644,7 +1644,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     new->users = 0;
     new->arg = arg;
     new->funct = funct;
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->funct_list_ptr);
     next = *prev;
@@ -1686,10 +1686,10 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
        does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
     /* create a parameter with the function's runtime in it */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
+    rtapi_snprintf(buf, sizeof(buf), "%s.time", name);
     hal_param_s32_new(buf, HAL_RO, &(new->runtime), comp_id);
     /* create a parameter with the function's maximum runtime in it */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
+    rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
     return 0;
 }
@@ -1757,7 +1757,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     }
     /* initialize the structure */
     new->uses_fp = uses_fp;
-    rtapi_snprintf(new->name, HAL_NAME_LEN, "%s", name);
+    rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* have to create and start a task to run the thread */
     if (hal_data->thread_list_ptr == 0) {
 	/* this is the first thread created */
@@ -1850,10 +1850,10 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
    actually a component.
 */
     /* create a parameter with the thread's runtime in it */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.time", name);
+    rtapi_snprintf(buf, sizeof(buf), "%s.time", name);
     hal_param_s32_new(buf, HAL_RO, &(new->runtime), lib_module_id);
     /* create a parameter with the thread's maximum runtime in it */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "%s.tmax", name);
+    rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), lib_module_id);
 #endif
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
@@ -3280,7 +3280,7 @@ static void free_thread_struct(hal_thread_t * thread)
 /*! \todo Another #if 0 */
 #if 0
     int *prev, next;
-    char time[HAL_NAME_LEN + 5], tmax[HAL_NAME_LEN + 5];
+    char time[HAL_NAME_LEN + 1], tmax[HAL_NAME_LEN + 1];
     hal_param_t *param;
 #endif
 
@@ -3313,8 +3313,8 @@ static void free_thread_struct(hal_thread_t * thread)
    needed.
 */
     /* need to delete <thread>.time and <thread>.tmax params */
-    rtapi_snprintf(time, HAL_NAME_LEN, "%s.time", thread->name);
-    rtapi_snprintf(tmax, HAL_NAME_LEN, "%s.tmax", thread->name);
+    rtapi_snprintf(time, sizeof(time), "%s.time", thread->name);
+    rtapi_snprintf(tmax, sizeof(tmax), "%s.tmax", thread->name);
     /* search the parameter list for those parameters */
     prev = &(hal_data->param_list_ptr);
     next = *prev;

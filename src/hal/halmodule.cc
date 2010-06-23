@@ -277,7 +277,7 @@ static halitem *find_item(halobject *self, char *name) {
 }
 
 static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t type, hal_param_dir_t dir) {
-    char param_name[HAL_NAME_LEN];
+    char param_name[HAL_NAME_LEN+1];
     int res;
     halitem param;
     param.is_pin = 0;
@@ -295,8 +295,8 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
         return NULL;
     }
 
-    res = snprintf(param_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
-    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
+    res = snprintf(param_name, sizeof(param_name), "%s.%s", self->prefix, name);
+    if(res > HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
     res = hal_param_new(param_name, type, dir, (void*)param.u, self->hal_id);
     if(res) return pyhal_error(res);
 
@@ -307,7 +307,7 @@ static PyObject * pyhal_create_param(halobject *self, char *name, hal_type_t typ
 
 
 static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type, hal_pin_dir_t dir) {
-    char pin_name[HAL_NAME_LEN];
+    char pin_name[HAL_NAME_LEN+1];
     int res;
     halitem pin;
     pin.is_pin = 1;
@@ -325,8 +325,8 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
         return NULL;
     }
 
-    res = snprintf(pin_name, HAL_NAME_LEN, "%s.%s", self->prefix, name);
-    if(res >= HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
+    res = snprintf(pin_name, sizeof(pin_name), "%s.%s", self->prefix, name);
+    if(res > HAL_NAME_LEN || res < 0) { return pyhal_error(-EINVAL); }
     res = hal_pin_new(pin_name, type, dir, (void**)pin.u, self->hal_id);
     if(res) return pyhal_error(res);
 

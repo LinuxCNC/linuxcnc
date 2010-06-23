@@ -359,7 +359,7 @@ static int comp_id;
         print >>f, "static int export(char *prefix, long extra_arg, long personality) {"
     else:
         print >>f, "static int export(char *prefix, long extra_arg) {"
-    print >>f, "    char buf[HAL_NAME_LEN + 2];"
+    print >>f, "    char buf[HAL_NAME_LEN + 1];"
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
@@ -429,7 +429,7 @@ static int comp_id;
             print >>f, "    inst->%s = %s;" % (name, value)
 
     for name, fp in functions:
-        print >>f, "    rtapi_snprintf(buf, HAL_NAME_LEN, \"%%s%s\", prefix);"\
+        print >>f, "    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
             % to_hal("." + name)
         print >>f, "    r = hal_export_funct(buf, (void(*)(void *inst, long))%s, inst, %s, 0, comp_id);" % (
             to_c(name), int(fp))
@@ -481,8 +481,8 @@ static int comp_id;
                         to_hal(removeprefix(comp_name, "hal_"))
         elif options.get("count_function"):
             print >>f, "    for(i=0; i<count; i++) {"
-            print >>f, "        char buf[HAL_NAME_LEN + 2];"
-            print >>f, "        rtapi_snprintf(buf, HAL_NAME_LEN, " \
+            print >>f, "        char buf[HAL_NAME_LEN + 1];"
+            print >>f, "        rtapi_snprintf(buf, sizeof(buf), " \
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_"))
             if has_personality:
@@ -499,8 +499,8 @@ static int comp_id;
             print >>f, "    if(!count && !names[0]) count = default_count;"
             print >>f, "    if(count) {"
             print >>f, "        for(i=0; i<count; i++) {"
-            print >>f, "            char buf[HAL_NAME_LEN + 2];"
-            print >>f, "            rtapi_snprintf(buf, HAL_NAME_LEN, " \
+            print >>f, "            char buf[HAL_NAME_LEN + 1];"
+            print >>f, "            rtapi_snprintf(buf, sizeof(buf), " \
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_"))
             if has_personality:

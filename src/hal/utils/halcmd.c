@@ -86,7 +86,7 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 int halcmd_done = 0;		/* used to break out of processing loop */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
-char comp_name[HAL_NAME_LEN];	/* name for this instance of halcmd */
+char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
 
 static void quit(int);
 
@@ -99,7 +99,7 @@ int halcmd_startup(int quiet) {
     signal(SIGPIPE, SIG_IGN);
     /* at this point all options are parsed, connect to HAL */
     /* create a unique module name, to allow for multiple halcmd's */
-    snprintf(comp_name, HAL_NAME_LEN-1, "halcmd%d", getpid());
+    snprintf(comp_name, sizeof(comp_name), "halcmd%d", getpid());
     /* tell the signal handler that we might have the mutex */
     hal_flag = 1;
     if (quiet) rtapi_set_msg_level(RTAPI_MSG_NONE);
