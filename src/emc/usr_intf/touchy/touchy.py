@@ -170,7 +170,8 @@ class touchy:
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
                 stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
-                         'xyrotation', 'tlo', 'activecodes', 'spindlespeed2']
+                         'xyrotation', 'tlo', 'activecodes', 'spindlespeed2',
+                         'label_g5xoffset', 'g5xoffset', 'g92offset']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)

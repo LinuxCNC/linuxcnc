@@ -383,6 +383,24 @@ class emc_status:
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
                 set_text(self.status['tlo'], "%f" % self.emcstat.tool_offset[2])
 
+                cs = self.emcstat.g5x_index
+                if cs<7:
+                        cslabel = "G5%d" % (cs+3)
+                else:
+                        cslabel = "G59.%d" % (cs-6)
+                        
+                set_text(self.status['label_g5xoffset'], cslabel + ' Offset:');
+
+                g5x = ""
+                g92 = ""
+                for i in range(len(self.emcstat.g5x_offset)):
+                        letter = "XYZABCUVW"[i]
+                        if self.emcstat.g5x_offset[i] != 0: g5x += "%s%.4f " % (letter, self.emcstat.g5x_offset[i])
+                        if self.emcstat.g92_offset[i] != 0: g92 += "%s%.4f " % (letter, self.emcstat.g92_offset[i])
+                                   
+                set_text(self.status['g5xoffset'], g5x);
+                set_text(self.status['g92offset'], g92);
+
                 active_codes = []
                 for i in self.emcstat.gcodes[1:]:
                         if i == -1: continue
