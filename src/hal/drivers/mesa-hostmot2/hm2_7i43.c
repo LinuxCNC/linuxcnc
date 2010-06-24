@@ -336,6 +336,8 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
 
     hm2_7i43_epp_addr16(0x7F7F, board);
     hm2_7i43_epp_write(0x5A, board);
+    hm2_7i43_epp_addr16(0x7F7F, board);
+    hm2_7i43_epp_write(0x5A, board);
 
 
     // 
