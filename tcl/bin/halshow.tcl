@@ -81,6 +81,15 @@ proc sSlide {f a b} {
 # Build menu
 # fixme clean up the underlines so they are unique under each set
 set menubar [menu $top.menubar -tearoff 0]
+set filemenu [menu $menubar.file -tearoff 1]
+    $menubar add cascade -label [msgcat::mc "File"] \
+            -menu $filemenu
+        $filemenu add command -label [msgcat::mc "Save Watch List"] \
+            -command {savewatchlist}
+        $filemenu add command -label [msgcat::mc "Load Watch List"] \
+            -command {getwatchlist}
+        $filemenu add command -label [msgcat::mc "Exit"] \
+            -command {destroy .; exit}
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Tree View"] \
             -menu $viewmenu
@@ -572,6 +581,41 @@ proc displayThis {str} {
     $disp delete 1.0 end
     $disp insert end $str
     $disp configure -state disabled
+}
+
+proc getwatchlist {} {
+  set lfile [tk_getOpenFile \
+            -initialdir  [pwd]\
+            -initialfile  my.halshow\
+            -title       [msgcat::mc "Load a watch list"]\
+            ]
+  loadwatchlist $lfile
+}
+
+proc loadwatchlist {filename} {
+  if {"$filename" == ""} return
+  set f [open $filename r]
+  set wl [gets $f]
+  close $f
+  if {"$wl" == ""} return
+  watchReset all
+  $::top raise pw
+  foreach item $wl { watchHAL $item }
+}
+
+proc savewatchlist {} {
+  if {"$::watchlist" == ""} {
+    return -code error "savewatchlist: null watchlist"
+  }
+  set sfile [tk_getSaveFile \
+            -initialdir  [pwd]\
+            -initialfile my.halshow\
+            -title       [msgcat::mc "Save current watch list"]\
+            ]
+  if {"$sfile" == ""} return
+  set f [open $sfile w]
+  puts $f $::watchlist
+  close $f
 }
 
 #----------start up the displays----------
