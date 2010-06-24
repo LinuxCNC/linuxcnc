@@ -355,10 +355,9 @@ proc put_file_contents {f c} {
 
 proc prompt_copy configname {
 
-    set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "Would you like to copy the %s configuration to your home directory so you can customize it?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "No"] [msgcat::mc "Cancel"]]
+    set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "Would you like to copy the %s configuration to your home directory so you can customize it?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "Cancel"]]
 
-    if {$res == -1 || $res == 2} { return "" }
-    if {$res == 1} { return $configname }
+    if {$res == -1 || $res == 1} { return "" }
     set configdir [format %s [file dirname $configname]]
     set copydir [format %s [file join $emc::USER_CONFIG_DIR [file tail $configdir]]]
     set copybase $copydir
