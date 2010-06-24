@@ -345,6 +345,7 @@ class emc_status:
                 set_active(self.override_limit, ovl)
 
                 set_text(self.status['file'], self.emcstat.file)
+                set_text(self.status['file_lines'], "%d" % len(self.listing.program))
                 set_text(self.status['line'], "%d" % self.emcstat.current_line)
                 set_text(self.status['id'], "%d" % self.emcstat.id)
                 set_text(self.status['dtg'], "%f" % self.emcstat.distance_to_go)

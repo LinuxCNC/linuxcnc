@@ -168,7 +168,7 @@ class touchy:
                 mists = dict((i, self.wTree.get_widget("mist_" + i)) for i in mists)
                 spindles = ['forward', 'off', 'reverse']
                 spindles = dict((i, self.wTree.get_widget("spindle_" + i)) for i in spindles)
-                stats = ['file', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
+                stats = ['file', 'file_lines', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
                          'xyrotation', 'tlo', 'activecodes', 'spindlespeed2',
                          'label_g5xoffset', 'g5xoffset', 'g92offset']

@@ -2462,7 +2462,7 @@
                     <child>
                       <widget class="GtkTable" id="table8">
                         <property name="visible">True</property>
-                        <property name="n_rows">16</property>
+                        <property name="n_rows">17</property>
                         <property name="n_columns">2</property>
                         <property name="column_spacing">10</property>
                         <property name="row_spacing">3</property>
@@ -2485,8 +2485,8 @@
                             <property name="justify">right</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2498,8 +2498,8 @@
                             <property name="label" translatable="yes">Distance:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">6</property>
-                            <property name="bottom_attach">7</property>
+                            <property name="top_attach">7</property>
+                            <property name="bottom_attach">8</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2511,8 +2511,8 @@
                             <property name="label" translatable="yes">Velocity:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">7</property>
-                            <property name="bottom_attach">8</property>
+                            <property name="top_attach">8</property>
+                            <property name="bottom_attach">9</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2524,8 +2524,8 @@
                             <property name="label" translatable="yes">Delay:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">8</property>
-                            <property name="bottom_attach">9</property>
+                            <property name="top_attach">9</property>
+                            <property name="bottom_attach">10</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2537,8 +2537,8 @@
                             <property name="label" translatable="yes">On limit switch:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">9</property>
-                            <property name="bottom_attach">10</property>
+                            <property name="top_attach">10</property>
+                            <property name="bottom_attach">11</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2550,8 +2550,8 @@
                             <property name="label" translatable="yes">Spindle direction:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">10</property>
-                            <property name="bottom_attach">11</property>
+                            <property name="top_attach">11</property>
+                            <property name="bottom_attach">12</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2563,8 +2563,8 @@
                             <property name="label" translatable="yes">Spindle speed:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">11</property>
-                            <property name="bottom_attach">12</property>
+                            <property name="top_attach">12</property>
+                            <property name="bottom_attach">13</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2576,8 +2576,8 @@
                             <property name="label" translatable="yes">Loaded tool:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">12</property>
-                            <property name="bottom_attach">13</property>
+                            <property name="top_attach">13</property>
+                            <property name="bottom_attach">14</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2604,8 +2604,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">6</property>
-                            <property name="bottom_attach">7</property>
+                            <property name="top_attach">7</property>
+                            <property name="bottom_attach">8</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2619,8 +2619,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2634,8 +2634,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">8</property>
-                            <property name="bottom_attach">9</property>
+                            <property name="top_attach">9</property>
+                            <property name="bottom_attach">10</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2649,8 +2649,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">7</property>
-                            <property name="bottom_attach">8</property>
+                            <property name="top_attach">8</property>
+                            <property name="bottom_attach">9</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2664,8 +2664,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">9</property>
-                            <property name="bottom_attach">10</property>
+                            <property name="top_attach">10</property>
+                            <property name="bottom_attach">11</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2679,8 +2679,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">10</property>
-                            <property name="bottom_attach">11</property>
+                            <property name="top_attach">11</property>
+                            <property name="bottom_attach">12</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2694,8 +2694,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">11</property>
-                            <property name="bottom_attach">12</property>
+                            <property name="top_attach">12</property>
+                            <property name="bottom_attach">13</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2709,8 +2709,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">12</property>
-                            <property name="bottom_attach">13</property>
+                            <property name="top_attach">13</property>
+                            <property name="bottom_attach">14</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2722,8 +2722,8 @@
                             <property name="label" translatable="yes">Prepped tool:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">13</property>
-                            <property name="bottom_attach">14</property>
+                            <property name="top_attach">14</property>
+                            <property name="bottom_attach">15</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2737,8 +2737,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">13</property>
-                            <property name="bottom_attach">14</property>
+                            <property name="top_attach">14</property>
+                            <property name="bottom_attach">15</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2751,8 +2751,8 @@
                             <property name="justify">right</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2766,8 +2766,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2780,8 +2780,8 @@
                             <property name="justify">right</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2795,8 +2795,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">4</property>
+                            <property name="bottom_attach">5</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2808,8 +2808,8 @@
                             <property name="label" translatable="yes">Tool length:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">14</property>
-                            <property name="bottom_attach">15</property>
+                            <property name="top_attach">15</property>
+                            <property name="bottom_attach">16</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2823,8 +2823,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">14</property>
-                            <property name="bottom_attach">15</property>
+                            <property name="top_attach">15</property>
+                            <property name="bottom_attach">16</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2841,8 +2841,8 @@ F1 S1</property>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">15</property>
-                            <property name="bottom_attach">16</property>
+                            <property name="top_attach">16</property>
+                            <property name="bottom_attach">17</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2855,8 +2855,8 @@ F1 S1</property>
                             <property name="label" translatable="yes">Active codes:</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">15</property>
-                            <property name="bottom_attach">16</property>
+                            <property name="top_attach">16</property>
+                            <property name="bottom_attach">17</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
@@ -2869,8 +2869,8 @@ F1 S1</property>
                             <property name="justify">right</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2883,8 +2883,8 @@ F1 S1</property>
                             <property name="justify">right</property>
                           </widget>
                           <packing>
-                            <property name="top_attach">5</property>
-                            <property name="bottom_attach">6</property>
+                            <property name="top_attach">6</property>
+                            <property name="bottom_attach">7</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2898,8 +2898,8 @@ F1 S1</property>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">4</property>
-                            <property name="bottom_attach">5</property>
+                            <property name="top_attach">5</property>
+                            <property name="bottom_attach">6</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
@@ -2913,8 +2913,36 @@ F1 S1</property>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">5</property>
-                            <property name="bottom_attach">6</property>
+                            <property name="top_attach">6</property>
+                            <property name="bottom_attach">7</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label2">
+                            <property name="visible">True</property>
+                            <property name="xalign">1</property>
+                            <property name="label" translatable="yes">Loaded file lines:</property>
+                          </widget>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="status_file_lines">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">label19</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_FILL</property>
                             <property name="y_options"></property>
                           </packing>
