@@ -381,7 +381,7 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
             hm2->llio->write(hm2->llio, hm2->stepgen.pulse_idle_width_addr + (i * sizeof(u32)), &hm2->stepgen.pulse_idle_width_reg[i], sizeof(u32));
         }
 
-        if (hm2->stepgen.instance[i].hal.param.step_type != hm2->stepgen.instance[i].written_stepspace) {
+        if (hm2->stepgen.instance[i].hal.param.step_type != hm2->stepgen.instance[i].written_step_type) {
             hm2_stepgen_update_mode(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }
@@ -390,12 +390,16 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
 
 
 static void hm2_stepgen_force_write_mode(hostmot2_t *hm2) {
-    int size;
-
-    if (hm2->stepgen.num_instances == 0) return;
-
-    size = hm2->stepgen.num_instances * sizeof(u32);
-    hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr, hm2->stepgen.mode_reg, size);
+    int i;
+    for (i = 0; i < hm2->stepgen.num_instances; i ++) {
+        hm2_stepgen_update_mode(hm2, i);
+    }
+    hm2->llio->write(
+        hm2->llio,
+        hm2->stepgen.mode_addr,
+        hm2->stepgen.mode_reg,
+        (hm2->stepgen.num_instances * sizeof(u32))
+    );
 }
 
 
