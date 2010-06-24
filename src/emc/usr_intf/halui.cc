@@ -668,7 +668,7 @@ static enum {
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
 
-int halui_export_pin_IN_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_bit(hal_bit_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_IN, pin, comp_id);
@@ -680,7 +680,7 @@ int halui_export_pin_IN_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2])
     return 0;
 }
 
-int halui_export_pin_IN_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_s32(hal_s32_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_s32_new(name, HAL_IN, pin, comp_id);
@@ -692,7 +692,7 @@ int halui_export_pin_IN_s32(hal_s32_t **pin, char name[HAL_NAME_LEN+2])
     return 0;
 }
 
-int halui_export_pin_IN_float(hal_float_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_IN_float(hal_float_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_float_new(name, HAL_IN, pin, comp_id);
@@ -705,7 +705,7 @@ int halui_export_pin_IN_float(hal_float_t **pin, char name[HAL_NAME_LEN+2])
 }
 
 
-int halui_export_pin_OUT_bit(hal_bit_t **pin, char name[HAL_NAME_LEN+2]) 
+int halui_export_pin_OUT_bit(hal_bit_t **pin, char *name) 
 {
     int retval;
     retval = hal_pin_bit_new(name, HAL_OUT, pin, comp_id);
