@@ -348,9 +348,9 @@ class emc_status:
                 set_text(self.status['file_lines'], "%d" % len(self.listing.program))
                 set_text(self.status['line'], "%d" % self.emcstat.current_line)
                 set_text(self.status['id'], "%d" % self.emcstat.id)
-                set_text(self.status['dtg'], "%f" % self.emcstat.distance_to_go)
-                set_text(self.status['velocity'], "%f" % (self.emcstat.current_vel * 60.0))
-                set_text(self.status['delay'], "%f" % self.emcstat.delay_left)
+                set_text(self.status['dtg'], "%.4f" % self.emcstat.distance_to_go)
+                set_text(self.status['velocity'], "%.4f" % (self.emcstat.current_vel * 60.0))
+                set_text(self.status['delay'], "%.2f" % self.emcstat.delay_left)
 
                 flood = self.emcstat.flood
                 set_active(self.floods['on'], flood)
@@ -382,7 +382,7 @@ class emc_status:
 		else:
 			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
-                set_text(self.status['tlo'], "%f" % self.emcstat.tool_offset[2])
+                set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
 
                 cs = self.emcstat.g5x_index
                 if cs<7:
