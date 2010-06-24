@@ -622,6 +622,8 @@ obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
 obj-$(CONFIG_WEIGHTED_SUM) += weighted_sum.o
 weighted_sum-objs := hal/components/weighted_sum.o $(MATHSTUB)
+obj-$(CONFIG_WATCHDOG) += watchdog.o
+watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
 obj-$(CONFIG_MODMATH) += modmath.o
 modmath-objs := hal/components/modmath.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
@@ -833,6 +835,7 @@ endif
 ../rtlib/supply$(MODULE_EXT): $(addprefix objects/rt,$(supply-objs))
 ../rtlib/sim_encoder$(MODULE_EXT): $(addprefix objects/rt,$(sim_encoder-objs))
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
+../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
