@@ -423,7 +423,7 @@ static int hm2_7i43_setup(void) {
         hm2_7i43_epp_write_control(0x04, &board[i]);  // set control lines and input mode
         hm2_7i43_epp_clear_timeout(&board[i]);
 
-        rtapi_snprintf(board[i].llio.name, HAL_NAME_LEN, "%s.%d", HM2_LLIO_NAME, i);
+        rtapi_snprintf(board[i].llio.name, sizeof(board[i].llio.name), "%s.%d", HM2_LLIO_NAME, i);
         board[i].llio.comp_id = comp_id;
 
         board[i].llio.read = hm2_7i43_read;

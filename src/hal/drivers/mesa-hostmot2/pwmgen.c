@@ -424,7 +424,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int i;
         int r;
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
 
         // these hal parameters affect all pwmgen instances
@@ -459,14 +459,14 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
         for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.pwmgen.%02d.value", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.value", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.value), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.pwmgen.%02d.enable", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
@@ -475,7 +475,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // parameters
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.pwmgen.%02d.scale", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);

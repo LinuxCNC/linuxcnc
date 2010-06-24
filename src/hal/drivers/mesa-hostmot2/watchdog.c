@@ -197,9 +197,9 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
 
     // the function
     {
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.pet_watchdog", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.pet_watchdog", hm2->llio->name);
         r = hal_export_funct(name, hm2_pet_watchdog, hm2, 0, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting pet_watchdog function %s\n", r, name);

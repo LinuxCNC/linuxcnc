@@ -295,7 +295,7 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int i;
         int r;
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
         // this hal parameter affects all the 3-Phase pwmgen instances
         r = hal_param_u32_newf(
@@ -316,35 +316,35 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
         for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
             // pins
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.A-value", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.A-value", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Avalue), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.B-value", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.B-value", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Bvalue), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.C-value", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.C-value", hm2->llio->name, i);
             r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.Cvalue), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.enable", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.enable", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.enable), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.fault", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.fault", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_OUT, &(hm2->tp_pwmgen.instance[i].hal.pin.fault), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
@@ -353,28 +353,28 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             // parameters
 
-            rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.scale", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.scale", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.deadtime", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.deadtime", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.deadzone), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.fault-invert", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.fault-invert", hm2->llio->name, i);
             r = hal_param_bit_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.faultpolarity), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail2;
             }
 
-	    rtapi_snprintf(name, HAL_NAME_LEN, "%s.3pwmgen.%02d.sample-time", hm2->llio->name, i);
+	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.sample-time", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->tp_pwmgen.instance[i].hal.param.sampletime), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding param '%s', aborting\n", name);

@@ -754,14 +754,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     {
         int i;
 
-        for (i = 0; i < HAL_NAME_LEN; i ++) {
+        for (i = 0; i < HAL_NAME_LEN+1; i ++) {
             if (llio->name[i] == '\0') break;
             if (!isprint(llio->name[i])) {
                 HM2_ERR_NO_LL("invalid llio name passed in (contains non-printable character)\n");
                 return -EINVAL;
             }
         }
-        if (i == HAL_NAME_LEN) {
+        if (i == HAL_NAME_LEN+1) {
             HM2_ERR_NO_LL("invalid llio name passed in (not NULL terminated)\n");
             return -EINVAL;
         }
@@ -792,14 +792,14 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
                 return -EINVAL;
             }
 
-            for (i = 0; i < HAL_NAME_LEN; i ++) {
+            for (i = 0; i < HAL_NAME_LEN+1; i ++) {
                 if (llio->ioport_connector_name[port][i] == '\0') break;
                 if (!isprint(llio->ioport_connector_name[port][i])) {
                     HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (contains non-printable character)\n", port);
                     return -EINVAL;
                 }
             }
-            if (i == HAL_NAME_LEN) {
+            if (i == HAL_NAME_LEN+1) {
                 HM2_ERR_NO_LL("invalid llio ioport connector name %d passed in (not NULL terminated)\n", port);
                 return -EINVAL;
             }
@@ -961,7 +961,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     {
         int r;
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
         llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
         if (llio->io_error == NULL) {
@@ -972,7 +972,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
         (*llio->io_error) = 0;
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.io_error", llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.io_error", llio->name);
         r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
         if (r < 0) {
             HM2_ERR("error adding param '%s', aborting\n", name);
@@ -1188,9 +1188,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.read", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.read", hm2->llio->name);
         r = hal_export_funct(name, hm2_read, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting read function %s\n", r, name);
@@ -1198,7 +1198,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail1;
         }
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.write", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.write", hm2->llio->name);
         r = hal_export_funct(name, hm2_write, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting write function %s\n", r, name);
@@ -1213,9 +1213,9 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (hm2->llio->threadsafe) {
-        char name[HAL_NAME_LEN + 2];
+        char name[HAL_NAME_LEN + 1];
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.read_gpio", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.read_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_read_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_read function %s\n", r, name);
@@ -1223,7 +1223,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
             goto fail1;
         }
 
-        rtapi_snprintf(name, HAL_NAME_LEN, "%s.write_gpio", hm2->llio->name);
+        rtapi_snprintf(name, sizeof(name), "%s.write_gpio", hm2->llio->name);
         r = hal_export_funct(name, hm2_write_gpio, hm2, 1, 0, hm2->llio->comp_id);
         if (r != 0) {
             HM2_ERR("error %d exporting gpio_write function %s\n", r, name);

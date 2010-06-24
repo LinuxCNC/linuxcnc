@@ -63,7 +63,7 @@ typedef struct hm2_lowlevel_io_struct hm2_lowlevel_io_t;
 
 // FIXME: this is really a lowlevel io *instance*, or maybe a "board"
 struct hm2_lowlevel_io_struct {
-    char name[HAL_NAME_LEN];
+    char name[HAL_NAME_LEN+1];
     int comp_id;
 
     // these two are required

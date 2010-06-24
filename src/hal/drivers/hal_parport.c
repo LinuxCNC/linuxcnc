@@ -207,7 +207,7 @@ int rtapi_app_main(void)
 {
     char *cp;
     char *argv[MAX_TOK];
-    char name[HAL_NAME_LEN + 2];
+    char name[HAL_NAME_LEN + 1];
     int n, retval;
 
 
@@ -261,7 +261,7 @@ rtapi_print ( "config string '%s'\n", cfg );
     /* export functions for each port */
     for (n = 0; n < num_ports; n++) {
 	/* make read function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.read", n);
+	rtapi_snprintf(name, sizeof(name), "parport.%d.read", n);
 	/* export read function */
 	retval = hal_export_funct(name, read_port, &(port_data_array[n]),
 	    0, 0, comp_id);
@@ -272,7 +272,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	    return -1;
 	}
 	/* make write function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.write", n);
+	rtapi_snprintf(name, sizeof(name), "parport.%d.write", n);
 	/* export write function */
 	retval = hal_export_funct(name, write_port, &(port_data_array[n]),
 	    0, 0, comp_id);
@@ -283,7 +283,7 @@ rtapi_print ( "config string '%s'\n", cfg );
 	    return -1;
 	}
 	/* make reset function name */
-	rtapi_snprintf(name, HAL_NAME_LEN, "parport.%d.reset", n);
+	rtapi_snprintf(name, sizeof(name), "parport.%d.reset", n);
 	/* export write function */
 	retval = hal_export_funct(name, reset_port, &(port_data_array[n]),
 	    0, 0, comp_id);

@@ -134,7 +134,7 @@ static void update_port(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    char name[HAL_NAME_LEN + 2];
+    char name[HAL_NAME_LEN + 1];
     int n,i , retval, num_dac, num_enc;
 
     unsigned int base=0x300;
@@ -184,9 +184,8 @@ int rtapi_app_main(void)
 
     /* Export DAC pin's */
     for ( num_dac=1; num_dac<=MAX_DAC; num_dac++) {
-      rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.dac-%02d-out", 1, num_dac);
-      retval =
-	  hal_pin_float_new(name, HAL_IN, &(port_data_array->dac_out[num_dac-1]), comp_id);
+      retval = hal_pin_float_newf(HAL_IN, &(port_data_array->dac_out[num_dac-1]),
+				  comp_id, "evoreg.%d.dac-%02d-out", 1, num_dac);
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	    "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -198,9 +197,8 @@ int rtapi_app_main(void)
 
     /* Export Encoder pin's */
     for ( num_enc=1; num_enc<=MAX_ENC; num_enc++) {
-  	  rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.position-%02d-in", 1, num_enc);
-      retval =
-	  hal_pin_float_new(name, HAL_OUT, &(port_data_array->position[num_enc - 1]), comp_id);
+      retval = hal_pin_float_newf(HAL_OUT, &(port_data_array->position[num_enc - 1]),
+				  comp_id, "evoreg.%d.position-%02d-in", 1, num_enc);
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -214,12 +212,13 @@ int rtapi_app_main(void)
 
     /* export write only HAL pin's for the input bit */
     for ( i=0; i<=45;i++) {
-      rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-in", 1, i);
-      retval += hal_pin_bit_new(name, HAL_OUT, &(port_data_array->digital_in[i]), comp_id);
+      retval += hal_pin_bit_newf(HAL_OUT, &(port_data_array->digital_in[i]),
+				 comp_id, "evoreg.%d.pin-%02d-in", 1, i);
 
       /* export another write only HAL pin for the same bit inverted */
-    /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-in-not", 1, i);
-      retval += hal_pin_bit_new(name, HAL_OUT, &(port_data_array->digital_in[(2*i)+1]), comp_id); */
+      /*
+      retval += hal_pin_bit_newf(HAL_OUT, &(port_data_array->digital_in[(2*i)+1]),
+				 comp_id, "evoreg.%d.pin-%02d-in-not", 1, i); */
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -231,12 +230,13 @@ int rtapi_app_main(void)
 
     /* export read only HAL pin's for the output bit */
     for ( i=0; i<=23;i++) {
-      rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-out", 1, i);
-      retval += hal_pin_bit_new(name, HAL_IN, &(port_data_array->digital_out[i]), comp_id);
+      retval += hal_pin_bit_newf(HAL_IN, &(port_data_array->digital_out[i]),
+				 comp_id, "evoreg.%d.pin-%02d-out", 1, i);
 
       /* export another read only HAL pin for the same bit inverted */
-    /*rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.pin-%02d-out-not", 1, i);
-      retval += hal_pin_bit_new(name, HAL_IN, &(port_data_array->digital_out[(2*i)+1]), comp_id);  */
+      /*
+      retval += hal_pin_bit_newf(HAL_IN, &(port_data_array->digital_out[(2*i)+1]),
+				 comp_id, "evoreg.%d.pin-%02d-out-not", 1, i));  */
       if (retval < 0) {
 	  rtapi_print_msg(RTAPI_MSG_ERR,
 	      "EVOREG: ERROR: port %d var export failed with err=%i\n", n + 1,
@@ -247,17 +247,16 @@ int rtapi_app_main(void)
     }
 
     /* export parameter for scaling */
-    rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.position-scale", 1);
-    retval = hal_param_float_new(name, HAL_RW, &(port_data_array->pos_scale), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(port_data_array->pos_scale),
+				  comp_id, "evoreg.%d.position-scale", 1);
     if (retval != 0) {
 	return retval;
     }
 
 
     /* STEP 4: export function */
-    rtapi_snprintf(name, HAL_NAME_LEN, "evoreg.%d.update", n + 1);
-    retval =
-	hal_export_funct(name, update_port, &(port_data_array[n]), 1, 0,
+    rtapi_snprintf(name, sizeof(name), "evoreg.%d.update", n + 1);
+    retval = hal_export_funct(name, update_port, &(port_data_array[n]), 1, 0,
 	comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,

@@ -376,7 +376,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
     switch (dev->subsystem_device) {
         case HM2_PCI_SSDEV_5I20: {
             LL_PRINT("discovered 5i20 at %s\n", pci_name(dev));
-            rtapi_snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i20.%d", num_5i20);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i20.%d", num_5i20);
             num_5i20 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P2";
@@ -388,7 +388,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
         case HM2_PCI_SSDEV_4I65: {
             LL_PRINT("discovered 4i65 at %s\n", pci_name(dev));
-            rtapi_snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i65.%d", num_4i65);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i65.%d", num_4i65);
             num_4i65 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P1";
@@ -407,7 +407,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
                 LL_PRINT("discovered 5i22-1.5M at %s\n", pci_name(dev));
                 board->llio.fpga_part_number = "3s1500fg320";
             }
-            rtapi_snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i22.%d", num_5i22);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i22.%d", num_5i22);
             num_5i22 ++;
             board->llio.num_ioport_connectors = 4;
             board->llio.ioport_connector_name[0] = "P2";
@@ -419,7 +419,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
 
         case HM2_PCI_SSDEV_5I23: {
             LL_PRINT("discovered 5i23 at %s\n", pci_name(dev));
-            rtapi_snprintf(board->llio.name, HAL_NAME_LEN, "hm2_5i23.%d", num_5i23);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i23.%d", num_5i23);
             num_5i23 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P2";
@@ -436,7 +436,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             } else {
                 LL_PRINT("discovered 4i68 at %s\n", pci_name(dev));
             }
-            rtapi_snprintf(board->llio.name, HAL_NAME_LEN, "hm2_4i68.%d", num_4i68);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_4i68.%d", num_4i68);
             num_4i68 ++;
             board->llio.num_ioport_connectors = 3;
             board->llio.ioport_connector_name[0] = "P1";
@@ -459,7 +459,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
                 LL_PRINT("discovered 3x20-2.0M at %s\n", pci_name(dev));
                 board->llio.fpga_part_number = "3s2000fg456";
             }
-            snprintf(board->llio.name, HAL_NAME_LEN, "hm2_3x20.%d", num_3x20);
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_3x20.%d", num_3x20);
             num_3x20 ++;
             board->llio.num_ioport_connectors = 6;
             board->llio.ioport_connector_name[0] = "P4";

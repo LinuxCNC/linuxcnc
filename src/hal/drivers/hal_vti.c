@@ -840,7 +840,6 @@ static int vti_autodetect()
 static int export_counter(int num, vti_struct * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
@@ -848,20 +847,20 @@ static int export_counter(int num, vti_struct * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export pin for counts captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &addr->count[num], comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &addr->count[num],
+			      comp_id, "vti.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &addr->pos[num], comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &addr->pos[num],
+				comp_id, "vti.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->pos_scale[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->pos_scale[num],
+				  comp_id, "vti.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
@@ -873,7 +872,6 @@ static int export_counter(int num, vti_struct * addr)
 static int export_dac(int num, vti_struct * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
@@ -881,21 +879,20 @@ static int export_dac(int num, vti_struct * addr)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export pin for voltage received by the board() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.dac-value", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &addr->dac_value[num], comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &addr->dac_value[num],
+				comp_id, "vti.%d.dac-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.dac-offset", num);
-    retval =
-	hal_param_float_new(buf, HAL_RW, &addr->dac_offset[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->dac_offset[num],
+				  comp_id, "vti.%d.dac-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.%d.dac-gain", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->dac_gain[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->dac_gain[num],
+				  comp_id, "vti.%d.dac-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -943,16 +940,15 @@ static int export_pin(int num, int dir, vti_struct * addr)
 }
 static int export_input_pin(int pinnum, io_pin * pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
     /* export read only HAL pin for input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.in-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data),
+			      comp_id, "vti.in-%02d", pinnum);
     if (retval != 0)
 	return retval;
     /* export additional pin for inverted input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.in-%02d-not", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->io.not), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not),
+			      comp_id, "vti.in-%02d-not", pinnum);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -960,16 +956,15 @@ static int export_input_pin(int pinnum, io_pin * pin)
 }
 static int export_output_pin(int pinnum, io_pin * pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
     /* export read only HAL pin for output data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.out-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(pin->data),
+			      comp_id, "vti.out-%02d", pinnum);
     if (retval != 0)
 	return retval;
     /* export parameter for polarity */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "vti.out-%02d-invert", pinnum);
-    retval = hal_param_bit_new(buf, HAL_RW, &(pin->io.invert), comp_id);
+    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert),
+				comp_id, "vti.out-%02d-invert", pinnum);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

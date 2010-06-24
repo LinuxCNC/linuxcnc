@@ -1427,7 +1427,6 @@ unsigned short stg_autodetect()
 static int export_counter(int num, stg_struct *addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -1437,34 +1436,34 @@ static int export_counter(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for counts captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &addr->count[num], comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &addr->count[num],
+			      comp_id, "stg.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &addr->pos[num], comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &addr->pos[num],
+				comp_id, "stg.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->pos_scale[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->pos_scale[num],
+				  comp_id, "stg.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }
 
   /* export pin for index homing */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-enable", num);
-    retval = hal_pin_bit_new(buf, HAL_IO, &addr->index_enable[num], comp_id);
+    retval = hal_pin_bit_newf(HAL_IO, &addr->index_enable[num],
+			      comp_id, "stg.%d.index-enable", num);
     if (retval != 0) {
 	return retval;
     }
 
   /* export pin for reading the index latch */
-  rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-latch", num);
-  retval = hal_pin_bit_new(buf, HAL_OUT, &addr->index_latch[num], comp_id);
+  retval = hal_pin_bit_newf(HAL_OUT, &addr->index_latch[num],
+			    comp_id, "stg.%d.index-latch", num);
   if (retval != 0) {
     return retval;
   }
@@ -1477,10 +1476,8 @@ static int export_counter(int num, stg_struct *addr)
   if( addr->model == 1 ) 
   {
     /* export read only HAL pin for index pulse polarity */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.index-polarity", num);
-    rtapi_print_msg(RTAPI_MSG_DBG, "STG: Start Exporting %s\n", buf );
-    retval = hal_pin_bit_new(buf, HAL_IN, &addr->index_polarity[num], comp_id);
-    rtapi_print_msg(RTAPI_MSG_DBG, "STG: End Exporting %s\n", buf );
+    retval = hal_pin_bit_newf(HAL_IN, &addr->index_polarity[num],
+			      comp_id, "stg.%d.index-polarity", num);
     if (retval != 0) 
     {
       return retval;
@@ -1496,7 +1493,6 @@ static int export_counter(int num, stg_struct *addr)
 static int export_dac(int num, stg_struct *addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -1506,20 +1502,20 @@ static int export_dac(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-value", num);
-    retval = hal_pin_float_new(buf, HAL_IN, &addr->dac_value[num], comp_id);
+    retval = hal_pin_float_newf(HAL_IN, &addr->dac_value[num],
+				comp_id, "stg.%d.dac-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-offset", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->dac_offset[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->dac_offset[num],
+				  comp_id, "stg.%d.dac-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.dac-gain", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->dac_gain[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->dac_gain[num],
+				  comp_id, "stg.%d.dac-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -1532,7 +1528,6 @@ static int export_dac(int num, stg_struct *addr)
 static int export_adc(int num, stg_struct *addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -1542,20 +1537,20 @@ static int export_adc(int num, stg_struct *addr)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export pin for voltage received by the board() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-value", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &addr->adc_value[num], comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &addr->adc_value[num],
+				comp_id, "stg.%d.adc-value", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for offset */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-offset", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->adc_offset[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->adc_offset[num],
+				  comp_id, "stg.%d.adc-offset", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for gain */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.%d.adc-gain", num);
-    retval = hal_param_float_new(buf, HAL_RW, &addr->adc_gain[num], comp_id);
+    retval = hal_param_float_newf(HAL_RW, &addr->adc_gain[num],
+				  comp_id, "stg.%d.adc-gain", num);
     if (retval != 0) {
 	return retval;
     }
@@ -1593,9 +1588,8 @@ static int export_pins(int num, int dir, stg_struct *addr)
 
 static int export_input_pin(int pinnum, io_pin * pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
-  int msg;
+    int msg;
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -1605,14 +1599,14 @@ static int export_input_pin(int pinnum, io_pin * pin)
     rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data), comp_id,
+			      "stg.in-%02d", pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export additional pin for inverted input data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.in-%02d-not", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_OUT, &(pin->io.not), comp_id);
+    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not), comp_id,
+			      "stg.in-%02d-not", pinnum);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -1625,9 +1619,8 @@ static int export_input_pin(int pinnum, io_pin * pin)
 
 static int export_output_pin(int pinnum, io_pin * pin)
 {
-    char buf[HAL_NAME_LEN + 2];
     int retval;
-  int msg;
+    int msg;
 
   /*
    * This function exports a lot of stuff, which results in a lot of
@@ -1639,14 +1632,14 @@ static int export_output_pin(int pinnum, io_pin * pin)
   rtapi_set_msg_level( STG_MSG_LEVEL );
 
     /* export read only HAL pin for output data */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d", pinnum);
-    retval = hal_pin_bit_new(buf, HAL_IN, &(pin->data), comp_id);
+    retval = hal_pin_bit_newf(HAL_IN, &(pin->data),
+			      comp_id, "stg.out-%02d", pinnum);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for polarity */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "stg.out-%02d-invert", pinnum);
-    retval = hal_param_bit_new(buf, HAL_RW, &(pin->io.invert), comp_id);
+    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert),
+				comp_id, "stg.out-%02d-invert", pinnum);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

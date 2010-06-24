@@ -245,7 +245,6 @@ long LS7166Read(int i)
 static int export_counter(int num, counter_t * addr)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 2];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -255,20 +254,20 @@ static int export_counter(int num, counter_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pin for counts captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "tiro.%d.counts", num);
-    retval = hal_pin_s32_new(buf, HAL_OUT, &(addr->count), comp_id);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
+			      "tiro.%d.counts", num);
     if (retval != 0) {
 	return retval;
     }
     /* export pin for scaled position captured by update() */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "tiro.%d.position", num);
-    retval = hal_pin_float_new(buf, HAL_OUT, &(addr->pos), comp_id);
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
+				"tiro.%d.position", num);
     if (retval != 0) {
 	return retval;
     }
     /* export parameter for scaling */
-    rtapi_snprintf(buf, HAL_NAME_LEN, "tiro.%d.position-scale", num);
-    retval = hal_param_float_new(buf, HAL_RW, &(addr->pos_scale), comp_id);
+    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
+				  "tiro.%d.position-scale", num);
     if (retval != 0) {
 	return retval;
     }

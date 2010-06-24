@@ -33,7 +33,7 @@
 
 int hm2_raw_setup(hostmot2_t *hm2) {
     int r;
-    char name[HAL_NAME_LEN + 2];
+    char name[HAL_NAME_LEN + 1];
 
 
     if (hm2->config.enable_raw == 0) {
@@ -48,42 +48,42 @@ int hm2_raw_setup(hostmot2_t *hm2) {
         return -ENOMEM;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.read_address", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.read_address", hm2->llio->name);
     r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.read_address), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.read_data", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.read_data", hm2->llio->name);
     r = hal_pin_u32_new(name, HAL_OUT, &(hm2->raw->hal.pin.read_data), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.write_address", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.write_address", hm2->llio->name);
     r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.write_address), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.write_data", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.write_data", hm2->llio->name);
     r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.write_data), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.write_strobe", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.write_strobe", hm2->llio->name);
     r = hal_pin_bit_new(name, HAL_IN, &(hm2->raw->hal.pin.write_strobe), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
-    rtapi_snprintf(name, HAL_NAME_LEN, "%s.raw.dump_state", hm2->llio->name);
+    rtapi_snprintf(name, sizeof(name), "%s.raw.dump_state", hm2->llio->name);
     r = hal_pin_bit_new(name, HAL_IO, &(hm2->raw->hal.pin.dump_state), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
