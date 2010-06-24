@@ -50,7 +50,6 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 2: return "B";
                 case 3: return "Index";
                 case 4: return "IndexMask";
-                case 0x45:
                 case 5: return "Probe";
             }
             break;
