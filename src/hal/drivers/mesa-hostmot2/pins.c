@@ -40,7 +40,7 @@ RTAPI_MP_INT(debug_pin_descriptors, "Developer/debug use only!  Enable debug log
 // FIXME: the static automatic string makes this function non-reentrant
 static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     static char unknown[100];
-    int sec_pin = pin->sec_pin & 0x3F;  // turn off the "pin is an output" bit and "applies to all instances" bit
+    int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
 
     switch (pin->sec_tag) {
 
