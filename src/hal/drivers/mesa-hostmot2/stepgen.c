@@ -59,7 +59,7 @@ void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
         // representation of the current stepper position.
         // The fractional part gives accurate velocity at low speeds, and
         // sub-step position feedback (like sw stepgen).
-        acc_delta = acc - hm2->stepgen.instance[i].prev_accumulator;
+        acc_delta = (s64)acc - (s64)hm2->stepgen.instance[i].prev_accumulator;
         if (acc_delta > INT32_MAX) {
             acc_delta -= UINT32_MAX;
         } else if (acc_delta < INT32_MIN) {
