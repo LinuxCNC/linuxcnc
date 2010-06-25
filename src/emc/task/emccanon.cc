@@ -176,7 +176,7 @@ static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, do
 
     x += currentToolOffset.tran.x;
     y += currentToolOffset.tran.y;
-    x += currentToolOffset.tran.z;
+    z += currentToolOffset.tran.z;
     a += currentToolOffset.a;
     b += currentToolOffset.b;
     c += currentToolOffset.c;
