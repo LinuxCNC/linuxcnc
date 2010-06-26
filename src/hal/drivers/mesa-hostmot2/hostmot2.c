@@ -872,7 +872,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         device_unregister(&dev);
         if (r == -ENOENT) {
             HM2_ERR("firmware %s not found\n", hm2->config.firmware);
-            HM2_ERR("install the package containing the firmware, or link your RIP sandbox into /lib/firmware manually\n");
+            HM2_ERR("install the package containing the firmware.\n");
             goto fail0;
         }
         if (r != 0) {
