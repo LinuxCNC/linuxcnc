@@ -91,7 +91,7 @@ int rtapi_app_main(void)
     comp_id = hal_init("watchdog");
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "WATCHDOG: ERROR: hal_init() failed (Return code %d)\n", retval);
+	    "WATCHDOG: ERROR: hal_init() failed (Return code %d)\n", comp_id);
 	return -1;
     }
 
@@ -168,8 +168,9 @@ int rtapi_app_main(void)
     hal_ready(comp_id);
     return 0;
     
-    err:
+err:
     hal_exit(comp_id);
+    return 0;
 }
 
 void rtapi_app_exit(void)
@@ -217,7 +218,6 @@ static void process(void *arg, long period)
 static void set_timeouts(void *arg, long period)
 {
     int i;
-    hal_u32_t sec, nsec;
     hal_float_t temp;
     
     for (i=0;i<num_inputs;i++) {
