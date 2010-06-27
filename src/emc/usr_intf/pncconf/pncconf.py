@@ -3115,14 +3115,10 @@ class App:
             self.set_mesa_options(boardnum,self.data.mesa0_boardname,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
                     self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
         elif not self.intrnldata.mesa0_configured:
-            self.widgets.mesa0con2tab.set_sensitive(0)
-            self.widgets.mesa0con2table.set_sensitive(0)
-            self.widgets.mesa0con3table.set_sensitive(0)
-            self.widgets.mesa0con3tab.set_sensitive(0)
-            self.widgets.mesa0con4tab.set_sensitive(0)
-            self.widgets.mesa0con4table.set_sensitive(0)
-            self.widgets.mesa0con5table.set_sensitive(0)
-            self.widgets.mesa0con5tab.set_sensitive(0)
+            self.widgets.mesa0con2table.hide()
+            self.widgets.mesa0con3table.hide()   
+            self.widgets.mesa0con4table.hide()
+            self.widgets.mesa0con5table.hide()           
         self.widgets.mesa0_parportaddrs.set_text(self.data.mesa0_parportaddrs)
             
     def on_mesa0_next(self,*args):
@@ -3150,15 +3146,11 @@ class App:
         if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa1_configured  :
             self.set_mesa_options(boardnum,self.data.mesa1_boardname,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
                     self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
-        elif not self.intrnldata.mesa1_configured:
-            self.widgets.mesa1con2tab.set_sensitive(0)
-            self.widgets.mesa1con2table.set_sensitive(0)
-            self.widgets.mesa1con3table.set_sensitive(0)
-            self.widgets.mesa1con3tab.set_sensitive(0)
-            self.widgets.mesa1con4tab.set_sensitive(0)
-            self.widgets.mesa1con4table.set_sensitive(0)
-            self.widgets.mesa1con5table.set_sensitive(0)
-            self.widgets.mesa1con5tab.set_sensitive(0)
+        elif not self.intrnldata.mesa1_configured:           
+            self.widgets.mesa1con2table.hide()
+            self.widgets.mesa1con3table.hide()           
+            self.widgets.mesa1con4table.hide()
+            self.widgets.mesa1con5table.hide()
         self.widgets.mesa1_parportaddrs.set_text(self.data.mesa1_parportaddrs)
 
     def on_mesa1_next(self,*args):
@@ -3344,20 +3336,22 @@ class App:
                 break
         self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon3tab"% boardnum].set_sensitive(1)
+        self.widgets["mesa%dcon3table"% boardnum].show()
         self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
-        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1)
+        self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
+        self.widgets["mesa%dcon4table"% boardnum].show()      
         if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i22":
             self.widgets["mesa%dcon5table"% boardnum].set_sensitive(1)
             self.widgets["mesa%dcon5tab"% boardnum].set_sensitive(1)
+            self.widgets["mesa%dcon5table"% boardnum].show()
         else:
-            self.widgets["mesa%dcon5table"% boardnum].set_sensitive(0)
-            self.widgets["mesa%dcon5tab"% boardnum].set_sensitive(0)
+            self.widgets["mesa%dcon5table"% boardnum].hide()
         if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "7i43":
-            self.widgets["mesa%dcon2table"% boardnum].set_sensitive(0)
-            self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(0)
+            self.widgets["mesa%dcon2table"% boardnum].hide()
         else:
             self.widgets["mesa%dcon2table"% boardnum].set_sensitive(1) 
             self.widgets["mesa%dcon2tab"% boardnum].set_sensitive(1)
+            self.widgets["mesa%dcon2table"% boardnum].show()
         for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
