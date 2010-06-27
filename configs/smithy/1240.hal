@@ -141,10 +141,10 @@ net SOFF hm2_5i20.0.gpio.033.in motion.feed-hold
 # Axis Drive Status Signals
 # True when YAKO stepper drive is on a full step position
 # True when a Leadshine stepper drive is in the READY state
-net DRV1 hm2_5i20.0.gpio.025.in_not
+net DRV0 hm2_5i20.0.gpio.025.in_not
+net DRV1 hm2_5i20.0.gpio.027.in_not
 net DRV2 hm2_5i20.0.gpio.036.in_not
-net DRV3 hm2_5i20.0.gpio.027.in_not
-net DRV4 hm2_5i20.0.gpio.038.in_not
+net DRV3 hm2_5i20.0.gpio.038.in_not
 
 # Output Bits
 # KA1
