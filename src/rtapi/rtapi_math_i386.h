@@ -12,12 +12,22 @@ MATHOP(sin, "fsin")
 MATHOP(cos, "fcos")
 MATHOP(fabs, "fabs")
 MATHOP(sqrt, "fsqrt")
-MATHOP(tan, "fptan")
+
+extern __inline double tan (double __x) {
+    register long double __value;
+    register long double __value2 __attribute__ ((__unused__));
+    __asm __volatile__ ("fptan" : "=t" (__value2), "=u" (__value) : "0" (__x));
+    return __value;
+}
 
 extern __inline double atan2 (double __y, double __x) {
     register long double __value;
     __asm __volatile__ ("fpatan" : "=t" (__value) : "0" (__x), "u" (__y) : "st(1)");
     return __value;
+}
+
+extern __inline double atan (double __y) {
+    return atan2(__y, 1.);
 }
 
 extern __inline double asin (double __x) {
