@@ -380,35 +380,37 @@ int GetModbusResponseLenghtToReceive( void )
 	if ( CurrentReq!=-1 )
 	{
 		int NbrEles = ModbusMasterReq[ CurrentReq ].NbrModbusElements;
-		LgtResp++;//for function code
 		switch( CurrentFuncCode )
 		{
 				case MODBUS_FC_READ_INPUTS:
                                 case MODBUS_FC_READ_COILS:
+                                // 1 byte for function code
                                 // 1 byte for count of data bytes returned 
                                 // 1 byte for 8 coils if number of coils is not evenly divisable by 8 add another byte
 				        NbrRealBytes = (NbrEles+7)/8;
-					LgtResp++;
-					LgtResp = LgtResp + NbrRealBytes;
+                                        LgtResp = 2+NbrRealBytes;
                                         break;
 				case MODBUS_FC_READ_INPUT_REGS:
 				case MODBUS_FC_READ_HOLD_REGS:
+                                // 1 byte for function code
+                                // 1 byte for count of data bytes returned
                                 // 2 bytes per register for data returned and 1 byte for number of registers (max 125)
-					LgtResp = LgtResp + (NbrEles*2)+1;
+					LgtResp = 2+2*NbrEles;
 					break;
-				case MODBUS_FC_FORCE_COIL:					
+				case MODBUS_FC_FORCE_COIL:
 				case MODBUS_FC_FORCE_COILS:
 				case MODBUS_FC_WRITE_REG:
-                                // 2 bytes for address 2 for data
-					LgtResp = LgtResp + LgtResp +4; 
-					break;
 				case MODBUS_FC_WRITE_REGS:
-                                // 2 bytes for address start and 2 bytes for number of registers 
-					LgtResp = LgtResp + LgtResp +4; 
+                                // 1 byte for function code
+                                // 2 bytes for starting address
+                                // 2 bytes for number of addresses
+					LgtResp = 5;
 					break;
-				case MODBUS_FC_DIAGNOSTICS://modbus function 8
+				case MODBUS_FC_DIAGNOSTICS:
+                                // assume hardcoded sub code: echo (0x0)
+                                // 2 byte for function code
                                 // 2 bytes for sub code 2 for data
-					LgtResp = LgtResp + LgtResp +4; 
+					LgtResp = 5;
 					break;
                                 default:
                                         printf("INFO CLASSICLADDER-   MODBUS function code not reconized");
