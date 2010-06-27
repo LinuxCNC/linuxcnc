@@ -551,9 +551,10 @@ double Interp::find_straight_length(double x2,   //!< X-coordinate of end point
                                     double w_1
   )
 {
-    if ((x1 != x2) || (y1 != y2) || (z1 != z2))
+#define tiny 1e-7
+    if ( (fabs(x1-x2) > tiny) || (fabs(y1-y2) > tiny) || (fabs(z1-z2) > tiny) )
         return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
-    else if ((u_1 != u_2) || (v_1 != v_2) || (w_1 != w_2))
+    else if ( (fabs(u_1-u_2) > tiny) || (fabs(v_1-v_2) > tiny) || (fabs(w_1-w_2) > tiny) )
         return sqrt(pow((u_2 - u_1), 2) + pow((v_2 - v_1), 2) + pow((w_2 - w_1), 2));
     else
         return sqrt(pow((AA_2 - AA_1), 2) + pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
