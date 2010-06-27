@@ -5134,22 +5134,17 @@ name "sub:G53:-Move-in"
 \end_layout
 
 \begin_layout Standard
-For linear (straight line) motion to a point expressed in absolute coordinates,
- program 
+To move in absolute coordinates from the machine origin, program 
 \family typewriter
-G1 G53 X- Y- Z- A- B- C-
+G53
 \family default
- (or use 
+ on the same line as a linear move.
+ 
 \family typewriter
-G0
+G53
 \family default
- instead of 
-\family typewriter
-G1
-\family default
-), where all the axis words are optional, except that at least one must
- be used.
- The 
+ is not modal and must be programmed on each line.
+ 
 \family typewriter
 G0
 \family default
@@ -5157,26 +5152,13 @@ G0
 \family typewriter
 G1
 \family default
- is optional if it is the current motion mode.
- 
+ does not have to be programmed on the same line if one is currently active.
+ For example 
 \family typewriter
-G53
+G53 G0 X0 Y0 Z0
 \family default
- is not modal and must be programmed on each line on which it is intended
- to be active.
- This will produce coordinated linear motion to the programmed point.
- If 
-\family typewriter
-G1
-\family default
- is active, the speed of motion is the current feed rate (or slower if the
- machine will not go that fast).
- If 
-\family typewriter
-G0
-\family default
- is active, the speed of motion is the current traverse rate (or slower
- if the machine will not go that fast).
+ will move the axes to the home position even if the currently selected
+ coordinate system has offsets in effect.
 \end_layout
 
 \begin_layout Standard
@@ -5189,17 +5171,6 @@ G53 is used without G0 or G1 being active,
 
 \begin_layout Itemize
 or G53 is used while cutter radius compensation is on.
-\end_layout
-
-\begin_layout Standard
-See Section 
-\begin_inset LatexCommand ref
-reference "cha:Coordinate-System"
-
-\end_inset
-
- for an overview of coordinate systems.
- 
 \end_layout
 
 \begin_layout Section
