@@ -1077,7 +1077,7 @@ class Data:
         print >>file, "EMCMOT = motmod"
         print >>file, "COMM_TIMEOUT = 1.0"
         print >>file, "COMM_WAIT = 0.010"
-        print >>file, "BASE_PERIOD = %d" % self.baseperiod
+        #print >>file, "BASE_PERIOD = %d" % self.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.servoperiod
         print >>file
         print >>file, "# [HOSTMOT2]"
@@ -1572,7 +1572,7 @@ class Data:
         print >>file, _("# overwritten when you run PNCconf again")
         print >>file
         print >>file, "loadrt trivkins"
-        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
+        print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
         print >>file, "loadrt hostmot2"
         if self.number_mesa == 1:            
@@ -1704,24 +1704,24 @@ class Data:
             print >>file, "loadusr -Wn custompanel pyvcp -c custompanel [DISPLAY](PYVCP)"
         print >>file
         if self.number_pports > 0:
-            print >>file, "addf parport.0.read base-thread"
+            print >>file, "addf parport.0.read servo-thread"
         if self.number_pports > 1:
-            print >>file, "addf parport.1.read base-thread"
+            print >>file, "addf parport.1.read servo-thread"
         if self.number_pports > 2:
-            print >>file, "addf parport.2.read base-thread"
+            print >>file, "addf parport.2.read servo-thread"
  
-        if pump: print >>file, "addf charge-pump base-thread"
+        if pump: print >>file, "addf charge-pump servo-thread"
            
         for i in self.addcompbase:
             if not i == '':
                 print >>file, i +" base-thread"
 
         if self.number_pports > 0:
-            print >>file, "addf parport.0.write base-thread"         
+            print >>file, "addf parport.0.write servo-thread"         
         if self.number_pports > 1:
-            print >>file, "addf parport.1.write base-thread"
+            print >>file, "addf parport.1.write servo-thread"
         if self.number_pports > 2:
-            print >>file, "addf parport.2.write base-thread"
+            print >>file, "addf parport.2.write servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
                 if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
