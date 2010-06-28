@@ -482,9 +482,9 @@ void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2) {
         kfree(hm2->tp_pwmgen.enable_reg);
         hm2->tp_pwmgen.enable_reg = NULL;
     }
-    if (hm2->pwmgen.instance != NULL) {
-        kfree(hm2->pwmgen.instance);
-        hm2->pwmgen.instance = NULL;
+    if (hm2->tp_pwmgen.instance != NULL) {
+        kfree(hm2->tp_pwmgen.instance);
+        hm2->tp_pwmgen.instance = NULL;
     }
     hm2->tp_pwmgen.num_instances = 0;
 }
