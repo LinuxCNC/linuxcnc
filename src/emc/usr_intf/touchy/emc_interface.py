@@ -402,7 +402,8 @@ class emc_status:
                 tt = ""
                 for p, t in zip(range(len(self.emcstat.tool_table)), self.emcstat.tool_table):
                         if t.id != -1:
-                                tt += "<b>P%d:</b>T%d " % (p, t.id)
+                                tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
+                                if p == 0: tt += '\n'
                 set_text(self.status['tooltable'], tt)
                         
                 
