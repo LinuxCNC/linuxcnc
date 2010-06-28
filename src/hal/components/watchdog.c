@@ -170,7 +170,7 @@ int rtapi_app_main(void)
     
 err:
     hal_exit(comp_id);
-    return 0;
+    return -1;
 }
 
 void rtapi_app_exit(void)
