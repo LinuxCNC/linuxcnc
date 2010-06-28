@@ -584,7 +584,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     int j=0;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
         struct CANON_TOOL_TABLE &t = s->status.io.tool.toolTable[i];
-        if(t.toolno == -1 && i!=0) continue;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
         PyStructSequence_SET_ITEM(tool, 0, PyInt_FromLong(t.toolno));
         PyStructSequence_SET_ITEM(tool, 1, PyFloat_FromDouble(t.offset.tran.x));

@@ -171,7 +171,7 @@ class touchy:
                 stats = ['file', 'file_lines', 'line', 'id', 'dtg', 'velocity', 'delay', 'onlimit',
                          'spindledir', 'spindlespeed', 'loadedtool', 'preppedtool',
                          'xyrotation', 'tlo', 'activecodes', 'spindlespeed2',
-                         'label_g5xoffset', 'g5xoffset', 'g92offset']
+                         'label_g5xoffset', 'g5xoffset', 'g92offset', 'tooltable']
                 stats = dict((i, self.wTree.get_widget("status_" + i)) for i in stats)
                 prefs = ['actual', 'commanded', 'inch', 'mm']
                 prefs = dict((i, self.wTree.get_widget("dro_" + i)) for i in prefs)

@@ -381,6 +381,14 @@ class emc_status:
 			set_text(self.status['preppedtool'], _("None"))
 		else:
 			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
+
+                tt = ""
+                for p, t in zip(range(len(self.emcstat.tool_table)), self.emcstat.tool_table):
+                        if t.id != -1:
+                                tt += "<b>P%d:</b>T%d " % (p, t.id)
+                set_text(self.status['tooltable'], tt)
+                        
+                
                 set_text(self.status['xyrotation'], "%d" % self.emcstat.rotation_xy)
                 set_text(self.status['tlo'], "%.4f" % self.emcstat.tool_offset[2])
 
