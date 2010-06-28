@@ -415,7 +415,7 @@ class emc_status:
                 else:
                         cslabel = "G59.%d" % (cs-6)
                         
-                set_text(self.status['label_g5xoffset'], cslabel + ' Offset:');
+                set_text(self.status['label_g5xoffset'], '<b>' + cslabel + '</b>' + ' Offset:');
 
                 g5x = ""
                 g92 = ""
