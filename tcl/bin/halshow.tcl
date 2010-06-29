@@ -84,12 +84,20 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
-        $filemenu add command -label [msgcat::mc "Save Watch List"] \
+        set ::savelabel "Save Watch List" ;# identifier for entryconfigure
+        $filemenu add command -label [msgcat::mc $::savelabel] \
             -command {savewatchlist}
         $filemenu add command -label [msgcat::mc "Load Watch List"] \
             -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
+        $filemenu configure -postcommand {
+          if {$::watchlist != ""} {
+            $filemenu entryconfigure [msgcat::mc $::savelabel] -state normal
+          } else {
+            $filemenu entryconfigure [msgcat::mc $::savelabel] -state disabled
+          }
+        }
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Tree View"] \
             -menu $viewmenu
