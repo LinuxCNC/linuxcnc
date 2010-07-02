@@ -1015,6 +1015,7 @@ class GlCanonDraw:
             axisdtg = self.to_internal_units(s.dtg)
             g5x_offset = self.to_internal_units(s.g5x_offset)
             g92_offset = self.to_internal_units(s.g92_offset)
+            tlo_offset = self.to_internal_units(s.tool_offset)
 
             if self.get_show_metric():
                 positions = self.from_internal_units(positions, 1)
@@ -1052,6 +1053,13 @@ class GlCanonDraw:
                 if s.axis_mask & (1<<i):
                     droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
             droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+
+            droposstrs.append("")
+            for i in range(9):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+
 
             if self.is_lathe():
                 posstrs[0] = format % ("Rad", positions[0])
