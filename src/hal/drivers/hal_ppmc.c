@@ -1950,7 +1950,6 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 {
     int retval, n;
-    char buf[HAL_NAME_LEN+1];
     
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
 
