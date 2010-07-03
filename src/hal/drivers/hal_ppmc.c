@@ -617,7 +617,7 @@ int rtapi_app_main(void)
 		slotnum++;
 		break;
 	    default:
-		rtapi_print_msg(RTAPI_MSG_ERR, "Unknown! (ERROR)\n");
+	      rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: Check Parallel Port connection.\n");
 		/* mark slot as empty */
 		bus->slot_valid[slotnum] = 0;
 		/* mark bus failed */
