@@ -83,10 +83,10 @@ static void hm2_read(void *void_hm2, long period) {
     if ((*hm2->llio->io_error) != 0) return;
 
     hm2_ioport_gpio_process_tram_read(hm2);
-    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_encoder_process_tram_read(hm2, period);
     hm2_stepgen_process_tram_read(hm2, period);
 
+    hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
     hm2_raw_read(hm2);
 }
 
