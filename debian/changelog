@@ -1,3 +1,78 @@
+emc2 (1:2.4.2) lucid; urgency=low
+
+  * axis: fix crash when environment variable AXIS_NO_HAL is set
+
+  * classicladder: modbus reliability and performance improvements
+
+  * components: fix tan(), atan() implementations.  Before, using these
+    functions would make all math in realtime components behave unpredictably.
+  * comp: fix repeated MODULE_LICENSE declarations
+
+  * documentation: many improvements
+
+  * emccalib: fix crash 'unmatched open quote in list' for lines like
+      loadrt hal_parport cfg="0x378 out  "
+
+  * emcrsh: fix crash when invoked with a bad commandline
+
+  * emcsh: report effect tool offsets on all axes
+  * emcsh: enable emc_tool_offset to access all tool offsets
+  * emcsh: fix wrong conversion of ABC axis values as though they were
+    linear axes
+
+  * gcode: fix a problem with inverse time mode and m66 leading to very slow
+    moves
+  * gcode: save state of g92 across runs.  In the first run after upgrading
+    to 2.4.2, g92 will be disabled.  In subsequent runs, the state of g92
+    at startup will be the the same one stored in the var file at shutdown.
+  * gcode: fix G1 followed by G5, G5.x
+  * gcode: improve accuracy of NURBS paths.  An important calculation of the
+    direction of a NURBS path at a given point has been improved.  This makes
+    the resulting path more closely follow the mathematically precise NURBS
+    curve.
+  * gcode: improve accuracy of G5, G5.1 spline paths by converting them to
+    NURBS paths.
+  * gcode: detect missing P, Q words with G5
+  * gcode: avoid division by zero in NURBS
+
+  * hal_input: fix keys and buttons with unknown names
+
+  * image-to-gcode: fix crash when using lace bounding
+
+  * mesa: fix failure to load firmwares on 7i43
+  * mesa: fix failure to load firmwares on 5i23, 3x20, and other PLX9054-based
+    cards
+  * mesa: fix stepgen slowly moving in negative direction, losing position
+  * mesa: fix stepgen mode setting problem
+
+  * motion: fix threading and tapping with spindle turning backward (M4)
+
+  * pncconf: mesa 3x20 support
+  * pncconf: write configuration files without "base thread".  This may improve
+    behavior on step&direction systems configured with pncconf.
+  * pncconf: many additional bugfixes
+
+  * pickconfig: fix icon for desktop shortcuts
+  * pickconfig: fix permissions on desktop shortcuts
+  * pickconfig: don't allow user to run sample configuration without copying.
+    This has not worked right for a long time, so there's no value in offering
+    the option.
+
+  * ppmc: improve error message when no board is present
+  * ppmc: fix board detection when cooperating with linux parport_pc driver
+
+  * sample configurations:
+   * ppmc: sample configs now use axis user interface
+   * ppmc: hal samples for spindle speed display, pendant
+   * smithy: 1240 and 622leadshine sample configuration improvements
+
+  * sample gcode:
+   * lathe_pawn: set radius mode in startup codes
+
+  * stepgen: fix ctrl_type for kernels 2.6.30 and newer
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sun, 04 Jul 2010 14:00:38 -0500
+
 emc2 (1:2.4.1) hardy; urgency=low
 
   * tooledit: fix display of angles for lathe tools
