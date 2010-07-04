@@ -3934,12 +3934,16 @@ class App:
         warnings = []
         do_warning = False
         for i in self.data.available_axes:
-            if i == 's': continue
             step = self.data.findsignal(i+"-stepgen-step")
             enc = self.data.findsignal(i+"-encoder-a")
             pwm = self.data.findsignal(i+"-pwm-pulse")
 
-            if step == "false" and pwm == "false" and enc =="false":  
+            if i == 's':
+                if not step == "false" and not pwm == "false":
+                    warnings.append(_("You can not have both steppers and pwm signals for spindle control\n") )
+                    do_warning = True
+                continue
+            if step == "false" and pwm == "false" and enc =="false":
                 warnings.append(_("You forgot to designate a stepper or pwm signal for axis %s\n")% i)
                 do_warning = True
             if not pwm == "false" and enc == "false": 
