@@ -1235,25 +1235,25 @@ class Data:
                 print >>file, "DEADBAND = %s"% get("deadband")
             if get("invertmotor"):
                 temp = -1
-            else: temp = 1 
+            else: temp = 1
             print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
             print >>file, "OUTPUT_OFFSET = %s" % get("outputoffset")
             print >>file, "MAX_OUTPUT = %s" % (get("maxoutput") * temp)
             if get("invertencoder"):
                 temp = -1
-            else: temp = 1 
+            else: temp = 1
             print >>file, "INPUT_SCALE = %s" % get("scale")
         else:
             print >>file, "# these are in nanoseconds"
             print >>file, "DIRSETUP   = %d"% int(get("dirsetup"))
             print >>file, "DIRHOLD    = %d"% int(get("dirhold"))
             print >>file, "STEPLEN    = %d"% int(get("steptime"))          
-            print >>file, "STEPSPACE  = %d"% int(get("stepspace")) 
+            print >>file, "STEPSPACE  = %d"% int(get("stepspace"))
             if get("invertmotor"):
                 temp = -1
-            else: temp = 1           
+            else: temp = 1
             print >>file, "SCALE = %s"% (get("scale") * temp)
-        if letter == 's':return  
+        if letter == 's':return
         if self[letter + "usecomp"]:
             print >>file, "COMP_FILE = %s" % get("compfilename")
             print >>file, "COMP_FILE_TYPE = %s" % get("comptype")
