@@ -1276,15 +1276,19 @@ class Data:
         homes = False
         for i in thisaxishome:
             if not self.findsignal(i) == "false": homes = True
+        # set homing speeds and directions
+        # search direction : True = positive direction
+        # latch direction :  True = opposite direction
         if homes:
             searchvel = abs(get("homesearchvel"))
             latchvel = abs(get("homelatchvel"))
-            if not get("searchdir"):
+            print get("searchdir")
+            if get("searchdir") == 0:
                  searchvel = -searchvel
-                 if not get("latchdir"): 
+                 if get("latchdir") == 0: 
                     latchvel = -latchvel 
             else:
-                if get("latchdir"): 
+                if get("latchdir") == 1: 
                     latchvel = -latchvel
             print >>file, "HOME_OFFSET = %f" % get("homesw")
             print >>file, "HOME_SEARCH_VEL = %f" % searchvel                      
