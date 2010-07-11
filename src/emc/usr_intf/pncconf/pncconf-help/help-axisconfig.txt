@@ -18,6 +18,16 @@ that is the positive direction
 when the TOOL moves away from the operator
 that is the positive direction
 
+When using homing and / or limit switches
+remember that EMC2 expects the signals to be true 
+when the switch is NOT being pressed / tripped.
+If the signal is wrong for a limit switch then
+EMC2 will think the machine is on end of limit
+all the time. If the home switch logic is wrong
+EMC2 will seem to home in the wrong direction.
+What it actually is doing is trying to BACKING off 
+the home switch. 
+
   Origin:
     The Origin is the machine zero point. EMC2
     uses this point to reference everything else
@@ -85,8 +95,8 @@ that is the positive direction
    
 * Home Search Direction:
     Sets the home switch search direction
-    either towards negative limit switch
-    or towards positive limit switch
+    either negative (ie. towards negative limit switch)
+    or positive (ie. towards positive limit switch)
 
 * Home Latch Velocity:
     Fine Home search velocity in units per minute
