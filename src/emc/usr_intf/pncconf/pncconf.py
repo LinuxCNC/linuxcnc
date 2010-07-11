@@ -499,6 +499,14 @@ class Data:
         self.mpgincrvalue5 = .01   # ac
         self.mpgincrvalue6 = .05   # bc
         self.mpgincrvalue7 = .1    # abc
+        self.mpgincrvalue8 = .125 # d
+        self.mpgincrvalue9 = .125  # ad
+        self.mpgincrvalue10 = .125  # bd
+        self.mpgincrvalue11 = .125  # abd
+        self.mpgincrvalue12 = .125 # cd
+        self.mpgincrvalue13 = .125 # acd
+        self.mpgincrvalue14 = .125 # bcd
+        self.mpgincrvalue15 = .125 # abcd
         self.externalfo = False
         self.fo_usempg = False
         self.foincrvalue0 = 0  # all incr-select low
@@ -1721,19 +1729,25 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg or self.userneededmux8 > 0:
-            self.mux8names=""
+        if self.externalmpg or self.externalfo or self.externalso or self.userneededmux16 > 0:
+            self.mux16names=""
             if self.externalmpg: 
-                self.mux8names = self.mux8names+"mux8.jogincr"
-                if self.userneededmux8 > 0:
-                    self.mux8names = self.mux8names+","
-            for i in range(0,self.userneededmux8):
-                self.mux8names = self.mux8names+"mux8.%d"% (i)
-                if i <> self.userneededmux8-1:
-                    self.mux8names = self.mux8names+","
-            print >>file, "loadrt mux8 names=%s"% (self.mux8names)
-        #if self.externalmpg or self.externalfo or self.externalso or self.userneededmux16:           
-        #    print >>file, "loadrt mux16 count=%d"% (self.userneededmux16+self.externalmpg +self.externalfo+self.externalso+self.userneededmux16)
+                self.mux16names = self.mux16names+"jogincr"
+                if self.userneededmux16 > 0:
+                    self.mux16names = self.mux16names+","
+            if self.externalfo: 
+                self.mux16names = self.mux16names+"foincr"
+                if self.userneededmux16 > 0:
+                    self.mux16names = self.mux16names+","
+            if self.externalso: 
+                self.mux16names = self.mux16names+"soincr"
+                if self.userneededmux16 > 0:
+                    self.mux16names = self.mux16names+","
+            for i in range(0,self.userneededmux16):
+                self.mux16names = self.mux16names+"%d"% (i)
+                if i <> self.userneededmux16-1:
+                    self.mux16names = self.mux16names+","
+            print >>file, "loadrt mux16 names=%s"% (self.mux16names)
         
         # load user custom components
         for i in self.loadcompbase:
@@ -1815,10 +1829,13 @@ class Data:
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
-        if self.externalmpg or self.userneededmux8 > 0: 
-            temp=self.mux8names.split(",")
+
+        if pwm: 
+            print >>file, "addf pwmgen.update servo-thread"
+        if self.externalmpg or self.externalfo or self.externalso or self.userneededmux16 > 0: 
+            temp=self.mux16names.split(",")
             for j in (temp):
-                print >>file, "addf %s servo-thread"% j
+                print >>file, "addf mux16.%s servo-thread"% j
         if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1 or self.userneededabs > 0:
             temp=self.absnames.split(",")
             for j in (temp):
@@ -1942,14 +1959,10 @@ class Data:
                 print >>file, "net jog-incr-b           =>  mux16.jogincr.sel1"
                 print >>file, "net jog-incr-c           =>  mux16.jogincr.sel2"
                 print >>file, "net selected-jog-incr    <=  mux16.jogincr.out"
-                print >>file, "    setp mux16.jogincr.in0          %f"% (self.mpgincrvalue0)
-                print >>file, "    setp mux16.jogincr.in1          %f"% (self.mpgincrvalue1)
-                print >>file, "    setp mux16.jogincr.in2          %f"% (self.mpgincrvalue2)
-                print >>file, "    setp mux16.jogincr.in3          %f"% (self.mpgincrvalue3)
-                print >>file, "    setp mux16.jogincr.in4          %f"% (self.mpgincrvalue4)
-                print >>file, "    setp mux16.jogincr.in5          %f"% (self.mpgincrvalue5)
-                print >>file, "    setp mux16.jogincr.in6          %f"% (self.mpgincrvalue6)
-                print >>file, "    setp mux16.jogincr.in7          %f"% (self.mpgincrvalue7)
+                print >>file, "    setp mux16.jogincr.suppress-no-input true"
+                for i in range(0,16):
+                    value = self["mpgincrvalue%d"% i]
+                print >>file, "    setp mux16.jogincr.in%2d          %f"% (i,value)
                 print >>file
             else:
                 print >>file, "net selected-jog-incr    <= %f"% (self.mpgincrvalue0)
@@ -1965,15 +1978,10 @@ class Data:
             print >>file, "net fo-incr-c           =>  mux16.foincr.sel2"
             print >>file, "net fo-incr-d           =>  mux16.foincr.sel3"
             print >>file, "net feedoverride-incr   <=  mux16.foincr.sout"
-            print >>file, "    setp mux16.foincr.suppress-transition-state true"
-            print >>file, "    setp mux16.foincr.in0          %f"% (self.foincrvalue0)
-            print >>file, "    setp mux16.foincr.in1          %f"% (self.foincrvalue1)
-            print >>file, "    setp mux16.foincr.in2          %f"% (self.foincrvalue2)
-            print >>file, "    setp mux16.foincr.in3          %f"% (self.foincrvalue3)
-            print >>file, "    setp mux16.foincr.in4          %f"% (self.foincrvalue4)
-            print >>file, "    setp mux16.foincr.in5          %f"% (self.foincrvalue5)
-            print >>file, "    setp mux16.foincr.in6          %f"% (self.foincrvalue6)
-            print >>file, "    setp mux16.foincr.in7          %f"% (self.foincrvalue7)
+            print >>file, "    setp mux16.foincr.suppress-no-input true"
+            for i in range(0,16):
+                value = self["foincrvalue%d"% i]
+            print >>file, "    setp mux16.foincr.in%2d          %f"% (i,value)            
             print >>file
         
         if self.externalso:
@@ -1987,16 +1995,12 @@ class Data:
             print >>file, "net so-incr-c           =>  mux16.soincr.sel2"
             print >>file, "net so-incr-d           =>  mux16.soincr.sel3"
             print >>file, "net spindleoverride-incr   <=  mux16.soincr.sout"
-            print >>file, "    setp mux16.soincr.suppress-transition-state true"
-            print >>file, "    setp mux16.soincr.in0          %f"% (self.soincrvalue0)
-            print >>file, "    setp mux16.soincr.in1          %f"% (self.soincrvalue1)
-            print >>file, "    setp mux16.soincr.in2          %f"% (self.soincrvalue2)
-            print >>file, "    setp mux16.soincr.in3          %f"% (self.soincrvalue3)
-            print >>file, "    setp mux16.soincr.in4          %f"% (self.soincrvalue4)
-            print >>file, "    setp mux16.soincr.in5          %f"% (self.soincrvalue5)
-            print >>file, "    setp mux16.soincr.in6          %f"% (self.soincrvalue6)
-            print >>file, "    setp mux16.soincr.in7          %f"% (self.soincrvalue7)
+            print >>file, "    setp mux16.soincr.suppress-no-input true"
+            for i in range(0,16):
+                value = self["soincrvalue%d"% i]
+            print >>file, "    setp mux16.soincr.in%2d          %f"% (i,value)          
             print >>file
+
         print >>file, _("#  ---digital in / out signals---")
         print >>file
         for i in range(4):
@@ -2820,11 +2824,9 @@ class App:
             tempunits = "in"
         else:
             tempunits = "mm"      
-        for i in range(0,16):
-            
+        for i in range(0,16):          
             self.widgets["foincrvalue"+str(i)].set_value(self.data["foincrvalue"+str(i)])
             self.widgets["soincrvalue"+str(i)].set_value(self.data["soincrvalue"+str(i)])
-            if i >= 8:  continue
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
             self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
         self.widgets.jograpidunits.set_text(tempunits+" / min")            
@@ -2837,7 +2839,7 @@ class App:
         self.widgets.foexpander.set_sensitive(self.widgets.fo_useswitch.get_active())
         self.widgets.soexpander.set_sensitive(self.widgets.so_useswitch.get_active())
         i= self.widgets.incrselect.get_active()
-        for j in range(1,8):
+        for j in range(1,16):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
             self.widgets["mpgincrvalue%d"% j].set_sensitive(i)
             self.widgets["mpgincr%d"% j].set_sensitive(i)
@@ -2867,7 +2869,6 @@ class App:
         for i in range (0,16):
             self.data["foincrvalue"+str(i)] = self.widgets["foincrvalue"+str(i)].get_value()
             self.data["soincrvalue"+str(i)] = self.widgets["soincrvalue"+str(i)].get_value()
-            if i >= 8:  continue
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
 
     def on_GUI_config_prepare(self, *args):
