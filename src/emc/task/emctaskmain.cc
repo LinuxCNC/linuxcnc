@@ -595,8 +595,7 @@ interpret_again:
 						       emcStatus->motion.traj.actualPosition.u,
 						       emcStatus->motion.traj.actualPosition.v,
 						       emcStatus->motion.traj.actualPosition.w);
-				if (emcStatus->task.readLine + 1
-					== programStartLine)
+				if (emcStatus->task.readLine + 1 == programStartLine) {
 				    emcTaskPlanSynch();
 
                                     // reset programStartLine so we don't fall into our stepping routines
