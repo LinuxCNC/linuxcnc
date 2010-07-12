@@ -1491,8 +1491,12 @@ class Data:
             print >>file, "    setp " + pinname + ".steplen         [%s_%d]STEPLEN"% (title, axnum)
             print >>file, "    setp " + pinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
             print >>file, "    setp " + pinname + ".position-scale  [%s_%d]SCALE"% (title, axnum)
-            print >>file, "    setp " + pinname + ".maxaccel         0"
-            print >>file, "    setp " + pinname + ".maxvel           0"
+            if let =="s":
+                print >>file, "    setp " + pinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
+                print >>file, "    setp " + pinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
+            else:
+                print >>file, "    setp " + pinname + ".maxaccel         0"
+                print >>file, "    setp " + pinname + ".maxvel           0"
             print >>file, "    setp " + pinname + ".step_type        0"        
             if let == 's':  
                 print >>file, "    setp " + pinname + ".control-type    1"
