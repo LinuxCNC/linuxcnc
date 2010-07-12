@@ -598,6 +598,11 @@ interpret_again:
 				if (emcStatus->task.readLine + 1
 					== programStartLine)
 				    emcTaskPlanSynch();
+
+                                    // reset programStartLine so we don't fall into our stepping routines
+                                    // if we happen to execute lines before the current point later (due to subroutines).
+                                    programStartLine = 0;
+                                }
 			    }
 
                             if (count++ < EMC_TASK_INTERP_MAX_LEN
