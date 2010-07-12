@@ -1542,6 +1542,14 @@ class Data:
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
             print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
+            if self.findsignal("spindle-at-speed") == "false":
+                if not stepgen =="false" or not encoder == "false":
+                    print >>file, "net spindle-vel-cmd-rps near.0.in1"
+                    print >>file, "net spindle-vel-fb near.0.in2"
+                    print >>file, "net spindle-at-speed near.0.out"
+                    print >>file, "setp near.0.scale .9"
+                else:
+                    print >>file, "sets spindle-at-speed true"
             return
         
         min_limsig = self.min_lim_sig(let)
@@ -1712,7 +1720,7 @@ class Data:
             
         spindle_enc = counter = probe = pwm = pump = estop = False 
         enable = spindle_on = spindle_cw = spindle_ccw = False
-        mist = flood = brake = False
+        mist = flood = brake = at_speed = False
 
         if not self.findsignal("s-encoder-a") == "false":
             spindle_enc = True        
@@ -1738,6 +1746,9 @@ class Data:
             flood = True
         if not self.findsignal("spindle-brake") =="false":
             brake = True
+        if not self.findsignal("spindle-at-speed") =="false":
+            at_speed = True
+
         if self.pyvcp or self.userneededabs >0:
             self.absnames=""
             if self.pyvcphaltype == 1 and self.pyvcpconnect == 1 and self.pyvcp:
@@ -1762,6 +1773,8 @@ class Data:
             print >>file, "loadrt scale names=%s"% self.scalenames
         if pump:
             print >>file, "loadrt charge_pump"
+        if not at_speed:
+            print >>file, "loadrt near"
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
@@ -1873,6 +1886,8 @@ class Data:
         for i in self.addcompservo:
             if not i == '':
                 print >>file, i +" servo-thread"
+        if not at_speed:
+            print >>file, "addf near.0                   servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
                 if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
