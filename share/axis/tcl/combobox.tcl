@@ -1193,7 +1193,7 @@ proc ::combobox::WidgetProc {w command args} {
     upvar ::combobox::${w}::widgets widgets
     upvar ::combobox::${w}::options options
     upvar ::combobox::${w}::oldFocus oldFocus
-    upvar ::combobox::${w}::oldFocus oldGrab
+    upvar ::combobox::${w}::oldGrab oldGrab
 
     set command [::combobox::Canonize $w command $command]
 
