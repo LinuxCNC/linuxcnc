@@ -383,7 +383,8 @@ proc ::combobox::SetBindings {w} {
     # handling. 
     foreach event [list <Up> <Down> <Tab> <Return> <Escape> \
 	    <Next> <Prior> <Double-1> <1> <Any-KeyPress> \
-	    <FocusIn> <FocusOut>] {
+	    <FocusIn> <FocusOut> <KeyRelease-Up> <KeyRelease-Down> \
+	    <KeyRelease-Next> <KeyRelease-Prior>] {
 	bind $widgets(entry) $event \
             [list ::combobox::HandleEvent $widgets(this) $event]
     }
@@ -739,6 +740,13 @@ proc ::combobox::HandleEvent {w event args} {
 		    $widgets(this) open
 		    return -code break;
 		}
+	    }
+	}
+
+	"<KeyRelease-Up>" - "<KeyRelease-Down>" -
+	"<KeyRelease-Next>" - "<KeyRelease-Prior>" {
+	    if {[winfo ismapped $widgets(dropdown)]} {
+		return -code break;
 	    }
 	}
     }
