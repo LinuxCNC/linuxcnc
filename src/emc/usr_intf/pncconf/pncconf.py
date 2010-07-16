@@ -3540,7 +3540,7 @@ class App:
                                 self.widgets[p].set_active(0)
                                 
                                 self.widgets[p].set_sensitive(1)
-                                self.widgets[ptype].set_sensitive(1)
+                                self.widgets[ptype].set_sensitive(0)
                             # pncconf control what the user sees with these ones:
                             elif firmptype in(ENCB,ENCI,ENCM):                           
                                 for name in human_encoder_input_names:model.append((name,)) 
@@ -3651,7 +3651,7 @@ class App:
                                         continue
                                     model.append((name,))
                                 self.widgets[p].set_sensitive(1)
-                                self.widgets[ptype].set_sensitive(1)
+                                self.widgets[ptype].set_sensitive(0)
                             elif firmptype == STEPB:                               
                                     for name in human_stepper_names: model.append((name,))
                                     self.widgets[p].set_sensitive(0)
