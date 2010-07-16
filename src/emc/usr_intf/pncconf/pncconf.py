@@ -134,10 +134,10 @@ drivertypes = [
 
 (GPIOI, GPIOO, GPIOD, ENCA, ENCB, ENCI, ENCM, STEPA, STEPB, STEPC, STEPD, STEPE, STEPF, PWMP, PWMD, PWME, PDMP, PDMD, PDME ) = pintype_names = [
 _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain"),
-_("HDW Encoder-A"),_("HDW Encoder-B"),_("HDW Encoder-I"),_("HDW Encoder-M"),
-_("HDW Step Gen-A"),_("HDW Step Gen-B"),_("HDW Step Gen-C"),_("HDW Step Gen-D"),_("HDW Step Gen-E"),_("HDW Step Gen-F"),
-_("HDW PWM Gen-P"),_("HDW PWM Gen-D"),_("HDW PWM Gen-E"),
-_("HDW PDM Gen-P"),_("HDW PDM Gen-D"),_("HDW PDM Gen-E") ]
+_("Quad Encoder-A"),_("Quad Encoder-B"),_("Quad Encoder-I"),_("Quad Encoder-M"),
+_("Step/Dir Gen-A"),_("Step/Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),_("Step/Dir Gen-E"),_("Step/dir Gen-F"),
+_("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E"),
+_("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
 # boardname, firmwarename, Hal driver name,
 # max encoders, max pwm gens, 
