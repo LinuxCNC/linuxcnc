@@ -3385,7 +3385,7 @@ class App:
                     self.widgets[p].set_active(0)
                     self.data[p] = UNUSED_INPUT
                     self.data[ptype] = new
-                elif (old == GPIOI and new == GPIOD) :
+                elif (old == GPIOO and new == GPIOD) :
                     print "switch GPIO output ",p,"to open drain"
                     self.data[ptype] = new
                 elif (old == GPIOD and new == GPIOO):
