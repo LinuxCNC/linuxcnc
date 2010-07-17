@@ -824,5 +824,186 @@ When calculating arcs in diameter mode X is diameter and the X offset (I)
  is radius even if your in G7 diameter mode.
 \end_layout
 
+\begin_layout Section
+Tool Path
+\end_layout
+
+\begin_layout Standard
+The tool path follows the control point for the tool.
+ The control point is the intersection of a line parallel to the X and Z
+ axis and tangent to the tool tip diameter as defined when you touch off
+ the X and Z axes for that tool.
+ When turning or facing straight sided parts the cutting path and the tool
+ edge follow the same path.
+ When turning radius and angles the edge of the tool tip will not follow
+ the programmed path unless cutter comp is in effect.
+ In the following figure you can see the control point does not follow the
+ tool edge as you might assume.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Control Point
+\begin_inset LatexCommand label
+name "fig:Control-Point"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/control_point.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now imagine we program a ramp without cutter comp.
+ The programmed path is shown in the following figure.
+ As you can see in the figure the programmed path and the desired cut path
+ are one and the same as long as we are moving in an X or Z direction only.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Ramp Entry
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/ramp_entry.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now as the control point progresses along the programmed path the actual
+ cutter edge does not follow the programmed path as shown in the following
+ figure.
+ There are two ways to solve this, cutter comp and adjusting your programmed
+ path to compensate for tip radius.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Ramp Path
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/ramp_cut.png
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the above example it is a simple excersise to adjust the programmed path
+ to give the desired actual path by moving the programmed path to the left
+ by the radius of the tool tip.
+\end_layout
+
+\begin_layout Subsection*
+Using Cutter Comp
+\end_layout
+
+\begin_layout Standard
+When using cutter comp on a lathe think of the tool tip radius as the radius
+ of a round cutter.
+ When using cutter comp the path must be large enough for a round tool that
+ will not gouge into the next line.
+ When cutting straight lines on the lathe you might not want to use cutter
+ comp.
+ For example boring a hole with a tight fitting boring bar you may not have
+ enough room to do the exit move.
+ The entry move into a cutter comp arc is important to get the correct results.
+\end_layout
+
 \end_body
 \end_document

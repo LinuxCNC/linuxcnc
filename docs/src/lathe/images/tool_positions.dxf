@@ -1,5 +1,5 @@
 999
-dxflib 2.0.4.0
+dxflib 2.0.4.8
   0
 SECTION
   2
@@ -13,37 +13,33 @@ $HANDSEED
   5
 FFFF
   9
-$USERR4
- 40
-0.0
+$DIMTAD
+ 70
+0
   9
 $DIMTDEC
  70
 4
   9
-$DIMTAD
+$USERR4
+ 40
+0.0
+  9
+$CLAYER
+  8
+0
+  9
+$DIMALTZ
  70
 0
   9
-$CMLSTYLE
-  2
-Standard
+$MENU
+  1
+.
   9
-$VISRETAIN
- 70
-1
-  9
-$TILEMODE
- 70
-1
-  9
-$SHADEDIF
- 70
-70
-  9
-$USERR5
+$CHAMFERA
  40
-0.0
+0.5
   9
 $UCSYDIR
  10
@@ -53,61 +49,25 @@ $UCSYDIR
  30
 0.0
   9
-$CHAMFERA
+$USERR5
  40
-0.5
-  9
-$MENU
-  1
-.
-  9
-$DIMALTZ
- 70
-0
-  9
-$CLAYER
-  8
-0
-  9
-$OLESTARTUP
-290
-0
-  9
-$UCSXDIR
- 10
-1.0
- 20
-0.0
- 30
 0.0
   9
-$CHAMFERB
- 40
-0.5
-  9
-$DIMADEC
+$SHADEDIF
  70
-0
+70
   9
-$DIMUPT
- 70
-0
-  9
-$DIMASZ
- 40
-0.18
-  9
-$TRACEWID
- 40
-0.05
-  9
-$REGENMODE
+$TILEMODE
  70
 1
   9
-$ORTHOMODE
+$VISRETAIN
  70
-0
+1
+  9
+$CMLSTYLE
+  2
+Standard
   9
 $EXTMIN
  10
@@ -117,17 +77,81 @@ $EXTMIN
  30
 -0.0015258207003583
   9
-$ENDCAPS
-280
-0
-  9
-$MEASUREMENT
+$ORTHOMODE
  70
 0
   9
-$CMLJUST
+$REGENMODE
+ 70
+1
+  9
+$TRACEWID
+ 40
+0.05
+  9
+$DIMASZ
+ 40
+0.18
+  9
+$DIMUPT
  70
 0
+  9
+$DIMADEC
+ 70
+0
+  9
+$CHAMFERB
+ 40
+0.5
+  9
+$UCSXDIR
+ 10
+1.0
+ 20
+0.0
+ 30
+0.0
+  9
+$OLESTARTUP
+290
+0
+  9
+$DIMSHO
+ 70
+1
+  9
+$DIMALT
+ 70
+0
+  9
+$DIMSAH
+ 70
+0
+  9
+$DIMTFAC
+ 40
+1.0
+  9
+$DIMGAP
+ 40
+0.09
+  9
+$SKETCHINC
+ 40
+0.1
+  9
+$CHAMFERC
+ 40
+1.0
+  9
+$USRTIMER
+ 70
+1
+  9
+$ANGBASE
+ 50
+0.0
   9
 $PUCSYDIR
  10
@@ -137,49 +161,47 @@ $PUCSYDIR
  30
 0.0
   9
-$ANGBASE
- 50
+$CMLJUST
+ 70
+0
+  9
+$MEASUREMENT
+ 70
+0
+  9
+$ENDCAPS
+280
+0
+  9
+$LIMMIN
+ 10
+-2.0
+ 20
+-2.0
+  9
+$DIMTSZ
+ 40
 0.0
   9
-$USRTIMER
+$DIMALTTD
  70
-1
+2
   9
-$CHAMFERC
+$DIMALTRND
  40
-1.0
+0.0
   9
-$SKETCHINC
+$CHAMFERD
  40
-0.1
+0.0
   9
-$DIMGAP
- 40
-0.09
-  9
-$DIMTFAC
- 40
-1.0
-  9
-$DIMSAH
+$SPLFRAME
  70
 0
   9
-$DIMALT
+$SURFTYPE
  70
-0
-  9
-$DIMSHO
- 70
-1
-  9
-$VERSIONGUID
-  2
-{9259D46C-8DA9-46B7-87F1-BD1E33D59845}
-  9
-$LWDISPLAY
-290
-0
+6
   9
 $PUCSXDIR
  10
@@ -189,107 +211,37 @@ $PUCSXDIR
  30
 0.0
   9
-$SURFTYPE
- 70
-6
-  9
-$SPLFRAME
- 70
+$LWDISPLAY
+290
 0
   9
-$CHAMFERD
- 40
-0.0
-  9
-$DIMALTRND
- 40
-0.0
-  9
-$DIMALTTD
- 70
-2
-  9
-$DIMTSZ
- 40
-0.0
-  9
-$LIMMIN
- 10
--2.0
- 20
--2.0
-  9
-$CELWEIGHT
-370
--1
-  9
-$SURFTAB1
- 70
-6
-  9
-$SPLINESEGS
- 70
-8
-  9
-$AUPREC
- 70
-0
-  9
-$LUNITS
- 70
-2
+$VERSIONGUID
+  2
+{9259D46C-8DA9-46B7-87F1-BD1E33D59845}
   9
 $DWGCODEPAGE
   3
 ANSI_1252
   9
-$PSTYLEMODE
-290
-1
+$LUNITS
+ 70
+2
   9
-$UNITMODE
+$AUPREC
  70
 0
   9
-$USERI1
+$SPLINESEGS
  70
-0
+8
   9
-$UCSORTHOVIEW
- 70
-0
-  9
-$SURFTAB2
+$SURFTAB1
  70
 6
   9
-$TDUUPDATE
- 40
-2454828.636378831230104
-  9
-$TDUCREATE
- 40
-2454828.5665377778932452
-  9
-$SKPOLY
- 70
-0
-  9
-$ELEVATION
- 40
-0.0
-  9
-$DIMDSEP
- 70
-46
-  9
-$DIMCEN
- 40
-0.09
-  9
-$DIMRND
- 40
-0.0
+$CELWEIGHT
+370
+-1
   9
 $INSBASE
  10
@@ -299,44 +251,52 @@ $INSBASE
  30
 0.0
   9
-$INSUNITS
- 70
-1
+$DIMRND
+ 40
+0.0
   9
-$USERI2
+$DIMCEN
+ 40
+0.09
+  9
+$DIMDSEP
+ 70
+46
+  9
+$ELEVATION
+ 40
+0.0
+  9
+$SKPOLY
  70
 0
   9
-$UCSORGRIGHT
- 10
-0.0
- 20
-0.0
- 30
-0.0
-  9
-$UCSORG
- 10
-0.0
- 20
-0.0
- 30
-0.0
-  9
-$PELEVATION
+$TDUCREATE
  40
-0.0
+2454828.5665377778932452
   9
-$DIMEXO
+$TDUUPDATE
  40
-0.0625
+2454828.636378831230104
   9
-$TEXTSIZE
- 40
-0.125
-  9
-$FILLMODE
+$SURFTAB2
  70
+6
+  9
+$UCSORTHOVIEW
+ 70
+0
+  9
+$USERI1
+ 70
+0
+  9
+$UNITMODE
+ 70
+0
+  9
+$PSTYLEMODE
+290
 1
   9
 $EXTMAX
@@ -347,13 +307,81 @@ $EXTMAX
  30
 0.0000000349246037
   9
-$JOINSTYLE
-280
-0
+$FILLMODE
+ 70
+1
   9
-$USERI3
+$TEXTSIZE
+ 40
+0.125
+  9
+$DIMEXO
+ 40
+0.0625
+  9
+$PELEVATION
+ 40
+0.0
+  9
+$UCSORG
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$UCSORGRIGHT
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$USERI2
  70
 0
+  9
+$INSUNITS
+ 70
+1
+  9
+$DIMSCALE
+ 40
+1.0
+  9
+$DIMDLE
+ 40
+0.0
+  9
+$DIMZIN
+ 70
+0
+  9
+$DIMTOLJ
+ 70
+1
+  9
+$DIMTZIN
+ 70
+0
+  9
+$DIMLWD
+ 70
+-2
+  9
+$TDUSRTIMER
+ 40
+0.069841169
+  9
+$ANGDIR
+ 70
+0
+  9
+$SURFU
+ 70
+6
   9
 $PUCSORGBOTTOM
  10
@@ -363,77 +391,17 @@ $PUCSORGBOTTOM
  30
 0.0
   9
-$SURFU
+$USERI3
+ 70
+0
+  9
+$JOINSTYLE
+280
+0
+  9
+$ACADMAINTVER
  70
 6
-  9
-$ANGDIR
- 70
-0
-  9
-$TDUSRTIMER
- 40
-0.069841169
-  9
-$DIMLWD
- 70
--2
-  9
-$DIMTZIN
- 70
-0
-  9
-$DIMTOLJ
- 70
-1
-  9
-$DIMZIN
- 70
-0
-  9
-$DIMDLE
- 40
-0.0
-  9
-$DIMSCALE
- 40
-1.0
-  9
-$WORLDVIEW
- 70
-1
-  9
-$USERI4
- 70
-0
-  9
-$SURFV
- 70
-6
-  9
-$DIMLWE
- 70
--2
-  9
-$DIMLUNIT
- 70
-2
-  9
-$DIMATFIT
- 70
-3
-  9
-$DIMALTTZ
- 70
-0
-  9
-$DIMJUST
- 70
-0
-  9
-$QTEXTMODE
- 70
-0
   9
 $LIMMAX
  10
@@ -441,19 +409,71 @@ $LIMMAX
  20
 6.5
   9
-$ACADMAINTVER
+$QTEXTMODE
+ 70
+0
+  9
+$DIMJUST
+ 70
+0
+  9
+$DIMALTTZ
+ 70
+0
+  9
+$DIMATFIT
+ 70
+3
+  9
+$DIMLUNIT
+ 70
+2
+  9
+$DIMLWE
+ 70
+-2
+  9
+$SURFV
  70
 6
   9
-$EXTNAMES
-290
-1
+$USERI4
+ 70
+0
   9
-$PROXYGRAPHICS
+$WORLDVIEW
  70
 1
   9
-$USERI5
+$ATTMODE
+ 70
+1
+  9
+$DIMTXT
+ 40
+0.18
+  9
+$DIMLIM
+ 70
+0
+  9
+$DIMSE1
+ 70
+0
+  9
+$DIMAZIN
+ 70
+0
+  9
+$THICKNESS
+ 40
+0.0
+  9
+$LIMCHECK
+ 70
+0
+  9
+$PDMODE
  70
 0
   9
@@ -465,57 +485,49 @@ $UCSORGTOP
  30
 0.0
   9
-$PDMODE
+$USERI5
  70
 0
   9
-$LIMCHECK
- 70
-0
-  9
-$THICKNESS
- 40
-0.0
-  9
-$DIMAZIN
- 70
-0
-  9
-$DIMSE1
- 70
-0
-  9
-$DIMLIM
- 70
-0
-  9
-$DIMTXT
- 40
-0.18
-  9
-$ATTMODE
+$PROXYGRAPHICS
  70
 1
   9
-$XEDIT
+$EXTNAMES
 290
 1
   9
-$PEXTMAX
- 10
--100000000000000000000.0
- 20
--100000000000000000000.0
- 30
--100000000000000000000.0
+$CELTYPE
+  6
+ByLayer
   9
-$PEXTMIN
- 10
-100000000000000000000.0
- 20
-100000000000000000000.0
- 30
-100000000000000000000.0
+$DIMTOH
+ 70
+1
+  9
+$DIMSE2
+ 70
+0
+  9
+$DIMLFAC
+ 40
+1.0
+  9
+$DIMSOXD
+ 70
+0
+  9
+$LUPREC
+ 70
+4
+  9
+$TDINDWG
+ 40
+0.0698429051
+  9
+$SPLINETYPE
+ 70
+6
   9
 $PUCSORG
  10
@@ -525,49 +537,61 @@ $PUCSORG
  30
 0.0
   9
-$SPLINETYPE
- 70
-6
+$PEXTMIN
+ 10
+100000000000000000000.0
+ 20
+100000000000000000000.0
+ 30
+100000000000000000000.0
   9
-$TDINDWG
- 40
-0.0698429051
+$PEXTMAX
+ 10
+-100000000000000000000.0
+ 20
+-100000000000000000000.0
+ 30
+-100000000000000000000.0
   9
-$LUPREC
- 70
-4
-  9
-$DIMSOXD
- 70
-0
-  9
-$DIMLFAC
- 40
-1.0
-  9
-$DIMSE2
- 70
-0
-  9
-$DIMTOH
- 70
+$XEDIT
+290
 1
   9
-$CELTYPE
-  6
-ByLayer
+$CECOLOR
+ 62
+256
   9
-$PSVPSCALE
+$DISPSILH
+ 70
+0
+  9
+$DIMDLI
+ 40
+0.38
+  9
+$DIMTM
  40
 0.0
   9
-$FINGERPRINTGUID
-  2
-{C572903D-1373-4B82-AFBF-DABC8F94EDE7}
+$DIMASO
+ 70
+1
   9
-$PLIMCHECK
+$DIMTVP
+ 40
+0.0
+  9
+$DIMSTYLE
+  2
+Standard
+  9
+$DIMFRAC
  70
 0
+  9
+$PLINEWID
+ 40
+0.0
   9
 $PUCSORGRIGHT
  10
@@ -577,69 +601,49 @@ $PUCSORGRIGHT
  30
 0.0
   9
-$PLINEWID
- 40
-0.0
-  9
-$DIMFRAC
+$PLIMCHECK
  70
 0
   9
-$DIMSTYLE
+$FINGERPRINTGUID
   2
-Standard
+{C572903D-1373-4B82-AFBF-DABC8F94EDE7}
   9
-$DIMTVP
+$PSVPSCALE
  40
 0.0
   9
-$DIMASO
+$LTSCALE
+ 40
+1.0
+  9
+$DIMTIH
  70
 1
   9
-$DIMTM
- 40
-0.0
+$DIMALTD
+ 70
+2
   9
-$DIMDLI
- 40
-0.38
-  9
-$DISPSILH
+$DIMCLRT
  70
 0
   9
-$CECOLOR
- 62
-256
-  9
-$TREEDEPTH
+$DIMDEC
  70
-3020
+4
   9
-$PLIMMAX
- 10
-12.0
- 20
-9.0
-  9
-$PLIMMIN
- 10
-0.0
- 20
-0.0
-  9
-$MAXACTVP
+$DIMALTU
  70
-64
+2
   9
-$UCSORGBACK
- 10
-0.0
- 20
-0.0
- 30
-0.0
+$FILLETRAD
+ 40
+0.5
+  9
+$TDUPDATE
+ 40
+2454828.386378831230104
   9
 $UCSORGLEFT
  10
@@ -649,45 +653,61 @@ $UCSORGLEFT
  30
 0.0
   9
-$TDUPDATE
- 40
-2454828.386378831230104
+$UCSORGBACK
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
   9
-$FILLETRAD
- 40
-0.5
-  9
-$DIMALTU
+$MAXACTVP
  70
-2
+64
   9
-$DIMDEC
+$PLIMMIN
+ 10
+0.0
+ 20
+0.0
+  9
+$PLIMMAX
+ 10
+12.0
+ 20
+9.0
+  9
+$TREEDEPTH
  70
-4
+3020
   9
-$DIMCLRT
+$CELTSCALE
+ 40
+1.0
+  9
+$DIMEXE
+ 40
+0.18
+  9
+$DIMCLRD
  70
 0
   9
-$DIMALTD
- 70
-2
+$DIMTXSTY
+  7
+Standard
   9
-$DIMTIH
- 70
-1
-  9
-$LTSCALE
+$PDSIZE
  40
-1.0
+0.0
   9
-$CEPSNTYPE
-380
+$PUCSORTHOVIEW
+ 70
 0
   9
-$CMLSCALE
+$USERR1
  40
-1.0
+0.0
   9
 $PINSBASE
  10
@@ -697,48 +717,60 @@ $PINSBASE
  30
 0.0
   9
-$USERR1
- 40
-0.0
-  9
-$PUCSORTHOVIEW
- 70
-0
-  9
-$PDSIZE
- 40
-0.0
-  9
-$DIMTXSTY
-  7
-Standard
-  9
-$DIMCLRD
- 70
-0
-  9
-$DIMEXE
- 40
-0.18
-  9
-$CELTSCALE
+$CMLSCALE
  40
 1.0
   9
-$PSLTSCALE
- 70
-1
+$CEPSNTYPE
+380
+0
   9
-$PLINEGEN
+$TEXTSTYLE
+  7
+Standard
+  9
+$DIMTP
+ 40
+0.0
+  9
+$DIMTOL
  70
 0
   9
-$SHADEDGE
- 70
-3
-  9
-$USERR2
+$DIMALTF
  40
+25.3999999999999986
+  9
+$DIMTOFL
+ 70
+0
+  9
+$DIMCLRE
+ 70
+0
+  9
+$DIMSD1
+ 70
+0
+  9
+$DIMAUNIT
+ 70
+0
+  9
+$DIMTMOVE
+ 70
+0
+  9
+$TDCREATE
+ 40
+2454828.3165377769619226
+  9
+$UCSORGFRONT
+ 10
+0.0
+ 20
+0.0
+ 30
 0.0
   9
 $PUCSORGTOP
@@ -749,67 +781,39 @@ $PUCSORGTOP
  30
 0.0
   9
-$UCSORGFRONT
- 10
-0.0
- 20
-0.0
- 30
-0.0
-  9
-$TDCREATE
- 40
-2454828.3165377769619226
-  9
-$DIMTMOVE
- 70
-0
-  9
-$DIMAUNIT
- 70
-0
-  9
-$DIMSD1
- 70
-0
-  9
-$DIMCLRE
- 70
-0
-  9
-$DIMTOFL
- 70
-0
-  9
-$DIMALTF
- 40
-25.3999999999999986
-  9
-$DIMTOL
- 70
-0
-  9
-$DIMTP
+$USERR2
  40
 0.0
   9
-$TEXTSTYLE
-  7
-Standard
+$SHADEDGE
+ 70
+3
   9
-$USERR3
- 40
-0.0
+$PLINEGEN
+ 70
+0
   9
-$PUCSORGBACK
- 10
-0.0
- 20
-0.0
- 30
-0.0
+$PSLTSCALE
+ 70
+1
   9
-$PUCSORGFRONT
+$MIRRTEXT
+ 70
+1
+  9
+$DIMTIX
+ 70
+0
+  9
+$DIMSD2
+ 70
+0
+  9
+$AUNITS
+ 70
+0
+  9
+$UCSORGBOTTOM
  10
 0.0
  20
@@ -825,7 +829,7 @@ $PUCSORGLEFT
  30
 0.0
   9
-$UCSORGBOTTOM
+$PUCSORGFRONT
  10
 0.0
  20
@@ -833,21 +837,17 @@ $UCSORGBOTTOM
  30
 0.0
   9
-$AUNITS
- 70
-0
+$PUCSORGBACK
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
   9
-$DIMSD2
- 70
-0
-  9
-$DIMTIX
- 70
-0
-  9
-$MIRRTEXT
- 70
-1
+$USERR3
+ 40
+0.0
   0
 ENDSEC
   0
@@ -1733,7 +1733,7 @@ AcDbLayerTableRecord
  70
 5
  62
-256
+7
   6
 CONTINUOUS
 370
@@ -1807,7 +1807,7 @@ Standard
  40
 0.0
  41
-1.0
+0.75
  50
 0.0
  71
@@ -1893,13 +1893,13 @@ AcDbDimStyleTableRecord
   2
 Standard
  41
-2.5
+0.18
  42
-0.625
+0.0625
  43
 3.75
  44
-1.25
+0.18
  70
 0
  73
@@ -1911,13 +1911,13 @@ Standard
  78
 8
 140
-2.5
+0.18
 141
 2.5
 143
 0.03937007874016
 147
-0.625
+0.09
 171
 3
 172
@@ -1988,8 +1988,6 @@ AcDbBlockTableRecord
 BLOCK_RECORD
   5
 46
-330
-1
 100
 AcDbSymbolTableRecord
 100
@@ -4107,7 +4105,7 @@ ByLayer
  71
 1
  72
-0
+2
   1
 BACKANGLE\~30%%d
   7
@@ -4115,7 +4113,7 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
@@ -4165,49 +4163,9 @@ Standard
  20
 2.25
   0
-MTEXT
-  5
-8E
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.339999999999999
- 20
-2.339999999999999
- 30
-0.0
- 40
-0.125
- 41
-0.0
- 71
-1
- 72
-0
-  1
-FRONTANGLE\~-30%%d
-  7
-Standard
- 50
-0.0
- 73
-0
- 44
-1.0
-  0
 LEADER
   5
-8F
+8E
   8
 0
  62
@@ -4253,7 +4211,7 @@ Standard
   0
 MTEXT
   5
-90
+8F
 100
 AcDbEntity
 100
@@ -4279,7 +4237,7 @@ ByLayer
  71
 6
  72
-0
+2
   1
 FRONTANGLE\~105%%d
   7
@@ -4287,213 +4245,13 @@ Standard
  50
 45.0
  73
-0
- 44
-1.0
-  0
-MTEXT
-  5
-91
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.25
- 20
-1.0
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-7
- 72
-2
-  1
-Position\~7\~is\~an
-  7
-Standard
- 50
-0.0
- 73
-0
- 44
-1.0
-  0
-MTEXT
-  5
-92
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.25
- 20
-0.7916666666666669
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-7
- 72
-2
-  1
-exception\~for\~the
-  7
-Standard
- 50
-0.0
- 73
-0
- 44
-1.0
-  0
-MTEXT
-  5
-93
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.25
- 20
-0.5833333333333335
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-7
- 72
-2
-  1
-frontangle\~degrees
-  7
-Standard
- 50
-0.0
- 73
-0
- 44
-1.0
-  0
-MTEXT
-  5
-94
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.25
- 20
-0.3750000000000002
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-7
- 72
-2
-  1
-it\~must\~be\~a\~minus
-  7
-Standard
- 50
-0.0
- 73
-0
- 44
-1.0
-  0
-MTEXT
-  5
-95
-100
-AcDbEntity
-100
-AcDbMText
-  8
-0
- 62
-256
-370
--1
-  6
-ByLayer
- 10
-5.25
- 20
-0.1666666666666668
- 30
-0.0
- 40
-0.125
- 41
-100.0
- 71
-7
- 72
-2
-  1
-value.
-  7
-Standard
- 50
-0.0
- 73
-0
+1
  44
 1.0
   0
 LEADER
   5
-96
+90
   8
 0
  62
@@ -4535,7 +4293,7 @@ Standard
   0
 MTEXT
   5
-97
+91
 100
 AcDbEntity
 100
@@ -4561,7 +4319,7 @@ ByLayer
  71
 9
  72
-0
+2
   1
 Z+
   7
@@ -4569,13 +4327,13 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
 LEADER
   5
-98
+92
   8
 0
  62
@@ -4617,7 +4375,7 @@ Standard
   0
 MTEXT
   5
-99
+93
 100
 AcDbEntity
 100
@@ -4643,7 +4401,7 @@ ByLayer
  71
 4
  72
-0
+2
   1
 X+
   7
@@ -4651,13 +4409,13 @@ Standard
  50
 90.0
  73
-0
+1
  44
 1.0
   0
 LEADER
   5
-9A
+94
   8
 0
  62
@@ -4703,7 +4461,7 @@ Standard
   0
 MTEXT
   5
-9B
+95
 100
 AcDbEntity
 100
@@ -4729,7 +4487,7 @@ ByLayer
  71
 6
  72
-0
+2
   1
 BACKANGLE\~165%%d
   7
@@ -4737,13 +4495,13 @@ Standard
  50
 45.0
  73
-0
+1
  44
 1.0
   0
 LEADER
   5
-9C
+96
   8
 0
  62
@@ -4789,7 +4547,7 @@ Standard
   0
 LEADER
   5
-9D
+97
   8
 0
  62
@@ -4835,7 +4593,7 @@ Standard
   0
 MTEXT
   5
-9E
+98
 100
 AcDbEntity
 100
@@ -4861,7 +4619,7 @@ ByLayer
  71
 9
  72
-0
+2
   1
 FRONTANGLE\~210%%d
   7
@@ -4869,13 +4627,13 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-9F
+99
 100
 AcDbEntity
 100
@@ -4901,7 +4659,7 @@ ByLayer
  71
 9
  72
-0
+2
   1
 BACKANGLE\~150%%d
   7
@@ -4909,13 +4667,13 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A0
+9A
 100
 AcDbEntity
 100
@@ -4949,13 +4707,13 @@ Standard
  50
 315.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A1
+9B
 100
 AcDbEntity
 100
@@ -4989,13 +4747,13 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A2
+9C
 100
 AcDbEntity
 100
@@ -5029,13 +4787,13 @@ Standard
  50
 45.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A3
+9D
 100
 AcDbEntity
 100
@@ -5069,13 +4827,13 @@ Standard
  50
 90.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A4
+9E
 100
 AcDbEntity
 100
@@ -5109,13 +4867,13 @@ Standard
  50
 0.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A5
+9F
 100
 AcDbEntity
 100
@@ -5149,13 +4907,13 @@ Standard
  50
 45.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A6
+A0
 100
 AcDbEntity
 100
@@ -5189,13 +4947,13 @@ Standard
  50
 315.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A7
+A1
 100
 AcDbEntity
 100
@@ -5229,13 +4987,13 @@ Standard
  50
 90.0
  73
-0
+1
  44
 1.0
   0
 MTEXT
   5
-A8
+A2
 100
 AcDbEntity
 100
@@ -5269,7 +5027,47 @@ Standard
  50
 45.0
  73
+1
+ 44
+1.0
+  0
+MTEXT
+  5
+A3
+100
+AcDbEntity
+100
+AcDbMText
+  8
 0
+ 62
+256
+370
+-1
+  6
+ByLayer
+ 10
+5.339999999999999
+ 20
+2.339999999999999
+ 30
+0.0
+ 40
+0.125
+ 41
+0.0
+ 71
+1
+ 72
+2
+  1
+FRONTANGLE\~330%%d
+  7
+Standard
+ 50
+0.0
+ 73
+1
  44
 1.0
   0
@@ -5311,7 +5109,7 @@ E
   3
 AcDbVariableDictionary
 350
-A9
+A4
   0
 DICTIONARY
   5
@@ -5775,7 +5573,7 @@ Layout2
   0
 DICTIONARY
   5
-A9
+A4
 100
 AcDbDictionary
 281
@@ -5783,15 +5581,15 @@ AcDbDictionary
   3
 DIMASSOC
 350
-AB
+A6
   3
 HIDETEXT
 350
-AA
+A5
   0
 DICTIONARYVAR
   5
-AA
+A5
 100
 DictionaryVariables
 280
@@ -5801,7 +5599,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-AB
+A6
 100
 DictionaryVariables
 280
