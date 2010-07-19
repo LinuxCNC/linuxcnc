@@ -2934,9 +2934,10 @@ TOOL_CHANGE_AT_G30\InsetSpace ~
 \begin_layout Description
 RANDOM_TOOLCHANGER\InsetSpace ~
 =\InsetSpace ~
-1 This is for machines that can not place the tool back
+1 This is for machines that cannot place the tool back
  into the pocket it came from.
- Machines that swap the tool in the pocket with the tool in the spindle.
+ For example, machines that exchange the tool in the active pocket with
+ the tool in the spindle.
 \end_layout
 
 \end_body
