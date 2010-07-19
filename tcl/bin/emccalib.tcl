@@ -157,7 +157,6 @@ proc makeIniTune {} {
     for {set j 0} {$j<$numaxes} {incr j} {
         set af($j) [$top insert [expr $j+3] page$j \
             -text [msgcat::mc "Tune %d" $j]  -raisecmd "selectAxis $j" ]
-        puts "af: [array get af]"
         set col0 [label $af($j).collabel0 -text [msgcat::mc "INI Name"]]
         set col1 [label $af($j).collabel1 -text [msgcat::mc "HAL's Value"]]
         set col2 [label $af($j).space -text "   "]
