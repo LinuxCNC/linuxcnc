@@ -653,11 +653,11 @@ Home each axis if not homed.
 \end_layout
 
 \begin_layout Enumerate
-Make sure no offsets are in effect for the curret coordinate system.
+Make sure no offsets are in effect for the current coordinate system.
 \end_layout
 
 \begin_layout Enumerate
-Set the curret tool with "TnM6" where "n" is the tool number.
+Set the current tool with "TnM6" where "n" is the tool number.
 \end_layout
 
 \begin_layout Enumerate
@@ -676,12 +676,12 @@ Select Touch Off and pick Tool Table and set the position to 0.0.
 \end_layout
 
 \begin_layout Enumerate
-Repete for each tool using the same cylinder.
+Repeat for each tool using the same cylinder.
 \end_layout
 
 \begin_layout Standard
 Now all the tools are offset the same distance from a standard position.
- If you change a tool like a drill bit you repete the above and it is now
+ If you change a tool like a drill bit you repeat the above and it is now
  in sync with the rest of the tools for Z offset.
  Some tools might require a bit of cyphering to determine the control point
  from the touch off point.
@@ -767,7 +767,7 @@ Arcs
 Calculating arcs can be mind challenging enough without considering radius
  and diameter mode on lathes as well as machine coordinate system orientation.
  The following applies to center format arcs.
- On a lathe you should include G18 in your preable as the default is G17
+ On a lathe you should include G18 in your preamble as the default is G17
  even if your in lathe mode in the user interface Axis.
  Arcs in G18 XZ plane use I (X axis) and K (Z axis) offsets.
 \end_layout
@@ -778,8 +778,8 @@ Lathe Orientation
 
 \begin_layout Standard
 The typical lathe has the spindle on the left of the operator and the tools
- on the operator side of the spindle centerline.
- This is typicly set up with the imaginary Y axis pointing at the floor.
+ on the operator side of the spindle center line.
+ This is typically set up with the imaginary Y axis pointing at the floor.
  
 \end_layout
 
@@ -828,8 +828,12 @@ When calculating arcs in diameter mode X is diameter and the X offset (I)
 Tool Path
 \end_layout
 
+\begin_layout Subsection*
+Control Point
+\end_layout
+
 \begin_layout Standard
-The tool path follows the control point for the tool.
+The the control point for the tool follows the programmed path.
  The control point is the intersection of a line parallel to the X and Z
  axis and tangent to the tool tip diameter as defined when you touch off
  the X and Z axes for that tool.
@@ -837,8 +841,8 @@ The tool path follows the control point for the tool.
  edge follow the same path.
  When turning radius and angles the edge of the tool tip will not follow
  the programmed path unless cutter comp is in effect.
- In the following figure you can see the control point does not follow the
- tool edge as you might assume.
+ In the following figure you can see how the control point does not follow
+ the tool edge as you might assume.
 \end_layout
 
 \begin_layout Standard
@@ -875,6 +879,7 @@ name "fig:Control-Point"
 \align center
 \begin_inset Graphics
 	filename images/control_point.png
+	scale 80
 
 \end_inset
 
@@ -888,6 +893,10 @@ name "fig:Control-Point"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection*
+Cutting Angles without Cutter Comp
 \end_layout
 
 \begin_layout Standard
@@ -925,6 +934,7 @@ Ramp Entry
 \align center
 \begin_inset Graphics
 	filename images/ramp_entry.png
+	scale 80
 
 \end_inset
 
@@ -972,6 +982,7 @@ Ramp Path
 \align center
 \begin_inset Graphics
 	filename images/ramp_cut.png
+	scale 80
 
 \end_inset
 
@@ -984,9 +995,202 @@ Ramp Path
 \end_layout
 
 \begin_layout Standard
-In the above example it is a simple excersise to adjust the programmed path
- to give the desired actual path by moving the programmed path to the left
- by the radius of the tool tip.
+In the above example it is a simple exercise to adjust the programmed path
+ to give the desired actual path by moving the programmed path for the ramp
+ to the left the radius of the tool tip.
+\end_layout
+
+\begin_layout Subsection*
+Cutting a Radius
+\end_layout
+
+\begin_layout Standard
+In this example we will examine what happens during a radius cut without
+ cutter comp.
+ In the next figure you see the tool turning the OD of the part and the
+ control point of the tool is following the programmed path and the tool
+ is touching the OD of the part.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Turning Cut
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/radius_1.png
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In this next figure you can see as the tool approaches the end of the part
+ the control point still follows the path but the tool tip has left the
+ part and is cutting air.
+ You can also see that even though a radius has been programmed the part
+ will actually end up with a square corner.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Radius Cut
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/radius_2.png
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now you can see as the control point follows the radius programmed the tool
+ tip has left the part and is now cutting air.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Radius Cut
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/radius_3.png
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the final figure we can see the tool tip will finish cutting the face
+ but leave a square corner instead of a nice radius.
+ Notice also that if you program the cut to end at the center of the part
+ a small amount of material will be left from the radius of the tool.
+ To finish a face cut to the center of a part you have to program the tool
+ to go past center at least the nose radius of the tool.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Caption
+
+\begin_layout Standard
+Face Cut
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+\align center
+\begin_inset Graphics
+	filename images/radius_4.png
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection*
