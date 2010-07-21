@@ -610,8 +610,13 @@ proc ::tooledit::writefile {filename} {
         foreach h $::te($type,header) {
           set j ""
           set w $::te($h,width)
-          if {"$::te($type,$i,$h)" != ""} {
-            puts -nonewline $fd "$::te($h,tag)$::te($type,$i,$h) "
+          # correct entries with leading zeros
+          if {[string first 0 [string trim $::te($type,$i,$h)]] == 0} {
+             set ::te($type,$i,$h) [format %g $::te($type,$i,$h)]
+          }
+          set value [string trim $::te($type,$i,$h)]
+          if {"$value" != ""} {
+            puts -nonewline $fd "$::te($h,tag)$value "
           }
         }
         puts $fd "" ;# new line
