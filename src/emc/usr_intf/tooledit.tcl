@@ -68,8 +68,8 @@ proc ::tooledit::init {} {
   set ::te(diam,width)     7; set ::te(diam,tag)     D
   set ::te(front,width)    7; set ::te(front,tag)    I
   set ::te(back,width)     7; set ::te(back,tag)     J
-  set ::te(orien,width)    5; set ::te(orien,tag)    Q
-  set ::te(comment,width)  0; set ::te(comment,tag) \;
+  set ::te(orien,width)    6; set ::te(orien,tag)    Q
+  set ::te(comment,width)  20; set ::te(comment,tag) \;
   # note: width 0 expands with text in entry widget
   #       when using Bwidget scrollable frame
 } ;# init
@@ -316,9 +316,11 @@ proc ::tooledit::tooledit {filename} {
 
 
     # note: dont pack ::te($type,sframe), handled by ScrolledWindow
-    set ::te($type,sw)  [ScrolledWindow  $::te(top).$type -auto both]
+    set ::te($type,sw)  [ScrolledWindow  $::te(top).$type \
+             -scrollbar vertical -auto none]
     set ::te($type,sframe) [ScrollableFrame $::te(top).$type.sff \
-             -height $::te($type,height) -width $::te($type,width)]
+             -height $::te($type,height) -width $::te($type,width) \
+             -constrainedwidth 1]
     $::te($type,sw) setwidget $::te($type,sframe) ;# associates scrollbars
     set ::te($type,frame) [$::te($type,sframe) getframe] ;# this is parent
   }
