@@ -1331,6 +1331,9 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of emc2 that depend on Python])]
 	
     )
+
+    AC_MSG_CHECKING(for Xmu headers)
+    AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
 fi
 
 AC_SUBST([BUILD_PYTHON])
