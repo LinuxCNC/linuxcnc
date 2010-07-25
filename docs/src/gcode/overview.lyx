@@ -946,21 +946,63 @@ The
 \end_layout
 
 \begin_layout Standard
-The interpret maintains a number of readonly parameters for a loaded tool.
-   #5400 tool number
-   #5401 tool x offset
-   #5402 tool y offset
-   #5403 tool z offset
-   #5404 tool a offset (RESERVED for future use)
-   #5405 tool b offset (RESERVED for future use)
-   #5406 tool c offset (RESERVED for future use)
-   #5407 tool u offset (RESERVED for future use)
-   #5408 tool v offset (RESERVED for future use)
-   #5409 tool w offset (used with ini file setting for [TRAj]TLO_IS_ALONG_W)
-   #5410 tool diameter
-   #5411 tool frontangle
-   #5412 tool backangle
-   #5413 tool orientation
+The interpreter maintains a number of readonly parameters for a loaded tool:
+\end_layout
+
+\begin_layout Itemize
+#5400 tool number 
+\end_layout
+
+\begin_layout Itemize
+#5401 tool x offset 
+\end_layout
+
+\begin_layout Itemize
+#5402 tool y offset 
+\end_layout
+
+\begin_layout Itemize
+#5403 tool z offset 
+\end_layout
+
+\begin_layout Itemize
+#5404 tool a offset 
+\end_layout
+
+\begin_layout Itemize
+#5405 tool b offset 
+\end_layout
+
+\begin_layout Itemize
+#5406 tool c offset 
+\end_layout
+
+\begin_layout Itemize
+#5407 tool u offset 
+\end_layout
+
+\begin_layout Itemize
+#5408 tool v offset 
+\end_layout
+
+\begin_layout Itemize
+#5409 tool w offset 
+\end_layout
+
+\begin_layout Itemize
+#5410 tool diameter 
+\end_layout
+
+\begin_layout Itemize
+#5411 tool frontangle 
+\end_layout
+
+\begin_layout Itemize
+#5412 tool backangle 
+\end_layout
+
+\begin_layout Itemize
+#5413 tool orientation
 \end_layout
 
 \begin_layout Section

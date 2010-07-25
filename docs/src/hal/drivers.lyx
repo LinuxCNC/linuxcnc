@@ -111,15 +111,7 @@ To determine whether your port has "open collector" pins, load hal_parport
  If the resulting voltage on the control pin is close to 0V, and HAL now
  reads the pin as FALSE, then you have an OC port.
  If the resulting voltage is far from 0V, or HAL does not read the pin as
- FALSE, then your port cannot be used in 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode.
+ FALSE, then your port cannot be used in "x" mode.
 \end_layout
 
 \begin_layout Standard
@@ -173,7 +165,7 @@ Using the Port Index
 \begin_layout Standard
 I/O addresses below 16 are treated as port indexes.
  This is the simplest way to install the parport driver and cooperates with
- the Linux paraport_pc driver if it is loaded.
+ the Linux parport_pc driver if it is loaded.
 \end_layout
 
 \begin_layout LyX-Code
@@ -189,7 +181,7 @@ Using the Port Address
 \end_layout
 
 \begin_layout Standard
-The config string consists of a hex port address, followed by an optional
+The configure string consists of a hex port address, followed by an optional
  direction, repeated for each port.
  The direction is "in", "out", or "x" and determines the direction of the
  physical pins 2 through 9, and whether to create input HAL pins for the
@@ -358,15 +350,7 @@ parport.0.pin-12-in-not
  HAL pin is inverted -- it is FALSE if the physical pin is high.
  By connecting a signal to one or the other, the user can determine the
  state of the input.
- In 
-\begin_inset Quotes eld
-\end_inset
-
-x
-\begin_inset Quotes erd
-\end_inset
-
- mode, pins 1, 14, 16, and 17 are also input pins.
+ In "x" mode, pins 1, 14, 16, and 17 are also input pins.
 \end_layout
 
 \begin_layout Subsection
@@ -392,7 +376,7 @@ parport.<portnum>.pin-<pinnum>-out-invert
 \noun default
 parport.<portnum>.pin-<pinnum>-out-reset
 \family default
- (only for pins 2..9) -- TRUE if this pin should be reset when the 
+ (only for "out" pins) -- TRUE if this pin should be reset when the 
 \family typewriter
 -reset
 \family default
@@ -408,11 +392,11 @@ parport.<portnum>.pin-<pinnum>-out-reset
 \family typewriter
 write
 \family default
- and reset by 
+ and reset by the 
 \family typewriter
 reset
 \family default
- HAL functions.
+ function if it is enabled.
 \end_layout
 
 \begin_layout Standard
@@ -439,27 +423,6 @@ The
 -out
 \family default
  pin TRUE will drive the physical pin low.
-\end_layout
-
-\begin_layout Standard
-If 
-\family typewriter
--reset
-\family default
- is TRUE, then the 
-\family typewriter
-reset
-\family default
- function will set the pin to the value of 
-\family typewriter
--out-invert
-\family default
-.
- This can be used in conjunction with stepgen's 
-\family typewriter
-doublefreq
-\family default
- to produce one step per period.
 \end_layout
 
 \begin_layout Subsection
@@ -573,7 +536,28 @@ reset
 \family default
  must be later in the same thread as 
 \family typewriter
-write
+write.
+ 
+\family default
+If 
+\family typewriter
+-reset
+\family default
+ is TRUE, then the 
+\family typewriter
+reset
+\family default
+ function will set the pin to the value of 
+\family typewriter
+-out-invert
+\family default
+.
+ This can be used in conjunction with stepgen's 
+\family typewriter
+doublefreq
+\family default
+ to produce one step per period.
+ The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
 \end_layout
 
 \begin_layout Standard
@@ -612,7 +596,7 @@ parport_pc
 status open
 
 \begin_layout Standard
-In the emc packages for Ubuntu, the file /etc/modprobe.d/emc2 generally prevents
+In the EMC packages for Ubuntu, the file /etc/modprobe.d/emc2 generally prevents
  
 \family typewriter
 parport_pc
@@ -632,6 +616,65 @@ If the module loads but does not appear to function, then the port address
 probe_parport
 \family default
  module is required.
+\end_layout
+
+\begin_layout Subsection
+Using DoubleStep
+\end_layout
+
+\begin_layout Standard
+To setup DoubleStep on the parallel port you must add the function parport.n.reset
+ after parport.n.write and configure stepspace to 0 and the reset time wanted.
+ So that step can be asserted on every period in HAL and then toggled off
+ by parport after being asserted for time specificed by parport.n.reset-time.
+\end_layout
+
+\begin_layout Standard
+For example:
+\end_layout
+
+\begin_layout LyX-Code
+loadrt hal_parport cfg="0x378 out"
+\end_layout
+
+\begin_layout LyX-Code
+setp parport.0.reset-time 5000
+\end_layout
+
+\begin_layout LyX-Code
+loadrt stepgen step_type=0,0,0
+\end_layout
+
+\begin_layout LyX-Code
+addf parport.0.read base-thread
+\end_layout
+
+\begin_layout LyX-Code
+addf stepgen.make-pulses base-thread
+\end_layout
+
+\begin_layout LyX-Code
+addf parport.0.write base-thread
+\end_layout
+
+\begin_layout LyX-Code
+addf parport.0.reset base-thread
+\end_layout
+
+\begin_layout LyX-Code
+addf stepgen.capture-position servo-thread
+\end_layout
+
+\begin_layout LyX-Code
+...
+\end_layout
+
+\begin_layout LyX-Code
+setp stepgen.0.steplen 1
+\end_layout
+
+\begin_layout LyX-Code
+setp stepgen.0.stepspace 0
 \end_layout
 
 \begin_layout Section

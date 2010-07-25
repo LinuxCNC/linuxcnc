@@ -63,12 +63,13 @@ char SerialOpen( char * SerialPortName, int Speed )
 	{
 		int BaudRate = -1;
 		int ScanBaudRate = 0;
-		while( SerialSpeed[ ScanBaudRate ]!=Speed && SerialSpeed[ ScanBaudRate ]>=0 )
+		fcntl(fd, F_SETFL, O_RDWR | O_NOCTTY ); /* perform blocking reads */
+		for(ScanBaudRate = 0; SerialSpeed[ScanBaudRate]; ScanBaudRate++)
 		{
-			ScanBaudRate++;
 			if ( SerialSpeed[ ScanBaudRate ]==Speed )
 			{
 				BaudRate = SerialCorres[ ScanBaudRate ];
+				break;
 			}
 		}
 switch (ModbusSerialDataBits)
@@ -181,10 +182,10 @@ void SerialSend( char *Buff, int BuffLength )
 		write(fd,Buff,BuffLength);
 		if ( ModbusDebugLevel>=2 )
 			printf("Writing done!\n");
+		// wait until everything has been transmitted
+		tcdrain( fd );
 		if ( ModbusSerialUseRtsToSend )
 		{
-			// wait until everything has been transmitted
-			tcdrain( fd );
 			SerialSetRTS( 0 );
 		}
 	}
@@ -195,7 +196,7 @@ void SerialSetResponseSize( int Size, int TimeOutResp )
 	if ( PortIsOpened )
 	{
 	        newtio.c_cc[VMIN] = Size; //Nbr chars we should receive;
-		newtio.c_cc[VTIME] = TimeOutResp/100; // TimeOut in 0.1s
+		newtio.c_cc[VTIME] = 1;
 //		tcflush(fd, TCIFLUSH);
 		if ( ModbusDebugLevel>=2 )
 			printf("Serial config...\n");
@@ -203,7 +204,7 @@ void SerialSetResponseSize( int Size, int TimeOutResp )
 	}
 }
 
-int SerialReceive( char * Buff, int MaxBuffLength )//, int TimeOutResp )
+int SerialReceive( char * Buff, int MaxBuffLength, int TimeOutResp )
 {
 	int NbrCarsReceived = 0;
 	if ( PortIsOpened )
@@ -216,8 +217,8 @@ struct timeval tv;
 FD_ZERO( &myset);
 // add descrip to survey and set time-out wanted !
 FD_SET( fd, &myset );
-tv.tv_sec = 0; //seconds
-tv.tv_usec = newtio.c_cc[VTIME]*100 *1000; //micro-seconds
+tv.tv_sec = TimeOutResp / 1000; //seconds
+tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
 if ( ModbusDebugLevel>=3 )
 	printf("select() for serial reading...\n");
 recep_descrip = select( 16, &myset, NULL, NULL, &tv );

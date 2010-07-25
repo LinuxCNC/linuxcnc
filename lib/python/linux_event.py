@@ -31,21 +31,27 @@ def get_uniq(f):
 
 def get_bits(f, o=0):
     o = EV_invert.get(o, o)
-    if o == 'EV_SYN': map = EV_invert
-    elif o == 'EV_KEY': map = KEYBTN_invert
-    elif o == 'EV_LED': map = LED_invert    
-    elif o == 'EV_ABS': map = ABS_invert    
-    elif o == 'EV_REL': map = REL_invert    
-    else: map = {}
+    if o == 'EV_SYN': fmap, rmap, prefix = EV_invert, EV, "SYN"
+    elif o == 'EV_KEY': fmap, rmap, prefix = KEYBTN_invert, KEY, "KEY"
+    elif o == 'EV_LED': fmap, rmap, prefix = LED_invert, LED, "LED"
+    elif o == 'EV_ABS': fmap, rmap, prefix = ABS_invert, ABS, "ABS"
+    elif o == 'EV_REL': fmap, rmap, prefix = REL_invert, REL, "REL"
+    else: raise ValueError, "get_bits: unexpected map %s" % o
 
-    sz = max(map) + 1
+    sz = max(fmap) + 1
     a = fcntl.ioctl(f, SZ(EVIOCGBIT+EV[o], sz), '\0' * ((sz+7)/8))
     ret = set()
     for j, ch in enumerate(a):
 	ch = ord(ch)
 	for i in range(8):
 	    b = 1<<i
-	    if ch & b: ret.add(map.get(j*8+i, j*8+1))
+	    if ch & b:
+		k = j*8+i
+		if k not in fmap:
+		    name = "%s_%d" % (prefix, k)
+		    fmap[k] = name
+		    rmap[name] = k
+		ret.add(fmap[k])
     return ret
 
 def get_keys(f):
