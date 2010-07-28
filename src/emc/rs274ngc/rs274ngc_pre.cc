@@ -1526,8 +1526,10 @@ int Interp::init_tool_parameters()
     _setup.parameters[5412] = _setup.tool_table[0].backangle;
     _setup.parameters[5413] = _setup.tool_table[0].orientation;
   } else {
-    // non random_toolchanger: no tool at startup
-    default_tool_parameters();
+    // non random_toolchanger: no tool at startup, one-time init
+    if (_setup.tool_table[0].toolno == -1) {
+      default_tool_parameters();
+    }
   }
   return 0;
 }
