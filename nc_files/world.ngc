@@ -1,0 +1,9 @@
+O<world> sub
+t2m6
+(message,tool #2 loaded)
+t3m6
+(message,tool #3 loaded)
+g91g38.2x1
+(message,probed right 1)
+g90
+O<world> endsub
