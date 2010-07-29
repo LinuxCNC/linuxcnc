@@ -11,7 +11,7 @@ If enabled and torch is on and X + Y velocity is within tolerance of set speed
 allow the THC to offset the Z axis as needed to maintain voltage.
 
 If enabled and torch is off and the Z axis is moving up remove any correction
-at a rate not to exceed the rate of movment of the Z axis.
+at a rate not to exceed the rate of movement of the Z axis.
 
 If enabled and torch is off and there is no correction 
 pass the Z position and feed back untouched.
@@ -21,7 +21,7 @@ If not enabled pass the Z position and feed back untouched.
 Physical Connections 
 Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
 THC Frequency Signal => Encoder #0, pin A (Input)
-Plasma Torch Arc Ok Signal => parport.0.pin-15-in
+Plasma Torch Arc OK Signal => parport.0.pin-15-in
 parport.0.pin-16-out => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
@@ -44,11 +44,11 @@ option singleton yes;
 // Input Pins
 pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
 pin in float current_vel "Connect to motion.current-vel";
-pin in float requested_vel "Conect to motion.requested-vel";
-pin in float volts_requested "Tip Volts Rcurrent_vel >= min_velocityequested (SP)";
+pin in float requested_vel "Connect to motion.requested-vel";
+pin in float volts_requested "Tip Volts current_vel >= min_velocityequested (SP)";
 pin in float vel_tol "Velocity Tolerance (Corner Lock)";
-pin in bit torch_on "Conect to motion.spindle-on";
-pin in bit arc_ok "Arc Ok from Plasma Torch";
+pin in bit torch_on "Connect to motion.spindle-on";
+pin in bit arc_ok "Arc OK from Plasma Torch";
 pin in bit enable "Enable the THC, if not enabled Z position is passed through";
 pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";
 
@@ -61,8 +61,8 @@ pin out bit vel_status "When the THC thinks we are at requested speed";
 // Parameters
 param rw float vel_scale "The scale to convert the Velocity signal to Volts";
 param rw float scale_offset "The offset of the velocity input at 0 volts";
-param rw float velocity_tol "The devation percent from planned velocity";
-param rw float voltage_tol "The devation of Tip Voltage before correction takes place";
+param rw float velocity_tol "The deviation percent from planned velocity";
+param rw float voltage_tol "The deviation of Tip Voltage before correction takes place";
 param rw float correction_vel "The Velocity to move Z to correct";
 
 // Global Variables
@@ -78,7 +78,7 @@ function _;
 FUNCTION(_) {
     // convert encoder velocity to volts
     volts = (encoder_vel - scale_offset) * vel_scale;
-    if(volts < 0){volts = 0;} // make sure volts is not negitive
+    if(volts < 0){volts = 0;} // make sure volts is not negative
     
     if(enable){
         float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
