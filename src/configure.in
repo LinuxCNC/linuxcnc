@@ -519,7 +519,7 @@ else
     EMC2_TCL_DIR=${prefix}/lib/tcltk/emc2
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/emc2
     EMC2_LANG_DIR=${prefix}/share/emc/tcl/msgs
-    EMC2_PO_DIR=${prefix}/share
+    EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/emc2
     case $MODULE_DIR in
         */emc2*) EMC2_RTLIB_DIR=$MODULE_DIR ;;

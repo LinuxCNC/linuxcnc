@@ -190,7 +190,9 @@ class emc_control:
                 if self.emcstat.paused:
                         if self.sb:
                                 self.emccommand.auto(self.emc.AUTO_STEP)
-                                return
+                        else:
+                                self.emccommand.auto(self.emc.AUTO_RESUME)
+                        return
 
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
                         self.emccommand.mode(self.emc.MODE_AUTO)

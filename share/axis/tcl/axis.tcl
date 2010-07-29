@@ -2298,8 +2298,9 @@ proc update_recent {args} {
 
 bind . <Configure> {
     if {"%W" == "."} {
-        wm minsize %W [winfo reqwidth %W] [winfo reqheight %W]
-        bind . <Configure> {}
+        set msz [wm minsize %W]
+        set nmsz [list [winfo reqwidth %W] [expr [winfo reqheight %W]+4]]
+        if {$msz != $nmsz} { eval wm minsize %W $nmsz }
     }
 }
 

@@ -6494,7 +6494,7 @@ The
 \family typewriter
 R-
 \family default
- digression value is less than 1.0.
+ degression value is less than 1.0.
 \end_layout
 
 \begin_layout Itemize
@@ -6626,7 +6626,7 @@ Optional settings
 \end_layout
 
 \begin_layout Description
-R- The "depth digression".
+R- The "depth degression".
  
 \family typewriter
 R1.0
@@ -6639,8 +6639,22 @@ R2.0
  selects constant area.
  Values between 1.0 and 2.0 select decreasing depth but increasing area.
  Values above 2.0 select decreasing area.
- Beware that unnecessarily high digression values will cause a large number
+ Beware that unnecessarily high degression values will cause a large number
  of passes to be used.
+ (degression = a descent by stages or steps.)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Standard
+degression is spelled correctly so don't change it again JT.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Description
