@@ -87,10 +87,10 @@ FUNCTION(_) {
         
         if(torch_on && arc_ok && vel_status){ // allow correction
             if((volts + voltage_tol) > volts_requested){
-                offset += correction_vel;
+                offset -= correction_vel;
             }
             if((volts - voltage_tol) < volts_requested){
-                offset -= correction_vel;
+                offset += correction_vel;
             }    
             last_z_in = 0;
         }
