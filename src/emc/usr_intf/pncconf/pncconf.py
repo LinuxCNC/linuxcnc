@@ -3954,6 +3954,7 @@ class App:
         self.next_parport("pp3")
 
     def prepare_parport(self,portname):
+        self.data.help = "help-parport.txt"
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = '%sOpin%d' % (portname,pin)
             model = self.widgets[p].get_model()
@@ -4610,6 +4611,7 @@ class App:
     def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
     def on_spindle_prepare(self, *args):
+        self.data.help = "help-spindle.txt"
         self.axis_prepare('s')      
     def on_spindle_next(self, *args):
         self.axis_done('s')      
