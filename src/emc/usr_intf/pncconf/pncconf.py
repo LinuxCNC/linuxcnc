@@ -2594,6 +2594,7 @@ class App:
                 textbuffer.set_text(string)
                 self.widgets.helpwindow.set_title(_("Help Pages") )
                 self.widgets.helpwindow.show_all()
+                self.widgets.helpwindow.present()
         except:
             text = _("Help page is unavailable\n")
             self.warning_dialog(text,True)
