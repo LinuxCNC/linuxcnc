@@ -2253,7 +2253,7 @@ class Data:
         filename = "%s.pncconf" % base
 
         d = xml.dom.minidom.getDOMImplementation().createDocument(
-                            None, "stepconf", None)
+                            None, "pncconf", None)
         e = d.documentElement
 
         for k, v in sorted(self.__dict__.iteritems()):
