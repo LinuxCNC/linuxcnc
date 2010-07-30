@@ -1041,6 +1041,7 @@ class GlCanonDraw:
                 droformat = " " + format + "  DTG %1s:% 9.4f"
                 offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
                 rotformat = "% 5s %1s:% 9.4f"
+            diaformat = " " + format
 
             posstrs = []
             droposstrs = []
@@ -1075,7 +1076,7 @@ class GlCanonDraw:
                 posstrs[0] = format % ("Rad", positions[0])
                 posstrs.insert(1, format % ("Dia", positions[0]*2.0))
                 droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
-                droposstrs.insert(1, format % ("Dia", positions[0]*2.0))
+                droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.get_show_machine_speed():
                 spd = self.to_internal_linear_unit(s.current_vel)
