@@ -775,6 +775,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance;
+  double current_cc = settings->current_z;
 
   plane = CANON_PLANE_XY;
   if (settings->motion_mode != motion) {
@@ -783,7 +784,12 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->z_number =
     block->z_flag == ON ? block->z_number : settings->cycle_cc;
-  old_cc = settings->current_z;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     double radius, theta;
@@ -952,6 +958,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance;
+  double current_cc = settings->w_current;
 
   plane = CANON_PLANE_UV;
   if (settings->motion_mode != motion) {
@@ -960,7 +967,12 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->w_number =
     block->w_flag == ON ? block->w_number : settings->cycle_cc;
-  old_cc = settings->w_current;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     aa_increment = 0.0;
@@ -1162,6 +1174,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save the current tolerance, to restore it lateron
+  double current_cc = settings->current_x;
 
   plane = CANON_PLANE_YZ;
   if (settings->motion_mode != motion) {
@@ -1170,7 +1183,12 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->x_number =
     block->x_flag == ON ? block->x_number : settings->cycle_cc;
-  old_cc = settings->current_x;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     aa_increment = 0.0;
@@ -1324,6 +1342,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save the current tolerance, to restore it lateron
+  double current_cc = settings->u_current;
 
   plane = CANON_PLANE_VW;
   if (settings->motion_mode != motion) {
@@ -1332,7 +1351,12 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->u_number =
     block->u_flag == ON ? block->u_number : settings->cycle_cc;
-  old_cc = settings->u_current;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     aa_increment = 0.0;
@@ -1543,6 +1567,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save current path-following tolerance, to restore it lateron
+  double current_cc = settings->current_y;
 
   plane = CANON_PLANE_XZ;
   if (settings->motion_mode != motion) {
@@ -1551,7 +1576,12 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->y_number =
     block->y_flag == ON ? block->y_number : settings->cycle_cc;
-  old_cc = settings->current_y;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     aa_increment = 0.0;
@@ -1704,6 +1734,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   int repeat;
   CANON_MOTION_MODE save_mode;
   double save_tolerance; //save current path-following tolerance, to restore it lateron
+  double current_cc = settings->v_current;
 
   plane = CANON_PLANE_UW;
   if (settings->motion_mode != motion) {
@@ -1712,7 +1743,12 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   }
   block->v_number =
     block->v_flag == ON ? block->v_number : settings->cycle_cc;
-  old_cc = settings->v_current;
+  if(settings->cycle_il_flag) {
+      old_cc = settings->cycle_il;
+  } else {
+      old_cc = settings->cycle_il = current_cc;
+      settings->cycle_il_flag = ON;
+  }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
     aa_increment = 0.0;

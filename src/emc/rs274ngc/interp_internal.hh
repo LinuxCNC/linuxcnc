@@ -398,6 +398,8 @@ typedef struct setup_struct
   double cycle_p;               // p-value (dwell) for canned cycles
   double cycle_q;               // q-value for canned cycles
   double cycle_r;               // r-value for canned cycles
+  double cycle_il;              // "initial level" height when switching from non-cycle into cycle, for g98 retract
+  int cycle_il_flag;            // il is currently valid because we're in a series of cycles
   DISTANCE_MODE distance_mode;  // absolute or incremental
   DISTANCE_MODE ijk_distance_mode;  // absolute or incremental for IJK in arcs
   int feed_mode;                // G_93 (inverse time) or G_94 units/min
@@ -595,11 +597,10 @@ macros totally crash-proof. If the function call stack is deeper than
            aa = radius * cos(theta); \
            bb = radius * sin(theta); \
        } \
-       cycle_traverse(block, plane, aa, bb, old_cc); \
+       cycle_traverse(block, plane, aa, bb, current_cc); \
        if (old_cc != r) \
          cycle_traverse(block, plane, aa, bb, r); \
        CHP(call); \
-       old_cc = clear_cc; \
      }
 
 
