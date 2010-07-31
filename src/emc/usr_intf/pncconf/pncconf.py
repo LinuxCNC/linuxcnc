@@ -4189,7 +4189,8 @@ class App:
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
         w[axis + "servo_info"].set_sensitive(not stepdriven)
-        w[axis + "stepper_info"].set_sensitive(stepdriven)    
+        w[axis + "stepper_info"].set_sensitive(stepdriven)  
+        w[axis + "invertencoder"].set_sensitive(not stepdriven)
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
         if w[axis + "drivertype"].get_active_text()  == _("Custom"):
             w[axis + "steptime"].set_value(d[axis + "steptime"])
@@ -4229,6 +4230,7 @@ class App:
             else: 
                 
                 w.sencodercounts.set_sensitive(1) 
+            w[axis + "invertencoder"].set_sensitive(True)
             w["soutputscale"].set_sensitive(pwmdriven)
             w["soutputoffset"].set_sensitive(pwmdriven)
             w["smaxoutput"].set_sensitive(pwmdriven)
