@@ -288,7 +288,7 @@ static int determineMode()
   */
 static int determineState()
 {
-    if (emcStatus->io.aux.estop) {
+    if (emcStatus->motion.estop) {
 	return EMC_TASK_STATE_ESTOP;
     }
 

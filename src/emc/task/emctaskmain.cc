@@ -2991,7 +2991,7 @@ int main(int argc, char *argv[])
 	emcIoUpdate(&emcStatus->io);
 	emcMotionUpdate(&emcStatus->motion);
 	// synchronize subordinate states
-	if (emcStatus->io.aux.estop) {
+	if (emcStatus->motion.estop) {
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();

@@ -1147,6 +1147,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int synch_do[EMC_MAX_DIO];  // motion outputs queried by interp
     double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
     double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
+    int estop;			// non-zero means estopped
     int debug;			// copy of EMC_DEBUG global
 };
 
@@ -1570,36 +1571,6 @@ class EMC_AUX_CMD_MSG:public RCS_CMD_MSG {
     void update(CMS * cms);
 };
 
-class EMC_AUX_ESTOP_ON:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_ON():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_ON_TYPE,
-				       sizeof(EMC_AUX_ESTOP_ON)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_OFF:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_OFF():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_OFF_TYPE,
-					sizeof(EMC_AUX_ESTOP_OFF)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_AUX_ESTOP_RESET:public EMC_AUX_CMD_MSG {
-  public:
-    EMC_AUX_ESTOP_RESET():EMC_AUX_CMD_MSG(EMC_AUX_ESTOP_RESET_TYPE,
-					sizeof(EMC_AUX_ESTOP_RESET)) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 class EMC_AUX_INPUT_WAIT:public EMC_AUX_CMD_MSG {
   public:
     EMC_AUX_INPUT_WAIT():EMC_AUX_CMD_MSG(EMC_AUX_INPUT_WAIT_TYPE,
@@ -1632,8 +1603,6 @@ class EMC_AUX_STAT:public EMC_AUX_STAT_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-
-    int estop;			// non-zero means estopped
 };
 
 // EMC_SPINDLE type declarations

@@ -471,6 +471,22 @@ check_stuff ( "before command_handler()" );
 	    }
 	    break;
 
+        case EMCMOT_ESTOP_ON:
+            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_ON");
+            *(emcmot_hal_data->user_enable_out) = 0;      /* output, FALSE when EMC wants stop */
+            *(emcmot_hal_data->user_request_enable) = 0;  /* output, used to reset HAL latch */
+            break;
+
+        case EMCMOT_ESTOP_OFF:
+            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_OFF");
+            *(emcmot_hal_data->user_enable_out) = 1;     /* we're good to enable on ESTOP_OFF */
+            *(emcmot_hal_data->user_request_enable) = 1; /* generate a rising edge to reset optional HAL latch */
+            break;
+
+        case EMCMOT_ESTOP_RESET:
+            rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_RESET");
+            break;
+
 	case EMCMOT_FREE:
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */

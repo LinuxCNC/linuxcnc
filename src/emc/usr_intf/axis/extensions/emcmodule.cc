@@ -362,7 +362,7 @@ static PyMemberDef Stat_members[] = {
     {"flood", T_INT, O(io.coolant.flood), READONLY},
 
 // EMC_AUX_STAT     io.aux
-    {"estop", T_INT, O(io.aux.estop), READONLY},
+    {"estop", T_INT, O(motion.estop), READONLY},
 
 // EMC_LUBE_STAT    io.lube
     {"lube", T_INT, O(io.lube.on), READONLY},

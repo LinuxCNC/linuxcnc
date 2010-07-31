@@ -1437,7 +1437,17 @@ int emcSpindleConstant()
     return 0; // nothing to do
 }
 
+int emcAuxEstopOn()
+{
+    emcmotCommand.command = EMCMOT_ESTOP_ON;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
 
+int emcAuxEstopOff()
+{
+    emcmotCommand.command = EMCMOT_ESTOP_OFF;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
 
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
@@ -1485,6 +1495,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->heartbeat = localMotionHeartbeat;
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
+    stat->estop = emcmotStatus.estop;
     stat->debug = emcmotConfig.debug;
     
     stat->spindle.enabled = emcmotStatus.spindle.speed != 0;
