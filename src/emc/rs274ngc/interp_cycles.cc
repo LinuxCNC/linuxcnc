@@ -120,7 +120,7 @@ For the XY plane, this implements the following RS274/NGC cycle,
 which is usually peck drilling:
 1. Move the z-axis only at the current feed rate downward by delta or
    to the specified bottom_z, whichever is less deep.
-2. Rapid back out to the clear_z.
+2. Rapid back out to the R plane.
 3. Rapid back down to the current hole bottom, backed off a bit.
 4. Repeat steps 1, 2, and 3 until the specified bottom_z is reached.
 5. Retract the z-axis at traverse rate to clear_z.
@@ -159,7 +159,7 @@ int Interp::convert_cycle_g83(block_pointer block,
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
-    cycle_traverse(block, plane, x, y, clear_z);
+    cycle_traverse(block, plane, x, y, r);
     cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
   cycle_feed(block, plane, x, y, bottom_z);
