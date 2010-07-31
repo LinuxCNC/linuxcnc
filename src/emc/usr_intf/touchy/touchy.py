@@ -141,7 +141,7 @@ class touchy:
 
                 # emc interface
                 self.emc = emc_interface.emc_control(emc, self.listing, self.wTree.get_widget("error"))
-                self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control)
+                self.hal = hal_interface.hal_interface(self, self.emc, self.mdi_control, emc)
 
                 # silly file chooser
                 filechooser_labels = []
