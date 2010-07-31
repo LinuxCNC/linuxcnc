@@ -312,20 +312,6 @@ int emcIoSetDebug(int debug)
     return sendCommand(&ioDebugMsg);
 }
 
-int emcAuxEstopOn()
-{
-    EMC_AUX_ESTOP_ON estopOnMsg;
-
-    return forceCommand(&estopOnMsg);
-}
-
-int emcAuxEstopOff()
-{
-    EMC_AUX_ESTOP_OFF estopOffMsg;
-
-    return forceCommand(&estopOffMsg); //force the EstopOff message
-}
-
 int emcCoolantMistOn()
 {
     EMC_COOLANT_MIST_ON mistOnMsg;

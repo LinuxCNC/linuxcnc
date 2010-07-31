@@ -1894,6 +1894,21 @@ static void update_status(void)
     static int old_motion_flag;
 #endif
 
+    if (*(emcmot_hal_data->emc_enable_in) == 0) //check for estop from HW
+	emcmotStatus->estop = 1;
+    else
+	emcmotStatus->estop = 0;
+
+    if (emcmotInternal->user_request_enabled == 1) {
+        /* clear reset line to allow for a later rising edge */
+        emcmotInternal->user_request_enabled = 0;
+        *(emcmot_hal_data->user_request_enable) = 0;
+    }
+
+    if (*(emcmot_hal_data->user_request_enable) == 1) {
+        emcmotInternal->user_request_enabled = 1;
+    }
+
     /* copy status info from private joint structure to status
        struct in shared memory */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {

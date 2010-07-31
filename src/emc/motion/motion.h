@@ -105,6 +105,10 @@ extern "C" {
 	EMCMOT_ACTIVATE_JOINT,	/* make joint active */
 	EMCMOT_DEACTIVATE_JOINT,	/* make joint inactive */
 
+        EMCMOT_ESTOP_ON,
+        EMCMOT_ESTOP_OFF,
+        EMCMOT_ESTOP_RESET,
+
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
 	EMCMOT_STEP,		/* resume motion until id encountered */
@@ -587,6 +591,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int commandNumEcho;	/* echo of input command number */
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
+        int estop;              /* if nonzero estop is active */
 	double feed_scale;	/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
 	unsigned char enables_new;	/* flags for FS, SS, etc */
@@ -733,6 +738,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char head;	/* flag count for mutex detect */
 
 	int probe_debounce_cntr;
+        int user_request_enabled;
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
 
