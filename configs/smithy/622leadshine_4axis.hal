@@ -137,7 +137,7 @@ net ACOK hm2_5i20.0.gpio.035.in_not
 #net VFDOK hm2_5i20.0.gpio.031.in_not
 net Ahome hm2_5i20.0.gpio.031.in axis.3.home-sw-in
 # Spindle Contactor - False when spindle contactor is energized
-net SOFF hm2_5i20.0.gpio.033.in motion.feed-hold
+net SOFF hm2_5i20.0.gpio.033.in halui.program.pause motion.feed-hold
 
 # Axis Drive Status Signals
 # True when YAKO stepper drive is on a full step position
