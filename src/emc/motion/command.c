@@ -487,6 +487,30 @@ check_stuff ( "before command_handler()" );
             rtapi_print_msg(RTAPI_MSG_DBG, "ESTOP_RESET");
             break;
 
+        case EMCMOT_FLOOD_ON:
+            rtapi_print_msg(RTAPI_MSG_DBG, "FLOOD_ON");
+            *(emcmot_hal_data->coolant_flood) = 1;
+            emcmotStatus->coolant_flood = 1;
+            break;
+
+        case EMCMOT_FLOOD_OFF:
+            rtapi_print_msg(RTAPI_MSG_DBG, "FLOOD_OFF");
+            *(emcmot_hal_data->coolant_flood) = 0;
+            emcmotStatus->coolant_flood = 0;
+            break;
+
+        case EMCMOT_MIST_ON:
+            rtapi_print_msg(RTAPI_MSG_DBG, "MIST_ON");
+            *(emcmot_hal_data->coolant_mist) = 1;
+            emcmotStatus->coolant_mist = 1;
+            break;
+
+        case EMCMOT_MIST_OFF:
+            rtapi_print_msg(RTAPI_MSG_DBG, "MIST_OFF");
+            *(emcmot_hal_data->coolant_mist) = 0;
+            emcmotStatus->coolant_mist = 0;
+            break;
+
 	case EMCMOT_FREE:
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */

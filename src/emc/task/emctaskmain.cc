@@ -3000,10 +3000,10 @@ int main(int argc, char *argv[])
                 emcAxisUnhome(-2); // only those joints which are volatile_home
 		emcTaskPlanSynch();
 	    }
-	    if (emcStatus->io.coolant.mist) {
+	    if (emcStatus->motion.coolant.mist) {
 		emcCoolantMistOff();
 	    }
-	    if (emcStatus->io.coolant.flood) {
+	    if (emcStatus->motion.coolant.flood) {
 		emcCoolantFloodOff();
 	    }
 	    if (emcStatus->io.lube.on) {

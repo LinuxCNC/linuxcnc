@@ -85,6 +85,9 @@ typedef struct {
     hal_bit_t *emc_enable_in;   /* input, TRUE on any external stop */
     hal_bit_t *user_enable_out;	/* output, TRUE when EMC wants stop */
     hal_bit_t *user_request_enable;	/* output, used to reset ENABLE latch */
+    hal_bit_t *coolant_mist;	/* coolant mist output pin */
+    hal_bit_t *coolant_flood;	/* coolant flood output pin */
+
     hal_bit_t *probe_input;	/* RPI: probe switch input */
     hal_bit_t *enable;		/* RPI: motion inhibit input */
     hal_bit_t *spindle_index_enable;
