@@ -108,6 +108,10 @@ extern "C" {
         EMCMOT_ESTOP_ON,
         EMCMOT_ESTOP_OFF,
         EMCMOT_ESTOP_RESET,
+        EMCMOT_FLOOD_ON,
+        EMCMOT_FLOOD_OFF,
+        EMCMOT_MIST_ON,
+        EMCMOT_MIST_OFF,
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -592,6 +596,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	cmd_status_t commandStatus;	/* result of most recent command */
 	/* these are config info, updated when a command changes them */
         int estop;              /* if nonzero estop is active */
+        int coolant_flood;
+        int coolant_mist;
 	double feed_scale;	/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
 	unsigned char enables_new;	/* flags for FS, SS, etc */

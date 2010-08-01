@@ -312,42 +312,6 @@ int emcIoSetDebug(int debug)
     return sendCommand(&ioDebugMsg);
 }
 
-int emcCoolantMistOn()
-{
-    EMC_COOLANT_MIST_ON mistOnMsg;
-
-    sendCommand(&mistOnMsg);
-
-    return 0;
-}
-
-int emcCoolantMistOff()
-{
-    EMC_COOLANT_MIST_OFF mistOffMsg;
-
-    sendCommand(&mistOffMsg);
-
-    return 0;
-}
-
-int emcCoolantFloodOn()
-{
-    EMC_COOLANT_FLOOD_ON floodOnMsg;
-
-    sendCommand(&floodOnMsg);
-
-    return 0;
-}
-
-int emcCoolantFloodOff()
-{
-    EMC_COOLANT_FLOOD_OFF floodOffMsg;
-
-    sendCommand(&floodOffMsg);
-
-    return 0;
-}
-
 int emcLubeOn()
 {
     EMC_LUBE_ON lubeOnMsg;

@@ -1500,7 +1500,7 @@ static cmdResponseType getMist(char *s, connectionRecType *context)
 {
   const char *pMistStr = "MIST %s";
   
-  if (emcStatus->io.coolant.mist == 1)
+  if (emcStatus->motion.coolant.mist == 1)
     sprintf(context->outBuf, pMistStr, "ON");
   else sprintf(context->outBuf, pMistStr, "OFF");
   return rtNoError; 
@@ -1510,7 +1510,7 @@ static cmdResponseType getFlood(char *s, connectionRecType *context)
 {
   const char *pFloodStr = "FLOOD %s";
   
-  if (emcStatus->io.coolant.flood == 1)
+  if (emcStatus->motion.coolant.flood == 1)
     sprintf(context->outBuf, pFloodStr, "ON");
   else sprintf(context->outBuf, pFloodStr, "OFF");
   return rtNoError; 

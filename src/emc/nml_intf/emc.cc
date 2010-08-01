@@ -772,7 +772,6 @@ void EMC_IO_STAT::update(CMS * cms)
     cms->update(cycleTime);
     cms->update(debug);
     tool.update(cms);
-    coolant.update(cms);
     aux.update(cms);
     lube.update(cms);
 
@@ -2468,6 +2467,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
     for (int i_axis = 0; i_axis < 8; i_axis++)
 	axis[i_axis].update(cms);
     cms->update(estop);
+    coolant.update(cms);
     cms->update(debug);
 
     spindle.update(cms); //FIXME - is this needed ?

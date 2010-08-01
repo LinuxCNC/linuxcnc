@@ -1131,6 +1131,29 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     int enabled;		// non-zero means enabled
 };
 
+
+// EMC_COOLANT status base class
+class EMC_COOLANT_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_COOLANT_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
+  public:
+    EMC_COOLANT_STAT();
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    int mist;			// 0 off, 1 on
+    int flood;			// 0 off, 1 on
+};
+
+
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:
     EMC_MOTION_STAT();
@@ -1148,6 +1171,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     double analog_input[EMC_MAX_AIO]; //motion analog inputs queried by interp
     double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
     int estop;			// non-zero means estopped
+    EMC_COOLANT_STAT coolant;
     int debug;			// copy of EMC_DEBUG global
 };
 
@@ -1795,27 +1819,6 @@ class EMC_COOLANT_FLOOD_OFF:public EMC_COOLANT_CMD_MSG {
     void update(CMS * cms);
 };
 
-// EMC_COOLANT status base class
-class EMC_COOLANT_STAT_MSG:public RCS_STAT_MSG {
-  public:
-    EMC_COOLANT_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
-  public:
-    EMC_COOLANT_STAT();
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int mist;			// 0 off, 1 on
-    int flood;			// 0 off, 1 on
-};
-
 // EMC_LUBE type declarations
 
 // EMC_LUBE command base class
@@ -1947,7 +1950,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     int fault;                  //  0 on succes, 1 on fault during M6
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
-    EMC_COOLANT_STAT coolant;
     EMC_AUX_STAT aux;
     EMC_LUBE_STAT lube;
 };

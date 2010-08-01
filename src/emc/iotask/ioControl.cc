@@ -82,8 +82,6 @@ static int random_toolchanger = 0;
 
 
 struct iocontrol_str {
-    hal_bit_t *coolant_mist;	/* coolant mist output pin */
-    hal_bit_t *coolant_flood;	/* coolant flood output pin */
     hal_bit_t *lube;		/* lube output pin */
     hal_bit_t *lube_level;	/* lube level input pin */
 
@@ -362,26 +360,6 @@ int iocontrol_hal_init(void)
 
     /* STEP 3a: export the out-pin(s) */
 
-    // coolant-flood
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_flood), comp_id,
-			 "iocontrol.%d.coolant-flood", n);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin coolant-flood export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
-    // coolant-mist
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->coolant_mist), comp_id, 
-			      "iocontrol.%d.coolant-mist", n);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin coolant-mist export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
     // lube
     retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id, 
 			      "iocontrol.%d.lube", n);
@@ -490,8 +468,6 @@ int iocontrol_hal_init(void)
 ********************************************************************/
 void hal_init_pins(void)
 {
-    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
-    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
     *(iocontrol_data->lube)=0;			/* lube output pin */
     *(iocontrol_data->tool_prepare)=0;		/* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
@@ -709,8 +685,6 @@ int main(int argc, char *argv[])
     /* set status values to 'normal' */
     emcioStatus.tool.pocketPrepped = -1;
     emcioStatus.tool.toolInSpindle = 0;
-    emcioStatus.coolant.mist = 0;
-    emcioStatus.coolant.flood = 0;
     emcioStatus.lube.on = 0;
     emcioStatus.lube.level = 1;
 
@@ -781,12 +755,6 @@ int main(int argc, char *argv[])
 	    // the spindle  and coolant
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_ABORT\n");
 
-	    emcioStatus.coolant.mist = 0;
-	    emcioStatus.coolant.flood = 0;
-	    *(iocontrol_data->coolant_mist)=0;		/* coolant mist output pin */
-    	    *(iocontrol_data->coolant_flood)=0;		/* coolant flood output pin */
-	    *(iocontrol_data->tool_change)=0;		/* abort tool change if in progress */
-	    *(iocontrol_data->tool_prepare)=0;		/* abort tool prepare if in progress */
 	    break;
 
 	case EMC_TOOL_PREPARE_TYPE:
@@ -902,31 +870,6 @@ int main(int argc, char *argv[])
 		emcioStatus.tool.toolInSpindle = number;
 		*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	    }
-	    break;
-
-
-	case EMC_COOLANT_MIST_ON_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_ON\n");
-	    emcioStatus.coolant.mist = 1;
-	    *(iocontrol_data->coolant_mist) = 1;
-	    break;
-
-	case EMC_COOLANT_MIST_OFF_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_MIST_OFF\n");
-	    emcioStatus.coolant.mist = 0;
-	    *(iocontrol_data->coolant_mist) = 0;
-	    break;
-
-	case EMC_COOLANT_FLOOD_ON_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_ON\n");
-	    emcioStatus.coolant.flood = 1;
-	    *(iocontrol_data->coolant_flood) = 1;
-	    break;
-
-	case EMC_COOLANT_FLOOD_OFF_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_COOLANT_FLOOD_OFF\n");
-	    emcioStatus.coolant.flood = 0;
-	    *(iocontrol_data->coolant_flood) = 0;
 	    break;
 
 	case EMC_LUBE_ON_TYPE:

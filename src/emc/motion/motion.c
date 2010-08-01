@@ -293,6 +293,8 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->emc_enable_in), mot_comp_id, "iocontrol.0.emc-enable-in")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->user_enable_out), mot_comp_id, "iocontrol.0.user-enable-out")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->user_request_enable), mot_comp_id, "iocontrol.0.user-request-enable")) < 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->coolant_flood), mot_comp_id, "iocontrol.0.coolant-flood")) < 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->coolant_mist), mot_comp_id, "iocontrol.0.coolant-mist")) < 0) goto error;
 
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->probe_input), mot_comp_id, "motion.probe-input")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IO, &(emcmot_hal_data->spindle_index_enable), mot_comp_id, "motion.spindle-index-enable")) < 0) goto error;

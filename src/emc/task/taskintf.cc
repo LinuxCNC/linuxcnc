@@ -1458,6 +1458,30 @@ int emcAuxEstopOff()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcCoolantFloodOn()
+{
+    emcmotCommand.command = EMCMOT_FLOOD_ON;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcCoolantFloodOff()
+{
+    emcmotCommand.command = EMCMOT_FLOOD_OFF;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcCoolantMistOn()
+{
+    emcmotCommand.command = EMCMOT_MIST_ON;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcCoolantMistOff()
+{
+    emcmotCommand.command = EMCMOT_MIST_OFF;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
     int r1;
@@ -1505,6 +1529,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->command_type = localMotionCommandType;
     stat->echo_serial_number = localMotionEchoSerialNumber;
     stat->estop = emcmotStatus.estop;
+    stat->coolant.flood = emcmotStatus.coolant_flood;
+    stat->coolant.mist = emcmotStatus.coolant_mist;
     stat->debug = emcmotConfig.debug;
     
     stat->spindle.enabled = emcmotStatus.spindle.speed != 0;

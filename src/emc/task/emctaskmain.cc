@@ -3167,10 +3167,10 @@ int main(int argc, char *argv[])
 		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
 		emcTaskPlanSynch();
 	    }
-	    if (emcStatus->io.coolant.mist) {
+	    if (emcStatus->motion.coolant.mist) {
 		emcCoolantMistOff();
 	    }
-	    if (emcStatus->io.coolant.flood) {
+	    if (emcStatus->motion.coolant.flood) {
 		emcCoolantFloodOff();
 	    }
 	    if (emcStatus->io.lube.on) {

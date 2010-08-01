@@ -800,8 +800,8 @@ static int emc_mist(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.coolant.mist == 1) {
-	    setresult(interp,"on");
+	if (emcStatus->motion.coolant.mist == 1) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
 	} else {
 	    setresult(interp,"off");
 	}
@@ -835,8 +835,8 @@ static int emc_flood(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.coolant.flood == 1) {
-	    setresult(interp,"on");
+	if (emcStatus->motion.coolant.flood == 1) {
+	    Tcl_SetResult(interp, "on", TCL_VOLATILE);
 	} else {
 	    setresult(interp,"off");
 	}
