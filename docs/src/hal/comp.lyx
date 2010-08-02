@@ -1528,7 +1528,7 @@ u32
 \family typewriter
 s32
 \family default
-, bool, etc.
+, int, etc.
 \newline
 Access to array variables uses square brackets.
 \end_layout
