@@ -86,15 +86,7 @@ comp
 \end_layout
 
 \begin_layout Standard
-For instance, the 
-\begin_inset Quotes eld
-\end_inset
-
-ddt
-\begin_inset Quotes erd
-\end_inset
-
- portion of 
+For instance, the "ddt" portion of 
 \family typewriter
 blocks
 \family default
@@ -139,11 +131,11 @@ ddt.comp
 \family typewriter
 src/hal/components
 \family default
- and running '
+ and running
 \family typewriter
-make
+ "make
 \family default
-', or by placing it anywhere on the system and running 
+", or by placing it anywhere on the system and running 
 \family typewriter
 comp --install ddt.comp
 \end_layout
@@ -174,7 +166,7 @@ instance A component can have zero or more instances.
 \end_layout
 
 \begin_layout Description
-singleton It is possible for a component to be a 'singleton', in which case
+singleton It is possible for a component to be a "singleton", in which case
  exactly one instance is created.
  It seldom makes sense to write a 
 \family typewriter
@@ -195,11 +187,11 @@ For a singleton, the one instance is created when the component is loaded.
 \end_layout
 
 \begin_layout Standard
-For a non-singleton, the '
+For a non-singleton, the 
 \family typewriter
-count
+"count
 \family default
-' module parameter determines how many numbered instances are created.
+" module parameter determines how many numbered instances are created.
 \end_layout
 
 \begin_layout Section
@@ -501,47 +493,16 @@ HALNAME An identifier.
 \begin_deeper
 \begin_layout Standard
 When used to create a HAL identifier, any underscores are replaced with
- dashes, and any trailing dash or period is removed, so that 
-\begin_inset Quotes eld
-\end_inset
-
-this_name_
-\begin_inset Quotes erd
-\end_inset
-
- will be turned into 
-\begin_inset Quotes eld
-\end_inset
-
-this-name
-\begin_inset Quotes erd
-\end_inset
-
-, and if the name is 
-\begin_inset Quotes eld
-\end_inset
-
-
+ dashes, and any trailing dash or period is removed, so that "this_name_"
+ will be turned into "this-name", and if the name is "
 \family typewriter
 _
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
-, then a trailing period is removed as well, so that 
-\begin_inset Quotes eld
-\end_inset
-
-
+", then a trailing period is removed as well, so that "
 \family typewriter
 function _
 \family default
-
-\begin_inset Quotes erd
-\end_inset
-
- gives a HAL function name like 
+" gives a HAL function name like 
 \family typewriter
 component.<num>
 \family default
@@ -576,79 +537,16 @@ When used to create a C identifier, the following changes are applied to
 \end_layout
 
 \begin_layout Enumerate
-Any # characters, and any 
-\begin_inset Quotes eld
-\end_inset
-
-.
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- or 
-\begin_inset Quotes eld
-\end_inset
-
--
-\begin_inset Quotes erd
-\end_inset
-
- characters immediately before them, are removed.
+Any # characters, and any ".", "_" or "-" characters immediately before them,
+ are removed.
 \end_layout
 
 \begin_layout Enumerate
-Any remaining 
-\begin_inset Quotes eld
-\end_inset
-
-.
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
--
-\begin_inset Quotes erd
-\end_inset
-
- characters are replaced with 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-
+Any remaining "." and "-" characters are replaced with "_"
 \end_layout
 
 \begin_layout Enumerate
-Repeated 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- characters are changed to a single 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- character.
+Repeated "_" characters are changed to a single "_" character.
 \end_layout
 
 \begin_layout Standard
@@ -885,28 +783,12 @@ CONDSIZE
 
 \begin_layout Description
 DOC A string that documents the item.
- String can be a C-style 
-\begin_inset Quotes eld
-\end_inset
-
-double quoted
-\begin_inset Quotes erd
-\end_inset
-
- string, like 
+ String can be a C-style "double quoted" string, like 
 \family typewriter
 "Selects the desired edge: TRUE means falling, FALSE means rising"
 \family default
- or a Python-style 
-\begin_inset Quotes eld
-\end_inset
-
-triple quoted
-\begin_inset Quotes erd
-\end_inset
-
- string, which may include embedded newlines and quote characters, such
- as:
+ or a Python-style "triple quoted" string, which may include embedded newlines
+ and quote characters, such as:
 \end_layout
 
 \begin_deeper
@@ -929,15 +811,7 @@ better.""";
 \end_layout
 
 \begin_layout Standard
-The documentation string is in 
-\begin_inset Quotes eld
-\end_inset
-
-groff -man
-\begin_inset Quotes erd
-\end_inset
-
- format.
+The documentation string is in "groff -man" format.
  For more information on this markup format, see 
 \family typewriter
 groff_man(7)
@@ -1589,16 +1463,16 @@ comp
 
 \begin_layout Description
 FUNCTION(name) Use this macro to begin the definition of a realtime function
- which was previously declared with '
+ which was previously declared with 
 \family typewriter
-function NAME
+"function NAME
 \family default
-'.
- The function includes a parameter '
+".
+ The function includes a parameter 
 \family typewriter
-period
+"period
 \family default
-' which is the integer number of nanoseconds between calls to the function.
+" which is the integer number of nanoseconds between calls to the function.
 \end_layout
 
 \begin_layout Description
@@ -1620,7 +1494,7 @@ EXTRA_CLEANUP() Use this macro to begin the definition of the function called
  to perform extra cleanup of the component.
  Note that this function must clean up all instances of the component, not
  just one.
- The 'pin_name', 'parameter_name', and 'data' macros may not be used here.
+ The "pin_name", "parameter_name", and "data" macros may not be used here.
 \end_layout
 
 \begin_layout Description
@@ -1708,7 +1582,7 @@ variable_name[idx]
 \end_layout
 
 \begin_layout Description
-data If 'option data' is specified, this macro allows access to the instance
+data If "option data" is specified, this macro allows access to the instance
  data.
 \end_layout
 
@@ -1754,15 +1628,8 @@ Components with one function
 \end_layout
 
 \begin_layout Standard
-If a component has only one function and the string 
-\begin_inset Quotes eld
-\end_inset
-
-FUNCTION
-\begin_inset Quotes erd
-\end_inset
-
- does not appear anywhere after 
+If a component has only one function and the string "FUNCTION" does not
+ appear anywhere after 
 \family typewriter
 ;;
 \family default
@@ -1774,73 +1641,25 @@ FUNCTION
 \end_layout
 
 \begin_layout Section
-Component 
-\begin_inset Quotes eld
-\end_inset
-
-Personality
-\begin_inset Quotes erd
-\end_inset
-
-
+Component Personality
 \end_layout
 
 \begin_layout Standard
-If a component has any pins or parameters with an 
-\begin_inset Quotes eld
-\end_inset
-
-if 
+If a component has any pins or parameters with an "if 
 \emph on
 condition
 \emph default
-
-\begin_inset Quotes erd
-\end_inset
-
- or 
-\begin_inset Quotes eld
-\end_inset
-
-[
+" or "[
 \emph on
 maxsize : condsize
 \emph default
-]
-\begin_inset Quotes erd
-\end_inset
-
-, it is called a component with 
-\begin_inset Quotes eld
-\end_inset
-
-
+]", it is called a component with "
 \emph on
 personality
 \emph default
-
-\begin_inset Quotes erd
-\end_inset
-
-.
- The 
-\begin_inset Quotes eld
-\end_inset
-
-personality
-\begin_inset Quotes erd
-\end_inset
-
- of each instance is specified when the module is loaded.
- 
-\begin_inset Quotes eld
-\end_inset
-
-Personality
-\begin_inset Quotes erd
-\end_inset
-
- can be used to create pins only when needed.
+".
+ The "personality" of each instance is specified when the module is loaded.
+ "Personality" can be used to create pins only when needed.
  For instance, personality is used in the 
 \family typewriter
 logic
@@ -2047,17 +1866,9 @@ constant
 \end_layout
 
 \begin_layout Standard
-This component functions like the one in 'blocks', including the default
+This component functions like the one in "blocks", including the default
  value of 1.0.
- The declaration 
-\begin_inset Quotes eld
-\end_inset
-
-function _
-\begin_inset Quotes erd
-\end_inset
-
- creates functions named 'constant.0', etc.
+ The declaration "function _" creates functions named "constant.0", etc.
 \end_layout
 
 \begin_layout LyX-Code
@@ -2083,9 +1894,9 @@ sincos
 
 \begin_layout Standard
 This component computes the sine and cosine of an input angle in radians.
- It has different capabilities than the 'sine' and 'cosine' outputs of siggen,
- because the input is an angle, rather than running freely based on a 'frequency
-' parameter.
+ It has different capabilities than the "sine" and "cosine" outputs of siggen,
+ because the input is an angle, rather than running freely based on a "frequency
+" parameter.
 \end_layout
 
 \begin_layout Standard
@@ -2144,16 +1955,8 @@ This component is a driver for a
 \emph on
 fictional
 \emph default
- card called 
-\begin_inset Quotes eld
-\end_inset
-
-out8
-\begin_inset Quotes erd
-\end_inset
-
-, which has 8 pins of digital output which are treated as a single 8-bit
- value.
+ card called "out8", which has 8 pins of digital output which are treated
+ as a single 8-bit value.
  There can be a varying number of such cards in the system, and they can
  be at various addresses.
  The pin is called 
@@ -2463,15 +2266,8 @@ logic
 \end_layout
 
 \begin_layout Standard
-This realtime component shows how to use 
-\begin_inset Quotes eld
-\end_inset
-
-personality
-\begin_inset Quotes erd
-\end_inset
-
- to create variable-size arrays and optional pins.
+This realtime component shows how to use "personality" to create variable-size
+ arrays and optional pins.
 \end_layout
 
 \begin_layout LyX-Code
