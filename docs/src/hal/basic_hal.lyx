@@ -259,7 +259,7 @@ Each signal can only have one source (a HAL "Dir out
  In the Dir column of the HAL Configuration window you can see which pins
  are "in" and which are "out".
  The following figure shows the "direction" of the signal from the source
- to the signal and then to the reader.
+ through the signal and then out to the reader(s).
  
 \end_layout
 
