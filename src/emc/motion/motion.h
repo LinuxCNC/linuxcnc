@@ -112,6 +112,8 @@ extern "C" {
         EMCMOT_FLOOD_OFF,
         EMCMOT_MIST_ON,
         EMCMOT_MIST_OFF,
+        EMCMOT_LUBE_ON,
+        EMCMOT_LUBE_OFF,
 
 	EMCMOT_PAUSE,		/* pause motion */
 	EMCMOT_RESUME,		/* resume motion */
@@ -598,6 +600,8 @@ Suggestion: Split this in to an Error and a Status flag register..
         int estop;              /* if nonzero estop is active */
         int coolant_flood;
         int coolant_mist;
+        int lube;
+        int lube_level;
 	double feed_scale;	/* velocity scale factor for all motion */
 	double spindle_scale;	/* velocity scale factor for spindle speed */
 	unsigned char enables_new;	/* flags for FS, SS, etc */

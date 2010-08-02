@@ -1093,19 +1093,6 @@ class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
     unsigned char status;		// status=0 stop; status=1 start.
 };
 
-// EMC_MOTION status base class
-class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
-  public:
-    EMC_MOTION_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-	heartbeat = 0;
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    unsigned long int heartbeat;
-};
-
 
 // EMC_SPINDLE status base class
 class EMC_SPINDLE_STAT_MSG:public RCS_STAT_MSG {
@@ -1154,6 +1141,41 @@ class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
 };
 
 
+// EMC_LUBE status base class
+class EMC_LUBE_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_LUBE_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+};
+
+class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
+  public:
+    EMC_LUBE_STAT();
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    int on;			// 0 off, 1 on
+    int level;			// 0 low, 1 okay
+};
+
+
+// EMC_MOTION status base class
+class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
+  public:
+    EMC_MOTION_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
+	heartbeat = 0;
+    };
+
+    // For internal NML/CMS use only.
+    void update(CMS * cms);
+
+    unsigned long int heartbeat;
+};
+
 class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
   public:
     EMC_MOTION_STAT();
@@ -1172,6 +1194,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     double analog_output[EMC_MAX_AIO]; //motion analog outputs queried by interp
     int estop;			// non-zero means estopped
     EMC_COOLANT_STAT coolant;
+    EMC_LUBE_STAT lube;
     int debug;			// copy of EMC_DEBUG global
 };
 
@@ -1850,27 +1873,6 @@ class EMC_LUBE_OFF:public EMC_LUBE_CMD_MSG {
     void update(CMS * cms);
 };
 
-// EMC_LUBE status base class
-class EMC_LUBE_STAT_MSG:public RCS_STAT_MSG {
-  public:
-    EMC_LUBE_STAT_MSG(NMLTYPE t, size_t s):RCS_STAT_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
-class EMC_LUBE_STAT:public EMC_LUBE_STAT_MSG {
-  public:
-    EMC_LUBE_STAT();
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-
-    int on;			// 0 off, 1 on
-    int level;			// 0 low, 1 okay
-};
-
 // EMC_IO is aggregate of all EMC IO-related status classes
 
 // EMC_IO command base class
@@ -1951,7 +1953,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
     EMC_AUX_STAT aux;
-    EMC_LUBE_STAT lube;
 };
 
 // EMC is aggregate of EMC_TASK, EMC_TRAJ, EMC_IO, etc.

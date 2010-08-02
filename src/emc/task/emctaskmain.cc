@@ -3173,7 +3173,7 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.coolant.flood) {
 		emcCoolantFloodOff();
 	    }
-	    if (emcStatus->io.lube.on) {
+	    if (emcStatus->motion.lube.on) {
 		emcLubeOff();
 	    }
 	    if (emcStatus->motion.spindle.enabled) {

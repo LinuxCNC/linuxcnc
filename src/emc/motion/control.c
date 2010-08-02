@@ -1908,6 +1908,7 @@ static void update_status(void)
     if (*(emcmot_hal_data->user_request_enable) == 1) {
         emcmotInternal->user_request_enabled = 1;
     }
+    emcmotStatus->lube_level = *(emcmot_hal_data->lube_level);
 
     /* copy status info from private joint structure to status
        struct in shared memory */

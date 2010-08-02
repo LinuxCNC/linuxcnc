@@ -788,12 +788,12 @@ static void printStatus()
       else
         sprintf(flood_string,   "    FLOOD OFF     ");
 
-      if (emcStatus->io.lube.on)
+      if (emcStatus->motion.lube.on)
         sprintf(lube_on_string,    "     LUBE ON      ");
       else
         sprintf(lube_on_string,    "     LUBE OFF     ");
 
-      if (! emcStatus->io.lube.level)
+      if (! emcStatus->motion.lube.level)
         sprintf(lube_level_string,    "     LUBE OK      ");
       else
         sprintf(lube_level_string,    "     LUBE LOW     ");

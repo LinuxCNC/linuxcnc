@@ -82,10 +82,6 @@ static int random_toolchanger = 0;
 
 
 struct iocontrol_str {
-    hal_bit_t *lube;		/* lube output pin */
-    hal_bit_t *lube_level;	/* lube level input pin */
-
-
     // the following pins are needed for toolchanging
     //tool-prepare
     hal_bit_t *tool_prepare;	/* output, pin that notifies HAL it needs to prepare a tool */
@@ -360,16 +356,6 @@ int iocontrol_hal_init(void)
 
     /* STEP 3a: export the out-pin(s) */
 
-    // lube
-    retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->lube), comp_id, 
-			      "iocontrol.%d.lube", n);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin lube export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
     // tool-prepare
     retval = hal_pin_bit_newf(HAL_OUT, &(iocontrol_data->tool_prepare), comp_id, 
 			      "iocontrol.%d.tool-prepare", n);
@@ -440,18 +426,6 @@ int iocontrol_hal_init(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    /* STEP 3b: export the in-pin(s) */
-
-    // lube_level
-    retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->lube_level), comp_id, 
-			     "iocontrol.%d.lube_level", n);
-    if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"IOCONTROL: ERROR: iocontrol %d pin lube_level export failed with err=%i\n",
-			n, retval);
-	hal_exit(comp_id);
-	return -1;
-    }
 
     hal_ready(comp_id);
 
@@ -468,39 +442,12 @@ int iocontrol_hal_init(void)
 ********************************************************************/
 void hal_init_pins(void)
 {
-    *(iocontrol_data->lube)=0;			/* lube output pin */
     *(iocontrol_data->tool_prepare)=0;		/* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_prep_pocket)=0;	/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_change)=0;		/* output, notifies a tool-change should happen (emc should be in the tool-change position) */
 }
 
-
-/********************************************************************
-*
-* Description: read_hal_inputs(void)
-*			Reads the pin values from HAL 
-*			this function gets called once per cycle
-*			It sets the values for the emcioStatus.aux.*
-*
-* Returns:	returns > 0 if any of the status has changed
-*		we then need to update through NML
-*
-* Side Effects: updates values
-*
-* Called By: main every CYCLE
-********************************************************************/
-int read_hal_inputs(void)
-{
-    int oldval, retval = 0;
-
-    oldval = emcioStatus.lube.level;
-    emcioStatus.lube.level = *(iocontrol_data->lube_level);	//check for lube_level from HW
-    if (oldval != emcioStatus.lube.level) {
-	retval = 1;
-    }
-    return retval;
-}
 
 void load_tool(int pocket) {
     if(random_toolchanger) {
@@ -685,8 +632,6 @@ int main(int argc, char *argv[])
     /* set status values to 'normal' */
     emcioStatus.tool.pocketPrepped = -1;
     emcioStatus.tool.toolInSpindle = 0;
-    emcioStatus.lube.on = 0;
-    emcioStatus.lube.level = 1;
 
     while (!done) {
 	// check for inputs from HAL (updates emcioStatus)
@@ -694,14 +639,6 @@ int main(int argc, char *argv[])
 	/* if an external ESTOP is activated (or another hal-pin has changed)
 	   a NML message has to be pushed to EMC.
 	   the way it was done status was only checked at the end of a command */
-	if (read_hal_inputs() > 0) {
-	    emcioStatus.command_type = EMC_IO_STAT_TYPE;
-	    emcioStatus.echo_serial_number =
-		emcioCommand->serial_number+1; //need for different serial number, because we are pushing a new message
-	    emcioStatus.heartbeat++;
-	    emcioStatusBuffer->write(&emcioStatus);
-	}
-	;
 	if ( (tool_status = read_tool_inputs() ) > 0) { // in case of tool prep (or change) update, we only need to change the state (from RCS_EXEC
 	    emcioStatus.command_type = EMC_IO_STAT_TYPE; // to RCS_DONE, no need for different serial_number
 	    emcioStatus.echo_serial_number =
@@ -870,18 +807,6 @@ int main(int argc, char *argv[])
 		emcioStatus.tool.toolInSpindle = number;
 		*(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
 	    }
-	    break;
-
-	case EMC_LUBE_ON_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_ON\n");
-	    emcioStatus.lube.on = 1;
-	    *(iocontrol_data->lube) = 1;
-	    break;
-
-	case EMC_LUBE_OFF_TYPE:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_LUBE_OFF\n");
-	    emcioStatus.lube.on = 0;
-	    *(iocontrol_data->lube) = 0;
 	    break;
 
 	case EMC_SET_DEBUG_TYPE:

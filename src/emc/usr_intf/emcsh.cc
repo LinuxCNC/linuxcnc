@@ -869,8 +869,8 @@ static int emc_lube(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.lube.on == 0) {
-	    setresult(interp,"off");
+	if (emcStatus->motion.lube.on == 0) {
+	    Tcl_SetResult(interp, "off", TCL_VOLATILE);
 	} else {
 	    setresult(interp,"on");
 	}
@@ -903,8 +903,8 @@ static int emc_lube_level(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->io.lube.level == 0) {
-	    setresult(interp,"low");
+	if (emcStatus->motion.lube.level == 0) {
+	    Tcl_SetResult(interp, "low", TCL_VOLATILE);
 	} else {
 	    setresult(interp,"ok");
 	}

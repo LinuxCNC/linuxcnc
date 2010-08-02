@@ -312,24 +312,6 @@ int emcIoSetDebug(int debug)
     return sendCommand(&ioDebugMsg);
 }
 
-int emcLubeOn()
-{
-    EMC_LUBE_ON lubeOnMsg;
-
-    sendCommand(&lubeOnMsg);
-
-    return 0;
-}
-
-int emcLubeOff()
-{
-    EMC_LUBE_OFF lubeOffMsg;
-
-    sendCommand(&lubeOffMsg);
-
-    return 0;
-}
-
 int emcToolPrepare(int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
