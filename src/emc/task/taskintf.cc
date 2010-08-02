@@ -1473,6 +1473,18 @@ int emcCoolantMistOff()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcLubeOn()
+{
+    emcmotCommand.command = EMCMOT_LUBE_ON;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcLubeOff()
+{
+    emcmotCommand.command = EMCMOT_LUBE_OFF;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcMotionUpdate(EMC_MOTION_STAT * stat)
 {
     int r1;
@@ -1522,6 +1534,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     stat->estop = emcmotStatus.estop;
     stat->coolant.flood = emcmotStatus.coolant_flood;
     stat->coolant.mist = emcmotStatus.coolant_mist;
+    stat->lube.on = emcmotStatus.lube;
+    stat->lube.level = emcmotStatus.lube_level;
     stat->debug = emcmotConfig.debug;
     
     stat->spindle.enabled = emcmotStatus.spindle.speed != 0;

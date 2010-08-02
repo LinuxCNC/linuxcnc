@@ -511,6 +511,18 @@ check_stuff ( "before command_handler()" );
             emcmotStatus->coolant_mist = 0;
             break;
 
+        case EMCMOT_LUBE_ON:
+            rtapi_print_msg(RTAPI_MSG_DBG, "LUBE_ON");
+            *(emcmot_hal_data->lube) = 1;
+            emcmotStatus->lube = 1;
+            break;
+
+        case EMCMOT_LUBE_OFF:
+            rtapi_print_msg(RTAPI_MSG_DBG, "LUBE_OFF");
+            *(emcmot_hal_data->lube) = 0;
+            emcmotStatus->lube = 0;
+            break;
+
 	case EMCMOT_FREE:
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */
