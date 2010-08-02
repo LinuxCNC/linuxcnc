@@ -46,7 +46,6 @@ static emcmot_config_t *emcmotConfig = 0;
 static emcmot_debug_t *emcmotDebug = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_struct_t *emcmotStruct = 0;
-emcmot_struct_t *emcmotshmem = NULL;	// Shared memory base address.
 
 /* usrmotIniLoad() loads params (SHMEM_KEY, COMM_TIMEOUT, COMM_WAIT)
    from named ini file */
@@ -702,8 +701,6 @@ int usrmotInit(char *modname)
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
 
-    emcmotshmem = emcmotStruct;
-
     inited = 1;
 
     return 0;
@@ -727,7 +724,6 @@ int usrmotExit(void)
 	emcmotComp[axis] = 0;
     }
 #endif
-    emcmotshmem = 0;
 
     inited = 0;
     return 0;
