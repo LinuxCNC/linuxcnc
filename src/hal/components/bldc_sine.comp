@@ -53,7 +53,7 @@ param rw float scale = 512
 parameter will need to be negative for proper function.""";
 
 variable int counter;
-variable bool old_init;
+variable int old_init;
 
 option extra_setup yes;
 
