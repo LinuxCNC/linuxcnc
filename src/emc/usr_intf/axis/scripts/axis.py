@@ -3732,7 +3732,9 @@ while s.axes == 0:
     statfail+=1
     statwait *= 2
     if statfail > 8:
-        raise SystemExit, "Invalid configuration of axes is preventing EMC from starting"
+        raise SystemExit, (
+            "A configuration error is preventing emc2 from starting.\n"
+            "More information may be available when running from a terminal.")
     s.poll()
 
 live_axis_count = 0
