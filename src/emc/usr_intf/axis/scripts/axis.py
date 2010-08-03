@@ -3725,11 +3725,13 @@ root_window.tk.call("setup_menu_accel", widgets.unhomemenu, "end", _("Unhome All
 s = emc.stat();
 s.poll()
 statfail=0
+statwait=.01
 while s.axes == 0:
     print "waiting for s.axes"
-    time.sleep(.01)
+    time.sleep(statwait)
     statfail+=1
-    if statfail > 500:
+    statwait *= 2
+    if statfail > 8:
         raise SystemExit, "Invalid configuration of axes is preventing EMC from starting"
     s.poll()
 
