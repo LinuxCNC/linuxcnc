@@ -97,7 +97,7 @@ binary-arch: build install
 	dh_installman
 	dh_link
 	dh_strip
-	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml
+	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/emc_module_helper -X/bfload
 endif
