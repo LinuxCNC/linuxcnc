@@ -27,6 +27,7 @@
 #include "emcmotglb.h"		/* SHMEM_KEY */
 #include "usrmotintf.h"		/* these decls */
 #include "_timer.h"
+#include "rcs_print.hh"
 
 #include "inifile.hh"
 
@@ -85,6 +86,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
+        rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     /* copy entire command structure to shared memory */
@@ -100,10 +102,12 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
 		return EMCMOT_COMM_OK;
 	    } else {
+                rcs_print("USRMOT: ERROR: invalid command\n");
 		return EMCMOT_COMM_ERROR_COMMAND;
 	    }
 	}
     }
+    rcs_print("USRMOT: ERROR: command timeout\n");
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
