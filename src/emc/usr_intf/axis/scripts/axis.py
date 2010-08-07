@@ -3894,6 +3894,8 @@ def rClicker(e):
             rmenu.add_separator()
         else: rmenu.add_command(label=txt, command=cmd)
     rmenu.entryconfigure(0, label = "AXIS", state = 'disabled')
+    if not manual_ok():
+        rmenu.entryconfigure(2, state = 'disabled')
     rmenu.tk_popup(e.x_root-3, e.y_root+3,entry="0")
     return "break"
 
