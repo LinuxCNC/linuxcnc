@@ -2712,7 +2712,8 @@ class App:
         self.widgets.ioaddr3.set_sensitive(i)      
 
     def on_basicinfo_next(self, *args):
-        self.data.machinename = self.widgets.machinename.get_text()
+        machinename= self.widgets.machinename.get_text()
+        self.data.machinename = machinename.replace(" ","_")
         self.widgets.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.data.machinename)
         self.data.axes = self.widgets.axes.get_active()
         if self.data.axes == 0: self.data.available_axes = ['x','y','z','s']
