@@ -247,6 +247,7 @@ HEADERS := \
     emc/motion/motion.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
+    emc/nml_intf/emctool.h \
     emc/nml_intf/emc.hh \
     emc/nml_intf/emc_nml.hh \
     emc/nml_intf/emccfg.h \

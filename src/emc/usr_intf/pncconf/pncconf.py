@@ -2253,7 +2253,7 @@ class Data:
         filename = "%s.pncconf" % base
 
         d = xml.dom.minidom.getDOMImplementation().createDocument(
-                            None, "stepconf", None)
+                            None, "pncconf", None)
         e = d.documentElement
 
         for k, v in sorted(self.__dict__.iteritems()):
@@ -2366,11 +2366,12 @@ class Data:
                     break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
-            try:
-                comptype = type_name[ptype]
-            except :
-                comptype = "false"           
-            # comp number is HAL number (vrs the connector/pin position)
+
+            # we iter over this dic because of locale translation problems when using
+            # comptype = type_name[ptype]
+            comptype = "ERROR FINDING COMPONENT TYPE"
+            for key,value in type_name.iteritems():
+                if key == ptype: comptype = value
             if ptype in(GPIOI,GPIOO,GPIOD):
                 compnum = int(pinnum)+(concount*24)
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
@@ -2712,7 +2713,8 @@ class App:
         self.widgets.ioaddr3.set_sensitive(i)      
 
     def on_basicinfo_next(self, *args):
-        self.data.machinename = self.widgets.machinename.get_text()
+        machinename= self.widgets.machinename.get_text()
+        self.data.machinename = machinename.replace(" ","_")
         self.widgets.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.data.machinename)
         self.data.axes = self.widgets.axes.get_active()
         if self.data.axes == 0: self.data.available_axes = ['x','y','z','s']
@@ -3954,6 +3956,7 @@ class App:
         self.next_parport("pp3")
 
     def prepare_parport(self,portname):
+        self.data.help = "help-parport.txt"
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = '%sOpin%d' % (portname,pin)
             model = self.widgets[p].get_model()
@@ -4610,6 +4613,7 @@ class App:
     def on_saxistune_clicked(self, *args): self.tune_axis('s')
 
     def on_spindle_prepare(self, *args):
+        self.data.help = "help-spindle.txt"
         self.axis_prepare('s')      
     def on_spindle_next(self, *args):
         self.axis_done('s')      

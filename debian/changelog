@@ -1,7 +1,48 @@
-
 emc2 (1:2.5.0~pre) hardy; urgency=low
 
   * (fill out this changelog before releasing)
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 31 Jul 2010 12:41:10 -0500
+
+emc2 (1:2.4.3) lucid; urgency=low
+
+  * axis: fix jogs after selecting increment (SF#3028917)
+  * axis: fix high CPU usage with certain window managers
+  * axis: fix keys while choosing jog increment 
+
+  * calibration: fix second and subsequent tabs
+
+  * components: new bldc_hall3 component for commutation of BLDC motor with
+    hall sensors
+  * components: serport: improve error message when port cannot be registered
+
+  * documentation: many improvements
+
+  * pncconf: improve sanity checking for spindle drive control options
+  * pncconf: honor invert motor/encoder settings when writing inifile
+  * pncconf: fix firmware names for 7i43 and 5i22
+  * pncconf: add firmware names for 3x20
+  * pncconf: support spindle-at-speed logic
+  * pncconf: support stepper as spindle
+  * pncconf: create desktop shortcuts in right location
+  * pncconf: additional bugfixes
+
+  * task: Improve behavior when RFL line is between subroutine definition
+    and use
+
+  * sample-configs: use gedit, not vim, as default text editor
+  * sample-configs: fix C axis behavior in configs/5axis
+  * sample-configs: 622keyence configuration
+  * sample-configs: smithy: pause the program when a guard is opened
+
+  * tooledit: accept numbers with leading zeros (SF#3032618)
+  * tooledit: display 6 significant digits
+  * tooledit: add scrollbars
+  * tooledit: other cosmetic improvements
+
+  * touchy: "cycle start" resumes program if it was paused
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 31 Jul 2010 12:41:10 -0500
 
 emc2 (1:2.4.2) lucid; urgency=low
 
