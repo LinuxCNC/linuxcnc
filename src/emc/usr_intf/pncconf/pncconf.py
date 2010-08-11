@@ -2366,11 +2366,12 @@ class Data:
                     break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
-            try:
-                comptype = type_name[ptype]
-            except :
-                comptype = "false"           
-            # comp number is HAL number (vrs the connector/pin position)
+
+            # we iter over this dic because of locale translation problems when using
+            # comptype = type_name[ptype]
+            comptype = "ERROR FINDING COMPONENT TYPE"
+            for key,value in type_name.iteritems():
+                if key == ptype: comptype = value
             if ptype in(GPIOI,GPIOO,GPIOD):
                 compnum = int(pinnum)+(concount*24)
                 return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
