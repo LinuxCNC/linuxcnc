@@ -460,6 +460,44 @@ int Interp::init()
           logDebug("_setup.program_prefix:%s:\n", _setup.program_prefix);
 
 
+          if(NULL != (inistring = inifile.Find("SUBROUTINES", "DISPLAY")))
+          {
+            // found it
+            int dct;
+            char* nextdir;
+            char tmpdirs[PATH_MAX+1];
+
+            for (dct=0; dct < MAX_SUB_DIRS; dct++) {
+                 _setup.subroutines[dct][0] = 0;
+            }
+
+            strcpy(tmpdirs,inistring);
+            nextdir = strtok(tmpdirs,":");  // first token
+            dct = 0;
+            while (1) {
+                if (realpath(nextdir,_setup.subroutines[dct]) == NULL){
+                   //realpath didn't find the file
+                   logDebug("realpath failed to find subroutines[%d]:%s:\n",dct,nextdir);
+                    _setup.subroutines[dct][0] = 0;
+                } else {
+                    logDebug("program prefix[%d]:%s\n",dct,_setup.subroutines[dct]);
+                }
+                dct++;
+                if (dct >= MAX_SUB_DIRS) {
+                   break;
+                   logDebug("too many subroutines directories, max=%d\n", MAX_SUB_DIRS);
+                }
+                nextdir = strtok(NULL,":");
+                if (nextdir == NULL) break; // no more tokens
+             }
+          }
+          else
+          {
+              logDebug("SUBROUTINES not found");
+          }
+          logDebug("_setup.subroutines:%s:\n", _setup.subroutines);
+
+
           // close it
           inifile.Close();
       }

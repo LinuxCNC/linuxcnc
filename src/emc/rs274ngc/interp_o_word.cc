@@ -168,7 +168,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
  setup_pointer settings)   /* pointer to machine settings      */
 {
   static char name[] = "control_back_to";
-  int i;
+  int i,dct;
   char newFileName[PATH_MAX+1];
   char foundPlace[PATH_MAX+1];
   char tmpFileName[PATH_MAX+1];
@@ -222,15 +222,31 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   // NO o_word found
 
   // look for a new file
-  logDebug("settings->program_prefix:%s:", settings->program_prefix);
-  //sprintf(newFileName, "%s/o%d.ngc", settings->program_prefix, line);
+  sprintf(tmpFileName, "%s.ngc", block->o_name);
 
-  // first look in the prefix place
+  // find subroutine by search: program_prefix, subroutines, wizard_root
+  // use first file found
 
-  sprintf(newFileName, "%s/%s.ngc", settings->program_prefix, block->o_name);
+  // first look in the program_prefix place
+  sprintf(newFileName, "%s/%s", settings->program_prefix, tmpFileName);
 
   newFP = fopen(newFileName, "r");
   logDebug("fopen: |%s|", newFileName);
+
+  // then look in the subroutines place
+  if(!newFP)
+  {
+      for (dct=0; dct < MAX_SUB_DIRS; dct++) {
+          if (!settings->subroutines[dct][0]) continue;
+          sprintf(newFileName, "%s/%s", settings->subroutines[dct], tmpFileName);
+          newFP = fopen(newFileName, "r");
+          if (newFP) {
+              logDebug("fopen: |%s|", newFileName);
+              break; // use first occurrence in dir search
+          }
+      }
+  }
+
 
   // if not found, search the wizard tree
   if(!newFP)

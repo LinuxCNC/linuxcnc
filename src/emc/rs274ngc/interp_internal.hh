@@ -356,6 +356,7 @@ and is not represented here
 */
 #define STACK_LEN 50
 #define STACK_ENTRY_LEN 80
+#define MAX_SUB_DIRS 10
 
 typedef struct setup_struct
 {
@@ -471,7 +472,8 @@ typedef struct setup_struct
   ON_OFF feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
   char log_file[PATH_MAX];
-  char program_prefix[PATH_MAX];
+  char program_prefix[PATH_MAX];            // program directory
+  char subroutines[MAX_SUB_DIRS][PATH_MAX]; // subroutines directories
   int use_lazy_close;                // wait until next open before closing
                                      // the input file
   int lazy_closing;                  // close has been called
