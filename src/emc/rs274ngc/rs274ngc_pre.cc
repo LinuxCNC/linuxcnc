@@ -245,7 +245,11 @@ int Interp::execute(const char *command)
 	    {
                return status;
 	    }
-          execute();
+          status = execute();  // special handling for mdi errors
+          if (status != INTERP_OK) {
+               reset();
+               CHP(status);
+          }
       }
 #endif
       return INTERP_OK;

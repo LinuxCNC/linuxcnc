@@ -689,7 +689,7 @@ static void stg_dacs_write(void *arg, long period)
         if (volts > 10.0)
                 volts = 10.0;
 	/* compute the value for the DAC, the extra - in there is STG specific */
-	ncounts = (short) ((-10.0 - volts) / 20.0 * 0x1FFF);
+	ncounts = (short) ((((-10.0 - volts) * 0x1FFF) / 20.0) - 1 );
 	/* write it to the card */	
 	stg_dac_write(i, ncounts);	
     }

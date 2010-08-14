@@ -206,7 +206,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
               else
               {
                   logDebug("Unable to open file: %s", settings->filename);
-                  ERS(NCE_UNABLE_TO_OPEN_FILE);
+                  ERS(NCE_UNABLE_TO_OPEN_FILE,settings->filename);
               }
           }
 	  fseek(settings->file_pointer,
@@ -222,6 +222,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   // NO o_word found
 
   // look for a new file
+  logDebug("settings->program_prefix:%s:", settings->program_prefix);
   sprintf(tmpFileName, "%s.ngc", block->o_name);
 
   // find subroutine by search: program_prefix, subroutines, wizard_root
@@ -252,7 +253,6 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   if(!newFP)
   {
       int ret;
-      sprintf(tmpFileName, "%s.ngc", block->o_name);
       ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
 
       if(INTERP_OK == ret)
@@ -278,6 +278,7 @@ int Interp::control_back_to( /* ARGUMENTS                       */
   {
      logDebug("fopen: |%s| failed CWD:|%s|", newFileName,
               get_current_dir_name());
+     ERS(NCE_UNABLE_TO_OPEN_FILE,tmpFileName);
   }
 
   if(settings->skipping_o)free(settings->skipping_o);
@@ -544,7 +545,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
       settings->sub_context[settings->call_level].subName =
 	strdup(block->o_name);
 
-      CHP(control_back_to(block, settings));
+      if (control_back_to(block,settings) == INTERP_ERROR) {
+          ERS(NCE_UNABLE_TO_OPEN_FILE,block->o_name);
+          return INTERP_ERROR;
+      }
       break;
     case O_do:
       // if we were skipping, no longer
