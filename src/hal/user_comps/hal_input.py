@@ -168,7 +168,7 @@ class HalInputDevice:
 	    self.set(a + "-position", position)
 	    # Use .01 because my Joystick isn't exactly zero at rest. maybe should be a parameter?
 	    self.set(a + "-is-neg", (position < -.01) )
-	    self.set(a + "-is-pos", (position <  .01) )
+	    self.set(a + "-is-pos", (position >  .01) )
 
 	for r in self.rel_items:
 	    reset = self.get(r + "-reset")
