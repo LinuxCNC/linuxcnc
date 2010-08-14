@@ -87,6 +87,8 @@ class HalInputDevice:
                 absinfo = self.device.get_absinfo(axis)
                 comp.newpin("%s.%s-position" % (idx, name), HAL_FLOAT, HAL_OUT)
                 comp.newpin("%s.%s-counts" % (idx, name), HAL_S32, HAL_OUT)
+                comp.newpin("%s.%s-is-pos" % (idx, name), HAL_BIT, HAL_OUT)
+                comp.newpin("%s.%s-is-neg" % (idx, name), HAL_BIT, HAL_OUT)
                 comp.newpin("%s.%s-scale" % (idx, name), HAL_FLOAT, HAL_IN)
                 comp.newpin("%s.%s-offset" % (idx, name), HAL_FLOAT, HAL_IN)
                 comp.newpin("%s.%s-fuzz" % (idx, name), HAL_S32, HAL_IN)
@@ -162,7 +164,11 @@ class HalInputDevice:
 	    value = self.get(a + "-counts")
 	    scale = self.get(a + "-scale") or 1
 	    offset = self.get(a + "-offset")
-	    self.set(a + "-position", (value - offset) / scale)
+	    position = (value - offset) / scale
+	    self.set(a + "-position", position)
+	    # Use .01 because my Joystick isn't exactly zero at rest. maybe should be a parameter?
+	    self.set(a + "-is-neg", (position < -.01) )
+	    self.set(a + "-is-pos", (position <  .01) )
 
 	for r in self.rel_items:
 	    reset = self.get(r + "-reset")
