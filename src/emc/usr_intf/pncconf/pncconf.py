@@ -2248,7 +2248,14 @@ class Data:
         self.write_readme(base)
         self.write_inifile(base)
         self.write_halfile(base)
-        self.copy(base, "tool.tbl")
+
+        filename = os.path.join(base, "tool.tbl")
+        file = open(filename, "w"
+        print >>file, "T0 P0 ;"
+        print >>file, "T1 P1 ;"
+        print >>file, "T2 P2 ;"
+        print >>file, "T3 P3 ;"
+        file.close()
 
         filename = "%s.pncconf" % base
 
