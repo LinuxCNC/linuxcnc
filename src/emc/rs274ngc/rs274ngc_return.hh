@@ -165,7 +165,7 @@
 #define NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP _("Tool radius not less than arc radius with comp")
 #define NCE_TWO_G_CODES_USED_FROM_SAME_MODAL_GROUP _("Two g codes used from same modal group")
 #define NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP _("Two m codes used from same modal group")
-#define NCE_UNABLE_TO_OPEN_FILE _("Unable to open file")
+#define NCE_UNABLE_TO_OPEN_FILE _("Unable to open file <%s>")
 #define NCE_UNCLOSED_COMMENT_FOUND _("Unclosed comment found")
 #define NCE_UNCLOSED_EXPRESSION _("Unclosed expression")
 #define NCE_UNKNOWN_G_CODE_USED _("Unknown g code used")
