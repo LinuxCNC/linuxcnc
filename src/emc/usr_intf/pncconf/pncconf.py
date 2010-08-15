@@ -2250,7 +2250,7 @@ class Data:
         self.write_halfile(base)
 
         filename = os.path.join(base, "tool.tbl")
-        file = open(filename, "w"
+        file = open(filename, "w")
         print >>file, "T0 P0 ;"
         print >>file, "T1 P1 ;"
         print >>file, "T2 P2 ;"
