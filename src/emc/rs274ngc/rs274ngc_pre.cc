@@ -464,7 +464,7 @@ int Interp::init()
           logDebug("_setup.program_prefix:%s:\n", _setup.program_prefix);
 
 
-          if(NULL != (inistring = inifile.Find("SUBROUTINES", "DISPLAY")))
+          if(NULL != (inistring = inifile.Find("SUBROUTINE_DIRS", "RS274NGC")))
           {
             // found it
             int dct;
