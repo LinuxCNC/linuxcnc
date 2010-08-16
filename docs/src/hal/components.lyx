@@ -173,14 +173,102 @@ Some of these will have expanded descriptions from the man pages.
  get additional information in a terminal window.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-abs.9 = Compute the absolute value and sign of the input signal
+\begin_layout Subsection
+abs
+\begin_inset LatexCommand index
+name "abs"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-and2.9 = Two-input AND gate
+\begin_layout Standard
+Compute the absolute value and sign of the input signal
+\end_layout
+
+\begin_layout Subparagraph
+Options
+\end_layout
+
+\begin_layout LyX-Code
+loadrt abs [count=N|names=name1[,name2...]]
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf abs.N|name thread-name
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+abs.N.in (float in) Input value
+\end_layout
+
+\begin_layout LyX-Code
+abs.N.out (float out) Output Value, always positive
+\end_layout
+
+\begin_layout LyX-Code
+abs.N.sign (bit out) Sign of Input, false = positive, true = negative
+\end_layout
+
+\begin_layout Standard
+The first abs loaded will be abs.0 and each one after that the "N" number
+ will increment.
+\end_layout
+
+\begin_layout Subsection
+and2
+\begin_inset LatexCommand index
+name "and2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two-input AND gate.
+ For out to be true both inputs must be true
+\end_layout
+
+\begin_layout Subparagraph
+Options
+\end_layout
+
+\begin_layout LyX-Code
+loadrt and2 [count=N|names=name1[,name2...]]
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf and2.N|name thread-name
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+and2.N.in0 (bit in) Input 0
+\end_layout
+
+\begin_layout LyX-Code
+and2.N.in1 (bit in) Input 1
+\end_layout
+
+\begin_layout LyX-Code
+and2.N.out (bit out) Output
 \end_layout
 
 \begin_layout List
