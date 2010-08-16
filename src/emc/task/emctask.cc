@@ -85,11 +85,11 @@ int emcTaskInit()
         // default dir if no PROGRAM_PREFIX
         strcpy(mdir[0],"nc_files");
     }
-    dmax = 1; //one directory mdir[0],  USER_M_DIRS specifies additional dirs
+    dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
 
     // user can specify a list of directories for user defined functions
     // with a colon (:) separated list
-    if (NULL != (inistring = inifile.Find("USER_M_DIRS", "RS274NGC"))) {
+    if (NULL != (inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
         char* nextdir;
         char tmpdirs[PATH_MAX];
 

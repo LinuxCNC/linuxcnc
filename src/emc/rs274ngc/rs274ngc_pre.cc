@@ -464,7 +464,7 @@ int Interp::init()
           logDebug("_setup.program_prefix:%s:\n", _setup.program_prefix);
 
 
-          if(NULL != (inistring = inifile.Find("SUBROUTINE_DIRS", "RS274NGC")))
+          if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
             int dct;
@@ -489,7 +489,7 @@ int Interp::init()
                 dct++;
                 if (dct >= MAX_SUB_DIRS) {
                    break;
-                   logDebug("too many subroutines directories, max=%d\n", MAX_SUB_DIRS);
+                   logDebug("too many entries in SUBROUTINE_PATH, max=%d\n", MAX_SUB_DIRS);
                 }
                 nextdir = strtok(NULL,":");
                 if (nextdir == NULL) break; // no more tokens
@@ -497,7 +497,7 @@ int Interp::init()
           }
           else
           {
-              logDebug("SUBROUTINES not found");
+              logDebug("SUBROUTINE_PATH not found");
           }
           logDebug("_setup.subroutines:%s:\n", _setup.subroutines);
 
