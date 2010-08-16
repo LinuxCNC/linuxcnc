@@ -488,8 +488,8 @@ int Interp::init()
                 }
                 dct++;
                 if (dct >= MAX_SUB_DIRS) {
-                   break;
                    logDebug("too many entries in SUBROUTINE_PATH, max=%d\n", MAX_SUB_DIRS);
+                   break;
                 }
                 nextdir = strtok(NULL,":");
                 if (nextdir == NULL) break; // no more tokens
