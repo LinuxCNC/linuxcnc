@@ -140,6 +140,8 @@ _("Step/Dir Gen-A"),_("Step/Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),
 _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E"),
 _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
+_BOARDNAME = 0;_FIRMWARE = 1;_HALDRIVER = 2;_MAXENC = 3;_MAXPWM = 4;_MAXSTEP = 5;_ENCPINS = 6;_STEPPINS = 7;_HASWATCHDOG = 8
+_MAXGPIO = 9;_LOWFREQ = 10;_HIFREQ = 11;_NUMOFCNCTRS = 12;_STARTOFDATA = 13
 # boardname, firmwarename, Hal driver name,
 # max encoders, max pwm gens, 
 # max step gens, number of pins per encoder,
@@ -1156,14 +1158,14 @@ class Data:
         print >>file
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
-        print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[2]
-        print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[0]
+        print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
+        print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
         print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                     self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         if self.number_mesa == 2:
-            print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[2]
-            print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[0]
+            print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
+            print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
             print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
                      self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                      self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
@@ -1581,7 +1583,7 @@ class Data:
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, q)
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 board = self["mesa%d_boardname"% boardnum]
                 for q in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
@@ -1621,7 +1623,7 @@ class Data:
             if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for q in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
@@ -1676,31 +1678,31 @@ class Data:
         print >>file, "loadrt hostmot2"
         if self.number_mesa == 1:            
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+                    self.mesa0_currentfirmwaredata[_HALDRIVER],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
-        elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+        elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+                    self.mesa0_currentfirmwaredata[_HALDRIVER],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
                     self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                     self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         elif self.number_mesa == 2:
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+                    self.mesa0_currentfirmwaredata[_HALDRIVER],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa1_currentfirmwaredata[2],self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
+                    self.mesa1_currentfirmwaredata[_HALDRIVER],self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                     self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         for boardnum in range(0,int(self.number_mesa)):
-            if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+            if boardnum == 1 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
                 halnum = 1
             else:
                 halnum = 0
             if self["mesa%d_numof_pwmgens"% boardnum] > 0:
-                print >>file, "    setp hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum, self["mesa%d_pwm_frequency"% boardnum] )
-                print >>file, "    setp hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self["mesa%d_pdm_frequency"% boardnum] )
-            print >>file, "    setp hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self["mesa%d_watchdog_timeout"% boardnum] )        
+                print >>file, "    setp hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum, self["mesa%d_pwm_frequency"% boardnum] )
+                print >>file, "    setp hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_pdm_frequency"% boardnum] )
+            print >>file, "    setp hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_watchdog_timeout"% boardnum] )
 
         if self.number_pports>0:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
@@ -1828,12 +1830,12 @@ class Data:
             print >>file, "addf parport.2.write servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
-                if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0
                 if self.number_mesa> 0:
-                    print >>file, "addf hm2_%s.%d.read servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
+                    print >>file, "addf hm2_%s.%d.read servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
             
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
@@ -1895,12 +1897,12 @@ class Data:
             print >>file, "addf near.0                   servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
-                if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
-                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
+                print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
+                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
             
         print >>file
         self.connect_output(file)              
@@ -2186,11 +2188,11 @@ class Data:
         print >>file
         if self.number_mesa <> 0:
             for boardnum in range(0,int(self.number_mesa)):
-                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][0] 
+                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] 
                 print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][9], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
                 print >>file
             for boardnum in range(0,int(self.number_mesa)):
-                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][12]) :
+                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
                     print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardname"% boardnum],boardnum,_(" connector")," %d **\n"% connector
                     for pin in range (0,24):
                         temp = self["mesa%dc%dpin%d" % (boardnum,connector,pin) ]
@@ -2329,7 +2331,7 @@ class Data:
                     ppoutput[key] = "pp%dOpin%d" %(i,s) 
         mesa = {}
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
                     key =   self["mesa%dc%dpin%d"% (boardnum,connector,s)]
                     mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)     
@@ -2359,17 +2361,17 @@ class Data:
             if ini_style:
                 boardname = "[hosmot2](board%d)"% boardnum                
             else:
-                boardname = self["mesa%d_currentfirmwaredata"% boardnum][0]
-            if boardnum == 1 and self.mesa1_currentfirmwaredata[0] == self.mesa0_currentfirmwaredata[0]:
+                boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+            if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
                 halboardnum = 1
             ptype = self[pin+"type"] 
             signalname = self[pin]
             pinnum = int(test[10:])
             connum = int(test[6:7])
 
-            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
                 if i == connum:
-                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][13+pinnum+(concount*24)]
+                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
                     break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
@@ -3057,8 +3059,8 @@ class App:
         model.clear()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
-            if not d[0] == board:continue
-            model.append((d[1],))       
+            if not d[_BOARDNAME] == board:continue
+            model.append((d[_FIRMWARE],))       
         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
         if  board =="7i43":
             self.widgets["mesa%d_parportaddrs"% boardnum].set_sensitive(1)
@@ -3071,15 +3073,15 @@ class App:
         firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
-            if not d[0] == board:continue
-            if d[1] == firmware:
-                self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[3])
-                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[3])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[4])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[4])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[5])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[5])
-                self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[9])
+            if not d[_BOARDNAME] == board:continue
+            if d[_FIRMWARE] == firmware:
+                self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[_MAXENC])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[_MAXENC])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[_MAXPWM])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[_MAXPWM])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
+                self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
             self.on_gpio_update(self,boardnum)
 
     def on_gpio_update(self,*args):
@@ -3088,12 +3090,12 @@ class App:
             firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
             for search, item in enumerate(mesafirmwaredata):
                 d = mesafirmwaredata[search]
-                if not d[0] == board:continue
-                if d[1] == firmware:      
+                if not d[_BOARDNAME] == board:continue
+                if d[_FIRMWARE] == firmware:      
                     i = (int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value()) * 3)
-                    j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[7])
-                    k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[6])
-                    total = (d[9]-i-j-k)
+                    j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
+                    k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
+                    total = (d[_MAXGPIO]-i-j-k)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -3105,7 +3107,7 @@ class App:
     # it does this by searching the current firmware array and finding what the
     # other related pins numbers are then changing them to the appropriate signalname.    
     def mesa_data_transfer(self,boardnum):
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range(0,24):
                 foundit = 0
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
@@ -3192,11 +3194,11 @@ class App:
                     # then just adds that 
                     flag = 1
                     if selection == unusedname:flag = 0
-                    currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     # print "current firm type, number-",currentfirm,currentcompnum
-                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                         for t_pin in range (0,24):
-                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
                             if compnum != currentcompnum: continue                             
                             if comptype not in (relatedsignals): continue
                            # print "checking-",comptype, compnum 
@@ -3298,10 +3300,10 @@ class App:
         
         for boardnum in range(0,int(self.data.number_mesa)):
             print "mesa boardnum-%d"% boardnum
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
@@ -3459,22 +3461,22 @@ class App:
         self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon4table"% boardnum].show() 
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i23":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i22":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i22":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].show()   
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "7i43":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "7i43":
             self.widgets["mesa%dcon2table"% boardnum].hide()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "3x20-1":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "3x20-1":
             self.widgets["mesa%dcon2table"% boardnum].hide()
             self.widgets["mesa%dcon3table"% boardnum].hide()
             self.widgets["mesa%dcon4table"% boardnum].show()
@@ -3491,12 +3493,12 @@ class App:
 
 
 
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
                 while gtk.events_pending():
                     gtk.main_iteration()
-                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][13+pin+(concount*24)]       
+                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
@@ -3759,10 +3761,10 @@ class App:
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
-        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][7])
-        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][6])
+        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
+        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
         temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][9]-temp-temp1-temp2)
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
         self.data["mesa%d_numof_gpio"% boardnum] = total     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
@@ -3770,7 +3772,7 @@ class App:
         self.in_mesa_prepare = False   
         self.intrnldata["mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):      
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
@@ -3850,10 +3852,10 @@ class App:
                     if name == pinchanged or (index+1 == len(nametocheck_copy) and custom == True) :
                         if not pinchanged == unusedcheck:used = 1
                         if name == pinchanged: custom = False
-                        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+                        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
                             if i == connector:
                                 # This finds the pin type and component number of the pin that has changed
-                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                                 # search all the current firmware array for related pins
                                 # if not the same component number as the pin that changed or
                                 # if not in the relate component type keep searching
@@ -3864,9 +3866,9 @@ class App:
                                 # and widget combobox list - again unless the component type is for the user selectable signal then
                                 # only put the first signalname ending in it.
                                 # if we found a match display it in combobox (if a custom signal we have to search for the index number)
-                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                                     for t_pin in range (0,24):
-                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
                                         if compnum != currentcompnum: continue                             
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
@@ -4859,7 +4861,7 @@ class App:
         for boardnum in(0,1):
             for connector in(2,3,4,5,6,7,8,9):
                 if self.data.number_mesa >= boardnum + 1 :
-                    if connector in(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                    if connector in(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                         continue
                 # This initializes GPIO input pins
                 for i in range(0,16):
@@ -4932,7 +4934,7 @@ class App:
 
     def m5i20test(self,w): 
         for i in range(0,int(self.data.number_mesa)): 
-            if self.data["mesa%d_currentfirmwaredata"% (i)][0] in( "5i22", "7i43"):
+            if self.data["mesa%d_currentfirmwaredata"% (i)][_BOARDNAME] in( "5i22", "7i43"):
                 self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but\
                      maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
@@ -4951,9 +4953,9 @@ class App:
         halrun.write("loadusr halmeter -g 0 620\n")
         for boardnum in range(0,int(self.data.number_mesa)):
             board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
@@ -5702,35 +5704,35 @@ class App:
             halrun.write("loadrt hostmot2\n")
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
+                    self.data.mesa0_currentfirmwaredata[_HALDRIVER],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
-            elif self.data.number_mesa == 2 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+            elif self.data.number_mesa == 2 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,\
                                 firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n
                     """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
+                    self.data.mesa0_currentfirmwaredata[_HALDRIVER],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens,
                     self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
                     self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             elif self.data.number_mesa == 2:
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
+                    self.data.mesa0_currentfirmwaredata[_HALDRIVER],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
                     self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa1_currentfirmwaredata[2],self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
+                    self.data.mesa1_currentfirmwaredata[_HALDRIVER],self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
                     self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0
                 if self.data["mesa%d_numof_pwmgens"% boardnum] > 0:
                     halrun.write( "    setp hm2_%s.%d.pwmgen.pwm_frequency %d\n"% (
-                     self.data["mesa%d_currentfirmwaredata"% boardnum][0],halnum, self.data["mesa%d_pwm_frequency"% boardnum] ))
+                     self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME],halnum, self.data["mesa%d_pwm_frequency"% boardnum] ))
                     halrun.write( "    setp hm2_%s.%d.pwmgen.pdm_frequency %d\n"% ( 
-                    self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_pdm_frequency"% boardnum] ))
+                    self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self.data["mesa%d_pdm_frequency"% boardnum] ))
                 halrun.write( "    setp hm2_%s.%d.watchdog.timeout_ns %d\n"% ( 
-                    self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
+                    self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
         if command == "READ":
             if self.data.number_pports > 0:
                 halrun.write( "addf parport.0.read fast\n")
@@ -5739,12 +5741,12 @@ class App:
             if self.data.number_pports > 2:
                 halrun.write( "addf parport.2.read fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
-                halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
+                halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
+                halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
         if command == "WRITE":
             if self.data.number_pports > 0:
                 halrun.write( "addf parport.0.write fast\n")
@@ -5753,11 +5755,11 @@ class App:
             if self.data.number_pports > 2:
                 halrun.write( "addf parport.2.write fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                halrun.write( "addf hm2_%s.%d.write slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
+                halrun.write( "addf hm2_%s.%d.write slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
 
 #***************************************************************
 # testpanel code
@@ -6023,13 +6025,13 @@ class PyApp(gtk.Window):
         self.add(brdnotebook)             
         
         for boardnum in range(0,int(self.data.number_mesa)):
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
             self.data2["notebook%d"%boardnum] = gtk.Notebook()
             self.data2["notebook%d"%boardnum].set_tab_pos(gtk.POS_TOP)
             self.data2["notebook%d"%boardnum].show()
             label = gtk.Label("Mesa Board Number %d"% (boardnum))      
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 table = gtk.Table(12, 3, False)
                 seperator = gtk.VSeparator()
                 table.attach(seperator, 1, 2, 0, 12,True)
@@ -6040,7 +6042,7 @@ class PyApp(gtk.Window):
                     else:
                         column = 0
                         adjust = 0
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
