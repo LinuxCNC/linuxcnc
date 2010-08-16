@@ -4305,7 +4305,7 @@ Radius compensation is turned on
 \end_layout
 
 \begin_layout Section
-G33, G33.1 Spindle-Synchronized Motion
+G33 Spindle-Synchronized Motion
 \begin_inset LatexCommand index
 name "G33, G33.1 Spindle-Synchronized Motion"
 
@@ -4320,7 +4320,7 @@ name "sec:G33,-G33.1:-Spindle-Synchronized"
 
 \end_layout
 
-\begin_layout Quote
+\begin_layout LyX-Code
 G33 X- Y- Z- K-
 \end_layout
 
@@ -4341,6 +4341,66 @@ G33 Z-1 K.0625
  produces a 1 inch motion in Z over 16 revolutions of the spindle.
  This command might be part of a program to produce a 16TPI thread.
  
+\end_layout
+
+\begin_layout Standard
+Note: K follows the drive line described by 
+\family typewriter
+X- Y- Z-
+\family default
+ and is not parallel to the Z axis.
+\end_layout
+
+\begin_layout Standard
+Spindle-synchronized motions wait for spindle index, so multiple passes
+ line up.
+ 
+\family typewriter
+G33
+\family default
+ moves end at the programmed endpoint.
+\end_layout
+
+\begin_layout Standard
+All the axis words are optional, except that at least one must be used.
+ 
+\end_layout
+
+\begin_layout Standard
+It is an error if: 
+\end_layout
+
+\begin_layout Itemize
+All axis words are omitted.
+\end_layout
+
+\begin_layout Itemize
+The spindle is not turning when this command is executed
+\end_layout
+
+\begin_layout Itemize
+The requested linear motion exceeds machine velocity limits due to the spindle
+ speed
+\end_layout
+
+\begin_layout Section
+G33.1 Rigid Tapping
+\begin_inset LatexCommand label
+name "sec:G33.1-Rigid-Tapping"
+
+\end_inset
+
+
+\begin_inset LatexCommand index
+name "G33.1 Rigid Tapping"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+G33.1 X- Y- Z- K-
 \end_layout
 
 \begin_layout Standard
@@ -4400,13 +4460,9 @@ unsynchronized
 \end_layout
 
 \begin_layout Standard
-All spindle-synchronized motions wait for spindle index, so multiple passes
+Spindle-synchronized motions wait for spindle index, so multiple passes
  line up.
  
-\family typewriter
-G33
-\family default
- moves end at the programmed endpoint; 
 \family typewriter
 G33.1
 \family default
