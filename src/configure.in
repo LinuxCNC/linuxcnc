@@ -362,6 +362,8 @@ AC_MSG_CHECKING([for kernel version string])
 
 if test -e $KERNELDIR/include/linux/utsrelease.h; then
     VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
+elif test -e $KERNELDIR/include/generated/utsrelease.h; then
+    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
 else
     VERSION_FILE=$KERNELDIR/include/linux/version.h
 fi
