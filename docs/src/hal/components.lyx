@@ -598,7 +598,7 @@ Description
 \begin_layout Standard
 The Clarke transform can be used to translate a vector quantity from a three
  phase system (three components 120 degrees apart) to a two phase Cartesian
- system (plus a homopolar component if the three phases don’t sum to zero).
+ system (plus a homopolar component if the three phases don't sum to zero).
 \end_layout
 
 \begin_layout Standard
