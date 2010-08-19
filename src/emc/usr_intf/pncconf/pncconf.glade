@@ -24230,8 +24230,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="mesa1con2tab">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Input / Output
- Connector 2</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 2</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -26844,8 +26844,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="mesa1con3tab">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Input / Output 
- Connector 3</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 3</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -29458,8 +29458,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="mesa1con4tab">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Input / Output
- Connector 4</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 4</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -32072,8 +32072,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="mesa1con5tab">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Input / Output
- Connector 5</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 5</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -33868,7 +33868,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label739">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 6</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 6</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -35663,7 +35664,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label740">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 7</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 7</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -37458,7 +37460,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label741">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 8</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 8</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
@@ -39253,7 +39256,8 @@ StepGen
                     <child>
                       <widget class="GtkLabel" id="label742">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">page 9</property>
+                        <property name="label" translatable="yes">      I/O
+Connector 9</property>
                       </widget>
                       <packing>
                         <property name="type">tab</property>
