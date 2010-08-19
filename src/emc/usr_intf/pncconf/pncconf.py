@@ -1529,7 +1529,18 @@ class Data:
                 if let == 's':
                     print >>file, "net spindle-revs              <=  " + pinname + ".position"
                     print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
-                    print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable"                
+                    print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable" 
+                    if self.findsignal("spindle-at-speed") == "false":
+                        print >>file
+                        print >>file, "# ---Setup spindle at speed signals---"
+                        print >>file
+                        if not stepgen =="false" or not encoder == "false":
+                            print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
+                            print >>file, "net spindle-vel-fb         =>  near.0.in2"
+                            print >>file, "net spindle-at-speed       <=  near.0.out"
+                            print >>file, "    setp near.0.scale .9"
+                        else:
+                            print >>file, "    sets spindle-at-speed true"               
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
@@ -1549,15 +1560,7 @@ class Data:
             print >>file, "net spindle-revs           =>  motion.spindle-revs"
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
-            if self.findsignal("spindle-at-speed") == "false":
-                if not stepgen =="false" or not encoder == "false":
-                    print >>file, "net spindle-vel-cmd-rps near.0.in1"
-                    print >>file, "net spindle-vel-fb near.0.in2"
-                    print >>file, "net spindle-at-speed near.0.out"
-                    print >>file, "setp near.0.scale .9"
-                else:
-                    print >>file, "sets spindle-at-speed true"
+            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"            
             return
         
         min_limsig = self.min_lim_sig(let)
