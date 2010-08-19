@@ -103,11 +103,11 @@ class LyxTreeMaker:
             self.push('ert')
 	elif k == 'LatexCommand':
 	    if v.startswith("\\label{"):
-		self.add('label', id=v[7:-1])
+		self.add('label', id=v[7:-1].replace("\\_", "_"))
 	    elif v.startswith("\\index{"):
-		self.add('index', id=v[7:-1])
+		self.add('index', id=v[7:-1].replace("\\_", "_"))
 	    elif v.startswith("\\ref{"):
-		self.add('ref', target=v[5:-1])
+		self.add('ref', target=v[5:-1].replace("\\_", "_"))
 	    elif v.startswith("\\url{"):
 		url=v[5:-1]
 		self.push('htmlurl', url=url)
