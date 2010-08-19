@@ -274,7 +274,7 @@ and2.N.out (bit out) Output
 \begin_layout Subsection
 at_pid
 \begin_inset LatexCommand index
-name "at_pid"
+name "at\\_pid"
 
 \end_inset
 
@@ -316,7 +316,7 @@ Biquad IIR filter
 \begin_layout Subsection
 bldc_hall3
 \begin_inset LatexCommand index
-name "bldc_hall3"
+name "bldc\\_hall3"
 
 \end_inset
 
@@ -412,7 +412,7 @@ If blend.N.open is true, select values outside the range 0.0 to 1.0 give values
 \begin_layout Subsection
 charge_pump
 \begin_inset LatexCommand index
-name "charge_pump"
+name "charge\\_pump"
 
 \end_inset
 
@@ -724,7 +724,7 @@ Use a parameter to set the value of a pin
 \begin_layout Subsection
 conv_bit_s32
 \begin_inset LatexCommand index
-name "conv_bit_s32"
+name "conv\\_bit\\_s32"
 
 \end_inset
 
@@ -738,7 +738,7 @@ Convert a value from bit to s32
 \begin_layout Subsection
 conv_bit_u32
 \begin_inset LatexCommand index
-name "conv_bit_u32"
+name "conv\\_bit\\_u32"
 
 \end_inset
 
@@ -752,7 +752,7 @@ Convert a value from bit to u32
 \begin_layout Subsection
 conv_float_s32
 \begin_inset LatexCommand index
-name "conv_float_s32"
+name "conv\\_float\\_s32"
 
 \end_inset
 
@@ -766,7 +766,7 @@ Convert a value from float to s32
 \begin_layout Subsection
 conv_float_u32
 \begin_inset LatexCommand index
-name "conv_float_u32"
+name "conv\\_float\\_u32"
 
 \end_inset
 
@@ -780,7 +780,7 @@ Convert a value from float to u32
 \begin_layout Subsection
 conv_s32_bit
 \begin_inset LatexCommand index
-name "conv_s32_bit"
+name "conv\\_s32\\_bit"
 
 \end_inset
 
@@ -794,7 +794,7 @@ Convert a value from s32 to bit
 \begin_layout Subsection
 conv_s32_float
 \begin_inset LatexCommand index
-name "conv_s32_float"
+name "conv\\_s32\\_float"
 
 \end_inset
 
@@ -808,7 +808,7 @@ Convert a value from u32 to bit
 \begin_layout Subsection
 conv_s32_u32
 \begin_inset LatexCommand index
-name "conv_s32_u32"
+name "conv\\_s32\\_u32"
 
 \end_inset
 
@@ -822,7 +822,7 @@ Convert a value from s32 to u32
 \begin_layout Subsection
 conv_u32_bit
 \begin_inset LatexCommand index
-name "conv_u32_bit"
+name "conv\\_u32\\_bit"
 
 \end_inset
 
@@ -836,7 +836,7 @@ Convert a value from u32 to bit
 \begin_layout Subsection
 conv_u32_float
 \begin_inset LatexCommand index
-name "conv_u32_float"
+name "conv\\_u32\\_float"
 
 \end_inset
 
@@ -850,7 +850,7 @@ Convert a value from u32 to float
 \begin_layout Subsection
 conv_u32_s32
 \begin_inset LatexCommand index
-name "conv_u32_s32"
+name "conv\\_u32\\_s32"
 
 \end_inset
 
@@ -961,7 +961,7 @@ reference "sec:Encoder"
 \begin_layout Subsection
 encoder_ratio
 \begin_inset LatexCommand index
-name "encoder_ratio"
+name "encoder\\_ratio"
 
 \end_inset
 
@@ -975,7 +975,7 @@ an electronic gear to synchronize two axes
 \begin_layout Subsection
 estop_latch
 \begin_inset LatexCommand index
-name "estop_latch"
+name "estop\\_latch"
 
 \end_inset
 
@@ -1077,7 +1077,7 @@ Kinematics that can model a general serial-link manipulator with up to 6
 \begin_layout Subsection
 hm2_7i43
 \begin_inset LatexCommand index
-name "hm2_7i43"
+name "hm2\\_7i43"
 
 \end_inset
 
@@ -1091,7 +1091,7 @@ HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2
 \begin_layout Subsection
 hm2_pci
 \begin_inset LatexCommand index
-name "hm2_pci"
+name "hm2\\_pci"
 
 \end_inset
 
@@ -1522,7 +1522,7 @@ reference "sec:PID"
 \begin_layout Subsection
 pluto_servo
 \begin_inset LatexCommand index
-name "pluto_servo"
+name "pluto\\_servo"
 
 \end_inset
 
@@ -1537,7 +1537,7 @@ Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use
 \begin_layout Subsection
 pluto_step
 \begin_inset LatexCommand index
-name "pluto_step"
+name "pluto\\_step"
 
 \end_inset
 
@@ -1586,7 +1586,7 @@ The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 \begin_layout Subsection
 sample_hold
 \begin_inset LatexCommand index
-name "sample_hold"
+name "sample\\_hold"
 
 \end_inset
 
@@ -1690,7 +1690,7 @@ reference "sec:Siggen"
 \begin_layout Subsection
 sim_encoder
 \begin_inset LatexCommand index
-name "sim_encoder"
+name "sim\\_encoder"
 
 \end_inset
 
@@ -1908,7 +1908,7 @@ The joints represent the distance of the controlled point from three predefined
 \begin_layout Subsection
 tristate_bit
 \begin_inset LatexCommand index
-name "tristate_bit"
+name "tristate\\_bit"
 
 \end_inset
 
@@ -1923,7 +1923,7 @@ Place a signal on an I/O pin only when enabled, similar to a tristate buffer
 \begin_layout Subsection
 tristate_float
 \begin_inset LatexCommand index
-name "tristate_float"
+name "tristate\\_float"
 
 \end_inset
 
@@ -1981,7 +1981,7 @@ Window comparator
 \begin_layout Subsection
 weighted_sum
 \begin_inset LatexCommand index
-name "weighted_sum"
+name "weighted\\_sum"
 
 \end_inset
 
