@@ -188,7 +188,7 @@ Compute the absolute value and sign of the input signal
 \end_layout
 
 \begin_layout Subparagraph
-Options
+Loading
 \end_layout
 
 \begin_layout LyX-Code
@@ -240,7 +240,7 @@ Two-input AND gate.
 \end_layout
 
 \begin_layout Subparagraph
-Options
+Loading
 \end_layout
 
 \begin_layout LyX-Code
@@ -271,130 +271,650 @@ and2.N.in1 (bit in) Input 1
 and2.N.out (bit out) Output
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-at_pid.9 = proportional/integral/derivative controller with auto tuning
+\begin_layout Subsection
+at_pid
+\begin_inset LatexCommand index
+name "at_pid"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-axis.9 = accepts NML motion commands, interacts with HAL in realtime
+\begin_layout Standard
+proportional/integral/derivative controller with auto tuning
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-biquad.9 = Biquad IIR filter
+\begin_layout Subsection
+axis
+\begin_inset LatexCommand index
+name "axis"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-blend.9 = Perform linear interpolation between two values
+\begin_layout Standard
+accepts NML motion commands, interacts with HAL in realtime
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-charge_pump.9 = Create a square-wave for the "charge pump" input of some
- controller boards
+\begin_layout Subsection
+biquad
+\begin_inset LatexCommand index
+name "biquad"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-clarke2.9 = Two input version of Clarke transform
+\begin_layout Standard
+Biquad IIR filter
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-clarke3.9 = Clarke (3 phase to cartesian) transform
+\begin_layout Subsection
+bldc_hall3
+\begin_inset LatexCommand index
+name "bldc_hall3"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-clarkeinv.9 = Inverse Clarke transform
+\begin_layout Standard
+3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-classicladder.9 = Realtime software plc based on ladder logic
+\begin_layout Subsection
+blend
+\begin_inset LatexCommand index
+name "blend"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-comp.9 = Two input comparator with hysteresis
+\begin_layout Standard
+Perform linear interpolation between two values
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-constant.9 = Use a parameter to set the value of a pin
+\begin_layout Subparagraph
+Loading
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_bit_s32.9 = Convert a value from bit to s32
+\begin_layout LyX-Code
+loadrt blend [count=N|names=name1[,name2...]]
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_bit_u32.9 = Convert a value from bit to u32
+\begin_layout Subparagraph
+Functions
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_float_s32.9 = Convert a value from float to s32
+\begin_layout LyX-Code
+addf blend.N|name thread-name
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_float_u32.9 = Convert a value from float to u32
+\begin_layout Subparagraph
+Pins
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_s32_bit.9 = Convert a value from s32 to bit
+\begin_layout LyX-Code
+blend.N.in1 (float in) First input.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_s32_float.9 = Convert a value from u32 to bit
+\begin_layout LyX-Code
+blend.N.in2 (float in) Second input.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_s32_u32.9 = Convert a value from s32 to u32
+\begin_layout LyX-Code
+blend.N.select (float in) Select input.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_u32_bit.9 = Convert a value from u32 to bit
+\begin_layout LyX-Code
+blend.N.out (float out) Output value.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_u32_float.9 = Convert a value from u32 to float
+\begin_layout Subparagraph
+Parameters
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-conv_u32_s32.9 = Convert a value from u32 to s32
+\begin_layout LyX-Code
+blend.N.open (bit r/w) 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-counter.9 = counts input pulses (deprecated)
+\begin_layout Subparagraph
+Description
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-ddt.9 = Compute the derivative of the input function
+\begin_layout Standard
+If select is equal to 0.0 output is equal to in1.
+ 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-deadzone.9 = Return the center if within the threshold
+\begin_layout Standard
+If select is equal to 1.0, the output is equal to in2.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-debounce.9 = filter noisy digital inputs, for more information see 
+\begin_layout Standard
+For select values between 0.0 and 1.0, the output changes linearly from in1
+ to in2.
+\end_layout
+
+\begin_layout Standard
+If blend.N.open is true, select values outside the range 0.0 to 1.0 give values
+ outside the range in1 to in2.
+ If false, outputs are clamped to the the range in1 to in2
+\end_layout
+
+\begin_layout Subsection
+charge_pump
+\begin_inset LatexCommand index
+name "charge_pump"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Create a square-wave for the "charge pump" input of some controller boards
+\end_layout
+
+\begin_layout Subparagraph
+Loading
+\end_layout
+
+\begin_layout LyX-Code
+loadrt charge_pump
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf charge-pump
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+charge-pump.out (bit out)
+\end_layout
+
+\begin_layout LyX-Code
+charge-pump.enable (bit in) default = TRUE
+\end_layout
+
+\begin_layout Subparagraph
+Description
+\end_layout
+
+\begin_layout Standard
+Outputs a square wave if enable is TRUE or unconnected, low if enable is
+ FALSE
+\end_layout
+
+\begin_layout Subsection
+clarke2
+\begin_inset LatexCommand index
+name "clarke2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two input version of Clarke transform
+\end_layout
+
+\begin_layout Subparagraph
+Loading
+\end_layout
+
+\begin_layout LyX-Code
+loadrt clarke2 [count=N|names=name1[,name2...]]
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf clarke2.N | name
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+clarke2.N.a (float in) phase a input
+\end_layout
+
+\begin_layout LyX-Code
+clarke2.N.b (float in) phase b input
+\end_layout
+
+\begin_layout LyX-Code
+clarke2.N.x (float out) cartesian components of output
+\end_layout
+
+\begin_layout LyX-Code
+clarke2.N.y (float out) cartesian components of output
+\end_layout
+
+\begin_layout Subparagraph
+Description
+\end_layout
+
+\begin_layout Standard
+The Clarke transform can be used to translate a vector quantity from a three
+ phase system (three components 120 degrees apart) to a two phase Cartesian
+ system.
+\end_layout
+
+\begin_layout Standard
+clarke2 implements a special case of the Clarke transform, which only needs
+ two of the three input phases.
+ In a three wire three phase system, the sum of the three phase currents
+ or voltages must always be zero.
+ As a result only two of the three are needed to completely define the current
+ or voltage.
+ clarke2 assumes that the sum is zero, so it only uses phases A and B of
+ the input.
+ Since the H (homopolar) output will always be zero in this case, it is
+ not generated.
+\end_layout
+
+\begin_layout Subsection
+clarke3
+\begin_inset LatexCommand index
+name "clarke3"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Clarke (3 phase to cartesian) transform
+\end_layout
+
+\begin_layout Subparagraph
+Loading
+\end_layout
+
+\begin_layout LyX-Code
+loadrt clarke3 [count=N|names=name1[,name2...]]
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf clarke3.N | name
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.a (float in) three phase input vector 
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.b (float in) three phase input vector 
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.c (float in) three phase input vector 
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.x (float out) cartesian components of output 
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.y (float out) cartesian components of output 
+\end_layout
+
+\begin_layout LyX-Code
+clarke3.N.h (float out) homopolar component of output
+\end_layout
+
+\begin_layout Subparagraph
+Description
+\end_layout
+
+\begin_layout Standard
+The Clarke transform can be used to translate a vector quantity from a three
+ phase system (three components 120 degrees apart) to a two phase Cartesian
+ system (plus a homopolar component if the three phases don’t sum to zero).
+\end_layout
+
+\begin_layout Standard
+clarke3 implements the general case of the transform, using all three phases.
+ If the three phases are known to sum to zero, see clarke2 for a simpler
+ version.
+\end_layout
+
+\begin_layout Subsection
+clarkeinv
+\begin_inset LatexCommand index
+name "clarkeinv"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Inverse Clarke transform
+\end_layout
+
+\begin_layout Subparagraph
+Loading
+\end_layout
+
+\begin_layout LyX-Code
+loadrt clarkeinv [count=N|names=name1[,name2...]]
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout LyX-Code
+addf clarkeinv.N | name
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.x (float in) cartesian components of input 
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.y (float in) cartesian components of input 
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.h (float in) homopolar component of input (usually zero)
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.a (float out) three phase output vector
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.b (float out) three phase output vector
+\end_layout
+
+\begin_layout LyX-Code
+clarkeinv.N.c (float out) three phase output vector
+\end_layout
+
+\begin_layout Subparagraph
+Parameters
+\end_layout
+
+\begin_layout Subparagraph
+Description
+\end_layout
+
+\begin_layout Standard
+The inverse Clarke transform can be used to translate a vector quantity
+ from Cartesian coordinate system to a three phase system (three components
+ 120 degrees apart).
+\end_layout
+
+\begin_layout Subsection
+classicladder
+\begin_inset LatexCommand index
+name "classicladder"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Realtime software plc based on ladder logic
+\end_layout
+
+\begin_layout Subsection
+comp
+\begin_inset LatexCommand index
+name "comp"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two input comparator with hysteresis
+\end_layout
+
+\begin_layout Subsection
+constant
+\begin_inset LatexCommand index
+name "constant"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Use a parameter to set the value of a pin
+\end_layout
+
+\begin_layout Subsection
+conv_bit_s32
+\begin_inset LatexCommand index
+name "conv_bit_s32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from bit to s32
+\end_layout
+
+\begin_layout Subsection
+conv_bit_u32
+\begin_inset LatexCommand index
+name "conv_bit_u32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from bit to u32
+\end_layout
+
+\begin_layout Subsection
+conv_float_s32
+\begin_inset LatexCommand index
+name "conv_float_s32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from float to s32
+\end_layout
+
+\begin_layout Subsection
+conv_float_u32
+\begin_inset LatexCommand index
+name "conv_float_u32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from float to u32
+\end_layout
+
+\begin_layout Subsection
+conv_s32_bit
+\begin_inset LatexCommand index
+name "conv_s32_bit"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from s32 to bit
+\end_layout
+
+\begin_layout Subsection
+conv_s32_float
+\begin_inset LatexCommand index
+name "conv_s32_float"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from u32 to bit
+\end_layout
+
+\begin_layout Subsection
+conv_s32_u32
+\begin_inset LatexCommand index
+name "conv_s32_u32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from s32 to u32
+\end_layout
+
+\begin_layout Subsection
+conv_u32_bit
+\begin_inset LatexCommand index
+name "conv_u32_bit"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from u32 to bit
+\end_layout
+
+\begin_layout Subsection
+conv_u32_float
+\begin_inset LatexCommand index
+name "conv_u32_float"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from u32 to float
+\end_layout
+
+\begin_layout Subsection
+conv_u32_s32
+\begin_inset LatexCommand index
+name "conv_u32_s32"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert a value from u32 to s32
+\end_layout
+
+\begin_layout Subsection
+counter
+\begin_inset LatexCommand index
+name "counter"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+counts input pulses (deprecated)
+\end_layout
+
+\begin_layout Subsection
+ddt
+\begin_inset LatexCommand index
+name "ddt"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Compute the derivative of the input function
+\end_layout
+
+\begin_layout Subsection
+deadzone
+\begin_inset LatexCommand index
+name "deadzone"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Return the center if within the threshold
+\end_layout
+
+\begin_layout Subsection
+debounce
+\begin_inset LatexCommand index
+name "debounce"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+filter noisy digital inputs, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:Debounce"
 
@@ -403,15 +923,33 @@ reference "sec:Debounce"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-edge.9 = Edge detector
+\begin_layout Subsection
+edge
+\begin_inset LatexCommand index
+name "edge"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-encoder.9 = software counting of quadrature encoder signals, for more information
- see 
+\begin_layout Standard
+Edge detector
+\end_layout
+
+\begin_layout Subsection
+encoder
+\begin_inset LatexCommand index
+name "encoder"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+software counting of quadrature encoder signals, for more information see
+ 
 \begin_inset LatexCommand ref
 reference "sec:Encoder"
 
@@ -420,219 +958,559 @@ reference "sec:Encoder"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-encoder_ratio.9 = an electronic gear to synchronize two axes
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-estop_latch.9 = ESTOP latch
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-flipflop.9 = D type flip-flop
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-freqgen.9 = software step pulse generation
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-gearchange.9 = Select from one two speed ranges
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-genhexkins.9 = kinematics definitions for emc2
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-hm2_7i43.9 = HAL driver for the Mesa Electronics 7i43 EPP Anything IO board
- with HostMot2
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-hm2_pci.9 = HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and
- 4i68 Anything IO boards, with HostMot2 firmware
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-hostmot2 = HAL driver for the Mesa Electronics HostMot2 firmware
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-hypot.9 = Three-input hypotenuse (Euclidean distance) calculator
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-ilowpass.9 = Low-pass filter with integer inputs and outputs
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-integ.9 = Integrator
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-kins.9 = kinematics definitions for emc2
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-knob2float.9 = Convert counts (probably from an encoder) to a float value
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-limit1.9 = Limit the output signal to fall between min and max
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-limit2.9 = Limit the output signal to fall between min and max
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-limit3.9 = Limit the output signal to fall between min and max
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-logic.9 = Experimental general `logic function' component
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-lowpass.9 = Low-pass filter
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-lut5.9 = Arbitrary 5-input logic function based on a look-up table
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-maj3.9 = Compute the majority of 3 inputs
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-match8.9 = 8-bit binary match detector
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-minmax.9 = Track the minimum and maximum values of the input to the outputs
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-motion.9 = accepts NML motion commands, interacts with HAL in realtime
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-mult2.9 = Product of two inputs
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-mux2.9
+\begin_layout Subsection
+encoder_ratio
 \begin_inset LatexCommand index
-name "mux2.9"
+name "encoder_ratio"
 
 \end_inset
 
- = Select from one of two input values
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-mux4.9
+\begin_layout Standard
+an electronic gear to synchronize two axes
+\end_layout
+
+\begin_layout Subsection
+estop_latch
 \begin_inset LatexCommand index
-name "mux4.9"
+name "estop_latch"
 
 \end_inset
 
- = Select from one of four input values
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-mux8.9 = Select from one of eight input values
+\begin_layout Standard
+ESTOP latch
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-near.9 = Determine whether two values are roughly equal
-\end_layout
-
-\begin_layout List
-\labelwidthstring 00.00.0000
-not.9
+\begin_layout Subsection
+feedcomp
 \begin_inset LatexCommand index
-name "not.9"
+name "feedcomp"
 
 \end_inset
 
- = Inverter
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-offset.9
+\begin_layout Standard
+Multiply the input by the ratio of current velocity to the feed rate
+\end_layout
+
+\begin_layout Subsection
+flipflop
 \begin_inset LatexCommand index
-name "offset.9"
+name "flipflop"
 
 \end_inset
 
- = Adds an offset to an input, and subtracts it from the feedback value
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-oneshot.9
+\begin_layout Standard
+D type flip-flop
+\end_layout
+
+\begin_layout Subsection
+freqgen
 \begin_inset LatexCommand index
-name "oneshot.9 "
+name "freqgen"
 
 \end_inset
 
-= one-shot pulse generator
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-or2.9
+\begin_layout Standard
+software step pulse generation
+\end_layout
+
+\begin_layout Subsection
+gantrykins
+\end_layout
+
+\begin_layout Standard
+A kinematics module that maps one axis to multiple joints
+\end_layout
+
+\begin_layout Subsection
+gearchange
 \begin_inset LatexCommand index
-name "or2.9"
+name "gearchange"
 
 \end_inset
 
- = Two-input OR gate
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-pid.9
+\begin_layout Standard
+Select from one two speed ranges
+\end_layout
+
+\begin_layout Subsection
+genhexkins
 \begin_inset LatexCommand index
-name "pid.9"
+name "genhexkins"
 
 \end_inset
 
- = proportional/integral/derivative controller, for more information see
- 
+
+\end_layout
+
+\begin_layout Standard
+Gives six degrees of freedom in position and orientation (XYZABC).
+ The location of the motors is defined at compile time.
+\end_layout
+
+\begin_layout Subsection
+genserkins
+\end_layout
+
+\begin_layout Standard
+Kinematics that can model a general serial-link manipulator with up to 6
+ angular joints.
+\end_layout
+
+\begin_layout Subsection
+hm2_7i43
+\begin_inset LatexCommand index
+name "hm2_7i43"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with HostMot2
+\end_layout
+
+\begin_layout Subsection
+hm2_pci
+\begin_inset LatexCommand index
+name "hm2_pci"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68 Anything
+ IO boards, with HostMot2 firmware
+\end_layout
+
+\begin_layout Subsection
+hostmot2
+\begin_inset LatexCommand index
+name "hostmot2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+HAL driver for the Mesa Electronics HostMot2 firmware
+\end_layout
+
+\begin_layout Subsection
+hypot
+\begin_inset LatexCommand index
+name "hypot"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Three-input hypotenuse (Euclidean distance) calculator
+\end_layout
+
+\begin_layout Subsection
+ilowpass
+\begin_inset LatexCommand index
+name "ilowpass"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Low-pass filter with integer inputs and outputs
+\end_layout
+
+\begin_layout Subsection
+integ
+\begin_inset LatexCommand index
+name "integ"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Integrator
+\end_layout
+
+\begin_layout Subsection
+invert
+\begin_inset LatexCommand index
+name "invert"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Compute the inverse of the input signal
+\end_layout
+
+\begin_layout Subsection
+joyhandle
+\begin_inset LatexCommand index
+name "joyhandle"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+sets nonlinear joypad movements, deadbands and scales
+\end_layout
+
+\begin_layout Subsection
+kins
+\begin_inset LatexCommand index
+name "kins"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+kinematics definitions for emc2
+\end_layout
+
+\begin_layout Subsection
+knob2float
+\begin_inset LatexCommand index
+name "knob2float"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert counts (probably from an encoder) to a float value
+\end_layout
+
+\begin_layout Subsection
+limit1
+\begin_inset LatexCommand index
+name "limit1"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Limit the output signal to fall between min and max
+\end_layout
+
+\begin_layout Subsection
+limit2
+\begin_inset LatexCommand index
+name "limit2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Limit the output signal to fall between min and max
+\end_layout
+
+\begin_layout Subsection
+limit3
+\begin_inset LatexCommand index
+name "limit3"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Limit the output signal to fall between min and max
+\end_layout
+
+\begin_layout Subsection
+logic
+\begin_inset LatexCommand index
+name "logic"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Experimental general logic function component
+\end_layout
+
+\begin_layout Subsection
+lowpass
+\begin_inset LatexCommand index
+name "lowpass"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Low-pass filter
+\end_layout
+
+\begin_layout Subsection
+lut5
+\begin_inset LatexCommand index
+name "lut5"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Arbitrary 5-input logic function based on a look-up table
+\end_layout
+
+\begin_layout Subsection
+maj3
+\begin_inset LatexCommand index
+name "maj3"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Compute the majority of 3 inputs
+\end_layout
+
+\begin_layout Subsection
+match8
+\begin_inset LatexCommand index
+name "match8"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+8-bit binary match detector
+\end_layout
+
+\begin_layout Subsection
+maxkins
+\begin_inset LatexCommand index
+name "maxkins"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Kinematics for a tabletop 5 axis mill named "max" with tilting head (B axis)
+ and horizintal rotary mounted to the table (C axis).
+ Provides UVW motion in the rotated coordinate system.
+ The source file, maxkins.c, may be a useful starting point for other 5-axis
+ systems.
+\end_layout
+
+\begin_layout Subsection
+minmax
+\begin_inset LatexCommand index
+name "minmax"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Track the minimum and maximum values of the input to the outputs
+\end_layout
+
+\begin_layout Subsection
+motion
+\begin_inset LatexCommand index
+name "motion"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+accepts NML motion commands, interacts with HAL in realtime
+\end_layout
+
+\begin_layout Subsection
+mult2
+\begin_inset LatexCommand index
+name "mult2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Product of two inputs
+\end_layout
+
+\begin_layout Subsection
+mux2
+\begin_inset LatexCommand index
+name "mux2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Select from one of two input values
+\end_layout
+
+\begin_layout Subsection
+mux4
+\begin_inset LatexCommand index
+name "mux4"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Select from one of four input values
+\end_layout
+
+\begin_layout Subsection
+mux8
+\begin_inset LatexCommand index
+name "mux8"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Select from one of eight input values
+\end_layout
+
+\begin_layout Subsection
+near
+\begin_inset LatexCommand index
+name "near"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Determine whether two values are roughly equal
+\end_layout
+
+\begin_layout Subsection
+not
+\begin_inset LatexCommand index
+name "not"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Inverter
+\end_layout
+
+\begin_layout Subsection
+offset
+\begin_inset LatexCommand index
+name "offset"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Adds an offset to an input, and subtracts it from the feedback value
+\end_layout
+
+\begin_layout Subsection
+oneshot
+\begin_inset LatexCommand index
+name "oneshot"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+one-shot pulse generator
+\end_layout
+
+\begin_layout Subsection
+or2
+\begin_inset LatexCommand index
+name "or2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two-input OR gate
+\end_layout
+
+\begin_layout Subsection
+pid
+\begin_inset LatexCommand index
+name "pid"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+proportional/integral/derivative controller, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:PID"
 
@@ -641,21 +1519,48 @@ reference "sec:PID"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-pluto_servo.9 = Hardware driver and firmware for the Pluto-P parallel-port
- FPGA, for use with servos
+\begin_layout Subsection
+pluto_servo
+\begin_inset LatexCommand index
+name "pluto_servo"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-pluto_step.9 = Hardware driver and firmware for the Pluto-P parallel-port
- FPGA, for use with steppers
+\begin_layout Standard
+Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use
+ with servos
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-pwmgen.9 = software PWM/PDM generation, for more information see 
+\begin_layout Subsection
+pluto_step
+\begin_inset LatexCommand index
+name "pluto_step"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hardware driver and firmware for the Pluto-P parallel-port FPGA, for use
+ with steppers
+\end_layout
+
+\begin_layout Subsection
+pwmgen
+\begin_inset LatexCommand index
+name "pwmgen"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+software PWM/PDM generation, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:PWMgen"
 
@@ -664,40 +1569,116 @@ reference "sec:PWMgen"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-rotatekins.9 = kinematics definitions for emc2
+\begin_layout Subsection
+rotatekins
+\begin_inset LatexCommand index
+name "rotatekins"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-sample_hold.9 = Sample and Hold
+\begin_layout Standard
+The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-sampler.9 = sample data from HAL in real time
+\begin_layout Subsection
+sample_hold
+\begin_inset LatexCommand index
+name "sample_hold"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-scale.9 = 
+\begin_layout Standard
+Sample and Hold
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-select8.9 = 8-bit binary match detector
+\begin_layout Subsection
+sampler
+\begin_inset LatexCommand index
+name "sampler"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-serport.9 = Hardware driver for the digital I/O bits of the 8250 and 16550
- serial port
+\begin_layout Standard
+sample data from HAL in real time
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-siggen.9 = signal generator, for more information see 
+\begin_layout Subsection
+scale
+\begin_inset LatexCommand index
+name "scale"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+applies a scale and offset to its input
+\end_layout
+
+\begin_layout Subsection
+scarakins
+\begin_inset LatexCommand index
+name "scarakins"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+kinematics for SCARA-type robots
+\end_layout
+
+\begin_layout Subsection
+select8
+\begin_inset LatexCommand index
+name "select8"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+8-bit binary match detector
+\end_layout
+
+\begin_layout Subsection
+serport
+\begin_inset LatexCommand index
+name "serport"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hardware driver for the digital I/O bits of the 8250 and 16550 serial port
+\end_layout
+
+\begin_layout Subsection
+siggen
+\begin_inset LatexCommand index
+name "siggen"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+signal generator, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:Siggen"
 
@@ -706,9 +1687,18 @@ reference "sec:Siggen"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-sim_encoder.9 = simulated quadrature encoder, for more information see 
+\begin_layout Subsection
+sim_encoder
+\begin_inset LatexCommand index
+name "sim_encoder"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+simulated quadrature encoder, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:Simulated-Encoder"
 
@@ -717,9 +1707,32 @@ reference "sec:Simulated-Encoder"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-stepgen.9 = software step pulse generation, for more information see 
+\begin_layout Subsection
+sphereprobe
+\begin_inset LatexCommand index
+name "sphereprobe"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Probe a pretend hemisphere
+\end_layout
+
+\begin_layout Subsection
+stepgen
+\begin_inset LatexCommand index
+name "stepgen"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+software step pulse generation, for more information see 
 \begin_inset LatexCommand ref
 reference "sec:Stepgen"
 
@@ -728,97 +1741,289 @@ reference "sec:Stepgen"
 
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-steptest.9 = Used by Stepconf to allow testing of acceleration and velocity
- values for an axis
+\begin_layout Subsection
+steptest
+\begin_inset LatexCommand index
+name "steptest"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-streamer.9 = stream file data into HAL in real time
+\begin_layout Standard
+Used by Stepconf to allow testing of acceleration and velocity values for
+ an axis
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-sum2.9 = Sum of two inputs (each with a gain) and an offset
+\begin_layout Subsection
+streamer
+\begin_inset LatexCommand index
+name "streamer"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-supply.9 = set output pins with values from parameters (deprecated)
+\begin_layout Standard
+stream file data into HAL in real time
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-threads.9 = creates hard realtime HAL threads
+\begin_layout Subsection
+sum2
+\begin_inset LatexCommand index
+name "sum2"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-threadtest.9 = 
+\begin_layout Standard
+Sum of two inputs (each with a gain) and an offset
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-timedelay.9 = The equivalent of a time-delay relay
+\begin_layout Subsection
+supply
+\begin_inset LatexCommand index
+name "supply"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-timedelta.9 = 
+\begin_layout Standard
+set output pins with values from parameters (deprecated)
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-toggle.9 = push-on, push-off from momentary pushbuttons
+\begin_layout Subsection
+thc
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-toggle2nist.9 = toggle button to nist logic
+\begin_layout Standard
+Torch Height Control using a Mesa THC card.
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-tripodkins.9 = kinematics definitions for emc2
+\begin_layout Subsection
+threads
+\begin_inset LatexCommand index
+name "threads"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-tristate_bit.9 = Place a signal on an I/O pin only when enabled, similar
- to a tristate buffer in electronics
+\begin_layout Standard
+creates hard realtime HAL threads
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-tristate_float.9 = Place a signal on an I/O pin only when enabled, similar
- to a tristate buffer in electronics
+\begin_layout Subsection
+threadtest
+\begin_inset LatexCommand index
+name "threadtest"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-trivkins.9 = kinematics definitions for emc2
+\begin_layout Standard
+component for testing thread behavior
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-updown.9 = Counts up or down, with optional limits and wraparound behavior
+\begin_layout Subsection
+timedelay
+\begin_inset LatexCommand index
+name "timedelay"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-wcomp.9 = Window comparator
+\begin_layout Standard
+The equivalent of a time-delay relay
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-weighted_sum.9 = convert a group of bits to an integer
+\begin_layout Subsection
+timedelta
+\begin_inset LatexCommand index
+name "timedelta"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout List
-\labelwidthstring 00.00.0000
-xor2.9 = Two-input XOR (exclusive OR) gate
+\begin_layout Standard
+component that measures thread scheduling timing behavior
+\end_layout
+
+\begin_layout Subsection
+toggle
+\begin_inset LatexCommand index
+name "toggle"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+push-on, push-off from momentary pushbuttons
+\end_layout
+
+\begin_layout Subsection
+toggle2nist
+\begin_inset LatexCommand index
+name "toggle2nist"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+toggle button to nist logic
+\end_layout
+
+\begin_layout Subsection
+tripodkins
+\begin_inset LatexCommand index
+name "tripodkins"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The joints represent the distance of the controlled point from three predefined
+ locations (the motors), giving three degrees of freedom in position (XYZ)
+\end_layout
+
+\begin_layout Subsection
+tristate_bit
+\begin_inset LatexCommand index
+name "tristate_bit"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Place a signal on an I/O pin only when enabled, similar to a tristate buffer
+ in electronics
+\end_layout
+
+\begin_layout Subsection
+tristate_float
+\begin_inset LatexCommand index
+name "tristate_float"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Place a signal on an I/O pin only when enabled, similar to a tristate buffer
+ in electronics
+\end_layout
+
+\begin_layout Subsection
+trivkins
+\begin_inset LatexCommand index
+name "trivkins"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There is a 1:1 correspondence between joints and axes.
+ Most standard milling machines and lathes use the trivial kinematics module.
+\end_layout
+
+\begin_layout Subsection
+updown
+\begin_inset LatexCommand index
+name "updown"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Counts up or down, with optional limits and wraparound behavior
+\end_layout
+
+\begin_layout Subsection
+wcomp
+\begin_inset LatexCommand index
+name "wcomp"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Window comparator
+\end_layout
+
+\begin_layout Subsection
+weighted_sum
+\begin_inset LatexCommand index
+name "weighted_sum"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+convert a group of bits to an integer
+\end_layout
+
+\begin_layout Subsection
+xor2
+\begin_inset LatexCommand index
+name "xor2"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Two-input XOR (exclusive OR) gate
+\end_layout
+
+\begin_layout Subparagraph
+Loading
+\end_layout
+
+\begin_layout Subparagraph
+Functions
+\end_layout
+
+\begin_layout Subparagraph
+Pins
+\end_layout
+
+\begin_layout Subparagraph
+Parameters
+\end_layout
+
+\begin_layout Subparagraph
+Description
 \end_layout
 
 \end_body
