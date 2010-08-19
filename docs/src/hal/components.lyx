@@ -382,7 +382,7 @@ Parameters
 \end_layout
 
 \begin_layout LyX-Code
-blend.N.open (bit r/w) 
+blend.N.open (bit r/w)
 \end_layout
 
 \begin_layout Subparagraph
@@ -568,23 +568,23 @@ Pins
 \end_layout
 
 \begin_layout LyX-Code
-clarke3.N.a (float in) three phase input vector 
+clarke3.N.a (float in) three phase input vector
 \end_layout
 
 \begin_layout LyX-Code
-clarke3.N.b (float in) three phase input vector 
+clarke3.N.b (float in) three phase input vector
 \end_layout
 
 \begin_layout LyX-Code
-clarke3.N.c (float in) three phase input vector 
+clarke3.N.c (float in) three phase input vector
 \end_layout
 
 \begin_layout LyX-Code
-clarke3.N.x (float out) cartesian components of output 
+clarke3.N.x (float out) cartesian components of output
 \end_layout
 
 \begin_layout LyX-Code
-clarke3.N.y (float out) cartesian components of output 
+clarke3.N.y (float out) cartesian components of output
 \end_layout
 
 \begin_layout LyX-Code
@@ -642,11 +642,11 @@ Pins
 \end_layout
 
 \begin_layout LyX-Code
-clarkeinv.N.x (float in) cartesian components of input 
+clarkeinv.N.x (float in) cartesian components of input
 \end_layout
 
 \begin_layout LyX-Code
-clarkeinv.N.y (float in) cartesian components of input 
+clarkeinv.N.y (float in) cartesian components of input
 \end_layout
 
 \begin_layout LyX-Code
