@@ -1527,8 +1527,9 @@ class Data:
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
                 if let == 's':
-                    print >>file, "net spindle-vel-fb            <=  " + pinname+".velocity"
-                    print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"                
+                    print >>file, "net spindle-revs              <=  " + pinname + ".position"
+                    print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
+                    print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable"                
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
