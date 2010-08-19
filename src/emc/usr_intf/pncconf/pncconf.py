@@ -140,7 +140,9 @@ _("Step/Dir Gen-A"),_("Step/Dir Gen-B"),_("Step/Dir Gen-C"),_("Step/Dir Gen-D"),
 _("Pulse Width Gen-P"),_("Pulse Width Gen-D"),_("Pulse Width Gen-E"),
 _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 
-# boardname, firmwarename, Hal driver name,
+_BOARDTITLE = 0;_BOARDNAME = 1;_FIRMWARE = 2;_DIRECTORY = 3;_HALDRIVER = 4;_MAXENC = 5;_MAXPWM = 6;_MAXSTEP = 7;_ENCPINS = 8
+_STEPPINS = 9;_HASWATCHDOG = 10;_MAXGPIO = 11;_LOWFREQ = 12;_HIFREQ = 13;_NUMOFCNCTRS = 14;_STARTOFDATA = 15
+# boardname, firmwarename, firmware directory,Hal driver name,
 # max encoders, max pwm gens, 
 # max step gens, number of pins per encoder,
 # number of pins per step gen, 
@@ -148,42 +150,42 @@ _("Pulse Density Gen-P"),_("Pulse Density Gen-D"),_("Pulse Density Gen-E") ]
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "SV12", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5120", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i20", "SVST8_4", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4", "5120", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "SVST2_4_7i47", "hm2_pci", 4, 2, 4, 3, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_4_7i47", "5120", "hm2_pci", 4, 2, 4, 3, 2, 1, 72, 33, 100, [2,3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[ENCA,0],[ENCA,2],[ENCB,0],[ENCB,2],[ENCI,0],[ENCI,2],[ENCA,1],[ENCA,3],
                 [ENCB,1],[ENCB,3],[ENCI,1],[ENCI,3],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0], ],
-    ["5i20", "SVST2_8", "hm2_pci", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_8", "5120", "hm2_pci", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "SVST8_4IM2", "hm2_pci", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4IM2", "5120", "hm2_pci", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22", "SV16S", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SV16", "5122", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -192,7 +194,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22", "SVST8_8S", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVST8_8", "5122", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -201,7 +203,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22", "SVS8_24S", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVS8_24", "5122", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -210,7 +212,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i22", "SV16B", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SV16", "5122", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -219,7 +221,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22", "SVST8_8B", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVST8_8", "5122", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -228,7 +230,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22", "SVS8_24B", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVS8_24", "5122", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -237,68 +239,68 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "SV12", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5123", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i23", "SVST8_4", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST8_4", "5123", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i23", "SVST4_8", "hm2_pci", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST4_8", "5123", "hm2_pci", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43", "SV8S", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [3,4],
+    ["7i43-2", "7i43", "SV8", "7i43", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43", "SV4_4S", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [3,4],
+    ["7i43-2", "7i43", "SV4_4", "7i43", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [3,4],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["7i43", "SV4_6S", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [3,4],
+    ["7i43-2", "7i43", "SV4_6", "7i43", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [3,4],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                 [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["7i43", "SV4_12S", "hm2_7i43", 4, 4, 12, 3, 2, 1, 48, 50, 100, [3,4],
+    ["7i43-2", "7i43", "SV4_12", "7i43", "hm2_7i43", 4, 4, 12, 3, 2, 1, 48, 50, 100, [3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["7i43", "SV8B", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [3,4],
+    ["7i43-4", "7i43", "SV8", "7i43", "hm2_7i43", 8, 8, 0, 3, 0, 1, 48, 50, 100, [3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43", "SV4_4B", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [3,4],
+    ["7i43-4", "7i43", "SV4_4", "7i43", "hm2_7i43", 4, 4, 4, 3, 6, 1, 48, 50, 100, [3,4],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["7i43", "SV4_6B", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [3,4],
+    ["7i43-4", "7i43", "SV4_6", "7i43", "hm2_7i43", 4, 4, 6, 3, 4, 1, 48, 50, 100, [3,4],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
                 [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["7i43", "SV4_12B", "hm2_7i43", 4, 4, 12, 3, 2, 1, 48, 50, 100, [3,4],
+    ["7i43-4", "7i43", "SV4_12", "7i43", "hm2_7i43", 4, 4, 12, 3, 2, 1, 48, 50, 100, [3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2] ],
-    ["3x20-1", "SV24", "hm2_pci", 24, 24, 0, 3, 0, 1, 144, 50, 100, [4,5,6,7,8,9],
+    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24, 24, 0, 3, 0, 1, 144, 50, 100, [4,5,6,7,8,9],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -311,7 +313,7 @@ mesafirmwaredata = [
                  [ENCB,19],[ENCA,19],[ENCB,18],[ENCA,18],[ENCI,19],[ENCI,18],[PWMP,19],[PWMP,18],[PWMD,19],[PWMD,18],[PWME,19],[PWME,18],
         [ENCB,21],[ENCA,21],[ENCB,20],[ENCA,20],[ENCI,21],[ENCI,20],[PWMP,21],[PWMP,20],[PWMD,21],[PWMD,20],[PWME,21],[PWME,20],
                  [ENCB,23],[ENCA,23],[ENCB,22],[ENCA,22],[ENCI,23],[ENCI,22],[PWMP,23],[PWMP,22],[PWMD,23],[PWMD,22],[PWME,23],[PWME,22] ],
-    ["3x20-1", "SV16_24", "hm2_pci", 16, 16, 24, 3, 2, 1, 144, 50, 100, [4,5,6,7,8,9],
+    ["3x20-1", "3x20", "SV16_24", "3x20-1", "hm2_pci", 16, 16, 24, 3, 2, 1, 144, 50, 100, [4,5,6,7,8,9],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -333,7 +335,7 @@ mesafirmwaredata = [
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
-mesaboardnames = [ "5i20", "5i22", "5i23", "7i43","3x20-1" ]
+mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
 ini_style = False
 
 
@@ -657,7 +659,7 @@ class Data:
         self.number_mesa = 1 # number of cards
         # for first mesa card
         self.mesa0_currentfirmwaredata = mesafirmwaredata[1]       
-        self.mesa0_boardname = "5i20"        
+        self.mesa0_boardtitle = "5i20"        
         self.mesa0_firmware = "SVST8_4"
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
@@ -670,7 +672,7 @@ class Data:
         self.mesa0_numof_gpio = 48
         # second mesa card
         self.mesa1_currentfirmwaredata = mesafirmwaredata[1]
-        self.mesa1_boardname = "5i20"
+        self.mesa1_boardtitle = "5i20"
         self.mesa1_firmware = "SVST8_4"
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
@@ -1156,16 +1158,16 @@ class Data:
         print >>file
         print >>file, "# [HOSTMOT2]"
         print >>file, "# This is for info only"
-        print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[2]
-        print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[0]
+        print >>file, "# DRIVER0=%s"% self.mesa0_currentfirmwaredata[_HALDRIVER]
+        print >>file, "# BOARD0=%s"% self.mesa0_currentfirmwaredata[_BOARDNAME]
         print >>file, """# CONFIG0="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
+                    self.mesa0_boardtitle, self.mesa0_firmware, self.mesa0_numof_encodergens, 
                     self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
         if self.number_mesa == 2:
-            print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[2]
-            print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[0]
+            print >>file, "# DRIVER1=%s" % self.mesa1_currentfirmwaredata[_HALDRIVER]
+            print >>file, "# BOARD1=%s"% self.mesa1_currentfirmwaredata[_BOARDNAME]
             print >>file, """# CONFIG1="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                     self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
+                     self.mesa1_boardtitle, self.mesa1_firmware, self.mesa1_numof_encodergens, 
                      self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         print >>file
         print >>file, "[HAL]"
@@ -1525,8 +1527,20 @@ class Data:
                 print >>file, "    setp "+pinname+".index-mask-invert 0"              
                 print >>file, "    setp "+pinname+".scale  [%s_%d]INPUT_SCALE"% (title, axnum)               
                 if let == 's':
-                    print >>file, "net spindle-vel-fb            <=  " + pinname+".velocity"
-                    print >>file, "net spindle-index-enable     <=>  "+ pinname + ".index-enable"                
+                    print >>file, "net spindle-revs              <=  " + pinname + ".position"
+                    print >>file, "net spindle-vel-fb            <=  " + pinname + ".velocity"
+                    print >>file, "net spindle-index-enable     <=>  " + pinname + ".index-enable" 
+                    if self.findsignal("spindle-at-speed") == "false":
+                        print >>file
+                        print >>file, "# ---Setup spindle at speed signals---"
+                        print >>file
+                        if not stepgen =="false" or not encoder == "false":
+                            print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
+                            print >>file, "net spindle-vel-fb         =>  near.0.in2"
+                            print >>file, "net spindle-at-speed       <=  near.0.out"
+                            print >>file, "    setp near.0.scale .9"
+                        else:
+                            print >>file, "    sets spindle-at-speed true"               
                 else: 
                     print >>file, "net %spos-fb               <=  "% (let) + pinname+".position"
                     print >>file, "net %spos-fb               =>  pid.%s.feedback"% (let,let)
@@ -1546,15 +1560,7 @@ class Data:
             print >>file, "net spindle-revs           =>  motion.spindle-revs"
             print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
             print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
-            if self.findsignal("spindle-at-speed") == "false":
-                if not stepgen =="false" or not encoder == "false":
-                    print >>file, "net spindle-vel-cmd-rps near.0.in1"
-                    print >>file, "net spindle-vel-fb near.0.in2"
-                    print >>file, "net spindle-at-speed near.0.out"
-                    print >>file, "setp near.0.scale .9"
-                else:
-                    print >>file, "sets spindle-at-speed true"
+            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"            
             return
         
         min_limsig = self.min_lim_sig(let)
@@ -1581,8 +1587,7 @@ class Data:
             else: print >>file, "net %s     <= parport.0.pin-%02d-in" % (p, q)
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
-                board = self["mesa%d_boardname"% boardnum]
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for q in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
@@ -1621,7 +1626,7 @@ class Data:
             if i: print >>file, "    setp parport.0.pin-%02d-out-invert true" % q           
         print >>file
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for q in range(0,24):
                     p = self['mesa%dc%dpin%d' % (boardnum,connector, q)]
                     i = self['mesa%dc%dpin%dinv' % (boardnum,connector, q)]
@@ -1674,33 +1679,36 @@ class Data:
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
         print >>file, "loadrt hostmot2"
+        board0 = self.mesa0_currentfirmwaredata[_BOARDNAME]
+        board1 = self.mesa1_currentfirmwaredata[_BOARDNAME]
+        driver0 = self.mesa0_currentfirmwaredata[_HALDRIVER]
+        driver1 = self.mesa1_currentfirmwaredata[_HALDRIVER]
+        directory0 = self.mesa0_currentfirmwaredata[_DIRECTORY]
+        directory1 = self.mesa1_currentfirmwaredata[_DIRECTORY]
+        firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
+        firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         if self.number_mesa == 1:            
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
-        elif self.number_mesa == 2 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
+        elif self.number_mesa == 2 and (driver0 == driver1):
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"
                     """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
-                    self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
-                    self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
+                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens,
+                    directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         elif self.number_mesa == 2:
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa0_currentfirmwaredata[2],self.mesa0_boardname, self.mesa0_firmware, self.mesa0_numof_encodergens, 
-                    self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
+                    driver0, directory0, firm0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_stepgens )
             print >>file, """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d" """ % (
-                    self.mesa1_currentfirmwaredata[2],self.mesa1_boardname, self.mesa1_firmware, self.mesa1_numof_encodergens, 
-                    self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
+                    driver1, directory1, firm1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_stepgens )
         for boardnum in range(0,int(self.number_mesa)):
-            if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+            if boardnum == 1 and (board0 == board1):
                 halnum = 1
             else:
                 halnum = 0
             if self["mesa%d_numof_pwmgens"% boardnum] > 0:
-                print >>file, "    setp hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum, self["mesa%d_pwm_frequency"% boardnum] )
-                print >>file, "    setp hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self["mesa%d_pdm_frequency"% boardnum] )
-            print >>file, "    setp hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self["mesa%d_watchdog_timeout"% boardnum] )        
+                print >>file, "    setp hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum, self["mesa%d_pwm_frequency"% boardnum] )
+                print >>file, "    setp hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_pdm_frequency"% boardnum] )
+            print >>file, "    setp hm2_%s.%d.watchdog.timeout_ns %d"% ( self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self["mesa%d_watchdog_timeout"% boardnum] )
 
         if self.number_pports>0:
             port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
@@ -1828,12 +1836,12 @@ class Data:
             print >>file, "addf parport.2.write servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
-                if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0
                 if self.number_mesa> 0:
-                    print >>file, "addf hm2_%s.%d.read servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
+                    print >>file, "addf hm2_%s.%d.read servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
             
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
@@ -1895,12 +1903,12 @@ class Data:
             print >>file, "addf near.0                   servo-thread"
         if self.number_mesa:
             for boardnum in range(0,int(self.number_mesa)):
-                if boardnum == 1 and (self.mesa0_currentfirmwaredata[0] == self.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.mesa0_currentfirmwaredata[_BOARDNAME] == self.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
-                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][0], halnum)
+                print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
+                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
             
         print >>file
         self.connect_output(file)              
@@ -2186,12 +2194,12 @@ class Data:
         print >>file
         if self.number_mesa <> 0:
             for boardnum in range(0,int(self.number_mesa)):
-                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][0] 
+                print >>file, "Mesa hardware I/O card - board %d is designated as\n"% boardnum,self["mesa%d_currentfirmwaredata"% boardnum][_BOARDTITLE] 
                 print >>file, "with", self["mesa%d_currentfirmwaredata"% boardnum][9], "I/O pins and firmware is:", self["mesa%d_firmware"% boardnum]
                 print >>file
             for boardnum in range(0,int(self.number_mesa)):
-                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][12]) :
-                    print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardname"% boardnum],boardnum,_(" connector")," %d **\n"% connector
+                for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
+                    print >>file,"** Mesa %s -> Board #"% self["mesa%d_boardtitle"% boardnum],boardnum,_(" connector")," %d **\n"% connector
                     for pin in range (0,24):
                         temp = self["mesa%dc%dpin%d" % (boardnum,connector,pin) ]
                         tempinv = self["mesa%dc%dpin%dinv" % (boardnum,connector,pin) ]
@@ -2248,7 +2256,14 @@ class Data:
         self.write_readme(base)
         self.write_inifile(base)
         self.write_halfile(base)
-        self.copy(base, "tool.tbl")
+
+        filename = os.path.join(base, "tool.tbl")
+        file = open(filename, "w")
+        print >>file, "T0 P0 ;"
+        print >>file, "T1 P1 ;"
+        print >>file, "T2 P2 ;"
+        print >>file, "T3 P3 ;"
+        file.close()
 
         filename = "%s.pncconf" % base
 
@@ -2322,7 +2337,7 @@ class Data:
                     ppoutput[key] = "pp%dOpin%d" %(i,s) 
         mesa = {}
         for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for s in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23):
                     key =   self["mesa%dc%dpin%d"% (boardnum,connector,s)]
                     mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)     
@@ -2352,17 +2367,17 @@ class Data:
             if ini_style:
                 boardname = "[hosmot2](board%d)"% boardnum                
             else:
-                boardname = self["mesa%d_currentfirmwaredata"% boardnum][0]
-            if boardnum == 1 and self.mesa1_currentfirmwaredata[0] == self.mesa0_currentfirmwaredata[0]:
+                boardname = self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
+            if boardnum == 1 and self.mesa1_currentfirmwaredata[_BOARDNAME] == self.mesa0_currentfirmwaredata[_BOARDNAME]:
                 halboardnum = 1
             ptype = self[pin+"type"] 
             signalname = self[pin]
             pinnum = int(test[10:])
             connum = int(test[6:7])
 
-            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
                 if i == connum:
-                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][13+pinnum+(concount*24)]
+                    dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pinnum+(concount*24)]
                     break
             type_name = { GPIOI:"gpio", GPIOO:"gpio", GPIOD:"gpio", ENCA:"encoder", ENCB:"encoder",ENCI:"encoder",ENCM:"encoder", 
                 PWMP:"pwmgen",PWMD:"pwmgen", PWME:"pwmgen", PDMP:"pwmgen", PDMD:"pwmgen", PDME:"pwmgen",STEPA:"stepgen", STEPB:"stepgen" }
@@ -2758,7 +2773,7 @@ class App:
                 cb = "mesa%d_comp_update"% (boardnum)
                 i = "mesa%dsignalhandler_comp_update"% (boardnum)
                 self.intrnldata[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
-                cb = "mesa%d_boardname"% (boardnum)
+                cb = "mesa%d_boardtitle"% (boardnum)
                 i = "mesa%dsignalhandler_boardname_change"% (boardnum)
                 self.intrnldata[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
                 cb = "mesa%d_firmware"% (boardnum)
@@ -2777,19 +2792,19 @@ class App:
 
             # here we initalise the mesa configure page data
             for boardnum in(0,1):
-                model = self.widgets["mesa%d_boardname"% boardnum].get_model()
+                model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
                 model.clear()
                 for i in mesaboardnames:
                     model.append((i,))      
                 for search,item in enumerate(mesaboardnames):
-                    if mesaboardnames[search]  == self.data["mesa%d_boardname"% boardnum]:
-                        self.widgets["mesa%d_boardname"% boardnum].set_active(search)  
+                    if mesaboardnames[search]  == self.data["mesa%d_boardtitle"% boardnum]:
+                        self.widgets["mesa%d_boardtitle"% boardnum].set_active(search)  
                 model = self.widgets["mesa%d_firmware"% boardnum].get_model()
                 model.clear()
                 for search, item in enumerate(mesafirmwaredata):
                     d = mesafirmwaredata[search]
-                    if not d[0] == self.data["mesa%d_boardname"% boardnum]:continue
-                    model.append((d[1],))        
+                    if not d[_BOARDTITLE] == self.data["mesa%d_boardtitle"% boardnum]:continue
+                    model.append((d[_FIRMWARE],))        
                 for search,item in enumerate(model):           
                     if model[search][0]  == self.data["mesa%d_firmware"% boardnum]:
                         self.widgets["mesa%d_firmware"% boardnum].set_active(search)   
@@ -3045,48 +3060,48 @@ class App:
         self.do_exclusive_inputs(15)
 
     def on_mesa_boardname_changed(self, widget,boardnum):
-        board = self.widgets["mesa%d_boardname"%boardnum].get_active_text()
+        title = self.widgets["mesa%d_boardtitle"%boardnum].get_active_text()
         model = self.widgets["mesa%d_firmware"% boardnum].get_model()
         model.clear()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
-            if not d[0] == board:continue
-            model.append((d[1],))       
+            if not d[_BOARDTITLE] == title:continue
+            model.append((d[_FIRMWARE],))       
         self.widgets["mesa%d_firmware"% boardnum].set_active(0)
-        if  board =="7i43":
+        if  d[_BOARDNAME] =="7i43":
             self.widgets["mesa%d_parportaddrs"% boardnum].set_sensitive(1)
         else:
             self.widgets["mesa%d_parportaddrs"% boardnum].set_sensitive(0)
         self.on_mesa_firmware_changed(self,boardnum)
 
     def on_mesa_firmware_changed(self, widget,boardnum):
-        board = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+        title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
-            if not d[0] == board:continue
-            if d[1] == firmware:
-                self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[3])
-                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[3])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[4])
-                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[4])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[5])
-                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[5])
-                self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[9])
+            if not d[_BOARDTITLE] == title:continue
+            if d[_FIRMWARE] == firmware:
+                self.widgets["mesa%d_numof_encodergens"%boardnum].set_range(0,d[_MAXENC])
+                self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(d[_MAXENC])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_range(0,d[_MAXPWM])
+                self.widgets["mesa%d_numof_pwmgens"% boardnum].set_value(d[_MAXPWM])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_range(0,d[_MAXSTEP])
+                self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(d[_MAXSTEP])
+                self.widgets["mesa%d_totalpins"% boardnum].set_text("%s"% d[_MAXGPIO])
             self.on_gpio_update(self,boardnum)
 
     def on_gpio_update(self,*args):
         for boardnum in (0,1):
-            board = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+            title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
             firmware = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
             for search, item in enumerate(mesafirmwaredata):
                 d = mesafirmwaredata[search]
-                if not d[0] == board:continue
-                if d[1] == firmware:      
+                if not d[_BOARDTITLE] == title:continue
+                if d[_FIRMWARE] == firmware:      
                     i = (int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value()) * 3)
-                    j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[7])
-                    k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[6])
-                    total = (d[9]-i-j-k)
+                    j = (int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value()) * d[_STEPPINS])
+                    k = (int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value()) * d[_ENCPINS])
+                    total = (d[_MAXGPIO]-i-j-k)
                     self.widgets["mesa%d_numof_gpio"% boardnum].set_text("%d" % total)
   
     # This method converts data from the GUI page to signal names for pncconf's mesa data variables
@@ -3098,7 +3113,7 @@ class App:
     # it does this by searching the current firmware array and finding what the
     # other related pins numbers are then changing them to the appropriate signalname.    
     def mesa_data_transfer(self,boardnum):
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range(0,24):
                 foundit = 0
                 p = 'mesa%dc%dpin%d' % (boardnum,connector,pin)
@@ -3185,11 +3200,11 @@ class App:
                     # then just adds that 
                     flag = 1
                     if selection == unusedname:flag = 0
-                    currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    currentfirm,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     # print "current firm type, number-",currentfirm,currentcompnum
-                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                    for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                         for t_pin in range (0,24):
-                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                            comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
                             if compnum != currentcompnum: continue                             
                             if comptype not in (relatedsignals): continue
                            # print "checking-",comptype, compnum 
@@ -3224,7 +3239,7 @@ class App:
         self.data.help = "help-mesa.txt"
         boardnum = 0
         if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa0_configured  :
-            self.set_mesa_options(boardnum,self.data.mesa0_boardname,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
+            self.set_mesa_options(boardnum,self.data.mesa0_boardtitle,self.data.mesa0_firmware,self.data.mesa0_numof_pwmgens,
                     self.data.mesa0_numof_stepgens,self.data.mesa0_numof_encodergens)
         elif not self.intrnldata.mesa0_configured:
             self.widgets.mesa0con2table.hide()
@@ -3256,7 +3271,7 @@ class App:
         self.data.help = "help-mesa.txt"
         boardnum = 1
         if not self.widgets.createconfig.get_active() and not self.intrnldata.mesa1_configured  :
-            self.set_mesa_options(boardnum,self.data.mesa1_boardname,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
+            self.set_mesa_options(boardnum,self.data.mesa1_boardtitle,self.data.mesa1_firmware,self.data.mesa1_numof_pwmgens,
                     self.data.mesa1_numof_stepgens,self.data.mesa1_numof_encodergens)
         elif not self.intrnldata.mesa1_configured:           
             self.widgets.mesa1con2table.hide()
@@ -3291,10 +3306,10 @@ class App:
         
         for boardnum in range(0,int(self.data.number_mesa)):
             print "mesa boardnum-%d"% boardnum
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
@@ -3417,9 +3432,9 @@ class App:
         numofpwmgens = self.data["mesa%d_numof_pwmgens"% boardnum] = int(self.widgets["mesa%d_numof_pwmgens"% boardnum].get_value())
         numofstepgens = self.data["mesa%d_numof_stepgens"% boardnum] = int(self.widgets["mesa%d_numof_stepgens"% boardnum].get_value())
         numofencoders = self.data["mesa%d_numof_encodergens"% boardnum] = int(self.widgets["mesa%d_numof_encodergens"% boardnum].get_value())
-        board = self.data["mesa%d_boardname"% boardnum] = self.widgets["mesa%d_boardname"% boardnum].get_active_text()
+        title = self.data["mesa%d_boardtitle"% boardnum] = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         firmware = self.data["mesa%d_firmware"% boardnum] = self.widgets["mesa%d_firmware"% boardnum].get_active_text()
-        self.set_mesa_options(boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders)
+        self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numofstepgens,numofencoders)
         return True
 
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
@@ -3433,7 +3448,7 @@ class App:
     # 'mesafirmwaredata' holds all the firmware data.
     # 'self.data.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
-    def set_mesa_options(self,boardnum,board,firmware,numofpwmgens,numofstepgens,numofencoders): 
+    def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numofstepgens,numofencoders): 
         self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -3442,8 +3457,8 @@ class App:
             gtk.main_iteration()
         for search, item in enumerate(mesafirmwaredata):
             d = mesafirmwaredata[search]
-            if not d[0] == board:continue
-            if d[1] == firmware:
+            if not d[_BOARDTITLE] == title:continue
+            if d[_FIRMWARE] == firmware:
                 self.data["mesa%d_currentfirmwaredata"% boardnum] = mesafirmwaredata[search]
                 break
         self.widgets["mesa%dcon3table"% boardnum].set_sensitive(1) 
@@ -3452,22 +3467,22 @@ class App:
         self.widgets["mesa%dcon4table"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon4tab"% boardnum].set_sensitive(1) 
         self.widgets["mesa%dcon4table"% boardnum].show() 
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i23":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i20" or self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i23":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "5i22":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "5i22":
             self.widgets["mesa%dcon2table"% boardnum].show()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].show()   
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "7i43":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "7i43":
             self.widgets["mesa%dcon2table"% boardnum].hide()
             self.widgets["mesa%dcon3table"% boardnum].show()
             self.widgets["mesa%dcon4table"% boardnum].show()
             self.widgets["mesa%dcon5table"% boardnum].hide()
-        if self.data["mesa%d_currentfirmwaredata"% boardnum][0] == "3x20-1":
+        if self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME] == "3x20":
             self.widgets["mesa%dcon2table"% boardnum].hide()
             self.widgets["mesa%dcon3table"% boardnum].hide()
             self.widgets["mesa%dcon4table"% boardnum].show()
@@ -3484,12 +3499,12 @@ class App:
 
 
 
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
                 while gtk.events_pending():
                     gtk.main_iteration()
-                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][13+pin+(concount*24)]       
+                firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% boardnum][_STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
@@ -3752,10 +3767,10 @@ class App:
         self.data["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.data["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
         self.data["mesa%d_numof_encodergens"% boardnum] = numofencoders
-        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][7])
-        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][6])
+        temp = (numofstepgens * self.data["mesa%d_currentfirmwaredata"% boardnum][_STEPPINS])
+        temp1 = (numofencoders * self.data["mesa%d_currentfirmwaredata"% boardnum][_ENCPINS])
         temp2 = (numofpwmgens * 3)
-        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][9]-temp-temp1-temp2)
+        total = (self.data["mesa%d_currentfirmwaredata"% boardnum][_MAXGPIO]-temp-temp1-temp2)
         self.data["mesa%d_numof_gpio"% boardnum] = total     
         self.widgets["mesa%d_numof_stepgens"% boardnum].set_value(numofstepgens)
         self.widgets["mesa%d_numof_encodergens"% boardnum].set_value(numofencoders)      
@@ -3763,7 +3778,7 @@ class App:
         self.in_mesa_prepare = False   
         self.intrnldata["mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
-        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][12]) :
+        for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% boardnum][_NUMOFCNCTRS]) :
             for pin in range (0,24):      
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
@@ -3843,10 +3858,10 @@ class App:
                     if name == pinchanged or (index+1 == len(nametocheck_copy) and custom == True) :
                         if not pinchanged == unusedcheck:used = 1
                         if name == pinchanged: custom = False
-                        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]):
+                        for concount,i in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]):
                             if i == connector:
                                 # This finds the pin type and component number of the pin that has changed
-                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                                currentptype,currentcompnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                                 # search all the current firmware array for related pins
                                 # if not the same component number as the pin that changed or
                                 # if not in the relate component type keep searching
@@ -3857,9 +3872,9 @@ class App:
                                 # and widget combobox list - again unless the component type is for the user selectable signal then
                                 # only put the first signalname ending in it.
                                 # if we found a match display it in combobox (if a custom signal we have to search for the index number)
-                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                                for t_concount,t_connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                                     for t_pin in range (0,24):
-                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+t_pin+(t_concount*24)]
+                                        comptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+t_pin+(t_concount*24)]
                                         if compnum != currentcompnum: continue                             
                                         if comptype not in (relatedsearch): continue
                                         tochange = 'mesa%dc%dpin%d' % (boardnum,t_connector,t_pin)
@@ -4192,7 +4207,8 @@ class App:
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
         w[axis + "servo_info"].set_sensitive(not stepdriven)
-        w[axis + "stepper_info"].set_sensitive(stepdriven)    
+        w[axis + "stepper_info"].set_sensitive(stepdriven)  
+        w[axis + "invertencoder"].set_sensitive(not stepdriven)
         w[axis + "drivertype"].set_active(self.drivertype_toindex(axis))
         if w[axis + "drivertype"].get_active_text()  == _("Custom"):
             w[axis + "steptime"].set_value(d[axis + "steptime"])
@@ -4232,6 +4248,7 @@ class App:
             else: 
                 
                 w.sencodercounts.set_sensitive(1) 
+            w[axis + "invertencoder"].set_sensitive(True)
             w["soutputscale"].set_sensitive(pwmdriven)
             w["soutputoffset"].set_sensitive(pwmdriven)
             w["smaxoutput"].set_sensitive(pwmdriven)
@@ -4850,7 +4867,7 @@ class App:
         for boardnum in(0,1):
             for connector in(2,3,4,5,6,7,8,9):
                 if self.data.number_mesa >= boardnum + 1 :
-                    if connector in(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+                    if connector in(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                         continue
                 # This initializes GPIO input pins
                 for i in range(0,16):
@@ -4923,7 +4940,7 @@ class App:
 
     def m5i20test(self,w): 
         for i in range(0,int(self.data.number_mesa)): 
-            if self.data["mesa%d_currentfirmwaredata"% (i)][0] in( "5i22", "7i43"):
+            if self.data["mesa%d_currentfirmwaredata"% (i)][_BOARDNAME] in( "5i22", "7i43"):
                 self.warning_dialog( _(" The test panel for this board and/or firmware should work fine for GPIO but\
                      maybe not so fine for other components.\n work in progress. \n You must have the board installed for it to work.") , True)  
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
@@ -4942,9 +4959,9 @@ class App:
         halrun.write("loadusr halmeter -g 0 620\n")
         for boardnum in range(0,int(self.data.number_mesa)):
             board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 for pin in range (0,24):
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
@@ -5690,37 +5707,40 @@ class App:
                 halrun.write("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
             # mesa stuff
             halrun.write("loadrt hostmot2\n")
+            board0 = self.data.mesa0_currentfirmwaredata[_BOARDNAME]
+            board1 = self.data.mesa1_currentfirmwaredata[_BOARDNAME]
+            driver0 = self.data.mesa0_currentfirmwaredata[_HALDRIVER]
+            driver1 = self.data.mesa1_currentfirmwaredata[_HALDRIVER]
+            directory0 = self.data.mesa0_currentfirmwaredata[_DIRECTORY]
+            directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
+            firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
+            firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
             if self.data.number_mesa == 1:            
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
-                    self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
-            elif self.data.number_mesa == 2 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
+            elif self.data.number_mesa == 2 and (driver0 == driver1):
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d,\
                                 firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n
                     """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
-                    self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens,
-                    self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
-                    self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
+                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens,
+                    directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             elif self.data.number_mesa == 2:
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa0_currentfirmwaredata[2],self.data.mesa0_boardname, self.data.mesa0_firmware, self.data.mesa0_numof_encodergens, 
-                    self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
+                    driver0, directory0, firm0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_stepgens ))
                 halrun.write( """loadrt %s config="firmware=hm2/%s/%s.BIT num_encoders=%d num_pwmgens=%d num_stepgens=%d"\n """ % (
-                    self.data.mesa1_currentfirmwaredata[2],self.data.mesa1_boardname, self.data.mesa1_firmware, self.data.mesa1_numof_encodergens, 
-                    self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
+                    driver1, directory1, firm1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_stepgens ))
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (board0 == board1):
                     halnum = 1
                 else:
                     halnum = 0
                 if self.data["mesa%d_numof_pwmgens"% boardnum] > 0:
                     halrun.write( "    setp hm2_%s.%d.pwmgen.pwm_frequency %d\n"% (
-                     self.data["mesa%d_currentfirmwaredata"% boardnum][0],halnum, self.data["mesa%d_pwm_frequency"% boardnum] ))
+                     self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME],halnum, self.data["mesa%d_pwm_frequency"% boardnum] ))
                     halrun.write( "    setp hm2_%s.%d.pwmgen.pdm_frequency %d\n"% ( 
-                    self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_pdm_frequency"% boardnum] ))
+                    self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self.data["mesa%d_pdm_frequency"% boardnum] ))
                 halrun.write( "    setp hm2_%s.%d.watchdog.timeout_ns %d\n"% ( 
-                    self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
+                    self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum,self.data["mesa%d_watchdog_timeout"% boardnum] ))  
         if command == "READ":
             if self.data.number_pports > 0:
                 halrun.write( "addf parport.0.read fast\n")
@@ -5729,12 +5749,12 @@ class App:
             if self.data.number_pports > 2:
                 halrun.write( "addf parport.2.read fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
-                halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
+                halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
+                halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
         if command == "WRITE":
             if self.data.number_pports > 0:
                 halrun.write( "addf parport.0.write fast\n")
@@ -5743,11 +5763,11 @@ class App:
             if self.data.number_pports > 2:
                 halrun.write( "addf parport.2.write fast\n")
             for boardnum in range(0,int(self.data.number_mesa)):
-                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[0] == self.data.mesa1_currentfirmwaredata[0]):
+                if boardnum == 1 and (self.data.mesa0_currentfirmwaredata[_BOARDNAME] == self.data.mesa1_currentfirmwaredata[_BOARDNAME]):
                     halnum = 1
                 else:
                     halnum = 0         
-                halrun.write( "addf hm2_%s.%d.write slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][0], halnum))
+                halrun.write( "addf hm2_%s.%d.write slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
 
 #***************************************************************
 # testpanel code
@@ -6013,13 +6033,13 @@ class PyApp(gtk.Window):
         self.add(brdnotebook)             
         
         for boardnum in range(0,int(self.data.number_mesa)):
-            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][0]+".%d"% boardnum
+            board = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_BOARDNAME]+".%d"% boardnum
             self.data2["notebook%d"%boardnum] = gtk.Notebook()
             self.data2["notebook%d"%boardnum].set_tab_pos(gtk.POS_TOP)
             self.data2["notebook%d"%boardnum].show()
             label = gtk.Label("Mesa Board Number %d"% (boardnum))      
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
-            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][12]) :
+            for concount,connector in enumerate(self.data["mesa%d_currentfirmwaredata"% (boardnum)][_NUMOFCNCTRS]) :
                 table = gtk.Table(12, 3, False)
                 seperator = gtk.VSeparator()
                 table.attach(seperator, 1, 2, 0, 12,True)
@@ -6030,7 +6050,7 @@ class PyApp(gtk.Window):
                     else:
                         column = 0
                         adjust = 0
-                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][13+pin+(concount*24)]
+                    firmptype,compnum = self.data["mesa%d_currentfirmwaredata"% (boardnum)][_STARTOFDATA+pin+(concount*24)]
                     pinv = 'mesa%dc%dpin%dinv' % (boardnum,connector,pin)
                     ptype = 'mesa%dc%dpin%dtype' % (boardnum,connector,pin)
                     pintype = self.widgets[ptype].get_active_text()
