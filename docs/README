@@ -55,12 +55,12 @@ below the line that colors and creates the TOC links.
 
 It is also possible to add other references to the TOC for things 
 like sections or chapters that are not numbered (chapter*) by including
-and ERT (Evil Red Text) while running the Lyx GUI itself.  An example
-this is shown below.  What it does is add the user handbook Foreward
+an ERT (Evil Red Text) while running the Lyx GUI itself.  An example of
+this is shown below.  What it does is add the user handbook Foreword
 to the TOC when the first line of userforward.lyx has been changed
 to an unnumbered chapter.
 
-The line is listed below.  You'd need to change "Forword" for your
+The line is listed below.  You'd need to change "Foreword" to your
 own entry's name.  This ERT should be added before the
 lines that insert a file or create a new heading you wish to add.
 The ERT is Insert/TeX on the lyx menu.
