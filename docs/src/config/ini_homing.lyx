@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -524,13 +525,9 @@ Used to define a multi-axis homing sequence HOME ALL and enforce homing
  order (e.g., Z may not be homed if X is not yet homed).
  An axis may be homed after all axes with a lower HOME_SEQUENCE have already
  been homed and are at the HOME_OFFSET.
- 
-\newline
-If two axes have the same HOME_SEQUENCE, they may be homed at the same
+ If two axes have the same HOME_SEQUENCE, they may be homed at the same
  time.
- 
-\newline
-If HOME_SEQUENCE is -1 or not specified then this joint will not be homed
+ If HOME_SEQUENCE is -1 or not specified then this joint will not be homed
  by the HOME ALL sequence.
  HOME_SEQUENCE numbers start with 0 and there may be no unused numbers.
 \end_layout
