@@ -84,56 +84,55 @@ set coordnames [ emc_ini "COORDINATES" "TRAJ"]
 
 set numcoords 0
 
-if { [ string first "X" $coordnames ] >= 0 } {
+if { [ string first "X" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0 } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist X]
     set axiscoordmap [ concat $axiscoordmap 0  ]
 }
 
-if { [ string first "Y" $coordnames ] >= 0 } {
+if { [ string first "Y" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist Y]
     set axiscoordmap [ concat $axiscoordmap  1 ]
 }
 
-if { [ string first "Z" $coordnames ] >= 0 } {
+if { [ string first "Z" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist Z]
     set axiscoordmap [ concat $axiscoordmap  2 ]
 }
 
-
-if { [ string first "A" $coordnames ] >= 0 } {
+if { [ string first "A" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist A]
     set axiscoordmap [ concat $axiscoordmap  3 ]
 }
 
-if { [ string first "B" $coordnames ] >= 0 } {
+if { [ string first "B" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist B]
     set axiscoordmap [ concat $axiscoordmap  4 ]
 }
 
-if { [ string first "C" $coordnames ] >= 0 } {
+if { [ string first "C" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist C]
     set axiscoordmap [ concat $axiscoordmap  5 ]
 }
 
-if { [ string first "U" $coordnames ] >= 0 } {
+if { [ string first "U" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist U]
     set axiscoordmap [ concat $axiscoordmap  6 ]
 }
 
-if { [ string first "V" $coordnames ] >= 0 } {
+if { [ string first "V" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist V]
     set axiscoordmap [ concat $axiscoordmap  7 ]
 }
 
-if { [ string first "W" $coordnames ] >= 0 } {
+if { [ string first "W" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
     set numcoords $numcoords+1
     set worldlabellist [ concat $worldlabellist W]
     set axiscoordmap [ concat $axiscoordmap  8 ]
@@ -759,7 +758,8 @@ proc toggleOptionalStop {} {
 
 
 # use the top-level window as our top-level window, and name it
-wm title . "TkEMC"
+set title [emc_ini "MACHINE" "EMC"]
+ wm title . $title
 
 # create the main window top frame
 set top [frame .top]
@@ -1083,33 +1083,41 @@ set relabssel [frame $coordsel.relabssel]
 set actcmdsel [frame $coordsel.actcmdsel]
 set jog [frame $bun.jog]
 set dojog [frame $jog.dojog]
-
+set axiscount 1
 pack $move -side top -fill both -expand true
 pack $position -side left
 pack $pos0 -side top
-if { $numaxes > 1 } {
+if { $numaxes > 1 && [ string first "Y" $coordnames ] >= 0 } {
     pack $pos1 -side top
+	incr axiscount
 }
-if { $numaxes > 2 } {
+if { $numaxes > 2 && [ string first "Z" $coordnames ] >= 0  } {
     pack $pos2 -side top
+	incr axiscount
 }
-if { $numaxes > 3 } {
+if { $numaxes > 3 && [ string first "A" $coordnames ] >= 0  } {
     pack $pos3 -side top
+	incr axiscount
 }
-if { $numaxes > 4 } {
+if { $numaxes > 4 && [ string first "B" $coordnames ] >= 0  } {
     pack $pos4 -side top
+	incr axiscount
 }
-if { $numaxes > 5 } {
+if { $numaxes > 5 && [ string first "C" $coordnames ] >= 0  } {
     pack $pos5 -side top
+	incr axiscount
 }
-if { $numaxes > 6 } {
+if { $numaxes > 6 && [ string first "U" $coordnames ] >= 0  } {
     pack $pos6 -side top
+	incr axiscount
 }
-if { $numaxes > 7 } {
+if { $numaxes > 7 && [ string first "V" $coordnames ] >= 0 } {
     pack $pos7 -side top
+	incr axiscount
 }
-if { $numaxes > 8 } {
+if { $numaxes > 8 && [ string first "W" $coordnames ] >= 0  } {
     pack $pos8 -side top
+	incr axiscount
 }
 pack $bun -side right -anchor n ; # don't fill or expand these-- looks funny
 pack $limoride -side top -pady 2m
@@ -1250,7 +1258,7 @@ if {$userfont != ""} {
     set fontstyle [font actual $userfont -weight]
 } elseif {[lsearch [font families] {courier 10 pitch}] != -1} {
     set fontfamily {courier 10 pitch}
-    if {$numaxes > 6} {
+     if {$axiscount > 3} {
 	set fontsize 24
     } else {
 	set fontsize 48
@@ -1258,7 +1266,7 @@ if {$userfont != ""} {
     set fontstyle bold
 } else {
     set fontfamily courier
-    if {$numaxes > 6} {
+    if {$axiscount > 3} {
 	set fontsize 24
     } else {
         set fontsize 48
