@@ -35,7 +35,9 @@ if {[string length $paramfilename] == 0} {
 set numaxis [emc_ini "AXES" "TRAJ"]
 
 # Reads axi names from ini
-set nameaxis [emc_ini "COORDINATES" "TRAJ"]
+set nameaxis1 [emc_ini "COORDINATES" "TRAJ"]
+
+set nameaxis "X Y Z A B C U V W"
 
 # put the parm file into an invisible widget
 set vartext [text $top.vartext]
@@ -81,6 +83,7 @@ label $axis.varval -text [msgcat::mc "Offset Value "]
 label $axis.forceval -text [msgcat::mc "What to Teach"]
 grid $axis.name $axis.varnum $axis.varval $axis.forceval -sticky news
 for {set i 0} {$i < $numaxis} {incr i} {
+  if { [lsearch $nameaxis1 [lindex $nameaxis $i]] != -1 } {
     label  $axis.l$i -text [lindex $nameaxis $i ]  -anchor e
     label $axis.l1$i -textvariable "num$i"  -anchor e
     entry $axis.e$i -textvariable val$i -takefocus 1
@@ -89,6 +92,7 @@ for {set i 0} {$i < $numaxis} {incr i} {
     grid $axis.l$i $axis.l1$i $axis.e$i $axis.fv$i $axis.b$i -sticky news
     bind $axis.e$i <Down>  {shiftFocus 1}
     bind $axis.e$i <Up> {shiftFocus -1}
+ }
 }
 focus $axis.e0
 
@@ -113,7 +117,7 @@ for {set i 0} {$i < $numaxis} {incr i} {
 
 proc findVarNumbers {} {
     global coordsys
-    global numaxis num0 num1 num2 num3 num4 num5
+    global numaxis num0 num1 num2 num3 num4 num5 num6 num7 num8
     for {set i 0} {$i < $numaxis} {incr i} {
         set num$i [expr $coordsys +$i]
     }
@@ -122,9 +126,9 @@ proc findVarNumbers {} {
 
 proc findVarValues {} {
     global vartext
-    global numaxis val0 val1 val2 val3 val4 val5
-    global num0 num1 num2 num3 num4 num5
-    global numaxis oval0 oval1 oval2 oval3 oval4 oval5
+    global numaxis val0 val1 val2 val3 val4 val5 val6 val7 val8
+    global num0 num1 num2 num3 num4 num5 num6 num7 num8
+    global numaxis oval0 oval1 oval2 oval3 oval4 oval5 oval6 oval7 oval8
     set locate "1.0"
     for {set i 0} {$i < $numaxis} {incr i} {
         set oval$i [set val$i]
@@ -137,8 +141,8 @@ proc findVarValues {} {
 
 proc getZero {} {
     global numaxis 
-    global val0 val1 val2 val3 val4 val5
-    global forceval0 forceval1 forceval2 forceval3 forceval4 forceval5
+    global val0 val1 val2 val3 val4 val5 val6 val7 val8
+    global forceval0 forceval1 forceval2 forceval3 forceval4 forceval5 forceval6 forceval7 forceval8
     for {set i 0} {$i < $numaxis} {incr i} {
         set val$i 0.000000
         set forceval$i 0.000000
@@ -147,8 +151,8 @@ proc getZero {} {
 
 proc getLast {} {
     global numaxis 
-    global oval0 oval1 oval2 oval3 oval4 oval5
-    global val0 val1 val2 val3 val4 val5 val6
+    global oval0 oval1 oval2 oval3 oval4 oval5 oval6 oval7 oval8
+    global val0 val1 val2 val3 val4 val5 val6 val6 val7 val8
     for {set i 0} {$i < $numaxis} {incr i} {
         set val$i [set oval$i]
     }
@@ -156,8 +160,8 @@ proc getLast {} {
 
 proc getLocation {axnum} {
     global numaxis 
-    global val0 val1 val2 val3 val4 val5
-    global forceval0 forceval1 forceval2 forceval3 forceval4 forceval5
+    global val0 val1 val2 val3 val4 val5 val6 val7 val8
+    global forceval0 forceval1 forceval2 forceval3 forceval4 forceval5 forceval6 forceval7 forceval8
     if {$axnum == "all"} {
         for {set i 0} {$i < $numaxis} {incr i} {
             set val$i [expr [emc_abs_act_pos $i] - [set forceval$i]]
@@ -169,8 +173,8 @@ proc getLocation {axnum} {
 
 proc setVarValues {} {
     global vartext
-    global numaxis val0 val1 val2 val3 val4 val5
-    global num0 num1 num2 num3 num4 num5
+    global numaxis val0 val1 val2 val3 val4 val5 val6 val7 val8
+    global num0 num1 num2 num3 num4 num5 num6 num7 num8
     for {set i 0} {$i < $numaxis} {incr i} {
         set locate [$vartext search [set num$i] 1.0 ]
         $vartext mark set insert "$locate +5c"
