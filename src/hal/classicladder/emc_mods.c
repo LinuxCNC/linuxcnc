@@ -150,7 +150,7 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                     return sig_name;
                 }
             }
-            if (!pin->signal) {return "no signal connected";  }
+            if (pin && !pin->signal) {return "no signal connected";  }
         }
     }
 
