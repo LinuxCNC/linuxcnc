@@ -31,7 +31,7 @@ halui \- observe HAL pins and command EMC through NML
 [\fB-ini <path-to-ini>\fR]
 .SH DESCRIPTION
 \fBhalui\fR is used to build a User Interface using hardware knobs
-and switches. It experts a big number of pins, and acts accordingly 
+and switches. It exports a big number of pins, and acts accordingly 
 when these change.
 .SH OPTIONS
 .TP
@@ -346,7 +346,7 @@ pin for activating the spindle brake
 pin for making the spindle go slower
 .TP
 \fIhalui.spindle.forward\fR
-pin for making the spindle go forward
+a rising edge on this pin makes the spindle go forward
 .TP
 \fIhalui.spindle.increase\fR
 pin for making the spindle go faster
@@ -355,7 +355,7 @@ pin for making the spindle go faster
 status pin telling if the spindle is on
 .TP
 \fIhalui.spindle.reverse\fR
-pin for making the spindle go reverse
+a rising edge on this pin makes the spindle go reverse
 .TP
 \fIhalui.spindle.runs-backward\fR
 status pin telling if the spindle is running backward
@@ -364,10 +364,10 @@ status pin telling if the spindle is running backward
 status pin telling if the spindle is running forward
 .TP
 \fIhalui.spindle.start\fR
-pin for starting the spindle
+a rising edge on this pin starts the spindle
 .TP
 \fIhalui.spindle.stop\fR
-pin for stopping the spindle
+a rising edge on this pin stops the spindle
 .SS tool
 .TP
 \fIhalui.tool.length-offset.a\fR

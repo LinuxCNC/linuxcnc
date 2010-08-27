@@ -73,7 +73,7 @@ start qcad
 File->Open-> choose dxf file
 drawing appears in window
 Edit->CurrentDrawingPreferences->Paper
-set paper size to A4, set orientation to landscape or portrait
+set paper size to "letter", set orientation to "landscape" or "portrait"
   depending on the aspect ratio of the drawing
 File->PrintPreview
 click the "fit to page" button on the toolbar (last button on the right at

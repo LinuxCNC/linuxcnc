@@ -59,6 +59,10 @@ set TKEMCCONF $emc::TCL_DIR/TkEmc
 if {[file exists $TKEMCCONF]} {
     option readfile $TKEMCCONF startupFile
 }
+if {[package vsatisfies [package require Tk] 8.5.0]} {
+    option add *Checkbutton.selectColor blue startupFile
+    option add *Radiobutton.selectColor blue startupFile
+}
 foreach f {TkEmc /usr/X11R6/lib/X11/app-defaults/TkEmc /etc/X11/app-defaults/TkEmc} {
     if {[file exists $f]} {
 	option readfile $f
