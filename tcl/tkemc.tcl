@@ -77,58 +77,11 @@ foreach arg $argv {
 
 # Read the ini file to determine what the axes and coordinates are.
 
-set worldlabellist ""
-set axiscoordmap ""
+set worldlabellist "X Y Z A B C U V W"
+set axiscoordmap "0 1 2 3 4 5 6 7 8"
 set numaxes [emc_ini "AXES" "TRAJ"]
 set coordnames [ emc_ini "COORDINATES" "TRAJ"]
 
-if { [ string first "X" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0 } {
-    set worldlabellist [ concat $worldlabellist X]
-    set axiscoordmap [ concat $axiscoordmap 0  ]
-}
-
-if { [ string first "Y" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist Y]
-    set axiscoordmap [ concat $axiscoordmap  1 ]
-}
-
-if { [ string first "Z" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist Z]
-    set axiscoordmap [ concat $axiscoordmap  2 ]
-}
-
-if { [ string first "A" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist A]
-    set axiscoordmap [ concat $axiscoordmap  3 ]
-}
-
-if { [ string first "B" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist B]
-    set axiscoordmap [ concat $axiscoordmap  4 ]
-}
-
-if { [ string first "C" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist C]
-    set axiscoordmap [ concat $axiscoordmap  5 ]
-}
-
-if { [ string first "U" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist U]
-    set axiscoordmap [ concat $axiscoordmap  6 ]
-}
-
-if { [ string first "V" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist V]
-    set axiscoordmap [ concat $axiscoordmap  7 ]
-}
-
-if { [ string first "W" $coordnames ] >= 0 | [ string first " " $coordnames ] >= 0  } {
-    set worldlabellist [ concat $worldlabellist W]
-    set axiscoordmap [ concat $axiscoordmap  8 ]
-}
-
-set worldlabellist [ concat $worldlabellist "-" "-" "-" "-" "-" "-" "-" "-" "-" ]
-set axiscoordmap [ concat $axiscoordmap 0 0 0 0 0 0 0 0 0]
 set worldlabel0 [lindex  $worldlabellist 0 ]
 set worldlabel1 [lindex  $worldlabellist 1 ]
 set worldlabel2 [lindex  $worldlabellist 2 ]
