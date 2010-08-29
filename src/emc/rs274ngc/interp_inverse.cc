@@ -103,8 +103,8 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
 
   if (settings->feed_mode != INVERSE_TIME) return -1;
 
-  if (settings->cutter_comp_side != OFF && settings->cutter_comp_radius > 0.0 &&
-      settings->cutter_comp_firstmove == OFF) {
+  if (settings->cutter_comp_side && settings->cutter_comp_radius > 0.0 &&
+      !settings->cutter_comp_firstmove) {
       cx = settings->program_x;
       cy = settings->program_y;
       cz = settings->program_z;

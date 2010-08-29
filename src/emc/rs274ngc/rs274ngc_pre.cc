@@ -845,23 +845,23 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
   static char name[] = "Interp::read";
   int read_status;
 
-  if (_setup.probe_flag == ON) {
+  if (_setup.probe_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
     _setup.probe_flag = OFF;
   }
-  if (_setup.toolchange_flag == ON) {
+  if (_setup.toolchange_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
          _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
     load_tool_table();
     _setup.toolchange_flag = OFF;
   }
-  if (_setup.input_flag == ON) {
+  if (_setup.input_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_INPUT);
-    if (_setup.input_digital == ON) { // we are checking for a digital input
+    if (_setup.input_digital) { // we are checking for a digital input
 	_setup.parameters[5399] =
 	    GET_EXTERNAL_DIGITAL_INPUT(_setup.input_index,
 				      (_setup.parameters[5399] != 0.0));

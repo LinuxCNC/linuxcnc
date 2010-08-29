@@ -154,14 +154,14 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
   }
 
-  axis_flag = ((block->x_flag == ON) || (block->y_flag == ON) ||
-               (block->z_flag == ON) || (block->a_flag == ON) ||
-               (block->b_flag == ON) || (block->c_flag == ON) ||
-               (block->u_flag == ON) || (block->v_flag == ON) ||
-               (block->w_flag == ON));
-  polar_flag = (block->radius_flag == ON) || (block->theta_flag == ON);
-  ijk_flag = ((block->i_flag == ON) || (block->j_flag == ON) ||
-              (block->k_flag == ON));
+  axis_flag = ((block->x_flag) || (block->y_flag) ||
+               (block->z_flag) || (block->a_flag) ||
+               (block->b_flag) || (block->c_flag) ||
+               (block->u_flag) || (block->v_flag) ||
+               (block->w_flag));
+  polar_flag = (block->radius_flag) || (block->theta_flag);
+  ijk_flag = ((block->i_flag) || (block->j_flag) ||
+              (block->k_flag));
   mode0 = block->g_modes[0];
   mode1 = block->g_modes[1];
   mode_zero_covets_axes =

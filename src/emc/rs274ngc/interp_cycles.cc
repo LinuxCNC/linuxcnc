@@ -615,10 +615,10 @@ int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a 
 
   CHKS((settings->feed_rate == 0.0), "Cannot feed with zero feed rate");
   CHKS((settings->feed_mode == INVERSE_TIME), "Cannot use inverse time feed with canned cycles");
-  CHKS((settings->cutter_comp_side != OFF), "Cannot use canned cycles with cutter compensation on");
+  CHKS((settings->cutter_comp_side), "Cannot use canned cycles with cutter compensation on");
 
   plane = settings->plane;
-  if (block->r_flag == OFF) {
+  if (!block->r_flag) {
     if (settings->motion_mode == motion)
       block->r_number = settings->cycle_r;
     else
@@ -779,11 +779,11 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_XY;
   if (settings->motion_mode != motion) {
-    CHKS((block->z_flag == OFF),
+    CHKS((!block->z_flag),
         _readers[(int)'z']? NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE: _("G17 canned cycle is not possible on a machine without Z axis"));
   }
   block->z_number =
-    block->z_flag == ON ? block->z_number : settings->cycle_cc;
+    block->z_flag ? block->z_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -809,8 +809,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
         aa = radius * cos(theta);
         bb = radius * sin(theta);
     } else {
-        aa = block->x_flag == ON ? block->x_number : settings->current_x;
-        bb = block->y_flag == ON ? block->y_number : settings->current_y;
+        aa = block->x_flag ? block->x_number : settings->current_x;
+        bb = block->y_flag ? block->y_number : settings->current_y;
     }
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
     if (block->x_flag) aa_increment = block->x_number;
@@ -888,13 +888,13 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
@@ -962,11 +962,11 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_UV;
   if (settings->motion_mode != motion) {
-    CHKS((block->w_flag == OFF),
+    CHKS((!block->w_flag),
         _readers[(int)'w']? NCE_W_VALUE_UNSPECIFIED_IN_UV_PLANE_CANNED_CYCLE: _("G17.1 canned cycle is not possible on a machine without W axis"));
   }
   block->w_number =
-    block->w_flag == ON ? block->w_number : settings->cycle_cc;
+    block->w_flag ? block->w_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -979,11 +979,11 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->w_number;
-    aa = block->u_flag == ON ? block->u_number : settings->u_current;
-    bb = block->v_flag == ON ? block->v_number : settings->v_current;
+    aa = block->u_flag ? block->u_number : settings->u_current;
+    bb = block->v_flag ? block->v_number : settings->v_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->u_flag == ON) aa_increment = block->u_number;
-    if (block->v_flag == ON) bb_increment = block->v_number;
+    if (block->u_flag) aa_increment = block->u_number;
+    if (block->v_flag) bb_increment = block->v_number;
     r = (block->r_number + old_cc);
     cc = (r + block->w_number); /* [NCMS, page 98] */
     aa = settings->u_current;
@@ -1055,13 +1055,13 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
@@ -1178,11 +1178,11 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_YZ;
   if (settings->motion_mode != motion) {
-    CHKS((block->x_flag == OFF),
+    CHKS((!block->x_flag),
         _readers[(int)'x']? NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE: _("G19 canned cycle is not possible on a machine without X axis"));
   }
   block->x_number =
-    block->x_flag == ON ? block->x_number : settings->cycle_cc;
+    block->x_flag ? block->x_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -1195,11 +1195,11 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->x_number;
-    aa = block->y_flag == ON ? block->y_number : settings->current_y;
-    bb = block->z_flag == ON ? block->z_number : settings->current_z;
+    aa = block->y_flag ? block->y_number : settings->current_y;
+    bb = block->z_flag ? block->z_number : settings->current_z;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->y_flag == ON) aa_increment = block->y_number;
-    if (block->z_flag == ON) bb_increment = block->z_number;
+    if (block->y_flag) aa_increment = block->y_number;
+    if (block->z_flag) bb_increment = block->z_number;
     r = (block->r_number + old_cc);
     cc = (r + block->x_number); /* [NCMS, page 98] */
     aa = settings->current_y;
@@ -1271,13 +1271,13 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
@@ -1346,11 +1346,11 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_VW;
   if (settings->motion_mode != motion) {
-    CHKS((block->x_flag == OFF),
+    CHKS((!block->x_flag),
         _readers[(int)'u']? NCE_U_VALUE_UNSPECIFIED_IN_VW_PLANE_CANNED_CYCLE: _("G19.1 canned cycle is not possible on a machine without U axis"));
   }
   block->u_number =
-    block->u_flag == ON ? block->u_number : settings->cycle_cc;
+    block->u_flag ? block->u_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -1363,11 +1363,11 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->u_number;
-    aa = block->v_flag == ON ? block->v_number : settings->v_current;
-    bb = block->w_flag == ON ? block->w_number : settings->w_current;
+    aa = block->v_flag ? block->v_number : settings->v_current;
+    bb = block->w_flag ? block->w_number : settings->w_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->v_flag == ON) aa_increment = block->v_number;
-    if (block->w_flag == ON) bb_increment = block->w_number;
+    if (block->v_flag) aa_increment = block->v_number;
+    if (block->w_flag) bb_increment = block->w_number;
     r = (block->r_number + old_cc);
     cc = (r + block->u_number); /* [NCMS, page 98] */
     aa = settings->v_current;
@@ -1439,13 +1439,13 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
@@ -1571,11 +1571,11 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_XZ;
   if (settings->motion_mode != motion) {
-    CHKS((block->y_flag == OFF),
+    CHKS((!block->y_flag),
         _readers[(int)'y']? NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE: _("G18 canned cycle is not possible on a machine without Y axis"));
   }
   block->y_number =
-    block->y_flag == ON ? block->y_number : settings->cycle_cc;
+    block->y_flag ? block->y_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -1588,11 +1588,11 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->y_number;
-    aa = block->z_flag == ON ? block->z_number : settings->current_z;
-    bb = block->x_flag == ON ? block->x_number : settings->current_x;
+    aa = block->z_flag ? block->z_number : settings->current_z;
+    bb = block->x_flag ? block->x_number : settings->current_x;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->z_flag == ON) aa_increment = block->z_number;
-    if (block->x_flag == ON) bb_increment = block->x_number;
+    if (block->z_flag) aa_increment = block->z_number;
+    if (block->x_flag) bb_increment = block->x_number;
     r = (block->r_number + old_cc);
     cc = (r + block->y_number); /* [NCMS, page 98] */
     aa = settings->current_z;
@@ -1664,13 +1664,13 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
@@ -1738,11 +1738,11 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_UW;
   if (settings->motion_mode != motion) {
-    CHKS((block->v_flag == OFF),
+    CHKS((!block->v_flag),
         _readers[(int)'v']? NCE_V_VALUE_UNSPECIFIED_IN_UW_PLANE_CANNED_CYCLE: _("G18.1 canned cycle is not possible on a machine without V axis"));
   }
   block->v_number =
-    block->v_flag == ON ? block->v_number : settings->cycle_cc;
+    block->v_flag ? block->v_number : settings->cycle_cc;
   if(settings->cycle_il_flag) {
       old_cc = settings->cycle_il;
   } else {
@@ -1755,11 +1755,11 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->v_number;
-    aa = block->w_flag == ON ? block->w_number : settings->w_current;
-    bb = block->u_flag == ON ? block->u_number : settings->u_current;
+    aa = block->w_flag ? block->w_number : settings->w_current;
+    bb = block->u_flag ? block->u_number : settings->u_current;
   } else if (settings->distance_mode == MODE_INCREMENTAL) {
-    if (block->w_flag == ON) aa_increment = block->w_number;
-    if (block->u_flag == ON) bb_increment = block->u_number;
+    if (block->w_flag) aa_increment = block->w_number;
+    if (block->u_flag) bb_increment = block->u_number;
     r = (block->r_number + old_cc);
     cc = (r + block->v_number); /* [NCMS, page 98] */
     aa = settings->w_current;
@@ -1831,13 +1831,13 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
     break;
   case G_87:
     if (settings->motion_mode != G_87) {
-      CHKS((block->i_flag == OFF), NCE_I_WORD_MISSING_WITH_G87);
-      CHKS((block->j_flag == OFF), NCE_J_WORD_MISSING_WITH_G87);
-      CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G87);
+      CHKS((!block->i_flag), NCE_I_WORD_MISSING_WITH_G87);
+      CHKS((!block->j_flag), NCE_J_WORD_MISSING_WITH_G87);
+      CHKS((!block->k_flag), NCE_K_WORD_MISSING_WITH_G87);
     }
-    i = block->i_flag == ON ? block->i_number : settings->cycle_i;
-    j = block->j_flag == ON ? block->j_number : settings->cycle_j;
-    k = block->k_flag == ON ? block->k_number : settings->cycle_k;
+    i = block->i_flag ? block->i_number : settings->cycle_i;
+    j = block->j_flag ? block->j_number : settings->cycle_j;
+    k = block->k_flag ? block->k_number : settings->cycle_k;
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;

@@ -245,16 +245,16 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (block->g_modes[5] != -1) {
     CHP(convert_feed_mode(block->g_modes[5], settings));
   }
-  if (block->f_flag == ON) {
+  if (block->f_flag) {
     if (settings->feed_mode != INVERSE_TIME) {
       CHP(convert_feed_rate(block, settings));
     }
     /* INVERSE_TIME is handled elsewhere */
   }
-  if (block->s_flag == ON) {
+  if (block->s_flag) {
     CHP(convert_speed(block, settings));
   }
-  if (block->t_flag == ON) {
+  if (block->t_flag) {
     CHP(convert_tool_select(block, settings));
   }
   CHP(convert_m(block, settings));
@@ -266,13 +266,13 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     else if (status != INTERP_OK)
       ERP(status);
   }
-  if (settings->probe_flag == ON)
+  if (settings->probe_flag)
     return INTERP_EXECUTE_FINISH;
 
-  if (settings->input_flag == ON)
+  if (settings->input_flag)
     return INTERP_EXECUTE_FINISH;
 
-  if (settings->toolchange_flag == ON)
+  if (settings->toolchange_flag)
     return INTERP_EXECUTE_FINISH;
 
   return INTERP_OK;
