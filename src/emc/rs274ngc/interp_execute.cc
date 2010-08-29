@@ -245,7 +245,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (block->g_modes[5] != -1) {
     CHP(convert_feed_mode(block->g_modes[5], settings));
   }
-  if (block->f_number > -1.0) {
+  if (block->f_flag == ON) {
     if (settings->feed_mode != INVERSE_TIME) {
       CHP(convert_feed_rate(block, settings));
     }

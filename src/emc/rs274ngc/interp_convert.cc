@@ -215,7 +215,7 @@ int Interp::convert_spline(int mode,
       CHKS((settings->feed_rate == 0.0),
         NCE_CANNOT_MAKE_ARC_WITH_ZERO_FEED_RATE);
     } else if (settings->feed_mode == INVERSE_TIME) {
-      CHKS((block->f_number == -1.0),
+      CHKS((block->f_flag == OFF),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
     }
 
@@ -377,7 +377,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     CHKS((settings->speed == 0.0),
 	"Cannot feed with zero spindle speed in feed per rev mode");
   } else if (settings->feed_mode == INVERSE_TIME) {
-    CHKS((block->f_number == -1.0),
+    CHKS((block->f_flag == OFF),
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
   }
 
@@ -3838,7 +3838,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
       CHKS((settings->feed_rate == 0.0), NCE_CANNOT_DO_G1_WITH_ZERO_FEED_RATE);
       CHKS((settings->speed == 0.0), "Cannot feed with zero spindle speed in feed per rev mode");
     } else if (settings->feed_mode == INVERSE_TIME) {
-      CHKS((block->f_number == -1.0),
+      CHKS((block->f_flag == OFF),
           NCE_F_WORD_MISSING_WITH_INVERSE_TIME_G1_MOVE);
     }
   }

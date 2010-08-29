@@ -256,6 +256,7 @@ typedef struct block_struct
   ON_OFF d_flag;
   ON_OFF e_flag;
   double e_number;
+  ON_OFF f_flag;
   double f_number;
   int g_modes[16];
   ON_OFF h_flag;

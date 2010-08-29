@@ -249,7 +249,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->comment[0] = 0;
   block->d_flag = OFF;
   block->e_flag = OFF;
-  block->f_number = -1.0;
+  block->f_flag = OFF;
   for (n = 0; n < 16; n++) {
     block->g_modes[n] = -1;
   }

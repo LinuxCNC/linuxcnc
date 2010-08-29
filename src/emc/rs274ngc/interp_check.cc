@@ -322,7 +322,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (motion == G_33 || motion == G_33_1) {
     CHKS((block->k_flag == OFF), NCE_K_WORD_MISSING_WITH_G33);
-    CHKS((block->f_number != -1), NCE_F_WORD_USED_WITH_G33);
+    CHKS((block->f_flag == ON), NCE_F_WORD_USED_WITH_G33);
   }
 
   if (motion == G_76) {

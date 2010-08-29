@@ -420,7 +420,7 @@ Returned Value: int
 
 Side effects:
    counter is reset to point to the first character following the f_number.
-   The f_number is inserted in block.
+   The f_number is inserted in block and the f_flag is set.
 
 Called by: read_one_item
 
@@ -445,10 +445,11 @@ int Interp::read_f(char *line,   //!< string: line of RS274 code being processed
 
   CHKS((line[*counter] != 'f'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->f_number > -1.0), NCE_MULTIPLE_F_WORDS_ON_ONE_LINE);
+  CHKS((block->f_flag == ON), NCE_MULTIPLE_F_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   CHKS((value < 0.0), NCE_NEGATIVE_F_WORD_USED);
   block->f_number = value;
+  block->f_flag = ON;
   return INTERP_OK;
 }
 
