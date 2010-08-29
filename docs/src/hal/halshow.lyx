@@ -34,6 +34,7 @@
 \tracking_changes false
 \output_changes false
 \author "" 
+\author "" 
 \end_header
 
 \begin_body
@@ -43,9 +44,9 @@ Halshow
 \end_layout
 
 \begin_layout Standard
-The script halshow can help you find your away around a running HAL.
+The script halshow can help you find your way around a running HAL.
  This is a very specialized system and it must connect to a working HAL.
- It can not run stand alone because it relies on the ability of HAL to report
+ It cannot run standalone because it relies on the ability of HAL to report
  what it knows of itself through the halcmd interface library.
  It is discovery based.
  Each time halshow runs with a different EMC configuration it will be different.
@@ -130,15 +131,21 @@ Halshow Layout
 The tree shows all of the major parts of a HAL.
  In front of each is a small plus (+) or minus (-) sign in a box.
  Clicking the plus will expand that tree node to display what is under it.
- If that box shows a minus sign clicking it will close that section of the
- tree.
+ If that box shows a minus sign, clicking it will collapse that section
+ of the tree.
  
 \end_layout
 
 \begin_layout Standard
 You can also expand or collapse the tree display using the Tree View menu
  at the upper left edge of the display.
- This menu is shown in figure xx
+ Under Tree View you will find: Expand Tree, Collapse Tree; Expand Pins,
+ Expand Parameters, Expand Signals; and Erase Watch.
+ (Note that Erase Watch erases
+\emph on
+all
+\emph default
+ previously set watches, you cannot erase just one watch.)
 \end_layout
 
 \begin_layout Standard
@@ -186,15 +193,9 @@ Hal Show Area
 \end_layout
 
 \begin_layout Standard
-Clicking on the node name rather than its plus or minus sign, the word 
-\begin_inset Quotes eld
-\end_inset
-
-Components
-\begin_inset Quotes erd
-\end_inset
-
- for example, will show you all that hal knows about the contents of it.
+Clicking on the node name, the word "Components" for example, will show
+ you (under the "Show" tab) all that hal knows about the contents of that
+ node.
  Figure\InsetSpace ~
 
 \begin_inset LatexCommand ref
@@ -202,19 +203,12 @@ reference "cap:Halshow-Layout"
 
 \end_inset
 
- shows a list exactly like you will see if you click the 
-\begin_inset Quotes eld
-\end_inset
-
-Components
-\begin_inset Quotes erd
-\end_inset
-
- name while you are running a standard m5i20 servo card.
+ shows a list exactly like you will see if you click the "Components" name
+ while you are running a standard m5i20 servo card.
  The information display is exactly like those shown in traditional text
  based HAL analysis tools.
- The advantage here is that we have mouse click access.
- Access that can be as broad or as focused as you need.
+ The advantage here is that we have mouse click access, access that can
+ be as broad or as focused as you need.
 \end_layout
 
 \begin_layout Standard
@@ -224,8 +218,8 @@ If we take a closer look at the tree display we can see that the six major
  you click on the rightmost tree node.
  You will find that there are some hal pins and parameters that show more
  than one reply.
- This is do to the nature of the search routines in halcmd itself.
- If you search one pin you may get two like this.
+ This is due to the nature of the search routines in halcmd itself.
+ If you search one pin you may get two, like this:
 \end_layout
 
 \begin_layout Quote
@@ -240,7 +234,7 @@ Owner Type Dir Value Name
 \end_layout
 
 \begin_layout Standard
-The second pins name contains the complete name of the first.
+The second pin's name contains the complete name of the first.
  
 \end_layout
 
@@ -249,34 +243,34 @@ Below the show area on the right is a set of widgets that will allow you
  to play with the running HAL.
  The commands you enter here and the effect that they have on the running
  HAL are not saved.
- They will persist as long as the emc remains up but are gone as soon as
- it is.
+ They will persist as long as EMC remains up but are gone as soon as EMC
+ is.
 \end_layout
 
 \begin_layout Standard
-The entry box labeled Test Hal Command : will accept any of the commands
+The entry box labeled "Test Hal Command:" will accept any of the commands
  listed for halcmd.
- These include;
+ These include:
 \end_layout
 
 \begin_layout Itemize
-loadrt, unloadrt
+loadrt, unloadrt (load/unload real-time module)
 \end_layout
 
 \begin_layout Itemize
-addf, delf
+loadusr, unloadusr (load/unload user-space component)
 \end_layout
 
 \begin_layout Itemize
-newsig, delsig
+addf, delf (add/delete a function to/from a real-time thread)
 \end_layout
 
 \begin_layout Itemize
-linkpp, linksp, linkps, unlinkp
+net (create a connection between two or more items)
 \end_layout
 
 \begin_layout Itemize
-setp, sets
+setp (set parameter (or pin) to a value)
 \end_layout
 
 \begin_layout Standard
@@ -293,12 +287,12 @@ This little editor will enter a command any time you press <enter> or push
 \begin_layout Standard
 Let's use this editor to add a differential module to a hal and connect
  it to axis position so that we could see the rate of change in position,
- ie acceleration.
+ i.e., acceleration.
  We first need to load a hal module named blocks, add it to the servo thread,
  then connect it to the position pin of an axis.
  Once that is done we can find the output of the differentiator in halscope.
  So let's go.
- (yes I looked this one up.)
+ (Yes, I looked this one up.)
 \end_layout
 
 \begin_layout Quote
@@ -336,9 +330,9 @@ ID Type Name
 
 \begin_layout Standard
 Sure enough there it is.
- Notice that its id is 08.
+ Notice that its ID is 08.
  Next we need to find out what functions are available with it so we look
- at functions.
+ at functions:
 \end_layout
 
 \begin_layout Quote
@@ -380,9 +374,8 @@ Here we look for owner #08 and see that blocks has exported a function named
  ddt.0.
  We should be able to add ddt.0 to the servo thread and it will do its math
  each time the servo thread is updated.
- Once again I look up the addf command and find that it uses three arguments
- like this.
- 
+ Once again we look up the addf command and find that it uses three arguments
+ like this: 
 \end_layout
 
 \begin_layout Quote
@@ -392,9 +385,9 @@ addf <functname> <threadname> [<position>]
 \begin_layout Standard
 We already know the functname=ddt.0 so let's get the thread name right by
  expanding the thread node in the tree.
- Here we see two threads servo-thread and base-thread.
+ Here we see two threads, servo-thread and base-thread.
  The position of ddt.0 in the thread is not critical.
- 
+ So we add the function ddt.0 to the servo-thread:
 \end_layout
 
 \begin_layout Quote
@@ -402,7 +395,7 @@ addf ddt.0 servo-thread
 \end_layout
 
 \begin_layout Standard
-This is just for viewing so we leave position blank and get the last position
+This is just for viewing, so we leave position blank and get the last position
  in the thread.
  Figure\InsetSpace ~
 
@@ -457,9 +450,9 @@ Addf Command
 
 \begin_layout Standard
 Next we need to connect this block to something.
- But how do we know what pins are available.
- The answer is look under pins.
- There we find ddt and see this.
+ But how do we know what pins are available? The answer is to look under
+ pins.
+ There we find ddt and see this:
 \end_layout
 
 \begin_layout Quote
@@ -474,10 +467,9 @@ Owner Type Dir Value Name
 \end_layout
 
 \begin_layout Standard
-That looks easy enough to understand but what signal or pin do we want to
- connect to it.
- It could be an axis pin, a stepgen pin, or a signal.
- I see this when I look at axis.0.
+That looks easy enough to understand, but what signal or pin do we want
+ to connect to it? It could be an axis pin, a stepgen pin, or a signal.
+ We see this when we look at axis.0:
 \end_layout
 
 \begin_layout Quote
@@ -491,7 +483,7 @@ d ==> Xpos-cmd
 
 \begin_layout Standard
 So it looks like Xpos-cmd should be a good signal to use.
- Back to the editor where I enter the following command.
+ Back to the editor where we enter the following command:
 \end_layout
 
 \begin_layout Quote
@@ -499,8 +491,8 @@ linksp Xpos-cmd ddt.0.in
 \end_layout
 
 \begin_layout Standard
-Now if I look at the Xpos-cmd signal using the tree node I'll see what I've
- done.
+Now if we look at the Xpos-cmd signal using the tree node we'll see what
+ we've done:
 \end_layout
 
 \begin_layout Quote
@@ -548,7 +540,7 @@ status collapsed
 
 \begin_layout Standard
 The refresh rate of the watch display is much lower than Halmeter or Halscope.
- If you need good resolution of the timing of signals these tools are much
+ If you need good resolution of the timing of signals those tools are much
  more effective.
 \end_layout
 
@@ -562,28 +554,12 @@ reference "cap:Watch-Display"
 
 \end_inset
 
- shows this canvas with several 
-\begin_inset Quotes eld
-\end_inset
-
-bit
-\begin_inset Quotes erd
-\end_inset
-
- type signals.
+ shows this canvas with several "bit" type signals.
  These signals include enable-out for the first three axes and two of the
- three iocontrol 
-\begin_inset Quotes eld
-\end_inset
-
-estop
-\begin_inset Quotes erd
-\end_inset
-
- signals.
+ three iocontrol "estop" signals.
  Notice that the axes are not enabled even though the estop signals say
- that the EMC is not in estop.
- A quick look at themc shows that the condition of the EMC is ESTOP RESET.
+ that EMC is not in estop.
+ A quick look at TkEMC shows that the condition of EMC is ESTOP RESET.
  The amp enables do not turn true until the machine has been turned on.
 \end_layout
 
@@ -628,21 +604,22 @@ Watch Display
 \end_layout
 
 \begin_layout Standard
-The two colors of circles, aka leds, always show dark brown when a bit signal
- or pin is false.
- They show the light yellow whenever that signal is true.
- If you select a pin or signal that is not a bit typed signal, watch will
- show the numerical value.
+Watch displays bit type (binary) values using colored circles representing
+ LEDs.
+ They show as dark brown when a bit signal or pin is false, and as light
+ yellow whenever that signal is true.
+ If you select a pin or signal that is not a bit type (binary) signal, watch
+ will show it as a numerical value.
 \end_layout
 
 \begin_layout Standard
 Watch will quickly allow you to test switches or see the effect of changes
  that you make to EMC while using the graphical interface.
- Watch's refresh rate is a bit slow to see stepper pulses but you can use
+ Watch's refresh rate is a bit slow to see stepper pulses, but you can use
  it for these if you move an axis very slowly or in very small increments
  of distance.
- If you've used IO_Show in EMC, the watch page in halshow can be setup to
- watch a parport much as it did.
+ If you've used IO_Show in EMC, the watch page in halshow can be set up
+ to watch a parport much as IO_Show did.
  
 \end_layout
 

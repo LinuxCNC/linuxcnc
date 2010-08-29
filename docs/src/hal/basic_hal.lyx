@@ -111,7 +111,7 @@ loadrt
 The command "loadrt" loads a real time HAL component.
  Real time component functions need to be added to a thread to be updated
  at the rate of the thread.
- You can not load a user space component into the real time space.
+ You cannot load a user space component into the real time space.
 \end_layout
 
 \begin_layout Standard
@@ -143,15 +143,15 @@ If you used the Stepper Config Wizard to generate your config you will have
 \end_layout
 
 \begin_layout Itemize
-base-thread (the high speed thread) this thread handles items that need
- a fast response like making pulses, reading and writing to the parallel
+base-thread (the high-speed thread): this thread handles items that need
+ a fast response, like making step pulses, and reading and writing the parallel
  port.
 \end_layout
 
 \begin_layout Itemize
-servo-thread (the slow speed thread) this thread handles items that don't
- quite need as fast of a thread like motion controller, ClassicLadder, motion
- command handler.
+servo-thread (the slow-speed thread): this thread handles items that can
+ tolerate a slower response, like the motion controller, ClassicLadder,
+ and the motion command handler.
 \end_layout
 
 \begin_layout Standard
@@ -174,7 +174,7 @@ loadusr
 The command "loadusr" loads a user space HAL component.
  User space programs are their own separate processes, which optionally
  talk to other HAL components via pins and parameters.
- You can not load real time components into user space.
+ You cannot load real time components into user space.
 \end_layout
 
 \begin_layout Standard
@@ -258,8 +258,8 @@ Each signal can only have one source (a HAL "Dir out
  pin) and as many readers (a HAL "Dir in" pin) as you like.
  In the Dir column of the HAL Configuration window you can see which pins
  are "in" and which are "out".
- The following figure shows the "direction" of the signal from the source
- through the signal and then out to the reader(s).
+ The following figure shows the "direction" of the signal from the source,
+ through the signal, and then out to the reader(s).
  
 \end_layout
 
@@ -306,7 +306,7 @@ name "cap:Signal-Direction"
 
 \begin_layout Standard
 This example shows the signal xStep with the source being stepgen.0.out and
- with two readers parport.0.pin-02-out and parport.0.pin-08-out.
+ with two readers, parport.0.pin-02-out and parport.0.pin-08-out.
  Basically the value of stepgen.0.out is send to the signal xStep and that
  value is then sent to parport.0.pin-02-out and parport.0.pin-08-out.
 \end_layout
@@ -360,7 +360,7 @@ The command "setp" sets the value of a pin or parameter.
 \begin_layout Standard
 Some components have parameters that need to be set before use.
  Parameters can be set before use or while running as needed.
- You can not use setp on a pin that is connected to a signal.
+ You cannot use setp on a pin that is connected to a signal.
 \end_layout
 
 \begin_layout Standard
