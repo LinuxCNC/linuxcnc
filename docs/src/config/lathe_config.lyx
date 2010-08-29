@@ -48,17 +48,14 @@ Default Plane
 \end_layout
 
 \begin_layout Standard
-When EMC's interperter was first written, it was designed for mills.
+When EMC's interpreter was first written, it was designed for mills.
  That is why the default plane is XY (G17).
- A normal lathe only uses the XZ plane(G18).
+ A normal lathe only uses the XZ plane (G18).
  To change the default plane place the following line in the .ini file in
  the RS274NGC section.
 \end_layout
 
-\begin_layout Standard
-
-\family typewriter
-\series bold
+\begin_layout LyX-Code
 RS274NGC_STARTUP_CODE = G18
 \end_layout
 
@@ -67,8 +64,8 @@ INI Settings
 \end_layout
 
 \begin_layout Standard
-The following ini settings are needed for lathe mode in addition to or replacing
- normal settings in the ini file.
+The following .ini settings are needed for lathe mode in addition to or replacing
+ normal settings in the .ini file.
  
 \end_layout
 
