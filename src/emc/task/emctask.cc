@@ -423,13 +423,13 @@ int emcTaskPlanClearWait()
     return 0;
 }
 
-int emcTaskPlanSetOptionalStop(ON_OFF state)
+int emcTaskPlanSetOptionalStop(bool state)
 {
     SET_OPTIONAL_PROGRAM_STOP(state);
     return 0;
 }
 
-int emcTaskPlanSetBlockDelete(ON_OFF state)
+int emcTaskPlanSetBlockDelete(bool state)
 {
     SET_BLOCK_DELETE(state);
     return 0;
