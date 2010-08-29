@@ -3034,10 +3034,11 @@ int Interp::read_s(char *line,   //!< string: line of RS274NGC code being proces
 
   CHKS((line[*counter] != 's'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->s_number > -1.0), NCE_MULTIPLE_S_WORDS_ON_ONE_LINE);
+  CHKS((block->s_flag == ON), NCE_MULTIPLE_S_WORDS_ON_ONE_LINE);
   CHP(read_real_value(line, counter, &value, parameters));
   CHKS((value < 0.0), NCE_NEGATIVE_SPINDLE_SPEED_USED);
   block->s_number = value;
+  block->s_flag = ON;
   return INTERP_OK;
 }
 

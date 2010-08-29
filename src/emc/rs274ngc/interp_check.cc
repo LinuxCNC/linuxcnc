@@ -316,7 +316,7 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
         NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT);
   }
 
-  if (block->s_number < 0) {
+  if (block->s_flag == OFF) {
     CHKS((block->g_modes[14] == G_96), NCE_S_WORD_MISSING_WITH_G96);
   }
 

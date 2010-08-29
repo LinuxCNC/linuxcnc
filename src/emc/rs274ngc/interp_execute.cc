@@ -251,7 +251,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     }
     /* INVERSE_TIME is handled elsewhere */
   }
-  if (block->s_number > -1.0) {
+  if (block->s_flag == ON) {
     CHP(convert_speed(block, settings));
   }
   if (block->t_number != -1) {
