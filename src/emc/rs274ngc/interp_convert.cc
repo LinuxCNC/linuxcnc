@@ -361,7 +361,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   CHKS((settings->arc_not_allowed), (_("The move just after exiting cutter compensation mode must be straight, not an arc")));
 
-  ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? true : false;
+  ijk_flag = block->i_flag || block->j_flag || block->k_flag;
   first = settings->cutter_comp_firstmove;
 
   CHKS(((!block->r_flag) && (!ijk_flag)),

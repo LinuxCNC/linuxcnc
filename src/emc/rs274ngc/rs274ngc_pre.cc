@@ -1212,9 +1212,9 @@ int Interp::synch()
   _setup.v_current = GET_EXTERNAL_POSITION_V();
   _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
-  _setup.flood = (GET_EXTERNAL_FLOOD() != 0) ? true : false;
+  _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
-  _setup.mist = (GET_EXTERNAL_MIST() != 0) ? true : false;
+  _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
   _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.speed = GET_EXTERNAL_SPEED();
