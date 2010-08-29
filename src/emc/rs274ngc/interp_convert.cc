@@ -349,8 +349,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
                        setup_pointer settings)  //!< pointer to machine settings             
 {
   int status;
-  int first;                    /* flag set ON if this is first move after comp ON */
-  int ijk_flag;                 /* flag set ON if any of i,j,k present in NC code  */
+  int first;                    /* flag set true if this is first move after comp true */
+  int ijk_flag;                 /* flag set true if any of i,j,k present in NC code  */
   double end_x;
   double end_y;
   double end_z;
@@ -361,7 +361,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   CHKS((settings->arc_not_allowed), (_("The move just after exiting cutter compensation mode must be straight, not an arc")));
 
-  ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? ON : OFF;
+  ijk_flag = ((block->i_flag || block->j_flag) || block->k_flag) ? true : false;
   first = settings->cutter_comp_firstmove;
 
   CHKS(((!block->r_flag) && (!ijk_flag)),
@@ -667,7 +667,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         gamma = atan2((end_y - center_y), (end_x - center_x));
     }
 
-    settings->cutter_comp_firstmove = OFF;
+    settings->cutter_comp_firstmove = false;
 
     comp_set_programmed(settings, end_x, end_y, end_z);
 
@@ -1025,7 +1025,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 {
   double *pars;                 /* short name for settings->parameters            */
 
-  CHKS((settings->cutter_comp_side),      /* not "== ON" */
+  CHKS((settings->cutter_comp_side),      /* not "== true" */
       NCE_CANNOT_CHANGE_AXIS_OFFSETS_WITH_CUTTER_RADIUS_COMP);
   CHKS((block->a_flag && settings->a_axis_wrapped && (block->a_number <= -360.0 || block->a_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
   CHKS((block->b_flag && settings->b_axis_wrapped && (block->b_number <= -360.0 || block->b_number >= 360.0)), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
@@ -1666,7 +1666,7 @@ Returned Value: int
 
 Side effects:
    The value of cutter_comp_side in the machine model mode is
-   set to RIGHT, LEFT, or OFF. The currently active tool table index in
+   set to RIGHT, LEFT, or false. The currently active tool table index in
    the machine model (which is the index of the slot whose diameter
    value is used in cutter radius compensation) is updated.
 
@@ -1706,8 +1706,8 @@ Returned Value: int (INTERP_OK)
 
 Side effects:
    A comment is made that cutter radius compensation is turned off.
-   The machine model of the cutter radius compensation mode is set to OFF.
-   The value of cutter_comp_firstmove in the machine model is set to ON.
+   The machine model of the cutter radius compensation mode is set to false.
+   The value of cutter_comp_firstmove in the machine model is set to true.
      This serves as a flag when cutter radius compensation is
      turned on again.
 
@@ -1728,10 +1728,10 @@ int Interp::convert_cutter_compensation_off(setup_pointer settings)      //!< po
       settings->current_x = settings->program_x;
       settings->current_y = settings->program_y;
       settings->current_z = settings->program_z;
-      settings->arc_not_allowed = ON;
+      settings->arc_not_allowed = true;
   }
-  settings->cutter_comp_side = OFF;
-  settings->cutter_comp_firstmove = ON;
+  settings->cutter_comp_side = false;
+  settings->cutter_comp_firstmove = true;
   return INTERP_OK;
 }
 
@@ -1985,7 +1985,7 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to diameter");
 #endif
-      settings->lathe_diameter_mode = ON;
+      settings->lathe_diameter_mode = true;
     }
   } else if (g_code == G_8) {
     if (settings->lathe_diameter_mode) {
@@ -2001,7 +2001,7 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to radius");
 #endif
-      settings->lathe_diameter_mode = OFF;
+      settings->lathe_diameter_mode = false;
     }
   } else
     ERS("BUG: Code not G7 or G8");
@@ -2572,7 +2572,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 Returned Value: int
    If convert_tool_change returns an error code, this returns that code.
-   If input-related stuff is needed, it sets the flag input_flag = ON.
+   If input-related stuff is needed, it sets the flag input_flag = true.
    Otherwise, it returns INTERP_OK.
 
 Side effects:
@@ -2682,9 +2682,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	//WAIT returns 0 on success, -1 for out of bounds
 	CHKS((ret == -1), NCE_DIGITAL_INPUT_INVALID_ON_M66);
 	if (ret == 0) {
-	    settings->input_flag = ON;
+	    settings->input_flag = true;
 	    settings->input_index = round_to_int(block->p_number);
-	    settings->input_digital = ON;
+	    settings->input_digital = true;
 	}
     } else if (round_to_int(block->e_number) >= 0) { // got an analog input
         CHKS((settings->cutter_comp_side),
@@ -2693,9 +2693,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	int ret = WAIT(round_to_int(block->e_number), ANALOG_INPUT, 0, 0); //WAIT returns 0 on success, -1 for out of bounds
 	CHKS((ret == -1), NCE_ANALOG_INPUT_INVALID_ON_M66);
 	if (ret == 0) {
-	    settings->input_flag = ON;
+	    settings->input_flag = true;
 	    settings->input_index = round_to_int(block->e_number);
-	    settings->input_digital = OFF;
+	    settings->input_digital = false;
 	}
     } 
   } else if (block->m_modes[5] == 67) {
@@ -2764,15 +2764,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
   if (block->m_modes[8] == 7) {
       enqueue_MIST_ON();
-      settings->mist = ON;
+      settings->mist = true;
   } else if (block->m_modes[8] == 8) {
       enqueue_FLOOD_ON();
-      settings->flood = ON;
+      settings->flood = true;
   } else if (block->m_modes[8] == 9) {
       enqueue_MIST_OFF();
-      settings->mist = OFF;
+      settings->mist = false;
       enqueue_FLOOD_OFF();
-      settings->flood = OFF;
+      settings->flood = false;
   }
 
 /* No axis clamps in this version
@@ -2781,14 +2781,14 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 #ifdef DEBUG_EMC
       COMMENT("interpreter: automatic A-axis clamping turned on");
 #endif
-      settings->a_axis_clamping = ON;
+      settings->a_axis_clamping = true;
     }
   else if (block->m_modes[2] == 27)
     {
 #ifdef DEBUG_EMC
       COMMENT("interpreter: automatic A-axis clamping turned off");
 #endif
-      settings->a_axis_clamping = OFF;
+      settings->a_axis_clamping = false;
     }
 */
 
@@ -2797,15 +2797,15 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
          (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
     ENABLE_FEED_OVERRIDE();
     ENABLE_SPEED_OVERRIDE();
-    settings->feed_override = ON;
-    settings->speed_override = ON;
+    settings->feed_override = true;
+    settings->speed_override = true;
   } else if (block->m_modes[9] == 49) {
     CHKS((settings->cutter_comp_side),
          (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
     DISABLE_FEED_OVERRIDE();
     DISABLE_SPEED_OVERRIDE();
-    settings->feed_override = OFF;
-    settings->speed_override = OFF;
+    settings->feed_override = false;
+    settings->speed_override = false;
   }
 
   if (block->m_modes[9] == 50) {
@@ -2813,12 +2813,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_OVERRIDE();
-	settings->feed_override = ON;
+	settings->feed_override = true;
     } else {
         CHKS((settings->cutter_comp_side),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
         DISABLE_FEED_OVERRIDE();
-	settings->feed_override = OFF;
+	settings->feed_override = false;
     }
   }
 
@@ -2827,12 +2827,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_SPEED_OVERRIDE();
-	settings->speed_override = ON;
+	settings->speed_override = true;
     } else {
         CHKS((settings->cutter_comp_side),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_SPEED_OVERRIDE();
-	settings->speed_override = OFF;
+	settings->speed_override = false;
     }
   }
   
@@ -2841,12 +2841,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_ADAPTIVE_FEED();
-	settings->adaptive_feed = ON;
+	settings->adaptive_feed = true;
     } else {
         CHKS((settings->cutter_comp_side),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_ADAPTIVE_FEED();
-	settings->adaptive_feed = OFF;
+	settings->adaptive_feed = false;
     }
   }
   
@@ -2855,12 +2855,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         CHKS((settings->cutter_comp_side),
              (_("Cannot enable overrides with cutter radius compensation on")));  // XXX
 	ENABLE_FEED_HOLD();
-	settings->feed_hold = ON;
+	settings->feed_hold = true;
     } else {
         CHKS((settings->cutter_comp_side),
              (_("Cannot disable overrides with cutter radius compensation on")));  // XXX
 	DISABLE_FEED_HOLD();
-	settings->feed_hold = OFF;
+	settings->feed_hold = false;
     }
   }
 
@@ -2976,7 +2976,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   int is_a_cycle = (motion == G_73 || ((motion > G_80) && (motion < G_90)));
 
   if (!is_a_cycle)
-    settings->cycle_il_flag = OFF;
+    settings->cycle_il_flag = false;
 
   if (ai || bi || ci) {
     int n;
@@ -3023,7 +3023,7 @@ Returned Value: int
 
 Side effects:
    This executes a straight_probe command.
-   The probe_flag in the settings is set to ON.
+   The probe_flag in the settings is set to true.
    The motion mode in the settings is set to G_38_2.
 
 Called by: convert_motion.
@@ -3094,7 +3094,7 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
 
   TURN_PROBE_OFF();
   settings->motion_mode = g_code;
-  settings->probe_flag = ON;
+  settings->probe_flag = true;
   return INTERP_OK;
 }
 
@@ -3615,7 +3615,7 @@ settings. They occur on M2 or M30.
 2. Selected plane is set to CANON_PLANE_XY (like G17) - SELECT_PLANE
 3. Distance mode is set to MODE_ABSOLUTE (like G90)   - no canonical call
 4. Feed mode is set to UNITS_PER_MINUTE (like G94)    - no canonical call
-5. Feed and speed overrides are set to ON (like M48)  - ENABLE_FEED_OVERRIDE
+5. Feed and speed overrides are set to true (like M48)  - ENABLE_FEED_OVERRIDE
                                                       - ENABLE_SPEED_OVERRIDE
 6. Cutter compensation is turned off (like G40)       - no canonical call
 7. The spindle is stopped (like M5)                   - STOP_SPINDLE_TURNING
@@ -3707,16 +3707,16 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*5*/ if (!settings->feed_override) {
       ENABLE_FEED_OVERRIDE();
-      settings->feed_override = ON;
+      settings->feed_override = true;
     }
     if (!settings->speed_override) {
       ENABLE_SPEED_OVERRIDE();
-      settings->speed_override = ON;
+      settings->speed_override = true;
     }
 
 /*6*/
-    settings->cutter_comp_side = OFF;
-    settings->cutter_comp_firstmove = ON;
+    settings->cutter_comp_side = false;
+    settings->cutter_comp_firstmove = true;
 
 /*7*/ STOP_SPINDLE_TURNING();
     settings->spindle_turning = CANON_STOPPED;
@@ -3728,11 +3728,11 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
 
 /*9*/ if (settings->mist) {
       MIST_OFF();
-      settings->mist = OFF;
+      settings->mist = false;
     }
     if (settings->flood) {
       FLOOD_OFF();
-      settings->flood = OFF;
+      settings->flood = false;
     }
 
     if (block->m_modes[4] == 30)
@@ -3829,7 +3829,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
   double u_end, v_end, w_end;
   int status;
 
-  settings->arc_not_allowed = OFF;
+  settings->arc_not_allowed = false;
 
   if (move == G_1) {
     if (settings->feed_mode == UNITS_PER_MINUTE) {
@@ -3854,7 +3854,7 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  block, settings);
   }
 
-  if ((settings->cutter_comp_side) &&    /* ! "== ON" */
+  if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
     CHKS((block->g_modes[0] == G_53),
@@ -4166,7 +4166,7 @@ Side effects:
 Called by: convert_straight.
 
 This is called if cutter radius compensation is on and
-settings->cutter_comp_firstmove is ON, indicating that this is the
+settings->cutter_comp_firstmove is true, indicating that this is the
 first move after cutter radius compensation is turned on.
 
 The algorithm used here for determining the path is to draw a straight
@@ -4228,7 +4228,7 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     } else
         ERS(NCE_BUG_CODE_NOT_G0_OR_G1);
 
-    settings->cutter_comp_firstmove = OFF;
+    settings->cutter_comp_firstmove = false;
 
     comp_set_current(settings, end_x, end_y, pz);
     settings->AA_current = AA_end;
@@ -4262,7 +4262,7 @@ Side effects:
 Called by: convert_straight.
 
 This is called if cutter radius compensation is on and
-settings->cutter_comp_firstmove is not ON, indicating that this is not
+settings->cutter_comp_firstmove is not true, indicating that this is not
 the first move after cutter radius compensation is turned on.
 
 The algorithm used here is:
@@ -4616,7 +4616,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
-  settings->toolchange_flag = ON; 
+  settings->toolchange_flag = true; 
   set_tool_parameters();
   return INTERP_OK;
 }

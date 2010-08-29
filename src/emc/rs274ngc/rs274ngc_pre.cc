@@ -177,7 +177,7 @@ int Interp::close()
   if (_setup.file_pointer != NULL) {
     fclose(_setup.file_pointer);
     _setup.file_pointer = NULL;
-    _setup.percent_flag = OFF;
+    _setup.percent_flag = false;
   }
   reset();
 
@@ -586,9 +586,9 @@ int Interp::init()
 //_setup.current_x set in Interp::synch
 //_setup.current_y set in Interp::synch
 //_setup.current_z set in Interp::synch
-  _setup.cutter_comp_side = OFF;
-  _setup.arc_not_allowed = OFF;
-  _setup.cycle_il_flag = OFF;
+  _setup.cutter_comp_side = false;
+  _setup.arc_not_allowed = false;
+  _setup.cycle_il_flag = false;
   _setup.distance_mode = MODE_ABSOLUTE;
   _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatability
   _setup.feed_mode = UNITS_PER_MINUTE;
@@ -610,15 +610,15 @@ int Interp::init()
 //_setup.parameter_values does not need initialization
 //_setup.percent_flag does not need initialization
 //_setup.plane set in Interp::synch
-  _setup.probe_flag = OFF;
-  _setup.toolchange_flag = OFF;
-  _setup.input_flag = OFF;
+  _setup.probe_flag = false;
+  _setup.toolchange_flag = false;
+  _setup.input_flag = false;
   _setup.input_index = -1;
-  _setup.input_digital = OFF;
+  _setup.input_digital = false;
   _setup.program_x = 0.;   /* for cutter comp */
   _setup.program_y = 0.;   /* for cutter comp */
   _setup.program_z = 0.;   /* for cutter comp */
-  _setup.cutter_comp_firstmove = ON;
+  _setup.cutter_comp_firstmove = true;
 //_setup.retract_mode does not need initialization
 //_setup.selected_tool_slot set in Interp::synch
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
@@ -641,7 +641,7 @@ int Interp::init()
   _setup.skipping_o = 0;
   _setup.oword_labels = 0;
 
-  _setup.lathe_diameter_mode = OFF;
+  _setup.lathe_diameter_mode = false;
 
   memcpy(_readers, default_readers, sizeof(default_readers));
 
@@ -791,17 +791,17 @@ int Interp::open(const char *filename) //!< string: the name of the input NC-pro
   if (line[index] == '%') {
     for (index--; (index >= 0) && (isspace(line[index])); index--);
     if (index == -1) {
-      _setup.percent_flag = ON;
+      _setup.percent_flag = true;
       _setup.sequence_number = 1;       // We have already read the first line
       // and we are not going back to it.
     } else {
       fseek(_setup.file_pointer, 0, SEEK_SET);
-      _setup.percent_flag = OFF;
+      _setup.percent_flag = false;
       _setup.sequence_number = 0;       // Going back to line 0
     }
   } else {
     fseek(_setup.file_pointer, 0, SEEK_SET);
-    _setup.percent_flag = OFF;
+    _setup.percent_flag = false;
     _setup.sequence_number = 0; // Going back to line 0
   }
   strcpy(_setup.filename, filename);
@@ -821,7 +821,7 @@ Returned Value: int
           close_and_downcased line is a slash, and
        c. INTERP_OK otherwise.
    1. The command and_setup.file_pointer are both NULL: INTERP_FILE_NOT_OPEN
-   2. The probe_flag is ON but the HME command queue is not empty:
+   2. The probe_flag is true but the HME command queue is not empty:
       NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING
    3. If read_text (which gets a line of NC code from file) or parse_line
      (which parses the line) returns an error code, this returns that code.
@@ -849,14 +849,14 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
         NCE_QUEUE_IS_NOT_EMPTY_AFTER_PROBING);
     set_probe_data(&_setup);
-    _setup.probe_flag = OFF;
+    _setup.probe_flag = false;
   }
   if (_setup.toolchange_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
          _("Queue is not empty after tool change"));
     refresh_actual_position(&_setup);
     load_tool_table();
-    _setup.toolchange_flag = OFF;
+    _setup.toolchange_flag = false;
   }
   if (_setup.input_flag) {
     CHKS((GET_EXTERNAL_QUEUE_EMPTY() == 0),
@@ -869,7 +869,7 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
 	_setup.parameters[5399] =
 	    GET_EXTERNAL_ANALOG_INPUT(_setup.input_index, _setup.parameters[5399]);
     }
-    _setup.input_flag = OFF;
+    _setup.input_flag = false;
   }
   CHKN(((command == NULL) && (_setup.file_pointer == NULL)),
       INTERP_FILE_NOT_OPEN);
@@ -900,7 +900,7 @@ int Interp::read(const char *command)  //!< may be NULL or a string to read
     else // Blank line (zero length)
     {
           /* RUM - this case reached when the block delete '/' character 
-             is used, or READ_FULL_COMMENT is OFF and a comment is the
+             is used, or READ_FULL_COMMENT is false and a comment is the
              only content of a line. 
              If a block o-type is in effect, block->o_number needs to be 
              incremented to allow o-extensions to work. 
@@ -1212,9 +1212,9 @@ int Interp::synch()
   _setup.v_current = GET_EXTERNAL_POSITION_V();
   _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
-  _setup.flood = (GET_EXTERNAL_FLOOD() != 0) ? ON : OFF;
+  _setup.flood = (GET_EXTERNAL_FLOOD() != 0) ? true : false;
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
-  _setup.mist = (GET_EXTERNAL_MIST() != 0) ? ON : OFF;
+  _setup.mist = (GET_EXTERNAL_MIST() != 0) ? true : false;
   _setup.plane = GET_EXTERNAL_PLANE();
   _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.speed = GET_EXTERNAL_SPEED();

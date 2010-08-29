@@ -196,8 +196,8 @@ Returned Value: int
      convert_speed
      convert_stop
      convert_tool_select
-   Otherwise, if the probe_flag in the settings is ON, 
-   or the input_flag is set to ON this returns
+   Otherwise, if the probe_flag in the settings is true, 
+   or the input_flag is set to true this returns
       INTERP_EXECUTE_FINISH.
    Otherwise, it returns INTERP_OK.
 

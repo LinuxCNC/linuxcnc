@@ -788,7 +788,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
@@ -971,7 +971,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
@@ -1187,7 +1187,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
@@ -1355,7 +1355,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
@@ -1580,7 +1580,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {
@@ -1747,7 +1747,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
       old_cc = settings->cycle_il;
   } else {
       old_cc = settings->cycle_il = current_cc;
-      settings->cycle_il_flag = ON;
+      settings->cycle_il_flag = true;
   }
 
   if (settings->distance_mode == MODE_ABSOLUTE) {

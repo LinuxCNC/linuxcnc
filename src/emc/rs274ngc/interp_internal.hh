@@ -59,14 +59,10 @@
 #define MM_PER_INCH 25.4
 //#define INCH_PER_MM 0.039370078740157477
 
-// on-off switch settings
-#define OFF 0
-#define ON 1
-
 // feed_mode
 enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
 
-// cutter radius compensation mode, OFF already defined to 0
+// cutter radius compensation mode, 0 or false means none
 // not using CANON_SIDE since interpreter handles cutter radius comp
 #define RIGHT 1
 #define LEFT 2
@@ -430,13 +426,13 @@ typedef struct setup_struct
   int named_parameter_occurrence;
   char *named_parameters[50];
   double named_parameter_values[50];
-  bool percent_flag;          // ON means first line was percent sign
+  bool percent_flag;          // true means first line was percent sign
   CANON_PLANE plane;            // active plane, XY-, YZ-, or XZ-plane
   bool probe_flag;            // flag indicating probing done
   bool input_flag;            // flag indicating waiting for input done
   bool toolchange_flag;       // flag indicating we just had a tool change
   int input_index;		// channel queried
-  bool input_digital;		// input queried was digital (OFF=analog)
+  bool input_digital;		// input queried was digital (false=analog)
   bool cutter_comp_firstmove; // this is the first comp move
   double program_x;             // program x, used when cutter comp on
   double program_y;             // program y, used when cutter comp on
