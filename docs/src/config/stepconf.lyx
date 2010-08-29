@@ -349,7 +349,7 @@ name "Max Step Rate"
 \end_inset
 
  Stepconf automatically calculates the Max Step Rate based on the driver
- characteristics entered and the latency test results.
+ characteristics entered and the latency test result.
 \end_layout
 
 \begin_layout Description
@@ -410,7 +410,11 @@ While the test is running, you should "abuse" the computer.
 Do not run EMC2 while the latency test is running.
 
 \series default
- Run the test at least a few minutes or longer.
+ Run the test at least a few minutes.
+ The longer you run the test the better it will be at catching events that
+ might occour at less frequent intervals.
+ This is a test for your computer only, so no hardware needs to be connected
+ to run the test.
 \end_layout
 
 \begin_layout Standard
