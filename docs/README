@@ -42,8 +42,10 @@ Images
 Images must be in the same directory or a subdirectory below the .lyx file
 or it adds a local path and that really fouls it up...
 
-A Note on using Lyx
+Notes on using Lyx
 -------------------
+
+Smart Quotes mess up copy and paste so use Ctrl/Shift " for a normal quote.
 
 By adding a package to the preamble it is possible to include the 
 TOC starting page in the TOC itself.  That way it will appear in
@@ -106,5 +108,4 @@ Replace "Getting Started" with the name chosen for the new book.
 
 There is an ERT added into Document_Header.lyx in the title 
 definition that calls up the box created in the master doc.
-
 
