@@ -116,7 +116,7 @@ name "step rate"
 \begin_layout Standard
 With software step generation, the maximum step rate is one step per two
  BASE_PERIODs for step-and-direction output.
- The maximum requested step rate is the product of an axis's MAX_VELOCITY
+ The maximum requested step rate is the product of an axis' MAX_VELOCITY
  and its INPUT_SCALE.
  If the requested step rate is not attainable, following errors will occur,
  particularly during fast jogs and G0 moves.
@@ -138,8 +138,8 @@ The other remedies are to decrease one or more of: the BASE_PERIOD (setting
 
 \begin_layout Standard
 If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY is
- acceptable, then hardware step generation (such as with the emc2-supported
- Universal Stepper Controller)
+ acceptable, then consider using hardware step generation (such as with
+ the emc2-supported Universal Stepper Controller, Mesa cards, and others.)
 \end_layout
 
 \begin_layout Section
@@ -158,8 +158,8 @@ name "pinout"
 \end_layout
 
 \begin_layout Standard
-One of the majour flaws in EMC was that you couldn't specify the pinout
- without recompiling the source code.
+One of the major flaws in EMC was that you couldn't specify the pinout without
+ recompiling the source code.
  EMC2 is far more flexible, and now (thanks to the Hardware Abstraction
  Layer) you can easily specify which signal goes where.
  See the HAL manual for more detailed information on HAL.
@@ -208,11 +208,11 @@ reference "sec:Parport"
 \end_layout
 
 \begin_layout Standard
-Depending on what you have chosen in your ini file you are using either
+Depending on what you have chosen in your .ini file you are using either
  standard_pinout.hal or xylotex_pinout.hal.
  These are two files that instruct the HAL how to link the various signals
  & pins.
- Furtheron we'll investigate the standard_pinout.hal.
+ Further on we'll investigate the standard_pinout.hal.
 \end_layout
 
 \begin_layout Subsection
@@ -273,7 +273,7 @@ reference "sec:Parport"
 \end_layout
 
 \begin_layout Enumerate
-The read & write functions of the parport driver get assigned to the Base
+The read & write functions of the parport driver get assigned to the base
  thread 
 \begin_inset Foot
 status collapsed
@@ -297,7 +297,7 @@ Further IO signals get connected (estop loopback, toolchanger loopback)
 \end_layout
 
 \begin_layout Enumerate
-A spindle On signal gets defined and linked to a parport pin
+A spindle-on signal gets defined and linked to a parport pin
 \end_layout
 
 \begin_layout Subsection
@@ -429,7 +429,7 @@ setp pwmgen.0.scale 1800 # Change to your spindle's
 
 \begin_layout Standard
 This assumes that the spindle controller's response to PWM is simple: 0%
- PWM gives 0RPM, 10% PWM gives 180 RPM, etc.
+ PWM gives 0 RPM, 10% PWM gives 180 RPM, etc.
  If there is a minimum PWM required to get the spindle to turn, follow the
  example in the 
 \emph on
@@ -473,10 +473,11 @@ net Xen parport.0.pin-08-out
 \end_layout
 
 \begin_layout Standard
-You can either have one single pin that enables all drives, or several,
+You can either have one single pin that enables all drives; or several,
  depending on the setup you have.
- Note however that usually when one axis faults, all the other ones will
- be disabled aswell, so having only one signal / pin is perfectly safe.
+ Note, however, that usually when one axis faults, all the other drives
+ will be disabled as well, so having only one enable signal / pin for all
+ drives is a common practice.
 \end_layout
 
 \begin_layout Subsection
