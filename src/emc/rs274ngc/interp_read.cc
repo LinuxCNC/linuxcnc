@@ -3082,10 +3082,11 @@ int Interp::read_t(char *line,   //!< string: line of RS274/NGC code being proce
 
   CHKS((line[*counter] != 't'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
   *counter = (*counter + 1);
-  CHKS((block->t_number > -1), NCE_MULTIPLE_T_WORDS_ON_ONE_LINE);
+  CHKS((block->t_flag == ON), NCE_MULTIPLE_T_WORDS_ON_ONE_LINE);
   CHP(read_integer_value(line, counter, &value, parameters));
   CHKS((value < 0), NCE_NEGATIVE_TOOL_ID_USED);
   block->t_number = value;
+  block->t_flag = ON;
   return INTERP_OK;
 }
 

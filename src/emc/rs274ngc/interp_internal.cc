@@ -274,7 +274,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->q_number = -1.0;
   block->r_flag = OFF;
   block->s_flag = OFF;
-  block->t_number = -1;
+  block->t_flag = OFF;
   block->u_flag = OFF;
   block->v_flag = OFF;
   block->w_flag = OFF;
