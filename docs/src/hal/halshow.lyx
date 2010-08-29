@@ -44,9 +44,9 @@ Halshow
 \end_layout
 
 \begin_layout Standard
-The script halshow can help you find your away around a running HAL.
+The script halshow can help you find your way around a running HAL.
  This is a very specialized system and it must connect to a working HAL.
- It can not run stand alone because it relies on the ability of HAL to report
+ It cannot run standalone because it relies on the ability of HAL to report
  what it knows of itself through the halcmd interface library.
  It is discovery based.
  Each time halshow runs with a different EMC configuration it will be different.
