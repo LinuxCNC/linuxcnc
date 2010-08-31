@@ -901,14 +901,17 @@ set unitsetting "custom"
 set oldunitsetting $unitsetting
 
 set settings [frame $top.settings]
-pack $settings -side top -anchor w -pady 2m
+pack $settings -side top -anchor w
 set toollabel [label $settings.toollabel -text [msgcat::mc "Tool:"] -anchor w]
 set toolsetting [label $settings.toolsetting -textvariable ::tentry(toolno) -width 4 -anchor w]
 set tooloffsetlabel [label $settings.tooloffsetlabel -text [msgcat::mc "Offset:"] -anchor w]
 set tooloffsetsetting [label $settings.tooloffsetsetting -textvariable tooloffsetsetting -width 30 -anchor w]
-set offsetlabel [label $settings.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
-set offsetsetting [label $settings.offsetsetting -textvariable offsetsetting -width 30 -anchor w]
 set unitlabel [label $settings.unitlabel -textvariable unitsetting -width 6 -anchor e]
+
+set settings1 [frame $top.settings1]
+pack $settings1 -side top -anchor w
+set offsetlabel [label $settings1.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
+set offsetsetting [label $settings1.offsetsetting -textvariable offsetsetting -width 80 -anchor w]
 
 pack $toollabel -side left -padx 1m
 pack $toolsetting -side left -padx 1m
@@ -2322,8 +2325,20 @@ proc updateStatus {} {
         set ::tentry($item) [format %.4f [emc_tool_offset [lsearch [string toupper $::worldlabellist] $item]]]
       }
     }
+
     # set the offset information
-    set offsetsetting [format "X%.4f Y%.4f Z%.4f" [emc_pos_offset "X"] [emc_pos_offset "Y"] [emc_pos_offset "Z"] ]
+    upvar #0 numaxes numaxes2
+    upvar #0 coordnames coordnames2
+    upvar #0 worldlabellist worldlabellist2
+    for {set i 0} {$i < $numaxes2} {incr i} {
+    if { [lsearch $coordnames2 [lindex $worldlabellist2 $i]] != -1 } {
+      set fstr [lindex $worldlabellist2 $i]
+      set spec "$fstr%.4f "
+      set args [emc_pos_offset $fstr]
+      append tempstring [format $spec $args]
+      }
+    }
+    set offsetsetting [string trim $tempstring]
 
     # set the unit information
     set unitsetting [emc_display_linear_units]
