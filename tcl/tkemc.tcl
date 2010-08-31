@@ -1508,11 +1508,11 @@ set maxSpindleOverride [expr {int($temp * 100 + 0.5)}]
 set controls [frame $top.controls -relief ridge -bd 3]
 pack $controls -side top -anchor w -fill x -expand 1
 
-set lcontrols [frame $controls.left -relief ridge -bd 3]
-pack $lcontrols -side left -anchor w -fill x -expand 1
+set lcontrols [frame $controls.left]
+pack $lcontrols -side left -anchor nw -fill x -expand 1
 
 set rcontrols [frame $controls.right]
-pack $rcontrols -side left -anchor w -fill x -expand 1
+pack $rcontrols -side left -anchor nw -fill x -expand 1
 
 set linearjog [frame $lcontrols.linearjog]
 set linearjogtop [frame $linearjog.top]
@@ -1529,7 +1529,7 @@ set linearjogscale [scale $linearjogbottom.scale \
                -orient horizontal -showvalue 0 -takefocus 0]
 
 
-pack $linearjog       -side top  -fill x -expand 1
+pack $linearjog       -side top  -fill x -expand 1 -anchor nw
 pack $linearjogtop    -side top  -fill x -expand 1
 pack $linearjogbottom -side top  -fill x -expand 1
 
@@ -1560,7 +1560,7 @@ if [info exists ::angularJogSpeed] {
   pack $angularjogtop    -side top -fill x -expand 1
   pack $angularjogbottom -side top -fill x -expand 1
 
-  pack $angularjoglabel -side left
+  pack $angularjoglabel -side left -anchor nw
   pack $angularjogvalue -side right -padx 1m ; # don't bump against label
   pack $angularjogscale -side top -fill x -expand 1
 
