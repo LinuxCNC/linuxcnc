@@ -36,7 +36,8 @@ import textwrap
 import locale
 import copy
 import commands
-
+import fnmatch
+import subprocess
 import gobject
 import gtk
 import gtk.glade
@@ -150,42 +151,42 @@ _STEPPINS = 9;_HASWATCHDOG = 10;_MAXGPIO = 11;_LOWFREQ = 12;_HIFREQ = 13;_NUMOFC
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
 mesafirmwaredata = [
-    ["5i20", "5i20", "SV12", "5120", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
+    ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i20", "5i20", "SVST8_4", "5120", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST2_4_7i47", "5120", "hm2_pci", 4, 2, 4, 3, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_4_7i47", "5i20", "hm2_pci", 4, 2, 4, 3, 2, 1, 72, 33, 100, [2,3,4],
         [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[ENCA,0],[ENCA,2],[ENCB,0],[ENCB,2],[ENCI,0],[ENCI,2],[ENCA,1],[ENCA,3],
                 [ENCB,1],[ENCB,3],[ENCI,1],[ENCI,3],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0], ],
-    ["5i20", "5i20", "SVST2_8", "5120", "hm2_pci", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2, 2, 8, 3, 6, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
         [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST8_4IM2", "5120", "hm2_pci", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
+    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8, 8, 4, 4, 2, 1, 72, 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                  [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22-1", "5i22", "SV16", "5122", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SV16", "5i22", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -194,7 +195,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1", "5i22", "SVST8_8", "5122", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -203,7 +204,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1", "5i22", "SVS8_24", "5122", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -212,7 +213,7 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i22-1.5", "5i22", "SV16", "5122", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SV16", "5i22", "hm2_pci", 16, 16, 0, 3, 0, 1, 96, 48, 96, [2,3,4,5],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -221,7 +222,7 @@ mesafirmwaredata = [
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
         [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
                   [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1.5", "5i22", "SVST8_8", "5122", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVST8_8", "5i22", "hm2_pci", 8, 8, 8, 3, 6, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -230,7 +231,7 @@ mesafirmwaredata = [
                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1.5", "5i22", "SVS8_24", "5122", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
+    ["5i22-1.5", "5i22", "SVS8_24", "5i22", "hm2_pci", 8, 8, 24, 3, 2, 1, 96, 48, 96, [2,3,4,5],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
@@ -239,21 +240,21 @@ mesafirmwaredata = [
                 [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
                 [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5123", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
+    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12, 12, 0, 3, 0, 1, 72 , 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
                  [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i23", "5i23", "SVST8_4", "5123", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8, 8, 4, 3, 6, 1, 72, 48, 96, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                  [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
                  [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
                   [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i23", "5i23", "SVST4_8", "5123", "hm2_pci", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
+    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4, 4, 8, 3, 6, 1, 72, 48, 96, [2,3,4],
        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
@@ -551,6 +552,16 @@ class Data:
         self.homeboth = False
         self.limitstype = 0
         self.homingtype = 0
+        self.usbdevicename = "none"
+        self.joystickjog = False
+        self.joystickjograpidrate = 1.0
+        self.joycmdxpos =""
+        self.joycmdxneg =""
+        self.joycmdypos =""
+        self.joycmdyneg =""
+        self.joycmdzpos =""
+        self.joycmdzneg =""
+        self.joycmdrapid =""
         self.externaljog = False
         self.singlejogbuttons = False
         self.multijogbuttons = False
@@ -1730,7 +1741,10 @@ class Data:
             else: 
                port1dir =" in"
             print >>file, "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"" % (port1name, port1dir, port2name, port2dir, port3name, port3dir)
-            
+
+        if self.joystickjog:
+            print >>file, "loadusr -W hal_input -KRAL %s\n"% self.usbdevicename
+
         spindle_enc = counter = probe = pwm = pump = estop = False 
         enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = False
@@ -1971,7 +1985,23 @@ class Data:
             print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
             print >>file, "net spindle-manual-stop   halui.spindle.stop"
             print >>file
-      
+
+        if self.joystickjog:
+            print >>file, _("# ---USB device jog button signals---")
+            print >>file
+            print >>file, "net jog-speed            halui.jog-speed "
+            print >>file, "     sets jog-speed %f"% self.joystickjograpidrate
+            for axnum,axletter in enumerate(self.available_axes):
+                if not axletter == "s":
+                    pin_pos = self["joycmd"+axletter+"pos"]
+                    pin_neg = self["joycmd"+axletter+"neg"]
+                    if pin_pos == "" or pin_neg =="": continue
+                    print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
+                    print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
+                    print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
+                    print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
+                    print >>file
+
         if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
             print >>file
@@ -2609,6 +2639,7 @@ class App:
                 infile.close()
                 textbuffer.set_text(string)
                 self.widgets.helpwindow.set_title(_("Help Pages") )
+                self.widgets.helpnotebook.set_current_page(0)
                 self.widgets.helpwindow.show_all()
                 self.widgets.helpwindow.present()
         except:
@@ -2856,18 +2887,138 @@ class App:
         for i in range(0,8):
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
         self.widgets.jograpidunits.set_text(tempunits+" / min")
+        self.widgets.joystickjograpidunits.set_text(tempunits+" / min")
         for i in range(0,8):
             self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
+        self.widgets.joystickjog.set_active(self.data.joystickjog)
+        self.widgets.usbdevicename.set_text(self.data.usbdevicename)
+        self.widgets.joystickjograpidrate.set_value(self.data.joystickjograpidrate)
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapid"):
+            self.widgets[temp].set_text(self.data[temp])
+
+    def on_joystickjog_toggled(self, *args):
+        if self.widgets.externaljog.get_active() == True:
+            self.widgets.externaljog.set_active(False)
+        self.on_external_options_toggled()
+
+    def on_externaljog_toggled(self, *args):
+        if self.widgets.joystickjog.get_active() == True:
+            self.widgets.joystickjog.set_active(False)
+        self.on_external_options_toggled()
 
     def on_external_options_toggled(self, *args):
         self.widgets.externaljogbox.set_sensitive(self.widgets.externaljog.get_active())
         self.widgets.externalmpgbox.set_sensitive(self.widgets.externalmpg.get_active())
-        i= self.widgets.incrselect.get_active()
+        self.widgets.joystickjogbox.set_sensitive(self.widgets.joystickjog.get_active())
+        i =  self.widgets.incrselect.get_active()
         for j in range(1,8):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
             self.widgets["mpgincrvalue%d"% j].set_sensitive(i)
             self.widgets["mpgincr%d"% j].set_sensitive(i)
+
+    def on_addrule_clicked(self, *args):
+        text = []
+        sourcefile = "/tmp/"
+        if os.path.exists("/etc/udev/rules.d/EMC2-general.rules"):
+            text.append( "General rule already exists\n")
+        else:
+            text.append("adding a general rule first\nso your device will be found\n")
+            filename = os.path.join(sourcefile, "EMCtempGeneral.rules")
+            file = open(filename, "w")
+            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("""SUBSYSTEM="input", mode="0660", group="plugdev" """) 
+            file.close()
+            p=os.popen("gksudo cp  %sEMCtempGeneral.rules /etc/udev/rules.d/EMC2-general.rules"% sourcefile )
+            time.sleep(.1)
+            p.flush()
+            p.close()
+            os.remove('%sEMCtempGeneral.rules'% sourcefile)
+        text.append(("disconect USB device please\n"))
+        if not self.warning_dialog("\n".join(text),False):return
+
+        os.popen('less /proc/bus/input/devices >> %sEMCnojoytemp.txt'% sourcefile)
+        text = ["Plug in USB device please"]
+        if not self.warning_dialog("\n".join(text),False):return
+        time.sleep(1)
+
+        os.popen('less /proc/bus/input/devices >> %sEMCjoytemp.txt'% sourcefile).read()
+        diff = os.popen (" less /proc/bus/input/devices  | diff   %sEMCnojoytemp.txt %sEMCjoytemp.txt "%(sourcefile, sourcefile) ).read()
+        self.widgets.helpwindow.set_title(_("USB device Info Search"))
+
+        os.remove('%sEMCnojoytemp.txt'% sourcefile)
+        os.remove('%sEMCjoytemp.txt'% sourcefile)
+        if diff =="":
+            text = ["No new USB device found"]
+            if not self.warning_dialog("\n".join(text),True):return
+        else:
+            textbuffer = self.widgets.helpview.get_buffer()
+            try :         
+                textbuffer.set_text(diff)
+                self.widgets.helpwindow.show_all()
+            except:
+                text = _("USB device  page is unavailable\n")
+                self.warning_dialog(text,True)
+            linelist = diff.split("\n")
+            for i in linelist:
+                if "Name" in i:
+                    temp = i.split("\"")
+                    name = temp[1]
+                    self.widgets.usbdevicename.set_text(name)
+            infolist = diff.split()
+            for i in infolist:
+                if "Vendor" in i:
+                    temp = i.split("=")
+                    vendor = temp[1]           
+                if "Product" in i:
+                    temp = i.split("=")
+                    product = temp[1]
         
+            text =[ "Vendor = %s\n product = %s\n name = %s\nadding specific rule"%(vendor,product,name)]
+            if not self.warning_dialog("\n".join(text),False):return
+            tempname = sourcefile+"EMCtempspecific.rules"
+            file = open(tempname, "w")
+            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("# For devicename=%s\n"% name)
+            print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
+            file.close()
+            newname = "EMC2-%s.rules"% name.replace(" ","_")
+            os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
+            time.sleep(1)
+            os.remove('%sEMCtempspecific.rules'% sourcefile)
+            text = ["Please unplug and plug in your device again"]
+            if not self.warning_dialog("\n".join(text),True):return
+
+    def on_joysticktest_clicked(self, *args):
+        for file in os.listdir("/etc/udev/rules.d"):
+            if fnmatch.fnmatch(file,"EMC2-*"):               
+                print file
+        halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
+        print "requested devicename = ",self.widgets.usbdevicename.get_text()
+        halrun.stdin.write("loadusr hal_input -W-KRAL %s\n"% self.widgets.usbdevicename.get_text())
+        halrun.stdin.write("loadusr halmeter -g 0 500\n")
+        time.sleep(1)
+        halrun.stdin.write("show pin\n")
+        self.warning_dialog("Close me When done.\n",True)
+        halrun.stdin.write("exit\n")
+        output = halrun.communicate()[0]
+        temp2 = output.split(" ")
+        temp=[]
+        for i in temp2:
+            if i =="": continue
+            temp.append(i)
+        buttonlist=""
+        for index,i in enumerate(temp):
+            if "bit" in i and "OUT" in temp[index+1]:
+                buttonlist = buttonlist + "  %s  %s      %s"% ( i,temp[index+1],temp[index+3] )
+        if buttonlist =="": return
+        textbuffer = self.widgets.textoutput.get_buffer()
+        try :         
+            textbuffer.set_text(buttonlist)
+            self.widgets.helpnotebook.set_current_page(2)
+            self.widgets.helpwindow.show_all()
+        except:
+            text = _("Page is unavailable\n")
+            self.warning_dialog(text,True)
 
     def on_external_cntrl_next(self, *args):
         self.data.limitshared = self.widgets.limittype_shared.get_active()
@@ -2892,6 +3043,12 @@ class App:
         self.data.incrselect = self.widgets.incrselect.get_active()
         for i in range (0,8):
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
+        self.data.usbdevicename = self.widgets.usbdevicename.get_text()
+        self.data.joystickjog = self.widgets.joystickjog.get_active()
+        self.data.joystickjograpidrate = self.widgets.joystickjograpidrate.get_value()
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapid"):
+            self.data[temp] = self.widgets[temp].get_text()
+        self.widgets.joyjogexpander.set_expanded(False)
 
     def on_GUI_config_prepare(self, *args):
         self.data.help = "help-gui.txt"
