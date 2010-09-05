@@ -554,14 +554,19 @@ class Data:
         self.homingtype = 0
         self.usbdevicename = "none"
         self.joystickjog = False
-        self.joystickjograpidrate = 1.0
-        self.joycmdxpos =""
-        self.joycmdxneg =""
-        self.joycmdypos =""
-        self.joycmdyneg =""
-        self.joycmdzpos =""
-        self.joycmdzneg =""
-        self.joycmdrapid =""
+        self.joystickjograpidrate0 = 0.1
+        self.joystickjograpidrate1 = 1.0
+        self.joystickjograpidrate2 = 10.0
+        self.joystickjograpidrate3 = 100.0
+        self.joycmdrapida = ""
+        self.joycmdrapidb = ""
+        self.joycmdxpos = ""
+        self.joycmdxneg = ""
+        self.joycmdypos = ""
+        self.joycmdyneg = ""
+        self.joycmdzpos = ""
+        self.joycmdzneg = ""
+        self.joycmdrapid = ""
         self.externaljog = False
         self.singlejogbuttons = False
         self.multijogbuttons = False
@@ -1805,8 +1810,12 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg or self.userneededmux8 > 0:
+        if self.externalmpg or self.joystickjog or self.userneededmux8 > 0:
             self.mux8names=""
+            if self.joystickjog: 
+                self.mux8names = self.mux8names+"mux8.jogspeed"
+                if self.userneededmux8 > 0 or self.externalmpg:
+                    self.mux8names = self.mux8names+","
             if self.externalmpg: 
                 self.mux8names = self.mux8names+"mux8.jogincr"
                 if self.userneededmux8 > 0:
@@ -1896,7 +1905,7 @@ class Data:
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
-        if self.externalmpg or self.userneededmux8 > 0: 
+        if self.externalmpg or self.joystickjog or self.userneededmux8 > 0: 
             temp=self.mux8names.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
@@ -1989,8 +1998,18 @@ class Data:
         if self.joystickjog:
             print >>file, _("# ---USB device jog button signals---")
             print >>file
-            print >>file, "net jog-speed            halui.jog-speed "
-            print >>file, "     sets jog-speed %f"% self.joystickjograpidrate
+            print >>file, "# connect selectable mpg jog speeds "
+            print >>file, "net jog-speed-a           =>  mux8.jogspeed.sel0"
+            print >>file, "net jog-speed-b           =>  mux8.jogspeed.sel1"
+            print >>file, "net jog-speed             halui.jog-speed  <=  mux8.jogspeed.out"
+            print >>file, "    setp mux8.jogspeed.in0          %f"% (self.joystickjograpidrate0)
+            print >>file, "    setp mux8.jogspeed.in1          %f"% (self.joystickjograpidrate1)
+            print >>file, "    setp mux8.jogspeed.in2          %f"% (self.joystickjograpidrate2)
+            print >>file, "    setp mux8.jogspeed.in3          %f"% (self.joystickjograpidrate3)
+            if not self.joycmdrapida =="":
+                print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
+            if not self.joycmdrapidb =="":
+                print >>file, "net jog-speed-b           <=  %s"% (self.joycmdrapidb)
             for axnum,axletter in enumerate(self.available_axes):
                 if not axletter == "s":
                     pin_pos = self["joycmd"+axletter+"pos"]
@@ -2000,7 +2019,7 @@ class Data:
                     print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
                     print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
                     print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
-                    print >>file
+            print >>file
 
         if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
@@ -2887,22 +2906,24 @@ class App:
         for i in range(0,8):
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
         self.widgets.jograpidunits.set_text(tempunits+" / min")
-        self.widgets.joystickjograpidunits.set_text(tempunits+" / min")
+        for i in range(0,4):
+            self.widgets["joystickjograpidunits%d"%i].set_text(tempunits+" / min")
         for i in range(0,8):
             self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
         self.widgets.joystickjog.set_active(self.data.joystickjog)
         self.widgets.usbdevicename.set_text(self.data.usbdevicename)
-        self.widgets.joystickjograpidrate.set_value(self.data.joystickjograpidrate)
-        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapid"):
+        for i in range(0,4):
+            self.widgets["joystickjograpidrate%d"%i].set_value(self.data["joystickjograpidrate%d"%i])
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
             self.widgets[temp].set_text(self.data[temp])
 
     def on_joystickjog_toggled(self, *args):
-        if self.widgets.externaljog.get_active() == True:
+        if self.widgets.externaljog.get_active() == True and self.widgets.joystickjog.get_active() == True:
             self.widgets.externaljog.set_active(False)
         self.on_external_options_toggled()
 
     def on_externaljog_toggled(self, *args):
-        if self.widgets.joystickjog.get_active() == True:
+        if self.widgets.joystickjog.get_active() == True and self.widgets.externaljog.get_active() == True:
             self.widgets.joystickjog.set_active(False)
         self.on_external_options_toggled()
 
@@ -2996,7 +3017,7 @@ class App:
         print "requested devicename = ",self.widgets.usbdevicename.get_text()
         halrun.stdin.write("loadusr hal_input -W-KRAL %s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
-        time.sleep(1)
+        time.sleep(1.5)
         halrun.stdin.write("show pin\n")
         self.warning_dialog("Close me When done.\n",True)
         halrun.stdin.write("exit\n")
@@ -3045,8 +3066,9 @@ class App:
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
         self.data.usbdevicename = self.widgets.usbdevicename.get_text()
         self.data.joystickjog = self.widgets.joystickjog.get_active()
-        self.data.joystickjograpidrate = self.widgets.joystickjograpidrate.get_value()
-        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapid"):
+        for i in range(0,4):
+            self.data["joystickjograpidrate%d"%i] = self.widgets["joystickjograpidrate%d"%i].get_value()
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
             self.data[temp] = self.widgets[temp].get_text()
         self.widgets.joyjogexpander.set_expanded(False)
 
