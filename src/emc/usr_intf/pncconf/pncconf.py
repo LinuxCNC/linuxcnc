@@ -36,7 +36,8 @@ import textwrap
 import locale
 import copy
 import commands
-
+import fnmatch
+import subprocess
 import gobject
 import gtk
 import gtk.glade
@@ -551,6 +552,21 @@ class Data:
         self.homeboth = False
         self.limitstype = 0
         self.homingtype = 0
+        self.usbdevicename = "none"
+        self.joystickjog = False
+        self.joystickjograpidrate0 = 0.1
+        self.joystickjograpidrate1 = 1.0
+        self.joystickjograpidrate2 = 10.0
+        self.joystickjograpidrate3 = 100.0
+        self.joycmdrapida = ""
+        self.joycmdrapidb = ""
+        self.joycmdxpos = ""
+        self.joycmdxneg = ""
+        self.joycmdypos = ""
+        self.joycmdyneg = ""
+        self.joycmdzpos = ""
+        self.joycmdzneg = ""
+        self.joycmdrapid = ""
         self.externaljog = False
         self.singlejogbuttons = False
         self.multijogbuttons = False
@@ -1730,7 +1746,10 @@ class Data:
             else: 
                port1dir =" in"
             print >>file, "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"" % (port1name, port1dir, port2name, port2dir, port3name, port3dir)
-            
+
+        if self.joystickjog:
+            print >>file, "loadusr -W hal_input -KRAL %s\n"% self.usbdevicename
+
         spindle_enc = counter = probe = pwm = pump = estop = False 
         enable = spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = False
@@ -1791,8 +1810,12 @@ class Data:
         if self.classicladder:
             print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
         
-        if self.externalmpg or self.userneededmux8 > 0:
+        if self.externalmpg or self.joystickjog or self.userneededmux8 > 0:
             self.mux8names=""
+            if self.joystickjog: 
+                self.mux8names = self.mux8names+"mux8.jogspeed"
+                if self.userneededmux8 > 0 or self.externalmpg:
+                    self.mux8names = self.mux8names+","
             if self.externalmpg: 
                 self.mux8names = self.mux8names+"mux8.jogincr"
                 if self.userneededmux8 > 0:
@@ -1882,7 +1905,7 @@ class Data:
                 print >>file
         if self.classicladder:
             print >>file,"addf classicladder.0.refresh servo-thread"
-        if self.externalmpg or self.userneededmux8 > 0: 
+        if self.externalmpg or self.joystickjog or self.userneededmux8 > 0: 
             temp=self.mux8names.split(",")
             for j in (temp):
                 print >>file, "addf %s servo-thread"% j
@@ -1971,7 +1994,33 @@ class Data:
             print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
             print >>file, "net spindle-manual-stop   halui.spindle.stop"
             print >>file
-      
+
+        if self.joystickjog:
+            print >>file, _("# ---USB device jog button signals---")
+            print >>file
+            print >>file, "# connect selectable mpg jog speeds "
+            print >>file, "net jog-speed-a           =>  mux8.jogspeed.sel0"
+            print >>file, "net jog-speed-b           =>  mux8.jogspeed.sel1"
+            print >>file, "net jog-speed             halui.jog-speed  <=  mux8.jogspeed.out"
+            print >>file, "    setp mux8.jogspeed.in0          %f"% (self.joystickjograpidrate0)
+            print >>file, "    setp mux8.jogspeed.in1          %f"% (self.joystickjograpidrate1)
+            print >>file, "    setp mux8.jogspeed.in2          %f"% (self.joystickjograpidrate2)
+            print >>file, "    setp mux8.jogspeed.in3          %f"% (self.joystickjograpidrate3)
+            if not self.joycmdrapida =="":
+                print >>file, "net jog-speed-a           <=  %s"% (self.joycmdrapida)
+            if not self.joycmdrapidb =="":
+                print >>file, "net jog-speed-b           <=  %s"% (self.joycmdrapidb)
+            for axnum,axletter in enumerate(self.available_axes):
+                if not axletter == "s":
+                    pin_pos = self["joycmd"+axletter+"pos"]
+                    pin_neg = self["joycmd"+axletter+"neg"]
+                    if pin_pos == "" or pin_neg =="": continue
+                    print >>file, "net jog-%s-pos            halui.jog.%d.plus"% (axletter,axnum)
+                    print >>file, "net jog-%s-pos            %s"% (axletter,pin_pos)
+                    print >>file, "net jog-%s-neg            halui.jog.%d.minus"% (axletter,axnum)
+                    print >>file, "net jog-%s-neg            %s"% (axletter,pin_neg)
+            print >>file
+
         if self.externalmpg:
             print >>file, _("#  ---mpg signals---")
             print >>file
@@ -2609,6 +2658,7 @@ class App:
                 infile.close()
                 textbuffer.set_text(string)
                 self.widgets.helpwindow.set_title(_("Help Pages") )
+                self.widgets.helpnotebook.set_current_page(0)
                 self.widgets.helpwindow.show_all()
                 self.widgets.helpwindow.present()
         except:
@@ -2856,18 +2906,164 @@ class App:
         for i in range(0,8):
             self.widgets["mpgincr"+str(i)].set_text(tempunits)
         self.widgets.jograpidunits.set_text(tempunits+" / min")
+        for i in range(0,4):
+            self.widgets["joystickjograpidunits%d"%i].set_text(tempunits+" / min")
         for i in range(0,8):
             self.widgets["mpgincrvalue"+str(i)].set_value(self.data["mpgincrvalue"+str(i)])
+        self.widgets.joystickjog.set_active(self.data.joystickjog)
+        self.widgets.usbdevicename.set_text(self.data.usbdevicename)
+        for i in range(0,4):
+            self.widgets["joystickjograpidrate%d"%i].set_value(self.data["joystickjograpidrate%d"%i])
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
+            self.widgets[temp].set_text(self.data[temp])
+
+    def on_joystickjog_toggled(self, *args):
+        if self.widgets.externaljog.get_active() == True and self.widgets.joystickjog.get_active() == True:
+            self.widgets.externaljog.set_active(False)
+        self.on_external_options_toggled()
+
+    def on_externaljog_toggled(self, *args):
+        if self.widgets.joystickjog.get_active() == True and self.widgets.externaljog.get_active() == True:
+            self.widgets.joystickjog.set_active(False)
+        self.on_external_options_toggled()
 
     def on_external_options_toggled(self, *args):
         self.widgets.externaljogbox.set_sensitive(self.widgets.externaljog.get_active())
         self.widgets.externalmpgbox.set_sensitive(self.widgets.externalmpg.get_active())
-        i= self.widgets.incrselect.get_active()
+        self.widgets.joystickjogbox.set_sensitive(self.widgets.joystickjog.get_active())
+        i =  self.widgets.incrselect.get_active()
         for j in range(1,8):
             self.widgets["incrlabel%d"% j].set_sensitive(i)
             self.widgets["mpgincrvalue%d"% j].set_sensitive(i)
             self.widgets["mpgincr%d"% j].set_sensitive(i)
+
+    def on_addrule_clicked(self, *args):
+        text = []
+        sourcefile = "/tmp/"
+        if os.path.exists("/etc/udev/rules.d/50-EMC2-general.rules"):
+            text.append( "General rule already exists\n")
+        else:
+            text.append("adding a general rule first\nso your device will be found\n")
+            filename = os.path.join(sourcefile, "EMCtempGeneral.rules")
+            file = open(filename, "w")
+            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("""SUBSYSTEM="input", mode="0660", group="plugdev" """) 
+            file.close()
+            p=os.popen("gksudo cp  %sEMCtempGeneral.rules /etc/udev/rules.d/50-EMC2-general.rules"% sourcefile )
+            time.sleep(.1)
+            p.flush()
+            p.close()
+            os.remove('%sEMCtempGeneral.rules'% sourcefile)
+        text.append(("disconect USB device please\n"))
+        if not self.warning_dialog("\n".join(text),False):return
+
+        os.popen('less /proc/bus/input/devices >> %sEMCnojoytemp.txt'% sourcefile)
+        text = ["Plug in USB device please"]
+        if not self.warning_dialog("\n".join(text),False):return
+        time.sleep(1)
+
+        os.popen('less /proc/bus/input/devices >> %sEMCjoytemp.txt'% sourcefile).read()
+        diff = os.popen (" less /proc/bus/input/devices  | diff   %sEMCnojoytemp.txt %sEMCjoytemp.txt "%(sourcefile, sourcefile) ).read()
+        self.widgets.helpwindow.set_title(_("USB device Info Search"))
+
+        os.remove('%sEMCnojoytemp.txt'% sourcefile)
+        os.remove('%sEMCjoytemp.txt'% sourcefile)
+        if diff =="":
+            text = ["No new USB device found"]
+            if not self.warning_dialog("\n".join(text),True):return
+        else:
+            textbuffer = self.widgets.textoutput.get_buffer()
+            try :         
+                textbuffer.set_text(diff)
+                self.widgets.helpnotebook.set_current_page(2)
+                self.widgets.helpwindow.show_all()
+            except:
+                text = _("USB device  page is unavailable\n")
+                self.warning_dialog(text,True)
+            linelist = diff.split("\n")
+            for i in linelist:
+                if "Name" in i:
+                    temp = i.split("\"")
+                    name = temp[1]
+                    self.widgets.usbdevicename.set_text(name)
+            infolist = diff.split()
+            for i in infolist:
+                if "Vendor" in i:
+                    temp = i.split("=")
+                    vendor = temp[1]           
+                if "Product" in i:
+                    temp = i.split("=")
+                    product = temp[1]
         
+            text =[ "Vendor = %s\n product = %s\n name = %s\nadding specific rule"%(vendor,product,name)]
+            if not self.warning_dialog("\n".join(text),False):return
+            tempname = sourcefile+"EMCtempspecific.rules"
+            file = open(tempname, "w")
+            print >>file, ("# This is a rule for EMC2's hal_input\n")
+            print >>file, ("# For devicename=%s\n"% name)
+            print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
+            file.close()
+            newname = "50-EMC2-%s.rules"% name.replace(" ","_")
+            os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
+            time.sleep(1)
+            os.remove('%sEMCtempspecific.rules'% sourcefile)
+            text = ["Please unplug and plug in your device again"]
+            if not self.warning_dialog("\n".join(text),True):return
+
+    def on_joysticktest_clicked(self, *args):
+        halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
+        print "requested devicename = ",self.widgets.usbdevicename.get_text()
+        halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
+        halrun.stdin.write("loadusr halmeter -g 0 500\n")
+        time.sleep(1.5)
+        halrun.stdin.write("show pin\n")
+        self.warning_dialog("Close me When done.\n",True)
+        halrun.stdin.write("exit\n")
+        output = halrun.communicate()[0]
+        temp2 = output.split(" ")
+        temp=[]
+        for i in temp2:
+            if i =="": continue
+            temp.append(i)
+        buttonlist=""
+        for index,i in enumerate(temp):
+            if "bit" in i and "OUT" in temp[index+1]:
+                buttonlist = buttonlist + "  %s  %s      %s"% ( i,temp[index+1],temp[index+3] )
+        if buttonlist =="": return
+        textbuffer = self.widgets.textoutput.get_buffer()
+        try :         
+            textbuffer.set_text(buttonlist)
+            self.widgets.helpnotebook.set_current_page(2)
+            self.widgets.helpwindow.show_all()
+        except:
+            text = _("Pin names are unavailable\n")
+            self.warning_dialog(text,True)
+
+    def on_joysearch_clicked(self, *args):
+        flag = False
+        textbuffer = self.widgets.textoutput.get_buffer()
+        textbuffer.set_text("Searching for device rules in folder:    /etc/udev/rules.d\n\n")
+        for entry in os.listdir("/etc/udev/rules.d"):
+            if fnmatch.fnmatch( entry,"50-EMC2-*"):              
+                temp = open("/etc/udev/rules.d/" + entry, "r").read()
+                templist = temp.split("\n")
+                for i in templist:
+                    if "devicename=" in i:
+                        flag = True
+                        temp = i.split("=")
+                        name = temp[1]
+                        try:
+                            textbuffer.insert_at_cursor( "File name:    %s\n"% entry) 
+                            textbuffer.insert_at_cursor( "Device name:    %s\n\n"% name)
+                            self.widgets.helpnotebook.set_current_page(2)
+                            self.widgets.helpwindow.show_all()
+                        except:
+                            text = _("Device names are unavailable\n")
+                            self.warning_dialog(text,True)
+        if flag == False:
+            text = _("No Pncconf made device rules were found\n")
+            textbuffer.insert_at_cursor(text)
+            self.warning_dialog(text,True)
 
     def on_external_cntrl_next(self, *args):
         self.data.limitshared = self.widgets.limittype_shared.get_active()
@@ -2892,6 +3088,13 @@ class App:
         self.data.incrselect = self.widgets.incrselect.get_active()
         for i in range (0,8):
             self.data["mpgincrvalue"+str(i)] = self.widgets["mpgincrvalue"+str(i)].get_value()
+        self.data.usbdevicename = self.widgets.usbdevicename.get_text()
+        self.data.joystickjog = self.widgets.joystickjog.get_active()
+        for i in range(0,4):
+            self.data["joystickjograpidrate%d"%i] = self.widgets["joystickjograpidrate%d"%i].get_value()
+        for temp in ("joycmdxpos","joycmdxneg","joycmdypos","joycmdyneg","joycmdzpos","joycmdzneg","joycmdrapida","joycmdrapidb"):
+            self.data[temp] = self.widgets[temp].get_text()
+        self.widgets.joyjogexpander.set_expanded(False)
 
     def on_GUI_config_prepare(self, *args):
         self.data.help = "help-gui.txt"
