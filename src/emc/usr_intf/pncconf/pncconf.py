@@ -2985,7 +2985,8 @@ class App:
                 if "Name" in i:
                     temp = i.split("\"")
                     name = temp[1]
-                    self.widgets.usbdevicename.set_text(name)
+                    temp = name.split(" ")
+                    self.widgets.usbdevicename.set_text(temp[0])
             infolist = diff.split()
             for i in infolist:
                 if "Vendor" in i:
@@ -3003,6 +3004,10 @@ class App:
             print >>file, ("# For devicename=%s\n"% name)
             print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
             file.close()
+            # remove illegal filename characters
+            for i in ("(",")"):
+                temp = name.replace(i,"")
+                name = temp
             newname = "50-EMC2-%s.rules"% name.replace(" ","_")
             os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
             time.sleep(1)
