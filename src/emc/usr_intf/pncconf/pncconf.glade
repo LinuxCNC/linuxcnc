@@ -1193,7 +1193,18 @@ shared with home</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <placeholder/>
+                                              <widget class="GtkButton" id="joysearch">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">True</property>
+                                                <property name="label" translatable="yes">Search for device rules</property>
+                                                <property name="response_id">0</property>
+                                                <signal name="clicked" handler="on_joysearch_clicked"/>
+                                              </widget>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">2</property>
+                                              </packing>
                                             </child>
                                           </widget>
                                           <packing>

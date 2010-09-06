@@ -2940,7 +2940,7 @@ class App:
     def on_addrule_clicked(self, *args):
         text = []
         sourcefile = "/tmp/"
-        if os.path.exists("/etc/udev/rules.d/EMC2-general.rules"):
+        if os.path.exists("/etc/udev/rules.d/50-EMC2-general.rules"):
             text.append( "General rule already exists\n")
         else:
             text.append("adding a general rule first\nso your device will be found\n")
@@ -2949,7 +2949,7 @@ class App:
             print >>file, ("# This is a rule for EMC2's hal_input\n")
             print >>file, ("""SUBSYSTEM="input", mode="0660", group="plugdev" """) 
             file.close()
-            p=os.popen("gksudo cp  %sEMCtempGeneral.rules /etc/udev/rules.d/EMC2-general.rules"% sourcefile )
+            p=os.popen("gksudo cp  %sEMCtempGeneral.rules /etc/udev/rules.d/50-EMC2-general.rules"% sourcefile )
             time.sleep(.1)
             p.flush()
             p.close()
@@ -2972,9 +2972,10 @@ class App:
             text = ["No new USB device found"]
             if not self.warning_dialog("\n".join(text),True):return
         else:
-            textbuffer = self.widgets.helpview.get_buffer()
+            textbuffer = self.widgets.textoutput.get_buffer()
             try :         
                 textbuffer.set_text(diff)
+                self.widgets.helpnotebook.set_current_page(2)
                 self.widgets.helpwindow.show_all()
             except:
                 text = _("USB device  page is unavailable\n")
@@ -3002,7 +3003,7 @@ class App:
             print >>file, ("# For devicename=%s\n"% name)
             print >>file, ("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", mode="0660", group="plugdev" """%(product,vendor)) 
             file.close()
-            newname = "EMC2-%s.rules"% name.replace(" ","_")
+            newname = "50-EMC2-%s.rules"% name.replace(" ","_")
             os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
             time.sleep(1)
             os.remove('%sEMCtempspecific.rules'% sourcefile)
@@ -3010,12 +3011,9 @@ class App:
             if not self.warning_dialog("\n".join(text),True):return
 
     def on_joysticktest_clicked(self, *args):
-        for file in os.listdir("/etc/udev/rules.d"):
-            if fnmatch.fnmatch(file,"EMC2-*"):               
-                print file
         halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
         print "requested devicename = ",self.widgets.usbdevicename.get_text()
-        halrun.stdin.write("loadusr hal_input -W-KRAL %s\n"% self.widgets.usbdevicename.get_text())
+        halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
         time.sleep(1.5)
         halrun.stdin.write("show pin\n")
@@ -3038,7 +3036,33 @@ class App:
             self.widgets.helpnotebook.set_current_page(2)
             self.widgets.helpwindow.show_all()
         except:
-            text = _("Page is unavailable\n")
+            text = _("Pin names are unavailable\n")
+            self.warning_dialog(text,True)
+
+    def on_joysearch_clicked(self, *args):
+        flag = False
+        textbuffer = self.widgets.textoutput.get_buffer()
+        textbuffer.set_text("Searching for device rules in folder:    /etc/udev/rules.d\n\n")
+        for entry in os.listdir("/etc/udev/rules.d"):
+            if fnmatch.fnmatch( entry,"50-EMC2-*"):              
+                temp = open("/etc/udev/rules.d/" + entry, "r").read()
+                templist = temp.split("\n")
+                for i in templist:
+                    if "devicename=" in i:
+                        flag = True
+                        temp = i.split("=")
+                        name = temp[1]
+                        try:
+                            textbuffer.insert_at_cursor( "File name:    %s\n"% entry) 
+                            textbuffer.insert_at_cursor( "Device name:    %s\n\n"% name)
+                            self.widgets.helpnotebook.set_current_page(2)
+                            self.widgets.helpwindow.show_all()
+                        except:
+                            text = _("Device names are unavailable\n")
+                            self.warning_dialog(text,True)
+        if flag == False:
+            text = _("No Pncconf made device rules were found\n")
+            textbuffer.insert_at_cursor(text)
             self.warning_dialog(text,True)
 
     def on_external_cntrl_next(self, *args):
