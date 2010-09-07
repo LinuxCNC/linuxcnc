@@ -28,7 +28,9 @@ run_shell_script () {
     else
         bash -x $testname > result 2> stderr
     fi
+    exitcode=$?
     popd > /dev/null
+    return $exitcode
 }
 
 run_without_overruns () {
@@ -43,9 +45,9 @@ run_without_overruns () {
         else
             halrun -f $testname > result 2> stderr
         fi
+        exitcode=$?
         popd > /dev/null
 
-        exitcode=$?
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
     echo "--- $testdir: $i overruns detected, giving up" 1>&2
