@@ -21,6 +21,10 @@ import sys, os
 import emc, time
 import rs274.options
 
+import gettext
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+gettext.install("emc2", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     ini = emc.ini(sys.argv[2])
     emc.nmlfile = ini.find("EMC", "NML_FILE") or emc.nmlfile
@@ -93,7 +97,7 @@ def gui():
     from _tkinter import TclError
     root = Tkinter.Tk(className="EmcTop")
     rs274.options.install(root)
-    root.title("EMC Status")
+    root.title(_("EMC Status"))
 
     t = Tkinter.Text()
     sb = Tkinter.Scrollbar(command=t.yview)
@@ -109,7 +113,7 @@ def gui():
     t.tag_raise("sel")
     t.bind("<KeyPress>", "break")
 
-    b = Tkinter.Button(text="Copy All",
+    b = Tkinter.Button(text=_("Copy All"),
         command="%s tag add sel 0.0 end; tk_textCopy %s" % (t, t))
     b.pack(side="bottom", anchor="sw")
 
