@@ -2327,15 +2327,15 @@ proc updateStatus {} {
     }
 
     # set the offset information
+    set offsetsetting [lsearch -inline [emc_program_codes] {G5[4-9]*}]
     for {set i 0} {$i < $::numaxes} {incr i} {
     if { [lsearch $::coordnames [lindex $::worldlabellist $i]] != -1 } {
       set fstr [lindex $::worldlabellist $i]
-      set spec "$fstr%.4f "
+      set spec " $fstr%.4f"
       set args [emc_pos_offset $fstr]
-      append tempstring [format $spec $args]
+      append offsetsetting [format $spec $args]
       }
     }
-    set offsetsetting [string trim $tempstring]
 
     # set the unit information
     set unitsetting [emc_display_linear_units]
