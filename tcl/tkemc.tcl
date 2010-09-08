@@ -2327,12 +2327,9 @@ proc updateStatus {} {
     }
 
     # set the offset information
-    upvar #0 numaxes numaxes2
-    upvar #0 coordnames coordnames2
-    upvar #0 worldlabellist worldlabellist2
-    for {set i 0} {$i < $numaxes2} {incr i} {
-    if { [lsearch $coordnames2 [lindex $worldlabellist2 $i]] != -1 } {
-      set fstr [lindex $worldlabellist2 $i]
+    for {set i 0} {$i < $::numaxes} {incr i} {
+    if { [lsearch $::coordnames [lindex $::worldlabellist $i]] != -1 } {
+      set fstr [lindex $::worldlabellist $i]
       set spec "$fstr%.4f "
       set args [emc_pos_offset $fstr]
       append tempstring [format $spec $args]
