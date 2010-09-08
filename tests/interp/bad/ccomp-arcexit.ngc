@@ -1,0 +1,7 @@
+;The move just after exiting cutter compensation mode must be straight, not an arc
+g0x0y0z0
+g41.1d.25
+g1x1f1
+g1x2
+g40
+g2i1

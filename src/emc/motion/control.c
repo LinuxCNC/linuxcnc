@@ -380,8 +380,11 @@ static void process_probe_inputs(void) {
             emcmotStatus->probing = 0;
             if (probe_suppress) {
                 emcmotStatus->probeTripped = 0;
+            } else if(probe_whenclears) {
+                reportError(_("G38.4 move finished without breaking contact."));
+                SET_MOTION_ERROR_FLAG(1);
             } else {
-                reportError(_("G38.2 probe move finished without tripping probe"));
+                reportError(_("G38.2 move finished without making contact."));
                 SET_MOTION_ERROR_FLAG(1);
             }
         }
