@@ -913,10 +913,10 @@ pack $settings1 -side top -anchor w
 set offsetlabel [label $settings1.offsetlabel -text [msgcat::mc "Work Offsets:"] -anchor w]
 set offsetsetting [label $settings1.offsetsetting -textvariable offsetsetting -width 80 -anchor w]
 
-pack $toollabel -side left -padx 1m
-pack $toolsetting -side left -padx 1m
-pack $tooloffsetlabel -side left -padx 1m
-pack $tooloffsetsetting -side left -padx 1m
+pack $toollabel -side left -padx 1m -pady .3m
+pack $toolsetting -side left -pady .3m
+pack $tooloffsetlabel -side left  -pady .3m
+pack $tooloffsetsetting -side left -pady .3m
 pack $offsetlabel -side left -padx 1m
 pack $offsetsetting -side left -padx 1m
 pack $unitlabel -side left -padx 1m
