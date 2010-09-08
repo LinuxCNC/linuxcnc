@@ -3062,20 +3062,11 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
 
   unsigned char probe_type = g_code - G_38_2;
   
-
-  CHKS((!block->x_flag && !block->y_flag &&
-       !block->z_flag && !block->a_flag &&
-       !block->b_flag && !block->c_flag &&
-       !block->u_flag && !block->v_flag &&
-       !block->w_flag && !block->radius_flag &&
-       !block->theta_flag),
-       NCE_X_Y_Z_A_B_C_U_V_AND_W_WORDS_ALL_MISSING_WITH_G38_2);
   CHKS((settings->cutter_comp_side),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   CHKS(settings->feed_mode == UNITS_PER_REVOLUTION,
 	  "Cannot probe with feed per rev mode");
-  CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));

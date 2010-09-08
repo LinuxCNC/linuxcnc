@@ -187,7 +187,6 @@
 #define NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE _("X and y words missing for arc in xy plane")
 #define NCE_X_AND_Z_WORDS_MISSING_FOR_ARC_IN_XZ_PLANE _("X and z words missing for arc in xz plane")
 #define NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE _("X value unspecified in yz plane canned cycle")
-#define NCE_X_Y_Z_A_B_C_U_V_AND_W_WORDS_ALL_MISSING_WITH_G38_2 _("X, y, z, a, b, c, u, v, and w words all missing with g38.2")
 #define NCE_Y_AND_Z_WORDS_MISSING_FOR_ARC_IN_YZ_PLANE _("Y and z words missing for arc in yz plane")
 #define NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE _("Y value unspecified in xz plane canned cycle")
 #define NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE _("Z value unspecified in xy plane canned cycle")
