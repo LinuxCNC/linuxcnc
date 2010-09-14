@@ -100,7 +100,11 @@ class GladePanel():
                         if temp =="led_size":
                             self[idname].set_dia(int(data))
                         if temp =="led_shape":
-                            self[idname].set_shape(int(data))    
+                            self[idname].set_shape(int(data))  
+                        if temp =="led_blink":
+                            self[idname].set_blink_active(bool(data))
+                        if temp =="led_blink_rate":
+                            self[idname].set_blink_rate(int(data))
                     self[idname].set_active(False)
                     self.updatelist[idname] = k
             if k =="HAL_HBox" :
@@ -198,17 +202,6 @@ class GladePanel():
         return setattr(self, item, value)
     
 if __name__ == "__main__":
-    opts, args = getopt.getopt(sys.argv[1:], "fr")
-
-    try:
-        compname = args[0]
-    except:
-        compname = "glade_VCP"
-    try:
-        xmlname = args[1]
-    except:
-        xmlname = "glade_vcp.glade"
-    panel = GladePanel(compname,xmlname)
-    panel.window.show()
-    gtk.main()
-
+    print "Gladevcp_make_pins cannot be run on its own"
+    print "It must be called by gladevcp or a python program"
+    print "that loads and displays the glade panel and creates a HAL component"

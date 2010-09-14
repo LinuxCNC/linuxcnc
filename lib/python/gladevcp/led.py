@@ -21,11 +21,15 @@ class HAL_LED(gtk.DrawingArea):
         pass
 
     def __init__(self):
+        print "LED init"
         super(HAL_LED, self).__init__()
         self.qwerty = 5
         self._dia = 10
         self._state = 0
         self._shape = 1
+        self._blink_active = False
+        self._blink_state = False
+        self._blink_rate = 500
         self.is_frobnicator = 0
         self._on_color = [0.3, 0.4, 0.6]
         self._off_color = [0.9, 0.1, 0.1]
@@ -35,10 +39,8 @@ class HAL_LED(gtk.DrawingArea):
     def qwerty(self):
         pass
     # This method draws our widget
-    # it draws a black circle for a rim around LED
-    # Then depending on self.state
-    # fills in that circle with on or off colour.
-    # the diameter depends on self.dia
+    # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
+    # sets the fill as the on or off colour.
     def expose(self, widget, event):
         cr = widget.window.cairo_create()
         sensitive = self.flags() & gtk.PARENT_SENSITIVE
@@ -68,8 +70,7 @@ class HAL_LED(gtk.DrawingArea):
             h = self.allocation.height
             cr.translate(w/2, h/2)
             lg2 = cairo.RadialGradient(0, 0, 0,  0, 0, self._dia*2)
-            
-            if self._state:
+            if self._state == True:
                 r = self._on_color[0]
                 g = self._on_color[1]
                 b = self._on_color[2]
@@ -80,9 +81,13 @@ class HAL_LED(gtk.DrawingArea):
             lg2.add_color_stop_rgba(1, r/.25,g/.25,b/.25,1)
             lg2.add_color_stop_rgba(.5, r,g,b, .5)
             cr.arc(0, 0, self._dia, 0, 2*math.pi)
+
         cr.stroke_preserve()        
-        if self._state:
-            cr.set_source_rgba(self._on_color[0],self._on_color[1],self._on_color[2],alpha)
+        if self._state == True:
+            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
+                cr.set_source_rgba(self._on_color[0],self._on_color[1],self._on_color[2],alpha)
+            elif self._blink_state == False:
+                cr.set_source_rgba(self._off_color[0],self._off_color[1],self._off_color[2],alpha)
         else:
             cr.set_source_rgba(self._off_color[0],self._off_color[1],self._off_color[2],alpha)
         cr.fill()    
@@ -97,6 +102,25 @@ class HAL_LED(gtk.DrawingArea):
 
     def set_sensitive(self, data ):
         print data
+
+    def set_blink_active(self, data):
+        self.set_blink_rate(self._blink_rate)
+        if data == True:
+            self._blink_active = True
+            self.set_blink_rate(self._blink_rate)
+        else:
+            print "LED's that blink, cannot be made unblinked at runtime"
+            return
+
+    #FIXME the gobject timers are never explicly destroyed
+    def set_blink_rate(self,rate):
+        self._blink_timer = gobject.timeout_add(rate, self.blink)
+
+    def blink(self):
+        if self._blink_state == True:
+            self._blink_state = False
+        else: self._blink_state = True
+        return True # keep running this event
 
     # This allows setting of the on and off colour
     # red,green and blue are float numbers beteen 0 and 1
@@ -130,6 +154,7 @@ class HAL_LED(gtk.DrawingArea):
             self._on_color = color
         else:
             return
+
     # This alows setting the diameter of the LED
     # Usage: ledname.set_dia(10)
     def set_dia(self, dia):
