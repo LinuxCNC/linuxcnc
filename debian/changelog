@@ -1,3 +1,40 @@
+emc2 (1:2.4.4) lucid; urgency=low
+
+  * axis: improve preview of programs that use tool length parameters
+  * axis: disable "run from here" when machine is off / estopped
+  * axis: improve treatment of errors at startup due to bad inifiles
+
+  * documentation: many improvements
+
+  * i18n: make 'emctop' translatable
+  * i18n: update polish translation
+
+  * interp: fix incorrectly scaling ABC tool lengths by 25.4
+  * interp: fix error handling for O-call in MDI
+
+  * io: fix crash when tool table specifies impossibly high pocket number
+  * io: fix current tool information when reloading tool table
+
+  * motion: improve G38.4 error message
+
+  * packaging: fix debian/configure script for Debian Lenny
+  * packaging: fix src/configure.in script for Linux 2.6.34+
+  * packaging: do not compress files from sample configurations
+  * packaging: install emctool.h
+
+  * pncconf: add usb joystick jog option
+  * pncconf: fix typos in mesa firmware names
+  * pncconf: fix spindle-related signals in hal file
+  * pncconf: other improvements and bugfixes
+
+  * tkemc: fix appearance of radiobuttons on tk8.5
+
+  * tooledit: fix buggy behavior with 0 at start of comment
+
+  * stg: fix incorrect negative DAC output
+
+ -- Jeff Epler <jepler@unpythonic.net>  Sat, 18 Sep 2010 13:22:23 -0500
+
 emc2 (1:2.4.3) lucid; urgency=low
 
   * axis: fix jogs after selecting increment (SF#3028917)
