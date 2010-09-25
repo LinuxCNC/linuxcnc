@@ -1426,7 +1426,8 @@ static void write_extraDAC(slot_data_t *slot)
        UPC and USC boards sold with the spindle DAC option
        have SSR1 set up for + output, and SSR2 for - output.  */
 
-    volts = abs(*(pg->value)) / pg->scale;
+    volts = *(pg->value) / pg->scale;
+    if (volts < 0.0 ) volts = -volts;  // no fabs function available!!
     /* output to DAC word works like:
 	0xFF -> +10 V
 	0x00 ->   0 V */
